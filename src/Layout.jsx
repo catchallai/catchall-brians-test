@@ -58,6 +58,7 @@ const navigation = [
   { name: 'Backlinks', icon: Link2, page: 'Backlinks' },
   { name: 'Social Media', icon: Share2, page: 'SocialMedia' },
   { name: 'Social Listening', icon: Radio, page: 'SocialListening' },
+  { name: 'Social Calendar', icon: Calendar, page: 'SocialCalendar' },
   { name: 'SEO Audit', icon: FileSearch, page: 'SEOAudit' },
   { name: 'divider', label: 'Support' },
   { name: 'Help Center', icon: HelpCircle, page: 'HelpCenter' },

@@ -17,6 +17,7 @@ import SocialMedia from './pages/SocialMedia';
 import SocialLeads from './pages/SocialLeads';
 import HelpCenter from './pages/HelpCenter';
 import SocialListening from './pages/SocialListening';
+import SocialCalendar from './pages/SocialCalendar';
 import __Layout from './Layout.jsx';
 
 
@@ -40,6 +41,7 @@ export const PAGES = {
     "SocialLeads": SocialLeads,
     "HelpCenter": HelpCenter,
     "SocialListening": SocialListening,
+    "SocialCalendar": SocialCalendar,
 }
 
 export const pagesConfig = {

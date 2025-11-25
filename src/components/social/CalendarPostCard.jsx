@@ -1,0 +1,89 @@
+import React from 'react';
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Pencil, Trash2, Image } from "lucide-react";
+
+export default function CalendarPostCard({ post, onEdit, onDelete, compact = false }) {
+  const statusColors = {
+    draft: 'bg-gray-100 text-gray-700',
+    pending_approval: 'bg-amber-100 text-amber-700',
+    approved: 'bg-emerald-100 text-emerald-700',
+    published: 'bg-blue-100 text-blue-700'
+  };
+
+  return (
+    <Card className="overflow-hidden border-0 shadow-sm hover:shadow-md transition-all group">
+      {/* Image with Title Overlay */}
+      <div className="relative aspect-square bg-gray-100">
+        {post.image_url ? (
+          <img 
+            src={post.image_url} 
+            alt={post.title}
+            className="w-full h-full object-cover"
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-200 to-gray-300">
+            <Image className="w-12 h-12 text-gray-400" />
+          </div>
+        )}
+        
+        {/* Title Overlay */}
+        {post.title && (
+          <div className="absolute inset-0 flex items-end">
+            <div className="w-full bg-gradient-to-t from-black/70 via-black/40 to-transparent p-3">
+              <h3 className="text-white font-bold text-sm leading-tight uppercase tracking-wide">
+                {post.title}
+              </h3>
+            </div>
+          </div>
+        )}
+
+        {/* Brand Watermark */}
+        <div className="absolute bottom-2 right-2">
+          <span className="text-white/80 text-xs font-semibold tracking-wider">
+            CATCHALL
+          </span>
+        </div>
+
+        {/* Edit/Delete Buttons */}
+        <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
+          {onEdit && (
+            <Button 
+              size="icon" 
+              variant="secondary" 
+              className="h-7 w-7 bg-white/90 hover:bg-white"
+              onClick={(e) => { e.stopPropagation(); onEdit(post); }}
+            >
+              <Pencil className="w-3 h-3" />
+            </Button>
+          )}
+          {onDelete && (
+            <Button 
+              size="icon" 
+              variant="secondary" 
+              className="h-7 w-7 bg-white/90 hover:bg-white text-red-600"
+              onClick={(e) => { e.stopPropagation(); onDelete(post); }}
+            >
+              <Trash2 className="w-3 h-3" />
+            </Button>
+          )}
+        </div>
+
+        {/* Status Badge */}
+        <div className="absolute top-2 left-2">
+          <Badge className={`${statusColors[post.status]} text-xs`}>
+            {post.status?.replace('_', ' ')}
+          </Badge>
+        </div>
+      </div>
+
+      {/* Caption */}
+      {!compact && post.caption && (
+        <div className="p-3 bg-white">
+          <p className="text-xs text-gray-600 line-clamp-3">{post.caption}</p>
+        </div>
+      )}
+    </Card>
+  );
+}
