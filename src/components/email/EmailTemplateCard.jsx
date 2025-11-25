@@ -1,7 +1,7 @@
 import React from 'react';
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Mail, FileText } from "lucide-react";
+import { Mail, Layout } from "lucide-react";
 
 const categoryColors = {
   newsletter: "bg-blue-100 text-blue-700",
@@ -10,6 +10,13 @@ const categoryColors = {
   welcome: "bg-emerald-100 text-emerald-700",
   announcement: "bg-violet-100 text-violet-700",
   other: "bg-gray-100 text-gray-700",
+};
+
+const layoutLabels = {
+  minimal: 'Minimal',
+  branded: 'Branded',
+  newsletter: 'Newsletter',
+  promotional: 'Promotional',
 };
 
 export default function EmailTemplateCard({ template, onClick }) {
@@ -27,9 +34,17 @@ export default function EmailTemplateCard({ template, onClick }) {
             {template.name}
           </h3>
           <p className="text-sm text-gray-500 truncate mt-0.5">{template.subject}</p>
-          <Badge className={`${categoryColors[template.category]} text-xs mt-2 border-0`}>
-            {template.category?.replace('_', ' ')}
-          </Badge>
+          <div className="flex gap-2 mt-2">
+            <Badge className={`${categoryColors[template.category]} text-xs border-0`}>
+              {template.category?.replace('_', ' ')}
+            </Badge>
+            {template.layout && template.layout !== 'minimal' && (
+              <Badge variant="outline" className="text-xs gap-1">
+                <Layout className="w-3 h-3" />
+                {layoutLabels[template.layout] || template.layout}
+              </Badge>
+            )}
+          </div>
         </div>
       </div>
     </Card>
