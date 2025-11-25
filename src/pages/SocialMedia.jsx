@@ -671,36 +671,15 @@ export default function SocialMedia() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {socialAccounts.map((account) => (
-            <div key={account.id} className="relative">
-              <SocialAccountCard
-                account={account}
-                postsCount={getAccountPosts(account.id).length}
-                onClick={() => setSelectedAccount(account)}
-              />
-              <div className="absolute top-2 right-2 flex gap-1">
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="gap-1 bg-white"
-                  onClick={(e) => { e.stopPropagation(); setEditingAccount(account); }}
-                >
-                  <Pencil className="w-3 h-3" />
-                </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="gap-1 bg-white"
-                  onClick={(e) => { e.stopPropagation(); analyzeAccountMutation.mutate(account); }}
-                  disabled={analyzeAccountMutation.isPending}
-                >
-                  {analyzeAccountMutation.isPending ? (
-                    <Loader2 className="w-3 h-3 animate-spin" />
-                  ) : (
-                    <Sparkles className="w-3 h-3" />
-                  )}
-                </Button>
-              </div>
-            </div>
+            <SocialAccountCard
+              key={account.id}
+              account={account}
+              postsCount={getAccountPosts(account.id).length}
+              onClick={() => setSelectedAccount(account)}
+              onEdit={(acc) => setEditingAccount(acc)}
+              onAnalyze={(acc) => analyzeAccountMutation.mutate(acc)}
+              isAnalyzing={analyzeAccountMutation.isPending}
+            />
           ))}
         </div>
       )}

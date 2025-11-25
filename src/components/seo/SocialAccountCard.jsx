@@ -1,7 +1,8 @@
 import React from 'react';
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Users, MessageSquare, TrendingUp, ExternalLink } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Users, MessageSquare, TrendingUp, ExternalLink, Pencil, Sparkles, Loader2 } from "lucide-react";
 
 const platformConfig = {
   twitter: { color: "bg-sky-100 text-sky-700", icon: "𝕏" },
@@ -11,7 +12,7 @@ const platformConfig = {
   youtube: { color: "bg-red-100 text-red-700", icon: "▶" },
 };
 
-export default function SocialAccountCard({ account, postsCount, onClick }) {
+export default function SocialAccountCard({ account, postsCount, onClick, onEdit, onAnalyze, isAnalyzing }) {
   const config = platformConfig[account.platform] || platformConfig.twitter;
 
   const formatNumber = (num) => {
@@ -38,17 +39,44 @@ export default function SocialAccountCard({ account, postsCount, onClick }) {
                 {account.platform}
               </Badge>
             </div>
-            {account.account_url && (
-              <a 
-                href={account.account_url} 
-                target="_blank" 
-                rel="noopener noreferrer"
-                onClick={(e) => e.stopPropagation()}
-                className="text-gray-400 hover:text-gray-600"
-              >
-                <ExternalLink className="w-4 h-4" />
-              </a>
-            )}
+            <div className="flex items-center gap-1">
+              {onEdit && (
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  className="h-8 w-8 text-gray-400 hover:text-gray-600"
+                  onClick={(e) => { e.stopPropagation(); onEdit(account); }}
+                >
+                  <Pencil className="w-4 h-4" />
+                </Button>
+              )}
+              {onAnalyze && (
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  className="h-8 w-8 text-violet-500 hover:text-violet-700 hover:bg-violet-50"
+                  onClick={(e) => { e.stopPropagation(); onAnalyze(account); }}
+                  disabled={isAnalyzing}
+                >
+                  {isAnalyzing ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Sparkles className="w-4 h-4" />
+                  )}
+                </Button>
+              )}
+              {account.account_url && (
+                <a 
+                  href={account.account_url} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  onClick={(e) => e.stopPropagation()}
+                  className="p-2 text-gray-400 hover:text-gray-600"
+                >
+                  <ExternalLink className="w-4 h-4" />
+                </a>
+              )}
+            </div>
           </div>
           
           <div className="grid grid-cols-3 gap-2 mt-3">
