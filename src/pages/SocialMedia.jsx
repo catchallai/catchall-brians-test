@@ -601,71 +601,79 @@ export default function SocialMedia() {
   });
 
   const analyzeAccountMutation = useMutation({
-        mutationFn: async (account) => {
-          // Use AI to analyze social media presence with real data
-          const analysis = await base44.integrations.Core.InvokeLLM({
-            prompt: `Look up the REAL ${account.platform} account @${account.account_name} and provide accurate current data.
-            ${account.account_url ? `Profile URL: ${account.account_url}` : ''}
+    mutationFn: async (account) => {
+      setAnalyzingAccount(account.id);
+      
+      // Use AI to analyze social media presence with real data
+      const analysis = await base44.integrations.Core.InvokeLLM({
+        prompt: `Look up the REAL ${account.platform} account @${account.account_name} and provide accurate current data.
+        ${account.account_url ? `Profile URL: ${account.account_url}` : ''}
 
-            IMPORTANT: Search for the actual account and provide REAL follower counts and engagement metrics, not estimates.
+        IMPORTANT: Search for the actual account and provide REAL follower counts and engagement metrics, not estimates.
 
-            Provide:
-            1. ACTUAL current follower count (search for the real number)
-            2. Calculated engagement rate based on recent posts
-            3. 5 of their most recent or notable posts with:
-               - Full post content/text (as much as you can find)
-               - Actual engagement numbers (likes, comments, shares/retweets)
-               - Sentiment analysis (positive/neutral/negative)
-               - Key topics and hashtags used
-            4. Recommendations for improving their social presence
-            5. What content performs best for them`,
-            add_context_from_internet: true,
-            response_json_schema: {
-              type: "object",
-              properties: {
-                estimated_followers: { type: "number" },
-                engagement_rate: { type: "number" },
-                posts: {
-                  type: "array",
-                  items: {
-                    type: "object",
-                    properties: {
-                      content: { type: "string" },
-                      likes: { type: "number" },
-                      comments: { type: "number" },
-                      shares: { type: "number" },
-                      sentiment: { type: "string" },
-                      topics: { type: "array", items: { type: "string" } }
-                    }
-                  }
-                },
-                recommendations: { type: "array", items: { type: "string" } },
-                top_performing_content: { type: "string" },
-                best_posting_times: { type: "string" }
+        Provide:
+        1. ACTUAL current follower count (search for the real number)
+        2. Calculated engagement rate based on recent posts (as a percentage like 2.5 for 2.5%)
+        3. Total number of posts on the account
+        4. 5 of their most recent or notable posts with:
+           - Full post content/text (as much as you can find)
+           - Actual engagement numbers (likes, comments, shares/retweets)
+           - Sentiment analysis (positive/neutral/negative)
+           - Key topics and hashtags used`,
+        add_context_from_internet: true,
+        response_json_schema: {
+          type: "object",
+          properties: {
+            followers_count: { type: "number" },
+            engagement_rate: { type: "number" },
+            total_posts: { type: "number" },
+            posts: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  content: { type: "string" },
+                  likes: { type: "number" },
+                  comments: { type: "number" },
+                  shares: { type: "number" },
+                  sentiment: { type: "string" },
+                  topics: { type: "array", items: { type: "string" } }
+                }
               }
             }
-          });
-
-          // Update account with analysis - only update if we got real data (not 0)
-          const updateData = {
-            last_analyzed: new Date().toISOString()
-          };
-
-          // Only update followers if AI returned a real number > 0
-          if (analysis.estimated_followers && analysis.estimated_followers > 0) {
-            updateData.followers_count = analysis.estimated_followers;
           }
-          if (analysis.engagement_rate && analysis.engagement_rate > 0) {
-            updateData.engagement_rate = analysis.engagement_rate;
-          }
+        }
+      });
 
-          await base44.entities.SocialAccount.update(account.id, updateData);
+      // Build update data - preserve existing values if AI returns 0
+      const updateData = {
+        last_analyzed: new Date().toISOString()
+      };
+
+      // Only update followers if AI returned a real number > 0
+      if (analysis.followers_count && analysis.followers_count > 0) {
+        updateData.followers_count = analysis.followers_count;
+      }
+      
+      // Only update engagement if AI returned a real number > 0
+      if (analysis.engagement_rate && analysis.engagement_rate > 0) {
+        updateData.engagement_rate = analysis.engagement_rate;
+      }
+      
+      // Only update posts count if AI returned a real number > 0
+      if (analysis.total_posts && analysis.total_posts > 0) {
+        updateData.posts_count = analysis.total_posts;
+      }
+
+      await base44.entities.SocialAccount.update(account.id, updateData);
 
       // Only update posts if we got new posts from analysis
       if (analysis.posts && analysis.posts.length > 0) {
+        // Get current posts from the database (fresh fetch)
+        const currentPosts = await base44.entities.SocialPost.filter({ social_account_id: account.id });
+        
         // Clear old posts for this account
-        const oldPosts = socialPosts.filter(p => p.social_account_id === account.id);
-        for (const post of oldPosts) {
+        for (const post of currentPosts) {
           await base44.entities.SocialPost.delete(post.id);
         }
 
@@ -683,11 +691,6 @@ export default function SocialMedia() {
             post_date: new Date().toISOString()
           });
         }
-        
-        // Update posts count on the account
-        await base44.entities.SocialAccount.update(account.id, {
-          posts_count: analysis.posts.length
-        });
       }
 
       return analysis;
@@ -695,6 +698,10 @@ export default function SocialMedia() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['social-accounts'] });
       queryClient.invalidateQueries({ queryKey: ['social-posts'] });
+      setAnalyzingAccount(null);
+    },
+    onError: () => {
+      setAnalyzingAccount(null);
     },
   });
 
