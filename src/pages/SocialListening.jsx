@@ -9,13 +9,24 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   Plus, Search, Loader2, TrendingUp, MessageSquare, ThumbsUp, ThumbsDown,
-  Minus, BarChart3, Radio, Filter
+  Minus, BarChart3, Radio, Filter, Bell, Users, Globe, Sparkles
 } from "lucide-react";
 import ListeningKeywordCard from '@/components/social/ListeningKeywordCard';
 import ListeningMentionCard from '@/components/social/ListeningMentionCard';
 import ListeningTrendsCard from '@/components/social/ListeningTrendsCard';
+import AlertsPanel from '@/components/social/AlertsPanel';
+import InfluencersPanel from '@/components/social/InfluencersPanel';
+import SentimentTrendsChart from '@/components/social/SentimentTrendsChart';
+import GeographicInsights from '@/components/social/GeographicInsights';
+import ResponseSuggestionCard from '@/components/social/ResponseSuggestionCard';
 import AddListeningModal from '@/components/modals/AddListeningModal';
 import EmptyState from '@/components/ui/EmptyState';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 const platformLabels = {
   twitter: 'X (Twitter)',
@@ -31,6 +42,8 @@ export default function SocialListening() {
   const [selectedKeyword, setSelectedKeyword] = useState(null);
   const [platformFilter, setPlatformFilter] = useState('all');
   const [sentimentFilter, setSentimentFilter] = useState('all');
+  const [selectedMention, setSelectedMention] = useState(null);
+  const [generatingResponseFor, setGeneratingResponseFor] = useState(null);
   const queryClient = useQueryClient();
 
   const { data: keywords = [], isLoading: loadingKeywords } = useQuery({
@@ -41,6 +54,11 @@ export default function SocialListening() {
   const { data: mentions = [], isLoading: loadingMentions } = useQuery({
     queryKey: ['listening-mentions'],
     queryFn: () => base44.entities.ListeningMention.list('-created_date', 500),
+  });
+
+  const { data: alerts = [] } = useQuery({
+    queryKey: ['listening-alerts'],
+    queryFn: () => base44.entities.ListeningAlert.list('-created_date', 100),
   });
 
   const createKeywordMutation = useMutation({
@@ -60,7 +78,6 @@ export default function SocialListening() {
 
   const deleteKeywordMutation = useMutation({
     mutationFn: async (id) => {
-      // Delete associated mentions first
       const keywordMentions = mentions.filter(m => m.listening_id === id);
       for (const mention of keywordMentions) {
         await base44.entities.ListeningMention.delete(mention.id);
@@ -73,6 +90,59 @@ export default function SocialListening() {
     },
   });
 
+  const markAlertReadMutation = useMutation({
+    mutationFn: (id) => base44.entities.ListeningAlert.update(id, { is_read: true }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['listening-alerts'] }),
+  });
+
+  const dismissAlertMutation = useMutation({
+    mutationFn: (id) => base44.entities.ListeningAlert.update(id, { is_dismissed: true }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['listening-alerts'] }),
+  });
+
+  const updateMentionStatusMutation = useMutation({
+    mutationFn: ({ id, status }) => base44.entities.ListeningMention.update(id, { response_status: status }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['listening-mentions'] }),
+  });
+
+  const generateResponseMutation = useMutation({
+    mutationFn: async (mention) => {
+      setGeneratingResponseFor(mention.id);
+      const result = await base44.integrations.Core.InvokeLLM({
+        prompt: `Generate a professional, helpful response to this social media mention:
+
+Platform: ${mention.platform}
+Author: @${mention.author}
+Sentiment: ${mention.sentiment}
+Content: "${mention.content}"
+
+Create a response that:
+1. Is appropriate for ${mention.platform} (length, tone)
+2. Addresses any concerns if sentiment is negative
+3. Thanks or acknowledges if positive
+4. Is professional but friendly
+5. Does not use hashtags unless necessary`,
+        response_json_schema: {
+          type: "object",
+          properties: {
+            response: { type: "string" }
+          }
+        }
+      });
+      
+      await base44.entities.ListeningMention.update(mention.id, {
+        suggested_response: result.response
+      });
+      
+      return result.response;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['listening-mentions'] });
+      setGeneratingResponseFor(null);
+    },
+    onError: () => setGeneratingResponseFor(null),
+  });
+
   const scanKeywordMutation = useMutation({
     mutationFn: async (keyword) => {
       setScanningId(keyword.id);
@@ -81,6 +151,8 @@ export default function SocialListening() {
       const searchTerm = keyword.type === 'hashtag' ? `#${keyword.keyword}` : 
                          keyword.type === 'mention' ? `@${keyword.keyword}` : keyword.keyword;
 
+      const previousMentionCount = mentions.filter(m => m.listening_id === keyword.id).length;
+
       const analysis = await base44.integrations.Core.InvokeLLM({
         prompt: `Search the internet for recent social media posts and discussions about "${searchTerm}" on these platforms: ${platformsToScan}.
 
@@ -88,14 +160,18 @@ Find 10 recent posts/mentions and for each provide:
 1. The platform (twitter, linkedin, facebook, instagram, or youtube)
 2. The full post content/text
 3. The author's username
-4. Estimated author follower count
+4. Estimated author follower count (be realistic, use numbers like 500, 2000, 15000, 100000)
 5. Engagement: likes, comments, shares (use realistic estimates)
 6. Sentiment: positive, neutral, or negative
 7. Influence score 0-100 based on reach and engagement
+8. Whether this is from an influencer (followers > 10000 or influence > 70)
+9. Location/country if detectable (use country codes like US, UK, CA, DE, etc)
 
 Also provide:
 - Overall trending score 0-100 (how much buzz this topic is generating)
-- Sentiment breakdown: count of positive, neutral, negative mentions`,
+- Sentiment breakdown: count of positive, neutral, negative mentions
+- Whether there's a spike in mentions (compared to normal activity)
+- Whether sentiment has shifted negatively`,
         add_context_from_internet: true,
         response_json_schema: {
           type: "object",
@@ -109,6 +185,8 @@ Also provide:
                 negative: { type: "number" }
               }
             },
+            has_spike: { type: "boolean" },
+            negative_shift: { type: "boolean" },
             mentions: {
               type: "array",
               items: {
@@ -122,7 +200,10 @@ Also provide:
                   comments: { type: "number" },
                   shares: { type: "number" },
                   sentiment: { type: "string" },
-                  influence_score: { type: "number" }
+                  influence_score: { type: "number" },
+                  is_influencer: { type: "boolean" },
+                  location: { type: "string" },
+                  country: { type: "string" }
                 }
               }
             }
@@ -152,9 +233,44 @@ Also provide:
             shares: mention.shares || 0,
             sentiment: mention.sentiment || 'neutral',
             influence_score: mention.influence_score || 0,
+            is_influencer: mention.is_influencer || false,
+            location: mention.location || '',
+            country: mention.country || '',
             post_date: new Date().toISOString(),
           });
+
+          // Create alert for influencer mentions
+          if (mention.is_influencer || mention.influence_score >= 70) {
+            await base44.entities.ListeningAlert.create({
+              listening_id: keyword.id,
+              type: 'influencer',
+              severity: mention.influence_score >= 85 ? 'high' : 'medium',
+              title: `Influencer mention: @${mention.author}`,
+              description: `${mention.author} (${(mention.author_followers || 0).toLocaleString()} followers) mentioned "${searchTerm}": "${mention.content?.slice(0, 100)}..."`,
+            });
+          }
         }
+      }
+
+      // Create alerts based on analysis
+      if (analysis.has_spike) {
+        await base44.entities.ListeningAlert.create({
+          listening_id: keyword.id,
+          type: 'spike',
+          severity: 'high',
+          title: `Mention spike detected for "${searchTerm}"`,
+          description: `There's been a significant increase in mentions of "${searchTerm}". Current trending score: ${analysis.trending_score || 0}`,
+        });
+      }
+
+      if (analysis.negative_shift) {
+        await base44.entities.ListeningAlert.create({
+          listening_id: keyword.id,
+          type: 'negative_sentiment',
+          severity: 'critical',
+          title: `Negative sentiment shift for "${searchTerm}"`,
+          description: `Sentiment has shifted negative. ${analysis.sentiment_breakdown?.negative || 0} negative mentions detected.`,
+        });
       }
 
       return analysis;
@@ -162,6 +278,7 @@ Also provide:
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['social-listening'] });
       queryClient.invalidateQueries({ queryKey: ['listening-mentions'] });
+      queryClient.invalidateQueries({ queryKey: ['listening-alerts'] });
       setScanningId(null);
     },
     onError: () => setScanningId(null),
@@ -175,6 +292,13 @@ Also provide:
     return true;
   });
 
+  // Get mentions needing response (negative or from influencers)
+  const mentionsNeedingResponse = mentions.filter(m => 
+    m.response_status !== 'responded' && 
+    m.response_status !== 'ignored' &&
+    (m.sentiment === 'negative' || m.is_influencer || m.influence_score >= 70)
+  );
+
   // Stats
   const totalMentions = mentions.length;
   const activeTracks = keywords.filter(k => k.is_active).length;
@@ -186,6 +310,7 @@ Also provide:
     neutral: mentions.filter(m => m.sentiment === 'neutral').length,
     negative: mentions.filter(m => m.sentiment === 'negative').length,
   };
+  const unreadAlerts = alerts.filter(a => !a.is_read && !a.is_dismissed).length;
 
   return (
     <div className="p-6 lg:p-8 space-y-6 bg-gray-50 min-h-screen">
@@ -202,7 +327,7 @@ Also provide:
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
         <Card className="border-0 shadow-sm">
           <CardContent className="p-4 text-center">
             <Radio className="w-6 h-6 text-violet-500 mx-auto mb-2" />
@@ -226,6 +351,13 @@ Also provide:
         </Card>
         <Card className="border-0 shadow-sm">
           <CardContent className="p-4 text-center">
+            <Bell className={`w-6 h-6 mx-auto mb-2 ${unreadAlerts > 0 ? 'text-red-500' : 'text-gray-400'}`} />
+            <p className={`text-2xl font-bold ${unreadAlerts > 0 ? 'text-red-600' : 'text-gray-900'}`}>{unreadAlerts}</p>
+            <p className="text-sm text-gray-500">Alerts</p>
+          </CardContent>
+        </Card>
+        <Card className="border-0 shadow-sm">
+          <CardContent className="p-4 text-center">
             <div className="flex justify-center gap-2 mb-2">
               <ThumbsUp className="w-5 h-5 text-emerald-500" />
               <Minus className="w-5 h-5 text-gray-400" />
@@ -245,9 +377,19 @@ Also provide:
 
       {/* Tabs */}
       <Tabs defaultValue="keywords" className="space-y-4">
-        <TabsList>
+        <TabsList className="flex-wrap">
           <TabsTrigger value="keywords">Tracked Keywords</TabsTrigger>
           <TabsTrigger value="mentions">Mentions ({totalMentions})</TabsTrigger>
+          <TabsTrigger value="alerts" className="relative">
+            Alerts
+            {unreadAlerts > 0 && (
+              <Badge className="ml-1 bg-red-500 text-white border-0 text-xs h-5 w-5 p-0 flex items-center justify-center">
+                {unreadAlerts}
+              </Badge>
+            )}
+          </TabsTrigger>
+          <TabsTrigger value="influencers">Influencers</TabsTrigger>
+          <TabsTrigger value="responses">Responses ({mentionsNeedingResponse.length})</TabsTrigger>
           <TabsTrigger value="trends">Trends & Insights</TabsTrigger>
         </TabsList>
 
@@ -354,7 +496,51 @@ Also provide:
           ) : (
             <div className="space-y-3">
               {filteredMentions.map((mention) => (
-                <ListeningMentionCard key={mention.id} mention={mention} />
+                <ListeningMentionCard 
+                  key={mention.id} 
+                  mention={mention}
+                  onClick={() => setSelectedMention(mention)}
+                />
+              ))}
+            </div>
+          )}
+        </TabsContent>
+
+        {/* Alerts Tab */}
+        <TabsContent value="alerts" className="space-y-4">
+          <AlertsPanel
+            alerts={alerts}
+            onMarkRead={(id) => markAlertReadMutation.mutate(id)}
+            onDismiss={(id) => dismissAlertMutation.mutate(id)}
+          />
+        </TabsContent>
+
+        {/* Influencers Tab */}
+        <TabsContent value="influencers" className="space-y-4">
+          <InfluencersPanel
+            mentions={mentions}
+            onViewMention={(m) => setSelectedMention(m)}
+          />
+        </TabsContent>
+
+        {/* Responses Tab */}
+        <TabsContent value="responses" className="space-y-4">
+          {mentionsNeedingResponse.length === 0 ? (
+            <EmptyState
+              icon={Sparkles}
+              title="No responses needed"
+              description="All high-priority mentions have been addressed."
+            />
+          ) : (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              {mentionsNeedingResponse.map((mention) => (
+                <ResponseSuggestionCard
+                  key={mention.id}
+                  mention={mention}
+                  onGenerateResponse={(m) => generateResponseMutation.mutateAsync(m)}
+                  onUpdateStatus={(id, status) => updateMentionStatusMutation.mutate({ id, status })}
+                  isGenerating={generatingResponseFor === mention.id}
+                />
               ))}
             </div>
           )}
@@ -363,9 +549,11 @@ Also provide:
         {/* Trends Tab */}
         <TabsContent value="trends" className="space-y-4">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <SentimentTrendsChart mentions={mentions} />
+            <GeographicInsights mentions={mentions} />
             <ListeningTrendsCard keywords={keywords} mentions={mentions} />
             
-            {/* Sentiment Over Time (placeholder visualization) */}
+            {/* Platform Distribution */}
             <Card className="border-0 shadow-sm">
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm flex items-center gap-2">
@@ -411,6 +599,86 @@ Also provide:
         onSave={(data) => createKeywordMutation.mutate(data)}
         isLoading={createKeywordMutation.isPending}
       />
+
+      {/* Mention Detail Modal */}
+      <Dialog open={!!selectedMention} onOpenChange={() => setSelectedMention(null)}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Mention Details</DialogTitle>
+          </DialogHeader>
+          {selectedMention && (
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <Badge className={
+                  selectedMention.platform === 'twitter' ? 'bg-gray-900 text-white' :
+                  selectedMention.platform === 'linkedin' ? 'bg-blue-600 text-white' :
+                  selectedMention.platform === 'facebook' ? 'bg-blue-500 text-white' :
+                  selectedMention.platform === 'instagram' ? 'bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400 text-white' :
+                  'bg-red-600 text-white'
+                }>
+                  {platformLabels[selectedMention.platform]}
+                </Badge>
+                <Badge className={
+                  selectedMention.sentiment === 'positive' ? 'bg-emerald-100 text-emerald-700' :
+                  selectedMention.sentiment === 'negative' ? 'bg-red-100 text-red-700' :
+                  'bg-gray-100 text-gray-700'
+                }>
+                  {selectedMention.sentiment}
+                </Badge>
+                {selectedMention.is_influencer && (
+                  <Badge className="bg-purple-100 text-purple-700">Influencer</Badge>
+                )}
+              </div>
+              
+              <div>
+                <p className="text-sm text-gray-500">Author</p>
+                <p className="font-medium">@{selectedMention.author}</p>
+                <p className="text-sm text-gray-500">{(selectedMention.author_followers || 0).toLocaleString()} followers</p>
+              </div>
+
+              <div>
+                <p className="text-sm text-gray-500">Content</p>
+                <p className="text-gray-900 mt-1">{selectedMention.content}</p>
+              </div>
+
+              <div className="grid grid-cols-3 gap-3 text-center">
+                <div className="p-2 bg-gray-50 rounded-lg">
+                  <p className="text-lg font-bold">{selectedMention.likes || 0}</p>
+                  <p className="text-xs text-gray-500">Likes</p>
+                </div>
+                <div className="p-2 bg-gray-50 rounded-lg">
+                  <p className="text-lg font-bold">{selectedMention.comments || 0}</p>
+                  <p className="text-xs text-gray-500">Comments</p>
+                </div>
+                <div className="p-2 bg-gray-50 rounded-lg">
+                  <p className="text-lg font-bold">{selectedMention.shares || 0}</p>
+                  <p className="text-xs text-gray-500">Shares</p>
+                </div>
+              </div>
+
+              {selectedMention.location && (
+                <div className="flex items-center gap-2">
+                  <Globe className="w-4 h-4 text-gray-400" />
+                  <span className="text-sm">{selectedMention.location} {selectedMention.country && `(${selectedMention.country})`}</span>
+                </div>
+              )}
+
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-gray-500">Influence Score</span>
+                <div className="flex items-center gap-2">
+                  <div className="w-24 h-2 bg-gray-200 rounded-full overflow-hidden">
+                    <div 
+                      className="h-full bg-violet-500 rounded-full"
+                      style={{ width: `${selectedMention.influence_score || 0}%` }}
+                    />
+                  </div>
+                  <span className="font-medium">{selectedMention.influence_score || 0}</span>
+                </div>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
