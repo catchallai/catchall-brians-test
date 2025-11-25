@@ -16,7 +16,8 @@ import {
   AlertTriangle, 
   XCircle,
   Loader2,
-  Building2
+  Building2,
+  Flag
 } from "lucide-react";
 import ListingCard from '@/components/listings/ListingCard';
 import ListingModal from '@/components/modals/ListingModal';
@@ -79,24 +80,57 @@ export default function Listings() {
     
     for (const website of websites) {
       const analysis = await base44.integrations.Core.InvokeLLM({
-        prompt: `Analyze the business listings for this company website: ${website.url}
-        Business name: ${website.name}
+        prompt: `Analyze business listings for: ${website.name}
+        Website: ${website.url}
         
-        Search the internet and find information about this business's listings across major platforms.
-        For each platform, provide realistic data about whether a listing exists and its details.
+        Search ALL major listing platforms: Google Business Profile, Yelp, Facebook Business, Apple Maps, Bing Places, TripAdvisor, Foursquare, Yellow Pages, and any other relevant directories.
         
-        Check these platforms: Google Business, Yelp, Facebook, Apple Maps, Bing Places
+        For EACH platform found, perform a detailed audit:
         
-        Provide details for each listing found including:
-        - Business name as listed
-        - Address, city, state, zip
-        - Phone number
+        1. NAP CONSISTENCY CHECK:
+           - Compare business name spelling/formatting across platforms
+           - Verify address matches exactly (including suite numbers, abbreviations)
+           - Check phone number format and accuracy
+           - Flag ANY discrepancies between platforms
+        
+        2. BUSINESS HOURS AUDIT:
+           - Check if hours are listed
+           - Identify outdated or missing hours
+           - Note holiday hours if applicable
+        
+        3. INFORMATION QUALITY:
+           - Check for broken or outdated website links
+           - Verify business description exists and is accurate
+           - Check for missing photos or outdated images
+           - Identify incomplete profile sections
+        
+        4. REVIEW HEALTH:
+           - Note rating and review count
+           - Flag if there are unanswered negative reviews
+        
+        For each listing, provide:
+        - Platform name
+        - Business name as listed (exact spelling)
+        - Full address, city, state, zip
+        - Phone number as displayed
         - Rating and review count
-        - Any issues like NAP inconsistencies, missing info, etc.`,
+        - List of specific issues found
+        - Whether NAP is consistent with other listings
+        - Suggested corrections for any issues
+        - Whether this needs manual review (true if critical issues found)
+        - Severity: "critical", "warning", or "ok"`,
         add_context_from_internet: true,
         response_json_schema: {
           type: "object",
           properties: {
+            reference_nap: {
+              type: "object",
+              properties: {
+                name: { type: "string" },
+                address: { type: "string" },
+                phone: { type: "string" }
+              }
+            },
             listings: {
               type: "array",
               items: {
@@ -111,9 +145,11 @@ export default function Listings() {
                   phone: { type: "string" },
                   rating: { type: "number" },
                   review_count: { type: "number" },
-                  status: { type: "string" },
                   issues: { type: "array", items: { type: "string" } },
-                  nap_consistent: { type: "boolean" }
+                  nap_consistent: { type: "boolean" },
+                  suggested_corrections: { type: "array", items: { type: "string" } },
+                  needs_manual_review: { type: "boolean" },
+                  severity: { type: "string" }
                 }
               }
             }
@@ -125,19 +161,37 @@ export default function Listings() {
         for (const listing of analysis.listings) {
           const platformMap = {
             'google business': 'google_business',
+            'google business profile': 'google_business',
             'google': 'google_business',
             'yelp': 'yelp',
             'facebook': 'facebook',
+            'facebook business': 'facebook',
             'apple maps': 'apple_maps',
             'apple': 'apple_maps',
             'bing places': 'bing_places',
-            'bing': 'bing_places'
+            'bing': 'bing_places',
+            'tripadvisor': 'tripadvisor',
+            'trip advisor': 'tripadvisor',
+            'foursquare': 'foursquare',
+            'yellow pages': 'yellowpages',
+            'yellowpages': 'yellowpages'
           };
+          
+          const platform = platformMap[listing.platform?.toLowerCase()] || 'other';
+          const severity = listing.severity?.toLowerCase() || 'ok';
+          const hasIssues = listing.issues?.length > 0 || listing.needs_manual_review;
+          
+          let status = 'verified';
+          if (severity === 'critical' || listing.needs_manual_review) {
+            status = 'needs_attention';
+          } else if (severity === 'warning' || hasIssues) {
+            status = 'pending';
+          }
           
           await base44.entities.Listing.create({
             website_id: website.id,
             business_name: listing.business_name || website.name,
-            platform: platformMap[listing.platform?.toLowerCase()] || 'other',
+            platform,
             address: listing.address,
             city: listing.city,
             state: listing.state,
@@ -145,9 +199,12 @@ export default function Listings() {
             phone: listing.phone,
             rating: listing.rating || 0,
             review_count: listing.review_count || 0,
-            status: listing.status === 'verified' ? 'verified' : listing.issues?.length > 0 ? 'needs_attention' : 'pending',
+            status,
             issues: listing.issues || [],
             nap_consistent: listing.nap_consistent !== false,
+            suggested_corrections: listing.suggested_corrections || [],
+            needs_manual_review: listing.needs_manual_review || false,
+            severity: severity,
             last_scanned: new Date().toISOString()
           });
         }
@@ -172,7 +229,9 @@ export default function Listings() {
     total: listings.length,
     verified: listings.filter(l => l.status === 'verified').length,
     needsAttention: listings.filter(l => l.status === 'needs_attention').length,
-    napIssues: listings.filter(l => !l.nap_consistent).length
+    napIssues: listings.filter(l => !l.nap_consistent).length,
+    manualReview: listings.filter(l => l.needs_manual_review).length,
+    critical: listings.filter(l => l.severity === 'critical').length
   };
 
   if (isLoading) {
@@ -216,7 +275,7 @@ export default function Listings() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
         <Card className="border-0 shadow-sm">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
@@ -225,7 +284,7 @@ export default function Listings() {
               </div>
               <div>
                 <p className="text-2xl font-bold">{stats.total}</p>
-                <p className="text-sm text-gray-500">Total Listings</p>
+                <p className="text-sm text-gray-500">Total</p>
               </div>
             </div>
           </CardContent>
@@ -246,12 +305,12 @@ export default function Listings() {
         <Card className="border-0 shadow-sm">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-red-50 text-red-600">
+              <div className="p-2 rounded-lg bg-amber-50 text-amber-600">
                 <AlertTriangle className="w-5 h-5" />
               </div>
               <div>
                 <p className="text-2xl font-bold">{stats.needsAttention}</p>
-                <p className="text-sm text-gray-500">Needs Attention</p>
+                <p className="text-sm text-gray-500">Attention</p>
               </div>
             </div>
           </CardContent>
@@ -259,12 +318,38 @@ export default function Listings() {
         <Card className="border-0 shadow-sm">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-amber-50 text-amber-600">
+              <div className="p-2 rounded-lg bg-orange-50 text-orange-600">
                 <XCircle className="w-5 h-5" />
               </div>
               <div>
                 <p className="text-2xl font-bold">{stats.napIssues}</p>
                 <p className="text-sm text-gray-500">NAP Issues</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card className="border-0 shadow-sm">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-purple-50 text-purple-600">
+                <Flag className="w-5 h-5" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold">{stats.manualReview}</p>
+                <p className="text-sm text-gray-500">Review</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card className="border-0 shadow-sm">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-red-50 text-red-600">
+                <AlertTriangle className="w-5 h-5" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold">{stats.critical}</p>
+                <p className="text-sm text-gray-500">Critical</p>
               </div>
             </div>
           </CardContent>
@@ -304,6 +389,9 @@ export default function Listings() {
             <SelectItem value="facebook">Facebook</SelectItem>
             <SelectItem value="apple_maps">Apple Maps</SelectItem>
             <SelectItem value="bing_places">Bing Places</SelectItem>
+            <SelectItem value="tripadvisor">TripAdvisor</SelectItem>
+            <SelectItem value="foursquare">Foursquare</SelectItem>
+            <SelectItem value="yellowpages">Yellow Pages</SelectItem>
           </SelectContent>
         </Select>
         <Select value={filterStatus} onValueChange={setFilterStatus}>

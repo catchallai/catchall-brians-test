@@ -10,7 +10,9 @@ import {
   CheckCircle, 
   AlertTriangle,
   XCircle,
-  Clock
+  Clock,
+  Lightbulb,
+  Flag
 } from "lucide-react";
 
 const platformLogos = {
@@ -44,23 +46,41 @@ const statusConfig = {
   not_found: { icon: XCircle, color: 'bg-gray-100 text-gray-700', label: 'Not Found' }
 };
 
+const severityConfig = {
+  critical: { color: 'bg-red-500 text-white', label: 'Critical' },
+  warning: { color: 'bg-amber-500 text-white', label: 'Warning' },
+  ok: { color: 'bg-emerald-500 text-white', label: 'OK' }
+};
+
 export default function ListingCard({ listing, onEdit }) {
   const status = statusConfig[listing.status] || statusConfig.pending;
+  const severity = severityConfig[listing.severity] || severityConfig.ok;
   const StatusIcon = status.icon;
 
   return (
-    <Card className="border-0 shadow-sm hover:shadow-md transition-all">
+    <Card className={`border-0 shadow-sm hover:shadow-md transition-all ${listing.needs_manual_review ? 'ring-2 ring-red-300' : ''}`}>
       <CardContent className="p-4">
         <div className="flex items-start justify-between gap-4">
           <div className="flex items-start gap-3">
             <div className="text-2xl">{platformLogos[listing.platform]}</div>
-            <div>
-              <div className="flex items-center gap-2">
+            <div className="flex-1">
+              <div className="flex items-center gap-2 flex-wrap">
                 <h3 className="font-semibold text-gray-900">{listing.business_name}</h3>
                 <Badge className={`${status.color} text-xs gap-1`}>
                   <StatusIcon className="w-3 h-3" />
                   {status.label}
                 </Badge>
+                {listing.severity && listing.severity !== 'ok' && (
+                  <Badge className={`${severity.color} text-xs`}>
+                    {severity.label}
+                  </Badge>
+                )}
+                {listing.needs_manual_review && (
+                  <Badge className="bg-red-600 text-white text-xs gap-1">
+                    <Flag className="w-3 h-3" />
+                    Manual Review
+                  </Badge>
+                )}
               </div>
               <p className="text-sm text-gray-500">{platformNames[listing.platform]}</p>
               
@@ -91,11 +111,16 @@ export default function ListingCard({ listing, onEdit }) {
 
               {listing.issues?.length > 0 && (
                 <div className="flex flex-wrap gap-1 mt-2">
-                  {listing.issues.map((issue, idx) => (
+                  {listing.issues.slice(0, 3).map((issue, idx) => (
                     <Badge key={idx} variant="outline" className="text-xs text-red-600 border-red-200">
                       {issue}
                     </Badge>
                   ))}
+                  {listing.issues.length > 3 && (
+                    <Badge variant="outline" className="text-xs text-gray-500">
+                      +{listing.issues.length - 3} more
+                    </Badge>
+                  )}
                 </div>
               )}
 
@@ -103,6 +128,20 @@ export default function ListingCard({ listing, onEdit }) {
                 <Badge variant="outline" className="mt-2 text-xs text-amber-600 border-amber-200">
                   NAP Inconsistency Detected
                 </Badge>
+              )}
+
+              {listing.suggested_corrections?.length > 0 && (
+                <div className="mt-3 p-2 bg-blue-50 rounded-lg">
+                  <div className="flex items-center gap-1 text-xs font-medium text-blue-700 mb-1">
+                    <Lightbulb className="w-3 h-3" />
+                    Suggested Corrections
+                  </div>
+                  <ul className="text-xs text-blue-600 space-y-1">
+                    {listing.suggested_corrections.slice(0, 3).map((correction, idx) => (
+                      <li key={idx}>• {correction}</li>
+                    ))}
+                  </ul>
+                </div>
               )}
             </div>
           </div>
