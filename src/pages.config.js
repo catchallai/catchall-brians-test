@@ -15,6 +15,7 @@ import Automation from './pages/Automation';
 import SEOTools from './pages/SEOTools';
 import SocialMedia from './pages/SocialMedia';
 import SocialLeads from './pages/SocialLeads';
+import HelpCenter from './pages/HelpCenter';
 import __Layout from './Layout.jsx';
 
 
@@ -36,6 +37,7 @@ export const PAGES = {
     "SEOTools": SEOTools,
     "SocialMedia": SocialMedia,
     "SocialLeads": SocialLeads,
+    "HelpCenter": HelpCenter,
 }
 
 export const pagesConfig = {
