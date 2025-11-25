@@ -3,6 +3,10 @@ import Contacts from './pages/Contacts';
 import Companies from './pages/Companies';
 import Deals from './pages/Deals';
 import Activities from './pages/Activities';
+import SEODashboard from './pages/SEODashboard';
+import Keywords from './pages/Keywords';
+import Backlinks from './pages/Backlinks';
+import SEOAudit from './pages/SEOAudit';
 
 
 export const PAGES = {
@@ -11,6 +15,10 @@ export const PAGES = {
     "Companies": Companies,
     "Deals": Deals,
     "Activities": Activities,
+    "SEODashboard": SEODashboard,
+    "Keywords": Keywords,
+    "Backlinks": Backlinks,
+    "SEOAudit": SEOAudit,
 }
 
 export const pagesConfig = {
