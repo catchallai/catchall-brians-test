@@ -670,24 +670,32 @@ export default function SocialMedia() {
 
           await base44.entities.SocialAccount.update(account.id, updateData);
 
-      // Clear old posts for this account
-      const oldPosts = socialPosts.filter(p => p.social_account_id === account.id);
-      for (const post of oldPosts) {
-        await base44.entities.SocialPost.delete(post.id);
-      }
+      // Only update posts if we got new posts from analysis
+      if (analysis.posts && analysis.posts.length > 0) {
+        // Clear old posts for this account
+        const oldPosts = socialPosts.filter(p => p.social_account_id === account.id);
+        for (const post of oldPosts) {
+          await base44.entities.SocialPost.delete(post.id);
+        }
 
-      // Save analyzed posts
-      for (const post of analysis.posts || []) {
-        await base44.entities.SocialPost.create({
-          social_account_id: account.id,
-          platform: account.platform,
-          content: post.content,
-          likes: post.likes || 0,
-          comments: post.comments || 0,
-          shares: post.shares || 0,
-          sentiment: post.sentiment || 'neutral',
-          topics: post.topics || [],
-          post_date: new Date().toISOString()
+        // Save analyzed posts
+        for (const post of analysis.posts) {
+          await base44.entities.SocialPost.create({
+            social_account_id: account.id,
+            platform: account.platform,
+            content: post.content,
+            likes: post.likes || 0,
+            comments: post.comments || 0,
+            shares: post.shares || 0,
+            sentiment: post.sentiment || 'neutral',
+            topics: post.topics || [],
+            post_date: new Date().toISOString()
+          });
+        }
+        
+        // Update posts count on the account
+        await base44.entities.SocialAccount.update(account.id, {
+          posts_count: analysis.posts.length
         });
       }
 
