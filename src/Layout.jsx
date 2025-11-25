@@ -42,6 +42,7 @@ const navigation = [
   { name: 'Companies', icon: Building2, page: 'Companies' },
   { name: 'Deals', icon: Target, page: 'Deals' },
   { name: 'Activities', icon: Calendar, page: 'Activities' },
+  { name: 'Social Leads', icon: Share2, page: 'SocialLeads' },
   { name: 'Automation', icon: Zap, page: 'Automation' },
   { name: 'divider', label: 'Marketing' },
   { name: 'Campaigns', icon: Megaphone, page: 'Campaigns' },

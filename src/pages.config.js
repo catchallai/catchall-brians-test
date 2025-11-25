@@ -14,6 +14,7 @@ import EmailMarketing from './pages/EmailMarketing';
 import Automation from './pages/Automation';
 import SEOTools from './pages/SEOTools';
 import SocialMedia from './pages/SocialMedia';
+import SocialLeads from './pages/SocialLeads';
 import __Layout from './Layout.jsx';
 
 
@@ -34,6 +35,7 @@ export const PAGES = {
     "Automation": Automation,
     "SEOTools": SEOTools,
     "SocialMedia": SocialMedia,
+    "SocialLeads": SocialLeads,
 }
 
 export const pagesConfig = {
