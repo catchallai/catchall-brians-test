@@ -29,6 +29,7 @@ import {
   HelpCircle,
   Radio,
   MapPin,
+  Newspaper,
 } from "lucide-react";
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -61,6 +62,7 @@ const navigation = [
   { name: 'Backlinks', icon: Link2, page: 'Backlinks' },
   { name: 'SEO Audit', icon: FileSearch, page: 'SEOAudit' },
   { name: 'Listings', icon: MapPin, page: 'Listings' },
+  { name: 'Press Monitoring', icon: Newspaper, page: 'PressMonitoring' },
   { name: 'divider', label: 'Social' },
   { name: 'Social Media', icon: Share2, page: 'SocialMedia' },
   { name: 'Social Listening', icon: Radio, page: 'SocialListening' },
