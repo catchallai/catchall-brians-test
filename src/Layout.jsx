@@ -18,6 +18,7 @@ import {
   ChevronDown,
   LogOut,
   Settings,
+  Megaphone,
 } from "lucide-react";
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
@@ -36,6 +37,8 @@ const navigation = [
   { name: 'Companies', icon: Building2, page: 'Companies' },
   { name: 'Deals', icon: Target, page: 'Deals' },
   { name: 'Activities', icon: Calendar, page: 'Activities' },
+  { name: 'divider', label: 'Marketing' },
+  { name: 'Campaigns', icon: Megaphone, page: 'Campaigns' },
   { name: 'divider', label: 'SEO' },
   { name: 'SEO Dashboard', icon: Search, page: 'SEODashboard' },
   { name: 'Keywords', icon: Target, page: 'Keywords' },

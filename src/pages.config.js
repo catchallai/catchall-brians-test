@@ -7,6 +7,9 @@ import SEODashboard from './pages/SEODashboard';
 import Keywords from './pages/Keywords';
 import Backlinks from './pages/Backlinks';
 import SEOAudit from './pages/SEOAudit';
+import Campaigns from './pages/Campaigns';
+import CampaignDetail from './pages/CampaignDetail';
+import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
@@ -19,9 +22,12 @@ export const PAGES = {
     "Keywords": Keywords,
     "Backlinks": Backlinks,
     "SEOAudit": SEOAudit,
+    "Campaigns": Campaigns,
+    "CampaignDetail": CampaignDetail,
 }
 
 export const pagesConfig = {
     mainPage: "Dashboard",
     Pages: PAGES,
+    Layout: __Layout,
 };
