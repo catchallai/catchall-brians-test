@@ -12,7 +12,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import {
   Plus, Search, Loader2, RefreshCw, TrendingUp, TrendingDown,
   MessageSquare, Heart, Share2, Users, BarChart3, Sparkles,
-  ThumbsUp, ThumbsDown, Minus, Calendar, Target, Lightbulb, FlaskConical, CalendarDays
+  ThumbsUp, ThumbsDown, Minus, Calendar, Target, Lightbulb, FlaskConical, CalendarDays,
+  Pencil, Trash2
 } from "lucide-react";
 import SocialAccountCard from '@/components/seo/SocialAccountCard';
 import ContentInsightsCard from '@/components/social/ContentInsightsCard';
@@ -56,6 +57,7 @@ export default function SocialMedia() {
   const [selectedCompetitor, setSelectedCompetitor] = useState(null);
   const [editingPost, setEditingPost] = useState(null);
   const [editingTest, setEditingTest] = useState(null);
+  const [editingAccount, setEditingAccount] = useState(null);
   const [calendarView, setCalendarView] = useState(false);
   const [newAccount, setNewAccount] = useState({ platform: 'twitter', account_name: '', account_url: '' });
   const [newCompetitor, setNewCompetitor] = useState({ name: '', website: '' });
@@ -98,6 +100,22 @@ export default function SocialMedia() {
       queryClient.invalidateQueries({ queryKey: ['social-accounts'] });
       setShowAddModal(false);
       setNewAccount({ platform: 'twitter', account_name: '', account_url: '' });
+    },
+  });
+
+  const updateAccountMutation = useMutation({
+    mutationFn: ({ id, data }) => base44.entities.SocialAccount.update(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['social-accounts'] });
+      setEditingAccount(null);
+    },
+  });
+
+  const deleteAccountMutation = useMutation({
+    mutationFn: (id) => base44.entities.SocialAccount.delete(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['social-accounts'] });
+      setEditingAccount(null);
     },
   });
 
@@ -659,20 +677,29 @@ export default function SocialMedia() {
                 postsCount={getAccountPosts(account.id).length}
                 onClick={() => setSelectedAccount(account)}
               />
-              <Button
-                size="sm"
-                variant="outline"
-                className="absolute top-2 right-2 gap-1"
-                onClick={(e) => { e.stopPropagation(); analyzeAccountMutation.mutate(account); }}
-                disabled={analyzeAccountMutation.isPending}
-              >
-                {analyzeAccountMutation.isPending ? (
-                  <Loader2 className="w-3 h-3 animate-spin" />
-                ) : (
-                  <Sparkles className="w-3 h-3" />
-                )}
-                Analyze
-              </Button>
+              <div className="absolute top-2 right-2 flex gap-1">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="gap-1 bg-white"
+                  onClick={(e) => { e.stopPropagation(); setEditingAccount(account); }}
+                >
+                  <Pencil className="w-3 h-3" />
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="gap-1 bg-white"
+                  onClick={(e) => { e.stopPropagation(); analyzeAccountMutation.mutate(account); }}
+                  disabled={analyzeAccountMutation.isPending}
+                >
+                  {analyzeAccountMutation.isPending ? (
+                    <Loader2 className="w-3 h-3 animate-spin" />
+                  ) : (
+                    <Sparkles className="w-3 h-3" />
+                  )}
+                </Button>
+              </div>
             </div>
           ))}
         </div>
@@ -952,6 +979,84 @@ export default function SocialMedia() {
               </Button>
             </div>
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Account Modal */}
+      <Dialog open={!!editingAccount} onOpenChange={() => setEditingAccount(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Edit Social Account</DialogTitle>
+          </DialogHeader>
+          {editingAccount && (
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label>Platform</Label>
+                <Select
+                  value={editingAccount.platform}
+                  onValueChange={(value) => setEditingAccount({ ...editingAccount, platform: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {PLATFORMS.map(p => (
+                      <SelectItem key={p.id} value={p.id}>
+                        <span className="mr-2">{p.icon}</span> {p.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>Account Username</Label>
+                <Input
+                  value={editingAccount.account_name}
+                  onChange={(e) => setEditingAccount({ ...editingAccount, account_name: e.target.value })}
+                  placeholder="e.g., syberjet"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Profile URL (optional)</Label>
+                <Input
+                  value={editingAccount.account_url || ''}
+                  onChange={(e) => setEditingAccount({ ...editingAccount, account_url: e.target.value })}
+                  placeholder="https://twitter.com/syberjet"
+                />
+              </div>
+              <div className="flex justify-between pt-4">
+                <Button 
+                  variant="destructive"
+                  onClick={() => deleteAccountMutation.mutate(editingAccount.id)}
+                  disabled={deleteAccountMutation.isPending}
+                >
+                  {deleteAccountMutation.isPending ? (
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  ) : (
+                    <Trash2 className="w-4 h-4 mr-2" />
+                  )}
+                  Delete
+                </Button>
+                <div className="flex gap-3">
+                  <Button variant="outline" onClick={() => setEditingAccount(null)}>Cancel</Button>
+                  <Button 
+                    onClick={() => updateAccountMutation.mutate({ 
+                      id: editingAccount.id, 
+                      data: { 
+                        platform: editingAccount.platform,
+                        account_name: editingAccount.account_name,
+                        account_url: editingAccount.account_url 
+                      } 
+                    })}
+                    disabled={!editingAccount.account_name || updateAccountMutation.isPending}
+                  >
+                    {updateAccountMutation.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                    Save Changes
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
         </DialogContent>
       </Dialog>
 
