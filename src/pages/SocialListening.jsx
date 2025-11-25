@@ -9,7 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   Plus, Search, Loader2, TrendingUp, MessageSquare, ThumbsUp, ThumbsDown,
-  Minus, BarChart3, Radio, Filter, Bell, Users, Globe, Sparkles
+  Minus, BarChart3, Radio, Filter, Bell, Users, Globe, Sparkles, MessagesSquare
 } from "lucide-react";
 import ListeningKeywordCard from '@/components/social/ListeningKeywordCard';
 import ListeningMentionCard from '@/components/social/ListeningMentionCard';
@@ -20,6 +20,7 @@ import SentimentTrendsChart from '@/components/social/SentimentTrendsChart';
 import GeographicInsights from '@/components/social/GeographicInsights';
 import ResponseSuggestionCard from '@/components/social/ResponseSuggestionCard';
 import AddListeningModal from '@/components/modals/AddListeningModal';
+import ForumMentionCard from '@/components/social/ForumMentionCard';
 import EmptyState from '@/components/ui/EmptyState';
 import {
   Dialog,
@@ -45,6 +46,7 @@ export default function SocialListening() {
   const [sentimentFilter, setSentimentFilter] = useState('all');
   const [selectedMention, setSelectedMention] = useState(null);
   const [generatingResponseFor, setGeneratingResponseFor] = useState(null);
+  const [deepScanningId, setDeepScanningId] = useState(null);
   const queryClient = useQueryClient();
 
   const { data: keywords = [], isLoading: loadingKeywords } = useQuery({
@@ -60,6 +62,11 @@ export default function SocialListening() {
   const { data: alerts = [] } = useQuery({
     queryKey: ['listening-alerts'],
     queryFn: () => base44.entities.ListeningAlert.list('-created_date', 100),
+  });
+
+  const { data: forumMentions = [] } = useQuery({
+    queryKey: ['forum-mentions'],
+    queryFn: () => base44.entities.ForumMention.list('-post_date', 500),
   });
 
   const createKeywordMutation = useMutation({
@@ -292,6 +299,112 @@ Also provide:
     onError: () => setScanningId(null),
   });
 
+  // Deep scan for forums/communities (goes back to 2009)
+  const deepScanMutation = useMutation({
+    mutationFn: async (keyword) => {
+      setDeepScanningId(keyword.id);
+      
+      const searchTerm = keyword.type === 'hashtag' ? `#${keyword.keyword}` : 
+                         keyword.type === 'mention' ? `@${keyword.keyword}` : keyword.keyword;
+
+      const analysis = await base44.integrations.Core.InvokeLLM({
+        prompt: `Search the internet comprehensively for ALL discussions, forums, group chats, and community posts about "${searchTerm}" from 2009 to 2025 (going back at least 16 years).
+
+Search these types of sources:
+- Reddit (subreddits, posts, comments)
+- Aviation forums (like AvWeb, AOPA forums, Pilots of America, etc.)
+- Discord servers (aviation communities)
+- Quora questions and answers
+- Blog comment sections
+- News article comments
+- Telegram groups
+- Specialized forums related to the topic
+- Any other online communities discussing this topic
+
+Find 20 historical discussions/posts spanning from 2009 to 2025 and for each provide:
+1. Source type (forum, reddit, discord, slack, telegram, quora, blog_comments, news_comments, other)
+2. Source name (e.g., "r/aviation", "AvWeb Forum", "Pilots of America")
+3. Source URL if known
+4. Thread/discussion title
+5. Content excerpt (the relevant post or comment)
+6. Author username
+7. Post date (IMPORTANT: include posts from different years spanning 2009-2025)
+8. Number of replies in the thread
+9. Number of views (estimate if unknown)
+10. Upvotes/likes
+11. Sentiment (positive, neutral, negative)
+12. Topics/tags (array of relevant keywords)
+
+Prioritize finding older historical discussions from 2009-2015 as well as recent ones.`,
+        add_context_from_internet: true,
+        response_json_schema: {
+          type: "object",
+          properties: {
+            total_found: { type: "number" },
+            mentions: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  source_type: { type: "string" },
+                  source_name: { type: "string" },
+                  source_url: { type: "string" },
+                  thread_title: { type: "string" },
+                  content: { type: "string" },
+                  author: { type: "string" },
+                  post_date: { type: "string" },
+                  replies_count: { type: "number" },
+                  views_count: { type: "number" },
+                  upvotes: { type: "number" },
+                  sentiment: { type: "string" },
+                  topics: { type: "array", items: { type: "string" } }
+                }
+              }
+            }
+          }
+        }
+      });
+
+      // Save forum mentions
+      if (analysis.mentions?.length > 0) {
+        for (const mention of analysis.mentions) {
+          await base44.entities.ForumMention.create({
+            listening_id: keyword.id,
+            source_type: mention.source_type || 'forum',
+            source_name: mention.source_name,
+            source_url: mention.source_url,
+            thread_title: mention.thread_title,
+            content: mention.content,
+            author: mention.author,
+            post_date: mention.post_date ? new Date(mention.post_date).toISOString() : new Date().toISOString(),
+            replies_count: mention.replies_count || 0,
+            views_count: mention.views_count || 0,
+            upvotes: mention.upvotes || 0,
+            sentiment: mention.sentiment || 'neutral',
+            topics: mention.topics || [],
+          });
+        }
+      }
+
+      // Create alert for deep scan completion
+      await base44.entities.ListeningAlert.create({
+        listening_id: keyword.id,
+        type: 'spike',
+        severity: 'medium',
+        title: `Deep scan complete for "${searchTerm}"`,
+        description: `Found ${analysis.mentions?.length || 0} forum/community discussions spanning 2009-2025.`,
+      });
+
+      return analysis;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['forum-mentions'] });
+      queryClient.invalidateQueries({ queryKey: ['listening-alerts'] });
+      setDeepScanningId(null);
+    },
+    onError: () => setDeepScanningId(null),
+  });
+
   // Filter mentions
   const filteredMentions = mentions.filter(m => {
     if (selectedKeyword && m.listening_id !== selectedKeyword.id) return false;
@@ -319,6 +432,7 @@ Also provide:
     negative: mentions.filter(m => m.sentiment === 'negative').length,
   };
   const unreadAlerts = alerts.filter(a => !a.is_read && !a.is_dismissed).length;
+  const totalForumMentions = forumMentions.length;
 
   return (
     <div className="p-6 lg:p-8 space-y-6 bg-gray-50 min-h-screen">
@@ -398,6 +512,7 @@ Also provide:
           </TabsTrigger>
           <TabsTrigger value="influencers">Influencers</TabsTrigger>
           <TabsTrigger value="responses">Responses ({mentionsNeedingResponse.length})</TabsTrigger>
+          <TabsTrigger value="forums">Forums & Communities ({totalForumMentions})</TabsTrigger>
           <TabsTrigger value="trends">Trends & Insights</TabsTrigger>
         </TabsList>
 
@@ -551,6 +666,70 @@ Also provide:
                   isGenerating={generatingResponseFor === mention.id}
                 />
               ))}
+            </div>
+          )}
+        </TabsContent>
+
+        {/* Forums & Communities Tab */}
+        <TabsContent value="forums" className="space-y-4">
+          <Card className="border-0 shadow-sm p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="font-semibold text-gray-900">Deep Scan for Forums & Communities</h3>
+                <p className="text-sm text-gray-500">Search Reddit, forums, Discord, Quora, and more going back to 2009</p>
+              </div>
+              <div className="flex gap-2">
+                {keywords.length > 0 && (
+                  <Select 
+                    value={selectedKeyword?.id || ''} 
+                    onValueChange={(v) => setSelectedKeyword(keywords.find(k => k.id === v) || null)}
+                  >
+                    <SelectTrigger className="w-48">
+                      <SelectValue placeholder="Select keyword to scan" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {keywords.map(k => (
+                        <SelectItem key={k.id} value={k.id}>
+                          {k.type === 'hashtag' ? '#' : k.type === 'mention' ? '@' : ''}{k.keyword}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+                <Button
+                  onClick={() => selectedKeyword && deepScanMutation.mutate(selectedKeyword)}
+                  disabled={!selectedKeyword || deepScanningId}
+                  className="gap-2 bg-violet-600 hover:bg-violet-700"
+                >
+                  {deepScanningId ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <MessagesSquare className="w-4 h-4" />
+                  )}
+                  {deepScanningId ? 'Scanning...' : 'Deep Scan (2009-2025)'}
+                </Button>
+              </div>
+            </div>
+          </Card>
+
+          {forumMentions.length === 0 ? (
+            <EmptyState
+              icon={MessagesSquare}
+              title="No forum mentions found"
+              description="Run a deep scan to find discussions in forums, Reddit, Discord, and other communities."
+            />
+          ) : (
+            <div className="space-y-3">
+              {forumMentions
+                .filter(m => !selectedKeyword || m.listening_id === selectedKeyword.id)
+                .sort((a, b) => new Date(b.post_date) - new Date(a.post_date))
+                .map((mention) => (
+                  <ForumMentionCard 
+                    key={mention.id} 
+                    mention={mention}
+                    onClick={() => setSelectedMention({ ...mention, isForumMention: true })}
+                  />
+                ))}
             </div>
           )}
         </TabsContent>
