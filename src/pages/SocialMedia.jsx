@@ -454,8 +454,8 @@ export default function SocialMedia() {
               </Button>
             </div>
           ))}
-            </div>
-          )}
+        </div>
+      )}
         </TabsContent>
 
         {/* Scheduler Tab */}
