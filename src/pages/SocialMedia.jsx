@@ -695,10 +695,18 @@ export default function SocialMedia() {
 
       return analysis;
     },
-    onSuccess: () => {
+    onSuccess: (analysis, account) => {
       queryClient.invalidateQueries({ queryKey: ['social-accounts'] });
       queryClient.invalidateQueries({ queryKey: ['social-posts'] });
       setAnalyzingAccount(null);
+      // Refresh selected account with latest data
+      if (selectedAccount?.id === account.id) {
+        base44.entities.SocialAccount.filter({ id: account.id }).then(accounts => {
+          if (accounts.length > 0) {
+            setSelectedAccount(accounts[0]);
+          }
+        });
+      }
     },
     onError: () => {
       setAnalyzingAccount(null);
