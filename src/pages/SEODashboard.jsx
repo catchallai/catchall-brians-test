@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Plus, Globe, TrendingUp, Link2, Search, ExternalLink, Settings } from "lucide-react";
+import { Plus, Globe, TrendingUp, Link2, Search, ExternalLink, Settings, Sparkles, Loader2 } from "lucide-react";
 import SEOScoreGauge from '@/components/seo/SEOScoreGauge';
 import WebsiteModal from '@/components/modals/WebsiteModal';
 import EmptyState from '@/components/ui/EmptyState';
@@ -62,6 +62,114 @@ export default function SEODashboard() {
     setSelectedWebsite(website);
     setShowModal(true);
   };
+
+  const [analyzingWebsite, setAnalyzingWebsite] = useState(null);
+
+  const analyzeWebsiteMutation = useMutation({
+    mutationFn: async (website) => {
+      setAnalyzingWebsite(website.id);
+      
+      const analysis = await base44.integrations.Core.InvokeLLM({
+        prompt: `Analyze the SEO metrics for this website: ${website.url}
+        Website name: ${website.name}
+        
+        Search the internet and provide realistic SEO data including:
+        1. Domain Authority (0-100 scale, based on backlink profile strength)
+        2. Page Authority (0-100 scale)
+        3. Estimated monthly organic traffic (number)
+        4. Overall SEO score (0-100, based on technical SEO, content, backlinks)
+        5. Top 5 keywords this site likely ranks for with their position, search volume, and difficulty
+        6. Top 5 backlinks pointing to this site with source domain, anchor text, and domain authority
+        
+        Be realistic with the numbers based on what you find about this website.`,
+        add_context_from_internet: true,
+        response_json_schema: {
+          type: "object",
+          properties: {
+            domain_authority: { type: "number" },
+            page_authority: { type: "number" },
+            organic_traffic: { type: "number" },
+            seo_score: { type: "number" },
+            keywords: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  keyword: { type: "string" },
+                  current_position: { type: "number" },
+                  search_volume: { type: "number" },
+                  difficulty: { type: "number" }
+                }
+              }
+            },
+            backlinks: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  source_domain: { type: "string" },
+                  source_url: { type: "string" },
+                  anchor_text: { type: "string" },
+                  domain_authority: { type: "number" }
+                }
+              }
+            }
+          }
+        }
+      });
+
+      // Update website with SEO metrics
+      await base44.entities.Website.update(website.id, {
+        domain_authority: analysis.domain_authority,
+        page_authority: analysis.page_authority,
+        organic_traffic: analysis.organic_traffic,
+        seo_score: analysis.seo_score,
+        last_audit_date: new Date().toISOString()
+      });
+
+      // Create keywords
+      if (analysis.keywords?.length > 0) {
+        for (const kw of analysis.keywords) {
+          await base44.entities.Keyword.create({
+            website_id: website.id,
+            keyword: kw.keyword,
+            current_position: kw.current_position,
+            search_volume: kw.search_volume,
+            difficulty: kw.difficulty,
+            target_url: website.url
+          });
+        }
+      }
+
+      // Create backlinks
+      if (analysis.backlinks?.length > 0) {
+        for (const bl of analysis.backlinks) {
+          await base44.entities.Backlink.create({
+            website_id: website.id,
+            source_url: bl.source_url || `https://${bl.source_domain}`,
+            source_domain: bl.source_domain,
+            target_url: website.url,
+            anchor_text: bl.anchor_text,
+            domain_authority: bl.domain_authority,
+            link_type: 'dofollow',
+            status: 'active',
+            first_seen: new Date().toISOString().split('T')[0]
+          });
+        }
+      }
+
+      return analysis;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['websites'] });
+      queryClient.invalidateQueries({ queryKey: ['keywords'] });
+      queryClient.invalidateQueries({ queryKey: ['backlinks'] });
+      setAnalyzingWebsite(null);
+    },
+    onError: () => {
+      setAnalyzingWebsite(null);
+    }
+  });
 
   const getWebsiteKeywords = (websiteId) => keywords.filter(k => k.website_id === websiteId);
   const getWebsiteBacklinks = (websiteId) => backlinks.filter(b => b.website_id === websiteId);
@@ -138,14 +246,29 @@ export default function SEODashboard() {
                           </a>
                         </div>
                       </div>
-                      <Button 
-                        variant="ghost" 
-                        size="icon" 
-                        className="h-8 w-8 text-gray-400 hover:text-gray-600"
-                        onClick={() => handleEdit(website)}
-                      >
-                        <Settings className="w-4 h-4" />
-                      </Button>
+                      <div className="flex gap-1">
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          className="h-8 w-8 text-emerald-500 hover:text-emerald-700 hover:bg-emerald-50"
+                          onClick={() => analyzeWebsiteMutation.mutate(website)}
+                          disabled={analyzingWebsite === website.id}
+                        >
+                          {analyzingWebsite === website.id ? (
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                          ) : (
+                            <Sparkles className="w-4 h-4" />
+                          )}
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          className="h-8 w-8 text-gray-400 hover:text-gray-600"
+                          onClick={() => handleEdit(website)}
+                        >
+                          <Settings className="w-4 h-4" />
+                        </Button>
+                      </div>
                     </div>
                   </CardHeader>
                   <CardContent className="pt-4">
