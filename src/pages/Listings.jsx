@@ -27,6 +27,7 @@ export default function Listings() {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterPlatform, setFilterPlatform] = useState('all');
   const [filterStatus, setFilterStatus] = useState('all');
+  const [filterWebsite, setFilterWebsite] = useState('all');
   const [scanning, setScanning] = useState(false);
   const queryClient = useQueryClient();
 
@@ -163,7 +164,8 @@ export default function Listings() {
       l.city?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesPlatform = filterPlatform === 'all' || l.platform === filterPlatform;
     const matchesStatus = filterStatus === 'all' || l.status === filterStatus;
-    return matchesSearch && matchesPlatform && matchesStatus;
+    const matchesWebsite = filterWebsite === 'all' || l.website_id === filterWebsite;
+    return matchesSearch && matchesPlatform && matchesStatus && matchesWebsite;
   });
 
   const stats = {
@@ -280,6 +282,17 @@ export default function Listings() {
             className="pl-9"
           />
         </div>
+        <Select value={filterWebsite} onValueChange={setFilterWebsite}>
+          <SelectTrigger className="w-48">
+            <SelectValue placeholder="All Sites" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Sites</SelectItem>
+            {websites.map(w => (
+              <SelectItem key={w.id} value={w.id}>{w.name}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
         <Select value={filterPlatform} onValueChange={setFilterPlatform}>
           <SelectTrigger className="w-48">
             <SelectValue placeholder="All Platforms" />
