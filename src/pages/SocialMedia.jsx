@@ -23,6 +23,8 @@ import ContentCalendar from '@/components/social/ContentCalendar';
 import ABTestCard from '@/components/social/ABTestCard';
 import TrendAnalysisCard from '@/components/social/TrendAnalysisCard';
 import CompetitorDetailCard from '@/components/social/CompetitorDetailCard';
+import CompetitorReportCard from '@/components/social/CompetitorReportCard';
+import CompetitorReportModal from '@/components/modals/CompetitorReportModal';
 import SchedulePostModal from '@/components/modals/SchedulePostModal';
 import ABTestModal from '@/components/modals/ABTestModal';
 import ContentGeneratorCard from '@/components/social/ContentGeneratorCard';
@@ -62,6 +64,8 @@ export default function SocialMedia() {
   const [newAccount, setNewAccount] = useState({ platform: 'twitter', account_name: '', account_url: '' });
   const [newCompetitor, setNewCompetitor] = useState({ name: '', website: '' });
   const [analyzingCompetitor, setAnalyzingCompetitor] = useState(null);
+  const [selectedReport, setSelectedReport] = useState(null);
+  const [generatingReport, setGeneratingReport] = useState(null);
   const queryClient = useQueryClient();
 
   const { data: socialAccounts = [], isLoading: loadingAccounts } = useQuery({
@@ -92,6 +96,11 @@ export default function SocialMedia() {
   const { data: abTests = [] } = useQuery({
     queryKey: ['ab-tests'],
     queryFn: () => base44.entities.ABTest.list('-created_date', 50),
+  });
+
+  const { data: competitorReports = [] } = useQuery({
+    queryKey: ['competitor-reports'],
+    queryFn: () => base44.entities.CompetitorReport.list('-created_date', 100),
   });
 
   const createAccountMutation = useMutation({
@@ -224,6 +233,117 @@ export default function SocialMedia() {
       setAnalyzingCompetitor(null);
     },
     onError: () => setAnalyzingCompetitor(null),
+  });
+
+  const generateReportMutation = useMutation({
+    mutationFn: async ({ competitor, reportType }) => {
+      setGeneratingReport(competitor.id);
+      const today = new Date();
+      const periodStart = new Date(today);
+      if (reportType === 'weekly') {
+        periodStart.setDate(today.getDate() - 7);
+      } else {
+        periodStart.setDate(today.getDate() - 1);
+      }
+
+      const analysis = await base44.integrations.Core.InvokeLLM({
+        prompt: `Generate a ${reportType} competitor analysis report for: ${competitor.name}
+        Website: ${competitor.website || 'N/A'}
+        Social accounts: ${JSON.stringify(competitor.social_accounts || [])}
+        Known strengths: ${(competitor.strengths || []).join(', ')}
+        Known weaknesses: ${(competitor.weaknesses || []).join(', ')}
+        
+        Generate a comprehensive report including:
+        1. Key metrics changes (follower growth %, engagement change %, posts count, avg likes/comments/shares)
+        2. Content trends - top 5 topics with frequency, engagement, and trend direction (up/down/stable)
+        3. Sentiment analysis - overall sentiment, breakdown percentages, any sentiment shift
+        4. Alerts - identify 3-5 significant changes or emerging threats with severity (critical/high/medium/low), type, title, description
+        5. Top 3 performing posts with content, platform, engagement, sentiment
+        6. 5 actionable recommendations based on their activity
+        7. Executive summary (2-3 sentences)`,
+        add_context_from_internet: true,
+        response_json_schema: {
+          type: "object",
+          properties: {
+            metrics: {
+              type: "object",
+              properties: {
+                follower_change: { type: "number" },
+                follower_change_percent: { type: "number" },
+                engagement_change: { type: "number" },
+                posts_count: { type: "number" },
+                avg_likes: { type: "number" },
+                avg_comments: { type: "number" },
+                avg_shares: { type: "number" }
+              }
+            },
+            content_trends: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  topic: { type: "string" },
+                  frequency: { type: "number" },
+                  engagement: { type: "number" },
+                  trend: { type: "string" }
+                }
+              }
+            },
+            sentiment_analysis: {
+              type: "object",
+              properties: {
+                overall: { type: "string" },
+                positive_percent: { type: "number" },
+                neutral_percent: { type: "number" },
+                negative_percent: { type: "number" },
+                sentiment_shift: { type: "string" }
+              }
+            },
+            alerts: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  type: { type: "string" },
+                  severity: { type: "string" },
+                  title: { type: "string" },
+                  description: { type: "string" }
+                }
+              }
+            },
+            top_posts: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  content: { type: "string" },
+                  platform: { type: "string" },
+                  engagement: { type: "number" },
+                  sentiment: { type: "string" }
+                }
+              }
+            },
+            recommendations: { type: "array", items: { type: "string" } },
+            summary: { type: "string" }
+          }
+        }
+      });
+
+      const report = await base44.entities.CompetitorReport.create({
+        competitor_id: competitor.id,
+        report_type: reportType,
+        period_start: periodStart.toISOString().split('T')[0],
+        period_end: today.toISOString().split('T')[0],
+        ...analysis
+      });
+
+      return report;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['competitor-reports'] });
+      setGeneratingReport(null);
+    },
+    onError: () => setGeneratingReport(null),
   });
 
   const generateInsightsMutation = useMutation({
