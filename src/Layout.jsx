@@ -57,10 +57,11 @@ const navigation = [
   { name: 'SEO Tools', icon: Globe, page: 'SEOTools' },
   { name: 'Keywords', icon: Target, page: 'Keywords' },
   { name: 'Backlinks', icon: Link2, page: 'Backlinks' },
+  { name: 'SEO Audit', icon: FileSearch, page: 'SEOAudit' },
+  { name: 'divider', label: 'Social' },
   { name: 'Social Media', icon: Share2, page: 'SocialMedia' },
   { name: 'Social Listening', icon: Radio, page: 'SocialListening' },
   { name: 'Social Calendar', icon: CalendarDays, page: 'SocialCalendar' },
-  { name: 'SEO Audit', icon: FileSearch, page: 'SEOAudit' },
   { name: 'divider', label: 'Support' },
   { name: 'Help Center', icon: HelpCircle, page: 'HelpCenter' },
 ];
