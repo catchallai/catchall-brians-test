@@ -12,9 +12,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import {
   Plus, Search, Loader2, RefreshCw, TrendingUp, TrendingDown,
   MessageSquare, Heart, Share2, Users, BarChart3, Sparkles,
-  ThumbsUp, ThumbsDown, Minus
+  ThumbsUp, ThumbsDown, Minus, Calendar, Target, Lightbulb
 } from "lucide-react";
 import SocialAccountCard from '@/components/seo/SocialAccountCard';
+import ContentInsightsCard from '@/components/social/ContentInsightsCard';
+import CompetitorCard from '@/components/social/CompetitorCard';
+import ScheduledPostCard from '@/components/social/ScheduledPostCard';
+import SchedulePostModal from '@/components/modals/SchedulePostModal';
 import EmptyState from '@/components/ui/EmptyState';
 import {
   Dialog,
@@ -39,8 +43,13 @@ const sentimentConfig = {
 
 export default function SocialMedia() {
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showScheduleModal, setShowScheduleModal] = useState(false);
+  const [showCompetitorModal, setShowCompetitorModal] = useState(false);
   const [selectedAccount, setSelectedAccount] = useState(null);
+  const [editingPost, setEditingPost] = useState(null);
   const [newAccount, setNewAccount] = useState({ platform: 'twitter', account_name: '', account_url: '' });
+  const [newCompetitor, setNewCompetitor] = useState({ name: '', website: '' });
+  const [analyzingCompetitor, setAnalyzingCompetitor] = useState(null);
   const queryClient = useQueryClient();
 
   const { data: socialAccounts = [], isLoading: loadingAccounts } = useQuery({
@@ -53,12 +62,172 @@ export default function SocialMedia() {
     queryFn: () => base44.entities.SocialPost.list('-created_date', 500),
   });
 
+  const { data: scheduledPosts = [] } = useQuery({
+    queryKey: ['scheduled-posts'],
+    queryFn: () => base44.entities.ScheduledPost.list('-created_date', 100),
+  });
+
+  const { data: competitors = [] } = useQuery({
+    queryKey: ['competitors'],
+    queryFn: () => base44.entities.Competitor.list('-created_date', 50),
+  });
+
+  const { data: contentInsights = [] } = useQuery({
+    queryKey: ['content-insights'],
+    queryFn: () => base44.entities.ContentInsight.list('-created_date', 50),
+  });
+
   const createAccountMutation = useMutation({
     mutationFn: (data) => base44.entities.SocialAccount.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['social-accounts'] });
       setShowAddModal(false);
       setNewAccount({ platform: 'twitter', account_name: '', account_url: '' });
+    },
+  });
+
+  const createScheduledPostMutation = useMutation({
+    mutationFn: (data) => editingPost 
+      ? base44.entities.ScheduledPost.update(editingPost.id, data)
+      : base44.entities.ScheduledPost.create(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['scheduled-posts'] });
+      setShowScheduleModal(false);
+      setEditingPost(null);
+    },
+  });
+
+  const deleteScheduledPostMutation = useMutation({
+    mutationFn: (id) => base44.entities.ScheduledPost.delete(id),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['scheduled-posts'] }),
+  });
+
+  const createCompetitorMutation = useMutation({
+    mutationFn: (data) => base44.entities.Competitor.create(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['competitors'] });
+      setShowCompetitorModal(false);
+      setNewCompetitor({ name: '', website: '' });
+    },
+  });
+
+  const analyzeCompetitorMutation = useMutation({
+    mutationFn: async (competitor) => {
+      setAnalyzingCompetitor(competitor.id);
+      const analysis = await base44.integrations.Core.InvokeLLM({
+        prompt: `Analyze competitor social media presence for: ${competitor.name}
+        Website: ${competitor.website || 'N/A'}
+        
+        Provide comprehensive analysis including:
+        1. Estimated social media accounts and follower counts
+        2. Engagement rates across platforms
+        3. Top 3 strengths in their social strategy
+        4. Top 3 weaknesses or opportunities
+        5. Their best performing content themes`,
+        add_context_from_internet: true,
+        response_json_schema: {
+          type: "object",
+          properties: {
+            social_accounts: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  platform: { type: "string" },
+                  handle: { type: "string" },
+                  followers: { type: "number" },
+                  engagement_rate: { type: "number" }
+                }
+              }
+            },
+            strengths: { type: "array", items: { type: "string" } },
+            weaknesses: { type: "array", items: { type: "string" } },
+            top_content: { type: "array", items: { type: "string" } }
+          }
+        }
+      });
+
+      await base44.entities.Competitor.update(competitor.id, {
+        ...analysis,
+        last_analyzed: new Date().toISOString()
+      });
+      return analysis;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['competitors'] });
+      setAnalyzingCompetitor(null);
+    },
+    onError: () => setAnalyzingCompetitor(null),
+  });
+
+  const generateInsightsMutation = useMutation({
+    mutationFn: async (account) => {
+      const analysis = await base44.integrations.Core.InvokeLLM({
+        prompt: `Generate content insights for ${account.platform} account @${account.account_name}.
+        
+        Provide:
+        1. Top 5 trending topics in their niche
+        2. Best 4 posting times with day, time, and expected engagement score
+        3. 10 recommended hashtags
+        4. 5 content ideas tailored to their audience
+        5. Brief audience insights`,
+        add_context_from_internet: true,
+        response_json_schema: {
+          type: "object",
+          properties: {
+            trending_topics: { type: "array", items: { type: "string" } },
+            optimal_times: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  day: { type: "string" },
+                  time: { type: "string" },
+                  engagement_score: { type: "number" }
+                }
+              }
+            },
+            hashtag_suggestions: { type: "array", items: { type: "string" } },
+            content_recommendations: { type: "array", items: { type: "string" } },
+            audience_insights: { type: "string" }
+          }
+        }
+      });
+
+      // Delete old insights for this account
+      const oldInsights = contentInsights.filter(i => i.social_account_id === account.id);
+      for (const insight of oldInsights) {
+        await base44.entities.ContentInsight.delete(insight.id);
+      }
+
+      await base44.entities.ContentInsight.create({
+        social_account_id: account.id,
+        ...analysis,
+        generated_date: new Date().toISOString()
+      });
+      return analysis;
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['content-insights'] }),
+  });
+
+  const optimizeContentMutation = useMutation({
+    mutationFn: async ({ content, platform }) => {
+      const result = await base44.integrations.Core.InvokeLLM({
+        prompt: `Optimize this ${platform} post for maximum engagement:
+        
+        Original: "${content}"
+        
+        Provide an optimized version with better hooks, calls to action, and relevant hashtags.`,
+        response_json_schema: {
+          type: "object",
+          properties: {
+            content: { type: "string" },
+            hashtags: { type: "array", items: { type: "string" } },
+            improvements: { type: "array", items: { type: "string" } }
+          }
+        }
+      });
+      return result;
     },
   });
 
@@ -143,12 +312,14 @@ export default function SocialMedia() {
   });
 
   const getAccountPosts = (accountId) => socialPosts.filter(p => p.social_account_id === accountId);
+  const getAccountInsights = (accountId) => contentInsights.find(i => i.social_account_id === accountId);
 
   const totalFollowers = socialAccounts.reduce((sum, a) => sum + (a.followers_count || 0), 0);
   const avgEngagement = socialAccounts.length > 0
     ? (socialAccounts.reduce((sum, a) => sum + (a.engagement_rate || 0), 0) / socialAccounts.length).toFixed(2)
     : 0;
   const totalPosts = socialPosts.length;
+  const pendingPosts = scheduledPosts.filter(p => p.status === 'scheduled').length;
 
   const sentimentBreakdown = {
     positive: socialPosts.filter(p => p.sentiment === 'positive').length,
@@ -204,35 +375,47 @@ export default function SocialMedia() {
         </Card>
       </div>
 
-      {/* Sentiment Overview */}
-      {totalPosts > 0 && (
-        <Card className="border-0 shadow-sm">
-          <CardHeader>
-            <CardTitle className="text-lg">Content Sentiment</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex gap-4">
-              {Object.entries(sentimentBreakdown).map(([sentiment, count]) => {
-                const config = sentimentConfig[sentiment];
-                const percentage = totalPosts > 0 ? ((count / totalPosts) * 100).toFixed(0) : 0;
-                return (
-                  <div key={sentiment} className={`flex-1 p-4 rounded-xl ${config.bg}`}>
-                    <div className="flex items-center gap-2 mb-2">
-                      <config.icon className={`w-5 h-5 ${config.color}`} />
-                      <span className="font-medium capitalize">{sentiment}</span>
-                    </div>
-                    <p className="text-2xl font-bold">{count}</p>
-                    <p className="text-sm text-gray-500">{percentage}% of posts</p>
-                  </div>
-                );
-              })}
-            </div>
-          </CardContent>
-        </Card>
-      )}
+      {/* Tabs Content */}
+      <Tabs defaultValue="accounts" className="space-y-4">
+        <div className="flex items-center justify-between">
+          <TabsList>
+            <TabsTrigger value="accounts">Accounts</TabsTrigger>
+            <TabsTrigger value="scheduler">Scheduler ({pendingPosts})</TabsTrigger>
+            <TabsTrigger value="insights">AI Insights</TabsTrigger>
+            <TabsTrigger value="competitors">Competitors</TabsTrigger>
+          </TabsList>
+        </div>
 
-      {/* Accounts */}
-      {loadingAccounts ? (
+        {/* Accounts Tab */}
+        <TabsContent value="accounts" className="space-y-4">
+          {/* Sentiment Overview */}
+          {totalPosts > 0 && (
+            <Card className="border-0 shadow-sm">
+              <CardHeader>
+                <CardTitle className="text-lg">Content Sentiment</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex gap-4">
+                  {Object.entries(sentimentBreakdown).map(([sentiment, count]) => {
+                    const config = sentimentConfig[sentiment];
+                    const percentage = totalPosts > 0 ? ((count / totalPosts) * 100).toFixed(0) : 0;
+                    return (
+                      <div key={sentiment} className={`flex-1 p-4 rounded-xl ${config.bg}`}>
+                        <div className="flex items-center gap-2 mb-2">
+                          <config.icon className={`w-5 h-5 ${config.color}`} />
+                          <span className="font-medium capitalize">{sentiment}</span>
+                        </div>
+                        <p className="text-2xl font-bold">{count}</p>
+                        <p className="text-sm text-gray-500">{percentage}% of posts</p>
+                      </div>
+                    );
+                  })}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {loadingAccounts ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {[...Array(3)].map((_, i) => (
             <Skeleton key={i} className="h-48 rounded-xl" />
@@ -271,8 +454,133 @@ export default function SocialMedia() {
               </Button>
             </div>
           ))}
-        </div>
-      )}
+        </TabsContent>
+
+        {/* Scheduler Tab */}
+        <TabsContent value="scheduler" className="space-y-4">
+          <div className="flex justify-end">
+            <Button 
+              onClick={() => { setEditingPost(null); setShowScheduleModal(true); }}
+              className="gap-2 bg-violet-600 hover:bg-violet-700"
+            >
+              <Plus className="w-4 h-4" />
+              Schedule Post
+            </Button>
+          </div>
+
+          {scheduledPosts.length === 0 ? (
+            <EmptyState
+              icon={Calendar}
+              title="No scheduled posts"
+              description="Schedule posts to automatically publish at optimal times."
+              actionLabel="Schedule Post"
+              onAction={() => { setEditingPost(null); setShowScheduleModal(true); }}
+            />
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {scheduledPosts.map((post) => (
+                <ScheduledPostCard
+                  key={post.id}
+                  post={post}
+                  onEdit={(p) => { setEditingPost(p); setShowScheduleModal(true); }}
+                  onDelete={(id) => deleteScheduledPostMutation.mutate(id)}
+                />
+              ))}
+            </div>
+          )}
+        </TabsContent>
+
+        {/* AI Insights Tab */}
+        <TabsContent value="insights" className="space-y-4">
+          {socialAccounts.length === 0 ? (
+            <EmptyState
+              icon={Lightbulb}
+              title="Add accounts first"
+              description="Add social media accounts to generate AI-powered insights."
+            />
+          ) : (
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <div className="space-y-3">
+                <h3 className="font-semibold text-gray-900">Select Account</h3>
+                {socialAccounts.map((account) => (
+                  <Card 
+                    key={account.id}
+                    className={`p-3 border-0 shadow-sm cursor-pointer transition-all ${
+                      selectedAccount?.id === account.id ? 'ring-2 ring-violet-500' : 'hover:shadow-md'
+                    }`}
+                    onClick={() => setSelectedAccount(account)}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Badge className="bg-violet-100 text-violet-700 border-0">{account.platform}</Badge>
+                        <span className="font-medium">@{account.account_name}</span>
+                      </div>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={(e) => { e.stopPropagation(); generateInsightsMutation.mutate(account); }}
+                        disabled={generateInsightsMutation.isPending}
+                        className="gap-1"
+                      >
+                        {generateInsightsMutation.isPending ? (
+                          <Loader2 className="w-3 h-3 animate-spin" />
+                        ) : (
+                          <Sparkles className="w-3 h-3" />
+                        )}
+                        Generate
+                      </Button>
+                    </div>
+                  </Card>
+                ))}
+              </div>
+              <div className="lg:col-span-2">
+                {selectedAccount ? (
+                  <ContentInsightsCard insights={getAccountInsights(selectedAccount.id)} />
+                ) : (
+                  <Card className="border-0 shadow-sm p-8 text-center">
+                    <Lightbulb className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+                    <p className="text-gray-500">Select an account and generate insights</p>
+                  </Card>
+                )}
+              </div>
+            </div>
+          )}
+        </TabsContent>
+
+        {/* Competitors Tab */}
+        <TabsContent value="competitors" className="space-y-4">
+          <div className="flex justify-end">
+            <Button 
+              onClick={() => setShowCompetitorModal(true)}
+              className="gap-2 bg-violet-600 hover:bg-violet-700"
+            >
+              <Plus className="w-4 h-4" />
+              Add Competitor
+            </Button>
+          </div>
+
+          {competitors.length === 0 ? (
+            <EmptyState
+              icon={Target}
+              title="No competitors tracked"
+              description="Add competitors to benchmark your social media performance."
+              actionLabel="Add Competitor"
+              onAction={() => setShowCompetitorModal(true)}
+            />
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {competitors.map((competitor) => (
+                <CompetitorCard
+                  key={competitor.id}
+                  competitor={competitor}
+                  onAnalyze={() => analyzeCompetitorMutation.mutate(competitor)}
+                  isAnalyzing={analyzingCompetitor === competitor.id}
+                />
+              ))}
+            </div>
+          )}
+        </TabsContent>
+      </Tabs>
 
       {/* Add Account Modal */}
       <Dialog open={showAddModal} onOpenChange={setShowAddModal}>
@@ -387,6 +695,58 @@ export default function SocialMedia() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Add Competitor Modal */}
+      <Dialog open={showCompetitorModal} onOpenChange={setShowCompetitorModal}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Add Competitor</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label>Competitor Name</Label>
+              <Input
+                value={newCompetitor.name}
+                onChange={(e) => setNewCompetitor({ ...newCompetitor, name: e.target.value })}
+                placeholder="e.g., Competitor Inc"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Website (optional)</Label>
+              <Input
+                value={newCompetitor.website}
+                onChange={(e) => setNewCompetitor({ ...newCompetitor, website: e.target.value })}
+                placeholder="https://competitor.com"
+              />
+            </div>
+            <div className="flex justify-end gap-3 pt-4">
+              <Button variant="outline" onClick={() => setShowCompetitorModal(false)}>Cancel</Button>
+              <Button 
+                onClick={() => createCompetitorMutation.mutate(newCompetitor)}
+                disabled={!newCompetitor.name || createCompetitorMutation.isPending}
+              >
+                {createCompetitorMutation.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                Add Competitor
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Schedule Post Modal */}
+      <SchedulePostModal
+        open={showScheduleModal}
+        onClose={() => { setShowScheduleModal(false); setEditingPost(null); }}
+        post={editingPost}
+        accounts={socialAccounts}
+        onSave={(data) => createScheduledPostMutation.mutate(data)}
+        onOptimize={async (content, platform) => {
+          const result = await optimizeContentMutation.mutateAsync({ content, platform });
+          return result;
+        }}
+        isLoading={createScheduledPostMutation.isPending}
+        isOptimizing={optimizeContentMutation.isPending}
+      />
     </div>
   );
 }
