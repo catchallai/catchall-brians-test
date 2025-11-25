@@ -24,6 +24,7 @@ import TrendAnalysisCard from '@/components/social/TrendAnalysisCard';
 import CompetitorDetailCard from '@/components/social/CompetitorDetailCard';
 import SchedulePostModal from '@/components/modals/SchedulePostModal';
 import ABTestModal from '@/components/modals/ABTestModal';
+import ContentGeneratorCard from '@/components/social/ContentGeneratorCard';
 import EmptyState from '@/components/ui/EmptyState';
 import {
   Dialog,
@@ -378,6 +379,77 @@ export default function SocialMedia() {
     },
   });
 
+  const generateContentMutation = useMutation({
+    mutationFn: async ({ contentType, platform, tone, topic, trendingTopics, emergingTrends, competitorInsights, winningContent }) => {
+      const contextInfo = `
+        Trending topics: ${trendingTopics.join(', ') || 'None'}
+        Emerging trends: ${emergingTrends.join(', ') || 'None'}
+        Competitor content themes: ${competitorInsights.join(', ') || 'None'}
+        Winning A/B test content examples: ${winningContent.join(' | ') || 'None'}
+      `;
+
+      if (contentType === 'social_post') {
+        return await base44.integrations.Core.InvokeLLM({
+          prompt: `Generate an engaging ${platform} post with a ${tone} tone.
+          ${topic ? `Topic: ${topic}` : 'Use trending topics for inspiration.'}
+          
+          Context from analytics:
+          ${contextInfo}
+          
+          Create content optimized for ${platform} engagement.`,
+          response_json_schema: {
+            type: "object",
+            properties: {
+              content: { type: "string" },
+              hashtags: { type: "array", items: { type: "string" } }
+            }
+          }
+        });
+      }
+
+      if (contentType === 'email_campaign') {
+        return await base44.integrations.Core.InvokeLLM({
+          prompt: `Generate email campaign copy with a ${tone} tone.
+          ${topic ? `Topic: ${topic}` : 'Use trending topics for inspiration.'}
+          
+          Context from analytics:
+          ${contextInfo}
+          
+          Create compelling email content with subject line, preview text, body, and CTA.`,
+          response_json_schema: {
+            type: "object",
+            properties: {
+              subject: { type: "string" },
+              preview: { type: "string" },
+              content: { type: "string" },
+              cta: { type: "string" }
+            }
+          }
+        });
+      }
+
+      if (contentType === 'blog_outline') {
+        return await base44.integrations.Core.InvokeLLM({
+          prompt: `Generate a blog post outline with a ${tone} tone.
+          ${topic ? `Topic: ${topic}` : 'Use trending topics for inspiration.'}
+          
+          Context from analytics:
+          ${contextInfo}
+          
+          Create a comprehensive blog outline with title, sections, and SEO keywords.`,
+          response_json_schema: {
+            type: "object",
+            properties: {
+              title: { type: "string" },
+              outline: { type: "array", items: { type: "string" } },
+              keywords: { type: "array", items: { type: "string" } }
+            }
+          }
+        });
+      }
+    },
+  });
+
   const analyzeAccountMutation = useMutation({
     mutationFn: async (account) => {
       // Use AI to analyze social media presence
@@ -529,6 +601,7 @@ export default function SocialMedia() {
             <TabsTrigger value="accounts">Accounts</TabsTrigger>
             <TabsTrigger value="scheduler">Scheduler ({pendingPosts})</TabsTrigger>
             <TabsTrigger value="insights">AI Insights</TabsTrigger>
+            <TabsTrigger value="generator">Content Generator</TabsTrigger>
             <TabsTrigger value="competitors">Competitors</TabsTrigger>
             <TabsTrigger value="abtests">A/B Tests</TabsTrigger>
           </TabsList>
@@ -722,6 +795,25 @@ export default function SocialMedia() {
               </div>
             </div>
           )}
+        </TabsContent>
+
+        {/* Content Generator Tab */}
+        <TabsContent value="generator" className="space-y-4">
+          <ContentGeneratorCard
+            insights={contentInsights}
+            competitors={competitors}
+            abTests={abTests}
+            onGenerate={async (params) => {
+              const result = await generateContentMutation.mutateAsync(params);
+              return result;
+            }}
+            isGenerating={generateContentMutation.isPending}
+            onSchedulePost={(data) => {
+              setEditingPost(null);
+              setShowScheduleModal(true);
+              // Pre-fill will happen through the modal
+            }}
+          />
         </TabsContent>
 
         {/* Competitors Tab */}
