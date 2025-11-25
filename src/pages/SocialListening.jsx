@@ -234,10 +234,14 @@ Also provide:
         total_mentions: (keyword.total_mentions || 0) + (analysis.mentions?.length || 0),
       });
 
-      // Save new mentions
+      // Track alerts to avoid duplicates
+      const alertsToCreate = [];
+      const seenAlerts = new Set();
+
+      // Save new mentions and detect per-mention alerts
       if (analysis.mentions?.length > 0) {
         for (const mention of analysis.mentions) {
-          await base44.entities.ListeningMention.create({
+          const savedMention = await base44.entities.ListeningMention.create({
             listening_id: keyword.id,
             platform: mention.platform || 'twitter',
             content: mention.content,
@@ -254,38 +258,85 @@ Also provide:
             post_date: new Date().toISOString(),
           });
 
-          // Create alert for influencer mentions
-          if (mention.is_influencer || mention.influence_score >= 70) {
-            await base44.entities.ListeningAlert.create({
-              listening_id: keyword.id,
-              type: 'influencer',
-              severity: mention.influence_score >= 85 ? 'high' : 'medium',
-              title: `Influencer mention: @${mention.author}`,
-              description: `${mention.author} (${(mention.author_followers || 0).toLocaleString()} followers) mentioned "${searchTerm}": "${mention.content?.slice(0, 100)}..."`,
-            });
+          // Influencer Detection
+          if (mention.is_influencer || mention.author_followers > 10000 || mention.influence_score >= 70) {
+            const alertKey = `influencer-${mention.author}`;
+            if (!seenAlerts.has(alertKey)) {
+              seenAlerts.add(alertKey);
+              alertsToCreate.push({
+                listening_id: keyword.id,
+                type: 'influencer',
+                severity: mention.author_followers > 100000 ? 'critical' : mention.influence_score >= 85 ? 'high' : 'medium',
+                title: `Influencer mention: @${mention.author}`,
+                description: `${mention.author} (${(mention.author_followers || 0).toLocaleString()} followers) mentioned "${searchTerm}": "${mention.content?.slice(0, 100)}..."`,
+                mention_id: savedMention.id,
+              });
+            }
+          }
+
+          // Viral Post Detection
+          const totalEngagement = (mention.likes || 0) + (mention.comments || 0) + (mention.shares || 0);
+          if (totalEngagement > 1000) {
+            const alertKey = `viral-${mention.author}-${totalEngagement}`;
+            if (!seenAlerts.has(alertKey)) {
+              seenAlerts.add(alertKey);
+              alertsToCreate.push({
+                listening_id: keyword.id,
+                type: 'viral',
+                severity: totalEngagement > 10000 ? 'critical' : totalEngagement > 5000 ? 'high' : 'medium',
+                title: `Potentially viral post detected`,
+                description: `A post about "${searchTerm}" by @${mention.author} is gaining traction with ${totalEngagement.toLocaleString()} total engagements.`,
+                mention_id: savedMention.id,
+              });
+            }
+          }
+
+          // Competitor Mention Detection
+          const competitorKeywords = ['competitor', 'vs', 'versus', 'alternative', 'better than', 'switch from', 'moved to', 'compared to', 'instead of'];
+          const contentLower = (mention.content || '').toLowerCase();
+          if (competitorKeywords.some(kw => contentLower.includes(kw))) {
+            const alertKey = `competitor-${savedMention.id}`;
+            if (!seenAlerts.has(alertKey)) {
+              seenAlerts.add(alertKey);
+              alertsToCreate.push({
+                listening_id: keyword.id,
+                type: 'competitor',
+                severity: 'medium',
+                title: `Competitor comparison detected`,
+                description: `A post comparing or mentioning competitors was found: "${mention.content?.slice(0, 100)}..."`,
+                mention_id: savedMention.id,
+              });
+            }
           }
         }
       }
 
-      // Create alerts based on analysis
+      // Spike Detection
       if (analysis.has_spike) {
-        await base44.entities.ListeningAlert.create({
+        alertsToCreate.push({
           listening_id: keyword.id,
           type: 'spike',
-          severity: 'high',
+          severity: analysis.trending_score > 80 ? 'critical' : 'high',
           title: `Mention spike detected for "${searchTerm}"`,
-          description: `There's been a significant increase in mentions of "${searchTerm}". Current trending score: ${analysis.trending_score || 0}`,
+          description: `There's been a significant increase in mentions of "${searchTerm}". Current trending score: ${analysis.trending_score || 0}. This could indicate viral content or breaking news.`,
         });
       }
 
+      // Negative Sentiment Shift Detection
       if (analysis.negative_shift) {
-        await base44.entities.ListeningAlert.create({
+        const negativePercent = analysis.sentiment_breakdown?.negative || 0;
+        alertsToCreate.push({
           listening_id: keyword.id,
           type: 'negative_sentiment',
-          severity: 'critical',
+          severity: negativePercent > 50 ? 'critical' : negativePercent > 35 ? 'high' : 'medium',
           title: `Negative sentiment shift for "${searchTerm}"`,
-          description: `Sentiment has shifted negative. ${analysis.sentiment_breakdown?.negative || 0} negative mentions detected.`,
+          description: `Sentiment has shifted negative with ${negativePercent}% negative mentions. Review recent posts for potential reputation issues.`,
         });
+      }
+
+      // Create all alerts
+      for (const alert of alertsToCreate) {
+        await base44.entities.ListeningAlert.create(alert);
       }
 
       return analysis;
