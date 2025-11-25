@@ -4,8 +4,12 @@ import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import StatsCard from '@/components/crm/StatsCard';
+import RecentActivityFeed from '@/components/dashboard/RecentActivityFeed';
+import AlertsSummary from '@/components/dashboard/AlertsSummary';
+import QuickActions from '@/components/dashboard/QuickActions';
+import SocialStats from '@/components/dashboard/SocialStats';
 import { Users, Building2, DollarSign, TrendingUp, Target, Search, Link2, Activity } from "lucide-react";
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 
@@ -33,6 +37,21 @@ export default function Dashboard() {
   const { data: keywords = [], isLoading: loadingKeywords } = useQuery({
     queryKey: ['keywords'],
     queryFn: () => base44.entities.Keyword.list('-created_date', 100),
+  });
+
+  const { data: mentions = [] } = useQuery({
+    queryKey: ['dashboard-mentions'],
+    queryFn: () => base44.entities.ListeningMention.list('-created_date', 50),
+  });
+
+  const { data: alerts = [] } = useQuery({
+    queryKey: ['dashboard-alerts'],
+    queryFn: () => base44.entities.ListeningAlert.filter({ is_dismissed: false }, '-created_date', 10),
+  });
+
+  const { data: calendarPosts = [] } = useQuery({
+    queryKey: ['dashboard-posts'],
+    queryFn: () => base44.entities.CalendarPost.list('-scheduled_date', 20),
   });
 
   const isLoading = loadingContacts || loadingCompanies || loadingDeals || loadingWebsites || loadingKeywords;
@@ -88,10 +107,15 @@ export default function Dashboard() {
   return (
     <div className="p-6 lg:p-8 space-y-8 bg-gray-50 min-h-screen">
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-        <p className="text-gray-500 mt-1">Welcome back. Here's what's happening with your business.</p>
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
+          <p className="text-gray-500 mt-1">Welcome back. Here's what's happening with your business.</p>
+        </div>
       </div>
+
+      {/* Quick Actions */}
+      <QuickActions />
 
       {/* CRM Stats */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -244,48 +268,13 @@ export default function Dashboard() {
         </Card>
       </div>
 
-      {/* Quick Links */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Link to={createPageUrl('Contacts')}>
-          <Card className="border-0 shadow-sm hover:shadow-md transition-all cursor-pointer group p-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-blue-50 text-blue-600 group-hover:bg-blue-100 transition-colors">
-                <Users className="w-5 h-5" />
-              </div>
-              <span className="font-medium text-gray-700 group-hover:text-gray-900">Contacts</span>
-            </div>
-          </Card>
-        </Link>
-        <Link to={createPageUrl('Deals')}>
-          <Card className="border-0 shadow-sm hover:shadow-md transition-all cursor-pointer group p-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-violet-50 text-violet-600 group-hover:bg-violet-100 transition-colors">
-                <Target className="w-5 h-5" />
-              </div>
-              <span className="font-medium text-gray-700 group-hover:text-gray-900">Deals</span>
-            </div>
-          </Card>
-        </Link>
-        <Link to={createPageUrl('SEODashboard')}>
-          <Card className="border-0 shadow-sm hover:shadow-md transition-all cursor-pointer group p-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-emerald-50 text-emerald-600 group-hover:bg-emerald-100 transition-colors">
-                <Search className="w-5 h-5" />
-              </div>
-              <span className="font-medium text-gray-700 group-hover:text-gray-900">SEO</span>
-            </div>
-          </Card>
-        </Link>
-        <Link to={createPageUrl('Keywords')}>
-          <Card className="border-0 shadow-sm hover:shadow-md transition-all cursor-pointer group p-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-amber-50 text-amber-600 group-hover:bg-amber-100 transition-colors">
-                <TrendingUp className="w-5 h-5" />
-              </div>
-              <span className="font-medium text-gray-700 group-hover:text-gray-900">Keywords</span>
-            </div>
-          </Card>
-        </Link>
+      {/* Social Stats */}
+      <SocialStats mentions={mentions} posts={calendarPosts} />
+
+      {/* Activity & Alerts Row */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <RecentActivityFeed contacts={contacts} deals={deals} mentions={mentions} />
+        <AlertsSummary alerts={alerts} keywords={keywords} mentions={mentions} />
       </div>
     </div>
   );
