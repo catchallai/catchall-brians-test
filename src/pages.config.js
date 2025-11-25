@@ -21,6 +21,7 @@ import SocialCalendar from './pages/SocialCalendar';
 import Listings from './pages/Listings';
 import PressMonitoring from './pages/PressMonitoring';
 import WebCrawler from './pages/WebCrawler';
+import ContentStrategy from './pages/ContentStrategy';
 import __Layout from './Layout.jsx';
 
 
@@ -48,6 +49,7 @@ export const PAGES = {
     "Listings": Listings,
     "PressMonitoring": PressMonitoring,
     "WebCrawler": WebCrawler,
+    "ContentStrategy": ContentStrategy,
 }
 
 export const pagesConfig = {

@@ -61,6 +61,7 @@ const navigation = [
   { name: 'Keywords', icon: Target, page: 'Keywords' },
   { name: 'Backlinks', icon: Link2, page: 'Backlinks' },
   { name: 'SEO Audit', icon: FileSearch, page: 'SEOAudit' },
+  { name: 'Content Strategy', icon: FileText, page: 'ContentStrategy' },
   { name: 'Listings', icon: MapPin, page: 'Listings' },
   { name: 'Press Monitoring', icon: Newspaper, page: 'PressMonitoring' },
   { name: 'Web Crawler', icon: Globe, page: 'WebCrawler' },
