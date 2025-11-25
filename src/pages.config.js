@@ -20,6 +20,7 @@ import SocialListening from './pages/SocialListening';
 import SocialCalendar from './pages/SocialCalendar';
 import Listings from './pages/Listings';
 import PressMonitoring from './pages/PressMonitoring';
+import WebCrawler from './pages/WebCrawler';
 import __Layout from './Layout.jsx';
 
 
@@ -46,6 +47,7 @@ export const PAGES = {
     "SocialCalendar": SocialCalendar,
     "Listings": Listings,
     "PressMonitoring": PressMonitoring,
+    "WebCrawler": WebCrawler,
 }
 
 export const pagesConfig = {
