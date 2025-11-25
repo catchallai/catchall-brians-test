@@ -2,7 +2,7 @@ import React from 'react';
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Calendar, DollarSign, Users, Target, TrendingUp } from "lucide-react";
+import { Calendar, DollarSign, Users, Target } from "lucide-react";
 import { format } from "date-fns";
 
 const typeIcons = {
