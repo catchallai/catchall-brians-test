@@ -13,7 +13,7 @@ import {
   Plus, Search, Loader2, RefreshCw, TrendingUp, TrendingDown,
   MessageSquare, Heart, Share2, Users, BarChart3, Sparkles,
   ThumbsUp, ThumbsDown, Minus, Calendar, Target, Lightbulb, FlaskConical, CalendarDays,
-  Pencil, Trash2
+  Pencil, Trash2, FileText, Clock
 } from "lucide-react";
 import SocialAccountCard from '@/components/seo/SocialAccountCard';
 import ContentInsightsCard from '@/components/social/ContentInsightsCard';
@@ -967,18 +967,78 @@ export default function SocialMedia() {
               <div className="space-y-3">
                 <h3 className="font-semibold text-gray-900">Competitors</h3>
                 {competitors.map((competitor) => (
-                  <CompetitorCard
-                    key={competitor.id}
-                    competitor={competitor}
-                    onAnalyze={() => analyzeCompetitorMutation.mutate(competitor)}
-                    isAnalyzing={analyzingCompetitor === competitor.id}
-                    onClick={() => setSelectedCompetitor(competitor)}
-                  />
+                  <div key={competitor.id}>
+                    <CompetitorCard
+                      competitor={competitor}
+                      onAnalyze={() => analyzeCompetitorMutation.mutate(competitor)}
+                      isAnalyzing={analyzingCompetitor === competitor.id}
+                      onClick={() => setSelectedCompetitor(competitor)}
+                    />
+                    <div className="flex gap-1 mt-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="flex-1 gap-1 text-xs"
+                        onClick={() => generateReportMutation.mutate({ competitor, reportType: 'daily' })}
+                        disabled={generatingReport === competitor.id}
+                      >
+                        {generatingReport === competitor.id ? (
+                          <Loader2 className="w-3 h-3 animate-spin" />
+                        ) : (
+                          <Clock className="w-3 h-3" />
+                        )}
+                        Daily Report
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="flex-1 gap-1 text-xs"
+                        onClick={() => generateReportMutation.mutate({ competitor, reportType: 'weekly' })}
+                        disabled={generatingReport === competitor.id}
+                      >
+                        {generatingReport === competitor.id ? (
+                          <Loader2 className="w-3 h-3 animate-spin" />
+                        ) : (
+                          <FileText className="w-3 h-3" />
+                        )}
+                        Weekly Report
+                      </Button>
+                    </div>
+                  </div>
                 ))}
               </div>
-              <div className="lg:col-span-2">
+              <div className="lg:col-span-2 space-y-4">
                 {selectedCompetitor ? (
-                  <CompetitorDetailCard competitor={selectedCompetitor} />
+                  <>
+                    <CompetitorDetailCard competitor={selectedCompetitor} />
+                    
+                    {/* Recent Reports */}
+                    {competitorReports.filter(r => r.competitor_id === selectedCompetitor.id).length > 0 && (
+                      <Card className="border-0 shadow-sm">
+                        <CardHeader className="pb-2">
+                          <CardTitle className="text-sm flex items-center gap-2">
+                            <FileText className="w-4 h-4 text-violet-500" />
+                            Recent Reports
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            {competitorReports
+                              .filter(r => r.competitor_id === selectedCompetitor.id)
+                              .slice(0, 4)
+                              .map((report) => (
+                                <CompetitorReportCard
+                                  key={report.id}
+                                  report={report}
+                                  competitorName={selectedCompetitor.name}
+                                  onClick={() => setSelectedReport(report)}
+                                />
+                              ))}
+                          </div>
+                        </CardContent>
+                      </Card>
+                    )}
+                  </>
                 ) : (
                   <Card className="border-0 shadow-sm p-8 text-center">
                     <Target className="w-12 h-12 text-gray-300 mx-auto mb-3" />
@@ -1283,6 +1343,14 @@ export default function SocialMedia() {
         }}
         isLoading={createABTestMutation.isPending}
         isGenerating={generateVariantMutation.isPending}
+      />
+
+      {/* Competitor Report Modal */}
+      <CompetitorReportModal
+        open={!!selectedReport}
+        onClose={() => setSelectedReport(null)}
+        report={selectedReport}
+        competitorName={competitors.find(c => c.id === selectedReport?.competitor_id)?.name || 'Competitor'}
       />
     </div>
   );
