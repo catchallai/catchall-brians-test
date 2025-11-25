@@ -699,7 +699,10 @@ export default function SocialMedia() {
     },
   });
 
-  const getAccountPosts = (accountId) => socialPosts.filter(p => p.social_account_id === accountId);
+  const getAccountPosts = (accountId) => {
+    if (!accountId) return [];
+    return socialPosts.filter(p => p.social_account_id === accountId);
+  };
   const getAccountInsights = (accountId) => contentInsights.find(i => i.social_account_id === accountId);
 
   const totalFollowers = socialAccounts.reduce((sum, a) => sum + (a.followers_count || 0), 0);
