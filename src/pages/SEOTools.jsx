@@ -13,9 +13,11 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Search, Globe, Shield, Smartphone, Zap, FileText, 
   CheckCircle, AlertTriangle, XCircle, Loader2, RefreshCw,
-  ExternalLink, Code, Image, Link2, Clock
+  ExternalLink, Code, Image, Link2, Clock, Target, Sparkles
 } from "lucide-react";
 import SEOCheckCard from '@/components/seo/SEOCheckCard';
+import KeywordResearchCard from '@/components/seo/KeywordResearchCard';
+import OnPageSEOAnalyzer from '@/components/seo/OnPageSEOAnalyzer';
 import {
   Dialog,
   DialogContent,
@@ -178,15 +180,52 @@ export default function SEOTools() {
     };
   });
 
+  const addKeywordMutation = useMutation({
+    mutationFn: async (keywordData) => {
+      const website = websites[0];
+      if (!website) return;
+      
+      await base44.entities.Keyword.create({
+        keyword: keywordData.keyword,
+        website_id: website.id,
+        search_volume: keywordData.search_volume || 0,
+        difficulty: keywordData.difficulty || 0,
+        cpc: keywordData.cpc || 0
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['keywords'] });
+    }
+  });
+
   return (
     <div className="p-6 lg:p-8 space-y-6 bg-gray-50 min-h-screen">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">SEO Verification Tools</h1>
-        <p className="text-gray-500 mt-1">Comprehensive website SEO analysis</p>
+        <h1 className="text-3xl font-bold text-gray-900">SEO Tools</h1>
+        <p className="text-gray-500 mt-1">Keyword research, on-page analysis, and site audits</p>
       </div>
 
-      {/* URL Input */}
+      {/* Main Tabs */}
+      <Tabs defaultValue="audit" className="space-y-6">
+        <TabsList>
+          <TabsTrigger value="audit" className="gap-2">
+            <Globe className="w-4 h-4" />
+            Site Audit
+          </TabsTrigger>
+          <TabsTrigger value="keywords" className="gap-2">
+            <Target className="w-4 h-4" />
+            Keyword Research
+          </TabsTrigger>
+          <TabsTrigger value="onpage" className="gap-2">
+            <FileText className="w-4 h-4" />
+            On-Page Analysis
+          </TabsTrigger>
+        </TabsList>
+
+        {/* Site Audit Tab */}
+        <TabsContent value="audit" className="space-y-6">
+          {/* URL Input */}
       <Card className="border-0 shadow-sm">
         <CardContent className="p-6">
           <div className="flex flex-col sm:flex-row gap-4">
@@ -229,8 +268,8 @@ export default function SEOTools() {
         </CardContent>
       </Card>
 
-      {/* Score Overview */}
-      {totalChecks > 0 && (
+          {/* Score Overview */}
+          {totalChecks > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <Card className="border-0 shadow-sm">
             <CardContent className="p-4 text-center">
@@ -264,8 +303,8 @@ export default function SEOTools() {
         </div>
       )}
 
-      {/* Category Scores */}
-      {totalChecks > 0 && (
+          {/* Category Scores */}
+          {totalChecks > 0 && (
         <Card className="border-0 shadow-sm">
           <CardHeader>
             <CardTitle className="text-lg">Category Breakdown</CardTitle>
@@ -295,8 +334,8 @@ export default function SEOTools() {
         </Card>
       )}
 
-      {/* Results */}
-      {loadingChecks ? (
+          {/* Results */}
+          {loadingChecks ? (
         <div className="space-y-3">
           {[...Array(5)].map((_, i) => (
             <Skeleton key={i} className="h-20 rounded-xl" />
@@ -323,58 +362,70 @@ export default function SEOTools() {
             />
           ))}
         </div>
-      ) : (
-        <Card className="border-0 shadow-sm">
-          <CardContent className="py-16 text-center">
-            <Globe className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No SEO checks yet</h3>
-            <p className="text-gray-500 mb-4">Enter a URL above and run a full audit to see results</p>
-          </CardContent>
-        </Card>
-      )}
+          ) : (
+            <Card className="border-0 shadow-sm">
+              <CardContent className="py-16 text-center">
+                <Globe className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-900 mb-2">No SEO checks yet</h3>
+                <p className="text-gray-500 mb-4">Enter a URL above and run a full audit to see results</p>
+              </CardContent>
+            </Card>
+          )}
 
-      {/* Check Detail Modal */}
-      <Dialog open={!!selectedCheck} onOpenChange={() => setSelectedCheck(null)}>
-        <DialogContent className="sm:max-w-lg">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              {selectedCheck?.status === 'pass' && <CheckCircle className="w-5 h-5 text-emerald-500" />}
-              {selectedCheck?.status === 'warning' && <AlertTriangle className="w-5 h-5 text-amber-500" />}
-              {selectedCheck?.status === 'fail' && <XCircle className="w-5 h-5 text-red-500" />}
-              {selectedCheck?.check_name}
-            </DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div className="flex gap-2">
-              <Badge className="bg-gray-100 text-gray-700">{selectedCheck?.check_type?.replace('_', ' ')}</Badge>
-              {selectedCheck?.priority && (
-                <Badge className={`${
-                  selectedCheck.priority === 'critical' ? 'bg-red-100 text-red-700' :
-                  selectedCheck.priority === 'high' ? 'bg-orange-100 text-orange-700' :
-                  selectedCheck.priority === 'medium' ? 'bg-amber-100 text-amber-700' :
-                  'bg-blue-100 text-blue-700'
-                }`}>
-                  {selectedCheck.priority} priority
-                </Badge>
-              )}
-            </div>
-            
-            {selectedCheck?.details && (
-              <div>
-                <h4 className="font-medium text-gray-900 mb-1">Details</h4>
-                <p className="text-sm text-gray-600">{selectedCheck.details}</p>
+          {/* Check Detail Modal */}
+          <Dialog open={!!selectedCheck} onOpenChange={() => setSelectedCheck(null)}>
+            <DialogContent className="sm:max-w-lg">
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-2">
+                  {selectedCheck?.status === 'pass' && <CheckCircle className="w-5 h-5 text-emerald-500" />}
+                  {selectedCheck?.status === 'warning' && <AlertTriangle className="w-5 h-5 text-amber-500" />}
+                  {selectedCheck?.status === 'fail' && <XCircle className="w-5 h-5 text-red-500" />}
+                  {selectedCheck?.check_name}
+                </DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4">
+                <div className="flex gap-2">
+                  <Badge className="bg-gray-100 text-gray-700">{selectedCheck?.check_type?.replace('_', ' ')}</Badge>
+                  {selectedCheck?.priority && (
+                    <Badge className={`${
+                      selectedCheck.priority === 'critical' ? 'bg-red-100 text-red-700' :
+                      selectedCheck.priority === 'high' ? 'bg-orange-100 text-orange-700' :
+                      selectedCheck.priority === 'medium' ? 'bg-amber-100 text-amber-700' :
+                      'bg-blue-100 text-blue-700'
+                    }`}>
+                      {selectedCheck.priority} priority
+                    </Badge>
+                  )}
+                </div>
+                
+                {selectedCheck?.details && (
+                  <div>
+                    <h4 className="font-medium text-gray-900 mb-1">Details</h4>
+                    <p className="text-sm text-gray-600">{selectedCheck.details}</p>
+                  </div>
+                )}
+                
+                {selectedCheck?.recommendation && (
+                  <div className="p-4 bg-violet-50 rounded-lg">
+                    <h4 className="font-medium text-violet-900 mb-1">Recommendation</h4>
+                    <p className="text-sm text-violet-700">{selectedCheck.recommendation}</p>
+                  </div>
+                )}
               </div>
-            )}
-            
-            {selectedCheck?.recommendation && (
-              <div className="p-4 bg-violet-50 rounded-lg">
-                <h4 className="font-medium text-violet-900 mb-1">Recommendation</h4>
-                <p className="text-sm text-violet-700">{selectedCheck.recommendation}</p>
-              </div>
-            )}
-          </div>
-        </DialogContent>
-      </Dialog>
+            </DialogContent>
+          </Dialog>
+        </TabsContent>
+
+        {/* Keyword Research Tab */}
+        <TabsContent value="keywords">
+          <KeywordResearchCard onAddKeyword={(kw) => addKeywordMutation.mutate(kw)} />
+        </TabsContent>
+
+        {/* On-Page Analysis Tab */}
+        <TabsContent value="onpage">
+          <OnPageSEOAnalyzer />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
