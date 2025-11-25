@@ -9,6 +9,7 @@ import { Plus, Globe, TrendingUp, Link2, Search, ExternalLink, Settings, Sparkle
 import SEOScoreGauge from '@/components/seo/SEOScoreGauge';
 import WebsiteModal from '@/components/modals/WebsiteModal';
 import EmptyState from '@/components/ui/EmptyState';
+import PredictiveAnalyticsCard from '@/components/seo/PredictiveAnalyticsCard';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 
@@ -413,6 +414,13 @@ export default function SEODashboard() {
               );
             })}
           </div>
+
+          {/* AI Predictive Analytics */}
+          <PredictiveAnalyticsCard 
+            websites={websites} 
+            keywords={keywords} 
+            backlinks={backlinks} 
+          />
 
           {/* Quick Actions */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
