@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import GlobalSearch from '@/components/search/GlobalSearch';
 import {
   LayoutDashboard,
   Users,
@@ -186,10 +187,10 @@ export default function Layout({ children, currentPageName }) {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Mobile Header */}
-      <div className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-white border-b border-gray-100 z-40 flex items-center justify-between px-4">
+      <div className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-white border-b border-gray-100 z-40 flex items-center gap-3 px-4">
         <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
           <SheetTrigger asChild>
-            <Button variant="ghost" size="icon">
+            <Button variant="ghost" size="icon" className="shrink-0">
               <Menu className="w-5 h-5" />
             </Button>
           </SheetTrigger>
@@ -197,25 +198,44 @@ export default function Layout({ children, currentPageName }) {
             <SidebarContent currentPage={currentPageName} onNavigate={() => setSidebarOpen(false)} />
           </SheetContent>
         </Sheet>
-        
-        <div className="flex items-center gap-2">
-          <img 
-            src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6925162397800755912704a9/3da4d00f2_catchall.jpg" 
-            alt="CatchAll" 
-            className="h-6 object-contain"
-          />
-          <span className="font-semibold text-gray-900">CatchAll</span>
+
+        <div className="flex-1">
+          <GlobalSearch />
         </div>
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="rounded-full">
+            <Button variant="ghost" size="icon" className="rounded-full shrink-0">
               <Avatar className="w-8 h-8">
                 <AvatarFallback className="bg-violet-100 text-violet-600 text-sm">
                   {user?.full_name?.[0] || user?.email?.[0]?.toUpperCase() || 'U'}
                 </AvatarFallback>
               </Avatar>
             </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-48">
+            <DropdownMenuItem onClick={handleLogout}>
+              <LogOut className="w-4 h-4 mr-2" />
+              Logout
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+
+      {/* Desktop Top Bar with Search */}
+      <div className="hidden lg:flex fixed top-0 left-64 right-0 h-14 bg-white border-b border-gray-100 z-30 items-center justify-between px-6">
+        <GlobalSearch />
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button className="flex items-center gap-2 hover:bg-gray-50 rounded-lg px-2 py-1.5 transition-colors">
+              <Avatar className="w-8 h-8">
+                <AvatarFallback className="bg-violet-100 text-violet-600 text-sm font-medium">
+                  {user?.full_name?.[0] || user?.email?.[0]?.toUpperCase() || 'U'}
+                </AvatarFallback>
+              </Avatar>
+              <span className="text-sm font-medium text-gray-700">{user?.full_name || 'User'}</span>
+              <ChevronDown className="w-4 h-4 text-gray-400" />
+            </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-48">
             <DropdownMenuItem onClick={handleLogout}>
@@ -263,7 +283,7 @@ export default function Layout({ children, currentPageName }) {
 
       {/* Main Content */}
       <main className="lg:pl-64">
-        <div className="pt-16 lg:pt-0 min-h-screen">
+        <div className="pt-16 lg:pt-14 min-h-screen">
           {children}
         </div>
       </main>
