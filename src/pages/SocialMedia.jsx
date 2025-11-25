@@ -842,7 +842,7 @@ export default function SocialMedia() {
               onClick={() => setSelectedAccount(account)}
               onEdit={(acc) => setEditingAccount(acc)}
               onAnalyze={(acc) => analyzeAccountMutation.mutate(acc)}
-              isAnalyzing={analyzeAccountMutation.isPending}
+              isAnalyzing={analyzingAccount === account.id}
             />
           ))}
         </div>
