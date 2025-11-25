@@ -703,11 +703,15 @@ export default function SocialMedia() {
   };
   const getAccountInsights = (accountId) => contentInsights.find(i => i.social_account_id === accountId);
 
+  // Calculate totals - use posts_count from accounts if available, otherwise count from socialPosts
   const totalFollowers = socialAccounts.reduce((sum, a) => sum + (a.followers_count || 0), 0);
   const avgEngagement = socialAccounts.length > 0
     ? (socialAccounts.reduce((sum, a) => sum + (a.engagement_rate || 0), 0) / socialAccounts.length).toFixed(2)
     : 0;
-  const totalPosts = socialPosts.length;
+  
+  // Total posts: sum of posts_count from accounts (stored value) as primary, or count analyzed posts
+  const totalPostsFromAccounts = socialAccounts.reduce((sum, a) => sum + (a.posts_count || 0), 0);
+  const totalPosts = totalPostsFromAccounts > 0 ? totalPostsFromAccounts : socialPosts.length;
   const pendingPosts = scheduledPosts.filter(p => p.status === 'scheduled').length;
 
   const sentimentBreakdown = {
