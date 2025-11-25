@@ -6,11 +6,11 @@ import { Calendar, Clock, Sparkles, Trash2, Edit } from "lucide-react";
 import { format } from "date-fns";
 
 const platformConfig = {
-  twitter: { color: "bg-sky-100 text-sky-700", icon: "𝕏" },
-  linkedin: { color: "bg-blue-100 text-blue-700", icon: "in" },
-  facebook: { color: "bg-indigo-100 text-indigo-700", icon: "f" },
-  instagram: { color: "bg-pink-100 text-pink-700", icon: "📷" },
-  youtube: { color: "bg-red-100 text-red-700", icon: "▶" },
+  twitter: { color: "bg-gray-900 text-white", icon: "𝕏" },
+  linkedin: { color: "bg-blue-600 text-white", icon: "in" },
+  facebook: { color: "bg-blue-500 text-white", icon: "f" },
+  instagram: { color: "bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400 text-white", icon: "IG" },
+  youtube: { color: "bg-red-600 text-white", icon: "▶" },
 };
 
 const statusColors = {

@@ -15,11 +15,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Loader2, Sparkles, Calendar, Send, X, AlertCircle } from "lucide-react";
 
 const PLATFORMS = [
-  { id: 'twitter', label: 'X (Twitter)', icon: '𝕏', maxChars: 280, color: 'bg-sky-100 text-sky-700' },
-  { id: 'linkedin', label: 'LinkedIn', icon: 'in', maxChars: 3000, color: 'bg-blue-100 text-blue-700' },
-  { id: 'facebook', label: 'Facebook', icon: 'f', maxChars: 63206, color: 'bg-indigo-100 text-indigo-700' },
-  { id: 'instagram', label: 'Instagram', icon: '📷', maxChars: 2200, color: 'bg-pink-100 text-pink-700' },
-  { id: 'youtube', label: 'YouTube', icon: '▶', maxChars: 5000, color: 'bg-red-100 text-red-700' },
+  { id: 'twitter', label: 'X (Twitter)', icon: '𝕏', maxChars: 280, color: 'bg-gray-900 text-white' },
+  { id: 'linkedin', label: 'LinkedIn', icon: 'in', maxChars: 3000, color: 'bg-blue-600 text-white' },
+  { id: 'facebook', label: 'Facebook', icon: 'f', maxChars: 63206, color: 'bg-blue-500 text-white' },
+  { id: 'instagram', label: 'Instagram', icon: 'IG', maxChars: 2200, color: 'bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400 text-white' },
+  { id: 'youtube', label: 'YouTube', icon: '▶', maxChars: 5000, color: 'bg-red-600 text-white' },
 ];
 
 export default function ComposePostModal({ 

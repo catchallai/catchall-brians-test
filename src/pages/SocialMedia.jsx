@@ -39,11 +39,11 @@ import {
 } from "@/components/ui/dialog";
 
 const PLATFORMS = [
-  { id: 'twitter', label: 'X (Twitter)', icon: '𝕏' },
-  { id: 'linkedin', label: 'LinkedIn', icon: 'in' },
-  { id: 'facebook', label: 'Facebook', icon: 'f' },
-  { id: 'instagram', label: 'Instagram', icon: '📷' },
-  { id: 'youtube', label: 'YouTube', icon: '▶' },
+  { id: 'twitter', label: 'X (Twitter)', icon: '𝕏', color: 'bg-gray-900 text-white' },
+  { id: 'linkedin', label: 'LinkedIn', icon: 'in', color: 'bg-blue-600 text-white' },
+  { id: 'facebook', label: 'Facebook', icon: 'f', color: 'bg-blue-500 text-white' },
+  { id: 'instagram', label: 'Instagram', icon: 'IG', color: 'bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400 text-white' },
+  { id: 'youtube', label: 'YouTube', icon: '▶', color: 'bg-red-600 text-white' },
 ];
 
 const sentimentConfig = {
