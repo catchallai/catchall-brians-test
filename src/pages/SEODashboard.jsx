@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Plus, Globe, TrendingUp, Link2, Search, ExternalLink, Settings, Sparkles, Loader2 } from "lucide-react";
+import { Plus, Globe, TrendingUp, Link2, Search, ExternalLink, Settings, Sparkles, Loader2, AlertTriangle } from "lucide-react";
 import SEOScoreGauge from '@/components/seo/SEOScoreGauge';
 import WebsiteModal from '@/components/modals/WebsiteModal';
 import EmptyState from '@/components/ui/EmptyState';
@@ -31,6 +31,19 @@ export default function SEODashboard() {
     queryKey: ['backlinks'],
     queryFn: () => base44.entities.Backlink.list('-created_date', 500),
   });
+
+  const { data: mentions = [] } = useQuery({
+    queryKey: ['listening-mentions'],
+    queryFn: () => base44.entities.ListeningMention.list('-created_date', 500),
+  });
+
+  // Calculate toxicity score (inverse of positive sentiment ratio)
+  const toxicityScore = React.useMemo(() => {
+    if (mentions.length === 0) return null;
+    const negative = mentions.filter(m => m.sentiment === 'negative').length;
+    const total = mentions.length;
+    return Math.round((negative / total) * 100);
+  }, [mentions]);
 
   const createMutation = useMutation({
     mutationFn: (data) => base44.entities.Website.create(data),
@@ -207,6 +220,45 @@ export default function SEODashboard() {
           Add Website
         </Button>
       </div>
+
+      {/* Toxicity Score Card */}
+      {toxicityScore !== null && (
+        <Card className="border-0 shadow-sm bg-gradient-to-br from-orange-50 to-red-50">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className={`p-3 rounded-xl ${toxicityScore > 30 ? 'bg-red-100 text-red-600' : toxicityScore > 15 ? 'bg-orange-100 text-orange-600' : 'bg-emerald-100 text-emerald-600'}`}>
+                  <AlertTriangle className="w-6 h-6" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-900">Overall Toxicity Score</h3>
+                  <p className="text-sm text-gray-500">Based on {mentions.length} social media mentions</p>
+                </div>
+              </div>
+              <div className="text-right">
+                <p className={`text-4xl font-bold ${toxicityScore > 30 ? 'text-red-600' : toxicityScore > 15 ? 'text-orange-600' : 'text-emerald-600'}`}>
+                  {toxicityScore}%
+                </p>
+                <p className="text-sm text-gray-500">
+                  {toxicityScore > 30 ? 'High toxicity' : toxicityScore > 15 ? 'Moderate' : 'Low toxicity'}
+                </p>
+              </div>
+            </div>
+            <div className="mt-4">
+              <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+                <div 
+                  className={`h-full transition-all ${toxicityScore > 30 ? 'bg-red-500' : toxicityScore > 15 ? 'bg-orange-500' : 'bg-emerald-500'}`}
+                  style={{ width: `${toxicityScore}%` }}
+                />
+              </div>
+              <div className="flex justify-between mt-2 text-xs text-gray-400">
+                <span>0% (Healthy)</span>
+                <span>100% (Toxic)</span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {websites.length === 0 ? (
         <EmptyState
