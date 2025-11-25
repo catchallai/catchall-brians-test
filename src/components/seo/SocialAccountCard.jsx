@@ -87,7 +87,7 @@ export default function SocialAccountCard({ account, postsCount, onClick, onEdit
             </div>
             <div className="text-center p-2 bg-gray-50 rounded-lg">
               <MessageSquare className="w-3 h-3 text-gray-400 mx-auto mb-1" />
-              <p className="text-sm font-bold text-gray-900">{postsCount || 0}</p>
+              <p className="text-sm font-bold text-gray-900">{account.posts_count || postsCount || 0}</p>
               <p className="text-xs text-gray-500">Posts</p>
             </div>
             <div className="text-center p-2 bg-gray-50 rounded-lg">
