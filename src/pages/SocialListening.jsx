@@ -38,6 +38,7 @@ const platformLabels = {
 
 export default function SocialListening() {
   const [showAddModal, setShowAddModal] = useState(false);
+  const [editingKeyword, setEditingKeyword] = useState(null);
   const [scanningId, setScanningId] = useState(null);
   const [selectedKeyword, setSelectedKeyword] = useState(null);
   const [platformFilter, setPlatformFilter] = useState('all');
@@ -62,10 +63,17 @@ export default function SocialListening() {
   });
 
   const createKeywordMutation = useMutation({
-    mutationFn: (data) => base44.entities.SocialListening.create(data),
+    mutationFn: (data) => {
+      if (data.id) {
+        const { id, ...updateData } = data;
+        return base44.entities.SocialListening.update(id, updateData);
+      }
+      return base44.entities.SocialListening.create(data);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['social-listening'] });
       setShowAddModal(false);
+      setEditingKeyword(null);
     },
   });
 
@@ -156,7 +164,7 @@ Create a response that:
       const analysis = await base44.integrations.Core.InvokeLLM({
         prompt: `Search the internet for recent social media posts and discussions about "${searchTerm}" on these platforms: ${platformsToScan}.
 
-Find 10 recent posts/mentions and for each provide:
+Search for posts/mentions from the past 3 years (2022-2025). Find 15 posts/mentions spanning this time period and for each provide:
 1. The platform (twitter, linkedin, facebook, instagram, or youtube)
 2. The full post content/text
 3. The author's username
@@ -419,6 +427,7 @@ Also provide:
                   onToggle={(kw) => toggleKeywordMutation.mutate(kw)}
                   onScan={(kw) => scanKeywordMutation.mutate(kw)}
                   onDelete={(id) => deleteKeywordMutation.mutate(id)}
+                  onEdit={(kw) => { setEditingKeyword(kw); setShowAddModal(true); }}
                   isScanning={scanningId === keyword.id}
                 />
               ))}
@@ -592,12 +601,13 @@ Also provide:
         </TabsContent>
       </Tabs>
 
-      {/* Add Modal */}
+      {/* Add/Edit Modal */}
       <AddListeningModal
         open={showAddModal}
-        onClose={() => setShowAddModal(false)}
+        onClose={() => { setShowAddModal(false); setEditingKeyword(null); }}
         onSave={(data) => createKeywordMutation.mutate(data)}
         isLoading={createKeywordMutation.isPending}
+        editingKeyword={editingKeyword}
       />
 
       {/* Mention Detail Modal */}

@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import { Hash, AtSign, Search, TrendingUp, Loader2, Trash2 } from "lucide-react";
+import { Hash, AtSign, Search, TrendingUp, Loader2, Trash2, Pencil } from "lucide-react";
 
 const typeConfig = {
   keyword: { icon: Search, color: "bg-blue-100 text-blue-700" },
@@ -25,6 +25,7 @@ export default function ListeningKeywordCard({
   onToggle, 
   onScan, 
   onDelete,
+  onEdit,
   isScanning 
 }) {
   const config = typeConfig[keyword.type] || typeConfig.keyword;
@@ -108,6 +109,14 @@ export default function ListeningKeywordCard({
             : 'Not scanned yet'}
         </p>
         <div className="flex gap-1">
+          <Button
+            size="sm"
+            variant="ghost"
+            className="h-8 w-8 p-0 text-gray-500 hover:text-gray-700 hover:bg-gray-50"
+            onClick={() => onEdit(keyword)}
+          >
+            <Pencil className="w-4 h-4" />
+          </Button>
           <Button
             size="sm"
             variant="ghost"

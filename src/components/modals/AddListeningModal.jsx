@@ -25,18 +25,31 @@ const PLATFORMS = [
   { id: 'youtube', label: 'YouTube' },
 ];
 
-export default function AddListeningModal({ open, onClose, onSave, isLoading }) {
+export default function AddListeningModal({ open, onClose, onSave, isLoading, editingKeyword }) {
   const [type, setType] = useState('keyword');
   const [keyword, setKeyword] = useState('');
   const [platforms, setPlatforms] = useState(['twitter', 'linkedin']);
 
+  React.useEffect(() => {
+    if (editingKeyword) {
+      setType(editingKeyword.type || 'keyword');
+      setKeyword(editingKeyword.keyword || '');
+      setPlatforms(editingKeyword.platforms || ['twitter', 'linkedin']);
+    } else {
+      setType('keyword');
+      setKeyword('');
+      setPlatforms(['twitter', 'linkedin']);
+    }
+  }, [editingKeyword, open]);
+
   const handleSubmit = () => {
     if (!keyword.trim()) return;
     onSave({
+      id: editingKeyword?.id,
       keyword: keyword.trim().replace(/^[#@]/, ''),
       type,
       platforms,
-      is_active: true,
+      is_active: editingKeyword?.is_active ?? true,
     });
   };
 
@@ -52,7 +65,7 @@ export default function AddListeningModal({ open, onClose, onSave, isLoading }) 
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Add Keyword to Track</DialogTitle>
+          <DialogTitle>{editingKeyword ? 'Edit Tracked Keyword' : 'Add Keyword to Track'}</DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
           {/* Type Selection */}
@@ -129,7 +142,7 @@ export default function AddListeningModal({ open, onClose, onSave, isLoading }) 
               className="bg-violet-600 hover:bg-violet-700"
             >
               {isLoading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-              Start Tracking
+              {editingKeyword ? 'Save Changes' : 'Start Tracking'}
             </Button>
           </div>
         </div>
