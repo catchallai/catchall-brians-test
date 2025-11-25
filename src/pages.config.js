@@ -11,6 +11,7 @@ import Campaigns from './pages/Campaigns';
 import CampaignDetail from './pages/CampaignDetail';
 import Reports from './pages/Reports';
 import EmailMarketing from './pages/EmailMarketing';
+import Automation from './pages/Automation';
 import __Layout from './Layout.jsx';
 
 
@@ -28,6 +29,7 @@ export const PAGES = {
     "CampaignDetail": CampaignDetail,
     "Reports": Reports,
     "EmailMarketing": EmailMarketing,
+    "Automation": Automation,
 }
 
 export const pagesConfig = {
