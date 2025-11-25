@@ -1267,9 +1267,26 @@ export default function SocialMedia() {
       <Dialog open={!!selectedAccount} onOpenChange={() => setSelectedAccount(null)}>
         <DialogContent className="sm:max-w-2xl max-h-[80vh] overflow-hidden flex flex-col">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <span className="text-xl">{PLATFORMS.find(p => p.id === selectedAccount?.platform)?.icon}</span>
-              @{selectedAccount?.account_name}
+            <DialogTitle className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="text-xl">{PLATFORMS.find(p => p.id === selectedAccount?.platform)?.icon}</span>
+                @{selectedAccount?.account_name}
+              </div>
+              {selectedAccount && (
+                <Button
+                  size="sm"
+                  onClick={() => analyzeAccountMutation.mutate(selectedAccount)}
+                  disabled={analyzingAccount === selectedAccount?.id}
+                  className="gap-2 bg-violet-600 hover:bg-violet-700"
+                >
+                  {analyzingAccount === selectedAccount?.id ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Sparkles className="w-4 h-4" />
+                  )}
+                  {analyzingAccount === selectedAccount?.id ? 'Analyzing...' : 'Analyze'}
+                </Button>
+              )}
             </DialogTitle>
           </DialogHeader>
           <div className="flex-1 overflow-y-auto space-y-4">
@@ -1291,7 +1308,7 @@ export default function SocialMedia() {
                   <p className="text-xs text-gray-500">Engagement</p>
                 </Card>
                 <Card className="p-3 text-center border-0 bg-blue-50">
-                  <p className="text-lg font-bold text-blue-600">{getAccountPosts(selectedAccount.id).length}</p>
+                  <p className="text-lg font-bold text-blue-600">{selectedAccount.posts_count || getAccountPosts(selectedAccount.id).length}</p>
                   <p className="text-xs text-gray-500">Posts Analyzed</p>
                 </Card>
               </div>
