@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Upload, X, Image } from "lucide-react";
+import { Loader2, Upload, X, Image, Video } from "lucide-react";
 import { base44 } from '@/api/base44Client';
 
 const platforms = ['Twitter', 'LinkedIn', 'Facebook', 'Instagram'];
@@ -16,6 +16,8 @@ export default function CalendarPostModal({ open, onClose, post, onSave, isLoadi
     title: '',
     caption: '',
     image_url: '',
+    video_url: '',
+    media_type: 'none',
     scheduled_date: '',
     platforms: [],
     hashtags: [],
@@ -23,6 +25,7 @@ export default function CalendarPostModal({ open, onClose, post, onSave, isLoadi
     order: 0
   });
   const [uploading, setUploading] = useState(false);
+  const [uploadingVideo, setUploadingVideo] = useState(false);
   const [hashtagInput, setHashtagInput] = useState('');
 
   useEffect(() => {
@@ -31,6 +34,8 @@ export default function CalendarPostModal({ open, onClose, post, onSave, isLoadi
         title: post.title || '',
         caption: post.caption || '',
         image_url: post.image_url || '',
+        video_url: post.video_url || '',
+        media_type: post.media_type || 'none',
         scheduled_date: post.scheduled_date || '',
         platforms: post.platforms || [],
         hashtags: post.hashtags || [],
@@ -42,6 +47,8 @@ export default function CalendarPostModal({ open, onClose, post, onSave, isLoadi
         title: '',
         caption: '',
         image_url: '',
+        video_url: '',
+        media_type: 'none',
         scheduled_date: new Date().toISOString().split('T')[0],
         platforms: [],
         hashtags: [],
@@ -57,8 +64,22 @@ export default function CalendarPostModal({ open, onClose, post, onSave, isLoadi
     
     setUploading(true);
     const { file_url } = await base44.integrations.Core.UploadFile({ file });
-    setFormData({ ...formData, image_url: file_url });
+    setFormData({ ...formData, image_url: file_url, video_url: '', media_type: 'image' });
     setUploading(false);
+  };
+
+  const handleVideoUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    setUploadingVideo(true);
+    const { file_url } = await base44.integrations.Core.UploadFile({ file });
+    setFormData({ ...formData, video_url: file_url, image_url: '', media_type: 'video' });
+    setUploadingVideo(false);
+  };
+
+  const clearMedia = () => {
+    setFormData({ ...formData, image_url: '', video_url: '', media_type: 'none' });
   };
 
   const togglePlatform = (platform) => {
@@ -94,9 +115,9 @@ export default function CalendarPostModal({ open, onClose, post, onSave, isLoadi
           <DialogTitle>{post ? 'Edit Post' : 'Add Calendar Post'}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4 mt-4">
-          {/* Image Upload */}
+          {/* Media Upload */}
           <div className="space-y-2">
-            <Label>Image</Label>
+            <Label>Media</Label>
             <div className="border-2 border-dashed rounded-lg p-4 text-center">
               {formData.image_url ? (
                 <div className="relative">
@@ -106,23 +127,49 @@ export default function CalendarPostModal({ open, onClose, post, onSave, isLoadi
                     size="icon" 
                     variant="destructive" 
                     className="absolute top-2 right-2 h-6 w-6"
-                    onClick={() => setFormData({ ...formData, image_url: '' })}
+                    onClick={clearMedia}
+                  >
+                    <X className="w-3 h-3" />
+                  </Button>
+                </div>
+              ) : formData.video_url ? (
+                <div className="relative">
+                  <video src={formData.video_url} controls className="w-full h-40 object-cover rounded" />
+                  <Button 
+                    type="button"
+                    size="icon" 
+                    variant="destructive" 
+                    className="absolute top-2 right-2 h-6 w-6"
+                    onClick={clearMedia}
                   >
                     <X className="w-3 h-3" />
                   </Button>
                 </div>
               ) : (
-                <label className="cursor-pointer block">
-                  <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
-                  {uploading ? (
-                    <Loader2 className="w-8 h-8 mx-auto animate-spin text-gray-400" />
+                <div className="space-y-3">
+                  {uploading || uploadingVideo ? (
+                    <div className="py-4">
+                      <Loader2 className="w-8 h-8 mx-auto animate-spin text-gray-400" />
+                      <p className="text-sm text-gray-500 mt-2">Uploading...</p>
+                    </div>
                   ) : (
                     <>
-                      <Upload className="w-8 h-8 mx-auto text-gray-400 mb-2" />
-                      <p className="text-sm text-gray-500">Click to upload image</p>
+                      <div className="flex justify-center gap-4">
+                        <label className="cursor-pointer flex flex-col items-center p-4 rounded-lg hover:bg-gray-50 transition-colors">
+                          <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
+                          <Image className="w-8 h-8 text-blue-500 mb-1" />
+                          <span className="text-sm text-gray-600">Photo</span>
+                        </label>
+                        <label className="cursor-pointer flex flex-col items-center p-4 rounded-lg hover:bg-gray-50 transition-colors">
+                          <input type="file" accept="video/*" className="hidden" onChange={handleVideoUpload} />
+                          <Video className="w-8 h-8 text-purple-500 mb-1" />
+                          <span className="text-sm text-gray-600">Video</span>
+                        </label>
+                      </div>
+                      <p className="text-xs text-gray-400">Click to upload photo or video</p>
                     </>
                   )}
-                </label>
+                </div>
               )}
             </div>
           </div>
