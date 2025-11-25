@@ -27,6 +27,7 @@ import CompetitorReportCard from '@/components/social/CompetitorReportCard';
 import CompetitorReportModal from '@/components/modals/CompetitorReportModal';
 import SchedulePostModal from '@/components/modals/SchedulePostModal';
 import ABTestModal from '@/components/modals/ABTestModal';
+import ComposePostModal from '@/components/modals/ComposePostModal';
 import ContentGeneratorCard from '@/components/social/ContentGeneratorCard';
 import EmptyState from '@/components/ui/EmptyState';
 import PostDetailModal from '@/components/social/PostDetailModal';
@@ -69,6 +70,7 @@ export default function SocialMedia() {
   const [selectedReport, setSelectedReport] = useState(null);
   const [generatingReport, setGeneratingReport] = useState(null);
   const [selectedPost, setSelectedPost] = useState(null);
+  const [showComposeModal, setShowComposeModal] = useState(false);
   const queryClient = useQueryClient();
 
   const { data: socialAccountsRaw = [], isLoading: loadingAccounts } = useQuery({
@@ -154,6 +156,50 @@ export default function SocialMedia() {
   const deleteScheduledPostMutation = useMutation({
     mutationFn: (id) => base44.entities.ScheduledPost.delete(id),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['scheduled-posts'] }),
+  });
+
+  const bulkScheduleMutation = useMutation({
+    mutationFn: async (posts) => {
+      for (const post of posts) {
+        await base44.entities.ScheduledPost.create(post);
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['scheduled-posts'] });
+      setShowComposeModal(false);
+    },
+  });
+
+  const adaptContentMutation = useMutation({
+    mutationFn: async (params) => {
+      const { content, platforms, hashtags } = params;
+      const result = await base44.integrations.Core.InvokeLLM({
+        prompt: `Adapt this social media post for each platform while keeping the core message:
+
+Original post: "${content}"
+Hashtags to include: ${hashtags.map(t => '#' + t).join(' ')}
+
+For each platform, optimize:
+- Twitter/X: Keep under 280 chars, punchy and engaging
+- LinkedIn: Professional tone, can be longer, add industry context
+- Facebook: Conversational, engaging, can ask questions
+- Instagram: Visual-focused language, emoji-friendly, hashtag-heavy
+- YouTube: Description style, include call-to-action
+
+Return adapted content for: ${platforms.join(', ')}`,
+        response_json_schema: {
+          type: "object",
+          properties: {
+            twitter: { type: "string" },
+            linkedin: { type: "string" },
+            facebook: { type: "string" },
+            instagram: { type: "string" },
+            youtube: { type: "string" }
+          }
+        }
+      });
+      return result;
+    },
   });
 
   const createCompetitorMutation = useMutation({
@@ -864,32 +910,42 @@ export default function SocialMedia() {
         {/* Scheduler Tab */}
         <TabsContent value="scheduler" className="space-y-4">
           <div className="flex justify-between items-center">
-            <div className="flex gap-2">
-              <Button 
-                variant={calendarView ? "outline" : "default"}
-                size="sm"
-                onClick={() => setCalendarView(false)}
-              >
-                List View
-              </Button>
-              <Button 
-                variant={calendarView ? "default" : "outline"}
-                size="sm"
-                onClick={() => setCalendarView(true)}
-                className="gap-1"
-              >
-                <CalendarDays className="w-4 h-4" />
-                Calendar
-              </Button>
-            </div>
-            <Button 
-              onClick={() => { setEditingPost(null); setShowScheduleModal(true); }}
-              className="gap-2 bg-violet-600 hover:bg-violet-700"
-            >
-              <Plus className="w-4 h-4" />
-              Schedule Post
-            </Button>
-          </div>
+                        <div className="flex gap-2">
+                          <Button 
+                            variant={calendarView ? "outline" : "default"}
+                            size="sm"
+                            onClick={() => setCalendarView(false)}
+                          >
+                            List View
+                          </Button>
+                          <Button 
+                            variant={calendarView ? "default" : "outline"}
+                            size="sm"
+                            onClick={() => setCalendarView(true)}
+                            className="gap-1"
+                          >
+                            <CalendarDays className="w-4 h-4" />
+                            Calendar
+                          </Button>
+                        </div>
+                        <div className="flex gap-2">
+                          <Button 
+                            onClick={() => setShowComposeModal(true)}
+                            className="gap-2 bg-violet-600 hover:bg-violet-700"
+                          >
+                            <Plus className="w-4 h-4" />
+                            Compose Post
+                          </Button>
+                          <Button 
+                            variant="outline"
+                            onClick={() => { setEditingPost(null); setShowScheduleModal(true); }}
+                            className="gap-2"
+                          >
+                            <Plus className="w-4 h-4" />
+                            Single Post
+                          </Button>
+                        </div>
+                      </div>
 
           {scheduledPosts.length === 0 ? (
             <EmptyState
@@ -1463,12 +1519,26 @@ export default function SocialMedia() {
       />
 
       {/* Competitor Report Modal */}
-      <CompetitorReportModal
-        open={!!selectedReport}
-        onClose={() => setSelectedReport(null)}
-        report={selectedReport}
-        competitorName={competitors.find(c => c.id === selectedReport?.competitor_id)?.name || 'Competitor'}
-      />
-    </div>
-  );
-}
+              <CompetitorReportModal
+                open={!!selectedReport}
+                onClose={() => setSelectedReport(null)}
+                report={selectedReport}
+                competitorName={competitors.find(c => c.id === selectedReport?.competitor_id)?.name || 'Competitor'}
+              />
+
+              {/* Compose Multi-Platform Post Modal */}
+              <ComposePostModal
+                open={showComposeModal}
+                onClose={() => setShowComposeModal(false)}
+                accounts={socialAccounts}
+                onSchedule={(posts) => bulkScheduleMutation.mutate(posts)}
+                onAdapt={async (content, platforms, hashtags) => {
+                  const result = await adaptContentMutation.mutateAsync({ content, platforms, hashtags });
+                  return result;
+                }}
+                isLoading={bulkScheduleMutation.isPending}
+                isAdapting={adaptContentMutation.isPending}
+              />
+            </div>
+          );
+        }
