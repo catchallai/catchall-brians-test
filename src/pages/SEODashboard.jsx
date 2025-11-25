@@ -37,12 +37,32 @@ export default function SEODashboard() {
     queryFn: () => base44.entities.ListeningMention.list('-created_date', 500),
   });
 
-  // Calculate toxicity score (inverse of positive sentiment ratio)
-  const toxicityScore = React.useMemo(() => {
+  // Calculate toxicity breakdown
+  const toxicityData = React.useMemo(() => {
     if (mentions.length === 0) return null;
     const negative = mentions.filter(m => m.sentiment === 'negative').length;
+    const neutral = mentions.filter(m => m.sentiment === 'neutral').length;
+    const positive = mentions.filter(m => m.sentiment === 'positive').length;
     const total = mentions.length;
-    return Math.round((negative / total) * 100);
+    
+    const toxicPercent = Math.round((negative / total) * 100);
+    const potToxicPercent = Math.round((neutral / total) * 100);
+    const nonToxicPercent = Math.round((positive / total) * 100);
+    
+    let level = 'Low';
+    if (toxicPercent > 30) level = 'High';
+    else if (toxicPercent > 15) level = 'Medium';
+    
+    return {
+      toxic: negative,
+      toxicPercent,
+      potToxic: neutral,
+      potToxicPercent,
+      nonToxic: positive,
+      nonToxicPercent,
+      total,
+      level
+    };
   }, [mentions]);
 
   const createMutation = useMutation({
@@ -222,38 +242,60 @@ export default function SEODashboard() {
       </div>
 
       {/* Toxicity Score Card */}
-      {toxicityScore !== null && (
-        <Card className="border-0 shadow-sm bg-gradient-to-br from-orange-50 to-red-50">
+      {toxicityData && (
+        <Card className="border-0 shadow-sm">
           <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <div className={`p-3 rounded-xl ${toxicityScore > 30 ? 'bg-red-100 text-red-600' : toxicityScore > 15 ? 'bg-orange-100 text-orange-600' : 'bg-emerald-100 text-emerald-600'}`}>
-                  <AlertTriangle className="w-6 h-6" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-gray-900">Overall Toxicity Score</h3>
-                  <p className="text-sm text-gray-500">Based on {mentions.length} social media mentions</p>
-                </div>
+            <div className="flex items-center gap-2 mb-4">
+              <h3 className="text-lg font-medium text-gray-700">Overall Toxicity Score</h3>
+              <span className="text-gray-400 cursor-help" title="Based on sentiment analysis of social media mentions">ⓘ</span>
+            </div>
+            
+            <div className="flex items-baseline gap-2 mb-6">
+              <span className={`text-3xl font-bold ${toxicityData.level === 'High' ? 'text-red-500' : toxicityData.level === 'Medium' ? 'text-orange-500' : 'text-emerald-500'}`}>
+                {toxicityData.level}
+              </span>
+              <span className="text-gray-600">
+                {toxicityData.level === 'High' ? 'Take a close look at your most toxic mentions' : 
+                 toxicityData.level === 'Medium' ? 'Monitor your negative mentions closely' : 
+                 'Your social presence looks healthy'}
+              </span>
+            </div>
+
+            <div className="flex gap-8 mb-4">
+              <div>
+                <p className="text-2xl font-bold text-red-500">{toxicityData.toxic}</p>
+                <p className="text-sm text-gray-500">{toxicityData.toxicPercent}% toxic</p>
               </div>
-              <div className="text-right">
-                <p className={`text-4xl font-bold ${toxicityScore > 30 ? 'text-red-600' : toxicityScore > 15 ? 'text-orange-600' : 'text-emerald-600'}`}>
-                  {toxicityScore}%
-                </p>
-                <p className="text-sm text-gray-500">
-                  {toxicityScore > 30 ? 'High toxicity' : toxicityScore > 15 ? 'Moderate' : 'Low toxicity'}
-                </p>
+              <div>
+                <p className="text-2xl font-bold text-orange-500">{toxicityData.potToxic}</p>
+                <p className="text-sm text-gray-500">{toxicityData.potToxicPercent}% pot. toxic</p>
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-emerald-500">{toxicityData.nonToxic}</p>
+                <p className="text-sm text-gray-500">{toxicityData.nonToxicPercent}% non-toxic</p>
               </div>
             </div>
-            <div className="mt-4">
-              <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
-                <div 
-                  className={`h-full transition-all ${toxicityScore > 30 ? 'bg-red-500' : toxicityScore > 15 ? 'bg-orange-500' : 'bg-emerald-500'}`}
-                  style={{ width: `${toxicityScore}%` }}
-                />
+
+            <div className="flex h-3 rounded-full overflow-hidden">
+              <div className="bg-red-500" style={{ width: `${toxicityData.toxicPercent}%` }} />
+              <div className="bg-orange-400" style={{ width: `${toxicityData.potToxicPercent}%` }} />
+              <div className="bg-emerald-500 rounded-r-full" style={{ width: `${toxicityData.nonToxicPercent}%` }} />
+            </div>
+
+            <div className="grid grid-cols-2 gap-8 mt-6 pt-6 border-t">
+              <div>
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-gray-600 font-medium">Total Mentions</span>
+                  <span className="text-gray-400 cursor-help" title="Total analyzed social media mentions">ⓘ</span>
+                </div>
+                <p className="text-2xl font-bold text-blue-600">{toxicityData.total.toLocaleString()}</p>
               </div>
-              <div className="flex justify-between mt-2 text-xs text-gray-400">
-                <span>0% (Healthy)</span>
-                <span>100% (Toxic)</span>
+              <div>
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-gray-600 font-medium">Analyzed Platforms</span>
+                  <span className="text-gray-400 cursor-help" title="Number of platforms being monitored">ⓘ</span>
+                </div>
+                <p className="text-2xl font-bold text-blue-600">{[...new Set(mentions.map(m => m.platform))].length}</p>
               </div>
             </div>
           </CardContent>
