@@ -306,33 +306,33 @@ export default function SEOTools() {
           {/* Category Scores */}
           {totalChecks > 0 && (
             <Card className="border-0 shadow-sm">
-          <CardHeader>
-            <CardTitle className="text-lg">Category Breakdown</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-              {scoreByCategory.map((cat) => (
-                <button
-                  key={cat.id}
-                  onClick={() => setActiveCategory(cat.id === activeCategory ? 'all' : cat.id)}
-                  className={`p-4 rounded-xl text-center transition-all ${
-                    activeCategory === cat.id 
-                      ? 'bg-violet-100 ring-2 ring-violet-500' 
-                      : 'bg-gray-50 hover:bg-gray-100'
-                  }`}
-                >
-                  <cat.icon className={`w-6 h-6 mx-auto mb-2 ${
-                    activeCategory === cat.id ? 'text-violet-600' : 'text-gray-400'
-                  }`} />
-                  <p className="text-2xl font-bold text-gray-900">{cat.score}%</p>
-                  <p className="text-xs text-gray-500">{cat.label}</p>
-                  <p className="text-xs text-gray-400">{cat.total} checks</p>
-                </button>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      )}
+              <CardHeader>
+                <CardTitle className="text-lg">Category Breakdown</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                  {scoreByCategory.map((cat) => (
+                    <button
+                      key={cat.id}
+                      onClick={() => setActiveCategory(cat.id === activeCategory ? 'all' : cat.id)}
+                      className={`p-4 rounded-xl text-center transition-all ${
+                        activeCategory === cat.id 
+                          ? 'bg-violet-100 ring-2 ring-violet-500' 
+                          : 'bg-gray-50 hover:bg-gray-100'
+                      }`}
+                    >
+                      <cat.icon className={`w-6 h-6 mx-auto mb-2 ${
+                        activeCategory === cat.id ? 'text-violet-600' : 'text-gray-400'
+                      }`} />
+                      <p className="text-2xl font-bold text-gray-900">{cat.score}%</p>
+                      <p className="text-xs text-gray-500">{cat.label}</p>
+                      <p className="text-xs text-gray-400">{cat.total} checks</p>
+                    </button>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
           {/* Results */}
           {loadingChecks ? (
