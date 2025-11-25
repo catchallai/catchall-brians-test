@@ -610,57 +610,65 @@ export default function SocialMedia() {
   });
 
   const analyzeAccountMutation = useMutation({
-    mutationFn: async (account) => {
-      // Use AI to analyze social media presence with real data
-      const analysis = await base44.integrations.Core.InvokeLLM({
-        prompt: `Look up the REAL ${account.platform} account @${account.account_name} and provide accurate current data.
-        ${account.account_url ? `Profile URL: ${account.account_url}` : ''}
-        
-        IMPORTANT: Search for the actual account and provide REAL follower counts and engagement metrics, not estimates.
-        
-        Provide:
-        1. ACTUAL current follower count (search for the real number)
-        2. Calculated engagement rate based on recent posts
-        3. 5 of their most recent or notable posts with:
-           - Full post content/text (as much as you can find)
-           - Actual engagement numbers (likes, comments, shares/retweets)
-           - Sentiment analysis (positive/neutral/negative)
-           - Key topics and hashtags used
-        4. Recommendations for improving their social presence
-        5. What content performs best for them`,
-        add_context_from_internet: true,
-        response_json_schema: {
-          type: "object",
-          properties: {
-            estimated_followers: { type: "number" },
-            engagement_rate: { type: "number" },
-            posts: {
-              type: "array",
-              items: {
-                type: "object",
-                properties: {
-                  content: { type: "string" },
-                  likes: { type: "number" },
-                  comments: { type: "number" },
-                  shares: { type: "number" },
-                  sentiment: { type: "string" },
-                  topics: { type: "array", items: { type: "string" } }
-                }
-              }
-            },
-            recommendations: { type: "array", items: { type: "string" } },
-            top_performing_content: { type: "string" },
-            best_posting_times: { type: "string" }
-          }
-        }
-      });
+        mutationFn: async (account) => {
+          // Use AI to analyze social media presence with real data
+          const analysis = await base44.integrations.Core.InvokeLLM({
+            prompt: `Look up the REAL ${account.platform} account @${account.account_name} and provide accurate current data.
+            ${account.account_url ? `Profile URL: ${account.account_url}` : ''}
 
-      // Update account with analysis
-      await base44.entities.SocialAccount.update(account.id, {
-        followers_count: analysis.estimated_followers || 0,
-        engagement_rate: analysis.engagement_rate || 0,
-        last_analyzed: new Date().toISOString()
-      });
+            IMPORTANT: Search for the actual account and provide REAL follower counts and engagement metrics, not estimates.
+
+            Provide:
+            1. ACTUAL current follower count (search for the real number)
+            2. Calculated engagement rate based on recent posts
+            3. 5 of their most recent or notable posts with:
+               - Full post content/text (as much as you can find)
+               - Actual engagement numbers (likes, comments, shares/retweets)
+               - Sentiment analysis (positive/neutral/negative)
+               - Key topics and hashtags used
+            4. Recommendations for improving their social presence
+            5. What content performs best for them`,
+            add_context_from_internet: true,
+            response_json_schema: {
+              type: "object",
+              properties: {
+                estimated_followers: { type: "number" },
+                engagement_rate: { type: "number" },
+                posts: {
+                  type: "array",
+                  items: {
+                    type: "object",
+                    properties: {
+                      content: { type: "string" },
+                      likes: { type: "number" },
+                      comments: { type: "number" },
+                      shares: { type: "number" },
+                      sentiment: { type: "string" },
+                      topics: { type: "array", items: { type: "string" } }
+                    }
+                  }
+                },
+                recommendations: { type: "array", items: { type: "string" } },
+                top_performing_content: { type: "string" },
+                best_posting_times: { type: "string" }
+              }
+            }
+          });
+
+          // Update account with analysis - only update if we got real data (not 0)
+          const updateData = {
+            last_analyzed: new Date().toISOString()
+          };
+
+          // Only update followers if AI returned a real number > 0
+          if (analysis.estimated_followers && analysis.estimated_followers > 0) {
+            updateData.followers_count = analysis.estimated_followers;
+          }
+          if (analysis.engagement_rate && analysis.engagement_rate > 0) {
+            updateData.engagement_rate = analysis.engagement_rate;
+          }
+
+          await base44.entities.SocialAccount.update(account.id, updateData);
 
       // Clear old posts for this account
       const oldPosts = socialPosts.filter(p => p.social_account_id === account.id);
