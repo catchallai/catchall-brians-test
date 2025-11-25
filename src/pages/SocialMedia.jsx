@@ -1325,7 +1325,11 @@ export default function SocialMedia() {
             {/* Account Posts */}
             <div>
               <h4 className="font-medium text-gray-900 mb-3">Analyzed Posts</h4>
-              <p className="text-xs text-gray-500 mb-3">Click on a post to view full content</p>
+              <p className="text-xs text-gray-500 mb-3">
+                {selectedAccount?.last_analyzed 
+                  ? `Last analyzed: ${new Date(selectedAccount.last_analyzed).toLocaleString()}`
+                  : 'Not analyzed yet'}
+              </p>
               {getAccountPosts(selectedAccount?.id).length > 0 ? (
                 <div className="space-y-3">
                   {getAccountPosts(selectedAccount?.id).map((post) => {
