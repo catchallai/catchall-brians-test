@@ -74,6 +74,10 @@ function SidebarContent({ currentPage, onNavigate }) {
             alt="CatchAll" 
             className="h-8 object-contain"
           />
+          <div>
+            <h1 className="font-bold text-gray-900 text-lg">CatchAll</h1>
+            <p className="text-xs text-gray-400">Business Suite</p>
+          </div>
         </Link>
       </div>
 
@@ -197,6 +201,7 @@ export default function Layout({ children, currentPageName }) {
             alt="CatchAll" 
             className="h-6 object-contain"
           />
+          <span className="font-semibold text-gray-900">CatchAll</span>
         </div>
 
         <DropdownMenu>
