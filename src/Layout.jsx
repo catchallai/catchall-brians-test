@@ -70,21 +70,10 @@ function SidebarContent({ currentPage, onNavigate }) {
       <div className="p-6 border-b border-gray-100">
         <Link to={createPageUrl('Dashboard')} className="flex items-center gap-3">
           <img 
-            src="https://your-uploaded-logo-url.com/catchall-logo.png" 
+            src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6925162397800755912704a9/3da4d00f2_catchall.jpg" 
             alt="CatchAll" 
-            className="w-10 h-10 rounded-xl object-contain"
-            onError={(e) => {
-              e.target.style.display = 'none';
-              e.target.nextSibling.style.display = 'flex';
-            }}
+            className="h-8 object-contain"
           />
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-600 to-purple-600 items-center justify-center hidden">
-            <span className="text-white font-bold text-lg">CA</span>
-          </div>
-          <div>
-            <h1 className="font-bold text-gray-900 text-lg">CatchAll</h1>
-            <p className="text-xs text-gray-400">Business Suite</p>
-          </div>
         </Link>
       </div>
 
@@ -204,18 +193,10 @@ export default function Layout({ children, currentPageName }) {
         
         <div className="flex items-center gap-2">
           <img 
-            src="https://your-uploaded-logo-url.com/catchall-logo.png" 
+            src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6925162397800755912704a9/3da4d00f2_catchall.jpg" 
             alt="CatchAll" 
-            className="w-8 h-8 rounded-lg object-contain"
-            onError={(e) => {
-              e.target.style.display = 'none';
-              e.target.nextSibling.style.display = 'flex';
-            }}
+            className="h-6 object-contain"
           />
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-600 to-purple-600 items-center justify-center hidden">
-            <span className="text-white font-bold text-sm">CA</span>
-          </div>
-          <span className="font-semibold text-gray-900">CatchAll</span>
         </div>
 
         <DropdownMenu>
