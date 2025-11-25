@@ -10,6 +10,11 @@ import SEOScoreGauge from '@/components/seo/SEOScoreGauge';
 import WebsiteModal from '@/components/modals/WebsiteModal';
 import EmptyState from '@/components/ui/EmptyState';
 import PredictiveAnalyticsCard from '@/components/seo/PredictiveAnalyticsCard';
+import GoogleTrackingCard from '@/components/seo/GoogleTrackingCard';
+import HistoricalDataCard from '@/components/seo/HistoricalDataCard';
+import KeywordCannibalizationCard from '@/components/seo/KeywordCannibalizationCard';
+import MultiLocationCard from '@/components/seo/MultiLocationCard';
+import ShareOfVoiceCard from '@/components/seo/ShareOfVoiceCard';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 
@@ -36,6 +41,20 @@ export default function SEODashboard() {
   const { data: mentions = [] } = useQuery({
     queryKey: ['listening-mentions'],
     queryFn: () => base44.entities.ListeningMention.list('-created_date', 500),
+  });
+
+  const { data: keywordHistory = [] } = useQuery({
+    queryKey: ['keyword-history'],
+    queryFn: () => base44.entities.KeywordHistory.list('-date', 1000),
+  });
+
+  const saveSovMutation = useMutation({
+    mutationFn: (data) => base44.entities.ShareOfVoice.create(data),
+  });
+
+  const saveTrackingMutation = useMutation({
+    mutationFn: ({ id, data }) => base44.entities.Website.update(id, data),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['websites'] }),
   });
 
   // Calculate toxicity breakdown
@@ -413,6 +432,40 @@ export default function SEODashboard() {
                 </Card>
               );
             })}
+          </div>
+
+          {/* Advanced SEO Tools Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+            {/* Google Tracking */}
+            <GoogleTrackingCard 
+              website={websites[0]} 
+              onSaveTracking={(data) => websites[0] && saveTrackingMutation.mutate({ id: websites[0].id, data })}
+            />
+            
+            {/* Share of Voice */}
+            <ShareOfVoiceCard 
+              website={websites[0]} 
+              keywords={keywords}
+              onSaveSov={(data) => saveSovMutation.mutate(data)}
+            />
+            
+            {/* Keyword Cannibalization */}
+            <KeywordCannibalizationCard 
+              keywords={keywords} 
+              websites={websites}
+            />
+          </div>
+
+          {/* Historical & Location Data */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <HistoricalDataCard 
+              keywords={keywords} 
+              keywordHistory={keywordHistory}
+            />
+            <MultiLocationCard 
+              keywords={keywords} 
+              keywordHistory={keywordHistory}
+            />
           </div>
 
           {/* AI Predictive Analytics */}
