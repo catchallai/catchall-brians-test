@@ -794,10 +794,29 @@ Return adapted content for: ${platforms.join(', ')}`,
           <h1 className="text-3xl font-bold text-gray-900">Social Media Analysis</h1>
           <p className="text-gray-500 mt-1">Monitor and analyze your social media presence</p>
         </div>
-        <Button onClick={() => setShowAddModal(true)} className="gap-2 bg-violet-600 hover:bg-violet-700">
-          <Plus className="w-4 h-4" />
-          Add Account
-        </Button>
+        <div className="flex gap-2">
+          <Button 
+            variant="outline" 
+            onClick={async () => {
+              for (const account of socialAccounts) {
+                await analyzeAccountMutation.mutateAsync(account);
+              }
+            }}
+            disabled={analyzingAccount !== null || socialAccounts.length === 0}
+            className="gap-2"
+          >
+            {analyzingAccount !== null ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <RefreshCw className="w-4 h-4" />
+            )}
+            Refresh All
+          </Button>
+          <Button onClick={() => setShowAddModal(true)} className="gap-2 bg-violet-600 hover:bg-violet-700">
+            <Plus className="w-4 h-4" />
+            Add Account
+          </Button>
+        </div>
       </div>
 
       {/* Stats */}
