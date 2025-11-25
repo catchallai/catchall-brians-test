@@ -22,6 +22,7 @@ import Listings from './pages/Listings';
 import PressMonitoring from './pages/PressMonitoring';
 import WebCrawler from './pages/WebCrawler';
 import ContentStrategy from './pages/ContentStrategy';
+import Collaboration from './pages/Collaboration';
 import __Layout from './Layout.jsx';
 
 
@@ -50,6 +51,7 @@ export const PAGES = {
     "PressMonitoring": PressMonitoring,
     "WebCrawler": WebCrawler,
     "ContentStrategy": ContentStrategy,
+    "Collaboration": Collaboration,
 }
 
 export const pagesConfig = {
