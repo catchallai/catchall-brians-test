@@ -12,11 +12,11 @@ const sentimentConfig = {
 };
 
 const platformConfig = {
-  twitter: { color: "bg-sky-100 text-sky-700", icon: "𝕏", name: "X (Twitter)" },
-  linkedin: { color: "bg-blue-100 text-blue-700", icon: "in", name: "LinkedIn" },
-  facebook: { color: "bg-indigo-100 text-indigo-700", icon: "f", name: "Facebook" },
-  instagram: { color: "bg-pink-100 text-pink-700", icon: "📷", name: "Instagram" },
-  youtube: { color: "bg-red-100 text-red-700", icon: "▶", name: "YouTube" },
+  twitter: { color: "bg-gray-900 text-white", icon: "𝕏", name: "X (Twitter)" },
+  linkedin: { color: "bg-blue-600 text-white", icon: "in", name: "LinkedIn" },
+  facebook: { color: "bg-blue-500 text-white", icon: "f", name: "Facebook" },
+  instagram: { color: "bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400 text-white", icon: "IG", name: "Instagram" },
+  youtube: { color: "bg-red-600 text-white", icon: "▶", name: "YouTube" },
 };
 
 export default function PostDetailModal({ open, onClose, post, accountName }) {

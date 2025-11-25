@@ -6,11 +6,11 @@ import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, addMonths, subMonths, startOfWeek, endOfWeek } from "date-fns";
 
 const platformColors = {
-  twitter: "bg-sky-100 text-sky-700 border-sky-200",
-  linkedin: "bg-blue-100 text-blue-700 border-blue-200",
-  facebook: "bg-indigo-100 text-indigo-700 border-indigo-200",
-  instagram: "bg-pink-100 text-pink-700 border-pink-200",
-  youtube: "bg-red-100 text-red-700 border-red-200",
+  twitter: "bg-gray-900 text-white border-gray-700",
+  linkedin: "bg-blue-600 text-white border-blue-500",
+  facebook: "bg-blue-500 text-white border-blue-400",
+  instagram: "bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400 text-white border-pink-400",
+  youtube: "bg-red-600 text-white border-red-500",
 };
 
 export default function ContentCalendar({ posts, onAddPost, onEditPost }) {

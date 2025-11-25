@@ -12,11 +12,11 @@ const typeConfig = {
 };
 
 const platformColors = {
-  twitter: "bg-sky-100 text-sky-700",
-  linkedin: "bg-blue-100 text-blue-700",
-  facebook: "bg-indigo-100 text-indigo-700",
-  instagram: "bg-pink-100 text-pink-700",
-  youtube: "bg-red-100 text-red-700",
+  twitter: "bg-gray-900 text-white",
+  linkedin: "bg-blue-600 text-white",
+  facebook: "bg-blue-500 text-white",
+  instagram: "bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400 text-white",
+  youtube: "bg-red-600 text-white",
 };
 
 export default function ListeningKeywordCard({ 
