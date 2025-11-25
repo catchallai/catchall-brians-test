@@ -106,15 +106,23 @@ export default function SocialMedia() {
   });
 
   // Normalize data - handle both flat and nested data structures
-  const normalizeData = (items) => items.map(item => item.data ? { id: item.id, ...item.data } : item);
+  const normalizeData = (items) => {
+    if (!items || !Array.isArray(items)) return [];
+    return items.map(item => {
+      if (item.data && typeof item.data === 'object') {
+        return { id: item.id, created_date: item.created_date, ...item.data };
+      }
+      return item;
+    });
+  };
   
-  const socialAccounts = normalizeData(socialAccountsRaw);
-  const socialPosts = normalizeData(socialPostsRaw);
-  const scheduledPosts = normalizeData(scheduledPostsRaw);
-  const competitors = normalizeData(competitorsRaw);
-  const contentInsights = normalizeData(contentInsightsRaw);
-  const abTests = normalizeData(abTestsRaw);
-  const competitorReports = normalizeData(competitorReportsRaw);
+  const socialAccounts = React.useMemo(() => normalizeData(socialAccountsRaw), [socialAccountsRaw]);
+  const socialPosts = React.useMemo(() => normalizeData(socialPostsRaw), [socialPostsRaw]);
+  const scheduledPosts = React.useMemo(() => normalizeData(scheduledPostsRaw), [scheduledPostsRaw]);
+  const competitors = React.useMemo(() => normalizeData(competitorsRaw), [competitorsRaw]);
+  const contentInsights = React.useMemo(() => normalizeData(contentInsightsRaw), [contentInsightsRaw]);
+  const abTests = React.useMemo(() => normalizeData(abTestsRaw), [abTestsRaw]);
+  const competitorReports = React.useMemo(() => normalizeData(competitorReportsRaw), [competitorReportsRaw]);
 
   const createAccountMutation = useMutation({
     mutationFn: (data) => base44.entities.SocialAccount.create(data),
