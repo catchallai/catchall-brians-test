@@ -25,6 +25,7 @@ import {
   Globe,
   Share2,
   HelpCircle,
+  Radio,
 } from "lucide-react";
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -56,6 +57,7 @@ const navigation = [
   { name: 'Keywords', icon: Target, page: 'Keywords' },
   { name: 'Backlinks', icon: Link2, page: 'Backlinks' },
   { name: 'Social Media', icon: Share2, page: 'SocialMedia' },
+  { name: 'Social Listening', icon: Radio, page: 'SocialListening' },
   { name: 'SEO Audit', icon: FileSearch, page: 'SEOAudit' },
   { name: 'divider', label: 'Support' },
   { name: 'Help Center', icon: HelpCircle, page: 'HelpCenter' },

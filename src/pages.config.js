@@ -16,6 +16,7 @@ import SEOTools from './pages/SEOTools';
 import SocialMedia from './pages/SocialMedia';
 import SocialLeads from './pages/SocialLeads';
 import HelpCenter from './pages/HelpCenter';
+import SocialListening from './pages/SocialListening';
 import __Layout from './Layout.jsx';
 
 
@@ -38,6 +39,7 @@ export const PAGES = {
     "SocialMedia": SocialMedia,
     "SocialLeads": SocialLeads,
     "HelpCenter": HelpCenter,
+    "SocialListening": SocialListening,
 }
 
 export const pagesConfig = {
