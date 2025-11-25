@@ -24,9 +24,11 @@ import {
   Zap,
   Globe,
   Share2,
+  HelpCircle,
 } from "lucide-react";
 import { base44 } from '@/api/base44Client';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import OnboardingModal from '@/components/onboarding/OnboardingModal';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -55,6 +57,8 @@ const navigation = [
   { name: 'Backlinks', icon: Link2, page: 'Backlinks' },
   { name: 'Social Media', icon: Share2, page: 'SocialMedia' },
   { name: 'SEO Audit', icon: FileSearch, page: 'SEOAudit' },
+  { name: 'divider', label: 'Support' },
+  { name: 'Help Center', icon: HelpCircle, page: 'HelpCenter' },
 ];
 
 function SidebarContent({ currentPage, onNavigate }) {
@@ -113,11 +117,60 @@ function SidebarContent({ currentPage, onNavigate }) {
 
 export default function Layout({ children, currentPageName }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(false);
+  const queryClient = useQueryClient();
 
   const { data: user } = useQuery({
     queryKey: ['current-user'],
     queryFn: () => base44.auth.me(),
   });
+
+  const { data: onboardingStatus } = useQuery({
+    queryKey: ['user-onboarding', user?.id],
+    queryFn: async () => {
+      if (!user?.id) return null;
+      const records = await base44.entities.UserOnboarding.filter({ user_id: user.id });
+      return records[0] || null;
+    },
+    enabled: !!user?.id,
+  });
+
+  // Show onboarding for new users
+  React.useEffect(() => {
+    if (user?.id && onboardingStatus === null) {
+      // New user - create onboarding record and show modal
+      base44.entities.UserOnboarding.create({
+        user_id: user.id,
+        started_at: new Date().toISOString()
+      }).then(() => {
+        queryClient.invalidateQueries({ queryKey: ['user-onboarding'] });
+        setShowOnboarding(true);
+      });
+    } else if (onboardingStatus && !onboardingStatus.is_complete && !onboardingStatus.skipped) {
+      setShowOnboarding(true);
+    }
+  }, [user?.id, onboardingStatus]);
+
+  const handleOnboardingComplete = async () => {
+    if (onboardingStatus) {
+      await base44.entities.UserOnboarding.update(onboardingStatus.id, {
+        is_complete: true,
+        completed_at: new Date().toISOString()
+      });
+      queryClient.invalidateQueries({ queryKey: ['user-onboarding'] });
+    }
+    setShowOnboarding(false);
+  };
+
+  const handleOnboardingSkip = async () => {
+    if (onboardingStatus) {
+      await base44.entities.UserOnboarding.update(onboardingStatus.id, {
+        skipped: true
+      });
+      queryClient.invalidateQueries({ queryKey: ['user-onboarding'] });
+    }
+    setShowOnboarding(false);
+  };
 
   const handleLogout = () => {
     base44.auth.logout();
@@ -205,6 +258,13 @@ export default function Layout({ children, currentPageName }) {
           {children}
         </div>
       </main>
+
+      {/* Onboarding Modal */}
+      <OnboardingModal
+        open={showOnboarding}
+        onClose={handleOnboardingSkip}
+        onComplete={handleOnboardingComplete}
+      />
     </div>
   );
 }
