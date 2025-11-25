@@ -10,6 +10,7 @@ import SEOAudit from './pages/SEOAudit';
 import Campaigns from './pages/Campaigns';
 import CampaignDetail from './pages/CampaignDetail';
 import Reports from './pages/Reports';
+import EmailMarketing from './pages/EmailMarketing';
 import __Layout from './Layout.jsx';
 
 
@@ -26,6 +27,7 @@ export const PAGES = {
     "Campaigns": Campaigns,
     "CampaignDetail": CampaignDetail,
     "Reports": Reports,
+    "EmailMarketing": EmailMarketing,
 }
 
 export const pagesConfig = {

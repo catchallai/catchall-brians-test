@@ -20,6 +20,7 @@ import {
   Settings,
   Megaphone,
   FileBarChart,
+  Mail,
 } from "lucide-react";
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
@@ -40,6 +41,7 @@ const navigation = [
   { name: 'Activities', icon: Calendar, page: 'Activities' },
   { name: 'divider', label: 'Marketing' },
   { name: 'Campaigns', icon: Megaphone, page: 'Campaigns' },
+  { name: 'Email Marketing', icon: Mail, page: 'EmailMarketing' },
   { name: 'Reports', icon: FileBarChart, page: 'Reports' },
   { name: 'divider', label: 'SEO' },
   { name: 'SEO Dashboard', icon: Search, page: 'SEODashboard' },
