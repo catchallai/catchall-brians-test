@@ -2,7 +2,7 @@ import React from 'react';
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Pencil, Trash2, Image } from "lucide-react";
+import { Pencil, Trash2, Image, Play } from "lucide-react";
 
 export default function CalendarPostCard({ post, onEdit, onDelete, compact = false }) {
   const statusColors = {
@@ -14,9 +14,22 @@ export default function CalendarPostCard({ post, onEdit, onDelete, compact = fal
 
   return (
     <Card className="overflow-hidden border-0 shadow-sm hover:shadow-md transition-all group">
-      {/* Image with Title Overlay */}
+      {/* Media with Title Overlay */}
       <div className="relative aspect-square bg-gray-100">
-        {post.image_url ? (
+        {post.video_url ? (
+          <div className="relative w-full h-full">
+            <video 
+              src={post.video_url} 
+              className="w-full h-full object-cover"
+              muted
+            />
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="w-12 h-12 rounded-full bg-black/50 flex items-center justify-center">
+                <Play className="w-6 h-6 text-white fill-white" />
+              </div>
+            </div>
+          </div>
+        ) : post.image_url ? (
           <img 
             src={post.image_url} 
             alt={post.title}
