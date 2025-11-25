@@ -1,7 +1,8 @@
 import React from 'react';
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Heart, MessageSquare, Share2, ExternalLink, Users } from "lucide-react";
+import { Heart, MessageSquare, Share2, ExternalLink, Users, Calendar } from "lucide-react";
+import { format } from "date-fns";
 
 const platformConfig = {
   twitter: { color: "bg-gray-900 text-white", icon: "𝕏" },
@@ -76,9 +77,12 @@ export default function ListeningMentionCard({ mention }) {
                 <Share2 className="w-4 h-4" /> {formatNumber(mention.shares)}
               </span>
             </div>
-            <span className="text-xs text-gray-400">
-              {mention.post_date && new Date(mention.post_date).toLocaleDateString()}
-            </span>
+            {mention.post_date && (
+              <span className="text-xs text-gray-400 flex items-center gap-1">
+                <Calendar className="w-3 h-3" />
+                {format(new Date(mention.post_date), 'MMM d, yyyy')}
+              </span>
+            )}
           </div>
 
           {mention.influence_score > 0 && (
