@@ -37,11 +37,30 @@ export default function SEODashboard() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['websites'] });
       setShowModal(false);
+      setSelectedWebsite(null);
+    },
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: ({ id, data }) => base44.entities.Website.update(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['websites'] });
+      setShowModal(false);
+      setSelectedWebsite(null);
     },
   });
 
   const handleSave = (data) => {
-    createMutation.mutate(data);
+    if (selectedWebsite) {
+      updateMutation.mutate({ id: selectedWebsite.id, data });
+    } else {
+      createMutation.mutate(data);
+    }
+  };
+
+  const handleEdit = (website) => {
+    setSelectedWebsite(website);
+    setShowModal(true);
   };
 
   const getWebsiteKeywords = (websiteId) => keywords.filter(k => k.website_id === websiteId);
@@ -119,6 +138,14 @@ export default function SEODashboard() {
                           </a>
                         </div>
                       </div>
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="h-8 w-8 text-gray-400 hover:text-gray-600"
+                        onClick={() => handleEdit(website)}
+                      >
+                        <Settings className="w-4 h-4" />
+                      </Button>
                     </div>
                   </CardHeader>
                   <CardContent className="pt-4">
@@ -218,9 +245,10 @@ export default function SEODashboard() {
       {/* Modal */}
       <WebsiteModal
         open={showModal}
-        onClose={() => setShowModal(false)}
+        onClose={() => { setShowModal(false); setSelectedWebsite(null); }}
+        website={selectedWebsite}
         onSave={handleSave}
-        isLoading={createMutation.isPending}
+        isLoading={createMutation.isPending || updateMutation.isPending}
       />
     </div>
   );
