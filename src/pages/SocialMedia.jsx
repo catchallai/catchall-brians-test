@@ -65,6 +65,7 @@ export default function SocialMedia() {
   const [newAccount, setNewAccount] = useState({ platform: 'twitter', account_name: '', account_url: '' });
   const [newCompetitor, setNewCompetitor] = useState({ name: '', website: '' });
   const [analyzingCompetitor, setAnalyzingCompetitor] = useState(null);
+  const [analyzingAccount, setAnalyzingAccount] = useState(null);
   const [selectedReport, setSelectedReport] = useState(null);
   const [generatingReport, setGeneratingReport] = useState(null);
   const [selectedPost, setSelectedPost] = useState(null);
