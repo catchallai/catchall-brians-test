@@ -11,7 +11,6 @@ import {
   Users, FolderKanban, MessageSquare, GitBranch, Plus,
   Loader2, Sparkles, CheckCircle, Clock, AlertTriangle
 } from "lucide-react";
-import ProjectBoard from '@/components/collaboration/ProjectBoard';
 import TaskList from '@/components/collaboration/TaskList';
 import CommentThread from '@/components/collaboration/CommentThread';
 import VersionHistory from '@/components/collaboration/VersionHistory';
