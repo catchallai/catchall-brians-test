@@ -29,6 +29,7 @@ import SchedulePostModal from '@/components/modals/SchedulePostModal';
 import ABTestModal from '@/components/modals/ABTestModal';
 import ContentGeneratorCard from '@/components/social/ContentGeneratorCard';
 import EmptyState from '@/components/ui/EmptyState';
+import PostDetailModal from '@/components/social/PostDetailModal';
 import {
   Dialog,
   DialogContent,
@@ -66,6 +67,7 @@ export default function SocialMedia() {
   const [analyzingCompetitor, setAnalyzingCompetitor] = useState(null);
   const [selectedReport, setSelectedReport] = useState(null);
   const [generatingReport, setGeneratingReport] = useState(null);
+  const [selectedPost, setSelectedPost] = useState(null);
   const queryClient = useQueryClient();
 
   const { data: socialAccounts = [], isLoading: loadingAccounts } = useQuery({
@@ -590,21 +592,23 @@ export default function SocialMedia() {
 
   const analyzeAccountMutation = useMutation({
     mutationFn: async (account) => {
-      // Use AI to analyze social media presence
+      // Use AI to analyze social media presence with real data
       const analysis = await base44.integrations.Core.InvokeLLM({
-        prompt: `Analyze the social media presence for ${account.platform} account: @${account.account_name}
+        prompt: `Look up the REAL ${account.platform} account @${account.account_name} and provide accurate current data.
         ${account.account_url ? `Profile URL: ${account.account_url}` : ''}
         
-        Please provide:
-        1. Estimated follower count (realistic estimate based on typical accounts)
-        2. Estimated engagement rate
-        3. Analysis of 5 recent post types with:
-           - Content summary
-           - Estimated engagement (likes, comments, shares)
-           - Sentiment (positive/neutral/negative)
-           - Key topics/hashtags
-        4. Overall recommendations for improving social presence
-        5. Content performance insights`,
+        IMPORTANT: Search for the actual account and provide REAL follower counts and engagement metrics, not estimates.
+        
+        Provide:
+        1. ACTUAL current follower count (search for the real number)
+        2. Calculated engagement rate based on recent posts
+        3. 5 of their most recent or notable posts with:
+           - Full post content/text (as much as you can find)
+           - Actual engagement numbers (likes, comments, shares/retweets)
+           - Sentiment analysis (positive/neutral/negative)
+           - Key topics and hashtags used
+        4. Recommendations for improving their social presence
+        5. What content performs best for them`,
         add_context_from_internet: true,
         response_json_schema: {
           type: "object",
@@ -1229,26 +1233,55 @@ export default function SocialMedia() {
             </DialogTitle>
           </DialogHeader>
           <div className="flex-1 overflow-y-auto space-y-4">
+            {/* Account Stats */}
+            {selectedAccount && (
+              <div className="grid grid-cols-3 gap-3">
+                <Card className="p-3 text-center border-0 bg-violet-50">
+                  <p className="text-lg font-bold text-violet-600">
+                    {selectedAccount.followers_count >= 1000000 
+                      ? `${(selectedAccount.followers_count/1000000).toFixed(1)}M`
+                      : selectedAccount.followers_count >= 1000 
+                        ? `${(selectedAccount.followers_count/1000).toFixed(1)}K` 
+                        : selectedAccount.followers_count || 0}
+                  </p>
+                  <p className="text-xs text-gray-500">Followers</p>
+                </Card>
+                <Card className="p-3 text-center border-0 bg-emerald-50">
+                  <p className="text-lg font-bold text-emerald-600">{selectedAccount.engagement_rate?.toFixed(2) || 0}%</p>
+                  <p className="text-xs text-gray-500">Engagement</p>
+                </Card>
+                <Card className="p-3 text-center border-0 bg-blue-50">
+                  <p className="text-lg font-bold text-blue-600">{getAccountPosts(selectedAccount.id).length}</p>
+                  <p className="text-xs text-gray-500">Posts Analyzed</p>
+                </Card>
+              </div>
+            )}
+
             {/* Account Posts */}
             <div>
               <h4 className="font-medium text-gray-900 mb-3">Analyzed Posts</h4>
+              <p className="text-xs text-gray-500 mb-3">Click on a post to view full content</p>
               {getAccountPosts(selectedAccount?.id).length > 0 ? (
                 <div className="space-y-3">
                   {getAccountPosts(selectedAccount?.id).map((post) => {
                     const sentiment = sentimentConfig[post.sentiment] || sentimentConfig.neutral;
                     return (
-                      <Card key={post.id} className="p-4 border-0 shadow-sm">
-                        <p className="text-sm text-gray-700 mb-3">{post.content}</p>
+                      <Card 
+                        key={post.id} 
+                        className="p-4 border-0 shadow-sm hover:shadow-md transition-all cursor-pointer"
+                        onClick={() => { setSelectedAccount(null); setSelectedPost(post); }}
+                      >
+                        <p className="text-sm text-gray-700 mb-3 line-clamp-3">{post.content}</p>
                         <div className="flex items-center justify-between">
                           <div className="flex gap-4 text-sm text-gray-500">
                             <span className="flex items-center gap-1">
-                              <Heart className="w-4 h-4" /> {post.likes || 0}
+                              <Heart className="w-4 h-4" /> {(post.likes || 0).toLocaleString()}
                             </span>
                             <span className="flex items-center gap-1">
-                              <MessageSquare className="w-4 h-4" /> {post.comments || 0}
+                              <MessageSquare className="w-4 h-4" /> {(post.comments || 0).toLocaleString()}
                             </span>
                             <span className="flex items-center gap-1">
-                              <Share2 className="w-4 h-4" /> {post.shares || 0}
+                              <Share2 className="w-4 h-4" /> {(post.shares || 0).toLocaleString()}
                             </span>
                           </div>
                           <Badge className={`${sentiment.bg} ${sentiment.color} border-0`}>
@@ -1257,11 +1290,14 @@ export default function SocialMedia() {
                         </div>
                         {post.topics?.length > 0 && (
                           <div className="flex gap-1 mt-2 flex-wrap">
-                            {post.topics.map((topic, i) => (
+                            {post.topics.slice(0, 3).map((topic, i) => (
                               <Badge key={i} variant="outline" className="text-xs">
                                 #{topic}
                               </Badge>
                             ))}
+                            {post.topics.length > 3 && (
+                              <Badge variant="outline" className="text-xs">+{post.topics.length - 3} more</Badge>
+                            )}
                           </div>
                         )}
                       </Card>
@@ -1277,6 +1313,14 @@ export default function SocialMedia() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Post Detail Modal */}
+      <PostDetailModal
+        open={!!selectedPost}
+        onClose={() => setSelectedPost(null)}
+        post={selectedPost}
+        accountName={socialAccounts.find(a => a.id === selectedPost?.social_account_id)?.account_name}
+      />
 
       {/* Add Competitor Modal */}
       <Dialog open={showCompetitorModal} onOpenChange={setShowCompetitorModal}>
