@@ -69,11 +69,20 @@ function SidebarContent({ currentPage, onNavigate }) {
       {/* Logo */}
       <div className="p-6 border-b border-gray-100">
         <Link to={createPageUrl('Dashboard')} className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-600 to-purple-600 flex items-center justify-center">
-            <span className="text-white font-bold text-lg">C</span>
+          <img 
+            src="https://your-uploaded-logo-url.com/catchall-logo.png" 
+            alt="CatchAll" 
+            className="w-10 h-10 rounded-xl object-contain"
+            onError={(e) => {
+              e.target.style.display = 'none';
+              e.target.nextSibling.style.display = 'flex';
+            }}
+          />
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-600 to-purple-600 items-center justify-center hidden">
+            <span className="text-white font-bold text-lg">CA</span>
           </div>
           <div>
-            <h1 className="font-bold text-gray-900 text-lg">CRM + SEO</h1>
+            <h1 className="font-bold text-gray-900 text-lg">CatchAll</h1>
             <p className="text-xs text-gray-400">Business Suite</p>
           </div>
         </Link>
@@ -194,10 +203,19 @@ export default function Layout({ children, currentPageName }) {
         </Sheet>
         
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-600 to-purple-600 flex items-center justify-center">
-            <span className="text-white font-bold text-sm">C</span>
+          <img 
+            src="https://your-uploaded-logo-url.com/catchall-logo.png" 
+            alt="CatchAll" 
+            className="w-8 h-8 rounded-lg object-contain"
+            onError={(e) => {
+              e.target.style.display = 'none';
+              e.target.nextSibling.style.display = 'flex';
+            }}
+          />
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-600 to-purple-600 items-center justify-center hidden">
+            <span className="text-white font-bold text-sm">CA</span>
           </div>
-          <span className="font-semibold text-gray-900">CRM + SEO</span>
+          <span className="font-semibold text-gray-900">CatchAll</span>
         </div>
 
         <DropdownMenu>
