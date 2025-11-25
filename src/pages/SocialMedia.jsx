@@ -70,40 +70,51 @@ export default function SocialMedia() {
   const [selectedPost, setSelectedPost] = useState(null);
   const queryClient = useQueryClient();
 
-  const { data: socialAccounts = [], isLoading: loadingAccounts } = useQuery({
+  const { data: socialAccountsRaw = [], isLoading: loadingAccounts } = useQuery({
     queryKey: ['social-accounts'],
     queryFn: () => base44.entities.SocialAccount.list('-created_date', 50),
   });
 
-  const { data: socialPosts = [], isLoading: loadingPosts } = useQuery({
+  const { data: socialPostsRaw = [], isLoading: loadingPosts } = useQuery({
     queryKey: ['social-posts'],
     queryFn: () => base44.entities.SocialPost.list('-created_date', 500),
   });
 
-  const { data: scheduledPosts = [] } = useQuery({
+  const { data: scheduledPostsRaw = [] } = useQuery({
     queryKey: ['scheduled-posts'],
     queryFn: () => base44.entities.ScheduledPost.list('-created_date', 100),
   });
 
-  const { data: competitors = [] } = useQuery({
+  const { data: competitorsRaw = [] } = useQuery({
     queryKey: ['competitors'],
     queryFn: () => base44.entities.Competitor.list('-created_date', 50),
   });
 
-  const { data: contentInsights = [] } = useQuery({
+  const { data: contentInsightsRaw = [] } = useQuery({
     queryKey: ['content-insights'],
     queryFn: () => base44.entities.ContentInsight.list('-created_date', 50),
   });
 
-  const { data: abTests = [] } = useQuery({
+  const { data: abTestsRaw = [] } = useQuery({
     queryKey: ['ab-tests'],
     queryFn: () => base44.entities.ABTest.list('-created_date', 50),
   });
 
-  const { data: competitorReports = [] } = useQuery({
+  const { data: competitorReportsRaw = [] } = useQuery({
     queryKey: ['competitor-reports'],
     queryFn: () => base44.entities.CompetitorReport.list('-created_date', 100),
   });
+
+  // Normalize data - handle both flat and nested data structures
+  const normalizeData = (items) => items.map(item => item.data ? { id: item.id, ...item.data } : item);
+  
+  const socialAccounts = normalizeData(socialAccountsRaw);
+  const socialPosts = normalizeData(socialPostsRaw);
+  const scheduledPosts = normalizeData(scheduledPostsRaw);
+  const competitors = normalizeData(competitorsRaw);
+  const contentInsights = normalizeData(contentInsightsRaw);
+  const abTests = normalizeData(abTestsRaw);
+  const competitorReports = normalizeData(competitorReportsRaw);
 
   const createAccountMutation = useMutation({
     mutationFn: (data) => base44.entities.SocialAccount.create(data),
