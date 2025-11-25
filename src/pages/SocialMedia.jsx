@@ -105,24 +105,14 @@ export default function SocialMedia() {
     queryFn: () => base44.entities.CompetitorReport.list('-created_date', 100),
   });
 
-  // Normalize data - handle both flat and nested data structures
-  const normalizeData = (items) => {
-    if (!items || !Array.isArray(items)) return [];
-    return items.map(item => {
-      if (item.data && typeof item.data === 'object') {
-        return { id: item.id, created_date: item.created_date, ...item.data };
-      }
-      return item;
-    });
-  };
-  
-  const socialAccounts = React.useMemo(() => normalizeData(socialAccountsRaw), [socialAccountsRaw]);
-  const socialPosts = React.useMemo(() => normalizeData(socialPostsRaw), [socialPostsRaw]);
-  const scheduledPosts = React.useMemo(() => normalizeData(scheduledPostsRaw), [scheduledPostsRaw]);
-  const competitors = React.useMemo(() => normalizeData(competitorsRaw), [competitorsRaw]);
-  const contentInsights = React.useMemo(() => normalizeData(contentInsightsRaw), [contentInsightsRaw]);
-  const abTests = React.useMemo(() => normalizeData(abTestsRaw), [abTestsRaw]);
-  const competitorReports = React.useMemo(() => normalizeData(competitorReportsRaw), [competitorReportsRaw]);
+  // Use data directly - Base44 SDK returns normalized data
+  const socialAccounts = socialAccountsRaw || [];
+  const socialPosts = socialPostsRaw || [];
+  const scheduledPosts = scheduledPostsRaw || [];
+  const competitors = competitorsRaw || [];
+  const contentInsights = contentInsightsRaw || [];
+  const abTests = abTestsRaw || [];
+  const competitorReports = competitorReportsRaw || [];
 
   const createAccountMutation = useMutation({
     mutationFn: (data) => base44.entities.SocialAccount.create(data),
