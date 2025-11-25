@@ -226,7 +226,7 @@ export default function SEOTools() {
         {/* Site Audit Tab */}
         <TabsContent value="audit" className="space-y-6">
           {/* URL Input */}
-      <Card className="border-0 shadow-sm">
+          <Card className="border-0 shadow-sm">
         <CardContent className="p-6">
           <div className="flex flex-col sm:flex-row gap-4">
             <div className="flex-1">
@@ -265,12 +265,12 @@ export default function SEOTools() {
               </div>
             </div>
           )}
-        </CardContent>
-      </Card>
+            </CardContent>
+          </Card>
 
           {/* Score Overview */}
           {totalChecks > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <Card className="border-0 shadow-sm">
             <CardContent className="p-4 text-center">
               <div className="w-16 h-16 rounded-full bg-violet-100 flex items-center justify-center mx-auto mb-2">
@@ -298,14 +298,14 @@ export default function SEOTools() {
               <XCircle className="w-8 h-8 text-red-500 mx-auto mb-2" />
               <p className="text-2xl font-bold text-red-600">{failCount}</p>
               <p className="text-sm text-gray-500">Failed</p>
-            </CardContent>
-          </Card>
-        </div>
-      )}
+              </CardContent>
+            </Card>
+          </div>
+          )}
 
           {/* Category Scores */}
           {totalChecks > 0 && (
-        <Card className="border-0 shadow-sm">
+            <Card className="border-0 shadow-sm">
           <CardHeader>
             <CardTitle className="text-lg">Category Breakdown</CardTitle>
           </CardHeader>
@@ -336,32 +336,32 @@ export default function SEOTools() {
 
           {/* Results */}
           {loadingChecks ? (
-        <div className="space-y-3">
-          {[...Array(5)].map((_, i) => (
-            <Skeleton key={i} className="h-20 rounded-xl" />
-          ))}
-        </div>
-      ) : filteredChecks.length > 0 ? (
-        <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <h3 className="font-semibold text-gray-900">
-              {activeCategory === 'all' ? 'All Checks' : CHECK_CATEGORIES.find(c => c.id === activeCategory)?.label}
-              <span className="text-gray-400 font-normal ml-2">({filteredChecks.length})</span>
-            </h3>
-            {activeCategory !== 'all' && (
-              <Button variant="ghost" size="sm" onClick={() => setActiveCategory('all')}>
-                Show All
-              </Button>
-            )}
-          </div>
-          {filteredChecks.map((check) => (
-            <SEOCheckCard
-              key={check.id}
-              check={check}
-              onClick={() => setSelectedCheck(check)}
-            />
-          ))}
-        </div>
+            <div className="space-y-3">
+              {[...Array(5)].map((_, i) => (
+                <Skeleton key={i} className="h-20 rounded-xl" />
+              ))}
+            </div>
+          ) : filteredChecks.length > 0 ? (
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <h3 className="font-semibold text-gray-900">
+                  {activeCategory === 'all' ? 'All Checks' : CHECK_CATEGORIES.find(c => c.id === activeCategory)?.label}
+                  <span className="text-gray-400 font-normal ml-2">({filteredChecks.length})</span>
+                </h3>
+                {activeCategory !== 'all' && (
+                  <Button variant="ghost" size="sm" onClick={() => setActiveCategory('all')}>
+                    Show All
+                  </Button>
+                )}
+              </div>
+              {filteredChecks.map((check) => (
+                <SEOCheckCard
+                  key={check.id}
+                  check={check}
+                  onClick={() => setSelectedCheck(check)}
+                />
+              ))}
+            </div>
           ) : (
             <Card className="border-0 shadow-sm">
               <CardContent className="py-16 text-center">
