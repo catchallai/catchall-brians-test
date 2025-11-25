@@ -12,6 +12,8 @@ import CampaignDetail from './pages/CampaignDetail';
 import Reports from './pages/Reports';
 import EmailMarketing from './pages/EmailMarketing';
 import Automation from './pages/Automation';
+import SEOTools from './pages/SEOTools';
+import SocialMedia from './pages/SocialMedia';
 import __Layout from './Layout.jsx';
 
 
@@ -30,6 +32,8 @@ export const PAGES = {
     "Reports": Reports,
     "EmailMarketing": EmailMarketing,
     "Automation": Automation,
+    "SEOTools": SEOTools,
+    "SocialMedia": SocialMedia,
 }
 
 export const pagesConfig = {

@@ -22,6 +22,8 @@ import {
   FileBarChart,
   Mail,
   Zap,
+  Globe,
+  Share2,
 } from "lucide-react";
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
@@ -47,8 +49,10 @@ const navigation = [
   { name: 'Reports', icon: FileBarChart, page: 'Reports' },
   { name: 'divider', label: 'SEO' },
   { name: 'SEO Dashboard', icon: Search, page: 'SEODashboard' },
+  { name: 'SEO Tools', icon: Globe, page: 'SEOTools' },
   { name: 'Keywords', icon: Target, page: 'Keywords' },
   { name: 'Backlinks', icon: Link2, page: 'Backlinks' },
+  { name: 'Social Media', icon: Share2, page: 'SocialMedia' },
   { name: 'SEO Audit', icon: FileSearch, page: 'SEOAudit' },
 ];
 
