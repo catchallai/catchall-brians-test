@@ -9,6 +9,7 @@ import Backlinks from './pages/Backlinks';
 import SEOAudit from './pages/SEOAudit';
 import Campaigns from './pages/Campaigns';
 import CampaignDetail from './pages/CampaignDetail';
+import Reports from './pages/Reports';
 import __Layout from './Layout.jsx';
 
 
@@ -24,6 +25,7 @@ export const PAGES = {
     "SEOAudit": SEOAudit,
     "Campaigns": Campaigns,
     "CampaignDetail": CampaignDetail,
+    "Reports": Reports,
 }
 
 export const pagesConfig = {

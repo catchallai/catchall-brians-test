@@ -19,6 +19,7 @@ import {
   LogOut,
   Settings,
   Megaphone,
+  FileBarChart,
 } from "lucide-react";
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
@@ -39,6 +40,7 @@ const navigation = [
   { name: 'Activities', icon: Calendar, page: 'Activities' },
   { name: 'divider', label: 'Marketing' },
   { name: 'Campaigns', icon: Megaphone, page: 'Campaigns' },
+  { name: 'Reports', icon: FileBarChart, page: 'Reports' },
   { name: 'divider', label: 'SEO' },
   { name: 'SEO Dashboard', icon: Search, page: 'SEODashboard' },
   { name: 'Keywords', icon: Target, page: 'Keywords' },
