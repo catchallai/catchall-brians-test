@@ -13,7 +13,9 @@ import {
   Clock,
   Lightbulb,
   Flag,
-  Settings
+  Settings,
+  Eye,
+  Send
 } from "lucide-react";
 
 const platformLogos = {
@@ -53,7 +55,7 @@ const severityConfig = {
   ok: { color: 'bg-emerald-500 text-white', label: 'OK' }
 };
 
-export default function ListingCard({ listing, onEdit, onManageGBP }) {
+export default function ListingCard({ listing, onEdit, onManageGBP, onViewDetails, onSubmitFix }) {
   const status = statusConfig[listing.status] || statusConfig.pending;
   const severity = severityConfig[listing.severity] || severityConfig.ok;
   const StatusIcon = status.icon;
@@ -148,6 +150,18 @@ export default function ListingCard({ listing, onEdit, onManageGBP }) {
           </div>
 
           <div className="flex flex-col gap-2">
+            {onViewDetails && (
+              <Button variant="outline" size="sm" className="gap-1" onClick={() => onViewDetails(listing)}>
+                <Eye className="w-3 h-3" />
+                Details
+              </Button>
+            )}
+            {onSubmitFix && (listing.status === 'needs_attention' || listing.issues?.length > 0) && (
+              <Button variant="outline" size="sm" className="gap-1 text-violet-600 border-violet-200 hover:bg-violet-50" onClick={() => onSubmitFix(listing)}>
+                <Send className="w-3 h-3" />
+                Submit Fix
+              </Button>
+            )}
             {onManageGBP && (
               <Button variant="outline" size="sm" className="gap-1 text-blue-600 border-blue-200 hover:bg-blue-50" onClick={onManageGBP}>
                 <Settings className="w-3 h-3" />

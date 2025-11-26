@@ -1,0 +1,161 @@
+import React from 'react';
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { 
+  Calendar, Clock, Users, MoreHorizontal, Play, Download, 
+  Trash2, Copy, Share2, AlertCircle, CheckCircle, Loader2
+} from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import moment from 'moment';
+
+const scheduleLabels = {
+  manual: 'Manual',
+  weekly: 'Weekly',
+  monthly: 'Monthly'
+};
+
+export default function ReportList({ 
+  reports, 
+  selectedIds = [], 
+  onSelect, 
+  onRun, 
+  onDelete, 
+  onDuplicate,
+  runningId 
+}) {
+  return (
+    <div className="space-y-2">
+      {reports.map((report) => {
+        const isSelected = selectedIds.includes(report.id);
+        const isRunning = runningId === report.id;
+        
+        return (
+          <Card 
+            key={report.id} 
+            className={`border-0 shadow-sm hover:shadow-md transition-all ${isSelected ? 'ring-2 ring-violet-500' : ''}`}
+          >
+            <CardContent className="p-4">
+              <div className="flex items-center gap-4">
+                {/* Checkbox */}
+                <Checkbox 
+                  checked={isSelected}
+                  onCheckedChange={() => onSelect(report.id)}
+                />
+                
+                {/* Icon */}
+                <div className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center shrink-0">
+                  <span className="text-lg">📊</span>
+                </div>
+
+                {/* Main Info */}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <h3 className="font-medium text-gray-900 hover:text-violet-600 cursor-pointer">
+                      {report.name}
+                    </h3>
+                    {report.schedule !== 'manual' && (
+                      <Badge variant="outline" className="text-xs">
+                        — Scheduled
+                      </Badge>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-3 mt-1 text-sm text-gray-500">
+                    <span className="flex items-center gap-1">
+                      <Calendar className="w-3 h-3" />
+                      {report.last_run ? moment(report.last_run).format('MMM D, YYYY h:mm A') : 'Never run'}
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <Clock className="w-3 h-3" />
+                      {scheduleLabels[report.schedule] || 'Manual'}
+                      {report.schedule !== 'manual' && report.next_run && 
+                        `, on ${moment(report.next_run).format('dddd')}`
+                      }
+                    </span>
+                    {report.recipients?.length > 0 && (
+                      <span className="flex items-center gap-1">
+                        <Users className="w-3 h-3" />
+                        for {report.recipients.length} recipient{report.recipients.length > 1 ? 's' : ''}
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Status */}
+                <div className="flex items-center gap-2">
+                  {report.last_run && !report.error && (
+                    <Badge className="bg-emerald-100 text-emerald-700 gap-1">
+                      <CheckCircle className="w-3 h-3" />
+                      Success
+                    </Badge>
+                  )}
+                  {report.error && (
+                    <Badge className="bg-red-100 text-red-700 gap-1">
+                      <AlertCircle className="w-3 h-3" />
+                      Generation failed
+                    </Badge>
+                  )}
+                </div>
+
+                {/* Actions */}
+                <div className="flex items-center gap-1">
+                  <Button 
+                    size="icon" 
+                    variant="ghost" 
+                    onClick={() => onRun(report)}
+                    disabled={isRunning}
+                    className="h-8 w-8"
+                  >
+                    {isRunning ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <Play className="w-4 h-4" />
+                    )}
+                  </Button>
+                  <Button size="icon" variant="ghost" className="h-8 w-8">
+                    <Download className="w-4 h-4" />
+                  </Button>
+                  <Button size="icon" variant="ghost" className="h-8 w-8">
+                    <Share2 className="w-4 h-4" />
+                  </Button>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button size="icon" variant="ghost" className="h-8 w-8">
+                        <MoreHorizontal className="w-4 h-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => onDuplicate(report)}>
+                        <Copy className="w-4 h-4 mr-2" />
+                        Duplicate
+                      </DropdownMenuItem>
+                      <DropdownMenuItem 
+                        onClick={() => onDelete(report.id)}
+                        className="text-red-600"
+                      >
+                        <Trash2 className="w-4 h-4 mr-2" />
+                        Delete
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        );
+      })}
+
+      {reports.length === 0 && (
+        <div className="text-center py-12">
+          <p className="text-gray-500">No reports found</p>
+        </div>
+      )}
+    </div>
+  );
+}
