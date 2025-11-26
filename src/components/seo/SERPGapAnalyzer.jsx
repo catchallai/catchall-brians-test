@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { 
   Search, Loader2, TrendingUp, Target, AlertTriangle,
-  CheckCircle, XCircle, ArrowRight, Plus, Sparkles
+  CheckCircle, XCircle, ArrowRight, Plus, Sparkles, Users
 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -16,11 +16,61 @@ export default function SERPGapAnalyzer({ websites = [], onAddKeyword }) {
   const [competitors, setCompetitors] = useState(['', '', '']);
   const [analyzing, setAnalyzing] = useState(false);
   const [results, setResults] = useState(null);
+  const [findingCompetitors, setFindingCompetitors] = useState(false);
+  const [suggestedCompetitors, setSuggestedCompetitors] = useState(null);
 
   const updateCompetitor = (idx, value) => {
     const newComps = [...competitors];
     newComps[idx] = value;
     setCompetitors(newComps);
+  };
+
+  const findCompetitors = async () => {
+    if (!yourDomain) return;
+    setFindingCompetitors(true);
+    
+    const result = await base44.integrations.Core.InvokeLLM({
+      prompt: `Identify the top competitors for the website: ${yourDomain}
+      
+      Analyze the domain and determine:
+      1. What industry/niche is this website in
+      2. What products/services do they offer
+      3. Who are their direct competitors (same industry, similar size)
+      4. Who are their aspirational competitors (larger players in the space)
+      
+      Provide 6-8 competitor suggestions with reasoning for each.`,
+      add_context_from_internet: true,
+      response_json_schema: {
+        type: "object",
+        properties: {
+          industry: { type: "string" },
+          niche: { type: "string" },
+          competitors: {
+            type: "array",
+            items: {
+              type: "object",
+              properties: {
+                domain: { type: "string" },
+                name: { type: "string" },
+                type: { type: "string" },
+                reason: { type: "string" },
+                estimated_traffic: { type: "string" }
+              }
+            }
+          }
+        }
+      }
+    });
+
+    setSuggestedCompetitors(result);
+    setFindingCompetitors(false);
+  };
+
+  const selectCompetitor = (domain) => {
+    const emptyIdx = competitors.findIndex(c => !c);
+    if (emptyIdx !== -1) {
+      updateCompetitor(emptyIdx, domain);
+    }
   };
 
   const runAnalysis = async () => {
@@ -198,7 +248,19 @@ export default function SERPGapAnalyzer({ websites = [], onAddKeyword }) {
             />
           </div>
           <div>
-            <label className="text-sm font-medium text-gray-700 mb-2 block">Competitors (up to 3)</label>
+            <div className="flex items-center justify-between mb-2">
+              <label className="text-sm font-medium text-gray-700">Competitors (up to 3)</label>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={findCompetitors}
+                disabled={!yourDomain || findingCompetitors}
+                className="text-violet-600 hover:text-violet-700 gap-1 h-7"
+              >
+                {findingCompetitors ? <Loader2 className="w-3 h-3 animate-spin" /> : <Users className="w-3 h-3" />}
+                Find Competitors
+              </Button>
+            </div>
             <div className="space-y-2">
               {competitors.map((comp, idx) => (
                 <Input 
@@ -210,6 +272,39 @@ export default function SERPGapAnalyzer({ websites = [], onAddKeyword }) {
               ))}
             </div>
           </div>
+
+          {/* Suggested Competitors */}
+          {suggestedCompetitors && (
+            <div className="p-4 bg-violet-50 rounded-xl">
+              <div className="flex items-center justify-between mb-3">
+                <div>
+                  <p className="text-sm font-medium text-violet-900">Suggested Competitors</p>
+                  <p className="text-xs text-violet-600">{suggestedCompetitors.industry} • {suggestedCompetitors.niche}</p>
+                </div>
+                <Button variant="ghost" size="sm" onClick={() => setSuggestedCompetitors(null)} className="h-6 text-xs">
+                  Dismiss
+                </Button>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                {suggestedCompetitors.competitors?.map((comp, idx) => (
+                  <div 
+                    key={idx} 
+                    className="flex items-center justify-between p-2 bg-white rounded-lg border border-violet-200 hover:border-violet-400 cursor-pointer transition-colors"
+                    onClick={() => selectCompetitor(comp.domain)}
+                  >
+                    <div className="min-w-0 flex-1">
+                      <p className="font-medium text-gray-900 text-sm truncate">{comp.domain}</p>
+                      <p className="text-xs text-gray-500 truncate">{comp.reason}</p>
+                    </div>
+                    <div className="flex items-center gap-2 shrink-0 ml-2">
+                      <Badge variant="outline" className="text-xs">{comp.type}</Badge>
+                      <Plus className="w-4 h-4 text-violet-500" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
           <Button 
             onClick={runAnalysis}
             disabled={analyzing || !yourDomain || !competitors.some(c => c)}
