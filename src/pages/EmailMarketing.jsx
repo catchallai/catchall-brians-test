@@ -91,45 +91,15 @@ export default function EmailMarketing() {
 
   const sendCampaignMutation = useMutation({
     mutationFn: async (emailCampaign) => {
-      const template = templates.find(t => t.id === emailCampaign.template_id);
-      const recipientContacts = contacts.filter(c => emailCampaign.contact_ids?.includes(c.id));
-      
       // Update campaign status to sending
       await base44.entities.EmailCampaign.update(emailCampaign.id, { status: 'sending' });
       
-      let sentCount = 0;
-      for (const contact of recipientContacts) {
-        const personalizedSubject = template.subject
-          .replace(/\{\{first_name\}\}/g, contact.first_name || '')
-          .replace(/\{\{last_name\}\}/g, contact.last_name || '');
-        
-        const personalizedBody = template.body
-          .replace(/\{\{first_name\}\}/g, contact.first_name || '')
-          .replace(/\{\{last_name\}\}/g, contact.last_name || '');
-        
-        await base44.integrations.Core.SendEmail({
-          to: contact.email,
-          subject: personalizedSubject,
-          body: personalizedBody,
-        });
-        
-        await base44.entities.EmailLog.create({
-          email_campaign_id: emailCampaign.id,
-          contact_id: contact.id,
-          recipient_email: contact.email,
-          status: 'sent',
-        });
-        
-        sentCount++;
-      }
-      
-      await base44.entities.EmailCampaign.update(emailCampaign.id, {
-        status: 'sent',
-        sent_date: new Date().toISOString(),
-        total_sent: sentCount,
+      // Call Resend backend function
+      const response = await base44.functions.invoke('sendCampaignEmail', {
+        campaignId: emailCampaign.id
       });
       
-      return { sentCount };
+      return response.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['email-campaigns'] });
