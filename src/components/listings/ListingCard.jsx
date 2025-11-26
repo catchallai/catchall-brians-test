@@ -12,7 +12,8 @@ import {
   XCircle,
   Clock,
   Lightbulb,
-  Flag
+  Flag,
+  Settings
 } from "lucide-react";
 
 const platformLogos = {
@@ -52,7 +53,7 @@ const severityConfig = {
   ok: { color: 'bg-emerald-500 text-white', label: 'OK' }
 };
 
-export default function ListingCard({ listing, onEdit }) {
+export default function ListingCard({ listing, onEdit, onManageGBP }) {
   const status = statusConfig[listing.status] || statusConfig.pending;
   const severity = severityConfig[listing.severity] || severityConfig.ok;
   const StatusIcon = status.icon;
@@ -147,6 +148,12 @@ export default function ListingCard({ listing, onEdit }) {
           </div>
 
           <div className="flex flex-col gap-2">
+            {onManageGBP && (
+              <Button variant="outline" size="sm" className="gap-1 text-blue-600 border-blue-200 hover:bg-blue-50" onClick={onManageGBP}>
+                <Settings className="w-3 h-3" />
+                Manage GBP
+              </Button>
+            )}
             {listing.listing_url && (
               <a href={listing.listing_url} target="_blank" rel="noopener noreferrer">
                 <Button variant="outline" size="sm" className="gap-1">
