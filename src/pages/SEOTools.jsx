@@ -18,6 +18,8 @@ import {
 import SEOCheckCard from '@/components/seo/SEOCheckCard';
 import KeywordResearchCard from '@/components/seo/KeywordResearchCard';
 import OnPageSEOAnalyzer from '@/components/seo/OnPageSEOAnalyzer';
+import SERPGapAnalyzer from '@/components/seo/SERPGapAnalyzer';
+import ExplodingTopicsCard from '@/components/seo/ExplodingTopicsCard';
 import {
   Dialog,
   DialogContent,
@@ -220,6 +222,14 @@ export default function SEOTools() {
           <TabsTrigger value="onpage" className="gap-2">
             <FileText className="w-4 h-4" />
             On-Page Analysis
+          </TabsTrigger>
+          <TabsTrigger value="serpgap" className="gap-2">
+            <Target className="w-4 h-4" />
+            SERP Gap
+          </TabsTrigger>
+          <TabsTrigger value="trends" className="gap-2">
+            <Sparkles className="w-4 h-4" />
+            Exploding Topics
           </TabsTrigger>
         </TabsList>
 
@@ -424,6 +434,16 @@ export default function SEOTools() {
         {/* On-Page Analysis Tab */}
         <TabsContent value="onpage">
           <OnPageSEOAnalyzer />
+        </TabsContent>
+
+        {/* SERP Gap Analyzer Tab */}
+        <TabsContent value="serpgap">
+          <SERPGapAnalyzer websites={websites} onAddKeyword={(kw) => addKeywordMutation.mutate(kw)} />
+        </TabsContent>
+
+        {/* Exploding Topics Tab */}
+        <TabsContent value="trends">
+          <ExplodingTopicsCard onAddKeyword={(kw) => addKeywordMutation.mutate(kw)} />
         </TabsContent>
       </Tabs>
     </div>

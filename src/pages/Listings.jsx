@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import ListingCard from '@/components/listings/ListingCard';
 import ListingModal from '@/components/modals/ListingModal';
+import GBPManager from '@/components/seo/GBPManager';
 
 export default function Listings() {
   const [showModal, setShowModal] = useState(false);
@@ -30,6 +31,7 @@ export default function Listings() {
   const [filterStatus, setFilterStatus] = useState('all');
   const [filterWebsite, setFilterWebsite] = useState('all');
   const [scanning, setScanning] = useState(false);
+  const [selectedGBPListing, setSelectedGBPListing] = useState(null);
   const queryClient = useQueryClient();
 
   const { data: listings = [], isLoading } = useQuery({
@@ -408,6 +410,11 @@ export default function Listings() {
         </Select>
       </div>
 
+      {/* GBP Manager */}
+      {selectedGBPListing && (
+        <GBPManager listing={selectedGBPListing} onUpdate={() => queryClient.invalidateQueries({ queryKey: ['listings'] })} />
+      )}
+
       {/* Listings */}
       {filteredListings.length === 0 ? (
         <Card className="border-0 shadow-sm">
@@ -430,7 +437,12 @@ export default function Listings() {
       ) : (
         <div className="space-y-4">
           {filteredListings.map((listing) => (
-            <ListingCard key={listing.id} listing={listing} onEdit={handleEdit} />
+            <ListingCard 
+              key={listing.id} 
+              listing={listing} 
+              onEdit={handleEdit}
+              onManageGBP={listing.platform === 'google_business' ? () => setSelectedGBPListing(listing) : undefined}
+            />
           ))}
         </div>
       )}

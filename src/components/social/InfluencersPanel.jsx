@@ -107,6 +107,12 @@ export default function InfluencersPanel({ mentions, onViewMention }) {
           );
         })}
       </CardContent>
+
+      {/* Influencer Profile Modal */}
+      <InfluencerProfileCard 
+        mention={selectedInfluencer}
+        onClose={() => setSelectedInfluencer(null)}
+      />
     </Card>
   );
 }
