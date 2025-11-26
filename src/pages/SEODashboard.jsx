@@ -457,6 +457,45 @@ ${(data.recommendations || []).map((r, i) => `${i + 1}. ${r}`).join('\n')}
               />
             </TabsContent>
 
+            <TabsContent value="reports" className="space-y-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-lg font-semibold text-gray-900">Scheduled Reports</h2>
+                  <p className="text-sm text-gray-500">Automate weekly or monthly SEO performance reports</p>
+                </div>
+                <Button onClick={() => setShowReportModal(true)} className="gap-2 bg-violet-600 hover:bg-violet-700">
+                  <Plus className="w-4 h-4" />
+                  Create Report
+                </Button>
+              </div>
+
+              {seoReports.length === 0 ? (
+                <Card className="border-0 shadow-sm">
+                  <CardContent className="py-12 text-center">
+                    <FileText className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+                    <h3 className="font-medium text-gray-900">No reports yet</h3>
+                    <p className="text-sm text-gray-500 mt-1">Create your first scheduled SEO report</p>
+                    <Button onClick={() => setShowReportModal(true)} className="mt-4 gap-2">
+                      <Plus className="w-4 h-4" /> Create Report
+                    </Button>
+                  </CardContent>
+                </Card>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {seoReports.map(report => (
+                    <SEOReportCard
+                      key={report.id}
+                      report={report}
+                      website={websites.find(w => w.id === report.website_id)}
+                      onRunReport={(r) => runReportMutation.mutate(r)}
+                      onExport={handleExportReport}
+                      isRunning={runningReportId === report.id}
+                    />
+                  ))}
+                </div>
+              )}
+            </TabsContent>
+
             <TabsContent value="advanced" className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                 <GoogleTrackingCard 
