@@ -8,6 +8,8 @@ import { Plus, Target } from "lucide-react";
 import DealCard from '@/components/crm/DealCard';
 import DealModal from '@/components/modals/DealModal';
 import EmptyState from '@/components/ui/EmptyState';
+import SalesFunnel from '@/components/crm/SalesFunnel';
+import StageDistribution from '@/components/crm/StageDistribution';
 
 const STAGES = [
   { id: 'lead', label: 'Lead', color: 'bg-gray-100' },
@@ -129,6 +131,14 @@ export default function Deals() {
           Add Deal
         </Button>
       </div>
+
+      {/* Funnel & Distribution */}
+      {deals.length > 0 && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <SalesFunnel deals={deals} />
+          <StageDistribution deals={deals} />
+        </div>
+      )}
 
       {/* Pipeline */}
       {deals.length === 0 ? (
