@@ -22,6 +22,7 @@ import TechnicalAuditCard from '@/components/seo/TechnicalAuditCard';
 import SEOReportCard from '@/components/seo/SEOReportCard';
 import CreateReportModal from '@/components/seo/CreateReportModal';
 import ReportViewer from '@/components/seo/ReportViewer';
+import { useToast } from '@/components/ui/toast-provider';
 
 export default function SEODashboard() {
   const [showModal, setShowModal] = useState(false);
@@ -31,6 +32,7 @@ export default function SEODashboard() {
   const [runningReportId, setRunningReportId] = useState(null);
   const [viewingReport, setViewingReport] = useState(null);
   const queryClient = useQueryClient();
+  const toast = useToast();
 
   const { data: websites = [], isLoading: loadingWebsites } = useQuery({
     queryKey: ['websites'],
@@ -76,7 +78,9 @@ export default function SEODashboard() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['seo-reports'] });
       setShowReportModal(false);
-    }
+      toast.success('Report created successfully');
+    },
+    onError: () => toast.error('Failed to create report')
   });
 
   const runReportMutation = useMutation({
@@ -153,8 +157,12 @@ export default function SEODashboard() {
       queryClient.invalidateQueries({ queryKey: ['seo-reports'] });
       setRunningReportId(null);
       setViewingReport(updatedReport);
+      toast.success('Report generated successfully');
     },
-    onError: () => setRunningReportId(null)
+    onError: () => {
+      setRunningReportId(null);
+      toast.error('Failed to generate report');
+    }
   });
 
   const handleExportReport = (report, format) => {
@@ -228,7 +236,9 @@ ${(data.recommendations || []).map((r, i) => `${i + 1}. ${r}`).join('\n')}
       queryClient.invalidateQueries({ queryKey: ['websites'] });
       setShowModal(false);
       setSelectedWebsite(null);
+      toast.success('Website added successfully');
     },
+    onError: () => toast.error('Failed to add website')
   });
 
   const updateMutation = useMutation({
@@ -237,7 +247,9 @@ ${(data.recommendations || []).map((r, i) => `${i + 1}. ${r}`).join('\n')}
       queryClient.invalidateQueries({ queryKey: ['websites'] });
       setShowModal(false);
       setSelectedWebsite(null);
+      toast.success('Website updated successfully');
     },
+    onError: () => toast.error('Failed to update website')
   });
 
   const analyzeWebsiteMutation = useMutation({
@@ -335,9 +347,11 @@ ${(data.recommendations || []).map((r, i) => `${i + 1}. ${r}`).join('\n')}
       queryClient.invalidateQueries({ queryKey: ['keywords'] });
       queryClient.invalidateQueries({ queryKey: ['backlinks'] });
       setAnalyzingWebsite(null);
+      toast.success('Website analysis complete');
     },
     onError: () => {
       setAnalyzingWebsite(null);
+      toast.error('Analysis failed');
     }
   });
 
@@ -426,7 +440,14 @@ ${(data.recommendations || []).map((r, i) => `${i + 1}. ${r}`).join('\n')}
               {/* Technical Audit Section */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {websites.slice(0, 2).map((website) => (
-                  <TechnicalAuditCard key={website.id} website={website} />
+                  <TechnicalAuditCard 
+                    key={website.id} 
+                    website={website}
+                    onAuditSaved={() => {
+                      queryClient.invalidateQueries({ queryKey: ['websites'] });
+                      toast.success('Technical audit saved');
+                    }}
+                  />
                 ))}
               </div>
             </TabsContent>
