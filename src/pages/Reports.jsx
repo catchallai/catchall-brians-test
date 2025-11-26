@@ -9,8 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { 
-  FileBarChart, Plus, Search, Share2, Eye, Filter,
-  ExternalLink, Sparkles
+  FileBarChart, Plus, Search, Share2, Eye, Filter, Sparkles
 } from "lucide-react";
 import ReportTemplates, { REPORT_TEMPLATES } from '@/components/reports/ReportTemplates';
 import ReportList from '@/components/reports/ReportList';
@@ -176,22 +175,7 @@ export default function Reports() {
           </div>
           <p className="text-gray-500 mt-1">Report data from various digital marketing tools and see results in one place</p>
         </div>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" className="gap-2">
-            <ExternalLink className="w-4 h-4" />
-            Go to Integrations
-          </Button>
         </div>
-      </div>
-
-      {/* Integration Icons Bar */}
-      <div className="flex items-center gap-3 overflow-x-auto pb-2">
-        {['📊', '📈', '🔍', '📱', '💼', '🎯', '📧', '🌐', '⭐', '🔗'].map((icon, idx) => (
-          <div key={idx} className="w-10 h-10 rounded-lg bg-white shadow-sm flex items-center justify-center text-lg shrink-0">
-            {icon}
-          </div>
-        ))}
-      </div>
 
       {/* Report Templates */}
       <ReportTemplates onSelect={handleTemplateSelect} />
