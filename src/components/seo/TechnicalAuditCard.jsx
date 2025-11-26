@@ -28,9 +28,9 @@ const severityConfig = {
   passed: { color: 'bg-emerald-100 text-emerald-700', label: 'Passed' }
 };
 
-export default function TechnicalAuditCard({ website, onAuditComplete }) {
+export default function TechnicalAuditCard({ website, onAuditComplete, onAuditSaved }) {
   const [isAuditing, setIsAuditing] = useState(false);
-  const [auditResults, setAuditResults] = useState(null);
+  const [auditResults, setAuditResults] = useState(website.technical_audit_data || null);
   const [expandedCategories, setExpandedCategories] = useState({});
 
   const toggleCategory = (category) => {
@@ -235,6 +235,17 @@ export default function TechnicalAuditCard({ website, onAuditComplete }) {
 
     setAuditResults(results);
     setIsAuditing(false);
+    
+    // Save audit results to database
+    await base44.entities.Website.update(website.id, {
+      technical_audit_data: results,
+      technical_audit_score: results.overall_score,
+      last_audit_date: new Date().toISOString()
+    });
+    
+    if (onAuditSaved) {
+      onAuditSaved();
+    }
     
     if (onAuditComplete) {
       onAuditComplete(results);

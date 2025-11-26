@@ -1,8 +1,10 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ExternalLink, Settings, Sparkles, Loader2, Search, Link2, TrendingUp, Globe } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { ExternalLink, Settings, Sparkles, Loader2, Search, Link2, TrendingUp, Globe, Clock } from "lucide-react";
 import SEOScoreGauge from './SEOScoreGauge';
+import moment from 'moment';
 
 export default function WebsiteCard({ 
   website, 
@@ -40,6 +42,14 @@ export default function WebsiteCard({
                 {website.url?.replace(/^https?:\/\//, '').slice(0, 30)}
                 <ExternalLink className="w-3 h-3" />
               </a>
+              {website.last_audit_date && (
+                <div className="flex items-center gap-1 mt-1">
+                  <Clock className="w-3 h-3 text-gray-400" />
+                  <span className="text-xs text-gray-400">
+                    Audited {moment(website.last_audit_date).fromNow()}
+                  </span>
+                </div>
+              )}
             </div>
           </div>
           <div className="flex gap-1">
