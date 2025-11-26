@@ -4,7 +4,8 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, Globe } from "lucide-react";
+import { Plus, Globe, FileText } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
 import WebsiteModal from '@/components/modals/WebsiteModal';
 import EmptyState from '@/components/ui/EmptyState';
 import SEOOverviewStats from '@/components/seo/SEOOverviewStats';
@@ -18,11 +19,17 @@ import HistoricalDataCard from '@/components/seo/HistoricalDataCard';
 import MultiLocationCard from '@/components/seo/MultiLocationCard';
 import PredictiveAnalyticsCard from '@/components/seo/PredictiveAnalyticsCard';
 import TechnicalAuditCard from '@/components/seo/TechnicalAuditCard';
+import SEOReportCard from '@/components/seo/SEOReportCard';
+import CreateReportModal from '@/components/seo/CreateReportModal';
+import ReportViewer from '@/components/seo/ReportViewer';
 
 export default function SEODashboard() {
   const [showModal, setShowModal] = useState(false);
   const [selectedWebsite, setSelectedWebsite] = useState(null);
   const [analyzingWebsite, setAnalyzingWebsite] = useState(null);
+  const [showReportModal, setShowReportModal] = useState(false);
+  const [runningReportId, setRunningReportId] = useState(null);
+  const [viewingReport, setViewingReport] = useState(null);
   const queryClient = useQueryClient();
 
   const { data: websites = [], isLoading: loadingWebsites } = useQuery({
@@ -50,6 +57,11 @@ export default function SEODashboard() {
     queryFn: () => base44.entities.KeywordHistory.list('-date', 1000),
   });
 
+  const { data: seoReports = [] } = useQuery({
+    queryKey: ['seo-reports'],
+    queryFn: () => base44.entities.SEOReport.list('-created_date', 50),
+  });
+
   const saveSovMutation = useMutation({
     mutationFn: (data) => base44.entities.ShareOfVoice.create(data),
   });
@@ -58,6 +70,157 @@ export default function SEODashboard() {
     mutationFn: ({ id, data }) => base44.entities.Website.update(id, data),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['websites'] }),
   });
+
+  const createReportMutation = useMutation({
+    mutationFn: (data) => base44.entities.SEOReport.create(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['seo-reports'] });
+      setShowReportModal(false);
+    }
+  });
+
+  const runReportMutation = useMutation({
+    mutationFn: async (report) => {
+      setRunningReportId(report.id);
+      const website = websites.find(w => w.id === report.website_id);
+      const siteKeywords = keywords.filter(k => k.website_id === report.website_id);
+      const siteBacklinks = backlinks.filter(b => b.website_id === report.website_id);
+
+      const analysis = await base44.integrations.Core.InvokeLLM({
+        prompt: `Generate an SEO performance report for: ${website?.url}
+        
+        Current metrics:
+        - SEO Score: ${website?.seo_score || 'N/A'}
+        - Domain Authority: ${website?.domain_authority || 'N/A'}
+        - Organic Traffic: ${website?.organic_traffic || 'N/A'}
+        - Total Keywords: ${siteKeywords.length}
+        - Keywords in top 10: ${siteKeywords.filter(k => k.current_position <= 10).length}
+        - Total Backlinks: ${siteBacklinks.length}
+
+        Top keywords: ${siteKeywords.slice(0, 10).map(k => `${k.keyword} (pos ${k.current_position})`).join(', ')}
+
+        Provide:
+        1. Performance summary with trend analysis
+        2. Top 5 keywords with position changes
+        3. Key insights and recommendations
+        4. Estimated traffic and ranking changes (as percentages)`,
+        add_context_from_internet: true,
+        response_json_schema: {
+          type: "object",
+          properties: {
+            seo_score: { type: "number" },
+            seo_score_change: { type: "number" },
+            organic_traffic: { type: "number" },
+            traffic_change: { type: "number" },
+            total_keywords: { type: "number" },
+            top_10_keywords: { type: "number" },
+            total_backlinks: { type: "number" },
+            backlinks_change: { type: "number" },
+            domain_authority: { type: "number" },
+            top_keywords: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  keyword: { type: "string" },
+                  position: { type: "number" },
+                  search_volume: { type: "number" },
+                  change: { type: "number" }
+                }
+              }
+            },
+            trends_summary: { type: "string" },
+            recommendations: { type: "array", items: { type: "string" } }
+          }
+        }
+      });
+
+      const reportData = {
+        ...analysis,
+        generated_at: new Date().toISOString(),
+        website_name: website?.name,
+        website_url: website?.url
+      };
+
+      await base44.entities.SEOReport.update(report.id, {
+        report_data: reportData,
+        last_run: new Date().toISOString()
+      });
+
+      return { ...report, report_data: reportData };
+    },
+    onSuccess: (updatedReport) => {
+      queryClient.invalidateQueries({ queryKey: ['seo-reports'] });
+      setRunningReportId(null);
+      setViewingReport(updatedReport);
+    },
+    onError: () => setRunningReportId(null)
+  });
+
+  const handleExportReport = (report, format) => {
+    if (!report.report_data) return;
+    const data = report.report_data;
+    const website = websites.find(w => w.id === report.website_id);
+
+    if (format === 'csv') {
+      const csvRows = [
+        ['SEO Report', report.name],
+        ['Website', website?.name || ''],
+        ['Generated', data.generated_at],
+        [''],
+        ['Metric', 'Value', 'Change'],
+        ['SEO Score', data.seo_score, `${data.seo_score_change}%`],
+        ['Organic Traffic', data.organic_traffic, `${data.traffic_change}%`],
+        ['Total Keywords', data.total_keywords, ''],
+        ['Top 10 Keywords', data.top_10_keywords, ''],
+        ['Total Backlinks', data.total_backlinks, `${data.backlinks_change}%`],
+        [''],
+        ['Top Keywords'],
+        ['Keyword', 'Position', 'Search Volume', 'Change'],
+        ...(data.top_keywords || []).map(k => [k.keyword, k.position, k.search_volume, k.change])
+      ];
+      const csvContent = csvRows.map(r => r.join(',')).join('\n');
+      const blob = new Blob([csvContent], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${report.name.replace(/\s+/g, '_')}_report.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } else {
+      const content = `
+SEO REPORT: ${report.name}
+Website: ${website?.name} (${website?.url})
+Generated: ${new Date(data.generated_at).toLocaleString()}
+
+PERFORMANCE OVERVIEW
+====================
+SEO Score: ${data.seo_score} (${data.seo_score_change > 0 ? '+' : ''}${data.seo_score_change}%)
+Organic Traffic: ${data.organic_traffic?.toLocaleString()} (${data.traffic_change > 0 ? '+' : ''}${data.traffic_change}%)
+Total Keywords: ${data.total_keywords} (${data.top_10_keywords} in top 10)
+Total Backlinks: ${data.total_backlinks} (${data.backlinks_change > 0 ? '+' : ''}${data.backlinks_change}%)
+
+TOP KEYWORDS
+============
+${(data.top_keywords || []).map(k => `• ${k.keyword} - Position ${k.position} (Vol: ${k.search_volume})`).join('\n')}
+
+TRENDS & INSIGHTS
+=================
+${data.trends_summary}
+
+RECOMMENDATIONS
+===============
+${(data.recommendations || []).map((r, i) => `${i + 1}. ${r}`).join('\n')}
+      `;
+      const blob = new Blob([content], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${report.name.replace(/\s+/g, '_')}_report.txt`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+  };
 
   const createMutation = useMutation({
     mutationFn: (data) => base44.entities.Website.create(data),
@@ -239,6 +402,7 @@ export default function SEODashboard() {
           <Tabs defaultValue="websites" className="space-y-6">
             <TabsList className="bg-white border">
               <TabsTrigger value="websites">Websites</TabsTrigger>
+              <TabsTrigger value="reports">Reports</TabsTrigger>
               <TabsTrigger value="analytics">Analytics</TabsTrigger>
               <TabsTrigger value="advanced">Advanced Tools</TabsTrigger>
             </TabsList>
@@ -309,13 +473,29 @@ export default function SEODashboard() {
         </>
       )}
 
-      {/* Modal */}
+      {/* Modals */}
       <WebsiteModal
         open={showModal}
         onClose={() => { setShowModal(false); setSelectedWebsite(null); }}
         website={selectedWebsite}
         onSave={handleSave}
         isLoading={createMutation.isPending || updateMutation.isPending}
+      />
+
+      <CreateReportModal
+        open={showReportModal}
+        onClose={() => setShowReportModal(false)}
+        onSave={(data) => createReportMutation.mutate(data)}
+        websites={websites}
+        isLoading={createReportMutation.isPending}
+      />
+
+      <ReportViewer
+        open={!!viewingReport}
+        onClose={() => setViewingReport(null)}
+        report={viewingReport}
+        website={viewingReport ? websites.find(w => w.id === viewingReport.website_id) : null}
+        onExport={handleExportReport}
       />
     </div>
   );
