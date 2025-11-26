@@ -75,7 +75,7 @@ export default function SEOTools() {
         
         Analyze the following aspects and provide detailed findings:
         
-        1. TECHNICAL SEO:
+        1. TECHNICAL SEO (check_type: "technical"):
         - Robots.txt accessibility
         - XML sitemap presence
         - Canonical tags
@@ -83,7 +83,7 @@ export default function SEOTools() {
         - URL structure
         - Crawlability issues
         
-        2. ON-PAGE SEO:
+        2. ON-PAGE SEO (check_type: "on_page"):
         - Title tags (length, keywords)
         - Meta descriptions
         - Header hierarchy (H1, H2, H3)
@@ -91,29 +91,31 @@ export default function SEOTools() {
         - Internal linking
         - Keyword optimization
         
-        3. PERFORMANCE:
+        3. PERFORMANCE (check_type: "performance"):
         - Page load speed estimate
         - Core Web Vitals expectations
         - Resource optimization
         - Caching potential
         
-        4. MOBILE:
+        4. MOBILE (check_type: "mobile"):
         - Mobile responsiveness
         - Touch targets
         - Viewport configuration
         
-        5. SECURITY:
+        5. SECURITY (check_type: "security"):
         - HTTPS implementation
         - Mixed content issues
         - Security headers
         
-        6. CONTENT:
+        6. CONTENT (check_type: "content"):
         - Content quality signals
         - Readability
         - Content freshness
         - Duplicate content risks
         
-        For each check, provide: status (pass/warning/fail), priority (critical/high/medium/low), details, and recommendation.`,
+        IMPORTANT: For each check, use EXACTLY these check_type values: "technical", "on_page", "performance", "mobile", "security", or "content".
+        For status, use EXACTLY: "pass", "warning", or "fail".
+        For priority, use EXACTLY: "critical", "high", "medium", or "low".`,
         add_context_from_internet: true,
         response_json_schema: {
           type: "object",
@@ -124,10 +126,10 @@ export default function SEOTools() {
               items: {
                 type: "object",
                 properties: {
-                  check_type: { type: "string" },
+                  check_type: { type: "string", enum: ["technical", "on_page", "performance", "mobile", "security", "content"] },
                   check_name: { type: "string" },
-                  status: { type: "string" },
-                  priority: { type: "string" },
+                  status: { type: "string", enum: ["pass", "warning", "fail"] },
+                  priority: { type: "string", enum: ["critical", "high", "medium", "low"] },
                   details: { type: "string" },
                   recommendation: { type: "string" }
                 }
@@ -137,12 +139,37 @@ export default function SEOTools() {
         }
       });
 
-      // Save checks
+      // Normalize and save checks
+      const validTypes = ['technical', 'on_page', 'performance', 'mobile', 'security', 'content'];
+      const validStatuses = ['pass', 'warning', 'fail'];
+      
       for (const check of analysis.checks || []) {
+        // Normalize check_type
+        let checkType = (check.check_type || '').toLowerCase().replace(/[\s-]/g, '_');
+        if (checkType.includes('technical')) checkType = 'technical';
+        else if (checkType.includes('on') && checkType.includes('page')) checkType = 'on_page';
+        else if (checkType.includes('performance') || checkType.includes('speed')) checkType = 'performance';
+        else if (checkType.includes('mobile')) checkType = 'mobile';
+        else if (checkType.includes('security') || checkType.includes('https')) checkType = 'security';
+        else if (checkType.includes('content')) checkType = 'content';
+        else if (!validTypes.includes(checkType)) checkType = 'technical';
+        
+        // Normalize status
+        let status = (check.status || '').toLowerCase();
+        if (status.includes('pass') || status.includes('good') || status.includes('ok')) status = 'pass';
+        else if (status.includes('warn')) status = 'warning';
+        else if (status.includes('fail') || status.includes('error') || status.includes('bad')) status = 'fail';
+        else if (!validStatuses.includes(status)) status = 'warning';
+        
         await base44.entities.SEOCheck.create({
           website_id: website.id,
           url_checked: url,
-          ...check
+          check_type: checkType,
+          check_name: check.check_name,
+          status: status,
+          priority: check.priority || 'medium',
+          details: check.details,
+          recommendation: check.recommendation
         });
       }
 
