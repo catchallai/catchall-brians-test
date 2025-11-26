@@ -9,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { 
-  FileBarChart, Plus, Search, Share2, Eye, Filter, Sparkles
+  FileBarChart, Plus, Search, Share2, Filter, Sparkles
 } from "lucide-react";
 import ReportTemplates, { REPORT_TEMPLATES } from '@/components/reports/ReportTemplates';
 import ReportList from '@/components/reports/ReportList';
@@ -211,14 +211,6 @@ export default function Reports() {
             <Button variant="outline" size="sm" className="gap-1" onClick={() => setShowShareModal(true)}>
               <Share2 className="w-4 h-4" />
               Share
-            </Button>
-            <Button variant="outline" size="sm" className="gap-1">
-              <Eye className="w-4 h-4" />
-              View limits
-            </Button>
-            <Button onClick={() => setShowCreateModal(true)} className="gap-1 bg-blue-600 hover:bg-blue-700">
-              <Plus className="w-4 h-4" />
-              Get more reports
             </Button>
           </div>
         </div>
