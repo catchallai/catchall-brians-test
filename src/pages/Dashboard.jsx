@@ -8,6 +8,8 @@ import RecentActivityFeed from '@/components/dashboard/RecentActivityFeed';
 import AlertsSummary from '@/components/dashboard/AlertsSummary';
 import QuickActions from '@/components/dashboard/QuickActions';
 import SocialStats from '@/components/dashboard/SocialStats';
+import UpcomingPosts from '@/components/dashboard/UpcomingPosts';
+import BrandOverview from '@/components/dashboard/BrandOverview';
 import { Users, Building2, DollarSign, TrendingUp, Target, Search, Link2, Activity } from "lucide-react";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import { Link } from 'react-router-dom';
@@ -52,6 +54,11 @@ export default function Dashboard() {
   const { data: calendarPosts = [] } = useQuery({
     queryKey: ['dashboard-posts'],
     queryFn: () => base44.entities.CalendarPost.list('-scheduled_date', 20),
+  });
+
+  const { data: brands = [] } = useQuery({
+    queryKey: ['brands'],
+    queryFn: () => base44.entities.Brand.list('-created_date', 50),
   });
 
   const isLoading = loadingContacts || loadingCompanies || loadingDeals || loadingWebsites || loadingKeywords;
@@ -268,10 +275,16 @@ export default function Dashboard() {
         </Card>
       </div>
 
-      {/* Social Stats */}
-      <SocialStats mentions={mentions} posts={calendarPosts} />
+      {/* Brands & Upcoming Posts */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <BrandOverview brands={brands} posts={calendarPosts} />
+                <UpcomingPosts posts={calendarPosts} brands={brands} />
+              </div>
 
-      {/* Activity & Alerts Row */}
+              {/* Social Stats */}
+              <SocialStats mentions={mentions} posts={calendarPosts} />
+
+              {/* Activity & Alerts Row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <RecentActivityFeed contacts={contacts} deals={deals} mentions={mentions} />
         <AlertsSummary alerts={alerts} keywords={keywords} mentions={mentions} />
