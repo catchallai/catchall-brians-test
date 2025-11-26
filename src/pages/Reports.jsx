@@ -12,9 +12,9 @@ import {
   FileBarChart, Plus, Search, Share2, Eye, Filter,
   ExternalLink, Sparkles
 } from "lucide-react";
-import ReportTemplates from '@/components/reports/ReportTemplates';
+import ReportTemplates, { REPORT_TEMPLATES } from '@/components/reports/ReportTemplates';
 import ReportList from '@/components/reports/ReportList';
-import CreateReportModal from '@/components/seo/CreateReportModal';
+import CreateReportFromTemplate from '@/components/reports/CreateReportFromTemplate';
 import ReportViewer from '@/components/seo/ReportViewer';
 
 export default function Reports() {
@@ -108,7 +108,11 @@ export default function Reports() {
   });
 
   const handleTemplateSelect = (template) => {
-    setSelectedTemplate(template);
+    if (template.id === 'scratch') {
+      setSelectedTemplate({ ...template, metrics: [] });
+    } else {
+      setSelectedTemplate(template);
+    }
     setShowCreateModal(true);
   };
 
@@ -118,6 +122,10 @@ export default function Reports() {
       schedule: data.schedule || 'manual',
       is_active: true
     });
+  };
+
+  const getTemplateForReport = (report) => {
+    return REPORT_TEMPLATES.find(t => t.id === report.template_id) || REPORT_TEMPLATES[0];
   };
 
   const handleSelectReport = (id) => {
@@ -302,12 +310,13 @@ export default function Reports() {
       </div>
 
       {/* Create Report Modal */}
-      <CreateReportModal
+      <CreateReportFromTemplate
         open={showCreateModal}
         onClose={() => { setShowCreateModal(false); setSelectedTemplate(null); }}
+        template={selectedTemplate}
         websites={websites}
         onSave={handleCreateReport}
-        template={selectedTemplate}
+        isLoading={createMutation.isPending}
       />
 
       {/* Report Viewer */}

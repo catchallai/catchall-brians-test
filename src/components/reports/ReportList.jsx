@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { 
   Calendar, Clock, Users, MoreHorizontal, Play, Download, 
-  Trash2, Copy, Share2, AlertCircle, CheckCircle, Loader2
+  Trash2, Copy, Share2, AlertCircle, CheckCircle, Loader2,
+  Search, Target, Link2, MapPin, FileText, PieChart, TrendingUp, Mail, Activity
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -19,6 +20,34 @@ const scheduleLabels = {
   manual: 'Manual',
   weekly: 'Weekly',
   monthly: 'Monthly'
+};
+
+const templateIcons = {
+  seo_overview: Search,
+  keyword_performance: Target,
+  backlink_audit: Link2,
+  local_seo: MapPin,
+  competitor_analysis: Users,
+  content_performance: FileText,
+  crm_pipeline: PieChart,
+  campaign_roi: TrendingUp,
+  social_media: Share2,
+  email_marketing: Mail,
+  weekly_digest: Activity
+};
+
+const templateColors = {
+  seo_overview: 'bg-blue-100 text-blue-600',
+  keyword_performance: 'bg-violet-100 text-violet-600',
+  backlink_audit: 'bg-green-100 text-green-600',
+  local_seo: 'bg-red-100 text-red-600',
+  competitor_analysis: 'bg-orange-100 text-orange-600',
+  content_performance: 'bg-amber-100 text-amber-600',
+  crm_pipeline: 'bg-indigo-100 text-indigo-600',
+  campaign_roi: 'bg-teal-100 text-teal-600',
+  social_media: 'bg-pink-100 text-pink-600',
+  email_marketing: 'bg-cyan-100 text-cyan-600',
+  weekly_digest: 'bg-purple-100 text-purple-600'
 };
 
 export default function ReportList({ 
@@ -50,9 +79,15 @@ export default function ReportList({
                 />
                 
                 {/* Icon */}
-                <div className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center shrink-0">
-                  <span className="text-lg">📊</span>
-                </div>
+                {(() => {
+                  const Icon = templateIcons[report.template_id] || Search;
+                  const colorClass = templateColors[report.template_id] || 'bg-gray-100 text-gray-600';
+                  return (
+                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${colorClass}`}>
+                      <Icon className="w-5 h-5" />
+                    </div>
+                  );
+                })()}
 
                 {/* Main Info */}
                 <div className="flex-1 min-w-0">

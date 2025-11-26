@@ -1,103 +1,193 @@
 import React from 'react';
 import { Card, CardContent } from "@/components/ui/card";
-import { Plus, BarChart2, TrendingUp, Users, Target, Link2, Globe, MapPin, Search } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { 
+  Plus, BarChart2, TrendingUp, Users, Target, Link2, Globe, MapPin, Search,
+  Mail, Share2, FileText, PieChart, Activity, Zap
+} from "lucide-react";
 
-const templates = [
+export const REPORT_TEMPLATES = [
   { 
     id: 'scratch', 
     name: 'Start from scratch', 
-    description: 'Choose among over 200 widgets to build your own report.',
+    description: 'Build a custom report with the metrics you need.',
     icon: Plus, 
-    color: 'bg-emerald-500',
-    isPro: true
+    color: 'bg-emerald-500 text-white',
+    iconBg: 'bg-white/20',
+    category: 'custom',
+    metrics: []
   },
   { 
-    id: 'brand_performance', 
-    name: 'AI Brand Performance', 
-    description: 'See how your brand is represented in LLMs like ChatGPT and get actionable insights.',
-    icon: TrendingUp, 
-    color: 'bg-violet-100 text-violet-600'
-  },
-  { 
-    id: 'visibility', 
-    name: 'Visibility Overview', 
-    description: 'Analyze how AI platforms perceive your brand, including mentions, sources, and topics.',
-    icon: BarChart2, 
-    color: 'bg-blue-100 text-blue-600'
-  },
-  { 
-    id: 'marketing', 
-    name: 'Marketing Report', 
-    description: 'Get insights on traffic, ads, and search performance from GA4, GSC, and Google Ads.',
-    icon: Target, 
-    color: 'bg-green-100 text-green-600'
-  },
-  { 
-    id: 'traffic', 
-    name: 'AI Traffic Report', 
-    description: 'View GA4 insights on AI-driven traffic and use them to guide your AI SEO strategy.',
-    icon: TrendingUp, 
-    color: 'bg-amber-100 text-amber-600'
-  },
-  { 
-    id: 'analytics', 
-    name: 'Google Analytics 4', 
-    description: 'Get key metrics such as sessions, events, and audience insights.',
-    icon: BarChart2, 
-    color: 'bg-orange-100 text-orange-600'
-  },
-  { 
-    id: 'search_console', 
-    name: 'Google Search Console', 
-    description: "Get insights into your website's search performance.",
+    id: 'seo_overview', 
+    name: 'SEO Overview', 
+    description: 'Complete SEO health check including rankings, traffic, and technical issues.',
     icon: Search, 
-    color: 'bg-teal-100 text-teal-600'
+    color: 'bg-white',
+    iconBg: 'bg-blue-100 text-blue-600',
+    category: 'seo',
+    metrics: ['organic_traffic', 'keyword_rankings', 'backlinks', 'domain_authority', 'technical_issues']
+  },
+  { 
+    id: 'keyword_performance', 
+    name: 'Keyword Performance', 
+    description: 'Track keyword rankings, search volume, and position changes over time.',
+    icon: Target, 
+    color: 'bg-white',
+    iconBg: 'bg-violet-100 text-violet-600',
+    category: 'seo',
+    metrics: ['keyword_positions', 'ranking_changes', 'search_volume', 'keyword_difficulty', 'serp_features']
+  },
+  { 
+    id: 'backlink_audit', 
+    name: 'Backlink Audit', 
+    description: 'Analyze your backlink profile, find toxic links, and discover opportunities.',
+    icon: Link2, 
+    color: 'bg-white',
+    iconBg: 'bg-green-100 text-green-600',
+    category: 'seo',
+    metrics: ['total_backlinks', 'referring_domains', 'anchor_text', 'link_quality', 'new_lost_links']
   },
   { 
     id: 'local_seo', 
     name: 'Local SEO Report', 
-    description: 'Track your local business customer journey by unifying GA4, GSC, and GBP data in one view.',
+    description: 'Track local rankings, GBP performance, and citation consistency.',
     icon: MapPin, 
-    color: 'bg-red-100 text-red-600'
+    color: 'bg-white',
+    iconBg: 'bg-red-100 text-red-600',
+    category: 'local',
+    metrics: ['local_rankings', 'gbp_insights', 'citations', 'reviews', 'local_competitors']
   },
   { 
-    id: 'gbp_insights', 
-    name: 'Google Business Profile Insights', 
-    description: 'Get detailed performance data, including ratings, impressions, and interactions.',
-    icon: Globe, 
-    color: 'bg-indigo-100 text-indigo-600'
+    id: 'competitor_analysis', 
+    name: 'Competitor Analysis', 
+    description: 'Compare your performance against competitors across key metrics.',
+    icon: Users, 
+    color: 'bg-white',
+    iconBg: 'bg-orange-100 text-orange-600',
+    category: 'competitive',
+    metrics: ['competitor_traffic', 'keyword_gap', 'backlink_gap', 'content_gap', 'share_of_voice']
+  },
+  { 
+    id: 'content_performance', 
+    name: 'Content Performance', 
+    description: 'Analyze which content drives traffic, engagement, and conversions.',
+    icon: FileText, 
+    color: 'bg-white',
+    iconBg: 'bg-amber-100 text-amber-600',
+    category: 'content',
+    metrics: ['top_pages', 'content_traffic', 'engagement_metrics', 'conversion_rate', 'content_decay']
+  },
+  { 
+    id: 'crm_pipeline', 
+    name: 'CRM Pipeline Report', 
+    description: 'Track deals, conversion rates, and revenue across your sales pipeline.',
+    icon: PieChart, 
+    color: 'bg-white',
+    iconBg: 'bg-indigo-100 text-indigo-600',
+    category: 'crm',
+    metrics: ['deals_by_stage', 'conversion_rates', 'revenue', 'avg_deal_size', 'sales_velocity']
+  },
+  { 
+    id: 'campaign_roi', 
+    name: 'Campaign ROI', 
+    description: 'Measure campaign performance, leads generated, and return on investment.',
+    icon: TrendingUp, 
+    color: 'bg-white',
+    iconBg: 'bg-teal-100 text-teal-600',
+    category: 'marketing',
+    metrics: ['campaign_leads', 'cost_per_lead', 'conversion_rate', 'revenue_attributed', 'roi']
+  },
+  { 
+    id: 'social_media', 
+    name: 'Social Media Report', 
+    description: 'Track social engagement, follower growth, and content performance.',
+    icon: Share2, 
+    color: 'bg-white',
+    iconBg: 'bg-pink-100 text-pink-600',
+    category: 'social',
+    metrics: ['followers', 'engagement_rate', 'post_performance', 'mentions', 'sentiment']
+  },
+  { 
+    id: 'email_marketing', 
+    name: 'Email Marketing', 
+    description: 'Analyze email campaign performance, open rates, and subscriber growth.',
+    icon: Mail, 
+    color: 'bg-white',
+    iconBg: 'bg-cyan-100 text-cyan-600',
+    category: 'marketing',
+    metrics: ['emails_sent', 'open_rate', 'click_rate', 'unsubscribes', 'conversions']
+  },
+  { 
+    id: 'weekly_digest', 
+    name: 'Weekly Digest', 
+    description: 'Automated weekly summary of all key metrics and notable changes.',
+    icon: Activity, 
+    color: 'bg-white',
+    iconBg: 'bg-purple-100 text-purple-600',
+    category: 'summary',
+    metrics: ['traffic_summary', 'ranking_changes', 'new_leads', 'revenue', 'alerts']
   }
 ];
 
-export default function ReportTemplates({ onSelect }) {
+const categoryLabels = {
+  custom: 'Custom',
+  seo: 'SEO',
+  local: 'Local',
+  competitive: 'Competitive',
+  content: 'Content',
+  crm: 'CRM',
+  marketing: 'Marketing',
+  social: 'Social',
+  summary: 'Summary'
+};
+
+export default function ReportTemplates({ onSelect, selectedCategory = 'all' }) {
+  const filteredTemplates = selectedCategory === 'all' 
+    ? REPORT_TEMPLATES 
+    : REPORT_TEMPLATES.filter(t => t.category === selectedCategory || t.id === 'scratch');
+
   return (
     <div className="space-y-4">
-      <h2 className="text-lg font-semibold text-gray-900">Ready-to-use templates</h2>
-      <div className="flex gap-4 overflow-x-auto pb-2">
-        {templates.map((template) => {
+      <div className="flex items-center justify-between">
+        <h2 className="text-lg font-semibold text-gray-900">Ready-to-use templates</h2>
+        <div className="flex gap-2">
+          {['all', 'seo', 'crm', 'marketing', 'social'].map(cat => (
+            <Badge 
+              key={cat} 
+              variant={selectedCategory === cat ? 'default' : 'outline'}
+              className="cursor-pointer capitalize"
+            >
+              {cat === 'all' ? 'All' : categoryLabels[cat]}
+            </Badge>
+          ))}
+        </div>
+      </div>
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+        {filteredTemplates.map((template) => {
           const Icon = template.icon;
+          const isCustom = template.id === 'scratch';
           return (
             <Card 
               key={template.id}
               onClick={() => onSelect(template)}
-              className={`min-w-[180px] max-w-[180px] cursor-pointer border-0 shadow-sm hover:shadow-md transition-all ${
-                template.id === 'scratch' ? 'bg-emerald-500 text-white' : 'bg-white'
-              }`}
+              className={`cursor-pointer border-0 shadow-sm hover:shadow-lg transition-all hover:-translate-y-1 ${template.color}`}
             >
               <CardContent className="p-4">
-                <div className={`w-10 h-10 rounded-lg flex items-center justify-center mb-3 ${
-                  template.id === 'scratch' ? 'bg-white/20' : template.color
-                }`}>
-                  <Icon className={`w-5 h-5 ${template.id === 'scratch' ? 'text-white' : ''}`} />
+                <div className={`w-10 h-10 rounded-lg flex items-center justify-center mb-3 ${template.iconBg}`}>
+                  <Icon className={`w-5 h-5 ${isCustom ? 'text-white' : ''}`} />
                 </div>
-                <h3 className={`font-medium text-sm mb-1 ${template.id === 'scratch' ? 'text-white' : 'text-gray-900'}`}>
+                <h3 className={`font-medium text-sm mb-1 ${isCustom ? 'text-white' : 'text-gray-900'}`}>
                   {template.name}
                 </h3>
-                <p className={`text-xs line-clamp-3 ${template.id === 'scratch' ? 'text-white/80' : 'text-gray-500'}`}>
+                <p className={`text-xs line-clamp-2 ${isCustom ? 'text-white/80' : 'text-gray-500'}`}>
                   {template.description}
                 </p>
-                {template.isPro && (
-                  <span className="inline-block mt-2 text-xs bg-white/20 px-2 py-0.5 rounded">Pro</span>
+                {template.metrics?.length > 0 && (
+                  <div className="mt-2">
+                    <Badge variant="outline" className="text-xs">
+                      {template.metrics.length} metrics
+                    </Badge>
+                  </div>
                 )}
               </CardContent>
             </Card>
