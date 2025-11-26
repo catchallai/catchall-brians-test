@@ -79,7 +79,7 @@ Deno.serve(async (req) => {
                     .replace(/{{email}}/gi, recipientEmail);
 
                 await resend.emails.send({
-                    from: campaign.from_email || 'noreply@resend.dev',
+                    from: campaign.from_email || 'catchall@syberjet.com',
                     to: recipientEmail,
                     subject: subject,
                     html: htmlContent
