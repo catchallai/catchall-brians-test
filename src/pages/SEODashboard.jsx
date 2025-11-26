@@ -311,32 +311,44 @@ ${(data.recommendations || []).map((r, i) => `${i + 1}. ${r}`).join('\n')}
         last_audit_date: new Date().toISOString()
       });
 
+      // Get existing keywords to prevent duplicates
+      const existingKeywords = await base44.entities.Keyword.filter({ website_id: website.id });
+      const existingKeywordNames = new Set(existingKeywords.map(k => k.keyword?.toLowerCase()));
+
       if (analysis.keywords?.length > 0) {
         for (const kw of analysis.keywords) {
-          await base44.entities.Keyword.create({
-            website_id: website.id,
-            keyword: kw.keyword,
-            current_position: kw.current_position,
-            search_volume: kw.search_volume,
-            difficulty: kw.difficulty,
-            target_url: website.url
-          });
+          if (!existingKeywordNames.has(kw.keyword?.toLowerCase())) {
+            await base44.entities.Keyword.create({
+              website_id: website.id,
+              keyword: kw.keyword,
+              current_position: kw.current_position,
+              search_volume: kw.search_volume,
+              difficulty: kw.difficulty,
+              target_url: website.url
+            });
+          }
         }
       }
 
+      // Get existing backlinks to prevent duplicates
+      const existingBacklinks = await base44.entities.Backlink.filter({ website_id: website.id });
+      const existingBacklinkDomains = new Set(existingBacklinks.map(b => b.source_domain?.toLowerCase()));
+
       if (analysis.backlinks?.length > 0) {
         for (const bl of analysis.backlinks) {
-          await base44.entities.Backlink.create({
-            website_id: website.id,
-            source_url: bl.source_url || `https://${bl.source_domain}`,
-            source_domain: bl.source_domain,
-            target_url: website.url,
-            anchor_text: bl.anchor_text,
-            domain_authority: bl.domain_authority,
-            link_type: 'dofollow',
-            status: 'active',
-            first_seen: new Date().toISOString().split('T')[0]
-          });
+          if (!existingBacklinkDomains.has(bl.source_domain?.toLowerCase())) {
+            await base44.entities.Backlink.create({
+              website_id: website.id,
+              source_url: bl.source_url || `https://${bl.source_domain}`,
+              source_domain: bl.source_domain,
+              target_url: website.url,
+              anchor_text: bl.anchor_text,
+              domain_authority: bl.domain_authority,
+              link_type: 'dofollow',
+              status: 'active',
+              first_seen: new Date().toISOString().split('T')[0]
+            });
+          }
         }
       }
 

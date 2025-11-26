@@ -35,6 +35,7 @@ import {
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import OnboardingModal from '@/components/onboarding/OnboardingModal';
+import { ToastProvider } from '@/components/ui/toast-provider';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -194,6 +195,7 @@ export default function Layout({ children, currentPageName }) {
   };
 
   return (
+    <ToastProvider>
     <div className="min-h-screen bg-gray-50">
       {/* Mobile Header */}
       <div className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-white border-b border-gray-100 z-40 flex items-center gap-3 px-4">
@@ -298,11 +300,12 @@ export default function Layout({ children, currentPageName }) {
       </main>
 
       {/* Onboarding Modal */}
-      <OnboardingModal
-        open={showOnboarding}
-        onClose={handleOnboardingSkip}
-        onComplete={handleOnboardingComplete}
-      />
-    </div>
-  );
-}
+              <OnboardingModal
+                open={showOnboarding}
+                onClose={handleOnboardingSkip}
+                onComplete={handleOnboardingComplete}
+              />
+            </div>
+          </ToastProvider>
+          );
+        }
