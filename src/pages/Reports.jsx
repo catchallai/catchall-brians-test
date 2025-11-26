@@ -15,6 +15,7 @@ import ReportTemplates, { REPORT_TEMPLATES } from '@/components/reports/ReportTe
 import ReportList from '@/components/reports/ReportList';
 import CreateReportFromTemplate from '@/components/reports/CreateReportFromTemplate';
 import ReportViewer from '@/components/seo/ReportViewer';
+import ShareReportModal from '@/components/reports/ShareReportModal';
 
 export default function Reports() {
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -26,6 +27,7 @@ export default function Reports() {
   const [selectedReportIds, setSelectedReportIds] = useState([]);
   const [runningReportId, setRunningReportId] = useState(null);
   const [viewingReport, setViewingReport] = useState(null);
+  const [showShareModal, setShowShareModal] = useState(false);
   const queryClient = useQueryClient();
 
   const { data: reports = [], isLoading } = useQuery({
@@ -143,6 +145,18 @@ export default function Reports() {
     });
   };
 
+  const handleShare = async ({ reportIds, emails, permission }) => {
+    for (const id of reportIds) {
+      const report = reports.find(r => r.id === id);
+      if (report) {
+        const existingRecipients = report.recipients || [];
+        const newRecipients = [...new Set([...existingRecipients, ...emails])];
+        await base44.entities.SEOReport.update(id, { recipients: newRecipients });
+      }
+    }
+    queryClient.invalidateQueries({ queryKey: ['seo-reports'] });
+  };
+
   const filteredReports = reports.filter(r => {
     const matchesSearch = !searchTerm || r.name?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesSchedule = filterSchedule === 'all' || r.schedule === filterSchedule;
@@ -194,7 +208,7 @@ export default function Reports() {
           </Tabs>
 
           <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" className="gap-1">
+            <Button variant="outline" size="sm" className="gap-1" onClick={() => setShowShareModal(true)}>
               <Share2 className="w-4 h-4" />
               Share
             </Button>
@@ -310,6 +324,15 @@ export default function Reports() {
           onClose={() => setViewingReport(null)}
         />
       )}
+
+      {/* Share Modal */}
+      <ShareReportModal
+        open={showShareModal}
+        onClose={() => setShowShareModal(false)}
+        reports={reports}
+        selectedIds={selectedReportIds}
+        onShare={handleShare}
+      />
     </div>
   );
 }
