@@ -3,6 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { base44 } from '@/api/base44Client';
 import { 
   Calendar, Clock, Users, MoreHorizontal, Play, Download, 
   Trash2, Copy, Share2, AlertCircle, CheckCircle, Loader2,
@@ -193,11 +194,31 @@ export default function ReportList({
                       <Play className="w-4 h-4" />
                     )}
                   </Button>
-                  <Button size="icon" variant="ghost" className="h-8 w-8">
-                    <Download className="w-4 h-4" />
+                  <Button 
+                    size="icon" 
+                    variant="ghost" 
+                    className="h-8 w-8"
+                    onClick={() => handleDownloadPdf(report)}
+                    disabled={downloadingId === report.id}
+                  >
+                    {downloadingId === report.id ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <Download className="w-4 h-4" />
+                    )}
                   </Button>
-                  <Button size="icon" variant="ghost" className="h-8 w-8">
-                    <Share2 className="w-4 h-4" />
+                  <Button 
+                    size="icon" 
+                    variant="ghost" 
+                    className="h-8 w-8"
+                    onClick={() => handleSendEmail(report)}
+                    disabled={sendingId === report.id}
+                  >
+                    {sendingId === report.id ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <Mail className="w-4 h-4" />
+                    )}
                   </Button>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
