@@ -71,6 +71,7 @@ export default function SocialMedia() {
   const [generatingReport, setGeneratingReport] = useState(null);
   const [selectedPost, setSelectedPost] = useState(null);
   const [showComposeModal, setShowComposeModal] = useState(false);
+  const [isDiscoveringCompetitors, setIsDiscoveringCompetitors] = useState(false);
   const queryClient = useQueryClient();
 
   const { data: socialAccountsRaw = [], isLoading: loadingAccounts } = useQuery({
@@ -106,6 +107,11 @@ export default function SocialMedia() {
   const { data: competitorReportsRaw = [] } = useQuery({
     queryKey: ['competitor-reports'],
     queryFn: () => base44.entities.CompetitorReport.list('-created_date', 100),
+  });
+
+  const { data: companies = [] } = useQuery({
+    queryKey: ['companies'],
+    queryFn: () => base44.entities.Company.list('-created_date', 50),
   });
 
   // Use data directly - Base44 SDK returns normalized data
@@ -209,6 +215,67 @@ Return adapted content for: ${platforms.join(', ')}`,
       setShowCompetitorModal(false);
       setNewCompetitor({ name: '', website: '' });
     },
+  });
+
+  const discoverCompetitorsMutation = useMutation({
+    mutationFn: async () => {
+      setIsDiscoveringCompetitors(true);
+      
+      // Build company profile from available companies
+      const companyInfo = companies.length > 0 
+        ? companies.map(c => `${c.name} (${c.industry || 'general'}, ${c.website || 'no website'})`).join(', ')
+        : 'General business';
+      
+      const existingCompetitorNames = competitors.map(c => c.name.toLowerCase());
+
+      const analysis = await base44.integrations.Core.InvokeLLM({
+        prompt: `Based on these company profiles: ${companyInfo}
+        
+        Find 5 real competitors in their industry/market. For each competitor provide:
+        1. Company name
+        2. Website URL
+        3. Brief description of why they're a competitor
+        
+        Focus on actual, real companies that compete in the same space.
+        ${existingCompetitorNames.length > 0 ? `Exclude these already tracked competitors: ${existingCompetitorNames.join(', ')}` : ''}`,
+        add_context_from_internet: true,
+        response_json_schema: {
+          type: "object",
+          properties: {
+            competitors: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  name: { type: "string" },
+                  website: { type: "string" },
+                  reason: { type: "string" }
+                }
+              }
+            }
+          }
+        }
+      });
+
+      // Create competitors that don't already exist
+      let added = 0;
+      for (const comp of analysis.competitors || []) {
+        if (!existingCompetitorNames.includes(comp.name.toLowerCase())) {
+          await base44.entities.Competitor.create({
+            name: comp.name,
+            website: comp.website
+          });
+          added++;
+        }
+      }
+      
+      return { added, total: analysis.competitors?.length || 0 };
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['competitors'] });
+      setIsDiscoveringCompetitors(false);
+    },
+    onError: () => setIsDiscoveringCompetitors(false)
   });
 
   const analyzeCompetitorMutation = useMutation({
@@ -1075,7 +1142,20 @@ Return adapted content for: ${platforms.join(', ')}`,
 
         {/* Competitors Tab */}
         <TabsContent value="competitors" className="space-y-4">
-          <div className="flex justify-end">
+          <div className="flex justify-end gap-2">
+            <Button 
+              variant="outline"
+              onClick={() => discoverCompetitorsMutation.mutate()}
+              disabled={isDiscoveringCompetitors}
+              className="gap-2"
+            >
+              {isDiscoveringCompetitors ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <Sparkles className="w-4 h-4" />
+              )}
+              {isDiscoveringCompetitors ? 'Discovering...' : 'Auto-Discover Competitors'}
+            </Button>
             <Button 
               onClick={() => setShowCompetitorModal(true)}
               className="gap-2 bg-violet-600 hover:bg-violet-700"
