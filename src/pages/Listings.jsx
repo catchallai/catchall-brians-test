@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import ListingCard from '@/components/listings/ListingCard';
 import ListingModal from '@/components/modals/ListingModal';
+import ListingDetailModal from '@/components/listings/ListingDetailModal';
 import GBPManager from '@/components/seo/GBPManager';
 
 export default function Listings() {
@@ -32,6 +33,7 @@ export default function Listings() {
   const [filterWebsite, setFilterWebsite] = useState('all');
   const [scanning, setScanning] = useState(false);
   const [selectedGBPListing, setSelectedGBPListing] = useState(null);
+  const [detailListing, setDetailListing] = useState(null);
   const queryClient = useQueryClient();
 
   const { data: listings = [], isLoading } = useQuery({
@@ -73,6 +75,11 @@ export default function Listings() {
   const handleEdit = (listing) => {
     setSelectedListing(listing);
     setShowModal(true);
+  };
+
+  const handleUpdateListing = async (id, data) => {
+    await base44.entities.Listing.update(id, data);
+    queryClient.invalidateQueries({ queryKey: ['listings'] });
   };
 
   const scanListings = async () => {
@@ -441,6 +448,8 @@ export default function Listings() {
               key={listing.id} 
               listing={listing} 
               onEdit={handleEdit}
+              onViewDetails={(l) => setDetailListing(l)}
+              onSubmitFix={(l) => setDetailListing(l)}
               onManageGBP={listing.platform === 'google_business' ? () => setSelectedGBPListing(listing) : undefined}
             />
           ))}
@@ -455,6 +464,14 @@ export default function Listings() {
         websites={websites}
         onSave={handleSave}
         isLoading={createMutation.isPending || updateMutation.isPending}
+      />
+
+      {/* Detail Modal */}
+      <ListingDetailModal
+        open={!!detailListing}
+        onClose={() => setDetailListing(null)}
+        listing={detailListing}
+        onUpdate={handleUpdateListing}
       />
     </div>
   );
