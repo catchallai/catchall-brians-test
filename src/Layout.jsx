@@ -73,8 +73,10 @@ const navigation = [
   { name: 'Social Calendar', icon: CalendarDays, page: 'SocialCalendar' },
   { name: 'divider', label: 'Collaboration' },
   { name: 'Team Projects', icon: Users, page: 'Collaboration' },
-  { name: 'divider', label: 'Support' },
-  { name: 'Help Center', icon: HelpCircle, page: 'HelpCenter' },
+  { name: 'divider', label: 'Assets' },
+      { name: 'Media Library', icon: FileText, page: 'MediaLibrary' },
+      { name: 'divider', label: 'Support' },
+      { name: 'Help Center', icon: HelpCircle, page: 'HelpCenter' },
 ];
 
 function SidebarContent({ currentPage, onNavigate }) {
