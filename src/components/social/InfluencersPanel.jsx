@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Users, ExternalLink, Star, TrendingUp } from "lucide-react";
+import { Users, ExternalLink, Star, TrendingUp, Eye } from "lucide-react";
+import InfluencerProfileCard from './InfluencerProfileCard';
 
 const platformConfig = {
   twitter: { color: "bg-gray-900 text-white", icon: "𝕏" },
@@ -13,6 +14,8 @@ const platformConfig = {
 };
 
 export default function InfluencersPanel({ mentions, onViewMention }) {
+  const [selectedInfluencer, setSelectedInfluencer] = useState(null);
+
   // Filter and sort by influence score
   const influencers = mentions
     .filter(m => m.influence_score >= 70 || m.author_followers >= 10000)
@@ -68,6 +71,14 @@ export default function InfluencersPanel({ mentions, onViewMention }) {
                     <Star className="w-3 h-3 mr-1" />
                     {mention.influence_score || 0}
                   </Badge>
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    className="h-7 w-7"
+                    onClick={(e) => { e.stopPropagation(); setSelectedInfluencer(mention); }}
+                  >
+                    <Eye className="w-4 h-4 text-violet-500" />
+                  </Button>
                   {mention.post_url && (
                     <a
                       href={mention.post_url}
