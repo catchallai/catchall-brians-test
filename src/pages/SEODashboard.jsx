@@ -17,6 +17,7 @@ import KeywordCannibalizationCard from '@/components/seo/KeywordCannibalizationC
 import HistoricalDataCard from '@/components/seo/HistoricalDataCard';
 import MultiLocationCard from '@/components/seo/MultiLocationCard';
 import PredictiveAnalyticsCard from '@/components/seo/PredictiveAnalyticsCard';
+import TechnicalAuditCard from '@/components/seo/TechnicalAuditCard';
 
 export default function SEODashboard() {
   const [showModal, setShowModal] = useState(false);
@@ -255,6 +256,13 @@ export default function SEODashboard() {
                     onAnalyze={() => analyzeWebsiteMutation.mutate(website)}
                     isAnalyzing={analyzingWebsite === website.id}
                   />
+                ))}
+              </div>
+
+              {/* Technical Audit Section */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {websites.slice(0, 2).map((website) => (
+                  <TechnicalAuditCard key={website.id} website={website} />
                 ))}
               </div>
             </TabsContent>
