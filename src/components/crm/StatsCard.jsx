@@ -4,19 +4,19 @@ import { TrendingUp, TrendingDown } from "lucide-react";
 
 export default function StatsCard({ title, value, change, changeType, icon: Icon, color }) {
   const colorClasses = {
-    blue: "bg-blue-50 text-blue-600",
-    green: "bg-emerald-50 text-emerald-600",
-    purple: "bg-violet-50 text-violet-600",
-    orange: "bg-amber-50 text-amber-600",
-    pink: "bg-pink-50 text-pink-600",
+    blue: "bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400",
+    green: "bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400",
+    purple: "bg-violet-50 dark:bg-violet-900/30 text-violet-600 dark:text-violet-400",
+    orange: "bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400",
+    pink: "bg-pink-50 dark:bg-pink-900/30 text-pink-600 dark:text-pink-400",
   };
 
   return (
-    <Card className="p-6 border-0 shadow-sm bg-white hover:shadow-md transition-all duration-300">
+    <Card className="p-6 border-0 shadow-sm bg-white dark:bg-gray-800 hover:shadow-md transition-all duration-300">
       <div className="flex items-start justify-between">
         <div className="space-y-2">
-          <p className="text-sm font-medium text-gray-500 tracking-wide uppercase">{title}</p>
-          <p className="text-3xl font-bold text-gray-900">{value}</p>
+          <p className="text-sm font-medium text-gray-500 dark:text-gray-400 tracking-wide uppercase">{title}</p>
+          <p className="text-3xl font-bold text-gray-900 dark:text-white">{value}</p>
           {change && (
             <div className="flex items-center gap-1">
               {changeType === 'up' ? (
@@ -27,7 +27,7 @@ export default function StatsCard({ title, value, change, changeType, icon: Icon
               <span className={`text-sm font-medium ${changeType === 'up' ? 'text-emerald-500' : 'text-red-500'}`}>
                 {change}
               </span>
-              <span className="text-sm text-gray-400">vs last month</span>
+              <span className="text-sm text-gray-400 dark:text-gray-500">vs last month</span>
             </div>
           )}
         </div>
