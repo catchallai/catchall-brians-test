@@ -149,7 +149,7 @@ export default function ReportTemplates({ onSelect, selectedCategory = 'all' }) 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold text-gray-900">Ready-to-use templates</h2>
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Ready-to-use templates</h2>
         <div className="flex gap-2">
           {['all', 'seo', 'crm', 'marketing', 'social'].map(cat => (
             <Badge 
@@ -170,21 +170,21 @@ export default function ReportTemplates({ onSelect, selectedCategory = 'all' }) 
             <Card 
               key={template.id}
               onClick={() => onSelect(template)}
-              className={`cursor-pointer border-0 shadow-sm hover:shadow-lg transition-all hover:-translate-y-1 ${template.color}`}
+              className={`cursor-pointer border-0 shadow-sm hover:shadow-lg transition-all hover:-translate-y-1 ${isCustom ? template.color : 'bg-white dark:bg-gray-800'}`}
             >
               <CardContent className="p-4">
                 <div className={`w-10 h-10 rounded-lg flex items-center justify-center mb-3 ${template.iconBg}`}>
                   <Icon className={`w-5 h-5 ${isCustom ? 'text-white' : ''}`} />
                 </div>
-                <h3 className={`font-medium text-sm mb-1 ${isCustom ? 'text-white' : 'text-gray-900'}`}>
+                <h3 className={`font-medium text-sm mb-1 ${isCustom ? 'text-white' : 'text-gray-900 dark:text-white'}`}>
                   {template.name}
                 </h3>
-                <p className={`text-xs line-clamp-2 ${isCustom ? 'text-white/80' : 'text-gray-500'}`}>
+                <p className={`text-xs line-clamp-2 ${isCustom ? 'text-white/80' : 'text-gray-500 dark:text-gray-400'}`}>
                   {template.description}
                 </p>
                 {template.metrics?.length > 0 && (
                   <div className="mt-2">
-                    <Badge variant="outline" className="text-xs">
+                    <Badge variant="outline" className="text-xs dark:border-gray-600 dark:text-gray-300">
                       {template.metrics.length} metrics
                     </Badge>
                   </div>

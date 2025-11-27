@@ -109,7 +109,7 @@ export default function ReportList({
         return (
           <Card 
             key={report.id} 
-            className={`border-0 shadow-sm hover:shadow-md transition-all ${isSelected ? 'ring-2 ring-violet-500' : ''}`}
+            className={`border-0 shadow-sm hover:shadow-md transition-all bg-white dark:bg-gray-800 ${isSelected ? 'ring-2 ring-violet-500' : ''}`}
           >
             <CardContent className="p-4">
               <div className="flex items-center gap-4">
@@ -133,7 +133,7 @@ export default function ReportList({
                 {/* Main Info */}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <h3 className="font-medium text-gray-900 hover:text-violet-600 cursor-pointer">
+                    <h3 className="font-medium text-gray-900 dark:text-white hover:text-violet-600 dark:hover:text-violet-400 cursor-pointer">
                       {report.name}
                     </h3>
                     {report.schedule !== 'manual' && (
@@ -142,7 +142,7 @@ export default function ReportList({
                       </Badge>
                     )}
                   </div>
-                  <div className="flex items-center gap-3 mt-1 text-sm text-gray-500">
+                  <div className="flex items-center gap-3 mt-1 text-sm text-gray-500 dark:text-gray-400">
                     <span className="flex items-center gap-1">
                       <Calendar className="w-3 h-3" />
                       {report.last_run ? moment(report.last_run).format('MMM D, YYYY h:mm A') : 'Never run'}
@@ -249,7 +249,7 @@ export default function ReportList({
 
       {reports.length === 0 && (
         <div className="text-center py-12">
-          <p className="text-gray-500">No reports found</p>
+          <p className="text-gray-500 dark:text-gray-400">No reports found</p>
         </div>
       )}
     </div>
