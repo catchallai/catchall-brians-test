@@ -101,7 +101,7 @@ export default function Dashboard() {
 
   if (isLoading) {
     return (
-      <div className="p-6 lg:p-8 space-y-6 bg-gray-50 min-h-screen">
+      <div className="p-6 lg:p-8 space-y-6 bg-gray-50 dark:bg-gray-900 min-h-screen">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {[...Array(4)].map((_, i) => (
             <Skeleton key={i} className="h-32 rounded-xl" />
@@ -112,12 +112,12 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="p-6 lg:p-8 space-y-8 bg-gray-50 min-h-screen">
+    <div className="p-6 lg:p-8 space-y-8 bg-gray-50 dark:bg-gray-900 min-h-screen">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-          <p className="text-gray-500 mt-1">Welcome back. Here's what's happening with your business.</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Dashboard</h1>
+          <p className="text-gray-500 dark:text-gray-400 mt-1">Welcome back. Here's what's happening with your business.</p>
         </div>
       </div>
 
@@ -189,9 +189,9 @@ export default function Dashboard() {
       {/* Charts Row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Deals by Stage */}
-        <Card className="border-0 shadow-sm">
+        <Card className="border-0 shadow-sm bg-white dark:bg-gray-800">
           <CardHeader>
-            <CardTitle className="text-lg font-semibold">Deals by Stage</CardTitle>
+            <CardTitle className="text-lg font-semibold text-gray-900 dark:text-white">Deals by Stage</CardTitle>
           </CardHeader>
           <CardContent>
             {dealsByStage.length > 0 ? (
@@ -218,23 +218,23 @@ export default function Dashboard() {
                   {dealsByStage.map((item) => (
                     <div key={item.name} className="flex items-center gap-2">
                       <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }} />
-                      <span className="text-sm text-gray-600">{item.name} ({item.value})</span>
+                      <span className="text-sm text-gray-600 dark:text-gray-300">{item.name} ({item.value})</span>
                     </div>
                   ))}
                 </div>
               </div>
             ) : (
-              <div className="h-64 flex items-center justify-center text-gray-400">
-                No deals yet. <Link to={createPageUrl('Deals')} className="text-violet-600 ml-1 hover:underline">Add your first deal</Link>
+              <div className="h-64 flex items-center justify-center text-gray-400 dark:text-gray-500">
+                No deals yet. <Link to={createPageUrl('Deals')} className="text-violet-600 dark:text-violet-400 ml-1 hover:underline">Add your first deal</Link>
               </div>
             )}
           </CardContent>
         </Card>
 
         {/* Contacts by Status */}
-        <Card className="border-0 shadow-sm">
+        <Card className="border-0 shadow-sm bg-white dark:bg-gray-800">
           <CardHeader>
-            <CardTitle className="text-lg font-semibold">Contacts by Status</CardTitle>
+            <CardTitle className="text-lg font-semibold text-gray-900 dark:text-white">Contacts by Status</CardTitle>
           </CardHeader>
           <CardContent>
             {contactsByStatus.length > 0 ? (
@@ -261,14 +261,14 @@ export default function Dashboard() {
                   {contactsByStatus.map((item) => (
                     <div key={item.name} className="flex items-center gap-2">
                       <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }} />
-                      <span className="text-sm text-gray-600">{item.name} ({item.value})</span>
+                      <span className="text-sm text-gray-600 dark:text-gray-300">{item.name} ({item.value})</span>
                     </div>
                   ))}
                 </div>
               </div>
             ) : (
-              <div className="h-64 flex items-center justify-center text-gray-400">
-                No contacts yet. <Link to={createPageUrl('Contacts')} className="text-violet-600 ml-1 hover:underline">Add your first contact</Link>
+              <div className="h-64 flex items-center justify-center text-gray-400 dark:text-gray-500">
+                No contacts yet. <Link to={createPageUrl('Contacts')} className="text-violet-600 dark:text-violet-400 ml-1 hover:underline">Add your first contact</Link>
               </div>
             )}
           </CardContent>
