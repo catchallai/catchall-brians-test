@@ -4,15 +4,22 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
-import { AlertTriangle, CheckCircle, Info, Loader2, RefreshCw, Zap, Shield, Eye, Globe } from "lucide-react";
+import { AlertTriangle, CheckCircle, Info, Loader2, RefreshCw, Zap, Shield, Eye, Globe, Bot, FileText, Link2, Smartphone, Code } from "lucide-react";
 import SEOScoreGauge from '@/components/seo/SEOScoreGauge';
 import EmptyState from '@/components/ui/EmptyState';
+import TechnicalSEOCard from '@/components/seo/audit/TechnicalSEOCard';
+import ContentOptimizationCard from '@/components/seo/audit/ContentOptimizationCard';
+import BacklinkAnalysisCard from '@/components/seo/audit/BacklinkAnalysisCard';
+import MobileFriendlinessCard from '@/components/seo/audit/MobileFriendlinessCard';
+import SchemaMarkupCard from '@/components/seo/audit/SchemaMarkupCard';
 
 export default function SEOAudit() {
   const [selectedWebsite, setSelectedWebsite] = useState(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [activeTab, setActiveTab] = useState('overview');
   const queryClient = useQueryClient();
 
   const { data: websites = [], isLoading: loadingWebsites } = useQuery({
@@ -23,6 +30,16 @@ export default function SEOAudit() {
   const { data: audits = [], isLoading: loadingAudits } = useQuery({
     queryKey: ['seo-audits'],
     queryFn: () => base44.entities.SEOAudit.list('-created_date', 100),
+  });
+
+  const { data: keywords = [] } = useQuery({
+    queryKey: ['keywords-audit'],
+    queryFn: () => base44.entities.Keyword.list('-created_date', 100),
+  });
+
+  const { data: backlinks = [] } = useQuery({
+    queryKey: ['backlinks-audit'],
+    queryFn: () => base44.entities.Backlink.list('-created_date', 200),
   });
 
   const createAuditMutation = useMutation({
@@ -107,7 +124,7 @@ export default function SEOAudit() {
 
   if (loadingWebsites) {
     return (
-      <div className="p-6 lg:p-8 space-y-6 bg-gray-50 min-h-screen">
+      <div className="p-6 lg:p-8 space-y-6 bg-gray-50 dark:bg-gray-900 min-h-screen">
         <Skeleton className="h-10 w-64" />
         <Skeleton className="h-96 rounded-xl" />
       </div>
@@ -115,17 +132,17 @@ export default function SEOAudit() {
   }
 
   return (
-    <div className="p-6 lg:p-8 space-y-8 bg-gray-50 min-h-screen">
+    <div className="p-6 lg:p-8 space-y-8 bg-gray-50 dark:bg-gray-900 min-h-screen">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">SEO Audit</h1>
-          <p className="text-gray-500 mt-1">Analyze and improve your website's SEO</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">SEO Audit</h1>
+          <p className="text-gray-500 dark:text-gray-400 mt-1">Comprehensive analysis of your website's SEO health</p>
         </div>
         {websites.length > 0 && (
           <div className="flex gap-3">
             <Select value={selectedWebsite || ''} onValueChange={setSelectedWebsite}>
-              <SelectTrigger className="w-48">
+              <SelectTrigger className="w-48 dark:bg-gray-800 dark:border-gray-700">
                 <SelectValue placeholder="Select website" />
               </SelectTrigger>
               <SelectContent>
@@ -137,7 +154,7 @@ export default function SEOAudit() {
             <Button 
               onClick={() => selectedWebsite && runAudit(selectedWebsite)}
               disabled={!selectedWebsite || isAnalyzing}
-              className="gap-2 bg-amber-600 hover:bg-amber-700"
+              className="gap-2 bg-violet-600 hover:bg-violet-700"
             >
               {isAnalyzing ? (
                 <>
@@ -147,7 +164,7 @@ export default function SEOAudit() {
               ) : (
                 <>
                   <RefreshCw className="w-4 h-4" />
-                  Run Audit
+                  Run Full Audit
                 </>
               )}
             </Button>
@@ -163,13 +180,13 @@ export default function SEOAudit() {
           actionLabel="Go to SEO Dashboard"
         />
       ) : !selectedWebsite ? (
-        <Card className="border-0 shadow-sm">
+        <Card className="border-0 shadow-sm bg-white dark:bg-gray-800">
           <CardContent className="py-16 text-center">
-            <div className="w-16 h-16 rounded-2xl bg-amber-100 flex items-center justify-center mx-auto mb-4">
-              <Zap className="w-8 h-8 text-amber-600" />
+            <div className="w-16 h-16 rounded-2xl bg-violet-100 dark:bg-violet-900/30 flex items-center justify-center mx-auto mb-4">
+              <Zap className="w-8 h-8 text-violet-600 dark:text-violet-400" />
             </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Select a Website</h3>
-            <p className="text-gray-500">Choose a website from the dropdown to run an SEO audit</p>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Select a Website</h3>
+            <p className="text-gray-500 dark:text-gray-400">Choose a website from the dropdown to run a comprehensive SEO audit</p>
           </CardContent>
         </Card>
       ) : (
@@ -181,14 +198,14 @@ export default function SEOAudit() {
             
             if (!audit) {
               return (
-                <Card className="border-0 shadow-sm">
+                <Card className="border-0 shadow-sm bg-white dark:bg-gray-800">
                   <CardContent className="py-16 text-center">
-                    <div className="w-16 h-16 rounded-2xl bg-gray-100 flex items-center justify-center mx-auto mb-4">
+                    <div className="w-16 h-16 rounded-2xl bg-gray-100 dark:bg-gray-700 flex items-center justify-center mx-auto mb-4">
                       <RefreshCw className="w-8 h-8 text-gray-400" />
                     </div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">No Audit Yet</h3>
-                    <p className="text-gray-500 mb-6">Click "Run Audit" to analyze {website?.name}</p>
-                    <Button onClick={() => runAudit(selectedWebsite)} disabled={isAnalyzing}>
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">No Audit Yet</h3>
+                    <p className="text-gray-500 dark:text-gray-400 mb-6">Click "Run Full Audit" to analyze {website?.name}</p>
+                    <Button onClick={() => runAudit(selectedWebsite)} disabled={isAnalyzing} className="bg-violet-600 hover:bg-violet-700">
                       {isAnalyzing ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
                       Start Audit
                     </Button>
@@ -202,72 +219,124 @@ export default function SEOAudit() {
                 {/* Score Overview */}
                 <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
                   <SEOScoreGauge score={audit.overall_score} label="Overall" size="md" />
-                  <Card className="border-0 shadow-sm flex flex-col items-center justify-center p-4">
+                  <Card className="border-0 shadow-sm bg-white dark:bg-gray-800 flex flex-col items-center justify-center p-4">
                     <Zap className="w-6 h-6 text-amber-500 mb-2" />
-                    <span className="text-2xl font-bold text-gray-900">{audit.performance_score || '-'}</span>
-                    <span className="text-xs text-gray-500">Performance</span>
+                    <span className="text-2xl font-bold text-gray-900 dark:text-white">{audit.performance_score || '-'}</span>
+                    <span className="text-xs text-gray-500 dark:text-gray-400">Performance</span>
                   </Card>
-                  <Card className="border-0 shadow-sm flex flex-col items-center justify-center p-4">
+                  <Card className="border-0 shadow-sm bg-white dark:bg-gray-800 flex flex-col items-center justify-center p-4">
                     <Eye className="w-6 h-6 text-violet-500 mb-2" />
-                    <span className="text-2xl font-bold text-gray-900">{audit.accessibility_score || '-'}</span>
-                    <span className="text-xs text-gray-500">Accessibility</span>
+                    <span className="text-2xl font-bold text-gray-900 dark:text-white">{audit.accessibility_score || '-'}</span>
+                    <span className="text-xs text-gray-500 dark:text-gray-400">Accessibility</span>
                   </Card>
-                  <Card className="border-0 shadow-sm flex flex-col items-center justify-center p-4">
+                  <Card className="border-0 shadow-sm bg-white dark:bg-gray-800 flex flex-col items-center justify-center p-4">
                     <Shield className="w-6 h-6 text-blue-500 mb-2" />
-                    <span className="text-2xl font-bold text-gray-900">{audit.best_practices_score || '-'}</span>
-                    <span className="text-xs text-gray-500">Best Practices</span>
+                    <span className="text-2xl font-bold text-gray-900 dark:text-white">{audit.best_practices_score || '-'}</span>
+                    <span className="text-xs text-gray-500 dark:text-gray-400">Best Practices</span>
                   </Card>
-                  <Card className="border-0 shadow-sm flex flex-col items-center justify-center p-4">
+                  <Card className="border-0 shadow-sm bg-white dark:bg-gray-800 flex flex-col items-center justify-center p-4">
                     <Globe className="w-6 h-6 text-emerald-500 mb-2" />
-                    <span className="text-2xl font-bold text-gray-900">{audit.seo_score || '-'}</span>
-                    <span className="text-xs text-gray-500">SEO</span>
+                    <span className="text-2xl font-bold text-gray-900 dark:text-white">{audit.seo_score || '-'}</span>
+                    <span className="text-xs text-gray-500 dark:text-gray-400">SEO</span>
                   </Card>
                 </div>
 
-                {/* Issues */}
-                {audit.issues && audit.issues.length > 0 && (
-                  <Card className="border-0 shadow-sm">
-                    <CardHeader>
-                      <CardTitle className="text-lg">Issues Found</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-3">
-                      {audit.issues.map((issue, idx) => (
-                        <div key={idx} className="flex items-start gap-3 p-4 rounded-xl bg-gray-50">
-                          {getSeverityIcon(issue.severity)}
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2 mb-1">
-                              <span className="font-medium text-gray-900">{issue.type}</span>
-                              <Badge className={`${getSeverityColor(issue.severity)} text-xs border`}>
-                                {issue.severity}
-                              </Badge>
-                            </div>
-                            <p className="text-sm text-gray-600">{issue.message}</p>
-                            {issue.page && (
-                              <p className="text-xs text-gray-400 mt-1">{issue.page}</p>
-                            )}
-                          </div>
-                        </div>
-                      ))}
-                    </CardContent>
-                  </Card>
-                )}
+                {/* Tabs for Detailed Analysis */}
+                <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+                  <TabsList className="bg-white dark:bg-gray-800 p-1 rounded-xl shadow-sm">
+                    <TabsTrigger value="overview" className="gap-2">
+                      <Eye className="w-4 h-4" />
+                      Overview
+                    </TabsTrigger>
+                    <TabsTrigger value="technical" className="gap-2">
+                      <Bot className="w-4 h-4" />
+                      Technical
+                    </TabsTrigger>
+                    <TabsTrigger value="content" className="gap-2">
+                      <FileText className="w-4 h-4" />
+                      Content
+                    </TabsTrigger>
+                    <TabsTrigger value="backlinks" className="gap-2">
+                      <Link2 className="w-4 h-4" />
+                      Backlinks
+                    </TabsTrigger>
+                    <TabsTrigger value="mobile" className="gap-2">
+                      <Smartphone className="w-4 h-4" />
+                      Mobile
+                    </TabsTrigger>
+                    <TabsTrigger value="schema" className="gap-2">
+                      <Code className="w-4 h-4" />
+                      Schema
+                    </TabsTrigger>
+                  </TabsList>
 
-                {/* Recommendations */}
-                {audit.recommendations && audit.recommendations.length > 0 && (
-                  <Card className="border-0 shadow-sm">
-                    <CardHeader>
-                      <CardTitle className="text-lg">Recommendations</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-3">
-                      {audit.recommendations.map((rec, idx) => (
-                        <div key={idx} className="flex items-start gap-3 p-4 rounded-xl bg-emerald-50">
-                          <CheckCircle className="w-5 h-5 text-emerald-500 mt-0.5" />
-                          <p className="text-sm text-gray-700">{rec}</p>
-                        </div>
-                      ))}
-                    </CardContent>
-                  </Card>
-                )}
+                  <TabsContent value="overview" className="space-y-6">
+                    {/* Issues */}
+                    {audit.issues && audit.issues.length > 0 && (
+                      <Card className="border-0 shadow-sm bg-white dark:bg-gray-800">
+                        <CardHeader>
+                          <CardTitle className="text-lg text-gray-900 dark:text-white">Issues Found</CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-3">
+                          {audit.issues.map((issue, idx) => (
+                            <div key={idx} className="flex items-start gap-3 p-4 rounded-xl bg-gray-50 dark:bg-gray-900">
+                              {getSeverityIcon(issue.severity)}
+                              <div className="flex-1">
+                                <div className="flex items-center gap-2 mb-1">
+                                  <span className="font-medium text-gray-900 dark:text-white">{issue.type}</span>
+                                  <Badge className={`${getSeverityColor(issue.severity)} text-xs border`}>
+                                    {issue.severity}
+                                  </Badge>
+                                </div>
+                                <p className="text-sm text-gray-600 dark:text-gray-400">{issue.message}</p>
+                                {issue.page && (
+                                  <p className="text-xs text-gray-400 mt-1">{issue.page}</p>
+                                )}
+                              </div>
+                            </div>
+                          ))}
+                        </CardContent>
+                      </Card>
+                    )}
+
+                    {/* Recommendations */}
+                    {audit.recommendations && audit.recommendations.length > 0 && (
+                      <Card className="border-0 shadow-sm bg-white dark:bg-gray-800">
+                        <CardHeader>
+                          <CardTitle className="text-lg text-gray-900 dark:text-white">Recommendations</CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-3">
+                          {audit.recommendations.map((rec, idx) => (
+                            <div key={idx} className="flex items-start gap-3 p-4 rounded-xl bg-emerald-50 dark:bg-emerald-900/20">
+                              <CheckCircle className="w-5 h-5 text-emerald-500 mt-0.5" />
+                              <p className="text-sm text-gray-700 dark:text-gray-300">{rec}</p>
+                            </div>
+                          ))}
+                        </CardContent>
+                      </Card>
+                    )}
+                  </TabsContent>
+
+                  <TabsContent value="technical">
+                    <TechnicalSEOCard data={audit.technical_data} />
+                  </TabsContent>
+
+                  <TabsContent value="content">
+                    <ContentOptimizationCard data={audit.content_data} keywords={keywords} />
+                  </TabsContent>
+
+                  <TabsContent value="backlinks">
+                    <BacklinkAnalysisCard data={audit.backlink_data} backlinks={backlinks} />
+                  </TabsContent>
+
+                  <TabsContent value="mobile">
+                    <MobileFriendlinessCard data={audit.mobile_data} />
+                  </TabsContent>
+
+                  <TabsContent value="schema">
+                    <SchemaMarkupCard data={audit.schema_data} />
+                  </TabsContent>
+                </Tabs>
               </>
             );
           })()}
