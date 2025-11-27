@@ -6,6 +6,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import GlobalSearch from '@/components/search/GlobalSearch';
+import { ThemeProvider, useTheme } from '@/components/theme/ThemeProvider';
+import ThemeToggle from '@/components/theme/ThemeToggle';
 import {
   LayoutDashboard,
   Users,
@@ -81,9 +83,9 @@ const navigation = [
 
 function SidebarContent({ currentPage, onNavigate }) {
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full bg-white dark:bg-gray-900">
       {/* Logo */}
-      <div className="p-6 border-b border-gray-100">
+      <div className="p-6 border-b border-gray-100 dark:border-gray-800">
         <Link to={createPageUrl('Dashboard')} className="flex items-center gap-3">
           <img 
             src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6925162397800755912704a9/3da4d00f2_catchall.jpg" 
@@ -91,8 +93,8 @@ function SidebarContent({ currentPage, onNavigate }) {
             className="h-8 object-contain"
           />
           <div>
-            <h1 className="font-bold text-gray-900 text-lg">CatchAll</h1>
-            <p className="text-xs text-gray-400">Business Suite</p>
+            <h1 className="font-bold text-gray-900 dark:text-white text-lg">CatchAll</h1>
+            <p className="text-xs text-gray-400 dark:text-gray-500">Business Suite</p>
           </div>
         </Link>
       </div>
@@ -104,7 +106,7 @@ function SidebarContent({ currentPage, onNavigate }) {
             if (item.name === 'divider') {
               return (
                 <div key={idx} className="pt-6 pb-2">
-                  <p className="px-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                  <p className="px-3 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
                     {item.label}
                   </p>
                 </div>
@@ -120,11 +122,11 @@ function SidebarContent({ currentPage, onNavigate }) {
                 onClick={onNavigate}
                 className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
                   isActive
-                    ? 'bg-violet-50 text-violet-700'
-                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                    ? 'bg-violet-50 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300'
+                    : 'text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white'
                 }`}
               >
-                <item.icon className={`w-5 h-5 ${isActive ? 'text-violet-600' : 'text-gray-400'}`} />
+                <item.icon className={`w-5 h-5 ${isActive ? 'text-violet-600 dark:text-violet-400' : 'text-gray-400 dark:text-gray-500'}`} />
                 {item.name}
               </Link>
             );
@@ -197,17 +199,18 @@ export default function Layout({ children, currentPageName }) {
   };
 
   return (
+    <ThemeProvider>
     <ToastProvider>
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
       {/* Mobile Header */}
-      <div className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-white border-b border-gray-100 z-40 flex items-center gap-3 px-4">
+      <div className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800 z-40 flex items-center gap-3 px-4">
         <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
           <SheetTrigger asChild>
             <Button variant="ghost" size="icon" className="shrink-0">
               <Menu className="w-5 h-5" />
             </Button>
           </SheetTrigger>
-          <SheetContent side="left" className="p-0 w-72">
+          <SheetContent side="left" className="p-0 w-72 dark:bg-gray-900 dark:border-gray-800">
             <SidebarContent currentPage={currentPageName} onNavigate={() => setSidebarOpen(false)} />
           </SheetContent>
         </Sheet>
@@ -216,11 +219,13 @@ export default function Layout({ children, currentPageName }) {
           <GlobalSearch />
         </div>
 
+        <ThemeToggle />
+
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon" className="rounded-full shrink-0">
               <Avatar className="w-8 h-8">
-                <AvatarFallback className="bg-violet-100 text-violet-600 text-sm">
+                <AvatarFallback className="bg-violet-100 dark:bg-violet-900 text-violet-600 dark:text-violet-300 text-sm">
                   {user?.full_name?.[0] || user?.email?.[0]?.toUpperCase() || 'U'}
                 </AvatarFallback>
               </Avatar>
@@ -236,48 +241,51 @@ export default function Layout({ children, currentPageName }) {
       </div>
 
       {/* Desktop Top Bar with Search */}
-      <div className="hidden lg:flex fixed top-0 left-64 right-0 h-14 bg-white border-b border-gray-100 z-30 items-center justify-between px-6">
+      <div className="hidden lg:flex fixed top-0 left-64 right-0 h-14 bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800 z-30 items-center justify-between px-6">
         <GlobalSearch />
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <button className="flex items-center gap-2 hover:bg-gray-50 rounded-lg px-2 py-1.5 transition-colors">
-              <Avatar className="w-8 h-8">
-                <AvatarFallback className="bg-violet-100 text-violet-600 text-sm font-medium">
-                  {user?.full_name?.[0] || user?.email?.[0]?.toUpperCase() || 'U'}
-                </AvatarFallback>
-              </Avatar>
-              <span className="text-sm font-medium text-gray-700">{user?.full_name || 'User'}</span>
-              <ChevronDown className="w-4 h-4 text-gray-400" />
-            </button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-48">
-            <DropdownMenuItem onClick={handleLogout}>
-              <LogOut className="w-4 h-4 mr-2" />
-              Logout
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <div className="flex items-center gap-3">
+          <ThemeToggle />
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="flex items-center gap-2 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg px-2 py-1.5 transition-colors">
+                <Avatar className="w-8 h-8">
+                  <AvatarFallback className="bg-violet-100 dark:bg-violet-900 text-violet-600 dark:text-violet-300 text-sm font-medium">
+                    {user?.full_name?.[0] || user?.email?.[0]?.toUpperCase() || 'U'}
+                  </AvatarFallback>
+                </Avatar>
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-200">{user?.full_name || 'User'}</span>
+                <ChevronDown className="w-4 h-4 text-gray-400" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-48">
+              <DropdownMenuItem onClick={handleLogout}>
+                <LogOut className="w-4 h-4 mr-2" />
+                Logout
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </div>
 
       {/* Desktop Sidebar */}
-      <aside className="hidden lg:fixed lg:inset-y-0 lg:flex lg:w-64 lg:flex-col bg-white border-r border-gray-100 z-30">
+      <aside className="hidden lg:fixed lg:inset-y-0 lg:flex lg:w-64 lg:flex-col bg-white dark:bg-gray-900 border-r border-gray-100 dark:border-gray-800 z-30">
         <SidebarContent currentPage={currentPageName} />
         
         {/* User Section */}
-        <div className="p-4 border-t border-gray-100">
+        <div className="p-4 border-t border-gray-100 dark:border-gray-800">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <button className="w-full flex items-center gap-3 p-2 rounded-xl hover:bg-gray-50 transition-colors">
+              <button className="w-full flex items-center gap-3 p-2 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
                 <Avatar className="w-9 h-9">
-                  <AvatarFallback className="bg-violet-100 text-violet-600 text-sm font-medium">
+                  <AvatarFallback className="bg-violet-100 dark:bg-violet-900 text-violet-600 dark:text-violet-300 text-sm font-medium">
                     {user?.full_name?.[0] || user?.email?.[0]?.toUpperCase() || 'U'}
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex-1 text-left min-w-0">
-                  <p className="text-sm font-medium text-gray-900 truncate">
+                  <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
                     {user?.full_name || 'User'}
                   </p>
-                  <p className="text-xs text-gray-400 truncate">
+                  <p className="text-xs text-gray-400 dark:text-gray-500 truncate">
                     {user?.email}
                   </p>
                 </div>
@@ -309,5 +317,6 @@ export default function Layout({ children, currentPageName }) {
               />
             </div>
           </ToastProvider>
+          </ThemeProvider>
           );
         }
