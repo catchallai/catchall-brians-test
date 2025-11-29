@@ -10,7 +10,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   Plus, Search, Users, UserPlus, Target, CheckCircle, XCircle,
-  MessageSquare, TrendingUp
+  MessageSquare, TrendingUp, Sparkles, Loader2, Radio, RefreshCw
 } from "lucide-react";
 import SocialLeadCard from '@/components/social/SocialLeadCard';
 import SocialLeadModal from '@/components/modals/SocialLeadModal';
@@ -48,6 +48,13 @@ export default function SocialLeads() {
     queryKey: ['deals'],
     queryFn: () => base44.entities.Deal.list('-created_date', 200),
   });
+
+  const { data: mentions = [] } = useQuery({
+    queryKey: ['listening-mentions'],
+    queryFn: () => base44.entities.ListeningMention.list('-created_date', 500),
+  });
+
+  const [isScanning, setIsScanning] = useState(false);
 
   const createLeadMutation = useMutation({
     mutationFn: (data) => editingLead 
@@ -88,6 +95,112 @@ export default function SocialLeads() {
     },
   });
 
+  // AI-powered lead scanning from social mentions
+  const scanForLeadsMutation = useMutation({
+    mutationFn: async () => {
+      setIsScanning(true);
+      
+      // Get mentions not yet converted to leads
+      const existingLeadMentionIds = socialLeads
+        .filter(l => l.mention_id)
+        .map(l => l.mention_id);
+      
+      const unprocessedMentions = mentions.filter(m => 
+        !existingLeadMentionIds.includes(m.id) &&
+        (m.sentiment === 'positive' || m.is_influencer || m.influence_score >= 50 || m.author_followers >= 1000)
+      );
+
+      if (unprocessedMentions.length === 0) {
+        return { newLeads: 0, message: 'No new potential leads found' };
+      }
+
+      // Analyze mentions for lead potential
+      const analysis = await base44.integrations.Core.InvokeLLM({
+        prompt: `Analyze these social media mentions and identify potential sales leads.
+        
+For each mention, determine:
+1. Lead score (0-100) based on buying intent, engagement level, and influence
+2. Intent signals (e.g., "asking for pricing", "comparing solutions", "expressing pain point", "seeking recommendations")
+3. Whether this is a qualified lead worth pursuing
+
+Mentions to analyze:
+${unprocessedMentions.slice(0, 20).map((m, i) => `
+${i + 1}. Platform: ${m.platform}
+   Author: @${m.author} (${m.author_followers || 0} followers)
+   Content: "${m.content}"
+   Sentiment: ${m.sentiment}
+   Engagement: ${(m.likes || 0) + (m.comments || 0) + (m.shares || 0)} total
+`).join('\n')}
+
+Return analysis for leads with score >= 40 only.`,
+        response_json_schema: {
+          type: "object",
+          properties: {
+            leads: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  mention_index: { type: "number" },
+                  lead_score: { type: "number" },
+                  intent_signals: { type: "array", items: { type: "string" } },
+                  interaction_type: { type: "string" },
+                  recommended_action: { type: "string" },
+                  qualification_reason: { type: "string" }
+                }
+              }
+            }
+          }
+        }
+      });
+
+      // Create leads for qualified mentions
+      let createdCount = 0;
+      for (const lead of analysis.leads || []) {
+        const mention = unprocessedMentions[lead.mention_index - 1];
+        if (mention && lead.lead_score >= 40) {
+          await base44.entities.SocialLead.create({
+            platform: mention.platform,
+            social_handle: mention.author,
+            profile_url: mention.author_url || '',
+            interaction_type: lead.interaction_type || 'mention',
+            interaction_content: mention.content,
+            mention_id: mention.id,
+            status: 'new',
+            lead_score: lead.lead_score,
+            intent_signals: lead.intent_signals,
+            source: 'ai_scan',
+            ai_analysis: {
+              recommended_action: lead.recommended_action,
+              qualification_reason: lead.qualification_reason,
+              scanned_at: new Date().toISOString()
+            }
+          });
+          createdCount++;
+        }
+      }
+
+      // Create notification
+      if (createdCount > 0) {
+        await base44.entities.Notification.create({
+          type: 'social_mention',
+          title: `${createdCount} new leads discovered`,
+          message: `AI scan found ${createdCount} potential leads from social media mentions.`,
+          priority: createdCount >= 5 ? 'high' : 'medium',
+          link: 'SocialLeads'
+        });
+      }
+
+      return { newLeads: createdCount };
+    },
+    onSuccess: (result) => {
+      queryClient.invalidateQueries({ queryKey: ['social-leads'] });
+      queryClient.invalidateQueries({ queryKey: ['notifications'] });
+      setIsScanning(false);
+    },
+    onError: () => setIsScanning(false),
+  });
+
   const handleConvertToContact = (lead) => {
     setConvertingLead(lead);
     setShowContactModal(true);
@@ -111,7 +224,11 @@ export default function SocialLeads() {
     new: socialLeads.filter(l => l.status === 'new').length,
     qualified: socialLeads.filter(l => l.status === 'qualified').length,
     converted: socialLeads.filter(l => l.status === 'converted').length,
+    aiDiscovered: socialLeads.filter(l => l.source === 'ai_scan').length,
   };
+
+  // Get linked mention for a lead
+  const getMention = (mentionId) => mentions.find(m => m.id === mentionId);
 
   return (
     <div className="p-6 lg:p-8 space-y-6 bg-gray-50 min-h-screen">
@@ -121,14 +238,29 @@ export default function SocialLeads() {
           <h1 className="text-3xl font-bold text-gray-900">Social Leads</h1>
           <p className="text-gray-500 mt-1">Capture and manage leads from social media interactions</p>
         </div>
-        <Button onClick={() => { setEditingLead(null); setShowLeadModal(true); }} className="gap-2 bg-violet-600 hover:bg-violet-700">
-          <Plus className="w-4 h-4" />
-          Add Lead
-        </Button>
+        <div className="flex gap-2">
+          <Button 
+            variant="outline" 
+            onClick={() => scanForLeadsMutation.mutate()}
+            disabled={isScanning}
+            className="gap-2"
+          >
+            {isScanning ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <Sparkles className="w-4 h-4" />
+            )}
+            {isScanning ? 'Scanning...' : 'AI Scan for Leads'}
+          </Button>
+          <Button onClick={() => { setEditingLead(null); setShowLeadModal(true); }} className="gap-2 bg-violet-600 hover:bg-violet-700">
+            <Plus className="w-4 h-4" />
+            Add Lead
+          </Button>
+        </div>
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
         <Card className="border-0 shadow-sm">
           <CardContent className="p-4 text-center">
             <Users className="w-6 h-6 text-violet-500 mx-auto mb-2" />
@@ -155,6 +287,13 @@ export default function SocialLeads() {
             <CheckCircle className="w-6 h-6 text-emerald-500 mx-auto mb-2" />
             <p className="text-2xl font-bold text-emerald-600">{stats.converted}</p>
             <p className="text-sm text-gray-500">Converted</p>
+          </CardContent>
+        </Card>
+        <Card className="border-0 shadow-sm">
+          <CardContent className="p-4 text-center">
+            <Sparkles className="w-6 h-6 text-amber-500 mx-auto mb-2" />
+            <p className="text-2xl font-bold text-amber-600">{stats.aiDiscovered}</p>
+            <p className="text-sm text-gray-500">AI Discovered</p>
           </CardContent>
         </Card>
       </div>
@@ -222,6 +361,7 @@ export default function SocialLeads() {
               contact={getContact(lead.contact_id)}
               company={getCompany(lead.company_id)}
               deal={getDeal(lead.deal_id)}
+              mention={getMention(lead.mention_id)}
               onClick={() => { setEditingLead(lead); setShowLeadModal(true); }}
             />
           ))}
