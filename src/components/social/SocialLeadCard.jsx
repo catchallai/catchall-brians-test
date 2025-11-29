@@ -2,7 +2,8 @@ import React from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ExternalLink, User, Building2, Target, MessageSquare, Heart, Share2, AtSign } from "lucide-react";
+import { ExternalLink, User, Building2, Target, MessageSquare, Heart, Share2, AtSign, Sparkles, Radio, TrendingUp } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
 
 const platformConfig = {
   twitter: { color: "bg-sky-100 text-sky-700", icon: "𝕏" },
@@ -27,9 +28,11 @@ const interactionIcons = {
   mention: AtSign,
   dm: MessageSquare,
   follow: User,
+  inquiry: MessageSquare,
+  complaint: MessageSquare,
 };
 
-export default function SocialLeadCard({ lead, contact, company, deal, onClick }) {
+export default function SocialLeadCard({ lead, contact, company, deal, mention, onClick }) {
   const config = platformConfig[lead.platform] || platformConfig.twitter;
   const InteractionIcon = interactionIcons[lead.interaction_type] || MessageSquare;
 
@@ -63,6 +66,46 @@ export default function SocialLeadCard({ lead, contact, company, deal, onClick }
               <p className="text-sm text-gray-600 line-clamp-2 mb-2">
                 "{lead.interaction_content}"
               </p>
+            )}
+
+            {/* Lead Score & AI Discovery Badge */}
+            {(lead.lead_score > 0 || lead.source === 'ai_scan') && (
+              <div className="flex items-center gap-3 mb-2">
+                {lead.lead_score > 0 && (
+                  <div className="flex items-center gap-2 flex-1">
+                    <TrendingUp className="w-3 h-3 text-gray-400" />
+                    <Progress value={lead.lead_score} className="h-1.5 flex-1" />
+                    <span className="text-xs font-medium text-gray-600">{lead.lead_score}</span>
+                  </div>
+                )}
+                {lead.source === 'ai_scan' && (
+                  <Badge className="bg-amber-100 text-amber-700 text-xs border-0 gap-1">
+                    <Sparkles className="w-3 h-3" />
+                    AI
+                  </Badge>
+                )}
+              </div>
+            )}
+
+            {/* Intent Signals */}
+            {lead.intent_signals?.length > 0 && (
+              <div className="flex flex-wrap gap-1 mb-2">
+                {lead.intent_signals.slice(0, 3).map((signal, i) => (
+                  <Badge key={i} variant="outline" className="text-xs bg-violet-50 text-violet-700 border-violet-200">
+                    {signal}
+                  </Badge>
+                ))}
+              </div>
+            )}
+
+            {/* Linked Mention Info */}
+            {mention && (
+              <div className="flex items-center gap-2 mb-2 text-xs text-gray-500">
+                <Radio className="w-3 h-3" />
+                <span>{mention.author_followers?.toLocaleString() || 0} followers</span>
+                <span>•</span>
+                <span>{(mention.likes || 0) + (mention.comments || 0) + (mention.shares || 0)} engagements</span>
+              </div>
             )}
 
             {/* Linked CRM entities */}
