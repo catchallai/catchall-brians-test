@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Heart, MessageSquare, Share2, Calendar, ExternalLink } from "lucide-react";
 import { format } from "date-fns";
+import PostScreenshot from './PostScreenshot';
 
 const sentimentConfig = {
   positive: { color: 'text-emerald-600', bg: 'bg-emerald-100' },
@@ -39,6 +40,13 @@ export default function PostDetailModal({ open, onClose, post, accountName }) {
         </DialogHeader>
         
         <div className="space-y-4 mt-2">
+          {/* Post Preview Screenshot */}
+          <PostScreenshot 
+            post={post}
+            accountName={accountName}
+            platform={post.platform}
+          />
+
           {/* Meta info */}
           <div className="flex items-center gap-2 flex-wrap">
             <Badge className={platform.color}>{platform.name}</Badge>
