@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ExternalLink, Settings, Sparkles, Loader2, Search, Link2, TrendingUp, Globe, Clock } from "lucide-react";
 import SEOScoreGauge from './SEOScoreGauge';
+import WebsiteScreenshot from './WebsiteScreenshot';
 import moment from 'moment';
 
 export default function WebsiteCard({ 
@@ -12,7 +13,8 @@ export default function WebsiteCard({
   backlinks, 
   onEdit, 
   onAnalyze, 
-  isAnalyzing 
+  isAnalyzing,
+  onScreenshotUpdate
 }) {
   const top10Keywords = keywords.filter(k => k.current_position && k.current_position <= 10).length;
   
@@ -25,7 +27,15 @@ export default function WebsiteCard({
 
   return (
     <Card className="border-0 shadow-sm hover:shadow-lg transition-all overflow-hidden">
-      <CardHeader className="pb-2">
+      {/* Website Screenshot */}
+      <WebsiteScreenshot 
+        url={website.url}
+        screenshotUrl={website.screenshot_url}
+        onScreenshotCaptured={onScreenshotUpdate}
+        className="h-32"
+      />
+      
+      <CardHeader className="pb-2 pt-3">
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white font-bold">
