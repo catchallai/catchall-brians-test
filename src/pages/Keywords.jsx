@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Plus, Search, Target } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Plus, Search, Target, Trash2, Download, RefreshCw, Loader2 } from "lucide-react";
 import KeywordRankCard from '@/components/seo/KeywordRankCard';
 import KeywordModal from '@/components/modals/KeywordModal';
 import EmptyState from '@/components/ui/EmptyState';
@@ -16,6 +17,8 @@ export default function Keywords() {
   const [searchTerm, setSearchTerm] = useState('');
   const [websiteFilter, setWebsiteFilter] = useState('all');
   const [positionFilter, setPositionFilter] = useState('all');
+  const [selectedIds, setSelectedIds] = useState([]);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const queryClient = useQueryClient();
 
   const { data: keywords = [], isLoading } = useQuery({
@@ -44,6 +47,66 @@ export default function Keywords() {
       setEditingKeyword(null);
     },
   });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id) => base44.entities.Keyword.delete(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['keywords'] });
+    },
+  });
+
+  const bulkDeleteMutation = useMutation({
+    mutationFn: async (ids) => {
+      for (const id of ids) {
+        await base44.entities.Keyword.delete(id);
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['keywords'] });
+      setSelectedIds([]);
+    },
+  });
+
+  const handleBulkDelete = () => {
+    if (selectedIds.length === 0) return;
+    if (confirm(`Delete ${selectedIds.length} keywords?`)) {
+      bulkDeleteMutation.mutate(selectedIds);
+    }
+  };
+
+  const handleExportCSV = () => {
+    const headers = ['Keyword', 'Position', 'Search Volume', 'Difficulty', 'CPC', 'Target URL'];
+    const rows = filteredKeywords.map(k => [
+      k.keyword,
+      k.current_position || '',
+      k.search_volume || '',
+      k.difficulty || '',
+      k.cpc || '',
+      k.target_url || ''
+    ]);
+    const csv = [headers, ...rows].map(r => r.join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'keywords_export.csv';
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedIds.length === filteredKeywords.length) {
+      setSelectedIds([]);
+    } else {
+      setSelectedIds(filteredKeywords.map(k => k.id));
+    }
+  };
+
+  const toggleSelect = (id) => {
+    setSelectedIds(prev => 
+      prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
+    );
+  };
 
   const handleSave = (data) => {
     if (editingKeyword) {
@@ -76,19 +139,36 @@ export default function Keywords() {
     : 0;
 
   return (
-    <div className="p-6 lg:p-8 space-y-6 bg-gray-50 min-h-screen">
+    <div className="p-6 lg:p-8 space-y-6 bg-gray-50 dark:bg-gray-900 min-h-screen">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Keywords</h1>
-          <p className="text-gray-500 mt-1">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Keywords</h1>
+          <p className="text-gray-500 dark:text-gray-400 mt-1">
             {keywords.length} tracked • {top10Count} in top 10 • Avg volume: {avgVolume.toLocaleString()}
           </p>
         </div>
-        <Button onClick={() => { setEditingKeyword(null); setShowModal(true); }} className="gap-2 bg-violet-600 hover:bg-violet-700">
-          <Plus className="w-4 h-4" />
-          Add Keyword
-        </Button>
+        <div className="flex gap-2">
+          {selectedIds.length > 0 && (
+            <Button 
+              variant="destructive" 
+              onClick={handleBulkDelete}
+              disabled={bulkDeleteMutation.isPending}
+              className="gap-2"
+            >
+              {bulkDeleteMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
+              Delete ({selectedIds.length})
+            </Button>
+          )}
+          <Button variant="outline" onClick={handleExportCSV} className="gap-2 dark:bg-gray-800 dark:border-gray-700">
+            <Download className="w-4 h-4" />
+            Export
+          </Button>
+          <Button onClick={() => { setEditingKeyword(null); setShowModal(true); }} className="gap-2 bg-violet-600 hover:bg-violet-700">
+            <Plus className="w-4 h-4" />
+            Add Keyword
+          </Button>
+        </div>
       </div>
 
       {/* Filters */}
@@ -99,11 +179,11 @@ export default function Keywords() {
             placeholder="Search keywords..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10"
+            className="pl-10 dark:bg-gray-800 dark:border-gray-700"
           />
         </div>
         <Select value={websiteFilter} onValueChange={setWebsiteFilter}>
-          <SelectTrigger className="w-full sm:w-48">
+          <SelectTrigger className="w-full sm:w-48 dark:bg-gray-800 dark:border-gray-700">
             <SelectValue placeholder="Website" />
           </SelectTrigger>
           <SelectContent>
@@ -114,7 +194,7 @@ export default function Keywords() {
           </SelectContent>
         </Select>
         <Select value={positionFilter} onValueChange={setPositionFilter}>
-          <SelectTrigger className="w-full sm:w-40">
+          <SelectTrigger className="w-full sm:w-40 dark:bg-gray-800 dark:border-gray-700">
             <SelectValue placeholder="Position" />
           </SelectTrigger>
           <SelectContent>
@@ -126,6 +206,19 @@ export default function Keywords() {
           </SelectContent>
         </Select>
       </div>
+
+      {/* Bulk Select */}
+      {filteredKeywords.length > 0 && (
+        <div className="flex items-center gap-3">
+          <Checkbox 
+            checked={selectedIds.length === filteredKeywords.length && filteredKeywords.length > 0}
+            onCheckedChange={toggleSelectAll}
+          />
+          <span className="text-sm text-gray-500 dark:text-gray-400">
+            {selectedIds.length > 0 ? `${selectedIds.length} selected` : 'Select all'}
+          </span>
+        </div>
+      )}
 
       {/* Keyword List */}
       {isLoading ? (
@@ -145,8 +238,17 @@ export default function Keywords() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredKeywords.map((keyword) => (
-            <div key={keyword.id} onClick={() => handleEdit(keyword)} className="cursor-pointer">
-              <KeywordRankCard keyword={keyword} />
+            <div key={keyword.id} className="relative group">
+              <div className="absolute top-3 left-3 z-10">
+                <Checkbox 
+                  checked={selectedIds.includes(keyword.id)}
+                  onCheckedChange={() => toggleSelect(keyword.id)}
+                  className="bg-white dark:bg-gray-800"
+                />
+              </div>
+              <div onClick={() => handleEdit(keyword)} className="cursor-pointer">
+                <KeywordRankCard keyword={keyword} />
+              </div>
             </div>
           ))}
         </div>

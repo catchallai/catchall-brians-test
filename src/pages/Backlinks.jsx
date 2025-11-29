@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import { Plus, Search, Link2, Loader2 } from "lucide-react";
+import { Plus, Search, Link2, Loader2, Download } from "lucide-react";
 import BacklinkItem from '@/components/seo/BacklinkItem';
 import EmptyState from '@/components/ui/EmptyState';
 
@@ -80,20 +80,48 @@ export default function Backlinks() {
   const activeCount = backlinks.filter(b => b.status === 'active').length;
   const dofollowCount = backlinks.filter(b => b.link_type === 'dofollow').length;
 
+  const handleExportCSV = () => {
+    const headers = ['Source URL', 'Source Domain', 'Target URL', 'Anchor Text', 'DA', 'Type', 'Status', 'First Seen'];
+    const rows = backlinks.map(b => [
+      b.source_url || '',
+      b.source_domain || '',
+      b.target_url || '',
+      b.anchor_text || '',
+      b.domain_authority || '',
+      b.link_type || '',
+      b.status || '',
+      b.first_seen || ''
+    ]);
+    const csv = [headers, ...rows].map(r => r.join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'backlinks_export.csv';
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   return (
-    <div className="p-6 lg:p-8 space-y-6 bg-gray-50 min-h-screen">
+    <div className="p-6 lg:p-8 space-y-6 bg-gray-50 dark:bg-gray-900 min-h-screen">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Backlinks</h1>
-          <p className="text-gray-500 mt-1">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Backlinks</h1>
+          <p className="text-gray-500 dark:text-gray-400 mt-1">
             {backlinks.length} total • {activeCount} active • {dofollowCount} dofollow
           </p>
         </div>
-        <Button onClick={() => setShowModal(true)} className="gap-2 bg-emerald-600 hover:bg-emerald-700">
-          <Plus className="w-4 h-4" />
-          Add Backlink
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={handleExportCSV} className="gap-2 dark:bg-gray-800 dark:border-gray-700">
+            <Download className="w-4 h-4" />
+            Export
+          </Button>
+          <Button onClick={() => setShowModal(true)} className="gap-2 bg-emerald-600 hover:bg-emerald-700">
+            <Plus className="w-4 h-4" />
+            Add Backlink
+          </Button>
+        </div>
       </div>
 
       {/* Filters */}
@@ -104,11 +132,11 @@ export default function Backlinks() {
             placeholder="Search backlinks..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10"
+            className="pl-10 dark:bg-gray-800 dark:border-gray-700"
           />
         </div>
         <Select value={websiteFilter} onValueChange={setWebsiteFilter}>
-          <SelectTrigger className="w-full sm:w-48">
+          <SelectTrigger className="w-full sm:w-48 dark:bg-gray-800 dark:border-gray-700">
             <SelectValue placeholder="Website" />
           </SelectTrigger>
           <SelectContent>
@@ -119,7 +147,7 @@ export default function Backlinks() {
           </SelectContent>
         </Select>
         <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-full sm:w-36">
+          <SelectTrigger className="w-full sm:w-36 dark:bg-gray-800 dark:border-gray-700">
             <SelectValue placeholder="Status" />
           </SelectTrigger>
           <SelectContent>
