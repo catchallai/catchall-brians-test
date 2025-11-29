@@ -8,6 +8,7 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import GlobalSearch from '@/components/search/GlobalSearch';
 import { ThemeProvider, useTheme } from '@/components/theme/ThemeProvider';
 import ThemeToggle from '@/components/theme/ThemeToggle';
+import NotificationBell from '@/components/notifications/NotificationBell';
 import {
   LayoutDashboard,
   Users,
@@ -219,6 +220,7 @@ export default function Layout({ children, currentPageName }) {
           <GlobalSearch />
         </div>
 
+        <NotificationBell />
         <ThemeToggle />
 
         <DropdownMenu>
@@ -244,8 +246,9 @@ export default function Layout({ children, currentPageName }) {
       <div className="hidden lg:flex fixed top-0 left-64 right-0 h-14 bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800 z-30 items-center justify-between px-6">
         <GlobalSearch />
         <div className="flex items-center gap-3">
-          <ThemeToggle />
-          <DropdownMenu>
+            <NotificationBell />
+            <ThemeToggle />
+            <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <button className="flex items-center gap-2 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg px-2 py-1.5 transition-colors">
                 <Avatar className="w-8 h-8">
