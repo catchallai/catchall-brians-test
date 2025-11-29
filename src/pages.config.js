@@ -24,6 +24,7 @@ import WebCrawler from './pages/WebCrawler';
 import ContentStrategy from './pages/ContentStrategy';
 import Collaboration from './pages/Collaboration';
 import MediaLibrary from './pages/MediaLibrary';
+import ContactForms from './pages/ContactForms';
 import __Layout from './Layout.jsx';
 
 
@@ -54,6 +55,7 @@ export const PAGES = {
     "ContentStrategy": ContentStrategy,
     "Collaboration": Collaboration,
     "MediaLibrary": MediaLibrary,
+    "ContactForms": ContactForms,
 }
 
 export const pagesConfig = {
