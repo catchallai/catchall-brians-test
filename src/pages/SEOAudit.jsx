@@ -124,7 +124,7 @@ export default function SEOAudit() {
 
   if (loadingWebsites) {
     return (
-      <div className="p-6 lg:p-8 space-y-6 bg-gray-50 dark:bg-gray-900 min-h-screen">
+      <div className="p-6 lg:p-8 space-y-6 min-h-screen">
         <Skeleton className="h-10 w-64" />
         <Skeleton className="h-96 rounded-xl" />
       </div>
@@ -132,7 +132,7 @@ export default function SEOAudit() {
   }
 
   return (
-    <div className="p-6 lg:p-8 space-y-8 bg-gray-50 dark:bg-gray-900 min-h-screen">
+    <div className="p-6 lg:p-8 space-y-8 min-h-screen">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
@@ -180,7 +180,7 @@ export default function SEOAudit() {
           actionLabel="Go to SEO Dashboard"
         />
       ) : !selectedWebsite ? (
-        <Card className="border-0 shadow-sm bg-white dark:bg-gray-800">
+        <Card className="glass-card rounded-2xl">
           <CardContent className="py-16 text-center">
             <div className="w-16 h-16 rounded-2xl bg-violet-100 dark:bg-violet-900/30 flex items-center justify-center mx-auto mb-4">
               <Zap className="w-8 h-8 text-violet-600 dark:text-violet-400" />
@@ -198,7 +198,7 @@ export default function SEOAudit() {
             
             if (!audit) {
               return (
-                <Card className="border-0 shadow-sm bg-white dark:bg-gray-800">
+                <Card className="glass-card rounded-2xl">
                   <CardContent className="py-16 text-center">
                     <div className="w-16 h-16 rounded-2xl bg-gray-100 dark:bg-gray-700 flex items-center justify-center mx-auto mb-4">
                       <RefreshCw className="w-8 h-8 text-gray-400" />
@@ -273,7 +273,7 @@ export default function SEOAudit() {
                   <TabsContent value="overview" className="space-y-6">
                     {/* Issues */}
                     {audit.issues && audit.issues.length > 0 && (
-                      <Card className="border-0 shadow-sm bg-white dark:bg-gray-800">
+                      <Card className="glass-card rounded-2xl">
                         <CardHeader>
                           <CardTitle className="text-lg text-gray-900 dark:text-white">Issues Found</CardTitle>
                         </CardHeader>
@@ -301,7 +301,7 @@ export default function SEOAudit() {
 
                     {/* Recommendations */}
                     {audit.recommendations && audit.recommendations.length > 0 && (
-                      <Card className="border-0 shadow-sm bg-white dark:bg-gray-800">
+                      <Card className="glass-card rounded-2xl">
                         <CardHeader>
                           <CardTitle className="text-lg text-gray-900 dark:text-white">Recommendations</CardTitle>
                         </CardHeader>

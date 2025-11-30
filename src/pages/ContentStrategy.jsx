@@ -43,10 +43,10 @@ export default function ContentStrategy() {
   });
 
   return (
-    <div className="p-6 lg:p-8 space-y-6 bg-gray-50 min-h-screen">
+    <div className="p-6 lg:p-8 space-y-6 min-h-screen">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
           <Sparkles className="w-8 h-8 text-violet-500" />
           Content Strategy Assistant
         </h1>
@@ -55,7 +55,7 @@ export default function ContentStrategy() {
 
       {/* Quick Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card className="border-0 shadow-sm">
+        <Card className="glass-card rounded-2xl">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
               <div className="p-2 rounded-lg bg-violet-50 text-violet-600">
@@ -68,7 +68,7 @@ export default function ContentStrategy() {
             </div>
           </CardContent>
         </Card>
-        <Card className="border-0 shadow-sm">
+        <Card className="glass-card rounded-2xl">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
               <div className="p-2 rounded-lg bg-blue-50 text-blue-600">
@@ -81,7 +81,7 @@ export default function ContentStrategy() {
             </div>
           </CardContent>
         </Card>
-        <Card className="border-0 shadow-sm">
+        <Card className="glass-card rounded-2xl">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
               <div className="p-2 rounded-lg bg-emerald-50 text-emerald-600">
@@ -94,7 +94,7 @@ export default function ContentStrategy() {
             </div>
           </CardContent>
         </Card>
-        <Card className="border-0 shadow-sm">
+        <Card className="glass-card rounded-2xl">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
               <div className="p-2 rounded-lg bg-amber-50 text-amber-600">

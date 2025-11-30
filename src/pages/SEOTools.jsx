@@ -228,10 +228,10 @@ export default function SEOTools() {
   });
 
   return (
-    <div className="p-6 lg:p-8 space-y-6 bg-gray-50 min-h-screen">
+    <div className="p-6 lg:p-8 space-y-6 min-h-screen">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">SEO Tools</h1>
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">SEO Tools</h1>
         <p className="text-gray-500 mt-1">Keyword research, on-page analysis, and site audits</p>
       </div>
 
@@ -263,7 +263,7 @@ export default function SEOTools() {
         {/* Site Audit Tab */}
         <TabsContent value="audit" className="space-y-6">
           {/* URL Input */}
-          <Card className="border-0 shadow-sm">
+          <Card className="glass-card rounded-2xl">
         <CardContent className="p-6">
           <div className="flex flex-col sm:flex-row gap-4">
             <div className="flex-1">
@@ -308,7 +308,7 @@ export default function SEOTools() {
           {/* Score Overview */}
           {totalChecks > 0 && (
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <Card className="border-0 shadow-sm">
+          <Card className="glass-card rounded-2xl">
             <CardContent className="p-4 text-center">
               <div className="w-16 h-16 rounded-full bg-violet-100 flex items-center justify-center mx-auto mb-2">
                 <span className="text-2xl font-bold text-violet-600">{currentWebsite?.seo_score || 0}</span>
@@ -342,7 +342,7 @@ export default function SEOTools() {
 
           {/* Category Scores */}
           {totalChecks > 0 && (
-            <Card className="border-0 shadow-sm">
+            <Card className="glass-card rounded-2xl">
               <CardHeader>
                 <CardTitle className="text-lg">Category Breakdown</CardTitle>
               </CardHeader>
@@ -400,7 +400,7 @@ export default function SEOTools() {
               ))}
             </div>
           ) : (
-            <Card className="border-0 shadow-sm">
+            <Card className="glass-card rounded-2xl">
               <CardContent className="py-16 text-center">
                 <Globe className="w-16 h-16 text-gray-300 mx-auto mb-4" />
                 <h3 className="text-lg font-medium text-gray-900 mb-2">No SEO checks yet</h3>
