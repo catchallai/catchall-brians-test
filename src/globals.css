@@ -38,36 +38,36 @@
   }
 
   .dark {
-    --background: 17 24 39;
-    --foreground: 243 244 246;
-    --card: 31 41 55;
-    --card-foreground: 243 244 246;
-    --popover: 31 41 55;
-    --popover-foreground: 243 244 246;
+    --background: 15 23 42;
+    --foreground: 248 250 252;
+    --card: 30 41 59;
+    --card-foreground: 248 250 252;
+    --popover: 30 41 59;
+    --popover-foreground: 248 250 252;
     --primary: 139 92 246;
     --primary-foreground: 255 255 255;
-    --secondary: 55 65 81;
-    --secondary-foreground: 243 244 246;
-    --muted: 55 65 81;
-    --muted-foreground: 156 163 175;
-    --accent: 55 65 81;
-    --accent-foreground: 243 244 246;
+    --secondary: 51 65 85;
+    --secondary-foreground: 248 250 252;
+    --muted: 51 65 85;
+    --muted-foreground: 148 163 184;
+    --accent: 51 65 85;
+    --accent-foreground: 248 250 252;
     --destructive: 239 68 68;
     --destructive-foreground: 255 255 255;
-    --border: 55 65 81;
-    --input: 55 65 81;
+    --border: 51 65 85;
+    --input: 51 65 85;
     --ring: 139 92 246;
     
     /* Custom theme colors - dark */
-    --sidebar-bg: 24 32 48;
-    --sidebar-border: 55 65 81;
-    --sidebar-text: 209 213 219;
-    --sidebar-text-muted: 107 114 128;
-    --sidebar-hover: 31 41 55;
-    --sidebar-active-bg: 76 29 149;
-    --sidebar-active-text: 196 181 253;
-    --topbar-bg: 24 32 48;
-    --topbar-border: 55 65 81;
+    --sidebar-bg: 15 23 42;
+    --sidebar-border: 51 65 85;
+    --sidebar-text: 226 232 240;
+    --sidebar-text-muted: 100 116 139;
+    --sidebar-hover: 30 41 59;
+    --sidebar-active-bg: 88 28 135;
+    --sidebar-active-text: 216 180 254;
+    --topbar-bg: 15 23 42;
+    --topbar-border: 51 65 85;
   }
 
   * {
@@ -77,6 +77,32 @@
   body {
     @apply bg-background text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
+
+@layer components {
+  .glass {
+    @apply bg-white/70 dark:bg-slate-800/70 backdrop-blur-xl border border-white/20 dark:border-slate-700/50;
+  }
+  
+  .glass-card {
+    @apply bg-white/60 dark:bg-slate-800/60 backdrop-blur-xl border border-white/30 dark:border-slate-700/40 shadow-lg shadow-black/5;
+  }
+  
+  .glass-sidebar {
+    @apply bg-white/80 dark:bg-slate-900/80 backdrop-blur-2xl border-r border-white/20 dark:border-slate-700/50;
+  }
+  
+  .glass-topbar {
+    @apply bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl border-b border-white/20 dark:border-slate-700/50;
+  }
+  
+  .gradient-bg {
+    @apply bg-gradient-to-br from-violet-50 via-slate-50 to-cyan-50 dark:from-slate-950 dark:via-slate-900 dark:to-violet-950;
+  }
+  
+  .gradient-text {
+    @apply bg-gradient-to-r from-violet-600 to-cyan-600 bg-clip-text text-transparent;
   }
 }
 

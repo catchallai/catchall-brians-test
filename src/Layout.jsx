@@ -91,7 +91,7 @@ const navigation = [
 
 function SidebarContent({ currentPage, onNavigate }) {
   return (
-    <div className="flex flex-col h-full bg-white dark:bg-gray-900">
+    <div className="flex flex-col h-full">
       {/* Logo */}
       <div className="p-6 border-b border-gray-100 dark:border-gray-800">
         <Link to={createPageUrl('Dashboard')} className="flex items-center gap-3">
@@ -209,9 +209,9 @@ export default function Layout({ children, currentPageName }) {
   return (
     <ThemeProvider>
     <ToastProvider>
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
+    <div className="min-h-screen gradient-bg transition-colors duration-300">
       {/* Mobile Header */}
-      <div className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800 z-40 flex items-center gap-3 px-4">
+      <div className="lg:hidden fixed top-0 left-0 right-0 h-16 glass-topbar z-40 flex items-center gap-3 px-4">
         <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
           <SheetTrigger asChild>
             <Button variant="ghost" size="icon" className="shrink-0">
@@ -250,7 +250,7 @@ export default function Layout({ children, currentPageName }) {
       </div>
 
       {/* Desktop Top Bar with Search */}
-      <div className="hidden lg:flex fixed top-0 left-64 right-0 h-14 bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800 z-30 items-center justify-between px-6">
+      <div className="hidden lg:flex fixed top-0 left-64 right-0 h-14 glass-topbar z-30 items-center justify-between px-6">
         <GlobalSearch />
         <div className="flex items-center gap-3">
             <NotificationBell />
@@ -278,7 +278,7 @@ export default function Layout({ children, currentPageName }) {
       </div>
 
       {/* Desktop Sidebar */}
-      <aside className="hidden lg:fixed lg:inset-y-0 lg:flex lg:w-64 lg:flex-col bg-white dark:bg-gray-900 border-r border-gray-100 dark:border-gray-800 z-30">
+      <aside className="hidden lg:fixed lg:inset-y-0 lg:flex lg:w-64 lg:flex-col glass-sidebar z-30">
         <SidebarContent currentPage={currentPageName} />
         
         {/* User Section */}
@@ -314,7 +314,7 @@ export default function Layout({ children, currentPageName }) {
 
       {/* Main Content */}
       <main className="lg:pl-64">
-        <div className="pt-16 lg:pt-14 min-h-screen bg-gray-50 dark:bg-gray-900">
+        <div className="pt-16 lg:pt-14 min-h-screen gradient-bg">
           {children}
         </div>
       </main>
