@@ -37,6 +37,7 @@ import {
   BarChart3,
   PenTool,
   Keyboard,
+  Activity,
 } from "lucide-react";
 import ErrorBoundary from '@/components/ui/ErrorBoundary';
 import KeyboardShortcutsDialog, { useKeyboardShortcuts } from '@/components/ui/KeyboardShortcuts';
@@ -91,6 +92,7 @@ const navigation = [
       { name: 'divider', label: 'Support' },
       { name: 'Help Center', icon: HelpCircle, page: 'HelpCenter' },
         { name: 'Settings', icon: Settings, page: 'Settings' },
+        { name: 'Activity Logs', icon: Activity, page: 'ActivityLogs' },
 ];
 
 function SidebarContent({ currentPage, onNavigate }) {

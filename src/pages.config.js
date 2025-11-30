@@ -30,6 +30,7 @@ import LocalSEO from './pages/LocalSEO';
 import ContentStudio from './pages/ContentStudio';
 import MediaOutreach from './pages/MediaOutreach';
 import Settings from './pages/Settings';
+import ActivityLogs from './pages/ActivityLogs';
 import __Layout from './Layout.jsx';
 
 
@@ -66,6 +67,7 @@ export const PAGES = {
     "ContentStudio": ContentStudio,
     "MediaOutreach": MediaOutreach,
     "Settings": Settings,
+    "ActivityLogs": ActivityLogs,
 }
 
 export const pagesConfig = {
