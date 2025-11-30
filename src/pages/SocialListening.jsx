@@ -486,11 +486,11 @@ Prioritize finding older historical discussions from 2009-2015 as well as recent
   const totalForumMentions = forumMentions.length;
 
   return (
-    <div className="p-6 lg:p-8 space-y-6 bg-gray-50 min-h-screen">
+    <div className="p-6 lg:p-8 space-y-6 min-h-screen">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Social Listening</h1>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Social Listening</h1>
           <p className="text-gray-500 mt-1">Track keywords, hashtags, and mentions across social media</p>
         </div>
         <Button onClick={() => setShowAddModal(true)} className="gap-2 bg-violet-600 hover:bg-violet-700">
@@ -501,35 +501,35 @@ Prioritize finding older historical discussions from 2009-2015 as well as recent
 
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-        <Card className="border-0 shadow-sm">
+        <Card className="glass-card rounded-2xl">
           <CardContent className="p-4 text-center">
             <Radio className="w-6 h-6 text-violet-500 mx-auto mb-2" />
             <p className="text-2xl font-bold text-gray-900">{activeTracks}</p>
             <p className="text-sm text-gray-500">Active Tracks</p>
           </CardContent>
         </Card>
-        <Card className="border-0 shadow-sm">
+        <Card className="glass-card rounded-2xl">
           <CardContent className="p-4 text-center">
             <MessageSquare className="w-6 h-6 text-blue-500 mx-auto mb-2" />
             <p className="text-2xl font-bold text-gray-900">{totalMentions}</p>
             <p className="text-sm text-gray-500">Mentions Found</p>
           </CardContent>
         </Card>
-        <Card className="border-0 shadow-sm">
+        <Card className="glass-card rounded-2xl">
           <CardContent className="p-4 text-center">
             <TrendingUp className="w-6 h-6 text-emerald-500 mx-auto mb-2" />
             <p className="text-2xl font-bold text-emerald-600">{avgTrendScore}</p>
             <p className="text-sm text-gray-500">Avg Trend Score</p>
           </CardContent>
         </Card>
-        <Card className="border-0 shadow-sm">
+        <Card className="glass-card rounded-2xl">
           <CardContent className="p-4 text-center">
             <Bell className={`w-6 h-6 mx-auto mb-2 ${unreadAlerts > 0 ? 'text-red-500' : 'text-gray-400'}`} />
             <p className={`text-2xl font-bold ${unreadAlerts > 0 ? 'text-red-600' : 'text-gray-900'}`}>{unreadAlerts}</p>
             <p className="text-sm text-gray-500">Alerts</p>
           </CardContent>
         </Card>
-        <Card className="border-0 shadow-sm">
+        <Card className="glass-card rounded-2xl">
           <CardContent className="p-4 text-center">
             <div className="flex justify-center gap-2 mb-2">
               <ThumbsUp className="w-5 h-5 text-emerald-500" />
@@ -793,7 +793,7 @@ Prioritize finding older historical discussions from 2009-2015 as well as recent
             <ListeningTrendsCard keywords={keywords} mentions={mentions} />
             
             {/* Platform Distribution */}
-            <Card className="border-0 shadow-sm">
+            <Card className="glass-card rounded-2xl">
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm flex items-center gap-2">
                   <BarChart3 className="w-4 h-4 text-blue-500" />

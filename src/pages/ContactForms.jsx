@@ -63,7 +63,7 @@ export default function ContactForms() {
 
   if (isLoading) {
     return (
-      <div className="p-6 lg:p-8 space-y-6 bg-gray-50 dark:bg-gray-900 min-h-screen">
+      <div className="p-6 lg:p-8 space-y-6 min-h-screen">
         <Skeleton className="h-10 w-64" />
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {[...Array(3)].map((_, i) => <Skeleton key={i} className="h-40" />)}
@@ -73,7 +73,7 @@ export default function ContactForms() {
   }
 
   return (
-    <div className="p-6 lg:p-8 space-y-6 bg-gray-50 dark:bg-gray-900 min-h-screen">
+    <div className="p-6 lg:p-8 space-y-6 min-h-screen">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
@@ -88,28 +88,28 @@ export default function ContactForms() {
 
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card className="border-0 shadow-sm bg-white dark:bg-gray-800">
+        <Card className="glass-card rounded-2xl">
           <CardContent className="p-4 text-center">
             <FileText className="w-6 h-6 text-violet-500 mx-auto mb-2" />
             <p className="text-2xl font-bold text-gray-900 dark:text-white">{forms.length}</p>
             <p className="text-sm text-gray-500 dark:text-gray-400">Total Forms</p>
           </CardContent>
         </Card>
-        <Card className="border-0 shadow-sm bg-white dark:bg-gray-800">
+        <Card className="glass-card rounded-2xl">
           <CardContent className="p-4 text-center">
             <CheckCircle className="w-6 h-6 text-emerald-500 mx-auto mb-2" />
             <p className="text-2xl font-bold text-emerald-600">{forms.filter(f => f.is_active).length}</p>
             <p className="text-sm text-gray-500 dark:text-gray-400">Active</p>
           </CardContent>
         </Card>
-        <Card className="border-0 shadow-sm bg-white dark:bg-gray-800">
+        <Card className="glass-card rounded-2xl">
           <CardContent className="p-4 text-center">
             <Inbox className="w-6 h-6 text-blue-500 mx-auto mb-2" />
             <p className="text-2xl font-bold text-blue-600">{totalSubmissions}</p>
             <p className="text-sm text-gray-500 dark:text-gray-400">Total Submissions</p>
           </CardContent>
         </Card>
-        <Card className="border-0 shadow-sm bg-white dark:bg-gray-800">
+        <Card className="glass-card rounded-2xl">
           <CardContent className="p-4 text-center">
             <AlertCircle className="w-6 h-6 text-amber-500 mx-auto mb-2" />
             <p className="text-2xl font-bold text-amber-600">{newSubmissions}</p>
