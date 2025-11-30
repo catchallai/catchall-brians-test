@@ -131,7 +131,7 @@ export default function SocialCalendar() {
 
   if (isLoading) {
     return (
-      <div className="p-6 lg:p-8 space-y-6 bg-gray-50 min-h-screen">
+      <div className="p-6 lg:p-8 space-y-6 min-h-screen">
         <Skeleton className="h-10 w-64" />
         <div className="grid grid-cols-3 gap-4">
           {[...Array(9)].map((_, i) => <Skeleton key={i} className="aspect-square rounded-xl" />)}

@@ -141,7 +141,7 @@ export default function MediaLibrary() {
 
   if (isLoading) {
     return (
-      <div className="p-6 lg:p-8 space-y-6 bg-gray-50 min-h-screen">
+      <div className="p-6 lg:p-8 space-y-6 min-h-screen">
         <Skeleton className="h-10 w-64" />
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
           {[...Array(12)].map((_, i) => <Skeleton key={i} className="aspect-square rounded-xl" />)}
