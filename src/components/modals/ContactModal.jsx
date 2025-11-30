@@ -20,6 +20,7 @@ export default function ContactModal({ open, onClose, contact, companies, onSave
     source: '',
     notes: '',
   });
+  const [errors, setErrors] = useState({});
 
   useEffect(() => {
     if (contact) {
@@ -51,7 +52,21 @@ export default function ContactModal({ open, onClose, contact, companies, onSave
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSave(formData);
+    
+    const validation = validateForm(formData, {
+      first_name: { required: true, message: 'First name is required' },
+      email: { required: true, email: true },
+      phone: { phone: true },
+    });
+    
+    if (!validation.isValid) {
+      setErrors(validation.errors);
+      return;
+    }
+    
+    setErrors({});
+    const sanitizedData = sanitizeObject(formData);
+    onSave(sanitizedData);
   };
 
   return (
@@ -68,8 +83,9 @@ export default function ContactModal({ open, onClose, contact, companies, onSave
                 id="first_name"
                 value={formData.first_name}
                 onChange={(e) => setFormData({ ...formData, first_name: e.target.value })}
-                required
+                className={errors.first_name ? 'border-red-500' : ''}
               />
+              {errors.first_name && <p className="text-xs text-red-500">{errors.first_name}</p>}
             </div>
             <div className="space-y-2">
               <Label htmlFor="last_name">Last Name</Label>
@@ -88,8 +104,9 @@ export default function ContactModal({ open, onClose, contact, companies, onSave
               type="email"
               value={formData.email}
               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-              required
+              className={errors.email ? 'border-red-500' : ''}
             />
+            {errors.email && <p className="text-xs text-red-500">{errors.email}</p>}
           </div>
 
           <div className="grid grid-cols-2 gap-4">
@@ -99,7 +116,9 @@ export default function ContactModal({ open, onClose, contact, companies, onSave
                 id="phone"
                 value={formData.phone}
                 onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                className={errors.phone ? 'border-red-500' : ''}
               />
+              {errors.phone && <p className="text-xs text-red-500">{errors.phone}</p>}
             </div>
             <div className="space-y-2">
               <Label htmlFor="job_title">Job Title</Label>
