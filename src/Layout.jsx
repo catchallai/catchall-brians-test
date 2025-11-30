@@ -36,7 +36,10 @@ import {
   FileText,
   BarChart3,
   PenTool,
+  Keyboard,
 } from "lucide-react";
+import ErrorBoundary from '@/components/ui/ErrorBoundary';
+import KeyboardShortcutsDialog, { useKeyboardShortcuts } from '@/components/ui/KeyboardShortcuts';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import OnboardingModal from '@/components/onboarding/OnboardingModal';
@@ -87,6 +90,7 @@ const navigation = [
       { name: 'Media Library', icon: FileText, page: 'MediaLibrary' },
       { name: 'divider', label: 'Support' },
       { name: 'Help Center', icon: HelpCircle, page: 'HelpCenter' },
+        { name: 'Settings', icon: Settings, page: 'Settings' },
 ];
 
 function SidebarContent({ currentPage, onNavigate }) {
@@ -148,7 +152,14 @@ function SidebarContent({ currentPage, onNavigate }) {
 export default function Layout({ children, currentPageName }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [showShortcuts, setShowShortcuts] = useState(false);
   const queryClient = useQueryClient();
+
+  // Keyboard shortcuts
+  useKeyboardShortcuts({
+    onHelp: () => setShowShortcuts(true),
+    onEscape: () => setShowShortcuts(false),
+  });
 
   const { data: user } = useQuery({
     queryKey: ['current-user'],
@@ -313,11 +324,19 @@ export default function Layout({ children, currentPageName }) {
       </aside>
 
       {/* Main Content */}
-      <main className="lg:pl-64">
-        <div className="pt-16 lg:pt-14 min-h-screen gradient-bg">
-          {children}
-        </div>
-      </main>
+              <main className="lg:pl-64">
+                <div className="pt-16 lg:pt-14 min-h-screen gradient-bg">
+                  <ErrorBoundary>
+                    {children}
+                  </ErrorBoundary>
+                </div>
+              </main>
+
+              {/* Keyboard Shortcuts Dialog */}
+              <KeyboardShortcutsDialog 
+                open={showShortcuts} 
+                onClose={() => setShowShortcuts(false)} 
+              />
 
       {/* Onboarding Modal */}
               <OnboardingModal

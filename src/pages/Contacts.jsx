@@ -1,25 +1,42 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Plus, Search, Users } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Plus, Search, Users, Upload, Download } from "lucide-react";
 import ContactCard from '@/components/crm/ContactCard';
 import ContactModal from '@/components/modals/ContactModal';
 import EmptyState from '@/components/ui/EmptyState';
+import Pagination from '@/components/ui/Pagination';
+import BulkActions from '@/components/ui/BulkActions';
+import ImportDialog from '@/components/ui/ImportDialog';
+import ConfirmDialog from '@/components/ui/ConfirmDialog';
+import { useDebounce } from '@/components/hooks/useDebounce';
+import { exportToCSV } from '@/components/utils/exportData';
+import { useToast } from '@/components/ui/toast-provider';
+
+const ITEMS_PER_PAGE = 25;
 
 export default function Contacts() {
   const [showModal, setShowModal] = useState(false);
+  const [showImport, setShowImport] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [editingContact, setEditingContact] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [selectedIds, setSelectedIds] = useState([]);
   const queryClient = useQueryClient();
+  const toast = useToast();
+  
+  const debouncedSearch = useDebounce(searchTerm, 300);
 
   const { data: contacts = [], isLoading: loadingContacts } = useQuery({
     queryKey: ['contacts'],
-    queryFn: () => base44.entities.Contact.list('-created_date', 200),
+    queryFn: () => base44.entities.Contact.list('-created_date', 1000),
   });
 
   const { data: companies = [] } = useQuery({
@@ -32,7 +49,9 @@ export default function Contacts() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['contacts'] });
       setShowModal(false);
+      toast.success('Contact created successfully');
     },
+    onError: () => toast.error('Failed to create contact'),
   });
 
   const updateMutation = useMutation({
@@ -41,7 +60,45 @@ export default function Contacts() {
       queryClient.invalidateQueries({ queryKey: ['contacts'] });
       setShowModal(false);
       setEditingContact(null);
+      toast.success('Contact updated successfully');
     },
+    onError: () => toast.error('Failed to update contact'),
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: async (ids) => {
+      for (const id of ids) {
+        await base44.entities.Contact.delete(id);
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['contacts'] });
+      setSelectedIds([]);
+      setShowDeleteConfirm(false);
+      toast.success('Contacts deleted successfully');
+    },
+    onError: () => toast.error('Failed to delete contacts'),
+  });
+
+  const importMutation = useMutation({
+    mutationFn: async (data) => {
+      for (const row of data) {
+        await base44.entities.Contact.create({
+          first_name: row.first_name || row['First Name'] || '',
+          last_name: row.last_name || row['Last Name'] || '',
+          email: row.email || row['Email'] || '',
+          phone: row.phone || row['Phone'] || '',
+          status: row.status || 'lead',
+          job_title: row.job_title || row['Job Title'] || '',
+          source: row.source || 'import',
+        });
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['contacts'] });
+      toast.success('Contacts imported successfully');
+    },
+    onError: () => toast.error('Failed to import contacts'),
   });
 
   const handleSave = (data) => {
@@ -57,15 +114,51 @@ export default function Contacts() {
     setShowModal(true);
   };
 
-  const filteredContacts = contacts.filter(contact => {
-    const matchesSearch = !searchTerm || 
-      `${contact.first_name} ${contact.last_name}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      contact.email?.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = statusFilter === 'all' || contact.status === statusFilter;
-    return matchesSearch && matchesStatus;
-  });
+  const handleExport = () => {
+    const dataToExport = selectedIds.length > 0 
+      ? contacts.filter(c => selectedIds.includes(c.id))
+      : filteredContacts;
+    
+    exportToCSV(dataToExport, 'contacts', [
+      { key: 'first_name', label: 'First Name' },
+      { key: 'last_name', label: 'Last Name' },
+      { key: 'email', label: 'Email' },
+      { key: 'phone', label: 'Phone' },
+      { key: 'status', label: 'Status' },
+      { key: 'job_title', label: 'Job Title' },
+      { key: 'source', label: 'Source' },
+    ]);
+    toast.success('Contacts exported');
+  };
+
+  const toggleSelect = (id) => {
+    setSelectedIds(prev => 
+      prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
+    );
+  };
+
+  const filteredContacts = useMemo(() => {
+    return contacts.filter(contact => {
+      const matchesSearch = !debouncedSearch || 
+        `${contact.first_name} ${contact.last_name}`.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+        contact.email?.toLowerCase().includes(debouncedSearch.toLowerCase());
+      const matchesStatus = statusFilter === 'all' || contact.status === statusFilter;
+      return matchesSearch && matchesStatus;
+    });
+  }, [contacts, debouncedSearch, statusFilter]);
+
+  const totalPages = Math.ceil(filteredContacts.length / ITEMS_PER_PAGE);
+  const paginatedContacts = filteredContacts.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  );
 
   const getCompany = (companyId) => companies.find(c => c.id === companyId);
+
+  // Reset page when filters change
+  React.useEffect(() => {
+    setCurrentPage(1);
+  }, [debouncedSearch, statusFilter]);
 
   return (
     <div className="p-6 lg:p-8 space-y-6 min-h-screen">
@@ -75,10 +168,20 @@ export default function Contacts() {
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Contacts</h1>
           <p className="text-gray-500 mt-1">{contacts.length} contacts total</p>
         </div>
-        <Button onClick={() => { setEditingContact(null); setShowModal(true); }} className="gap-2 bg-violet-600 hover:bg-violet-700">
-          <Plus className="w-4 h-4" />
-          Add Contact
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={() => setShowImport(true)} className="gap-2">
+            <Upload className="w-4 h-4" />
+            Import
+          </Button>
+          <Button variant="outline" onClick={handleExport} className="gap-2">
+            <Download className="w-4 h-4" />
+            Export
+          </Button>
+          <Button onClick={() => { setEditingContact(null); setShowModal(true); }} className="gap-2 bg-violet-600 hover:bg-violet-700">
+            <Plus className="w-4 h-4" />
+            Add Contact
+          </Button>
+        </div>
       </div>
 
       {/* Filters */}
@@ -117,22 +220,52 @@ export default function Contacts() {
         <EmptyState
           icon={Users}
           title="No contacts yet"
-          description="Start building your network by adding your first contact."
+          description="Start building your network by adding your first contact, or import from a CSV file."
           actionLabel="Add Contact"
           onAction={() => { setEditingContact(null); setShowModal(true); }}
         />
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filteredContacts.map((contact) => (
-            <ContactCard
-              key={contact.id}
-              contact={contact}
-              company={getCompany(contact.company_id)}
-              onClick={() => handleEdit(contact)}
-            />
-          ))}
-        </div>
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {paginatedContacts.map((contact) => (
+              <div key={contact.id} className="relative group">
+                <div className="absolute top-3 left-3 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <Checkbox
+                    checked={selectedIds.includes(contact.id)}
+                    onCheckedChange={() => toggleSelect(contact.id)}
+                    className="bg-white"
+                  />
+                </div>
+                <ContactCard
+                  contact={contact}
+                  company={getCompany(contact.company_id)}
+                  onClick={() => handleEdit(contact)}
+                  isSelected={selectedIds.includes(contact.id)}
+                />
+              </div>
+            ))}
+          </div>
+
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            totalItems={filteredContacts.length}
+            itemsPerPage={ITEMS_PER_PAGE}
+            onPageChange={setCurrentPage}
+          />
+        </>
       )}
+
+      {/* Bulk Actions */}
+      <BulkActions
+        selectedCount={selectedIds.length}
+        totalCount={filteredContacts.length}
+        isAllSelected={selectedIds.length === filteredContacts.length && filteredContacts.length > 0}
+        onSelectAll={() => setSelectedIds(filteredContacts.map(c => c.id))}
+        onDeselectAll={() => setSelectedIds([])}
+        onDelete={() => setShowDeleteConfirm(true)}
+        onExport={handleExport}
+      />
 
       {/* Modal */}
       <ContactModal
@@ -142,6 +275,31 @@ export default function Contacts() {
         companies={companies}
         onSave={handleSave}
         isLoading={createMutation.isPending || updateMutation.isPending}
+      />
+
+      {/* Import Dialog */}
+      <ImportDialog
+        open={showImport}
+        onClose={() => setShowImport(false)}
+        onImport={(data) => importMutation.mutateAsync(data)}
+        entityName="Contacts"
+        requiredFields={['first_name', 'email']}
+        optionalFields={['last_name', 'phone', 'job_title', 'status', 'source']}
+        sampleData={[
+          { first_name: 'John', last_name: 'Doe', email: 'john@example.com', phone: '555-1234', status: 'lead' },
+          { first_name: 'Jane', last_name: 'Smith', email: 'jane@example.com', phone: '555-5678', status: 'customer' },
+        ]}
+      />
+
+      {/* Delete Confirmation */}
+      <ConfirmDialog
+        open={showDeleteConfirm}
+        onClose={() => setShowDeleteConfirm(false)}
+        onConfirm={() => deleteMutation.mutate(selectedIds)}
+        title="Delete Contacts"
+        description={`Are you sure you want to delete ${selectedIds.length} contact(s)? This action cannot be undone.`}
+        confirmLabel="Delete"
+        isLoading={deleteMutation.isPending}
       />
     </div>
   );
