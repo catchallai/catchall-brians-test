@@ -38,9 +38,9 @@ export default function SocialLeadCard({ lead, contact, company, deal, mention, 
 
   return (
     <Card 
-      className="border-0 shadow-sm hover:shadow-md transition-all cursor-pointer"
-      onClick={onClick}
-    >
+        className="glass-card rounded-2xl hover:shadow-lg transition-all cursor-pointer"
+        onClick={onClick}
+      >
       <CardContent className="p-4">
         <div className="flex items-start gap-3">
           <div className={`w-10 h-10 rounded-xl ${config.color} flex items-center justify-center text-lg font-bold shrink-0`}>
