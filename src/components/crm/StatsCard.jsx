@@ -12,7 +12,7 @@ export default function StatsCard({ title, value, change, changeType, icon: Icon
   };
 
   return (
-    <Card className="p-6 border-0 shadow-sm bg-white dark:bg-gray-800 hover:shadow-md transition-all duration-300">
+    <Card className="p-6 glass-card rounded-2xl hover:shadow-lg transition-all duration-300">
       <div className="flex items-start justify-between">
         <div className="space-y-2">
           <p className="text-sm font-medium text-gray-500 dark:text-gray-400 tracking-wide uppercase">{title}</p>
