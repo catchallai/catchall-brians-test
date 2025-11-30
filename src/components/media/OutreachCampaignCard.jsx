@@ -18,7 +18,7 @@ export default function OutreachCampaignCard({ campaign, journalist, linkedMenti
   const StatusIcon = status.icon;
 
   return (
-    <Card className="border-0 shadow-sm bg-white dark:bg-gray-800">
+    <Card className="glass-card rounded-2xl">
       <CardContent className="p-4">
         <div className="flex items-start justify-between">
           <div className="flex-1">

@@ -122,7 +122,7 @@ The response should:
       </div>
 
       {filteredReviews.length === 0 ? (
-        <Card className="border-0 shadow-sm bg-white dark:bg-gray-800">
+        <Card className="glass-card rounded-2xl">
           <CardContent className="py-12 text-center">
             <MessageSquare className="w-12 h-12 text-gray-300 mx-auto mb-4" />
             <p className="text-gray-500">No reviews found</p>

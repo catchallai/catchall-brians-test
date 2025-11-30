@@ -77,7 +77,7 @@ Calculate average rank and percentage in top 3.`,
   return (
     <div className="space-y-4">
       {/* New Scan Form */}
-      <Card className="border-0 shadow-sm bg-white dark:bg-gray-800">
+      <Card className="glass-card rounded-2xl">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Grid3X3 className="w-5 h-5" />
@@ -120,7 +120,7 @@ Calculate average rank and percentage in top 3.`,
 
       {/* Rankings List */}
       {rankings.length === 0 ? (
-        <Card className="border-0 shadow-sm bg-white dark:bg-gray-800">
+        <Card className="glass-card rounded-2xl">
           <CardContent className="py-12 text-center">
             <MapPin className="w-12 h-12 text-gray-300 mx-auto mb-4" />
             <h3 className="font-semibold text-gray-900 dark:text-white mb-2">No Map Rankings Yet</h3>

@@ -40,7 +40,7 @@ export default function EmailAnalytics({ outreach }) {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <Card className="border-0 shadow-sm bg-white dark:bg-gray-800">
+        <Card className="glass-card rounded-2xl">
           <CardHeader>
             <CardTitle>Outreach Funnel</CardTitle>
           </CardHeader>
@@ -63,7 +63,7 @@ export default function EmailAnalytics({ outreach }) {
           </CardContent>
         </Card>
 
-        <Card className="border-0 shadow-sm bg-white dark:bg-gray-800">
+        <Card className="glass-card rounded-2xl">
           <CardHeader>
             <CardTitle>Response Distribution</CardTitle>
           </CardHeader>

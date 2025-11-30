@@ -101,7 +101,7 @@ export default function BrandVoiceSettings({ brandVoices, websites }) {
       </div>
 
       {brandVoices.length === 0 ? (
-        <Card className="border-0 shadow-sm bg-white dark:bg-gray-800">
+        <Card className="glass-card rounded-2xl">
           <CardContent className="py-12 text-center">
             <PenTool className="w-12 h-12 text-gray-300 mx-auto mb-4" />
             <h3 className="font-semibold text-gray-900 dark:text-white mb-2">No Brand Voices Defined</h3>

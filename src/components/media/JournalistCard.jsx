@@ -6,7 +6,7 @@ import { Mail, ExternalLink, Globe, Users, TrendingUp } from "lucide-react";
 
 export default function JournalistCard({ journalist, onContact }) {
   return (
-    <Card className="border-0 shadow-sm bg-white dark:bg-gray-800 hover:shadow-md transition-all">
+    <Card className="glass-card rounded-2xl hover:shadow-lg transition-all">
       <CardContent className="p-4">
         <div className="flex items-start justify-between mb-3">
           <div className="flex items-center gap-3">

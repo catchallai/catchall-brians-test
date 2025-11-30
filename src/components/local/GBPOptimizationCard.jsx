@@ -25,7 +25,7 @@ export default function GBPOptimizationCard({ profile, onEdit }) {
   };
 
   return (
-    <Card className="border-0 shadow-sm bg-white dark:bg-gray-800 hover:shadow-md transition-all">
+    <Card className="glass-card rounded-2xl hover:shadow-lg transition-all">
       <CardContent className="p-5">
         <div className="flex items-start justify-between mb-4">
           <div className="flex items-center gap-3">

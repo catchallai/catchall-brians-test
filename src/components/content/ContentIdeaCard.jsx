@@ -20,7 +20,7 @@ export default function ContentIdeaCard({ idea, onCreateBrief, isHighlight }) {
   const opportunityScore = idea.opportunity_score || 0;
 
   return (
-    <Card className={`border-0 shadow-sm bg-white dark:bg-gray-800 hover:shadow-md transition-all ${isHighlight ? 'ring-2 ring-emerald-500' : ''}`}>
+    <Card className={`glass-card rounded-2xl hover:shadow-lg transition-all ${isHighlight ? 'ring-2 ring-emerald-500' : ''}`}>
       <CardContent className="p-4">
         <div className="flex items-start justify-between mb-2">
           <div className="flex items-center gap-2">
