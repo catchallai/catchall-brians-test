@@ -44,6 +44,7 @@ import ErrorBoundary from '@/components/ui/ErrorBoundary';
 import KeyboardShortcutsDialog, { useKeyboardShortcuts } from '@/components/ui/KeyboardShortcuts';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useFeatures, PAGE_FEATURE_MAP } from '@/components/hooks/useFeatures';
 import OnboardingModal from '@/components/onboarding/OnboardingModal';
 import { ToastProvider } from '@/components/ui/toast-provider';
 import {
@@ -97,7 +98,26 @@ const navigation = [
         { name: 'Activity Logs', icon: Activity, page: 'ActivityLogs' },
 ];
 
-function SidebarContent({ currentPage, onNavigate }) {
+function SidebarContent({ currentPage, onNavigate, isEnabled }) {
+  // Filter navigation based on enabled features
+  const filteredNavigation = navigation.filter((item) => {
+    if (item.name === 'divider') return true;
+    // Always show Dashboard, Settings, Activity Logs, Help Center
+    if (['Dashboard', 'Settings', 'ActivityLogs', 'HelpCenter', 'SEOTools'].includes(item.page)) return true;
+    // Check if feature is enabled
+    const featureKey = PAGE_FEATURE_MAP[item.page];
+    if (!featureKey) return true; // If no feature mapping, show it
+    return isEnabled(featureKey);
+  });
+
+  // Remove consecutive dividers and trailing dividers
+  const cleanedNavigation = filteredNavigation.filter((item, idx, arr) => {
+    if (item.name !== 'divider') return true;
+    const nextItem = arr[idx + 1];
+    if (!nextItem || nextItem.name === 'divider') return false;
+    return true;
+  });
+
   return (
     <div className="flex flex-col h-full">
       {/* Logo */}
@@ -118,7 +138,7 @@ function SidebarContent({ currentPage, onNavigate }) {
       {/* Navigation */}
       <ScrollArea className="flex-1 px-4 py-6">
         <nav className="space-y-1">
-          {navigation.map((item, idx) => {
+          {cleanedNavigation.map((item, idx) => {
             if (item.name === 'divider') {
               return (
                 <div key={idx} className="pt-6 pb-2">
@@ -158,6 +178,7 @@ export default function Layout({ children, currentPageName }) {
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [showShortcuts, setShowShortcuts] = useState(false);
   const queryClient = useQueryClient();
+  const { isEnabled } = useFeatures();
 
   // Keyboard shortcuts
   useKeyboardShortcuts({
@@ -234,8 +255,8 @@ export default function Layout({ children, currentPageName }) {
             </Button>
           </SheetTrigger>
           <SheetContent side="left" className="p-0 w-72 dark:bg-gray-900 dark:border-gray-800">
-            <SidebarContent currentPage={currentPageName} onNavigate={() => setSidebarOpen(false)} />
-          </SheetContent>
+                            <SidebarContent currentPage={currentPageName} onNavigate={() => setSidebarOpen(false)} isEnabled={isEnabled} />
+                          </SheetContent>
         </Sheet>
 
         <div className="flex-1">
@@ -293,8 +314,8 @@ export default function Layout({ children, currentPageName }) {
       </div>
 
       {/* Desktop Sidebar */}
-      <aside className="hidden lg:fixed lg:inset-y-0 lg:flex lg:w-64 lg:flex-col glass-sidebar z-30">
-        <SidebarContent currentPage={currentPageName} />
+              <aside className="hidden lg:fixed lg:inset-y-0 lg:flex lg:w-64 lg:flex-col glass-sidebar z-30">
+                <SidebarContent currentPage={currentPageName} isEnabled={isEnabled} />
         
         {/* User Section */}
         <div className="p-4 border-t border-gray-100 dark:border-gray-800">

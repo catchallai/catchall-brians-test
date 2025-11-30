@@ -14,8 +14,9 @@ import { useToast } from '@/components/ui/toast-provider';
 import { useTheme } from '@/components/theme/ThemeProvider';
 import {
   User, Bell, Shield, Palette, Globe, Database, 
-  Save, Loader2, Check, Mail, Clock, Zap
+  Save, Loader2, Check, Mail, Clock, Zap, ToggleRight
 } from "lucide-react";
+import FeatureManager from '@/components/settings/FeatureManager';
 
 export default function Settings() {
   const [saving, setSaving] = useState(false);
@@ -134,6 +135,10 @@ export default function Settings() {
           <TabsTrigger value="preferences" className="gap-2">
             <Zap className="w-4 h-4" />
             Preferences
+          </TabsTrigger>
+          <TabsTrigger value="features" className="gap-2">
+            <ToggleRight className="w-4 h-4" />
+            Features
           </TabsTrigger>
         </TabsList>
 
@@ -373,6 +378,11 @@ export default function Settings() {
               </div>
             </CardContent>
           </Card>
+        </TabsContent>
+
+        {/* Features Tab */}
+        <TabsContent value="features">
+          <FeatureManager />
         </TabsContent>
       </Tabs>
     </div>
