@@ -13,13 +13,14 @@ import { Skeleton } from "@/components/ui/skeleton";
 import {
   Lightbulb, FileText, Wand2, Sparkles, Target, TrendingUp,
   Plus, Search, Filter, Zap, BookOpen, PenTool, CheckCircle,
-  Clock, ArrowRight, Star, Loader2, Users
+  Clock, ArrowRight, Star, Loader2, Users, Share2
 } from "lucide-react";
 import ContentIdeaCard from '@/components/content/ContentIdeaCard';
 import ContentBriefModal from '@/components/content/ContentBriefModal';
 import ArticleGeneratorModal from '@/components/content/ArticleGeneratorModal';
 import BrandVoiceSettings from '@/components/content/BrandVoiceSettings';
 import CRMContentGenerator from '@/components/content/CRMContentGenerator';
+import ShareToSocialModal from '@/components/content/ShareToSocialModal';
 
 export default function ContentStudio() {
   const [showBriefModal, setShowBriefModal] = useState(false);
@@ -27,6 +28,8 @@ export default function ContentStudio() {
   const [selectedIdea, setSelectedIdea] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [isGeneratingIdeas, setIsGeneratingIdeas] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [sharingArticle, setSharingArticle] = useState(null);
   const queryClient = useQueryClient();
   const toast = useToast();
 
@@ -373,6 +376,15 @@ For each idea provide:
                       </div>
                       <div className="flex gap-2">
                         <Button variant="outline" size="sm">View</Button>
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="gap-1"
+                          onClick={() => { setSharingArticle(article); setShowShareModal(true); }}
+                        >
+                          <Share2 className="w-4 h-4" />
+                          Share
+                        </Button>
                         {boostsRemaining > 0 && (
                           <Button size="sm" className="gap-1 bg-orange-500 hover:bg-orange-600">
                             <Zap className="w-4 h-4" />
@@ -404,6 +416,12 @@ For each idea provide:
         onClose={() => setShowArticleModal(false)}
         briefs={briefs}
         brandVoices={brandVoices}
+      />
+
+      <ShareToSocialModal
+        open={showShareModal}
+        onClose={() => { setShowShareModal(false); setSharingArticle(null); }}
+        article={sharingArticle}
       />
     </div>
   );
