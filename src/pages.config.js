@@ -25,6 +25,10 @@ import ContentStrategy from './pages/ContentStrategy';
 import Collaboration from './pages/Collaboration';
 import MediaLibrary from './pages/MediaLibrary';
 import ContactForms from './pages/ContactForms';
+import TrafficAnalytics from './pages/TrafficAnalytics';
+import LocalSEO from './pages/LocalSEO';
+import ContentStudio from './pages/ContentStudio';
+import MediaOutreach from './pages/MediaOutreach';
 import __Layout from './Layout.jsx';
 
 
@@ -56,6 +60,10 @@ export const PAGES = {
     "Collaboration": Collaboration,
     "MediaLibrary": MediaLibrary,
     "ContactForms": ContactForms,
+    "TrafficAnalytics": TrafficAnalytics,
+    "LocalSEO": LocalSEO,
+    "ContentStudio": ContentStudio,
+    "MediaOutreach": MediaOutreach,
 }
 
 export const pagesConfig = {

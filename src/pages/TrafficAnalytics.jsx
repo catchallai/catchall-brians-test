@@ -1,0 +1,372 @@
+import React, { useState } from 'react';
+import { base44 } from '@/api/base44Client';
+import { useQuery } from '@tanstack/react-query';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  TrendingUp, TrendingDown, Users, Eye, Clock, ArrowUpRight,
+  Globe, Monitor, Smartphone, Tablet, MapPin, BarChart3, PieChart,
+  Calendar, RefreshCw, Download
+} from "lucide-react";
+import { LineChart, Line, AreaChart, Area, BarChart, Bar, PieChart as RePieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
+import { format, subDays } from 'date-fns';
+
+const COLORS = ['#8b5cf6', '#06b6d4', '#10b981', '#f59e0b', '#ef4444', '#ec4899'];
+
+export default function TrafficAnalytics() {
+  const [selectedWebsite, setSelectedWebsite] = useState('all');
+  const [dateRange, setDateRange] = useState('30d');
+
+  const { data: websites = [] } = useQuery({
+    queryKey: ['websites'],
+    queryFn: () => base44.entities.Website.list('-created_date', 50),
+  });
+
+  const { data: trafficData = [], isLoading } = useQuery({
+    queryKey: ['traffic-data', selectedWebsite, dateRange],
+    queryFn: async () => {
+      // Generate demo data
+      const days = dateRange === '7d' ? 7 : dateRange === '30d' ? 30 : 90;
+      return Array.from({ length: days }, (_, i) => ({
+        date: format(subDays(new Date(), days - 1 - i), 'MMM dd'),
+        visitors: Math.floor(Math.random() * 5000) + 1000,
+        pageviews: Math.floor(Math.random() * 15000) + 3000,
+        bounce_rate: Math.floor(Math.random() * 30) + 30,
+        avg_duration: Math.floor(Math.random() * 180) + 60,
+      }));
+    },
+  });
+
+  const totalVisitors = trafficData.reduce((sum, d) => sum + d.visitors, 0);
+  const totalPageviews = trafficData.reduce((sum, d) => sum + d.pageviews, 0);
+  const avgBounce = trafficData.length ? Math.round(trafficData.reduce((sum, d) => sum + d.bounce_rate, 0) / trafficData.length) : 0;
+  const avgDuration = trafficData.length ? Math.round(trafficData.reduce((sum, d) => sum + d.avg_duration, 0) / trafficData.length) : 0;
+
+  const trafficSources = [
+    { name: 'Organic Search', value: 45, color: '#8b5cf6' },
+    { name: 'Direct', value: 25, color: '#06b6d4' },
+    { name: 'Social', value: 15, color: '#10b981' },
+    { name: 'Referral', value: 10, color: '#f59e0b' },
+    { name: 'Paid', value: 5, color: '#ef4444' },
+  ];
+
+  const deviceData = [
+    { name: 'Desktop', value: 55, icon: Monitor },
+    { name: 'Mobile', value: 38, icon: Smartphone },
+    { name: 'Tablet', value: 7, icon: Tablet },
+  ];
+
+  const regionData = [
+    { region: 'United States', visitors: 12500, percentage: 35 },
+    { region: 'United Kingdom', visitors: 5200, percentage: 15 },
+    { region: 'Germany', visitors: 3800, percentage: 11 },
+    { region: 'Canada', visitors: 3200, percentage: 9 },
+    { region: 'Australia', visitors: 2800, percentage: 8 },
+    { region: 'France', visitors: 2100, percentage: 6 },
+    { region: 'Other', visitors: 5600, percentage: 16 },
+  ];
+
+  const marketOverview = [
+    { metric: 'Market Share', value: '12.5%', change: 2.3, trend: 'up' },
+    { metric: 'Competitor Avg Traffic', value: '45K', change: -5.1, trend: 'down' },
+    { metric: 'Industry Growth', value: '+8.2%', change: 1.5, trend: 'up' },
+    { metric: 'Your Position', value: '#3', change: 1, trend: 'up' },
+  ];
+
+  if (isLoading) {
+    return (
+      <div className="p-6 lg:p-8 space-y-6 bg-gray-50 dark:bg-gray-900 min-h-screen">
+        <Skeleton className="h-10 w-64" />
+        <div className="grid grid-cols-4 gap-4">
+          {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-28" />)}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="p-6 lg:p-8 space-y-6 bg-gray-50 dark:bg-gray-900 min-h-screen">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Traffic Analytics</h1>
+          <p className="text-gray-500 dark:text-gray-400 mt-1">Monitor your website traffic and audience insights</p>
+        </div>
+        <div className="flex items-center gap-3">
+          <Select value={selectedWebsite} onValueChange={setSelectedWebsite}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="All Websites" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Websites</SelectItem>
+              {websites.map((w) => (
+                <SelectItem key={w.id} value={w.id}>{w.name}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select value={dateRange} onValueChange={setDateRange}>
+            <SelectTrigger className="w-[120px]">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="7d">Last 7 days</SelectItem>
+              <SelectItem value="30d">Last 30 days</SelectItem>
+              <SelectItem value="90d">Last 90 days</SelectItem>
+            </SelectContent>
+          </Select>
+          <Button variant="outline" size="icon">
+            <RefreshCw className="w-4 h-4" />
+          </Button>
+          <Button variant="outline" className="gap-2">
+            <Download className="w-4 h-4" />
+            Export
+          </Button>
+        </div>
+      </div>
+
+      {/* Overview Stats */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <Card className="border-0 shadow-sm bg-white dark:bg-gray-800">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Total Visitors</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white">{totalVisitors.toLocaleString()}</p>
+                <div className="flex items-center gap-1 text-emerald-600 text-sm">
+                  <TrendingUp className="w-3 h-3" />
+                  <span>+12.5%</span>
+                </div>
+              </div>
+              <div className="w-10 h-10 rounded-lg bg-violet-100 dark:bg-violet-900/30 flex items-center justify-center">
+                <Users className="w-5 h-5 text-violet-600" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border-0 shadow-sm bg-white dark:bg-gray-800">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Page Views</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white">{totalPageviews.toLocaleString()}</p>
+                <div className="flex items-center gap-1 text-emerald-600 text-sm">
+                  <TrendingUp className="w-3 h-3" />
+                  <span>+8.3%</span>
+                </div>
+              </div>
+              <div className="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+                <Eye className="w-5 h-5 text-blue-600" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border-0 shadow-sm bg-white dark:bg-gray-800">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Bounce Rate</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white">{avgBounce}%</p>
+                <div className="flex items-center gap-1 text-emerald-600 text-sm">
+                  <TrendingDown className="w-3 h-3" />
+                  <span>-3.2%</span>
+                </div>
+              </div>
+              <div className="w-10 h-10 rounded-lg bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
+                <ArrowUpRight className="w-5 h-5 text-amber-600" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border-0 shadow-sm bg-white dark:bg-gray-800">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Avg. Duration</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white">{Math.floor(avgDuration / 60)}m {avgDuration % 60}s</p>
+                <div className="flex items-center gap-1 text-emerald-600 text-sm">
+                  <TrendingUp className="w-3 h-3" />
+                  <span>+15.7%</span>
+                </div>
+              </div>
+              <div className="w-10 h-10 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center">
+                <Clock className="w-5 h-5 text-emerald-600" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      <Tabs defaultValue="trends">
+        <TabsList>
+          <TabsTrigger value="trends">Daily Trends</TabsTrigger>
+          <TabsTrigger value="sources">Traffic Sources</TabsTrigger>
+          <TabsTrigger value="regions">Regional Trends</TabsTrigger>
+          <TabsTrigger value="market">Market Overview</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="trends" className="mt-4">
+          <Card className="border-0 shadow-sm bg-white dark:bg-gray-800">
+            <CardHeader>
+              <CardTitle>Daily Traffic Trends</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="h-80">
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={trafficData}>
+                    <defs>
+                      <linearGradient id="colorVisitors" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.3}/>
+                        <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0}/>
+                      </linearGradient>
+                      <linearGradient id="colorPageviews" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#06b6d4" stopOpacity={0.3}/>
+                        <stop offset="95%" stopColor="#06b6d4" stopOpacity={0}/>
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                    <XAxis dataKey="date" stroke="#9ca3af" fontSize={12} />
+                    <YAxis stroke="#9ca3af" fontSize={12} />
+                    <Tooltip />
+                    <Legend />
+                    <Area type="monotone" dataKey="visitors" stroke="#8b5cf6" fillOpacity={1} fill="url(#colorVisitors)" />
+                    <Area type="monotone" dataKey="pageviews" stroke="#06b6d4" fillOpacity={1} fill="url(#colorPageviews)" />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="sources" className="mt-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <Card className="border-0 shadow-sm bg-white dark:bg-gray-800">
+              <CardHeader>
+                <CardTitle>Traffic Distribution</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="h-64">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <RePieChart>
+                      <Pie
+                        data={trafficSources}
+                        innerRadius={60}
+                        outerRadius={100}
+                        paddingAngle={2}
+                        dataKey="value"
+                      >
+                        {trafficSources.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={entry.color} />
+                        ))}
+                      </Pie>
+                      <Tooltip />
+                    </RePieChart>
+                  </ResponsiveContainer>
+                </div>
+                <div className="grid grid-cols-2 gap-2 mt-4">
+                  {trafficSources.map((source) => (
+                    <div key={source.name} className="flex items-center gap-2">
+                      <div className="w-3 h-3 rounded-full" style={{ backgroundColor: source.color }} />
+                      <span className="text-sm text-gray-600 dark:text-gray-400">{source.name}</span>
+                      <span className="text-sm font-medium ml-auto">{source.value}%</span>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="border-0 shadow-sm bg-white dark:bg-gray-800">
+              <CardHeader>
+                <CardTitle>Device Breakdown</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {deviceData.map((device) => (
+                    <div key={device.name} className="flex items-center gap-4">
+                      <div className="w-10 h-10 rounded-lg bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
+                        <device.icon className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="font-medium text-gray-900 dark:text-white">{device.name}</span>
+                          <span className="text-sm text-gray-500">{device.value}%</span>
+                        </div>
+                        <div className="h-2 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
+                          <div 
+                            className="h-full bg-violet-500 rounded-full"
+                            style={{ width: `${device.value}%` }}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="regions" className="mt-4">
+          <Card className="border-0 shadow-sm bg-white dark:bg-gray-800">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <MapPin className="w-5 h-5" />
+                Regional Traffic Distribution
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {regionData.map((region, index) => (
+                  <div key={region.region} className="flex items-center gap-4">
+                    <span className="w-6 text-center text-sm font-medium text-gray-500">{index + 1}</span>
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="font-medium text-gray-900 dark:text-white">{region.region}</span>
+                        <div className="flex items-center gap-3">
+                          <span className="text-sm text-gray-500">{region.visitors.toLocaleString()} visitors</span>
+                          <Badge variant="outline">{region.percentage}%</Badge>
+                        </div>
+                      </div>
+                      <div className="h-2 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
+                        <div 
+                          className="h-full rounded-full"
+                          style={{ 
+                            width: `${region.percentage}%`,
+                            backgroundColor: COLORS[index % COLORS.length]
+                          }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="market" className="mt-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {marketOverview.map((item) => (
+              <Card key={item.metric} className="border-0 shadow-sm bg-white dark:bg-gray-800">
+                <CardContent className="p-4 text-center">
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">{item.metric}</p>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-white">{item.value}</p>
+                  <div className={`flex items-center justify-center gap-1 text-sm ${item.trend === 'up' ? 'text-emerald-600' : 'text-red-500'}`}>
+                    {item.trend === 'up' ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
+                    <span>{item.change > 0 ? '+' : ''}{item.change}%</span>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
+}
