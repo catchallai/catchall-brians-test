@@ -79,7 +79,7 @@ export default function TrafficAnalytics() {
 
   if (isLoading) {
     return (
-      <div className="p-6 lg:p-8 space-y-6 bg-gray-50 dark:bg-gray-900 min-h-screen">
+      <div className="p-6 lg:p-8 space-y-6 min-h-screen">
         <Skeleton className="h-10 w-64" />
         <div className="grid grid-cols-4 gap-4">
           {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-28" />)}
@@ -89,7 +89,7 @@ export default function TrafficAnalytics() {
   }
 
   return (
-    <div className="p-6 lg:p-8 space-y-6 bg-gray-50 dark:bg-gray-900 min-h-screen">
+    <div className="p-6 lg:p-8 space-y-6 min-h-screen">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
@@ -130,7 +130,7 @@ export default function TrafficAnalytics() {
 
       {/* Overview Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card className="border-0 shadow-sm bg-white dark:bg-gray-800">
+        <Card className="glass-card rounded-2xl">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
@@ -148,7 +148,7 @@ export default function TrafficAnalytics() {
           </CardContent>
         </Card>
 
-        <Card className="border-0 shadow-sm bg-white dark:bg-gray-800">
+        <Card className="glass-card rounded-2xl">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
@@ -166,7 +166,7 @@ export default function TrafficAnalytics() {
           </CardContent>
         </Card>
 
-        <Card className="border-0 shadow-sm bg-white dark:bg-gray-800">
+        <Card className="glass-card rounded-2xl">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
@@ -184,7 +184,7 @@ export default function TrafficAnalytics() {
           </CardContent>
         </Card>
 
-        <Card className="border-0 shadow-sm bg-white dark:bg-gray-800">
+        <Card className="glass-card rounded-2xl">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
@@ -212,7 +212,7 @@ export default function TrafficAnalytics() {
         </TabsList>
 
         <TabsContent value="trends" className="mt-4">
-          <Card className="border-0 shadow-sm bg-white dark:bg-gray-800">
+          <Card className="glass-card rounded-2xl">
             <CardHeader>
               <CardTitle>Daily Traffic Trends</CardTitle>
             </CardHeader>
@@ -246,7 +246,7 @@ export default function TrafficAnalytics() {
 
         <TabsContent value="sources" className="mt-4">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <Card className="border-0 shadow-sm bg-white dark:bg-gray-800">
+            <Card className="glass-card rounded-2xl">
               <CardHeader>
                 <CardTitle>Traffic Distribution</CardTitle>
               </CardHeader>
@@ -281,7 +281,7 @@ export default function TrafficAnalytics() {
               </CardContent>
             </Card>
 
-            <Card className="border-0 shadow-sm bg-white dark:bg-gray-800">
+            <Card className="glass-card rounded-2xl">
               <CardHeader>
                 <CardTitle>Device Breakdown</CardTitle>
               </CardHeader>
@@ -313,7 +313,7 @@ export default function TrafficAnalytics() {
         </TabsContent>
 
         <TabsContent value="regions" className="mt-4">
-          <Card className="border-0 shadow-sm bg-white dark:bg-gray-800">
+          <Card className="glass-card rounded-2xl">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <MapPin className="w-5 h-5" />

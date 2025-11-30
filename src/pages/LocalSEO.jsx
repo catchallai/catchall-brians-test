@@ -49,7 +49,7 @@ export default function LocalSEO() {
 
   if (isLoading) {
     return (
-      <div className="p-6 lg:p-8 space-y-6 bg-gray-50 dark:bg-gray-900 min-h-screen">
+      <div className="p-6 lg:p-8 space-y-6 min-h-screen">
         <Skeleton className="h-10 w-64" />
         <div className="grid grid-cols-4 gap-4">
           {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-28" />)}
@@ -59,7 +59,7 @@ export default function LocalSEO() {
   }
 
   return (
-    <div className="p-6 lg:p-8 space-y-6 bg-gray-50 dark:bg-gray-900 min-h-screen">
+    <div className="p-6 lg:p-8 space-y-6 min-h-screen">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
@@ -74,7 +74,7 @@ export default function LocalSEO() {
 
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card className="border-0 shadow-sm bg-white dark:bg-gray-800">
+        <Card className="glass-card rounded-2xl">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-lg bg-violet-100 dark:bg-violet-900/30 flex items-center justify-center">
@@ -88,7 +88,7 @@ export default function LocalSEO() {
           </CardContent>
         </Card>
 
-        <Card className="border-0 shadow-sm bg-white dark:bg-gray-800">
+        <Card className="glass-card rounded-2xl">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-lg bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
@@ -102,7 +102,7 @@ export default function LocalSEO() {
           </CardContent>
         </Card>
 
-        <Card className="border-0 shadow-sm bg-white dark:bg-gray-800">
+        <Card className="glass-card rounded-2xl">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
@@ -119,7 +119,7 @@ export default function LocalSEO() {
           </CardContent>
         </Card>
 
-        <Card className="border-0 shadow-sm bg-white dark:bg-gray-800">
+        <Card className="glass-card rounded-2xl">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center">
@@ -147,7 +147,7 @@ export default function LocalSEO() {
 
         <TabsContent value="profiles" className="mt-4">
           {profiles.length === 0 ? (
-            <Card className="border-0 shadow-sm bg-white dark:bg-gray-800">
+            <Card className="glass-card rounded-2xl">
               <CardContent className="py-12 text-center">
                 <Building2 className="w-12 h-12 text-gray-300 mx-auto mb-4" />
                 <h3 className="font-semibold text-gray-900 dark:text-white mb-2">No GBP Profiles</h3>
@@ -180,7 +180,7 @@ export default function LocalSEO() {
         </TabsContent>
 
         <TabsContent value="listings" className="mt-4">
-          <Card className="border-0 shadow-sm bg-white dark:bg-gray-800">
+          <Card className="glass-card rounded-2xl">
             <CardHeader>
               <CardTitle className="flex items-center justify-between">
                 <span>Listing Management</span>

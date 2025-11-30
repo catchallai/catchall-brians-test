@@ -101,7 +101,7 @@ export default function Dashboard() {
 
   if (isLoading) {
     return (
-      <div className="p-6 lg:p-8 space-y-6 bg-gray-50 dark:bg-gray-900 min-h-screen">
+            <div className="p-6 lg:p-8 space-y-6 min-h-screen">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {[...Array(4)].map((_, i) => (
             <Skeleton key={i} className="h-32 rounded-xl" />
@@ -112,7 +112,7 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="p-6 lg:p-8 space-y-8 bg-gray-50 dark:bg-gray-900 min-h-screen">
+    <div className="p-6 lg:p-8 space-y-8 min-h-screen">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
@@ -189,7 +189,7 @@ export default function Dashboard() {
       {/* Charts Row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Deals by Stage */}
-        <Card className="border-0 shadow-sm bg-white dark:bg-gray-800">
+        <Card className="glass-card rounded-2xl">
           <CardHeader>
             <CardTitle className="text-lg font-semibold text-gray-900 dark:text-white">Deals by Stage</CardTitle>
           </CardHeader>
@@ -232,7 +232,7 @@ export default function Dashboard() {
         </Card>
 
         {/* Contacts by Status */}
-        <Card className="border-0 shadow-sm bg-white dark:bg-gray-800">
+        <Card className="glass-card rounded-2xl">
           <CardHeader>
             <CardTitle className="text-lg font-semibold text-gray-900 dark:text-white">Contacts by Status</CardTitle>
           </CardHeader>

@@ -62,7 +62,7 @@ export default function MediaOutreach() {
 
   if (isLoading) {
     return (
-      <div className="p-6 lg:p-8 space-y-6 bg-gray-50 dark:bg-gray-900 min-h-screen">
+      <div className="p-6 lg:p-8 space-y-6 min-h-screen">
         <Skeleton className="h-10 w-64" />
         <div className="grid grid-cols-4 gap-4">
           {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-28" />)}
@@ -72,7 +72,7 @@ export default function MediaOutreach() {
   }
 
   return (
-    <div className="p-6 lg:p-8 space-y-6 bg-gray-50 dark:bg-gray-900 min-h-screen">
+    <div className="p-6 lg:p-8 space-y-6 min-h-screen">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
@@ -93,7 +93,7 @@ export default function MediaOutreach() {
 
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
-        <Card className="border-0 shadow-sm bg-white dark:bg-gray-800">
+        <Card className="glass-card rounded-2xl">
           <CardContent className="p-4 text-center">
             <Users className="w-6 h-6 text-violet-500 mx-auto mb-2" />
             <p className="text-2xl font-bold text-gray-900 dark:text-white">{journalists.length}</p>
@@ -101,7 +101,7 @@ export default function MediaOutreach() {
           </CardContent>
         </Card>
 
-        <Card className="border-0 shadow-sm bg-white dark:bg-gray-800">
+        <Card className="glass-card rounded-2xl">
           <CardContent className="p-4 text-center">
             <Send className="w-6 h-6 text-blue-500 mx-auto mb-2" />
             <p className="text-2xl font-bold text-gray-900 dark:text-white">{totalSent}</p>
@@ -109,7 +109,7 @@ export default function MediaOutreach() {
           </CardContent>
         </Card>
 
-        <Card className="border-0 shadow-sm bg-white dark:bg-gray-800">
+        <Card className="glass-card rounded-2xl">
           <CardContent className="p-4 text-center">
             <Eye className="w-6 h-6 text-amber-500 mx-auto mb-2" />
             <p className="text-2xl font-bold text-amber-600">{openRate}%</p>
@@ -117,7 +117,7 @@ export default function MediaOutreach() {
           </CardContent>
         </Card>
 
-        <Card className="border-0 shadow-sm bg-white dark:bg-gray-800">
+        <Card className="glass-card rounded-2xl">
           <CardContent className="p-4 text-center">
             <Mail className="w-6 h-6 text-emerald-500 mx-auto mb-2" />
             <p className="text-2xl font-bold text-emerald-600">{replyRate}%</p>
@@ -125,7 +125,7 @@ export default function MediaOutreach() {
           </CardContent>
         </Card>
 
-        <Card className="border-0 shadow-sm bg-white dark:bg-gray-800">
+        <Card className="glass-card rounded-2xl">
           <CardContent className="p-4 text-center">
             <CheckCircle className="w-6 h-6 text-green-500 mx-auto mb-2" />
             <p className="text-2xl font-bold text-green-600">{published}</p>
@@ -133,7 +133,7 @@ export default function MediaOutreach() {
           </CardContent>
         </Card>
 
-        <Card className="border-0 shadow-sm bg-white dark:bg-gray-800">
+        <Card className="glass-card rounded-2xl">
           <CardContent className="p-4 text-center">
             <Link2 className="w-6 h-6 text-pink-500 mx-auto mb-2" />
             <p className="text-2xl font-bold text-pink-600">{linkedMentions}</p>
@@ -175,7 +175,7 @@ export default function MediaOutreach() {
           </div>
 
           {filteredJournalists.length === 0 ? (
-            <Card className="border-0 shadow-sm bg-white dark:bg-gray-800">
+            <Card className="glass-card rounded-2xl">
               <CardContent className="py-12 text-center">
                 <Users className="w-12 h-12 text-gray-300 mx-auto mb-4" />
                 <h3 className="font-semibold text-gray-900 dark:text-white mb-2">No Journalists in Database</h3>
@@ -202,7 +202,7 @@ export default function MediaOutreach() {
         <TabsContent value="campaigns" className="mt-4">
           <div className="space-y-3">
             {outreach.length === 0 ? (
-              <Card className="border-0 shadow-sm bg-white dark:bg-gray-800">
+              <Card className="glass-card rounded-2xl">
                 <CardContent className="py-12 text-center">
                   <Mail className="w-12 h-12 text-gray-300 mx-auto mb-4" />
                   <h3 className="font-semibold text-gray-900 dark:text-white mb-2">No Outreach Campaigns</h3>
@@ -235,7 +235,7 @@ export default function MediaOutreach() {
         </TabsContent>
 
         <TabsContent value="followups" className="mt-4">
-          <Card className="border-0 shadow-sm bg-white dark:bg-gray-800">
+          <Card className="glass-card rounded-2xl">
             <CardHeader>
               <CardTitle>Scheduled Follow-ups</CardTitle>
             </CardHeader>
