@@ -104,7 +104,7 @@ export default function Deals() {
 
   if (loadingDeals) {
     return (
-      <div className="p-6 lg:p-8 space-y-6 bg-gray-50 min-h-screen">
+      <div className="p-6 lg:p-8 space-y-6 min-h-screen">
         <div className="flex justify-between items-center">
           <Skeleton className="h-10 w-32" />
           <Skeleton className="h-10 w-32" />
@@ -119,11 +119,11 @@ export default function Deals() {
   }
 
   return (
-    <div className="p-6 lg:p-8 space-y-6 bg-gray-50 min-h-screen">
+    <div className="p-6 lg:p-8 space-y-6 min-h-screen">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Deals Pipeline</h1>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Deals Pipeline</h1>
           <p className="text-gray-500 mt-1">Drag and drop deals to update their stage</p>
         </div>
         <Button onClick={() => { setEditingDeal(null); setShowModal(true); }} className="gap-2 bg-violet-600 hover:bg-violet-700">

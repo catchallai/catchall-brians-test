@@ -385,7 +385,7 @@ ${(data.recommendations || []).map((r, i) => `${i + 1}. ${r}`).join('\n')}
 
   if (loadingWebsites) {
     return (
-      <div className="p-6 lg:p-8 space-y-6 bg-gray-50 min-h-screen">
+      <div className="p-6 lg:p-8 space-y-6 min-h-screen">
         <Skeleton className="h-10 w-64" />
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-24 rounded-xl" />)}
@@ -395,11 +395,11 @@ ${(data.recommendations || []).map((r, i) => `${i + 1}. ${r}`).join('\n')}
   }
 
   return (
-    <div className="p-6 lg:p-8 space-y-6 bg-gray-50 min-h-screen">
+    <div className="p-6 lg:p-8 space-y-6 min-h-screen">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">SEO Dashboard</h1>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">SEO Dashboard</h1>
           <p className="text-gray-500 mt-1">Monitor and improve your search engine rankings</p>
         </div>
         <Button onClick={() => setShowModal(true)} className="gap-2 bg-emerald-600 hover:bg-emerald-700">
@@ -426,7 +426,7 @@ ${(data.recommendations || []).map((r, i) => `${i + 1}. ${r}`).join('\n')}
 
           {/* Tabs for organized content */}
           <Tabs defaultValue="websites" className="space-y-6">
-            <TabsList className="bg-white border">
+            <TabsList className="glass-card">
               <TabsTrigger value="websites">Websites</TabsTrigger>
               <TabsTrigger value="reports">Reports</TabsTrigger>
               <TabsTrigger value="analytics">Analytics</TabsTrigger>
@@ -503,7 +503,7 @@ ${(data.recommendations || []).map((r, i) => `${i + 1}. ${r}`).join('\n')}
               </div>
 
               {seoReports.length === 0 ? (
-                <Card className="border-0 shadow-sm">
+                <Card className="glass-card rounded-2xl">
                   <CardContent className="py-12 text-center">
                     <FileText className="w-12 h-12 mx-auto mb-3 text-gray-300" />
                     <h3 className="font-medium text-gray-900">No reports yet</h3>
