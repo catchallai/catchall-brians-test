@@ -13,12 +13,13 @@ import { Skeleton } from "@/components/ui/skeleton";
 import {
   Lightbulb, FileText, Wand2, Sparkles, Target, TrendingUp,
   Plus, Search, Filter, Zap, BookOpen, PenTool, CheckCircle,
-  Clock, ArrowRight, Star, Loader2
+  Clock, ArrowRight, Star, Loader2, Users
 } from "lucide-react";
 import ContentIdeaCard from '@/components/content/ContentIdeaCard';
 import ContentBriefModal from '@/components/content/ContentBriefModal';
 import ArticleGeneratorModal from '@/components/content/ArticleGeneratorModal';
 import BrandVoiceSettings from '@/components/content/BrandVoiceSettings';
+import CRMContentGenerator from '@/components/content/CRMContentGenerator';
 
 export default function ContentStudio() {
   const [showBriefModal, setShowBriefModal] = useState(false);
@@ -52,6 +53,22 @@ export default function ContentStudio() {
   const { data: websites = [] } = useQuery({
     queryKey: ['websites'],
     queryFn: () => base44.entities.Website.list('-created_date', 50),
+  });
+
+  // CRM data for content generation
+  const { data: contacts = [] } = useQuery({
+    queryKey: ['contacts'],
+    queryFn: () => base44.entities.Contact.list('-created_date', 200),
+  });
+
+  const { data: companies = [] } = useQuery({
+    queryKey: ['companies'],
+    queryFn: () => base44.entities.Company.list('-created_date', 100),
+  });
+
+  const { data: deals = [] } = useQuery({
+    queryKey: ['deals'],
+    queryFn: () => base44.entities.Deal.list('-created_date', 200),
   });
 
   const generateIdeasMutation = useMutation({
@@ -206,6 +223,10 @@ For each idea provide:
       <Tabs defaultValue="ideas">
         <TabsList>
           <TabsTrigger value="ideas">Content Ideas</TabsTrigger>
+          <TabsTrigger value="crm" className="gap-1">
+            <Users className="w-4 h-4" />
+            CRM Content
+          </TabsTrigger>
           <TabsTrigger value="briefs">SEO Briefs</TabsTrigger>
           <TabsTrigger value="articles">Generated Articles</TabsTrigger>
           <TabsTrigger value="voice">Brand Voice</TabsTrigger>
@@ -274,6 +295,14 @@ For each idea provide:
               </CardContent>
             </Card>
           )}
+        </TabsContent>
+
+        <TabsContent value="crm" className="mt-4">
+          <CRMContentGenerator 
+            contacts={contacts}
+            companies={companies}
+            deals={deals}
+          />
         </TabsContent>
 
         <TabsContent value="briefs" className="mt-4">
