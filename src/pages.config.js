@@ -29,6 +29,7 @@ import TrafficAnalytics from './pages/TrafficAnalytics';
 import LocalSEO from './pages/LocalSEO';
 import ContentStudio from './pages/ContentStudio';
 import MediaOutreach from './pages/MediaOutreach';
+import Settings from './pages/Settings';
 import __Layout from './Layout.jsx';
 
 
@@ -64,6 +65,7 @@ export const PAGES = {
     "LocalSEO": LocalSEO,
     "ContentStudio": ContentStudio,
     "MediaOutreach": MediaOutreach,
+    "Settings": Settings,
 }
 
 export const pagesConfig = {
