@@ -184,7 +184,7 @@ export default function Reports() {
 
   if (isLoading) {
     return (
-      <div className="p-6 lg:p-8 space-y-6 bg-gray-50 dark:bg-gray-900 min-h-screen">
+      <div className="p-6 lg:p-8 space-y-6 min-h-screen">
         <Skeleton className="h-10 w-64" />
         <div className="flex gap-4 overflow-x-auto pb-2">
           {[...Array(6)].map((_, i) => <Skeleton key={i} className="min-w-[180px] h-32" />)}
@@ -194,7 +194,7 @@ export default function Reports() {
     }
 
     return (
-    <div className="p-6 lg:p-8 space-y-6 bg-gray-50 dark:bg-gray-900 min-h-screen">
+    <div className="p-6 lg:p-8 space-y-6 min-h-screen">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>

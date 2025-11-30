@@ -90,11 +90,11 @@ export default function Companies() {
   };
 
   return (
-    <div className="p-6 lg:p-8 space-y-6 bg-gray-50 min-h-screen">
+    <div className="p-6 lg:p-8 space-y-6 min-h-screen">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Companies</h1>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Companies</h1>
           <p className="text-gray-500 mt-1">{companies.length} companies total</p>
         </div>
         <Button onClick={() => { setEditingCompany(null); setShowModal(true); }} className="gap-2 bg-violet-600 hover:bg-violet-700">
@@ -147,7 +147,7 @@ export default function Companies() {
           {filteredCompanies.map((company) => (
             <Card
               key={company.id}
-              className="p-5 border-0 shadow-sm hover:shadow-lg transition-all cursor-pointer group"
+              className="p-5 glass-card rounded-2xl hover:shadow-lg transition-all cursor-pointer group"
               onClick={() => handleEdit(company)}
             >
               <div className="flex items-start gap-4">

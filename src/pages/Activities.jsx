@@ -82,11 +82,11 @@ export default function Activities() {
   const completedCount = activities.filter(a => a.completed).length;
 
   return (
-    <div className="p-6 lg:p-8 space-y-6 bg-gray-50 min-h-screen">
+    <div className="p-6 lg:p-8 space-y-6 min-h-screen">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Activities</h1>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Activities</h1>
           <p className="text-gray-500 mt-1">{pendingCount} pending • {completedCount} completed</p>
         </div>
         <Button onClick={() => { setEditingActivity(null); setShowModal(true); }} className="gap-2 bg-violet-600 hover:bg-violet-700">

@@ -142,37 +142,37 @@ export default function EmailMarketing() {
   const isLoading = loadingTemplates || loadingCampaigns;
 
   return (
-    <div className="p-6 lg:p-8 space-y-6 bg-gray-50 min-h-screen">
+    <div className="p-6 lg:p-8 space-y-6 min-h-screen">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">Email Marketing</h1>
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Email Marketing</h1>
         <p className="text-gray-500 mt-1">Create templates and send email campaigns</p>
       </div>
 
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card className="border-0 shadow-sm">
+        <Card className="glass-card rounded-2xl">
           <CardContent className="p-4 text-center">
             <Send className="w-6 h-6 text-violet-500 mx-auto mb-2" />
             <p className="text-2xl font-bold text-gray-900">{totalSent}</p>
             <p className="text-sm text-gray-500">Emails Sent</p>
           </CardContent>
         </Card>
-        <Card className="border-0 shadow-sm">
+        <Card className="glass-card rounded-2xl">
           <CardContent className="p-4 text-center">
             <Eye className="w-6 h-6 text-emerald-500 mx-auto mb-2" />
             <p className="text-2xl font-bold text-emerald-600">{overallOpenRate.toFixed(1)}%</p>
             <p className="text-sm text-gray-500">Open Rate</p>
           </CardContent>
         </Card>
-        <Card className="border-0 shadow-sm">
+        <Card className="glass-card rounded-2xl">
           <CardContent className="p-4 text-center">
             <MousePointer className="w-6 h-6 text-blue-500 mx-auto mb-2" />
             <p className="text-2xl font-bold text-blue-600">{overallClickRate.toFixed(1)}%</p>
             <p className="text-sm text-gray-500">Click Rate</p>
           </CardContent>
         </Card>
-        <Card className="border-0 shadow-sm">
+        <Card className="glass-card rounded-2xl">
           <CardContent className="p-4 text-center">
             <FileText className="w-6 h-6 text-amber-500 mx-auto mb-2" />
             <p className="text-2xl font-bold text-gray-900">{templates.length}</p>

@@ -854,11 +854,11 @@ Return adapted content for: ${platforms.join(', ')}`,
   };
 
   return (
-    <div className="p-6 lg:p-8 space-y-6 bg-gray-50 min-h-screen">
+    <div className="p-6 lg:p-8 space-y-6 min-h-screen">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Social Media Analysis</h1>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Social Media Analysis</h1>
           <p className="text-gray-500 mt-1">Monitor and analyze your social media presence</p>
         </div>
         <div className="flex gap-2">
@@ -888,7 +888,7 @@ Return adapted content for: ${platforms.join(', ')}`,
 
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card className="border-0 shadow-sm">
+        <Card className="glass-card rounded-2xl">
           <CardContent className="p-4 text-center">
             <Users className="w-6 h-6 text-violet-500 mx-auto mb-2" />
             <p className="text-2xl font-bold text-gray-900">
@@ -897,21 +897,21 @@ Return adapted content for: ${platforms.join(', ')}`,
             <p className="text-sm text-gray-500">Total Followers</p>
           </CardContent>
         </Card>
-        <Card className="border-0 shadow-sm">
+        <Card className="glass-card rounded-2xl">
           <CardContent className="p-4 text-center">
             <TrendingUp className="w-6 h-6 text-emerald-500 mx-auto mb-2" />
             <p className="text-2xl font-bold text-emerald-600">{avgEngagement}%</p>
             <p className="text-sm text-gray-500">Avg Engagement</p>
           </CardContent>
         </Card>
-        <Card className="border-0 shadow-sm">
+        <Card className="glass-card rounded-2xl">
           <CardContent className="p-4 text-center">
             <MessageSquare className="w-6 h-6 text-blue-500 mx-auto mb-2" />
             <p className="text-2xl font-bold text-gray-900">{totalPosts}</p>
             <p className="text-sm text-gray-500">Posts Analyzed</p>
           </CardContent>
         </Card>
-        <Card className="border-0 shadow-sm">
+        <Card className="glass-card rounded-2xl">
           <CardContent className="p-4 text-center">
             <BarChart3 className="w-6 h-6 text-amber-500 mx-auto mb-2" />
             <p className="text-2xl font-bold text-gray-900">{socialAccounts.length}</p>
@@ -937,7 +937,7 @@ Return adapted content for: ${platforms.join(', ')}`,
         <TabsContent value="accounts" className="space-y-4">
           {/* Sentiment Overview */}
           {totalPosts > 0 && (
-            <Card className="border-0 shadow-sm">
+            <Card className="glass-card rounded-2xl">
               <CardHeader>
                 <CardTitle className="text-lg">Content Sentiment</CardTitle>
               </CardHeader>
@@ -1225,7 +1225,7 @@ Return adapted content for: ${platforms.join(', ')}`,
                     
                     {/* Recent Reports */}
                     {competitorReports.filter(r => r.competitor_id === selectedCompetitor.id).length > 0 && (
-                      <Card className="border-0 shadow-sm">
+                      <Card className="glass-card rounded-2xl">
                         <CardHeader className="pb-2">
                           <CardTitle className="text-sm flex items-center gap-2">
                             <FileText className="w-4 h-4 text-violet-500" />
