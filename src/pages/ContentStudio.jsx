@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useToast } from '@/components/ui/toast-provider';
+import { checkRateLimit } from '@/components/utils/validation';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -25,6 +27,7 @@ export default function ContentStudio() {
   const [searchQuery, setSearchQuery] = useState('');
   const [isGeneratingIdeas, setIsGeneratingIdeas] = useState(false);
   const queryClient = useQueryClient();
+  const toast = useToast();
 
   const { data: ideas = [], isLoading } = useQuery({
     queryKey: ['content-ideas'],
@@ -53,6 +56,11 @@ export default function ContentStudio() {
 
   const generateIdeasMutation = useMutation({
     mutationFn: async () => {
+      const rateCheck = checkRateLimit('generate-ideas', 5, 60000);
+      if (!rateCheck.allowed) {
+        throw new Error(`Rate limit exceeded. Please wait ${rateCheck.remainingTime} seconds.`);
+      }
+      
       setIsGeneratingIdeas(true);
       const result = await base44.integrations.Core.InvokeLLM({
         prompt: `Generate 5 low-hanging fruit content ideas for SEO. These should be topics with:
@@ -99,8 +107,12 @@ For each idea provide:
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['content-ideas'] });
       setIsGeneratingIdeas(false);
+      toast.success('Content ideas generated successfully');
     },
-    onError: () => setIsGeneratingIdeas(false),
+    onError: (error) => {
+      setIsGeneratingIdeas(false);
+      toast.error(error.message || 'Failed to generate ideas');
+    },
   });
 
   const boostsUsed = articles.reduce((sum, a) => sum + (a.boosts_used || 0), 0);

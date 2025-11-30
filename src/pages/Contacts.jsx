@@ -17,6 +17,7 @@ import ConfirmDialog from '@/components/ui/ConfirmDialog';
 import { useDebounce } from '@/components/hooks/useDebounce';
 import { exportToCSV } from '@/components/utils/exportData';
 import { useToast } from '@/components/ui/toast-provider';
+import { logActivity, ActivityActions } from '@/components/utils/activityLogger';
 
 const ITEMS_PER_PAGE = 25;
 
@@ -45,7 +46,11 @@ export default function Contacts() {
   });
 
   const createMutation = useMutation({
-    mutationFn: (data) => base44.entities.Contact.create(data),
+    mutationFn: async (data) => {
+      const contact = await base44.entities.Contact.create(data);
+      await logActivity(ActivityActions.CREATE, 'Contact', contact.id, `${data.first_name} ${data.last_name}`);
+      return contact;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['contacts'] });
       setShowModal(false);
@@ -69,6 +74,7 @@ export default function Contacts() {
     mutationFn: async (ids) => {
       for (const id of ids) {
         await base44.entities.Contact.delete(id);
+        await logActivity(ActivityActions.DELETE, 'Contact', id);
       }
     },
     onSuccess: () => {
@@ -93,6 +99,7 @@ export default function Contacts() {
           source: row.source || 'import',
         });
       }
+      await logActivity(ActivityActions.IMPORT, 'Contact', null, null, { count: data.length });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['contacts'] });
@@ -114,7 +121,7 @@ export default function Contacts() {
     setShowModal(true);
   };
 
-  const handleExport = () => {
+  const handleExport = async () => {
     const dataToExport = selectedIds.length > 0 
       ? contacts.filter(c => selectedIds.includes(c.id))
       : filteredContacts;
@@ -128,6 +135,7 @@ export default function Contacts() {
       { key: 'job_title', label: 'Job Title' },
       { key: 'source', label: 'Source' },
     ]);
+    await logActivity(ActivityActions.EXPORT, 'Contact', null, null, { count: dataToExport.length });
     toast.success('Contacts exported');
   };
 
