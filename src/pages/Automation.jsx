@@ -220,37 +220,37 @@ export default function Automation() {
   const isLoading = loadingRules || loadingScoreRules;
 
   return (
-    <div className="p-6 lg:p-8 space-y-6 bg-gray-50 min-h-screen">
+    <div className="p-6 lg:p-8 space-y-6 min-h-screen">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">Automation</h1>
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Automation</h1>
         <p className="text-gray-500 mt-1">Workflows, lead scoring & data enrichment</p>
       </div>
 
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card className="border-0 shadow-sm">
+        <Card className="glass-card rounded-2xl">
           <CardContent className="p-4 text-center">
             <Zap className="w-6 h-6 text-violet-500 mx-auto mb-2" />
             <p className="text-2xl font-bold text-gray-900">{activeRules}</p>
             <p className="text-sm text-gray-500">Active Rules</p>
           </CardContent>
         </Card>
-        <Card className="border-0 shadow-sm">
+        <Card className="glass-card rounded-2xl">
           <CardContent className="p-4 text-center">
             <CheckCircle className="w-6 h-6 text-emerald-500 mx-auto mb-2" />
             <p className="text-2xl font-bold text-emerald-600">{totalRuns}</p>
             <p className="text-sm text-gray-500">Total Runs</p>
           </CardContent>
         </Card>
-        <Card className="border-0 shadow-sm">
+        <Card className="glass-card rounded-2xl">
           <CardContent className="p-4 text-center">
             <Target className="w-6 h-6 text-blue-500 mx-auto mb-2" />
             <p className="text-2xl font-bold text-blue-600">{avgLeadScore}</p>
             <p className="text-sm text-gray-500">Avg Lead Score</p>
           </CardContent>
         </Card>
-        <Card className="border-0 shadow-sm">
+        <Card className="glass-card rounded-2xl">
           <CardContent className="p-4 text-center">
             <Sparkles className="w-6 h-6 text-amber-500 mx-auto mb-2" />
             <p className="text-2xl font-bold text-amber-600">{enrichedContacts}</p>

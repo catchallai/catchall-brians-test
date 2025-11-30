@@ -155,7 +155,7 @@ export default function MediaLibrary() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Media Library</h1>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Media Library</h1>
           <p className="text-gray-500 mt-1">Store and organize logos, icons, and brand assets</p>
         </div>
         <Button onClick={() => setShowUploadModal(true)} className="gap-2 bg-violet-600 hover:bg-violet-700">
@@ -244,7 +244,7 @@ export default function MediaLibrary() {
           {filteredAssets.map(asset => (
             <Card 
               key={asset.id} 
-              className="border-0 shadow-sm overflow-hidden cursor-pointer hover:shadow-lg transition-all group"
+              className="glass-card rounded-2xl overflow-hidden cursor-pointer hover:shadow-lg transition-all group"
               onClick={() => setSelectedAsset(asset)}
             >
               <div className="aspect-square bg-gray-100 relative">

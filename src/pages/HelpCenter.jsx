@@ -317,7 +317,7 @@ export default function HelpCenter() {
 
   if (selectedArticle) {
     return (
-      <div className="p-6 lg:p-8 bg-gray-50 min-h-screen">
+      <div className="p-6 lg:p-8 min-h-screen">
         <div className="max-w-3xl mx-auto">
           <Button
             variant="ghost"
@@ -328,7 +328,7 @@ export default function HelpCenter() {
             Back to Help Center
           </Button>
           
-          <Card className="border-0 shadow-sm">
+          <Card className="glass-card rounded-2xl">
             <CardContent className="p-8">
               <div className="flex items-center gap-2 mb-4">
                 <Badge className={CATEGORIES.find(c => c.id === selectedArticle.category)?.color || 'bg-gray-100'}>
@@ -347,10 +347,10 @@ export default function HelpCenter() {
   }
 
   return (
-    <div className="p-6 lg:p-8 space-y-6 bg-gray-50 min-h-screen">
+    <div className="p-6 lg:p-8 space-y-6 min-h-screen">
       {/* Header */}
       <div className="text-center max-w-2xl mx-auto">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Help Center</h1>
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Help Center</h1>
         <p className="text-gray-500 mb-6">Find answers, tutorials, and guides to help you get the most out of CRM + SEO Suite</p>
         
         {/* Search */}

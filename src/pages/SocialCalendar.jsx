@@ -145,7 +145,7 @@ export default function SocialCalendar() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Social Calendar</h1>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Social Calendar</h1>
           <p className="text-gray-500 mt-1">Plan and preview upcoming social media posts</p>
         </div>
         <div className="flex gap-2">
@@ -163,7 +163,7 @@ export default function SocialCalendar() {
       {/* Printable Calendar View */}
       <div ref={printRef} className="print:p-8">
         {/* Calendar Header */}
-        <Card className="border-0 shadow-sm mb-6 print:shadow-none print:border">
+        <Card className="glass-card rounded-2xl mb-6 print:shadow-none print:border">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
@@ -191,7 +191,7 @@ export default function SocialCalendar() {
 
         {/* Posts Grid */}
         {filteredPosts.length === 0 ? (
-          <Card className="border-0 shadow-sm">
+          <Card className="glass-card rounded-2xl">
             <CardContent className="py-16 text-center">
               <Calendar className="w-12 h-12 mx-auto mb-4 text-gray-300" />
               <h3 className="text-lg font-semibold text-gray-900 mb-2">No posts scheduled</h3>

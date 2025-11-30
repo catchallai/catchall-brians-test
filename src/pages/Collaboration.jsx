@@ -71,7 +71,7 @@ export default function Collaboration() {
 
   if (isLoading) {
     return (
-      <div className="p-6 lg:p-8 space-y-6 bg-gray-50 min-h-screen">
+      <div className="p-6 lg:p-8 space-y-6 min-h-screen">
         <Skeleton className="h-12 w-64" />
         <div className="grid grid-cols-4 gap-4">
           {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-24" />)}
@@ -81,11 +81,11 @@ export default function Collaboration() {
   }
 
   return (
-    <div className="p-6 lg:p-8 space-y-6 bg-gray-50 min-h-screen">
+    <div className="p-6 lg:p-8 space-y-6 min-h-screen">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
             <Users className="w-8 h-8 text-violet-500" />
             Team Collaboration
           </h1>
@@ -99,7 +99,7 @@ export default function Collaboration() {
 
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card className="border-0 shadow-sm">
+        <Card className="glass-card rounded-2xl">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
               <div className="p-2 rounded-lg bg-violet-50 text-violet-600">
@@ -112,7 +112,7 @@ export default function Collaboration() {
             </div>
           </CardContent>
         </Card>
-        <Card className="border-0 shadow-sm">
+        <Card className="glass-card rounded-2xl">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
               <div className="p-2 rounded-lg bg-blue-50 text-blue-600">
@@ -125,7 +125,7 @@ export default function Collaboration() {
             </div>
           </CardContent>
         </Card>
-        <Card className="border-0 shadow-sm">
+        <Card className="glass-card rounded-2xl">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
               <div className="p-2 rounded-lg bg-amber-50 text-amber-600">
@@ -138,7 +138,7 @@ export default function Collaboration() {
             </div>
           </CardContent>
         </Card>
-        <Card className="border-0 shadow-sm">
+        <Card className="glass-card rounded-2xl">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
               <div className="p-2 rounded-lg bg-purple-50 text-purple-600">
@@ -156,7 +156,7 @@ export default function Collaboration() {
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Project List */}
         <div className="lg:col-span-1">
-          <Card className="border-0 shadow-sm">
+          <Card className="glass-card rounded-2xl">
             <CardHeader className="pb-2">
               <CardTitle className="text-sm">Projects</CardTitle>
             </CardHeader>
@@ -235,7 +235,7 @@ export default function Collaboration() {
               </TabsContent>
             </Tabs>
           ) : (
-            <Card className="border-0 shadow-sm">
+            <Card className="glass-card rounded-2xl">
               <CardContent className="py-16 text-center">
                 <FolderKanban className="w-16 h-16 text-gray-300 mx-auto mb-4" />
                 <h3 className="text-lg font-medium text-gray-900">Select a project</h3>
