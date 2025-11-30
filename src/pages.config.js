@@ -31,6 +31,7 @@ import ContentStudio from './pages/ContentStudio';
 import MediaOutreach from './pages/MediaOutreach';
 import Settings from './pages/Settings';
 import ActivityLogs from './pages/ActivityLogs';
+import MarketingHub from './pages/MarketingHub';
 import __Layout from './Layout.jsx';
 
 
@@ -68,6 +69,7 @@ export const PAGES = {
     "MediaOutreach": MediaOutreach,
     "Settings": Settings,
     "ActivityLogs": ActivityLogs,
+    "MarketingHub": MarketingHub,
 }
 
 export const pagesConfig = {

@@ -38,6 +38,7 @@ import {
   PenTool,
   Keyboard,
   Activity,
+  TrendingUp,
 } from "lucide-react";
 import ErrorBoundary from '@/components/ui/ErrorBoundary';
 import KeyboardShortcutsDialog, { useKeyboardShortcuts } from '@/components/ui/KeyboardShortcuts';
@@ -67,7 +68,8 @@ const navigation = [
   { name: 'Campaigns', icon: Megaphone, page: 'Campaigns' },
   { name: 'Email Marketing', icon: Mail, page: 'EmailMarketing' },
   { name: 'Reports', icon: FileBarChart, page: 'Reports' },
-  { name: 'divider', label: 'SEO' },
+      { name: 'Marketing Hub', icon: TrendingUp, page: 'MarketingHub' },
+      { name: 'divider', label: 'SEO' },
   { name: 'SEO Dashboard', icon: Search, page: 'SEODashboard' },
   { name: 'SEO Tools', icon: Globe, page: 'SEOTools' },
   { name: 'Keywords', icon: Target, page: 'Keywords' },
