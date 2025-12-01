@@ -108,20 +108,38 @@ export default function PostDetailModal({ open, onClose, post, accountName }) {
             </div>
           </div>
 
-          {/* Post URL if available */}
-          {post.post_url && (
-            <a 
-              href={post.post_url} 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="flex items-center gap-2 text-sm text-violet-600 hover:text-violet-700 hover:underline"
-            >
-              <ExternalLink className="w-4 h-4" />
-              View original post
-            </a>
-          )}
+          {/* View on Platform Button */}
+          <a 
+            href={post.post_url || getPlatformSearchUrl(post.platform, post.content, accountName)} 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="flex items-center justify-center gap-2 w-full py-2.5 px-4 rounded-lg bg-violet-600 hover:bg-violet-700 text-white font-medium transition-colors"
+          >
+            <ExternalLink className="w-4 h-4" />
+            View on {platform.name}
+          </a>
         </div>
       </DialogContent>
     </Dialog>
   );
+}
+
+function getPlatformSearchUrl(platform, content, accountName) {
+  const query = encodeURIComponent(content?.slice(0, 50) || accountName || '');
+  const handle = accountName || '';
+  
+  switch (platform) {
+    case 'twitter':
+      return handle ? `https://x.com/${handle}` : `https://x.com/search?q=${query}`;
+    case 'linkedin':
+      return handle ? `https://linkedin.com/in/${handle}` : `https://linkedin.com/search/results/content/?keywords=${query}`;
+    case 'facebook':
+      return `https://facebook.com/search/posts/?q=${query}`;
+    case 'instagram':
+      return handle ? `https://instagram.com/${handle}` : `https://instagram.com/explore/tags/${query.replace(/\s+/g, '')}`;
+    case 'youtube':
+      return handle ? `https://youtube.com/@${handle}` : `https://youtube.com/results?search_query=${query}`;
+    default:
+      return `https://google.com/search?q=${query}`;
+  }
 }

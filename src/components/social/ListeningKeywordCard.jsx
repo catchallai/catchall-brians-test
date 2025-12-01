@@ -26,7 +26,8 @@ export default function ListeningKeywordCard({
   onScan, 
   onDelete,
   onEdit,
-  isScanning 
+  isScanning,
+  isSelected
 }) {
   const config = typeConfig[keyword.type] || typeConfig.keyword;
   const Icon = config.icon;
@@ -37,7 +38,7 @@ export default function ListeningKeywordCard({
 
   return (
     <Card 
-      className="p-4 border-0 shadow-sm hover:shadow-md transition-all cursor-pointer"
+      className={`p-4 border-0 shadow-sm hover:shadow-md transition-all cursor-pointer ${isSelected ? 'ring-2 ring-violet-500 bg-violet-50/50' : ''}`}
       onClick={onClick}
     >
       <div className="flex items-start justify-between mb-3">
