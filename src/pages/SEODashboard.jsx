@@ -4,7 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, Globe, FileText } from "lucide-react";
+import { Plus, Globe } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import WebsiteModal from '@/components/modals/WebsiteModal';
 import EmptyState from '@/components/ui/EmptyState';
@@ -12,25 +12,16 @@ import SEOOverviewStats from '@/components/seo/SEOOverviewStats';
 import WebsiteCard from '@/components/seo/WebsiteCard';
 import SentimentOverview from '@/components/seo/SentimentOverview';
 import QuickActionsGrid from '@/components/seo/QuickActionsGrid';
-import GoogleTrackingCard from '@/components/seo/GoogleTrackingCard';
 import ShareOfVoiceCard from '@/components/seo/ShareOfVoiceCard';
-import KeywordCannibalizationCard from '@/components/seo/KeywordCannibalizationCard';
 import HistoricalDataCard from '@/components/seo/HistoricalDataCard';
-import MultiLocationCard from '@/components/seo/MultiLocationCard';
 import PredictiveAnalyticsCard from '@/components/seo/PredictiveAnalyticsCard';
 import TechnicalAuditCard from '@/components/seo/TechnicalAuditCard';
-import SEOReportCard from '@/components/seo/SEOReportCard';
-import CreateReportModal from '@/components/seo/CreateReportModal';
-import ReportViewer from '@/components/seo/ReportViewer';
 import { useToast } from '@/components/ui/toast-provider';
 
 export default function SEODashboard() {
   const [showModal, setShowModal] = useState(false);
   const [selectedWebsite, setSelectedWebsite] = useState(null);
   const [analyzingWebsite, setAnalyzingWebsite] = useState(null);
-  const [showReportModal, setShowReportModal] = useState(false);
-  const [runningReportId, setRunningReportId] = useState(null);
-  const [viewingReport, setViewingReport] = useState(null);
   const queryClient = useQueryClient();
   const toast = useToast();
 
@@ -59,176 +50,9 @@ export default function SEODashboard() {
     queryFn: () => base44.entities.KeywordHistory.list('-date', 1000),
   });
 
-  const { data: seoReports = [] } = useQuery({
-    queryKey: ['seo-reports'],
-    queryFn: () => base44.entities.SEOReport.list('-created_date', 50),
-  });
-
   const saveSovMutation = useMutation({
     mutationFn: (data) => base44.entities.ShareOfVoice.create(data),
   });
-
-  const saveTrackingMutation = useMutation({
-    mutationFn: ({ id, data }) => base44.entities.Website.update(id, data),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['websites'] }),
-  });
-
-  const createReportMutation = useMutation({
-    mutationFn: (data) => base44.entities.SEOReport.create(data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['seo-reports'] });
-      setShowReportModal(false);
-      toast.success('Report created successfully');
-    },
-    onError: () => toast.error('Failed to create report')
-  });
-
-  const runReportMutation = useMutation({
-    mutationFn: async (report) => {
-      setRunningReportId(report.id);
-      const website = websites.find(w => w.id === report.website_id);
-      const siteKeywords = keywords.filter(k => k.website_id === report.website_id);
-      const siteBacklinks = backlinks.filter(b => b.website_id === report.website_id);
-
-      const analysis = await base44.integrations.Core.InvokeLLM({
-        prompt: `Generate an SEO performance report for: ${website?.url}
-        
-        Current metrics:
-        - SEO Score: ${website?.seo_score || 'N/A'}
-        - Domain Authority: ${website?.domain_authority || 'N/A'}
-        - Organic Traffic: ${website?.organic_traffic || 'N/A'}
-        - Total Keywords: ${siteKeywords.length}
-        - Keywords in top 10: ${siteKeywords.filter(k => k.current_position <= 10).length}
-        - Total Backlinks: ${siteBacklinks.length}
-
-        Top keywords: ${siteKeywords.slice(0, 10).map(k => `${k.keyword} (pos ${k.current_position})`).join(', ')}
-
-        Provide:
-        1. Performance summary with trend analysis
-        2. Top 5 keywords with position changes
-        3. Key insights and recommendations
-        4. Estimated traffic and ranking changes (as percentages)`,
-        add_context_from_internet: true,
-        response_json_schema: {
-          type: "object",
-          properties: {
-            seo_score: { type: "number" },
-            seo_score_change: { type: "number" },
-            organic_traffic: { type: "number" },
-            traffic_change: { type: "number" },
-            total_keywords: { type: "number" },
-            top_10_keywords: { type: "number" },
-            total_backlinks: { type: "number" },
-            backlinks_change: { type: "number" },
-            domain_authority: { type: "number" },
-            top_keywords: {
-              type: "array",
-              items: {
-                type: "object",
-                properties: {
-                  keyword: { type: "string" },
-                  position: { type: "number" },
-                  search_volume: { type: "number" },
-                  change: { type: "number" }
-                }
-              }
-            },
-            trends_summary: { type: "string" },
-            recommendations: { type: "array", items: { type: "string" } }
-          }
-        }
-      });
-
-      const reportData = {
-        ...analysis,
-        generated_at: new Date().toISOString(),
-        website_name: website?.name,
-        website_url: website?.url
-      };
-
-      await base44.entities.SEOReport.update(report.id, {
-        report_data: reportData,
-        last_run: new Date().toISOString()
-      });
-
-      return { ...report, report_data: reportData };
-    },
-    onSuccess: (updatedReport) => {
-      queryClient.invalidateQueries({ queryKey: ['seo-reports'] });
-      setRunningReportId(null);
-      setViewingReport(updatedReport);
-      toast.success('Report generated successfully');
-    },
-    onError: () => {
-      setRunningReportId(null);
-      toast.error('Failed to generate report');
-    }
-  });
-
-  const handleExportReport = (report, format) => {
-    if (!report.report_data) return;
-    const data = report.report_data;
-    const website = websites.find(w => w.id === report.website_id);
-
-    if (format === 'csv') {
-      const csvRows = [
-        ['SEO Report', report.name],
-        ['Website', website?.name || ''],
-        ['Generated', data.generated_at],
-        [''],
-        ['Metric', 'Value', 'Change'],
-        ['SEO Score', data.seo_score, `${data.seo_score_change}%`],
-        ['Organic Traffic', data.organic_traffic, `${data.traffic_change}%`],
-        ['Total Keywords', data.total_keywords, ''],
-        ['Top 10 Keywords', data.top_10_keywords, ''],
-        ['Total Backlinks', data.total_backlinks, `${data.backlinks_change}%`],
-        [''],
-        ['Top Keywords'],
-        ['Keyword', 'Position', 'Search Volume', 'Change'],
-        ...(data.top_keywords || []).map(k => [k.keyword, k.position, k.search_volume, k.change])
-      ];
-      const csvContent = csvRows.map(r => r.join(',')).join('\n');
-      const blob = new Blob([csvContent], { type: 'text/csv' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `${report.name.replace(/\s+/g, '_')}_report.csv`;
-      a.click();
-      URL.revokeObjectURL(url);
-    } else {
-      const content = `
-SEO REPORT: ${report.name}
-Website: ${website?.name} (${website?.url})
-Generated: ${new Date(data.generated_at).toLocaleString()}
-
-PERFORMANCE OVERVIEW
-====================
-SEO Score: ${data.seo_score} (${data.seo_score_change > 0 ? '+' : ''}${data.seo_score_change}%)
-Organic Traffic: ${data.organic_traffic?.toLocaleString()} (${data.traffic_change > 0 ? '+' : ''}${data.traffic_change}%)
-Total Keywords: ${data.total_keywords} (${data.top_10_keywords} in top 10)
-Total Backlinks: ${data.total_backlinks} (${data.backlinks_change > 0 ? '+' : ''}${data.backlinks_change}%)
-
-TOP KEYWORDS
-============
-${(data.top_keywords || []).map(k => `• ${k.keyword} - Position ${k.position} (Vol: ${k.search_volume})`).join('\n')}
-
-TRENDS & INSIGHTS
-=================
-${data.trends_summary}
-
-RECOMMENDATIONS
-===============
-${(data.recommendations || []).map((r, i) => `${i + 1}. ${r}`).join('\n')}
-      `;
-      const blob = new Blob([content], { type: 'text/plain' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `${report.name.replace(/\s+/g, '_')}_report.txt`;
-      a.click();
-      URL.revokeObjectURL(url);
-    }
-  };
 
   const createMutation = useMutation({
     mutationFn: (data) => base44.entities.Website.create(data),
@@ -428,9 +252,7 @@ ${(data.recommendations || []).map((r, i) => `${i + 1}. ${r}`).join('\n')}
           <Tabs defaultValue="websites" className="space-y-6">
             <TabsList className="glass-card">
               <TabsTrigger value="websites">Websites</TabsTrigger>
-              <TabsTrigger value="reports">Reports</TabsTrigger>
               <TabsTrigger value="analytics">Analytics</TabsTrigger>
-              <TabsTrigger value="advanced">Advanced Tools</TabsTrigger>
             </TabsList>
 
             <TabsContent value="websites" className="space-y-6">
@@ -478,69 +300,15 @@ ${(data.recommendations || []).map((r, i) => `${i + 1}. ${r}`).join('\n')}
                   keywords={keywords} 
                   keywordHistory={keywordHistory}
                 />
-                <MultiLocationCard 
+                <PredictiveAnalyticsCard 
+                  websites={websites} 
                   keywords={keywords} 
-                  keywordHistory={keywordHistory}
-                />
-              </div>
-              <PredictiveAnalyticsCard 
-                websites={websites} 
-                keywords={keywords} 
-                backlinks={backlinks} 
-              />
-            </TabsContent>
-
-            <TabsContent value="reports" className="space-y-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h2 className="text-lg font-semibold text-gray-900">Scheduled Reports</h2>
-                  <p className="text-sm text-gray-500">Automate weekly or monthly SEO performance reports</p>
-                </div>
-                <Button onClick={() => setShowReportModal(true)} className="gap-2 bg-violet-600 hover:bg-violet-700">
-                  <Plus className="w-4 h-4" />
-                  Create Report
-                </Button>
-              </div>
-
-              {seoReports.length === 0 ? (
-                <Card className="glass-card rounded-2xl">
-                  <CardContent className="py-12 text-center">
-                    <FileText className="w-12 h-12 mx-auto mb-3 text-gray-300" />
-                    <h3 className="font-medium text-gray-900">No reports yet</h3>
-                    <p className="text-sm text-gray-500 mt-1">Create your first scheduled SEO report</p>
-                    <Button onClick={() => setShowReportModal(true)} className="mt-4 gap-2">
-                      <Plus className="w-4 h-4" /> Create Report
-                    </Button>
-                  </CardContent>
-                </Card>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {seoReports.map(report => (
-                    <SEOReportCard
-                      key={report.id}
-                      report={report}
-                      website={websites.find(w => w.id === report.website_id)}
-                      onRunReport={(r) => runReportMutation.mutate(r)}
-                      onExport={handleExportReport}
-                      isRunning={runningReportId === report.id}
-                    />
-                  ))}
-                </div>
-              )}
-            </TabsContent>
-
-            <TabsContent value="advanced" className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                <GoogleTrackingCard 
-                  website={websites[0]} 
-                  onSaveTracking={(data) => websites[0] && saveTrackingMutation.mutate({ id: websites[0].id, data })}
-                />
-                <KeywordCannibalizationCard 
-                  keywords={keywords} 
-                  websites={websites}
+                  backlinks={backlinks} 
                 />
               </div>
             </TabsContent>
+
+
           </Tabs>
         </>
       )}
@@ -552,22 +320,6 @@ ${(data.recommendations || []).map((r, i) => `${i + 1}. ${r}`).join('\n')}
         website={selectedWebsite}
         onSave={handleSave}
         isLoading={createMutation.isPending || updateMutation.isPending}
-      />
-
-      <CreateReportModal
-        open={showReportModal}
-        onClose={() => setShowReportModal(false)}
-        onSave={(data) => createReportMutation.mutate(data)}
-        websites={websites}
-        isLoading={createReportMutation.isPending}
-      />
-
-      <ReportViewer
-        open={!!viewingReport}
-        onClose={() => setViewingReport(null)}
-        report={viewingReport}
-        website={viewingReport ? websites.find(w => w.id === viewingReport.website_id) : null}
-        onExport={handleExportReport}
       />
     </div>
   );
