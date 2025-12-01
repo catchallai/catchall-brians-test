@@ -198,11 +198,7 @@ export default function Reports() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-gray-500 dark:text-gray-400">Home</span>
-            <span className="text-gray-300 dark:text-gray-600">&gt;</span>
-            <span className="text-sm font-medium text-gray-900 dark:text-white">My Reports</span>
-          </div>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">My Reports</h1>
           <p className="text-gray-500 dark:text-gray-400 mt-1">Report data from various digital marketing tools and see results in one place</p>
         </div>
         </div>
