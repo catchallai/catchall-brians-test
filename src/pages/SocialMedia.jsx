@@ -73,6 +73,7 @@ export default function SocialMedia() {
   const [selectedPost, setSelectedPost] = useState(null);
   const [showComposeModal, setShowComposeModal] = useState(false);
   const [isDiscoveringCompetitors, setIsDiscoveringCompetitors] = useState(false);
+  const [sentimentFilter, setSentimentFilter] = useState(null);
   const queryClient = useQueryClient();
 
   const { data: socialAccountsRaw = [], isLoading: loadingAccounts } = useQuery({
@@ -938,16 +939,26 @@ Return adapted content for: ${platforms.join(', ')}`,
           {/* Sentiment Overview */}
           {totalPosts > 0 && (
             <Card className="glass-card rounded-2xl">
-              <CardHeader>
+              <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle className="text-lg">Content Sentiment</CardTitle>
+                {sentimentFilter && (
+                  <Button variant="ghost" size="sm" onClick={() => setSentimentFilter(null)} className="text-xs">
+                    Clear Filter
+                  </Button>
+                )}
               </CardHeader>
               <CardContent>
                 <div className="flex gap-4">
                   {Object.entries(sentimentBreakdown).map(([sentiment, count]) => {
                     const config = sentimentConfig[sentiment];
                     const percentage = totalPosts > 0 ? ((count / totalPosts) * 100).toFixed(0) : 0;
+                    const isActive = sentimentFilter === sentiment;
                     return (
-                      <div key={sentiment} className={`flex-1 p-4 rounded-xl ${config.bg}`}>
+                      <div 
+                        key={sentiment} 
+                        className={`flex-1 p-4 rounded-xl cursor-pointer transition-all ${config.bg} ${isActive ? 'ring-2 ring-offset-2 ring-violet-500' : 'hover:scale-[1.02]'}`}
+                        onClick={() => setSentimentFilter(isActive ? null : sentiment)}
+                      >
                         <div className="flex items-center gap-2 mb-2">
                           <config.icon className={`w-5 h-5 ${config.color}`} />
                           <span className="font-medium capitalize">{sentiment}</span>
@@ -958,6 +969,33 @@ Return adapted content for: ${platforms.join(', ')}`,
                     );
                   })}
                 </div>
+                
+                {/* Filtered Posts */}
+                {sentimentFilter && (
+                  <div className="mt-6 space-y-3">
+                    <h4 className="font-medium text-gray-700 dark:text-gray-300 capitalize">{sentimentFilter} Posts</h4>
+                    <div className="grid gap-3 max-h-[300px] overflow-y-auto">
+                      {socialPosts.filter(p => p.sentiment === sentimentFilter).map(post => {
+                        const config = sentimentConfig[post.sentiment] || sentimentConfig.neutral;
+                        return (
+                          <Card key={post.id} className="p-3 border-0 shadow-sm hover:shadow-md transition-all cursor-pointer" onClick={() => setSelectedPost(post)}>
+                            <p className="text-sm text-gray-700 dark:text-gray-300 line-clamp-2 mb-2">{post.content}</p>
+                            <div className="flex items-center justify-between text-xs text-gray-500">
+                              <div className="flex gap-3">
+                                <span className="flex items-center gap-1"><Heart className="w-3 h-3" /> {post.likes || 0}</span>
+                                <span className="flex items-center gap-1"><MessageSquare className="w-3 h-3" /> {post.comments || 0}</span>
+                              </div>
+                              <Badge className={`${config.bg} ${config.color} border-0 text-xs`}>{post.sentiment}</Badge>
+                            </div>
+                          </Card>
+                        );
+                      })}
+                      {socialPosts.filter(p => p.sentiment === sentimentFilter).length === 0 && (
+                        <p className="text-sm text-gray-400 text-center py-4">No {sentimentFilter} posts found</p>
+                      )}
+                    </div>
+                  </div>
+                )}
               </CardContent>
             </Card>
           )}
