@@ -219,7 +219,6 @@ export default function Reports() {
               <TabsTrigger value="reports" className="gap-2">
                 Reports <Badge variant="secondary">{reports.length}</Badge>
               </TabsTrigger>
-              <TabsTrigger value="templates">Templates</TabsTrigger>
             </TabsList>
           </Tabs>
 
@@ -329,10 +328,7 @@ export default function Reports() {
           </>
         )}
 
-        {/* Templates Tab Content */}
-        {activeTab === 'templates' && (
-          <ReportTemplates onSelect={handleTemplateSelect} />
-        )}
+
       </div>
 
       {/* Create Report Modal */}
