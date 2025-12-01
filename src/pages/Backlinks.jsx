@@ -7,7 +7,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import { Plus, Search, Link2, Loader2, Download } from "lucide-react";
+import { Plus, Search, Link2, Loader2, Download, ShieldX, FileDown } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
+import { useToast } from '@/components/ui/toast-provider';
 import BacklinkItem from '@/components/seo/BacklinkItem';
 import EmptyState from '@/components/ui/EmptyState';
 
@@ -26,7 +28,11 @@ export default function Backlinks() {
     link_type: 'dofollow',
     status: 'active',
   });
+  const [disavowModal, setDisavowModal] = useState(false);
+  const [selectedBacklink, setSelectedBacklink] = useState(null);
+  const [disavowReason, setDisavowReason] = useState('');
   const queryClient = useQueryClient();
+  const toast = useToast();
 
   const { data: backlinks = [], isLoading } = useQuery({
     queryKey: ['backlinks'],
@@ -56,6 +62,49 @@ export default function Backlinks() {
     },
   });
 
+  const disavowMutation = useMutation({
+    mutationFn: ({ id, reason }) => base44.entities.Backlink.update(id, {
+      status: 'disavowed',
+      disavow_reason: reason,
+      disavowed_date: new Date().toISOString().split('T')[0],
+    }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['backlinks'] });
+      setDisavowModal(false);
+      setSelectedBacklink(null);
+      setDisavowReason('');
+      toast.success('Backlink disavowed');
+    },
+  });
+
+  const handleDisavow = (backlink) => {
+    setSelectedBacklink(backlink);
+    setDisavowModal(true);
+  };
+
+  const confirmDisavow = () => {
+    if (selectedBacklink) {
+      disavowMutation.mutate({ id: selectedBacklink.id, reason: disavowReason });
+    }
+  };
+
+  const exportDisavowFile = () => {
+    const disavovedLinks = backlinks.filter(b => b.status === 'disavowed');
+    if (disavovedLinks.length === 0) {
+      toast.warning('No disavowed links to export');
+      return;
+    }
+    const content = disavovedLinks.map(b => `domain:${b.source_domain}`).join('\n');
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'disavow.txt';
+    a.click();
+    URL.revokeObjectURL(url);
+    toast.success('Disavow file exported');
+  };
+
   const handleSave = (e) => {
     e.preventDefault();
     const domain = formData.source_url ? new URL(formData.source_url).hostname : '';
@@ -79,6 +128,8 @@ export default function Backlinks() {
 
   const activeCount = backlinks.filter(b => b.status === 'active').length;
   const dofollowCount = backlinks.filter(b => b.link_type === 'dofollow').length;
+  const disavowedCount = backlinks.filter(b => b.status === 'disavowed').length;
+  const toxicCount = backlinks.filter(b => b.is_toxic || (b.domain_authority && b.domain_authority < 10)).length;
 
   const handleExportCSV = () => {
     const headers = ['Source URL', 'Source Domain', 'Target URL', 'Anchor Text', 'DA', 'Type', 'Status', 'First Seen'];
@@ -103,16 +154,24 @@ export default function Backlinks() {
   };
 
   return (
-    <div className="p-6 lg:p-8 space-y-6 min-h-screen">
+    <div className="p-6 lg:p-8 space-y-6 bg-gray-50 dark:bg-gray-900 min-h-screen">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Backlinks</h1>
           <p className="text-gray-500 dark:text-gray-400 mt-1">
             {backlinks.length} total • {activeCount} active • {dofollowCount} dofollow
+            {toxicCount > 0 && <span className="text-red-500"> • {toxicCount} toxic</span>}
+            {disavowedCount > 0 && <span className="text-gray-400"> • {disavowedCount} disavowed</span>}
           </p>
         </div>
         <div className="flex gap-2">
+          {disavowedCount > 0 && (
+            <Button variant="outline" onClick={exportDisavowFile} className="gap-2 dark:bg-gray-800 dark:border-gray-700">
+              <FileDown className="w-4 h-4" />
+              Export Disavow
+            </Button>
+          )}
           <Button variant="outline" onClick={handleExportCSV} className="gap-2 dark:bg-gray-800 dark:border-gray-700">
             <Download className="w-4 h-4" />
             Export
@@ -155,6 +214,7 @@ export default function Backlinks() {
             <SelectItem value="active">Active</SelectItem>
             <SelectItem value="lost">Lost</SelectItem>
             <SelectItem value="broken">Broken</SelectItem>
+            <SelectItem value="disavowed">Disavowed</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -177,7 +237,7 @@ export default function Backlinks() {
       ) : (
         <div className="space-y-3">
           {filteredBacklinks.map((backlink) => (
-            <BacklinkItem key={backlink.id} backlink={backlink} />
+            <BacklinkItem key={backlink.id} backlink={backlink} onDisavow={handleDisavow} />
           ))}
         </div>
       )}
@@ -296,6 +356,48 @@ export default function Backlinks() {
               </Button>
             </div>
           </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Disavow Modal */}
+      <Dialog open={disavowModal} onOpenChange={setDisavowModal}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <ShieldX className="w-5 h-5 text-red-500" />
+              Disavow Backlink
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 mt-4">
+            <p className="text-sm text-gray-600 dark:text-gray-400">
+              You're about to disavow: <strong>{selectedBacklink?.source_domain}</strong>
+            </p>
+            <p className="text-xs text-gray-500">
+              Disavowed links will be added to your disavow file for submission to Google Search Console.
+            </p>
+            <div className="space-y-2">
+              <Label>Reason (optional)</Label>
+              <Textarea
+                value={disavowReason}
+                onChange={(e) => setDisavowReason(e.target.value)}
+                placeholder="e.g., Spammy link farm, low quality directory..."
+                rows={3}
+              />
+            </div>
+            <div className="flex justify-end gap-3 pt-2">
+              <Button variant="outline" onClick={() => setDisavowModal(false)}>
+                Cancel
+              </Button>
+              <Button 
+                onClick={confirmDisavow} 
+                disabled={disavowMutation.isPending}
+                className="bg-red-600 hover:bg-red-700"
+              >
+                {disavowMutation.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                Disavow
+              </Button>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
     </div>
