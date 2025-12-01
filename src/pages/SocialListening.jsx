@@ -586,13 +586,32 @@ Prioritize finding older historical discussions from 2009-2015 as well as recent
           ) : (
             <>
             {selectedKeyword && (
-              <div className="flex items-center gap-2 mb-2">
-                <Badge className="bg-violet-100 text-violet-700 border-0">
-                  Filtering by: {selectedKeyword.type === 'hashtag' ? '#' : selectedKeyword.type === 'mention' ? '@' : ''}{selectedKeyword.keyword}
-                </Badge>
-                <Button variant="ghost" size="sm" onClick={() => setSelectedKeyword(null)} className="text-xs h-6">
-                  Clear
-                </Button>
+              <div className="mb-4">
+                <div className="flex items-center gap-2 mb-3">
+                  <Badge className="bg-violet-100 text-violet-700 border-0">
+                    Showing mentions for: {selectedKeyword.type === 'hashtag' ? '#' : selectedKeyword.type === 'mention' ? '@' : ''}{selectedKeyword.keyword}
+                  </Badge>
+                  <Button variant="ghost" size="sm" onClick={() => setSelectedKeyword(null)} className="text-xs h-6">
+                    Clear
+                  </Button>
+                </div>
+                {/* Show mentions for selected keyword */}
+                <div className="space-y-3 max-h-[400px] overflow-y-auto mb-4">
+                  {mentions.filter(m => m.listening_id === selectedKeyword.id).length === 0 ? (
+                    <Card className="p-6 text-center border-0 shadow-sm">
+                      <MessageSquare className="w-8 h-8 text-gray-300 mx-auto mb-2" />
+                      <p className="text-gray-500 text-sm">No mentions found. Click "Scan" to search for mentions.</p>
+                    </Card>
+                  ) : (
+                    mentions.filter(m => m.listening_id === selectedKeyword.id).map((mention) => (
+                      <ListeningMentionCard 
+                        key={mention.id} 
+                        mention={mention}
+                        onClick={() => setSelectedMention(mention)}
+                      />
+                    ))
+                  )}
+                </div>
               </div>
             )}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
