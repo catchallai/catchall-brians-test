@@ -1,10 +1,15 @@
 import React from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { 
   Plus, BarChart2, TrendingUp, Users, Target, Link2, Globe, MapPin, Search,
-  Mail, Share2, FileText, PieChart, Activity, Zap
+  Mail, Share2, FileText, PieChart, Activity, Zap, Trash2
 } from "lucide-react";
+
+const ICON_MAP = {
+  Search, Target, Link2, MapPin, Users, FileText, PieChart, TrendingUp, Share2, Mail, Activity, BarChart2
+};
 
 export const REPORT_TEMPLATES = [
   { 
@@ -141,38 +146,68 @@ const categoryLabels = {
   summary: 'Summary'
 };
 
-export default function ReportTemplates({ onSelect, selectedCategory = 'all' }) {
+export default function ReportTemplates({ onSelect, selectedCategory = 'all', customTemplates = [], onDeleteTemplate, onCreateTemplate }) {
+  const allTemplates = [
+    ...REPORT_TEMPLATES,
+    ...customTemplates.map(t => ({
+      ...t,
+      icon: ICON_MAP[t.icon] || FileText,
+      color: 'bg-white',
+      iconBg: 'bg-gray-100 text-gray-600',
+      isCustomTemplate: true
+    }))
+  ];
+
   const filteredTemplates = selectedCategory === 'all' 
-    ? REPORT_TEMPLATES 
-    : REPORT_TEMPLATES.filter(t => t.category === selectedCategory || t.id === 'scratch');
+    ? allTemplates 
+    : allTemplates.filter(t => t.category === selectedCategory || t.id === 'scratch');
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Ready-to-use templates</h2>
-        <div className="flex gap-2">
-          {['all', 'seo', 'crm', 'marketing', 'social'].map(cat => (
-            <Badge 
-              key={cat} 
-              variant={selectedCategory === cat ? 'default' : 'outline'}
-              className="cursor-pointer capitalize"
-            >
-              {cat === 'all' ? 'All' : categoryLabels[cat]}
-            </Badge>
-          ))}
+        <div className="flex items-center gap-3">
+          <div className="flex gap-2">
+            {['all', 'seo', 'crm', 'marketing', 'social'].map(cat => (
+              <Badge 
+                key={cat} 
+                variant={selectedCategory === cat ? 'default' : 'outline'}
+                className="cursor-pointer capitalize"
+              >
+                {cat === 'all' ? 'All' : categoryLabels[cat]}
+              </Badge>
+            ))}
+          </div>
+          {onCreateTemplate && (
+            <Button size="sm" onClick={onCreateTemplate} className="gap-1">
+              <Plus className="w-4 h-4" />
+              New Template
+            </Button>
+          )}
         </div>
       </div>
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
         {filteredTemplates.map((template) => {
           const Icon = template.icon;
           const isCustom = template.id === 'scratch';
+          const isUserTemplate = template.isCustomTemplate;
           return (
             <Card 
               key={template.id}
               onClick={() => onSelect(template)}
-              className={`cursor-pointer border-0 shadow-sm hover:shadow-lg transition-all hover:-translate-y-1 ${isCustom ? template.color : 'bg-white dark:bg-gray-800'}`}
+              className={`cursor-pointer border-0 shadow-sm hover:shadow-lg transition-all hover:-translate-y-1 relative group ${isCustom ? template.color : 'bg-white dark:bg-gray-800'}`}
             >
               <CardContent className="p-4">
+                {isUserTemplate && onDeleteTemplate && (
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    className="absolute top-2 right-2 h-6 w-6 opacity-0 group-hover:opacity-100 text-red-500 hover:text-red-700 hover:bg-red-50"
+                    onClick={(e) => { e.stopPropagation(); onDeleteTemplate(template.id); }}
+                  >
+                    <Trash2 className="w-3 h-3" />
+                  </Button>
+                )}
                 <div className={`w-10 h-10 rounded-lg flex items-center justify-center mb-3 ${template.iconBg}`}>
                   <Icon className={`w-5 h-5 ${isCustom ? 'text-white' : ''}`} />
                 </div>
