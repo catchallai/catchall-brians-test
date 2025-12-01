@@ -9,7 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   Plus, Search, Loader2, TrendingUp, MessageSquare, ThumbsUp, ThumbsDown,
-  Minus, BarChart3, Radio, Filter, Bell, Users, Globe, Sparkles, MessagesSquare
+  Minus, BarChart3, Radio, Filter, Bell, Users, Globe, Sparkles, MessagesSquare, Brain, Settings2
 } from "lucide-react";
 import ListeningKeywordCard from '@/components/social/ListeningKeywordCard';
 import ListeningMentionCard from '@/components/social/ListeningMentionCard';
@@ -22,6 +22,7 @@ import ResponseSuggestionCard from '@/components/social/ResponseSuggestionCard';
 import AddListeningModal from '@/components/modals/AddListeningModal';
 import ForumMentionCard from '@/components/social/ForumMentionCard';
 import EmptyState from '@/components/ui/EmptyState';
+import AlertSettingsModal from '@/components/social/AlertSettingsModal';
 import {
   Dialog,
   DialogContent,
@@ -47,6 +48,8 @@ export default function SocialListening() {
   const [selectedMention, setSelectedMention] = useState(null);
   const [generatingResponseFor, setGeneratingResponseFor] = useState(null);
   const [deepScanningId, setDeepScanningId] = useState(null);
+  const [showAlertSettings, setShowAlertSettings] = useState(false);
+  const [alertSettingsKeyword, setAlertSettingsKeyword] = useState(null);
   const queryClient = useQueryClient();
 
   const { data: keywords = [], isLoading: loadingKeywords } = useQuery({
@@ -339,6 +342,11 @@ Also provide:
         await base44.entities.ListeningAlert.create(alert);
       }
 
+      // AI Anomaly Detection (if enabled)
+      if (keyword.ai_alerts_enabled !== false) {
+        await runAIAnomalyDetection(keyword, analysis, previousMentionCount);
+      }
+
       return analysis;
     },
     onSuccess: () => {
@@ -348,6 +356,139 @@ Also provide:
       setScanningId(null);
     },
     onError: () => setScanningId(null),
+  });
+
+  // AI Anomaly Detection Function
+  const runAIAnomalyDetection = async (keyword, analysis, previousMentionCount) => {
+    const sensitivity = keyword.alert_sensitivity || 'medium';
+    const thresholds = {
+      low: { spike: 3.0, sentiment: 40, impact: 80 },
+      medium: { spike: 2.0, sentiment: 25, impact: 60 },
+      high: { spike: 1.5, sentiment: 15, impact: 40 }
+    }[sensitivity];
+
+    const searchTerm = keyword.type === 'hashtag' ? `#${keyword.keyword}` : 
+                       keyword.type === 'mention' ? `@${keyword.keyword}` : keyword.keyword;
+
+    // Get baseline metrics
+    const baseline = keyword.baseline_metrics || {
+      avg_mentions: 5,
+      avg_negative_ratio: 0.2,
+      avg_engagement: 100
+    };
+
+    // Analyze with AI for deeper anomalies
+    const aiAnalysis = await base44.integrations.Core.InvokeLLM({
+      prompt: `Analyze this social media data for "${searchTerm}" and detect any anomalies or potential brand risks.
+
+Current scan data:
+- New mentions found: ${analysis.mentions?.length || 0}
+- Previous total mentions: ${previousMentionCount}
+- Trending score: ${analysis.trending_score || 0}
+- Sentiment: Positive ${analysis.sentiment_breakdown?.positive || 0}, Neutral ${analysis.sentiment_breakdown?.neutral || 0}, Negative ${analysis.sentiment_breakdown?.negative || 0}
+- Has spike detected: ${analysis.has_spike}
+- Negative shift detected: ${analysis.negative_shift}
+
+Historical baseline (approximate):
+- Average mentions per scan: ${baseline.avg_mentions}
+- Average negative ratio: ${(baseline.avg_negative_ratio * 100).toFixed(1)}%
+- Average engagement: ${baseline.avg_engagement}
+
+Recent mentions content:
+${analysis.mentions?.slice(0, 10).map(m => `- ${m.sentiment}: "${m.content?.slice(0, 100)}..." by @${m.author} (${m.author_followers} followers)`).join('\n')}
+
+Detection sensitivity: ${sensitivity.toUpperCase()}
+Thresholds: Spike ${thresholds.spike}x, Sentiment shift ${thresholds.sentiment}%, Impact ${thresholds.impact}+
+
+Identify:
+1. Unusual patterns not caught by basic rules (velocity changes, coordinated activity, unusual timing)
+2. Potential PR crises or reputation risks
+3. Emerging trends that could go viral
+4. High-impact mentions that need immediate attention
+5. Sentiment patterns indicating deeper issues
+
+For each anomaly found, provide:
+- Type: anomaly, sentiment_shift, or brand_risk
+- Severity: low, medium, high, or critical
+- Impact score 0-100 (considering reach, sentiment, virality potential)
+- Clear title and description
+- Recommended action`,
+      response_json_schema: {
+        type: "object",
+        properties: {
+          anomalies_detected: { type: "boolean" },
+          anomalies: {
+            type: "array",
+            items: {
+              type: "object",
+              properties: {
+                type: { type: "string" },
+                severity: { type: "string" },
+                impact_score: { type: "number" },
+                title: { type: "string" },
+                description: { type: "string" },
+                recommended_action: { type: "string" },
+                related_mention_index: { type: "number" }
+              }
+            }
+          },
+          updated_baseline: {
+            type: "object",
+            properties: {
+              avg_mentions: { type: "number" },
+              avg_negative_ratio: { type: "number" },
+              avg_engagement: { type: "number" }
+            }
+          }
+        }
+      }
+    });
+
+    // Create AI-detected alerts
+    if (aiAnalysis.anomalies?.length > 0) {
+      for (const anomaly of aiAnalysis.anomalies) {
+        // Skip if below threshold
+        if (anomaly.impact_score < thresholds.impact && anomaly.severity === 'low') continue;
+
+        const relatedMention = anomaly.related_mention_index !== undefined && analysis.mentions?.[anomaly.related_mention_index];
+        
+        await base44.entities.ListeningAlert.create({
+          listening_id: keyword.id,
+          type: anomaly.type || 'anomaly',
+          severity: anomaly.severity || 'medium',
+          title: anomaly.title,
+          description: anomaly.description,
+          is_ai_generated: true,
+          impact_score: anomaly.impact_score,
+          recommended_action: anomaly.recommended_action,
+          anomaly_data: {
+            sensitivity,
+            thresholds,
+            detected_at: new Date().toISOString()
+          }
+        });
+      }
+    }
+
+    // Update baseline metrics
+    if (aiAnalysis.updated_baseline) {
+      await base44.entities.SocialListening.update(keyword.id, {
+        baseline_metrics: aiAnalysis.updated_baseline
+      });
+    }
+  };
+
+  // Update alert settings mutation
+  const updateAlertSettingsMutation = useMutation({
+    mutationFn: (data) => base44.entities.SocialListening.update(data.id, {
+      ai_alerts_enabled: data.ai_alerts_enabled,
+      alert_sensitivity: data.alert_sensitivity
+    }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['social-listening'] });
+      setShowAlertSettings(false);
+      setAlertSettingsKeyword(null);
+    },
   });
 
   // Deep scan for forums/communities (goes back to 2009)
@@ -715,10 +856,28 @@ Prioritize finding older historical discussions from 2009-2015 as well as recent
 
         {/* Alerts Tab */}
         <TabsContent value="alerts" className="space-y-4">
+          {/* AI Settings Button */}
+          <div className="flex justify-end">
+            <Button 
+              variant="outline" 
+              className="gap-2"
+              onClick={() => {
+                setAlertSettingsKeyword(keywords[0] || null);
+                setShowAlertSettings(true);
+              }}
+            >
+              <Brain className="w-4 h-4" />
+              AI Alert Settings
+            </Button>
+          </div>
           <AlertsPanel
             alerts={alerts}
             onMarkRead={(id) => markAlertReadMutation.mutate(id)}
             onDismiss={(id) => dismissAlertMutation.mutate(id)}
+            onViewMention={(mentionId) => {
+              const mention = mentions.find(m => m.id === mentionId);
+              if (mention) setSelectedMention(mention);
+            }}
           />
         </TabsContent>
 
@@ -870,6 +1029,15 @@ Prioritize finding older historical discussions from 2009-2015 as well as recent
         onSave={(data) => createKeywordMutation.mutate(data)}
         isLoading={createKeywordMutation.isPending}
         editingKeyword={editingKeyword}
+      />
+
+      {/* AI Alert Settings Modal */}
+      <AlertSettingsModal
+        open={showAlertSettings}
+        onClose={() => { setShowAlertSettings(false); setAlertSettingsKeyword(null); }}
+        keyword={alertSettingsKeyword}
+        onSave={(data) => updateAlertSettingsMutation.mutate(data)}
+        isLoading={updateAlertSettingsMutation.isPending}
       />
 
       {/* Mention Detail Modal */}
