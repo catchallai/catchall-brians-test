@@ -25,6 +25,7 @@ import TrendAnalysisCard from '@/components/social/TrendAnalysisCard';
 import CompetitorDetailCard from '@/components/social/CompetitorDetailCard';
 import CompetitorReportCard from '@/components/social/CompetitorReportCard';
 import CompetitorReportModal from '@/components/modals/CompetitorReportModal';
+import CompetitorNetworkMap from '@/components/social/CompetitorNetworkMap';
 import SchedulePostModal from '@/components/modals/SchedulePostModal';
 import ABTestModal from '@/components/modals/ABTestModal';
 import ComposePostModal from '@/components/modals/ComposePostModal';
@@ -1107,6 +1108,11 @@ Return adapted content for: ${platforms.join(', ')}`,
               onAction={() => setShowCompetitorModal(true)}
             />
           ) : (
+            <>
+            <CompetitorNetworkMap 
+              competitors={competitors} 
+              onSelectCompetitor={(comp) => setSelectedCompetitor(comp)} 
+            />
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <div className="space-y-3">
                 <h3 className="font-semibold text-gray-900">Competitors</h3>
@@ -1191,6 +1197,7 @@ Return adapted content for: ${platforms.join(', ')}`,
                 )}
               </div>
             </div>
+            </>
           )}
         </TabsContent>
 
