@@ -925,7 +925,6 @@ Return adapted content for: ${platforms.join(', ')}`,
         <div className="flex items-center justify-between">
           <TabsList className="flex-wrap">
             <TabsTrigger value="accounts">Accounts</TabsTrigger>
-            <TabsTrigger value="scheduler">Scheduler ({pendingPosts})</TabsTrigger>
             <TabsTrigger value="insights">AI Insights</TabsTrigger>
             <TabsTrigger value="generator">Content Generator</TabsTrigger>
             <TabsTrigger value="competitors">Competitors</TabsTrigger>
@@ -993,73 +992,7 @@ Return adapted content for: ${platforms.join(', ')}`,
       )}
         </TabsContent>
 
-        {/* Scheduler Tab */}
-        <TabsContent value="scheduler" className="space-y-4">
-          <div className="flex justify-between items-center">
-                        <div className="flex gap-2">
-                          <Button 
-                            variant={calendarView ? "outline" : "default"}
-                            size="sm"
-                            onClick={() => setCalendarView(false)}
-                          >
-                            List View
-                          </Button>
-                          <Button 
-                            variant={calendarView ? "default" : "outline"}
-                            size="sm"
-                            onClick={() => setCalendarView(true)}
-                            className="gap-1"
-                          >
-                            <CalendarDays className="w-4 h-4" />
-                            Calendar
-                          </Button>
-                        </div>
-                        <div className="flex gap-2">
-                          <Button 
-                            onClick={() => setShowComposeModal(true)}
-                            className="gap-2 bg-violet-600 hover:bg-violet-700"
-                          >
-                            <Plus className="w-4 h-4" />
-                            Compose Post
-                          </Button>
-                          <Button 
-                            variant="outline"
-                            onClick={() => { setEditingPost(null); setShowScheduleModal(true); }}
-                            className="gap-2"
-                          >
-                            <Plus className="w-4 h-4" />
-                            Single Post
-                          </Button>
-                        </div>
-                      </div>
-
-          {scheduledPosts.length === 0 ? (
-            <EmptyState
-              icon={Calendar}
-              title="No scheduled posts"
-              description="Schedule posts to automatically publish at optimal times."
-              actionLabel="Schedule Post"
-              onAction={() => { setEditingPost(null); setShowScheduleModal(true); }}
-            />
-          ) : calendarView ? (
-            <ContentCalendar
-              posts={scheduledPosts}
-              onAddPost={() => { setEditingPost(null); setShowScheduleModal(true); }}
-              onEditPost={(p) => { setEditingPost(p); setShowScheduleModal(true); }}
-            />
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {scheduledPosts.map((post) => (
-                <ScheduledPostCard
-                  key={post.id}
-                  post={post}
-                  onEdit={(p) => { setEditingPost(p); setShowScheduleModal(true); }}
-                  onDelete={(id) => deleteScheduledPostMutation.mutate(id)}
-                />
-              ))}
-            </div>
-          )}
-        </TabsContent>
+        
 
         {/* AI Insights Tab */}
         <TabsContent value="insights" className="space-y-4">
