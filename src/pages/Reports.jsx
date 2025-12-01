@@ -14,6 +14,7 @@ import {
 import ReportTemplates, { REPORT_TEMPLATES } from '@/components/reports/ReportTemplates';
 import ReportList from '@/components/reports/ReportList';
 import CreateReportFromTemplate from '@/components/reports/CreateReportFromTemplate';
+import CreateTemplateModal from '@/components/reports/CreateTemplateModal';
 import ReportViewer from '@/components/seo/ReportViewer';
 import ShareReportModal from '@/components/reports/ShareReportModal';
 import ReportsDashboard from '@/components/reports/ReportsDashboard';
@@ -29,6 +30,7 @@ export default function Reports() {
   const [runningReportId, setRunningReportId] = useState(null);
   const [viewingReport, setViewingReport] = useState(null);
   const [showShareModal, setShowShareModal] = useState(false);
+  const [showCreateTemplateModal, setShowCreateTemplateModal] = useState(false);
   const queryClient = useQueryClient();
 
   const { data: reports = [], isLoading } = useQuery({
@@ -56,6 +58,11 @@ export default function Reports() {
     queryFn: () => base44.entities.Backlink.list('-created_date', 100),
   });
 
+  const { data: customTemplates = [] } = useQuery({
+    queryKey: ['report-templates'],
+    queryFn: () => base44.entities.ReportTemplate.list('-created_date', 50),
+  });
+
   const createMutation = useMutation({
     mutationFn: (data) => base44.entities.SEOReport.create(data),
     onSuccess: () => {
@@ -68,6 +75,21 @@ export default function Reports() {
     mutationFn: (id) => base44.entities.SEOReport.delete(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['seo-reports'] });
+    },
+  });
+
+  const createTemplateMutation = useMutation({
+    mutationFn: (data) => base44.entities.ReportTemplate.create(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['report-templates'] });
+      setShowCreateTemplateModal(false);
+    },
+  });
+
+  const deleteTemplateMutation = useMutation({
+    mutationFn: (id) => base44.entities.ReportTemplate.delete(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['report-templates'] });
     },
   });
 
@@ -204,7 +226,12 @@ export default function Reports() {
         </div>
 
       {/* Report Templates */}
-      <ReportTemplates onSelect={handleTemplateSelect} />
+      <ReportTemplates 
+        onSelect={handleTemplateSelect} 
+        customTemplates={customTemplates}
+        onDeleteTemplate={(id) => deleteTemplateMutation.mutate(id)}
+        onCreateTemplate={() => setShowCreateTemplateModal(true)}
+      />
 
       {/* Report List Section */}
       <div className="space-y-4">
@@ -356,6 +383,14 @@ export default function Reports() {
         reports={reports}
         selectedIds={selectedReportIds}
         onShare={handleShare}
+      />
+
+      {/* Create Template Modal */}
+      <CreateTemplateModal
+        open={showCreateTemplateModal}
+        onClose={() => setShowCreateTemplateModal(false)}
+        onSave={(data) => createTemplateMutation.mutate(data)}
+        isLoading={createTemplateMutation.isPending}
       />
     </div>
   );
