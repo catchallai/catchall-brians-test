@@ -849,18 +849,28 @@ Return adapted content for: ${platforms.join(', ')}`,
           await base44.entities.SocialPost.delete(post.id);
         }
 
-        // Save analyzed posts
+        // Save analyzed posts with full data
         for (const post of analysis.posts) {
           await base44.entities.SocialPost.create({
             social_account_id: account.id,
             platform: account.platform,
+            post_url: post.post_url || '',
+            post_type: post.post_type || 'text',
             content: post.content,
+            post_date: post.post_date ? new Date(post.post_date).toISOString() : new Date().toISOString(),
             likes: post.likes || 0,
             comments: post.comments || 0,
             shares: post.shares || 0,
+            views: post.views || 0,
+            saves: post.saves || 0,
             sentiment: post.sentiment || 'neutral',
             topics: post.topics || [],
-            post_date: new Date().toISOString()
+            hashtags: post.hashtags || [],
+            mentions: post.mentions || [],
+            top_comments: post.top_comments || [],
+            performance_score: post.performance_score || 0,
+            best_performing: post.best_performing || false,
+            engagement_rate: analysis.engagement_rate || 0
           });
         }
       }
