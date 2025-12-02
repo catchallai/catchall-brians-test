@@ -49,7 +49,7 @@ export default function SEOScoreGauge({ score, label, size = "lg" }) {
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center">
           <span className={`${size === "lg" ? 'text-4xl' : 'text-2xl'} font-bold ${colors.text}`}>
-            {score !== null && score !== undefined ? score : 0}
+            {safeScore}
           </span>
           <span className="text-xs text-gray-400">/ 100</span>
         </div>
