@@ -872,6 +872,7 @@ Prioritize finding older historical discussions from 2009-2015 as well as recent
           </div>
           <AlertsPanel
             alerts={alerts}
+            mentions={mentions}
             onMarkRead={(id) => markAlertReadMutation.mutate(id)}
             onDismiss={(id) => dismissAlertMutation.mutate(id)}
             onViewMention={(mentionId) => {

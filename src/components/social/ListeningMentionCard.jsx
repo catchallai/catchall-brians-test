@@ -29,8 +29,17 @@ export default function ListeningMentionCard({ mention }) {
     return num.toString();
   };
 
+  const handleCardClick = () => {
+    if (mention.post_url) {
+      window.open(mention.post_url, '_blank', 'noopener,noreferrer');
+    }
+  };
+
   return (
-    <Card className="p-4 border-0 shadow-sm hover:shadow-md transition-all">
+    <Card 
+      className={`p-4 border-0 shadow-sm hover:shadow-md transition-all ${mention.post_url ? 'cursor-pointer hover:bg-violet-50 dark:hover:bg-violet-900/10' : ''}`}
+      onClick={handleCardClick}
+    >
       <div className="flex items-start gap-3">
         <div className={`w-10 h-10 rounded-lg ${platform.color} flex items-center justify-center text-lg font-bold flex-shrink-0`}>
           {platform.icon}
@@ -51,30 +60,14 @@ export default function ListeningMentionCard({ mention }) {
                 {mention.sentiment}
               </Badge>
               {mention.post_url && (
-                <a 
-                  href={mention.post_url} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="text-gray-400 hover:text-gray-600"
-                >
+                <span className="text-violet-500">
                   <ExternalLink className="w-4 h-4" />
-                </a>
+                </span>
               )}
             </div>
           </div>
           
-          {mention.post_url ? (
-            <a 
-              href={mention.post_url} 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="block text-sm text-gray-700 mb-2 line-clamp-3 hover:text-violet-600 cursor-pointer transition-colors"
-            >
-              {mention.content}
-            </a>
-          ) : (
-            <p className="text-sm text-gray-700 mb-2 line-clamp-3">{mention.content}</p>
-          )}
+          <p className="text-sm text-gray-700 mb-2 line-clamp-3">{mention.content}</p>
           
           <div className="flex items-center justify-between">
             <div className="flex gap-4 text-sm text-gray-500">

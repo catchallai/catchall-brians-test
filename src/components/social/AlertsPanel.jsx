@@ -24,7 +24,7 @@ const severityColors = {
   critical: "bg-red-100 text-red-700",
 };
 
-export default function AlertsPanel({ alerts, onMarkRead, onDismiss, onViewMention }) {
+export default function AlertsPanel({ alerts, mentions = [], onMarkRead, onDismiss, onViewMention }) {
   const [filter, setFilter] = useState('all');
   
   const unreadAlerts = alerts.filter(a => !a.is_read && !a.is_dismissed);
@@ -156,15 +156,35 @@ export default function AlertsPanel({ alerts, onMarkRead, onDismiss, onViewMenti
                       <p className="text-xs text-gray-400">
                         {format(new Date(alert.created_date), 'MMM d, h:mm a')}
                       </p>
-                      {alert.mention_id && onViewMention && (
-                        <button 
-                          onClick={() => onViewMention(alert.mention_id)}
-                          className="text-xs text-violet-600 hover:text-violet-700 flex items-center gap-1"
-                        >
-                          <ExternalLink className="w-3 h-3" />
-                          View post
-                        </button>
-                      )}
+                      {alert.mention_id && (() => {
+                        const relatedMention = mentions.find(m => m.id === alert.mention_id);
+                        if (relatedMention?.post_url) {
+                          return (
+                            <a 
+                              href={relatedMention.post_url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              onClick={(e) => e.stopPropagation()}
+                              className="text-xs text-violet-600 hover:text-violet-700 flex items-center gap-1 font-medium"
+                            >
+                              <ExternalLink className="w-3 h-3" />
+                              View original post
+                            </a>
+                          );
+                        }
+                        if (onViewMention) {
+                          return (
+                            <button 
+                              onClick={() => onViewMention(alert.mention_id)}
+                              className="text-xs text-violet-600 hover:text-violet-700 flex items-center gap-1"
+                            >
+                              <ExternalLink className="w-3 h-3" />
+                              View details
+                            </button>
+                          );
+                        }
+                        return null;
+                      })()}
                     </div>
                   </div>
                   <div className="flex gap-1">
