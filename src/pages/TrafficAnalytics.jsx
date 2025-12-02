@@ -53,16 +53,32 @@ export default function TrafficAnalytics() {
   const { data: trafficData = [], isLoading } = useQuery({
     queryKey: ['traffic-data', selectedWebsite, dateRange],
     queryFn: async () => {
-      // Generate demo data
+      // Generate consistent demo data using a seed based on date string
       const days = dateRange === '7d' ? 7 : dateRange === '30d' ? 30 : 90;
-      return Array.from({ length: days }, (_, i) => ({
-        date: format(subDays(new Date(), days - 1 - i), 'MMM dd'),
-        visitors: Math.floor(Math.random() * 5000) + 1000,
-        pageviews: Math.floor(Math.random() * 15000) + 3000,
-        bounce_rate: Math.floor(Math.random() * 30) + 30,
-        avg_duration: Math.floor(Math.random() * 180) + 60,
-      }));
+      
+      // Simple seeded random function for consistent data
+      const seededRandom = (seed) => {
+        const x = Math.sin(seed) * 10000;
+        return x - Math.floor(x);
+      };
+      
+      return Array.from({ length: days }, (_, i) => {
+        const dateStr = format(subDays(new Date(), days - 1 - i), 'MMM dd');
+        // Create a seed from the date string and website
+        const dateSeed = dateStr.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+        const websiteSeed = selectedWebsite.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+        const seed = dateSeed + websiteSeed + i;
+        
+        return {
+          date: dateStr,
+          visitors: Math.floor(seededRandom(seed) * 5000) + 1000,
+          pageviews: Math.floor(seededRandom(seed + 1) * 15000) + 3000,
+          bounce_rate: Math.floor(seededRandom(seed + 2) * 30) + 30,
+          avg_duration: Math.floor(seededRandom(seed + 3) * 180) + 60,
+        };
+      });
     },
+    staleTime: Infinity, // Don't refetch unless query key changes
   });
 
   const totalVisitors = trafficData.reduce((sum, d) => sum + d.visitors, 0);
