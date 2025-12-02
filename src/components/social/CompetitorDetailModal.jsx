@@ -265,28 +265,82 @@ export default function CompetitorDetailModal({
             </Card>
           )}
 
-          {/* Recent Reports */}
-          {reports.length > 0 && (
-            <Card className="border-0 shadow-sm">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm flex items-center gap-2">
-                  <FileText className="w-4 h-4 text-violet-500" />
-                  Recent Reports
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
+            </TabsContent>
+
+            <TabsContent value="insights" className="space-y-4">
+              <CompetitorInsightsPanel competitor={competitor} />
+            </TabsContent>
+
+            <TabsContent value="compare" className="space-y-4">
+              <div className="flex gap-2 mb-4">
+                <Button
+                  size="sm"
+                  onClick={() => onGenerateReport('comparative')}
+                  disabled={isGenerating}
+                  className="gap-1 bg-violet-600 hover:bg-violet-700"
+                >
+                  {isGenerating ? <Loader2 className="w-3 h-3 animate-spin" /> : <GitCompare className="w-3 h-3" />}
+                  Generate Comparison
+                </Button>
+              </div>
+              {reports.filter(r => r.report_type === 'comparative').length > 0 ? (
+                reports.filter(r => r.report_type === 'comparative').slice(0, 1).map((report) => (
+                  <ComparativeReportCard 
+                    key={report.id}
+                    report={report} 
+                    yourBrandName={yourBrandName}
+                    competitorName={competitor?.name}
+                  />
+                ))
+              ) : (
+                <Card className="p-8 text-center border border-gray-200 dark:border-gray-700">
+                  <GitCompare className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+                  <p className="text-gray-500">No comparison reports yet</p>
+                  <p className="text-sm text-gray-400">Generate a comparison to see how you stack up</p>
+                </Card>
+              )}
+            </TabsContent>
+
+            <TabsContent value="reports" className="space-y-4">
+              <div className="flex gap-2 mb-4">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => onGenerateReport('daily')}
+                  disabled={isGenerating}
+                  className="gap-1"
+                >
+                  {isGenerating ? <Loader2 className="w-3 h-3 animate-spin" /> : <Clock className="w-3 h-3" />}
+                  Daily Report
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => onGenerateReport('weekly')}
+                  disabled={isGenerating}
+                  className="gap-1"
+                >
+                  {isGenerating ? <Loader2 className="w-3 h-3 animate-spin" /> : <FileText className="w-3 h-3" />}
+                  Weekly Report
+                </Button>
+              </div>
+              {reports.length > 0 ? (
                 <div className="space-y-2">
-                  {reports.slice(0, 3).map((report) => (
+                  {reports.map((report) => (
                     <div 
                       key={report.id} 
-                      className="flex items-center justify-between p-2 bg-gray-50 rounded-lg hover:bg-gray-100 cursor-pointer transition-colors"
+                      className="flex items-center justify-between p-3 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer transition-colors"
                       onClick={() => onViewReport(report)}
                     >
-                      <div>
-                        <Badge className={report.report_type === 'weekly' ? 'bg-violet-100 text-violet-700' : 'bg-blue-100 text-blue-700'} variant="outline">
+                      <div className="flex items-center gap-3">
+                        <Badge className={
+                          report.report_type === 'weekly' ? 'bg-violet-100 text-violet-700' : 
+                          report.report_type === 'comparative' ? 'bg-emerald-100 text-emerald-700' :
+                          'bg-blue-100 text-blue-700'
+                        }>
                           {report.report_type}
                         </Badge>
-                        <span className="ml-2 text-sm text-gray-600">
+                        <span className="text-sm text-gray-600 dark:text-gray-400">
                           {report.period_start} - {report.period_end}
                         </span>
                       </div>
@@ -294,9 +348,14 @@ export default function CompetitorDetailModal({
                     </div>
                   ))}
                 </div>
-              </CardContent>
-            </Card>
-          )}
+              ) : (
+                <Card className="p-8 text-center border border-gray-200 dark:border-gray-700">
+                  <FileText className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+                  <p className="text-gray-500">No reports generated yet</p>
+                </Card>
+              )}
+            </TabsContent>
+          </Tabs>
         </div>
       </DialogContent>
     </Dialog>
