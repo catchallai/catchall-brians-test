@@ -174,17 +174,6 @@ export default function CalendarPostModal({ open, onClose, post, onSave, isLoadi
             </div>
           </div>
 
-          {/* Title */}
-          <div className="space-y-2">
-            <Label>Title/Headline Overlay *</Label>
-            <Input
-              value={formData.title}
-              onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-              placeholder="AVIATION ELEVATED"
-              required
-            />
-          </div>
-
           {/* Caption */}
           <div className="space-y-2">
             <Label>Caption</Label>

@@ -32,6 +32,7 @@ import MediaOutreach from './pages/MediaOutreach';
 import Settings from './pages/Settings';
 import ActivityLogs from './pages/ActivityLogs';
 import MarketingHub from './pages/MarketingHub';
+import HashtagManager from './pages/HashtagManager';
 import __Layout from './Layout.jsx';
 
 
@@ -70,6 +71,7 @@ export const PAGES = {
     "Settings": Settings,
     "ActivityLogs": ActivityLogs,
     "MarketingHub": MarketingHub,
+    "HashtagManager": HashtagManager,
 }
 
 export const pagesConfig = {
