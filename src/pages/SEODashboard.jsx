@@ -224,9 +224,9 @@ export default function SEODashboard() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">SEO Dashboard</h1>
-          <p className="text-gray-500 mt-1">Monitor and improve your search engine rankings</p>
+          <p className="text-gray-500 dark:text-gray-400 mt-1">Monitor and improve your search engine rankings</p>
         </div>
-        <Button onClick={() => setShowModal(true)} className="gap-2 bg-emerald-600 hover:bg-emerald-700">
+        <Button onClick={() => setShowModal(true)} className="gap-2 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 shadow-lg shadow-emerald-500/20">
           <Plus className="w-4 h-4" />
           Add Website
         </Button>
@@ -241,23 +241,27 @@ export default function SEODashboard() {
           onAction={() => setShowModal(true)}
         />
       ) : (
-        <>
+        <div className="space-y-6">
           {/* Overview Stats */}
           <SEOOverviewStats websites={websites} keywords={keywords} backlinks={backlinks} />
 
           {/* Quick Actions */}
           <QuickActionsGrid keywords={keywords} backlinks={backlinks} />
 
-          {/* Tabs for organized content */}
-          <Tabs defaultValue="websites" className="space-y-6">
-            <TabsList className="glass-card">
-              <TabsTrigger value="websites">Websites</TabsTrigger>
-              <TabsTrigger value="analytics">Analytics</TabsTrigger>
+          {/* Main Content Grid */}
+          <Tabs defaultValue="websites" className="space-y-5">
+            <TabsList className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-1 rounded-xl shadow-sm">
+              <TabsTrigger value="websites" className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-emerald-500 data-[state=active]:to-teal-600 data-[state=active]:text-white">
+                Websites
+              </TabsTrigger>
+              <TabsTrigger value="analytics" className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-emerald-500 data-[state=active]:to-teal-600 data-[state=active]:text-white">
+                Analytics
+              </TabsTrigger>
             </TabsList>
 
-            <TabsContent value="websites" className="space-y-6">
+            <TabsContent value="websites" className="space-y-6 mt-0">
               {/* Website Cards */}
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
                 {websites.map((website) => (
                   <WebsiteCard
                     key={website.id}
@@ -272,22 +276,24 @@ export default function SEODashboard() {
               </div>
 
               {/* Technical Audit Section */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {websites.slice(0, 2).map((website) => (
-                  <TechnicalAuditCard 
-                    key={website.id} 
-                    website={website}
-                    onAuditSaved={() => {
-                      queryClient.invalidateQueries({ queryKey: ['websites'] });
-                      toast.success('Technical audit saved');
-                    }}
-                  />
-                ))}
-              </div>
+              {websites.length > 0 && (
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+                  {websites.slice(0, 2).map((website) => (
+                    <TechnicalAuditCard 
+                      key={website.id} 
+                      website={website}
+                      onAuditSaved={() => {
+                        queryClient.invalidateQueries({ queryKey: ['websites'] });
+                        toast.success('Technical audit saved');
+                      }}
+                    />
+                  ))}
+                </div>
+              )}
             </TabsContent>
 
-            <TabsContent value="analytics" className="space-y-6">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <TabsContent value="analytics" className="space-y-5 mt-0">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
                 <SentimentOverview mentions={mentions} />
                 <ShareOfVoiceCard 
                   website={websites[0]} 
@@ -295,7 +301,7 @@ export default function SEODashboard() {
                   onSaveSov={(data) => saveSovMutation.mutate(data)}
                 />
               </div>
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
                 <HistoricalDataCard 
                   keywords={keywords} 
                   keywordHistory={keywordHistory}
@@ -307,10 +313,8 @@ export default function SEODashboard() {
                 />
               </div>
             </TabsContent>
-
-
           </Tabs>
-        </>
+        </div>
       )}
 
       {/* Modals */}
