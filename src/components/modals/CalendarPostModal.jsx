@@ -174,6 +174,16 @@ export default function CalendarPostModal({ open, onClose, post, onSave, isLoadi
             </div>
           </div>
 
+          {/* Title */}
+          <div className="space-y-2">
+            <Label>Title/Headline</Label>
+            <Input
+              value={formData.title}
+              onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+              placeholder="Enter title or headline..."
+            />
+          </div>
+
           {/* Caption */}
           <div className="space-y-2">
             <Label>Caption</Label>
