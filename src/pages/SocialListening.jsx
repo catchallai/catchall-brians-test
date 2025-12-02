@@ -172,24 +172,53 @@ Create a response that:
       const previousMentionCount = mentions.filter(m => m.listening_id === keyword.id).length;
 
       const analysis = await base44.integrations.Core.InvokeLLM({
-        prompt: `Search the internet for recent social media posts and discussions about "${searchTerm}" on these platforms: ${platformsToScan}.
+        prompt: `Search the internet comprehensively for social media posts and discussions about "${searchTerm}" on these platforms: ${platformsToScan}.
 
-Search for posts/mentions from the past 3 years (2022-2025). Find 15 posts/mentions spanning this time period and for each provide:
-1. The platform (twitter, linkedin, facebook, instagram, or youtube)
-2. The full post content/text
-3. The author's username
-4. Estimated author follower count (be realistic, use numbers like 500, 2000, 15000, 100000)
-5. Engagement: likes, comments, shares (use realistic estimates)
-6. Sentiment: positive, neutral, or negative
-7. Influence score 0-100 based on reach and engagement
-8. Whether this is from an influencer (followers > 10000 or influence > 70)
-9. Location/country if detectable (use country codes like US, UK, CA, DE, etc)
+Find 20 real posts/mentions from the past 3 years (2022-2025) with COMPLETE data for each:
 
-Also provide:
-- Overall trending score 0-100 (how much buzz this topic is generating)
-- Sentiment breakdown: count of positive, neutral, negative mentions
-- Whether there's a spike in mentions (compared to normal activity)
-- Whether sentiment has shifted negatively`,
+FOR EACH POST PROVIDE:
+1. Platform (twitter, linkedin, facebook, instagram, youtube, tiktok, reddit)
+2. Post URL (the direct link to the original post - this is CRITICAL)
+3. Full post content/text (complete caption or tweet)
+4. Post type (text, image, video, link, carousel, story, reel, thread)
+5. Exact post date (format: YYYY-MM-DD)
+6. Author username (handle without @)
+7. Author display name (their full name)
+8. Author follower count (exact number)
+9. Whether author is verified (true/false)
+10. Author bio snippet
+11. Engagement metrics:
+    - likes (exact count)
+    - comments (exact count)  
+    - shares/retweets (exact count)
+    - views (for videos - exact count)
+    - saves/bookmarks (if available)
+12. Sentiment: positive, neutral, or negative
+13. Sentiment score: -1 (very negative) to 1 (very positive)
+14. Influence score 0-100 (based on reach, engagement rate, author authority)
+15. Virality score 0-100 (potential to go viral based on early engagement)
+16. Whether from an influencer (followers > 10000 or influence > 70)
+17. Whether this is a reply to another post
+18. Location/city if detectable
+19. Country code (US, UK, CA, DE, etc)
+20. Language code (en, es, fr, etc)
+21. Hashtags used in the post (array)
+22. Other users mentioned (array)
+23. Topics/themes detected (array of 3-5 topics)
+24. Key phrases/keywords (array)
+25. Other brands mentioned (array)
+26. Whether a competitor is mentioned
+27. Business impact level: high, medium, low, none
+28. Whether action is required (for negative or high-impact posts)
+
+ALSO PROVIDE OVERALL ANALYSIS:
+- Trending score 0-100 (current buzz level)
+- Sentiment breakdown (count of positive, neutral, negative)
+- Whether there's a mention spike
+- Whether sentiment has shifted negatively
+- Top hashtags being used with this topic
+- Peak posting times observed
+- Geographic distribution (top countries)`,
         add_context_from_internet: true,
         response_json_schema: {
           type: "object",
@@ -205,23 +234,48 @@ Also provide:
             },
             has_spike: { type: "boolean" },
             negative_shift: { type: "boolean" },
+            top_hashtags: { type: "array", items: { type: "string" } },
+            peak_times: { type: "array", items: { type: "string" } },
+            top_countries: { type: "array", items: { type: "string" } },
             mentions: {
               type: "array",
               items: {
                 type: "object",
                 properties: {
                   platform: { type: "string" },
+                  post_url: { type: "string" },
+                  post_id: { type: "string" },
                   content: { type: "string" },
+                  post_type: { type: "string" },
+                  post_date: { type: "string" },
                   author: { type: "string" },
+                  author_display_name: { type: "string" },
                   author_followers: { type: "number" },
+                  author_verified: { type: "boolean" },
+                  author_bio: { type: "string" },
                   likes: { type: "number" },
                   comments: { type: "number" },
                   shares: { type: "number" },
+                  views: { type: "number" },
+                  saves: { type: "number" },
+                  engagement_rate: { type: "number" },
                   sentiment: { type: "string" },
+                  sentiment_score: { type: "number" },
                   influence_score: { type: "number" },
+                  virality_score: { type: "number" },
                   is_influencer: { type: "boolean" },
+                  is_reply: { type: "boolean" },
                   location: { type: "string" },
-                  country: { type: "string" }
+                  country: { type: "string" },
+                  language: { type: "string" },
+                  hashtags: { type: "array", items: { type: "string" } },
+                  mentions: { type: "array", items: { type: "string" } },
+                  topics: { type: "array", items: { type: "string" } },
+                  keywords: { type: "array", items: { type: "string" } },
+                  brand_mentions: { type: "array", items: { type: "string" } },
+                  competitor_mentioned: { type: "boolean" },
+                  business_impact: { type: "string" },
+                  action_required: { type: "boolean" }
                 }
               }
             }
