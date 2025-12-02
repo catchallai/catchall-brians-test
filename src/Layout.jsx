@@ -246,6 +246,16 @@ export default function Layout({ children, currentPageName }) {
   return (
     <ThemeProvider>
     <ToastProvider>
+    {/* Google Analytics */}
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-15KW7LZW87"></script>
+    <script dangerouslySetInnerHTML={{
+      __html: `
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-15KW7LZW87');
+      `
+    }} />
     <div className="min-h-screen gradient-bg transition-colors duration-300">
       {/* Mobile Header */}
       <div className="lg:hidden fixed top-0 left-0 right-0 h-16 glass-topbar z-40 flex items-center gap-3 px-4">
