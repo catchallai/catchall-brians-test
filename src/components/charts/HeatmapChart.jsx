@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { Tooltip as ReactTooltip } from 'react-tooltip';
 
 const getColor = (value, min, max, colorScheme = 'violet') => {
   const normalized = (value - min) / (max - min || 1);
@@ -87,15 +86,19 @@ export default function HeatmapChart({
                     return (
                       <div
                         key={xi}
-                        className={`flex-1 min-w-[50px] h-10 flex items-center justify-center text-xs font-medium transition-all cursor-pointer border border-white dark:border-gray-800 ${
+                        className={`flex-1 min-w-[50px] h-10 flex items-center justify-center text-xs font-medium transition-all cursor-pointer border border-white dark:border-gray-800 relative group/cell ${
                           isHovered ? 'ring-2 ring-violet-500 z-10' : ''
                         }`}
                         style={{ backgroundColor: getColor(value, minValue, maxValue, colorScheme) }}
                         onMouseEnter={() => setHoveredCell(cellKey)}
                         onMouseLeave={() => setHoveredCell(null)}
-                        data-tooltip-id="heatmap-tooltip"
-                        data-tooltip-content={`${yLabel} × ${xLabel}: ${value.toLocaleString()}`}
                       >
+                        {/* Tooltip */}
+                        {isHovered && (
+                          <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900 text-white text-xs rounded whitespace-nowrap z-50">
+                            {yLabel} × {xLabel}: {value.toLocaleString()}
+                          </div>
+                        )}
                         {showValues && (
                           <span className={value > (maxValue - minValue) / 2 + minValue ? 'text-white' : 'text-gray-700'}>
                             {value >= 1000 ? `${(value/1000).toFixed(1)}k` : value}
@@ -126,10 +129,6 @@ export default function HeatmapChart({
         </div>
       </div>
 
-      <ReactTooltip 
-        id="heatmap-tooltip" 
-        className="!bg-gray-900 !text-white !text-xs !rounded-lg !px-3 !py-2"
-      />
     </div>
   );
 }
