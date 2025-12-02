@@ -11,7 +11,7 @@ export default function CompetitorCard({ competitor, onAnalyze, isAnalyzing, onV
     : 0;
 
   return (
-    <Card className="p-4 border-0 shadow-sm hover:shadow-md transition-all">
+    <Card className="p-4 border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-all bg-white dark:bg-gray-800">
       <div className="flex items-start justify-between mb-3">
         <div>
           <h4 className="font-semibold text-gray-900 dark:text-white">{competitor.name}</h4>
