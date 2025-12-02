@@ -75,6 +75,8 @@ export default function SocialMedia() {
   const [showComposeModal, setShowComposeModal] = useState(false);
   const [isDiscoveringCompetitors, setIsDiscoveringCompetitors] = useState(false);
   const [sentimentFilter, setSentimentFilter] = useState(null);
+  const [scanningNewsFor, setScanningNewsFor] = useState(null);
+  const [deepAnalyzingFor, setDeepAnalyzingFor] = useState(null);
   const queryClient = useQueryClient();
 
   const { data: socialAccountsRaw = [], isLoading: loadingAccounts } = useQuery({
