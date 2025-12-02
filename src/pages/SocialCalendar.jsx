@@ -6,29 +6,30 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   Plus, 
   Calendar, 
-  Download, 
   Printer, 
-  Hash, 
   CheckCircle, 
-  X,
+  LayoutGrid,
+  CalendarDays,
   ChevronLeft,
-  ChevronRight,
-  Image
+  ChevronRight
 } from "lucide-react";
 import { format, startOfMonth, endOfMonth, addMonths, subMonths } from 'date-fns';
 import CalendarPostCard from '@/components/social/CalendarPostCard';
 import CalendarPostModal from '@/components/modals/CalendarPostModal';
+import SocialCalendarView from '@/components/social/SocialCalendarView';
+import HashtagPoolCard from '@/components/social/HashtagPoolCard';
 
 export default function SocialCalendar() {
   const [showModal, setShowModal] = useState(false);
   const [selectedPost, setSelectedPost] = useState(null);
   const [currentMonth, setCurrentMonth] = useState(new Date());
-  const [newHashtag, setNewHashtag] = useState('');
   const [approverName, setApproverName] = useState('');
   const [showApprovalSection, setShowApprovalSection] = useState(false);
+  const [viewMode, setViewMode] = useState('calendar');
   const printRef = useRef();
   const queryClient = useQueryClient();
 
@@ -148,7 +149,28 @@ export default function SocialCalendar() {
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Social Calendar</h1>
           <p className="text-gray-500 mt-1">Plan and preview upcoming social media posts</p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex items-center gap-3">
+          {/* View Toggle */}
+          <div className="flex bg-gray-100 dark:bg-gray-800 rounded-lg p-1">
+            <Button 
+              variant={viewMode === 'calendar' ? 'default' : 'ghost'} 
+              size="sm"
+              onClick={() => setViewMode('calendar')}
+              className={`gap-1.5 ${viewMode === 'calendar' ? 'bg-white dark:bg-gray-700 shadow-sm' : ''}`}
+            >
+              <CalendarDays className="w-4 h-4" />
+              Calendar
+            </Button>
+            <Button 
+              variant={viewMode === 'grid' ? 'default' : 'ghost'} 
+              size="sm"
+              onClick={() => setViewMode('grid')}
+              className={`gap-1.5 ${viewMode === 'grid' ? 'bg-white dark:bg-gray-700 shadow-sm' : ''}`}
+            >
+              <LayoutGrid className="w-4 h-4" />
+              Grid
+            </Button>
+          </div>
           <Button variant="outline" onClick={handlePrint} className="gap-2">
             <Printer className="w-4 h-4" />
             Print
@@ -189,128 +211,114 @@ export default function SocialCalendar() {
           </CardContent>
         </Card>
 
-        {/* Posts Grid */}
-        {filteredPosts.length === 0 ? (
-          <Card className="glass-card rounded-2xl">
-            <CardContent className="py-16 text-center">
-              <Calendar className="w-12 h-12 mx-auto mb-4 text-gray-300" />
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">No posts scheduled</h3>
-              <p className="text-gray-500 mb-4">Add your first post to the calendar</p>
-              <Button onClick={() => setShowModal(true)} className="gap-2">
-                <Plus className="w-4 h-4" />
-                Add Post
-              </Button>
-            </CardContent>
-          </Card>
-        ) : (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 print:grid-cols-3 print:gap-3">
-            {filteredPosts.map((post) => (
-              <div key={post.id} className="flex flex-col">
-                <CalendarPostCard 
-                  post={post} 
-                  onEdit={handleEdit}
-                  onDelete={handleDelete}
-                  compact
-                />
-                {post.caption && (
-                  <p className="text-xs text-gray-600 mt-2 line-clamp-3 px-1">{post.caption}</p>
-                )}
-              </div>
-            ))}
-          </div>
+        {/* Calendar View */}
+        {viewMode === 'calendar' && (
+          <SocialCalendarView
+            posts={filteredPosts}
+            currentMonth={currentMonth}
+            onMonthChange={setCurrentMonth}
+            onAddPost={() => setShowModal(true)}
+            onEditPost={handleEdit}
+          />
+        )}
+
+        {/* Grid View */}
+        {viewMode === 'grid' && (
+          filteredPosts.length === 0 ? (
+            <Card className="glass-card rounded-2xl">
+              <CardContent className="py-16 text-center">
+                <Calendar className="w-12 h-12 mx-auto mb-4 text-gray-300" />
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">No posts scheduled</h3>
+                <p className="text-gray-500 mb-4">Add your first post to the calendar</p>
+                <Button onClick={() => setShowModal(true)} className="gap-2">
+                  <Plus className="w-4 h-4" />
+                  Add Post
+                </Button>
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 print:grid-cols-3 print:gap-3">
+              {filteredPosts.map((post) => (
+                <div key={post.id} className="flex flex-col">
+                  <CalendarPostCard 
+                    post={post} 
+                    onEdit={handleEdit}
+                    onDelete={handleDelete}
+                    compact
+                  />
+                  {post.caption && (
+                    <p className="text-xs text-gray-600 mt-2 line-clamp-3 px-1">{post.caption}</p>
+                  )}
+                </div>
+              ))}
+            </div>
+          )
         )}
 
         {/* Hashtag Pool */}
-        <Card className="border-0 shadow-sm mt-6 print:shadow-none print:border print:border-red-500">
-          <CardHeader className="pb-3">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-base flex items-center gap-2">
-                <Hash className="w-4 h-4 text-red-500" />
-                Hashtag Pool
-              </CardTitle>
-              <div className="flex gap-2 print:hidden">
-                <Input
-                  placeholder="Add hashtag..."
-                  value={newHashtag}
-                  onChange={(e) => setNewHashtag(e.target.value)}
-                  className="w-40 h-8 text-sm"
-                  onKeyDown={(e) => e.key === 'Enter' && newHashtag && addHashtagMutation.mutate(newHashtag)}
-                />
-                <Button 
-                  size="sm" 
-                  onClick={() => newHashtag && addHashtagMutation.mutate(newHashtag)}
-                  disabled={!newHashtag}
-                >
-                  Add
-                </Button>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-wrap gap-2 p-3 bg-white border border-red-200 rounded-lg">
-              {hashtagPool.map(h => (
-                <span key={h.id} className="text-blue-600 text-sm group">
-                  #{h.hashtag}
-                  <button 
-                    className="ml-1 text-gray-400 hover:text-red-500 print:hidden opacity-0 group-hover:opacity-100"
-                    onClick={() => deleteHashtagMutation.mutate(h.id)}
-                  >
-                    <X className="w-3 h-3 inline" />
-                  </button>
-                </span>
-              ))}
-              {hashtagPool.length === 0 && (
-                <span className="text-gray-400 text-sm">No hashtags added yet</span>
-              )}
-            </div>
-          </CardContent>
-        </Card>
+        <div className="mt-6 print:hidden">
+          <HashtagPoolCard
+            hashtags={hashtagPool}
+            onAdd={(hashtag) => addHashtagMutation.mutate(hashtag)}
+            onDelete={(id) => deleteHashtagMutation.mutate(id)}
+            isAddLoading={addHashtagMutation.isPending}
+          />
+        </div>
 
         {/* Approval Section */}
-        <Card className="border-0 shadow-sm mt-6 print:shadow-none print:border print:border-red-500">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-8">
-              <div className="flex-1">
-                <label className="text-sm font-medium text-gray-700">Sign Off Approved By</label>
-                <div className="border-b border-red-300 mt-2 pb-1 print:min-h-[24px]">
+        <Card className="border-0 shadow-sm mt-6 print:shadow-none print:border print:border-emerald-500 bg-white dark:bg-gray-800 rounded-2xl">
+          <CardContent className="p-6">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
+              <div className="flex-1 w-full sm:w-auto">
+                <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">Sign Off Approved By</label>
+                <div className="border-b-2 border-emerald-400 mt-2 pb-2 print:min-h-[24px]">
                   {showApprovalSection ? (
                     <Input
                       value={approverName}
                       onChange={(e) => setApproverName(e.target.value)}
-                      placeholder="Enter name..."
-                      className="border-0 p-0 h-6 focus-visible:ring-0"
+                      placeholder="Enter approver name..."
+                      className="border-0 p-0 h-8 text-lg focus-visible:ring-0 bg-transparent"
                     />
                   ) : (
-                    <span className="text-sm text-gray-600">
-                      {filteredPosts.find(p => p.approved_by)?.approved_by || ''}
+                    <span className="text-lg text-gray-700 dark:text-gray-300 font-medium">
+                      {filteredPosts.find(p => p.approved_by)?.approved_by || '—'}
                     </span>
                   )}
                 </div>
               </div>
-              <div className="flex-1">
-                <label className="text-sm font-medium text-gray-700">Sign Off Date</label>
-                <div className="border-b border-red-300 mt-2 pb-1 print:min-h-[24px]">
-                  <span className="text-sm text-gray-600">
+              <div className="flex-1 w-full sm:w-auto">
+                <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">Sign Off Date</label>
+                <div className="border-b-2 border-emerald-400 mt-2 pb-2 print:min-h-[24px]">
+                  <span className="text-lg text-gray-700 dark:text-gray-300 font-medium">
                     {filteredPosts.find(p => p.approved_date)?.approved_date 
                       ? format(new Date(filteredPosts.find(p => p.approved_date).approved_date), 'MMM d, yyyy')
-                      : ''}
+                      : '—'}
                   </span>
                 </div>
               </div>
-              <div className="print:hidden">
+              <div className="print:hidden w-full sm:w-auto">
                 {showApprovalSection ? (
-                  <div className="flex gap-2">
-                    <Button size="sm" onClick={handleApproveAll} className="gap-1 bg-emerald-600 hover:bg-emerald-700">
-                      <CheckCircle className="w-3 h-3" />
-                      Approve All
+                  <div className="flex gap-3">
+                    <Button 
+                      size="lg" 
+                      onClick={handleApproveAll} 
+                      className="gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-3 h-auto text-base font-semibold shadow-lg"
+                    >
+                      <CheckCircle className="w-5 h-5" />
+                      Approve All Posts
                     </Button>
-                    <Button size="sm" variant="ghost" onClick={() => setShowApprovalSection(false)}>
+                    <Button size="lg" variant="outline" onClick={() => setShowApprovalSection(false)} className="px-4">
                       Cancel
                     </Button>
                   </div>
                 ) : (
-                  <Button size="sm" variant="outline" onClick={() => setShowApprovalSection(true)}>
-                    Sign Off
+                  <Button 
+                    size="lg" 
+                    onClick={() => setShowApprovalSection(true)}
+                    className="gap-2 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white px-8 py-4 h-auto text-lg font-bold shadow-lg hover:shadow-xl transition-all"
+                  >
+                    <CheckCircle className="w-5 h-5" />
+                    Sign Off Calendar
                   </Button>
                 )}
               </div>
