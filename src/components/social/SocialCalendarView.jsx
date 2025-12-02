@@ -43,37 +43,37 @@ export default function SocialCalendarView({ posts = [], onAddPost, onEditPost, 
   return (
     <Card className="border-0 shadow-sm bg-white dark:bg-gray-800 rounded-2xl overflow-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-gray-100 dark:border-gray-700">
-        <div className="flex items-center gap-3">
+      <div className="flex items-center justify-between p-5 border-b-2 border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-800/50">
+        <div className="flex items-center gap-4">
           <Button 
-            variant="ghost" 
+            variant="outline" 
             size="icon" 
             onClick={() => onMonthChange(subMonths(currentMonth, 1))}
-            className="h-8 w-8"
+            className="h-10 w-10"
           >
-            <ChevronLeft className="w-4 h-4" />
+            <ChevronLeft className="w-5 h-5" />
           </Button>
-          <h3 className="font-semibold text-lg text-gray-900 dark:text-white min-w-[160px] text-center">
+          <h3 className="font-bold text-2xl text-gray-900 dark:text-white min-w-[200px] text-center">
             {format(currentMonth, 'MMMM yyyy')}
           </h3>
           <Button 
-            variant="ghost" 
+            variant="outline" 
             size="icon" 
             onClick={() => onMonthChange(addMonths(currentMonth, 1))}
-            className="h-8 w-8"
+            className="h-10 w-10"
           >
-            <ChevronRight className="w-4 h-4" />
+            <ChevronRight className="w-5 h-5" />
           </Button>
         </div>
-        <Button size="sm" onClick={onAddPost} className="gap-1 bg-violet-600 hover:bg-violet-700">
-          <Plus className="w-4 h-4" /> Add Post
+        <Button size="lg" onClick={onAddPost} className="gap-2 bg-violet-600 hover:bg-violet-700 font-semibold">
+          <Plus className="w-5 h-5" /> Add Post
         </Button>
       </div>
 
       {/* Week Days Header */}
-      <div className="grid grid-cols-7 border-b border-gray-100 dark:border-gray-700">
+      <div className="grid grid-cols-7 border-b-2 border-gray-200 dark:border-gray-600">
         {weekDays.map(day => (
-          <div key={day} className="text-center text-xs font-semibold text-gray-500 dark:text-gray-400 py-3 bg-gray-50 dark:bg-gray-800/50">
+          <div key={day} className="text-center text-sm font-bold text-gray-700 dark:text-gray-300 py-4 bg-gray-100 dark:bg-gray-800/80 uppercase tracking-wide">
             {day}
           </div>
         ))}
@@ -90,47 +90,47 @@ export default function SocialCalendarView({ posts = [], onAddPost, onEditPost, 
           return (
             <div
               key={idx}
-              className={`min-h-[120px] p-2 border-b border-r border-gray-100 dark:border-gray-700 transition-colors ${
+              className={`min-h-[140px] p-3 border-b border-r border-gray-200 dark:border-gray-600 transition-colors ${
                 isCurrentMonth 
                   ? 'bg-white dark:bg-gray-800' 
-                  : 'bg-gray-50 dark:bg-gray-900/50'
-              } ${isToday ? 'bg-violet-50 dark:bg-violet-900/20' : ''} ${
+                  : 'bg-gray-100 dark:bg-gray-900/50'
+              } ${isToday ? 'bg-violet-50 dark:bg-violet-900/20 ring-2 ring-inset ring-violet-400' : ''} ${
                 idx % 7 === 6 ? 'border-r-0' : ''
               } hover:bg-gray-50 dark:hover:bg-gray-700/50`}
             >
               {/* Day Number */}
-              <div className={`text-sm font-medium mb-2 flex items-center justify-between ${
+              <div className={`text-base font-bold mb-3 flex items-center justify-between ${
                 isCurrentMonth 
-                  ? (isToday ? 'text-violet-600 dark:text-violet-400' : 'text-gray-700 dark:text-gray-300') 
-                  : 'text-gray-300 dark:text-gray-600'
+                  ? (isToday ? 'text-violet-600 dark:text-violet-400' : 'text-gray-900 dark:text-gray-100') 
+                  : 'text-gray-400 dark:text-gray-500'
               }`}>
-                <span className={`${isToday ? 'bg-violet-600 text-white w-6 h-6 rounded-full flex items-center justify-center' : ''}`}>
+                <span className={`${isToday ? 'bg-violet-600 text-white w-8 h-8 rounded-full flex items-center justify-center text-sm' : ''}`}>
                   {format(day, 'd')}
                 </span>
                 {dayPosts.length > 0 && (
-                  <Badge variant="secondary" className="text-xs h-5 px-1.5">
+                  <Badge className="text-xs h-6 px-2 bg-violet-100 text-violet-700 dark:bg-violet-900 dark:text-violet-300 font-semibold">
                     {dayPosts.length}
                   </Badge>
                 )}
               </div>
 
               {/* Posts */}
-              <div className="space-y-1">
+              <div className="space-y-1.5">
                 {dayPosts.slice(0, 2).map((post) => (
                   <div
                     key={post.id}
                     onClick={() => onEditPost(post)}
-                    className={`text-xs p-1.5 rounded-md cursor-pointer border transition-all hover:shadow-sm ${
+                    className={`text-sm p-2 rounded-lg cursor-pointer border-2 transition-all hover:shadow-md hover:scale-[1.02] ${
                       statusColors[post.status] || statusColors.draft
                     }`}
                   >
-                    <div className="flex items-center gap-1.5">
+                    <div className="flex items-center gap-2">
                       {post.platform && (
-                        <div className={`w-2 h-2 rounded-full flex-shrink-0 ${platformColors[post.platform] || 'bg-gray-400'}`} />
+                        <div className={`w-3 h-3 rounded-full flex-shrink-0 ${platformColors[post.platform] || 'bg-gray-400'}`} />
                       )}
-                      <span className="truncate text-gray-700 dark:text-gray-300 font-medium">
-                        {post.caption?.slice(0, 20) || 'Untitled'}
-                        {post.caption?.length > 20 ? '...' : ''}
+                      <span className="truncate text-gray-800 dark:text-gray-200 font-semibold">
+                        {post.caption?.slice(0, 18) || 'Untitled'}
+                        {post.caption?.length > 18 ? '...' : ''}
                       </span>
                     </div>
                   </div>
@@ -138,7 +138,7 @@ export default function SocialCalendarView({ posts = [], onAddPost, onEditPost, 
                 {hasMultiple && (
                   <button 
                     onClick={() => onEditPost(dayPosts[0])}
-                    className="text-xs text-violet-600 dark:text-violet-400 hover:underline w-full text-left pl-1"
+                    className="text-sm text-violet-600 dark:text-violet-400 hover:underline w-full text-left font-semibold"
                   >
                     +{dayPosts.length - 2} more
                   </button>
