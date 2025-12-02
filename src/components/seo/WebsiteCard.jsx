@@ -1,10 +1,8 @@
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { ExternalLink, Settings, Sparkles, Loader2, Search, Link2, TrendingUp, Globe, Clock } from "lucide-react";
 import SEOScoreGauge from './SEOScoreGauge';
-import WebsiteScreenshot from './WebsiteScreenshot';
 import moment from 'moment';
 
 export default function WebsiteCard({ 
@@ -13,8 +11,7 @@ export default function WebsiteCard({
   backlinks, 
   onEdit, 
   onAnalyze, 
-  isAnalyzing,
-  onScreenshotUpdate
+  isAnalyzing
 }) {
   const top10Keywords = keywords.filter(k => k.current_position && k.current_position <= 10).length;
   
@@ -25,48 +22,44 @@ export default function WebsiteCard({
     return num.toString();
   };
 
+  const metrics = [
+    { icon: Search, label: 'Keywords', value: keywords.length, sub: `${top10Keywords} top 10`, color: 'text-violet-500' },
+    { icon: Link2, label: 'Backlinks', value: backlinks.length, sub: `${backlinks.filter(b => b.status === 'active').length} active`, color: 'text-blue-500' },
+    { icon: TrendingUp, label: 'Traffic', value: formatNumber(website.organic_traffic), sub: 'monthly', color: 'text-emerald-500' },
+    { icon: Globe, label: 'DA', value: website.domain_authority || '-', sub: 'authority', color: 'text-amber-500' },
+  ];
+
   return (
-    <Card className="border-0 shadow-sm hover:shadow-lg transition-all overflow-hidden">
-      {/* Website Screenshot */}
-      <WebsiteScreenshot 
-        url={website.url}
-        screenshotUrl={website.screenshot_url}
-        onScreenshotCaptured={onScreenshotUpdate}
-        className="h-32"
-      />
+    <Card className="group relative overflow-hidden border-0 bg-white dark:bg-gray-800 shadow-sm hover:shadow-xl transition-all duration-300 rounded-2xl">
+      {/* Top gradient accent */}
+      <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-500 to-teal-600" />
       
-      <CardHeader className="pb-2 pt-3">
-        <div className="flex items-start justify-between">
+      <CardContent className="p-5">
+        {/* Header */}
+        <div className="flex items-start justify-between mb-5">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white font-bold">
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white font-bold text-lg shadow-lg group-hover:scale-105 transition-transform">
               {website.name?.[0]?.toUpperCase()}
             </div>
             <div>
-              <CardTitle className="text-lg">{website.name}</CardTitle>
+              <h3 className="font-bold text-gray-900 dark:text-white text-lg">{website.name}</h3>
               <a 
                 href={website.url} 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="text-sm text-gray-400 hover:text-emerald-600 flex items-center gap-1"
+                className="text-sm text-gray-400 hover:text-emerald-600 flex items-center gap-1 transition-colors"
               >
-                {website.url?.replace(/^https?:\/\//, '').slice(0, 30)}
+                {website.url?.replace(/^https?:\/\//, '').slice(0, 25)}
                 <ExternalLink className="w-3 h-3" />
               </a>
-              {website.last_audit_date && (
-                <div className="flex items-center gap-1 mt-1">
-                  <Clock className="w-3 h-3 text-gray-400" />
-                  <span className="text-xs text-gray-400">
-                    Audited {moment(website.last_audit_date).fromNow()}
-                  </span>
-                </div>
-              )}
             </div>
           </div>
+          
           <div className="flex gap-1">
             <Button 
               variant="ghost" 
               size="icon" 
-              className="h-8 w-8 text-emerald-500 hover:text-emerald-700 hover:bg-emerald-50"
+              className="h-9 w-9 rounded-xl text-emerald-500 hover:text-emerald-700 hover:bg-emerald-50 dark:hover:bg-emerald-900/20"
               onClick={onAnalyze}
               disabled={isAnalyzing}
             >
@@ -79,55 +72,40 @@ export default function WebsiteCard({
             <Button 
               variant="ghost" 
               size="icon" 
-              className="h-8 w-8 text-gray-400 hover:text-gray-600"
+              className="h-9 w-9 rounded-xl text-gray-400 hover:text-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700"
               onClick={onEdit}
             >
               <Settings className="w-4 h-4" />
             </Button>
           </div>
         </div>
-      </CardHeader>
-      <CardContent className="pt-4">
-        <div className="flex items-center justify-center mb-6">
+
+        {/* SEO Score */}
+        <div className="flex justify-center mb-5">
           <SEOScoreGauge score={website.seo_score || 0} label="SEO Score" size="md" />
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
-          <div className="text-center p-3 rounded-lg bg-gray-50">
-            <div className="flex items-center justify-center gap-1 text-gray-400 mb-1">
-              <Search className="w-3.5 h-3.5" />
-              <span className="text-xs">Keywords</span>
+        {/* Metrics Grid */}
+        <div className="grid grid-cols-2 gap-2">
+          {metrics.map((metric) => (
+            <div key={metric.label} className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-3 text-center hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+              <div className="flex items-center justify-center gap-1 mb-1">
+                <metric.icon className={`w-3.5 h-3.5 ${metric.color}`} />
+                <span className="text-xs text-gray-500 dark:text-gray-400">{metric.label}</span>
+              </div>
+              <p className="text-xl font-bold text-gray-900 dark:text-white">{metric.value}</p>
+              <p className="text-xs text-gray-400">{metric.sub}</p>
             </div>
-            <p className="text-xl font-bold text-gray-900">{keywords.length}</p>
-            <p className="text-xs text-emerald-600">{top10Keywords} in top 10</p>
-          </div>
-          <div className="text-center p-3 rounded-lg bg-gray-50">
-            <div className="flex items-center justify-center gap-1 text-gray-400 mb-1">
-              <Link2 className="w-3.5 h-3.5" />
-              <span className="text-xs">Backlinks</span>
-            </div>
-            <p className="text-xl font-bold text-gray-900">{backlinks.length}</p>
-            <p className="text-xs text-gray-500">
-              {backlinks.filter(b => b.status === 'active').length} active
-            </p>
-          </div>
-          <div className="text-center p-3 rounded-lg bg-gray-50">
-            <div className="flex items-center justify-center gap-1 text-gray-400 mb-1">
-              <TrendingUp className="w-3.5 h-3.5" />
-              <span className="text-xs">Traffic</span>
-            </div>
-            <p className="text-xl font-bold text-gray-900">{formatNumber(website.organic_traffic)}</p>
-            <p className="text-xs text-gray-500">monthly</p>
-          </div>
-          <div className="text-center p-3 rounded-lg bg-gray-50">
-            <div className="flex items-center justify-center gap-1 text-gray-400 mb-1">
-              <Globe className="w-3.5 h-3.5" />
-              <span className="text-xs">DA</span>
-            </div>
-            <p className="text-xl font-bold text-gray-900">{website.domain_authority || '-'}</p>
-            <p className="text-xs text-gray-500">domain auth</p>
-          </div>
+          ))}
         </div>
+
+        {/* Last audit */}
+        {website.last_audit_date && (
+          <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700 flex items-center justify-center gap-1.5 text-xs text-gray-400">
+            <Clock className="w-3 h-3" />
+            <span>Audited {moment(website.last_audit_date).fromNow()}</span>
+          </div>
+        )}
       </CardContent>
     </Card>
   );
