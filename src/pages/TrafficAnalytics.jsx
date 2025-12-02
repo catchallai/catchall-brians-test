@@ -30,6 +30,20 @@ const COLORS = ['#8b5cf6', '#06b6d4', '#10b981', '#f59e0b', '#ef4444', '#ec4899'
 export default function TrafficAnalytics() {
   const [selectedWebsite, setSelectedWebsite] = useState('all');
   const [dateRange, setDateRange] = useState('30d');
+  const [widgetVisibility, setWidgetVisibility] = useState({
+    realTime: true,
+    visitorType: true,
+    topPages: true,
+    userFlow: true,
+    engagement: true,
+    referrals: true,
+    browserOS: true,
+    peakHours: true,
+  });
+
+  const toggleWidget = (key) => {
+    setWidgetVisibility(prev => ({ ...prev, [key]: !prev[key] }));
+  };
 
   const { data: websites = [] } = useQuery({
     queryKey: ['websites'],
