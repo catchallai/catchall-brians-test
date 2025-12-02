@@ -1405,6 +1405,11 @@ Find 5 recent posts with: post_url (direct link to post), content, post_date, li
             onGenerateReport={(type) => generateReportMutation.mutate({ competitor: selectedCompetitor, reportType: type })}
             isGenerating={generatingReport === selectedCompetitor?.id}
             onViewReport={(report) => { setSelectedCompetitor(null); setSelectedReport(report); }}
+            onScanNews={() => scanNewsMutation.mutate(selectedCompetitor)}
+            isScanningNews={scanningNewsFor === selectedCompetitor?.id}
+            onDeepAnalyze={() => deepAnalyzeMutation.mutate(selectedCompetitor)}
+            isDeepAnalyzing={deepAnalyzingFor === selectedCompetitor?.id}
+            yourBrandName={companies[0]?.name || 'Your Brand'}
           />
         </TabsContent>
 
