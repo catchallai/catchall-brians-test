@@ -46,6 +46,25 @@ export default function TrafficAnalytics() {
   const avgBounce = trafficData.length ? Math.round(trafficData.reduce((sum, d) => sum + d.bounce_rate, 0) / trafficData.length) : 0;
   const avgDuration = trafficData.length ? Math.round(trafficData.reduce((sum, d) => sum + d.avg_duration, 0) / trafficData.length) : 0;
 
+  // Calculate percentage changes by comparing first half vs second half of period
+  const calculateChange = (data, key) => {
+    if (data.length < 2) return 0;
+    const midpoint = Math.floor(data.length / 2);
+    const firstHalf = data.slice(0, midpoint);
+    const secondHalf = data.slice(midpoint);
+    
+    const firstAvg = firstHalf.reduce((sum, d) => sum + d[key], 0) / firstHalf.length;
+    const secondAvg = secondHalf.reduce((sum, d) => sum + d[key], 0) / secondHalf.length;
+    
+    if (firstAvg === 0) return 0;
+    return ((secondAvg - firstAvg) / firstAvg * 100).toFixed(1);
+  };
+
+  const visitorsChange = calculateChange(trafficData, 'visitors');
+  const pageviewsChange = calculateChange(trafficData, 'pageviews');
+  const bounceChange = calculateChange(trafficData, 'bounce_rate');
+  const durationChange = calculateChange(trafficData, 'avg_duration');
+
   const trafficSources = [
     { name: 'Organic Search', value: 45, color: '#8b5cf6' },
     { name: 'Direct', value: 25, color: '#06b6d4' },
