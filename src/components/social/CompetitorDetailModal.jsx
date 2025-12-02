@@ -19,7 +19,12 @@ export default function CompetitorDetailModal({
   reports = [],
   onGenerateReport,
   isGenerating,
-  onViewReport
+  onViewReport,
+  onScanNews,
+  isScanningNews,
+  onDeepAnalyze,
+  isDeepAnalyzing,
+  yourBrandName
 }) {
   if (!competitor) return null;
 
