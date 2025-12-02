@@ -3,10 +3,14 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   TrendingUp, Calendar, Target, ExternalLink, Users, 
-  CheckCircle, AlertTriangle, BarChart3, Clock, FileText, Loader2
+  CheckCircle, AlertTriangle, BarChart3, Clock, FileText, Loader2,
+  Newspaper, Sparkles, GitCompare
 } from "lucide-react";
+import CompetitorInsightsPanel from './CompetitorInsightsPanel';
+import ComparativeReportCard from './ComparativeReportCard';
 
 export default function CompetitorDetailModal({ 
   open, 
