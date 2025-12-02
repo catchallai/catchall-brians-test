@@ -372,12 +372,45 @@ Return adapted content for: ${platforms.join(', ')}`,
       const periodStart = new Date(today);
       if (reportType === 'weekly') {
         periodStart.setDate(today.getDate() - 7);
+      } else if (reportType === 'comparative') {
+        periodStart.setDate(today.getDate() - 30);
       } else {
         periodStart.setDate(today.getDate() - 1);
       }
 
-      const analysis = await base44.integrations.Core.InvokeLLM({
-        prompt: `Generate a ${reportType} competitor analysis report for: ${competitor.name}
+      // Get your brand info for comparative reports
+      const yourBrandData = reportType === 'comparative' ? {
+        followers: socialAccounts.reduce((sum, a) => sum + (a.followers_count || 0), 0),
+        engagement_rate: socialAccounts.length > 0 
+          ? socialAccounts.reduce((sum, a) => sum + (a.engagement_rate || 0), 0) / socialAccounts.length 
+          : 0,
+        posts_per_week: scheduledPosts.length > 0 ? Math.round(scheduledPosts.length / 4) : 5,
+        avg_likes: socialPosts.length > 0 
+          ? Math.round(socialPosts.reduce((sum, p) => sum + (p.likes || 0), 0) / socialPosts.length) 
+          : 0
+      } : null;
+
+      const promptBase = reportType === 'comparative'
+        ? `Generate a comparative analysis report between our brand and ${competitor.name}:
+          
+Our brand metrics:
+- Total followers: ${yourBrandData.followers}
+- Avg engagement rate: ${yourBrandData.engagement_rate.toFixed(2)}%
+- Posts per week: ${yourBrandData.posts_per_week}
+- Avg likes: ${yourBrandData.avg_likes}
+
+Competitor: ${competitor.name}
+Website: ${competitor.website || 'N/A'}
+Social accounts: ${JSON.stringify(competitor.social_accounts || [])}
+
+Generate a detailed comparison including:
+1. Side-by-side metrics (followers, engagement, posts/week, avg likes, sentiment)
+2. 3 areas where our brand leads
+3. 3 areas we need to improve
+4. 5 strategic opportunities based on competitor gaps
+5. Key comparison insights (3-5 points)
+6. Standard metrics and trends`
+        : `Generate a ${reportType} competitor analysis report for: ${competitor.name}
         Website: ${competitor.website || 'N/A'}
         Social accounts: ${JSON.stringify(competitor.social_accounts || [])}
         Known strengths: ${(competitor.strengths || []).join(', ')}
@@ -390,7 +423,10 @@ Return adapted content for: ${platforms.join(', ')}`,
         4. Alerts - identify 3-5 significant changes or emerging threats with severity (critical/high/medium/low), type, title, description
         5. Top 3 performing posts with content, platform, engagement, sentiment
         6. 5 actionable recommendations based on their activity
-        7. Executive summary (2-3 sentences)`,
+        7. Executive summary (2-3 sentences)`;
+
+      const analysis = await base44.integrations.Core.InvokeLLM({
+        prompt: promptBase,
         add_context_from_internet: true,
         response_json_schema: {
           type: "object",
@@ -454,7 +490,36 @@ Return adapted content for: ${platforms.join(', ')}`,
               }
             },
             recommendations: { type: "array", items: { type: "string" } },
-            summary: { type: "string" }
+            summary: { type: "string" },
+            comparative_data: reportType === 'comparative' ? {
+              type: "object",
+              properties: {
+                your_metrics: {
+                  type: "object",
+                  properties: {
+                    followers: { type: "number" },
+                    engagement_rate: { type: "number" },
+                    posts_per_week: { type: "number" },
+                    avg_likes: { type: "number" },
+                    sentiment_score: { type: "number" }
+                  }
+                },
+                competitor_metrics: {
+                  type: "object",
+                  properties: {
+                    followers: { type: "number" },
+                    engagement_rate: { type: "number" },
+                    posts_per_week: { type: "number" },
+                    avg_likes: { type: "number" },
+                    sentiment_score: { type: "number" }
+                  }
+                },
+                comparison_insights: { type: "array", items: { type: "string" } },
+                areas_you_lead: { type: "array", items: { type: "string" } },
+                areas_to_improve: { type: "array", items: { type: "string" } },
+                strategic_opportunities: { type: "array", items: { type: "string" } }
+              }
+            } : undefined
           }
         }
       });
@@ -474,6 +539,174 @@ Return adapted content for: ${platforms.join(', ')}`,
       setGeneratingReport(null);
     },
     onError: () => setGeneratingReport(null),
+  });
+
+  // Scan News & Press Releases
+  const scanNewsMutation = useMutation({
+    mutationFn: async (competitor) => {
+      setScanningNewsFor(competitor.id);
+      
+      const analysis = await base44.integrations.Core.InvokeLLM({
+        prompt: `Search for the latest news, press releases, and media coverage about ${competitor.name} (${competitor.website || 'company'}).
+        
+Find:
+1. Recent news articles (last 30 days) - title, source, date, summary, sentiment, category
+2. Press releases and announcements - title, date, summary, key announcements, strategic implications
+3. Any significant company updates, product launches, partnerships, or industry mentions
+
+Provide 5 news articles and 3 press releases if available.`,
+        add_context_from_internet: true,
+        response_json_schema: {
+          type: "object",
+          properties: {
+            news_mentions: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  title: { type: "string" },
+                  source: { type: "string" },
+                  url: { type: "string" },
+                  date: { type: "string" },
+                  sentiment: { type: "string" },
+                  summary: { type: "string" },
+                  category: { type: "string" }
+                }
+              }
+            },
+            press_releases: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  title: { type: "string" },
+                  date: { type: "string" },
+                  summary: { type: "string" },
+                  key_announcements: { type: "array", items: { type: "string" } },
+                  strategic_implications: { type: "string" }
+                }
+              }
+            }
+          }
+        }
+      });
+
+      await base44.entities.Competitor.update(competitor.id, {
+        news_mentions: analysis.news_mentions || [],
+        press_releases: analysis.press_releases || [],
+        last_news_scan: new Date().toISOString()
+      });
+
+      return analysis;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['competitors'] });
+      setScanningNewsFor(null);
+    },
+    onError: () => setScanningNewsFor(null),
+  });
+
+  // Deep AI Analysis - Content Strategy, Predictions, Benchmarks
+  const deepAnalyzeMutation = useMutation({
+    mutationFn: async (competitor) => {
+      setDeepAnalyzingFor(competitor.id);
+      
+      const analysis = await base44.integrations.Core.InvokeLLM({
+        prompt: `Perform a deep strategic analysis of ${competitor.name} (${competitor.website || 'company'}) social media presence.
+
+Current known data:
+- Social accounts: ${JSON.stringify(competitor.social_accounts || [])}
+- Known strengths: ${(competitor.strengths || []).join(', ') || 'Unknown'}
+- Known content themes: ${(competitor.top_content || []).join(', ') || 'Unknown'}
+
+Analyze and provide:
+
+1. CONTENT STRATEGY ANALYSIS:
+- Primary content themes (3-5)
+- Content pillars they focus on
+- Tone of voice description
+- Visual style description
+- Top hashtag strategy (5-10 hashtags they use)
+- Common CTA patterns (3-5)
+
+2. PREDICTED UPCOMING CAMPAIGNS (next 3 months):
+For each predicted campaign, provide:
+- Campaign name/theme
+- Predicted launch timeframe
+- Type (product launch, seasonal, awareness, etc.)
+- Confidence score (0-100)
+- Detection signals (what indicates this campaign is coming)
+- Recommended response strategy
+
+3. INDUSTRY BENCHMARK SCORES:
+- Follower percentile (vs industry)
+- Engagement percentile
+- Growth rate percentile
+- Content quality score (0-100)
+- Brand strength score (0-100)
+- Industry average engagement rate
+- Industry average follower count
+
+Be specific and data-driven where possible.`,
+        add_context_from_internet: true,
+        response_json_schema: {
+          type: "object",
+          properties: {
+            content_strategy: {
+              type: "object",
+              properties: {
+                primary_themes: { type: "array", items: { type: "string" } },
+                content_pillars: { type: "array", items: { type: "string" } },
+                tone_of_voice: { type: "string" },
+                visual_style: { type: "string" },
+                hashtag_strategy: { type: "array", items: { type: "string" } },
+                cta_patterns: { type: "array", items: { type: "string" } }
+              }
+            },
+            predicted_campaigns: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  name: { type: "string" },
+                  predicted_launch: { type: "string" },
+                  type: { type: "string" },
+                  confidence: { type: "number" },
+                  signals: { type: "array", items: { type: "string" } },
+                  recommended_response: { type: "string" }
+                }
+              }
+            },
+            industry_benchmark: {
+              type: "object",
+              properties: {
+                follower_percentile: { type: "number" },
+                engagement_percentile: { type: "number" },
+                growth_rate_percentile: { type: "number" },
+                content_quality_score: { type: "number" },
+                brand_strength_score: { type: "number" },
+                industry_avg_engagement: { type: "number" },
+                industry_avg_followers: { type: "number" }
+              }
+            }
+          }
+        }
+      });
+
+      await base44.entities.Competitor.update(competitor.id, {
+        content_strategy: analysis.content_strategy,
+        predicted_campaigns: analysis.predicted_campaigns,
+        industry_benchmark: analysis.industry_benchmark,
+        last_analyzed: new Date().toISOString()
+      });
+
+      return analysis;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['competitors'] });
+      setDeepAnalyzingFor(null);
+    },
+    onError: () => setDeepAnalyzingFor(null),
   });
 
   const generateInsightsMutation = useMutation({
