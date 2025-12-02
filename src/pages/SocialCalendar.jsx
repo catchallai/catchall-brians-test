@@ -151,21 +151,21 @@ export default function SocialCalendar() {
         </div>
         <div className="flex items-center gap-3">
           {/* View Toggle */}
-          <div className="flex bg-gray-100 dark:bg-gray-800 rounded-lg p-1">
+          <div className="flex bg-gray-200 dark:bg-gray-700 rounded-lg p-1">
             <Button 
-              variant={viewMode === 'calendar' ? 'default' : 'ghost'} 
+              variant="ghost"
               size="sm"
               onClick={() => setViewMode('calendar')}
-              className={`gap-1.5 ${viewMode === 'calendar' ? 'bg-white dark:bg-gray-700 shadow-sm' : ''}`}
+              className={`gap-1.5 px-4 ${viewMode === 'calendar' ? 'bg-white dark:bg-gray-600 shadow-sm text-violet-700 dark:text-violet-300 font-semibold' : 'text-gray-600 dark:text-gray-300 hover:text-gray-900'}`}
             >
               <CalendarDays className="w-4 h-4" />
               Calendar
             </Button>
             <Button 
-              variant={viewMode === 'grid' ? 'default' : 'ghost'} 
+              variant="ghost"
               size="sm"
               onClick={() => setViewMode('grid')}
-              className={`gap-1.5 ${viewMode === 'grid' ? 'bg-white dark:bg-gray-700 shadow-sm' : ''}`}
+              className={`gap-1.5 px-4 ${viewMode === 'grid' ? 'bg-white dark:bg-gray-600 shadow-sm text-violet-700 dark:text-violet-300 font-semibold' : 'text-gray-600 dark:text-gray-300 hover:text-gray-900'}`}
             >
               <LayoutGrid className="w-4 h-4" />
               Grid
