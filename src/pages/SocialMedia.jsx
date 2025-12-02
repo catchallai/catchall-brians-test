@@ -23,6 +23,7 @@ import ContentCalendar from '@/components/social/ContentCalendar';
 import ABTestCard from '@/components/social/ABTestCard';
 import TrendAnalysisCard from '@/components/social/TrendAnalysisCard';
 import CompetitorDetailCard from '@/components/social/CompetitorDetailCard';
+import CompetitorDetailModal from '@/components/social/CompetitorDetailModal';
 import CompetitorReportCard from '@/components/social/CompetitorReportCard';
 import CompetitorReportModal from '@/components/modals/CompetitorReportModal';
 import CompetitorNetworkMap from '@/components/social/CompetitorNetworkMap';
