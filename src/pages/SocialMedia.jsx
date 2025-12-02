@@ -723,93 +723,31 @@ Return adapted content for: ${platforms.join(', ')}`,
       
       // Use AI to analyze social media presence with real data
       const analysis = await base44.integrations.Core.InvokeLLM({
-        prompt: `Search the internet comprehensively for the ${platformName} account "${account.account_name}".
-        ${account.account_url ? `Direct URL: ${account.account_url}` : ''}
+        prompt: `Search for the ${platformName} account "${account.account_name}".
+        ${account.account_url ? `URL: ${account.account_url}` : ''}
 
-        Find and return COMPLETE analytics data:
-        
-        ACCOUNT METRICS:
-        1. Current follower/subscriber count (exact number)
-        2. Following count
-        3. Engagement rate percentage
-        4. Total posts/videos count
-        5. Account creation date (if findable)
-        6. Average likes per post
-        7. Average comments per post
-        8. Bio/description
-        9. Whether account is verified
-        
-        RECENT POSTS (find 8-10 real posts with FULL data):
-        For each post include:
-        - Post URL (direct link to the post)
-        - Post type (text, image, video, carousel, reel, story)
-        - Full caption/content text
-        - Post date (YYYY-MM-DD format)
-        - Likes count
-        - Comments count
-        - Shares/retweets count
-        - Views count (for videos)
-        - Saves/bookmarks count
-        - Sentiment (positive, neutral, negative)
-        - Topics/themes (array of 3-5 keywords)
-        - Hashtags used (array)
-        - User mentions (array)
-        - Top 3 comments with author, text, likes, and sentiment
-        - Performance score 0-100 compared to their average
-        - Whether this is their best performing content
-        
-        OVERALL INSIGHTS:
-        - Content themes they focus on
-        - Best posting times
-        - Most used hashtags
-        - Audience demographics (if available)`,
+Find: followers_count, engagement_rate, total_posts.
+Find 5 recent posts with: content, post_date, likes, comments, shares, views, sentiment, topics (array of 3 keywords).`,
         add_context_from_internet: true,
         response_json_schema: {
           type: "object",
           properties: {
             followers_count: { type: "number" },
-            following_count: { type: "number" },
             engagement_rate: { type: "number" },
             total_posts: { type: "number" },
-            avg_likes: { type: "number" },
-            avg_comments: { type: "number" },
-            bio: { type: "string" },
-            is_verified: { type: "boolean" },
-            content_themes: { type: "array", items: { type: "string" } },
-            best_posting_times: { type: "array", items: { type: "string" } },
-            top_hashtags: { type: "array", items: { type: "string" } },
             posts: {
               type: "array",
               items: {
                 type: "object",
                 properties: {
-                  post_url: { type: "string" },
-                  post_type: { type: "string" },
                   content: { type: "string" },
                   post_date: { type: "string" },
                   likes: { type: "number" },
                   comments: { type: "number" },
                   shares: { type: "number" },
                   views: { type: "number" },
-                  saves: { type: "number" },
                   sentiment: { type: "string" },
-                  topics: { type: "array", items: { type: "string" } },
-                  hashtags: { type: "array", items: { type: "string" } },
-                  mentions: { type: "array", items: { type: "string" } },
-                  top_comments: {
-                    type: "array",
-                    items: {
-                      type: "object",
-                      properties: {
-                        author: { type: "string" },
-                        content: { type: "string" },
-                        likes: { type: "number" },
-                        sentiment: { type: "string" }
-                      }
-                    }
-                  },
-                  performance_score: { type: "number" },
-                  best_performing: { type: "boolean" }
+                  topics: { type: "array", items: { type: "string" } }
                 }
               }
             }
