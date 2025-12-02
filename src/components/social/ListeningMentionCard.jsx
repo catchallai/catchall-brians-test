@@ -63,7 +63,18 @@ export default function ListeningMentionCard({ mention }) {
             </div>
           </div>
           
-          <p className="text-sm text-gray-700 mb-2 line-clamp-3">{mention.content}</p>
+          {mention.post_url ? (
+            <a 
+              href={mention.post_url} 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="block text-sm text-gray-700 mb-2 line-clamp-3 hover:text-violet-600 cursor-pointer transition-colors"
+            >
+              {mention.content}
+            </a>
+          ) : (
+            <p className="text-sm text-gray-700 mb-2 line-clamp-3">{mention.content}</p>
+          )}
           
           <div className="flex items-center justify-between">
             <div className="flex gap-4 text-sm text-gray-500">
