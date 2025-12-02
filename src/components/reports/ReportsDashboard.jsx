@@ -5,10 +5,9 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
-import { Checkbox } from "@/components/ui/checkbox";
 import { 
-  CalendarIcon, Settings2, GripVertical, X, Plus,
-  TrendingUp, Users, Target, Link2, Share2, Eye
+  CalendarIcon, TrendingUp, Users, Target, Link2, Share2, Eye, 
+  BarChart2, PieChart, Radar, Grid3X3
 } from "lucide-react";
 import { format, subDays, subMonths } from 'date-fns';
 import TrafficTrendsChart from './charts/TrafficTrendsChart';
@@ -17,14 +16,22 @@ import SocialEngagementChart from './charts/SocialEngagementChart';
 import BacklinksGrowthChart from './charts/BacklinksGrowthChart';
 import ConversionFunnelChart from './charts/ConversionFunnelChart';
 import TopPagesChart from './charts/TopPagesChart';
+import DraggableDashboard from '@/components/dashboard/DraggableDashboard';
+import ScatterPlotChart from '@/components/charts/ScatterPlotChart';
+import HeatmapChart from '@/components/charts/HeatmapChart';
+import RadarComparisonChart from '@/components/charts/RadarComparisonChart';
+import InteractiveAreaChart from '@/components/charts/InteractiveAreaChart';
 
 const AVAILABLE_WIDGETS = [
-  { id: 'traffic', name: 'Website Traffic', icon: Eye, component: TrafficTrendsChart },
-  { id: 'keywords', name: 'Keyword Rankings', icon: Target, component: KeywordRankingsChart },
-  { id: 'social', name: 'Social Engagement', icon: Share2, component: SocialEngagementChart },
-  { id: 'backlinks', name: 'Backlinks Growth', icon: Link2, component: BacklinksGrowthChart },
-  { id: 'conversions', name: 'Conversion Funnel', icon: TrendingUp, component: ConversionFunnelChart },
-  { id: 'pages', name: 'Top Pages', icon: Users, component: TopPagesChart },
+  { id: 'traffic', name: 'Website Traffic', icon: Eye, component: TrafficTrendsChart, description: 'Traffic trends over time' },
+  { id: 'keywords', name: 'Keyword Rankings', icon: Target, component: KeywordRankingsChart, description: 'Keyword position tracking' },
+  { id: 'social', name: 'Social Engagement', icon: Share2, component: SocialEngagementChart, description: 'Social media metrics' },
+  { id: 'backlinks', name: 'Backlinks Growth', icon: Link2, component: BacklinksGrowthChart, description: 'Backlink acquisition' },
+  { id: 'conversions', name: 'Conversion Funnel', icon: TrendingUp, component: ConversionFunnelChart, description: 'Conversion analysis' },
+  { id: 'pages', name: 'Top Pages', icon: Users, component: TopPagesChart, description: 'Best performing pages' },
+  { id: 'scatter', name: 'Traffic vs Rankings', icon: BarChart2, component: 'scatter', description: 'Scatter plot analysis' },
+  { id: 'heatmap', name: 'Activity Heatmap', icon: Grid3X3, component: 'heatmap', description: 'Activity by day/hour' },
+  { id: 'radar', name: 'SEO Comparison', icon: Radar, component: 'radar', description: 'Multi-metric comparison' },
 ];
 
 const DATE_RANGES = [
@@ -41,7 +48,7 @@ export default function ReportsDashboard({ websites = [], keywords = [], mention
   const [customRange, setCustomRange] = useState({ from: subDays(new Date(), 30), to: new Date() });
   const [reportType, setReportType] = useState('all');
   const [activeWidgets, setActiveWidgets] = useState(['traffic', 'keywords', 'social', 'backlinks']);
-  const [showWidgetSelector, setShowWidgetSelector] = useState(false);
+  const [widgetSizes, setWidgetSizes] = useState({});
 
   const getDateRange = () => {
     if (dateRange === 'custom') return customRange;
@@ -51,16 +58,100 @@ export default function ReportsDashboard({ websites = [], keywords = [], mention
 
   const currentRange = getDateRange();
 
-  const toggleWidget = (widgetId) => {
-    setActiveWidgets(prev => 
-      prev.includes(widgetId) 
-        ? prev.filter(id => id !== widgetId)
-        : [...prev, widgetId]
-    );
+  const handleWidgetsReorder = (newOrder) => {
+    setActiveWidgets(newOrder);
   };
 
-  const removeWidget = (widgetId) => {
+  const handleWidgetRemove = (widgetId) => {
     setActiveWidgets(prev => prev.filter(id => id !== widgetId));
+  };
+
+  const handleWidgetAdd = (widgetId) => {
+    if (!activeWidgets.includes(widgetId)) {
+      setActiveWidgets(prev => [...prev, widgetId]);
+    }
+  };
+
+  const handleWidgetResize = (widgetId, size) => {
+    setWidgetSizes(prev => ({ ...prev, [widgetId]: size }));
+  };
+
+  // Generate sample data for new chart types
+  const scatterData = keywords.slice(0, 20).map((k, i) => ({
+    x: k.search_volume || Math.random() * 10000,
+    y: k.current_position || Math.random() * 50,
+    z: k.difficulty || Math.random() * 100,
+    name: k.keyword,
+    category: k.difficulty > 50 ? 'High Competition' : 'Low Competition'
+  }));
+
+  const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  const hours = ['9am', '12pm', '3pm', '6pm', '9pm'];
+  const heatmapData = [];
+  days.forEach(day => {
+    hours.forEach(hour => {
+      heatmapData.push({ y: day, x: hour, value: Math.floor(Math.random() * 500) });
+    });
+  });
+
+  const radarData = [
+    { subject: 'Traffic', current: 85, previous: 70 },
+    { subject: 'Rankings', current: 72, previous: 65 },
+    { subject: 'Backlinks', current: 90, previous: 80 },
+    { subject: 'Content', current: 60, previous: 55 },
+    { subject: 'Technical', current: 78, previous: 72 },
+    { subject: 'Social', current: 65, previous: 50 },
+  ];
+
+  const renderWidget = (widget, { isExpanded, size }) => {
+    const props = {
+      dateRange: currentRange,
+      websites,
+      keywords,
+      mentions,
+      backlinks,
+      reportType
+    };
+
+    if (widget.component === 'scatter') {
+      return (
+        <ScatterPlotChart 
+          data={scatterData}
+          xKey="x"
+          yKey="y"
+          zKey="z"
+          xLabel="Search Volume"
+          yLabel="Position"
+          groupKey="category"
+        />
+      );
+    }
+
+    if (widget.component === 'heatmap') {
+      return (
+        <HeatmapChart 
+          data={heatmapData}
+          xLabels={hours}
+          yLabels={days}
+          colorScheme="violet"
+          showValues={true}
+        />
+      );
+    }
+
+    if (widget.component === 'radar') {
+      return (
+        <RadarComparisonChart 
+          data={radarData}
+          dataKeys={['current', 'previous']}
+          nameKey="subject"
+          height={isExpanded ? 350 : 220}
+        />
+      );
+    }
+
+    const WidgetComponent = widget.component;
+    return <WidgetComponent {...props} />;
   };
 
   return (
@@ -132,92 +223,22 @@ export default function ReportsDashboard({ websites = [], keywords = [], mention
               </div>
             </div>
 
-            {/* Widget Customization */}
-            <Popover open={showWidgetSelector} onOpenChange={setShowWidgetSelector}>
-              <PopoverTrigger asChild>
-                <Button variant="outline" size="sm" className="gap-2 dark:bg-gray-700 dark:border-gray-600">
-                  <Settings2 className="w-4 h-4" />
-                  Customize Widgets
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-64 p-4" align="end">
-                <h4 className="font-medium mb-3 text-gray-900 dark:text-white">Choose Widgets</h4>
-                <div className="space-y-2">
-                  {AVAILABLE_WIDGETS.map(widget => (
-                    <label 
-                      key={widget.id} 
-                      className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer"
-                    >
-                      <Checkbox 
-                        checked={activeWidgets.includes(widget.id)}
-                        onCheckedChange={() => toggleWidget(widget.id)}
-                      />
-                      <widget.icon className="w-4 h-4 text-gray-500" />
-                      <span className="text-sm text-gray-700 dark:text-gray-300">{widget.name}</span>
-                    </label>
-                  ))}
-                </div>
-              </PopoverContent>
-            </Popover>
           </div>
         </CardContent>
       </Card>
 
-      {/* Widgets Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {activeWidgets.map(widgetId => {
-          const widget = AVAILABLE_WIDGETS.find(w => w.id === widgetId);
-          if (!widget) return null;
-          const WidgetComponent = widget.component;
-
-          return (
-            <Card key={widgetId} className="border-0 shadow-sm bg-white dark:bg-gray-800 relative group">
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <div className="flex items-center gap-2">
-                  <GripVertical className="w-4 h-4 text-gray-400 opacity-0 group-hover:opacity-100 cursor-grab" />
-                  <widget.icon className="w-4 h-4 text-violet-600 dark:text-violet-400" />
-                  <CardTitle className="text-base font-medium text-gray-900 dark:text-white">
-                    {widget.name}
-                  </CardTitle>
-                </div>
-                <Button 
-                  variant="ghost" 
-                  size="icon" 
-                  className="h-6 w-6 opacity-0 group-hover:opacity-100"
-                  onClick={() => removeWidget(widgetId)}
-                >
-                  <X className="w-3 h-3" />
-                </Button>
-              </CardHeader>
-              <CardContent>
-                <WidgetComponent 
-                  dateRange={currentRange}
-                  websites={websites}
-                  keywords={keywords}
-                  mentions={mentions}
-                  backlinks={backlinks}
-                  reportType={reportType}
-                />
-              </CardContent>
-            </Card>
-          );
-        })}
-      </div>
-
-      {/* Add Widget Button */}
-      {activeWidgets.length < AVAILABLE_WIDGETS.length && (
-        <Card 
-          className="border-2 border-dashed border-gray-200 dark:border-gray-700 bg-transparent hover:border-violet-300 dark:hover:border-violet-600 cursor-pointer transition-colors"
-          onClick={() => setShowWidgetSelector(true)}
-        >
-          <CardContent className="flex items-center justify-center py-8">
-            <div className="text-center">
-              <Plus className="w-8 h-8 mx-auto text-gray-400 mb-2" />
-              <p className="text-sm text-gray-500 dark:text-gray-400">Add Widget</p>
-            </div>
-          </CardContent>
-        </Card>
-      )}
+      {/* Draggable Widgets Dashboard */}
+      <DraggableDashboard
+        widgets={AVAILABLE_WIDGETS}
+        availableWidgets={AVAILABLE_WIDGETS}
+        activeWidgetIds={activeWidgets}
+        widgetSizes={widgetSizes}
+        onWidgetsReorder={handleWidgetsReorder}
+        onWidgetRemove={handleWidgetRemove}
+        onWidgetAdd={handleWidgetAdd}
+        onWidgetResize={handleWidgetResize}
+        renderWidget={renderWidget}
+      />
     </div>
   );
 }
