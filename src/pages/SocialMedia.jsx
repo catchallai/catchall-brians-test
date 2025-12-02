@@ -727,7 +727,7 @@ Return adapted content for: ${platforms.join(', ')}`,
         ${account.account_url ? `URL: ${account.account_url}` : ''}
 
 Find: followers_count, engagement_rate, total_posts.
-Find 5 recent posts with: content, post_date, likes, comments, shares, views, sentiment, topics (array of 3 keywords).`,
+Find 5 recent posts with: post_url (direct link to post), content, post_date, likes, comments, shares, views, sentiment, topics (array of 3 keywords).`,
         add_context_from_internet: true,
         response_json_schema: {
           type: "object",
@@ -740,6 +740,7 @@ Find 5 recent posts with: content, post_date, likes, comments, shares, views, se
               items: {
                 type: "object",
                 properties: {
+                  post_url: { type: "string" },
                   content: { type: "string" },
                   post_date: { type: "string" },
                   likes: { type: "number" },
@@ -793,21 +794,14 @@ Find 5 recent posts with: content, post_date, likes, comments, shares, views, se
             social_account_id: account.id,
             platform: account.platform,
             post_url: post.post_url || '',
-            post_type: post.post_type || 'text',
             content: post.content,
             post_date: post.post_date ? new Date(post.post_date).toISOString() : new Date().toISOString(),
             likes: post.likes || 0,
             comments: post.comments || 0,
             shares: post.shares || 0,
             views: post.views || 0,
-            saves: post.saves || 0,
             sentiment: post.sentiment || 'neutral',
             topics: post.topics || [],
-            hashtags: post.hashtags || [],
-            mentions: post.mentions || [],
-            top_comments: post.top_comments || [],
-            performance_score: post.performance_score || 0,
-            best_performing: post.best_performing || false,
             engagement_rate: analysis.engagement_rate || 0
           });
         }
