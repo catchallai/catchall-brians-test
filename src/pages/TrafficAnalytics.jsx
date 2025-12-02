@@ -421,6 +421,19 @@ export default function TrafficAnalytics() {
           </div>
         </TabsContent>
       </Tabs>
+
+      {/* Additional Insights Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        {widgetVisibility.topPages && <TopPagesCard />}
+        {widgetVisibility.referrals && <ReferralDetailsCard />}
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        {widgetVisibility.userFlow && <UserFlowCard />}
+        {widgetVisibility.browserOS && <BrowserOSCard />}
+      </div>
+
+      {widgetVisibility.peakHours && <PeakHoursCard />}
     </div>
   );
 }
