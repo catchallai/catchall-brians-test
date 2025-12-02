@@ -88,6 +88,7 @@ const navigation = [
   { name: 'Social Media', icon: Share2, page: 'SocialMedia' },
   { name: 'Social Listening', icon: Radio, page: 'SocialListening' },
   { name: 'Social Calendar', icon: CalendarDays, page: 'SocialCalendar' },
+  { name: 'Hashtag Pool', icon: Target, page: 'HashtagManager' },
   { name: 'divider', label: 'Collaboration' },
   { name: 'Team Projects', icon: Users, page: 'Collaboration' },
   { name: 'divider', label: 'Assets' },
