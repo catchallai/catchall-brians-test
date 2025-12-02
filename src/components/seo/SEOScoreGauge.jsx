@@ -2,6 +2,9 @@ import React from 'react';
 import { Card } from "@/components/ui/card";
 
 export default function SEOScoreGauge({ score, label, size = "lg" }) {
+  // Ensure score is a valid number
+  const safeScore = typeof score === 'number' && !isNaN(score) ? score : 0;
+  
   const getColor = (score) => {
     if (score >= 80) return { stroke: "#10b981", bg: "#d1fae5", text: "text-emerald-600" };
     if (score >= 60) return { stroke: "#f59e0b", bg: "#fef3c7", text: "text-amber-600" };
@@ -9,11 +12,11 @@ export default function SEOScoreGauge({ score, label, size = "lg" }) {
     return { stroke: "#ef4444", bg: "#fee2e2", text: "text-red-600" };
   };
 
-  const colors = getColor(score || 0);
+  const colors = getColor(safeScore);
   const radius = size === "lg" ? 70 : 45;
   const strokeWidth = size === "lg" ? 10 : 8;
   const circumference = 2 * Math.PI * radius;
-  const progress = ((score || 0) / 100) * circumference;
+  const progress = (safeScore / 100) * circumference;
 
   return (
     <Card className="p-6 border-0 shadow-sm bg-white flex flex-col items-center justify-center">
