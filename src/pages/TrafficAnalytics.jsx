@@ -161,6 +161,10 @@ export default function TrafficAnalytics() {
               <SelectItem value="90d">Last 90 days</SelectItem>
             </SelectContent>
           </Select>
+          <AnalyticsTogglePanel 
+            visibility={widgetVisibility} 
+            onToggle={toggleWidget} 
+          />
           <Button variant="outline" size="icon">
             <RefreshCw className="w-4 h-4" />
           </Button>
@@ -169,6 +173,13 @@ export default function TrafficAnalytics() {
             Export
           </Button>
         </div>
+      </div>
+
+      {/* Real-Time + Visitor Insights Row */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {widgetVisibility.realTime && <RealTimeCard />}
+        {widgetVisibility.visitorType && <VisitorTypeCard />}
+        {widgetVisibility.engagement && <EngagementMetricsCard />}
       </div>
 
       {/* Overview Stats */}
