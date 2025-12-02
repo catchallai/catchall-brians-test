@@ -1122,7 +1122,7 @@ Find 5 recent posts with: post_url (direct link to post), content, post_date, li
               ) : (
                 <Sparkles className="w-4 h-4" />
               )}
-              {isDiscoveringCompetitors ? 'Discovering...' : 'Auto-Discover Competitors'}
+              {isDiscoveringCompetitors ? 'Discovering...' : 'Auto-Discover'}
             </Button>
             <Button 
               onClick={() => setShowCompetitorModal(true)}
@@ -1143,96 +1143,34 @@ Find 5 recent posts with: post_url (direct link to post), content, post_date, li
             />
           ) : (
             <>
-            <CompetitorNetworkMap 
-              competitors={competitors} 
-              onSelectCompetitor={(comp) => setSelectedCompetitor(comp)} 
-            />
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <div className="space-y-3">
-                <h3 className="font-semibold text-gray-900">Competitors</h3>
+              <CompetitorNetworkMap 
+                competitors={competitors} 
+                onSelectCompetitor={(comp) => setSelectedCompetitor(comp)} 
+              />
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                 {competitors.map((competitor) => (
-                  <div key={competitor.id}>
-                    <CompetitorCard
-                      competitor={competitor}
-                      onAnalyze={() => analyzeCompetitorMutation.mutate(competitor)}
-                      isAnalyzing={analyzingCompetitor === competitor.id}
-                      onClick={() => setSelectedCompetitor(competitor)}
-                    />
-                    <div className="flex gap-1 mt-2">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="flex-1 gap-1 text-xs"
-                        onClick={() => generateReportMutation.mutate({ competitor, reportType: 'daily' })}
-                        disabled={generatingReport === competitor.id}
-                      >
-                        {generatingReport === competitor.id ? (
-                          <Loader2 className="w-3 h-3 animate-spin" />
-                        ) : (
-                          <Clock className="w-3 h-3" />
-                        )}
-                        Daily Report
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="flex-1 gap-1 text-xs"
-                        onClick={() => generateReportMutation.mutate({ competitor, reportType: 'weekly' })}
-                        disabled={generatingReport === competitor.id}
-                      >
-                        {generatingReport === competitor.id ? (
-                          <Loader2 className="w-3 h-3 animate-spin" />
-                        ) : (
-                          <FileText className="w-3 h-3" />
-                        )}
-                        Weekly Report
-                      </Button>
-                    </div>
-                  </div>
+                  <CompetitorCard
+                    key={competitor.id}
+                    competitor={competitor}
+                    onAnalyze={() => analyzeCompetitorMutation.mutate(competitor)}
+                    isAnalyzing={analyzingCompetitor === competitor.id}
+                    onView={() => setSelectedCompetitor(competitor)}
+                  />
                 ))}
               </div>
-              <div className="lg:col-span-2 space-y-4">
-                {selectedCompetitor ? (
-                  <>
-                    <CompetitorDetailCard competitor={selectedCompetitor} />
-                    
-                    {/* Recent Reports */}
-                    {competitorReports.filter(r => r.competitor_id === selectedCompetitor.id).length > 0 && (
-                      <Card className="glass-card rounded-2xl">
-                        <CardHeader className="pb-2">
-                          <CardTitle className="text-sm flex items-center gap-2">
-                            <FileText className="w-4 h-4 text-violet-500" />
-                            Recent Reports
-                          </CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                            {competitorReports
-                              .filter(r => r.competitor_id === selectedCompetitor.id)
-                              .slice(0, 4)
-                              .map((report) => (
-                                <CompetitorReportCard
-                                  key={report.id}
-                                  report={report}
-                                  competitorName={selectedCompetitor.name}
-                                  onClick={() => setSelectedReport(report)}
-                                />
-                              ))}
-                          </div>
-                        </CardContent>
-                      </Card>
-                    )}
-                  </>
-                ) : (
-                  <Card className="border-0 shadow-sm p-8 text-center">
-                    <Target className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-                    <p className="text-gray-500">Select a competitor to view detailed analysis</p>
-                  </Card>
-                )}
-              </div>
-            </div>
             </>
           )}
+
+          {/* Competitor Detail Modal */}
+          <CompetitorDetailModal
+            open={!!selectedCompetitor}
+            onClose={() => setSelectedCompetitor(null)}
+            competitor={selectedCompetitor}
+            reports={competitorReports.filter(r => r.competitor_id === selectedCompetitor?.id)}
+            onGenerateReport={(type) => generateReportMutation.mutate({ competitor: selectedCompetitor, reportType: type })}
+            isGenerating={generatingReport === selectedCompetitor?.id}
+            onViewReport={(report) => { setSelectedCompetitor(null); setSelectedReport(report); }}
+          />
         </TabsContent>
 
         {/* A/B Tests Tab */}
