@@ -155,9 +155,9 @@ export default function TrafficAnalytics() {
               <div>
                 <p className="text-sm text-gray-500 dark:text-gray-400">Total Visitors</p>
                 <p className="text-2xl font-bold text-gray-900 dark:text-white">{totalVisitors.toLocaleString()}</p>
-                <div className="flex items-center gap-1 text-emerald-600 text-sm">
-                  <TrendingUp className="w-3 h-3" />
-                  <span>+12.5%</span>
+                <div className={`flex items-center gap-1 text-sm ${parseFloat(visitorsChange) >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>
+                  {parseFloat(visitorsChange) >= 0 ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
+                  <span>{parseFloat(visitorsChange) >= 0 ? '+' : ''}{visitorsChange}%</span>
                 </div>
               </div>
               <div className="w-10 h-10 rounded-lg bg-violet-100 dark:bg-violet-900/30 flex items-center justify-center">
@@ -173,9 +173,9 @@ export default function TrafficAnalytics() {
               <div>
                 <p className="text-sm text-gray-500 dark:text-gray-400">Page Views</p>
                 <p className="text-2xl font-bold text-gray-900 dark:text-white">{totalPageviews.toLocaleString()}</p>
-                <div className="flex items-center gap-1 text-emerald-600 text-sm">
-                  <TrendingUp className="w-3 h-3" />
-                  <span>+8.3%</span>
+                <div className={`flex items-center gap-1 text-sm ${parseFloat(pageviewsChange) >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>
+                  {parseFloat(pageviewsChange) >= 0 ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
+                  <span>{parseFloat(pageviewsChange) >= 0 ? '+' : ''}{pageviewsChange}%</span>
                 </div>
               </div>
               <div className="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
@@ -191,9 +191,9 @@ export default function TrafficAnalytics() {
               <div>
                 <p className="text-sm text-gray-500 dark:text-gray-400">Bounce Rate</p>
                 <p className="text-2xl font-bold text-gray-900 dark:text-white">{avgBounce}%</p>
-                <div className="flex items-center gap-1 text-emerald-600 text-sm">
-                  <TrendingDown className="w-3 h-3" />
-                  <span>-3.2%</span>
+                <div className={`flex items-center gap-1 text-sm ${parseFloat(bounceChange) <= 0 ? 'text-emerald-600' : 'text-red-500'}`}>
+                  {parseFloat(bounceChange) <= 0 ? <TrendingDown className="w-3 h-3" /> : <TrendingUp className="w-3 h-3" />}
+                  <span>{bounceChange}%</span>
                 </div>
               </div>
               <div className="w-10 h-10 rounded-lg bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
@@ -209,9 +209,9 @@ export default function TrafficAnalytics() {
               <div>
                 <p className="text-sm text-gray-500 dark:text-gray-400">Avg. Duration</p>
                 <p className="text-2xl font-bold text-gray-900 dark:text-white">{Math.floor(avgDuration / 60)}m {avgDuration % 60}s</p>
-                <div className="flex items-center gap-1 text-emerald-600 text-sm">
-                  <TrendingUp className="w-3 h-3" />
-                  <span>+15.7%</span>
+                <div className={`flex items-center gap-1 text-sm ${parseFloat(durationChange) >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>
+                  {parseFloat(durationChange) >= 0 ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
+                  <span>{parseFloat(durationChange) >= 0 ? '+' : ''}{durationChange}%</span>
                 </div>
               </div>
               <div className="w-10 h-10 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center">
