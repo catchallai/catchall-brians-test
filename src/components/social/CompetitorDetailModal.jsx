@@ -55,22 +55,22 @@ export default function CompetitorDetailModal({
               <Button
                 size="sm"
                 variant="outline"
-                onClick={() => onGenerateReport('daily')}
-                disabled={isGenerating}
+                onClick={onScanNews}
+                disabled={isScanningNews}
                 className="gap-1"
               >
-                {isGenerating ? <Loader2 className="w-3 h-3 animate-spin" /> : <Clock className="w-3 h-3" />}
-                Daily Report
+                {isScanningNews ? <Loader2 className="w-3 h-3 animate-spin" /> : <Newspaper className="w-3 h-3" />}
+                Scan News
               </Button>
               <Button
                 size="sm"
                 variant="outline"
-                onClick={() => onGenerateReport('weekly')}
-                disabled={isGenerating}
+                onClick={onDeepAnalyze}
+                disabled={isDeepAnalyzing}
                 className="gap-1"
               >
-                {isGenerating ? <Loader2 className="w-3 h-3 animate-spin" /> : <FileText className="w-3 h-3" />}
-                Weekly Report
+                {isDeepAnalyzing ? <Loader2 className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3 h-3" />}
+                Deep Analyze
               </Button>
             </div>
           </DialogTitle>
