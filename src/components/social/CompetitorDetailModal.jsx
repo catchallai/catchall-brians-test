@@ -76,7 +76,16 @@ export default function CompetitorDetailModal({
           </DialogTitle>
         </DialogHeader>
 
-        <div className="flex-1 overflow-y-auto space-y-4 pr-2">
+        <div className="flex-1 overflow-y-auto pr-2">
+          <Tabs defaultValue="overview" className="space-y-4">
+            <TabsList className="w-full grid grid-cols-4">
+              <TabsTrigger value="overview">Overview</TabsTrigger>
+              <TabsTrigger value="insights">AI Insights</TabsTrigger>
+              <TabsTrigger value="compare">Compare</TabsTrigger>
+              <TabsTrigger value="reports">Reports</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="overview" className="space-y-4">
           {/* Quick Stats */}
           <div className="grid grid-cols-3 gap-3">
             <Card className="p-3 text-center border-0 bg-violet-50">
