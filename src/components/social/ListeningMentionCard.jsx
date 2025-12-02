@@ -47,6 +47,12 @@ export default function ListeningMentionCard({ mention }) {
               )}
             </div>
             <div className="flex items-center gap-2">
+              {mention.post_date && (
+                <span className="text-xs text-gray-400 flex items-center gap-1">
+                  <Calendar className="w-3 h-3" />
+                  {format(new Date(mention.post_date), 'MMM d, yyyy')}
+                </span>
+              )}
               <Badge className={`${sentiment.color} border-0 text-xs`}>
                 {mention.sentiment}
               </Badge>
@@ -56,7 +62,7 @@ export default function ListeningMentionCard({ mention }) {
                   className="flex items-center gap-1 px-2 py-1 bg-violet-100 hover:bg-violet-200 text-violet-700 rounded-md text-xs font-medium transition-colors"
                 >
                   <Eye className="w-3.5 h-3.5" />
-                  View Post
+                  View
                 </button>
               )}
             </div>
@@ -76,12 +82,6 @@ export default function ListeningMentionCard({ mention }) {
                 <Share2 className="w-4 h-4" /> {formatNumber(mention.shares)}
               </span>
             </div>
-            {mention.post_date && (
-              <span className="text-xs text-gray-400 flex items-center gap-1">
-                <Calendar className="w-3 h-3" />
-                {format(new Date(mention.post_date), 'MMM d, yyyy')}
-              </span>
-            )}
           </div>
 
           {mention.influence_score > 0 && (
