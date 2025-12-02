@@ -1,7 +1,7 @@
 import React from 'react';
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Heart, MessageSquare, Share2, ExternalLink, Users, Calendar } from "lucide-react";
+import { Heart, MessageSquare, Share2, ExternalLink, Users, Calendar, Eye } from "lucide-react";
 import { format } from "date-fns";
 
 const platformConfig = {
@@ -29,17 +29,8 @@ export default function ListeningMentionCard({ mention }) {
     return num.toString();
   };
 
-  const handleCardClick = () => {
-    if (mention.post_url) {
-      window.open(mention.post_url, '_blank', 'noopener,noreferrer');
-    }
-  };
-
   return (
-    <Card 
-      className={`p-4 border-0 shadow-sm hover:shadow-md transition-all ${mention.post_url ? 'cursor-pointer hover:bg-violet-50 dark:hover:bg-violet-900/10' : ''}`}
-      onClick={handleCardClick}
-    >
+    <Card className="p-4 border-0 shadow-sm hover:shadow-md transition-all">
       <div className="flex items-start gap-3">
         <div className={`w-10 h-10 rounded-lg ${platform.color} flex items-center justify-center text-lg font-bold flex-shrink-0`}>
           {platform.icon}
@@ -60,9 +51,13 @@ export default function ListeningMentionCard({ mention }) {
                 {mention.sentiment}
               </Badge>
               {mention.post_url && (
-                <span className="text-violet-500">
-                  <ExternalLink className="w-4 h-4" />
-                </span>
+                <button
+                  onClick={() => window.open(mention.post_url, '_blank', 'noopener,noreferrer')}
+                  className="flex items-center gap-1 px-2 py-1 bg-violet-100 hover:bg-violet-200 text-violet-700 rounded-md text-xs font-medium transition-colors"
+                >
+                  <Eye className="w-3.5 h-3.5" />
+                  View Post
+                </button>
               )}
             </div>
           </div>
