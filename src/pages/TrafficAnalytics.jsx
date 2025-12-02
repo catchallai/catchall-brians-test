@@ -15,6 +15,16 @@ import {
 import { LineChart, Line, AreaChart, Area, BarChart, Bar, PieChart as RePieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { format, subDays } from 'date-fns';
 
+import VisitorTypeCard from '@/components/analytics/VisitorTypeCard';
+import TopPagesCard from '@/components/analytics/TopPagesCard';
+import UserFlowCard from '@/components/analytics/UserFlowCard';
+import EngagementMetricsCard from '@/components/analytics/EngagementMetricsCard';
+import ReferralDetailsCard from '@/components/analytics/ReferralDetailsCard';
+import BrowserOSCard from '@/components/analytics/BrowserOSCard';
+import PeakHoursCard from '@/components/analytics/PeakHoursCard';
+import RealTimeCard from '@/components/analytics/RealTimeCard';
+import AnalyticsTogglePanel from '@/components/analytics/AnalyticsTogglePanel';
+
 const COLORS = ['#8b5cf6', '#06b6d4', '#10b981', '#f59e0b', '#ef4444', '#ec4899'];
 
 export default function TrafficAnalytics() {
