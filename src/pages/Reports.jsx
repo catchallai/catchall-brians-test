@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import ReportTemplates, { REPORT_TEMPLATES } from '@/components/reports/ReportTemplates';
 import ReportList from '@/components/reports/ReportList';
-import CreateReportFromTemplate from '@/components/reports/CreateReportFromTemplate';
+import ReportCustomizer from '@/components/reports/ReportCustomizer';
 import CreateTemplateModal from '@/components/reports/CreateTemplateModal';
 import ReportViewer from '@/components/seo/ReportViewer';
 import ShareReportModal from '@/components/reports/ShareReportModal';
@@ -161,6 +161,10 @@ export default function Reports() {
       schedule: data.schedule || 'manual',
       is_active: true
     });
+  };
+
+  const handleSaveAsTemplate = (templateData) => {
+    createTemplateMutation.mutate(templateData);
   };
 
   const getTemplateForReport = (report) => {
@@ -359,12 +363,13 @@ export default function Reports() {
       </div>
 
       {/* Create Report Modal */}
-      <CreateReportFromTemplate
+      <ReportCustomizer
         open={showCreateModal}
         onClose={() => { setShowCreateModal(false); setSelectedTemplate(null); }}
         template={selectedTemplate}
         websites={websites}
         onSave={handleCreateReport}
+        onSaveAsTemplate={handleSaveAsTemplate}
         isLoading={createMutation.isPending}
       />
 
