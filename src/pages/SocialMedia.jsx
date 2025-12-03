@@ -33,6 +33,9 @@ import ComposePostModal from '@/components/modals/ComposePostModal';
 import ContentGeneratorCard from '@/components/social/ContentGeneratorCard';
 import EmptyState from '@/components/ui/EmptyState';
 import PostDetailModal from '@/components/social/PostDetailModal';
+import PredictiveTrendsCard from '@/components/social/PredictiveTrendsCard';
+import CompetitorForecastCard from '@/components/social/CompetitorForecastCard';
+import AIContentCalendarCard from '@/components/social/AIContentCalendarCard';
 import {
   Dialog,
   DialogContent,
@@ -1160,6 +1163,7 @@ Find 5 recent posts with: post_url (direct link to post), content, post_date, li
           <TabsList className="flex-wrap h-auto gap-1 p-1">
             <TabsTrigger value="accounts" className="text-xs sm:text-sm">Accounts</TabsTrigger>
             <TabsTrigger value="insights" className="text-xs sm:text-sm">AI Insights</TabsTrigger>
+            <TabsTrigger value="predictions" className="text-xs sm:text-sm">Predictions</TabsTrigger>
             <TabsTrigger value="generator" className="text-xs sm:text-sm">Content</TabsTrigger>
             <TabsTrigger value="competitors" className="text-xs sm:text-sm">Competitors</TabsTrigger>
             <TabsTrigger value="abtests" className="text-xs sm:text-sm">A/B Tests</TabsTrigger>
@@ -1264,6 +1268,28 @@ Find 5 recent posts with: post_url (direct link to post), content, post_date, li
         </TabsContent>
 
         
+
+        {/* AI Predictions Tab */}
+        <TabsContent value="predictions" className="space-y-4">
+          <div className="grid grid-cols-1 gap-6">
+            <PredictiveTrendsCard 
+              socialAccounts={socialAccounts} 
+              posts={socialPosts} 
+            />
+            <CompetitorForecastCard 
+              competitors={competitors} 
+              yourAccounts={socialAccounts} 
+            />
+            <AIContentCalendarCard 
+              socialAccounts={socialAccounts} 
+              posts={socialPosts}
+              onSchedulePost={(data) => {
+                setEditingPost(null);
+                setShowScheduleModal(true);
+              }}
+            />
+          </div>
+        </TabsContent>
 
         {/* AI Insights Tab */}
         <TabsContent value="insights" className="space-y-4">
