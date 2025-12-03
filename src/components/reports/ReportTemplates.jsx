@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { 
   Plus, BarChart2, TrendingUp, Users, Target, Link2, Globe, MapPin, Search,
-  Mail, Share2, FileText, PieChart, Activity, Zap, Trash2
+  Mail, Share2, FileText, PieChart, Activity, Zap, Trash2, AlertTriangle
 } from "lucide-react";
 
 const ICON_MAP = {
@@ -131,6 +131,17 @@ export const REPORT_TEMPLATES = [
     iconBg: 'bg-purple-100 text-purple-600',
     category: 'summary',
     metrics: ['traffic_summary', 'ranking_changes', 'new_leads', 'revenue', 'alerts']
+  },
+  { 
+    id: 'design_issues', 
+    name: 'Design Team Issues', 
+    description: 'Report design issues to your web design team with severity levels.',
+    icon: Zap, 
+    color: 'bg-white',
+    iconBg: 'bg-rose-100 text-rose-600',
+    category: 'custom',
+    metrics: [],
+    isDesignReport: true
   }
 ];
 

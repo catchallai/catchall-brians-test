@@ -18,6 +18,7 @@ import CreateTemplateModal from '@/components/reports/CreateTemplateModal';
 import ReportViewer from '@/components/seo/ReportViewer';
 import ShareReportModal from '@/components/reports/ShareReportModal';
 import ReportsDashboard from '@/components/reports/ReportsDashboard';
+import DesignIssuesReportModal from '@/components/reports/DesignIssuesReportModal';
 
 export default function Reports() {
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -31,6 +32,7 @@ export default function Reports() {
   const [viewingReport, setViewingReport] = useState(null);
   const [showShareModal, setShowShareModal] = useState(false);
   const [showCreateTemplateModal, setShowCreateTemplateModal] = useState(false);
+  const [showDesignIssuesModal, setShowDesignIssuesModal] = useState(false);
   const queryClient = useQueryClient();
 
   const { data: reports = [], isLoading } = useQuery({
@@ -147,6 +149,10 @@ export default function Reports() {
   });
 
   const handleTemplateSelect = (template) => {
+    if (template.id === 'design_issues' || template.isDesignReport) {
+      setShowDesignIssuesModal(true);
+      return;
+    }
     if (template.id === 'scratch') {
       setSelectedTemplate({ ...template, metrics: [] });
     } else {
@@ -396,6 +402,13 @@ export default function Reports() {
         onClose={() => setShowCreateTemplateModal(false)}
         onSave={(data) => createTemplateMutation.mutate(data)}
         isLoading={createTemplateMutation.isPending}
+      />
+
+      {/* Design Issues Report Modal */}
+      <DesignIssuesReportModal
+        open={showDesignIssuesModal}
+        onClose={() => setShowDesignIssuesModal(false)}
+        websites={websites}
       />
     </div>
   );
