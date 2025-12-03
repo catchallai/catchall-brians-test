@@ -22,11 +22,14 @@ const CATEGORIES = [
   { id: 'getting_started', label: 'Getting Started', icon: Home, color: 'bg-violet-100 text-violet-700', description: 'New to CatchAll? Start here' },
   { id: 'crm', label: 'CRM & Contacts', icon: Users, color: 'bg-blue-100 text-blue-700', description: 'Manage contacts, companies, and deals' },
   { id: 'seo', label: 'SEO Tools', icon: BarChart3, color: 'bg-amber-100 text-amber-700', description: 'Track rankings, keywords, and backlinks' },
-  { id: 'social_media', label: 'Social Media', icon: Share2, color: 'bg-pink-100 text-pink-700', description: 'Social listening, scheduling, and analytics' },
+  { id: 'analytics', label: 'Traffic & Analytics', icon: TrendingUp, color: 'bg-emerald-100 text-emerald-700', description: 'User journeys, visitor insights, and AI analytics' },
+  { id: 'social_media', label: 'Social Media', icon: Share2, color: 'bg-pink-100 text-pink-700', description: 'Social listening, scheduling, and AI predictions' },
   { id: 'marketing', label: 'Marketing', icon: Mail, color: 'bg-indigo-100 text-indigo-700', description: 'Campaigns, email marketing, and reports' },
   { id: 'content', label: 'Content', icon: PenTool, color: 'bg-cyan-100 text-cyan-700', description: 'Content strategy and creation' },
-  { id: 'automation', label: 'Automation', icon: Zap, color: 'bg-emerald-100 text-emerald-700', description: 'Automate your workflows' },
-  { id: 'faq', label: 'FAQ', icon: HelpCircle, color: 'bg-gray-100 text-gray-700', description: 'Common questions answered' },
+  { id: 'automation', label: 'Automation', icon: Zap, color: 'bg-amber-100 text-amber-700', description: 'Automate your workflows' },
+  { id: 'mobile', label: 'Mobile App', icon: Phone, color: 'bg-purple-100 text-purple-700', description: 'CatchAll on-the-go' },
+  { id: 'settings', label: 'Settings & Account', icon: Settings, color: 'bg-gray-100 text-gray-700', description: 'Profile, notifications, API keys' },
+  { id: 'faq', label: 'FAQ', icon: HelpCircle, color: 'bg-slate-100 text-slate-700', description: 'Common questions answered' },
 ];
 
 const QUICK_START_STEPS = [
@@ -34,6 +37,8 @@ const QUICK_START_STEPS = [
   { id: 2, title: 'Create a Deal', description: 'Track a sales opportunity in your pipeline', link: 'Deals', icon: Target },
   { id: 3, title: 'Set Up SEO Tracking', description: 'Add your website to monitor SEO performance', link: 'SEODashboard', icon: Globe },
   { id: 4, title: 'Start Social Listening', description: 'Track mentions of your brand across social media', link: 'SocialListening', icon: Radio },
+  { id: 5, title: 'Explore AI Analytics', description: 'Map user journeys and get AI-powered insights', link: 'TrafficAnalytics', icon: TrendingUp },
+  { id: 6, title: 'Try Mobile Hub', description: 'Access CatchAll on-the-go with the mobile experience', link: 'MobileHub', icon: Phone },
 ];
 
 const DEFAULT_ARTICLES = [
@@ -943,6 +948,552 @@ Automate repetitive tasks and workflows.
 - Monitor for errors`
   },
 
+  // Traffic & Analytics Articles
+  {
+    id: 'traffic-overview',
+    title: 'Traffic Analytics Overview',
+    category: 'analytics',
+    type: 'tutorial',
+    is_featured: true,
+    order: 1,
+    tags: ['traffic', 'analytics', 'visitors'],
+    content: `# Traffic Analytics Overview
+
+Monitor and analyze your website traffic with comprehensive insights.
+
+## Accessing Traffic Analytics
+
+1. Navigate to **Traffic Analytics** from the sidebar
+2. Select your website and date range
+3. View real-time and historical data
+
+## Key Metrics
+
+| Metric | Description |
+|--------|-------------|
+| Total Visitors | Unique users visiting your site |
+| Page Views | Total pages viewed |
+| Bounce Rate | Visitors leaving after one page |
+| Avg. Duration | Time spent on site |
+
+## Dashboard Tabs
+
+### Daily Trends
+View traffic patterns over time with interactive charts.
+
+### Traffic Sources
+Understand where visitors come from:
+- Organic Search
+- Direct Traffic
+- Social Media
+- Referrals
+- Paid Ads
+
+### Visitors Tab
+Deep dive into visitor profiles, demographics, session insights, and technology data.
+
+### User Journeys Tab
+AI-powered journey mapping to understand conversion paths.
+
+### Regional
+Geographic distribution of your audience.
+
+### Market
+Industry benchmarks and market positioning.
+
+## Toggle Widgets
+
+Use the toggle panel to show/hide specific analytics cards based on your needs.`
+  },
+  {
+    id: 'user-journey-mapping',
+    title: 'AI User Journey Mapping',
+    category: 'analytics',
+    type: 'tutorial',
+    is_featured: true,
+    order: 2,
+    tags: ['ai', 'user journey', 'conversion', 'optimization'],
+    content: `# AI User Journey Mapping
+
+Understand how users navigate your website and social media touchpoints with AI-powered analysis.
+
+## What is User Journey Mapping?
+
+AI analyzes all touchpoints across your website and social channels to:
+- Map complete user journeys
+- Identify conversion paths
+- Find drop-off points
+- Suggest optimizations
+
+## Using the Feature
+
+1. Go to **Traffic Analytics**
+2. Click the **User Journeys** tab
+3. Click **Map Journeys** button
+4. Wait for AI analysis to complete
+
+## Understanding the Results
+
+### Overview Tab
+- **Conversion Rate**: Overall site conversion
+- **Avg Touchpoints**: Steps before conversion
+- **Avg Time to Convert**: Typical customer timeline
+- **Top Channel**: Best performing acquisition source
+- **Journey Stages Funnel**: Visual conversion funnel
+
+### Personas Tab
+AI-detected user personas including:
+- Demographics and goals
+- Pain points
+- Preferred channels
+- Decision factors
+
+### Journeys Tab
+**Conversion Paths**: Top routes users take to convert
+- Path sequence visualization
+- Conversion rate per path
+- Success factors
+
+**Cross-Channel Insights**: How users move between channels
+- Social to website transitions
+- Multi-touch attribution
+
+### Drop-offs Tab
+Identify where users abandon:
+- Location and stage
+- Drop-off rate
+- Likely reasons
+- Recommended fixes
+- Recovery potential
+
+### Optimize Tab
+Prioritized recommendations:
+- Specific action items
+- Expected impact
+- Effort level
+- Affected journey stages
+
+## Best Practices
+
+- Run analysis monthly to track changes
+- Prioritize high-impact, low-effort fixes
+- Test recommendations with A/B testing
+- Monitor drop-off rates after changes`
+  },
+  {
+    id: 'visitor-profiles',
+    title: 'Visitor Profiles & Demographics',
+    category: 'analytics',
+    type: 'tutorial',
+    order: 3,
+    tags: ['visitors', 'demographics', 'lead scoring'],
+    content: `# Visitor Profiles & Demographics
+
+Understand who visits your website with detailed visitor analytics.
+
+## Visitor Profiles
+
+Track individual sessions with:
+- **Entry source**: How they found you
+- **Location**: Geographic data
+- **Company info**: B2B visitor identification
+- **Lead score**: AI-calculated conversion potential
+- **Session journey**: Pages visited in order
+
+## Lead Scoring
+
+Visitors are scored 0-100 based on:
+- Engagement depth (pages viewed, time spent)
+- Company fit (industry, size)
+- Behavior signals (pricing page visits, downloads)
+- Return visits
+
+## User Demographics
+
+### Industry Breakdown
+See which industries your visitors represent.
+
+### Company Size
+Understand if you're attracting SMBs or enterprises.
+
+### Seniority Level
+Know the decision-making level of visitors.
+
+## Session Insights
+
+- **Common entry points**: Popular landing pages
+- **User paths**: Typical navigation patterns
+- **Conversion paths**: Routes to goals
+- **Exit pages**: Where users leave
+
+## Technology Stack
+
+Monitor visitor technology:
+- Browsers used
+- Operating systems
+- Device types
+- Connection speeds`
+  },
+
+  // Mobile App Articles
+  {
+    id: 'mobile-hub-guide',
+    title: 'Mobile Hub Guide',
+    category: 'mobile',
+    type: 'tutorial',
+    is_featured: true,
+    order: 1,
+    tags: ['mobile', 'app', 'on-the-go'],
+    content: `# Mobile Hub Guide
+
+Access CatchAll on your phone or tablet with our mobile-optimized experience.
+
+## Accessing Mobile Hub
+
+1. Navigate to **Mobile Hub** from the sidebar
+2. Or visit on your mobile device for auto-detection
+3. Add to home screen for app-like experience
+
+## Mobile Hub Tabs
+
+### Home
+Quick overview with:
+- Pipeline value
+- New contacts today
+- Quick action buttons
+- Recent mentions
+- Scheduled posts
+
+### CRM
+Mobile-friendly CRM access:
+- Browse recent contacts
+- Tap to call or email
+- View active deals
+- Quick contact lookup
+
+### Social
+Social media on-the-go:
+- Connected accounts
+- Quick post composer
+- Engagement stats
+- Platform overview
+
+### Alerts
+Real-time notifications:
+- Social mentions
+- CRM updates
+- SEO alerts
+- System notifications
+
+### Stats
+Key analytics at a glance:
+- Visitor metrics
+- Page views
+- Conversions
+- Duration stats
+
+## Quick Post Composer
+
+Create posts from anywhere:
+1. Tap the **+** button or **Create New Post**
+2. Select platforms (Twitter, LinkedIn, etc.)
+3. Write your content
+4. Post immediately or schedule
+
+## Mobile Notifications
+
+Get notified about:
+- Brand mentions
+- Deal stage changes
+- Engagement spikes
+- SEO ranking changes
+
+## Tips for Mobile Use
+
+- Use quick actions for common tasks
+- Swipe to call/email contacts
+- Check alerts regularly
+- Review analytics on-the-go`
+  },
+  {
+    id: 'mobile-install',
+    title: 'Install as Mobile App',
+    category: 'mobile',
+    type: 'guide',
+    order: 2,
+    tags: ['install', 'pwa', 'home screen'],
+    content: `# Install CatchAll as a Mobile App
+
+Add CatchAll to your home screen for a native app-like experience.
+
+## iOS Installation
+
+1. Open CatchAll in Safari
+2. Tap the **Share** button (square with arrow)
+3. Scroll down and tap **Add to Home Screen**
+4. Name it "CatchAll"
+5. Tap **Add**
+
+## Android Installation
+
+1. Open CatchAll in Chrome
+2. Tap the **menu** (three dots)
+3. Select **Add to Home Screen**
+4. Tap **Add**
+
+## Benefits of Installing
+
+- **Full screen**: No browser chrome
+- **Quick access**: Launch from home screen
+- **Faster loading**: Cached resources
+- **Notifications**: Real-time alerts
+- **Offline access**: Basic features work offline
+
+## Mobile Features
+
+- Touch-optimized interface
+- Bottom navigation bar
+- Swipe gestures
+- Pull to refresh
+- Native sharing`
+  },
+
+  // Settings Articles
+  {
+    id: 'user-settings-guide',
+    title: 'User Settings Guide',
+    category: 'settings',
+    type: 'tutorial',
+    is_featured: true,
+    order: 1,
+    tags: ['settings', 'profile', 'account'],
+    content: `# User Settings Guide
+
+Customize your CatchAll experience with user settings.
+
+## Accessing Settings
+
+Navigate to **User Settings** from the sidebar.
+
+## Profile Settings
+
+Update your personal information:
+- Full Name
+- Job Title
+- Company
+- Phone
+- Bio
+- Timezone
+
+## Notification Preferences
+
+### Email Notifications
+- **Critical Alerts**: Security and system alerts
+- **Content Ideas**: AI-generated suggestions
+- **Competitor Updates**: Activity changes
+- **Weekly Digest**: Performance summary
+- **SEO Alerts**: Ranking changes
+
+### Push Notifications
+- **Social Mentions**: Brand mentions
+- **Engagement Spikes**: Unusual activity
+- **Campaign Updates**: Milestones
+- **Deal Updates**: Stage changes
+
+Toggle each on/off based on your preferences.
+
+## Integrations
+
+Connect third-party accounts:
+- Social media platforms
+- Email services
+
+## API Keys
+
+Generate API keys for:
+- External integrations
+- Automation tools
+- Custom development
+
+### Managing API Keys
+1. Enter a key name
+2. Click **Generate Key**
+3. Copy and store securely
+4. Use in Authorization header`
+  },
+  {
+    id: 'api-keys',
+    title: 'API Keys & Integrations',
+    category: 'settings',
+    type: 'tutorial',
+    order: 2,
+    tags: ['api', 'integrations', 'developers'],
+    content: `# API Keys & Integrations
+
+Connect CatchAll to your other tools and build custom integrations.
+
+## Generating API Keys
+
+1. Go to **User Settings**
+2. Click the **API Keys** tab
+3. Enter a descriptive name (e.g., "Production", "Zapier")
+4. Click **Generate Key**
+5. Copy the key immediately (shown once)
+
+## Using API Keys
+
+Include in request headers:
+\`\`\`
+Authorization: Bearer YOUR_API_KEY
+Content-Type: application/json
+\`\`\`
+
+## API Endpoints
+
+Access CatchAll data programmatically:
+- Contacts and companies
+- Deals and pipeline
+- Keywords and rankings
+- Social mentions
+- Analytics data
+
+## Security Best Practices
+
+- Never share API keys publicly
+- Use different keys per application
+- Rotate keys periodically
+- Delete unused keys
+- Use environment variables
+
+## Connected Integrations
+
+View and manage connected services:
+- Social media accounts
+- Email providers
+- Analytics platforms`
+  },
+
+  // Social Media - New AI Features
+  {
+    id: 'social-ai-predictions',
+    title: 'AI Predictions & Forecasting',
+    category: 'social_media',
+    type: 'tutorial',
+    is_featured: true,
+    order: 4,
+    tags: ['ai', 'predictions', 'trends', 'forecasting'],
+    content: `# AI Predictions & Forecasting
+
+Leverage AI to predict trends and plan your social strategy.
+
+## Accessing AI Predictions
+
+1. Go to **Social Media**
+2. Click the **Predictions** tab
+3. View AI-generated insights
+
+## Predictive Trends
+
+AI analyzes patterns to forecast:
+- **Engagement Predictions**: Expected performance
+- **Trending Topics**: Emerging subjects in your industry
+- **Optimal Posting Times**: Best times for engagement
+- **Content Recommendations**: What to post next
+
+## Competitor Forecasting
+
+Predict competitor moves:
+- Upcoming campaign predictions
+- Market position forecasts
+- Strategy shift indicators
+- Counter-strategy recommendations
+
+## AI Content Calendar
+
+Let AI plan your content:
+- **2-Week Schedule**: Auto-generated posting plan
+- **Topic Suggestions**: Relevant content ideas
+- **Platform Optimization**: Tailored per channel
+- **Engagement Estimates**: Predicted performance
+
+## How AI Predictions Work
+
+The AI analyzes:
+- Your historical performance
+- Industry trends
+- Competitor activity
+- Seasonal patterns
+- Audience behavior
+
+## Using Predictions
+
+1. Review weekly predictions
+2. Adjust content calendar accordingly
+3. Prepare for trending topics
+4. Monitor competitor forecasts
+5. Iterate based on results`
+  },
+  {
+    id: 'competitor-intelligence',
+    title: 'Competitor Intelligence',
+    category: 'social_media',
+    type: 'tutorial',
+    order: 5,
+    tags: ['competitors', 'analysis', 'benchmarking'],
+    content: `# Competitor Intelligence
+
+Track and analyze competitor social media activity.
+
+## Adding Competitors
+
+1. Go to **Social Media**
+2. Click the **Competitors** tab
+3. Click **Add Competitor**
+4. Enter competitor name and social handles
+
+## What's Tracked
+
+### Activity Metrics
+- Posting frequency
+- Engagement rates
+- Follower growth
+- Content mix
+
+### Content Analysis
+- Top performing posts
+- Content themes
+- Hashtag usage
+- Posting schedule
+
+### Strategy Insights
+- Content pillars
+- Tone of voice
+- Visual style
+- CTA patterns
+
+## Comparative Reports
+
+Generate side-by-side comparisons:
+- Your brand vs competitor
+- Strengths and weaknesses
+- Opportunity areas
+- Strategic recommendations
+
+## AI-Powered Insights
+
+- Predicted campaigns
+- Strategy shift alerts
+- Industry benchmarking
+- News monitoring
+
+## Using Intelligence
+
+1. Review competitor reports weekly
+2. Identify successful tactics to adapt
+3. Find content gaps to exploit
+4. Stay ahead of campaign launches`
+  },
+
   // FAQ
   {
     id: 'faq-general',
@@ -993,10 +1544,25 @@ A: Run an SEO Audit to identify issues. Each issue includes recommendations for 
 A: We support Twitter/X, LinkedIn, Facebook, Instagram, and YouTube for social listening and analytics.
 
 **Q: Can I post directly to social media?**
-A: The calendar helps you plan and schedule content. You'll need to post manually or use the platforms' native tools.
+A: Use the Mobile Hub or Social Calendar to compose posts. You can schedule content and post directly to connected platforms.
 
 **Q: How does sentiment analysis work?**
 A: Our AI analyzes the text of each mention to determine if it's positive, neutral, or negative.
+
+**Q: What is AI User Journey Mapping?**
+A: AI analyzes all touchpoints across your website and social media to map how users navigate, identify conversion paths, find drop-off points, and suggest optimizations.
+
+**Q: Is there a mobile app?**
+A: Yes! The Mobile Hub provides a mobile-optimized experience. You can also install CatchAll to your home screen as a PWA for an app-like experience.
+
+**Q: What are AI Predictions in Social Media?**
+A: AI analyzes your historical data, industry trends, and competitor activity to forecast engagement, trending topics, and optimal content strategies.
+
+**Q: How do I set up notifications?**
+A: Go to User Settings > Notifications to customize email and push notification preferences for alerts, content ideas, competitor updates, and more.
+
+**Q: Can I generate API keys?**
+A: Yes, go to User Settings > API Keys to generate, manage, and revoke API keys for external integrations.
 
 ## Account & Settings
 
