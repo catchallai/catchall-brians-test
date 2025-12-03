@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Button } from "@/components/ui/button";
@@ -135,7 +135,7 @@ const SIDEBAR_ICONS = {
   HelpCenter: HelpCircle,
 };
 
-function SidebarContent({ currentPage, onNavigate, isEnabled, user }) {
+function SidebarContent({ currentPage, onNavigate, isEnabled, user, onAddFavorite, dragOverFavorites, setDragOverFavorites }) {
   // Filter navigation based on enabled features
   const filteredNavigation = navigation.filter((item) => {
     if (item.name === 'divider') return true;
@@ -192,7 +192,32 @@ function SidebarContent({ currentPage, onNavigate, isEnabled, user }) {
 
                             if (item.name === 'favorites') {
                                                 return (
-                                                  <div key={idx} className="space-y-1 pl-4 border-l-2 border-violet-200 dark:border-violet-800 ml-3 mt-1">
+                                                  <div 
+                                                    key={idx} 
+                                                    className={`space-y-1 pl-4 border-l-2 ml-3 mt-1 transition-all duration-200 ${
+                                                      dragOverFavorites 
+                                                        ? 'border-violet-500 bg-violet-50 dark:bg-violet-900/20 rounded-r-lg' 
+                                                        : 'border-violet-200 dark:border-violet-800'
+                                                    }`}
+                                                    onDragOver={(e) => {
+                                                      if (favoriteLinks.length < 3) {
+                                                        e.preventDefault();
+                                                        setDragOverFavorites(true);
+                                                      }
+                                                    }}
+                                                    onDragLeave={() => setDragOverFavorites(false)}
+                                                    onDrop={(e) => {
+                                                      e.preventDefault();
+                                                      setDragOverFavorites(false);
+                                                      const data = e.dataTransfer.getData('text/plain');
+                                                      if (data) {
+                                                        try {
+                                                          const navItem = JSON.parse(data);
+                                                          onAddFavorite(navItem);
+                                                        } catch (err) {}
+                                                      }
+                                                    }}
+                                                  >
                                                     {favoriteLinks.map((fav, fidx) => {
                                                       const FavIcon = SIDEBAR_ICONS[fav.page] || LayoutDashboard;
                                                       const isActive = currentPage === fav.page;
@@ -213,14 +238,16 @@ function SidebarContent({ currentPage, onNavigate, isEnabled, user }) {
                                                       );
                                                     })}
                                                     {favoriteLinks.length < 3 && (
-                                                      <Link
-                                                        to={createPageUrl('Dashboard')}
-                                                        onClick={onNavigate}
-                                                        className="flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs font-medium text-gray-400 dark:text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-violet-600 dark:hover:text-violet-400 transition-all duration-200"
+                                                      <div
+                                                        className={`flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 ${
+                                                          dragOverFavorites 
+                                                            ? 'text-violet-600 dark:text-violet-400 bg-violet-100 dark:bg-violet-800/30 border-2 border-dashed border-violet-400' 
+                                                            : 'text-gray-400 dark:text-gray-500'
+                                                        }`}
                                                       >
                                                         <Plus className="w-3.5 h-3.5" />
-                                                        Add favorite
-                                                      </Link>
+                                                        {dragOverFavorites ? 'Drop here' : 'Drag nav item here'}
+                                                      </div>
                                                     )}
                                                   </div>
                                                 );
@@ -233,7 +260,12 @@ function SidebarContent({ currentPage, onNavigate, isEnabled, user }) {
                                 key={item.name}
                                 to={createPageUrl(item.page)}
                                 onClick={onNavigate}
-                                className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
+                                draggable
+                                onDragStart={(e) => {
+                                  e.dataTransfer.setData('text/plain', JSON.stringify({ page: item.page, label: item.name }));
+                                  e.dataTransfer.effectAllowed = 'copy';
+                                }}
+                                className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 cursor-grab active:cursor-grabbing ${
                                   isActive
                                     ? 'bg-violet-50 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300'
                                     : 'text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white'
@@ -254,6 +286,7 @@ export default function Layout({ children, currentPageName }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [showShortcuts, setShowShortcuts] = useState(false);
+  const [dragOverFavorites, setDragOverFavorites] = useState(false);
   const queryClient = useQueryClient();
   const { isEnabled } = useFeatures();
 
@@ -319,6 +352,17 @@ export default function Layout({ children, currentPageName }) {
     base44.auth.logout();
   };
 
+  const handleAddFavorite = useCallback(async (navItem) => {
+    if (!user) return;
+    const currentFavorites = user.favorite_links || [];
+    if (currentFavorites.length >= 3) return;
+    if (currentFavorites.some(f => f.page === navItem.page)) return;
+    
+    const newFavorites = [...currentFavorites, { page: navItem.page, label: navItem.label }];
+    await base44.auth.updateMe({ favorite_links: newFavorites });
+    queryClient.invalidateQueries({ queryKey: ['current-user'] });
+  }, [user, queryClient]);
+
   return (
     <ThemeProvider>
     <ToastProvider>
@@ -342,7 +386,7 @@ export default function Layout({ children, currentPageName }) {
             </Button>
           </SheetTrigger>
           <SheetContent side="left" className="p-0 w-72 dark:bg-gray-900 dark:border-gray-800">
-                            <SidebarContent currentPage={currentPageName} onNavigate={() => setSidebarOpen(false)} isEnabled={isEnabled} user={user} />
+                            <SidebarContent currentPage={currentPageName} onNavigate={() => setSidebarOpen(false)} isEnabled={isEnabled} user={user} onAddFavorite={handleAddFavorite} dragOverFavorites={dragOverFavorites} setDragOverFavorites={setDragOverFavorites} />
                           </SheetContent>
         </Sheet>
 
@@ -402,7 +446,7 @@ export default function Layout({ children, currentPageName }) {
 
       {/* Desktop Sidebar */}
               <aside className="hidden lg:fixed lg:inset-y-0 lg:flex lg:w-64 lg:flex-col glass-sidebar z-30">
-                                    <SidebarContent currentPage={currentPageName} isEnabled={isEnabled} user={user} />
+                                    <SidebarContent currentPage={currentPageName} isEnabled={isEnabled} user={user} onAddFavorite={handleAddFavorite} dragOverFavorites={dragOverFavorites} setDragOverFavorites={setDragOverFavorites} />
         
         {/* User Section */}
         <div className="p-4 border-t border-gray-100 dark:border-gray-800">
