@@ -4,9 +4,10 @@ import { Users, UserPlus, UserCheck } from "lucide-react";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 
 export default function VisitorTypeCard({ data }) {
+  // SyberJet visitor data - high-value returning visitors typical for luxury aviation
   const visitorData = data || [
-    { name: 'New Visitors', value: 62, color: '#8b5cf6' },
-    { name: 'Returning', value: 38, color: '#06b6d4' },
+    { name: 'New Visitors', value: 54, color: '#8b5cf6' },
+    { name: 'Returning', value: 46, color: '#06b6d4' },
   ];
 
   return (

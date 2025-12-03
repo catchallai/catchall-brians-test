@@ -105,35 +105,39 @@ export default function TrafficAnalytics() {
   const bounceChange = calculateChange(trafficData, 'bounce_rate');
   const durationChange = calculateChange(trafficData, 'avg_duration');
 
+  // SyberJet-specific traffic sources
   const trafficSources = [
-    { name: 'Organic Search', value: 45, color: '#8b5cf6' },
-    { name: 'Direct', value: 25, color: '#06b6d4' },
-    { name: 'Social', value: 15, color: '#10b981' },
-    { name: 'Referral', value: 10, color: '#f59e0b' },
-    { name: 'Paid', value: 5, color: '#ef4444' },
+    { name: 'Organic Search', value: 42, color: '#8b5cf6' },
+    { name: 'Direct', value: 28, color: '#06b6d4' },
+    { name: 'Social', value: 12, color: '#10b981' },
+    { name: 'Referral', value: 11, color: '#f59e0b' },
+    { name: 'Paid', value: 7, color: '#ef4444' },
   ];
 
+  // SyberJet audience device breakdown
   const deviceData = [
-    { name: 'Desktop', value: 55, icon: Monitor },
-    { name: 'Mobile', value: 38, icon: Smartphone },
-    { name: 'Tablet', value: 7, icon: Tablet },
+    { name: 'Desktop', value: 68, icon: Monitor },
+    { name: 'Mobile', value: 26, icon: Smartphone },
+    { name: 'Tablet', value: 6, icon: Tablet },
   ];
 
+  // SyberJet geographic data (aviation industry focused)
   const regionData = [
-    { region: 'United States', visitors: 12500, percentage: 35 },
-    { region: 'United Kingdom', visitors: 5200, percentage: 15 },
-    { region: 'Germany', visitors: 3800, percentage: 11 },
-    { region: 'Canada', visitors: 3200, percentage: 9 },
-    { region: 'Australia', visitors: 2800, percentage: 8 },
-    { region: 'France', visitors: 2100, percentage: 6 },
-    { region: 'Other', visitors: 5600, percentage: 16 },
+    { region: 'United States', visitors: 18500, percentage: 42 },
+    { region: 'United Arab Emirates', visitors: 4800, percentage: 11 },
+    { region: 'United Kingdom', visitors: 3900, percentage: 9 },
+    { region: 'Switzerland', visitors: 3100, percentage: 7 },
+    { region: 'Germany', visitors: 2800, percentage: 6 },
+    { region: 'Singapore', visitors: 2400, percentage: 5 },
+    { region: 'Other', visitors: 8500, percentage: 20 },
   ];
 
+  // SyberJet market overview (private aviation sector)
   const marketOverview = [
-    { metric: 'Market Share', value: '12.5%', change: 2.3, trend: 'up' },
-    { metric: 'Competitor Avg Traffic', value: '45K', change: -5.1, trend: 'down' },
-    { metric: 'Industry Growth', value: '+8.2%', change: 1.5, trend: 'up' },
-    { metric: 'Your Position', value: '#3', change: 1, trend: 'up' },
+    { metric: 'Market Share', value: '8.2%', change: 3.5, trend: 'up' },
+    { metric: 'Industry Avg Traffic', value: '32K', change: 4.2, trend: 'up' },
+    { metric: 'Private Aviation Growth', value: '+12.4%', change: 2.8, trend: 'up' },
+    { metric: 'Brand Ranking', value: '#5', change: 2, trend: 'up' },
   ];
 
   if (isLoading) {

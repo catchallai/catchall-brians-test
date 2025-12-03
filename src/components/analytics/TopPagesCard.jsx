@@ -4,12 +4,12 @@ import { FileText, Clock, Eye } from "lucide-react";
 
 export default function TopPagesCard({ data }) {
   const topPages = data || [
-    { path: '/', title: 'Homepage', views: 12450, avgTime: 145, bounceRate: 32 },
-    { path: '/products', title: 'Products', views: 8230, avgTime: 210, bounceRate: 28 },
-    { path: '/blog', title: 'Blog', views: 6120, avgTime: 320, bounceRate: 45 },
-    { path: '/pricing', title: 'Pricing', views: 5890, avgTime: 180, bounceRate: 35 },
-    { path: '/about', title: 'About Us', views: 3450, avgTime: 95, bounceRate: 52 },
-    { path: '/contact', title: 'Contact', views: 2890, avgTime: 120, bounceRate: 25 },
+    { path: '/', title: 'Homepage', url: 'https://syberjet.com/', views: 15820, avgTime: 185, bounceRate: 28 },
+    { path: '/sj30i', title: 'SJ30i Aircraft', url: 'https://syberjet.com/sj30i', views: 12450, avgTime: 245, bounceRate: 22 },
+    { path: '/performance', title: 'Performance', url: 'https://syberjet.com/performance', views: 8930, avgTime: 210, bounceRate: 25 },
+    { path: '/interior', title: 'Interior Design', url: 'https://syberjet.com/interior', views: 7640, avgTime: 195, bounceRate: 30 },
+    { path: '/ownership', title: 'Ownership', url: 'https://syberjet.com/ownership', views: 5280, avgTime: 165, bounceRate: 35 },
+    { path: '/contact', title: 'Contact Us', url: 'https://syberjet.com/contact', views: 4120, avgTime: 90, bounceRate: 18 },
   ];
 
   const formatTime = (seconds) => {
