@@ -34,14 +34,21 @@ export default function TopPagesCard({ data }) {
             <div key={page.path} className="group">
               <div className="flex items-center justify-between mb-1">
                 <div className="flex items-center gap-2">
-                  <span className="w-5 h-5 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-xs font-medium text-gray-600 dark:text-gray-400">
-                    {index + 1}
-                  </span>
-                  <div>
-                    <p className="text-sm font-medium text-gray-900 dark:text-white">{page.title}</p>
-                    <p className="text-xs text-gray-400">{page.path}</p>
-                  </div>
-                </div>
+                      <span className="w-5 h-5 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-xs font-medium text-gray-600 dark:text-gray-400">
+                        {index + 1}
+                      </span>
+                      <div>
+                        <a 
+                          href={page.url || page.path} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="text-sm font-medium text-gray-900 dark:text-white hover:text-violet-600 dark:hover:text-violet-400 transition-colors"
+                        >
+                          {page.title}
+                        </a>
+                        <p className="text-xs text-gray-400">{page.path}</p>
+                      </div>
+                    </div>
                 <div className="flex items-center gap-4 text-xs text-gray-500">
                   <div className="flex items-center gap-1">
                     <Eye className="w-3 h-3" />
