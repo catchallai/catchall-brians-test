@@ -40,6 +40,7 @@ import {
   Activity,
   TrendingUp,
   Smartphone,
+  Plus,
 } from "lucide-react";
 import ErrorBoundary from '@/components/ui/ErrorBoundary';
 import KeyboardShortcutsDialog, { useKeyboardShortcuts } from '@/components/ui/KeyboardShortcuts';
@@ -190,31 +191,40 @@ function SidebarContent({ currentPage, onNavigate, isEnabled, user }) {
                             }
 
                             if (item.name === 'favorites') {
-                              if (favoriteLinks.length === 0) return null;
-                              return (
-                                <div key={idx} className="space-y-1 pl-4 border-l-2 border-violet-200 dark:border-violet-800 ml-3 mt-1">
-                                  {favoriteLinks.map((fav, fidx) => {
-                                    const FavIcon = SIDEBAR_ICONS[fav.page] || LayoutDashboard;
-                                    const isActive = currentPage === fav.page;
-                                    return (
-                                      <Link
-                                        key={fidx}
-                                        to={createPageUrl(fav.page)}
-                                        onClick={onNavigate}
-                                        className={`flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 ${
-                                          isActive
-                                            ? 'bg-violet-50 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300'
-                                            : 'text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-200'
-                                        }`}
-                                      >
-                                        <FavIcon className={`w-3.5 h-3.5 ${isActive ? 'text-violet-500' : 'text-gray-400'}`} />
-                                        {fav.label}
-                                      </Link>
-                                    );
-                                  })}
-                                </div>
-                              );
-                            }
+                                                return (
+                                                  <div key={idx} className="space-y-1 pl-4 border-l-2 border-violet-200 dark:border-violet-800 ml-3 mt-1">
+                                                    {favoriteLinks.map((fav, fidx) => {
+                                                      const FavIcon = SIDEBAR_ICONS[fav.page] || LayoutDashboard;
+                                                      const isActive = currentPage === fav.page;
+                                                      return (
+                                                        <Link
+                                                          key={fidx}
+                                                          to={createPageUrl(fav.page)}
+                                                          onClick={onNavigate}
+                                                          className={`flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 ${
+                                                            isActive
+                                                              ? 'bg-violet-50 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300'
+                                                              : 'text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-200'
+                                                          }`}
+                                                        >
+                                                          <FavIcon className={`w-3.5 h-3.5 ${isActive ? 'text-violet-500' : 'text-gray-400'}`} />
+                                                          {fav.label}
+                                                        </Link>
+                                                      );
+                                                    })}
+                                                    {favoriteLinks.length < 3 && (
+                                                      <Link
+                                                        to={createPageUrl('Dashboard')}
+                                                        onClick={onNavigate}
+                                                        className="flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs font-medium text-gray-400 dark:text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-violet-600 dark:hover:text-violet-400 transition-all duration-200"
+                                                      >
+                                                        <Plus className="w-3.5 h-3.5" />
+                                                        Add favorite
+                                                      </Link>
+                                                    )}
+                                                  </div>
+                                                );
+                                              }
 
                             const isActive = currentPage === item.page;
 
