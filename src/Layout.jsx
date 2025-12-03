@@ -39,6 +39,7 @@ import {
   Keyboard,
   Activity,
   TrendingUp,
+  Smartphone,
 } from "lucide-react";
 import ErrorBoundary from '@/components/ui/ErrorBoundary';
 import KeyboardShortcutsDialog, { useKeyboardShortcuts } from '@/components/ui/KeyboardShortcuts';
@@ -98,6 +99,7 @@ const navigation = [
         { name: 'Settings', icon: Settings, page: 'Settings' },
                       { name: 'User Settings', icon: Users, page: 'UserSettings' },
                       { name: 'Activity Logs', icon: Activity, page: 'ActivityLogs' },
+              { name: 'Mobile Hub', icon: Smartphone, page: 'MobileHub' },
 ];
 
 function SidebarContent({ currentPage, onNavigate, isEnabled }) {
