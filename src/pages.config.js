@@ -35,6 +35,7 @@ import MarketingHub from './pages/MarketingHub';
 import HashtagManager from './pages/HashtagManager';
 import UserSettings from './pages/UserSettings';
 import MobileHub from './pages/MobileHub';
+import CompetitorAnalysis from './pages/CompetitorAnalysis';
 import __Layout from './Layout.jsx';
 
 
@@ -76,6 +77,7 @@ export const PAGES = {
     "HashtagManager": HashtagManager,
     "UserSettings": UserSettings,
     "MobileHub": MobileHub,
+    "CompetitorAnalysis": CompetitorAnalysis,
 }
 
 export const pagesConfig = {

@@ -19,6 +19,7 @@ import ContentCalendarCard from '@/components/dashboard/ContentCalendarCard';
 import RecentActivityFeed from '@/components/dashboard/RecentActivityFeed';
 import AlertsSummary from '@/components/dashboard/AlertsSummary';
 import QuickActions from '@/components/dashboard/QuickActions';
+import FavoriteLinksManager from '@/components/dashboard/FavoriteLinksManager';
 
 export default function Dashboard() {
   // CRM Data
@@ -96,6 +97,13 @@ export default function Dashboard() {
     queryKey: ['current-user'],
     queryFn: () => base44.auth.me(),
   });
+
+  // Get favorite links from user data
+  const favoriteLinks = user?.favorite_links || [];
+
+  const updateFavoriteLinks = async (newFavorites) => {
+    await base44.auth.updateMe({ favorite_links: newFavorites });
+  };
 
   const isLoading = loadingContacts || loadingDeals;
 
@@ -265,28 +273,17 @@ export default function Dashboard() {
         mentions={mentions} 
       />
 
-      {/* Quick Links */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
-        {[
-          { label: 'SEO Tools', icon: Search, page: 'SEOTools', color: 'bg-blue-500' },
-          { label: 'Content Studio', icon: Zap, page: 'ContentStudio', color: 'bg-violet-500' },
-          { label: 'Marketing Hub', icon: TrendingUp, page: 'MarketingHub', color: 'bg-pink-500' },
-          { label: 'Reports', icon: Target, page: 'Reports', color: 'bg-emerald-500' },
-        ].map((link) => (
-          <Link 
-            key={link.page}
-            to={createPageUrl(link.page)}
-            className="flex items-center justify-between p-3 sm:p-4 rounded-xl bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 hover:shadow-md transition-all group"
-          >
-            <div className="flex items-center gap-2 sm:gap-3">
-              <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg ${link.color} flex items-center justify-center shrink-0`}>
-                <link.icon className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
-              </div>
-              <span className="font-medium text-sm sm:text-base text-gray-900 dark:text-white">{link.label}</span>
-            </div>
-            <ArrowRight className="w-4 h-4 text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors hidden sm:block" />
-          </Link>
-        ))}
+      {/* Quick Links / Favorites */}
+      <div className="space-y-3">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Quick Access</h3>
+        <FavoriteLinksManager 
+          favorites={favoriteLinks.length > 0 ? favoriteLinks : [
+            { page: 'SEOTools', label: 'SEO Tools', icon: 'SEOTools', color: 'bg-blue-500' },
+            { page: 'ContentStudio', label: 'Content Studio', icon: 'ContentStudio', color: 'bg-violet-500' },
+            { page: 'MarketingHub', label: 'Marketing Hub', icon: 'MarketingHub', color: 'bg-pink-500' },
+          ]}
+          onUpdate={updateFavoriteLinks}
+        />
       </div>
     </div>
   );
