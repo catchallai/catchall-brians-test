@@ -146,9 +146,9 @@ For each idea provide:
 
   if (isLoading) {
     return (
-      <div className="p-6 lg:p-8 space-y-6 min-h-screen">
+      <div className="p-4 sm:p-6 lg:p-8 space-y-6 min-h-screen">
         <Skeleton className="h-10 w-64" />
-        <div className="grid grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-28" />)}
         </div>
       </div>
@@ -156,32 +156,33 @@ For each idea provide:
   }
 
   return (
-    <div className="p-6 lg:p-8 space-y-6 min-h-screen">
+    <div className="p-4 sm:p-6 lg:p-8 space-y-4 sm:space-y-6 min-h-screen">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Content Studio</h1>
-          <p className="text-gray-500 dark:text-gray-400 mt-1">AI-powered content ideation and generation</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Content Studio</h1>
+          <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400 mt-1">AI-powered content ideation and generation</p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 w-full sm:w-auto">
           <Button 
             variant="outline" 
             onClick={() => generateIdeasMutation.mutate()}
             disabled={isGeneratingIdeas}
-            className="gap-2"
+            className="gap-2 flex-1 sm:flex-none"
+            size="sm"
           >
             {isGeneratingIdeas ? <Loader2 className="w-4 h-4 animate-spin" /> : <Lightbulb className="w-4 h-4" />}
-            Generate Ideas
+            <span className="hidden sm:inline">Generate</span> Ideas
           </Button>
-          <Button onClick={() => setShowArticleModal(true)} className="gap-2 bg-violet-600 hover:bg-violet-700">
+          <Button onClick={() => setShowArticleModal(true)} className="gap-2 bg-violet-600 hover:bg-violet-700 flex-1 sm:flex-none" size="sm">
             <Wand2 className="w-4 h-4" />
-            Generate Article
+            <span className="hidden sm:inline">Generate</span> Article
           </Button>
         </div>
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 sm:gap-4">
         <Card className="glass-card rounded-2xl">
           <CardContent className="p-4 text-center">
             <Lightbulb className="w-6 h-6 text-amber-500 mx-auto mb-2" />
@@ -224,15 +225,15 @@ For each idea provide:
       </div>
 
       <Tabs defaultValue="ideas">
-        <TabsList>
-          <TabsTrigger value="ideas">Content Ideas</TabsTrigger>
-          <TabsTrigger value="crm" className="gap-1">
-            <Users className="w-4 h-4" />
-            CRM Content
+        <TabsList className="flex-wrap h-auto gap-1 p-1 w-full overflow-x-auto">
+          <TabsTrigger value="ideas" className="text-xs sm:text-sm">Ideas</TabsTrigger>
+          <TabsTrigger value="crm" className="gap-1 text-xs sm:text-sm">
+            <Users className="w-3 h-3 sm:w-4 sm:h-4" />
+            CRM
           </TabsTrigger>
-          <TabsTrigger value="briefs">SEO Briefs</TabsTrigger>
-          <TabsTrigger value="articles">Generated Articles</TabsTrigger>
-          <TabsTrigger value="voice">Brand Voice</TabsTrigger>
+          <TabsTrigger value="briefs" className="text-xs sm:text-sm">Briefs</TabsTrigger>
+          <TabsTrigger value="articles" className="text-xs sm:text-sm">Articles</TabsTrigger>
+          <TabsTrigger value="voice" className="text-xs sm:text-sm">Voice</TabsTrigger>
         </TabsList>
 
         <TabsContent value="ideas" className="mt-4 space-y-4">

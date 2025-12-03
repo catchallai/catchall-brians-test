@@ -639,21 +639,21 @@ Prioritize finding older historical discussions from 2009-2015 as well as recent
   const totalForumMentions = forumMentions.length;
 
   return (
-    <div className="p-6 lg:p-8 space-y-6 bg-gray-50 min-h-screen">
+    <div className="p-4 sm:p-6 lg:p-8 space-y-4 sm:space-y-6 bg-gray-50 min-h-screen">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Social Listening</h1>
-          <p className="text-gray-500 mt-1">Track keywords, hashtags, and mentions across social media</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Social Listening</h1>
+          <p className="text-sm sm:text-base text-gray-500 mt-1">Track keywords, hashtags, and mentions across social media</p>
         </div>
-        <Button onClick={() => setShowAddModal(true)} className="gap-2 bg-violet-600 hover:bg-violet-700">
+        <Button onClick={() => setShowAddModal(true)} className="gap-2 bg-violet-600 hover:bg-violet-700 w-full sm:w-auto">
           <Plus className="w-4 h-4" />
           Add Keyword
         </Button>
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 sm:gap-4">
         <Card className="border-0 shadow-sm">
           <CardContent className="p-4 text-center">
             <Radio className="w-6 h-6 text-violet-500 mx-auto mb-2" />
@@ -703,21 +703,21 @@ Prioritize finding older historical discussions from 2009-2015 as well as recent
 
       {/* Tabs */}
       <Tabs defaultValue="keywords" className="space-y-4">
-        <TabsList className="flex-wrap">
-          <TabsTrigger value="keywords">Tracked Keywords</TabsTrigger>
-          <TabsTrigger value="mentions">Mentions ({totalMentions})</TabsTrigger>
-          <TabsTrigger value="alerts" className="relative">
+        <TabsList className="flex-wrap h-auto gap-1 p-1 w-full overflow-x-auto">
+          <TabsTrigger value="keywords" className="text-xs sm:text-sm">Keywords</TabsTrigger>
+          <TabsTrigger value="mentions" className="text-xs sm:text-sm">Mentions ({totalMentions})</TabsTrigger>
+          <TabsTrigger value="alerts" className="relative text-xs sm:text-sm">
             Alerts
             {unreadAlerts > 0 && (
-              <Badge className="ml-1 bg-red-500 text-white border-0 text-xs h-5 w-5 p-0 flex items-center justify-center">
+              <Badge className="ml-1 bg-red-500 text-white border-0 text-xs h-4 w-4 sm:h-5 sm:w-5 p-0 flex items-center justify-center">
                 {unreadAlerts}
               </Badge>
             )}
           </TabsTrigger>
-          <TabsTrigger value="influencers">Influencers</TabsTrigger>
-          <TabsTrigger value="responses">Responses ({mentionsNeedingResponse.length})</TabsTrigger>
-          <TabsTrigger value="forums">Forums & Communities ({totalForumMentions})</TabsTrigger>
-          <TabsTrigger value="trends">Trends & Insights</TabsTrigger>
+          <TabsTrigger value="influencers" className="text-xs sm:text-sm">Influencers</TabsTrigger>
+          <TabsTrigger value="responses" className="text-xs sm:text-sm hidden sm:flex">Responses</TabsTrigger>
+          <TabsTrigger value="forums" className="text-xs sm:text-sm hidden md:flex">Forums</TabsTrigger>
+          <TabsTrigger value="trends" className="text-xs sm:text-sm">Trends</TabsTrigger>
         </TabsList>
 
         {/* Keywords Tab */}

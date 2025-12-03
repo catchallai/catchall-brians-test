@@ -1087,12 +1087,12 @@ Find 5 recent posts with: post_url (direct link to post), content, post_date, li
   };
 
   return (
-    <div className="p-6 lg:p-8 space-y-6 min-h-screen">
+    <div className="p-4 sm:p-6 lg:p-8 space-y-4 sm:space-y-6 min-h-screen">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Social Media Analysis</h1>
-          <p className="text-gray-500 mt-1">Monitor and analyze your social media presence</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Social Media Analysis</h1>
+          <p className="text-sm sm:text-base text-gray-500 mt-1">Monitor and analyze your social media presence</p>
         </div>
         <div className="flex gap-2">
           <Button 
@@ -1104,15 +1104,16 @@ Find 5 recent posts with: post_url (direct link to post), content, post_date, li
             }}
             disabled={analyzingAccount !== null || socialAccounts.length === 0}
             className="gap-2"
+            size="sm"
           >
             {analyzingAccount !== null ? (
               <Loader2 className="w-4 h-4 animate-spin" />
             ) : (
               <RefreshCw className="w-4 h-4" />
             )}
-            Refresh All
+            <span className="hidden sm:inline">Refresh All</span>
           </Button>
-          <Button onClick={() => setShowAddModal(true)} className="gap-2 bg-violet-600 hover:bg-violet-700">
+          <Button onClick={() => setShowAddModal(true)} className="gap-2 bg-violet-600 hover:bg-violet-700 flex-1 sm:flex-none" size="sm">
             <Plus className="w-4 h-4" />
             Add Account
           </Button>
@@ -1155,13 +1156,13 @@ Find 5 recent posts with: post_url (direct link to post), content, post_date, li
 
       {/* Tabs Content */}
       <Tabs defaultValue="accounts" className="space-y-4">
-        <div className="flex items-center justify-between">
-          <TabsList className="flex-wrap">
-            <TabsTrigger value="accounts">Accounts</TabsTrigger>
-            <TabsTrigger value="insights">AI Insights</TabsTrigger>
-            <TabsTrigger value="generator">Content Generator</TabsTrigger>
-            <TabsTrigger value="competitors">Competitors</TabsTrigger>
-            <TabsTrigger value="abtests">A/B Tests</TabsTrigger>
+        <div className="flex items-center justify-between overflow-x-auto">
+          <TabsList className="flex-wrap h-auto gap-1 p-1">
+            <TabsTrigger value="accounts" className="text-xs sm:text-sm">Accounts</TabsTrigger>
+            <TabsTrigger value="insights" className="text-xs sm:text-sm">AI Insights</TabsTrigger>
+            <TabsTrigger value="generator" className="text-xs sm:text-sm">Content</TabsTrigger>
+            <TabsTrigger value="competitors" className="text-xs sm:text-sm">Competitors</TabsTrigger>
+            <TabsTrigger value="abtests" className="text-xs sm:text-sm">A/B Tests</TabsTrigger>
           </TabsList>
         </div>
 
