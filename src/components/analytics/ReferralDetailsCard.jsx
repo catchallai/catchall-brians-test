@@ -4,15 +4,16 @@ import { ExternalLink, Globe } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 export default function ReferralDetailsCard({ data }) {
+  // SyberJet referral sources - aviation industry focused
   const referrals = data || [
-    { domain: 'google.com', visits: 4520, type: 'search', percentage: 32 },
-    { domain: 'facebook.com', visits: 2180, type: 'social', percentage: 15 },
-    { domain: 'twitter.com', visits: 1850, type: 'social', percentage: 13 },
-    { domain: 'linkedin.com', visits: 1420, type: 'social', percentage: 10 },
-    { domain: 'medium.com', visits: 980, type: 'referral', percentage: 7 },
-    { domain: 'reddit.com', visits: 750, type: 'social', percentage: 5 },
-    { domain: 'bing.com', visits: 620, type: 'search', percentage: 4 },
-    { domain: 'producthunt.com', visits: 480, type: 'referral', percentage: 3 },
+    { domain: 'google.com', visits: 14280, type: 'search', percentage: 38 },
+    { domain: 'linkedin.com', visits: 5640, type: 'social', percentage: 15 },
+    { domain: 'bjtonline.com', visits: 3420, type: 'referral', percentage: 9 },
+    { domain: 'ainonline.com', visits: 2890, type: 'referral', percentage: 8 },
+    { domain: 'flyingmag.com', visits: 2340, type: 'referral', percentage: 6 },
+    { domain: 'avweb.com', visits: 1950, type: 'referral', percentage: 5 },
+    { domain: 'bing.com', visits: 1420, type: 'search', percentage: 4 },
+    { domain: 'nbaa.org', visits: 980, type: 'referral', percentage: 3 },
   ];
 
   const typeColors = {

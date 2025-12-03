@@ -3,13 +3,14 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Activity, Users, Eye, MousePointer } from "lucide-react";
 
 export default function RealTimeCard() {
-  const [activeUsers, setActiveUsers] = useState(47);
-  const [recentPageviews, setRecentPageviews] = useState(156);
+  // SyberJet real-time data
+  const [activeUsers, setActiveUsers] = useState(28);
+  const [recentPageviews, setRecentPageviews] = useState(84);
   const [activePages, setActivePages] = useState([
-    { path: '/', users: 12 },
-    { path: '/products', users: 8 },
-    { path: '/blog/latest', users: 6 },
-    { path: '/pricing', users: 5 },
+    { path: '/sj30i', users: 9 },
+    { path: '/', users: 7 },
+    { path: '/performance', users: 5 },
+    { path: '/interior', users: 4 },
   ]);
 
   // Simulate real-time updates

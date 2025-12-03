@@ -3,11 +3,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Activity, MousePointer, Layers, ArrowDown } from "lucide-react";
 
 export default function EngagementMetricsCard({ data }) {
+  // SyberJet engagement metrics - high engagement for luxury aviation research
   const metrics = data || {
-    pagesPerSession: 3.8,
-    avgScrollDepth: 68,
-    clickRate: 4.2,
-    interactionRate: 72,
+    pagesPerSession: 5.4,
+    avgScrollDepth: 76,
+    clickRate: 4.8,
+    interactionRate: 68,
   };
 
   const items = [

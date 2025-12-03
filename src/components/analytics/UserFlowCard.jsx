@@ -3,18 +3,19 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowRight, LogIn, LogOut } from "lucide-react";
 
 export default function UserFlowCard({ data }) {
+  // SyberJet user flow data
   const entryPages = data?.entry || [
-    { path: '/', percentage: 45 },
-    { path: '/blog', percentage: 25 },
-    { path: '/products', percentage: 18 },
-    { path: '/pricing', percentage: 12 },
+    { path: '/', percentage: 42 },
+    { path: '/sj30i', percentage: 28 },
+    { path: '/performance', percentage: 18 },
+    { path: '/interior', percentage: 12 },
   ];
 
   const exitPages = data?.exit || [
-    { path: '/checkout', percentage: 35 },
-    { path: '/contact', percentage: 28 },
-    { path: '/', percentage: 22 },
-    { path: '/blog', percentage: 15 },
+    { path: '/contact', percentage: 35 },
+    { path: '/ownership', percentage: 25 },
+    { path: '/sj30i', percentage: 22 },
+    { path: '/performance', percentage: 18 },
   ];
 
   return (

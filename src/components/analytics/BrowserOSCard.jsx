@@ -3,20 +3,21 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Chrome, Apple, Monitor } from "lucide-react";
 
 export default function BrowserOSCard({ data }) {
+  // SyberJet browser/OS data - premium audience with higher macOS/Safari usage
   const browsers = data?.browsers || [
-    { name: 'Chrome', percentage: 58, color: '#4285F4' },
-    { name: 'Safari', percentage: 22, color: '#0FB5EE' },
-    { name: 'Firefox', percentage: 10, color: '#FF7139' },
-    { name: 'Edge', percentage: 7, color: '#0078D7' },
+    { name: 'Chrome', percentage: 46, color: '#4285F4' },
+    { name: 'Safari', percentage: 38, color: '#0FB5EE' },
+    { name: 'Firefox', percentage: 8, color: '#FF7139' },
+    { name: 'Edge', percentage: 5, color: '#0078D7' },
     { name: 'Other', percentage: 3, color: '#9CA3AF' },
   ];
 
   const os = data?.os || [
-    { name: 'Windows', percentage: 45, color: '#00BCF2' },
-    { name: 'macOS', percentage: 28, color: '#A3AAAE' },
-    { name: 'iOS', percentage: 15, color: '#007AFF' },
-    { name: 'Android', percentage: 10, color: '#3DDC84' },
-    { name: 'Linux', percentage: 2, color: '#FCC624' },
+    { name: 'macOS', percentage: 44, color: '#A3AAAE' },
+    { name: 'Windows', percentage: 32, color: '#00BCF2' },
+    { name: 'iOS', percentage: 16, color: '#007AFF' },
+    { name: 'Android', percentage: 5, color: '#3DDC84' },
+    { name: 'Linux', percentage: 3, color: '#FCC624' },
   ];
 
   return (
