@@ -33,6 +33,7 @@ import Settings from './pages/Settings';
 import ActivityLogs from './pages/ActivityLogs';
 import MarketingHub from './pages/MarketingHub';
 import HashtagManager from './pages/HashtagManager';
+import UserSettings from './pages/UserSettings';
 import __Layout from './Layout.jsx';
 
 
@@ -72,6 +73,7 @@ export const PAGES = {
     "ActivityLogs": ActivityLogs,
     "MarketingHub": MarketingHub,
     "HashtagManager": HashtagManager,
+    "UserSettings": UserSettings,
 }
 
 export const pagesConfig = {

@@ -96,7 +96,8 @@ const navigation = [
       { name: 'divider', label: 'Support' },
       { name: 'Help Center', icon: HelpCircle, page: 'HelpCenter' },
         { name: 'Settings', icon: Settings, page: 'Settings' },
-        { name: 'Activity Logs', icon: Activity, page: 'ActivityLogs' },
+                      { name: 'User Settings', icon: Users, page: 'UserSettings' },
+                      { name: 'Activity Logs', icon: Activity, page: 'ActivityLogs' },
 ];
 
 function SidebarContent({ currentPage, onNavigate, isEnabled }) {
