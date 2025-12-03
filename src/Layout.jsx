@@ -58,6 +58,7 @@ import {
 
 const navigation = [
   { name: 'Dashboard', icon: LayoutDashboard, page: 'Dashboard' },
+  { name: 'favorites', label: 'Favorites' },
   { name: 'divider', label: 'CRM' },
   { name: 'Contacts', icon: Users, page: 'Contacts' },
   { name: 'Companies', icon: Building2, page: 'Companies' },
@@ -103,7 +104,37 @@ const navigation = [
               { name: 'Mobile Hub', icon: Smartphone, page: 'MobileHub' },
 ];
 
-function SidebarContent({ currentPage, onNavigate, isEnabled }) {
+const SIDEBAR_ICONS = {
+  Dashboard: LayoutDashboard,
+  Contacts: Users,
+  Companies: Building2,
+  Deals: Target,
+  Activities: Calendar,
+  SEODashboard: Search,
+  SEOTools: Globe,
+  Keywords: Target,
+  Backlinks: Link2,
+  SEOAudit: FileSearch,
+  ContentStrategy: FileText,
+  TrafficAnalytics: BarChart3,
+  SocialMedia: Share2,
+  SocialListening: Radio,
+  SocialCalendar: CalendarDays,
+  CompetitorAnalysis: Users,
+  Campaigns: Megaphone,
+  EmailMarketing: Mail,
+  Reports: FileBarChart,
+  MarketingHub: TrendingUp,
+  ContentStudio: PenTool,
+  LocalSEO: MapPin,
+  MediaOutreach: Mail,
+  Automation: Zap,
+  MobileHub: Smartphone,
+  Settings: Settings,
+  HelpCenter: HelpCircle,
+};
+
+function SidebarContent({ currentPage, onNavigate, isEnabled, user }) {
   // Filter navigation based on enabled features
   const filteredNavigation = navigation.filter((item) => {
     if (item.name === 'divider') return true;
@@ -117,11 +148,15 @@ function SidebarContent({ currentPage, onNavigate, isEnabled }) {
 
   // Remove consecutive dividers and trailing dividers
   const cleanedNavigation = filteredNavigation.filter((item, idx, arr) => {
-    if (item.name !== 'divider') return true;
+    if (item.name !== 'divider' && item.name !== 'favorites') return true;
+    if (item.name === 'favorites') return true;
     const nextItem = arr[idx + 1];
     if (!nextItem || nextItem.name === 'divider') return false;
     return true;
   });
+
+  // Get user's favorite links (max 3)
+  const favoriteLinks = (user?.favorite_links || []).slice(0, 3);
 
   return (
     <div className="flex flex-col h-full">
@@ -144,34 +179,61 @@ function SidebarContent({ currentPage, onNavigate, isEnabled }) {
       <ScrollArea className="flex-1 px-4 py-6">
         <nav className="space-y-1">
           {cleanedNavigation.map((item, idx) => {
-            if (item.name === 'divider') {
-              return (
-                <div key={idx} className="pt-6 pb-2">
-                  <p className="px-3 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
-                    {item.label}
-                  </p>
-                </div>
-              );
-            }
-            
-            const isActive = currentPage === item.page;
-            
-            return (
-              <Link
-                key={item.name}
-                to={createPageUrl(item.page)}
-                onClick={onNavigate}
-                className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
-                  isActive
-                    ? 'bg-violet-50 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300'
-                    : 'text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white'
-                }`}
-              >
-                <item.icon className={`w-5 h-5 ${isActive ? 'text-violet-600 dark:text-violet-400' : 'text-gray-400 dark:text-gray-500'}`} />
-                {item.name}
-              </Link>
-            );
-          })}
+                            if (item.name === 'divider') {
+                              return (
+                                <div key={idx} className="pt-6 pb-2">
+                                  <p className="px-3 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
+                                    {item.label}
+                                  </p>
+                                </div>
+                              );
+                            }
+
+                            if (item.name === 'favorites') {
+                              if (favoriteLinks.length === 0) return null;
+                              return (
+                                <div key={idx} className="space-y-1 pl-4 border-l-2 border-violet-200 dark:border-violet-800 ml-3 mt-1">
+                                  {favoriteLinks.map((fav, fidx) => {
+                                    const FavIcon = SIDEBAR_ICONS[fav.page] || LayoutDashboard;
+                                    const isActive = currentPage === fav.page;
+                                    return (
+                                      <Link
+                                        key={fidx}
+                                        to={createPageUrl(fav.page)}
+                                        onClick={onNavigate}
+                                        className={`flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 ${
+                                          isActive
+                                            ? 'bg-violet-50 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300'
+                                            : 'text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-200'
+                                        }`}
+                                      >
+                                        <FavIcon className={`w-3.5 h-3.5 ${isActive ? 'text-violet-500' : 'text-gray-400'}`} />
+                                        {fav.label}
+                                      </Link>
+                                    );
+                                  })}
+                                </div>
+                              );
+                            }
+
+                            const isActive = currentPage === item.page;
+
+                            return (
+                              <Link
+                                key={item.name}
+                                to={createPageUrl(item.page)}
+                                onClick={onNavigate}
+                                className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
+                                  isActive
+                                    ? 'bg-violet-50 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300'
+                                    : 'text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white'
+                                }`}
+                              >
+                                <item.icon className={`w-5 h-5 ${isActive ? 'text-violet-600 dark:text-violet-400' : 'text-gray-400 dark:text-gray-500'}`} />
+                                {item.name}
+                              </Link>
+                            );
+                          })}
         </nav>
       </ScrollArea>
     </div>
@@ -270,7 +332,7 @@ export default function Layout({ children, currentPageName }) {
             </Button>
           </SheetTrigger>
           <SheetContent side="left" className="p-0 w-72 dark:bg-gray-900 dark:border-gray-800">
-                            <SidebarContent currentPage={currentPageName} onNavigate={() => setSidebarOpen(false)} isEnabled={isEnabled} />
+                            <SidebarContent currentPage={currentPageName} onNavigate={() => setSidebarOpen(false)} isEnabled={isEnabled} user={user} />
                           </SheetContent>
         </Sheet>
 
@@ -330,7 +392,7 @@ export default function Layout({ children, currentPageName }) {
 
       {/* Desktop Sidebar */}
               <aside className="hidden lg:fixed lg:inset-y-0 lg:flex lg:w-64 lg:flex-col glass-sidebar z-30">
-                <SidebarContent currentPage={currentPageName} isEnabled={isEnabled} />
+                                    <SidebarContent currentPage={currentPageName} isEnabled={isEnabled} user={user} />
         
         {/* User Section */}
         <div className="p-4 border-t border-gray-100 dark:border-gray-800">
