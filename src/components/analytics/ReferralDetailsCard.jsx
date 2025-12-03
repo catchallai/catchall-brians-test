@@ -1,9 +1,10 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ExternalLink, Globe } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { ExternalLink, Globe, RefreshCw } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
-export default function ReferralDetailsCard({ data }) {
+export default function ReferralDetailsCard({ data, onRefresh, isRefreshing }) {
   // SyberJet referral sources - aviation industry focused
   const referrals = data || [
     { domain: 'google.com', visits: 14280, type: 'search', percentage: 38 },
@@ -24,11 +25,16 @@ export default function ReferralDetailsCard({ data }) {
 
   return (
     <Card className="glass-card rounded-2xl">
-      <CardHeader className="pb-2">
+      <CardHeader className="pb-2 flex flex-row items-center justify-between">
         <CardTitle className="text-base flex items-center gap-2">
           <ExternalLink className="w-4 h-4 text-blue-500" />
           Top Referrers
         </CardTitle>
+        {onRefresh && (
+          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={onRefresh} disabled={isRefreshing}>
+            <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin' : ''}`} />
+          </Button>
+        )}
       </CardHeader>
       <CardContent>
         <div className="space-y-2 max-h-[280px] overflow-y-auto pr-1">

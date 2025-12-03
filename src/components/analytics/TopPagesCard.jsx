@@ -1,8 +1,9 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { FileText, Clock, Eye } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { FileText, Clock, Eye, RefreshCw } from "lucide-react";
 
-export default function TopPagesCard({ data }) {
+export default function TopPagesCard({ data, onRefresh, isRefreshing }) {
   const topPages = data || [
     { path: '/', title: 'Homepage', url: 'https://syberjet.com/', views: 15820, avgTime: 185, bounceRate: 28 },
     { path: '/sj30i', title: 'SJ30i Aircraft', url: 'https://syberjet.com/sj30i', views: 12450, avgTime: 245, bounceRate: 22 },
@@ -22,11 +23,16 @@ export default function TopPagesCard({ data }) {
 
   return (
     <Card className="glass-card rounded-2xl">
-      <CardHeader className="pb-2">
+      <CardHeader className="pb-2 flex flex-row items-center justify-between">
         <CardTitle className="text-base flex items-center gap-2">
           <FileText className="w-4 h-4 text-blue-500" />
           Top Pages
         </CardTitle>
+        {onRefresh && (
+          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={onRefresh} disabled={isRefreshing}>
+            <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin' : ''}`} />
+          </Button>
+        )}
       </CardHeader>
       <CardContent>
         <div className="space-y-3">
