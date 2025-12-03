@@ -148,9 +148,9 @@ export default function TrafficAnalytics() {
 
   if (isLoading) {
     return (
-      <div className="p-6 lg:p-8 space-y-6 min-h-screen">
+      <div className="p-4 sm:p-6 lg:p-8 space-y-6 min-h-screen">
         <Skeleton className="h-10 w-64" />
-        <div className="grid grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-28" />)}
         </div>
       </div>
@@ -158,16 +158,16 @@ export default function TrafficAnalytics() {
   }
 
   return (
-    <div className="p-6 lg:p-8 space-y-6 min-h-screen">
+    <div className="p-4 sm:p-6 lg:p-8 space-y-4 sm:space-y-6 min-h-screen">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Traffic Analytics</h1>
-          <p className="text-gray-500 dark:text-gray-400 mt-1">Monitor your website traffic and audience insights</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Traffic Analytics</h1>
+          <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400 mt-1">Monitor your website traffic and audience insights</p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
           <Select value={selectedWebsite} onValueChange={setSelectedWebsite}>
-            <SelectTrigger className="w-[180px]">
+            <SelectTrigger className="w-[140px] sm:w-[180px]">
               <SelectValue placeholder="All Websites" />
             </SelectTrigger>
             <SelectContent>
@@ -178,7 +178,7 @@ export default function TrafficAnalytics() {
             </SelectContent>
           </Select>
           <Select value={dateRange} onValueChange={setDateRange}>
-            <SelectTrigger className="w-[120px]">
+            <SelectTrigger className="w-[100px] sm:w-[120px]">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -191,12 +191,15 @@ export default function TrafficAnalytics() {
             visibility={widgetVisibility} 
             onToggle={toggleWidget} 
           />
-          <Button variant="outline" size="icon">
+          <Button variant="outline" size="icon" className="shrink-0">
             <RefreshCw className="w-4 h-4" />
           </Button>
-          <Button variant="outline" className="gap-2">
+          <Button variant="outline" className="gap-2 hidden sm:flex">
             <Download className="w-4 h-4" />
             Export
+          </Button>
+          <Button variant="outline" size="icon" className="sm:hidden shrink-0">
+            <Download className="w-4 h-4" />
           </Button>
         </div>
       </div>
@@ -284,11 +287,11 @@ export default function TrafficAnalytics() {
       </div>
 
       <Tabs defaultValue="trends">
-        <TabsList>
-          <TabsTrigger value="trends">Daily Trends</TabsTrigger>
-          <TabsTrigger value="sources">Traffic Sources</TabsTrigger>
-          <TabsTrigger value="regions">Regional Trends</TabsTrigger>
-          <TabsTrigger value="market">Market Overview</TabsTrigger>
+        <TabsList className="w-full flex-wrap h-auto gap-1 p-1">
+          <TabsTrigger value="trends" className="text-xs sm:text-sm">Daily Trends</TabsTrigger>
+          <TabsTrigger value="sources" className="text-xs sm:text-sm">Traffic Sources</TabsTrigger>
+          <TabsTrigger value="regions" className="text-xs sm:text-sm">Regional</TabsTrigger>
+          <TabsTrigger value="market" className="text-xs sm:text-sm">Market</TabsTrigger>
         </TabsList>
 
         <TabsContent value="trends" className="mt-4">

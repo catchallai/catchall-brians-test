@@ -119,14 +119,14 @@ export default function Deals() {
   }
 
   return (
-    <div className="p-6 lg:p-8 space-y-6 min-h-screen">
+    <div className="p-4 sm:p-6 lg:p-8 space-y-4 sm:space-y-6 min-h-screen">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Deals Pipeline</h1>
-          <p className="text-gray-500 mt-1">Drag and drop deals to update their stage</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Deals Pipeline</h1>
+          <p className="text-sm sm:text-base text-gray-500 mt-1">Drag and drop deals to update their stage</p>
         </div>
-        <Button onClick={() => { setEditingDeal(null); setShowModal(true); }} className="gap-2 bg-violet-600 hover:bg-violet-700">
+        <Button onClick={() => { setEditingDeal(null); setShowModal(true); }} className="gap-2 bg-violet-600 hover:bg-violet-700 w-full sm:w-auto">
           <Plus className="w-4 h-4" />
           Add Deal
         </Button>
@@ -150,11 +150,11 @@ export default function Deals() {
           onAction={() => { setEditingDeal(null); setShowModal(true); }}
         />
       ) : (
-        <div className="flex gap-4 overflow-x-auto pb-4">
+        <div className="flex gap-3 sm:gap-4 overflow-x-auto pb-4 -mx-4 px-4 sm:mx-0 sm:px-0">
           {STAGES.map((stage) => (
             <div
               key={stage.id}
-              className={`min-w-[300px] max-w-[300px] rounded-xl ${stage.color} p-4`}
+              className={`min-w-[260px] sm:min-w-[300px] max-w-[260px] sm:max-w-[300px] rounded-xl ${stage.color} p-3 sm:p-4`}
               onDragOver={handleDragOver}
               onDrop={(e) => handleDrop(e, stage.id)}
             >

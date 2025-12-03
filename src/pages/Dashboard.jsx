@@ -145,7 +145,7 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="p-6 lg:p-8 space-y-6 min-h-screen">
+    <div className="p-4 sm:p-6 lg:p-8 space-y-4 sm:space-y-6 min-h-screen">
       {/* Header with Key Metrics */}
       <DashboardHeader user={user} stats={headerStats} />
 
@@ -266,7 +266,7 @@ export default function Dashboard() {
       />
 
       {/* Quick Links */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
         {[
           { label: 'SEO Tools', icon: Search, page: 'SEOTools', color: 'bg-blue-500' },
           { label: 'Content Studio', icon: Zap, page: 'ContentStudio', color: 'bg-violet-500' },
@@ -276,15 +276,15 @@ export default function Dashboard() {
           <Link 
             key={link.page}
             to={createPageUrl(link.page)}
-            className="flex items-center justify-between p-4 rounded-xl bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 hover:shadow-md transition-all group"
+            className="flex items-center justify-between p-3 sm:p-4 rounded-xl bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 hover:shadow-md transition-all group"
           >
-            <div className="flex items-center gap-3">
-              <div className={`w-10 h-10 rounded-lg ${link.color} flex items-center justify-center`}>
-                <link.icon className="w-5 h-5 text-white" />
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg ${link.color} flex items-center justify-center shrink-0`}>
+                <link.icon className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
               </div>
-              <span className="font-medium text-gray-900 dark:text-white">{link.label}</span>
+              <span className="font-medium text-sm sm:text-base text-gray-900 dark:text-white">{link.label}</span>
             </div>
-            <ArrowRight className="w-4 h-4 text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors" />
+            <ArrowRight className="w-4 h-4 text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors hidden sm:block" />
           </Link>
         ))}
       </div>

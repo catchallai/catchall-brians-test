@@ -169,23 +169,23 @@ export default function Contacts() {
   }, [debouncedSearch, statusFilter]);
 
   return (
-    <div className="p-6 lg:p-8 space-y-6 min-h-screen">
+    <div className="p-4 sm:p-6 lg:p-8 space-y-4 sm:space-y-6 min-h-screen">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Contacts</h1>
-          <p className="text-gray-500 mt-1">{contacts.length} contacts total</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Contacts</h1>
+          <p className="text-sm sm:text-base text-gray-500 mt-1">{contacts.length} contacts total</p>
         </div>
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={() => setShowImport(true)} className="gap-2">
+        <div className="flex flex-wrap gap-2">
+          <Button variant="outline" onClick={() => setShowImport(true)} className="gap-2 text-sm" size="sm">
             <Upload className="w-4 h-4" />
-            Import
+            <span className="hidden xs:inline">Import</span>
           </Button>
-          <Button variant="outline" onClick={handleExport} className="gap-2">
+          <Button variant="outline" onClick={handleExport} className="gap-2 text-sm" size="sm">
             <Download className="w-4 h-4" />
-            Export
+            <span className="hidden xs:inline">Export</span>
           </Button>
-          <Button onClick={() => { setEditingContact(null); setShowModal(true); }} className="gap-2 bg-violet-600 hover:bg-violet-700">
+          <Button onClick={() => { setEditingContact(null); setShowModal(true); }} className="gap-2 bg-violet-600 hover:bg-violet-700 flex-1 sm:flex-none" size="sm">
             <Plus className="w-4 h-4" />
             Add Contact
           </Button>
