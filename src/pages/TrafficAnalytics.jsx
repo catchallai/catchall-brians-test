@@ -24,6 +24,10 @@ import BrowserOSCard from '@/components/analytics/BrowserOSCard';
 import PeakHoursCard from '@/components/analytics/PeakHoursCard';
 import RealTimeCard from '@/components/analytics/RealTimeCard';
 import AnalyticsTogglePanel from '@/components/analytics/AnalyticsTogglePanel';
+import VisitorProfilesCard from '@/components/analytics/VisitorProfilesCard';
+import UserDemographicsCard from '@/components/analytics/UserDemographicsCard';
+import SessionInsightsCard from '@/components/analytics/SessionInsightsCard';
+import TechnologyStackCard from '@/components/analytics/TechnologyStackCard';
 
 const COLORS = ['#8b5cf6', '#06b6d4', '#10b981', '#f59e0b', '#ef4444', '#ec4899'];
 
@@ -39,6 +43,10 @@ export default function TrafficAnalytics() {
     referrals: true,
     browserOS: true,
     peakHours: true,
+    visitorProfiles: true,
+    demographics: true,
+    sessionInsights: true,
+    technology: true,
   });
 
   const toggleWidget = (key) => {
@@ -290,6 +298,7 @@ export default function TrafficAnalytics() {
         <TabsList className="w-full flex-wrap h-auto gap-1 p-1">
           <TabsTrigger value="trends" className="text-xs sm:text-sm">Daily Trends</TabsTrigger>
           <TabsTrigger value="sources" className="text-xs sm:text-sm">Traffic Sources</TabsTrigger>
+          <TabsTrigger value="visitors" className="text-xs sm:text-sm">Visitors</TabsTrigger>
           <TabsTrigger value="regions" className="text-xs sm:text-sm">Regional</TabsTrigger>
           <TabsTrigger value="market" className="text-xs sm:text-sm">Market</TabsTrigger>
         </TabsList>
@@ -392,6 +401,17 @@ export default function TrafficAnalytics() {
                 </div>
               </CardContent>
             </Card>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="visitors" className="mt-4 space-y-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            {widgetVisibility.visitorProfiles && <VisitorProfilesCard />}
+            {widgetVisibility.demographics && <UserDemographicsCard />}
+          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            {widgetVisibility.sessionInsights && <SessionInsightsCard />}
+            {widgetVisibility.technology && <TechnologyStackCard />}
           </div>
         </TabsContent>
 
