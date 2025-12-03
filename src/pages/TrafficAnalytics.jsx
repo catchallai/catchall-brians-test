@@ -28,6 +28,7 @@ import VisitorProfilesCard from '@/components/analytics/VisitorProfilesCard';
 import UserDemographicsCard from '@/components/analytics/UserDemographicsCard';
 import SessionInsightsCard from '@/components/analytics/SessionInsightsCard';
 import TechnologyStackCard from '@/components/analytics/TechnologyStackCard';
+import UserJourneyMapCard from '@/components/analytics/UserJourneyMapCard';
 
 const COLORS = ['#8b5cf6', '#06b6d4', '#10b981', '#f59e0b', '#ef4444', '#ec4899'];
 
@@ -47,6 +48,7 @@ export default function TrafficAnalytics() {
     demographics: true,
     sessionInsights: true,
     technology: true,
+    journeyMap: true,
   });
 
   const toggleWidget = (key) => {
@@ -299,6 +301,7 @@ export default function TrafficAnalytics() {
           <TabsTrigger value="trends" className="text-xs sm:text-sm">Daily Trends</TabsTrigger>
           <TabsTrigger value="sources" className="text-xs sm:text-sm">Traffic Sources</TabsTrigger>
           <TabsTrigger value="visitors" className="text-xs sm:text-sm">Visitors</TabsTrigger>
+          <TabsTrigger value="journeys" className="text-xs sm:text-sm">User Journeys</TabsTrigger>
           <TabsTrigger value="regions" className="text-xs sm:text-sm">Regional</TabsTrigger>
           <TabsTrigger value="market" className="text-xs sm:text-sm">Market</TabsTrigger>
         </TabsList>
@@ -413,6 +416,10 @@ export default function TrafficAnalytics() {
             {widgetVisibility.sessionInsights && <SessionInsightsCard />}
             {widgetVisibility.technology && <TechnologyStackCard />}
           </div>
+        </TabsContent>
+
+        <TabsContent value="journeys" className="mt-4">
+          {widgetVisibility.journeyMap && <UserJourneyMapCard trafficData={trafficData} />}
         </TabsContent>
 
         <TabsContent value="regions" className="mt-4">
