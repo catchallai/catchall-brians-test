@@ -134,8 +134,8 @@ export default function VisitorProfilesCard() {
         </div>
         <p className="text-xs text-gray-500 mt-1">{visitors.length.toLocaleString()} identified profiles in last {dateRange} days</p>
       </CardHeader>
-      <CardContent>
-        <div className="space-y-3 max-h-[400px] overflow-y-auto pr-1">
+      <CardContent className="flex-1 overflow-hidden">
+        <div className="space-y-3 h-[calc(100%-0.5rem)] overflow-y-auto pr-1">
           {visitors.map((visitor) => (
             <div 
               key={visitor.id}
