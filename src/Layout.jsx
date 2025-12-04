@@ -84,6 +84,7 @@ const navigation = [
   { name: 'Press Monitoring', icon: Newspaper, page: 'PressMonitoring' },
   { name: 'Web Crawler', icon: Globe, page: 'WebCrawler' },
   { name: 'Traffic Analytics', icon: BarChart3, page: 'TrafficAnalytics' },
+  { name: 'Visitor Profiles', icon: Users, page: 'VisitorProfiles' },
   { name: 'Local SEO', icon: MapPin, page: 'LocalSEO' },
   { name: 'Content Studio', icon: PenTool, page: 'ContentStudio' },
   { name: 'Media Outreach', icon: Mail, page: 'MediaOutreach' },
