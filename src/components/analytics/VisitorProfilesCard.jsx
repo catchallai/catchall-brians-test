@@ -246,10 +246,20 @@ export default function VisitorProfilesCard() {
   return (
     <Card className="glass-card rounded-2xl">
       <CardHeader className="pb-2">
-        <CardTitle className="text-base flex items-center gap-2">
-          <UserCircle className="w-4 h-4 text-violet-500" />
-          Recent Visitor Profiles
-        </CardTitle>
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-base flex items-center gap-2">
+            <UserCircle className="w-4 h-4 text-violet-500" />
+            Visitor Profiles
+          </CardTitle>
+          <Tabs value={dateRange} onValueChange={setDateRange}>
+            <TabsList className="h-8">
+              <TabsTrigger value="30" className="text-xs px-2 h-6">30 Days</TabsTrigger>
+              <TabsTrigger value="60" className="text-xs px-2 h-6">60 Days</TabsTrigger>
+              <TabsTrigger value="90" className="text-xs px-2 h-6">90 Days</TabsTrigger>
+            </TabsList>
+          </Tabs>
+        </div>
+        <p className="text-xs text-gray-500 mt-1">{visitors.length} visitor{visitors.length !== 1 ? 's' : ''} in last {dateRange} days</p>
       </CardHeader>
       <CardContent>
         <div className="space-y-3">
