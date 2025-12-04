@@ -102,9 +102,140 @@ export default function VisitorProfilesCard() {
       journey: [
         { page: '/', time: '0m 45s', scrollDepth: 40 },
         { page: '/sj30i', time: '2m 00s', scrollDepth: 55 },
-      ]
+      ],
+      daysAgo: 2
+    },
+    {
+      id: 5,
+      sessionId: 'SJ-2024-8820',
+      country: 'Germany',
+      city: 'Munich',
+      company: 'BMW Group',
+      industry: 'Automotive',
+      pagesViewed: 10,
+      timeOnSite: '14m 20s',
+      lastPage: '/ownership',
+      firstVisit: false,
+      visitCount: 3,
+      leadScore: 88,
+      device: 'Desktop',
+      browser: 'Firefox',
+      referrer: 'google.de',
+      entryPage: '/sj30i',
+      journey: [
+        { page: '/sj30i', time: '5m 10s', scrollDepth: 100 },
+        { page: '/performance', time: '4m 30s', scrollDepth: 95 },
+        { page: '/ownership', time: '4m 40s', scrollDepth: 100 },
+      ],
+      daysAgo: 35
+    },
+    {
+      id: 6,
+      sessionId: 'SJ-2024-8795',
+      country: 'Singapore',
+      city: 'Singapore',
+      company: 'Temasek Holdings',
+      industry: 'Investment',
+      pagesViewed: 15,
+      timeOnSite: '22m 15s',
+      lastPage: '/contact',
+      firstVisit: true,
+      visitCount: 1,
+      leadScore: 95,
+      device: 'Desktop',
+      browser: 'Chrome',
+      referrer: 'bloomberg.com',
+      entryPage: '/',
+      journey: [
+        { page: '/', time: '2m 00s', scrollDepth: 80 },
+        { page: '/sj30i', time: '6m 15s', scrollDepth: 100 },
+        { page: '/performance', time: '5m 00s', scrollDepth: 100 },
+        { page: '/interior', time: '4m 00s', scrollDepth: 90 },
+        { page: '/contact', time: '5m 00s', scrollDepth: 100 },
+      ],
+      daysAgo: 42
+    },
+    {
+      id: 7,
+      sessionId: 'SJ-2024-8760',
+      country: 'Canada',
+      city: 'Toronto',
+      company: 'Rogers Communications',
+      industry: 'Telecommunications',
+      pagesViewed: 7,
+      timeOnSite: '11m 30s',
+      lastPage: '/performance',
+      firstVisit: false,
+      visitCount: 2,
+      leadScore: 72,
+      device: 'Desktop',
+      browser: 'Edge',
+      referrer: 'Direct',
+      entryPage: '/sj30i',
+      journey: [
+        { page: '/sj30i', time: '4m 20s', scrollDepth: 85 },
+        { page: '/interior', time: '3m 10s', scrollDepth: 75 },
+        { page: '/performance', time: '4m 00s', scrollDepth: 90 },
+      ],
+      daysAgo: 55
+    },
+    {
+      id: 8,
+      sessionId: 'SJ-2024-8710',
+      country: 'Australia',
+      city: 'Sydney',
+      company: 'Macquarie Group',
+      industry: 'Financial Services',
+      pagesViewed: 9,
+      timeOnSite: '16m 45s',
+      lastPage: '/ownership',
+      firstVisit: true,
+      visitCount: 1,
+      leadScore: 82,
+      device: 'iPad',
+      browser: 'Safari',
+      referrer: 'linkedin.com',
+      entryPage: '/',
+      journey: [
+        { page: '/', time: '1m 45s', scrollDepth: 70 },
+        { page: '/sj30i', time: '5m 30s', scrollDepth: 100 },
+        { page: '/performance', time: '4m 30s', scrollDepth: 95 },
+        { page: '/ownership', time: '5m 00s', scrollDepth: 100 },
+      ],
+      daysAgo: 75
+    },
+    {
+      id: 9,
+      sessionId: 'SJ-2024-8680',
+      country: 'Japan',
+      city: 'Tokyo',
+      company: 'Mitsubishi Corporation',
+      industry: 'Conglomerate',
+      pagesViewed: 11,
+      timeOnSite: '19m 10s',
+      lastPage: '/contact',
+      firstVisit: false,
+      visitCount: 5,
+      leadScore: 91,
+      device: 'Desktop',
+      browser: 'Chrome',
+      referrer: 'google.co.jp',
+      entryPage: '/performance',
+      journey: [
+        { page: '/performance', time: '4m 50s', scrollDepth: 100 },
+        { page: '/sj30i', time: '5m 20s', scrollDepth: 100 },
+        { page: '/interior', time: '4m 00s', scrollDepth: 85 },
+        { page: '/contact', time: '5m 00s', scrollDepth: 100 },
+      ],
+      daysAgo: 85
     },
   ];
+
+  // Filter visitors based on date range
+  const visitors = allVisitors.filter(v => {
+    const days = parseInt(dateRange);
+    return (v.daysAgo || 0) <= days;
+  });
 
   const getLeadScoreColor = (score) => {
     if (score >= 80) return 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400';
