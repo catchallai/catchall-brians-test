@@ -1,16 +1,40 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, Route, Sparkles, ArrowRight, TrendingUp, TrendingDown, AlertTriangle, Lightbulb, Target, MousePointer, Eye, Clock, CheckCircle, XCircle } from "lucide-react";
+import { Loader2, Route, Sparkles, ArrowRight, TrendingUp, TrendingDown, AlertTriangle, Lightbulb, Target, MousePointer, Eye, Clock, CheckCircle, XCircle, Users, Globe, Filter, ChevronDown, Zap } from "lucide-react";
 import { base44 } from '@/api/base44Client';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+
+// Segment definitions
+const VISITOR_SEGMENTS = [
+  { id: 'all', label: 'All Visitors', icon: Users, color: 'violet' },
+  { id: 'new', label: 'New Visitors', icon: Zap, color: 'blue' },
+  { id: 'returning', label: 'Returning Visitors', icon: TrendingUp, color: 'emerald' },
+  { id: 'high_intent', label: 'High Intent', icon: Target, color: 'red' },
+  { id: 'mobile', label: 'Mobile Users', icon: Globe, color: 'amber' },
+];
+
+const ENTRY_POINTS = [
+  { id: 'all', label: 'All Entry Points' },
+  { id: 'homepage', label: 'Homepage (/)', page: '/' },
+  { id: 'sj30i', label: 'SJ30i Product Page', page: '/sj30i' },
+  { id: 'performance', label: 'Performance Page', page: '/performance' },
+  { id: 'ownership', label: 'Ownership Page', page: '/ownership' },
+  { id: 'contact', label: 'Contact Page', page: '/contact' },
+  { id: 'social', label: 'Social Media Referral' },
+  { id: 'search', label: 'Organic Search' },
+];
 
 export default function UserJourneyMapCard({ trafficData = [], socialAccounts = [], posts = [] }) {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [journeyData, setJourneyData] = useState(null);
   const [selectedPersona, setSelectedPersona] = useState('all');
+  const [selectedSegment, setSelectedSegment] = useState('all');
+  const [selectedEntryPoint, setSelectedEntryPoint] = useState('all');
+  const [showFilters, setShowFilters] = useState(false);
 
   const analyzeJourneys = async () => {
     setIsAnalyzing(true);
