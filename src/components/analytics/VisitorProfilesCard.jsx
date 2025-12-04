@@ -273,11 +273,27 @@ export default function VisitorProfilesCard() {
             >
               <div className="flex items-start justify-between">
                 <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-1">
+                  <div className="flex items-center gap-2 mb-1 flex-wrap">
                     <span className="text-xs text-gray-400 font-mono">{visitor.sessionId}</span>
-                    <Badge className={`text-xs ${getLeadScoreColor(visitor.leadScore)}`}>
-                      Score: {visitor.leadScore}
-                    </Badge>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Badge 
+                            className={`text-xs cursor-help flex items-center gap-1 ${getLeadScoreColor(visitor.scoreData?.tier)}`}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setShowScoreBreakdown(showScoreBreakdown === visitor.id ? null : visitor.id);
+                            }}
+                          >
+                            <Sparkles className="w-3 h-3" />
+                            {visitor.leadScore} - {getTierLabel(visitor.scoreData?.tier)}
+                          </Badge>
+                        </TooltipTrigger>
+                        <TooltipContent side="top" className="max-w-xs">
+                          <p className="text-xs">{visitor.scoreData?.recommendation}</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
                     {visitor.firstVisit && (
                       <Badge variant="outline" className="text-xs">New</Badge>
                     )}
