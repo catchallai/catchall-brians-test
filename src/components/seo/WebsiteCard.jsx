@@ -15,6 +15,14 @@ export default function WebsiteCard({
 }) {
   const top10Keywords = keywords.filter(k => k.current_position && k.current_position <= 10).length;
   
+  // Normalize SEO score - handle both 0-1 and 0-100 formats
+  const normalizedScore = (() => {
+    const score = website.seo_score;
+    if (!score) return 0;
+    if (score > 0 && score <= 1) return Math.round(score * 100);
+    return Math.round(score);
+  })();
+  
   const formatNumber = (num) => {
     if (!num) return '-';
     if (num >= 1000000) return `${(num / 1000000).toFixed(1)}M`;
@@ -82,7 +90,7 @@ export default function WebsiteCard({
 
         {/* SEO Score */}
         <div className="flex justify-center mb-5">
-          <SEOScoreGauge score={website.seo_score || 0} label="SEO Score" size="md" />
+          <SEOScoreGauge score={normalizedScore} label="SEO Score" size="md" />
         </div>
 
         {/* Metrics Grid */}

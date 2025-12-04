@@ -2,8 +2,14 @@ import React from 'react';
 import { Card } from "@/components/ui/card";
 
 export default function SEOScoreGauge({ score, label, size = "lg" }) {
-  // Ensure score is a valid number
-  const safeScore = typeof score === 'number' && !isNaN(score) ? score : 0;
+  // Normalize score - handle both 0-1 and 0-100 formats
+  const normalizeScore = (s) => {
+    if (typeof s !== 'number' || isNaN(s)) return 0;
+    if (s > 0 && s <= 1) return Math.round(s * 100);
+    return Math.round(s);
+  };
+  
+  const safeScore = normalizeScore(score);
   
   const getColor = (score) => {
     if (score >= 80) return { stroke: "#10b981", bg: "#d1fae5", text: "text-emerald-600" };
