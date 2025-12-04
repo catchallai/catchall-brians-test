@@ -323,6 +323,32 @@ export default function VisitorProfilesCard() {
                 </div>
               </div>
 
+              {/* AI Score Breakdown */}
+              {showScoreBreakdown === visitor.id && (
+                <div className="mt-3 p-3 bg-gradient-to-r from-violet-50 to-indigo-50 dark:from-violet-900/20 dark:to-indigo-900/20 rounded-lg border border-violet-200 dark:border-violet-800">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Sparkles className="w-4 h-4 text-violet-600" />
+                    <span className="text-sm font-semibold text-violet-800 dark:text-violet-300">AI Score Breakdown</span>
+                  </div>
+                  <div className="space-y-1.5">
+                    {visitor.scoreData?.factors.map((factor, idx) => (
+                      <div key={idx} className="flex items-center gap-2 text-xs">
+                        <div className="w-5 h-5 rounded bg-white dark:bg-gray-800 flex items-center justify-center text-violet-600">
+                          {getFactorIcon(factor.icon)}
+                        </div>
+                        <span className="flex-1 text-gray-700 dark:text-gray-300">{factor.factor}</span>
+                        <span className="font-semibold text-emerald-600">{factor.impact}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="mt-2 pt-2 border-t border-violet-200 dark:border-violet-700">
+                    <p className="text-xs text-violet-700 dark:text-violet-400 italic">
+                      💡 {visitor.scoreData?.recommendation}
+                    </p>
+                  </div>
+                </div>
+              )}
+
               {/* Expanded Journey View */}
               {selectedVisitor?.id === visitor.id && (
                 <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700">
