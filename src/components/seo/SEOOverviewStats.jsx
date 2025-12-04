@@ -2,12 +2,19 @@ import React from 'react';
 import { Globe, Search, Link2, TrendingUp, ArrowUp, ArrowDown } from "lucide-react";
 
 export default function SEOOverviewStats({ websites, keywords, backlinks }) {
+  // Normalize SEO scores - handle both 0-1 and 0-100 formats
+  const normalizeScore = (score) => {
+    if (!score) return 0;
+    if (score > 0 && score <= 1) return Math.round(score * 100);
+    return Math.round(score);
+  };
+
   const totalTraffic = websites.reduce((sum, w) => sum + (w.organic_traffic || 0), 0);
   const avgDa = websites.length > 0 
     ? Math.round(websites.reduce((sum, w) => sum + (w.domain_authority || 0), 0) / websites.length)
     : 0;
   const avgSeoScore = websites.length > 0
-    ? Math.round(websites.reduce((sum, w) => sum + (w.seo_score || 0), 0) / websites.length)
+    ? Math.round(websites.reduce((sum, w) => sum + normalizeScore(w.seo_score), 0) / websites.length)
     : 0;
   const top10Keywords = keywords.filter(k => k.current_position && k.current_position <= 10).length;
   const activeBacklinks = backlinks.filter(b => b.status === 'active').length;
