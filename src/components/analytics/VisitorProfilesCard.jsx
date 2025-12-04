@@ -210,10 +210,35 @@ export default function VisitorProfilesCard() {
     return (v.daysAgo || 0) <= days;
   });
 
-  const getLeadScoreColor = (score) => {
-    if (score >= 80) return 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400';
-    if (score >= 60) return 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400';
-    return 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-400';
+  const getLeadScoreColor = (tier) => {
+    switch (tier) {
+      case 'hot': return 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 border border-red-200 dark:border-red-800';
+      case 'warm': return 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 border border-amber-200 dark:border-amber-800';
+      case 'engaged': return 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 border border-blue-200 dark:border-blue-800';
+      default: return 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-400 border border-gray-200 dark:border-gray-600';
+    }
+  };
+
+  const getTierLabel = (tier) => {
+    switch (tier) {
+      case 'hot': return '🔥 Hot Lead';
+      case 'warm': return '⚡ Warm';
+      case 'engaged': return '📊 Engaged';
+      default: return '👀 Early Stage';
+    }
+  };
+
+  const getFactorIcon = (iconType) => {
+    switch (iconType) {
+      case 'industry': return <Building2 className="w-3 h-3" />;
+      case 'engagement': return <Eye className="w-3 h-3" />;
+      case 'time': return <Clock className="w-3 h-3" />;
+      case 'intent': return <Target className="w-3 h-3" />;
+      case 'return': return <TrendingUp className="w-3 h-3" />;
+      case 'referrer': return <Zap className="w-3 h-3" />;
+      case 'device': return <Star className="w-3 h-3" />;
+      default: return <Info className="w-3 h-3" />;
+    }
   };
 
   return (
