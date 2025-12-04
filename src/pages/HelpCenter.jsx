@@ -1082,14 +1082,14 @@ Prioritized recommendations:
   },
   {
     id: 'visitor-profiles',
-    title: 'Visitor Profiles & Demographics',
+    title: 'Visitor Profiles & AI Lead Scoring',
     category: 'analytics',
     type: 'tutorial',
     order: 3,
-    tags: ['visitors', 'demographics', 'lead scoring'],
-    content: `# Visitor Profiles & Demographics
+    tags: ['visitors', 'demographics', 'lead scoring', 'ai'],
+    content: `# Visitor Profiles & AI Lead Scoring
 
-Understand who visits your website with detailed visitor analytics.
+Understand who visits your website with detailed visitor analytics and AI-powered lead scoring.
 
 ## Visitor Profiles
 
@@ -1097,42 +1097,148 @@ Track individual sessions with:
 - **Entry source**: How they found you
 - **Location**: Geographic data
 - **Company info**: B2B visitor identification
-- **Lead score**: AI-calculated conversion potential
+- **AI Lead score**: Dynamically calculated conversion potential
 - **Session journey**: Pages visited in order
 
-## Lead Scoring
+## AI Lead Scoring Engine
 
-Visitors are scored 0-100 based on:
-- Engagement depth (pages viewed, time spent)
-- Company fit (industry, size)
-- Behavior signals (pricing page visits, downloads)
-- Return visits
+Our AI analyzes visitor behavior in real-time to calculate conversion potential (0-100 score).
 
-## User Demographics
+### Scoring Factors
 
-### Industry Breakdown
-See which industries your visitors represent.
+| Factor | Impact | Description |
+|--------|--------|-------------|
+| Industry | +12 to +20 | High-value industries score higher |
+| Engagement Depth | +10 to +15 | Pages viewed indicates interest level |
+| Session Duration | +8 to +12 | Longer sessions = higher intent |
+| High-Intent Pages | +8 to +16 | Visits to pricing, contact, specs pages |
+| Return Visits | +3 to +12 | Repeat visitors show sustained interest |
+| Referrer Quality | +8 | Premium referral sources |
+| Device Type | +5 | Desktop users convert higher in B2B |
 
-### Company Size
-Understand if you're attracting SMBs or enterprises.
+### Score Tiers
 
-### Seniority Level
-Know the decision-making level of visitors.
+- 🔥 **Hot Lead (85+)**: Immediate outreach recommended
+- ⚡ **Warm (70-84)**: Priority follow-up needed
+- 📊 **Engaged (50-69)**: Add to nurture sequence
+- 👀 **Early Stage (<50)**: Monitor for increased engagement
 
-## Session Insights
+### Viewing Score Breakdown
 
-- **Common entry points**: Popular landing pages
-- **User paths**: Typical navigation patterns
-- **Conversion paths**: Routes to goals
-- **Exit pages**: Where users leave
+1. Go to **Traffic Analytics** > **Visitors** tab
+2. Find the **Visitor Profiles** card
+3. Click on any lead score badge
+4. View detailed breakdown of contributing factors
+5. See AI recommendation for next steps
 
-## Technology Stack
+## Date Range Filtering
 
-Monitor visitor technology:
-- Browsers used
-- Operating systems
-- Device types
-- Connection speeds`
+Filter visitor profiles by time period:
+- **30 Days**: Recent high-value visitors
+- **60 Days**: Extended view
+- **90 Days**: Full quarter analysis
+
+## Session Journey View
+
+Click on any visitor to expand:
+- Device and browser info
+- Referral source
+- Total visits count
+- Page-by-page journey with time spent
+- Scroll depth per page
+
+## Best Practices
+
+- Focus outreach on Hot and Warm leads
+- Review score breakdowns to understand buyer behavior
+- Use patterns to optimize high-intent pages
+- Compare industry distribution to target market`
+  },
+  {
+    id: 'user-journey-segments',
+    title: 'Journey Mapping with Segments',
+    category: 'analytics',
+    type: 'tutorial',
+    order: 4,
+    tags: ['segments', 'user journey', 'filtering', 'conversion funnel'],
+    content: `# Journey Mapping with Segments
+
+Analyze user journeys by specific visitor segments and entry points for deeper insights.
+
+## Segment Filtering
+
+Filter journey analysis by visitor type:
+
+### Available Segments
+
+| Segment | Description | Use Case |
+|---------|-------------|----------|
+| All Visitors | Complete traffic | Overall patterns |
+| New Visitors | First-time users | Acquisition analysis |
+| Returning Visitors | Repeat users | Loyalty patterns |
+| High Intent | Purchase-ready | Conversion optimization |
+| Mobile Users | Mobile traffic | Mobile UX analysis |
+
+### Entry Point Filtering
+
+Filter by where users start:
+- **Homepage**: Main entry
+- **Product Pages**: Direct product interest
+- **Performance/Specs**: Technical buyers
+- **Ownership Page**: High intent
+- **Contact Page**: Conversion ready
+- **Social Media**: Social traffic
+- **Organic Search**: SEO traffic
+
+## Using Filters
+
+1. Go to **Traffic Analytics** > **User Journeys** tab
+2. Click **Filters** button
+3. Select **Visitor Segment**
+4. Select **Entry Point**
+5. View updated funnel and paths
+
+## Visual Conversion Funnel
+
+The funnel shows stage-by-stage progression:
+- **Landing**: Initial visitors
+- **Engaged**: Interacted with content
+- **Interested**: Viewed multiple pages
+- **Qualified**: High-intent behavior
+- **Converted**: Completed goal
+
+Drop-off percentages shown between stages.
+
+## Common Paths Analysis
+
+See top paths for your selected filters:
+- Path sequence visualization
+- Percentage of traffic using path
+- Conversion rate per path
+- Visual progress bars
+
+## Drop-off Points
+
+Identify where users leave:
+- Location in journey
+- Drop-off percentage
+- Reason analysis
+- Recommended fix (hover for details)
+
+## Segment Insights
+
+Different segments show different metrics:
+- **New Visitors**: Higher bounce, longer conversion time
+- **Returning**: Higher conversion, fewer touchpoints
+- **High Intent**: Best conversion rates
+- **Mobile**: Different path preferences
+
+## Best Practices
+
+- Compare segments to find optimization opportunities
+- Analyze high-intent entry points for conversion tips
+- Review mobile vs desktop journey differences
+- Test fixes on high drop-off points`
   },
 
   // Mobile App Articles
