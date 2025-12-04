@@ -13,6 +13,10 @@ import { Progress } from "@/components/ui/progress";
 import { useToast } from '@/components/ui/toast-provider';
 import BacklinkItem from '@/components/seo/BacklinkItem';
 import EmptyState from '@/components/ui/EmptyState';
+import BacklinkAnalytics from '@/components/seo/BacklinkAnalytics';
+import TopAnchorsCard from '@/components/seo/TopAnchorsCard';
+import BacklinkCategories from '@/components/seo/BacklinkCategories';
+import LinkBuildingOpportunities from '@/components/seo/LinkBuildingOpportunities';
 
 export default function Backlinks() {
   const [showModal, setShowModal] = useState(false);
@@ -37,6 +41,8 @@ export default function Backlinks() {
   const [scanProgress, setScanProgress] = useState(0);
   const [scanStatus, setScanStatus] = useState('idle'); // idle, scanning, complete, error
   const [discoveredBacklinks, setDiscoveredBacklinks] = useState([]);
+  const [categoryFilter, setCategoryFilter] = useState(null);
+  const [showAnalytics, setShowAnalytics] = useState(true);
   const queryClient = useQueryClient();
   const toast = useToast();
 
@@ -48,6 +54,11 @@ export default function Backlinks() {
   const { data: websites = [] } = useQuery({
     queryKey: ['websites'],
     queryFn: () => base44.entities.Website.list('-created_date', 50),
+  });
+
+  const { data: competitors = [] } = useQuery({
+    queryKey: ['competitors'],
+    queryFn: () => base44.entities.Competitor.list('-created_date', 20),
   });
 
   const createMutation = useMutation({
@@ -241,6 +252,30 @@ Consider the website's likely industry based on the domain name and generate rel
     });
   };
 
+  // Category detection helper
+  const getCategoryForBacklink = (bl) => {
+    const CATEGORY_PATTERNS = {
+      blog: ['blog', 'article', 'post', 'news', 'stories', 'insights', 'journal'],
+      directory: ['directory', 'listing', 'yellowpages', 'yelp', 'bbb', 'manta', 'clutch', 'g2'],
+      forum: ['forum', 'community', 'discuss', 'reddit', 'quora', 'stackexchange', 'answers'],
+      news: ['news', 'press', 'media', 'times', 'post', 'herald', 'tribune', 'gazette'],
+      social: ['linkedin', 'twitter', 'facebook', 'instagram', 'youtube', 'pinterest', 'tiktok'],
+      partner: ['partner', 'affiliate', 'sponsor', 'client', 'customer', 'testimonial'],
+      edu: ['.edu', 'university', 'college', 'school', 'academy', 'institute', 'research'],
+      gov: ['.gov', 'government', 'federal', 'state.', 'city.', 'county.']
+    };
+    
+    const url = (bl.source_url || '').toLowerCase();
+    const domain = (bl.source_domain || '').toLowerCase();
+    
+    for (const [catName, patterns] of Object.entries(CATEGORY_PATTERNS)) {
+      if (patterns.some(p => url.includes(p) || domain.includes(p))) {
+        return catName;
+      }
+    }
+    return 'other';
+  };
+
   const filteredBacklinks = backlinks.filter(backlink => {
     const matchesSearch = !searchTerm || 
       backlink.source_url?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -248,7 +283,8 @@ Consider the website's likely industry based on the domain name and generate rel
       backlink.anchor_text?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesWebsite = websiteFilter === 'all' || backlink.website_id === websiteFilter;
     const matchesStatus = statusFilter === 'all' || backlink.status === statusFilter;
-    return matchesSearch && matchesWebsite && matchesStatus;
+    const matchesCategory = !categoryFilter || getCategoryForBacklink(backlink) === categoryFilter;
+    return matchesSearch && matchesWebsite && matchesStatus && matchesCategory;
   });
 
   const activeCount = backlinks.filter(b => b.status === 'active').length;
@@ -316,6 +352,11 @@ Consider the website's likely industry based on the domain name and generate rel
         </div>
       </div>
 
+      {/* Analytics Dashboard */}
+      {showAnalytics && backlinks.length > 0 && (
+        <BacklinkAnalytics backlinks={backlinks} />
+      )}
+
       {/* Filters */}
       <div className="flex flex-col sm:flex-row gap-4">
         <div className="relative flex-1">
@@ -350,16 +391,26 @@ Consider the website's likely industry based on the domain name and generate rel
             <SelectItem value="disavowed">Disavowed</SelectItem>
           </SelectContent>
         </Select>
+        {categoryFilter && (
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={() => setCategoryFilter(null)}
+            className="gap-1"
+          >
+            {categoryFilter} ×
+          </Button>
+        )}
       </div>
 
-      {/* Backlink List */}
+      {/* Main Content Grid */}
       {isLoading ? (
         <div className="space-y-4">
           {[...Array(5)].map((_, i) => (
             <Skeleton key={i} className="h-24 rounded-xl" />
           ))}
         </div>
-      ) : filteredBacklinks.length === 0 ? (
+      ) : backlinks.length === 0 ? (
         <EmptyState
           icon={Link2}
           title="No backlinks tracked"
@@ -368,10 +419,33 @@ Consider the website's likely industry based on the domain name and generate rel
           onAction={() => setShowModal(true)}
         />
       ) : (
-        <div className="space-y-3">
-          {filteredBacklinks.map((backlink) => (
-            <BacklinkItem key={backlink.id} backlink={backlink} onDisavow={handleDisavow} />
-          ))}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Backlink List */}
+          <div className="lg:col-span-2 space-y-3">
+            {filteredBacklinks.length === 0 ? (
+              <div className="text-center py-8 text-gray-500">
+                <p>No backlinks match your filters</p>
+              </div>
+            ) : (
+              filteredBacklinks.map((backlink) => (
+                <BacklinkItem key={backlink.id} backlink={backlink} onDisavow={handleDisavow} />
+              ))
+            )}
+          </div>
+
+          {/* Sidebar */}
+          <div className="space-y-6">
+            <TopAnchorsCard backlinks={backlinks} />
+            <BacklinkCategories 
+              backlinks={backlinks} 
+              onFilterCategory={(cat) => setCategoryFilter(cat === categoryFilter ? null : cat)} 
+            />
+            <LinkBuildingOpportunities 
+              backlinks={backlinks} 
+              competitors={competitors}
+              websites={websites}
+            />
+          </div>
         </div>
       )}
 
