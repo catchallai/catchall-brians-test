@@ -123,7 +123,7 @@ export default function VisitorProfilesCard() {
         <p className="text-xs text-gray-500 mt-1">{visitors.length} visitor{visitors.length !== 1 ? 's' : ''} in last {dateRange} days</p>
       </CardHeader>
       <CardContent>
-        <div className="space-y-3">
+        <div className="space-y-3 max-h-[400px] overflow-y-auto pr-1">
           {visitors.map((visitor) => (
             <div 
               key={visitor.id}
