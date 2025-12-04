@@ -3,7 +3,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { UserCircle, MapPin, Clock, Eye, MousePointer, ChevronRight, Building2, Briefcase } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { UserCircle, MapPin, Clock, Eye, MousePointer, ChevronRight, Building2, Briefcase, Sparkles, TrendingUp, Info, Target, Zap, Star } from "lucide-react";
 
 export default function VisitorProfilesCard() {
   const [selectedVisitor, setSelectedVisitor] = useState(null);
