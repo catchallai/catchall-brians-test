@@ -9,13 +9,14 @@ export default function VisitorProfilesCard() {
   const [selectedVisitor, setSelectedVisitor] = useState(null);
   const [dateRange, setDateRange] = useState('30');
 
-  // Generate realistic visitor data
-  const generateVisitors = () => {
+  // Generate identified visitor profiles (these are high-value visitors identified by company/IP)
+  // Note: This represents ~3-5% of total traffic that can be identified
+  const generateVisitors = React.useMemo(() => {
     const companies = [
       { company: 'Desert Aviation Holdings', industry: 'Private Aviation', city: 'Scottsdale, AZ', country: 'United States' },
       { company: 'Al Futtaim Group', industry: 'Conglomerate', city: 'Dubai', country: 'United Arab Emirates' },
       { company: 'Swiss Private Bank', industry: 'Financial Services', city: 'Geneva', country: 'Switzerland' },
-      { company: 'Unknown', industry: 'Unknown', city: 'London', country: 'United Kingdom' },
+      { company: 'Gulfstream Aerospace', industry: 'Aviation', city: 'Savannah, GA', country: 'United States' },
       { company: 'BMW Group', industry: 'Automotive', city: 'Munich', country: 'Germany' },
       { company: 'Temasek Holdings', industry: 'Investment', city: 'Singapore', country: 'Singapore' },
       { company: 'Rogers Communications', industry: 'Telecommunications', city: 'Toronto', country: 'Canada' },
@@ -30,33 +31,44 @@ export default function VisitorProfilesCard() {
       { company: 'Blackstone', industry: 'Investment', city: 'New York, NY', country: 'United States' },
       { company: 'KKR & Co', industry: 'Private Equity', city: 'San Francisco, CA', country: 'United States' },
       { company: 'Softbank', industry: 'Technology', city: 'Tokyo', country: 'Japan' },
-      { company: 'Unknown', industry: 'Unknown', city: 'Miami, FL', country: 'United States' },
+      { company: 'NetJets', industry: 'Aviation', city: 'Columbus, OH', country: 'United States' },
       { company: 'Carlyle Group', industry: 'Private Equity', city: 'Washington, DC', country: 'United States' },
-      { company: 'Unknown', industry: 'Unknown', city: 'Hong Kong', country: 'Hong Kong' },
+      { company: 'Cathay Pacific', industry: 'Aviation', city: 'Hong Kong', country: 'Hong Kong' },
       { company: 'Volkswagen AG', industry: 'Automotive', city: 'Wolfsburg', country: 'Germany' },
       { company: 'Shell', industry: 'Energy', city: 'The Hague', country: 'Netherlands' },
-      { company: 'Unknown', industry: 'Unknown', city: 'Monaco', country: 'Monaco' },
+      { company: 'Monaco Air', industry: 'Aviation', city: 'Monaco', country: 'Monaco' },
       { company: 'Tata Group', industry: 'Conglomerate', city: 'Mumbai', country: 'India' },
+      { company: 'Embraer', industry: 'Aviation', city: 'São Paulo', country: 'Brazil' },
+      { company: 'Dassault Aviation', industry: 'Aviation', city: 'Paris', country: 'France' },
+      { company: 'Flexjet', industry: 'Aviation', city: 'Cleveland, OH', country: 'United States' },
+      { company: 'Vista Global', industry: 'Aviation', city: 'Dubai', country: 'United Arab Emirates' },
+      { company: 'JP Morgan', industry: 'Banking', city: 'New York, NY', country: 'United States' },
+      { company: 'Goldman Sachs', industry: 'Banking', city: 'New York, NY', country: 'United States' },
+      { company: 'Morgan Stanley', industry: 'Banking', city: 'New York, NY', country: 'United States' },
+      { company: 'Bombardier', industry: 'Aviation', city: 'Montreal', country: 'Canada' },
+      { company: 'Textron Aviation', industry: 'Aviation', city: 'Wichita, KS', country: 'United States' },
+      { company: 'Pilatus Aircraft', industry: 'Aviation', city: 'Stans', country: 'Switzerland' },
     ];
     
     const devices = ['Desktop', 'iPad', 'Mobile'];
     const browsers = ['Chrome', 'Safari', 'Firefox', 'Edge'];
-    const referrers = ['google.com', 'linkedin.com', 'Direct', 'bloomberg.com', 'twitter.com', 'facebook.com', 'bing.com'];
+    const referrers = ['google.com', 'linkedin.com', 'Direct', 'bloomberg.com', 'twitter.com', 'ainonline.com', 'bjtonline.com'];
     const pages = ['/', '/sj30i', '/performance', '/interior', '/ownership', '/contact', '/gallery', '/specs'];
     
     const visitors = [];
     let sessionNum = 8900;
     
-    // Generate ~45 visitors for 30 days, ~75 for 60 days, ~120 for 90 days
-    for (let i = 0; i < 120; i++) {
+    // Generate ~1,100 for 30 days, ~2,000 for 60 days, ~2,800 for 90 days
+    // This represents ~3-4% identification rate of ~32K monthly visitors
+    const totalProfiles = 2800;
+    
+    for (let i = 0; i < totalProfiles; i++) {
       const companyData = companies[i % companies.length];
       const daysAgo = Math.floor(Math.random() * 90) + 1;
       const pagesViewed = Math.floor(Math.random() * 12) + 2;
       const timeMinutes = Math.floor(Math.random() * 20) + 2;
       const timeSeconds = Math.floor(Math.random() * 60);
-      const leadScore = companyData.company === 'Unknown' 
-        ? Math.floor(Math.random() * 40) + 30 
-        : Math.floor(Math.random() * 30) + 65;
+      const leadScore = Math.floor(Math.random() * 30) + 65;
       
       const journey = [];
       const journeyLength = Math.min(pagesViewed, 4);
@@ -70,7 +82,7 @@ export default function VisitorProfilesCard() {
       
       visitors.push({
         id: i + 1,
-        sessionId: `SJ-2024-${sessionNum - i}`,
+        sessionId: `SJ-2024-${sessionNum - (i % 1000)}`,
         ...companyData,
         pagesViewed,
         timeOnSite: `${timeMinutes}m ${timeSeconds}s`,
@@ -88,9 +100,9 @@ export default function VisitorProfilesCard() {
     }
     
     return visitors.sort((a, b) => a.daysAgo - b.daysAgo);
-  };
+  }, []);
   
-  const allVisitors = generateVisitors();
+  const allVisitors = generateVisitors;
 
   // Filter visitors based on date range
   const visitors = allVisitors.filter(v => {
