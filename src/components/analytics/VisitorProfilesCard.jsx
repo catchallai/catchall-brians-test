@@ -2,13 +2,15 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { UserCircle, MapPin, Clock, Eye, MousePointer, ChevronRight, Building2, Briefcase } from "lucide-react";
 
 export default function VisitorProfilesCard() {
   const [selectedVisitor, setSelectedVisitor] = useState(null);
+  const [dateRange, setDateRange] = useState('30');
 
   // SyberJet visitor profiles - high-value aviation prospects
-  const visitors = [
+  const allVisitors = [
     {
       id: 1,
       sessionId: 'SJ-2024-8847',
