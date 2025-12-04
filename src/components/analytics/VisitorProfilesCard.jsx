@@ -9,230 +9,88 @@ export default function VisitorProfilesCard() {
   const [selectedVisitor, setSelectedVisitor] = useState(null);
   const [dateRange, setDateRange] = useState('30');
 
-  // SyberJet visitor profiles - high-value aviation prospects
-  const allVisitors = [
-    {
-      id: 1,
-      sessionId: 'SJ-2024-8847',
-      country: 'United States',
-      city: 'Scottsdale, AZ',
-      company: 'Desert Aviation Holdings',
-      industry: 'Private Aviation',
-      pagesViewed: 12,
-      timeOnSite: '18m 42s',
-      lastPage: '/ownership',
-      firstVisit: false,
-      visitCount: 4,
-      leadScore: 92,
-      device: 'Desktop',
-      browser: 'Safari',
-      referrer: 'google.com',
-      entryPage: '/sj30i',
-      journey: [
-        { page: '/sj30i', time: '4m 12s', scrollDepth: 95 },
-        { page: '/performance', time: '3m 28s', scrollDepth: 100 },
-        { page: '/interior', time: '2m 45s', scrollDepth: 88 },
-        { page: '/ownership', time: '8m 17s', scrollDepth: 100 },
-      ],
-      daysAgo: 1
-    },
-    {
-      id: 2,
-      sessionId: 'SJ-2024-8846',
-      country: 'United Arab Emirates',
-      city: 'Dubai',
-      company: 'Al Futtaim Group',
-      industry: 'Conglomerate',
-      pagesViewed: 8,
-      timeOnSite: '12m 15s',
-      lastPage: '/contact',
-      firstVisit: true,
-      visitCount: 1,
-      leadScore: 85,
-      device: 'iPad',
-      browser: 'Safari',
-      referrer: 'linkedin.com',
-      entryPage: '/',
-      journey: [
-        { page: '/', time: '1m 30s', scrollDepth: 75 },
-        { page: '/sj30i', time: '4m 45s', scrollDepth: 100 },
-        { page: '/performance', time: '2m 20s', scrollDepth: 90 },
-        { page: '/contact', time: '3m 40s', scrollDepth: 100 },
-      ],
-      daysAgo: 3
-    },
-    {
-      id: 3,
-      sessionId: 'SJ-2024-8845',
-      country: 'Switzerland',
-      city: 'Geneva',
-      company: 'Swiss Private Bank',
-      industry: 'Financial Services',
-      pagesViewed: 6,
-      timeOnSite: '9m 30s',
-      lastPage: '/interior',
-      firstVisit: false,
-      visitCount: 2,
-      leadScore: 78,
-      device: 'Desktop',
-      browser: 'Chrome',
-      referrer: 'Direct',
-      entryPage: '/performance',
-      journey: [
-        { page: '/performance', time: '3m 10s', scrollDepth: 100 },
-        { page: '/sj30i', time: '2m 55s', scrollDepth: 85 },
-        { page: '/interior', time: '3m 25s', scrollDepth: 92 },
-      ],
-      daysAgo: 8
-    },
-    {
-      id: 4,
-      sessionId: 'SJ-2024-8844',
-      country: 'United Kingdom',
-      city: 'London',
-      company: 'Unknown',
-      industry: 'Unknown',
-      pagesViewed: 3,
-      timeOnSite: '2m 45s',
-      lastPage: '/sj30i',
-      firstVisit: true,
-      visitCount: 1,
-      leadScore: 45,
-      device: 'Mobile',
-      browser: 'Chrome',
-      referrer: 'twitter.com',
-      entryPage: '/',
-      journey: [
-        { page: '/', time: '0m 45s', scrollDepth: 40 },
-        { page: '/sj30i', time: '2m 00s', scrollDepth: 55 },
-      ],
-      daysAgo: 15
-    },
-    {
-      id: 5,
-      sessionId: 'SJ-2024-8820',
-      country: 'Germany',
-      city: 'Munich',
-      company: 'BMW Group',
-      industry: 'Automotive',
-      pagesViewed: 10,
-      timeOnSite: '14m 20s',
-      lastPage: '/ownership',
-      firstVisit: false,
-      visitCount: 3,
-      leadScore: 88,
-      device: 'Desktop',
-      browser: 'Firefox',
-      referrer: 'google.de',
-      entryPage: '/sj30i',
-      journey: [
-        { page: '/sj30i', time: '5m 10s', scrollDepth: 100 },
-        { page: '/performance', time: '4m 30s', scrollDepth: 95 },
-        { page: '/ownership', time: '4m 40s', scrollDepth: 100 },
-      ],
-      daysAgo: 35
-    },
-    {
-      id: 6,
-      sessionId: 'SJ-2024-8795',
-      country: 'Singapore',
-      city: 'Singapore',
-      company: 'Temasek Holdings',
-      industry: 'Investment',
-      pagesViewed: 15,
-      timeOnSite: '22m 15s',
-      lastPage: '/contact',
-      firstVisit: true,
-      visitCount: 1,
-      leadScore: 95,
-      device: 'Desktop',
-      browser: 'Chrome',
-      referrer: 'bloomberg.com',
-      entryPage: '/',
-      journey: [
-        { page: '/', time: '2m 00s', scrollDepth: 80 },
-        { page: '/sj30i', time: '6m 15s', scrollDepth: 100 },
-        { page: '/performance', time: '5m 00s', scrollDepth: 100 },
-        { page: '/interior', time: '4m 00s', scrollDepth: 90 },
-        { page: '/contact', time: '5m 00s', scrollDepth: 100 },
-      ],
-      daysAgo: 42
-    },
-    {
-      id: 7,
-      sessionId: 'SJ-2024-8760',
-      country: 'Canada',
-      city: 'Toronto',
-      company: 'Rogers Communications',
-      industry: 'Telecommunications',
-      pagesViewed: 7,
-      timeOnSite: '11m 30s',
-      lastPage: '/performance',
-      firstVisit: false,
-      visitCount: 2,
-      leadScore: 72,
-      device: 'Desktop',
-      browser: 'Edge',
-      referrer: 'Direct',
-      entryPage: '/sj30i',
-      journey: [
-        { page: '/sj30i', time: '4m 20s', scrollDepth: 85 },
-        { page: '/interior', time: '3m 10s', scrollDepth: 75 },
-        { page: '/performance', time: '4m 00s', scrollDepth: 90 },
-      ],
-      daysAgo: 55
-    },
-    {
-      id: 8,
-      sessionId: 'SJ-2024-8710',
-      country: 'Australia',
-      city: 'Sydney',
-      company: 'Macquarie Group',
-      industry: 'Financial Services',
-      pagesViewed: 9,
-      timeOnSite: '16m 45s',
-      lastPage: '/ownership',
-      firstVisit: true,
-      visitCount: 1,
-      leadScore: 82,
-      device: 'iPad',
-      browser: 'Safari',
-      referrer: 'linkedin.com',
-      entryPage: '/',
-      journey: [
-        { page: '/', time: '1m 45s', scrollDepth: 70 },
-        { page: '/sj30i', time: '5m 30s', scrollDepth: 100 },
-        { page: '/performance', time: '4m 30s', scrollDepth: 95 },
-        { page: '/ownership', time: '5m 00s', scrollDepth: 100 },
-      ],
-      daysAgo: 75
-    },
-    {
-      id: 9,
-      sessionId: 'SJ-2024-8680',
-      country: 'Japan',
-      city: 'Tokyo',
-      company: 'Mitsubishi Corporation',
-      industry: 'Conglomerate',
-      pagesViewed: 11,
-      timeOnSite: '19m 10s',
-      lastPage: '/contact',
-      firstVisit: false,
-      visitCount: 5,
-      leadScore: 91,
-      device: 'Desktop',
-      browser: 'Chrome',
-      referrer: 'google.co.jp',
-      entryPage: '/performance',
-      journey: [
-        { page: '/performance', time: '4m 50s', scrollDepth: 100 },
-        { page: '/sj30i', time: '5m 20s', scrollDepth: 100 },
-        { page: '/interior', time: '4m 00s', scrollDepth: 85 },
-        { page: '/contact', time: '5m 00s', scrollDepth: 100 },
-      ],
-      daysAgo: 85
-    },
-  ];
+  // Generate realistic visitor data
+  const generateVisitors = () => {
+    const companies = [
+      { company: 'Desert Aviation Holdings', industry: 'Private Aviation', city: 'Scottsdale, AZ', country: 'United States' },
+      { company: 'Al Futtaim Group', industry: 'Conglomerate', city: 'Dubai', country: 'United Arab Emirates' },
+      { company: 'Swiss Private Bank', industry: 'Financial Services', city: 'Geneva', country: 'Switzerland' },
+      { company: 'Unknown', industry: 'Unknown', city: 'London', country: 'United Kingdom' },
+      { company: 'BMW Group', industry: 'Automotive', city: 'Munich', country: 'Germany' },
+      { company: 'Temasek Holdings', industry: 'Investment', city: 'Singapore', country: 'Singapore' },
+      { company: 'Rogers Communications', industry: 'Telecommunications', city: 'Toronto', country: 'Canada' },
+      { company: 'Macquarie Group', industry: 'Financial Services', city: 'Sydney', country: 'Australia' },
+      { company: 'Mitsubishi Corporation', industry: 'Conglomerate', city: 'Tokyo', country: 'Japan' },
+      { company: 'Berkshire Partners', industry: 'Private Equity', city: 'Boston, MA', country: 'United States' },
+      { company: 'LVMH', industry: 'Luxury Goods', city: 'Paris', country: 'France' },
+      { company: 'Ambani Group', industry: 'Conglomerate', city: 'Mumbai', country: 'India' },
+      { company: 'Samsung C&T', industry: 'Construction', city: 'Seoul', country: 'South Korea' },
+      { company: 'Aramco', industry: 'Energy', city: 'Riyadh', country: 'Saudi Arabia' },
+      { company: 'Credit Suisse', industry: 'Banking', city: 'Zurich', country: 'Switzerland' },
+      { company: 'Blackstone', industry: 'Investment', city: 'New York, NY', country: 'United States' },
+      { company: 'KKR & Co', industry: 'Private Equity', city: 'San Francisco, CA', country: 'United States' },
+      { company: 'Softbank', industry: 'Technology', city: 'Tokyo', country: 'Japan' },
+      { company: 'Unknown', industry: 'Unknown', city: 'Miami, FL', country: 'United States' },
+      { company: 'Carlyle Group', industry: 'Private Equity', city: 'Washington, DC', country: 'United States' },
+      { company: 'Unknown', industry: 'Unknown', city: 'Hong Kong', country: 'Hong Kong' },
+      { company: 'Volkswagen AG', industry: 'Automotive', city: 'Wolfsburg', country: 'Germany' },
+      { company: 'Shell', industry: 'Energy', city: 'The Hague', country: 'Netherlands' },
+      { company: 'Unknown', industry: 'Unknown', city: 'Monaco', country: 'Monaco' },
+      { company: 'Tata Group', industry: 'Conglomerate', city: 'Mumbai', country: 'India' },
+    ];
+    
+    const devices = ['Desktop', 'iPad', 'Mobile'];
+    const browsers = ['Chrome', 'Safari', 'Firefox', 'Edge'];
+    const referrers = ['google.com', 'linkedin.com', 'Direct', 'bloomberg.com', 'twitter.com', 'facebook.com', 'bing.com'];
+    const pages = ['/', '/sj30i', '/performance', '/interior', '/ownership', '/contact', '/gallery', '/specs'];
+    
+    const visitors = [];
+    let sessionNum = 8900;
+    
+    // Generate ~45 visitors for 30 days, ~75 for 60 days, ~120 for 90 days
+    for (let i = 0; i < 120; i++) {
+      const companyData = companies[i % companies.length];
+      const daysAgo = Math.floor(Math.random() * 90) + 1;
+      const pagesViewed = Math.floor(Math.random() * 12) + 2;
+      const timeMinutes = Math.floor(Math.random() * 20) + 2;
+      const timeSeconds = Math.floor(Math.random() * 60);
+      const leadScore = companyData.company === 'Unknown' 
+        ? Math.floor(Math.random() * 40) + 30 
+        : Math.floor(Math.random() * 30) + 65;
+      
+      const journey = [];
+      const journeyLength = Math.min(pagesViewed, 4);
+      for (let j = 0; j < journeyLength; j++) {
+        journey.push({
+          page: pages[Math.floor(Math.random() * pages.length)],
+          time: `${Math.floor(Math.random() * 5) + 1}m ${Math.floor(Math.random() * 60)}s`,
+          scrollDepth: Math.floor(Math.random() * 40) + 60
+        });
+      }
+      
+      visitors.push({
+        id: i + 1,
+        sessionId: `SJ-2024-${sessionNum - i}`,
+        ...companyData,
+        pagesViewed,
+        timeOnSite: `${timeMinutes}m ${timeSeconds}s`,
+        lastPage: pages[Math.floor(Math.random() * pages.length)],
+        firstVisit: Math.random() > 0.6,
+        visitCount: Math.floor(Math.random() * 5) + 1,
+        leadScore,
+        device: devices[Math.floor(Math.random() * devices.length)],
+        browser: browsers[Math.floor(Math.random() * browsers.length)],
+        referrer: referrers[Math.floor(Math.random() * referrers.length)],
+        entryPage: pages[Math.floor(Math.random() * pages.length)],
+        journey,
+        daysAgo
+      });
+    }
+    
+    return visitors.sort((a, b) => a.daysAgo - b.daysAgo);
+  };
+  
+  const allVisitors = generateVisitors();
 
   // Filter visitors based on date range
   const visitors = allVisitors.filter(v => {
