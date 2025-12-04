@@ -174,7 +174,7 @@ export default function VisitorProfilesCard() {
         });
       }
       
-      visitors.push({
+      const visitorData = {
         id: i + 1,
         sessionId: `SJ-2024-${sessionNum - (i % 1000)}`,
         ...companyData,
@@ -183,14 +183,20 @@ export default function VisitorProfilesCard() {
         lastPage: pages[Math.floor(Math.random() * pages.length)],
         firstVisit: Math.random() > 0.6,
         visitCount: Math.floor(Math.random() * 5) + 1,
-        leadScore,
         device: devices[Math.floor(Math.random() * devices.length)],
         browser: browsers[Math.floor(Math.random() * browsers.length)],
         referrer: referrers[Math.floor(Math.random() * referrers.length)],
         entryPage: pages[Math.floor(Math.random() * pages.length)],
         journey,
         daysAgo
-      });
+      };
+      
+      // Calculate AI lead score
+      const aiScore = calculateAILeadScore(visitorData);
+      visitorData.leadScore = aiScore.score;
+      visitorData.scoreData = aiScore;
+      
+      visitors.push(visitorData);
     }
     
     return visitors.sort((a, b) => a.daysAgo - b.daysAgo);
