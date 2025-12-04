@@ -1552,10 +1552,9 @@ Track and analyze competitor social media activity.
 
 ## Adding Competitors
 
-1. Go to **Social Media**
-2. Click the **Competitors** tab
-3. Click **Add Competitor**
-4. Enter competitor name and social handles
+1. Go to **Competitor Analysis** from the sidebar
+2. Click **Add Competitor**
+3. Enter competitor name and social handles
 
 ## What's Tracked
 
@@ -1598,6 +1597,64 @@ Generate side-by-side comparisons:
 2. Identify successful tactics to adapt
 3. Find content gaps to exploit
 4. Stay ahead of campaign launches`
+  },
+  {
+    id: 'hashtag-pool',
+    title: 'Hashtag Pool Management',
+    category: 'social_media',
+    type: 'tutorial',
+    order: 6,
+    tags: ['hashtags', 'social media', 'organization'],
+    content: `# Hashtag Pool Management
+
+Build and organize your hashtag library for consistent social media posting.
+
+## Accessing Hashtag Pool
+
+Navigate to **Hashtag Pool** from the Social section in the sidebar.
+
+## Adding Hashtags
+
+1. Click **Add Hashtag**
+2. Enter hashtag (without #)
+3. Assign a category
+4. Save to your pool
+
+## Organizing by Category
+
+Create categories like:
+- **Brand**: Your branded hashtags
+- **Industry**: Sector-specific tags
+- **Trending**: Current popular tags
+- **Campaign**: Campaign-specific tags
+- **Location**: Geographic tags
+
+## Using Hashtags
+
+### In Social Calendar
+1. Create a new post
+2. Click hashtag icon
+3. Select from your pool
+4. Add to post
+
+### Quick Copy
+- Click any hashtag to copy
+- Paste into external tools
+
+## Tracking Performance
+
+Monitor which hashtags perform best:
+- Usage count
+- Engagement correlation
+- Reach metrics
+
+## Best Practices
+
+- Limit to 5-10 hashtags per post
+- Mix popular and niche tags
+- Rotate hashtags regularly
+- Track what works per platform
+- Mark favorites for quick access`
   },
 
   // FAQ
