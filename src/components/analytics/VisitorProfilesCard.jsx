@@ -242,7 +242,7 @@ export default function VisitorProfilesCard() {
   };
 
   return (
-    <Card className="glass-card rounded-2xl flex flex-col">
+    <Card className="glass-card rounded-2xl flex flex-col h-[600px]">
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
           <CardTitle className="text-base flex items-center gap-2">
@@ -261,7 +261,7 @@ export default function VisitorProfilesCard() {
       </CardHeader>
       <CardContent className="flex-1 overflow-hidden">
         <div className="space-y-3 h-[calc(100%-0.5rem)] overflow-y-auto pr-1">
-          {visitors.map((visitor) => (
+          {visitors.slice(0, 25).map((visitor) => (
             <div 
               key={visitor.id}
               className={`p-3 rounded-xl border transition-all cursor-pointer ${
