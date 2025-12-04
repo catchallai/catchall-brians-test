@@ -6,8 +6,16 @@ import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 
 export default function SEOHealthCard({ websites, keywords, backlinks }) {
+  // Normalize SEO scores - handle both 0-1 and 0-100 formats
+  const normalizeScore = (score) => {
+    if (!score) return 0;
+    // If score is between 0-1, convert to 0-100
+    if (score > 0 && score <= 1) return Math.round(score * 100);
+    return Math.round(score);
+  };
+
   const avgSEOScore = websites.length > 0 
-    ? Math.round(websites.reduce((sum, w) => sum + (w.seo_score || 0), 0) / websites.length)
+    ? Math.round(websites.reduce((sum, w) => sum + normalizeScore(w.seo_score), 0) / websites.length)
     : 0;
 
   const top10Keywords = keywords.filter(k => k.current_position && k.current_position <= 10).length;
