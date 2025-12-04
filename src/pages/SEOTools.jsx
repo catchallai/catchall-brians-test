@@ -311,7 +311,15 @@ export default function SEOTools() {
           <Card className="glass-card rounded-2xl">
             <CardContent className="p-4 text-center">
               <div className="w-16 h-16 rounded-full bg-violet-100 flex items-center justify-center mx-auto mb-2">
-                <span className="text-2xl font-bold text-violet-600">{currentWebsite?.seo_score || 0}</span>
+                <span className="text-2xl font-bold text-violet-600">
+                  {(() => {
+                    const score = currentWebsite?.seo_score || 0;
+                    // If score is between 0-1, convert to 0-100
+                    if (score > 0 && score <= 1) return Math.round(score * 100);
+                    // If score is already 0-100, use as is
+                    return Math.round(score);
+                  })()}
+                </span>
               </div>
               <p className="text-sm text-gray-500">Overall Score</p>
             </CardContent>
