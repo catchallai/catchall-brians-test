@@ -117,7 +117,7 @@ export default function VisitorProfilesCard() {
   };
 
   return (
-    <Card className="glass-card rounded-2xl">
+    <Card className="glass-card rounded-2xl h-[500px] flex flex-col">
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
           <CardTitle className="text-base flex items-center gap-2">
