@@ -36,11 +36,148 @@ export default function UserJourneyMapCard({ trafficData = [], socialAccounts = 
   const [selectedEntryPoint, setSelectedEntryPoint] = useState('all');
   const [showFilters, setShowFilters] = useState(false);
 
+  // Generate segment-specific journey data
+  const segmentData = useMemo(() => {
+    const segmentLabel = VISITOR_SEGMENTS.find(s => s.id === selectedSegment)?.label || 'All Visitors';
+    const entryLabel = ENTRY_POINTS.find(e => e.id === selectedEntryPoint)?.label || 'All Entry Points';
+    
+    // Simulated segment-specific metrics
+    const segmentMetrics = {
+      all: { conversionRate: 3.2, avgTouchpoints: 5.4, avgTime: '18 days', dropOffRate: 68 },
+      new: { conversionRate: 1.8, avgTouchpoints: 7.2, avgTime: '24 days', dropOffRate: 78 },
+      returning: { conversionRate: 8.4, avgTouchpoints: 3.1, avgTime: '6 days', dropOffRate: 42 },
+      high_intent: { conversionRate: 12.6, avgTouchpoints: 4.8, avgTime: '4 days', dropOffRate: 28 },
+      mobile: { conversionRate: 2.1, avgTouchpoints: 4.2, avgTime: '21 days', dropOffRate: 74 },
+    };
+    
+    const entryMetrics = {
+      all: { bounce: 45, exitRate: 32, avgPages: 4.2 },
+      homepage: { bounce: 52, exitRate: 28, avgPages: 5.1 },
+      sj30i: { bounce: 28, exitRate: 18, avgPages: 6.8 },
+      performance: { bounce: 35, exitRate: 22, avgPages: 5.4 },
+      ownership: { bounce: 22, exitRate: 15, avgPages: 7.2 },
+      contact: { bounce: 18, exitRate: 45, avgPages: 2.1 },
+      social: { bounce: 58, exitRate: 35, avgPages: 3.2 },
+      search: { bounce: 42, exitRate: 25, avgPages: 4.8 },
+    };
+    
+    return {
+      segment: segmentMetrics[selectedSegment] || segmentMetrics.all,
+      entry: entryMetrics[selectedEntryPoint] || entryMetrics.all,
+      segmentLabel,
+      entryLabel,
+    };
+  }, [selectedSegment, selectedEntryPoint]);
+
+  // Visual funnel data based on segment
+  const funnelData = useMemo(() => {
+    const baseFunnel = [
+      { stage: 'Landing', visitors: 10000, color: 'bg-blue-500' },
+      { stage: 'Engaged', visitors: 5500, color: 'bg-violet-500' },
+      { stage: 'Interested', visitors: 2200, color: 'bg-purple-500' },
+      { stage: 'Qualified', visitors: 680, color: 'bg-pink-500' },
+      { stage: 'Converted', visitors: 320, color: 'bg-emerald-500' },
+    ];
+    
+    const multipliers = {
+      all: 1,
+      new: 0.7,
+      returning: 1.4,
+      high_intent: 1.8,
+      mobile: 0.85,
+    };
+    
+    const mult = multipliers[selectedSegment] || 1;
+    return baseFunnel.map((stage, idx) => ({
+      ...stage,
+      visitors: Math.round(stage.visitors * mult * (idx === 0 ? 1 : Math.pow(0.95, idx))),
+      percentage: idx === 0 ? 100 : Math.round((stage.visitors * mult / (baseFunnel[0].visitors * mult)) * 100),
+    }));
+  }, [selectedSegment]);
+
+  // Common paths based on entry point
+  const commonPaths = useMemo(() => {
+    const pathsByEntry = {
+      all: [
+        { path: ['Homepage', 'SJ30i', 'Performance', 'Contact'], percentage: 24, conversions: 8.2 },
+        { path: ['Homepage', 'Gallery', 'Specs', 'Contact'], percentage: 18, conversions: 6.4 },
+        { path: ['SJ30i', 'Ownership', 'Contact'], percentage: 15, conversions: 12.1 },
+      ],
+      homepage: [
+        { path: ['Homepage', 'SJ30i', 'Performance', 'Contact'], percentage: 32, conversions: 9.4 },
+        { path: ['Homepage', 'About', 'Contact'], percentage: 22, conversions: 4.2 },
+        { path: ['Homepage', 'Gallery', 'SJ30i', 'Specs'], percentage: 18, conversions: 7.8 },
+      ],
+      sj30i: [
+        { path: ['SJ30i', 'Performance', 'Ownership', 'Contact'], percentage: 38, conversions: 14.2 },
+        { path: ['SJ30i', 'Specs', 'Gallery', 'Contact'], percentage: 28, conversions: 11.6 },
+        { path: ['SJ30i', 'Interior', 'Performance', 'Contact'], percentage: 22, conversions: 10.8 },
+      ],
+      ownership: [
+        { path: ['Ownership', 'Contact'], percentage: 45, conversions: 18.4 },
+        { path: ['Ownership', 'SJ30i', 'Contact'], percentage: 32, conversions: 15.2 },
+        { path: ['Ownership', 'Performance', 'Specs', 'Contact'], percentage: 18, conversions: 12.8 },
+      ],
+      contact: [
+        { path: ['Contact', '(Form Submit)'], percentage: 65, conversions: 42.0 },
+        { path: ['Contact', 'Ownership', 'Contact'], percentage: 20, conversions: 28.4 },
+        { path: ['Contact', 'SJ30i', 'Contact'], percentage: 12, conversions: 22.0 },
+      ],
+      social: [
+        { path: ['Social', 'Homepage', 'SJ30i', 'Gallery'], percentage: 35, conversions: 4.2 },
+        { path: ['Social', 'Blog Post', 'SJ30i'], percentage: 28, conversions: 5.8 },
+        { path: ['Social', 'Gallery', 'Performance'], percentage: 22, conversions: 6.4 },
+      ],
+      search: [
+        { path: ['Search', 'SJ30i', 'Specs', 'Contact'], percentage: 32, conversions: 8.8 },
+        { path: ['Search', 'Homepage', 'SJ30i', 'Performance'], percentage: 26, conversions: 7.2 },
+        { path: ['Search', 'Performance', 'Ownership'], percentage: 18, conversions: 9.4 },
+      ],
+      performance: [
+        { path: ['Performance', 'SJ30i', 'Specs', 'Contact'], percentage: 34, conversions: 11.2 },
+        { path: ['Performance', 'Ownership', 'Contact'], percentage: 28, conversions: 13.8 },
+        { path: ['Performance', 'Gallery', 'Interior'], percentage: 20, conversions: 6.4 },
+      ],
+    };
+    return pathsByEntry[selectedEntryPoint] || pathsByEntry.all;
+  }, [selectedEntryPoint]);
+
+  // Drop-off points based on segment
+  const dropOffPoints = useMemo(() => {
+    const baseDropOffs = [
+      { location: 'Homepage → Product Pages', rate: 48, reason: 'Unclear value proposition', fix: 'Add clear CTAs and featured product highlights' },
+      { location: 'Product → Specs', rate: 35, reason: 'Information overload', fix: 'Simplify technical information with visuals' },
+      { location: 'Specs → Contact', rate: 28, reason: 'Missing pricing context', fix: 'Add inquiry prompt with ownership options' },
+      { location: 'Contact Form', rate: 22, reason: 'Form too long', fix: 'Reduce required fields, add progress indicator' },
+    ];
+    
+    if (selectedSegment === 'mobile') {
+      return [
+        { location: 'Mobile Homepage', rate: 62, reason: 'Slow load time', fix: 'Optimize images, enable lazy loading' },
+        { location: 'Gallery (Mobile)', rate: 45, reason: 'Touch interaction issues', fix: 'Improve swipe gestures' },
+        ...baseDropOffs.slice(2),
+      ];
+    }
+    if (selectedSegment === 'new') {
+      return [
+        { location: 'First Page View', rate: 58, reason: 'No brand familiarity', fix: 'Add trust signals and social proof' },
+        ...baseDropOffs,
+      ];
+    }
+    return baseDropOffs;
+  }, [selectedSegment]);
+
   const analyzeJourneys = async () => {
     setIsAnalyzing(true);
+    const segmentContext = selectedSegment !== 'all' ? `Focus specifically on ${VISITOR_SEGMENTS.find(s => s.id === selectedSegment)?.label} behavior patterns.` : '';
+    const entryContext = selectedEntryPoint !== 'all' ? `Analyze journeys starting from ${ENTRY_POINTS.find(e => e.id === selectedEntryPoint)?.label}.` : '';
+    
     try {
       const result = await base44.integrations.Core.InvokeLLM({
         prompt: `You are a user experience and conversion optimization AI. Analyze user journeys across website and social media touchpoints for a business aviation company (SyberJet).
+
+${segmentContext}
+${entryContext}
 
 Provide comprehensive journey mapping including:
 
