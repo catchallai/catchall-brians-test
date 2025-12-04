@@ -33,7 +33,8 @@ export default function VisitorProfilesCard() {
         { page: '/performance', time: '3m 28s', scrollDepth: 100 },
         { page: '/interior', time: '2m 45s', scrollDepth: 88 },
         { page: '/ownership', time: '8m 17s', scrollDepth: 100 },
-      ]
+      ],
+      daysAgo: 1
     },
     {
       id: 2,
@@ -57,7 +58,8 @@ export default function VisitorProfilesCard() {
         { page: '/sj30i', time: '4m 45s', scrollDepth: 100 },
         { page: '/performance', time: '2m 20s', scrollDepth: 90 },
         { page: '/contact', time: '3m 40s', scrollDepth: 100 },
-      ]
+      ],
+      daysAgo: 3
     },
     {
       id: 3,
@@ -80,7 +82,8 @@ export default function VisitorProfilesCard() {
         { page: '/performance', time: '3m 10s', scrollDepth: 100 },
         { page: '/sj30i', time: '2m 55s', scrollDepth: 85 },
         { page: '/interior', time: '3m 25s', scrollDepth: 92 },
-      ]
+      ],
+      daysAgo: 8
     },
     {
       id: 4,
@@ -103,7 +106,7 @@ export default function VisitorProfilesCard() {
         { page: '/', time: '0m 45s', scrollDepth: 40 },
         { page: '/sj30i', time: '2m 00s', scrollDepth: 55 },
       ],
-      daysAgo: 2
+      daysAgo: 15
     },
     {
       id: 5,
