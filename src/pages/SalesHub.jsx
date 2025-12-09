@@ -20,6 +20,7 @@ import LeadEnrichmentModal from '@/components/sales/LeadEnrichmentModal';
 import EnrichedLeadsTable from '@/components/sales/EnrichedLeadsTable';
 import SalesForecastCard from '@/components/sales/SalesForecastCard';
 import WorkflowPanel from '@/components/sales/WorkflowPanel';
+import LeadScoringPanel from '@/components/sales/LeadScoringPanel';
 import EmptyState from '@/components/ui/EmptyState';
 
 export default function SalesHub() {
@@ -73,6 +74,11 @@ export default function SalesHub() {
   const { data: workflowExecutions = [] } = useQuery({
     queryKey: ['workflow-executions'],
     queryFn: () => base44.entities.WorkflowExecution.list('-created_date', 100),
+  });
+
+  const { data: leadScores = [] } = useQuery({
+    queryKey: ['lead-scores'],
+    queryFn: () => base44.entities.LeadScore.list('-total_score', 100),
   });
 
   const latestForecast = forecasts[0];
@@ -489,6 +495,97 @@ Also provide an enrichment_score (0-100) based on how much data was found.`,
     },
   });
 
+  const scoreLeadsMutation = useMutation({
+    mutationFn: async () => {
+      const scoringPromises = contacts.map(async (contact) => {
+        // Gather data from various sources
+        const enrichment = enrichedLeads.find(e => e.contact_id === contact.id);
+        const contactCalls = salesCalls.filter(c => c.contact_id === contact.id);
+        const contactFollowUps = followUps.filter(f => f.contact_id === contact.id);
+        const contactDeals = deals.filter(d => d.contact_id === contact.id);
+
+        const analysis = await base44.integrations.Core.InvokeLLM({
+          prompt: `Analyze this lead and provide a comprehensive AI-driven score (0-100):
+
+Lead Information:
+- Name: ${contact.first_name} ${contact.last_name}
+- Company: ${contact.company || 'Unknown'}
+- Job Title: ${contact.job_title || 'Unknown'}
+- Status: ${contact.status}
+- Source: ${contact.source || 'Unknown'}
+- Email: ${contact.email ? 'Yes' : 'No'}
+- Phone: ${contact.phone ? 'Yes' : 'No'}
+
+LinkedIn Enrichment:
+${enrichment ? \`
+- Enrichment Score: \${enrichment.enrichment_score}/100
+- Industry: \${enrichment.industry || 'Unknown'}
+- Connections: \${enrichment.connections || 0}
+- Skills: \${enrichment.skills?.length || 0}
+- Experience: \${enrichment.experience?.length || 0} roles
+\` : '- Not enriched'}
+
+Sales Interactions:
+- Total Calls: ${contactCalls.length}
+- Positive Calls: ${contactCalls.filter(c => c.sentiment === 'positive').length}
+- Negative Calls: ${contactCalls.filter(c => c.sentiment === 'negative').length}
+- Completed Follow-ups: ${contactFollowUps.filter(f => f.status === 'completed').length}
+- Pending Follow-ups: ${contactFollowUps.filter(f => f.status === 'pending').length}
+- Active Deals: ${contactDeals.filter(d => d.status !== 'won' && d.status !== 'lost').length}
+- Won Deals: ${contactDeals.filter(d => d.status === 'won').length}
+
+Provide:
+1. total_score (0-100, weighted combination)
+2. demographic_score (0-100, based on company, title, enrichment)
+3. behavioral_score (0-100, based on interactions, engagement)
+4. engagement_score (0-100, based on follow-ups, responsiveness)
+5. grade (A/B/C/D/F based on total_score: 90+=A, 80-89=B, 70-79=C, 60-69=D, <60=F)
+6. score_breakdown (object with specific factors and their point contributions)
+7. reasoning (2-3 sentences explaining the score)
+8. recommended_actions (array of 2-3 specific next steps)
+
+Scoring Guidelines:
+- High-quality enrichment data: +15-25 points
+- Active engagement (recent calls/emails): +20-30 points
+- Positive sentiment: +15-20 points
+- Decision-maker role (C-level, VP): +10-15 points
+- Large company (500+ employees): +5-10 points
+- Multiple touchpoints: +10-15 points
+- Quick response time: +5-10 points`,
+          response_json_schema: {
+            type: "object",
+            properties: {
+              total_score: { type: "number" },
+              demographic_score: { type: "number" },
+              behavioral_score: { type: "number" },
+              engagement_score: { type: "number" },
+              grade: { type: "string" },
+              score_breakdown: { type: "object" },
+              reasoning: { type: "string" },
+              recommended_actions: { type: "array", items: { type: "string" } }
+            }
+          }
+        });
+
+        // Delete old score if exists
+        const existingScore = leadScores.find(s => s.contact_id === contact.id);
+        if (existingScore) {
+          await base44.entities.LeadScore.delete(existingScore.id);
+        }
+
+        return base44.entities.LeadScore.create({
+          contact_id: contact.id,
+          ...analysis
+        });
+      });
+
+      await Promise.all(scoringPromises);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['lead-scores'] });
+    },
+  });
+
   const generateForecastMutation = useMutation({
     mutationFn: async (period) => {
       // Gather historical data
@@ -743,6 +840,7 @@ Consider:
       {/* Main Content */}
       <Tabs defaultValue="calls" className="space-y-4">
         <TabsList>
+          <TabsTrigger value="scoring">Lead Scoring</TabsTrigger>
           <TabsTrigger value="forecast">Forecast</TabsTrigger>
           <TabsTrigger value="workflows">Automation</TabsTrigger>
           <TabsTrigger value="enrichment">Lead Enrichment</TabsTrigger>
@@ -751,6 +849,15 @@ Consider:
           <TabsTrigger value="reservations">Reservations</TabsTrigger>
           <TabsTrigger value="activity">Activity Feed</TabsTrigger>
         </TabsList>
+
+        <TabsContent value="scoring" className="space-y-4">
+          <LeadScoringPanel
+            contacts={contacts}
+            leadScores={leadScores}
+            onScore={() => scoreLeadsMutation.mutate()}
+            isScoring={scoreLeadsMutation.isPending}
+          />
+        </TabsContent>
 
         <TabsContent value="forecast" className="space-y-4">
           <SalesForecastCard
