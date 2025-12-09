@@ -43,6 +43,9 @@ import {
   Plus,
   UserCircle,
   AlertTriangle,
+  Package,
+  DollarSign,
+  Sparkles,
 } from "lucide-react";
 import ErrorBoundary from '@/components/ui/ErrorBoundary';
 import KeyboardShortcutsDialog, { useKeyboardShortcuts } from '@/components/ui/KeyboardShortcuts';
@@ -106,6 +109,11 @@ const navigation = [
   { name: 'divider', label: 'Assets' },
   { name: 'Media Library', icon: FileText, page: 'MediaLibrary' },
   { name: 'Content Studio', icon: PenTool, page: 'ContentStudio' },
+  { name: 'Equipment Inventory', icon: Package, page: 'EquipmentInventory' },
+  { name: 'divider', label: 'Finance' },
+  { name: 'Accounting Dashboard', icon: DollarSign, page: 'AccountingDashboard' },
+  { name: 'divider', label: 'AI Tools' },
+  { name: 'AI Dashboard', icon: Sparkles, page: 'AIDashboard' },
   { name: 'divider', label: 'Support' },
   { name: 'Help Center', icon: HelpCircle, page: 'HelpCenter' },
   { name: 'Settings', icon: Settings, page: 'Settings' },
@@ -118,6 +126,9 @@ const SIDEBAR_ICONS = {
   PitchDeckCreator: PenTool,
   PitchDeckAnalyzer: FileSearch,
   TakeDownRequestor: AlertTriangle,
+  EquipmentInventory: Package,
+  AccountingDashboard: DollarSign,
+  AIDashboard: Sparkles,
   Contacts: Users,
   Companies: Building2,
   Deals: Target,

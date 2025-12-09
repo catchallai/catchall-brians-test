@@ -40,6 +40,9 @@ import VisitorProfiles from './pages/VisitorProfiles';
 import PitchDeckCreator from './pages/PitchDeckCreator';
 import PitchDeckAnalyzer from './pages/PitchDeckAnalyzer';
 import TakeDownRequestor from './pages/TakeDownRequestor';
+import EquipmentInventory from './pages/EquipmentInventory';
+import AccountingDashboard from './pages/AccountingDashboard';
+import AIDashboard from './pages/AIDashboard';
 import __Layout from './Layout.jsx';
 
 
@@ -86,6 +89,9 @@ export const PAGES = {
     "PitchDeckCreator": PitchDeckCreator,
     "PitchDeckAnalyzer": PitchDeckAnalyzer,
     "TakeDownRequestor": TakeDownRequestor,
+    "EquipmentInventory": EquipmentInventory,
+    "AccountingDashboard": AccountingDashboard,
+    "AIDashboard": AIDashboard,
 }
 
 export const pagesConfig = {
