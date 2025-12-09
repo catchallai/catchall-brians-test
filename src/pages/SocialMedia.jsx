@@ -619,6 +619,120 @@ Provide 5 news articles and 3 press releases if available.`,
     onError: () => setScanningNewsFor(null),
   });
 
+  // Leadership Intelligence Scan
+  const scanLeadershipMutation = useMutation({
+    mutationFn: async (competitor) => {
+      setScanningNewsFor(competitor.id);
+      
+      const analysis = await base44.integrations.Core.InvokeLLM({
+        prompt: `Research the leadership team and board of directors for ${competitor.name} (${competitor.website || 'company'}).
+
+Find and provide detailed information about:
+
+1. EXECUTIVE LEADERSHIP TEAM (CEO, CFO, CIO, COO, CMO, CTO):
+For each executive:
+- Full name and current role
+- Professional bio (150-200 words)
+- LinkedIn and Twitter profiles if available
+- Career background and previous roles
+- Tenure at the company
+- Key achievements and initiatives
+- Recent news articles about them (last 6 months) - title, source, URL, date, summary, sentiment
+
+2. BOARD OF DIRECTORS:
+For each board member:
+- Name and title
+- Background and expertise
+- Other boards they serve on
+
+3. COMPANY OVERVIEW:
+- Founded year
+- Headquarters location
+- Employee count (estimate)
+- Revenue (if public)
+- Funding rounds and total raised
+- Key investors
+- Business model
+
+Focus on recent, credible sources. Provide 3-5 news articles per executive if available.`,
+        add_context_from_internet: true,
+        response_json_schema: {
+          type: "object",
+          properties: {
+            leadership_team: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  name: { type: "string" },
+                  role: { type: "string" },
+                  bio: { type: "string" },
+                  linkedin: { type: "string" },
+                  twitter: { type: "string" },
+                  background: { type: "string" },
+                  tenure: { type: "string" },
+                  key_achievements: { type: "array", items: { type: "string" } },
+                  recent_news: {
+                    type: "array",
+                    items: {
+                      type: "object",
+                      properties: {
+                        title: { type: "string" },
+                        source: { type: "string" },
+                        url: { type: "string" },
+                        date: { type: "string" },
+                        summary: { type: "string" },
+                        sentiment: { type: "string" }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            board_members: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  name: { type: "string" },
+                  title: { type: "string" },
+                  background: { type: "string" },
+                  other_boards: { type: "array", items: { type: "string" } }
+                }
+              }
+            },
+            company_overview: {
+              type: "object",
+              properties: {
+                founded: { type: "string" },
+                headquarters: { type: "string" },
+                employee_count: { type: "string" },
+                revenue: { type: "string" },
+                funding: { type: "string" },
+                investors: { type: "array", items: { type: "string" } },
+                business_model: { type: "string" }
+              }
+            }
+          }
+        }
+      });
+
+      await base44.entities.Competitor.update(competitor.id, {
+        leadership_team: analysis.leadership_team,
+        board_members: analysis.board_members,
+        company_overview: analysis.company_overview,
+        last_leadership_scan: new Date().toISOString()
+      });
+
+      return analysis;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['competitors'] });
+      setScanningNewsFor(null);
+    },
+    onError: () => setScanningNewsFor(null),
+  });
+
   // Deep AI Analysis - Content Strategy, Predictions, Benchmarks
   const deepAnalyzeMutation = useMutation({
     mutationFn: async (competitor) => {
@@ -1704,6 +1818,8 @@ Find 5 recent posts with: post_url (direct link to post), content, post_date, li
             isScanningNews={scanningNewsFor === selectedCompetitor?.id}
             onDeepAnalyze={() => deepAnalyzeMutation.mutate(selectedCompetitor)}
             isDeepAnalyzing={deepAnalyzingFor === selectedCompetitor?.id}
+            onScanLeadership={() => scanLeadershipMutation.mutate(selectedCompetitor)}
+            isScanningLeadership={scanningNewsFor === selectedCompetitor?.id}
             yourBrandName={companies[0]?.name || 'Your Brand'}
           />
         </TabsContent>
