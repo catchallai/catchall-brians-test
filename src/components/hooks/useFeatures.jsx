@@ -66,7 +66,7 @@ export const FEATURE_PAGE_MAP = {
   pressMonitoring: 'PressMonitoring',
   webCrawler: 'WebCrawler',
   trafficAnalytics: 'TrafficAnalytics',
-  visitorProfiles: 'TrafficAnalytics',
+  visitorProfiles: 'VisitorProfiles',
   userJourneyMapping: 'TrafficAnalytics',
   localSEO: 'LocalSEO',
   contentStudio: 'ContentStudio',
