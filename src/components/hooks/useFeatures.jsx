@@ -12,6 +12,9 @@ const DEFAULT_FEATURES = {
   reports: true,
   seoDashboard: true,
   keywords: true,
+  pitchDeckCreator: true,
+  pitchDeckAnalyzer: true,
+  takeDownRequestor: true,
 };
 
 export function useFeatures() {
