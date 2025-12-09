@@ -232,8 +232,6 @@ For each issue, provide:
         }
       }
 
-      // Get existing backlinks to prevent duplicates
-      const existingBacklinks = await base44.entities.Backlink.filter({ website_id: website.id });
       const existingBacklinkDomains = new Set(existingBacklinks.map(b => b.source_domain?.toLowerCase()));
 
       if (analysis.backlinks?.length > 0) {
