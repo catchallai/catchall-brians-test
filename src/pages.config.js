@@ -44,6 +44,7 @@ import EquipmentInventory from './pages/EquipmentInventory';
 import AccountingDashboard from './pages/AccountingDashboard';
 import AIDashboard from './pages/AIDashboard';
 import UserProfile from './pages/UserProfile';
+import SalesHub from './pages/SalesHub';
 import __Layout from './Layout.jsx';
 
 
@@ -94,6 +95,7 @@ export const PAGES = {
     "AccountingDashboard": AccountingDashboard,
     "AIDashboard": AIDashboard,
     "UserProfile": UserProfile,
+    "SalesHub": SalesHub,
 }
 
 export const pagesConfig = {
