@@ -39,6 +39,7 @@ import AIContentCalendarCard from '@/components/social/AIContentCalendarCard';
 import HistoricalAnalysisCard from '@/components/social/HistoricalAnalysisCard';
 import AnomalyDetectionCard from '@/components/social/AnomalyDetectionCard';
 import SmartContentAdapterCard from '@/components/social/SmartContentAdapterCard';
+import CompetitorBenchmark from '@/components/social/CompetitorBenchmark';
 import {
   Dialog,
   DialogContent,
@@ -86,6 +87,7 @@ export default function SocialMedia() {
   const [analyzingHistory, setAnalyzingHistory] = useState(false);
   const [detectingAnomalies, setDetectingAnomalies] = useState(false);
   const [anomaliesData, setAnomaliesData] = useState([]);
+  const [benchmarking, setBenchmarking] = useState(false);
   const queryClient = useQueryClient();
 
   const { data: socialAccountsRaw = [], isLoading: loadingAccounts } = useQuery({
@@ -1129,6 +1131,117 @@ For each anomaly found, provide:
     onError: () => setDetectingAnomalies(false)
   });
 
+  // Competitor Benchmarking
+  const benchmarkCompetitorsMutation = useMutation({
+    mutationFn: async ({ competitors, yourAccounts }) => {
+      setBenchmarking(true);
+      
+      const competitorData = competitors.map(c => ({
+        name: c.name,
+        followers: c.social_accounts?.reduce((sum, a) => sum + (a.followers || 0), 0) || 0,
+        engagement_rate: c.social_accounts?.length > 0 
+          ? c.social_accounts.reduce((sum, a) => sum + (a.engagement_rate || 0), 0) / c.social_accounts.length 
+          : 0,
+        posts_per_week: c.content_frequency?.posts_per_week || 0,
+        strengths: c.strengths || [],
+        weaknesses: c.weaknesses || []
+      }));
+
+      const yourData = {
+        name: 'Your Brand',
+        followers: yourAccounts.reduce((sum, a) => sum + (a.followers_count || 0), 0),
+        engagement_rate: yourAccounts.length > 0 
+          ? yourAccounts.reduce((sum, a) => sum + (a.engagement_rate || 0), 0) / yourAccounts.length 
+          : 0,
+        posts_per_week: scheduledPosts.length > 0 ? Math.round(scheduledPosts.length / 4) : 0
+      };
+
+      const result = await base44.integrations.Core.InvokeLLM({
+        prompt: `Perform a comprehensive competitive benchmarking analysis:
+
+Your Brand Data:
+${JSON.stringify(yourData, null, 2)}
+
+Competitors:
+${JSON.stringify(competitorData, null, 2)}
+
+Provide a detailed competitive analysis with:
+
+1. Executive Summary: Overall competitive landscape (2-3 sentences)
+
+2. Your Market Position: Where you stand relative to competitors (1-2 sentences)
+
+3. Competitive Advantages (3-5 areas where you lead):
+For each:
+- Area/metric name
+- Specific insight explaining the advantage
+- Supporting data (key metrics)
+
+4. Competitive Disadvantages (3-5 areas needing improvement):
+For each:
+- Area/metric name
+- Specific insight explaining the gap
+- Size of the gap (quantified if possible)
+- Current leader in this area
+
+5. Strategic Recommendations (4-6 actionable strategies):
+For each:
+- Title (concise action)
+- Description (detailed explanation)
+- Priority (high/medium/low)
+- Expected impact
+
+Be specific, data-driven, and actionable.`,
+        response_json_schema: {
+          type: "object",
+          properties: {
+            executive_summary: { type: "string" },
+            market_position: { type: "string" },
+            competitive_advantages: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  area: { type: "string" },
+                  insight: { type: "string" },
+                  data: { type: "object" }
+                }
+              }
+            },
+            competitive_disadvantages: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  area: { type: "string" },
+                  insight: { type: "string" },
+                  gap: { type: "string" },
+                  leader: { type: "string" }
+                }
+              }
+            },
+            strategic_recommendations: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  title: { type: "string" },
+                  description: { type: "string" },
+                  priority: { type: "string" },
+                  expected_impact: { type: "string" }
+                }
+              }
+            }
+          }
+        }
+      });
+
+      setBenchmarking(false);
+      return result;
+    },
+    onError: () => setBenchmarking(false)
+  });
+
   // Smart content adapter with audience targeting
   const smartAdaptMutation = useMutation({
     mutationFn: async ({ content, platforms, audience, tone }) => {
@@ -1753,57 +1866,81 @@ Find 5 recent posts with: post_url (direct link to post), content, post_date, li
 
         {/* Competitors Tab */}
         <TabsContent value="competitors" className="space-y-4">
-          <div className="flex justify-end gap-2">
-            <Button 
-              variant="outline"
-              onClick={() => discoverCompetitorsMutation.mutate()}
-              disabled={isDiscoveringCompetitors}
-              className="gap-2"
-            >
-              {isDiscoveringCompetitors ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
-              ) : (
-                <Sparkles className="w-4 h-4" />
-              )}
-              {isDiscoveringCompetitors ? 'Discovering...' : 'Auto-Discover'}
-            </Button>
-            <Button 
-              onClick={() => setShowCompetitorModal(true)}
-              className="gap-2 bg-violet-600 hover:bg-violet-700"
-            >
-              <Plus className="w-4 h-4" />
-              Add Competitor
-            </Button>
-          </div>
+          <Tabs defaultValue="individual" className="space-y-4">
+            <TabsList>
+              <TabsTrigger value="individual">Individual Analysis</TabsTrigger>
+              <TabsTrigger value="benchmark">Multi-Competitor Benchmark</TabsTrigger>
+            </TabsList>
 
-          {competitors.length === 0 ? (
-            <EmptyState
-              icon={Target}
-              title="No competitors tracked"
-              description="Add competitors to benchmark your social media performance."
-              actionLabel="Add Competitor"
-              onAction={() => setShowCompetitorModal(true)}
-            />
-          ) : (
-            <>
-              <CompetitorNetworkMap 
-                competitors={competitors} 
-                onSelectCompetitor={(comp) => setSelectedCompetitor(comp)}
-                socialAccounts={socialAccounts}
-              />
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                {competitors.map((competitor) => (
-                  <CompetitorCard
-                    key={competitor.id}
-                    competitor={competitor}
-                    onAnalyze={() => analyzeCompetitorMutation.mutate(competitor)}
-                    isAnalyzing={analyzingCompetitor === competitor.id}
-                    onView={() => setSelectedCompetitor(competitor)}
-                  />
-                ))}
+            <TabsContent value="individual" className="space-y-4">
+              <div className="flex justify-end gap-2">
+                <Button 
+                  variant="outline"
+                  onClick={() => discoverCompetitorsMutation.mutate()}
+                  disabled={isDiscoveringCompetitors}
+                  className="gap-2"
+                >
+                  {isDiscoveringCompetitors ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Sparkles className="w-4 h-4" />
+                  )}
+                  {isDiscoveringCompetitors ? 'Discovering...' : 'Auto-Discover'}
+                </Button>
+                <Button 
+                  onClick={() => setShowCompetitorModal(true)}
+                  className="gap-2 bg-violet-600 hover:bg-violet-700"
+                >
+                  <Plus className="w-4 h-4" />
+                  Add Competitor
+                </Button>
               </div>
-            </>
-          )}
+
+              {competitors.length === 0 ? (
+                <EmptyState
+                  icon={Target}
+                  title="No competitors tracked"
+                  description="Add competitors to benchmark your social media performance."
+                  actionLabel="Add Competitor"
+                  onAction={() => setShowCompetitorModal(true)}
+                />
+              ) : (
+                <>
+                  <CompetitorNetworkMap 
+                    competitors={competitors} 
+                    onSelectCompetitor={(comp) => setSelectedCompetitor(comp)}
+                    socialAccounts={socialAccounts}
+                  />
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                    {competitors.map((competitor) => (
+                      <CompetitorCard
+                        key={competitor.id}
+                        competitor={competitor}
+                        onAnalyze={() => analyzeCompetitorMutation.mutate(competitor)}
+                        isAnalyzing={analyzingCompetitor === competitor.id}
+                        onView={() => setSelectedCompetitor(competitor)}
+                      />
+                    ))}
+                  </div>
+                </>
+              )}
+            </TabsContent>
+
+            <TabsContent value="benchmark" className="space-y-4">
+              <CompetitorBenchmark
+                competitors={competitors}
+                yourAccounts={socialAccounts}
+                onAnalyze={async (selected, accounts) => {
+                  const result = await benchmarkCompetitorsMutation.mutateAsync({
+                    competitors: selected,
+                    yourAccounts: accounts
+                  });
+                  return result;
+                }}
+                isAnalyzing={benchmarking}
+              />
+            </TabsContent>
+          </Tabs>
 
           {/* Competitor Detail Modal */}
           <CompetitorDetailModal
