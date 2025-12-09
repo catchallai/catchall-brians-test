@@ -19,6 +19,7 @@ import FollowUpPanel from '@/components/sales/FollowUpPanel';
 import LeadEnrichmentModal from '@/components/sales/LeadEnrichmentModal';
 import EnrichedLeadsTable from '@/components/sales/EnrichedLeadsTable';
 import SalesForecastCard from '@/components/sales/SalesForecastCard';
+import WorkflowPanel from '@/components/sales/WorkflowPanel';
 import EmptyState from '@/components/ui/EmptyState';
 
 export default function SalesHub() {
@@ -64,6 +65,16 @@ export default function SalesHub() {
     queryFn: () => base44.entities.SalesForecast.list('-created_date', 10),
   });
 
+  const { data: workflows = [] } = useQuery({
+    queryKey: ['deal-workflows'],
+    queryFn: () => base44.entities.DealWorkflow.list('-created_date', 50),
+  });
+
+  const { data: workflowExecutions = [] } = useQuery({
+    queryKey: ['workflow-executions'],
+    queryFn: () => base44.entities.WorkflowExecution.list('-created_date', 100),
+  });
+
   const latestForecast = forecasts[0];
 
   const createCallMutation = useMutation({
@@ -78,9 +89,30 @@ export default function SalesHub() {
   });
 
   const createReservationMutation = useMutation({
-    mutationFn: (data) => editingReservation
-      ? base44.entities.SalesReservation.update(editingReservation.id, data)
-      : base44.entities.SalesReservation.create(data),
+    mutationFn: async (data) => {
+      const wasConfirmed = editingReservation?.status !== 'confirmed' && data.status === 'confirmed';
+      const wasCompleted = editingReservation?.status !== 'completed' && data.status === 'completed';
+      
+      const reservation = editingReservation
+        ? await base44.entities.SalesReservation.update(editingReservation.id, data)
+        : await base44.entities.SalesReservation.create(data);
+      
+      if (wasConfirmed && data.deal_id) {
+        await checkAndExecuteWorkflows('reservation_confirmed', {
+          dealId: data.deal_id,
+          contactId: data.contact_id
+        });
+      }
+      
+      if (wasCompleted && data.deal_id) {
+        await checkAndExecuteWorkflows('reservation_completed', {
+          dealId: data.deal_id,
+          contactId: data.contact_id
+        });
+      }
+      
+      return reservation;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['sales-reservations'] });
       setShowReservationModal(false);
@@ -333,6 +365,109 @@ Also provide an enrichment_score (0-100) based on how much data was found.`,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['contacts'] });
       queryClient.invalidateQueries({ queryKey: ['enriched-leads'] });
+    },
+  });
+
+  const saveWorkflowMutation = useMutation({
+    mutationFn: (data) => data.id
+      ? base44.entities.DealWorkflow.update(data.id, data)
+      : base44.entities.DealWorkflow.create(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['deal-workflows'] });
+    },
+  });
+
+  const toggleWorkflowMutation = useMutation({
+    mutationFn: ({ id, is_active }) => base44.entities.DealWorkflow.update(id, { is_active }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['deal-workflows'] });
+    },
+  });
+
+  const checkAndExecuteWorkflows = async (trigger, context) => {
+    const activeWorkflows = workflows.filter(w => w.is_active && w.trigger_type === trigger);
+    
+    for (const workflow of activeWorkflows) {
+      const actions = [];
+      
+      for (const action of workflow.actions) {
+        try {
+          if (action.type === 'update_stage' && context.dealId) {
+            await base44.entities.Deal.update(context.dealId, {
+              stage: action.config.new_stage
+            });
+            actions.push({ type: 'update_stage', success: true });
+          }
+          
+          if (action.type === 'send_email' && context.contactId) {
+            const contact = contacts.find(c => c.id === context.contactId);
+            if (contact?.email) {
+              await base44.integrations.Core.SendEmail({
+                to: contact.email,
+                subject: action.config.email_subject,
+                body: action.config.email_body
+              });
+              actions.push({ type: 'send_email', success: true });
+            }
+          }
+          
+          if (action.type === 'create_followup' && context.contactId && context.dealId) {
+            const scheduledDate = new Date();
+            scheduledDate.setDate(scheduledDate.getDate() + (action.config.days_from_now || 1));
+            
+            await base44.entities.SalesFollowUp.create({
+              contact_id: context.contactId,
+              deal_id: context.dealId,
+              follow_up_type: 'task',
+              priority: 'medium',
+              scheduled_date: scheduledDate.toISOString(),
+              action_description: action.config.action_description,
+              status: 'pending'
+            });
+            actions.push({ type: 'create_followup', success: true });
+          }
+        } catch (error) {
+          actions.push({ type: action.type, success: false, error: error.message });
+        }
+      }
+      
+      await base44.entities.WorkflowExecution.create({
+        workflow_id: workflow.id,
+        deal_id: context.dealId,
+        contact_id: context.contactId,
+        trigger_source: trigger,
+        actions_executed: actions,
+        status: actions.every(a => a.success) ? 'success' : 'partial'
+      });
+      
+      await base44.entities.DealWorkflow.update(workflow.id, {
+        execution_count: (workflow.execution_count || 0) + 1
+      });
+    }
+    
+    queryClient.invalidateQueries({ queryKey: ['workflow-executions'] });
+    queryClient.invalidateQueries({ queryKey: ['deal-workflows'] });
+    queryClient.invalidateQueries({ queryKey: ['deals'] });
+    queryClient.invalidateQueries({ queryKey: ['sales-followups'] });
+  };
+
+  const completeFollowUpMutationWithWorkflow = useMutation({
+    mutationFn: async (id) => {
+      const followUp = followUps.find(f => f.id === id);
+      await base44.entities.SalesFollowUp.update(id, {
+        status: 'completed',
+        completed_date: new Date().toISOString()
+      });
+      
+      if (followUp?.deal_id) {
+        await checkAndExecuteWorkflows('followup_completed', {
+          dealId: followUp.deal_id,
+          contactId: followUp.contact_id
+        });
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['sales-followups'] });
     },
   });
 
@@ -591,6 +726,7 @@ Consider:
       <Tabs defaultValue="calls" className="space-y-4">
         <TabsList>
           <TabsTrigger value="forecast">Forecast</TabsTrigger>
+          <TabsTrigger value="workflows">Automation</TabsTrigger>
           <TabsTrigger value="enrichment">Lead Enrichment</TabsTrigger>
           <TabsTrigger value="followups">Follow-Ups</TabsTrigger>
           <TabsTrigger value="calls">Call Log</TabsTrigger>
@@ -606,6 +742,15 @@ Consider:
           />
         </TabsContent>
 
+        <TabsContent value="workflows" className="space-y-4">
+          <WorkflowPanel
+            workflows={workflows}
+            executions={workflowExecutions}
+            onToggle={(id, is_active) => toggleWorkflowMutation.mutate({ id, is_active })}
+            onEdit={(data) => saveWorkflowMutation.mutate(data)}
+          />
+        </TabsContent>
+
         <TabsContent value="enrichment" className="space-y-4">
           <EnrichedLeadsTable
             leads={enrichedLeads}
@@ -618,7 +763,7 @@ Consider:
             followUps={followUps}
             contacts={contacts}
             onGenerate={() => generateFollowUpsMutation.mutate()}
-            onComplete={(id) => completeFollowUpMutation.mutate(id)}
+            onComplete={(id) => completeFollowUpMutationWithWorkflow.mutate(id)}
             onSend={(followUp) => sendFollowUpEmailMutation.mutate(followUp)}
             isGenerating={generateFollowUpsMutation.isPending}
           />
