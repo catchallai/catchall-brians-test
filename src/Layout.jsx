@@ -91,7 +91,6 @@ const navigation = [
   { name: 'SEO Local', icon: MapPin, page: 'LocalSEO' },
   { name: 'divider', label: 'Social' },
   { name: 'Social Analytics', icon: Share2, page: 'SocialMedia' },
-  { name: 'Social Brands', icon: Share2, page: 'SocialMedia' },
   { name: 'Social Calendar', icon: CalendarDays, page: 'SocialCalendar' },
   { name: 'Social Listening', icon: Radio, page: 'SocialListening' },
   { name: 'Social Leads', icon: UserCircle, page: 'SocialLeads' },
