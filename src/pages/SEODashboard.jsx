@@ -18,6 +18,7 @@ import PredictiveAnalyticsCard from '@/components/seo/PredictiveAnalyticsCard';
 import TechnicalAuditCard from '@/components/seo/TechnicalAuditCard';
 import SEOHistoricalTracker from '@/components/seo/SEOHistoricalTracker';
 import SEOAnomalyDetector from '@/components/seo/SEOAnomalyDetector';
+import LiveDataIntegration from '@/components/seo/LiveDataIntegration';
 import { useToast } from '@/components/ui/toast-provider';
 
 export default function SEODashboard() {
@@ -369,6 +370,76 @@ For each issue, provide:
             </TabsContent>
 
             <TabsContent value="analytics" className="space-y-5 mt-0">
+              {websites[0] && (
+                <LiveDataIntegration 
+                  website={websites[0]}
+                  onDataFetched={async ({ source, data }) => {
+                    // Update website with live data
+                    if (source === 'gsc' && data.keywords) {
+                      // Sync GSC keywords
+                      for (const kw of data.keywords.slice(0, 20)) {
+                        const existing = keywords.find(k => k.keyword?.toLowerCase() === kw.keyword?.toLowerCase());
+                        if (existing) {
+                          await base44.entities.Keyword.update(existing.id, {
+                            current_position: Math.round(kw.position),
+                            search_volume: kw.impressions
+                          });
+                        } else {
+                          await base44.entities.Keyword.create({
+                            website_id: websites[0].id,
+                            keyword: kw.keyword,
+                            current_position: Math.round(kw.position),
+                            search_volume: kw.impressions,
+                            target_url: kw.pages?.[0] || websites[0].url
+                          });
+                        }
+                      }
+                    }
+                    
+                    if (source === 'semrush' && data.domain_metrics) {
+                      await base44.entities.Website.update(websites[0].id, {
+                        organic_traffic: data.domain_metrics.organic_traffic,
+                        total_keywords: data.domain_metrics.organic_keywords,
+                        total_backlinks: data.backlinks?.total_backlinks || websites[0].total_backlinks
+                      });
+                    }
+                    
+                    if (source === 'ahrefs' && data.domain_metrics) {
+                      await base44.entities.Website.update(websites[0].id, {
+                        domain_authority: data.domain_metrics.domain_rating,
+                        organic_traffic: data.domain_metrics.organic_traffic,
+                        total_backlinks: data.domain_metrics.backlinks
+                      });
+                      
+                      // Sync backlinks
+                      if (data.backlinks) {
+                        for (const bl of data.backlinks.slice(0, 50)) {
+                          const existing = backlinks.find(b => 
+                            b.source_url === bl.source_url && b.target_url === bl.target_url
+                          );
+                          if (!existing) {
+                            await base44.entities.Backlink.create({
+                              website_id: websites[0].id,
+                              source_url: bl.source_url,
+                              source_domain: bl.source_domain,
+                              target_url: bl.target_url,
+                              anchor_text: bl.anchor_text,
+                              domain_authority: bl.domain_rating,
+                              link_type: bl.link_type,
+                              first_seen: bl.first_seen
+                            });
+                          }
+                        }
+                      }
+                    }
+                    
+                    queryClient.invalidateQueries({ queryKey: ['websites'] });
+                    queryClient.invalidateQueries({ queryKey: ['keywords'] });
+                    queryClient.invalidateQueries({ queryKey: ['backlinks'] });
+                    toast.success('Live data synced successfully!');
+                  }}
+                />
+              )}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
                 <SentimentOverview mentions={mentions} />
                 <ShareOfVoiceCard 
