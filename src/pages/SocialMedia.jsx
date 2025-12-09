@@ -1137,42 +1137,95 @@ Tone: ${tone}`,
     mutationFn: async (account) => {
       setAnalyzingAccount(account.id);
       
-      const platformName = account.platform === 'twitter' ? 'X (Twitter)' : account.platform;
+      let analysis;
       
-      // Use AI to analyze social media presence with real data
-      const analysis = await base44.integrations.Core.InvokeLLM({
-        prompt: `Search for the ${platformName} account "${account.account_name}".
-        ${account.account_url ? `URL: ${account.account_url}` : ''}
+      // Use real API for Twitter
+      if (account.platform === 'twitter') {
+        try {
+          const result = await base44.functions.invoke('fetchTwitterData', {
+            username: account.account_name
+          });
+          
+          if (result.data.error) {
+            throw new Error(result.data.error);
+          }
+          
+          analysis = result.data;
+        } catch (error) {
+          // Fallback to AI if API fails
+          console.error('Twitter API failed, using AI fallback:', error);
+          const platformName = 'X (Twitter)';
+          analysis = await base44.integrations.Core.InvokeLLM({
+            prompt: `Search for the ${platformName} account "${account.account_name}".
+            ${account.account_url ? `URL: ${account.account_url}` : ''}
 
 Find: followers_count, engagement_rate, total_posts.
 Find 5 recent posts with: post_url (direct link to post), content, post_date, likes, comments, shares, views, sentiment, topics (array of 3 keywords).`,
-        add_context_from_internet: true,
-        response_json_schema: {
-          type: "object",
-          properties: {
-            followers_count: { type: "number" },
-            engagement_rate: { type: "number" },
-            total_posts: { type: "number" },
-            posts: {
-              type: "array",
-              items: {
-                type: "object",
-                properties: {
-                  post_url: { type: "string" },
-                  content: { type: "string" },
-                  post_date: { type: "string" },
-                  likes: { type: "number" },
-                  comments: { type: "number" },
-                  shares: { type: "number" },
-                  views: { type: "number" },
-                  sentiment: { type: "string" },
-                  topics: { type: "array", items: { type: "string" } }
+            add_context_from_internet: true,
+            response_json_schema: {
+              type: "object",
+              properties: {
+                followers_count: { type: "number" },
+                engagement_rate: { type: "number" },
+                total_posts: { type: "number" },
+                posts: {
+                  type: "array",
+                  items: {
+                    type: "object",
+                    properties: {
+                      post_url: { type: "string" },
+                      content: { type: "string" },
+                      post_date: { type: "string" },
+                      likes: { type: "number" },
+                      comments: { type: "number" },
+                      shares: { type: "number" },
+                      views: { type: "number" },
+                      sentiment: { type: "string" },
+                      topics: { type: "array", items: { type: "string" } }
+                    }
+                  }
+                }
+              }
+            }
+          });
+        }
+      } else {
+        // Use AI for other platforms for now
+        const platformName = account.platform === 'twitter' ? 'X (Twitter)' : account.platform;
+        analysis = await base44.integrations.Core.InvokeLLM({
+          prompt: `Search for the ${platformName} account "${account.account_name}".
+          ${account.account_url ? `URL: ${account.account_url}` : ''}
+
+Find: followers_count, engagement_rate, total_posts.
+Find 5 recent posts with: post_url (direct link to post), content, post_date, likes, comments, shares, views, sentiment, topics (array of 3 keywords).`,
+          add_context_from_internet: true,
+          response_json_schema: {
+            type: "object",
+            properties: {
+              followers_count: { type: "number" },
+              engagement_rate: { type: "number" },
+              total_posts: { type: "number" },
+              posts: {
+                type: "array",
+                items: {
+                  type: "object",
+                  properties: {
+                    post_url: { type: "string" },
+                    content: { type: "string" },
+                    post_date: { type: "string" },
+                    likes: { type: "number" },
+                    comments: { type: "number" },
+                    shares: { type: "number" },
+                    views: { type: "number" },
+                    sentiment: { type: "string" },
+                    topics: { type: "array", items: { type: "string" } }
+                  }
                 }
               }
             }
           }
-        }
-      });
+        });
+      }
 
       // Build update data - preserve existing values if AI returns 0
       const updateData = {
