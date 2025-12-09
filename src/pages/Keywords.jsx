@@ -10,6 +10,8 @@ import { Plus, Search, Target, Trash2, Download, RefreshCw, Loader2 } from "luci
 import KeywordRankCard from '@/components/seo/KeywordRankCard';
 import KeywordModal from '@/components/modals/KeywordModal';
 import EmptyState from '@/components/ui/EmptyState';
+import LiveDataIntegration from '@/components/seo/LiveDataIntegration';
+import { useToast } from '@/components/ui/toast-provider';
 
 export default function Keywords() {
   const [showModal, setShowModal] = useState(false);
@@ -18,8 +20,9 @@ export default function Keywords() {
   const [websiteFilter, setWebsiteFilter] = useState('all');
   const [positionFilter, setPositionFilter] = useState('all');
   const [selectedIds, setSelectedIds] = useState([]);
-  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [showLiveData, setShowLiveData] = useState(false);
   const queryClient = useQueryClient();
+  const toast = useToast();
 
   const { data: keywords = [], isLoading } = useQuery({
     queryKey: ['keywords'],
@@ -139,7 +142,7 @@ export default function Keywords() {
     : 0;
 
   return (
-    <div className="p-6 lg:p-8 space-y-6 min-h-screen">
+    <div className="p-6 lg:p-8 space-y-6 bg-gray-50 dark:bg-gray-900 min-h-screen">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
@@ -160,6 +163,14 @@ export default function Keywords() {
               Delete ({selectedIds.length})
             </Button>
           )}
+          <Button 
+            variant="outline" 
+            onClick={() => setShowLiveData(!showLiveData)}
+            className="gap-2 dark:bg-gray-800 dark:border-gray-700"
+          >
+            <RefreshCw className="w-4 h-4" />
+            {showLiveData ? 'Hide' : 'Live Data'}
+          </Button>
           <Button variant="outline" onClick={handleExportCSV} className="gap-2 dark:bg-gray-800 dark:border-gray-700">
             <Download className="w-4 h-4" />
             Export
@@ -170,6 +181,50 @@ export default function Keywords() {
           </Button>
         </div>
       </div>
+
+      {/* Live Data Integration */}
+      {showLiveData && websites.length > 0 && (
+        <LiveDataIntegration 
+          website={websites.find(w => websiteFilter === 'all' ? true : w.id === websiteFilter) || websites[0]}
+          onDataFetched={async ({ source, data }) => {
+            if (source === 'gsc' && data.keywords) {
+              let synced = 0;
+              for (const kw of data.keywords.slice(0, 50)) {
+                const existing = keywords.find(k => k.keyword?.toLowerCase() === kw.keyword?.toLowerCase());
+                if (existing) {
+                  await base44.entities.Keyword.update(existing.id, {
+                    current_position: Math.round(kw.position),
+                    previous_position: existing.current_position,
+                    search_volume: kw.impressions
+                  });
+                  synced++;
+                }
+              }
+              queryClient.invalidateQueries({ queryKey: ['keywords'] });
+              toast.success(`Synced ${synced} keywords from Google Search Console`);
+            }
+            
+            if ((source === 'semrush' || source === 'ahrefs') && data.keywords) {
+              let synced = 0;
+              for (const kw of data.keywords) {
+                const existing = keywords.find(k => k.keyword?.toLowerCase() === kw.keyword?.toLowerCase());
+                if (existing) {
+                  await base44.entities.Keyword.update(existing.id, {
+                    current_position: kw.position,
+                    previous_position: existing.current_position,
+                    search_volume: kw.search_volume,
+                    difficulty: source === 'semrush' ? kw.difficulty : kw.keyword_difficulty,
+                    cpc: kw.cpc
+                  });
+                  synced++;
+                }
+              }
+              queryClient.invalidateQueries({ queryKey: ['keywords'] });
+              toast.success(`Synced ${synced} keywords from ${source === 'semrush' ? 'Semrush' : 'Ahrefs'}`);
+            }
+          }}
+        />
+      )}
 
       {/* Filters */}
       <div className="flex flex-col sm:flex-row gap-4">
