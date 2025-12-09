@@ -15,6 +15,7 @@ import ReservationModal from '@/components/sales/ReservationModal';
 import SalesCallCard from '@/components/sales/SalesCallCard';
 import ReservationCard from '@/components/sales/ReservationCard';
 import SalesActivityFeed from '@/components/sales/SalesActivityFeed';
+import FollowUpPanel from '@/components/sales/FollowUpPanel';
 import EmptyState from '@/components/ui/EmptyState';
 
 export default function SalesHub() {
@@ -44,6 +45,11 @@ export default function SalesHub() {
     queryFn: () => base44.entities.Deal.list('-created_date', 100),
   });
 
+  const { data: followUps = [] } = useQuery({
+    queryKey: ['sales-followups'],
+    queryFn: () => base44.entities.SalesFollowUp.list('-scheduled_date', 100),
+  });
+
   const createCallMutation = useMutation({
     mutationFn: (data) => editingCall 
       ? base44.entities.SalesCall.update(editingCall.id, data)
@@ -63,6 +69,147 @@ export default function SalesHub() {
       queryClient.invalidateQueries({ queryKey: ['sales-reservations'] });
       setShowReservationModal(false);
       setEditingReservation(null);
+    },
+  });
+
+  const generateFollowUpsMutation = useMutation({
+    mutationFn: async () => {
+      const callsNeedingFollowup = salesCalls.filter(c => 
+        c.next_action && c.call_status === 'completed'
+      ).slice(0, 5);
+
+      const reservationsNeedingFollowup = reservations.filter(r => 
+        r.status === 'pending' || r.status === 'confirmed'
+      ).slice(0, 5);
+
+      const analysis = await base44.integrations.Core.InvokeLLM({
+        prompt: `Analyze these sales activities and generate smart follow-up actions:
+
+Recent Calls Needing Follow-up:
+${callsNeedingFollowup.map(c => `
+- Contact: ${getContactName(c.contact_id)}
+- Call date: ${c.call_date}
+- Duration: ${c.duration_minutes} min
+- Sentiment: ${c.sentiment}
+- Notes: ${c.notes}
+- Next action: ${c.next_action}
+`).join('\n')}
+
+Active Reservations:
+${reservationsNeedingFollowup.map(r => `
+- Contact: ${getContactName(r.contact_id)}
+- Title: ${r.title}
+- Type: ${r.reservation_type}
+- Date: ${r.reservation_date}
+- Value: $${r.value}
+- Status: ${r.status}
+- Payment: ${r.payment_status}
+`).join('\n')}
+
+For each item, generate follow-up actions with:
+1. follow_up_type (email/call/task/meeting)
+2. priority (low/medium/high/urgent)
+3. suggested_days_from_now (how many days from today)
+4. action_description (what to do)
+5. personalized_message (tailored message template with contact name placeholder)
+6. reasoning (why this timing and approach)
+7. sales_stage (prospecting/qualification/proposal/negotiation/closing/retention)
+
+Consider:
+- Call sentiment and outcomes
+- Reservation urgency and value
+- Payment status
+- Time since last contact
+- Next actions mentioned`,
+        response_json_schema: {
+          type: "object",
+          properties: {
+            follow_ups: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  source_type: { type: "string" },
+                  source_id: { type: "string" },
+                  contact_id: { type: "string" },
+                  follow_up_type: { type: "string" },
+                  priority: { type: "string" },
+                  suggested_days_from_now: { type: "number" },
+                  action_description: { type: "string" },
+                  personalized_message: { type: "string" },
+                  reasoning: { type: "string" },
+                  sales_stage: { type: "string" }
+                }
+              }
+            }
+          }
+        }
+      });
+
+      const followUpPromises = analysis.follow_ups.map(async (fu) => {
+        const scheduledDate = new Date();
+        scheduledDate.setDate(scheduledDate.getDate() + fu.suggested_days_from_now);
+
+        const sourceData = fu.source_type === 'call'
+          ? callsNeedingFollowup.find(c => c.id === fu.source_id)
+          : reservationsNeedingFollowup.find(r => r.id === fu.source_id);
+
+        return base44.entities.SalesFollowUp.create({
+          contact_id: fu.contact_id,
+          deal_id: sourceData?.deal_id,
+          call_id: fu.source_type === 'call' ? fu.source_id : undefined,
+          reservation_id: fu.source_type === 'reservation' ? fu.source_id : undefined,
+          follow_up_type: fu.follow_up_type,
+          priority: fu.priority,
+          scheduled_date: scheduledDate.toISOString(),
+          ai_suggested_time: scheduledDate.toISOString(),
+          action_description: fu.action_description,
+          ai_suggested_message: fu.personalized_message,
+          reasoning: fu.reasoning,
+          sales_stage: fu.sales_stage,
+          status: 'pending'
+        });
+      });
+
+      await Promise.all(followUpPromises);
+      return analysis;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['sales-followups'] });
+    },
+  });
+
+  const completeFollowUpMutation = useMutation({
+    mutationFn: (id) => base44.entities.SalesFollowUp.update(id, {
+      status: 'completed',
+      completed_date: new Date().toISOString()
+    }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['sales-followups'] });
+    },
+  });
+
+  const sendFollowUpEmailMutation = useMutation({
+    mutationFn: async (followUp) => {
+      const contact = contacts.find(c => c.id === followUp.contact_id);
+      if (!contact?.email) {
+        throw new Error('Contact email not found');
+      }
+
+      await base44.integrations.Core.SendEmail({
+        to: contact.email,
+        subject: `Follow-up: ${followUp.action_description}`,
+        body: followUp.ai_suggested_message
+      });
+
+      await base44.entities.SalesFollowUp.update(followUp.id, {
+        sent: true,
+        status: 'completed',
+        completed_date: new Date().toISOString()
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['sales-followups'] });
     },
   });
 
@@ -183,10 +330,22 @@ export default function SalesHub() {
       {/* Main Content */}
       <Tabs defaultValue="calls" className="space-y-4">
         <TabsList>
+          <TabsTrigger value="followups">Follow-Ups</TabsTrigger>
           <TabsTrigger value="calls">Call Log</TabsTrigger>
           <TabsTrigger value="reservations">Reservations</TabsTrigger>
           <TabsTrigger value="activity">Activity Feed</TabsTrigger>
         </TabsList>
+
+        <TabsContent value="followups" className="space-y-4">
+          <FollowUpPanel
+            followUps={followUps}
+            contacts={contacts}
+            onGenerate={() => generateFollowUpsMutation.mutate()}
+            onComplete={(id) => completeFollowUpMutation.mutate(id)}
+            onSend={(followUp) => sendFollowUpEmailMutation.mutate(followUp)}
+            isGenerating={generateFollowUpsMutation.isPending}
+          />
+        </TabsContent>
 
         <TabsContent value="calls" className="space-y-4">
           {salesCalls.length === 0 ? (
