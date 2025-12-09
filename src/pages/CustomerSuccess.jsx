@@ -10,7 +10,6 @@ import {
   Users, TrendingUp, AlertTriangle, CheckCircle, Loader2,
   Heart, Sparkles, Target, MessageSquare, Award, Clock
 } from "lucide-react";
-import CustomerHealthCard from '@/components/success/CustomerHealthCard';
 import OnboardingTracker from '@/components/success/OnboardingTracker';
 import InteractionTimeline from '@/components/success/InteractionTimeline';
 import SurveyPanel from '@/components/success/SurveyPanel';
