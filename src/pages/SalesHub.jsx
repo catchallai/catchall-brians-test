@@ -78,9 +78,27 @@ export default function SalesHub() {
   const latestForecast = forecasts[0];
 
   const createCallMutation = useMutation({
-    mutationFn: (data) => editingCall 
-      ? base44.entities.SalesCall.update(editingCall.id, data)
-      : base44.entities.SalesCall.create(data),
+    mutationFn: async (data) => {
+      const call = editingCall
+        ? await base44.entities.SalesCall.update(editingCall.id, data)
+        : await base44.entities.SalesCall.create(data);
+      
+      if (!editingCall && data.sentiment === 'positive' && data.deal_id) {
+        await checkAndExecuteWorkflows('positive_call', {
+          dealId: data.deal_id,
+          contactId: data.contact_id
+        });
+      }
+      
+      if (!editingCall && data.sentiment === 'negative' && data.deal_id) {
+        await checkAndExecuteWorkflows('negative_call', {
+          dealId: data.deal_id,
+          contactId: data.contact_id
+        });
+      }
+      
+      return call;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['sales-calls'] });
       setShowCallLogger(false);
