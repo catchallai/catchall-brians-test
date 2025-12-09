@@ -1,0 +1,212 @@
+import React, { useState, useMemo } from 'react';
+import { base44 } from '@/api/base44Client';
+import { useQuery } from '@tanstack/react-query';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Heart, Users, CheckCircle, Target, TrendingUp, TrendingDown } from "lucide-react";
+import HealthTrendsChart from '@/components/success/HealthTrendsChart';
+import OnboardingCompletionChart from '@/components/success/OnboardingCompletionChart';
+import OpportunityConversionChart from '@/components/success/OpportunityConversionChart';
+import CSMPerformanceCard from '@/components/success/CSMPerformanceCard';
+
+export default function CustomerSuccessDashboard() {
+  const [csmFilter, setCsmFilter] = useState('all');
+  const [segmentFilter, setSegmentFilter] = useState('all');
+
+  const { data: healthScores = [], isLoading: loadingHealth } = useQuery({
+    queryKey: ['customer-health'],
+    queryFn: () => base44.entities.CustomerHealth.list('-created_date', 200),
+  });
+
+  const { data: onboardings = [], isLoading: loadingOnboarding } = useQuery({
+    queryKey: ['customer-onboarding'],
+    queryFn: () => base44.entities.CustomerOnboarding.list('-created_date', 200),
+  });
+
+  const { data: opportunities = [], isLoading: loadingOpps } = useQuery({
+    queryKey: ['upsell-opportunities'],
+    queryFn: () => base44.entities.UpsellOpportunity.list('-created_date', 200),
+  });
+
+  const { data: contacts = [] } = useQuery({
+    queryKey: ['contacts'],
+    queryFn: () => base44.entities.Contact.list('-created_date', 500),
+  });
+
+  // Get unique CSMs and segments
+  const csms = useMemo(() => {
+    const csmSet = new Set();
+    onboardings.forEach(o => o.csm_assigned && csmSet.add(o.csm_assigned));
+    return Array.from(csmSet);
+  }, [onboardings]);
+
+  const segments = useMemo(() => {
+    const segmentSet = new Set();
+    contacts.filter(c => c.status === 'customer').forEach(c => {
+      if (c.company_size) segmentSet.add(c.company_size);
+    });
+    return Array.from(segmentSet);
+  }, [contacts]);
+
+  // Apply filters
+  const filteredHealthScores = useMemo(() => {
+    return healthScores.filter(h => {
+      const onboarding = onboardings.find(o => o.contact_id === h.contact_id);
+      const contact = contacts.find(c => c.id === h.contact_id);
+      
+      if (csmFilter !== 'all' && onboarding?.csm_assigned !== csmFilter) return false;
+      if (segmentFilter !== 'all' && contact?.company_size !== segmentFilter) return false;
+      
+      return true;
+    });
+  }, [healthScores, onboardings, contacts, csmFilter, segmentFilter]);
+
+  const filteredOnboardings = useMemo(() => {
+    return onboardings.filter(o => {
+      const contact = contacts.find(c => c.id === o.contact_id);
+      
+      if (csmFilter !== 'all' && o.csm_assigned !== csmFilter) return false;
+      if (segmentFilter !== 'all' && contact?.company_size !== segmentFilter) return false;
+      
+      return true;
+    });
+  }, [onboardings, contacts, csmFilter, segmentFilter]);
+
+  const filteredOpportunities = useMemo(() => {
+    return opportunities.filter(opp => {
+      const contact = contacts.find(c => c.id === opp.contact_id);
+      const onboarding = onboardings.find(o => o.contact_id === opp.contact_id);
+      
+      if (csmFilter !== 'all' && onboarding?.csm_assigned !== csmFilter) return false;
+      if (segmentFilter !== 'all' && contact?.company_size !== segmentFilter) return false;
+      
+      return true;
+    });
+  }, [opportunities, contacts, onboardings, csmFilter, segmentFilter]);
+
+  // Calculate metrics
+  const avgHealth = filteredHealthScores.length > 0
+    ? Math.round(filteredHealthScores.reduce((sum, h) => sum + (h.health_score || 0), 0) / filteredHealthScores.length)
+    : 0;
+
+  const healthyCount = filteredHealthScores.filter(h => h.health_status === 'healthy').length;
+  const atRiskCount = filteredHealthScores.filter(h => h.health_status === 'at_risk').length;
+  const criticalCount = filteredHealthScores.filter(h => h.health_status === 'critical').length;
+
+  const completedOnboarding = filteredOnboardings.filter(o => o.status === 'completed').length;
+  const avgOnboardingProgress = filteredOnboardings.length > 0
+    ? Math.round(filteredOnboardings.reduce((sum, o) => sum + (o.progress_percentage || 0), 0) / filteredOnboardings.length)
+    : 0;
+
+  const totalOppValue = filteredOpportunities.reduce((sum, o) => sum + (o.estimated_value || 0), 0);
+  const closedWon = filteredOpportunities.filter(o => o.status === 'closed_won').length;
+  const conversionRate = filteredOpportunities.length > 0
+    ? Math.round((closedWon / filteredOpportunities.length) * 100)
+    : 0;
+
+  const isLoading = loadingHealth || loadingOnboarding || loadingOpps;
+
+  return (
+    <div className="p-4 sm:p-6 lg:p-8 space-y-6">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Customer Success Dashboard</h1>
+          <p className="text-gray-500 mt-1">Comprehensive customer health and performance metrics</p>
+        </div>
+        <div className="flex gap-2">
+          <Select value={csmFilter} onValueChange={setCsmFilter}>
+            <SelectTrigger className="w-40">
+              <SelectValue placeholder="Filter by CSM" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All CSMs</SelectItem>
+              {csms.map(csm => (
+                <SelectItem key={csm} value={csm}>{csm}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select value={segmentFilter} onValueChange={setSegmentFilter}>
+            <SelectTrigger className="w-40">
+              <SelectValue placeholder="Filter by Segment" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Segments</SelectItem>
+              {segments.map(seg => (
+                <SelectItem key={seg} value={seg}>{seg}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
+      {/* Key Metrics */}
+      {isLoading ? (
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+          {[...Array(6)].map((_, i) => <Skeleton key={i} className="h-32 rounded-xl" />)}
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+          <Card className="glass-card">
+            <CardContent className="p-4 text-center">
+              <Heart className="w-6 h-6 text-violet-500 mx-auto mb-2" />
+              <p className="text-3xl font-bold text-violet-600">{avgHealth}</p>
+              <p className="text-xs text-gray-500">Avg Health</p>
+            </CardContent>
+          </Card>
+          <Card className="glass-card">
+            <CardContent className="p-4 text-center">
+              <CheckCircle className="w-6 h-6 text-emerald-500 mx-auto mb-2" />
+              <p className="text-3xl font-bold text-emerald-600">{healthyCount}</p>
+              <p className="text-xs text-gray-500">Healthy</p>
+            </CardContent>
+          </Card>
+          <Card className="glass-card">
+            <CardContent className="p-4 text-center">
+              <TrendingDown className="w-6 h-6 text-amber-500 mx-auto mb-2" />
+              <p className="text-3xl font-bold text-amber-600">{atRiskCount}</p>
+              <p className="text-xs text-gray-500">At Risk</p>
+            </CardContent>
+          </Card>
+          <Card className="glass-card">
+            <CardContent className="p-4 text-center">
+              <Users className="w-6 h-6 text-blue-500 mx-auto mb-2" />
+              <p className="text-3xl font-bold text-blue-600">{avgOnboardingProgress}%</p>
+              <p className="text-xs text-gray-500">Onboarding Avg</p>
+            </CardContent>
+          </Card>
+          <Card className="glass-card">
+            <CardContent className="p-4 text-center">
+              <Target className="w-6 h-6 text-violet-500 mx-auto mb-2" />
+              <p className="text-3xl font-bold text-violet-600">${(totalOppValue / 1000).toFixed(0)}K</p>
+              <p className="text-xs text-gray-500">Pipeline Value</p>
+            </CardContent>
+          </Card>
+          <Card className="glass-card">
+            <CardContent className="p-4 text-center">
+              <TrendingUp className="w-6 h-6 text-emerald-500 mx-auto mb-2" />
+              <p className="text-3xl font-bold text-emerald-600">{conversionRate}%</p>
+              <p className="text-xs text-gray-500">Conversion Rate</p>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {/* Charts */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <HealthTrendsChart healthScores={filteredHealthScores} />
+        <OnboardingCompletionChart onboardings={filteredOnboardings} />
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <OpportunityConversionChart opportunities={filteredOpportunities} />
+        <CSMPerformanceCard 
+          onboardings={filteredOnboardings} 
+          healthScores={filteredHealthScores}
+          opportunities={filteredOpportunities}
+        />
+      </div>
+    </div>
+  );
+}

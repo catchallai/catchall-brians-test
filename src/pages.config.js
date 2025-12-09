@@ -46,6 +46,7 @@ import AIDashboard from './pages/AIDashboard';
 import UserProfile from './pages/UserProfile';
 import SalesHub from './pages/SalesHub';
 import CustomerSuccess from './pages/CustomerSuccess';
+import CustomerSuccessDashboard from './pages/CustomerSuccessDashboard';
 import __Layout from './Layout.jsx';
 
 
@@ -98,6 +99,7 @@ export const PAGES = {
     "UserProfile": UserProfile,
     "SalesHub": SalesHub,
     "CustomerSuccess": CustomerSuccess,
+    "CustomerSuccessDashboard": CustomerSuccessDashboard,
 }
 
 export const pagesConfig = {
