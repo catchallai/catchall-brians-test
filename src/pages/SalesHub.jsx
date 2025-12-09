@@ -504,6 +504,14 @@ Also provide an enrichment_score (0-100) based on how much data was found.`,
         const contactFollowUps = followUps.filter(f => f.contact_id === contact.id);
         const contactDeals = deals.filter(d => d.contact_id === contact.id);
 
+        const enrichmentInfo = enrichment 
+          ? `- Enrichment Score: ${enrichment.enrichment_score}/100
+- Industry: ${enrichment.industry || 'Unknown'}
+- Connections: ${enrichment.connections || 0}
+- Skills: ${enrichment.skills?.length || 0}
+- Experience: ${enrichment.experience?.length || 0} roles`
+          : '- Not enriched';
+
         const analysis = await base44.integrations.Core.InvokeLLM({
           prompt: `Analyze this lead and provide a comprehensive AI-driven score (0-100):
 
@@ -517,13 +525,7 @@ Lead Information:
 - Phone: ${contact.phone ? 'Yes' : 'No'}
 
 LinkedIn Enrichment:
-${enrichment ? \`
-- Enrichment Score: \${enrichment.enrichment_score}/100
-- Industry: \${enrichment.industry || 'Unknown'}
-- Connections: \${enrichment.connections || 0}
-- Skills: \${enrichment.skills?.length || 0}
-- Experience: \${enrichment.experience?.length || 0} roles
-\` : '- Not enriched'}
+${enrichmentInfo}
 
 Sales Interactions:
 - Total Calls: ${contactCalls.length}
