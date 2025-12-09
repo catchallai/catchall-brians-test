@@ -13,7 +13,7 @@ import {
   Plus, Search, Loader2, RefreshCw, TrendingUp, TrendingDown,
   MessageSquare, Heart, Share2, Users, BarChart3, Sparkles,
   ThumbsUp, ThumbsDown, Minus, Calendar, Target, Lightbulb, FlaskConical, CalendarDays,
-  Pencil, Trash2, FileText, Clock
+  Pencil, Trash2, FileText, Clock, Activity
 } from "lucide-react";
 import SocialAccountCard from '@/components/seo/SocialAccountCard';
 import ContentInsightsCard from '@/components/social/ContentInsightsCard';
