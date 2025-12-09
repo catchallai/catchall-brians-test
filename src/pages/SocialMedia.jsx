@@ -36,6 +36,9 @@ import PostDetailModal from '@/components/social/PostDetailModal';
 import PredictiveTrendsCard from '@/components/social/PredictiveTrendsCard';
 import CompetitorForecastCard from '@/components/social/CompetitorForecastCard';
 import AIContentCalendarCard from '@/components/social/AIContentCalendarCard';
+import HistoricalAnalysisCard from '@/components/social/HistoricalAnalysisCard';
+import AnomalyDetectionCard from '@/components/social/AnomalyDetectionCard';
+import SmartContentAdapterCard from '@/components/social/SmartContentAdapterCard';
 import {
   Dialog,
   DialogContent,
@@ -80,6 +83,9 @@ export default function SocialMedia() {
   const [sentimentFilter, setSentimentFilter] = useState(null);
   const [scanningNewsFor, setScanningNewsFor] = useState(null);
   const [deepAnalyzingFor, setDeepAnalyzingFor] = useState(null);
+  const [analyzingHistory, setAnalyzingHistory] = useState(false);
+  const [detectingAnomalies, setDetectingAnomalies] = useState(false);
+  const [anomaliesData, setAnomaliesData] = useState([]);
   const queryClient = useQueryClient();
 
   const { data: socialAccountsRaw = [], isLoading: loadingAccounts } = useQuery({
@@ -290,17 +296,21 @@ Return adapted content for: ${platforms.join(', ')}`,
     mutationFn: async (competitor) => {
       setAnalyzingCompetitor(competitor.id);
       const analysis = await base44.integrations.Core.InvokeLLM({
-        prompt: `Analyze competitor social media presence for: ${competitor.name}
+        prompt: `Perform deep strategic analysis of ${competitor.name}'s social media presence and evolution:
         Website: ${competitor.website || 'N/A'}
         
         Provide comprehensive analysis including:
-        1. Estimated social media accounts and follower counts with engagement rates
-        2. Top 3 strengths in their social strategy
+        1. Current social media accounts with follower counts and engagement rates
+        2. Top 3 strengths in their current social strategy
         3. Top 3 weaknesses or opportunities
-        4. Their best performing content themes
-        5. Strategy evolution over the last 3 periods (how their approach has changed)
-        6. Top 3 successful campaigns they've run with type, reach, and key elements
-        7. Content frequency: posts per week, best days, and content mix percentages`,
+        4. Their best performing content themes (last 6 months)
+        5. STRATEGY EVOLUTION: Detailed analysis of how their approach has changed over the last 5 years:
+           - 2020-2021 period: focus areas, performance, key changes
+           - 2022-2023 period: focus areas, performance, key changes
+           - 2024-2025 period: focus areas, performance, key changes
+        6. Top 3-5 successful campaigns with type, estimated reach, and key elements
+        7. Content frequency: posts per week, best posting days, and content mix percentages
+        8. Predicted next moves based on pattern analysis`,
         add_context_from_internet: true,
         response_json_schema: {
           type: "object",
@@ -883,6 +893,175 @@ Be specific and data-driven where possible.`,
     },
   });
 
+  // Historical Analysis (5+ years)
+  const analyzeHistoryMutation = useMutation({
+    mutationFn: async (account) => {
+      setAnalyzingHistory(true);
+      const result = await base44.integrations.Core.InvokeLLM({
+        prompt: `Analyze 5+ years of historical data for ${account.platform} account @${account.account_name}.
+        
+Provide comprehensive historical analysis:
+1. Follower growth rate from 2019 to 2025
+2. Engagement trend over time (up/down/stable)
+3. Total posts analyzed
+4. Year-by-year timeline with followers and engagement_rate for each year (2019-2025)
+5. Key milestones (3-5 important events with date, event description, and impact)
+6. Executive summary of evolution
+
+Use real historical patterns for the platform and account type.`,
+        add_context_from_internet: true,
+        response_json_schema: {
+          type: "object",
+          properties: {
+            start_year: { type: "number" },
+            follower_growth_rate: { type: "number" },
+            engagement_trend: { type: "string" },
+            total_posts_analyzed: { type: "number" },
+            timeline: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  year: { type: "number" },
+                  followers: { type: "number" },
+                  engagement_rate: { type: "number" }
+                }
+              }
+            },
+            milestones: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  date: { type: "string" },
+                  event: { type: "string" },
+                  impact: { type: "string" }
+                }
+              }
+            },
+            summary: { type: "string" }
+          }
+        }
+      });
+      setAnalyzingHistory(false);
+      return result;
+    },
+    onError: () => setAnalyzingHistory(false)
+  });
+
+  // Anomaly Detection
+  const detectAnomaliesMutation = useMutation({
+    mutationFn: async () => {
+      setDetectingAnomalies(true);
+      
+      const accountData = socialAccounts.map(acc => ({
+        platform: acc.platform,
+        name: acc.account_name,
+        followers: acc.followers_count || 0,
+        engagement: acc.engagement_rate || 0,
+        posts_count: acc.posts_count || 0
+      }));
+
+      const result = await base44.integrations.Core.InvokeLLM({
+        prompt: `Analyze these social media accounts for anomalies and unusual patterns:
+
+${JSON.stringify(accountData, null, 2)}
+
+Recent posts data available: ${socialPosts.length} posts
+
+Detect:
+1. Unusual engagement drops (>30% below baseline)
+2. Follower spikes or drops (>50% change)
+3. Sentiment shifts (sudden negative increase)
+4. Posting pattern changes (frequency anomalies)
+5. Performance outliers (posts doing unusually well/poor)
+
+For each anomaly found, provide:
+- Type (engagement_drop, follower_spike, sentiment_shift, posting_pattern)
+- Severity (low, medium, high, critical)
+- Title (short description)
+- Description (detailed explanation)
+- Detected value
+- Baseline value (what's normal)
+- Change percentage
+- Recommendation (what to do)`,
+        response_json_schema: {
+          type: "object",
+          properties: {
+            anomalies: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  type: { type: "string" },
+                  severity: { type: "string" },
+                  title: { type: "string" },
+                  description: { type: "string" },
+                  detected_value: { type: "number" },
+                  baseline_value: { type: "number" },
+                  change: { type: "number" },
+                  recommendation: { type: "string" }
+                }
+              }
+            }
+          }
+        }
+      });
+      
+      setAnomaliesData(result.anomalies || []);
+      setDetectingAnomalies(false);
+      return result;
+    },
+    onError: () => setDetectingAnomalies(false)
+  });
+
+  // Smart content adapter with audience targeting
+  const smartAdaptMutation = useMutation({
+    mutationFn: async ({ content, platforms, audience, tone }) => {
+      const result = await base44.integrations.Core.InvokeLLM({
+        prompt: `Adapt this content for different platforms and a ${audience} audience with a ${tone} tone:
+
+Original: "${content}"
+
+For each platform, create highly optimized versions:
+- Twitter/X: 280 chars max, punchy, engaging hooks
+- LinkedIn: Professional, thought leadership, 1-3 paragraphs, add industry context
+- Facebook: Conversational, community-focused, questions encouraged
+- Instagram: Visual language, emoji-rich, hashtag-optimized, storytelling
+- YouTube: Description style, SEO keywords, strong CTA, timestamps if relevant
+- TikTok: Gen-Z friendly, trend-aware, hook in first 3 seconds
+
+Also provide platform-specific insights explaining the adaptation choices.
+
+Target audience: ${audience}
+Tone: ${tone}`,
+        response_json_schema: {
+          type: "object",
+          properties: {
+            twitter: { type: "string" },
+            linkedin: { type: "string" },
+            facebook: { type: "string" },
+            instagram: { type: "string" },
+            youtube: { type: "string" },
+            tiktok: { type: "string" },
+            insights: {
+              type: "object",
+              properties: {
+                twitter: { type: "string" },
+                linkedin: { type: "string" },
+                facebook: { type: "string" },
+                instagram: { type: "string" },
+                youtube: { type: "string" },
+                tiktok: { type: "string" }
+              }
+            }
+          }
+        }
+      });
+      return result;
+    }
+  });
+
   const generateContentMutation = useMutation({
     mutationFn: async ({ contentType, platform, tone, topic, trendingTopics, emergingTrends, competitorInsights, winningContent }) => {
       const contextInfo = `
@@ -1027,11 +1206,14 @@ Find 5 recent posts with: post_url (direct link to post), content, post_date, li
           await base44.entities.SocialPost.delete(post.id);
         }
 
-        // Save analyzed posts with full data
+        // Save analyzed posts with full data including post_id
         for (const post of analysis.posts) {
+          const postId = post.post_url ? post.post_url.split('/').pop() : `${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+          
           await base44.entities.SocialPost.create({
             social_account_id: account.id,
             platform: account.platform,
+            post_id: postId,
             post_url: post.post_url || '',
             content: post.content,
             post_date: post.post_date ? new Date(post.post_date).toISOString() : new Date().toISOString(),
@@ -1041,7 +1223,8 @@ Find 5 recent posts with: post_url (direct link to post), content, post_date, li
             views: post.views || 0,
             sentiment: post.sentiment || 'neutral',
             topics: post.topics || [],
-            engagement_rate: analysis.engagement_rate || 0
+            engagement_rate: analysis.engagement_rate || 0,
+            hashtags: post.hashtags || []
           });
         }
       }
@@ -1272,6 +1455,37 @@ Find 5 recent posts with: post_url (direct link to post), content, post_date, li
         {/* AI Predictions Tab */}
         <TabsContent value="predictions" className="space-y-4">
           <div className="grid grid-cols-1 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <HistoricalAnalysisCard 
+                account={socialAccounts[0]}
+                onAnalyzeHistory={async (acc) => {
+                  const result = await analyzeHistoryMutation.mutateAsync(acc);
+                  return result;
+                }}
+                isAnalyzing={analyzingHistory}
+              />
+              <div className="space-y-4">
+                <Button 
+                  onClick={() => detectAnomaliesMutation.mutate()}
+                  disabled={detectingAnomalies || socialAccounts.length === 0}
+                  className="w-full bg-orange-600 hover:bg-orange-700"
+                >
+                  {detectingAnomalies ? (
+                    <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Detecting...</>
+                  ) : (
+                    <><Activity className="w-4 h-4 mr-2" /> Detect Anomalies</>
+                  )}
+                </Button>
+                <AnomalyDetectionCard anomalies={anomaliesData} />
+              </div>
+            </div>
+            <SmartContentAdapterCard 
+              onAdapt={async (params) => {
+                const result = await smartAdaptMutation.mutateAsync(params);
+                return result;
+              }}
+              isAdapting={smartAdaptMutation.isPending}
+            />
             <PredictiveTrendsCard 
               socialAccounts={socialAccounts} 
               posts={socialPosts} 

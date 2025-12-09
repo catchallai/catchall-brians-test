@@ -16,6 +16,8 @@ import ShareOfVoiceCard from '@/components/seo/ShareOfVoiceCard';
 import HistoricalDataCard from '@/components/seo/HistoricalDataCard';
 import PredictiveAnalyticsCard from '@/components/seo/PredictiveAnalyticsCard';
 import TechnicalAuditCard from '@/components/seo/TechnicalAuditCard';
+import SEOHistoricalTracker from '@/components/seo/SEOHistoricalTracker';
+import SEOAnomalyDetector from '@/components/seo/SEOAnomalyDetector';
 import { useToast } from '@/components/ui/toast-provider';
 
 export default function SEODashboard() {
@@ -52,6 +54,67 @@ export default function SEODashboard() {
 
   const saveSovMutation = useMutation({
     mutationFn: (data) => base44.entities.ShareOfVoice.create(data),
+  });
+
+  const detectSEOAnomaliesMutation = useMutation({
+    mutationFn: async () => {
+      const seoData = websites.map(w => ({
+        name: w.name,
+        url: w.url,
+        seo_score: w.seo_score || 0,
+        organic_traffic: w.organic_traffic || 0,
+        domain_authority: w.domain_authority || 0
+      }));
+
+      const keywordData = keywords.map(k => ({
+        keyword: k.keyword,
+        position: k.current_position,
+        previous: k.previous_position,
+        volume: k.search_volume
+      }));
+
+      const result = await base44.integrations.Core.InvokeLLM({
+        prompt: `Analyze SEO data for anomalies and potential issues:
+
+Websites: ${JSON.stringify(seoData, null, 2)}
+Keywords tracked: ${keywords.length}
+Sample keywords: ${JSON.stringify(keywordData.slice(0, 10), null, 2)}
+
+Detect:
+1. Sudden ranking drops (>10 positions)
+2. Traffic anomalies (sudden drops >30%)
+3. DA/PA drops
+4. Multiple keywords losing positions
+5. Technical issues patterns
+6. Backlink profile anomalies
+
+For each issue, provide:
+- Severity (critical/high/medium/low)
+- Title
+- Description
+- Possible cause
+- Recommendation`,
+        response_json_schema: {
+          type: "object",
+          properties: {
+            anomalies: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  severity: { type: "string" },
+                  title: { type: "string" },
+                  description: { type: "string" },
+                  recommendation: { type: "string" }
+                }
+              }
+            }
+          }
+        }
+      });
+
+      return result.anomalies || [];
+    }
   });
 
   const createMutation = useMutation({
@@ -127,28 +190,43 @@ export default function SEODashboard() {
         }
       });
 
+      // Count keywords and backlinks for this website
+      const existingKeywords = await base44.entities.Keyword.filter({ website_id: website.id });
+      const existingBacklinks = await base44.entities.Backlink.filter({ website_id: website.id });
+      
       await base44.entities.Website.update(website.id, {
         domain_authority: analysis.domain_authority,
         page_authority: analysis.page_authority,
         organic_traffic: analysis.organic_traffic,
         seo_score: analysis.seo_score,
+        total_keywords: existingKeywords.length + (analysis.keywords?.length || 0),
+        total_backlinks: existingBacklinks.length + (analysis.backlinks?.length || 0),
         last_audit_date: new Date().toISOString()
       });
 
-      // Get existing keywords to prevent duplicates
-      const existingKeywords = await base44.entities.Keyword.filter({ website_id: website.id });
       const existingKeywordNames = new Set(existingKeywords.map(k => k.keyword?.toLowerCase()));
 
+      // Create keywords with historical tracking
       if (analysis.keywords?.length > 0) {
         for (const kw of analysis.keywords) {
           if (!existingKeywordNames.has(kw.keyword?.toLowerCase())) {
-            await base44.entities.Keyword.create({
+            const newKeyword = await base44.entities.Keyword.create({
               website_id: website.id,
               keyword: kw.keyword,
               current_position: kw.current_position,
               search_volume: kw.search_volume,
               difficulty: kw.difficulty,
               target_url: website.url
+            });
+            
+            // Create initial history entry
+            await base44.entities.KeywordHistory.create({
+              keyword_id: newKeyword.id,
+              website_id: website.id,
+              position: kw.current_position,
+              date: new Date().toISOString().split('T')[0],
+              search_volume: kw.search_volume,
+              url: website.url
             });
           }
         }
@@ -299,6 +377,18 @@ export default function SEODashboard() {
                   website={websites[0]} 
                   keywords={keywords}
                   onSaveSov={(data) => saveSovMutation.mutate(data)}
+                />
+              </div>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+                <SEOHistoricalTracker 
+                  keywords={keywords}
+                  keywordHistory={keywordHistory}
+                />
+                <SEOAnomalyDetector
+                  websites={websites}
+                  keywords={keywords}
+                  backlinks={backlinks}
+                  onDetectAnomalies={() => detectSEOAnomaliesMutation.mutateAsync()}
                 />
               </div>
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
