@@ -18,6 +18,7 @@ import SalesActivityFeed from '@/components/sales/SalesActivityFeed';
 import FollowUpPanel from '@/components/sales/FollowUpPanel';
 import LeadEnrichmentModal from '@/components/sales/LeadEnrichmentModal';
 import EnrichedLeadsTable from '@/components/sales/EnrichedLeadsTable';
+import SalesForecastCard from '@/components/sales/SalesForecastCard';
 import EmptyState from '@/components/ui/EmptyState';
 
 export default function SalesHub() {
@@ -57,6 +58,13 @@ export default function SalesHub() {
     queryKey: ['enriched-leads'],
     queryFn: () => base44.entities.LeadEnrichment.list('-created_date', 100),
   });
+
+  const { data: forecasts = [] } = useQuery({
+    queryKey: ['sales-forecasts'],
+    queryFn: () => base44.entities.SalesForecast.list('-created_date', 10),
+  });
+
+  const latestForecast = forecasts[0];
 
   const createCallMutation = useMutation({
     mutationFn: (data) => editingCall 
@@ -328,6 +336,136 @@ Also provide an enrichment_score (0-100) based on how much data was found.`,
     },
   });
 
+  const generateForecastMutation = useMutation({
+    mutationFn: async (period) => {
+      // Gather historical data
+      const completedDeals = deals.filter(d => d.status === 'won');
+      const totalHistoricalRevenue = completedDeals.reduce((sum, d) => sum + (d.value || 0), 0);
+      const avgDealValue = completedDeals.length > 0 ? totalHistoricalRevenue / completedDeals.length : 0;
+
+      // Current pipeline
+      const activeDealsByStage = deals
+        .filter(d => d.status !== 'won' && d.status !== 'lost')
+        .map(d => ({
+          id: d.id,
+          name: d.name,
+          stage: d.stage || 'unknown',
+          value: d.value || 0,
+          created_date: d.created_date,
+          contact_id: d.contact_id
+        }));
+
+      // Enriched lead data
+      const enrichedWithContacts = enrichedLeads.filter(l => l.contact_id);
+
+      const analysis = await base44.integrations.Core.InvokeLLM({
+        prompt: `Analyze sales data and generate a forecast for ${period}:
+
+Historical Performance:
+- Total completed deals: ${completedDeals.length}
+- Total revenue: $${totalHistoricalRevenue}
+- Average deal value: $${avgDealValue.toFixed(2)}
+
+Current Pipeline (${activeDealsByStage.length} deals):
+${activeDealsByStage.map(d => `- ${d.name}: $${d.value} (${d.stage})`).join('\n')}
+
+Enriched Leads: ${enrichedWithContacts.length} leads with full data
+
+Generate forecast with:
+1. predicted_revenue (realistic estimate)
+2. confidence_score (0-100)
+3. deal_probabilities for each active deal:
+   - deal_id, deal_name, current_stage, value
+   - close_probability (0-100)
+   - predicted_close_date (ISO format)
+   - risk_level (low/medium/high/critical)
+   - recommendation (specific action)
+4. risks (3-5 items):
+   - type, severity, description, impact_amount, mitigation
+5. opportunities (3-5 items):
+   - type, description, potential_value, action_required
+6. trends:
+   - revenue_trend (up/down/stable)
+   - conversion_rate (0-100)
+   - avg_deal_size (number)
+   - sales_cycle_days (average)
+
+Consider:
+- Deal stages (earlier = lower probability)
+- Time in pipeline (longer = risk)
+- Lead quality from enrichment
+- Historical win rates`,
+        response_json_schema: {
+          type: "object",
+          properties: {
+            predicted_revenue: { type: "number" },
+            confidence_score: { type: "number" },
+            deal_probabilities: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  deal_id: { type: "string" },
+                  deal_name: { type: "string" },
+                  current_stage: { type: "string" },
+                  value: { type: "number" },
+                  close_probability: { type: "number" },
+                  predicted_close_date: { type: "string" },
+                  risk_level: { type: "string" },
+                  recommendation: { type: "string" }
+                }
+              }
+            },
+            risks: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  type: { type: "string" },
+                  severity: { type: "string" },
+                  description: { type: "string" },
+                  impact_amount: { type: "number" },
+                  mitigation: { type: "string" }
+                }
+              }
+            },
+            opportunities: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  type: { type: "string" },
+                  description: { type: "string" },
+                  potential_value: { type: "number" },
+                  action_required: { type: "string" }
+                }
+              }
+            },
+            trends: {
+              type: "object",
+              properties: {
+                revenue_trend: { type: "string" },
+                conversion_rate: { type: "number" },
+                avg_deal_size: { type: "number" },
+                sales_cycle_days: { type: "number" }
+              }
+            }
+          }
+        }
+      });
+
+      const forecast = await base44.entities.SalesForecast.create({
+        forecast_period: period,
+        ...analysis
+      });
+
+      return forecast;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['sales-forecasts'] });
+    },
+  });
+
   // Calculate stats
   const today = new Date();
   const todayCalls = salesCalls.filter(c => {
@@ -452,12 +590,21 @@ Also provide an enrichment_score (0-100) based on how much data was found.`,
       {/* Main Content */}
       <Tabs defaultValue="calls" className="space-y-4">
         <TabsList>
+          <TabsTrigger value="forecast">Forecast</TabsTrigger>
           <TabsTrigger value="enrichment">Lead Enrichment</TabsTrigger>
           <TabsTrigger value="followups">Follow-Ups</TabsTrigger>
           <TabsTrigger value="calls">Call Log</TabsTrigger>
           <TabsTrigger value="reservations">Reservations</TabsTrigger>
           <TabsTrigger value="activity">Activity Feed</TabsTrigger>
         </TabsList>
+
+        <TabsContent value="forecast" className="space-y-4">
+          <SalesForecastCard
+            forecast={latestForecast}
+            onGenerate={(period) => generateForecastMutation.mutate(period)}
+            isGenerating={generateForecastMutation.isPending}
+          />
+        </TabsContent>
 
         <TabsContent value="enrichment" className="space-y-4">
           <EnrichedLeadsTable
