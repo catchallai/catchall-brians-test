@@ -7,16 +7,19 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
   Search, BookOpen, HelpCircle, Video, ChevronRight, ChevronDown, ChevronUp,
   Users, Target, BarChart3, Share2, Mail, Zap, Home, ArrowLeft, Globe,
   Radio, FileText, MapPin, Newspaper, Calendar, Settings, Activity, PenTool,
   TrendingUp, Megaphone, Building2, Phone, MessageSquare, Clock, CheckCircle2,
-  Lightbulb, PlayCircle, FileQuestion
+  Lightbulb, PlayCircle, FileQuestion, Sparkles, Star, Eye, Package, DollarSign,
+  Presentation, FileSearch, AlertTriangle, User
 } from "lucide-react";
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import ReactMarkdown from 'react-markdown';
+import { useToast } from '@/components/ui/toast-provider';
 
 const CATEGORIES = [
   { id: 'getting_started', label: 'Getting Started', icon: Home, color: 'bg-violet-100 text-violet-700', description: 'New to CatchAll? Start here' },
@@ -27,9 +30,102 @@ const CATEGORIES = [
   { id: 'marketing', label: 'Marketing', icon: Mail, color: 'bg-indigo-100 text-indigo-700', description: 'Campaigns, email marketing, and reports' },
   { id: 'content', label: 'Content', icon: PenTool, color: 'bg-cyan-100 text-cyan-700', description: 'Content strategy and creation' },
   { id: 'automation', label: 'Automation', icon: Zap, color: 'bg-amber-100 text-amber-700', description: 'Automate your workflows' },
+  { id: 'ai_tools', label: 'AI Tools', icon: Sparkles, color: 'bg-purple-100 text-purple-700', description: 'AI-powered features and tools' },
+  { id: 'business_dev', label: 'Business Dev', icon: Presentation, color: 'bg-blue-100 text-blue-700', description: 'Pitch decks, DMCA, lead scoring' },
+  { id: 'assets', label: 'Assets & Finance', icon: Package, color: 'bg-emerald-100 text-emerald-700', description: 'Equipment and accounting' },
   { id: 'mobile', label: 'Mobile App', icon: Phone, color: 'bg-purple-100 text-purple-700', description: 'CatchAll on-the-go' },
   { id: 'settings', label: 'Settings & Account', icon: Settings, color: 'bg-gray-100 text-gray-700', description: 'Profile, notifications, API keys' },
   { id: 'faq', label: 'FAQ', icon: HelpCircle, color: 'bg-slate-100 text-slate-700', description: 'Common questions answered' },
+];
+
+const VIDEO_TUTORIALS = [
+  {
+    id: 'video-getting-started',
+    title: 'Getting Started with CatchAll',
+    description: 'Complete walkthrough of CatchAll features and how to set up your account',
+    duration: '5:32',
+    views: '1.2K',
+    category: 'getting_started',
+    thumbnail: 'bg-gradient-to-br from-blue-500 to-indigo-600',
+    isFeatured: true,
+  },
+  {
+    id: 'video-crm-best-practices',
+    title: 'CRM Best Practices',
+    description: 'Learn how to effectively manage contacts, deals, and pipeline in the CRM',
+    duration: '8:15',
+    views: '0.9K',
+    category: 'crm',
+    thumbnail: 'bg-gradient-to-br from-purple-500 to-pink-600',
+    isFeatured: true,
+  },
+  {
+    id: 'video-seo-audit',
+    title: 'SEO Audit Walkthrough',
+    description: 'Step-by-step guide to running and understanding SEO audits',
+    duration: '12:40',
+    views: '2.1K',
+    category: 'seo',
+    thumbnail: 'bg-gradient-to-br from-emerald-500 to-teal-600',
+    isFeatured: true,
+  },
+  {
+    id: 'video-social-listening',
+    title: 'Social Listening Setup',
+    description: 'Monitor brand mentions and sentiment across social media platforms',
+    duration: '6:25',
+    views: '0.7K',
+    category: 'social_media',
+    thumbnail: 'bg-gradient-to-br from-orange-500 to-red-600',
+  },
+  {
+    id: 'video-email-campaigns',
+    title: 'Email Campaign Creation',
+    description: 'Create and send targeted email campaigns to your contacts',
+    duration: '10:18',
+    views: '1.3K',
+    category: 'marketing',
+    thumbnail: 'bg-gradient-to-br from-cyan-500 to-blue-600',
+    isFeatured: true,
+  },
+  {
+    id: 'video-analytics-deep-dive',
+    title: 'Analytics Deep Dive',
+    description: 'Understand visitor behavior, journeys, and conversion optimization',
+    duration: '15:05',
+    views: '1.8K',
+    category: 'analytics',
+    thumbnail: 'bg-gradient-to-br from-violet-500 to-purple-600',
+    isFeatured: true,
+  },
+  {
+    id: 'video-ai-tools',
+    title: 'AI-Powered Tools Overview',
+    description: 'Discover how to use AI features for lead scoring, content generation, and more',
+    duration: '11:30',
+    views: '2.5K',
+    category: 'ai_tools',
+    thumbnail: 'bg-gradient-to-br from-purple-500 to-pink-500',
+    isFeatured: true,
+  },
+  {
+    id: 'video-pitch-deck',
+    title: 'Creating Pitch Decks',
+    description: 'Use AI to create and analyze compelling pitch decks',
+    duration: '9:45',
+    views: '0.8K',
+    category: 'business_dev',
+    thumbnail: 'bg-gradient-to-br from-blue-500 to-cyan-500',
+  },
+  {
+    id: 'video-automation',
+    title: 'Marketing Automation',
+    description: 'Set up automated workflows and email sequences',
+    duration: '13:20',
+    views: '1.1K',
+    category: 'automation',
+    thumbnail: 'bg-gradient-to-br from-amber-500 to-orange-500',
+  },
 ];
 
 const QUICK_START_STEPS = [
@@ -1658,6 +1754,552 @@ Monitor which hashtags perform best:
   },
 
   // FAQ
+  // AI Tools Articles
+  {
+    id: 'ai-dashboard',
+    title: 'AI Dashboard Overview',
+    category: 'ai_tools',
+    type: 'tutorial',
+    is_featured: true,
+    order: 1,
+    tags: ['ai', 'tools', 'overview'],
+    content: `# AI Dashboard Overview
+
+Your hub for all AI-powered features and tools.
+
+## Accessing AI Tools
+
+Navigate to **AI Dashboard** from the sidebar to see all available AI features.
+
+## Available AI Tools
+
+### AI Lead Generator
+- Discover and enrich leads automatically
+- Data enrichment with company info
+- AI-powered lead scoring
+- CRM integration
+
+### Content Writer
+- Generate SEO-optimized content
+- Blog post generation
+- Social media posts
+- Ad copy creation
+
+### Competitor Analysis
+- Deep market intelligence
+- Strategy insights
+- Trend prediction
+- News monitoring
+
+### SEO Optimizer
+- Technical SEO audits
+- Keyword research
+- Gap analysis
+- Backlink discovery
+
+### Content Optimizer
+- A/B testing recommendations
+- Performance analysis
+- Content scoring
+- Improvement suggestions
+
+### Web Creator
+- Generate complete websites
+- Responsive design
+- SEO-ready output
+- Code export
+
+### Social Listening
+- Brand mention tracking
+- Sentiment analysis
+- Trend detection
+- Alert system
+
+### Analytics & Reports
+- Auto-generated insights
+- Data visualization
+- Trend analysis
+- Predictive analytics
+
+## Using AI Features
+
+Each AI tool includes:
+- Clear instructions
+- Sample outputs
+- Best practices
+- Integration options
+
+Click "Launch Feature" to access any tool.`
+  },
+  {
+    id: 'visitor-profiles-lead-scoring',
+    title: 'AI Lead Scoring & Visitor Profiles',
+    category: 'ai_tools',
+    type: 'tutorial',
+    order: 2,
+    tags: ['ai', 'lead scoring', 'visitor tracking'],
+    content: `# AI Lead Scoring & Visitor Profiles
+
+Automatically score and prioritize leads based on behavior and engagement.
+
+## How It Works
+
+Our AI analyzes visitor behavior in real-time to calculate conversion potential (0-100 score).
+
+## Scoring Factors
+
+The AI considers:
+- Industry value
+- Engagement depth (pages viewed)
+- Session duration
+- High-intent pages visited
+- Return visitor frequency
+- Referrer quality
+- Device type
+
+## Score Tiers
+
+- 🔥 **Hot Lead (85+)**: Immediate outreach
+- ⚡ **Warm (70-84)**: Priority follow-up
+- 📊 **Engaged (50-69)**: Nurture sequence
+- 👀 **Early Stage (<50)**: Monitor
+
+## Viewing Profiles
+
+1. Go to **Traffic Analytics** > **Visitors**
+2. Find the **Visitor Profiles** card
+3. Click any lead score to see breakdown
+4. View AI recommendations
+
+## Taking Action
+
+- Focus on hot and warm leads first
+- Review score factors to understand behavior
+- Use patterns to optimize pages
+- Add high-score visitors to CRM`
+  },
+  // Business Dev Articles
+  {
+    id: 'pitch-deck-creator',
+    title: 'Pitch Deck Creator',
+    category: 'business_dev',
+    type: 'tutorial',
+    is_featured: true,
+    order: 1,
+    tags: ['pitch deck', 'business', 'ai'],
+    content: `# Pitch Deck Creator
+
+Create professional pitch decks with AI assistance.
+
+## Getting Started
+
+1. Navigate to **Pitch Deck Creator**
+2. Fill in your business details
+3. Click **Generate Pitch Deck**
+4. Review and refine the output
+
+## Required Information
+
+### Company Basics
+- Company name
+- Problem you're solving
+- Your solution
+- Target market size
+- Business model
+
+### Traction & Metrics
+- Revenue/customers
+- Growth rate
+- Key milestones
+
+### Team & Vision
+- Team background
+- Competitive advantage
+- Funding ask
+
+## AI-Generated Content
+
+The AI creates:
+- Executive summary
+- Problem/solution slides
+- Market opportunity
+- Business model
+- Traction data
+- Team overview
+- Financial projections
+- Ask slide
+
+## Each Slide Includes
+
+- **Content**: Key points and data
+- **Talking Points**: What to say
+- **Visual Suggestions**: Design ideas
+- **Presenter Notes**: Tips for delivery
+
+## Best Practices
+
+- Be specific with your data
+- Use the brand selector for consistency
+- Review all AI suggestions
+- Customize for your audience
+- Practice your delivery`
+  },
+  {
+    id: 'pitch-deck-analyzer',
+    title: 'Pitch Deck Analyzer',
+    category: 'business_dev',
+    type: 'tutorial',
+    order: 2,
+    tags: ['pitch deck', 'analysis', 'feedback'],
+    content: `# Pitch Deck Analyzer
+
+Get AI-powered feedback on your pitch deck.
+
+## How to Analyze
+
+1. Go to **Pitch Deck Analyzer**
+2. Upload your pitch deck (PDF, PPTX, etc.)
+3. Wait for AI analysis
+4. Review detailed feedback
+
+## Analysis Categories
+
+### Content & Messaging (0-100)
+- Problem clarity
+- Solution strength
+- Market opportunity
+- Value proposition
+
+### Design & Visual Impact
+- Layout quality
+- Visual hierarchy
+- Brand consistency
+- Professional appearance
+
+### Structure & Flow
+- Logical progression
+- Story narrative
+- Slide organization
+- Pacing
+
+### Data & Evidence
+- Metrics quality
+- Proof points
+- Credibility
+- Research depth
+
+### Investor Readiness
+- Completeness
+- Professionalism
+- Persuasiveness
+- Call to action
+
+## AI Recommendations
+
+Get specific suggestions for:
+- **Strengths**: What works well
+- **Weaknesses**: Areas to improve
+- **Improvements**: Specific actions
+- **Next Steps**: Priority fixes
+
+## Using Feedback
+
+1. Review overall score
+2. Read category breakdowns
+3. Focus on critical items
+4. Make improvements
+5. Re-analyze to track progress`
+  },
+  {
+    id: 'takedown-requestor',
+    title: 'DMCA Takedown Requestor',
+    category: 'business_dev',
+    type: 'tutorial',
+    order: 3,
+    tags: ['dmca', 'copyright', 'legal'],
+    content: `# DMCA Takedown Requestor
+
+Generate professional DMCA takedown notices and cease & desist letters.
+
+## When to Use
+
+Use this tool when you discover:
+- Copyright infringement
+- Unauthorized use of your content
+- Brand impersonation
+- Stolen intellectual property
+
+## Creating a Notice
+
+1. Navigate to **TakeDown Requestor**
+2. Select notice type:
+   - DMCA Takedown
+   - Cease & Desist
+   - Trademark Infringement
+   - Brand Impersonation
+3. Fill in the details
+4. Generate the notice
+5. Review and send
+
+## Required Information
+
+### Infringement Details
+- Type of infringement
+- Your copyrighted work URL
+- Infringing content URL
+- Description of infringement
+- Platform where hosted
+
+### Your Information
+- Your name/company
+- Contact details
+- Relationship to content
+- Signature
+
+## AI-Generated Notice
+
+The AI creates a professional legal notice including:
+- Proper legal language
+- Statutory references
+- Required declarations
+- Contact information
+- Deadlines for response
+
+## Important Notes
+
+- Review all information carefully
+- Ensure accuracy of claims
+- Keep records of all communications
+- Consider legal counsel for complex cases
+- Follow up if no response
+
+## After Sending
+
+1. Document the date sent
+2. Save copies of correspondence
+3. Track response deadline
+4. Follow escalation procedures if needed`
+  },
+  // Assets & Finance Articles  
+  {
+    id: 'equipment-inventory',
+    title: 'Equipment Inventory Management',
+    category: 'assets',
+    type: 'tutorial',
+    is_featured: true,
+    order: 1,
+    tags: ['equipment', 'inventory', 'assets'],
+    content: `# Equipment Inventory Management
+
+Track and manage your company's physical assets.
+
+## Adding Equipment
+
+1. Go to **Equipment Inventory**
+2. Click **Add Equipment**
+3. Enter equipment details:
+   - Name and category
+   - Serial number
+   - Purchase information
+   - Current location
+   - Assigned person
+   - Condition status
+
+## Categories
+
+Organize by type:
+- IT equipment
+- Furniture
+- Vehicles
+- Machinery
+- Office supplies
+- Other assets
+
+## Tracking Information
+
+### Financial Data
+- Purchase price
+- Current value
+- Depreciation
+- Total asset value
+
+### Maintenance
+- Maintenance schedule
+- Last maintenance date
+- Next service due
+- Service history
+
+### Status Tracking
+- Active
+- In Repair
+- Retired
+- Disposed
+
+## Dashboard Metrics
+
+Monitor:
+- Total items count
+- Total asset value
+- Items needing maintenance
+- Total depreciation
+
+## Best Practices
+
+- Record all purchases immediately
+- Update condition regularly
+- Schedule preventive maintenance
+- Track location changes
+- Document repairs and services
+- Review and audit periodically`
+  },
+  {
+    id: 'accounting-dashboard',
+    title: 'Accounting Dashboard',
+    category: 'assets',
+    type: 'tutorial',
+    order: 2,
+    tags: ['accounting', 'finance', 'reports'],
+    content: `# Accounting Dashboard
+
+Monitor your financial health and performance.
+
+## Overview Metrics
+
+Track key financials:
+- **Total Revenue**: Income for period
+- **Total Expenses**: Costs incurred
+- **Net Profit**: Revenue minus expenses
+- **Profit Margin**: Profitability percentage
+
+## Revenue vs Expenses Chart
+
+View monthly trends:
+- Revenue line (green)
+- Expenses line (red)
+- Profit line (blue)
+
+Identify patterns and seasonality.
+
+## Expenses by Category
+
+See spending breakdown:
+- Salaries
+- Marketing
+- Operations
+- Software
+- Other categories
+
+Use pie chart to visualize proportions.
+
+## Cash Flow Analysis
+
+Monitor money movement:
+- Cash inflows (income)
+- Cash outflows (expenses)
+- Net cash flow
+- Trends over time
+
+## Recent Transactions
+
+View latest activity:
+- Date and description
+- Amount (income/expense)
+- Category
+- Balance impact
+
+## Generating Reports
+
+1. Click **Generate Report**
+2. Select date range
+3. Choose format (PDF, CSV)
+4. Add custom notes
+5. Download or email
+
+## Financial Health Tips
+
+- Monitor profit margins
+- Control expense growth
+- Maintain positive cash flow
+- Review transactions regularly
+- Plan for seasonal variations`
+  },
+  {
+    id: 'user-profile-settings',
+    title: 'User Profile & Settings',
+    category: 'settings',
+    type: 'tutorial',
+    order: 1,
+    tags: ['profile', 'settings', 'account'],
+    content: `# User Profile & Settings
+
+Manage your personal information and preferences.
+
+## Accessing Your Profile
+
+Click your avatar in the top right, then select **Profile**.
+
+## Profile Sections
+
+### Personal Information
+- Full name
+- Email address
+- Bio
+- Location
+- Phone number
+- Company
+- Website
+
+### Security
+- Change password
+- Two-factor authentication
+- Active sessions
+- Security alerts
+
+### Notifications
+- Email notifications
+- Push notifications
+- Mention alerts
+- Lead notifications
+- Report ready alerts
+
+### Preferences
+- Theme (Light/Dark/Auto)
+- Language
+- Timezone
+- Date format
+- Dashboard settings
+
+## Updating Information
+
+1. Navigate to the relevant tab
+2. Make your changes
+3. Click **Save Changes**
+4. Changes take effect immediately
+
+## Security Best Practices
+
+- Use a strong, unique password
+- Enable two-factor authentication
+- Review active sessions regularly
+- Log out from unused devices
+- Update contact info
+
+## Notification Settings
+
+Customize what you receive:
+- Critical alerts (always on)
+- Content ideas
+- Competitor updates
+- Weekly digest
+- SEO alerts
+
+## Privacy & Data
+
+- Export your data anytime
+- Control what's shared
+- Manage connected apps
+- Delete account option`
+  },
   {
     id: 'faq-general',
     title: 'General FAQ',
@@ -1745,6 +2387,12 @@ export default function HelpCenter() {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [selectedArticle, setSelectedArticle] = useState(null);
   const [expandedSections, setExpandedSections] = useState({});
+  const [activeTab, setActiveTab] = useState('guides');
+  const [videoCategory, setVideoCategory] = useState('all');
+  const [aiQuestion, setAiQuestion] = useState('');
+  const [aiAnswer, setAiAnswer] = useState('');
+  const [isAskingAI, setIsAskingAI] = useState(false);
+  const toast = useToast();
 
   // Get article from URL if present
   React.useEffect(() => {
@@ -1788,6 +2436,26 @@ export default function HelpCenter() {
   const toggleSection = (categoryId) => {
     setExpandedSections(prev => ({ ...prev, [categoryId]: !prev[categoryId] }));
   };
+
+  const handleAskAI = async () => {
+    if (!aiQuestion.trim()) return;
+    
+    setIsAskingAI(true);
+    try {
+      const response = await base44.integrations.Core.InvokeLLM({
+        prompt: `You are a helpful AI assistant for the CatchAll Business Suite platform. Answer the following question based on the platform's features: CRM, SEO tools, social media management, marketing automation, analytics, AI tools, pitch deck creator/analyzer, DMCA takedown generator, equipment inventory, accounting dashboard, and user profiles. Question: ${aiQuestion}`,
+      });
+      setAiAnswer(response);
+    } catch (error) {
+      toast.error('Failed to get AI response');
+    } finally {
+      setIsAskingAI(false);
+    }
+  };
+
+  const filteredVideos = videoCategory === 'all' 
+    ? VIDEO_TUTORIALS 
+    : VIDEO_TUTORIALS.filter(v => v.category === videoCategory);
 
   // Article view
   if (selectedArticle) {
@@ -1970,29 +2638,79 @@ export default function HelpCenter() {
   return (
     <div className="p-6 lg:p-8 space-y-8 min-h-screen">
       {/* Header */}
-      <div className="text-center max-w-2xl mx-auto">
+      <div className="text-center max-w-3xl mx-auto">
         <div className="w-16 h-16 bg-violet-100 dark:bg-violet-900/30 rounded-2xl flex items-center justify-center mx-auto mb-4">
           <HelpCircle className="w-8 h-8 text-violet-600 dark:text-violet-400" />
         </div>
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">How can we help?</h1>
         <p className="text-gray-500 dark:text-gray-400 mb-6">
-          Search our knowledge base or browse by category
+          Search our knowledge base, watch video tutorials, or ask our AI assistant
         </p>
         
-        {/* Search */}
-        <div className="relative">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-          <Input
-            placeholder="Search for help articles..."
-            value={searchQuery}
-            onChange={(e) => { setSearchQuery(e.target.value); setSelectedCategory(null); }}
-            className="pl-12 h-12 text-lg rounded-xl"
-          />
+        {/* Search with Ask AI */}
+        <div className="flex gap-2">
+          <div className="relative flex-1">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+            <Input
+              placeholder="Search for help articles or ask a question..."
+              value={searchQuery}
+              onChange={(e) => { setSearchQuery(e.target.value); setSelectedCategory(null); }}
+              className="pl-12 h-12 text-lg rounded-xl"
+            />
+          </div>
+          <Button 
+            onClick={handleAskAI}
+            disabled={isAskingAI}
+            className="h-12 px-6 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700"
+          >
+            <Sparkles className="w-5 h-5 mr-2" />
+            {isAskingAI ? 'Asking...' : 'Ask AI'}
+          </Button>
         </div>
+
+        {/* AI Answer */}
+        {aiAnswer && (
+          <Card className="mt-4 text-left bg-gradient-to-br from-violet-50 to-purple-50 dark:from-violet-900/20 dark:to-purple-900/20 border-violet-200">
+            <CardContent className="p-4">
+              <div className="flex items-start gap-3">
+                <Sparkles className="w-5 h-5 text-violet-600 flex-shrink-0 mt-1" />
+                <div className="flex-1">
+                  <p className="font-medium text-gray-900 dark:text-white mb-2">AI Assistant</p>
+                  <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">{aiAnswer}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
       </div>
 
-      {/* Search Results */}
-      {searchQuery && (
+      {/* Tabs */}
+      <div className="max-w-6xl mx-auto">
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
+          <TabsList className="grid w-full grid-cols-4 max-w-2xl mx-auto">
+            <TabsTrigger value="guides">
+              <BookOpen className="w-4 h-4 mr-2" />
+              Guides
+            </TabsTrigger>
+            <TabsTrigger value="videos">
+              <Video className="w-4 h-4 mr-2" />
+              Videos
+            </TabsTrigger>
+            <TabsTrigger value="quickstart">
+              <PlayCircle className="w-4 h-4 mr-2" />
+              Quick Start
+            </TabsTrigger>
+            <TabsTrigger value="popular">
+              <Star className="w-4 h-4 mr-2" />
+              Popular
+            </TabsTrigger>
+          </TabsList>
+
+          {/* Guides Tab */}
+          <TabsContent value="guides" className="mt-6">
+
+            {/* Search Results */}
+            {searchQuery && (
         <div className="max-w-3xl mx-auto">
           <h2 className="text-lg font-semibold mb-4">
             {filteredArticles.length} results for "{searchQuery}"
@@ -2033,9 +2751,9 @@ export default function HelpCenter() {
         </div>
       )}
 
-      {/* Default View (no search) */}
-      {!searchQuery && (
-        <>
+            {/* Default View (no search) */}
+            {!searchQuery && (
+              <>
           {/* Quick Start */}
           <div className="max-w-4xl mx-auto">
             <div className="flex items-center gap-2 mb-4">
@@ -2131,23 +2849,152 @@ export default function HelpCenter() {
             </div>
           </div>
 
-          {/* Still Need Help */}
-          <div className="max-w-xl mx-auto text-center">
-            <Card className="border-0 shadow-sm bg-gradient-to-br from-violet-50 to-indigo-50 dark:from-violet-900/20 dark:to-indigo-900/20">
-              <CardContent className="p-6">
-                <MessageSquare className="w-10 h-10 text-violet-500 mx-auto mb-3" />
-                <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Still need help?</h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                  Can't find what you're looking for? Our support team is here to help.
-                </p>
-                <Button className="bg-violet-600 hover:bg-violet-700">
-                  Contact Support
+                {/* Still Need Help */}
+                <div className="max-w-xl mx-auto text-center">
+                  <Card className="border-0 shadow-sm bg-gradient-to-br from-violet-50 to-indigo-50 dark:from-violet-900/20 dark:to-indigo-900/20">
+                    <CardContent className="p-6">
+                      <MessageSquare className="w-10 h-10 text-violet-500 mx-auto mb-3" />
+                      <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Still need help?</h3>
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                        Can't find what you're looking for? Our support team is here to help.
+                      </p>
+                      <Button className="bg-violet-600 hover:bg-violet-700">
+                        Contact Support
+                      </Button>
+                    </CardContent>
+                  </Card>
+                </div>
+              </>
+            )}
+          </TabsContent>
+
+          {/* Videos Tab */}
+          <TabsContent value="videos" className="mt-6">
+            <div className="space-y-6">
+              {/* Category Filters */}
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  variant={videoCategory === 'all' ? 'default' : 'outline'}
+                  onClick={() => setVideoCategory('all')}
+                  size="sm"
+                >
+                  All Videos
                 </Button>
-              </CardContent>
-            </Card>
-          </div>
-        </>
-      )}
+                {CATEGORIES.map(cat => {
+                  const videosInCategory = VIDEO_TUTORIALS.filter(v => v.category === cat.id).length;
+                  if (videosInCategory === 0) return null;
+                  return (
+                    <Button
+                      key={cat.id}
+                      variant={videoCategory === cat.id ? 'default' : 'outline'}
+                      onClick={() => setVideoCategory(cat.id)}
+                      size="sm"
+                      className="gap-1"
+                    >
+                      <cat.icon className="w-3 h-3" />
+                      {cat.label} ({videosInCategory})
+                    </Button>
+                  );
+                })}
+              </div>
+
+              {/* Video Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredVideos.map(video => {
+                  const cat = CATEGORIES.find(c => c.id === video.category);
+                  return (
+                    <Card key={video.id} className="overflow-hidden hover:shadow-lg transition-shadow">
+                      <div className={`aspect-video ${video.thumbnail} relative flex items-center justify-center cursor-pointer group`}>
+                        {video.isFeatured && (
+                          <Badge className="absolute top-2 left-2 bg-amber-500 text-white border-0">
+                            <Star className="w-3 h-3 mr-1" />
+                            Featured
+                          </Badge>
+                        )}
+                        <div className="absolute inset-0 bg-black/20 group-hover:bg-black/30 transition-colors" />
+                        <div className="relative w-16 h-16 rounded-full bg-white/90 flex items-center justify-center group-hover:scale-110 transition-transform">
+                          <PlayCircle className="w-10 h-10 text-violet-600" />
+                        </div>
+                        <div className="absolute bottom-2 right-2 bg-black/80 text-white text-xs px-2 py-1 rounded">
+                          {video.duration}
+                        </div>
+                      </div>
+                      <CardContent className="p-4">
+                        <h3 className="font-semibold text-gray-900 dark:text-white mb-2">{video.title}</h3>
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-3 line-clamp-2">{video.description}</p>
+                        <div className="flex items-center justify-between text-xs text-gray-500">
+                          <div className="flex items-center gap-1">
+                            <Eye className="w-3 h-3" />
+                            {video.views} views
+                          </div>
+                          <Badge variant="outline" className="text-xs">
+                            {cat?.label}
+                          </Badge>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
+            </div>
+          </TabsContent>
+
+          {/* Quick Start Tab */}
+          <TabsContent value="quickstart" className="mt-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {QUICK_START_STEPS.map((step, idx) => (
+                <Link
+                  key={step.id}
+                  to={createPageUrl(step.link)}
+                  className="group"
+                >
+                  <Card className="border-0 shadow-sm hover:shadow-md transition-all h-full">
+                    <CardContent className="p-4">
+                      <div className="flex items-center gap-3 mb-2">
+                        <div className="w-8 h-8 bg-violet-100 dark:bg-violet-900/30 rounded-lg flex items-center justify-center text-violet-600 dark:text-violet-400 font-bold text-sm">
+                          {idx + 1}
+                        </div>
+                        <step.icon className="w-5 h-5 text-gray-400 group-hover:text-violet-500 transition-colors" />
+                      </div>
+                      <h3 className="font-medium text-gray-900 dark:text-white mb-1">{step.title}</h3>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">{step.description}</p>
+                    </CardContent>
+                  </Card>
+                </Link>
+              ))}
+            </div>
+          </TabsContent>
+
+          {/* Popular Tab */}
+          <TabsContent value="popular" className="mt-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {allArticles.filter(a => a.is_featured).slice(0, 8).map(article => {
+                const cat = CATEGORIES.find(c => c.id === article.category);
+                return (
+                  <Card 
+                    key={article.id}
+                    className="border-0 shadow-sm hover:shadow-md transition-all cursor-pointer"
+                    onClick={() => setSelectedArticle(article)}
+                  >
+                    <CardContent className="p-4 flex items-start gap-4">
+                      <div className={`w-10 h-10 rounded-lg ${cat?.color || 'bg-gray-100'} flex items-center justify-center shrink-0`}>
+                        {cat?.icon && <cat.icon className="w-5 h-5" />}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-medium text-gray-900 dark:text-white mb-1">{article.title}</h3>
+                        <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-2">
+                          {article.content?.replace(/[#*`]/g, '').substring(0, 80)}...
+                        </p>
+                      </div>
+                      <ChevronRight className="w-5 h-5 text-gray-400 shrink-0" />
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
+          </TabsContent>
+        </Tabs>
+      </div>
     </div>
   );
 }
