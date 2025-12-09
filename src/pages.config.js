@@ -37,6 +37,9 @@ import UserSettings from './pages/UserSettings';
 import MobileHub from './pages/MobileHub';
 import CompetitorAnalysis from './pages/CompetitorAnalysis';
 import VisitorProfiles from './pages/VisitorProfiles';
+import PitchDeckCreator from './pages/PitchDeckCreator';
+import PitchDeckAnalyzer from './pages/PitchDeckAnalyzer';
+import TakeDownRequestor from './pages/TakeDownRequestor';
 import __Layout from './Layout.jsx';
 
 
@@ -80,6 +83,9 @@ export const PAGES = {
     "MobileHub": MobileHub,
     "CompetitorAnalysis": CompetitorAnalysis,
     "VisitorProfiles": VisitorProfiles,
+    "PitchDeckCreator": PitchDeckCreator,
+    "PitchDeckAnalyzer": PitchDeckAnalyzer,
+    "TakeDownRequestor": TakeDownRequestor,
 }
 
 export const pagesConfig = {

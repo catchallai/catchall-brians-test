@@ -42,6 +42,7 @@ import {
   Smartphone,
   Plus,
   UserCircle,
+  AlertTriangle,
 } from "lucide-react";
 import ErrorBoundary from '@/components/ui/ErrorBoundary';
 import KeyboardShortcutsDialog, { useKeyboardShortcuts } from '@/components/ui/KeyboardShortcuts';
@@ -64,6 +65,9 @@ const navigation = [
   { name: 'divider', label: 'Business Dev' },
   { name: 'Competitor Analysis', icon: Users, page: 'CompetitorAnalysis' },
   { name: 'Lead Analysis', icon: UserCircle, page: 'VisitorProfiles' },
+  { name: 'Pitch Deck Creator', icon: PenTool, page: 'PitchDeckCreator' },
+  { name: 'Pitch Deck Analyzer', icon: FileSearch, page: 'PitchDeckAnalyzer' },
+  { name: 'TakeDown Requestor', icon: AlertTriangle, page: 'TakeDownRequestor' },
   { name: 'Listings & Reviews', icon: MapPin, page: 'Listings' },
   { name: 'Media Outreach', icon: Mail, page: 'MediaOutreach' },
   { name: 'Press Monitoring', icon: Newspaper, page: 'PressMonitoring' },
@@ -111,6 +115,9 @@ const navigation = [
 const SIDEBAR_ICONS = {
   Dashboard: LayoutDashboard,
   VisitorProfiles: UserCircle,
+  PitchDeckCreator: PenTool,
+  PitchDeckAnalyzer: FileSearch,
+  TakeDownRequestor: AlertTriangle,
   Contacts: Users,
   Companies: Building2,
   Deals: Target,

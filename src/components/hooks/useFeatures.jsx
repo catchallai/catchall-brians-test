@@ -41,6 +41,9 @@ export function useFeatures() {
 
 // Map feature keys to page names for navigation filtering
 export const FEATURE_PAGE_MAP = {
+  pitchDeckCreator: 'PitchDeckCreator',
+  pitchDeckAnalyzer: 'PitchDeckAnalyzer',
+  takeDownRequestor: 'TakeDownRequestor',
   contacts: 'Contacts',
   companies: 'Companies',
   deals: 'Deals',
