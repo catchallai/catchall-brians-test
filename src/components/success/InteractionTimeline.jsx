@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { 
   MessageSquare, Phone, Video, Mail, AlertTriangle, 
-  ThumbsUp, ThumbsDown, Minus, Calendar, Pencil 
+  ThumbsUp, ThumbsDown, Minus, Calendar, Pencil, TrendingUp 
 } from "lucide-react";
 
 const typeIcons = {
