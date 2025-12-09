@@ -24,6 +24,8 @@ export default function CompetitorDetailModal({
   isScanningNews,
   onDeepAnalyze,
   isDeepAnalyzing,
+  onScanLeadership,
+  isScanningLeadership,
   yourBrandName
 }) {
   if (!competitor) return null;
@@ -78,12 +80,206 @@ export default function CompetitorDetailModal({
 
         <div className="flex-1 overflow-y-auto pr-2">
           <Tabs defaultValue="overview" className="space-y-4">
-            <TabsList className="w-full grid grid-cols-4">
-              <TabsTrigger value="overview">Overview</TabsTrigger>
-              <TabsTrigger value="insights">AI Insights</TabsTrigger>
-              <TabsTrigger value="compare">Compare</TabsTrigger>
-              <TabsTrigger value="reports">Reports</TabsTrigger>
+            <TabsList className="w-full grid grid-cols-5">
+              <TabsTrigger value="overview" className="text-xs">Overview</TabsTrigger>
+              <TabsTrigger value="leadership" className="text-xs">Leadership</TabsTrigger>
+              <TabsTrigger value="insights" className="text-xs">AI Insights</TabsTrigger>
+              <TabsTrigger value="compare" className="text-xs">Compare</TabsTrigger>
+              <TabsTrigger value="reports" className="text-xs">Reports</TabsTrigger>
             </TabsList>
+
+            <TabsContent value="leadership" className="space-y-4">
+              <div className="flex justify-end">
+                <Button
+                  size="sm"
+                  onClick={onScanLeadership}
+                  disabled={isScanningLeadership}
+                  className="gap-2"
+                >
+                  {isScanningLeadership ? (
+                    <><Loader2 className="w-4 h-4 animate-spin" /> Scanning...</>
+                  ) : (
+                    <><Users className="w-4 h-4" /> Scan Leadership</>
+                  )}
+                </Button>
+              </div>
+
+              {competitor?.company_overview && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-sm">Company Overview</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-2">
+                    <div className="grid grid-cols-2 gap-4">
+                      {competitor.company_overview.founded && (
+                        <div>
+                          <p className="text-xs text-gray-500">Founded</p>
+                          <p className="text-sm font-medium">{competitor.company_overview.founded}</p>
+                        </div>
+                      )}
+                      {competitor.company_overview.headquarters && (
+                        <div>
+                          <p className="text-xs text-gray-500">Headquarters</p>
+                          <p className="text-sm font-medium">{competitor.company_overview.headquarters}</p>
+                        </div>
+                      )}
+                      {competitor.company_overview.employee_count && (
+                        <div>
+                          <p className="text-xs text-gray-500">Employees</p>
+                          <p className="text-sm font-medium">{competitor.company_overview.employee_count}</p>
+                        </div>
+                      )}
+                      {competitor.company_overview.revenue && (
+                        <div>
+                          <p className="text-xs text-gray-500">Revenue</p>
+                          <p className="text-sm font-medium">{competitor.company_overview.revenue}</p>
+                        </div>
+                      )}
+                    </div>
+                    {competitor.company_overview.funding && (
+                      <div className="pt-2">
+                        <p className="text-xs text-gray-500">Funding</p>
+                        <p className="text-sm font-medium">{competitor.company_overview.funding}</p>
+                      </div>
+                    )}
+                    {competitor.company_overview.investors?.length > 0 && (
+                      <div className="pt-2">
+                        <p className="text-xs text-gray-500 mb-1">Key Investors</p>
+                        <div className="flex flex-wrap gap-1">
+                          {competitor.company_overview.investors.map((inv, i) => (
+                            <Badge key={i} variant="outline" className="text-xs">{inv}</Badge>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    {competitor.company_overview.business_model && (
+                      <div className="pt-2">
+                        <p className="text-xs text-gray-500">Business Model</p>
+                        <p className="text-xs">{competitor.company_overview.business_model}</p>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              )}
+
+              {competitor?.leadership_team?.length > 0 && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-sm">Executive Leadership</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    {competitor.leadership_team.map((exec, i) => (
+                      <div key={i} className="border-b last:border-0 pb-4 last:pb-0">
+                        <div className="flex justify-between items-start mb-2">
+                          <div>
+                            <h4 className="font-semibold text-sm">{exec.name}</h4>
+                            <p className="text-xs text-gray-600">{exec.role}</p>
+                            {exec.tenure && <p className="text-xs text-gray-500">{exec.tenure}</p>}
+                          </div>
+                          <div className="flex gap-1">
+                            {exec.linkedin && (
+                              <a href={exec.linkedin} target="_blank" rel="noopener noreferrer">
+                                <Badge variant="outline" className="cursor-pointer text-xs">in</Badge>
+                              </a>
+                            )}
+                            {exec.twitter && (
+                              <a href={exec.twitter} target="_blank" rel="noopener noreferrer">
+                                <Badge variant="outline" className="cursor-pointer text-xs">𝕏</Badge>
+                              </a>
+                            )}
+                          </div>
+                        </div>
+                        
+                        {exec.bio && (
+                          <p className="text-xs text-gray-700 mb-2">{exec.bio}</p>
+                        )}
+                        
+                        {exec.key_achievements?.length > 0 && (
+                          <div className="mb-2">
+                            <p className="text-xs font-medium text-gray-600 mb-1">Key Achievements:</p>
+                            <ul className="text-xs text-gray-700 list-disc list-inside">
+                              {exec.key_achievements.map((ach, j) => (
+                                <li key={j}>{ach}</li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+
+                        {exec.recent_news?.length > 0 && (
+                          <div>
+                            <p className="text-xs font-medium text-gray-600 mb-2">Recent News:</p>
+                            <div className="space-y-2">
+                              {exec.recent_news.map((news, j) => (
+                                <div key={j} className="bg-gray-50 p-2 rounded text-xs">
+                                  <a href={news.url} target="_blank" rel="noopener noreferrer" className="font-medium hover:text-violet-600">
+                                    {news.title}
+                                  </a>
+                                  <div className="flex items-center gap-2 text-gray-500 mt-1">
+                                    <span>{news.source}</span>
+                                    <span>•</span>
+                                    <span>{news.date}</span>
+                                    {news.sentiment && (
+                                      <>
+                                        <span>•</span>
+                                        <Badge variant={news.sentiment === 'positive' ? 'success' : news.sentiment === 'negative' ? 'destructive' : 'secondary'} className="text-xs py-0">
+                                          {news.sentiment}
+                                        </Badge>
+                                      </>
+                                    )}
+                                  </div>
+                                  {news.summary && (
+                                    <p className="text-gray-600 mt-1">{news.summary}</p>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </CardContent>
+                </Card>
+              )}
+
+              {competitor?.board_members?.length > 0 && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-sm">Board of Directors</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      {competitor.board_members.map((member, i) => (
+                        <div key={i} className="border rounded p-2">
+                          <h4 className="text-sm font-semibold">{member.name}</h4>
+                          <p className="text-xs text-gray-600">{member.title}</p>
+                          {member.background && (
+                            <p className="text-xs text-gray-700 mt-1">{member.background}</p>
+                          )}
+                          {member.other_boards?.length > 0 && (
+                            <div className="mt-2">
+                              <p className="text-xs text-gray-500">Other Boards:</p>
+                              <div className="flex flex-wrap gap-1 mt-1">
+                                {member.other_boards.map((board, j) => (
+                                  <Badge key={j} variant="outline" className="text-xs">{board}</Badge>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {!competitor?.leadership_team?.length && !competitor?.board_members?.length && (
+                <Card className="p-8 text-center">
+                  <Users className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+                  <p className="text-gray-500 text-sm">No leadership data yet.</p>
+                  <p className="text-gray-400 text-xs">Click "Scan Leadership" to analyze.</p>
+                </Card>
+              )}
+            </TabsContent>
 
             <TabsContent value="overview" className="space-y-4">
               {/* Quick Stats */}
