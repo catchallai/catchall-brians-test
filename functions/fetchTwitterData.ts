@@ -28,7 +28,7 @@ Deno.serve(async (req) => {
 
     // Get user info by username
     const userResponse = await fetch(
-      `https://api.twitter.com/2/users/by/username/${cleanUsername}?user.fields=public_metrics,description,created_at`,
+      `https://api.twitter.com/2/users/by/username/${cleanUsername}?user.fields=public_metrics,description,created_at,protected`,
       {
         headers: {
           'Authorization': `Bearer ${bearerToken}`,
@@ -39,26 +39,38 @@ Deno.serve(async (req) => {
     if (!userResponse.ok) {
       const error = await userResponse.json();
       return Response.json({ 
-        error: `Twitter API error: ${error.detail || 'Failed to fetch user'}` 
+        error: `Twitter API error: ${error.detail || error.title || 'Failed to fetch user'}`,
+        details: error
       }, { status: userResponse.status });
     }
 
     const userData = await userResponse.json();
+    
+    if (!userData.data) {
+      return Response.json({ 
+        error: `User @${cleanUsername} not found` 
+      }, { status: 404 });
+    }
+    
     const userId = userData.data.id;
     const metrics = userData.data.public_metrics;
+    const isProtected = userData.data.protected;
 
-    // Get recent tweets
-    const tweetsResponse = await fetch(
-      `https://api.twitter.com/2/users/${userId}/tweets?max_results=10&tweet.fields=public_metrics,created_at,entities&expansions=attachments.media_keys&media.fields=url`,
-      {
-        headers: {
-          'Authorization': `Bearer ${bearerToken}`,
+    // Get recent tweets (skip if protected)
+    let tweets = [];
+    if (!isProtected) {
+      const tweetsResponse = await fetch(
+        `https://api.twitter.com/2/users/${userId}/tweets?max_results=10&tweet.fields=public_metrics,created_at,entities&expansions=attachments.media_keys&media.fields=url`,
+        {
+          headers: {
+            'Authorization': `Bearer ${bearerToken}`,
+          }
         }
-      }
-    );
+      );
 
-    const tweetsData = await tweetsResponse.ok ? await tweetsResponse.json() : { data: [] };
-    const tweets = tweetsData.data || [];
+      const tweetsData = await tweetsResponse.ok ? await tweetsResponse.json() : { data: [] };
+      tweets = tweetsData.data || [];
+    }
 
     // Calculate engagement rate
     const totalEngagements = tweets.reduce((sum, tweet) => {
@@ -104,9 +116,12 @@ Deno.serve(async (req) => {
     return Response.json({
       success: true,
       followers_count: metrics.followers_count,
+      following_count: metrics.following_count,
       engagement_rate: parseFloat(engagementRate),
       total_posts: metrics.tweet_count,
-      posts: posts
+      is_protected: isProtected,
+      posts: posts,
+      note: isProtected ? 'Account is protected - tweets not available' : null
     });
 
   } catch (error) {
