@@ -43,6 +43,7 @@ import TakeDownRequestor from './pages/TakeDownRequestor';
 import EquipmentInventory from './pages/EquipmentInventory';
 import AccountingDashboard from './pages/AccountingDashboard';
 import AIDashboard from './pages/AIDashboard';
+import UserProfile from './pages/UserProfile';
 import __Layout from './Layout.jsx';
 
 
@@ -92,6 +93,7 @@ export const PAGES = {
     "EquipmentInventory": EquipmentInventory,
     "AccountingDashboard": AccountingDashboard,
     "AIDashboard": AIDashboard,
+    "UserProfile": UserProfile,
 }
 
 export const pagesConfig = {
