@@ -98,6 +98,16 @@ export default function SalesHub() {
 
 
 
+  const { data: reservations = [] } = useQuery({
+    queryKey: ['sales-reservations'],
+    queryFn: () => base44.entities.SalesReservation.list('-created_date', 100),
+  });
+
+  const { data: enrichedLeads = [] } = useQuery({
+    queryKey: ['lead-enrichments'],
+    queryFn: () => base44.entities.LeadEnrichment.list('-created_date', 100),
+  });
+
   const generateFollowUpsMutation = useMutation({
     mutationFn: async () => {
       const callsNeedingFollowup = salesCalls.filter(c => 
