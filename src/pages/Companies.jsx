@@ -129,7 +129,7 @@ export default function Companies() {
 
       {/* Company List */}
       {isLoading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {[...Array(6)].map((_, i) => (
             <Skeleton key={i} className="h-40 rounded-xl" />
           ))}
@@ -143,7 +143,7 @@ export default function Companies() {
           onAction={() => { setEditingCompany(null); setShowModal(true); }}
         />
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredCompanies.map((company) => (
             <Card
               key={company.id}
