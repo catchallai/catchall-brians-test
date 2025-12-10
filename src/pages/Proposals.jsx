@@ -163,6 +163,17 @@ export default function Proposals() {
           })}
         </div>
       )}
+
+      {/* Modal */}
+      <ProposalModal
+        open={showModal}
+        onClose={() => { setShowModal(false); setEditingProposal(null); }}
+        proposal={editingProposal}
+        contacts={contacts}
+        deals={deals}
+        onSave={(data) => saveMutation.mutate(data)}
+        isLoading={saveMutation.isPending}
+      />
     </div>
   );
 }
