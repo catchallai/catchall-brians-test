@@ -178,23 +178,53 @@ export default function VisitorProfiles() {
   const [tierFilter, setTierFilter] = useState('all');
   const [selectedVisitor, setSelectedVisitor] = useState(null);
   
-  // Fetch real GA4 data
-  const { data: ga4Data, isLoading } = useQuery({
-    queryKey: ['ga4-visitors'],
-    queryFn: async () => {
-      const response = await base44.functions.invoke('fetchGA4Data');
-      return response.data;
-    },
-    refetchInterval: 60000, // Refresh every minute
+  // Fetch real visitor sessions
+  const { data: sessions, isLoading } = useQuery({
+    queryKey: ['visitor-sessions'],
+    queryFn: () => base44.entities.VisitorSession.list('-session_start', 200),
+    refetchInterval: 30000, // Refresh every 30 seconds
   });
   
   const allVisitors = useMemo(() => {
-    const visitors = ga4Data?.visitors || generateVisitors();
-    return visitors.map(v => {
-      const aiScore = calculateAILeadScore(v);
-      return { ...v, leadScore: aiScore.score, scoreData: aiScore };
+    if (!sessions || sessions.length === 0) {
+      return generateVisitors(); // Fallback to demo data
+    }
+    
+    // Transform sessions into visitor format
+    return sessions.map((session, idx) => {
+      const timeMinutes = Math.floor((session.time_on_site || 0) / 60);
+      const timeSeconds = (session.time_on_site || 0) % 60;
+      const daysAgo = Math.floor((Date.now() - new Date(session.session_start).getTime()) / (1000 * 60 * 60 * 24));
+      
+      const visitor = {
+        id: idx + 1,
+        sessionId: session.session_id,
+        company: session.company || 'Unknown Visitor',
+        industry: session.industry || 'Technology',
+        city: session.city || 'Unknown',
+        country: session.country || 'Unknown',
+        pagesViewed: session.pages_viewed || 0,
+        timeOnSite: `${timeMinutes}m ${timeSeconds}s`,
+        lastPage: session.exit_page || '/',
+        firstVisit: !session.is_returning,
+        visitCount: session.visit_count || 1,
+        device: session.device || 'Desktop',
+        browser: session.browser || 'Unknown',
+        referrer: session.referrer || 'Direct',
+        entryPage: session.entry_page || '/',
+        journey: (session.journey || []).map(j => ({
+          page: j.page,
+          time: `${Math.floor(j.time_spent / 60)}m ${j.time_spent % 60}s`,
+          scrollDepth: j.scroll_depth || 0
+        })),
+        daysAgo: daysAgo || 0,
+        lastSeen: session.session_end || session.session_start
+      };
+      
+      const aiScore = calculateAILeadScore(visitor);
+      return { ...visitor, leadScore: aiScore.score, scoreData: aiScore };
     }).sort((a, b) => b.leadScore - a.leadScore);
-  }, [ga4Data]);
+  }, [sessions]);
   
   const filteredVisitors = useMemo(() => {
     return allVisitors.filter(v => {
@@ -287,7 +317,7 @@ export default function VisitorProfiles() {
             Visitor Profiles
           </h1>
           <p className="text-gray-500 dark:text-gray-400 mt-1">
-            AI-powered lead scoring • {ga4Data?.dataSource === 'google_analytics' ? '🟢 Live GA4 Data' : 'Demo Data'}
+            AI-powered lead scoring • {sessions && sessions.length > 0 ? '🟢 Live Tracking Active' : 'Demo Data'}
           </p>
         </div>
         <Tabs value={dateRange} onValueChange={setDateRange}>
