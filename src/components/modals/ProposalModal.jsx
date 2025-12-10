@@ -95,28 +95,31 @@ export default function ProposalModal({ open, onClose, proposal, contacts, deals
             </div>
 
             <div>
-              <label className="text-sm font-medium">Contact</label>
-              <Select value={formData.contact_id} onValueChange={(val) => setFormData({ ...formData, contact_id: val })}>
+              <label className="text-sm font-medium">Contact *</label>
+              <Select value={formData.contact_id || undefined} onValueChange={(val) => setFormData({ ...formData, contact_id: val })}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select contact" />
                 </SelectTrigger>
                 <SelectContent>
-                  {contacts?.map(c => (
+                  {contacts?.length > 0 ? contacts.map(c => (
                     <SelectItem key={c.id} value={c.id}>
                       {c.first_name} {c.last_name}
                     </SelectItem>
-                  ))}
+                  )) : (
+                    <div className="p-2 text-sm text-gray-500">No contacts found</div>
+                  )}
                 </SelectContent>
               </Select>
             </div>
 
             <div>
               <label className="text-sm font-medium">Deal (Optional)</label>
-              <Select value={formData.deal_id} onValueChange={(val) => setFormData({ ...formData, deal_id: val })}>
+              <Select value={formData.deal_id || undefined} onValueChange={(val) => setFormData({ ...formData, deal_id: val })}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select deal" />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value={null}>None</SelectItem>
                   {deals?.map(d => (
                     <SelectItem key={d.id} value={d.id}>
                       {d.title}
