@@ -9,6 +9,9 @@ import HealthTrendsChart from '@/components/success/HealthTrendsChart';
 import OnboardingCompletionChart from '@/components/success/OnboardingCompletionChart';
 import OpportunityConversionChart from '@/components/success/OpportunityConversionChart';
 import CSMPerformanceCard from '@/components/success/CSMPerformanceCard';
+import ChurnRiskAnalytics from '@/components/success/ChurnRiskAnalytics';
+import HealthScoreTrends from '@/components/success/HealthScoreTrends';
+import FeedbackSentimentAnalysis from '@/components/success/FeedbackSentimentAnalysis';
 
 export default function CustomerSuccessDashboard() {
   const [csmFilter, setCsmFilter] = useState('all');
