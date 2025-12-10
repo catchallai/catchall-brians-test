@@ -90,14 +90,14 @@ export default function Companies() {
   };
 
   return (
-    <div className="p-6 lg:p-8 space-y-6 min-h-screen">
+    <div className="p-4 sm:p-6 lg:p-8 space-y-4 sm:space-y-6 min-h-screen">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Companies</h1>
-          <p className="text-gray-500 mt-1">{companies.length} companies total</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Companies</h1>
+          <p className="text-sm sm:text-base text-gray-500 mt-1">{companies.length} companies total</p>
         </div>
-        <Button onClick={() => { setEditingCompany(null); setShowModal(true); }} className="gap-2 bg-violet-600 hover:bg-violet-700">
+        <Button onClick={() => { setEditingCompany(null); setShowModal(true); }} className="gap-2 bg-violet-600 hover:bg-violet-700 w-full sm:w-auto">
           <Plus className="w-4 h-4" />
           Add Company
         </Button>
