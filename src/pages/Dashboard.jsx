@@ -124,6 +124,11 @@ export default function Dashboard() {
   const activeCampaigns = campaigns.filter(c => c.status === 'active').length;
   const scheduledPosts = calendarPosts.filter(p => p.status === 'scheduled').length;
   const unreadAlerts = alerts.filter(a => !a.is_read).length;
+  
+  const monthlyTraffic = websites.reduce((sum, w) => sum + (w.organic_traffic || 0), 0);
+  const totalEngagement = mentions.reduce((sum, m) => sum + (m.engagement_rate || 0), 0);
+  const avgEngagementRate = mentions.length > 0 ? (totalEngagement / mentions.length).toFixed(1) : 0;
+  const criticalAlerts = alerts.filter(a => a.severity === 'critical' || a.severity === 'high').length;
 
   const formatCurrency = (value) => {
     if (value >= 1000000) return `$${(value / 1000000).toFixed(1)}M`;
@@ -164,21 +169,36 @@ export default function Dashboard() {
               </h1>
               <p className="text-violet-100 text-sm sm:text-base lg:text-lg">Here's what's happening with your brand today</p>
             </div>
-            <div className="grid grid-cols-3 gap-2 sm:gap-4 lg:flex lg:gap-6 lg:justify-end">
-              <div className="bg-white/10 backdrop-blur-sm rounded-lg sm:rounded-xl px-3 py-3 sm:px-6 sm:py-4 border border-white/20">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-3 lg:gap-4">
+              <div className="bg-white/10 backdrop-blur-sm rounded-lg sm:rounded-xl px-3 py-3 sm:px-4 sm:py-4 border border-white/20">
                 <p className="text-violet-100 text-xs sm:text-sm mb-1">Pipeline</p>
                 <p className="text-white text-lg sm:text-2xl font-bold">{formatCurrency(totalPipelineValue)}</p>
-                <p className="text-emerald-300 text-[10px] sm:text-xs font-medium">+12% this month</p>
+                <p className="text-emerald-300 text-[10px] sm:text-xs font-medium">+12% month</p>
               </div>
-              <div className="bg-white/10 backdrop-blur-sm rounded-lg sm:rounded-xl px-3 py-3 sm:px-6 sm:py-4 border border-white/20">
+              <div className="bg-white/10 backdrop-blur-sm rounded-lg sm:rounded-xl px-3 py-3 sm:px-4 sm:py-4 border border-white/20">
                 <p className="text-violet-100 text-xs sm:text-sm mb-1">SEO Score</p>
                 <p className="text-white text-lg sm:text-2xl font-bold">{avgSEOScore || '-'}</p>
                 <p className="text-emerald-300 text-[10px] sm:text-xs font-medium">{avgSEOScore > 70 ? '+5pts' : 'N/A'}</p>
               </div>
-              <div className="bg-white/10 backdrop-blur-sm rounded-lg sm:rounded-xl px-3 py-3 sm:px-6 sm:py-4 border border-white/20">
+              <div className="bg-white/10 backdrop-blur-sm rounded-lg sm:rounded-xl px-3 py-3 sm:px-4 sm:py-4 border border-white/20">
+                <p className="text-violet-100 text-xs sm:text-sm mb-1">Web Traffic</p>
+                <p className="text-white text-lg sm:text-2xl font-bold">{monthlyTraffic >= 1000 ? `${(monthlyTraffic/1000).toFixed(1)}K` : monthlyTraffic}</p>
+                <p className="text-blue-300 text-[10px] sm:text-xs font-medium">monthly visits</p>
+              </div>
+              <div className="bg-white/10 backdrop-blur-sm rounded-lg sm:rounded-xl px-3 py-3 sm:px-4 sm:py-4 border border-white/20">
+                <p className="text-violet-100 text-xs sm:text-sm mb-1">Engagement</p>
+                <p className="text-white text-lg sm:text-2xl font-bold">{avgEngagementRate}%</p>
+                <p className="text-cyan-300 text-[10px] sm:text-xs font-medium">social rate</p>
+              </div>
+              <div className="bg-white/10 backdrop-blur-sm rounded-lg sm:rounded-xl px-3 py-3 sm:px-4 sm:py-4 border border-white/20">
                 <p className="text-violet-100 text-xs sm:text-sm mb-1">Mentions</p>
                 <p className="text-white text-lg sm:text-2xl font-bold">{mentions.length}</p>
                 <p className="text-amber-300 text-[10px] sm:text-xs font-medium">{mentions.length > 10 ? 'Active' : 'Low'}</p>
+              </div>
+              <div className="bg-white/10 backdrop-blur-sm rounded-lg sm:rounded-xl px-3 py-3 sm:px-4 sm:py-4 border border-white/20">
+                <p className="text-violet-100 text-xs sm:text-sm mb-1">Alerts</p>
+                <p className="text-white text-lg sm:text-2xl font-bold">{criticalAlerts}</p>
+                <p className={`text-[10px] sm:text-xs font-medium ${criticalAlerts > 0 ? 'text-red-300' : 'text-emerald-300'}`}>{criticalAlerts > 0 ? 'critical' : 'none'}</p>
               </div>
             </div>
           </div>
