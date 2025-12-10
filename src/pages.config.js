@@ -49,6 +49,10 @@ import CustomerSuccess from './pages/CustomerSuccess';
 import CustomerSuccessDashboard from './pages/CustomerSuccessDashboard';
 import LeadEnrichment from './pages/LeadEnrichment';
 import Reservations from './pages/Reservations';
+import SalesSequences from './pages/SalesSequences';
+import Proposals from './pages/Proposals';
+import MeetingScheduler from './pages/MeetingScheduler';
+import SalesQuotas from './pages/SalesQuotas';
 import __Layout from './Layout.jsx';
 
 
@@ -104,6 +108,10 @@ export const PAGES = {
     "CustomerSuccessDashboard": CustomerSuccessDashboard,
     "LeadEnrichment": LeadEnrichment,
     "Reservations": Reservations,
+    "SalesSequences": SalesSequences,
+    "Proposals": Proposals,
+    "MeetingScheduler": MeetingScheduler,
+    "SalesQuotas": SalesQuotas,
 }
 
 export const pagesConfig = {
