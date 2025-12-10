@@ -19,6 +19,7 @@ import LeadScoringPanel from '@/components/sales/LeadScoringPanel';
 export default function SalesHub() {
   const [showCallLogger, setShowCallLogger] = useState(false);
   const [editingCall, setEditingCall] = useState(null);
+  const [draggedDeal, setDraggedDeal] = useState(null);
   const queryClient = useQueryClient();
 
   const { data: salesCalls = [] } = useQuery({
@@ -37,6 +38,13 @@ export default function SalesHub() {
     queryKey: ['deals'],
     queryFn: () => base44.entities.Deal.list('-created_date', 100),
   });
+
+  const PIPELINE_STAGES = [
+    { id: 'lead', label: 'Lead', color: 'bg-gray-50 dark:bg-gray-800/50' },
+    { id: 'qualified', label: 'Qualified', color: 'bg-blue-50 dark:bg-blue-900/20' },
+    { id: 'proposal', label: 'Proposal', color: 'bg-violet-50 dark:bg-violet-900/20' },
+    { id: 'negotiation', label: 'Negotiation', color: 'bg-amber-50 dark:bg-amber-900/20' },
+  ];
 
   const { data: followUps = [] } = useQuery({
     queryKey: ['sales-followups'],
@@ -600,15 +608,39 @@ Consider:
     return contact ? `${contact.first_name} ${contact.last_name}` : 'Unknown';
   };
 
-  const getDealName = (dealId) => {
-    const deal = deals.find(d => d.id === dealId);
-    return deal ? deal.title : null;
-  };
-
   const formatCurrency = (value) => {
     if (value >= 1000000) return `$${(value / 1000000).toFixed(1)}M`;
     if (value >= 1000) return `$${(value / 1000).toFixed(0)}K`;
     return `$${value}`;
+  };
+
+  const handleDragStart = (e, deal) => {
+    setDraggedDeal(deal);
+    e.dataTransfer.effectAllowed = 'move';
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+  };
+
+  const handleDrop = async (e, stage) => {
+    e.preventDefault();
+    if (draggedDeal && draggedDeal.stage !== stage) {
+      await base44.entities.Deal.update(draggedDeal.id, { ...draggedDeal, stage });
+      queryClient.invalidateQueries({ queryKey: ['deals'] });
+    }
+    setDraggedDeal(null);
+  };
+
+  const getDealsForStage = (stageId) => deals.filter(d => d.stage === stageId);
+
+  const getStageValue = (stageId) => {
+    return getDealsForStage(stageId).reduce((sum, d) => sum + (d.value || 0), 0);
+  };
+
+  const getContactName = (contactId) => {
+    const contact = contacts.find(c => c.id === contactId);
+    return contact ? `${contact.first_name} ${contact.last_name}` : 'Unknown';
   };
 
   return (
