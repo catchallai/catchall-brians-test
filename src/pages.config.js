@@ -47,6 +47,8 @@ import UserProfile from './pages/UserProfile';
 import SalesHub from './pages/SalesHub';
 import CustomerSuccess from './pages/CustomerSuccess';
 import CustomerSuccessDashboard from './pages/CustomerSuccessDashboard';
+import LeadEnrichment from './pages/LeadEnrichment';
+import Reservations from './pages/Reservations';
 import __Layout from './Layout.jsx';
 
 
@@ -100,6 +102,8 @@ export const PAGES = {
     "SalesHub": SalesHub,
     "CustomerSuccess": CustomerSuccess,
     "CustomerSuccessDashboard": CustomerSuccessDashboard,
+    "LeadEnrichment": LeadEnrichment,
+    "Reservations": Reservations,
 }
 
 export const pagesConfig = {

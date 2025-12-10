@@ -1,34 +1,24 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
-  Phone, Calendar, Users, DollarSign, TrendingUp, 
-  Plus, PhoneCall, Clock, CheckCircle, AlertCircle,
-  PhoneIncoming, PhoneOutgoing, PhoneMissed
+  Phone, Calendar, Target, TrendingUp, 
+  Plus, PhoneCall, AlertCircle, Users
 } from "lucide-react";
+import { Link } from 'react-router-dom';
+import { createPageUrl } from '@/utils';
 import CallLoggerModal from '@/components/sales/CallLoggerModal';
-import ReservationModal from '@/components/sales/ReservationModal';
 import SalesCallCard from '@/components/sales/SalesCallCard';
-import ReservationCard from '@/components/sales/ReservationCard';
-import SalesActivityFeed from '@/components/sales/SalesActivityFeed';
 import FollowUpPanel from '@/components/sales/FollowUpPanel';
-import LeadEnrichmentModal from '@/components/sales/LeadEnrichmentModal';
-import EnrichedLeadsTable from '@/components/sales/EnrichedLeadsTable';
 import SalesForecastCard from '@/components/sales/SalesForecastCard';
 import WorkflowPanel from '@/components/sales/WorkflowPanel';
 import LeadScoringPanel from '@/components/sales/LeadScoringPanel';
-import EmptyState from '@/components/ui/EmptyState';
 
 export default function SalesHub() {
   const [showCallLogger, setShowCallLogger] = useState(false);
-  const [showReservationModal, setShowReservationModal] = useState(false);
-  const [showEnrichmentModal, setShowEnrichmentModal] = useState(false);
   const [editingCall, setEditingCall] = useState(null);
-  const [editingReservation, setEditingReservation] = useState(null);
   const queryClient = useQueryClient();
 
   const { data: salesCalls = [] } = useQuery({
@@ -36,10 +26,7 @@ export default function SalesHub() {
     queryFn: () => base44.entities.SalesCall.list('-call_date', 100),
   });
 
-  const { data: reservations = [] } = useQuery({
-    queryKey: ['sales-reservations'],
-    queryFn: () => base44.entities.SalesReservation.list('-created_date', 100),
-  });
+
 
   const { data: contacts = [] } = useQuery({
     queryKey: ['contacts'],
@@ -56,10 +43,7 @@ export default function SalesHub() {
     queryFn: () => base44.entities.SalesFollowUp.list('-scheduled_date', 100),
   });
 
-  const { data: enrichedLeads = [] } = useQuery({
-    queryKey: ['enriched-leads'],
-    queryFn: () => base44.entities.LeadEnrichment.list('-created_date', 100),
-  });
+
 
   const { data: forecasts = [] } = useQuery({
     queryKey: ['sales-forecasts'],
@@ -112,37 +96,7 @@ export default function SalesHub() {
     },
   });
 
-  const createReservationMutation = useMutation({
-    mutationFn: async (data) => {
-      const wasConfirmed = editingReservation?.status !== 'confirmed' && data.status === 'confirmed';
-      const wasCompleted = editingReservation?.status !== 'completed' && data.status === 'completed';
-      
-      const reservation = editingReservation
-        ? await base44.entities.SalesReservation.update(editingReservation.id, data)
-        : await base44.entities.SalesReservation.create(data);
-      
-      if (wasConfirmed && data.deal_id) {
-        await checkAndExecuteWorkflows('reservation_confirmed', {
-          dealId: data.deal_id,
-          contactId: data.contact_id
-        });
-      }
-      
-      if (wasCompleted && data.deal_id) {
-        await checkAndExecuteWorkflows('reservation_completed', {
-          dealId: data.deal_id,
-          contactId: data.contact_id
-        });
-      }
-      
-      return reservation;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['sales-reservations'] });
-      setShowReservationModal(false);
-      setEditingReservation(null);
-    },
-  });
+
 
   const generateFollowUpsMutation = useMutation({
     mutationFn: async () => {
@@ -285,112 +239,7 @@ Consider:
     },
   });
 
-  const enrichLinkedInMutation = useMutation({
-    mutationFn: async (linkedinUrl) => {
-      const analysis = await base44.integrations.Core.InvokeLLM({
-        prompt: `Extract detailed professional information from this LinkedIn profile: ${linkedinUrl}
 
-Extract:
-1. Full name, first name, last name
-2. Email (if visible or can be inferred from company domain)
-3. Phone number (if available)
-4. Current job title
-5. Current company name
-6. Company website
-7. Location (city, state, country)
-8. Industry
-9. LinkedIn headline
-10. Profile summary/about section
-11. Last 3 work experiences (title, company, duration, description)
-12. Education (school, degree, field)
-13. Top 10 skills
-14. Number of connections (approximate if not exact)
-15. Any other contact information
-
-Also provide an enrichment_score (0-100) based on how much data was found.`,
-        add_context_from_internet: true,
-        response_json_schema: {
-          type: "object",
-          properties: {
-            full_name: { type: "string" },
-            first_name: { type: "string" },
-            last_name: { type: "string" },
-            email: { type: "string" },
-            phone: { type: "string" },
-            job_title: { type: "string" },
-            company: { type: "string" },
-            company_website: { type: "string" },
-            location: { type: "string" },
-            industry: { type: "string" },
-            headline: { type: "string" },
-            summary: { type: "string" },
-            experience: {
-              type: "array",
-              items: {
-                type: "object",
-                properties: {
-                  title: { type: "string" },
-                  company: { type: "string" },
-                  duration: { type: "string" },
-                  description: { type: "string" }
-                }
-              }
-            },
-            education: {
-              type: "array",
-              items: {
-                type: "object",
-                properties: {
-                  school: { type: "string" },
-                  degree: { type: "string" },
-                  field: { type: "string" }
-                }
-              }
-            },
-            skills: { type: "array", items: { type: "string" } },
-            connections: { type: "number" },
-            enrichment_score: { type: "number" }
-          }
-        }
-      });
-
-      const enrichedLead = await base44.entities.LeadEnrichment.create({
-        linkedin_url: linkedinUrl,
-        ...analysis
-      });
-
-      return enrichedLead;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['enriched-leads'] });
-    },
-  });
-
-  const createContactFromLeadMutation = useMutation({
-    mutationFn: async (lead) => {
-      const contact = await base44.entities.Contact.create({
-        first_name: lead.first_name,
-        last_name: lead.last_name,
-        email: lead.email,
-        phone: lead.phone,
-        company: lead.company,
-        job_title: lead.job_title,
-        status: 'lead',
-        source: 'LinkedIn Enrichment',
-        notes: `Enriched from LinkedIn: ${lead.linkedin_url}\n\nSummary: ${lead.summary || 'N/A'}`
-      });
-
-      await base44.entities.LeadEnrichment.update(lead.id, {
-        contact_id: contact.id
-      });
-
-      return contact;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['contacts'] });
-      queryClient.invalidateQueries({ queryKey: ['enriched-leads'] });
-    },
-  });
 
   const saveWorkflowMutation = useMutation({
     mutationFn: (data) => data.id
@@ -726,21 +575,14 @@ Consider:
   });
 
   const completedCalls = salesCalls.filter(c => c.call_status === 'completed');
-  const activeReservations = reservations.filter(r => r.status === 'pending' || r.status === 'confirmed');
-  const totalReservationValue = activeReservations.reduce((sum, r) => sum + (r.value || 0), 0);
+  const activeDeals = deals.filter(d => d.stage && !['won', 'lost'].includes(d.stage));
+  const totalPipelineValue = activeDeals.reduce((sum, d) => sum + (d.value || 0), 0);
 
   const callStats = {
     total: salesCalls.length,
     today: todayCalls.length,
     completed: completedCalls.length,
     missed: salesCalls.filter(c => c.call_status === 'no_answer' || c.call_type === 'missed').length,
-  };
-
-  const reservationStats = {
-    total: reservations.length,
-    active: activeReservations.length,
-    confirmed: reservations.filter(r => r.status === 'confirmed').length,
-    value: totalReservationValue,
   };
 
   const getContactName = (contactId) => {
@@ -753,49 +595,39 @@ Consider:
     return deal ? deal.title : null;
   };
 
+  const formatCurrency = (value) => {
+    if (value >= 1000000) return `$${(value / 1000000).toFixed(1)}M`;
+    if (value >= 1000) return `$${(value / 1000).toFixed(0)}K`;
+    return `$${value}`;
+  };
+
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-4 sm:p-6 lg:p-8 space-y-6">
       {/* Header */}
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Sales Hub</h1>
-          <p className="text-gray-500 mt-1">Manage calls, contacts, and reservations</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Sales Hub</h1>
+          <p className="text-sm sm:text-base text-gray-500 mt-1">Sales performance dashboard and analytics</p>
         </div>
-        <div className="flex gap-2">
-          <Button 
-            onClick={() => setShowEnrichmentModal(true)}
-            className="gap-2 bg-blue-600 hover:bg-blue-700"
-          >
-            <Users className="w-4 h-4" />
-            Enrich Lead
-          </Button>
-          <Button 
-            onClick={() => { setEditingCall(null); setShowCallLogger(true); }}
-            className="gap-2 bg-emerald-600 hover:bg-emerald-700"
-          >
-            <Phone className="w-4 h-4" />
-            Log Call
-          </Button>
-          <Button 
-            onClick={() => { setEditingReservation(null); setShowReservationModal(true); }}
-            className="gap-2 bg-violet-600 hover:bg-violet-700"
-          >
-            <Plus className="w-4 h-4" />
-            New Reservation
-          </Button>
-        </div>
+        <Button 
+          onClick={() => { setEditingCall(null); setShowCallLogger(true); }}
+          className="gap-2 bg-emerald-600 hover:bg-emerald-700 w-full sm:w-auto"
+        >
+          <Phone className="w-4 h-4" />
+          Log Call
+        </Button>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card className="glass-card rounded-2xl">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        <Card className="glass-card rounded-2xl cursor-pointer hover:shadow-lg transition-shadow" onClick={() => window.location.href = createPageUrl('LeadEnrichment')}>
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-500">Today's Calls</p>
-                <p className="text-2xl font-bold text-gray-900">{callStats.today}</p>
+                <p className="text-xs sm:text-sm text-gray-500">Leads Enriched</p>
+                <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">{contacts.filter(c => c.source === 'LinkedIn Enrichment').length}</p>
               </div>
-              <PhoneCall className="w-8 h-8 text-emerald-500" />
+              <Users className="w-6 h-6 sm:w-8 sm:h-8 text-blue-500" />
             </div>
           </CardContent>
         </Card>
@@ -804,157 +636,100 @@ Consider:
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-500">Total Calls</p>
-                <p className="text-2xl font-bold text-gray-900">{callStats.total}</p>
+                <p className="text-xs sm:text-sm text-gray-500">Today's Calls</p>
+                <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">{callStats.today}</p>
               </div>
-              <Phone className="w-8 h-8 text-blue-500" />
+              <PhoneCall className="w-6 h-6 sm:w-8 sm:h-8 text-emerald-500" />
             </div>
           </CardContent>
         </Card>
 
-        <Card className="glass-card rounded-2xl">
+        <Card className="glass-card rounded-2xl cursor-pointer hover:shadow-lg transition-shadow" onClick={() => window.location.href = createPageUrl('Deals')}>
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-500">Active Reservations</p>
-                <p className="text-2xl font-bold text-gray-900">{reservationStats.active}</p>
+                <p className="text-xs sm:text-sm text-gray-500">Active Deals</p>
+                <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">{activeDeals.length}</p>
               </div>
-              <Calendar className="w-8 h-8 text-violet-500" />
+              <Target className="w-6 h-6 sm:w-8 sm:h-8 text-violet-500" />
             </div>
           </CardContent>
         </Card>
 
-        <Card className="glass-card rounded-2xl">
+        <Card className="glass-card rounded-2xl cursor-pointer hover:shadow-lg transition-shadow" onClick={() => window.location.href = createPageUrl('Deals')}>
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-500">Reservation Value</p>
-                <p className="text-2xl font-bold text-gray-900">
-                  ${reservationStats.value.toLocaleString()}
+                <p className="text-xs sm:text-sm text-gray-500">Pipeline Value</p>
+                <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
+                  {formatCurrency(totalPipelineValue)}
                 </p>
               </div>
-              <DollarSign className="w-8 h-8 text-amber-500" />
+              <TrendingUp className="w-6 h-6 sm:w-8 sm:h-8 text-emerald-500" />
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Main Content */}
-      <Tabs defaultValue="calls" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="scoring">Lead Scoring</TabsTrigger>
-          <TabsTrigger value="forecast">Forecast</TabsTrigger>
-          <TabsTrigger value="workflows">Automation</TabsTrigger>
-          <TabsTrigger value="enrichment">Lead Enrichment</TabsTrigger>
-          <TabsTrigger value="followups">Follow-Ups</TabsTrigger>
-          <TabsTrigger value="calls">Call Log</TabsTrigger>
-          <TabsTrigger value="reservations">Reservations</TabsTrigger>
-          <TabsTrigger value="activity">Activity Feed</TabsTrigger>
-        </TabsList>
+      {/* Main Dashboard Content */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <LeadScoringPanel
+          contacts={contacts}
+          leadScores={leadScores}
+          onScore={() => scoreLeadsMutation.mutate()}
+          isScoring={scoreLeadsMutation.isPending}
+        />
+        
+        <SalesForecastCard
+          forecast={latestForecast}
+          onGenerate={(period) => generateForecastMutation.mutate(period)}
+          isGenerating={generateForecastMutation.isPending}
+        />
+      </div>
 
-        <TabsContent value="scoring" className="space-y-4">
-          <LeadScoringPanel
-            contacts={contacts}
-            leadScores={leadScores}
-            onScore={() => scoreLeadsMutation.mutate()}
-            isScoring={scoreLeadsMutation.isPending}
-          />
-        </TabsContent>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <FollowUpPanel
+          followUps={followUps}
+          contacts={contacts}
+          onGenerate={() => generateFollowUpsMutation.mutate()}
+          onComplete={(id) => completeFollowUpMutationWithWorkflow.mutate(id)}
+          onSend={(followUp) => sendFollowUpEmailMutation.mutate(followUp)}
+          isGenerating={generateFollowUpsMutation.isPending}
+        />
 
-        <TabsContent value="forecast" className="space-y-4">
-          <SalesForecastCard
-            forecast={latestForecast}
-            onGenerate={(period) => generateForecastMutation.mutate(period)}
-            isGenerating={generateForecastMutation.isPending}
-          />
-        </TabsContent>
+        <WorkflowPanel
+          workflows={workflows}
+          executions={workflowExecutions}
+          onToggle={(id, is_active) => toggleWorkflowMutation.mutate({ id, is_active })}
+          onEdit={(data) => saveWorkflowMutation.mutate(data)}
+        />
+      </div>
 
-        <TabsContent value="workflows" className="space-y-4">
-          <WorkflowPanel
-            workflows={workflows}
-            executions={workflowExecutions}
-            onToggle={(id, is_active) => toggleWorkflowMutation.mutate({ id, is_active })}
-            onEdit={(data) => saveWorkflowMutation.mutate(data)}
-          />
-        </TabsContent>
+      {/* Recent Calls */}
+      <Card className="glass-card">
+        <CardContent className="p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Recent Calls</h3>
+            <Button variant="outline" size="sm" onClick={() => setShowCallLogger(true)}>
+              <Plus className="w-4 h-4 mr-2" />
+              Log Call
+            </Button>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {salesCalls.slice(0, 6).map(call => (
+              <SalesCallCard
+                key={call.id}
+                call={call}
+                contactName={getContactName(call.contact_id)}
+                dealName={getDealName(call.deal_id)}
+                onEdit={() => { setEditingCall(call); setShowCallLogger(true); }}
+              />
+            ))}
+          </div>
+        </CardContent>
+      </Card>
 
-        <TabsContent value="enrichment" className="space-y-4">
-          <EnrichedLeadsTable
-            leads={enrichedLeads}
-            onCreateContact={(lead) => createContactFromLeadMutation.mutate(lead)}
-          />
-        </TabsContent>
-
-        <TabsContent value="followups" className="space-y-4">
-          <FollowUpPanel
-            followUps={followUps}
-            contacts={contacts}
-            onGenerate={() => generateFollowUpsMutation.mutate()}
-            onComplete={(id) => completeFollowUpMutationWithWorkflow.mutate(id)}
-            onSend={(followUp) => sendFollowUpEmailMutation.mutate(followUp)}
-            isGenerating={generateFollowUpsMutation.isPending}
-          />
-        </TabsContent>
-
-        <TabsContent value="calls" className="space-y-4">
-          {salesCalls.length === 0 ? (
-            <EmptyState
-              icon={Phone}
-              title="No calls logged"
-              description="Start logging your sales calls to track conversations and follow-ups."
-              actionLabel="Log First Call"
-              onAction={() => setShowCallLogger(true)}
-            />
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {salesCalls.map(call => (
-                <SalesCallCard
-                  key={call.id}
-                  call={call}
-                  contactName={getContactName(call.contact_id)}
-                  dealName={getDealName(call.deal_id)}
-                  onEdit={() => { setEditingCall(call); setShowCallLogger(true); }}
-                />
-              ))}
-            </div>
-          )}
-        </TabsContent>
-
-        <TabsContent value="reservations" className="space-y-4">
-          {reservations.length === 0 ? (
-            <EmptyState
-              icon={Calendar}
-              title="No reservations"
-              description="Create reservations to track product holds, demos, and scheduled meetings."
-              actionLabel="Create Reservation"
-              onAction={() => setShowReservationModal(true)}
-            />
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {reservations.map(reservation => (
-                <ReservationCard
-                  key={reservation.id}
-                  reservation={reservation}
-                  contactName={getContactName(reservation.contact_id)}
-                  dealName={getDealName(reservation.deal_id)}
-                  onEdit={() => { setEditingReservation(reservation); setShowReservationModal(true); }}
-                />
-              ))}
-            </div>
-          )}
-        </TabsContent>
-
-        <TabsContent value="activity" className="space-y-4">
-          <SalesActivityFeed
-            calls={salesCalls}
-            reservations={reservations}
-            contacts={contacts}
-            deals={deals}
-          />
-        </TabsContent>
-      </Tabs>
-
-      {/* Modals */}
+      {/* Modal */}
       <CallLoggerModal
         open={showCallLogger}
         onClose={() => { setShowCallLogger(false); setEditingCall(null); }}
@@ -963,24 +738,6 @@ Consider:
         deals={deals}
         onSave={(data) => createCallMutation.mutate(data)}
         isLoading={createCallMutation.isPending}
-      />
-
-      <ReservationModal
-        open={showReservationModal}
-        onClose={() => { setShowReservationModal(false); setEditingReservation(null); }}
-        reservation={editingReservation}
-        contacts={contacts}
-        deals={deals}
-        onSave={(data) => createReservationMutation.mutate(data)}
-        isLoading={createReservationMutation.isPending}
-      />
-
-      <LeadEnrichmentModal
-        open={showEnrichmentModal}
-        onClose={() => setShowEnrichmentModal(false)}
-        onEnrich={(url) => enrichLinkedInMutation.mutateAsync(url)}
-        onSaveToContacts={(lead) => createContactFromLeadMutation.mutate(lead)}
-        isEnriching={enrichLinkedInMutation.isPending}
       />
     </div>
   );
