@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Plus, Trash2 } from "lucide-react";
 
 export default function ProposalModal({ open, onClose, proposal, contacts, deals, onSave, isLoading }) {
-  const [formData, setFormData] = useState(proposal || {
+  const [formData, setFormData] = useState({
     title: '',
     contact_id: '',
     deal_id: '',
@@ -19,6 +19,25 @@ export default function ProposalModal({ open, onClose, proposal, contacts, deals
     notes: '',
     valid_until: ''
   });
+
+  React.useEffect(() => {
+    if (proposal) {
+      setFormData(proposal);
+    } else {
+      setFormData({
+        title: '',
+        contact_id: '',
+        deal_id: '',
+        status: 'draft',
+        total_value: 0,
+        currency: 'USD',
+        line_items: [],
+        terms: '',
+        notes: '',
+        valid_until: ''
+      });
+    }
+  }, [proposal, open]);
 
   const addLineItem = () => {
     setFormData({
