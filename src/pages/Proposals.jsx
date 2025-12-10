@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Plus, FileText, Eye, Check, X, Clock } from "lucide-react";
 import EmptyState from '@/components/ui/EmptyState';
+import ProposalModal from '@/components/modals/ProposalModal';
 
 const STATUS_CONFIG = {
   draft: { label: 'Draft', color: 'bg-gray-100 text-gray-700', icon: FileText },
@@ -17,6 +18,10 @@ const STATUS_CONFIG = {
 };
 
 export default function Proposals() {
+  const [showModal, setShowModal] = useState(false);
+  const [editingProposal, setEditingProposal] = useState(null);
+  const queryClient = useQueryClient();
+
   const { data: proposals = [] } = useQuery({
     queryKey: ['proposals'],
     queryFn: () => base44.entities.Proposal.list('-created_date', 100),
@@ -25,6 +30,22 @@ export default function Proposals() {
   const { data: contacts = [] } = useQuery({
     queryKey: ['contacts'],
     queryFn: () => base44.entities.Contact.list('-created_date', 200),
+  });
+
+  const { data: deals = [] } = useQuery({
+    queryKey: ['deals'],
+    queryFn: () => base44.entities.Deal.list('-created_date', 100),
+  });
+
+  const saveMutation = useMutation({
+    mutationFn: (data) => data.id 
+      ? base44.entities.Proposal.update(data.id, data)
+      : base44.entities.Proposal.create(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['proposals'] });
+      setShowModal(false);
+      setEditingProposal(null);
+    },
   });
 
   const getContactName = (contactId) => {
@@ -43,7 +64,7 @@ export default function Proposals() {
           <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Proposals & Quotes</h1>
           <p className="text-sm sm:text-base text-gray-500 mt-1">Track and manage sales proposals</p>
         </div>
-        <Button className="gap-2 bg-violet-600 hover:bg-violet-700">
+        <Button onClick={() => { setEditingProposal(null); setShowModal(true); }} className="gap-2 bg-violet-600 hover:bg-violet-700">
           <Plus className="w-4 h-4" />
           Create Proposal
         </Button>
@@ -94,6 +115,7 @@ export default function Proposals() {
           title="No proposals yet"
           description="Create professional proposals to close more deals faster."
           actionLabel="Create Proposal"
+          onAction={() => { setEditingProposal(null); setShowModal(true); }}
         />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -102,7 +124,7 @@ export default function Proposals() {
             const StatusIcon = statusInfo.icon;
             
             return (
-              <Card key={proposal.id} className="glass-card hover:shadow-lg transition-shadow cursor-pointer">
+              <Card key={proposal.id} onClick={() => { setEditingProposal(proposal); setShowModal(true); }} className="glass-card hover:shadow-lg transition-shadow cursor-pointer">
                 <CardHeader>
                   <div className="flex items-start justify-between">
                     <div className="flex-1">

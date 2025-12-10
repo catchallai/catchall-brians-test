@@ -1,13 +1,18 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Plus, Calendar, Clock, Link2, CheckCircle, XCircle } from "lucide-react";
 import EmptyState from '@/components/ui/EmptyState';
+import MeetingLinkModal from '@/components/modals/MeetingLinkModal';
 
 export default function MeetingScheduler() {
+  const [showModal, setShowModal] = useState(false);
+  const [editingLink, setEditingLink] = useState(null);
+  const queryClient = useQueryClient();
+
   const { data: meetingLinks = [] } = useQuery({
     queryKey: ['meeting-links'],
     queryFn: () => base44.entities.MeetingLink.list('-created_date', 50),
@@ -16,6 +21,17 @@ export default function MeetingScheduler() {
   const { data: bookings = [] } = useQuery({
     queryKey: ['meeting-bookings'],
     queryFn: () => base44.entities.MeetingBooking.list('-scheduled_date', 100),
+  });
+
+  const saveMutation = useMutation({
+    mutationFn: (data) => data.id 
+      ? base44.entities.MeetingLink.update(data.id, data)
+      : base44.entities.MeetingLink.create(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['meeting-links'] });
+      setShowModal(false);
+      setEditingLink(null);
+    },
   });
 
   const getBookingsForLink = (linkId) => {
@@ -33,7 +49,7 @@ export default function MeetingScheduler() {
           <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Meeting Scheduler</h1>
           <p className="text-sm sm:text-base text-gray-500 mt-1">Calendly-style booking links</p>
         </div>
-        <Button className="gap-2 bg-blue-600 hover:bg-blue-700">
+        <Button onClick={() => { setEditingLink(null); setShowModal(true); }} className="gap-2 bg-blue-600 hover:bg-blue-700">
           <Plus className="w-4 h-4" />
           Create Meeting Link
         </Button>
@@ -78,8 +94,9 @@ export default function MeetingScheduler() {
           <EmptyState
             icon={Calendar}
             title="No meeting links yet"
-            description="Create shareable booking links for prospects to schedule meetings."
+            description="Create shareable booking links for prospects to schedule meetings. Connect Google Calendar for automatic syncing."
             actionLabel="Create Link"
+            onAction={() => { setEditingLink(null); setShowModal(true); }}
           />
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -151,6 +168,14 @@ export default function MeetingScheduler() {
           </div>
         </div>
       )}
+
+      <MeetingLinkModal
+        open={showModal}
+        onClose={() => { setShowModal(false); setEditingLink(null); }}
+        meetingLink={editingLink}
+        onSave={(data) => saveMutation.mutate(data)}
+        isLoading={saveMutation.isPending}
+      />
     </div>
   );
 }

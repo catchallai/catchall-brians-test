@@ -6,9 +6,11 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Plus, Play, Pause, Users, Mail, Phone, Target } from "lucide-react";
 import EmptyState from '@/components/ui/EmptyState';
+import SequenceModal from '@/components/modals/SequenceModal';
 
 export default function SalesSequences() {
   const [showModal, setShowModal] = useState(false);
+  const [editingSequence, setEditingSequence] = useState(null);
   const queryClient = useQueryClient();
 
   const { data: sequences = [] } = useQuery({
@@ -19,6 +21,17 @@ export default function SalesSequences() {
   const { data: enrollments = [] } = useQuery({
     queryKey: ['sequence-enrollments'],
     queryFn: () => base44.entities.SequenceEnrollment.list('-created_date', 200),
+  });
+
+  const saveMutation = useMutation({
+    mutationFn: (data) => data.id 
+      ? base44.entities.SalesSequence.update(data.id, data)
+      : base44.entities.SalesSequence.create(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['sales-sequences'] });
+      setShowModal(false);
+      setEditingSequence(null);
+    },
   });
 
   const toggleActiveMutation = useMutation({
@@ -112,6 +125,14 @@ export default function SalesSequences() {
           ))}
         </div>
       )}
+
+      <SequenceModal
+        open={showModal}
+        onClose={() => { setShowModal(false); setEditingSequence(null); }}
+        sequence={editingSequence}
+        onSave={(data) => saveMutation.mutate(data)}
+        isLoading={saveMutation.isPending}
+      />
     </div>
   );
 }
