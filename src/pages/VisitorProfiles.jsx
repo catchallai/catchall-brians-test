@@ -1,4 +1,6 @@
 import React, { useState, useMemo } from 'react';
+import { base44 } from '@/api/base44Client';
+import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -6,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Skeleton } from "@/components/ui/skeleton";
 import { 
   UserCircle, MapPin, Clock, Eye, MousePointer, Building2, Sparkles, 
   TrendingUp, Target, Zap, Star, Globe, Monitor, Smartphone, Tablet,
@@ -175,7 +178,23 @@ export default function VisitorProfiles() {
   const [tierFilter, setTierFilter] = useState('all');
   const [selectedVisitor, setSelectedVisitor] = useState(null);
   
-  const allVisitors = useMemo(() => generateVisitors(), []);
+  // Fetch real GA4 data
+  const { data: ga4Data, isLoading } = useQuery({
+    queryKey: ['ga4-visitors'],
+    queryFn: async () => {
+      const response = await base44.functions.invoke('fetchGA4Data');
+      return response.data;
+    },
+    refetchInterval: 60000, // Refresh every minute
+  });
+  
+  const allVisitors = useMemo(() => {
+    const visitors = ga4Data?.visitors || generateVisitors();
+    return visitors.map(v => {
+      const aiScore = calculateAILeadScore(v);
+      return { ...v, leadScore: aiScore.score, scoreData: aiScore };
+    }).sort((a, b) => b.leadScore - a.leadScore);
+  }, [ga4Data]);
   
   const filteredVisitors = useMemo(() => {
     return allVisitors.filter(v => {
@@ -240,6 +259,24 @@ export default function VisitorProfiles() {
     }
   };
 
+  if (isLoading) {
+    return (
+      <div className="p-6 space-y-6">
+        <Skeleton className="h-12 w-64" />
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+          {[...Array(5)].map((_, i) => (
+            <Skeleton key={i} className="h-20" />
+          ))}
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+          {[...Array(9)].map((_, i) => (
+            <Skeleton key={i} className="h-48" />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="p-6 space-y-6">
       {/* Header */}
@@ -250,7 +287,7 @@ export default function VisitorProfiles() {
             Visitor Profiles
           </h1>
           <p className="text-gray-500 dark:text-gray-400 mt-1">
-            AI-powered lead scoring and visitor intelligence
+            AI-powered lead scoring • {ga4Data?.dataSource === 'google_analytics' ? '🟢 Live GA4 Data' : 'Demo Data'}
           </p>
         </div>
         <Tabs value={dateRange} onValueChange={setDateRange}>
