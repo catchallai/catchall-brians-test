@@ -164,7 +164,7 @@ export default function Dashboard() {
               </h1>
               <p className="text-violet-100 text-sm sm:text-base lg:text-lg">Here's what's happening with your brand today</p>
             </div>
-            <div className="grid grid-cols-3 gap-2 sm:gap-4 lg:flex lg:gap-6">
+            <div className="grid grid-cols-3 gap-2 sm:gap-4 lg:flex lg:gap-6 lg:justify-end">
               <div className="bg-white/10 backdrop-blur-sm rounded-lg sm:rounded-xl px-3 py-3 sm:px-6 sm:py-4 border border-white/20">
                 <p className="text-violet-100 text-xs sm:text-sm mb-1">Pipeline</p>
                 <p className="text-white text-lg sm:text-2xl font-bold">{formatCurrency(totalPipelineValue)}</p>
