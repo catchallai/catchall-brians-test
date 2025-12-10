@@ -187,7 +187,7 @@ export default function VisitorProfiles() {
   
   const allVisitors = useMemo(() => {
     if (!sessions || sessions.length === 0) {
-      return generateVisitors(); // Fallback to demo data
+      return []; // No demo data - only real visitors
     }
     
     // Transform sessions into visitor format
@@ -390,8 +390,51 @@ export default function VisitorProfiles() {
       </div>
 
       {/* Visitor Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-        {filteredVisitors.map((visitor) => (
+      {filteredVisitors.length === 0 ? (
+        <Card className="col-span-full">
+          <CardContent className="p-12 text-center">
+            <UserCircle className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">No Visitor Data Yet</h3>
+            <p className="text-sm text-gray-500 dark:text-gray-400 max-w-md mx-auto mb-6">
+              Add the tracking script to your website to start capturing real visitor data and AI lead scoring.
+            </p>
+            <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 max-w-2xl mx-auto text-left">
+              <p className="text-xs text-gray-500 mb-2">Add this script before closing &lt;/body&gt; tag:</p>
+              <pre className="text-xs bg-gray-900 text-green-400 p-3 rounded overflow-x-auto">
+{`<script>
+(function() {
+  const sessionId = 'VS-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+  const trackEvent = (page, timeSpent, scrollDepth) => {
+    fetch('YOUR_FUNCTION_URL/trackVisitor', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        sessionId,
+        page: window.location.pathname,
+        referrer: document.referrer,
+        timeSpent,
+        scrollDepth,
+        device: /mobile/i.test(navigator.userAgent) ? 'Mobile' : 'Desktop',
+        browser: navigator.userAgent.split(' ').pop().split('/')[0],
+        isNewSession: !sessionStorage.getItem('visited')
+      })
+    });
+    sessionStorage.setItem('visited', 'true');
+  };
+  let startTime = Date.now();
+  window.addEventListener('beforeunload', () => {
+    trackEvent(window.location.pathname, Math.floor((Date.now() - startTime) / 1000), 
+      Math.round((window.scrollY / document.body.scrollHeight) * 100));
+  });
+})();
+</script>`}
+              </pre>
+            </div>
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+          {filteredVisitors.map((visitor) => (
           <Card 
             key={visitor.id}
             className="bg-white dark:bg-gray-800 border-0 shadow-sm hover:shadow-md transition-all cursor-pointer group"
@@ -439,8 +482,9 @@ export default function VisitorProfiles() {
               </div>
             </CardContent>
           </Card>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
 
       {/* Visitor Detail Modal */}
       <Dialog open={!!selectedVisitor} onOpenChange={() => setSelectedVisitor(null)}>
