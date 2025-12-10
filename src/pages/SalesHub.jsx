@@ -638,9 +638,9 @@ Consider:
     return getDealsForStage(stageId).reduce((sum, d) => sum + (d.value || 0), 0);
   };
 
-  const getContactName = (contactId) => {
-    const contact = contacts.find(c => c.id === contactId);
-    return contact ? `${contact.first_name} ${contact.last_name}` : 'Unknown';
+  const getDealName = (dealId) => {
+    const deal = deals.find(d => d.id === dealId);
+    return deal ? deal.title : null;
   };
 
   return (
