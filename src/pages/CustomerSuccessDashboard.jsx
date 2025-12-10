@@ -37,6 +37,16 @@ export default function CustomerSuccessDashboard() {
     queryFn: () => base44.entities.Contact.list('-created_date', 500),
   });
 
+  const { data: surveys = [] } = useQuery({
+    queryKey: ['satisfaction-surveys'],
+    queryFn: () => base44.entities.SatisfactionSurvey.list('-created_date', 200),
+  });
+
+  const { data: interactions = [] } = useQuery({
+    queryKey: ['customer-interactions'],
+    queryFn: () => base44.entities.CustomerInteraction.list('-created_date', 200),
+  });
+
   // Get unique CSMs and segments
   const csms = useMemo(() => {
     const csmSet = new Set();
@@ -195,6 +205,26 @@ export default function CustomerSuccessDashboard() {
           </Card>
         </div>
       )}
+
+      {/* Churn Risk Analytics */}
+      <ChurnRiskAnalytics
+        healthScores={filteredHealthScores}
+        onboardings={filteredOnboardings}
+        interactions={interactions}
+        opportunities={filteredOpportunities}
+      />
+
+      {/* Health Score Trends by Segment and CSM */}
+      <HealthScoreTrends
+        healthScores={filteredHealthScores}
+        contacts={contacts}
+      />
+
+      {/* Customer Feedback & Sentiment */}
+      <FeedbackSentimentAnalysis
+        surveys={surveys}
+        interactions={interactions}
+      />
 
       {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
