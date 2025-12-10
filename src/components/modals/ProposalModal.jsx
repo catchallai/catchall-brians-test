@@ -4,9 +4,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2, FileText, Mail } from "lucide-react";
+import { base44 } from '@/api/base44Client';
+import { useToast } from '@/components/ui/toast-provider';
 
 export default function ProposalModal({ open, onClose, proposal, contacts, deals, onSave, isLoading }) {
+  const toast = useToast();
+  const [generatingPdf, setGeneratingPdf] = useState(false);
+  const [sendingEmail, setSendingEmail] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
     contact_id: '',
@@ -73,6 +78,44 @@ export default function ProposalModal({ open, onClose, proposal, contacts, deals
   const handleSubmit = (e) => {
     e.preventDefault();
     onSave(formData);
+  };
+
+  const handleViewPdf = async () => {
+    if (!proposal?.id) {
+      toast.error('Please save the proposal first');
+      return;
+    }
+    
+    setGeneratingPdf(true);
+    try {
+      const response = await base44.functions.invoke('generateProposalPdf', { proposalId: proposal.id });
+      const blob = new Blob([response.data], { type: 'application/pdf' });
+      const url = window.URL.createObjectURL(blob);
+      window.open(url, '_blank');
+      toast.success('PDF generated successfully');
+    } catch (error) {
+      toast.error('Failed to generate PDF');
+    } finally {
+      setGeneratingPdf(false);
+    }
+  };
+
+  const handleEmailProposal = async () => {
+    if (!proposal?.id) {
+      toast.error('Please save the proposal first');
+      return;
+    }
+    
+    setSendingEmail(true);
+    try {
+      await base44.functions.invoke('emailProposal', { proposalId: proposal.id });
+      toast.success('Proposal sent successfully');
+      onClose();
+    } catch (error) {
+      toast.error('Failed to send proposal');
+    } finally {
+      setSendingEmail(false);
+    }
   };
 
   return (
@@ -231,11 +274,39 @@ export default function ProposalModal({ open, onClose, proposal, contacts, deals
             />
           </div>
 
-          <div className="flex justify-end gap-3">
-            <Button type="button" variant="outline" onClick={onClose}>Cancel</Button>
-            <Button type="submit" disabled={isLoading || !formData.title || !formData.contact_id}>
-              {proposal ? 'Update' : 'Create'} Proposal
-            </Button>
+          <div className="flex justify-between">
+            <div className="flex gap-2">
+              {proposal?.id && (
+                <>
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    onClick={handleViewPdf}
+                    disabled={generatingPdf}
+                    className="gap-2"
+                  >
+                    <FileText className="w-4 h-4" />
+                    {generatingPdf ? 'Generating...' : 'View PDF'}
+                  </Button>
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    onClick={handleEmailProposal}
+                    disabled={sendingEmail}
+                    className="gap-2"
+                  >
+                    <Mail className="w-4 h-4" />
+                    {sendingEmail ? 'Sending...' : 'Email to Client'}
+                  </Button>
+                </>
+              )}
+            </div>
+            <div className="flex gap-3">
+              <Button type="button" variant="outline" onClick={onClose}>Cancel</Button>
+              <Button type="submit" disabled={isLoading || !formData.title || !formData.contact_id}>
+                {proposal ? 'Update' : 'Create'} Proposal
+              </Button>
+            </div>
           </div>
         </form>
       </DialogContent>
