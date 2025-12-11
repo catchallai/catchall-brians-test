@@ -186,45 +186,9 @@ export default function VisitorProfiles() {
   });
   
   const allVisitors = useMemo(() => {
-    if (!sessions || sessions.length === 0) {
-      return []; // No demo data - only real visitors
-    }
-    
-    // Transform sessions into visitor format
-    return sessions.map((session, idx) => {
-      const timeMinutes = Math.floor((session.time_on_site || 0) / 60);
-      const timeSeconds = (session.time_on_site || 0) % 60;
-      const daysAgo = Math.floor((Date.now() - new Date(session.session_start).getTime()) / (1000 * 60 * 60 * 24));
-      
-      const visitor = {
-        id: idx + 1,
-        sessionId: session.session_id,
-        company: session.company || 'Unknown Visitor',
-        industry: session.industry || 'Technology',
-        city: session.city || 'Unknown',
-        country: session.country || 'Unknown',
-        pagesViewed: session.pages_viewed || 0,
-        timeOnSite: `${timeMinutes}m ${timeSeconds}s`,
-        lastPage: session.exit_page || '/',
-        firstVisit: !session.is_returning,
-        visitCount: session.visit_count || 1,
-        device: session.device || 'Desktop',
-        browser: session.browser || 'Unknown',
-        referrer: session.referrer || 'Direct',
-        entryPage: session.entry_page || '/',
-        journey: (session.journey || []).map(j => ({
-          page: j.page,
-          time: `${Math.floor(j.time_spent / 60)}m ${j.time_spent % 60}s`,
-          scrollDepth: j.scroll_depth || 0
-        })),
-        daysAgo: daysAgo || 0,
-        lastSeen: session.session_end || session.session_start
-      };
-      
-      const aiScore = calculateAILeadScore(visitor);
-      return { ...visitor, leadScore: aiScore.score, scoreData: aiScore };
-    }).sort((a, b) => b.leadScore - a.leadScore);
-  }, [sessions]);
+    // Use demo data for now
+    return generateVisitors();
+  }, []);
   
   const filteredVisitors = useMemo(() => {
     return allVisitors.filter(v => {
@@ -317,7 +281,7 @@ export default function VisitorProfiles() {
             Visitor Profiles
           </h1>
           <p className="text-gray-500 dark:text-gray-400 mt-1">
-            AI-powered lead scoring • {sessions && sessions.length > 0 ? '🟢 Live Tracking Active' : 'Demo Data'}
+            AI-powered lead scoring • Demo Data
           </p>
         </div>
         <Tabs value={dateRange} onValueChange={setDateRange}>
@@ -390,50 +354,7 @@ export default function VisitorProfiles() {
       </div>
 
       {/* Visitor Grid */}
-      {filteredVisitors.length === 0 ? (
-        <Card className="col-span-full">
-          <CardContent className="p-12 text-center">
-            <UserCircle className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">No Visitor Data Yet</h3>
-            <p className="text-sm text-gray-500 dark:text-gray-400 max-w-md mx-auto mb-6">
-              Add the tracking script to your website to start capturing real visitor data and AI lead scoring.
-            </p>
-            <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 max-w-2xl mx-auto text-left">
-              <p className="text-xs text-gray-500 mb-2">Add this script before closing &lt;/body&gt; tag:</p>
-              <pre className="text-xs bg-gray-900 text-green-400 p-3 rounded overflow-x-auto">
-{`<script>
-(function() {
-  const sessionId = 'VS-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
-  const trackEvent = (page, timeSpent, scrollDepth) => {
-    fetch('YOUR_FUNCTION_URL/trackVisitor', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        sessionId,
-        page: window.location.pathname,
-        referrer: document.referrer,
-        timeSpent,
-        scrollDepth,
-        device: /mobile/i.test(navigator.userAgent) ? 'Mobile' : 'Desktop',
-        browser: navigator.userAgent.split(' ').pop().split('/')[0],
-        isNewSession: !sessionStorage.getItem('visited')
-      })
-    });
-    sessionStorage.setItem('visited', 'true');
-  };
-  let startTime = Date.now();
-  window.addEventListener('beforeunload', () => {
-    trackEvent(window.location.pathname, Math.floor((Date.now() - startTime) / 1000), 
-      Math.round((window.scrollY / document.body.scrollHeight) * 100));
-  });
-})();
-</script>`}
-              </pre>
-            </div>
-          </CardContent>
-        </Card>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           {filteredVisitors.map((visitor) => (
           <Card 
             key={visitor.id}
@@ -483,8 +404,7 @@ export default function VisitorProfiles() {
             </CardContent>
           </Card>
           ))}
-        </div>
-      )}
+          </div>
 
       {/* Visitor Detail Modal */}
       <Dialog open={!!selectedVisitor} onOpenChange={() => setSelectedVisitor(null)}>
