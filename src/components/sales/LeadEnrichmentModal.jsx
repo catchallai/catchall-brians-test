@@ -4,7 +4,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Sparkles, ExternalLink, User, Briefcase, Mail, Phone, MapPin } from "lucide-react";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Loader2, Sparkles, ExternalLink, User, Briefcase, Mail, Phone, MapPin, Search } from "lucide-react";
+import { base44 } from '@/api/base44Client';
 
 export default function LeadEnrichmentModal({ 
   open, 
@@ -15,6 +17,10 @@ export default function LeadEnrichmentModal({
 }) {
   const [linkedinUrl, setLinkedinUrl] = useState('');
   const [enrichedData, setEnrichedData] = useState(null);
+  const [searchName, setSearchName] = useState('');
+  const [searchCompany, setSearchCompany] = useState('');
+  const [isSearching, setIsSearching] = useState(false);
+  const [searchResults, setSearchResults] = useState([]);
 
   const handleEnrich = async () => {
     const data = await onEnrich(linkedinUrl);
@@ -31,7 +37,63 @@ export default function LeadEnrichmentModal({
   const handleClose = () => {
     setEnrichedData(null);
     setLinkedinUrl('');
+    setSearchName('');
+    setSearchCompany('');
+    setSearchResults([]);
     onClose();
+  };
+
+  const handleSearch = async () => {
+    setIsSearching(true);
+    try {
+      const searchQuery = searchCompany 
+        ? `${searchName} at ${searchCompany}` 
+        : searchName;
+      
+      const result = await base44.integrations.Core.InvokeLLM({
+        prompt: `Search LinkedIn for: ${searchQuery}
+
+Find the top 5 most relevant LinkedIn profiles. For each person, provide:
+1. Full name
+2. Current job title
+3. Current company
+4. LinkedIn profile URL
+5. Location (city, country)
+6. Brief headline or summary
+
+Return results in order of relevance.`,
+        add_context_from_internet: true,
+        response_json_schema: {
+          type: "object",
+          properties: {
+            profiles: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  name: { type: "string" },
+                  title: { type: "string" },
+                  company: { type: "string" },
+                  linkedin_url: { type: "string" },
+                  location: { type: "string" },
+                  headline: { type: "string" }
+                }
+              }
+            }
+          }
+        }
+      });
+      
+      setSearchResults(result.profiles || []);
+    } catch (error) {
+      console.error('Search failed:', error);
+    }
+    setIsSearching(false);
+  };
+
+  const handleSelectProfile = (profile) => {
+    setLinkedinUrl(profile.linkedin_url);
+    setSearchResults([]);
   };
 
   return (
@@ -45,31 +107,101 @@ export default function LeadEnrichmentModal({
         </DialogHeader>
 
         {!enrichedData ? (
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label>LinkedIn Profile URL</Label>
-              <Input
-                value={linkedinUrl}
-                onChange={(e) => setLinkedinUrl(e.target.value)}
-                placeholder="https://www.linkedin.com/in/username"
-              />
-              <p className="text-xs text-gray-500">
-                Paste a LinkedIn profile URL to extract contact information and professional details
-              </p>
-            </div>
+          <Tabs defaultValue="url" className="w-full">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="url">Paste URL</TabsTrigger>
+              <TabsTrigger value="search">Search LinkedIn</TabsTrigger>
+            </TabsList>
 
-            <Button
-              onClick={handleEnrich}
-              disabled={!linkedinUrl || isEnriching}
-              className="w-full gap-2 bg-violet-600 hover:bg-violet-700"
-            >
-              {isEnriching ? (
-                <><Loader2 className="w-4 h-4 animate-spin" /> Enriching...</>
-              ) : (
-                <><Sparkles className="w-4 h-4" /> Enrich Profile</>
+            <TabsContent value="url" className="space-y-4 mt-4">
+              <div className="space-y-2">
+                <Label>LinkedIn Profile URL</Label>
+                <Input
+                  value={linkedinUrl}
+                  onChange={(e) => setLinkedinUrl(e.target.value)}
+                  placeholder="https://www.linkedin.com/in/username"
+                />
+                <p className="text-xs text-gray-500">
+                  Paste a LinkedIn profile URL to extract contact information and professional details
+                </p>
+              </div>
+
+              <Button
+                onClick={handleEnrich}
+                disabled={!linkedinUrl || isEnriching}
+                className="w-full gap-2 bg-violet-600 hover:bg-violet-700"
+              >
+                {isEnriching ? (
+                  <><Loader2 className="w-4 h-4 animate-spin" /> Enriching...</>
+                ) : (
+                  <><Sparkles className="w-4 h-4" /> Enrich Profile</>
+                )}
+              </Button>
+            </TabsContent>
+
+            <TabsContent value="search" className="space-y-4 mt-4">
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label>Name</Label>
+                  <Input
+                    value={searchName}
+                    onChange={(e) => setSearchName(e.target.value)}
+                    placeholder="e.g. John Smith"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Company (Optional)</Label>
+                  <Input
+                    value={searchCompany}
+                    onChange={(e) => setSearchCompany(e.target.value)}
+                    placeholder="e.g. Google"
+                  />
+                </div>
+
+                <Button
+                  onClick={handleSearch}
+                  disabled={!searchName || isSearching}
+                  className="w-full gap-2 bg-blue-600 hover:bg-blue-700"
+                >
+                  {isSearching ? (
+                    <><Loader2 className="w-4 h-4 animate-spin" /> Searching...</>
+                  ) : (
+                    <><Search className="w-4 h-4" /> Search LinkedIn</>
+                  )}
+                </Button>
+              </div>
+
+              {searchResults.length > 0 && (
+                <div className="space-y-2 mt-4">
+                  <p className="text-sm font-medium text-gray-700">Select a profile to enrich:</p>
+                  <div className="space-y-2 max-h-96 overflow-y-auto">
+                    {searchResults.map((profile, idx) => (
+                      <div
+                        key={idx}
+                        onClick={() => handleSelectProfile(profile)}
+                        className="p-3 border rounded-lg hover:bg-gray-50 cursor-pointer transition-colors"
+                      >
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <p className="font-medium text-gray-900">{profile.name}</p>
+                            <p className="text-sm text-gray-600">{profile.title}</p>
+                            <p className="text-xs text-gray-500">{profile.company} • {profile.location}</p>
+                            {profile.headline && (
+                              <p className="text-xs text-gray-400 mt-1 line-clamp-1">{profile.headline}</p>
+                            )}
+                          </div>
+                          <Button size="sm" variant="ghost" className="text-violet-600">
+                            Enrich
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               )}
-            </Button>
-          </div>
+            </TabsContent>
+          </Tabs>
         ) : (
           <div className="space-y-4">
             {/* Header */}
