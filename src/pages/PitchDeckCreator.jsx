@@ -1,369 +1,303 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { base44 } from '@/api/base44Client';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
+import { Card } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { base44 } from '@/api/base44Client';
-import { useQuery } from '@tanstack/react-query';
-import { Presentation, Download, Wand2, Loader2, FileText, Target, TrendingUp, Users } from "lucide-react";
+import { 
+  Presentation, Plus, Save, Download, Eye, Loader2, 
+  Palette, Layout, Sparkles
+} from "lucide-react";
+import BrandingPanel from '@/components/pitch/BrandingPanel';
+import SlideTemplates from '@/components/pitch/SlideTemplates';
+import SlideEditor from '@/components/pitch/SlideEditor';
+import EmptyState from '@/components/ui/EmptyState';
 
 export default function PitchDeckCreator() {
-  const [formData, setFormData] = useState({
-    company_name: '',
-    industry: '',
-    problem: '',
-    solution: '',
-    market_size: '',
-    business_model: '',
-    traction: '',
-    team: '',
-    ask: '',
-    use_of_funds: ''
+  const [selectedDeck, setSelectedDeck] = useState(null);
+  const [slides, setSlides] = useState([]);
+  const [branding, setBranding] = useState({
+    primary_color: '#7c3aed',
+    secondary_color: '#a78bfa',
+    background_color: '#ffffff',
+    font_heading: 'Inter',
+    font_body: 'Inter',
+    logo_url: ''
   });
-  const [generating, setGenerating] = useState(false);
-  const [generatedDeck, setGeneratedDeck] = useState(null);
+  const [deckTitle, setDeckTitle] = useState('');
+  const [companyName, setCompanyName] = useState('');
+  const queryClient = useQueryClient();
+
+  const { data: decks = [], isLoading } = useQuery({
+    queryKey: ['pitch-decks'],
+    queryFn: () => base44.entities.PitchDeck.list('-last_edited', 50),
+  });
 
   const { data: brands = [] } = useQuery({
     queryKey: ['brands'],
     queryFn: () => base44.entities.Brand.list(),
   });
 
-  const handleGenerate = async () => {
-    setGenerating(true);
+  const saveDeckMutation = useMutation({
+    mutationFn: async (data) => {
+      if (selectedDeck) {
+        return base44.entities.PitchDeck.update(selectedDeck.id, data);
+      }
+      return base44.entities.PitchDeck.create(data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['pitch-decks'] });
+    },
+  });
+
+  const handleNewDeck = () => {
+    setSelectedDeck(null);
+    setSlides([]);
+    setDeckTitle('Untitled Deck');
+    setCompanyName('');
+    setBranding({
+      primary_color: '#7c3aed',
+      secondary_color: '#a78bfa',
+      background_color: '#ffffff',
+      font_heading: 'Inter',
+      font_body: 'Inter',
+      logo_url: ''
+    });
+  };
+
+  const handleLoadDeck = (deck) => {
+    setSelectedDeck(deck);
+    setSlides(deck.slides || []);
+    setDeckTitle(deck.title || '');
+    setCompanyName(deck.company_name || '');
+    setBranding(deck.branding || branding);
+  };
+
+  const handleAddSlide = (template) => {
+    const newSlide = {
+      id: `slide-${Date.now()}`,
+      type: template.id,
+      title: template.title,
+      content: {},
+      order: slides.length
+    };
+    setSlides([...slides, newSlide]);
+  };
+
+  const handleUpdateSlide = (index, updatedSlide) => {
+    const newSlides = [...slides];
+    newSlides[index] = updatedSlide;
+    setSlides(newSlides);
+  };
+
+  const handleDeleteSlide = (index) => {
+    setSlides(slides.filter((_, i) => i !== index));
+  };
+
+  const handleAIEnhance = async (index) => {
+    const slide = slides[index];
     try {
-      const prompt = `Create a professional pitch deck with the following information:
-Company: ${formData.company_name}
-Industry: ${formData.industry}
-Problem: ${formData.problem}
-Solution: ${formData.solution}
-Market Size: ${formData.market_size}
-Business Model: ${formData.business_model}
-Traction: ${formData.traction}
-Team: ${formData.team}
-Funding Ask: ${formData.ask}
-Use of Funds: ${formData.use_of_funds}
+      const enhanced = await base44.integrations.Core.InvokeLLM({
+        prompt: `Enhance this pitch deck slide content. Make it more compelling and professional.
+        
+Slide Type: ${slide.type}
+Title: ${slide.title}
+Current Content: ${JSON.stringify(slide.content)}
 
-Generate a comprehensive pitch deck with 12-15 slides including: Cover, Problem, Solution, Market Opportunity, Product/Service, Business Model, Traction, Competition, Go-to-Market Strategy, Team, Financials, Funding Ask, and Contact.
-
-For each slide, provide:
-- Slide title
-- Key talking points (3-5 bullet points)
-- Visual suggestions
-- Notes for presenter`;
-
-      const response = await base44.integrations.Core.InvokeLLM({
-        prompt,
+Provide enhanced content with better wording, more impact, and professional tone.`,
         response_json_schema: {
           type: "object",
           properties: {
-            slides: {
-              type: "array",
-              items: {
-                type: "object",
-                properties: {
-                  title: { type: "string" },
-                  content: { type: "array", items: { type: "string" } },
-                  visual_suggestion: { type: "string" },
-                  notes: { type: "string" }
-                }
-              }
-            },
-            executive_summary: { type: "string" }
+            title: { type: "string" },
+            content: { type: "object" }
           }
         }
       });
 
-      setGeneratedDeck(response);
+      handleUpdateSlide(index, {
+        ...slide,
+        title: enhanced.title,
+        content: enhanced.content
+      });
     } catch (error) {
-      console.error('Error generating pitch deck:', error);
-    } finally {
-      setGenerating(false);
+      console.error('AI enhancement failed:', error);
     }
   };
 
-  const loadBrandData = (brand) => {
-    setFormData({
-      company_name: brand.name || '',
-      industry: brand.industry || '',
-      problem: '',
-      solution: brand.description || '',
-      market_size: '',
-      business_model: '',
-      traction: '',
-      team: '',
-      ask: '',
-      use_of_funds: ''
-    });
+  const handleSave = async () => {
+    const data = {
+      title: deckTitle,
+      company_name: companyName,
+      slides,
+      branding,
+      status: 'draft',
+      last_edited: new Date().toISOString()
+    };
+    await saveDeckMutation.mutateAsync(data);
+  };
+
+  const handleLoadBrand = (brand) => {
+    if (brand.brand_colors?.primary) {
+      setBranding({
+        ...branding,
+        primary_color: brand.brand_colors.primary,
+        secondary_color: brand.brand_colors.secondary || brand.brand_colors.primary,
+        logo_url: brand.logo_url || ''
+      });
+    }
+    setCompanyName(brand.name || '');
   };
 
   return (
-    <div className="p-6 lg:p-8 space-y-6 max-w-7xl mx-auto">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
-            <Presentation className="w-8 h-8 text-violet-600" />
-            Pitch Deck Creator
-          </h1>
-          <p className="text-gray-500 dark:text-gray-400 mt-1">AI-powered pitch deck generator for your business</p>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <FileText className="w-5 h-5 text-violet-600" />
-                Pitch Deck Information
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {brands.length > 0 && (
-                <div>
-                  <Label>Load from Brand</Label>
-                  <div className="flex gap-2 mt-1">
-                    {brands.slice(0, 3).map(brand => (
-                      <Button
-                        key={brand.id}
-                        variant="outline"
-                        size="sm"
-                        onClick={() => loadBrandData(brand)}
-                      >
-                        {brand.name}
-                      </Button>
-                    ))}
-                  </div>
-                </div>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
+      {/* Top Bar */}
+      <div className="sticky top-0 z-30 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border-b border-gray-200 dark:border-gray-800">
+        <div className="max-w-[1800px] mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <Presentation className="w-6 h-6 text-violet-600" />
+            <Input
+              value={deckTitle}
+              onChange={(e) => setDeckTitle(e.target.value)}
+              placeholder="Deck Title"
+              className="w-64 font-semibold border-0 bg-transparent focus-visible:ring-0"
+            />
+          </div>
+          
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleNewDeck}
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              New Deck
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+            >
+              <Eye className="w-4 h-4 mr-2" />
+              Preview
+            </Button>
+            <Button
+              size="sm"
+              onClick={handleSave}
+              disabled={saveDeckMutation.isPending}
+              className="bg-violet-600 hover:bg-violet-700"
+            >
+              {saveDeckMutation.isPending ? (
+                <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Saving...</>
+              ) : (
+                <><Save className="w-4 h-4 mr-2" /> Save</>
               )}
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label>Company Name</Label>
-                  <Input
-                    value={formData.company_name}
-                    onChange={(e) => setFormData({...formData, company_name: e.target.value})}
-                    placeholder="Your Company"
-                  />
-                </div>
-                <div>
-                  <Label>Industry</Label>
-                  <Input
-                    value={formData.industry}
-                    onChange={(e) => setFormData({...formData, industry: e.target.value})}
-                    placeholder="SaaS, E-commerce, etc."
-                  />
-                </div>
-              </div>
-
-              <div>
-                <Label>Problem Statement</Label>
-                <Textarea
-                  value={formData.problem}
-                  onChange={(e) => setFormData({...formData, problem: e.target.value})}
-                  placeholder="What problem are you solving?"
-                  rows={3}
-                />
-              </div>
-
-              <div>
-                <Label>Solution</Label>
-                <Textarea
-                  value={formData.solution}
-                  onChange={(e) => setFormData({...formData, solution: e.target.value})}
-                  placeholder="How does your product/service solve this problem?"
-                  rows={3}
-                />
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label>Market Size (TAM/SAM/SOM)</Label>
-                  <Textarea
-                    value={formData.market_size}
-                    onChange={(e) => setFormData({...formData, market_size: e.target.value})}
-                    placeholder="Total Addressable Market details"
-                    rows={2}
-                  />
-                </div>
-                <div>
-                  <Label>Business Model</Label>
-                  <Textarea
-                    value={formData.business_model}
-                    onChange={(e) => setFormData({...formData, business_model: e.target.value})}
-                    placeholder="How do you make money?"
-                    rows={2}
-                  />
-                </div>
-              </div>
-
-              <div>
-                <Label>Traction & Metrics</Label>
-                <Textarea
-                  value={formData.traction}
-                  onChange={(e) => setFormData({...formData, traction: e.target.value})}
-                  placeholder="Revenue, users, growth rate, partnerships, etc."
-                  rows={2}
-                />
-              </div>
-
-              <div>
-                <Label>Team</Label>
-                <Textarea
-                  value={formData.team}
-                  onChange={(e) => setFormData({...formData, team: e.target.value})}
-                  placeholder="Key team members and their backgrounds"
-                  rows={2}
-                />
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label>Funding Ask</Label>
-                  <Input
-                    value={formData.ask}
-                    onChange={(e) => setFormData({...formData, ask: e.target.value})}
-                    placeholder="$2M Seed Round"
-                  />
-                </div>
-                <div>
-                  <Label>Use of Funds</Label>
-                  <Input
-                    value={formData.use_of_funds}
-                    onChange={(e) => setFormData({...formData, use_of_funds: e.target.value})}
-                    placeholder="50% Engineering, 30% Marketing, 20% Operations"
-                  />
-                </div>
-              </div>
-
-              <Button
-                onClick={handleGenerate}
-                disabled={generating || !formData.company_name}
-                className="w-full bg-violet-600 hover:bg-violet-700"
-                size="lg"
-              >
-                {generating ? (
-                  <>
-                    <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                    Generating Pitch Deck...
-                  </>
-                ) : (
-                  <>
-                    <Wand2 className="w-5 h-5 mr-2" />
-                    Generate Pitch Deck
-                  </>
-                )}
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
-
-        <div className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Target className="w-5 h-5 text-blue-600" />
-                Quick Tips
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3 text-sm">
-              <div className="flex gap-2">
-                <div className="w-6 h-6 rounded-full bg-violet-100 dark:bg-violet-900/30 flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <span className="text-violet-600 font-semibold text-xs">1</span>
-                </div>
-                <div>
-                  <p className="font-medium text-gray-900 dark:text-white">Keep it concise</p>
-                  <p className="text-gray-500 text-xs">Investors typically spend 3-4 minutes per deck</p>
-                </div>
-              </div>
-              <div className="flex gap-2">
-                <div className="w-6 h-6 rounded-full bg-violet-100 dark:bg-violet-900/30 flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <span className="text-violet-600 font-semibold text-xs">2</span>
-                </div>
-                <div>
-                  <p className="font-medium text-gray-900 dark:text-white">Focus on the problem</p>
-                  <p className="text-gray-500 text-xs">Make sure the problem is clear and relatable</p>
-                </div>
-              </div>
-              <div className="flex gap-2">
-                <div className="w-6 h-6 rounded-full bg-violet-100 dark:bg-violet-900/30 flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <span className="text-violet-600 font-semibold text-xs">3</span>
-                </div>
-                <div>
-                  <p className="font-medium text-gray-900 dark:text-white">Show traction</p>
-                  <p className="text-gray-500 text-xs">Numbers and metrics build credibility</p>
-                </div>
-              </div>
-              <div className="flex gap-2">
-                <div className="w-6 h-6 rounded-full bg-violet-100 dark:bg-violet-900/30 flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <span className="text-violet-600 font-semibold text-xs">4</span>
-                </div>
-                <div>
-                  <p className="font-medium text-gray-900 dark:text-white">Highlight your team</p>
-                  <p className="text-gray-500 text-xs">Investors invest in people, not just ideas</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+            >
+              <Download className="w-4 h-4 mr-2" />
+              Export
+            </Button>
+          </div>
         </div>
       </div>
 
-      {generatedDeck && (
-        <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle>Generated Pitch Deck</CardTitle>
-              <Button variant="outline" size="sm">
-                <Download className="w-4 h-4 mr-2" />
-                Export as PDF
-              </Button>
-            </div>
-          </CardHeader>
-          <CardContent>
-            {generatedDeck.executive_summary && (
-              <div className="mb-6 p-4 bg-violet-50 dark:bg-violet-900/20 rounded-lg border border-violet-200 dark:border-violet-800">
-                <p className="text-sm font-medium text-violet-900 dark:text-violet-300 mb-2">Executive Summary</p>
-                <p className="text-sm text-gray-700 dark:text-gray-300">{generatedDeck.executive_summary}</p>
+      <div className="max-w-[1800px] mx-auto p-4 sm:p-6 lg:p-8">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          {/* Left Sidebar */}
+          <div className="lg:col-span-3 space-y-4">
+            {/* Company Info */}
+            <Card className="p-4 bg-white dark:bg-gray-800">
+              <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">Company Info</h3>
+              <div className="space-y-3">
+                <div>
+                  <label className="text-xs text-gray-500">Company Name</label>
+                  <Input
+                    value={companyName}
+                    onChange={(e) => setCompanyName(e.target.value)}
+                    placeholder="Your Company"
+                    className="mt-1"
+                  />
+                </div>
+                {brands.length > 0 && (
+                  <div>
+                    <label className="text-xs text-gray-500 mb-2 block">Load from Brand</label>
+                    <div className="space-y-1">
+                      {brands.slice(0, 3).map(brand => (
+                        <Button
+                          key={brand.id}
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleLoadBrand(brand)}
+                          className="w-full justify-start text-xs"
+                        >
+                          {brand.name}
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </Card>
+
+            {/* Branding */}
+            <BrandingPanel branding={branding} onChange={setBranding} />
+
+            {/* Slide Templates */}
+            <Card className="p-4 bg-white dark:bg-gray-800">
+              <SlideTemplates onAdd={handleAddSlide} />
+            </Card>
+
+            {/* Saved Decks */}
+            {decks.length > 0 && (
+              <Card className="p-4 bg-white dark:bg-gray-800">
+                <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">Recent Decks</h3>
+                <div className="space-y-2">
+                  {decks.slice(0, 5).map(deck => (
+                    <button
+                      key={deck.id}
+                      onClick={() => handleLoadDeck(deck)}
+                      className="w-full text-left p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-sm"
+                    >
+                      <p className="font-medium text-gray-900 dark:text-white truncate">{deck.title}</p>
+                      <p className="text-xs text-gray-500">{deck.slides?.length || 0} slides</p>
+                    </button>
+                  ))}
+                </div>
+              </Card>
+            )}
+          </div>
+
+          {/* Main Editor */}
+          <div className="lg:col-span-9">
+            {slides.length === 0 ? (
+              <Card className="bg-white dark:bg-gray-800 h-[600px]">
+                <EmptyState
+                  icon={Layout}
+                  title="Start building your pitch deck"
+                  description="Add slides from the template library on the left to get started."
+                  actionLabel="Add First Slide"
+                  onAction={() => handleAddSlide({ id: 'cover', title: 'Cover', description: 'Title slide' })}
+                />
+              </Card>
+            ) : (
+              <div className="space-y-4">
+                {slides.map((slide, index) => (
+                  <SlideEditor
+                    key={slide.id}
+                    slide={slide}
+                    branding={branding}
+                    onChange={(updated) => handleUpdateSlide(index, updated)}
+                    onDelete={() => handleDeleteSlide(index)}
+                    onAIEnhance={() => handleAIEnhance(index)}
+                  />
+                ))}
               </div>
             )}
-            <div className="space-y-4">
-              {generatedDeck.slides?.map((slide, idx) => (
-                <div key={idx} className="border border-gray-200 dark:border-gray-700 rounded-lg p-6 hover:border-violet-300 transition-colors">
-                  <div className="flex items-start gap-4">
-                    <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white font-bold flex-shrink-0">
-                      {idx + 1}
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-3">{slide.title}</h3>
-                      <ul className="space-y-2 mb-4">
-                        {slide.content?.map((point, i) => (
-                          <li key={i} className="flex items-start gap-2 text-sm text-gray-700 dark:text-gray-300">
-                            <span className="text-violet-500 mt-1">•</span>
-                            <span>{point}</span>
-                          </li>
-                        ))}
-                      </ul>
-                      {slide.visual_suggestion && (
-                        <div className="bg-blue-50 dark:bg-blue-900/20 rounded p-3 mb-2">
-                          <p className="text-xs font-medium text-blue-900 dark:text-blue-300 mb-1">Visual Suggestion:</p>
-                          <p className="text-xs text-gray-600 dark:text-gray-400">{slide.visual_suggestion}</p>
-                        </div>
-                      )}
-                      {slide.notes && (
-                        <div className="bg-gray-50 dark:bg-gray-800 rounded p-3">
-                          <p className="text-xs font-medium text-gray-900 dark:text-white mb-1">Presenter Notes:</p>
-                          <p className="text-xs text-gray-600 dark:text-gray-400">{slide.notes}</p>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      )}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
