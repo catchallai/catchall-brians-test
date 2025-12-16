@@ -1,15 +1,27 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Trash2, GripVertical, Sparkles, Image as ImageIcon } from "lucide-react";
+import { Trash2, GripVertical, Sparkles, Image as ImageIcon, Video, Link } from "lucide-react";
+import MediaEmbedModal from './MediaEmbedModal';
 
 export default function SlideEditor({ slide, branding, onChange, onDelete, onAIEnhance }) {
+  const [showMediaModal, setShowMediaModal] = useState(false);
   const updateContent = (field, value) => {
     onChange({
       ...slide,
       content: { ...slide.content, [field]: value }
+    });
+  };
+
+  const handleMediaEmbed = (media) => {
+    onChange({
+      ...slide,
+      content: { 
+        ...slide.content, 
+        media: media 
+      }
     });
   };
 
@@ -175,14 +187,46 @@ export default function SlideEditor({ slide, branding, onChange, onDelete, onAIE
           />
         )}
 
-        {/* Image upload */}
-        <div className="mt-3 pt-3 border-t">
-          <button className="text-xs text-gray-500 hover:text-violet-600 flex items-center gap-1">
-            <ImageIcon className="w-3 h-3" />
-            Add image or chart
+        {/* Media Section */}
+        {slide.content?.media && (
+          <div className="mt-3 p-3 bg-gray-50 dark:bg-gray-900 rounded-lg">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs font-medium text-gray-700 dark:text-gray-300">
+                {slide.content.media.type === 'youtube' && '📺 YouTube Video'}
+                {slide.content.media.type === 'video' && '🎥 Video'}
+                {slide.content.media.type === 'link' && '🔗 Website Embed'}
+                {slide.content.media.type === 'upload' && '📁 ' + slide.content.media.fileName}
+              </span>
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => updateContent('media', null)}
+                className="h-6 text-xs text-red-500"
+              >
+                Remove
+              </Button>
+            </div>
+            <p className="text-xs text-gray-500 truncate">{slide.content.media.url}</p>
+          </div>
+        )}
+
+        {/* Media Actions */}
+        <div className="mt-3 pt-3 border-t flex gap-2">
+          <button 
+            onClick={() => setShowMediaModal(true)}
+            className="text-xs text-gray-500 hover:text-violet-600 flex items-center gap-1"
+          >
+            <Video className="w-3 h-3" />
+            Add media
           </button>
         </div>
       </div>
+
+      <MediaEmbedModal
+        open={showMediaModal}
+        onClose={() => setShowMediaModal(false)}
+        onEmbed={handleMediaEmbed}
+      />
     </Card>
   );
 }

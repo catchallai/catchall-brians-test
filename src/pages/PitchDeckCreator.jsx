@@ -7,11 +7,15 @@ import { Card } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { 
   Presentation, Plus, Save, Download, Eye, Loader2, 
-  Palette, Layout, Sparkles, FileText
+  Palette, Layout, Sparkles, FileText, FolderOpen, BookmarkPlus
 } from "lucide-react";
 import BrandingPanel from '@/components/pitch/BrandingPanel';
 import SlideTemplates from '@/components/pitch/SlideTemplates';
 import SlideEditor from '@/components/pitch/SlideEditor';
+import DraggableSlideList from '@/components/pitch/DraggableSlideList';
+import TemplateLibrary from '@/components/pitch/TemplateLibrary';
+import SaveTemplateModal from '@/components/pitch/SaveTemplateModal';
+import CollaborationPanel from '@/components/pitch/CollaborationPanel';
 import EmptyState from '@/components/ui/EmptyState';
 
 export default function PitchDeckCreator() {
@@ -27,6 +31,10 @@ export default function PitchDeckCreator() {
   });
   const [deckTitle, setDeckTitle] = useState('');
   const [companyName, setCompanyName] = useState('');
+  const [showTemplateLibrary, setShowTemplateLibrary] = useState(false);
+  const [showSaveTemplate, setShowSaveTemplate] = useState(false);
+  const [editingSlideIndex, setEditingSlideIndex] = useState(null);
+  const [viewMode, setViewMode] = useState('list'); // 'list' or 'editor'
   const queryClient = useQueryClient();
 
   const { data: decks = [], isLoading } = useQuery({
@@ -37,6 +45,18 @@ export default function PitchDeckCreator() {
   const { data: brands = [] } = useQuery({
     queryKey: ['brands'],
     queryFn: () => base44.entities.Brand.list(),
+  });
+
+  const { data: user } = useQuery({
+    queryKey: ['current-user'],
+    queryFn: () => base44.auth.me(),
+  });
+
+  const saveTemplateMutation = useMutation({
+    mutationFn: (data) => base44.entities.PitchDeckTemplate.create(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['pitch-deck-templates'] });
+    },
   });
 
   const saveDeckMutation = useMutation({
@@ -56,6 +76,8 @@ export default function PitchDeckCreator() {
     setSlides([]);
     setDeckTitle('Untitled Deck');
     setCompanyName('');
+    setEditingSlideIndex(null);
+    setViewMode('list');
     setBranding({
       primary_color: '#7c3aed',
       secondary_color: '#a78bfa',
@@ -66,12 +88,27 @@ export default function PitchDeckCreator() {
     });
   };
 
+  const handleLoadTemplate = (template) => {
+    setSlides(template.default_slides || []);
+    setBranding(template.branding || branding);
+    setDeckTitle(template.name);
+    setCompanyName('');
+    setEditingSlideIndex(null);
+    setViewMode('list');
+  };
+
+  const handleSaveTemplate = async (data) => {
+    await saveTemplateMutation.mutateAsync(data);
+  };
+
   const handleLoadDeck = (deck) => {
     setSelectedDeck(deck);
     setSlides(deck.slides || []);
     setDeckTitle(deck.title || '');
     setCompanyName(deck.company_name || '');
     setBranding(deck.branding || branding);
+    setEditingSlideIndex(null);
+    setViewMode('list');
   };
 
   const handleAddSlide = (template) => {
@@ -93,6 +130,19 @@ export default function PitchDeckCreator() {
 
   const handleDeleteSlide = (index) => {
     setSlides(slides.filter((_, i) => i !== index));
+    if (editingSlideIndex === index) {
+      setEditingSlideIndex(null);
+      setViewMode('list');
+    }
+  };
+
+  const handleReorderSlides = (newSlides) => {
+    setSlides(newSlides);
+  };
+
+  const handleEditSlide = (index) => {
+    setEditingSlideIndex(index);
+    setViewMode('editor');
   };
 
   const handleAIEnhance = async (index) => {
@@ -222,10 +272,27 @@ Provide enhanced content with better wording, more impact, and professional tone
             <Button
               variant="outline"
               size="sm"
+              onClick={() => setShowTemplateLibrary(true)}
+            >
+              <FolderOpen className="w-4 h-4 mr-2" />
+              Templates
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
               onClick={handleNewDeck}
             >
               <Plus className="w-4 h-4 mr-2" />
-              New Deck
+              New
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowSaveTemplate(true)}
+              disabled={slides.length === 0}
+            >
+              <BookmarkPlus className="w-4 h-4 mr-2" />
+              Save Template
             </Button>
             <Button
               variant="outline"
@@ -316,6 +383,12 @@ Provide enhanced content with better wording, more impact, and professional tone
               <SlideTemplates onAdd={handleAddSlide} />
             </Card>
 
+            {/* Collaboration */}
+            <CollaborationPanel 
+              collaborators={[]}
+              currentUser={user}
+            />
+
             {/* Saved Decks */}
             {decks.length > 0 && (
               <Card className="p-4 bg-white dark:bg-gray-800">
@@ -343,28 +416,78 @@ Provide enhanced content with better wording, more impact, and professional tone
                 <EmptyState
                   icon={Layout}
                   title="Start building your pitch deck"
-                  description="Add slides from the template library on the left to get started."
-                  actionLabel="Add First Slide"
-                  onAction={() => handleAddSlide({ id: 'cover', title: 'Cover', description: 'Title slide' })}
+                  description="Add slides from the template library on the left or load a template."
+                  actionLabel="Browse Templates"
+                  onAction={() => setShowTemplateLibrary(true)}
                 />
               </Card>
             ) : (
-              <div className="space-y-4">
-                {slides.map((slide, index) => (
-                  <SlideEditor
-                    key={slide.id}
-                    slide={slide}
+              <>
+                {/* View Toggle */}
+                <div className="flex items-center justify-between mb-4">
+                  <Tabs value={viewMode} onValueChange={setViewMode}>
+                    <TabsList>
+                      <TabsTrigger value="list">Overview</TabsTrigger>
+                      <TabsTrigger value="editor">Edit Slide</TabsTrigger>
+                    </TabsList>
+                  </Tabs>
+                  {viewMode === 'editor' && editingSlideIndex !== null && (
+                    <p className="text-sm text-gray-500">
+                      Editing: Slide {editingSlideIndex + 1}
+                    </p>
+                  )}
+                </div>
+
+                {/* List View - Draggable */}
+                {viewMode === 'list' && (
+                  <DraggableSlideList
+                    slides={slides}
                     branding={branding}
-                    onChange={(updated) => handleUpdateSlide(index, updated)}
-                    onDelete={() => handleDeleteSlide(index)}
-                    onAIEnhance={() => handleAIEnhance(index)}
+                    onReorder={handleReorderSlides}
+                    onEdit={handleEditSlide}
+                    onDelete={handleDeleteSlide}
+                    onAIEnhance={handleAIEnhance}
                   />
-                ))}
-              </div>
+                )}
+
+                {/* Editor View */}
+                {viewMode === 'editor' && editingSlideIndex !== null && (
+                  <div className="space-y-4">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setViewMode('list')}
+                    >
+                      ← Back to Overview
+                    </Button>
+                    <SlideEditor
+                      slide={slides[editingSlideIndex]}
+                      branding={branding}
+                      onChange={(updated) => handleUpdateSlide(editingSlideIndex, updated)}
+                      onDelete={() => handleDeleteSlide(editingSlideIndex)}
+                      onAIEnhance={() => handleAIEnhance(editingSlideIndex)}
+                    />
+                  </div>
+                )}
+              </>
             )}
           </div>
         </div>
       </div>
+
+      {/* Modals */}
+      <TemplateLibrary
+        open={showTemplateLibrary}
+        onClose={() => setShowTemplateLibrary(false)}
+        onSelect={handleLoadTemplate}
+      />
+
+      <SaveTemplateModal
+        open={showSaveTemplate}
+        onClose={() => setShowSaveTemplate(false)}
+        onSave={handleSaveTemplate}
+        currentDeck={{ branding, slides }}
+      />
     </div>
   );
 }
