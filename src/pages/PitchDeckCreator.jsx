@@ -7,7 +7,7 @@ import { Card } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { 
   Presentation, Plus, Save, Download, Eye, Loader2, 
-  Palette, Layout, Sparkles
+  Palette, Layout, Sparkles, FileText
 } from "lucide-react";
 import BrandingPanel from '@/components/pitch/BrandingPanel';
 import SlideTemplates from '@/components/pitch/SlideTemplates';
@@ -134,7 +134,61 @@ Provide enhanced content with better wording, more impact, and professional tone
       status: 'draft',
       last_edited: new Date().toISOString()
     };
-    await saveDeckMutation.mutateAsync(data);
+    const result = await saveDeckMutation.mutateAsync(data);
+    setSelectedDeck(result);
+    return result;
+  };
+
+  const handleExportPDF = async () => {
+    try {
+      let deckToExport = selectedDeck;
+      if (!deckToExport) {
+        deckToExport = await handleSave();
+      }
+      
+      const response = await base44.functions.invoke('exportPitchDeckPDF', { 
+        deckId: deckToExport.id 
+      });
+      
+      const blob = new Blob([response.data], { type: 'application/pdf' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${deckTitle || 'pitch-deck'}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      a.remove();
+    } catch (error) {
+      console.error('PDF export failed:', error);
+    }
+  };
+
+  const handleExportPPTX = async () => {
+    try {
+      let deckToExport = selectedDeck;
+      if (!deckToExport) {
+        deckToExport = await handleSave();
+      }
+      
+      const response = await base44.functions.invoke('exportPitchDeckPPTX', { 
+        deckId: deckToExport.id 
+      });
+      
+      const blob = new Blob([response.data], { 
+        type: 'application/vnd.openxmlformats-officedocument.presentationml.presentation' 
+      });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${deckTitle || 'pitch-deck'}.pptx`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      a.remove();
+    } catch (error) {
+      console.error('PPTX export failed:', error);
+    }
   };
 
   const handleLoadBrand = (brand) => {
@@ -192,13 +246,26 @@ Provide enhanced content with better wording, more impact, and professional tone
                 <><Save className="w-4 h-4 mr-2" /> Save</>
               )}
             </Button>
-            <Button
-              size="sm"
-              variant="outline"
-            >
-              <Download className="w-4 h-4 mr-2" />
-              Export
-            </Button>
+            <div className="flex items-center gap-1">
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={handleExportPDF}
+                disabled={slides.length === 0}
+              >
+                <Download className="w-4 h-4 mr-2" />
+                PDF
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={handleExportPPTX}
+                disabled={slides.length === 0}
+              >
+                <FileText className="w-4 h-4 mr-2" />
+                PowerPoint
+              </Button>
+            </div>
           </div>
         </div>
       </div>
