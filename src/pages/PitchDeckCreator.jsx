@@ -17,6 +17,7 @@ import TemplateLibrary from '@/components/pitch/TemplateLibrary';
 import SaveTemplateModal from '@/components/pitch/SaveTemplateModal';
 import CollaborationPanel from '@/components/pitch/CollaborationPanel';
 import PreviewModal from '@/components/pitch/PreviewModal';
+import AIAssistantPanel from '@/components/pitch/AIAssistantPanel';
 import EmptyState from '@/components/ui/EmptyState';
 
 export default function PitchDeckCreator() {
@@ -456,21 +457,34 @@ Provide enhanced content with better wording, more impact, and professional tone
 
                 {/* Editor View */}
                 {viewMode === 'editor' && editingSlideIndex !== null && (
-                  <div className="space-y-4">
+                  <div>
                     <Button
                       variant="outline"
                       size="sm"
                       onClick={() => setViewMode('list')}
+                      className="mb-4"
                     >
                       ← Back to Overview
                     </Button>
-                    <SlideEditor
-                      slide={slides[editingSlideIndex]}
-                      branding={branding}
-                      onChange={(updated) => handleUpdateSlide(editingSlideIndex, updated)}
-                      onDelete={() => handleDeleteSlide(editingSlideIndex)}
-                      onAIEnhance={() => handleAIEnhance(editingSlideIndex)}
-                    />
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                      <div className="lg:col-span-2">
+                        <SlideEditor
+                          slide={slides[editingSlideIndex]}
+                          branding={branding}
+                          onChange={(updated) => handleUpdateSlide(editingSlideIndex, updated)}
+                          onDelete={() => handleDeleteSlide(editingSlideIndex)}
+                          onAIEnhance={() => handleAIEnhance(editingSlideIndex)}
+                        />
+                      </div>
+                      <div>
+                        <AIAssistantPanel
+                          slide={slides[editingSlideIndex]}
+                          companyName={companyName}
+                          industry={selectedDeck?.industry}
+                          onApplySuggestion={(updated) => handleUpdateSlide(editingSlideIndex, updated)}
+                        />
+                      </div>
+                    </div>
                   </div>
                 )}
               </>
