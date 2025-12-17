@@ -299,6 +299,8 @@ Provide enhanced content with better wording, more impact, and professional tone
             <Button
               variant="outline"
               size="sm"
+              onClick={() => setShowPreview(true)}
+              disabled={slides.length === 0}
             >
               <Eye className="w-4 h-4 mr-2" />
               Preview
