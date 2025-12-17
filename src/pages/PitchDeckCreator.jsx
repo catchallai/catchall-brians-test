@@ -17,7 +17,11 @@ import TemplateLibrary from '@/components/pitch/TemplateLibrary';
 import SaveTemplateModal from '@/components/pitch/SaveTemplateModal';
 import CollaborationPanel from '@/components/pitch/CollaborationPanel';
 import PreviewModal from '@/components/pitch/PreviewModal';
+import PresentationMode from '@/components/pitch/PresentationMode';
 import AIAssistantPanel from '@/components/pitch/AIAssistantPanel';
+import CustomBlockLibrary from '@/components/pitch/CustomBlockLibrary';
+import CustomBlockEditor from '@/components/pitch/CustomBlockEditor';
+import TemplateAssetManager from '@/components/pitch/TemplateAssetManager';
 import EmptyState from '@/components/ui/EmptyState';
 
 export default function PitchDeckCreator() {
@@ -36,6 +40,9 @@ export default function PitchDeckCreator() {
   const [showTemplateLibrary, setShowTemplateLibrary] = useState(false);
   const [showSaveTemplate, setShowSaveTemplate] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
+  const [showPresentation, setShowPresentation] = useState(false);
+  const [showBlockLibrary, setShowBlockLibrary] = useState(false);
+  const [showBlockEditor, setShowBlockEditor] = useState(false);
   const [editingSlideIndex, setEditingSlideIndex] = useState(null);
   const [viewMode, setViewMode] = useState('list'); // 'list' or 'editor'
   const queryClient = useQueryClient();
@@ -59,6 +66,13 @@ export default function PitchDeckCreator() {
     mutationFn: (data) => base44.entities.PitchDeckTemplate.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['pitch-deck-templates'] });
+    },
+  });
+
+  const saveCustomBlockMutation = useMutation({
+    mutationFn: (data) => base44.entities.CustomSlideBlock.create(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['custom-slide-blocks'] });
     },
   });
 
@@ -102,6 +116,22 @@ export default function PitchDeckCreator() {
 
   const handleSaveTemplate = async (data) => {
     await saveTemplateMutation.mutateAsync(data);
+  };
+
+  const handleSaveCustomBlock = async (data) => {
+    await saveCustomBlockMutation.mutateAsync(data);
+  };
+
+  const handleApplyCustomBlock = (block) => {
+    const newSlide = {
+      id: `slide-${Date.now()}`,
+      type: block.block_type,
+      title: block.name,
+      content: block.default_content,
+      layout: block.layout,
+      order: slides.length
+    };
+    setSlides([...slides, newSlide]);
   };
 
   const handleLoadDeck = (deck) => {
@@ -308,6 +338,15 @@ Provide enhanced content with better wording, more impact, and professional tone
             </Button>
             <Button
               size="sm"
+              onClick={() => setShowPresentation(true)}
+              disabled={slides.length === 0}
+              className="bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700"
+            >
+              <Presentation className="w-4 h-4 mr-2" />
+              Present
+            </Button>
+            <Button
+              size="sm"
               onClick={handleSave}
               disabled={saveDeckMutation.isPending}
               className="bg-violet-600 hover:bg-violet-700"
@@ -387,6 +426,38 @@ Provide enhanced content with better wording, more impact, and professional tone
             <Card className="p-4 bg-white dark:bg-gray-800">
               <SlideTemplates onAdd={handleAddSlide} />
             </Card>
+
+            {/* Custom Blocks */}
+            <Card className="p-4 bg-white dark:bg-gray-800">
+              <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">Custom Blocks</h3>
+              <div className="space-y-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowBlockLibrary(true)}
+                  className="w-full justify-start"
+                >
+                  <LayoutGrid className="w-4 h-4 mr-2" />
+                  Browse Blocks
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowBlockEditor(true)}
+                  className="w-full justify-start"
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  Create Block
+                </Button>
+              </div>
+            </Card>
+
+            {/* Template Assets */}
+            <TemplateAssetManager
+              customFonts={branding.custom_fonts || []}
+              customAssets={branding.custom_assets || []}
+              onChange={(assets) => setBranding({ ...branding, ...assets })}
+            />
 
             {/* Collaboration */}
             <CollaborationPanel 
@@ -514,6 +585,27 @@ Provide enhanced content with better wording, more impact, and professional tone
         branding={branding}
         deckTitle={deckTitle}
         companyName={companyName}
+      />
+
+      <PresentationMode
+        open={showPresentation}
+        onClose={() => setShowPresentation(false)}
+        slides={slides}
+        branding={branding}
+        deckTitle={deckTitle}
+        companyName={companyName}
+      />
+
+      <CustomBlockLibrary
+        open={showBlockLibrary}
+        onClose={() => setShowBlockLibrary(false)}
+        onSelect={handleApplyCustomBlock}
+      />
+
+      <CustomBlockEditor
+        open={showBlockEditor}
+        onClose={() => setShowBlockEditor(false)}
+        onSave={handleSaveCustomBlock}
       />
     </div>
   );
