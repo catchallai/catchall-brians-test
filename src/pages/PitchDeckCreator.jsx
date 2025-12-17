@@ -16,6 +16,7 @@ import DraggableSlideList from '@/components/pitch/DraggableSlideList';
 import TemplateLibrary from '@/components/pitch/TemplateLibrary';
 import SaveTemplateModal from '@/components/pitch/SaveTemplateModal';
 import CollaborationPanel from '@/components/pitch/CollaborationPanel';
+import PreviewModal from '@/components/pitch/PreviewModal';
 import EmptyState from '@/components/ui/EmptyState';
 
 export default function PitchDeckCreator() {
@@ -33,6 +34,7 @@ export default function PitchDeckCreator() {
   const [companyName, setCompanyName] = useState('');
   const [showTemplateLibrary, setShowTemplateLibrary] = useState(false);
   const [showSaveTemplate, setShowSaveTemplate] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
   const [editingSlideIndex, setEditingSlideIndex] = useState(null);
   const [viewMode, setViewMode] = useState('list'); // 'list' or 'editor'
   const queryClient = useQueryClient();
@@ -487,6 +489,15 @@ Provide enhanced content with better wording, more impact, and professional tone
         onClose={() => setShowSaveTemplate(false)}
         onSave={handleSaveTemplate}
         currentDeck={{ branding, slides }}
+      />
+
+      <PreviewModal
+        open={showPreview}
+        onClose={() => setShowPreview(false)}
+        slides={slides}
+        branding={branding}
+        deckTitle={deckTitle}
+        companyName={companyName}
       />
     </div>
   );
