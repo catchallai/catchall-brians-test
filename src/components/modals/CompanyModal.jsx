@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useOrganizationContext } from '@/components/hooks/useOrganizationContext';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,6 +18,7 @@ export default function CompanyModal({ company, open, onClose }) {
   const [phone, setPhone] = useState('');
   const [address, setAddress] = useState('');
   const queryClient = useQueryClient();
+  const { organizationId } = useOrganizationContext();
 
   useEffect(() => {
     if (company) {
@@ -60,6 +62,7 @@ export default function CompanyModal({ company, open, onClose }) {
     e.preventDefault();
     saveMutation.mutate({
       name,
+      organization_id: organizationId,
       website,
       industry,
       size,
