@@ -31,6 +31,7 @@ import MediaLibrary from './pages/MediaLibrary';
 import MediaOutreach from './pages/MediaOutreach';
 import MeetingScheduler from './pages/MeetingScheduler';
 import MobileHub from './pages/MobileHub';
+import Organizations from './pages/Organizations';
 import PitchDeckAnalyzer from './pages/PitchDeckAnalyzer';
 import PitchDeckCreator from './pages/PitchDeckCreator';
 import PressMonitoring from './pages/PressMonitoring';
@@ -54,7 +55,6 @@ import UserProfile from './pages/UserProfile';
 import UserSettings from './pages/UserSettings';
 import VisitorProfiles from './pages/VisitorProfiles';
 import WebCrawler from './pages/WebCrawler';
-import Organizations from './pages/Organizations';
 import __Layout from './Layout.jsx';
 
 
@@ -92,6 +92,7 @@ export const PAGES = {
     "MediaOutreach": MediaOutreach,
     "MeetingScheduler": MeetingScheduler,
     "MobileHub": MobileHub,
+    "Organizations": Organizations,
     "PitchDeckAnalyzer": PitchDeckAnalyzer,
     "PitchDeckCreator": PitchDeckCreator,
     "PressMonitoring": PressMonitoring,
@@ -115,7 +116,6 @@ export const PAGES = {
     "UserSettings": UserSettings,
     "VisitorProfiles": VisitorProfiles,
     "WebCrawler": WebCrawler,
-    "Organizations": Organizations,
 }
 
 export const pagesConfig = {
