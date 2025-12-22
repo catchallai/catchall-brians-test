@@ -132,10 +132,13 @@ const navigation = [
   { name: 'Help Center', icon: HelpCircle, page: 'HelpCenter' },
   { name: 'Settings', icon: Settings, page: 'Settings' },
   { name: 'Activity Logs', icon: Activity, page: 'ActivityLogs' },
-];
+  { name: 'divider', label: 'Management' },
+  { name: 'Organizations', icon: Building2, page: 'Organizations' },
+  ];
 
 const SIDEBAR_ICONS = {
   Dashboard: LayoutDashboard,
+  Organizations: Building2,
   VisitorProfiles: UserCircle,
   PitchDeckCreator: PenTool,
   PitchDeckAnalyzer: FileSearch,
