@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useOrganizationContext } from '@/components/hooks/useOrganizationContext';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -34,39 +35,70 @@ export default function CompetitorAnalysis() {
   const [deepAnalyzingFor, setDeepAnalyzingFor] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const queryClient = useQueryClient();
+  const { organizationId } = useOrganizationContext();
 
   const { data: competitors = [], isLoading } = useQuery({
-    queryKey: ['competitors'],
-    queryFn: () => base44.entities.Competitor.list('-created_date', 50),
+    queryKey: ['competitors', organizationId],
+    queryFn: async () => {
+      if (organizationId) {
+        return base44.entities.Competitor.filter({ organization_id: organizationId }, '-created_date', 50);
+      }
+      return base44.entities.Competitor.list('-created_date', 50);
+    },
   });
 
   const { data: competitorReports = [] } = useQuery({
-    queryKey: ['competitor-reports'],
-    queryFn: () => base44.entities.CompetitorReport.list('-created_date', 100),
+    queryKey: ['competitor-reports', organizationId],
+    queryFn: async () => {
+      if (organizationId) {
+        return base44.entities.CompetitorReport.filter({ organization_id: organizationId }, '-created_date', 100);
+      }
+      return base44.entities.CompetitorReport.list('-created_date', 100);
+    },
   });
 
   const { data: socialAccounts = [] } = useQuery({
-    queryKey: ['social-accounts'],
-    queryFn: () => base44.entities.SocialAccount.list('-created_date', 50),
+    queryKey: ['social-accounts', organizationId],
+    queryFn: async () => {
+      if (organizationId) {
+        return base44.entities.SocialAccount.filter({ organization_id: organizationId }, '-created_date', 50);
+      }
+      return base44.entities.SocialAccount.list('-created_date', 50);
+    },
   });
 
   const { data: scheduledPosts = [] } = useQuery({
-    queryKey: ['scheduled-posts'],
-    queryFn: () => base44.entities.ScheduledPost.list('-created_date', 100),
+    queryKey: ['scheduled-posts', organizationId],
+    queryFn: async () => {
+      if (organizationId) {
+        return base44.entities.ScheduledPost.filter({ organization_id: organizationId }, '-created_date', 100);
+      }
+      return base44.entities.ScheduledPost.list('-created_date', 100);
+    },
   });
 
   const { data: socialPosts = [] } = useQuery({
-    queryKey: ['social-posts'],
-    queryFn: () => base44.entities.SocialPost.list('-created_date', 500),
+    queryKey: ['social-posts', organizationId],
+    queryFn: async () => {
+      if (organizationId) {
+        return base44.entities.SocialPost.filter({ organization_id: organizationId }, '-created_date', 500);
+      }
+      return base44.entities.SocialPost.list('-created_date', 500);
+    },
   });
 
   const { data: companies = [] } = useQuery({
-    queryKey: ['companies'],
-    queryFn: () => base44.entities.Company.list('-created_date', 50),
+    queryKey: ['companies', organizationId],
+    queryFn: async () => {
+      if (organizationId) {
+        return base44.entities.Company.filter({ organization_id: organizationId }, '-created_date', 50);
+      }
+      return base44.entities.Company.list('-created_date', 50);
+    },
   });
 
   const createCompetitorMutation = useMutation({
-    mutationFn: (data) => base44.entities.Competitor.create(data),
+    mutationFn: (data) => base44.entities.Competitor.create({ ...data, organization_id: organizationId }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['competitors'] });
       setShowCompetitorModal(false);
@@ -117,7 +149,8 @@ export default function CompetitorAnalysis() {
         if (!existingCompetitorNames.includes(comp.name.toLowerCase())) {
           await base44.entities.Competitor.create({
             name: comp.name,
-            website: comp.website
+            website: comp.website,
+            organization_id: organizationId
           });
           added++;
         }
@@ -292,6 +325,7 @@ Generate detailed comparison with side-by-side metrics, areas we lead/need to im
         report_type: reportType,
         period_start: periodStart.toISOString().split('T')[0],
         period_end: today.toISOString().split('T')[0],
+        organization_id: organizationId,
         ...analysis
       });
 

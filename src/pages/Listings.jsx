@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useOrganizationContext } from '@/components/hooks/useOrganizationContext';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -35,19 +36,30 @@ export default function Listings() {
   const [selectedGBPListing, setSelectedGBPListing] = useState(null);
   const [detailListing, setDetailListing] = useState(null);
   const queryClient = useQueryClient();
+  const { organizationId } = useOrganizationContext();
 
   const { data: listings = [], isLoading } = useQuery({
-    queryKey: ['listings'],
-    queryFn: () => base44.entities.Listing.list('-created_date', 500),
+    queryKey: ['listings', organizationId],
+    queryFn: async () => {
+      if (organizationId) {
+        return base44.entities.Listing.filter({ organization_id: organizationId }, '-created_date', 500);
+      }
+      return base44.entities.Listing.list('-created_date', 500);
+    },
   });
 
   const { data: websites = [] } = useQuery({
-    queryKey: ['websites'],
-    queryFn: () => base44.entities.Website.list('-created_date', 50),
+    queryKey: ['websites', organizationId],
+    queryFn: async () => {
+      if (organizationId) {
+        return base44.entities.Website.filter({ organization_id: organizationId }, '-created_date', 50);
+      }
+      return base44.entities.Website.list('-created_date', 50);
+    },
   });
 
   const createMutation = useMutation({
-    mutationFn: (data) => base44.entities.Listing.create(data),
+    mutationFn: (data) => base44.entities.Listing.create({ ...data, organization_id: organizationId }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['listings'] });
       setShowModal(false);
@@ -214,7 +226,8 @@ export default function Listings() {
             suggested_corrections: listing.suggested_corrections || [],
             needs_manual_review: listing.needs_manual_review || false,
             severity: severity,
-            last_scanned: new Date().toISOString()
+            last_scanned: new Date().toISOString(),
+            organization_id: organizationId
           });
         }
       }
