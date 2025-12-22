@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useOrganizationContext } from '@/components/hooks/useOrganizationContext';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Loader2 } from "lucide-react";
 
 export default function ActivityModal({ open, onClose, activity, contacts, deals, onSave, isLoading }) {
+  const { organizationId } = useOrganizationContext();
   const [formData, setFormData] = useState({
     type: 'task',
     title: '',
@@ -44,7 +46,7 @@ export default function ActivityModal({ open, onClose, activity, contacts, deals
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSave(formData);
+    onSave({ ...formData, organization_id: organizationId });
   };
 
   return (

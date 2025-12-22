@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useOrganizationContext } from '@/components/hooks/useOrganizationContext';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Loader2 } from "lucide-react";
 
 export default function KeywordModal({ open, onClose, keyword, websites, onSave, isLoading }) {
+  const { organizationId } = useOrganizationContext();
   const [formData, setFormData] = useState({
     keyword: '',
     website_id: '',
@@ -42,6 +44,7 @@ export default function KeywordModal({ open, onClose, keyword, websites, onSave,
     e.preventDefault();
     onSave({
       ...formData,
+      organization_id: organizationId,
       current_position: formData.current_position ? parseInt(formData.current_position) : null,
       search_volume: formData.search_volume ? parseInt(formData.search_volume) : null,
       difficulty: formData.difficulty ? parseInt(formData.difficulty) : null,
