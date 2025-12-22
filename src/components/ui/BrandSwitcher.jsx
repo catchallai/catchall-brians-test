@@ -30,6 +30,11 @@ export default function BrandSwitcher() {
     queryFn: () => base44.entities.Company.list(),
   });
 
+  const { data: organizations = [] } = useQuery({
+    queryKey: ['organizations'],
+    queryFn: () => base44.entities.Organization.list(),
+  });
+
   const updateContextMutation = useMutation({
     mutationFn: (context) => base44.auth.updateMe({ current_context: context }),
     onSuccess: () => {
@@ -40,6 +45,7 @@ export default function BrandSwitcher() {
   const currentContext = user?.current_context || { type: 'all', id: null };
   const currentBrand = brands.find(b => b.id === currentContext.id);
   const currentCompany = companies.find(c => c.id === currentContext.id);
+  const currentOrganization = organizations.find(o => o.id === currentContext.id);
 
   const handleSwitch = (type, id, name) => {
     updateContextMutation.mutate({ type, id, name });
@@ -53,6 +59,7 @@ export default function BrandSwitcher() {
           <span className="truncate">
             {currentContext.type === 'brand' && currentBrand?.name}
             {currentContext.type === 'company' && currentCompany?.name}
+            {currentContext.type === 'organization' && currentOrganization?.name}
             {currentContext.type === 'all' && 'All Data'}
           </span>
           <ChevronDown className="w-4 h-4 ml-auto" />
@@ -94,6 +101,23 @@ export default function BrandSwitcher() {
                 {currentContext.id === company.id && <Check className="w-4 h-4 mr-2" />}
                 {currentContext.id !== company.id && <div className="w-4 h-4 mr-2" />}
                 {company.name}
+              </DropdownMenuItem>
+            ))}
+          </>
+        )}
+
+        {organizations.length > 0 && (
+          <>
+            <DropdownMenuSeparator />
+            <DropdownMenuLabel>Client Organizations</DropdownMenuLabel>
+            {organizations.map(org => (
+              <DropdownMenuItem
+                key={org.id}
+                onClick={() => handleSwitch('organization', org.id, org.name)}
+              >
+                {currentContext.id === org.id && <Check className="w-4 h-4 mr-2" />}
+                {currentContext.id !== org.id && <div className="w-4 h-4 mr-2" />}
+                {org.name}
               </DropdownMenuItem>
             ))}
           </>
