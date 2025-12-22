@@ -26,24 +26,40 @@ export default function Deals() {
   const [editingDeal, setEditingDeal] = useState(null);
   const [draggedDeal, setDraggedDeal] = useState(null);
   const queryClient = useQueryClient();
+  const { organizationId } = useOrganizationContext();
 
   const { data: deals = [], isLoading: loadingDeals } = useQuery({
-    queryKey: ['deals'],
-    queryFn: () => base44.entities.Deal.list('-created_date', 200),
+    queryKey: ['deals', organizationId],
+    queryFn: async () => {
+      if (organizationId) {
+        return base44.entities.Deal.filter({ organization_id: organizationId }, '-created_date', 200);
+      }
+      return base44.entities.Deal.list('-created_date', 200);
+    },
   });
 
   const { data: contacts = [] } = useQuery({
-    queryKey: ['contacts'],
-    queryFn: () => base44.entities.Contact.list('-created_date', 500),
+    queryKey: ['contacts', organizationId],
+    queryFn: async () => {
+      if (organizationId) {
+        return base44.entities.Contact.filter({ organization_id: organizationId }, '-created_date', 500);
+      }
+      return base44.entities.Contact.list('-created_date', 500);
+    },
   });
 
   const { data: companies = [] } = useQuery({
-    queryKey: ['companies'],
-    queryFn: () => base44.entities.Company.list('-created_date', 200),
+    queryKey: ['companies', organizationId],
+    queryFn: async () => {
+      if (organizationId) {
+        return base44.entities.Company.filter({ organization_id: organizationId }, '-created_date', 200);
+      }
+      return base44.entities.Company.list('-created_date', 200);
+    },
   });
 
   const createMutation = useMutation({
-    mutationFn: (data) => base44.entities.Deal.create(data),
+    mutationFn: (data) => base44.entities.Deal.create({ ...data, organization_id: organizationId }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['deals'] });
       setShowModal(false);

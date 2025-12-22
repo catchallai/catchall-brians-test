@@ -31,12 +31,17 @@ export default function Companies() {
   });
 
   const { data: contacts = [] } = useQuery({
-    queryKey: ['contacts'],
-    queryFn: () => base44.entities.Contact.list('-created_date', 500),
+    queryKey: ['contacts', organizationId],
+    queryFn: async () => {
+      if (organizationId) {
+        return base44.entities.Contact.filter({ organization_id: organizationId }, '-created_date', 500);
+      }
+      return base44.entities.Contact.list('-created_date', 500);
+    },
   });
 
   const createMutation = useMutation({
-    mutationFn: (data) => base44.entities.Company.create(data),
+    mutationFn: (data) => base44.entities.Company.create({ ...data, organization_id: organizationId }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['companies'] });
       setShowModal(false);

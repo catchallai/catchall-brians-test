@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useOrganizationContext } from '@/components/hooks/useOrganizationContext';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -23,19 +24,30 @@ export default function Keywords() {
   const [showLiveData, setShowLiveData] = useState(false);
   const queryClient = useQueryClient();
   const toast = useToast();
+  const { organizationId } = useOrganizationContext();
 
   const { data: keywords = [], isLoading } = useQuery({
-    queryKey: ['keywords'],
-    queryFn: () => base44.entities.Keyword.list('-created_date', 500),
+    queryKey: ['keywords', organizationId],
+    queryFn: async () => {
+      if (organizationId) {
+        return base44.entities.Keyword.filter({ organization_id: organizationId }, '-created_date', 500);
+      }
+      return base44.entities.Keyword.list('-created_date', 500);
+    },
   });
 
   const { data: websites = [] } = useQuery({
-    queryKey: ['websites'],
-    queryFn: () => base44.entities.Website.list('-created_date', 50),
+    queryKey: ['websites', organizationId],
+    queryFn: async () => {
+      if (organizationId) {
+        return base44.entities.Website.filter({ organization_id: organizationId }, '-created_date', 50);
+      }
+      return base44.entities.Website.list('-created_date', 50);
+    },
   });
 
   const createMutation = useMutation({
-    mutationFn: (data) => base44.entities.Keyword.create(data),
+    mutationFn: (data) => base44.entities.Keyword.create({ ...data, organization_id: organizationId }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['keywords'] });
       setShowModal(false);

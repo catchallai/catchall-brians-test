@@ -1,6 +1,7 @@
 import React from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
+import { useOrganizationContext } from '@/components/hooks/useOrganizationContext';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Link } from 'react-router-dom';
@@ -22,36 +23,68 @@ import QuickActions from '@/components/dashboard/QuickActions';
 import FavoriteLinksManager from '@/components/dashboard/FavoriteLinksManager';
 
 export default function Dashboard() {
+  const { organizationId } = useOrganizationContext();
+  
   // CRM Data
   const { data: contacts = [], isLoading: loadingContacts } = useQuery({
-    queryKey: ['contacts'],
-    queryFn: () => base44.entities.Contact.list('-created_date', 100),
+    queryKey: ['contacts', organizationId],
+    queryFn: async () => {
+      if (organizationId) {
+        return base44.entities.Contact.filter({ organization_id: organizationId }, '-created_date', 100);
+      }
+      return base44.entities.Contact.list('-created_date', 100);
+    },
   });
 
   const { data: companies = [] } = useQuery({
-    queryKey: ['companies'],
-    queryFn: () => base44.entities.Company.list('-created_date', 100),
+    queryKey: ['companies', organizationId],
+    queryFn: async () => {
+      if (organizationId) {
+        return base44.entities.Company.filter({ organization_id: organizationId }, '-created_date', 100);
+      }
+      return base44.entities.Company.list('-created_date', 100);
+    },
   });
 
   const { data: deals = [], isLoading: loadingDeals } = useQuery({
-    queryKey: ['deals'],
-    queryFn: () => base44.entities.Deal.list('-created_date', 100),
+    queryKey: ['deals', organizationId],
+    queryFn: async () => {
+      if (organizationId) {
+        return base44.entities.Deal.filter({ organization_id: organizationId }, '-created_date', 100);
+      }
+      return base44.entities.Deal.list('-created_date', 100);
+    },
   });
 
   // SEO Data
   const { data: websites = [] } = useQuery({
-    queryKey: ['websites'],
-    queryFn: () => base44.entities.Website.list('-created_date', 50),
+    queryKey: ['websites', organizationId],
+    queryFn: async () => {
+      if (organizationId) {
+        return base44.entities.Website.filter({ organization_id: organizationId }, '-created_date', 50);
+      }
+      return base44.entities.Website.list('-created_date', 50);
+    },
   });
 
   const { data: keywords = [] } = useQuery({
-    queryKey: ['keywords'],
-    queryFn: () => base44.entities.Keyword.list('-created_date', 200),
+    queryKey: ['keywords', organizationId],
+    queryFn: async () => {
+      if (organizationId) {
+        return base44.entities.Keyword.filter({ organization_id: organizationId }, '-created_date', 200);
+      }
+      return base44.entities.Keyword.list('-created_date', 200);
+    },
   });
 
   const { data: backlinks = [] } = useQuery({
-    queryKey: ['backlinks'],
-    queryFn: () => base44.entities.Backlink.list('-created_date', 200),
+    queryKey: ['backlinks', organizationId],
+    queryFn: async () => {
+      if (organizationId) {
+        return base44.entities.Backlink.filter({ organization_id: organizationId }, '-created_date', 200);
+      }
+      return base44.entities.Backlink.list('-created_date', 200);
+    },
   });
 
   // Social Data

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useOrganizationContext } from '@/components/hooks/useOrganizationContext';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -18,24 +19,40 @@ export default function Activities() {
   const [typeFilter, setTypeFilter] = useState('all');
   const [completedFilter, setCompletedFilter] = useState('pending');
   const queryClient = useQueryClient();
+  const { organizationId } = useOrganizationContext();
 
   const { data: activities = [], isLoading } = useQuery({
-    queryKey: ['activities'],
-    queryFn: () => base44.entities.Activity.list('-created_date', 200),
+    queryKey: ['activities', organizationId],
+    queryFn: async () => {
+      if (organizationId) {
+        return base44.entities.Activity.filter({ organization_id: organizationId }, '-created_date', 200);
+      }
+      return base44.entities.Activity.list('-created_date', 200);
+    },
   });
 
   const { data: contacts = [] } = useQuery({
-    queryKey: ['contacts'],
-    queryFn: () => base44.entities.Contact.list('-created_date', 500),
+    queryKey: ['contacts', organizationId],
+    queryFn: async () => {
+      if (organizationId) {
+        return base44.entities.Contact.filter({ organization_id: organizationId }, '-created_date', 500);
+      }
+      return base44.entities.Contact.list('-created_date', 500);
+    },
   });
 
   const { data: deals = [] } = useQuery({
-    queryKey: ['deals'],
-    queryFn: () => base44.entities.Deal.list('-created_date', 200),
+    queryKey: ['deals', organizationId],
+    queryFn: async () => {
+      if (organizationId) {
+        return base44.entities.Deal.filter({ organization_id: organizationId }, '-created_date', 200);
+      }
+      return base44.entities.Deal.list('-created_date', 200);
+    },
   });
 
   const createMutation = useMutation({
-    mutationFn: (data) => base44.entities.Activity.create(data),
+    mutationFn: (data) => base44.entities.Activity.create({ ...data, organization_id: organizationId }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['activities'] });
       setShowModal(false);
