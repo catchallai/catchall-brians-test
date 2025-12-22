@@ -8,7 +8,7 @@ import { Card } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { 
   Presentation, Plus, Save, Download, Eye, Loader2, 
-  Palette, Layout, Sparkles, FileText, FolderOpen, BookmarkPlus
+  Palette, Layout, Sparkles, FileText, FolderOpen, BookmarkPlus, LayoutGrid
 } from "lucide-react";
 import BrandingPanel from '@/components/pitch/BrandingPanel';
 import SlideTemplates from '@/components/pitch/SlideTemplates';
