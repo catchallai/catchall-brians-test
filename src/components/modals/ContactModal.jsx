@@ -7,10 +7,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Loader2 } from "lucide-react";
-import { useOrganizationContext } from '@/components/hooks/useOrganizationContext';
 
 export default function ContactModal({ open, onClose, contact, companies, onSave, isLoading }) {
-  const { organizationId } = useOrganizationContext();
   const [formData, setFormData] = useState({
     first_name: '',
     last_name: '',
@@ -67,7 +65,7 @@ export default function ContactModal({ open, onClose, contact, companies, onSave
     }
     
     setErrors({});
-    const sanitizedData = sanitizeObject({ ...formData, organization_id: organizationId });
+    const sanitizedData = sanitizeObject(formData);
     onSave(sanitizedData);
   };
 

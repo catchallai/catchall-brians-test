@@ -14,12 +14,10 @@ import { useToast } from '@/components/ui/toast-provider';
 import { useTheme } from '@/components/theme/ThemeProvider';
 import {
   User, Bell, Shield, Palette, Globe, Database, 
-  Save, Loader2, Check, Mail, Clock, Zap, ToggleRight, RefreshCw, Users
+  Save, Loader2, Check, Mail, Clock, Zap, ToggleRight, RefreshCw
 } from "lucide-react";
 import FeatureManager from '@/components/settings/FeatureManager';
 import AutoSyncSettings from '@/components/settings/AutoSyncSettings';
-import TeamManagement from '@/components/settings/TeamManagement';
-import RoleManagement from '@/components/settings/RoleManagement';
 
 export default function Settings() {
   const [saving, setSaving] = useState(false);
@@ -146,14 +144,6 @@ export default function Settings() {
           <TabsTrigger value="autosync" className="gap-2">
             <RefreshCw className="w-4 h-4" />
             Auto-Sync
-          </TabsTrigger>
-          <TabsTrigger value="team" className="gap-2">
-            <Users className="w-4 h-4" />
-            Team
-          </TabsTrigger>
-          <TabsTrigger value="roles" className="gap-2">
-            <Shield className="w-4 h-4" />
-            Roles
           </TabsTrigger>
         </TabsList>
 
@@ -403,20 +393,6 @@ export default function Settings() {
         {/* Auto-Sync Tab */}
         <TabsContent value="autosync">
           <AutoSyncSettings />
-        </TabsContent>
-
-        {/* Team Tab */}
-        <TabsContent value="team">
-          <Card className="glass-card rounded-2xl p-6">
-            <TeamManagement />
-          </Card>
-        </TabsContent>
-
-        {/* Roles Tab */}
-        <TabsContent value="roles">
-          <Card className="glass-card rounded-2xl p-6">
-            <RoleManagement />
-          </Card>
         </TabsContent>
       </Tabs>
     </div>

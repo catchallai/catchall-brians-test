@@ -6,7 +6,6 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import GlobalSearch from '@/components/search/GlobalSearch';
-import BrandSwitcher from '@/components/ui/BrandSwitcher';
 import { ThemeProvider, useTheme } from '@/components/theme/ThemeProvider';
 import ThemeToggle from '@/components/theme/ThemeToggle';
 import NotificationBell from '@/components/notifications/NotificationBell';
@@ -132,13 +131,10 @@ const navigation = [
   { name: 'Help Center', icon: HelpCircle, page: 'HelpCenter' },
   { name: 'Settings', icon: Settings, page: 'Settings' },
   { name: 'Activity Logs', icon: Activity, page: 'ActivityLogs' },
-  { name: 'divider', label: 'Management' },
-  { name: 'Organizations', icon: Building2, page: 'Organizations' },
-  ];
+];
 
 const SIDEBAR_ICONS = {
   Dashboard: LayoutDashboard,
-  Organizations: Building2,
   VisitorProfiles: UserCircle,
   PitchDeckCreator: PenTool,
   PitchDeckAnalyzer: FileSearch,
@@ -472,7 +468,6 @@ export default function Layout({ children, currentPageName }) {
           <GlobalSearch />
         </div>
 
-        <BrandSwitcher />
         <NotificationBell />
         <ThemeToggle />
 
@@ -506,7 +501,6 @@ export default function Layout({ children, currentPageName }) {
       <div className="hidden lg:flex fixed top-0 left-64 right-0 h-14 glass-topbar z-30 items-center justify-between px-6">
         <GlobalSearch />
         <div className="flex items-center gap-3">
-            <BrandSwitcher />
             <NotificationBell />
             <ThemeToggle />
             <DropdownMenu>

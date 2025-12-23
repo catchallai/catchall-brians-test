@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useOrganizationContext } from '@/components/hooks/useOrganizationContext';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -42,26 +41,15 @@ export default function SEOTools() {
   const [selectedCheck, setSelectedCheck] = useState(null);
   const [activeCategory, setActiveCategory] = useState('all');
   const queryClient = useQueryClient();
-  const { organizationId } = useOrganizationContext();
 
   const { data: websites = [] } = useQuery({
-    queryKey: ['websites', organizationId],
-    queryFn: async () => {
-      if (organizationId) {
-        return base44.entities.Website.filter({ organization_id: organizationId }, '-created_date', 50);
-      }
-      return base44.entities.Website.list('-created_date', 50);
-    },
+    queryKey: ['websites'],
+    queryFn: () => base44.entities.Website.list('-created_date', 50),
   });
 
   const { data: seoChecks = [], isLoading: loadingChecks } = useQuery({
-    queryKey: ['seo-checks', organizationId],
-    queryFn: async () => {
-      if (organizationId) {
-        return base44.entities.SEOCheck.filter({ organization_id: organizationId }, '-created_date', 500);
-      }
-      return base44.entities.SEOCheck.list('-created_date', 500);
-    },
+    queryKey: ['seo-checks'],
+    queryFn: () => base44.entities.SEOCheck.list('-created_date', 500),
   });
 
   const runSEOAuditMutation = useMutation({
@@ -72,7 +60,6 @@ export default function SEOTools() {
         website = await base44.entities.Website.create({
           name: new URL(url).hostname,
           url: url,
-          organization_id: organizationId,
         });
       }
 
@@ -182,8 +169,7 @@ export default function SEOTools() {
           status: status,
           priority: check.priority || 'medium',
           details: check.details,
-          recommendation: check.recommendation,
-          organization_id: organizationId,
+          recommendation: check.recommendation
         });
       }
 
@@ -233,8 +219,7 @@ export default function SEOTools() {
         website_id: website.id,
         search_volume: keywordData.search_volume || 0,
         difficulty: keywordData.difficulty || 0,
-        cpc: keywordData.cpc || 0,
-        organization_id: organizationId,
+        cpc: keywordData.cpc || 0
       });
     },
     onSuccess: () => {

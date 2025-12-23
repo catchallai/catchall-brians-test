@@ -1,14 +1,13 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useOrganizationContext } from '@/components/hooks/useOrganizationContext';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { 
   Presentation, Plus, Save, Download, Eye, Loader2, 
-  Palette, Layout, Sparkles, FileText, FolderOpen, BookmarkPlus, LayoutGrid
+  Palette, Layout, Sparkles, FileText, FolderOpen, BookmarkPlus
 } from "lucide-react";
 import BrandingPanel from '@/components/pitch/BrandingPanel';
 import SlideTemplates from '@/components/pitch/SlideTemplates';
@@ -26,7 +25,6 @@ import TemplateAssetManager from '@/components/pitch/TemplateAssetManager';
 import EmptyState from '@/components/ui/EmptyState';
 
 export default function PitchDeckCreator() {
-  const { organizationId } = useOrganizationContext();
   const [selectedDeck, setSelectedDeck] = useState(null);
   const [slides, setSlides] = useState([]);
   const [branding, setBranding] = useState({
@@ -50,23 +48,13 @@ export default function PitchDeckCreator() {
   const queryClient = useQueryClient();
 
   const { data: decks = [], isLoading } = useQuery({
-    queryKey: ['pitch-decks', organizationId],
-    queryFn: async () => {
-      if (organizationId) {
-        return base44.entities.PitchDeck.filter({ organization_id: organizationId }, '-last_edited', 50);
-      }
-      return base44.entities.PitchDeck.list('-last_edited', 50);
-    },
+    queryKey: ['pitch-decks'],
+    queryFn: () => base44.entities.PitchDeck.list('-last_edited', 50),
   });
 
   const { data: brands = [] } = useQuery({
-    queryKey: ['brands', organizationId],
-    queryFn: async () => {
-      if (organizationId) {
-        return base44.entities.Brand.filter({ organization_id: organizationId });
-      }
-      return base44.entities.Brand.list();
-    },
+    queryKey: ['brands'],
+    queryFn: () => base44.entities.Brand.list(),
   });
 
   const { data: user } = useQuery({
@@ -227,8 +215,7 @@ Provide enhanced content with better wording, more impact, and professional tone
       slides,
       branding,
       status: 'draft',
-      last_edited: new Date().toISOString(),
-      organization_id: organizationId
+      last_edited: new Date().toISOString()
     };
     const result = await saveDeckMutation.mutateAsync(data);
     setSelectedDeck(result);

@@ -6,10 +6,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Loader2 } from "lucide-react";
-import { useOrganizationContext } from '@/components/hooks/useOrganizationContext';
 
 export default function DealModal({ open, onClose, deal, contacts, companies, onSave, isLoading }) {
-  const { organizationId } = useOrganizationContext();
   const [formData, setFormData] = useState({
     title: '',
     value: '',
@@ -51,7 +49,6 @@ export default function DealModal({ open, onClose, deal, contacts, companies, on
     e.preventDefault();
     onSave({
       ...formData,
-      organization_id: organizationId,
       value: parseFloat(formData.value) || 0,
       probability: formData.probability ? parseInt(formData.probability) : null,
     });

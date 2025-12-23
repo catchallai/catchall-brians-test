@@ -18,7 +18,6 @@ import { useDebounce } from '@/components/hooks/useDebounce';
 import { exportToCSV } from '@/components/utils/exportData';
 import { useToast } from '@/components/ui/toast-provider';
 import { logActivity, ActivityActions } from '@/components/utils/activityLogger';
-import { useOrganizationContext } from '@/components/hooks/useOrganizationContext';
 
 const ITEMS_PER_PAGE = 25;
 
@@ -33,18 +32,12 @@ export default function Contacts() {
   const [selectedIds, setSelectedIds] = useState([]);
   const queryClient = useQueryClient();
   const toast = useToast();
-  const { organizationId } = useOrganizationContext();
   
   const debouncedSearch = useDebounce(searchTerm, 300);
 
   const { data: contacts = [], isLoading: loadingContacts } = useQuery({
-    queryKey: ['contacts', organizationId],
-    queryFn: async () => {
-      if (organizationId) {
-        return base44.entities.Contact.filter({ organization_id: organizationId }, '-created_date', 1000);
-      }
-      return base44.entities.Contact.list('-created_date', 1000);
-    },
+    queryKey: ['contacts'],
+    queryFn: () => base44.entities.Contact.list('-created_date', 1000),
   });
 
   const { data: companies = [] } = useQuery({
@@ -54,7 +47,7 @@ export default function Contacts() {
 
   const createMutation = useMutation({
     mutationFn: async (data) => {
-      const contact = await base44.entities.Contact.create({ ...data, organization_id: organizationId });
+      const contact = await base44.entities.Contact.create(data);
       await logActivity(ActivityActions.CREATE, 'Contact', contact.id, `${data.first_name} ${data.last_name}`);
       return contact;
     },
@@ -104,7 +97,6 @@ export default function Contacts() {
           status: row.status || 'lead',
           job_title: row.job_title || row['Job Title'] || '',
           source: row.source || 'import',
-          organization_id: organizationId,
         });
       }
       await logActivity(ActivityActions.IMPORT, 'Contact', null, null, { count: data.length });

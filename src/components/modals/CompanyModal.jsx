@@ -1,121 +1,132 @@
 import React, { useState, useEffect } from 'react';
-import { base44 } from '@/api/base44Client';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useOrganizationContext } from '@/components/hooks/useOrganizationContext';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Loader2 } from "lucide-react";
 
-export default function CompanyModal({ company, open, onClose }) {
-  const [name, setName] = useState('');
-  const [website, setWebsite] = useState('');
-  const [industry, setIndustry] = useState('');
-  const [size, setSize] = useState('');
-  const [description, setDescription] = useState('');
-  const [phone, setPhone] = useState('');
-  const [address, setAddress] = useState('');
-  const queryClient = useQueryClient();
-  const { organizationId } = useOrganizationContext();
+export default function CompanyModal({ open, onClose, company, onSave, isLoading }) {
+  const [formData, setFormData] = useState({
+    name: '',
+    website: '',
+    industry: '',
+    size: '',
+    annual_revenue: '',
+    address: '',
+    city: '',
+    country: '',
+    phone: '',
+    description: '',
+  });
 
   useEffect(() => {
     if (company) {
-      setName(company.name || '');
-      setWebsite(company.website || '');
-      setIndustry(company.industry || '');
-      setSize(company.size || '');
-      setDescription(company.description || '');
-      setPhone(company.phone || '');
-      setAddress(company.address || '');
+      setFormData({
+        name: company.name || '',
+        website: company.website || '',
+        industry: company.industry || '',
+        size: company.size || '',
+        annual_revenue: company.annual_revenue || '',
+        address: company.address || '',
+        city: company.city || '',
+        country: company.country || '',
+        phone: company.phone || '',
+        description: company.description || '',
+      });
     } else {
-      resetForm();
+      setFormData({
+        name: '',
+        website: '',
+        industry: '',
+        size: '',
+        annual_revenue: '',
+        address: '',
+        city: '',
+        country: '',
+        phone: '',
+        description: '',
+      });
     }
   }, [company, open]);
 
-  const saveMutation = useMutation({
-    mutationFn: (data) => {
-      if (company) {
-        return base44.entities.Company.update(company.id, data);
-      }
-      return base44.entities.Company.create(data);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['companies'] });
-      onClose();
-      resetForm();
-    },
-  });
-
-  const resetForm = () => {
-    setName('');
-    setWebsite('');
-    setIndustry('');
-    setSize('');
-    setDescription('');
-    setPhone('');
-    setAddress('');
-  };
-
   const handleSubmit = (e) => {
     e.preventDefault();
-    saveMutation.mutate({
-      name,
-      organization_id: organizationId,
-      website,
-      industry,
-      size,
-      description,
-      phone,
-      address,
+    onSave({
+      ...formData,
+      annual_revenue: formData.annual_revenue ? parseFloat(formData.annual_revenue) : null,
     });
   };
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{company ? 'Edit Company' : 'Create Company'}</DialogTitle>
+          <DialogTitle>{company ? 'Edit Company' : 'Add New Company'}</DialogTitle>
         </DialogHeader>
+        <form onSubmit={handleSubmit} className="space-y-4 mt-4">
+          <div className="space-y-2">
+            <Label htmlFor="name">Company Name *</Label>
+            <Input
+              id="name"
+              value={formData.name}
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              required
+            />
+          </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label>Company Name *</Label>
+            <div className="space-y-2">
+              <Label htmlFor="website">Website</Label>
               <Input
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Acme Inc."
-                required
-                className="mt-1"
+                id="website"
+                value={formData.website}
+                onChange={(e) => setFormData({ ...formData, website: e.target.value })}
+                placeholder="https://"
               />
             </div>
-            <div>
-              <Label>Website</Label>
+            <div className="space-y-2">
+              <Label htmlFor="phone">Phone</Label>
               <Input
-                value={website}
-                onChange={(e) => setWebsite(e.target.value)}
-                placeholder="https://acme.com"
-                className="mt-1"
+                id="phone"
+                value={formData.phone}
+                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
               />
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
-            <div>
+            <div className="space-y-2">
               <Label>Industry</Label>
-              <Input
-                value={industry}
-                onChange={(e) => setIndustry(e.target.value)}
-                placeholder="Technology"
-                className="mt-1"
-              />
+              <Select
+                value={formData.industry}
+                onValueChange={(value) => setFormData({ ...formData, industry: value })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select industry" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="technology">Technology</SelectItem>
+                  <SelectItem value="healthcare">Healthcare</SelectItem>
+                  <SelectItem value="finance">Finance</SelectItem>
+                  <SelectItem value="retail">Retail</SelectItem>
+                  <SelectItem value="manufacturing">Manufacturing</SelectItem>
+                  <SelectItem value="education">Education</SelectItem>
+                  <SelectItem value="real_estate">Real Estate</SelectItem>
+                  <SelectItem value="consulting">Consulting</SelectItem>
+                  <SelectItem value="marketing">Marketing</SelectItem>
+                  <SelectItem value="other">Other</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
-            <div>
+            <div className="space-y-2">
               <Label>Company Size</Label>
-              <Select value={size} onValueChange={setSize}>
-                <SelectTrigger className="mt-1">
+              <Select
+                value={formData.size}
+                onValueChange={(value) => setFormData({ ...formData, size: value })}
+              >
+                <SelectTrigger>
                   <SelectValue placeholder="Select size" />
                 </SelectTrigger>
                 <SelectContent>
@@ -130,49 +141,64 @@ export default function CompanyModal({ company, open, onClose }) {
             </div>
           </div>
 
-          <div>
-            <Label>Phone</Label>
+          <div className="space-y-2">
+            <Label htmlFor="annual_revenue">Annual Revenue ($)</Label>
             <Input
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              placeholder="+1 (555) 123-4567"
-              className="mt-1"
+              id="annual_revenue"
+              type="number"
+              value={formData.annual_revenue}
+              onChange={(e) => setFormData({ ...formData, annual_revenue: e.target.value })}
+              placeholder="1000000"
             />
           </div>
 
-          <div>
-            <Label>Address</Label>
+          <div className="space-y-2">
+            <Label htmlFor="address">Address</Label>
             <Input
-              value={address}
-              onChange={(e) => setAddress(e.target.value)}
-              placeholder="123 Main St, City, State"
-              className="mt-1"
+              id="address"
+              value={formData.address}
+              onChange={(e) => setFormData({ ...formData, address: e.target.value })}
             />
           </div>
 
-          <div>
-            <Label>Description</Label>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="city">City</Label>
+              <Input
+                id="city"
+                value={formData.city}
+                onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="country">Country</Label>
+              <Input
+                id="country"
+                value={formData.country}
+                onChange={(e) => setFormData({ ...formData, country: e.target.value })}
+              />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="description">Description</Label>
             <Textarea
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="Brief description of the company..."
+              id="description"
+              value={formData.description}
+              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
               rows={3}
-              className="mt-1"
             />
           </div>
 
-          <DialogFooter>
+          <div className="flex justify-end gap-3 pt-4">
             <Button type="button" variant="outline" onClick={onClose}>
               Cancel
             </Button>
-            <Button
-              type="submit"
-              disabled={!name || saveMutation.isPending}
-              className="bg-violet-600 hover:bg-violet-700"
-            >
-              {saveMutation.isPending ? 'Saving...' : company ? 'Update' : 'Create Company'}
+            <Button type="submit" disabled={isLoading}>
+              {isLoading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+              {company ? 'Update Company' : 'Add Company'}
             </Button>
-          </DialogFooter>
+          </div>
         </form>
       </DialogContent>
     </Dialog>

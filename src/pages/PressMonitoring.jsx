@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useOrganizationContext } from '@/components/hooks/useOrganizationContext';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -52,40 +51,24 @@ export default function PressMonitoring() {
   const [newSource, setNewSource] = useState({ name: '', type: 'newspaper', website_url: '' });
   const [newKeyword, setNewKeyword] = useState('');
   const queryClient = useQueryClient();
-  const { organizationId } = useOrganizationContext();
 
   const { data: sources = [], isLoading: loadingSources } = useQuery({
-    queryKey: ['press-sources', organizationId],
-    queryFn: async () => {
-      if (organizationId) {
-        return base44.entities.PressSource.filter({ organization_id: organizationId }, '-created_date', 100);
-      }
-      return base44.entities.PressSource.list('-created_date', 100);
-    },
+    queryKey: ['press-sources'],
+    queryFn: () => base44.entities.PressSource.list('-created_date', 100),
   });
 
   const { data: keywords = [], isLoading: loadingKeywords } = useQuery({
-    queryKey: ['press-keywords', organizationId],
-    queryFn: async () => {
-      if (organizationId) {
-        return base44.entities.PressKeyword.filter({ organization_id: organizationId }, '-created_date', 100);
-      }
-      return base44.entities.PressKeyword.list('-created_date', 100);
-    },
+    queryKey: ['press-keywords'],
+    queryFn: () => base44.entities.PressKeyword.list('-created_date', 100),
   });
 
   const { data: mentions = [], isLoading: loadingMentions } = useQuery({
-    queryKey: ['press-mentions', organizationId],
-    queryFn: async () => {
-      if (organizationId) {
-        return base44.entities.PressMention.filter({ organization_id: organizationId }, '-publish_date', 500);
-      }
-      return base44.entities.PressMention.list('-publish_date', 500);
-    },
+    queryKey: ['press-mentions'],
+    queryFn: () => base44.entities.PressMention.list('-publish_date', 500),
   });
 
   const createSourceMutation = useMutation({
-    mutationFn: (data) => base44.entities.PressSource.create({ ...data, organization_id: organizationId }),
+    mutationFn: (data) => base44.entities.PressSource.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['press-sources'] });
       setShowSourceModal(false);
@@ -94,7 +77,7 @@ export default function PressMonitoring() {
   });
 
   const createKeywordMutation = useMutation({
-    mutationFn: (data) => base44.entities.PressKeyword.create({ ...data, organization_id: organizationId }),
+    mutationFn: (data) => base44.entities.PressKeyword.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['press-keywords'] });
       setShowKeywordModal(false);
@@ -179,8 +162,7 @@ export default function PressMonitoring() {
                 author: article.author,
                 publish_date: article.publish_date,
                 sentiment: ['positive', 'neutral', 'negative'].includes(article.sentiment) ? article.sentiment : 'neutral',
-                relevance_score: article.relevance_score || 50,
-                organization_id: organizationId
+                relevance_score: article.relevance_score || 50
               });
             }
           }

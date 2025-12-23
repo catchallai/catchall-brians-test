@@ -1,7 +1,6 @@
 import React from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
-import { useOrganizationContext } from '@/components/hooks/useOrganizationContext';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Link } from 'react-router-dom';
@@ -23,141 +22,74 @@ import QuickActions from '@/components/dashboard/QuickActions';
 import FavoriteLinksManager from '@/components/dashboard/FavoriteLinksManager';
 
 export default function Dashboard() {
-  const { organizationId } = useOrganizationContext();
-  
   // CRM Data
   const { data: contacts = [], isLoading: loadingContacts } = useQuery({
-    queryKey: ['contacts', organizationId],
-    queryFn: async () => {
-      if (organizationId) {
-        return base44.entities.Contact.filter({ organization_id: organizationId }, '-created_date', 100);
-      }
-      return base44.entities.Contact.list('-created_date', 100);
-    },
+    queryKey: ['contacts'],
+    queryFn: () => base44.entities.Contact.list('-created_date', 100),
   });
 
   const { data: companies = [] } = useQuery({
-    queryKey: ['companies', organizationId],
-    queryFn: async () => {
-      if (organizationId) {
-        return base44.entities.Company.filter({ organization_id: organizationId }, '-created_date', 100);
-      }
-      return base44.entities.Company.list('-created_date', 100);
-    },
+    queryKey: ['companies'],
+    queryFn: () => base44.entities.Company.list('-created_date', 100),
   });
 
   const { data: deals = [], isLoading: loadingDeals } = useQuery({
-    queryKey: ['deals', organizationId],
-    queryFn: async () => {
-      if (organizationId) {
-        return base44.entities.Deal.filter({ organization_id: organizationId }, '-created_date', 100);
-      }
-      return base44.entities.Deal.list('-created_date', 100);
-    },
+    queryKey: ['deals'],
+    queryFn: () => base44.entities.Deal.list('-created_date', 100),
   });
 
   // SEO Data
   const { data: websites = [] } = useQuery({
-    queryKey: ['websites', organizationId],
-    queryFn: async () => {
-      if (organizationId) {
-        return base44.entities.Website.filter({ organization_id: organizationId }, '-created_date', 50);
-      }
-      return base44.entities.Website.list('-created_date', 50);
-    },
+    queryKey: ['websites'],
+    queryFn: () => base44.entities.Website.list('-created_date', 50),
   });
 
   const { data: keywords = [] } = useQuery({
-    queryKey: ['keywords', organizationId],
-    queryFn: async () => {
-      if (organizationId) {
-        return base44.entities.Keyword.filter({ organization_id: organizationId }, '-created_date', 200);
-      }
-      return base44.entities.Keyword.list('-created_date', 200);
-    },
+    queryKey: ['keywords'],
+    queryFn: () => base44.entities.Keyword.list('-created_date', 200),
   });
 
   const { data: backlinks = [] } = useQuery({
-    queryKey: ['backlinks', organizationId],
-    queryFn: async () => {
-      if (organizationId) {
-        return base44.entities.Backlink.filter({ organization_id: organizationId }, '-created_date', 200);
-      }
-      return base44.entities.Backlink.list('-created_date', 200);
-    },
+    queryKey: ['backlinks'],
+    queryFn: () => base44.entities.Backlink.list('-created_date', 200),
   });
 
   // Social Data
   const { data: mentions = [] } = useQuery({
-    queryKey: ['dashboard-mentions', organizationId],
-    queryFn: async () => {
-      if (organizationId) {
-        return base44.entities.ListeningMention.filter({ organization_id: organizationId }, '-created_date', 100);
-      }
-      return base44.entities.ListeningMention.list('-created_date', 100);
-    },
+    queryKey: ['dashboard-mentions'],
+    queryFn: () => base44.entities.ListeningMention.list('-created_date', 100),
   });
 
   const { data: alerts = [] } = useQuery({
-    queryKey: ['dashboard-alerts', organizationId],
-    queryFn: async () => {
-      if (organizationId) {
-        return base44.entities.ListeningAlert.filter({ organization_id: organizationId, is_dismissed: false }, '-created_date', 20);
-      }
-      return base44.entities.ListeningAlert.filter({ is_dismissed: false }, '-created_date', 20);
-    },
+    queryKey: ['dashboard-alerts'],
+    queryFn: () => base44.entities.ListeningAlert.filter({ is_dismissed: false }, '-created_date', 20),
   });
 
   const { data: listeningKeywords = [] } = useQuery({
-    queryKey: ['listening-keywords', organizationId],
-    queryFn: async () => {
-      if (organizationId) {
-        return base44.entities.SocialListening.filter({ organization_id: organizationId }, '-created_date', 50);
-      }
-      return base44.entities.SocialListening.list('-created_date', 50);
-    },
+    queryKey: ['listening-keywords'],
+    queryFn: () => base44.entities.SocialListening.list('-created_date', 50),
   });
 
   // Content Data
   const { data: calendarPosts = [] } = useQuery({
-    queryKey: ['dashboard-posts', organizationId],
-    queryFn: async () => {
-      if (organizationId) {
-        return base44.entities.CalendarPost.filter({ organization_id: organizationId }, '-scheduled_date', 50);
-      }
-      return base44.entities.CalendarPost.list('-scheduled_date', 50);
-    },
+    queryKey: ['dashboard-posts'],
+    queryFn: () => base44.entities.CalendarPost.list('-scheduled_date', 50),
   });
 
   const { data: brands = [] } = useQuery({
-    queryKey: ['brands', organizationId],
-    queryFn: async () => {
-      if (organizationId) {
-        return base44.entities.Brand.filter({ organization_id: organizationId }, '-created_date', 50);
-      }
-      return base44.entities.Brand.list('-created_date', 50);
-    },
+    queryKey: ['brands'],
+    queryFn: () => base44.entities.Brand.list('-created_date', 50),
   });
 
   // Marketing Data
   const { data: campaigns = [] } = useQuery({
-    queryKey: ['campaigns', organizationId],
-    queryFn: async () => {
-      if (organizationId) {
-        return base44.entities.Campaign.filter({ organization_id: organizationId }, '-created_date', 50);
-      }
-      return base44.entities.Campaign.list('-created_date', 50);
-    },
+    queryKey: ['campaigns'],
+    queryFn: () => base44.entities.Campaign.list('-created_date', 50),
   });
 
   const { data: emailCampaigns = [] } = useQuery({
-    queryKey: ['email-campaigns', organizationId],
-    queryFn: async () => {
-      if (organizationId) {
-        return base44.entities.EmailCampaign.filter({ organization_id: organizationId }, '-created_date', 50);
-      }
-      return base44.entities.EmailCampaign.list('-created_date', 50);
-    },
+    queryKey: ['email-campaigns'],
+    queryFn: () => base44.entities.EmailCampaign.list('-created_date', 50),
   });
 
   // User

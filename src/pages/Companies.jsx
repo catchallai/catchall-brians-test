@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useOrganizationContext } from '@/components/hooks/useOrganizationContext';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
@@ -18,30 +17,19 @@ export default function Companies() {
   const [searchTerm, setSearchTerm] = useState('');
   const [industryFilter, setIndustryFilter] = useState('all');
   const queryClient = useQueryClient();
-  const { organizationId } = useOrganizationContext();
 
   const { data: companies = [], isLoading } = useQuery({
-    queryKey: ['companies', organizationId],
-    queryFn: async () => {
-      if (organizationId) {
-        return base44.entities.Company.filter({ organization_id: organizationId }, '-created_date', 200);
-      }
-      return base44.entities.Company.list('-created_date', 200);
-    },
+    queryKey: ['companies'],
+    queryFn: () => base44.entities.Company.list('-created_date', 200),
   });
 
   const { data: contacts = [] } = useQuery({
-    queryKey: ['contacts', organizationId],
-    queryFn: async () => {
-      if (organizationId) {
-        return base44.entities.Contact.filter({ organization_id: organizationId }, '-created_date', 500);
-      }
-      return base44.entities.Contact.list('-created_date', 500);
-    },
+    queryKey: ['contacts'],
+    queryFn: () => base44.entities.Contact.list('-created_date', 500),
   });
 
   const createMutation = useMutation({
-    mutationFn: (data) => base44.entities.Company.create({ ...data, organization_id: organizationId }),
+    mutationFn: (data) => base44.entities.Company.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['companies'] });
       setShowModal(false);
