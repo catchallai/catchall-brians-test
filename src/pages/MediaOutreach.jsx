@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useOrganizationContext } from '@/components/hooks/useOrganizationContext';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -24,20 +25,36 @@ export default function MediaOutreach() {
   const [selectedJournalist, setSelectedJournalist] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const queryClient = useQueryClient();
+  const { organizationId } = useOrganizationContext();
 
   const { data: journalists = [], isLoading } = useQuery({
-    queryKey: ['journalists'],
-    queryFn: () => base44.entities.Journalist.list('-relevance_score', 200),
+    queryKey: ['journalists', organizationId],
+    queryFn: async () => {
+      if (organizationId) {
+        return base44.entities.Journalist.filter({ organization_id: organizationId }, '-relevance_score', 200);
+      }
+      return base44.entities.Journalist.list('-relevance_score', 200);
+    },
   });
 
   const { data: outreach = [] } = useQuery({
-    queryKey: ['media-outreach'],
-    queryFn: () => base44.entities.MediaOutreach.list('-created_date', 100),
+    queryKey: ['media-outreach', organizationId],
+    queryFn: async () => {
+      if (organizationId) {
+        return base44.entities.MediaOutreach.filter({ organization_id: organizationId }, '-created_date', 100);
+      }
+      return base44.entities.MediaOutreach.list('-created_date', 100);
+    },
   });
 
   const { data: pressMentions = [] } = useQuery({
-    queryKey: ['press-mentions'],
-    queryFn: () => base44.entities.PressMention.list('-publish_date', 100),
+    queryKey: ['press-mentions', organizationId],
+    queryFn: async () => {
+      if (organizationId) {
+        return base44.entities.PressMention.filter({ organization_id: organizationId }, '-publish_date', 100);
+      }
+      return base44.entities.PressMention.list('-publish_date', 100);
+    },
   });
 
   const totalSent = outreach.filter(o => o.status !== 'draft').length;
