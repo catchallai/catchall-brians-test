@@ -1,117 +1,119 @@
-import Dashboard from './pages/Dashboard';
-import Contacts from './pages/Contacts';
-import Companies from './pages/Companies';
-import Deals from './pages/Deals';
-import Activities from './pages/Activities';
-import SEODashboard from './pages/SEODashboard';
-import Keywords from './pages/Keywords';
-import Backlinks from './pages/Backlinks';
-import SEOAudit from './pages/SEOAudit';
-import Campaigns from './pages/Campaigns';
-import CampaignDetail from './pages/CampaignDetail';
-import Reports from './pages/Reports';
-import EmailMarketing from './pages/EmailMarketing';
-import Automation from './pages/Automation';
-import SEOTools from './pages/SEOTools';
-import SocialMedia from './pages/SocialMedia';
-import SocialLeads from './pages/SocialLeads';
-import HelpCenter from './pages/HelpCenter';
-import SocialListening from './pages/SocialListening';
-import SocialCalendar from './pages/SocialCalendar';
-import Listings from './pages/Listings';
-import PressMonitoring from './pages/PressMonitoring';
-import WebCrawler from './pages/WebCrawler';
-import ContentStrategy from './pages/ContentStrategy';
-import Collaboration from './pages/Collaboration';
-import MediaLibrary from './pages/MediaLibrary';
-import ContactForms from './pages/ContactForms';
-import TrafficAnalytics from './pages/TrafficAnalytics';
-import LocalSEO from './pages/LocalSEO';
-import ContentStudio from './pages/ContentStudio';
-import MediaOutreach from './pages/MediaOutreach';
-import Settings from './pages/Settings';
-import ActivityLogs from './pages/ActivityLogs';
-import MarketingHub from './pages/MarketingHub';
-import HashtagManager from './pages/HashtagManager';
-import UserSettings from './pages/UserSettings';
-import MobileHub from './pages/MobileHub';
-import CompetitorAnalysis from './pages/CompetitorAnalysis';
-import VisitorProfiles from './pages/VisitorProfiles';
-import PitchDeckCreator from './pages/PitchDeckCreator';
-import PitchDeckAnalyzer from './pages/PitchDeckAnalyzer';
-import TakeDownRequestor from './pages/TakeDownRequestor';
-import EquipmentInventory from './pages/EquipmentInventory';
-import AccountingDashboard from './pages/AccountingDashboard';
 import AIDashboard from './pages/AIDashboard';
-import UserProfile from './pages/UserProfile';
-import SalesHub from './pages/SalesHub';
+import AccountingDashboard from './pages/AccountingDashboard';
+import Activities from './pages/Activities';
+import ActivityLogs from './pages/ActivityLogs';
+import Automation from './pages/Automation';
+import Backlinks from './pages/Backlinks';
+import CampaignDetail from './pages/CampaignDetail';
+import Campaigns from './pages/Campaigns';
+import Collaboration from './pages/Collaboration';
+import Companies from './pages/Companies';
+import CompetitorAnalysis from './pages/CompetitorAnalysis';
+import ContactForms from './pages/ContactForms';
+import Contacts from './pages/Contacts';
+import ContentStrategy from './pages/ContentStrategy';
+import ContentStudio from './pages/ContentStudio';
 import CustomerSuccess from './pages/CustomerSuccess';
 import CustomerSuccessDashboard from './pages/CustomerSuccessDashboard';
+import Dashboard from './pages/Dashboard';
+import Deals from './pages/Deals';
+import EmailMarketing from './pages/EmailMarketing';
+import EquipmentInventory from './pages/EquipmentInventory';
+import HashtagManager from './pages/HashtagManager';
+import HelpCenter from './pages/HelpCenter';
+import Home from './pages/Home';
+import Keywords from './pages/Keywords';
 import LeadEnrichment from './pages/LeadEnrichment';
-import Reservations from './pages/Reservations';
-import SalesSequences from './pages/SalesSequences';
-import Proposals from './pages/Proposals';
+import Listings from './pages/Listings';
+import LocalSEO from './pages/LocalSEO';
+import MarketingHub from './pages/MarketingHub';
+import MediaLibrary from './pages/MediaLibrary';
+import MediaOutreach from './pages/MediaOutreach';
 import MeetingScheduler from './pages/MeetingScheduler';
+import MobileHub from './pages/MobileHub';
+import PitchDeckAnalyzer from './pages/PitchDeckAnalyzer';
+import PitchDeckCreator from './pages/PitchDeckCreator';
+import PressMonitoring from './pages/PressMonitoring';
+import Proposals from './pages/Proposals';
+import Reports from './pages/Reports';
+import Reservations from './pages/Reservations';
+import SEOAudit from './pages/SEOAudit';
+import SEODashboard from './pages/SEODashboard';
+import SEOTools from './pages/SEOTools';
+import SalesHub from './pages/SalesHub';
 import SalesQuotas from './pages/SalesQuotas';
+import SalesSequences from './pages/SalesSequences';
+import Settings from './pages/Settings';
+import SocialCalendar from './pages/SocialCalendar';
+import SocialLeads from './pages/SocialLeads';
+import SocialListening from './pages/SocialListening';
+import SocialMedia from './pages/SocialMedia';
+import TakeDownRequestor from './pages/TakeDownRequestor';
+import TrafficAnalytics from './pages/TrafficAnalytics';
+import UserProfile from './pages/UserProfile';
+import UserSettings from './pages/UserSettings';
+import VisitorProfiles from './pages/VisitorProfiles';
+import WebCrawler from './pages/WebCrawler';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
-    "Dashboard": Dashboard,
-    "Contacts": Contacts,
-    "Companies": Companies,
-    "Deals": Deals,
-    "Activities": Activities,
-    "SEODashboard": SEODashboard,
-    "Keywords": Keywords,
-    "Backlinks": Backlinks,
-    "SEOAudit": SEOAudit,
-    "Campaigns": Campaigns,
-    "CampaignDetail": CampaignDetail,
-    "Reports": Reports,
-    "EmailMarketing": EmailMarketing,
-    "Automation": Automation,
-    "SEOTools": SEOTools,
-    "SocialMedia": SocialMedia,
-    "SocialLeads": SocialLeads,
-    "HelpCenter": HelpCenter,
-    "SocialListening": SocialListening,
-    "SocialCalendar": SocialCalendar,
-    "Listings": Listings,
-    "PressMonitoring": PressMonitoring,
-    "WebCrawler": WebCrawler,
-    "ContentStrategy": ContentStrategy,
-    "Collaboration": Collaboration,
-    "MediaLibrary": MediaLibrary,
-    "ContactForms": ContactForms,
-    "TrafficAnalytics": TrafficAnalytics,
-    "LocalSEO": LocalSEO,
-    "ContentStudio": ContentStudio,
-    "MediaOutreach": MediaOutreach,
-    "Settings": Settings,
-    "ActivityLogs": ActivityLogs,
-    "MarketingHub": MarketingHub,
-    "HashtagManager": HashtagManager,
-    "UserSettings": UserSettings,
-    "MobileHub": MobileHub,
-    "CompetitorAnalysis": CompetitorAnalysis,
-    "VisitorProfiles": VisitorProfiles,
-    "PitchDeckCreator": PitchDeckCreator,
-    "PitchDeckAnalyzer": PitchDeckAnalyzer,
-    "TakeDownRequestor": TakeDownRequestor,
-    "EquipmentInventory": EquipmentInventory,
-    "AccountingDashboard": AccountingDashboard,
     "AIDashboard": AIDashboard,
-    "UserProfile": UserProfile,
-    "SalesHub": SalesHub,
+    "AccountingDashboard": AccountingDashboard,
+    "Activities": Activities,
+    "ActivityLogs": ActivityLogs,
+    "Automation": Automation,
+    "Backlinks": Backlinks,
+    "CampaignDetail": CampaignDetail,
+    "Campaigns": Campaigns,
+    "Collaboration": Collaboration,
+    "Companies": Companies,
+    "CompetitorAnalysis": CompetitorAnalysis,
+    "ContactForms": ContactForms,
+    "Contacts": Contacts,
+    "ContentStrategy": ContentStrategy,
+    "ContentStudio": ContentStudio,
     "CustomerSuccess": CustomerSuccess,
     "CustomerSuccessDashboard": CustomerSuccessDashboard,
+    "Dashboard": Dashboard,
+    "Deals": Deals,
+    "EmailMarketing": EmailMarketing,
+    "EquipmentInventory": EquipmentInventory,
+    "HashtagManager": HashtagManager,
+    "HelpCenter": HelpCenter,
+    "Home": Home,
+    "Keywords": Keywords,
     "LeadEnrichment": LeadEnrichment,
-    "Reservations": Reservations,
-    "SalesSequences": SalesSequences,
-    "Proposals": Proposals,
+    "Listings": Listings,
+    "LocalSEO": LocalSEO,
+    "MarketingHub": MarketingHub,
+    "MediaLibrary": MediaLibrary,
+    "MediaOutreach": MediaOutreach,
     "MeetingScheduler": MeetingScheduler,
+    "MobileHub": MobileHub,
+    "PitchDeckAnalyzer": PitchDeckAnalyzer,
+    "PitchDeckCreator": PitchDeckCreator,
+    "PressMonitoring": PressMonitoring,
+    "Proposals": Proposals,
+    "Reports": Reports,
+    "Reservations": Reservations,
+    "SEOAudit": SEOAudit,
+    "SEODashboard": SEODashboard,
+    "SEOTools": SEOTools,
+    "SalesHub": SalesHub,
     "SalesQuotas": SalesQuotas,
+    "SalesSequences": SalesSequences,
+    "Settings": Settings,
+    "SocialCalendar": SocialCalendar,
+    "SocialLeads": SocialLeads,
+    "SocialListening": SocialListening,
+    "SocialMedia": SocialMedia,
+    "TakeDownRequestor": TakeDownRequestor,
+    "TrafficAnalytics": TrafficAnalytics,
+    "UserProfile": UserProfile,
+    "UserSettings": UserSettings,
+    "VisitorProfiles": VisitorProfiles,
+    "WebCrawler": WebCrawler,
 }
 
 export const pagesConfig = {

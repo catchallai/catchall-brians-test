@@ -7,6 +7,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   Plus, Search, Loader2, Sparkles, Target, Users, TrendingUp
 } from "lucide-react";
@@ -26,13 +28,14 @@ export default function CompetitorAnalysis() {
   const [showCompetitorModal, setShowCompetitorModal] = useState(false);
   const [selectedCompetitor, setSelectedCompetitor] = useState(null);
   const [selectedReport, setSelectedReport] = useState(null);
-  const [newCompetitor, setNewCompetitor] = useState({ name: '', website: '' });
+  const [newCompetitor, setNewCompetitor] = useState({ name: '', website: '', tier: 'tier_3' });
   const [analyzingCompetitor, setAnalyzingCompetitor] = useState(null);
   const [generatingReport, setGeneratingReport] = useState(null);
   const [isDiscoveringCompetitors, setIsDiscoveringCompetitors] = useState(false);
   const [scanningNewsFor, setScanningNewsFor] = useState(null);
   const [deepAnalyzingFor, setDeepAnalyzingFor] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedTier, setSelectedTier] = useState('all');
   const queryClient = useQueryClient();
 
   const { data: competitors = [], isLoading } = useQuery({
@@ -70,7 +73,7 @@ export default function CompetitorAnalysis() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['competitors'] });
       setShowCompetitorModal(false);
-      setNewCompetitor({ name: '', website: '' });
+      setNewCompetitor({ name: '', website: '', tier: 'tier_3' });
     },
   });
 
@@ -372,9 +375,17 @@ Analyze: content strategy, predicted campaigns, industry benchmarks.`,
     onError: () => setDeepAnalyzingFor(null),
   });
 
-  const filteredCompetitors = competitors.filter(c => 
-    !searchTerm || c.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredCompetitors = competitors.filter(c => {
+    const matchesSearch = !searchTerm || c.name.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesTier = selectedTier === 'all' || c.tier === selectedTier;
+    return matchesSearch && matchesTier;
+  });
+
+  const tierCounts = {
+    tier_1: competitors.filter(c => c.tier === 'tier_1').length,
+    tier_2: competitors.filter(c => c.tier === 'tier_2').length,
+    tier_3: competitors.filter(c => c.tier === 'tier_3').length,
+  };
 
   const totalFollowers = competitors.reduce((sum, c) => {
     const accounts = c.social_accounts || [];
@@ -461,15 +472,33 @@ Analyze: content strategy, predicted campaigns, industry benchmarks.`,
         </Card>
       </div>
 
-      {/* Search */}
-      <div className="relative max-w-md">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-        <Input
-          placeholder="Search competitors..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="pl-10"
-        />
+      {/* Search & Filters */}
+      <div className="flex flex-col sm:flex-row gap-4">
+        <div className="relative flex-1 max-w-md">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+          <Input
+            placeholder="Search competitors..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-10"
+          />
+        </div>
+        <Tabs value={selectedTier} onValueChange={setSelectedTier} className="w-full sm:w-auto">
+          <TabsList className="grid grid-cols-4 w-full sm:w-auto">
+            <TabsTrigger value="all">
+              All ({competitors.length})
+            </TabsTrigger>
+            <TabsTrigger value="tier_1">
+              Tier 1 ({tierCounts.tier_1})
+            </TabsTrigger>
+            <TabsTrigger value="tier_2">
+              Tier 2 ({tierCounts.tier_2})
+            </TabsTrigger>
+            <TabsTrigger value="tier_3">
+              Tier 3 ({tierCounts.tier_3})
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
       </div>
 
       {/* Content */}
@@ -524,6 +553,24 @@ Analyze: content strategy, predicted campaigns, industry benchmarks.`,
                 onChange={(e) => setNewCompetitor({ ...newCompetitor, website: e.target.value })}
                 placeholder="https://competitor.com"
               />
+            </div>
+            <div className="space-y-2">
+              <Label>Tier Classification</Label>
+              <Select value={newCompetitor.tier} onValueChange={(v) => setNewCompetitor({ ...newCompetitor, tier: v })}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="tier_1">Tier 1 - Direct Competitor</SelectItem>
+                  <SelectItem value="tier_2">Tier 2 - Indirect Competitor</SelectItem>
+                  <SelectItem value="tier_3">Tier 3 - Potential Threat</SelectItem>
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-gray-500">
+                {newCompetitor.tier === 'tier_1' && 'Direct competitors with similar products/services'}
+                {newCompetitor.tier === 'tier_2' && 'Indirect competitors in adjacent markets'}
+                {newCompetitor.tier === 'tier_3' && 'Emerging or potential competitors'}
+              </p>
             </div>
             <div className="flex justify-end gap-3 pt-4">
               <Button variant="outline" onClick={() => setShowCompetitorModal(false)}>Cancel</Button>
