@@ -340,6 +340,15 @@ Find recent news articles and press releases with title, source, date, summary, 
     onError: () => setScanningNewsFor(null),
   });
 
+  const updateTierMutation = useMutation({
+    mutationFn: async ({ competitor, tier }) => {
+      await base44.entities.Competitor.update(competitor.id, { tier });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['competitors'] });
+    },
+  });
+
   const deepAnalyzeMutation = useMutation({
     mutationFn: async (competitor) => {
       setDeepAnalyzingFor(competitor.id);
@@ -525,6 +534,7 @@ Analyze: content strategy, predicted campaigns, industry benchmarks.`,
                 onAnalyze={() => analyzeCompetitorMutation.mutate(competitor)}
                 isAnalyzing={analyzingCompetitor === competitor.id}
                 onView={() => setSelectedCompetitor(competitor)}
+                onUpdateTier={(comp, tier) => updateTierMutation.mutate({ competitor: comp, tier })}
               />
             ))}
           </div>

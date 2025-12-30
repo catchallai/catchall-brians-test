@@ -1,10 +1,16 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Users, TrendingUp, ExternalLink, RefreshCw, Loader2, Eye, Shield } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
-export default function CompetitorCard({ competitor, onAnalyze, isAnalyzing, onView }) {
+export default function CompetitorCard({ competitor, onAnalyze, isAnalyzing, onView, onUpdateTier }) {
   const totalFollowers = competitor.social_accounts?.reduce((sum, a) => sum + (a.followers || 0), 0) || 0;
   const avgEngagement = competitor.social_accounts?.length > 0
     ? (competitor.social_accounts.reduce((sum, a) => sum + (a.engagement_rate || 0), 0) / competitor.social_accounts.length).toFixed(1)
@@ -28,10 +34,25 @@ export default function CompetitorCard({ competitor, onAnalyze, isAnalyzing, onV
         <div className="flex-1">
           <div className="flex items-center gap-2 mb-1">
             <h4 className="font-semibold text-gray-900 dark:text-white">{competitor.name}</h4>
-            <Badge className={`text-xs ${tierColors[competitor.tier || 'tier_3']}`}>
-              <Shield className="w-3 h-3 mr-1" />
-              {tierLabels[competitor.tier || 'tier_3']}
-            </Badge>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Badge className={`text-xs cursor-pointer hover:opacity-80 ${tierColors[competitor.tier || 'tier_3']}`}>
+                  <Shield className="w-3 h-3 mr-1" />
+                  {tierLabels[competitor.tier || 'tier_3']}
+                </Badge>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuItem onClick={() => onUpdateTier?.(competitor, 'tier_1')}>
+                  Tier 1 - Direct Competitor
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => onUpdateTier?.(competitor, 'tier_2')}>
+                  Tier 2 - Indirect Competitor
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => onUpdateTier?.(competitor, 'tier_3')}>
+                  Tier 3 - Potential Threat
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
           {competitor.website && (
             <a 
