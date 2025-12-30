@@ -2,6 +2,7 @@ import AIDashboard from './pages/AIDashboard';
 import AccountingDashboard from './pages/AccountingDashboard';
 import Activities from './pages/Activities';
 import ActivityLogs from './pages/ActivityLogs';
+import AerospaceScanner from './pages/AerospaceScanner';
 import Automation from './pages/Automation';
 import Backlinks from './pages/Backlinks';
 import CampaignDetail from './pages/CampaignDetail';
@@ -54,7 +55,6 @@ import UserProfile from './pages/UserProfile';
 import UserSettings from './pages/UserSettings';
 import VisitorProfiles from './pages/VisitorProfiles';
 import WebCrawler from './pages/WebCrawler';
-import AerospaceScanner from './pages/AerospaceScanner';
 import __Layout from './Layout.jsx';
 
 
@@ -63,6 +63,7 @@ export const PAGES = {
     "AccountingDashboard": AccountingDashboard,
     "Activities": Activities,
     "ActivityLogs": ActivityLogs,
+    "AerospaceScanner": AerospaceScanner,
     "Automation": Automation,
     "Backlinks": Backlinks,
     "CampaignDetail": CampaignDetail,
@@ -115,7 +116,6 @@ export const PAGES = {
     "UserSettings": UserSettings,
     "VisitorProfiles": VisitorProfiles,
     "WebCrawler": WebCrawler,
-    "AerospaceScanner": AerospaceScanner,
 }
 
 export const pagesConfig = {

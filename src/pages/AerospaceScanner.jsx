@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { 
   Rocket, Search, RefreshCw, Building2, Users, DollarSign, 
   TrendingUp, Globe, Loader2, Plus, ExternalLink, Target,
-  Briefcase, Zap, ChevronDown, ChevronUp, AlertTriangle, Activity, FileText, Shield
+  Briefcase, Zap, ChevronDown, ChevronUp, AlertTriangle, Activity, FileText, Shield, Lock, Unlock
 } from "lucide-react";
 import EmptyState from '@/components/ui/EmptyState';
 import FinancialTrendsChart from '@/components/aerospace/FinancialTrendsChart';
@@ -79,8 +79,22 @@ Focus on companies like Boeing, Lockheed Martin, Northrop Grumman, Raytheon, Spa
                 type: "object",
                 properties: {
                   company_name: { type: "string" },
+                  company_type: { type: "string", enum: ["public", "private"] },
                   ticker_symbol: { type: "string" },
                   exchange: { type: "string" },
+                  investors: { type: "array", items: { type: "string" } },
+                  funding_rounds: {
+                    type: "array",
+                    items: {
+                      type: "object",
+                      properties: {
+                        round: { type: "string" },
+                        amount: { type: "string" },
+                        date: { type: "string" },
+                        investors: { type: "array", items: { type: "string" } }
+                      }
+                    }
+                  },
                   headquarters: { type: "string" },
                   founded_year: { type: "string" },
                   ceo: { type: "string" },
