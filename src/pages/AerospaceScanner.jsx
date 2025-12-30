@@ -17,6 +17,7 @@ import FinancialTrendsChart from '@/components/aerospace/FinancialTrendsChart';
 import CompanyMap from '@/components/aerospace/CompanyMap';
 import NetworkGraph from '@/components/aerospace/NetworkGraph';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 export default function AerospaceScanner() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -781,17 +782,27 @@ Use current internet data to provide the most accurate and recent information.`,
               <SelectItem value="private">Private Only</SelectItem>
             </SelectContent>
           </Select>
-          <Button
-            onClick={scanPublicAerospaceCompanies}
-            disabled={isScanning}
-            className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 gap-2"
-          >
-            {isScanning ? (
-              <><Loader2 className="w-4 h-4 animate-spin" /> Scanning...</>
-            ) : (
-              <><Plus className="w-4 h-4" /> Scan All Companies</>
-            )}
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              onClick={() => setShowAddCompany(true)}
+              variant="outline"
+              className="gap-2"
+            >
+              <Search className="w-4 h-4" />
+              Add Company
+            </Button>
+            <Button
+              onClick={scanPublicAerospaceCompanies}
+              disabled={isScanning}
+              className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 gap-2"
+            >
+              {isScanning ? (
+                <><Loader2 className="w-4 h-4 animate-spin" /> Scanning...</>
+              ) : (
+                <><Plus className="w-4 h-4" /> Scan All Companies</>
+              )}
+            </Button>
+          </div>
         </div>
 
         {/* Visualizations */}
@@ -1456,6 +1467,65 @@ Use current internet data to provide the most accurate and recent information.`,
           </div>
         )}
       </div>
+
+      {/* Add Company Dialog */}
+      <Dialog open={showAddCompany} onOpenChange={setShowAddCompany}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Add Aerospace Company</DialogTitle>
+            <DialogDescription>
+              Enter the name of an aerospace or aviation company to search and add to your intelligence database.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Company Name</label>
+              <Input
+                placeholder="e.g., SpaceX, Blue Origin, Virgin Galactic..."
+                value={newCompanyName}
+                onChange={(e) => setNewCompanyName(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !isAddingCompany) {
+                    addSpecificCompany();
+                  }
+                }}
+              />
+              <p className="text-xs text-gray-500">
+                Works with both public and private companies
+              </p>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setShowAddCompany(false);
+                setNewCompanyName('');
+              }}
+              disabled={isAddingCompany}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={addSpecificCompany}
+              disabled={!newCompanyName.trim() || isAddingCompany}
+              className="gap-2"
+            >
+              {isAddingCompany ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Searching...
+                </>
+              ) : (
+                <>
+                  <Search className="w-4 h-4" />
+                  Search & Add
+                </>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
