@@ -343,9 +343,14 @@ Find recent news articles and press releases with title, source, date, summary, 
   const updateTierMutation = useMutation({
     mutationFn: async ({ competitor, tier }) => {
       await base44.entities.Competitor.update(competitor.id, { tier });
+      return { competitorId: competitor.id, tier };
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['competitors'] });
+      // Update selected competitor if it's the one being edited
+      if (selectedCompetitor?.id === data.competitorId) {
+        setSelectedCompetitor({ ...selectedCompetitor, tier: data.tier });
+      }
     },
   });
 
