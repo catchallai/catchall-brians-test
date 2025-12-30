@@ -10,6 +10,7 @@ import {
   TrendingUp, Globe, Loader2, Plus, ExternalLink, Target,
   Briefcase, Zap, ChevronDown, ChevronUp, AlertTriangle, Activity, FileText, Shield, Lock, Unlock
 } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import EmptyState from '@/components/ui/EmptyState';
 import FinancialTrendsChart from '@/components/aerospace/FinancialTrendsChart';
 import CompanyMap from '@/components/aerospace/CompanyMap';
@@ -20,6 +21,7 @@ export default function AerospaceScanner() {
   const [searchTerm, setSearchTerm] = useState('');
   const [isScanning, setIsScanning] = useState(false);
   const [expandedCompany, setExpandedCompany] = useState(null);
+  const [companyTypeFilter, setCompanyTypeFilter] = useState('all');
   const queryClient = useQueryClient();
 
   const { data: companies = [], isLoading } = useQuery({
@@ -45,11 +47,22 @@ export default function AerospaceScanner() {
     setIsScanning(true);
     try {
       const response = await base44.integrations.Core.InvokeLLM({
-        prompt: `Find all major publicly traded aerospace companies. For each company provide:
+        prompt: `Find comprehensive data on aerospace companies including BOTH publicly traded AND major private companies in the aerospace sector.
+        
+Include:
+- Large public companies (Boeing, Lockheed Martin, Northrop Grumman, Raytheon, General Dynamics, etc.)
+- Smaller/emerging publicly traded aerospace companies
+- Major private aerospace companies (SpaceX, Blue Origin, Sierra Nevada Corporation, etc.)
+- Well-funded private aerospace startups with significant operations
+
+For each company provide:
 - company_name
-- ticker_symbol
-- exchange (NYSE, NASDAQ, etc.)
+- company_type ("public" or "private")
+- ticker_symbol (if public)
+- exchange (NYSE, NASDAQ, etc., if public)
 - headquarters
+- investors (array of key investor names, especially for private companies)
+- funding_rounds (array of funding rounds with round type, amount, date, investors - for private companies)
 - founded_year
 - ceo
 - employee_count (number)
@@ -68,7 +81,7 @@ export default function AerospaceScanner() {
 - strategic_initiatives (array of current strategic focuses)
 - rd_focus (array of R&D focus areas)
 
-Focus on companies like Boeing, Lockheed Martin, Northrop Grumman, Raytheon, SpaceX (if public info available), Blue Origin, Virgin Galactic, etc. Include defense contractors with significant aerospace divisions.`,
+Include all major public and private aerospace companies. For private companies, research available funding, investor, and valuation data from sources like Crunchbase, industry news, etc.`,
         add_context_from_internet: true,
         response_json_schema: {
           type: "object",
@@ -400,10 +413,12 @@ Focus on companies like Boeing, Lockheed Martin, Northrop Grumman, Raytheon, Spa
     }
   };
 
-  const filteredCompanies = companies.filter(c => 
-    c.company_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    c.ticker_symbol?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredCompanies = companies.filter(c => {
+    const matchesSearch = c.company_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      c.ticker_symbol?.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesType = companyTypeFilter === 'all' || c.company_type === companyTypeFilter;
+    return matchesSearch && matchesType;
+  });
 
   return (
     <div className="min-h-screen p-6 bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-slate-950 dark:via-slate-900 dark:to-indigo-950">
@@ -419,7 +434,7 @@ Focus on companies like Boeing, Lockheed Martin, Northrop Grumman, Raytheon, Spa
                 Aerospace Company Intelligence
               </h1>
               <p className="text-gray-600 dark:text-gray-400">
-                Scan and analyze public trading aerospace companies
+                Scan and analyze public and private aerospace companies
               </p>
             </div>
           </div>
@@ -457,9 +472,9 @@ Focus on companies like Boeing, Lockheed Martin, Northrop Grumman, Raytheon, Spa
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Public Companies</p>
+                  <p className="text-sm text-gray-500">Public / Private</p>
                   <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                    {companies.filter(c => c.ticker_symbol).length}
+                    {companies.filter(c => c.company_type === 'public').length} / {companies.filter(c => c.company_type === 'private').length}
                   </p>
                 </div>
                 <TrendingUp className="w-8 h-8 text-violet-500" />
@@ -493,6 +508,16 @@ Focus on companies like Boeing, Lockheed Martin, Northrop Grumman, Raytheon, Spa
               className="pl-10 bg-white/80 backdrop-blur-sm"
             />
           </div>
+          <Select value={companyTypeFilter} onValueChange={setCompanyTypeFilter}>
+            <SelectTrigger className="w-40 bg-white/80 backdrop-blur-sm">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Companies</SelectItem>
+              <SelectItem value="public">Public Only</SelectItem>
+              <SelectItem value="private">Private Only</SelectItem>
+            </SelectContent>
+          </Select>
           <Button
             onClick={scanPublicAerospaceCompanies}
             disabled={isScanning}
@@ -542,7 +567,7 @@ Focus on companies like Boeing, Lockheed Martin, Northrop Grumman, Raytheon, Spa
           <EmptyState
             icon={Rocket}
             title="No aerospace companies yet"
-            description="Click 'Scan All Companies' to discover public trading aerospace companies"
+            description="Click 'Scan All Companies' to discover public and private aerospace companies"
             actionLabel="Scan Now"
             onAction={scanPublicAerospaceCompanies}
           />
@@ -555,8 +580,19 @@ Focus on companies like Boeing, Lockheed Martin, Northrop Grumman, Raytheon, Spa
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2">
                         <CardTitle className="text-xl">{company.company_name}</CardTitle>
-                        {company.ticker_symbol && (
+                        {company.company_type === 'private' ? (
+                          <Badge className="bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300">
+                            <Lock className="w-3 h-3 mr-1" />
+                            Private
+                          </Badge>
+                        ) : (
                           <Badge className="bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
+                            <Unlock className="w-3 h-3 mr-1" />
+                            Public
+                          </Badge>
+                        )}
+                        {company.ticker_symbol && (
+                          <Badge className="bg-blue-600 text-white">
                             {company.ticker_symbol}
                           </Badge>
                         )}
@@ -736,6 +772,42 @@ Focus on companies like Boeing, Lockheed Martin, Northrop Grumman, Raytheon, Spa
                               <Badge key={i} className="bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300">
                                 {focus}
                               </Badge>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Investors & Funding (for private companies) */}
+                      {company.company_type === 'private' && company.investors?.length > 0 && (
+                        <div>
+                          <h4 className="font-semibold text-sm mb-2">Key Investors</h4>
+                          <div className="flex flex-wrap gap-2">
+                            {company.investors.map((investor, i) => (
+                              <Badge key={i} variant="outline" className="bg-purple-50 dark:bg-purple-900/20 border-purple-300 dark:border-purple-700">
+                                {investor}
+                              </Badge>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {company.company_type === 'private' && company.funding_rounds?.length > 0 && (
+                        <div>
+                          <h4 className="font-semibold text-sm mb-2">Funding Rounds</h4>
+                          <div className="space-y-2">
+                            {company.funding_rounds.map((round, i) => (
+                              <div key={i} className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg border border-purple-200 dark:border-purple-800">
+                                <div className="flex justify-between items-start mb-1">
+                                  <p className="font-medium text-sm">{round.round}</p>
+                                  <Badge className="bg-purple-600 text-white">{round.amount}</Badge>
+                                </div>
+                                <p className="text-xs text-gray-500 mb-1">{round.date}</p>
+                                {round.investors?.length > 0 && (
+                                  <p className="text-xs text-gray-600 dark:text-gray-400">
+                                    Investors: {round.investors.join(', ')}
+                                  </p>
+                                )}
+                              </div>
                             ))}
                           </div>
                         </div>
