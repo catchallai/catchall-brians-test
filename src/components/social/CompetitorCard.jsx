@@ -2,7 +2,7 @@ import React from 'react';
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Users, TrendingUp, ExternalLink, RefreshCw, Loader2, Eye } from "lucide-react";
+import { Users, TrendingUp, ExternalLink, RefreshCw, Loader2, Eye, Shield } from "lucide-react";
 
 export default function CompetitorCard({ competitor, onAnalyze, isAnalyzing, onView }) {
   const totalFollowers = competitor.social_accounts?.reduce((sum, a) => sum + (a.followers || 0), 0) || 0;
@@ -10,11 +10,29 @@ export default function CompetitorCard({ competitor, onAnalyze, isAnalyzing, onV
     ? (competitor.social_accounts.reduce((sum, a) => sum + (a.engagement_rate || 0), 0) / competitor.social_accounts.length).toFixed(1)
     : 0;
 
+  const tierColors = {
+    tier_1: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300 border-red-200 dark:border-red-800',
+    tier_2: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300 border-amber-200 dark:border-amber-800',
+    tier_3: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 border-blue-200 dark:border-blue-800'
+  };
+
+  const tierLabels = {
+    tier_1: 'Tier 1',
+    tier_2: 'Tier 2',
+    tier_3: 'Tier 3'
+  };
+
   return (
     <Card className="p-4 border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-all bg-white dark:bg-gray-800">
       <div className="flex items-start justify-between mb-3">
-        <div>
-          <h4 className="font-semibold text-gray-900 dark:text-white">{competitor.name}</h4>
+        <div className="flex-1">
+          <div className="flex items-center gap-2 mb-1">
+            <h4 className="font-semibold text-gray-900 dark:text-white">{competitor.name}</h4>
+            <Badge className={`text-xs ${tierColors[competitor.tier || 'tier_3']}`}>
+              <Shield className="w-3 h-3 mr-1" />
+              {tierLabels[competitor.tier || 'tier_3']}
+            </Badge>
+          </div>
           {competitor.website && (
             <a 
               href={competitor.website} 
