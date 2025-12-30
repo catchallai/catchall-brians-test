@@ -11,6 +11,10 @@ import {
   Briefcase, Zap, ChevronDown, ChevronUp, AlertTriangle, Activity, FileText, Shield
 } from "lucide-react";
 import EmptyState from '@/components/ui/EmptyState';
+import FinancialTrendsChart from '@/components/aerospace/FinancialTrendsChart';
+import CompanyMap from '@/components/aerospace/CompanyMap';
+import NetworkGraph from '@/components/aerospace/NetworkGraph';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function AerospaceScanner() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -487,6 +491,33 @@ Focus on companies like Boeing, Lockheed Martin, Northrop Grumman, Raytheon, Spa
             )}
           </Button>
         </div>
+
+        {/* Visualizations */}
+        {!isLoading && filteredCompanies.length > 0 && (
+          <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg mb-6">
+            <CardContent className="p-6">
+              <Tabs defaultValue="charts" className="w-full">
+                <TabsList className="grid w-full grid-cols-3">
+                  <TabsTrigger value="charts">Financial Charts</TabsTrigger>
+                  <TabsTrigger value="map">Geographic Map</TabsTrigger>
+                  <TabsTrigger value="network">Network Graph</TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value="charts" className="mt-6">
+                  <FinancialTrendsChart companies={filteredCompanies} />
+                </TabsContent>
+                
+                <TabsContent value="map" className="mt-6">
+                  <CompanyMap companies={filteredCompanies} />
+                </TabsContent>
+                
+                <TabsContent value="network" className="mt-6">
+                  <NetworkGraph companies={filteredCompanies} />
+                </TabsContent>
+              </Tabs>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Companies List */}
         {isLoading ? (
