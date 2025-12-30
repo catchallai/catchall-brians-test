@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { 
   Rocket, Search, RefreshCw, Building2, Users, DollarSign, 
   TrendingUp, Globe, Loader2, Plus, ExternalLink, Target,
-  Briefcase, Zap, ChevronDown, ChevronUp
+  Briefcase, Zap, ChevronDown, ChevronUp, AlertTriangle, Activity
 } from "lucide-react";
 import EmptyState from '@/components/ui/EmptyState';
 
@@ -56,6 +56,9 @@ export default function AerospaceScanner() {
 - key_products (array of top 3-5 products/services)
 - competitors (array of main competitor names)
 - financial_highlights (object with revenue_growth, profit_margin, debt_to_equity, pe_ratio)
+- growth_metrics (object with revenue_growth_3yr, revenue_growth_5yr, employee_growth_rate, market_cap_growth, backlog_growth, expansion_markets array)
+- negative_pr (array of recent negative press with title, date, source, summary, severity, impact, url)
+- incidents (array of safety incidents/accidents with title, date, type, description, casualties, investigation_status, findings, regulatory_action)
 - strategic_initiatives (array of current strategic focuses)
 - rd_focus (array of R&D focus areas)
 
@@ -98,6 +101,51 @@ Focus on companies like Boeing, Lockheed Martin, Northrop Grumman, Raytheon, Spa
                       profit_margin: { type: "string" },
                       debt_to_equity: { type: "string" },
                       pe_ratio: { type: "string" }
+                    }
+                  },
+                  growth_metrics: {
+                    type: "object",
+                    properties: {
+                      revenue_growth_3yr: { type: "string" },
+                      revenue_growth_5yr: { type: "string" },
+                      employee_growth_rate: { type: "string" },
+                      market_cap_growth: { type: "string" },
+                      backlog_growth: { type: "string" },
+                      expansion_markets: {
+                        type: "array",
+                        items: { type: "string" }
+                      }
+                    }
+                  },
+                  negative_pr: {
+                    type: "array",
+                    items: {
+                      type: "object",
+                      properties: {
+                        title: { type: "string" },
+                        date: { type: "string" },
+                        source: { type: "string" },
+                        summary: { type: "string" },
+                        severity: { type: "string" },
+                        impact: { type: "string" },
+                        url: { type: "string" }
+                      }
+                    }
+                  },
+                  incidents: {
+                    type: "array",
+                    items: {
+                      type: "object",
+                      properties: {
+                        title: { type: "string" },
+                        date: { type: "string" },
+                        type: { type: "string" },
+                        description: { type: "string" },
+                        casualties: { type: "string" },
+                        investigation_status: { type: "string" },
+                        findings: { type: "string" },
+                        regulatory_action: { type: "string" }
+                      }
                     }
                   },
                   strategic_initiatives: { 
@@ -143,6 +191,9 @@ Focus on companies like Boeing, Lockheed Martin, Northrop Grumman, Raytheon, Spa
 - competitors (array)
 - recent_contracts (array with title, value, date, description)
 - financial_highlights (revenue_growth, profit_margin, debt_to_equity, pe_ratio)
+- growth_metrics (revenue_growth_3yr, revenue_growth_5yr, employee_growth_rate, market_cap_growth, backlog_growth, expansion_markets array)
+- negative_pr (array of recent negative press with title, date, source, summary, severity high/medium/low, impact, url)
+- incidents (array of safety incidents/accidents with title, date, type, description, casualties, investigation_status, findings, regulatory_action)
 - strategic_initiatives (array)
 - rd_focus (array)
 - partnerships (array with partner and description)`,
@@ -195,6 +246,51 @@ Focus on companies like Boeing, Lockheed Martin, Northrop Grumman, Raytheon, Spa
             rd_focus: { 
               type: "array",
               items: { type: "string" }
+            },
+            growth_metrics: {
+              type: "object",
+              properties: {
+                revenue_growth_3yr: { type: "string" },
+                revenue_growth_5yr: { type: "string" },
+                employee_growth_rate: { type: "string" },
+                market_cap_growth: { type: "string" },
+                backlog_growth: { type: "string" },
+                expansion_markets: {
+                  type: "array",
+                  items: { type: "string" }
+                }
+              }
+            },
+            negative_pr: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  title: { type: "string" },
+                  date: { type: "string" },
+                  source: { type: "string" },
+                  summary: { type: "string" },
+                  severity: { type: "string" },
+                  impact: { type: "string" },
+                  url: { type: "string" }
+                }
+              }
+            },
+            incidents: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  title: { type: "string" },
+                  date: { type: "string" },
+                  type: { type: "string" },
+                  description: { type: "string" },
+                  casualties: { type: "string" },
+                  investigation_status: { type: "string" },
+                  findings: { type: "string" },
+                  regulatory_action: { type: "string" }
+                }
+              }
             },
             partnerships: {
               type: "array",
@@ -549,6 +645,137 @@ Focus on companies like Boeing, Lockheed Martin, Northrop Grumman, Raytheon, Spa
                                 </div>
                                 <p className="text-xs text-gray-500 mb-1">{contract.date}</p>
                                 <p className="text-xs text-gray-600 dark:text-gray-400">{contract.description}</p>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Growth Metrics */}
+                      {company.growth_metrics && (
+                        <div>
+                          <div className="flex items-center gap-2 mb-2">
+                            <Activity className="w-4 h-4 text-green-500" />
+                            <h4 className="font-semibold text-sm">Growth Metrics</h4>
+                          </div>
+                          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                            {company.growth_metrics.revenue_growth_3yr && (
+                              <div className="bg-green-50 dark:bg-green-900/20 p-2 rounded">
+                                <p className="text-xs text-gray-500">3-Year Revenue Growth</p>
+                                <p className="text-sm font-medium text-green-700 dark:text-green-300">{company.growth_metrics.revenue_growth_3yr}</p>
+                              </div>
+                            )}
+                            {company.growth_metrics.revenue_growth_5yr && (
+                              <div className="bg-green-50 dark:bg-green-900/20 p-2 rounded">
+                                <p className="text-xs text-gray-500">5-Year Revenue Growth</p>
+                                <p className="text-sm font-medium text-green-700 dark:text-green-300">{company.growth_metrics.revenue_growth_5yr}</p>
+                              </div>
+                            )}
+                            {company.growth_metrics.employee_growth_rate && (
+                              <div className="bg-green-50 dark:bg-green-900/20 p-2 rounded">
+                                <p className="text-xs text-gray-500">Employee Growth</p>
+                                <p className="text-sm font-medium text-green-700 dark:text-green-300">{company.growth_metrics.employee_growth_rate}</p>
+                              </div>
+                            )}
+                            {company.growth_metrics.market_cap_growth && (
+                              <div className="bg-green-50 dark:bg-green-900/20 p-2 rounded">
+                                <p className="text-xs text-gray-500">Market Cap Growth</p>
+                                <p className="text-sm font-medium text-green-700 dark:text-green-300">{company.growth_metrics.market_cap_growth}</p>
+                              </div>
+                            )}
+                            {company.growth_metrics.backlog_growth && (
+                              <div className="bg-green-50 dark:bg-green-900/20 p-2 rounded">
+                                <p className="text-xs text-gray-500">Backlog Growth</p>
+                                <p className="text-sm font-medium text-green-700 dark:text-green-300">{company.growth_metrics.backlog_growth}</p>
+                              </div>
+                            )}
+                          </div>
+                          {company.growth_metrics.expansion_markets?.length > 0 && (
+                            <div className="mt-2">
+                              <p className="text-xs text-gray-500 mb-1">Expansion Markets</p>
+                              <div className="flex flex-wrap gap-1">
+                                {company.growth_metrics.expansion_markets.map((market, i) => (
+                                  <Badge key={i} className="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300">{market}</Badge>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Negative PR */}
+                      {company.negative_pr?.length > 0 && (
+                        <div>
+                          <div className="flex items-center gap-2 mb-2">
+                            <AlertTriangle className="w-4 h-4 text-red-500" />
+                            <h4 className="font-semibold text-sm">Negative Press & Controversies</h4>
+                          </div>
+                          <div className="space-y-2">
+                            {company.negative_pr.map((pr, i) => (
+                              <div key={i} className={`p-3 rounded-lg border-l-4 ${
+                                pr.severity === 'high' ? 'bg-red-50 dark:bg-red-900/20 border-red-500' :
+                                pr.severity === 'medium' ? 'bg-amber-50 dark:bg-amber-900/20 border-amber-500' :
+                                'bg-yellow-50 dark:bg-yellow-900/20 border-yellow-500'
+                              }`}>
+                                <div className="flex justify-between items-start mb-1">
+                                  <p className="font-medium text-sm">{pr.title}</p>
+                                  <Badge className={
+                                    pr.severity === 'high' ? 'bg-red-600 text-white' :
+                                    pr.severity === 'medium' ? 'bg-amber-600 text-white' :
+                                    'bg-yellow-600 text-white'
+                                  }>{pr.severity}</Badge>
+                                </div>
+                                <p className="text-xs text-gray-500 mb-1">{pr.date} • {pr.source}</p>
+                                <p className="text-xs text-gray-700 dark:text-gray-300 mb-1">{pr.summary}</p>
+                                {pr.impact && (
+                                  <p className="text-xs text-gray-600 dark:text-gray-400 italic">Impact: {pr.impact}</p>
+                                )}
+                                {pr.url && (
+                                  <a href={pr.url} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 hover:text-blue-700 flex items-center gap-1 mt-1">
+                                    Read more <ExternalLink className="w-3 h-3" />
+                                  </a>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Safety Incidents */}
+                      {company.incidents?.length > 0 && (
+                        <div>
+                          <div className="flex items-center gap-2 mb-2">
+                            <AlertTriangle className="w-4 h-4 text-orange-500" />
+                            <h4 className="font-semibold text-sm">Safety Incidents & Investigations</h4>
+                          </div>
+                          <div className="space-y-3">
+                            {company.incidents.map((incident, i) => (
+                              <div key={i} className="bg-orange-50 dark:bg-orange-900/20 p-3 rounded-lg border border-orange-200 dark:border-orange-800">
+                                <div className="flex justify-between items-start mb-2">
+                                  <div>
+                                    <p className="font-medium text-sm">{incident.title}</p>
+                                    <p className="text-xs text-gray-500">{incident.date} • {incident.type}</p>
+                                  </div>
+                                  {incident.investigation_status && (
+                                    <Badge variant="outline" className="text-xs">{incident.investigation_status}</Badge>
+                                  )}
+                                </div>
+                                <p className="text-xs text-gray-700 dark:text-gray-300 mb-2">{incident.description}</p>
+                                {incident.casualties && (
+                                  <p className="text-xs text-red-600 dark:text-red-400 font-medium mb-1">Casualties: {incident.casualties}</p>
+                                )}
+                                {incident.findings && (
+                                  <div className="bg-white dark:bg-gray-800 p-2 rounded mt-2">
+                                    <p className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Findings:</p>
+                                    <p className="text-xs text-gray-600 dark:text-gray-400">{incident.findings}</p>
+                                  </div>
+                                )}
+                                {incident.regulatory_action && (
+                                  <div className="bg-white dark:bg-gray-800 p-2 rounded mt-2">
+                                    <p className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Regulatory Action:</p>
+                                    <p className="text-xs text-gray-600 dark:text-gray-400">{incident.regulatory_action}</p>
+                                  </div>
+                                )}
                               </div>
                             ))}
                           </div>
