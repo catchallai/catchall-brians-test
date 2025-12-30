@@ -8,7 +8,8 @@ import { Badge } from "@/components/ui/badge";
 import { 
   Rocket, Search, RefreshCw, Building2, Users, DollarSign, 
   TrendingUp, Globe, Loader2, Plus, ExternalLink, Target,
-  Briefcase, Zap, ChevronDown, ChevronUp, AlertTriangle, Activity, FileText, Shield, Lock, Unlock
+  Briefcase, Zap, ChevronDown, ChevronUp, AlertTriangle, Activity, FileText, Shield, Lock, Unlock,
+  Sparkles, TrendingDown, Minus, Package
 } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import EmptyState from '@/components/ui/EmptyState';
@@ -238,6 +239,121 @@ Include all major public and private aerospace companies. For private companies,
       console.error('Scanning failed:', error);
     } finally {
       setIsScanning(false);
+    }
+  };
+
+  const enrichCompany = async (company) => {
+    try {
+      const response = await base44.integrations.Core.InvokeLLM({
+        prompt: `Perform AI-driven data enrichment for ${company.company_name}. Provide:
+
+1. Financial ratios (if not already complete):
+   - debt_to_equity ratio
+   - pe_ratio (P/E ratio)
+   - profit_margin
+   - revenue_growth
+
+2. News sentiment analysis:
+   - overall_sentiment ("positive", "neutral", or "negative")
+   - sentiment_score (0-100 scale)
+   - recent_headlines (array of 5-10 recent news with title, sentiment, date, source, summary)
+
+3. Major projects/product lifecycle:
+   - Array of major projects with name, description, lifecycle_stage (concept/development/testing/production/operational/retired), status, expected_completion, customer
+
+4. Supply chain integration:
+   - key_suppliers (array with name and supplies)
+   - strategic_partners (array with name and partnership_type)
+   - vertical_integration_level (description)
+
+Use current internet data to provide the most accurate and recent information.`,
+        add_context_from_internet: true,
+        response_json_schema: {
+          type: "object",
+          properties: {
+            financial_highlights: {
+              type: "object",
+              properties: {
+                revenue_growth: { type: "string" },
+                profit_margin: { type: "string" },
+                debt_to_equity: { type: "string" },
+                pe_ratio: { type: "string" }
+              }
+            },
+            news_sentiment: {
+              type: "object",
+              properties: {
+                overall_sentiment: { type: "string", enum: ["positive", "neutral", "negative"] },
+                sentiment_score: { type: "number" },
+                recent_headlines: {
+                  type: "array",
+                  items: {
+                    type: "object",
+                    properties: {
+                      title: { type: "string" },
+                      sentiment: { type: "string" },
+                      date: { type: "string" },
+                      source: { type: "string" },
+                      summary: { type: "string" }
+                    }
+                  }
+                },
+                last_analyzed: { type: "string" }
+              }
+            },
+            major_projects: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  name: { type: "string" },
+                  description: { type: "string" },
+                  lifecycle_stage: { type: "string", enum: ["concept", "development", "testing", "production", "operational", "retired"] },
+                  status: { type: "string" },
+                  expected_completion: { type: "string" },
+                  customer: { type: "string" }
+                }
+              }
+            },
+            supply_chain: {
+              type: "object",
+              properties: {
+                key_suppliers: {
+                  type: "array",
+                  items: {
+                    type: "object",
+                    properties: {
+                      name: { type: "string" },
+                      supplies: { type: "string" }
+                    }
+                  }
+                },
+                strategic_partners: {
+                  type: "array",
+                  items: {
+                    type: "object",
+                    properties: {
+                      name: { type: "string" },
+                      partnership_type: { type: "string" }
+                    }
+                  }
+                },
+                vertical_integration_level: { type: "string" }
+              }
+            }
+          }
+        }
+      });
+
+      await updateCompanyMutation.mutateAsync({
+        id: company.id,
+        data: {
+          ...response,
+          last_enriched: new Date().toISOString()
+        }
+      });
+    } catch (error) {
+      console.error('Enrichment failed:', error);
     }
   };
 
@@ -619,6 +735,15 @@ Include all major public and private aerospace companies. For private companies,
                       )}
                     </div>
                     <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => enrichCompany(company)}
+                        className="gap-1"
+                      >
+                        <Sparkles className="w-3 h-3" />
+                        AI Enrich
+                      </Button>
                       <Button
                         size="sm"
                         variant="outline"
@@ -1020,6 +1145,148 @@ Include all major public and private aerospace companies. For private companies,
                                 )}
                               </div>
                             ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* News Sentiment */}
+                      {company.news_sentiment && (
+                        <div>
+                          <div className="flex items-center gap-2 mb-2">
+                            <Activity className="w-4 h-4 text-blue-500" />
+                            <h4 className="font-semibold text-sm">News Sentiment Analysis</h4>
+                          </div>
+                          <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg mb-3">
+                            <div className="flex items-center justify-between mb-2">
+                              <div className="flex items-center gap-2">
+                                {company.news_sentiment.overall_sentiment === 'positive' && (
+                                  <TrendingUp className="w-5 h-5 text-green-500" />
+                                )}
+                                {company.news_sentiment.overall_sentiment === 'neutral' && (
+                                  <Minus className="w-5 h-5 text-gray-500" />
+                                )}
+                                {company.news_sentiment.overall_sentiment === 'negative' && (
+                                  <TrendingDown className="w-5 h-5 text-red-500" />
+                                )}
+                                <span className={`font-medium text-sm capitalize ${
+                                  company.news_sentiment.overall_sentiment === 'positive' ? 'text-green-700 dark:text-green-300' :
+                                  company.news_sentiment.overall_sentiment === 'negative' ? 'text-red-700 dark:text-red-300' :
+                                  'text-gray-700 dark:text-gray-300'
+                                }`}>
+                                  {company.news_sentiment.overall_sentiment} Sentiment
+                                </span>
+                              </div>
+                              <Badge variant="outline">
+                                Score: {company.news_sentiment.sentiment_score}/100
+                              </Badge>
+                            </div>
+                            {company.news_sentiment.recent_headlines?.length > 0 && (
+                              <div className="space-y-2 mt-3">
+                                {company.news_sentiment.recent_headlines.slice(0, 3).map((headline, i) => (
+                                  <div key={i} className="bg-white dark:bg-gray-900 p-2 rounded text-xs">
+                                    <p className="font-medium mb-1">{headline.title}</p>
+                                    <div className="flex items-center gap-2 text-gray-500">
+                                      <span>{headline.source}</span>
+                                      <span>•</span>
+                                      <span>{headline.date}</span>
+                                      <Badge className={`ml-auto ${
+                                        headline.sentiment === 'positive' ? 'bg-green-100 text-green-700' :
+                                        headline.sentiment === 'negative' ? 'bg-red-100 text-red-700' :
+                                        'bg-gray-100 text-gray-700'
+                                      }`}>{headline.sentiment}</Badge>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Major Projects */}
+                      {company.major_projects?.length > 0 && (
+                        <div>
+                          <div className="flex items-center gap-2 mb-2">
+                            <Target className="w-4 h-4 text-indigo-500" />
+                            <h4 className="font-semibold text-sm">Major Projects & Products</h4>
+                          </div>
+                          <div className="space-y-2">
+                            {company.major_projects.map((project, i) => (
+                              <div key={i} className="bg-indigo-50 dark:bg-indigo-900/20 p-3 rounded-lg border border-indigo-200 dark:border-indigo-800">
+                                <div className="flex justify-between items-start mb-1">
+                                  <p className="font-medium text-sm">{project.name}</p>
+                                  <Badge className={`${
+                                    project.lifecycle_stage === 'operational' ? 'bg-green-600' :
+                                    project.lifecycle_stage === 'production' ? 'bg-blue-600' :
+                                    project.lifecycle_stage === 'testing' ? 'bg-amber-600' :
+                                    project.lifecycle_stage === 'development' ? 'bg-purple-600' :
+                                    'bg-gray-600'
+                                  } text-white text-xs`}>
+                                    {project.lifecycle_stage}
+                                  </Badge>
+                                </div>
+                                <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">{project.description}</p>
+                                <div className="flex gap-2 text-xs text-gray-500">
+                                  {project.customer && <span>Customer: {project.customer}</span>}
+                                  {project.expected_completion && (
+                                    <span className="ml-auto">ETC: {project.expected_completion}</span>
+                                  )}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Supply Chain */}
+                      {company.supply_chain && (
+                        <div>
+                          <div className="flex items-center gap-2 mb-2">
+                            <Package className="w-4 h-4 text-purple-500" />
+                            <h4 className="font-semibold text-sm">Supply Chain Integration</h4>
+                          </div>
+                          <div className="space-y-3">
+                            {company.supply_chain.vertical_integration_level && (
+                              <div className="bg-purple-50 dark:bg-purple-900/20 p-2 rounded">
+                                <p className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                  Vertical Integration
+                                </p>
+                                <p className="text-xs text-gray-600 dark:text-gray-400">
+                                  {company.supply_chain.vertical_integration_level}
+                                </p>
+                              </div>
+                            )}
+                            {company.supply_chain.key_suppliers?.length > 0 && (
+                              <div>
+                                <p className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                  Key Suppliers
+                                </p>
+                                <div className="space-y-1">
+                                  {company.supply_chain.key_suppliers.map((supplier, i) => (
+                                    <div key={i} className="bg-white dark:bg-gray-800 p-2 rounded text-xs">
+                                      <span className="font-medium">{supplier.name}</span>
+                                      {supplier.supplies && (
+                                        <span className="text-gray-500"> - {supplier.supplies}</span>
+                                      )}
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+                            {company.supply_chain.strategic_partners?.length > 0 && (
+                              <div>
+                                <p className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                  Strategic Partners
+                                </p>
+                                <div className="flex flex-wrap gap-1">
+                                  {company.supply_chain.strategic_partners.map((partner, i) => (
+                                    <Badge key={i} variant="outline" className="text-xs">
+                                      {partner.name} ({partner.partnership_type})
+                                    </Badge>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
                           </div>
                         </div>
                       )}
