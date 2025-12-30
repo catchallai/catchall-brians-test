@@ -610,6 +610,7 @@ Analyze: content strategy, predicted campaigns, industry benchmarks.`,
         onDeepAnalyze={() => deepAnalyzeMutation.mutate(selectedCompetitor)}
         isDeepAnalyzing={deepAnalyzingFor === selectedCompetitor?.id}
         yourBrandName={companies[0]?.name || 'Your Brand'}
+        onUpdateTier={(comp, tier) => updateTierMutation.mutate({ competitor: comp, tier })}
       />
 
       {/* Competitor Report Modal */}

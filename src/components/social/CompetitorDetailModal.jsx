@@ -7,8 +7,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   TrendingUp, Calendar, Target, ExternalLink, Users, 
   CheckCircle, AlertTriangle, BarChart3, Clock, FileText, Loader2,
-  Newspaper, Sparkles, GitCompare
+  Newspaper, Sparkles, GitCompare, Shield
 } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import CompetitorInsightsPanel from './CompetitorInsightsPanel';
 import ComparativeReportCard from './ComparativeReportCard';
 
@@ -26,7 +32,8 @@ export default function CompetitorDetailModal({
   isDeepAnalyzing,
   onScanLeadership,
   isScanningLeadership,
-  yourBrandName
+  yourBrandName,
+  onUpdateTier
 }) {
   if (!competitor) return null;
 
@@ -35,23 +42,56 @@ export default function CompetitorDetailModal({
     ? (competitor.social_accounts.reduce((sum, a) => sum + (a.engagement_rate || 0), 0) / competitor.social_accounts.length).toFixed(1)
     : 0;
 
+  const tierColors = {
+    tier_1: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300 border-red-200 dark:border-red-800',
+    tier_2: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300 border-amber-200 dark:border-amber-800',
+    tier_3: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 border-blue-200 dark:border-blue-800'
+  };
+
+  const tierLabels = {
+    tier_1: 'Tier 1',
+    tier_2: 'Tier 2',
+    tier_3: 'Tier 3'
+  };
+
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-2xl max-h-[85vh] overflow-hidden flex flex-col">
         <DialogHeader>
           <DialogTitle className="flex items-center justify-between">
-            <div>
-              <span className="text-xl">{competitor.name}</span>
-              {competitor.website && (
-                <a 
-                  href={competitor.website} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="ml-2 text-sm text-gray-400 hover:text-violet-600 inline-flex items-center gap-1"
-                >
-                  <ExternalLink className="w-3 h-3" />
-                </a>
-              )}
+            <div className="flex items-center gap-3">
+              <div>
+                <span className="text-xl">{competitor.name}</span>
+                {competitor.website && (
+                  <a 
+                    href={competitor.website} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="ml-2 text-sm text-gray-400 hover:text-violet-600 inline-flex items-center gap-1"
+                  >
+                    <ExternalLink className="w-3 h-3" />
+                  </a>
+                )}
+              </div>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Badge className={`text-xs cursor-pointer hover:opacity-80 ${tierColors[competitor.tier || 'tier_3']}`}>
+                    <Shield className="w-3 h-3 mr-1" />
+                    {tierLabels[competitor.tier || 'tier_3']}
+                  </Badge>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  <DropdownMenuItem onClick={() => onUpdateTier?.(competitor, 'tier_1')}>
+                    Tier 1 - Direct Competitor
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => onUpdateTier?.(competitor, 'tier_2')}>
+                    Tier 2 - Indirect Competitor
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => onUpdateTier?.(competitor, 'tier_3')}>
+                    Tier 3 - Potential Threat
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
             <div className="flex gap-2">
               <Button
