@@ -23,6 +23,9 @@ export default function AerospaceScanner() {
   const [isScanning, setIsScanning] = useState(false);
   const [expandedCompany, setExpandedCompany] = useState(null);
   const [companyTypeFilter, setCompanyTypeFilter] = useState('all');
+  const [showAddCompany, setShowAddCompany] = useState(false);
+  const [newCompanyName, setNewCompanyName] = useState('');
+  const [isAddingCompany, setIsAddingCompany] = useState(false);
   const queryClient = useQueryClient();
 
   const { data: companies = [], isLoading } = useQuery({
@@ -239,6 +242,149 @@ Include all major public and private aerospace companies. For private companies,
       console.error('Scanning failed:', error);
     } finally {
       setIsScanning(false);
+    }
+  };
+
+  const addSpecificCompany = async () => {
+    if (!newCompanyName.trim()) return;
+    
+    setIsAddingCompany(true);
+    try {
+      const response = await base44.integrations.Core.InvokeLLM({
+        prompt: `Search for comprehensive information about the aerospace/aviation company: "${newCompanyName}". 
+        
+Include both public AND private companies. If it's a private company, gather information from sources like Crunchbase, PitchBook, and news sources.
+
+Provide detailed data including:
+- Basic info (name, type: public/private, headquarters, founded year, CEO, employees, website)
+- Financial data (market cap/valuation, revenue, funding details)
+- For PRIVATE companies specifically include: total funding, key investors, funding rounds with dates and amounts
+- Business segments, products, competitors
+- Recent contracts (especially DoD and public sector)
+- Growth metrics, strategic initiatives, R&D focus
+- Partnerships and key relationships`,
+        add_context_from_internet: true,
+        response_json_schema: {
+          type: "object",
+          properties: {
+            company_name: { type: "string" },
+            company_type: { type: "string", enum: ["public", "private"] },
+            ticker_symbol: { type: "string" },
+            exchange: { type: "string" },
+            headquarters: { type: "string" },
+            founded_year: { type: "string" },
+            ceo: { type: "string" },
+            employee_count: { type: "number" },
+            market_cap: { type: "string" },
+            annual_revenue: { type: "string" },
+            funding_total: { type: "string" },
+            investors: { type: "array", items: { type: "string" } },
+            funding_rounds: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  round: { type: "string" },
+                  amount: { type: "string" },
+                  date: { type: "string" },
+                  investors: { type: "array", items: { type: "string" } }
+                }
+              }
+            },
+            website: { type: "string" },
+            description: { type: "string" },
+            business_segments: { type: "array", items: { type: "string" } },
+            key_products: { type: "array", items: { type: "string" } },
+            competitors: { type: "array", items: { type: "string" } },
+            recent_contracts: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  title: { type: "string" },
+                  value: { type: "string" },
+                  date: { type: "string" },
+                  description: { type: "string" }
+                }
+              }
+            },
+            dod_contracts: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  title: { type: "string" },
+                  contract_number: { type: "string" },
+                  value: { type: "string" },
+                  date: { type: "string" },
+                  agency: { type: "string" },
+                  description: { type: "string" },
+                  status: { type: "string" }
+                }
+              }
+            },
+            public_sector_contracts: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  title: { type: "string" },
+                  contract_number: { type: "string" },
+                  value: { type: "string" },
+                  date: { type: "string" },
+                  agency: { type: "string" },
+                  description: { type: "string" },
+                  status: { type: "string" }
+                }
+              }
+            },
+            financial_highlights: {
+              type: "object",
+              properties: {
+                revenue_growth: { type: "string" },
+                profit_margin: { type: "string" },
+                debt_to_equity: { type: "string" },
+                pe_ratio: { type: "string" }
+              }
+            },
+            growth_metrics: {
+              type: "object",
+              properties: {
+                revenue_growth_3yr: { type: "string" },
+                revenue_growth_5yr: { type: "string" },
+                employee_growth_rate: { type: "string" },
+                market_cap_growth: { type: "string" },
+                backlog_growth: { type: "string" },
+                expansion_markets: { type: "array", items: { type: "string" } }
+              }
+            },
+            strategic_initiatives: { type: "array", items: { type: "string" } },
+            rd_focus: { type: "array", items: { type: "string" } },
+            partnerships: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  partner: { type: "string" },
+                  description: { type: "string" }
+                }
+              }
+            }
+          }
+        }
+      });
+
+      await createCompanyMutation.mutateAsync({
+        ...response,
+        last_scanned: new Date().toISOString()
+      });
+
+      setNewCompanyName('');
+      setShowAddCompany(false);
+    } catch (error) {
+      console.error('Failed to add company:', error);
+    } finally {
+      setIsAddingCompany(false);
     }
   };
 
