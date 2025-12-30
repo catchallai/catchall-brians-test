@@ -54,6 +54,7 @@ import UserProfile from './pages/UserProfile';
 import UserSettings from './pages/UserSettings';
 import VisitorProfiles from './pages/VisitorProfiles';
 import WebCrawler from './pages/WebCrawler';
+import AerospaceScanner from './pages/AerospaceScanner';
 import __Layout from './Layout.jsx';
 
 
@@ -114,6 +115,7 @@ export const PAGES = {
     "UserSettings": UserSettings,
     "VisitorProfiles": VisitorProfiles,
     "WebCrawler": WebCrawler,
+    "AerospaceScanner": AerospaceScanner,
 }
 
 export const pagesConfig = {

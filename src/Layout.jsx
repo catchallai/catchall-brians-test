@@ -10,8 +10,9 @@ import { ThemeProvider, useTheme } from '@/components/theme/ThemeProvider';
 import ThemeToggle from '@/components/theme/ThemeToggle';
 import NotificationBell from '@/components/notifications/NotificationBell';
 import {
-  LayoutDashboard,
-  Users,
+        LayoutDashboard,
+        Rocket,
+        Users,
   Building2,
   Target,
   Calendar,
@@ -68,6 +69,7 @@ const navigation = [
   { name: 'Brand Dashboard', icon: LayoutDashboard, page: 'Dashboard' },
   { name: 'favorites', label: 'Favorites' },
   { name: 'divider', label: 'Business Dev' },
+  { name: 'Aerospace Scanner', icon: Rocket, page: 'AerospaceScanner' },
   { name: 'Competitor Analysis', icon: Users, page: 'CompetitorAnalysis' },
   { name: 'Lead Analysis', icon: UserCircle, page: 'VisitorProfiles' },
   { name: 'Pitch Deck Creator', icon: PenTool, page: 'PitchDeckCreator' },
@@ -133,8 +135,9 @@ const navigation = [
 ];
 
 const SIDEBAR_ICONS = {
-  Dashboard: LayoutDashboard,
-  VisitorProfiles: UserCircle,
+        Dashboard: LayoutDashboard,
+        AerospaceScanner: Rocket,
+        VisitorProfiles: UserCircle,
   PitchDeckCreator: PenTool,
   PitchDeckAnalyzer: FileSearch,
   TakeDownRequestor: AlertTriangle,
