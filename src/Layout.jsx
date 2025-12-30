@@ -86,7 +86,6 @@ const navigation = [
   { name: 'Activities', icon: Calendar, page: 'Activities' },
   { name: 'divider', label: 'Sales' },
   { name: 'Sales Hub', icon: Target, page: 'SalesHub' },
-  { name: 'Deals', icon: Target, page: 'Deals' },
   { name: 'Lead Enrichment', icon: Users, page: 'LeadEnrichment' },
   { name: 'Sequences', icon: Zap, page: 'SalesSequences' },
   { name: 'Proposals', icon: FileText, page: 'Proposals' },
