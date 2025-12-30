@@ -66,8 +66,9 @@ For each company provide:
 - founded_year
 - ceo
 - employee_count (number)
-- market_cap
+- market_cap (for public companies or valuation for private companies)
 - annual_revenue
+- funding_total (especially for private companies)
 - description
 - business_segments (array of strings)
 - key_products (array of top 3-5 products/services)
