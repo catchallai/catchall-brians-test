@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { 
   Rocket, Search, RefreshCw, Building2, Users, DollarSign, 
   TrendingUp, Globe, Loader2, Plus, ExternalLink, Target,
-  Briefcase, Zap, ChevronDown, ChevronUp, AlertTriangle, Activity
+  Briefcase, Zap, ChevronDown, ChevronUp, AlertTriangle, Activity, FileText, Shield
 } from "lucide-react";
 import EmptyState from '@/components/ui/EmptyState';
 
@@ -55,6 +55,8 @@ export default function AerospaceScanner() {
 - business_segments (array of strings)
 - key_products (array of top 3-5 products/services)
 - competitors (array of main competitor names)
+- dod_contracts (array of DoD contracts with title, contract_number, value, date, agency, description, status)
+- public_sector_contracts (array of NASA/FAA/other public contracts with title, contract_number, value, date, agency, description, status)
 - financial_highlights (object with revenue_growth, profit_margin, debt_to_equity, pe_ratio)
 - growth_metrics (object with revenue_growth_3yr, revenue_growth_5yr, employee_growth_rate, market_cap_growth, backlog_growth, expansion_markets array)
 - negative_pr (array of recent negative press with title, date, source, summary, severity, impact, url)
@@ -93,6 +95,36 @@ Focus on companies like Boeing, Lockheed Martin, Northrop Grumman, Raytheon, Spa
                   competitors: { 
                     type: "array",
                     items: { type: "string" }
+                  },
+                  dod_contracts: {
+                    type: "array",
+                    items: {
+                      type: "object",
+                      properties: {
+                        title: { type: "string" },
+                        contract_number: { type: "string" },
+                        value: { type: "string" },
+                        date: { type: "string" },
+                        agency: { type: "string" },
+                        description: { type: "string" },
+                        status: { type: "string" }
+                      }
+                    }
+                  },
+                  public_sector_contracts: {
+                    type: "array",
+                    items: {
+                      type: "object",
+                      properties: {
+                        title: { type: "string" },
+                        contract_number: { type: "string" },
+                        value: { type: "string" },
+                        date: { type: "string" },
+                        agency: { type: "string" },
+                        description: { type: "string" },
+                        status: { type: "string" }
+                      }
+                    }
                   },
                   financial_highlights: {
                     type: "object",
@@ -190,6 +222,8 @@ Focus on companies like Boeing, Lockheed Martin, Northrop Grumman, Raytheon, Spa
 - key_products (array)
 - competitors (array)
 - recent_contracts (array with title, value, date, description)
+- dod_contracts (array of DoD contracts with title, contract_number, value, date, agency, description, status)
+- public_sector_contracts (array of NASA/FAA/other public contracts with title, contract_number, value, date, agency, description, status)
 - financial_highlights (revenue_growth, profit_margin, debt_to_equity, pe_ratio)
 - growth_metrics (revenue_growth_3yr, revenue_growth_5yr, employee_growth_rate, market_cap_growth, backlog_growth, expansion_markets array)
 - negative_pr (array of recent negative press with title, date, source, summary, severity high/medium/low, impact, url)
@@ -227,6 +261,36 @@ Focus on companies like Boeing, Lockheed Martin, Northrop Grumman, Raytheon, Spa
                   value: { type: "string" },
                   date: { type: "string" },
                   description: { type: "string" }
+                }
+              }
+            },
+            dod_contracts: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  title: { type: "string" },
+                  contract_number: { type: "string" },
+                  value: { type: "string" },
+                  date: { type: "string" },
+                  agency: { type: "string" },
+                  description: { type: "string" },
+                  status: { type: "string" }
+                }
+              }
+            },
+            public_sector_contracts: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  title: { type: "string" },
+                  contract_number: { type: "string" },
+                  value: { type: "string" },
+                  date: { type: "string" },
+                  agency: { type: "string" },
+                  description: { type: "string" },
+                  status: { type: "string" }
                 }
               }
             },
@@ -632,16 +696,76 @@ Focus on companies like Boeing, Lockheed Martin, Northrop Grumman, Raytheon, Spa
                         </div>
                       )}
 
+                      {/* DoD Contracts */}
+                      {company.dod_contracts?.length > 0 && (
+                        <div>
+                          <div className="flex items-center gap-2 mb-2">
+                            <Shield className="w-4 h-4 text-blue-600" />
+                            <h4 className="font-semibold text-sm">Department of Defense Contracts</h4>
+                          </div>
+                          <div className="space-y-2">
+                            {company.dod_contracts.map((contract, i) => (
+                              <div key={i} className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg border border-blue-200 dark:border-blue-800">
+                                <div className="flex justify-between items-start mb-1">
+                                  <div>
+                                    <p className="font-medium text-sm">{contract.title}</p>
+                                    {contract.contract_number && (
+                                      <p className="text-xs text-gray-500">Contract #: {contract.contract_number}</p>
+                                    )}
+                                  </div>
+                                  <Badge className="bg-blue-600 text-white">{contract.value}</Badge>
+                                </div>
+                                <p className="text-xs text-gray-500 mb-1">{contract.date} • {contract.agency}</p>
+                                <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">{contract.description}</p>
+                                {contract.status && (
+                                  <Badge variant="outline" className="text-xs">{contract.status}</Badge>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Public Sector Contracts */}
+                      {company.public_sector_contracts?.length > 0 && (
+                        <div>
+                          <div className="flex items-center gap-2 mb-2">
+                            <FileText className="w-4 h-4 text-indigo-600" />
+                            <h4 className="font-semibold text-sm">Public Sector Contracts (NASA, FAA, etc.)</h4>
+                          </div>
+                          <div className="space-y-2">
+                            {company.public_sector_contracts.map((contract, i) => (
+                              <div key={i} className="bg-indigo-50 dark:bg-indigo-900/20 p-3 rounded-lg border border-indigo-200 dark:border-indigo-800">
+                                <div className="flex justify-between items-start mb-1">
+                                  <div>
+                                    <p className="font-medium text-sm">{contract.title}</p>
+                                    {contract.contract_number && (
+                                      <p className="text-xs text-gray-500">Contract #: {contract.contract_number}</p>
+                                    )}
+                                  </div>
+                                  <Badge className="bg-indigo-600 text-white">{contract.value}</Badge>
+                                </div>
+                                <p className="text-xs text-gray-500 mb-1">{contract.date} • {contract.agency}</p>
+                                <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">{contract.description}</p>
+                                {contract.status && (
+                                  <Badge variant="outline" className="text-xs">{contract.status}</Badge>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
                       {/* Recent Contracts */}
                       {company.recent_contracts?.length > 0 && (
                         <div>
-                          <h4 className="font-semibold text-sm mb-2">Recent Major Contracts</h4>
+                          <h4 className="font-semibold text-sm mb-2">Other Recent Major Contracts</h4>
                           <div className="space-y-2">
                             {company.recent_contracts.map((contract, i) => (
-                              <div key={i} className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg">
+                              <div key={i} className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
                                 <div className="flex justify-between items-start mb-1">
                                   <p className="font-medium text-sm">{contract.title}</p>
-                                  <Badge className="bg-blue-600 text-white">{contract.value}</Badge>
+                                  <Badge variant="outline">{contract.value}</Badge>
                                 </div>
                                 <p className="text-xs text-gray-500 mb-1">{contract.date}</p>
                                 <p className="text-xs text-gray-600 dark:text-gray-400">{contract.description}</p>
