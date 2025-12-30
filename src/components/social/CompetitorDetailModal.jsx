@@ -73,25 +73,47 @@ export default function CompetitorDetailModal({
                   </a>
                 )}
               </div>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Badge className={`text-xs cursor-pointer hover:opacity-80 ${tierColors[competitor.tier || 'tier_3']}`}>
-                    <Shield className="w-3 h-3 mr-1" />
-                    {tierLabels[competitor.tier || 'tier_3']}
-                  </Badge>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent>
-                  <DropdownMenuItem onClick={() => onUpdateTier?.(competitor, 'tier_1')}>
-                    Tier 1 - Direct Competitor
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => onUpdateTier?.(competitor, 'tier_2')}>
-                    Tier 2 - Indirect Competitor
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => onUpdateTier?.(competitor, 'tier_3')}>
-                    Tier 3 - Potential Threat
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+              {competitor.tier ? (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Badge className={`text-xs cursor-pointer hover:opacity-80 ${tierColors[competitor.tier]}`}>
+                      <Shield className="w-3 h-3 mr-1" />
+                      {tierLabels[competitor.tier]}
+                    </Badge>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent>
+                    <DropdownMenuItem onClick={() => onUpdateTier?.(competitor, 'tier_1')}>
+                      Tier 1 - Direct Competitor
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => onUpdateTier?.(competitor, 'tier_2')}>
+                      Tier 2 - Indirect Competitor
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => onUpdateTier?.(competitor, 'tier_3')}>
+                      Tier 3 - Potential Threat
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              ) : (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Badge variant="outline" className="text-xs cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800">
+                      <Shield className="w-3 h-3 mr-1" />
+                      Set Tier
+                    </Badge>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent>
+                    <DropdownMenuItem onClick={() => onUpdateTier?.(competitor, 'tier_1')}>
+                      Tier 1 - Direct Competitor
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => onUpdateTier?.(competitor, 'tier_2')}>
+                      Tier 2 - Indirect Competitor
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => onUpdateTier?.(competitor, 'tier_3')}>
+                      Tier 3 - Potential Threat
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
             </div>
             <div className="flex gap-2">
               <Button
