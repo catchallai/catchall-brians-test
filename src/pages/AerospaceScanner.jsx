@@ -16,6 +16,8 @@ import EmptyState from '@/components/ui/EmptyState';
 import FinancialTrendsChart from '@/components/aerospace/FinancialTrendsChart';
 import CompanyMap from '@/components/aerospace/CompanyMap';
 import NetworkGraph from '@/components/aerospace/NetworkGraph';
+import AdvancedFilters from '@/components/aerospace/AdvancedFilters';
+import AlertsManager from '@/components/aerospace/AlertsManager';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
@@ -27,6 +29,8 @@ export default function AerospaceScanner() {
   const [showAddCompany, setShowAddCompany] = useState(false);
   const [newCompanyName, setNewCompanyName] = useState('');
   const [isAddingCompany, setIsAddingCompany] = useState(false);
+  const [advancedFilters, setAdvancedFilters] = useState(null);
+  const [filtersForAlert, setFiltersForAlert] = useState(null);
   const queryClient = useQueryClient();
 
   const { data: companies = [], isLoading } = useQuery({
@@ -677,11 +681,74 @@ Use current internet data to provide the most accurate and recent information.`,
     }
   };
 
+  const applyAdvancedFilters = (filters) => {
+    setAdvancedFilters(filters);
+  };
+
+  const handleSaveAsAlert = (filters) => {
+    setFiltersForAlert(filters);
+  };
+
   const filteredCompanies = companies.filter(c => {
+    // Basic search and type filters
     const matchesSearch = c.company_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       c.ticker_symbol?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesType = companyTypeFilter === 'all' || c.company_type === companyTypeFilter;
-    return matchesSearch && matchesType;
+    
+    if (!matchesSearch || !matchesType) return false;
+
+    // Advanced filters
+    if (!advancedFilters) return true;
+
+    // Company type
+    if (advancedFilters.company_type !== 'all' && c.company_type !== advancedFilters.company_type) {
+      return false;
+    }
+
+    // Revenue growth
+    if (advancedFilters.revenue_growth_min) {
+      const growth = parseFloat(c.financial_highlights?.revenue_growth?.replace(/[^0-9.-]/g, '')) || 0;
+      if (growth < parseFloat(advancedFilters.revenue_growth_min)) return false;
+    }
+
+    // Employee count
+    if (advancedFilters.employee_count_min && c.employee_count < parseInt(advancedFilters.employee_count_min)) {
+      return false;
+    }
+
+    // News sentiment
+    if (advancedFilters.news_sentiment.length > 0 && c.news_sentiment) {
+      if (!advancedFilters.news_sentiment.includes(c.news_sentiment.overall_sentiment)) {
+        return false;
+      }
+    }
+
+    // R&D focus keywords
+    if (advancedFilters.rd_focus_keywords) {
+      const keywords = advancedFilters.rd_focus_keywords.toLowerCase().split(',').map(k => k.trim());
+      const rdFocus = (c.rd_focus || []).join(' ').toLowerCase();
+      if (!keywords.some(kw => rdFocus.includes(kw))) return false;
+    }
+
+    // Contract value
+    if (advancedFilters.contract_value_min) {
+      const minValue = parseFloat(advancedFilters.contract_value_min);
+      const hasLargeContract = [...(c.dod_contracts || []), ...(c.public_sector_contracts || [])].some(contract => {
+        const value = parseFloat(contract.value?.replace(/[^0-9.-]/g, '')) || 0;
+        return value >= minValue;
+      });
+      if (!hasLargeContract) return false;
+    }
+
+    // Incident severity (exclude)
+    if (advancedFilters.incident_severity.length > 0 && c.incidents?.length > 0) {
+      const hasExcludedSeverity = c.incidents.some(inc => 
+        advancedFilters.incident_severity.includes(inc.severity)
+      );
+      if (hasExcludedSeverity) return false;
+    }
+
+    return true;
   });
 
   return (
@@ -802,6 +869,16 @@ Use current internet data to provide the most accurate and recent information.`,
                 <><Plus className="w-4 h-4" /> Scan All Companies</>
               )}
             </Button>
+          </div>
+        </div>
+
+        {/* Advanced Filters & Alerts */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+          <div className="lg:col-span-2">
+            <AdvancedFilters onApply={applyAdvancedFilters} onSaveAsAlert={handleSaveAsAlert} />
+          </div>
+          <div>
+            <AlertsManager initialFilters={filtersForAlert} />
           </div>
         </div>
 
