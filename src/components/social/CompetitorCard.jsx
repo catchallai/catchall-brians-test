@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Users, TrendingUp, ExternalLink, RefreshCw, Loader2, Eye, Shield } from "lucide-react";
+import { Users, TrendingUp, ExternalLink, RefreshCw, Loader2, Eye, Shield, LayoutGrid } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
