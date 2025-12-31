@@ -782,6 +782,37 @@ Use current internet data to provide the most accurate and recent information.`,
     }
   };
 
+  const fetchLogos = async () => {
+    setIsScanning(true);
+    try {
+      for (const company of companies) {
+        if (company.logo_url) continue; // Skip if already has logo
+        
+        const response = await base44.integrations.Core.InvokeLLM({
+          prompt: `Find the official company logo URL for ${company.company_name}. Search for their official logo image URL that can be directly embedded.`,
+          add_context_from_internet: true,
+          response_json_schema: {
+            type: "object",
+            properties: {
+              logo_url: { type: "string" }
+            }
+          }
+        });
+
+        if (response.logo_url) {
+          await updateCompanyMutation.mutateAsync({
+            id: company.id,
+            data: { logo_url: response.logo_url }
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Logo fetch failed:', error);
+    } finally {
+      setIsScanning(false);
+    }
+  };
+
   const rescanCompany = async (company) => {
     try {
       const response = await base44.integrations.Core.InvokeLLM({
@@ -1075,6 +1106,18 @@ Use current internet data to provide the most accurate and recent information.`,
                   <><Loader2 className="w-4 h-4 animate-spin" /> Scanning...</>
                 ) : (
                   <><Rocket className="w-4 h-4" /> Light Jets</>
+                )}
+              </Button>
+              <Button
+                onClick={fetchLogos}
+                disabled={isScanning}
+                variant="outline"
+                className="gap-2"
+              >
+                {isScanning ? (
+                  <><Loader2 className="w-4 h-4 animate-spin" /> Fetching...</>
+                ) : (
+                  <><Building2 className="w-4 h-4" /> Fetch Logos</>
                 )}
               </Button>
               <Button
