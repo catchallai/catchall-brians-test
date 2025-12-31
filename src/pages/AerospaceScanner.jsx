@@ -253,15 +253,191 @@ Include all major public and private aerospace companies. For private companies,
     }
   };
 
+  const scanLightBusinessJets = async () => {
+    setIsScanning(true);
+    try {
+      const response = await base44.integrations.Core.InvokeLLM({
+        prompt: `Find comprehensive data on ALL aerospace companies that manufacture light business jets. Include both public and private companies.
+
+  Light business jets typically seat 5-8 passengers and include models like:
+  - Cessna Citation series (CJ, M2, etc.)
+  - Embraer Phenom series
+  - HondaJet
+  - Cirrus Vision Jet
+  - Pilatus PC-24
+  - And similar aircraft in this category
+
+  For EACH company that builds light business jets, provide:
+  - company_name
+  - company_type ("public" or "private")
+  - ticker_symbol (if public)
+  - exchange (if public)
+  - headquarters
+  - founded_year
+  - ceo
+  - employee_count (number)
+  - market_cap (for public) or valuation (for private)
+  - annual_revenue
+  - funding_total (for private companies)
+  - investors (array, for private companies)
+  - funding_rounds (array with round, amount, date, investors - for private companies)
+  - website
+  - description
+  - business_segments (array)
+  - key_products (array - list their light business jet models)
+  - competitors (array)
+  - recent_contracts (array)
+  - dod_contracts (array if applicable)
+  - public_sector_contracts (array if applicable)
+  - financial_highlights (revenue_growth, profit_margin, debt_to_equity, pe_ratio)
+  - growth_metrics (revenue_growth_3yr, revenue_growth_5yr, employee_growth_rate, market_cap_growth, backlog_growth, expansion_markets)
+  - strategic_initiatives (array)
+  - rd_focus (array)
+  - partnerships (array)
+
+  Include major manufacturers like Textron Aviation (Cessna), Embraer, Honda Aircraft, Cirrus Aircraft, Pilatus, Gulfstream (for smaller models), and any other companies in this segment.`,
+        add_context_from_internet: true,
+        response_json_schema: {
+          type: "object",
+          properties: {
+            companies: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  company_name: { type: "string" },
+                  company_type: { type: "string", enum: ["public", "private"] },
+                  ticker_symbol: { type: "string" },
+                  exchange: { type: "string" },
+                  headquarters: { type: "string" },
+                  founded_year: { type: "string" },
+                  ceo: { type: "string" },
+                  employee_count: { type: "number" },
+                  market_cap: { type: "string" },
+                  annual_revenue: { type: "string" },
+                  funding_total: { type: "string" },
+                  investors: { type: "array", items: { type: "string" } },
+                  funding_rounds: {
+                    type: "array",
+                    items: {
+                      type: "object",
+                      properties: {
+                        round: { type: "string" },
+                        amount: { type: "string" },
+                        date: { type: "string" },
+                        investors: { type: "array", items: { type: "string" } }
+                      }
+                    }
+                  },
+                  website: { type: "string" },
+                  description: { type: "string" },
+                  business_segments: { type: "array", items: { type: "string" } },
+                  key_products: { type: "array", items: { type: "string" } },
+                  competitors: { type: "array", items: { type: "string" } },
+                  recent_contracts: {
+                    type: "array",
+                    items: {
+                      type: "object",
+                      properties: {
+                        title: { type: "string" },
+                        value: { type: "string" },
+                        date: { type: "string" },
+                        description: { type: "string" }
+                      }
+                    }
+                  },
+                  dod_contracts: {
+                    type: "array",
+                    items: {
+                      type: "object",
+                      properties: {
+                        title: { type: "string" },
+                        contract_number: { type: "string" },
+                        value: { type: "string" },
+                        date: { type: "string" },
+                        agency: { type: "string" },
+                        description: { type: "string" },
+                        status: { type: "string" }
+                      }
+                    }
+                  },
+                  public_sector_contracts: {
+                    type: "array",
+                    items: {
+                      type: "object",
+                      properties: {
+                        title: { type: "string" },
+                        contract_number: { type: "string" },
+                        value: { type: "string" },
+                        date: { type: "string" },
+                        agency: { type: "string" },
+                        description: { type: "string" },
+                        status: { type: "string" }
+                      }
+                    }
+                  },
+                  financial_highlights: {
+                    type: "object",
+                    properties: {
+                      revenue_growth: { type: "string" },
+                      profit_margin: { type: "string" },
+                      debt_to_equity: { type: "string" },
+                      pe_ratio: { type: "string" }
+                    }
+                  },
+                  growth_metrics: {
+                    type: "object",
+                    properties: {
+                      revenue_growth_3yr: { type: "string" },
+                      revenue_growth_5yr: { type: "string" },
+                      employee_growth_rate: { type: "string" },
+                      market_cap_growth: { type: "string" },
+                      backlog_growth: { type: "string" },
+                      expansion_markets: { type: "array", items: { type: "string" } }
+                    }
+                  },
+                  strategic_initiatives: { type: "array", items: { type: "string" } },
+                  rd_focus: { type: "array", items: { type: "string" } },
+                  partnerships: {
+                    type: "array",
+                    items: {
+                      type: "object",
+                      properties: {
+                        partner: { type: "string" },
+                        description: { type: "string" }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      });
+
+      // Save all companies
+      for (const company of response.companies) {
+        await createCompanyMutation.mutateAsync({
+          ...company,
+          last_scanned: new Date().toISOString()
+        });
+      }
+    } catch (error) {
+      console.error('Light business jet scan failed:', error);
+    } finally {
+      setIsScanning(false);
+    }
+  };
+
   const addSpecificCompany = async () => {
     if (!newCompanyName.trim()) return;
-    
+
     setIsAddingCompany(true);
     try {
       const response = await base44.integrations.Core.InvokeLLM({
         prompt: `Search for comprehensive information about the aerospace/aviation company: "${newCompanyName}". 
-        
-Include both public AND private companies. If it's a private company, gather information from sources like Crunchbase, PitchBook, and news sources.
+
+  Include both public AND private companies. If it's a private company, gather information from sources like Crunchbase, PitchBook, and news sources.
 
 Provide detailed data including:
 - Basic info (name, type: public/private, headquarters, founded year, CEO, employees, website)
@@ -860,6 +1036,18 @@ Use current internet data to provide the most accurate and recent information.`,
             >
               <Search className="w-4 h-4" />
               Add Company
+            </Button>
+            <Button
+              onClick={scanLightBusinessJets}
+              disabled={isScanning}
+              variant="outline"
+              className="gap-2"
+            >
+              {isScanning ? (
+                <><Loader2 className="w-4 h-4 animate-spin" /> Scanning...</>
+              ) : (
+                <><Rocket className="w-4 h-4" /> Light Business Jets</>
+              )}
             </Button>
             <Button
               onClick={scanPublicAerospaceCompanies}
