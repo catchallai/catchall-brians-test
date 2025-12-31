@@ -265,18 +265,19 @@ Include all major public and private aerospace companies. For private companies,
       const response = await base44.integrations.Core.InvokeLLM({
         prompt: `Find comprehensive data on ALL aerospace companies that manufacture light business jets. Include both public and private companies.
 
-  Light business jets typically seat 5-8 passengers and include models like:
-  - Cessna Citation series (CJ, M2, etc.)
-  - Embraer Phenom series
-  - HondaJet
-  - Cirrus Vision Jet
-  - Pilatus PC-24
-  - And similar aircraft in this category
+      Light business jets typically seat 5-8 passengers and include models like:
+      - Cessna Citation series (CJ, M2, etc.)
+      - Embraer Phenom series
+      - HondaJet
+      - Cirrus Vision Jet
+      - Pilatus PC-24
+      - And similar aircraft in this category
 
-  For EACH company that builds light business jets, provide:
-  - company_name
-  - company_type ("public" or "private")
-  - ticker_symbol (if public)
+      For EACH company that builds light business jets, provide:
+      - company_name
+      - logo_url (company logo image URL)
+      - company_type ("public" or "private")
+      - ticker_symbol (if public)
   - exchange (if public)
   - headquarters
   - founded_year
@@ -464,6 +465,7 @@ If this is NOT an aerospace/aviation company, return is_aerospace: false.`,
             properties: {
               is_aerospace: { type: "boolean" },
               company_name: { type: "string" },
+              logo_url: { type: "string" },
               company_type: { type: "string", enum: ["public", "private"] },
               ticker_symbol: { type: "string" },
               exchange: { type: "string" },
@@ -531,7 +533,7 @@ If this is NOT an aerospace/aviation company, return is_aerospace: false.`,
   Include both public AND private companies. If it's a private company, gather information from sources like Crunchbase, PitchBook, and news sources.
 
 Provide detailed data including:
-- Basic info (name, type: public/private, headquarters, founded year, CEO, employees, website)
+- Basic info (name, logo_url, type: public/private, headquarters, founded year, CEO, employees, website)
 - Financial data (market cap/valuation, revenue, funding details)
 - For PRIVATE companies specifically include: total funding, key investors, funding rounds with dates and amounts
 - Business segments, products, competitors
