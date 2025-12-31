@@ -74,6 +74,7 @@ Include:
 
 For each company provide:
 - company_name
+- logo_url (company logo image URL - search for official logo)
 - company_type ("public" or "private")
 - ticker_symbol (if public)
 - exchange (NYSE, NASDAQ, etc., if public)
@@ -542,6 +543,7 @@ Provide detailed data including:
           type: "object",
           properties: {
             company_name: { type: "string" },
+            logo_url: { type: "string" },
             company_type: { type: "string", enum: ["public", "private"] },
             ticker_symbol: { type: "string" },
             exchange: { type: "string" },
@@ -1235,6 +1237,14 @@ Use current internet data to provide the most accurate and recent information.`,
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2">
+                        {company.logo_url && (
+                          <img 
+                            src={company.logo_url} 
+                            alt={company.company_name}
+                            className="w-8 h-8 object-contain rounded"
+                            onError={(e) => e.target.style.display = 'none'}
+                          />
+                        )}
                         <CardTitle className="text-xl">{company.company_name}</CardTitle>
                         {company.company_type === 'private' ? (
                           <Badge className="bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300">
