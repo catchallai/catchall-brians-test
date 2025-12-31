@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Filter, X, Save } from "lucide-react";
-import { Checkbox } from "@/components/ui/checkbox";
 
 export default function AdvancedFilters({ onApply, onSaveAsAlert }) {
   const [filters, setFilters] = useState({
@@ -66,25 +65,30 @@ export default function AdvancedFilters({ onApply, onSaveAsAlert }) {
   }).length;
 
   return (
-    <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg">
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <CardTitle className="flex items-center gap-2">
-            <Filter className="w-5 h-5 text-violet-500" />
-            Advanced Filters
-            {activeFilterCount > 0 && (
-              <Badge className="bg-violet-600 text-white">{activeFilterCount} active</Badge>
-            )}
-          </CardTitle>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setShowFilters(!showFilters)}
-          >
-            {showFilters ? 'Hide' : 'Show'}
-          </Button>
-        </div>
-      </CardHeader>
+    <>
+      <Button
+        variant="outline"
+        onClick={() => setShowFilters(!showFilters)}
+        className="w-full bg-white/80 backdrop-blur-sm border-0 shadow-sm gap-2 justify-start"
+      >
+        <Filter className="w-4 h-4" />
+        Advanced Filters
+        {activeFilterCount > 0 && (
+          <Badge className="ml-auto bg-violet-600 text-white">{activeFilterCount}</Badge>
+        )}
+      </Button>
+
+      <Dialog open={showFilters} onOpenChange={setShowFilters}>
+        <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Filter className="w-5 h-5 text-violet-500" />
+              Advanced Filters
+            </DialogTitle>
+            <DialogDescription>
+              Filter companies by specific criteria
+            </DialogDescription>
+          </DialogHeader>
 
           <div className="space-y-4 py-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -205,14 +209,12 @@ export default function AdvancedFilters({ onApply, onSaveAsAlert }) {
             </div>
           </div>
 
-          {/* Actions */}
-          <div className="flex gap-2 pt-4 border-t">
-            <Button onClick={handleApply} className="flex-1">
-              Apply Filters
-            </Button>
+          </div>
+
+          <DialogFooter className="flex gap-2">
             <Button variant="outline" onClick={handleClear}>
               <X className="w-4 h-4 mr-2" />
-              Clear
+              Clear All
             </Button>
             {activeFilterCount > 0 && (
               <Button variant="outline" onClick={() => onSaveAsAlert(filters)}>
@@ -220,9 +222,12 @@ export default function AdvancedFilters({ onApply, onSaveAsAlert }) {
                 Save as Alert
               </Button>
             )}
-          </div>
-        </CardContent>
-      )}
-    </Card>
+            <Button onClick={() => { handleApply(); setShowFilters(false); }}>
+              Apply Filters
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
