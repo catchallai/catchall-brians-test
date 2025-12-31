@@ -785,27 +785,38 @@ Use current internet data to provide the most accurate and recent information.`,
   const fetchLogos = async () => {
     setIsScanning(true);
     try {
+      let updated = 0;
       for (const company of companies) {
         if (company.logo_url) continue; // Skip if already has logo
         
-        const response = await base44.integrations.Core.InvokeLLM({
-          prompt: `Find the official company logo URL for ${company.company_name}. Search for their official logo image URL that can be directly embedded.`,
-          add_context_from_internet: true,
-          response_json_schema: {
-            type: "object",
-            properties: {
-              logo_url: { type: "string" }
-            }
-          }
-        });
+        try {
+          const response = await base44.integrations.Core.InvokeLLM({
+            prompt: `Find the official company logo image URL for ${company.company_name}. 
+            
+Search for their official website logo or brand logo. Return a direct image URL (ending in .png, .jpg, .svg, etc.) that can be embedded in an <img> tag.
 
-        if (response.logo_url) {
-          await updateCompanyMutation.mutateAsync({
-            id: company.id,
-            data: { logo_url: response.logo_url }
+For well-known companies like Boeing, Lockheed Martin, SpaceX, etc., find their official brand logo URL.`,
+            add_context_from_internet: true,
+            response_json_schema: {
+              type: "object",
+              properties: {
+                logo_url: { type: "string" }
+              }
+            }
           });
+
+          if (response.logo_url) {
+            await updateCompanyMutation.mutateAsync({
+              id: company.id,
+              data: { logo_url: response.logo_url }
+            });
+            updated++;
+          }
+        } catch (err) {
+          console.error(`Failed to fetch logo for ${company.company_name}:`, err);
         }
       }
+      console.log(`Updated ${updated} company logos`);
     } catch (error) {
       console.error('Logo fetch failed:', error);
     } finally {
