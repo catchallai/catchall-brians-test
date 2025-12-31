@@ -41,6 +41,11 @@ export default function AerospaceScanner() {
     queryFn: () => base44.entities.AerospaceCompany.list('-last_scanned', 100),
   });
 
+  const { data: competitors = [] } = useQuery({
+    queryKey: ['competitors'],
+    queryFn: () => base44.entities.Competitor.list('-created_date', 50),
+  });
+
   const createCompanyMutation = useMutation({
     mutationFn: (data) => base44.entities.AerospaceCompany.create(data),
     onSuccess: () => {
@@ -424,6 +429,91 @@ Include all major public and private aerospace companies. For private companies,
       }
     } catch (error) {
       console.error('Light business jet scan failed:', error);
+    } finally {
+      setIsScanning(false);
+    }
+  };
+
+  const importFromCompetitors = async () => {
+    if (competitors.length === 0) return;
+
+    setIsScanning(true);
+    try {
+      let imported = 0;
+      const existingNames = companies.map(c => c.company_name.toLowerCase());
+
+      for (const competitor of competitors) {
+        if (existingNames.includes(competitor.name.toLowerCase())) continue;
+
+        const response = await base44.integrations.Core.InvokeLLM({
+          prompt: `Analyze if "${competitor.name}" (website: ${competitor.website || 'unknown'}) is an aerospace or aviation company. 
+          
+If yes, provide comprehensive aerospace company data including:
+- Basic info (name, type: public/private, headquarters, founded, CEO, employees, website)
+- Financial data (market cap/valuation, revenue, funding details for private companies)
+- Business segments, products, competitors
+- Recent contracts (DoD and public sector)
+- Growth metrics, strategic initiatives, R&D focus
+- Partnerships
+
+If this is NOT an aerospace/aviation company, return is_aerospace: false.`,
+          add_context_from_internet: true,
+          response_json_schema: {
+            type: "object",
+            properties: {
+              is_aerospace: { type: "boolean" },
+              company_name: { type: "string" },
+              company_type: { type: "string", enum: ["public", "private"] },
+              ticker_symbol: { type: "string" },
+              exchange: { type: "string" },
+              headquarters: { type: "string" },
+              founded_year: { type: "string" },
+              ceo: { type: "string" },
+              employee_count: { type: "number" },
+              market_cap: { type: "string" },
+              annual_revenue: { type: "string" },
+              funding_total: { type: "string" },
+              investors: { type: "array", items: { type: "string" } },
+              funding_rounds: {
+                type: "array",
+                items: {
+                  type: "object",
+                  properties: {
+                    round: { type: "string" },
+                    amount: { type: "string" },
+                    date: { type: "string" },
+                    investors: { type: "array", items: { type: "string" } }
+                  }
+                }
+              },
+              website: { type: "string" },
+              description: { type: "string" },
+              business_segments: { type: "array", items: { type: "string" } },
+              key_products: { type: "array", items: { type: "string" } },
+              competitors: { type: "array", items: { type: "string" } },
+              dod_contracts: { type: "array", items: { type: "object" } },
+              public_sector_contracts: { type: "array", items: { type: "object" } },
+              financial_highlights: { type: "object" },
+              growth_metrics: { type: "object" },
+              strategic_initiatives: { type: "array", items: { type: "string" } },
+              rd_focus: { type: "array", items: { type: "string" } },
+              partnerships: { type: "array", items: { type: "object" } }
+            }
+          }
+        });
+
+        if (response.is_aerospace) {
+          await createCompanyMutation.mutateAsync({
+            ...response,
+            last_scanned: new Date().toISOString()
+          });
+          imported++;
+        }
+      }
+
+      console.log(`Imported ${imported} aerospace companies from competitors`);
+    } catch (error) {
+      console.error('Import failed:', error);
     } finally {
       setIsScanning(false);
     }
@@ -957,6 +1047,18 @@ Use current internet data to provide the most accurate and recent information.`,
               >
                 <Search className="w-4 h-4" />
                 Add Company
+              </Button>
+              <Button
+                onClick={importFromCompetitors}
+                disabled={isScanning}
+                variant="outline"
+                className="gap-2"
+              >
+                {isScanning ? (
+                  <><Loader2 className="w-4 h-4 animate-spin" /> Importing...</>
+                ) : (
+                  <><Users className="w-4 h-4" /> Import Competitors</>
+                )}
               </Button>
               <Button
                 onClick={scanLightBusinessJets}

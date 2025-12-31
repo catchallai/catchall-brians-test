@@ -18,6 +18,7 @@ import CustomerSuccess from './pages/CustomerSuccess';
 import CustomerSuccessDashboard from './pages/CustomerSuccessDashboard';
 import Dashboard from './pages/Dashboard';
 import Deals from './pages/Deals';
+import DocuTrace from './pages/DocuTrace';
 import EmailMarketing from './pages/EmailMarketing';
 import EquipmentInventory from './pages/EquipmentInventory';
 import HashtagManager from './pages/HashtagManager';
@@ -55,7 +56,6 @@ import UserProfile from './pages/UserProfile';
 import UserSettings from './pages/UserSettings';
 import VisitorProfiles from './pages/VisitorProfiles';
 import WebCrawler from './pages/WebCrawler';
-import DocuTrace from './pages/DocuTrace';
 import __Layout from './Layout.jsx';
 
 
@@ -80,6 +80,7 @@ export const PAGES = {
     "CustomerSuccessDashboard": CustomerSuccessDashboard,
     "Dashboard": Dashboard,
     "Deals": Deals,
+    "DocuTrace": DocuTrace,
     "EmailMarketing": EmailMarketing,
     "EquipmentInventory": EquipmentInventory,
     "HashtagManager": HashtagManager,
@@ -117,7 +118,6 @@ export const PAGES = {
     "UserSettings": UserSettings,
     "VisitorProfiles": VisitorProfiles,
     "WebCrawler": WebCrawler,
-    "DocuTrace": DocuTrace,
 }
 
 export const pagesConfig = {
