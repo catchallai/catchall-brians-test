@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Bell, Plus, Trash2, Edit, Mail } from "lucide-react";
+import { Bell, Plus, Trash2, Edit, Mail, Play, X } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 
 export default function AlertsManager({ initialFilters = null }) {
@@ -19,8 +19,10 @@ export default function AlertsManager({ initialFilters = null }) {
     description: '',
     criteria: initialFilters || {},
     trigger_events: [],
-    notification_channels: ['in_app']
+    notification_channels: ['in_app'],
+    monitored_companies: []
   });
+  const [newKeyword, setNewKeyword] = useState('');
   const queryClient = useQueryClient();
 
   const { data: alerts = [] } = useQuery({
@@ -66,8 +68,10 @@ export default function AlertsManager({ initialFilters = null }) {
       description: '',
       criteria: {},
       trigger_events: [],
-      notification_channels: ['in_app']
+      notification_channels: ['in_app'],
+      monitored_companies: []
     });
+    setNewKeyword('');
   };
 
   const handleCreate = () => {
@@ -81,7 +85,8 @@ export default function AlertsManager({ initialFilters = null }) {
       description: alert.description || '',
       criteria: alert.criteria || {},
       trigger_events: alert.trigger_events || [],
-      notification_channels: alert.notification_channels || ['in_app']
+      notification_channels: alert.notification_channels || ['in_app'],
+      monitored_companies: alert.monitored_companies || []
     });
     setShowCreateDialog(true);
   };
@@ -111,12 +116,43 @@ export default function AlertsManager({ initialFilters = null }) {
     }));
   };
 
+  const addKeyword = () => {
+    if (!newKeyword.trim()) return;
+    const keywords = alertForm.criteria.keywords || [];
+    setAlertForm(prev => ({
+      ...prev,
+      criteria: {
+        ...prev.criteria,
+        keywords: [...keywords, newKeyword.trim()]
+      }
+    }));
+    setNewKeyword('');
+  };
+
+  const removeKeyword = (keyword) => {
+    setAlertForm(prev => ({
+      ...prev,
+      criteria: {
+        ...prev.criteria,
+        keywords: (prev.criteria.keywords || []).filter(k => k !== keyword)
+      }
+    }));
+  };
+
   React.useEffect(() => {
     if (initialFilters && Object.keys(initialFilters).length > 0) {
       setAlertForm(prev => ({ ...prev, criteria: initialFilters }));
       setShowCreateDialog(true);
     }
   }, [initialFilters]);
+
+  const checkAlertsMutation = useMutation({
+    mutationFn: () => base44.functions.invoke('checkAerospaceAlerts', {}),
+    onSuccess: (response) => {
+      queryClient.invalidateQueries({ queryKey: ['aerospace-alerts'] });
+      alert(`Alert check complete! ${response.data.notifications_sent} notifications sent.`);
+    },
+  });
 
   const eventLabels = {
     new_company: 'New Company Added',
@@ -136,10 +172,22 @@ export default function AlertsManager({ initialFilters = null }) {
             Active Alerts
             <Badge>{alerts.filter(a => a.is_active).length}</Badge>
           </CardTitle>
-          <Button onClick={() => setShowCreateDialog(true)} size="sm" className="gap-2">
-            <Plus className="w-4 h-4" />
-            Create Alert
-          </Button>
+          <div className="flex gap-2">
+            <Button 
+              onClick={() => checkAlertsMutation.mutate()} 
+              variant="outline" 
+              size="sm" 
+              className="gap-2"
+              disabled={checkAlertsMutation.isPending}
+            >
+              <Play className="w-3 h-3" />
+              Check Now
+            </Button>
+            <Button onClick={() => setShowCreateDialog(true)} size="sm" className="gap-2">
+              <Plus className="w-4 h-4" />
+              Create Alert
+            </Button>
+          </div>
         </div>
       </CardHeader>
 
@@ -271,6 +319,65 @@ export default function AlertsManager({ initialFilters = null }) {
                 </div>
               </div>
             </div>
+
+            {/* Keywords for monitoring */}
+            <div>
+              <Label>Keywords to Monitor</Label>
+              <div className="flex gap-2 mb-2">
+                <Input
+                  placeholder="e.g., acquisition, partnership, IPO"
+                  value={newKeyword}
+                  onChange={(e) => setNewKeyword(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      addKeyword();
+                    }
+                  }}
+                />
+                <Button type="button" onClick={addKeyword} size="sm">
+                  <Plus className="w-4 h-4" />
+                </Button>
+              </div>
+              {alertForm.criteria.keywords?.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {alertForm.criteria.keywords.map((kw, i) => (
+                    <Badge key={i} variant="secondary" className="gap-1">
+                      {kw}
+                      <button
+                        type="button"
+                        onClick={() => removeKeyword(kw)}
+                        className="ml-1 hover:text-red-500"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </Badge>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Sentiment change threshold */}
+            {alertForm.trigger_events.includes('sentiment_change') && (
+              <div>
+                <Label>Sentiment Change Threshold</Label>
+                <Input
+                  type="number"
+                  placeholder="20"
+                  value={alertForm.criteria.sentiment_change_threshold || ''}
+                  onChange={(e) => setAlertForm(prev => ({
+                    ...prev,
+                    criteria: {
+                      ...prev.criteria,
+                      sentiment_change_threshold: parseInt(e.target.value) || 20
+                    }
+                  }))}
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Alert when sentiment score changes by this amount
+                </p>
+              </div>
+            )}
 
             {Object.keys(alertForm.criteria).length > 0 && (
               <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg">
