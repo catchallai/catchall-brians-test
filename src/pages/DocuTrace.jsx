@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { 
   FileText, Upload, Eye, Download, Link2, Copy, Clock, 
   Calendar, BarChart3, Activity, Loader2, Plus, AlertCircle,
-  MapPin, Monitor, CheckCircle
+  MapPin, Monitor, CheckCircle, Sparkles, User
 } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -26,7 +26,8 @@ export default function DocuTrace() {
     description: '',
     contact_id: '',
     deal_id: '',
-    expires_at: ''
+    expires_at: '',
+    review_date: ''
   });
   const [copiedCode, setCopiedCode] = useState(null);
   const queryClient = useQueryClient();
@@ -57,13 +58,38 @@ export default function DocuTrace() {
       // Create share link
       const shareLink = `${window.location.origin}/api/functions/trackDocumentAccess?code=${trackingCode}&action=view`;
       
+      // AI-powered document analysis
+      const aiAnalysis = await base44.integrations.Core.InvokeLLM({
+        prompt: `Analyze this document: "${docForm.name}" - ${docForm.description || 'No description provided'}
+        
+Provide:
+1. A concise 2-3 sentence summary of what this document likely contains
+2. 5-8 relevant keywords or topics`,
+        response_json_schema: {
+          type: "object",
+          properties: {
+            summary: { type: "string" },
+            keywords: { type: "array", items: { type: "string" } }
+          }
+        }
+      });
+      
       // Create document record
       return base44.entities.TrackedDocument.create({
         ...docForm,
         file_url,
         tracking_code: trackingCode,
         share_link: shareLink,
-        status: 'active'
+        status: 'active',
+        ai_summary: aiAnalysis.summary,
+        keywords: aiAnalysis.keywords,
+        versions: [{
+          version_number: 1,
+          file_url,
+          uploaded_at: new Date().toISOString(),
+          uploaded_by: 'User',
+          changes_description: 'Initial version'
+        }]
       });
     },
     onSuccess: () => {
@@ -75,7 +101,8 @@ export default function DocuTrace() {
         description: '',
         contact_id: '',
         deal_id: '',
-        expires_at: ''
+        expires_at: '',
+        review_date: ''
       });
     }
   });
@@ -213,9 +240,30 @@ export default function DocuTrace() {
 
                 <CardContent>
                   {doc.description && (
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
                       {doc.description}
                     </p>
+                  )}
+
+                  {/* AI Summary */}
+                  {doc.ai_summary && (
+                    <div className="bg-blue-50 dark:bg-blue-900/20 p-2 rounded-lg mb-3">
+                      <p className="text-xs text-blue-900 dark:text-blue-200 flex items-start gap-1">
+                        <Sparkles className="w-3 h-3 mt-0.5 flex-shrink-0" />
+                        {doc.ai_summary}
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Keywords */}
+                  {doc.keywords?.length > 0 && (
+                    <div className="flex flex-wrap gap-1 mb-3">
+                      {doc.keywords.slice(0, 4).map((keyword, idx) => (
+                        <Badge key={idx} variant="outline" className="text-xs">
+                          {keyword}
+                        </Badge>
+                      ))}
+                    </div>
                   )}
 
                   {/* Stats */}
@@ -251,9 +299,25 @@ export default function DocuTrace() {
 
                   {/* Expiration */}
                   {doc.expires_at && (
-                    <div className="flex items-center gap-2 text-xs text-amber-600 dark:text-amber-400 mb-3">
+                    <div className="flex items-center gap-2 text-xs text-amber-600 dark:text-amber-400 mb-2">
                       <AlertCircle className="w-3 h-3" />
                       Expires {format(new Date(doc.expires_at), 'MMM d, yyyy')}
+                    </div>
+                  )}
+
+                  {/* Review Date */}
+                  {doc.review_date && (
+                    <div className="flex items-center gap-2 text-xs text-indigo-600 dark:text-indigo-400 mb-2">
+                      <Calendar className="w-3 h-3" />
+                      Review on {format(new Date(doc.review_date), 'MMM d, yyyy')}
+                    </div>
+                  )}
+
+                  {/* Version */}
+                  {doc.versions?.length > 1 && (
+                    <div className="flex items-center gap-2 text-xs text-gray-500 mb-3">
+                      <FileText className="w-3 h-3" />
+                      Version {doc.versions.length}
                     </div>
                   )}
 
@@ -365,6 +429,16 @@ export default function DocuTrace() {
                   onChange={(e) => setDocForm({...docForm, expires_at: e.target.value})}
                 />
               </div>
+
+              <div>
+                <label className="text-sm font-medium mb-2 block">Review Date (Optional)</label>
+                <Input
+                  type="date"
+                  value={docForm.review_date}
+                  onChange={(e) => setDocForm({...docForm, review_date: e.target.value})}
+                />
+                <p className="text-xs text-gray-500 mt-1">Set a reminder to review this document</p>
+              </div>
             </div>
 
             <DialogFooter>
@@ -437,6 +511,37 @@ export default function DocuTrace() {
                     </Button>
                   </div>
                 </div>
+
+                {/* Version History */}
+                {selectedDoc.versions?.length > 0 && (
+                  <div>
+                    <h4 className="font-semibold mb-3 flex items-center gap-2">
+                      <FileText className="w-4 h-4" />
+                      Version History
+                    </h4>
+                    <div className="space-y-2 mb-6">
+                      {selectedDoc.versions.slice().reverse().map((version, idx) => (
+                        <div key={idx} className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg text-sm">
+                          <div className="flex items-center justify-between mb-1">
+                            <Badge className="bg-blue-600 text-white">v{version.version_number}</Badge>
+                            <span className="text-xs text-gray-500">
+                              {format(new Date(version.uploaded_at), 'MMM d, h:mm a')}
+                            </span>
+                          </div>
+                          <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">
+                            {version.changes_description}
+                          </p>
+                          {version.uploaded_by && (
+                            <div className="flex items-center gap-1 text-xs text-gray-500">
+                              <User className="w-3 h-3" />
+                              {version.uploaded_by}
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
                 {/* Access Logs */}
                 <div>
