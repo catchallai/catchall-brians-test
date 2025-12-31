@@ -934,143 +934,155 @@ Use current internet data to provide the most accurate and recent information.`,
     <div className="min-h-screen p-6 bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-slate-950 dark:via-slate-900 dark:to-indigo-950">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center">
-              <Rocket className="w-6 h-6 text-white" />
+        <div className="mb-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center">
+                <Rocket className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+                  Aerospace Company Intelligence
+                </h1>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  Scan and analyze public and private aerospace companies
+                </p>
+              </div>
             </div>
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-                Aerospace Company Intelligence
-              </h1>
-              <p className="text-gray-600 dark:text-gray-400">
-                Scan and analyze public and private aerospace companies
-              </p>
+            <div className="flex gap-2">
+              <Button
+                onClick={() => setShowAddCompany(true)}
+                variant="outline"
+                className="gap-2"
+              >
+                <Search className="w-4 h-4" />
+                Add Company
+              </Button>
+              <Button
+                onClick={scanLightBusinessJets}
+                disabled={isScanning}
+                variant="outline"
+                className="gap-2"
+              >
+                {isScanning ? (
+                  <><Loader2 className="w-4 h-4 animate-spin" /> Scanning...</>
+                ) : (
+                  <><Rocket className="w-4 h-4" /> Light Jets</>
+                )}
+              </Button>
+              <Button
+                onClick={scanPublicAerospaceCompanies}
+                disabled={isScanning}
+                className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 gap-2"
+              >
+                {isScanning ? (
+                  <><Loader2 className="w-4 h-4 animate-spin" /> Scanning...</>
+                ) : (
+                  <><Plus className="w-4 h-4" /> Scan All</>
+                )}
+              </Button>
             </div>
           </div>
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-          <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-500">Total Companies</p>
-                  <p className="text-2xl font-bold text-gray-900 dark:text-white">{companies.length}</p>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+          <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-sm hover:shadow-md transition-shadow">
+            <CardContent className="p-3">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+                  <Building2 className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                 </div>
-                <Building2 className="w-8 h-8 text-blue-500" />
+                <div>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Total Companies</p>
+                  <p className="text-xl font-bold text-gray-900 dark:text-white">{companies.length}</p>
+                </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
+          <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-sm hover:shadow-md transition-shadow">
+            <CardContent className="p-3">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center">
+                  <Users className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                </div>
                 <div>
-                  <p className="text-sm text-gray-500">Total Employees</p>
-                  <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                    {companies.reduce((sum, c) => sum + (c.employee_count || 0), 0).toLocaleString()}
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Total Employees</p>
+                  <p className="text-xl font-bold text-gray-900 dark:text-white">
+                    {(companies.reduce((sum, c) => sum + (c.employee_count || 0), 0) / 1000).toFixed(0)}k
                   </p>
                 </div>
-                <Users className="w-8 h-8 text-emerald-500" />
               </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
+          <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-sm hover:shadow-md transition-shadow">
+            <CardContent className="p-3">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-lg bg-violet-100 dark:bg-violet-900/30 flex items-center justify-center">
+                  <TrendingUp className="w-5 h-5 text-violet-600 dark:text-violet-400" />
+                </div>
                 <div>
-                  <p className="text-sm text-gray-500">Public / Private</p>
-                  <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Public / Private</p>
+                  <p className="text-xl font-bold text-gray-900 dark:text-white">
                     {companies.filter(c => c.company_type === 'public').length} / {companies.filter(c => c.company_type === 'private').length}
                   </p>
                 </div>
-                <TrendingUp className="w-8 h-8 text-violet-500" />
               </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
+          <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-sm hover:shadow-md transition-shadow">
+            <CardContent className="p-3">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-lg bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
+                  <RefreshCw className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+                </div>
                 <div>
-                  <p className="text-sm text-gray-500">Last Scanned</p>
-                  <p className="text-sm font-medium text-gray-900 dark:text-white">
-                    {companies[0]?.last_scanned ? new Date(companies[0].last_scanned).toLocaleDateString() : 'Never'}
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Last Scanned</p>
+                  <p className="text-sm font-semibold text-gray-900 dark:text-white">
+                    {companies[0]?.last_scanned ? new Date(companies[0].last_scanned).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : 'Never'}
                   </p>
                 </div>
-                <RefreshCw className="w-8 h-8 text-amber-500" />
               </div>
             </CardContent>
           </Card>
         </div>
 
-        {/* Actions */}
-        <div className="flex gap-3 mb-6">
-          <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-            <Input
-              placeholder="Search companies or ticker symbols..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 bg-white/80 backdrop-blur-sm"
-            />
+        {/* Search & Filters */}
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 mb-6">
+          <div className="lg:col-span-2">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <Input
+                placeholder="Search companies or ticker symbols..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10 bg-white/80 backdrop-blur-sm border-0 shadow-sm"
+              />
+            </div>
           </div>
-          <Select value={companyTypeFilter} onValueChange={setCompanyTypeFilter}>
-            <SelectTrigger className="w-40 bg-white/80 backdrop-blur-sm">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Companies</SelectItem>
-              <SelectItem value="public">Public Only</SelectItem>
-              <SelectItem value="private">Private Only</SelectItem>
-            </SelectContent>
-          </Select>
-          <div className="flex gap-2">
-            <Button
-              onClick={() => setShowAddCompany(true)}
-              variant="outline"
-              className="gap-2"
-            >
-              <Search className="w-4 h-4" />
-              Add Company
-            </Button>
-            <Button
-              onClick={scanLightBusinessJets}
-              disabled={isScanning}
-              variant="outline"
-              className="gap-2"
-            >
-              {isScanning ? (
-                <><Loader2 className="w-4 h-4 animate-spin" /> Scanning...</>
-              ) : (
-                <><Rocket className="w-4 h-4" /> Light Business Jets</>
-              )}
-            </Button>
-            <Button
-              onClick={scanPublicAerospaceCompanies}
-              disabled={isScanning}
-              className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 gap-2"
-            >
-              {isScanning ? (
-                <><Loader2 className="w-4 h-4 animate-spin" /> Scanning...</>
-              ) : (
-                <><Plus className="w-4 h-4" /> Scan All Companies</>
-              )}
-            </Button>
+          <div>
+            <Select value={companyTypeFilter} onValueChange={setCompanyTypeFilter}>
+              <SelectTrigger className="bg-white/80 backdrop-blur-sm border-0 shadow-sm">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Companies</SelectItem>
+                <SelectItem value="public">Public Only</SelectItem>
+                <SelectItem value="private">Private Only</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <AdvancedFilters onApply={applyAdvancedFilters} onSaveAsAlert={handleSaveAsAlert} />
           </div>
         </div>
 
-        {/* Advanced Filters & Alerts */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-          <div className="lg:col-span-2">
-            <AdvancedFilters onApply={applyAdvancedFilters} onSaveAsAlert={handleSaveAsAlert} />
-          </div>
-          <div>
-            <AlertsManager initialFilters={filtersForAlert} />
-          </div>
+        {/* Alerts */}
+        <div className="mb-6">
+          <AlertsManager initialFilters={filtersForAlert} />
         </div>
 
         {/* Visualizations */}

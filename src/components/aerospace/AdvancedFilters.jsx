@@ -86,8 +86,7 @@ export default function AdvancedFilters({ onApply, onSaveAsAlert }) {
         </div>
       </CardHeader>
 
-      {showFilters && (
-        <CardContent className="space-y-4">
+          <div className="space-y-4 py-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Company Type */}
             <div>
