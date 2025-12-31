@@ -91,7 +91,7 @@ export default function AdvancedFilters({ onApply, onSaveAsAlert }) {
           </DialogHeader>
 
           <div className="space-y-4 py-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Company Type */}
             <div>
               <Label>Company Type</Label>
@@ -148,68 +148,67 @@ export default function AdvancedFilters({ onApply, onSaveAsAlert }) {
                 onChange={(e) => setFilters(prev => ({ ...prev, rd_focus_keywords: e.target.value }))}
               />
             </div>
-          </div>
-
-          {/* News Sentiment */}
-          <div>
-            <Label className="mb-2 block">News Sentiment</Label>
-            <div className="flex gap-2">
-              <Button
-                variant={filters.news_sentiment.includes('positive') ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => toggleSentiment('positive')}
-                className={filters.news_sentiment.includes('positive') ? 'bg-green-600' : ''}
-              >
-                Positive
-              </Button>
-              <Button
-                variant={filters.news_sentiment.includes('neutral') ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => toggleSentiment('neutral')}
-                className={filters.news_sentiment.includes('neutral') ? 'bg-gray-600' : ''}
-              >
-                Neutral
-              </Button>
-              <Button
-                variant={filters.news_sentiment.includes('negative') ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => toggleSentiment('negative')}
-                className={filters.news_sentiment.includes('negative') ? 'bg-red-600' : ''}
-              >
-                Negative
-              </Button>
             </div>
-          </div>
 
-          {/* Incident Severity */}
-          <div>
-            <Label className="mb-2 block">Incident Severity (exclude)</Label>
-            <div className="flex gap-2">
-              <Button
-                variant={filters.incident_severity.includes('low') ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => toggleSeverity('low')}
-              >
-                Low
-              </Button>
-              <Button
-                variant={filters.incident_severity.includes('medium') ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => toggleSeverity('medium')}
-              >
-                Medium
-              </Button>
-              <Button
-                variant={filters.incident_severity.includes('high') ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => toggleSeverity('high')}
-              >
-                High
-              </Button>
+            {/* News Sentiment */}
+            <div>
+              <Label className="mb-2 block">News Sentiment</Label>
+              <div className="flex gap-2">
+                <Button
+                  variant={filters.news_sentiment.includes('positive') ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => toggleSentiment('positive')}
+                  className={filters.news_sentiment.includes('positive') ? 'bg-green-600' : ''}
+                >
+                  Positive
+                </Button>
+                <Button
+                  variant={filters.news_sentiment.includes('neutral') ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => toggleSentiment('neutral')}
+                  className={filters.news_sentiment.includes('neutral') ? 'bg-gray-600' : ''}
+                >
+                  Neutral
+                </Button>
+                <Button
+                  variant={filters.news_sentiment.includes('negative') ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => toggleSentiment('negative')}
+                  className={filters.news_sentiment.includes('negative') ? 'bg-red-600' : ''}
+                >
+                  Negative
+                </Button>
+              </div>
             </div>
-          </div>
 
-          </div>
+            {/* Incident Severity */}
+            <div>
+              <Label className="mb-2 block">Incident Severity (exclude)</Label>
+              <div className="flex gap-2">
+                <Button
+                  variant={filters.incident_severity.includes('low') ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => toggleSeverity('low')}
+                >
+                  Low
+                </Button>
+                <Button
+                  variant={filters.incident_severity.includes('medium') ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => toggleSeverity('medium')}
+                >
+                  Medium
+                </Button>
+                <Button
+                  variant={filters.incident_severity.includes('high') ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => toggleSeverity('high')}
+                >
+                  High
+                </Button>
+              </div>
+            </div>
+            </div>
 
           <DialogFooter className="flex gap-2">
             <Button variant="outline" onClick={handleClear}>
