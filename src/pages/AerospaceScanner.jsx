@@ -18,6 +18,9 @@ import CompanyMap from '@/components/aerospace/CompanyMap';
 import NetworkGraph from '@/components/aerospace/NetworkGraph';
 import AdvancedFilters from '@/components/aerospace/AdvancedFilters';
 import AlertsManager from '@/components/aerospace/AlertsManager';
+import SWOTAnalysis from '@/components/aerospace/SWOTAnalysis';
+import CompetitorLandscape from '@/components/aerospace/CompetitorLandscape';
+import TrendCharts from '@/components/aerospace/TrendCharts';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
@@ -1536,14 +1539,23 @@ Use current internet data to provide the most accurate and recent information.`,
                           </div>
                         </div>
                       )}
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        )}
-      </div>
+
+                      {/* Trend Charts */}
+                      <TrendCharts company={company} />
+
+                      {/* SWOT Analysis */}
+                      <SWOTAnalysis company={company} />
+
+                      {/* Competitive Landscape */}
+                      <CompetitorLandscape company={company} allCompanies={companies} />
+                      </div>
+                      )}
+                      </CardContent>
+                      </Card>
+                      ))}
+                      </div>
+                      )}
+                      </div>
 
       {/* Add Company Dialog */}
       <Dialog open={showAddCompany} onOpenChange={setShowAddCompany}>
