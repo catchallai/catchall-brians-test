@@ -313,6 +313,7 @@ Include all major public and private aerospace companies. For private companies,
                 type: "object",
                 properties: {
                   company_name: { type: "string" },
+                  logo_url: { type: "string" },
                   company_type: { type: "string", enum: ["public", "private"] },
                   ticker_symbol: { type: "string" },
                   exchange: { type: "string" },
