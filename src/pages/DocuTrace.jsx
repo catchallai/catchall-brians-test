@@ -14,6 +14,7 @@ import {
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import EmptyState from '@/components/ui/EmptyState';
+import AlertsManager from '@/components/docutrace/AlertsManager';
 import { format } from 'date-fns';
 
 export default function DocuTrace() {
@@ -174,6 +175,11 @@ export default function DocuTrace() {
               </div>
             </CardContent>
           </Card>
+        </div>
+
+        {/* Alerts Manager */}
+        <div className="mb-6">
+          <AlertsManager />
         </div>
 
         {/* Documents List */}
