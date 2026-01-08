@@ -98,26 +98,26 @@ const calculateAILeadScore = (visitor) => {
 // Generate visitors data
 const generateVisitors = () => {
   const companies = [
-    { company: 'Desert Aviation Holdings', industry: 'Private Aviation', city: 'Scottsdale, AZ', country: 'United States' },
-    { company: 'Al Futtaim Group', industry: 'Conglomerate', city: 'Dubai', country: 'United Arab Emirates' },
-    { company: 'Swiss Private Bank', industry: 'Financial Services', city: 'Geneva', country: 'Switzerland' },
-    { company: 'Gulfstream Aerospace', industry: 'Aviation', city: 'Savannah, GA', country: 'United States' },
-    { company: 'BMW Group', industry: 'Automotive', city: 'Munich', country: 'Germany' },
-    { company: 'Temasek Holdings', industry: 'Investment', city: 'Singapore', country: 'Singapore' },
-    { company: 'Rogers Communications', industry: 'Telecommunications', city: 'Toronto', country: 'Canada' },
-    { company: 'Macquarie Group', industry: 'Financial Services', city: 'Sydney', country: 'Australia' },
-    { company: 'Mitsubishi Corporation', industry: 'Conglomerate', city: 'Tokyo', country: 'Japan' },
-    { company: 'Berkshire Partners', industry: 'Private Equity', city: 'Boston, MA', country: 'United States' },
-    { company: 'LVMH', industry: 'Luxury Goods', city: 'Paris', country: 'France' },
-    { company: 'Ambani Group', industry: 'Conglomerate', city: 'Mumbai', country: 'India' },
-    { company: 'Samsung C&T', industry: 'Construction', city: 'Seoul', country: 'South Korea' },
-    { company: 'Aramco', industry: 'Energy', city: 'Riyadh', country: 'Saudi Arabia' },
-    { company: 'Credit Suisse', industry: 'Banking', city: 'Zurich', country: 'Switzerland' },
-    { company: 'Blackstone', industry: 'Investment', city: 'New York, NY', country: 'United States' },
-    { company: 'KKR & Co', industry: 'Private Equity', city: 'San Francisco, CA', country: 'United States' },
-    { company: 'Softbank', industry: 'Technology', city: 'Tokyo', country: 'Japan' },
-    { company: 'NetJets', industry: 'Aviation', city: 'Columbus, OH', country: 'United States' },
-    { company: 'Carlyle Group', industry: 'Private Equity', city: 'Washington, DC', country: 'United States' },
+    { company: 'Desert Aviation Holdings', industry: 'Private Aviation', city: 'Scottsdale, AZ', country: 'United States', logo: 'https://ui-avatars.com/api/?name=Desert+Aviation&background=0D8ABC&color=fff&size=128' },
+    { company: 'Al Futtaim Group', industry: 'Conglomerate', city: 'Dubai', country: 'United Arab Emirates', logo: 'https://ui-avatars.com/api/?name=Al+Futtaim&background=8B5CF6&color=fff&size=128' },
+    { company: 'Swiss Private Bank', industry: 'Financial Services', city: 'Geneva', country: 'Switzerland', logo: 'https://ui-avatars.com/api/?name=Swiss+Bank&background=DC2626&color=fff&size=128' },
+    { company: 'Gulfstream Aerospace', industry: 'Aviation', city: 'Savannah, GA', country: 'United States', logo: 'https://ui-avatars.com/api/?name=Gulfstream&background=2563EB&color=fff&size=128' },
+    { company: 'BMW Group', industry: 'Automotive', city: 'Munich', country: 'Germany', logo: 'https://ui-avatars.com/api/?name=BMW&background=000000&color=fff&size=128' },
+    { company: 'Temasek Holdings', industry: 'Investment', city: 'Singapore', country: 'Singapore', logo: 'https://ui-avatars.com/api/?name=Temasek&background=059669&color=fff&size=128' },
+    { company: 'Rogers Communications', industry: 'Telecommunications', city: 'Toronto', country: 'Canada', logo: 'https://ui-avatars.com/api/?name=Rogers&background=DC2626&color=fff&size=128' },
+    { company: 'Macquarie Group', industry: 'Financial Services', city: 'Sydney', country: 'Australia', logo: 'https://ui-avatars.com/api/?name=Macquarie&background=047857&color=fff&size=128' },
+    { company: 'Mitsubishi Corporation', industry: 'Conglomerate', city: 'Tokyo', country: 'Japan', logo: 'https://ui-avatars.com/api/?name=Mitsubishi&background=DC2626&color=fff&size=128' },
+    { company: 'Berkshire Partners', industry: 'Private Equity', city: 'Boston, MA', country: 'United States', logo: 'https://ui-avatars.com/api/?name=Berkshire&background=1E40AF&color=fff&size=128' },
+    { company: 'LVMH', industry: 'Luxury Goods', city: 'Paris', country: 'France', logo: 'https://ui-avatars.com/api/?name=LVMH&background=A855F7&color=fff&size=128' },
+    { company: 'Ambani Group', industry: 'Conglomerate', city: 'Mumbai', country: 'India', logo: 'https://ui-avatars.com/api/?name=Ambani&background=EA580C&color=fff&size=128' },
+    { company: 'Samsung C&T', industry: 'Construction', city: 'Seoul', country: 'South Korea', logo: 'https://ui-avatars.com/api/?name=Samsung&background=1E3A8A&color=fff&size=128' },
+    { company: 'Aramco', industry: 'Energy', city: 'Riyadh', country: 'Saudi Arabia', logo: 'https://ui-avatars.com/api/?name=Aramco&background=059669&color=fff&size=128' },
+    { company: 'Credit Suisse', industry: 'Banking', city: 'Zurich', country: 'Switzerland', logo: 'https://ui-avatars.com/api/?name=Credit+Suisse&background=1E3A8A&color=fff&size=128' },
+    { company: 'Blackstone', industry: 'Investment', city: 'New York, NY', country: 'United States', logo: 'https://ui-avatars.com/api/?name=Blackstone&background=000000&color=fff&size=128' },
+    { company: 'KKR & Co', industry: 'Private Equity', city: 'San Francisco, CA', country: 'United States', logo: 'https://ui-avatars.com/api/?name=KKR&background=1E40AF&color=fff&size=128' },
+    { company: 'Softbank', industry: 'Technology', city: 'Tokyo', country: 'Japan', logo: 'https://ui-avatars.com/api/?name=Softbank&background=FBBF24&color=000&size=128' },
+    { company: 'NetJets', industry: 'Aviation', city: 'Columbus, OH', country: 'United States', logo: 'https://ui-avatars.com/api/?name=NetJets&background=DC2626&color=fff&size=128' },
+    { company: 'Carlyle Group', industry: 'Private Equity', city: 'Washington, DC', country: 'United States', logo: 'https://ui-avatars.com/api/?name=Carlyle&background=7C3AED&color=fff&size=128' },
   ];
   
   const devices = ['Desktop', 'iPad', 'Mobile'];
@@ -532,7 +532,7 @@ export default function VisitorProfiles() {
                 
                 <div className="space-y-2">
                   <div className="flex items-center gap-2 text-sm">
-                    <Building2 className="w-4 h-4 text-gray-400" />
+                    <img src={visitor.logo} alt={visitor.company} className="w-6 h-6 rounded object-cover" />
                     <span className="font-medium text-gray-900 dark:text-white truncate">{visitor.company}</span>
                   </div>
                   <div className="flex items-center gap-2 text-sm text-gray-500">
@@ -579,7 +579,7 @@ export default function VisitorProfiles() {
                   
                   <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 min-w-0">
                     <div className="flex items-center gap-2 text-sm min-w-0">
-                      <Building2 className="w-4 h-4 text-gray-400 shrink-0" />
+                      <img src={visitor.logo} alt={visitor.company} className="w-6 h-6 rounded object-cover shrink-0" />
                       <span className="font-medium text-gray-900 dark:text-white truncate">{visitor.company}</span>
                     </div>
                     
@@ -629,9 +629,11 @@ export default function VisitorProfiles() {
             <>
               <DialogHeader>
                 <DialogTitle className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-violet-100 dark:bg-violet-900/30 flex items-center justify-center">
-                    <UserCircle className="w-6 h-6 text-violet-600" />
-                  </div>
+                  <img 
+                    src={selectedVisitor.logo} 
+                    alt={selectedVisitor.company} 
+                    className="w-12 h-12 rounded-lg object-cover shadow-sm"
+                  />
                   <div>
                     <p className="text-lg font-semibold">{selectedVisitor.company}</p>
                     <p className="text-sm text-gray-500 font-normal">{selectedVisitor.sessionId}</p>
