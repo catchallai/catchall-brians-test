@@ -95,7 +95,13 @@ const calculateAILeadScore = (visitor) => {
   return { score: finalScore, factors: scoreFactors, tier, recommendation };
 };
 
-// Generate visitors data
+// Seeded random number generator for consistent data
+const seededRandom = (seed) => {
+  let x = Math.sin(seed++) * 10000;
+  return x - Math.floor(x);
+};
+
+// Generate visitors data with consistent results
 const generateVisitors = () => {
   const companies = [
     { company: 'Desert Aviation Holdings', industry: 'Private Aviation', city: 'Scottsdale, AZ', country: 'United States', logo: 'https://ui-avatars.com/api/?name=Desert+Aviation&background=0D8ABC&color=fff&size=128' },
@@ -127,21 +133,22 @@ const generateVisitors = () => {
   
   const visitors = [];
   let sessionNum = 8900;
+  let seed = 12345; // Fixed seed for consistent results
   
   for (let i = 0; i < 100; i++) {
     const companyData = companies[i % companies.length];
-    const daysAgo = Math.floor(Math.random() * 90) + 1;
-    const pagesViewed = Math.floor(Math.random() * 12) + 2;
-    const timeMinutes = Math.floor(Math.random() * 20) + 2;
-    const timeSeconds = Math.floor(Math.random() * 60);
+    const daysAgo = Math.floor(seededRandom(seed++) * 90) + 1;
+    const pagesViewed = Math.floor(seededRandom(seed++) * 12) + 2;
+    const timeMinutes = Math.floor(seededRandom(seed++) * 20) + 2;
+    const timeSeconds = Math.floor(seededRandom(seed++) * 60);
     
     const journey = [];
     const journeyLength = Math.min(pagesViewed, 6);
     for (let j = 0; j < journeyLength; j++) {
       journey.push({
-        page: pages[Math.floor(Math.random() * pages.length)],
-        time: `${Math.floor(Math.random() * 5) + 1}m ${Math.floor(Math.random() * 60)}s`,
-        scrollDepth: Math.floor(Math.random() * 40) + 60
+        page: pages[Math.floor(seededRandom(seed++) * pages.length)],
+        time: `${Math.floor(seededRandom(seed++) * 5) + 1}m ${Math.floor(seededRandom(seed++) * 60)}s`,
+        scrollDepth: Math.floor(seededRandom(seed++) * 40) + 60
       });
     }
     
@@ -151,13 +158,13 @@ const generateVisitors = () => {
       ...companyData,
       pagesViewed,
       timeOnSite: `${timeMinutes}m ${timeSeconds}s`,
-      lastPage: pages[Math.floor(Math.random() * pages.length)],
-      firstVisit: Math.random() > 0.6,
-      visitCount: Math.floor(Math.random() * 5) + 1,
-      device: devices[Math.floor(Math.random() * devices.length)],
-      browser: browsers[Math.floor(Math.random() * browsers.length)],
-      referrer: referrers[Math.floor(Math.random() * referrers.length)],
-      entryPage: pages[Math.floor(Math.random() * pages.length)],
+      lastPage: pages[Math.floor(seededRandom(seed++) * pages.length)],
+      firstVisit: seededRandom(seed++) > 0.6,
+      visitCount: Math.floor(seededRandom(seed++) * 5) + 1,
+      device: devices[Math.floor(seededRandom(seed++) * devices.length)],
+      browser: browsers[Math.floor(seededRandom(seed++) * browsers.length)],
+      referrer: referrers[Math.floor(seededRandom(seed++) * referrers.length)],
+      entryPage: pages[Math.floor(seededRandom(seed++) * pages.length)],
       journey,
       daysAgo,
       lastSeen: new Date(Date.now() - daysAgo * 24 * 60 * 60 * 1000).toISOString()
