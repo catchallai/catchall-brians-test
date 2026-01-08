@@ -20,6 +20,7 @@ import Dashboard from './pages/Dashboard';
 import Deals from './pages/Deals';
 import DocuTrace from './pages/DocuTrace';
 import EmailMarketing from './pages/EmailMarketing';
+import EmailTracking from './pages/EmailTracking';
 import EquipmentInventory from './pages/EquipmentInventory';
 import HashtagManager from './pages/HashtagManager';
 import HelpCenter from './pages/HelpCenter';
@@ -56,7 +57,6 @@ import UserProfile from './pages/UserProfile';
 import UserSettings from './pages/UserSettings';
 import VisitorProfiles from './pages/VisitorProfiles';
 import WebCrawler from './pages/WebCrawler';
-import EmailTracking from './pages/EmailTracking';
 import __Layout from './Layout.jsx';
 
 
@@ -83,6 +83,7 @@ export const PAGES = {
     "Deals": Deals,
     "DocuTrace": DocuTrace,
     "EmailMarketing": EmailMarketing,
+    "EmailTracking": EmailTracking,
     "EquipmentInventory": EquipmentInventory,
     "HashtagManager": HashtagManager,
     "HelpCenter": HelpCenter,
@@ -119,7 +120,6 @@ export const PAGES = {
     "UserSettings": UserSettings,
     "VisitorProfiles": VisitorProfiles,
     "WebCrawler": WebCrawler,
-    "EmailTracking": EmailTracking,
 }
 
 export const pagesConfig = {

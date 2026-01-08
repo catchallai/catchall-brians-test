@@ -140,9 +140,36 @@ export default function Contacts() {
         return '';
       };
 
+      // Get existing companies
+      const existingCompanies = await base44.entities.Company.list('-created_date', 1000);
+      const companyMap = {};
+      existingCompanies.forEach(c => {
+        companyMap[c.name.toLowerCase()] = c.id;
+      });
+
+      // Extract unique company names from import data
+      const uniqueCompanyNames = [...new Set(
+        data.map(row => getFieldValue(row, 'company_name', 'Firm', 'Company', 'Company Name', 'firm', 'organization'))
+          .filter(name => name && name.trim())
+      )];
+
+      // Create new companies that don't exist
+      for (const companyName of uniqueCompanyNames) {
+        const nameLower = companyName.toLowerCase();
+        if (!companyMap[nameLower]) {
+          const newCompany = await base44.entities.Company.create({
+            name: companyName
+          });
+          companyMap[nameLower] = newCompany.id;
+        }
+      }
+
+      // Create contacts with company_id
       for (const row of data) {
+        const companyName = getFieldValue(row, 'company_name', 'Firm', 'Company', 'Company Name', 'firm', 'organization');
         const contactData = {
-          company_name: getFieldValue(row, 'company_name', 'Firm', 'Company', 'Company Name', 'firm', 'organization'),
+          company_name: companyName,
+          company_id: companyName ? companyMap[companyName.toLowerCase()] : null,
           first_name: getFieldValue(row, 'first_name', 'First Name', 'firstName', 'first', 'name'),
           last_name: getFieldValue(row, 'last_name', 'Last Name', 'lastName', 'last', 'surname'),
           email: getFieldValue(row, 'email', 'Email', 'e-mail', 'Email Address'),
@@ -163,6 +190,7 @@ export default function Contacts() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['contacts'] });
+      queryClient.invalidateQueries({ queryKey: ['companies'] });
       toast.success('Contacts imported successfully');
     },
     onError: () => toast.error('Failed to import contacts'),
