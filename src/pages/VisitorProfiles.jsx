@@ -13,7 +13,7 @@ import {
   UserCircle, MapPin, Clock, Eye, MousePointer, Building2, Sparkles, 
   TrendingUp, Target, Zap, Star, Globe, Monitor, Smartphone, Tablet,
   Search, Filter, ChevronRight, ArrowUpRight, ExternalLink, Mail,
-  Calendar, Activity, Info
+  Calendar, Activity, Info, Grid3x3, List
 } from "lucide-react";
 
 // AI Lead Scoring Engine
@@ -177,6 +177,7 @@ export default function VisitorProfiles() {
   const [searchQuery, setSearchQuery] = useState('');
   const [tierFilter, setTierFilter] = useState('all');
   const [sortBy, setSortBy] = useState('score');
+  const [viewMode, setViewMode] = useState('grid');
   const [selectedVisitor, setSelectedVisitor] = useState(null);
   
   // Fetch real visitor sessions
@@ -377,60 +378,132 @@ export default function VisitorProfiles() {
             <SelectItem value="alphabetical">A-Z</SelectItem>
           </SelectContent>
         </Select>
+        <div className="flex gap-1 bg-white dark:bg-gray-800 rounded-lg p-1 border border-gray-200 dark:border-gray-700">
+          <Button
+            variant={viewMode === 'grid' ? 'default' : 'ghost'}
+            size="sm"
+            onClick={() => setViewMode('grid')}
+            className="h-8 w-8 p-0"
+          >
+            <Grid3x3 className="w-4 h-4" />
+          </Button>
+          <Button
+            variant={viewMode === 'list' ? 'default' : 'ghost'}
+            size="sm"
+            onClick={() => setViewMode('list')}
+            className="h-8 w-8 p-0"
+          >
+            <List className="w-4 h-4" />
+          </Button>
+        </div>
       </div>
 
-      {/* Visitor Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+      {/* Visitor Grid/List View */}
+      {viewMode === 'grid' ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-4">
           {filteredVisitors.map((visitor) => (
-          <Card 
-            key={visitor.id}
-            className="bg-white dark:bg-gray-800 border-0 shadow-sm hover:shadow-md transition-all cursor-pointer group"
-            onClick={() => setSelectedVisitor(visitor)}
-          >
-            <CardContent className="p-4">
-              <div className="flex items-start justify-between mb-3">
-                <div>
-                  <p className="text-xs text-gray-400 font-mono mb-1">{visitor.sessionId}</p>
-                  <Badge className={`text-xs border ${getLeadScoreColor(visitor.scoreData?.tier)}`}>
-                    <Sparkles className="w-3 h-3 mr-1" />
-                    {visitor.leadScore} - {getTierLabel(visitor.scoreData?.tier)}
-                  </Badge>
+            <Card 
+              key={visitor.id}
+              className="bg-white dark:bg-gray-800 border-0 shadow-sm hover:shadow-md transition-all cursor-pointer group"
+              onClick={() => setSelectedVisitor(visitor)}
+            >
+              <CardContent className="p-4">
+                <div className="flex items-start justify-between mb-3">
+                  <div>
+                    <p className="text-xs text-gray-400 font-mono mb-1">{visitor.sessionId}</p>
+                    <Badge className={`text-xs border ${getLeadScoreColor(visitor.scoreData?.tier)}`}>
+                      <Sparkles className="w-3 h-3 mr-1" />
+                      {visitor.leadScore} - {getTierLabel(visitor.scoreData?.tier)}
+                    </Badge>
+                  </div>
+                  <ChevronRight className="w-5 h-5 text-gray-300 group-hover:text-violet-500 transition-colors" />
                 </div>
-                <ChevronRight className="w-5 h-5 text-gray-300 group-hover:text-violet-500 transition-colors" />
-              </div>
-              
-              <div className="space-y-2">
-                <div className="flex items-center gap-2 text-sm">
-                  <Building2 className="w-4 h-4 text-gray-400" />
-                  <span className="font-medium text-gray-900 dark:text-white truncate">{visitor.company}</span>
+                
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 text-sm">
+                    <Building2 className="w-4 h-4 text-gray-400" />
+                    <span className="font-medium text-gray-900 dark:text-white truncate">{visitor.company}</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-gray-500">
+                    <MapPin className="w-4 h-4 text-gray-400" />
+                    <span className="truncate">{visitor.city}, {visitor.country}</span>
+                  </div>
+                  <div className="flex items-center gap-4 text-sm text-gray-500">
+                    <span className="flex items-center gap-1">
+                      <Eye className="w-3 h-3" />
+                      {visitor.pagesViewed} pages
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <Clock className="w-3 h-3" />
+                      {visitor.timeOnSite}
+                    </span>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2 text-sm text-gray-500">
-                  <MapPin className="w-4 h-4 text-gray-400" />
-                  <span>{visitor.city}, {visitor.country}</span>
-                </div>
-                <div className="flex items-center gap-4 text-sm text-gray-500">
-                  <span className="flex items-center gap-1">
-                    <Eye className="w-3 h-3" />
-                    {visitor.pagesViewed} pages
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <Clock className="w-3 h-3" />
-                    {visitor.timeOnSite}
-                  </span>
-                </div>
-              </div>
 
-              <div className="mt-3 pt-3 border-t border-gray-100 dark:border-gray-700 flex items-center justify-between text-xs text-gray-400">
-                <span className="flex items-center gap-1">
-                  {getDeviceIcon(visitor.device)}
-                  {visitor.device}
-                </span>
-                <span>{visitor.daysAgo === 1 ? 'Yesterday' : `${visitor.daysAgo} days ago`}</span>
-              </div>
-            </CardContent>
-          </Card>
+                <div className="mt-3 pt-3 border-t border-gray-100 dark:border-gray-700 flex items-center justify-between text-xs text-gray-400">
+                  <span className="flex items-center gap-1">
+                    {getDeviceIcon(visitor.device)}
+                    {visitor.device}
+                  </span>
+                  <span>{visitor.daysAgo === 1 ? 'Yesterday' : `${visitor.daysAgo} days ago`}</span>
+                </div>
+              </CardContent>
+            </Card>
           ))}
-          </div>
+        </div>
+      ) : (
+        <div className="space-y-2">
+          {filteredVisitors.map((visitor) => (
+            <Card 
+              key={visitor.id}
+              className="bg-white dark:bg-gray-800 border-0 shadow-sm hover:shadow-md transition-all cursor-pointer group"
+              onClick={() => setSelectedVisitor(visitor)}
+            >
+              <CardContent className="p-4">
+                <div className="flex items-center gap-4">
+                  <Badge className={`text-xs border ${getLeadScoreColor(visitor.scoreData?.tier)} whitespace-nowrap`}>
+                    <Sparkles className="w-3 h-3 mr-1" />
+                    {visitor.leadScore}
+                  </Badge>
+                  
+                  <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 min-w-0">
+                    <div className="flex items-center gap-2 text-sm min-w-0">
+                      <Building2 className="w-4 h-4 text-gray-400 shrink-0" />
+                      <span className="font-medium text-gray-900 dark:text-white truncate">{visitor.company}</span>
+                    </div>
+                    
+                    <div className="flex items-center gap-2 text-sm text-gray-500 min-w-0">
+                      <MapPin className="w-4 h-4 text-gray-400 shrink-0" />
+                      <span className="truncate">{visitor.city}</span>
+                    </div>
+                    
+                    <div className="flex items-center gap-3 text-sm text-gray-500">
+                      <span className="flex items-center gap-1">
+                        <Eye className="w-3 h-3" />
+                        {visitor.pagesViewed}
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <Clock className="w-3 h-3" />
+                        {visitor.timeOnSite}
+                      </span>
+                    </div>
+                    
+                    <div className="flex items-center justify-between text-xs text-gray-400">
+                      <span className="flex items-center gap-1">
+                        {getDeviceIcon(visitor.device)}
+                        {visitor.device}
+                      </span>
+                      <span className="whitespace-nowrap">{visitor.daysAgo === 1 ? 'Yesterday' : `${visitor.daysAgo}d ago`}</span>
+                    </div>
+                  </div>
+                  
+                  <ChevronRight className="w-5 h-5 text-gray-300 group-hover:text-violet-500 transition-colors shrink-0" />
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
 
       {/* Visitor Detail Modal */}
       <Dialog open={!!selectedVisitor} onOpenChange={() => setSelectedVisitor(null)}>
