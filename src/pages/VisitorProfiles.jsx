@@ -13,8 +13,9 @@ import {
   UserCircle, MapPin, Clock, Eye, MousePointer, Building2, Sparkles, 
   TrendingUp, Target, Zap, Star, Globe, Monitor, Smartphone, Tablet,
   Search, Filter, ChevronRight, ArrowUpRight, ExternalLink, Mail,
-  Calendar, Activity, Info, Grid3x3, List
+  Calendar, Activity, Info, Grid3x3, List, Bell, Settings
 } from "lucide-react";
+import NotificationRulesModal from '../components/visitor/NotificationRulesModal';
 
 // AI Lead Scoring Engine
 const calculateAILeadScore = (visitor) => {
@@ -179,6 +180,9 @@ export default function VisitorProfiles() {
   const [sortBy, setSortBy] = useState('score');
   const [viewMode, setViewMode] = useState('grid');
   const [selectedVisitor, setSelectedVisitor] = useState(null);
+  const [showNotificationRules, setShowNotificationRules] = useState(false);
+
+  const queryClient = useQueryClient();
   
   // Fetch real visitor sessions
   const { data: sessions, isLoading } = useQuery({
@@ -186,6 +190,98 @@ export default function VisitorProfiles() {
     queryFn: () => base44.entities.VisitorSession.list('-session_start', 200),
     refetchInterval: 30000, // Refresh every 30 seconds
   });
+
+  // Fetch notification rules
+  const { data: notificationRules = [] } = useQuery({
+    queryKey: ['visitor-notification-rules'],
+    queryFn: () => base44.entities.VisitorNotificationRule.list('-created_date', 50),
+  });
+
+  // Check visitors against notification rules and create notifications
+  const createNotificationMutation = useMutation({
+    mutationFn: (data) => base44.entities.Notification.create(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['notifications'] });
+    },
+  });
+
+  const updateRuleMutation = useMutation({
+    mutationFn: ({ id, data }) => base44.entities.VisitorNotificationRule.update(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['visitor-notification-rules'] });
+    },
+  });
+
+  // Check for notification triggers
+  React.useEffect(() => {
+    if (!allVisitors.length || !notificationRules.length) return;
+
+    const activeRules = notificationRules.filter(r => r.is_active);
+    
+    allVisitors.forEach(visitor => {
+      activeRules.forEach(rule => {
+        let shouldTrigger = false;
+        let message = '';
+
+        switch (rule.trigger_type) {
+          case 'hot_lead_detected':
+            if (visitor.scoreData?.tier === 'hot') {
+              shouldTrigger = true;
+              message = `🔥 Hot lead detected: ${visitor.company} (Score: ${visitor.leadScore})`;
+            }
+            break;
+
+          case 'score_threshold':
+            if (rule.conditions?.min_score && visitor.leadScore >= rule.conditions.min_score) {
+              shouldTrigger = true;
+              message = `🎯 ${visitor.company} reached score threshold of ${rule.conditions.min_score} (Current: ${visitor.leadScore})`;
+            }
+            break;
+
+          case 'high_engagement':
+            const meetsPages = !rule.conditions?.min_pages || visitor.pagesViewed >= rule.conditions.min_pages;
+            const timeMinutes = parseInt(visitor.timeOnSite.split('m')[0]);
+            const meetsTime = !rule.conditions?.min_time_minutes || timeMinutes >= rule.conditions.min_time_minutes;
+            if (meetsPages && meetsTime) {
+              shouldTrigger = true;
+              message = `👁️ High engagement from ${visitor.company}: ${visitor.pagesViewed} pages, ${visitor.timeOnSite}`;
+            }
+            break;
+
+          case 'return_visitor':
+            if (visitor.visitCount > 1) {
+              shouldTrigger = true;
+              message = `🔄 Return visitor: ${visitor.company} (Visit #${visitor.visitCount})`;
+            }
+            break;
+        }
+
+        if (shouldTrigger) {
+          // Check if we already notified recently (within last hour)
+          const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
+          const recentlyTriggered = rule.last_triggered && rule.last_triggered > oneHourAgo;
+          
+          if (!recentlyTriggered) {
+            createNotificationMutation.mutate({
+              title: rule.name,
+              message,
+              type: 'visitor_alert',
+              link: '/VisitorProfiles',
+              read: false
+            });
+
+            updateRuleMutation.mutate({
+              id: rule.id,
+              data: {
+                last_triggered: new Date().toISOString(),
+                trigger_count: (rule.trigger_count || 0) + 1
+              }
+            });
+          }
+        }
+      });
+    });
+  }, [allVisitors, notificationRules]);
   
   const allVisitors = useMemo(() => {
     // Use demo data for now
@@ -300,13 +396,28 @@ export default function VisitorProfiles() {
             AI-powered lead scoring • Demo Data
           </p>
         </div>
-        <Tabs value={dateRange} onValueChange={setDateRange}>
-          <TabsList>
-            <TabsTrigger value="30">30 Days</TabsTrigger>
-            <TabsTrigger value="60">60 Days</TabsTrigger>
-            <TabsTrigger value="90">90 Days</TabsTrigger>
-          </TabsList>
-        </Tabs>
+        <div className="flex items-center gap-3">
+          <Button
+            variant="outline"
+            onClick={() => setShowNotificationRules(true)}
+            className="gap-2"
+          >
+            <Bell className="w-4 h-4" />
+            Notification Rules
+            {notificationRules.filter(r => r.is_active).length > 0 && (
+              <Badge className="ml-1 bg-violet-600 text-white">
+                {notificationRules.filter(r => r.is_active).length}
+              </Badge>
+            )}
+          </Button>
+          <Tabs value={dateRange} onValueChange={setDateRange}>
+            <TabsList>
+              <TabsTrigger value="30">30 Days</TabsTrigger>
+              <TabsTrigger value="60">60 Days</TabsTrigger>
+              <TabsTrigger value="90">90 Days</TabsTrigger>
+            </TabsList>
+          </Tabs>
+        </div>
       </div>
 
       {/* Stats Cards */}
@@ -504,6 +615,12 @@ export default function VisitorProfiles() {
           ))}
         </div>
       )}
+
+      {/* Notification Rules Modal */}
+      <NotificationRulesModal
+        open={showNotificationRules}
+        onClose={() => setShowNotificationRules(false)}
+      />
 
       {/* Visitor Detail Modal */}
       <Dialog open={!!selectedVisitor} onOpenChange={() => setSelectedVisitor(null)}>
