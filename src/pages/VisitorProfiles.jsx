@@ -13,9 +13,11 @@ import {
   UserCircle, MapPin, Clock, Eye, MousePointer, Building2, Sparkles, 
   TrendingUp, Target, Zap, Star, Globe, Monitor, Smartphone, Tablet,
   Search, Filter, ChevronRight, ArrowUpRight, ExternalLink, Mail,
-  Calendar, Activity, Info, Grid3x3, List, Bell, Settings
+  Calendar, Activity, Info, Grid3x3, List, Bell, Settings, Layers, BarChart3
 } from "lucide-react";
 import NotificationRulesModal from '../components/visitor/NotificationRulesModal';
+import SegmentManager from '../components/visitor/SegmentManager';
+import SegmentAnalysis from '../components/visitor/SegmentAnalysis';
 
 // AI Lead Scoring Engine
 const calculateAILeadScore = (visitor) => {
@@ -188,6 +190,10 @@ export default function VisitorProfiles() {
   const [viewMode, setViewMode] = useState('grid');
   const [selectedVisitor, setSelectedVisitor] = useState(null);
   const [showNotificationRules, setShowNotificationRules] = useState(false);
+  const [showSegments, setShowSegments] = useState(false);
+  const [showSegmentAnalysis, setShowSegmentAnalysis] = useState(false);
+  const [activeSegment, setActiveSegment] = useState(null);
+  const [segmentFilters, setSegmentFilters] = useState(null);
 
   const queryClient = useQueryClient();
   
@@ -304,6 +310,23 @@ export default function VisitorProfiles() {
         v.city.toLowerCase().includes(searchQuery.toLowerCase()) ||
         v.industry.toLowerCase().includes(searchQuery.toLowerCase());
       const matchesTier = tierFilter === 'all' || v.scoreData?.tier === tierFilter;
+      
+      // Apply segment filters if active
+      if (segmentFilters) {
+        if (segmentFilters.industries?.length && !segmentFilters.industries.includes(v.industry)) return false;
+        if (segmentFilters.tiers?.length && !segmentFilters.tiers.includes(v.scoreData?.tier)) return false;
+        if (segmentFilters.countries?.length && !segmentFilters.countries.includes(v.country)) return false;
+        if (segmentFilters.devices?.length && !segmentFilters.devices.includes(v.device)) return false;
+        if (segmentFilters.min_pages && v.pagesViewed < segmentFilters.min_pages) return false;
+        if (segmentFilters.min_score && v.leadScore < segmentFilters.min_score) return false;
+        if (segmentFilters.min_time_minutes) {
+          const timeMinutes = parseInt(v.timeOnSite.split('m')[0]);
+          if (timeMinutes < segmentFilters.min_time_minutes) return false;
+        }
+        if (segmentFilters.is_return_visitor && v.visitCount <= 1) return false;
+        if (segmentFilters.days_ago_max && v.daysAgo > segmentFilters.days_ago_max) return false;
+      }
+      
       return matchesDate && matchesSearch && matchesTier;
     });
 
@@ -320,7 +343,16 @@ export default function VisitorProfiles() {
     }
 
     return filtered;
-  }, [allVisitors, dateRange, searchQuery, tierFilter, sortBy]);
+  }, [allVisitors, dateRange, searchQuery, tierFilter, sortBy, segmentFilters]);
+
+  const handleApplySegment = (filters) => {
+    setSegmentFilters(filters);
+  };
+
+  const handleClearSegment = () => {
+    setSegmentFilters(null);
+    setActiveSegment(null);
+  };
 
   const stats = useMemo(() => {
     const hot = filteredVisitors.filter(v => v.scoreData?.tier === 'hot').length;
@@ -406,11 +438,19 @@ export default function VisitorProfiles() {
         <div className="flex items-center gap-3">
           <Button
             variant="outline"
+            onClick={() => setShowSegments(true)}
+            className="gap-2"
+          >
+            <Layers className="w-4 h-4" />
+            Segments
+          </Button>
+          <Button
+            variant="outline"
             onClick={() => setShowNotificationRules(true)}
             className="gap-2"
           >
             <Bell className="w-4 h-4" />
-            Notification Rules
+            Rules
             {notificationRules.filter(r => r.is_active).length > 0 && (
               <Badge className="ml-1 bg-violet-600 text-white">
                 {notificationRules.filter(r => r.is_active).length}
@@ -460,6 +500,36 @@ export default function VisitorProfiles() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Active Segment Banner */}
+      {segmentFilters && (
+        <Card className="bg-violet-50 dark:bg-violet-900/20 border-violet-200 dark:border-violet-800">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Layers className="w-5 h-5 text-violet-600" />
+                <span className="font-medium text-violet-900 dark:text-violet-200">
+                  Segment Active: Filtering {filteredVisitors.length} visitors
+                </span>
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowSegmentAnalysis(true)}
+                  className="gap-2"
+                >
+                  <BarChart3 className="w-4 h-4" />
+                  Analyze
+                </Button>
+                <Button variant="ghost" size="sm" onClick={handleClearSegment}>
+                  Clear Filter
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Filters */}
       <div className="flex flex-col sm:flex-row gap-3">
@@ -622,6 +692,22 @@ export default function VisitorProfiles() {
           ))}
         </div>
       )}
+
+      {/* Segment Manager */}
+      <SegmentManager
+        open={showSegments}
+        onClose={() => setShowSegments(false)}
+        onApplySegment={handleApplySegment}
+        allVisitors={allVisitors}
+      />
+
+      {/* Segment Analysis */}
+      <SegmentAnalysis
+        open={showSegmentAnalysis}
+        onClose={() => setShowSegmentAnalysis(false)}
+        segment={{ name: 'Active Segment', color: '#8B5CF6' }}
+        visitors={filteredVisitors}
+      />
 
       {/* Notification Rules Modal */}
       <NotificationRulesModal
