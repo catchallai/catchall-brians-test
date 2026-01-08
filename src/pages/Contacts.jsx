@@ -142,12 +142,15 @@ export default function Contacts() {
 
       for (const row of data) {
         const contactData = {
+          company_name: getFieldValue(row, 'company_name', 'Firm', 'Company', 'Company Name', 'firm', 'organization'),
           first_name: getFieldValue(row, 'first_name', 'First Name', 'firstName', 'first', 'name'),
           last_name: getFieldValue(row, 'last_name', 'Last Name', 'lastName', 'last', 'surname'),
           email: getFieldValue(row, 'email', 'Email', 'e-mail', 'Email Address'),
-          phone: getFieldValue(row, 'phone', 'Phone', 'Phone Number', 'telephone', 'mobile'),
+          phone: getFieldValue(row, 'phone', 'Phone', 'Phone 1', 'Phone Number', 'telephone', 'mobile'),
           status: getFieldValue(row, 'status', 'Status') || 'lead',
-          job_title: getFieldValue(row, 'job_title', 'Job Title', 'jobTitle', 'title', 'position', 'role'),
+          job_title: getFieldValue(row, 'job_title', 'Job Title', 'Title', 'jobTitle', 'title', 'position', 'role'),
+          linkedin_url: getFieldValue(row, 'linkedin_url', 'Linkedin', 'LinkedIn', 'LinkedIn URL', 'linkedin'),
+          notes: getFieldValue(row, 'notes', 'Notes', 'note', 'comments'),
           source: getFieldValue(row, 'source', 'Source') || 'import',
         };
 
@@ -184,13 +187,14 @@ export default function Contacts() {
       : filteredContacts;
     
     exportToCSV(dataToExport, 'contacts', [
+      { key: 'company_name', label: 'Firm' },
       { key: 'first_name', label: 'First Name' },
       { key: 'last_name', label: 'Last Name' },
+      { key: 'job_title', label: 'Title' },
       { key: 'email', label: 'Email' },
-      { key: 'phone', label: 'Phone' },
-      { key: 'status', label: 'Status' },
-      { key: 'job_title', label: 'Job Title' },
-      { key: 'source', label: 'Source' },
+      { key: 'phone', label: 'Phone 1' },
+      { key: 'linkedin_url', label: 'Linkedin' },
+      { key: 'notes', label: 'Notes' },
     ]);
     await logActivity(ActivityActions.EXPORT, 'Contact', null, null, { count: dataToExport.length });
     toast.success('Contacts exported');
@@ -380,10 +384,10 @@ export default function Contacts() {
         onImport={(data) => importMutation.mutateAsync(data)}
         entityName="Contacts"
         requiredFields={['first_name', 'email']}
-        optionalFields={['last_name', 'phone', 'job_title', 'status', 'source']}
+        optionalFields={['company_name', 'last_name', 'job_title', 'phone', 'linkedin_url', 'notes']}
         sampleData={[
-          { first_name: 'John', last_name: 'Doe', email: 'john@example.com', phone: '555-1234', status: 'lead' },
-          { first_name: 'Jane', last_name: 'Smith', email: 'jane@example.com', phone: '555-5678', status: 'customer' },
+          { company_name: 'Acme Corp', first_name: 'John', last_name: 'Doe', job_title: 'CEO', email: 'john@example.com', phone: '555-1234', linkedin_url: 'https://linkedin.com/in/johndoe', notes: 'Met at conference' },
+          { company_name: 'Tech Inc', first_name: 'Jane', last_name: 'Smith', job_title: 'CTO', email: 'jane@example.com', phone: '555-5678', linkedin_url: 'https://linkedin.com/in/janesmith', notes: 'Interested in product demo' },
         ]}
       />
 
