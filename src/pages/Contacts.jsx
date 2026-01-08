@@ -30,15 +30,18 @@ export default function Contacts() {
   const [statusFilter, setStatusFilter] = useState('all');
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedIds, setSelectedIds] = useState([]);
+  const [showDeleted, setShowDeleted] = useState(false);
   const queryClient = useQueryClient();
   const toast = useToast();
   
   const debouncedSearch = useDebounce(searchTerm, 300);
 
-  const { data: contacts = [], isLoading: loadingContacts } = useQuery({
+  const { data: allContacts = [], isLoading: loadingContacts } = useQuery({
     queryKey: ['contacts'],
     queryFn: () => base44.entities.Contact.list('-created_date', 1000),
   });
+
+  const contacts = allContacts.filter(c => showDeleted ? c.deleted : !c.deleted);
 
   const { data: companies = [] } = useQuery({
     queryKey: ['companies'],
@@ -268,6 +271,14 @@ export default function Contacts() {
             className="pl-10"
           />
         </div>
+        <Button
+          variant={showDeleted ? "default" : "outline"}
+          onClick={() => setShowDeleted(!showDeleted)}
+          className="gap-2"
+        >
+          <Trash2 className="w-4 h-4" />
+          {showDeleted ? 'Active Contacts' : 'Trash'}
+        </Button>
         <Select value={statusFilter} onValueChange={setStatusFilter}>
           <SelectTrigger className="w-full sm:w-40">
             <SelectValue placeholder="Status" />
@@ -336,9 +347,21 @@ export default function Contacts() {
         isAllSelected={selectedIds.length === filteredContacts.length && filteredContacts.length > 0}
         onSelectAll={() => setSelectedIds(filteredContacts.map(c => c.id))}
         onDeselectAll={() => setSelectedIds([])}
-        onDelete={() => setShowDeleteConfirm(true)}
+        onDelete={showDeleted ? undefined : () => setShowDeleteConfirm(true)}
         onExport={handleExport}
-      />
+      >
+        {showDeleted && selectedIds.length > 0 && (
+          <Button
+            onClick={() => restoreMutation.mutate(selectedIds)}
+            disabled={restoreMutation.isPending}
+            className="gap-2 bg-green-600 hover:bg-green-700"
+            size="sm"
+          >
+            <RotateCcw className="w-4 h-4" />
+            Restore ({selectedIds.length})
+          </Button>
+        )}
+      </BulkActions>
 
       {/* Modal */}
       <ContactModal
