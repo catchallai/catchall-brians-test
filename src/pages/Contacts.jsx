@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Plus, Search, Users, Upload, Download, Trash2 } from "lucide-react";
+import { Plus, Search, Users, Upload, Download, Trash2, RotateCcw } from "lucide-react";
 import ContactCard from '@/components/crm/ContactCard';
 import ContactModal from '@/components/modals/ContactModal';
 import EmptyState from '@/components/ui/EmptyState';
@@ -73,7 +73,10 @@ export default function Contacts() {
   const deleteMutation = useMutation({
     mutationFn: async (ids) => {
       for (const id of ids) {
-        await base44.entities.Contact.delete(id);
+        await base44.entities.Contact.update(id, {
+          deleted: true,
+          deleted_at: new Date().toISOString()
+        });
         await logActivity(ActivityActions.DELETE, 'Contact', id);
       }
     },
@@ -81,7 +84,7 @@ export default function Contacts() {
       queryClient.invalidateQueries({ queryKey: ['contacts'] });
       setSelectedIds([]);
       setShowDeleteConfirm(false);
-      toast.success('Contacts deleted successfully');
+      toast.success('Contacts moved to trash');
     },
     onError: () => toast.error('Failed to delete contacts'),
   });
@@ -89,16 +92,36 @@ export default function Contacts() {
   const deleteAllMutation = useMutation({
     mutationFn: async () => {
       for (const contact of contacts) {
-        await base44.entities.Contact.delete(contact.id);
+        await base44.entities.Contact.update(contact.id, {
+          deleted: true,
+          deleted_at: new Date().toISOString()
+        });
       }
       await logActivity(ActivityActions.DELETE, 'Contact', null, null, { count: contacts.length });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['contacts'] });
       setShowDeleteConfirm(false);
-      toast.success('All contacts deleted');
+      toast.success('All contacts moved to trash');
     },
     onError: () => toast.error('Failed to delete all contacts'),
+  });
+
+  const restoreMutation = useMutation({
+    mutationFn: async (ids) => {
+      for (const id of ids) {
+        await base44.entities.Contact.update(id, {
+          deleted: false,
+          deleted_at: null
+        });
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['contacts'] });
+      setSelectedIds([]);
+      toast.success('Contacts restored successfully');
+    },
+    onError: () => toast.error('Failed to restore contacts'),
   });
 
   const importMutation = useMutation({
