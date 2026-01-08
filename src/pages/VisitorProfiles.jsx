@@ -197,6 +197,11 @@ export default function VisitorProfiles() {
     queryFn: () => base44.entities.VisitorNotificationRule.list('-created_date', 50),
   });
 
+  const allVisitors = useMemo(() => {
+    // Use demo data for now
+    return generateVisitors();
+  }, []);
+
   // Check visitors against notification rules and create notifications
   const createNotificationMutation = useMutation({
     mutationFn: (data) => base44.entities.Notification.create(data),
@@ -282,11 +287,6 @@ export default function VisitorProfiles() {
       });
     });
   }, [allVisitors, notificationRules]);
-  
-  const allVisitors = useMemo(() => {
-    // Use demo data for now
-    return generateVisitors();
-  }, []);
   
   const filteredVisitors = useMemo(() => {
     let filtered = allVisitors.filter(v => {
