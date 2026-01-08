@@ -88,16 +88,32 @@ export default function Contacts() {
 
   const importMutation = useMutation({
     mutationFn: async (data) => {
+      const getFieldValue = (row, ...fieldNames) => {
+        for (const name of fieldNames) {
+          // Try exact match
+          if (row[name]) return row[name];
+          // Try case-insensitive match
+          const key = Object.keys(row).find(k => k.toLowerCase() === name.toLowerCase());
+          if (key && row[key]) return row[key];
+        }
+        return '';
+      };
+
       for (const row of data) {
-        await base44.entities.Contact.create({
-          first_name: row.first_name || row['First Name'] || '',
-          last_name: row.last_name || row['Last Name'] || '',
-          email: row.email || row['Email'] || '',
-          phone: row.phone || row['Phone'] || '',
-          status: row.status || 'lead',
-          job_title: row.job_title || row['Job Title'] || '',
-          source: row.source || 'import',
-        });
+        const contactData = {
+          first_name: getFieldValue(row, 'first_name', 'First Name', 'firstName', 'first', 'name'),
+          last_name: getFieldValue(row, 'last_name', 'Last Name', 'lastName', 'last', 'surname'),
+          email: getFieldValue(row, 'email', 'Email', 'e-mail', 'Email Address'),
+          phone: getFieldValue(row, 'phone', 'Phone', 'Phone Number', 'telephone', 'mobile'),
+          status: getFieldValue(row, 'status', 'Status') || 'lead',
+          job_title: getFieldValue(row, 'job_title', 'Job Title', 'jobTitle', 'title', 'position', 'role'),
+          source: getFieldValue(row, 'source', 'Source') || 'import',
+        };
+
+        // Only create if we have at least email or both first name and last name
+        if (contactData.email || (contactData.first_name && contactData.last_name)) {
+          await base44.entities.Contact.create(contactData);
+        }
       }
       await logActivity(ActivityActions.IMPORT, 'Contact', null, null, { count: data.length });
     },
