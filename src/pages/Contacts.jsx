@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Plus, Search, Users, Upload, Download } from "lucide-react";
+import { Plus, Search, Users, Upload, Download, Trash2 } from "lucide-react";
 import ContactCard from '@/components/crm/ContactCard';
 import ContactModal from '@/components/modals/ContactModal';
 import EmptyState from '@/components/ui/EmptyState';
@@ -84,6 +84,21 @@ export default function Contacts() {
       toast.success('Contacts deleted successfully');
     },
     onError: () => toast.error('Failed to delete contacts'),
+  });
+
+  const deleteAllMutation = useMutation({
+    mutationFn: async () => {
+      for (const contact of contacts) {
+        await base44.entities.Contact.delete(contact.id);
+      }
+      await logActivity(ActivityActions.DELETE, 'Contact', null, null, { count: contacts.length });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['contacts'] });
+      setShowDeleteConfirm(false);
+      toast.success('All contacts deleted');
+    },
+    onError: () => toast.error('Failed to delete all contacts'),
   });
 
   const importMutation = useMutation({
@@ -201,6 +216,17 @@ export default function Contacts() {
             <Download className="w-4 h-4" />
             <span className="hidden xs:inline">Export</span>
           </Button>
+          {contacts.length > 0 && (
+            <Button 
+              variant="outline" 
+              onClick={() => setShowDeleteConfirm(true)} 
+              className="gap-2 text-sm text-red-600 hover:text-red-700 border-red-200 hover:border-red-300" 
+              size="sm"
+            >
+              <Trash2 className="w-4 h-4" />
+              <span className="hidden xs:inline">Delete All</span>
+            </Button>
+          )}
           <Button onClick={() => { setEditingContact(null); setShowModal(true); }} className="gap-2 bg-violet-600 hover:bg-violet-700 flex-1 sm:flex-none" size="sm">
             <Plus className="w-4 h-4" />
             Add Contact
@@ -319,11 +345,14 @@ export default function Contacts() {
       <ConfirmDialog
         open={showDeleteConfirm}
         onClose={() => setShowDeleteConfirm(false)}
-        onConfirm={() => deleteMutation.mutate(selectedIds)}
-        title="Delete Contacts"
-        description={`Are you sure you want to delete ${selectedIds.length} contact(s)? This action cannot be undone.`}
+        onConfirm={() => selectedIds.length > 0 ? deleteMutation.mutate(selectedIds) : deleteAllMutation.mutate()}
+        title={selectedIds.length > 0 ? "Delete Contacts" : "Delete All Contacts"}
+        description={selectedIds.length > 0 
+          ? `Are you sure you want to delete ${selectedIds.length} contact(s)? This action cannot be undone.`
+          : `Are you sure you want to delete ALL ${contacts.length} contacts? This action cannot be undone.`
+        }
         confirmLabel="Delete"
-        isLoading={deleteMutation.isPending}
+        isLoading={deleteMutation.isPending || deleteAllMutation.isPending}
       />
     </div>
   );
