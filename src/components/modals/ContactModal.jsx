@@ -10,12 +10,14 @@ import { Loader2 } from "lucide-react";
 
 export default function ContactModal({ open, onClose, contact, companies, onSave, isLoading }) {
   const [formData, setFormData] = useState({
+    company_name: '',
     first_name: '',
     last_name: '',
     email: '',
     phone: '',
     company_id: '',
     job_title: '',
+    linkedin_url: '',
     status: 'lead',
     source: '',
     notes: '',
@@ -25,24 +27,28 @@ export default function ContactModal({ open, onClose, contact, companies, onSave
   useEffect(() => {
     if (contact) {
       setFormData({
+        company_name: contact.company_name || '',
         first_name: contact.first_name || '',
         last_name: contact.last_name || '',
         email: contact.email || '',
         phone: contact.phone || '',
         company_id: contact.company_id || '',
         job_title: contact.job_title || '',
+        linkedin_url: contact.linkedin_url || '',
         status: contact.status || 'lead',
         source: contact.source || '',
         notes: contact.notes || '',
       });
     } else {
       setFormData({
+        company_name: '',
         first_name: '',
         last_name: '',
         email: '',
         phone: '',
         company_id: '',
         job_title: '',
+        linkedin_url: '',
         status: 'lead',
         source: '',
         notes: '',
@@ -76,6 +82,16 @@ export default function ContactModal({ open, onClose, contact, companies, onSave
           <DialogTitle>{contact ? 'Edit Contact' : 'Add New Contact'}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4 mt-4">
+          <div className="space-y-2">
+            <Label htmlFor="company_name">Firm</Label>
+            <Input
+              id="company_name"
+              value={formData.company_name}
+              onChange={(e) => setFormData({ ...formData, company_name: e.target.value })}
+              placeholder="Company/Firm name"
+            />
+          </div>
+
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="first_name">First Name *</Label>
@@ -98,6 +114,15 @@ export default function ContactModal({ open, onClose, contact, companies, onSave
           </div>
 
           <div className="space-y-2">
+            <Label htmlFor="job_title">Title</Label>
+            <Input
+              id="job_title"
+              value={formData.job_title}
+              onChange={(e) => setFormData({ ...formData, job_title: e.target.value })}
+            />
+          </div>
+
+          <div className="space-y-2">
             <Label htmlFor="email">Email *</Label>
             <Input
               id="email"
@@ -109,25 +134,25 @@ export default function ContactModal({ open, onClose, contact, companies, onSave
             {errors.email && <p className="text-xs text-red-500">{errors.email}</p>}
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="phone">Phone</Label>
-              <Input
-                id="phone"
-                value={formData.phone}
-                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                className={errors.phone ? 'border-red-500' : ''}
-              />
-              {errors.phone && <p className="text-xs text-red-500">{errors.phone}</p>}
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="job_title">Job Title</Label>
-              <Input
-                id="job_title"
-                value={formData.job_title}
-                onChange={(e) => setFormData({ ...formData, job_title: e.target.value })}
-              />
-            </div>
+          <div className="space-y-2">
+            <Label htmlFor="phone">Phone 1</Label>
+            <Input
+              id="phone"
+              value={formData.phone}
+              onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+              className={errors.phone ? 'border-red-500' : ''}
+            />
+            {errors.phone && <p className="text-xs text-red-500">{errors.phone}</p>}
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="linkedin_url">LinkedIn</Label>
+            <Input
+              id="linkedin_url"
+              value={formData.linkedin_url}
+              onChange={(e) => setFormData({ ...formData, linkedin_url: e.target.value })}
+              placeholder="https://linkedin.com/in/..."
+            />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
