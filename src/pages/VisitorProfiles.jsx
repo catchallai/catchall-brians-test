@@ -176,6 +176,7 @@ export default function VisitorProfiles() {
   const [dateRange, setDateRange] = useState('30');
   const [searchQuery, setSearchQuery] = useState('');
   const [tierFilter, setTierFilter] = useState('all');
+  const [sortBy, setSortBy] = useState('score');
   const [selectedVisitor, setSelectedVisitor] = useState(null);
   
   // Fetch real visitor sessions
@@ -191,7 +192,7 @@ export default function VisitorProfiles() {
   }, []);
   
   const filteredVisitors = useMemo(() => {
-    return allVisitors.filter(v => {
+    let filtered = allVisitors.filter(v => {
       const days = parseInt(dateRange);
       const matchesDate = (v.daysAgo || 0) <= days;
       const matchesSearch = !searchQuery || 
@@ -201,7 +202,21 @@ export default function VisitorProfiles() {
       const matchesTier = tierFilter === 'all' || v.scoreData?.tier === tierFilter;
       return matchesDate && matchesSearch && matchesTier;
     });
-  }, [allVisitors, dateRange, searchQuery, tierFilter]);
+
+    // Apply sorting
+    if (sortBy === 'lastseen') {
+      filtered.sort((a, b) => a.daysAgo - b.daysAgo);
+    } else if (sortBy === 'newest') {
+      filtered.sort((a, b) => b.id - a.id);
+    } else if (sortBy === 'alphabetical') {
+      filtered.sort((a, b) => a.company.localeCompare(b.company));
+    } else {
+      // Default: sort by score (highest first)
+      filtered.sort((a, b) => b.leadScore - a.leadScore);
+    }
+
+    return filtered;
+  }, [allVisitors, dateRange, searchQuery, tierFilter, sortBy]);
 
   const stats = useMemo(() => {
     const hot = filteredVisitors.filter(v => v.scoreData?.tier === 'hot').length;
@@ -349,6 +364,17 @@ export default function VisitorProfiles() {
             <SelectItem value="warm">⚡ Warm</SelectItem>
             <SelectItem value="engaged">📊 Engaged</SelectItem>
             <SelectItem value="early">👀 Early Stage</SelectItem>
+          </SelectContent>
+        </Select>
+        <Select value={sortBy} onValueChange={setSortBy}>
+          <SelectTrigger className="w-full sm:w-48">
+            <SelectValue placeholder="Sort by" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="score">Lead Score</SelectItem>
+            <SelectItem value="lastseen">Last Seen</SelectItem>
+            <SelectItem value="newest">Newest First</SelectItem>
+            <SelectItem value="alphabetical">A-Z</SelectItem>
           </SelectContent>
         </Select>
       </div>
