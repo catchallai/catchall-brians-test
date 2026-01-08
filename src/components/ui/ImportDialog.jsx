@@ -39,15 +39,6 @@ export default function ImportDialog({
       if (selectedFile.name.endsWith('.csv')) {
         const text = await selectedFile.text();
         const { headers, data } = parseCSV(text);
-        
-        // Validate required fields
-        const missingFields = requiredFields.filter(f => !headers.includes(f));
-        if (missingFields.length > 0) {
-          setErrors([`Missing required columns: ${missingFields.join(', ')}`]);
-          setParsedData(null);
-          return;
-        }
-        
         setParsedData({ headers, data, count: data.length });
       } 
       // All other files - use AI
@@ -96,21 +87,16 @@ export default function ImportDialog({
         ? extractResponse.output 
         : [extractResponse.output];
       
-      // Validate required fields
-      const dataWithRequiredFields = extractedData.filter(row => 
-        requiredFields.every(field => row[field])
-      );
-      
-      if (dataWithRequiredFields.length === 0) {
-        setErrors(['No valid data found. Required fields: ' + requiredFields.join(', ')]);
+      if (extractedData.length === 0) {
+        setErrors(['No data found in the file']);
         setParsedData(null);
         return;
       }
       
       setParsedData({
         headers: [...requiredFields, ...optionalFields],
-        data: dataWithRequiredFields,
-        count: dataWithRequiredFields.length,
+        data: extractedData,
+        count: extractedData.length,
         aiExtracted: true
       });
     } catch (error) {
@@ -189,15 +175,17 @@ export default function ImportDialog({
             </Button>
           </div>
 
-          {/* Required Fields */}
-          <div>
-            <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Required columns:</p>
-            <div className="flex flex-wrap gap-1">
-              {requiredFields.map(field => (
-                <Badge key={field} variant="outline" className="text-xs">{field}</Badge>
-              ))}
+          {/* Suggested Fields */}
+          {requiredFields.length > 0 && (
+            <div>
+              <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Suggested fields (AI will extract available data):</p>
+              <div className="flex flex-wrap gap-1">
+                {requiredFields.map(field => (
+                  <Badge key={field} variant="outline" className="text-xs">{field}</Badge>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
 
           {/* File Upload */}
           <div
