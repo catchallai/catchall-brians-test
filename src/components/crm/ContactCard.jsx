@@ -35,8 +35,12 @@ export default function ContactCard({ contact, company, onClick }) {
               {contact.status}
             </Badge>
           </div>
-          {contact.job_title && (
-            <p className="text-sm text-gray-500 mb-2">{contact.job_title}</p>
+          {(contact.job_title || contact.company_name) && (
+            <p className="text-sm text-gray-500 mb-2">
+              {contact.job_title}
+              {contact.job_title && contact.company_name && ' at '}
+              {contact.company_name}
+            </p>
           )}
           <div className="flex flex-wrap gap-3 text-xs text-gray-400">
             {contact.email && (
@@ -44,9 +48,9 @@ export default function ContactCard({ contact, company, onClick }) {
                 <Mail className="w-3 h-3" /> {contact.email}
               </span>
             )}
-            {company && (
+            {contact.phone && (
               <span className="flex items-center gap-1">
-                <Building2 className="w-3 h-3" /> {company.name}
+                <Phone className="w-3 h-3" /> {contact.phone}
               </span>
             )}
           </div>
