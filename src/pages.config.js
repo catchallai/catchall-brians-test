@@ -56,6 +56,7 @@ import UserProfile from './pages/UserProfile';
 import UserSettings from './pages/UserSettings';
 import VisitorProfiles from './pages/VisitorProfiles';
 import WebCrawler from './pages/WebCrawler';
+import EmailTracking from './pages/EmailTracking';
 import __Layout from './Layout.jsx';
 
 
@@ -118,6 +119,7 @@ export const PAGES = {
     "UserSettings": UserSettings,
     "VisitorProfiles": VisitorProfiles,
     "WebCrawler": WebCrawler,
+    "EmailTracking": EmailTracking,
 }
 
 export const pagesConfig = {
