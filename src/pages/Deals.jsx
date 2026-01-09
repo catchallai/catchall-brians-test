@@ -26,23 +26,61 @@ export default function Deals() {
   const [draggedDeal, setDraggedDeal] = useState(null);
   const queryClient = useQueryClient();
 
-  const { data: deals = [], isLoading: loadingDeals } = useQuery({
-    queryKey: ['deals'],
-    queryFn: () => base44.entities.Deal.list('-created_date', 200),
+  const { data: user } = useQuery({
+    queryKey: ['current-user'],
+    queryFn: () => base44.auth.me(),
   });
 
-  const { data: contacts = [] } = useQuery({
-    queryKey: ['contacts'],
-    queryFn: () => base44.entities.Contact.list('-created_date', 500),
+  const { data: allDeals = [], isLoading: loadingDeals } = useQuery({
+    queryKey: ['deals', user?.current_business_id],
+    queryFn: async () => {
+      const deals = await base44.entities.Deal.list('-created_date', 200);
+      if (user?.current_business_id) {
+        return deals.filter(d => d.business_id === user.current_business_id);
+      }
+      return deals;
+    },
+    enabled: !!user,
   });
 
-  const { data: companies = [] } = useQuery({
-    queryKey: ['companies'],
-    queryFn: () => base44.entities.Company.list('-created_date', 200),
+  const deals = allDeals;
+
+  const { data: allContacts = [] } = useQuery({
+    queryKey: ['contacts', user?.current_business_id],
+    queryFn: async () => {
+      const contacts = await base44.entities.Contact.list('-created_date', 500);
+      if (user?.current_business_id) {
+        return contacts.filter(c => c.business_id === user.current_business_id);
+      }
+      return contacts;
+    },
+    enabled: !!user,
   });
+
+  const contacts = allContacts;
+
+  const { data: allCompanies = [] } = useQuery({
+    queryKey: ['companies', user?.current_business_id],
+    queryFn: async () => {
+      const companies = await base44.entities.Company.list('-created_date', 200);
+      if (user?.current_business_id) {
+        return companies.filter(c => c.business_id === user.current_business_id);
+      }
+      return companies;
+    },
+    enabled: !!user,
+  });
+
+  const companies = allCompanies;
 
   const createMutation = useMutation({
-    mutationFn: (data) => base44.entities.Deal.create(data),
+    mutationFn: async (data) => {
+      const deal = await base44.entities.Deal.create({
+        ...data,
+        business_id: user?.current_business_id,
+      });
+      return deal;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['deals'] });
       setShowModal(false);

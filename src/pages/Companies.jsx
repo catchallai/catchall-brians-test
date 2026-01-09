@@ -18,18 +18,47 @@ export default function Companies() {
   const [industryFilter, setIndustryFilter] = useState('all');
   const queryClient = useQueryClient();
 
-  const { data: companies = [], isLoading } = useQuery({
-    queryKey: ['companies'],
-    queryFn: () => base44.entities.Company.list('-created_date', 200),
+  const { data: user } = useQuery({
+    queryKey: ['current-user'],
+    queryFn: () => base44.auth.me(),
   });
 
-  const { data: contacts = [] } = useQuery({
-    queryKey: ['contacts'],
-    queryFn: () => base44.entities.Contact.list('-created_date', 500),
+  const { data: allCompanies = [], isLoading } = useQuery({
+    queryKey: ['companies', user?.current_business_id],
+    queryFn: async () => {
+      const companies = await base44.entities.Company.list('-created_date', 200);
+      if (user?.current_business_id) {
+        return companies.filter(c => c.business_id === user.current_business_id);
+      }
+      return companies;
+    },
+    enabled: !!user,
   });
+
+  const companies = allCompanies;
+
+  const { data: allContacts = [] } = useQuery({
+    queryKey: ['contacts', user?.current_business_id],
+    queryFn: async () => {
+      const contacts = await base44.entities.Contact.list('-created_date', 500);
+      if (user?.current_business_id) {
+        return contacts.filter(c => c.business_id === user.current_business_id);
+      }
+      return contacts;
+    },
+    enabled: !!user,
+  });
+
+  const contacts = allContacts;
 
   const createMutation = useMutation({
-    mutationFn: (data) => base44.entities.Company.create(data),
+    mutationFn: async (data) => {
+      const company = await base44.entities.Company.create({
+        ...data,
+        business_id: user?.current_business_id,
+      });
+      return company;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['companies'] });
       setShowModal(false);
