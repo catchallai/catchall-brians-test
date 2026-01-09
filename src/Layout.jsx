@@ -138,6 +138,7 @@ const navigation = [
 
 const SIDEBAR_ICONS = {
         Dashboard: LayoutDashboard,
+        BusinessManagement: Building2,
         AerospaceScanner: Rocket,
         VisitorProfiles: UserCircle,
   PitchDeckCreator: PenTool,
