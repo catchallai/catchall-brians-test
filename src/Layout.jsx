@@ -73,8 +73,6 @@ const navigation = [
   { name: 'Aerospace Scanner', icon: Rocket, page: 'AerospaceScanner' },
   { name: 'Competitor Analysis', icon: Users, page: 'CompetitorAnalysis' },
   { name: 'Lead Analysis', icon: UserCircle, page: 'VisitorProfiles' },
-  { name: 'Pitch Deck Creator', icon: PenTool, page: 'PitchDeckCreator' },
-  { name: 'Pitch Deck Analyzer', icon: FileSearch, page: 'PitchDeckAnalyzer' },
   { name: 'TakeDown Requestor', icon: AlertTriangle, page: 'TakeDownRequestor' },
   { name: 'Listings & Reviews', icon: MapPin, page: 'Listings' },
   { name: 'Media Outreach', icon: Mail, page: 'MediaOutreach' },
