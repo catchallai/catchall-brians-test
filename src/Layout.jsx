@@ -131,10 +131,11 @@ const navigation = [
   { name: 'divider', label: 'AI Tools' },
   { name: 'AI Dashboard', icon: Sparkles, page: 'AIDashboard' },
   { name: 'divider', label: 'Support' },
+  { name: 'Business Management', icon: Building2, page: 'BusinessManagement' },
   { name: 'Help Center', icon: HelpCircle, page: 'HelpCenter' },
   { name: 'Settings', icon: Settings, page: 'Settings' },
   { name: 'Activity Logs', icon: Activity, page: 'ActivityLogs' },
-];
+  ];
 
 const SIDEBAR_ICONS = {
         Dashboard: LayoutDashboard,
