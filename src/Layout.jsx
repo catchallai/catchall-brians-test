@@ -9,6 +9,7 @@ import GlobalSearch from '@/components/search/GlobalSearch';
 import { ThemeProvider, useTheme } from '@/components/theme/ThemeProvider';
 import ThemeToggle from '@/components/theme/ThemeToggle';
 import NotificationBell from '@/components/notifications/NotificationBell';
+import BusinessSelector from '@/components/business/BusinessSelector';
 import {
         LayoutDashboard,
         Rocket,
@@ -468,10 +469,11 @@ export default function Layout({ children, currentPageName }) {
                           </SheetContent>
         </Sheet>
 
-        <div className="flex-1">
+        <div className="flex-1 min-w-0">
           <GlobalSearch />
         </div>
 
+        <BusinessSelector user={user} />
         <NotificationBell />
         <ThemeToggle />
 
@@ -505,6 +507,7 @@ export default function Layout({ children, currentPageName }) {
       <div className="hidden lg:flex fixed top-0 left-64 right-0 h-14 glass-topbar z-30 items-center justify-between px-6">
         <GlobalSearch />
         <div className="flex items-center gap-3">
+            <BusinessSelector user={user} />
             <NotificationBell />
             <ThemeToggle />
             <DropdownMenu>

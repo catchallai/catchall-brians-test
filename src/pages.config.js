@@ -57,6 +57,7 @@ import UserProfile from './pages/UserProfile';
 import UserSettings from './pages/UserSettings';
 import VisitorProfiles from './pages/VisitorProfiles';
 import WebCrawler from './pages/WebCrawler';
+import BusinessManagement from './pages/BusinessManagement';
 import __Layout from './Layout.jsx';
 
 
@@ -120,6 +121,7 @@ export const PAGES = {
     "UserSettings": UserSettings,
     "VisitorProfiles": VisitorProfiles,
     "WebCrawler": WebCrawler,
+    "BusinessManagement": BusinessManagement,
 }
 
 export const pagesConfig = {
