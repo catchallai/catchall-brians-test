@@ -27,13 +27,10 @@ export default function Activities() {
   const { data: allActivities = [], isLoading } = useQuery({
     queryKey: ['activities', user?.current_business_id],
     queryFn: async () => {
-      const activities = await base44.entities.Activity.list('-created_date', 200);
-      if (user?.current_business_id) {
-        return activities.filter(a => a.business_id === user.current_business_id);
-      }
-      return activities;
+      if (!user?.current_business_id) return [];
+      return await base44.entities.Activity.filter({ business_id: user.current_business_id }, '-created_date', 200);
     },
-    enabled: !!user,
+    enabled: !!user?.current_business_id,
   });
 
   const activities = allActivities;
@@ -41,13 +38,10 @@ export default function Activities() {
   const { data: allContacts = [] } = useQuery({
     queryKey: ['contacts', user?.current_business_id],
     queryFn: async () => {
-      const contacts = await base44.entities.Contact.list('-created_date', 500);
-      if (user?.current_business_id) {
-        return contacts.filter(c => c.business_id === user.current_business_id);
-      }
-      return contacts;
+      if (!user?.current_business_id) return [];
+      return await base44.entities.Contact.filter({ business_id: user.current_business_id }, '-created_date', 500);
     },
-    enabled: !!user,
+    enabled: !!user?.current_business_id,
   });
 
   const contacts = allContacts;
@@ -55,13 +49,10 @@ export default function Activities() {
   const { data: allDeals = [] } = useQuery({
     queryKey: ['deals', user?.current_business_id],
     queryFn: async () => {
-      const deals = await base44.entities.Deal.list('-created_date', 200);
-      if (user?.current_business_id) {
-        return deals.filter(d => d.business_id === user.current_business_id);
-      }
-      return deals;
+      if (!user?.current_business_id) return [];
+      return await base44.entities.Deal.filter({ business_id: user.current_business_id }, '-created_date', 200);
     },
-    enabled: !!user,
+    enabled: !!user?.current_business_id,
   });
 
   const deals = allDeals;

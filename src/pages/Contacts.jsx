@@ -44,21 +44,21 @@ export default function Contacts() {
   const { data: allContacts = [], isLoading: loadingContacts } = useQuery({
     queryKey: ['contacts', user?.current_business_id],
     queryFn: async () => {
-      const contacts = await base44.entities.Contact.list('-created_date', 1000);
-      // Filter by current business
-      if (user?.current_business_id) {
-        return contacts.filter(c => c.business_id === user.current_business_id);
-      }
-      return contacts;
+      if (!user?.current_business_id) return [];
+      return await base44.entities.Contact.filter({ business_id: user.current_business_id }, '-created_date', 1000);
     },
-    enabled: !!user,
+    enabled: !!user?.current_business_id,
   });
 
   const contacts = allContacts.filter(c => showDeleted ? c.deleted : !c.deleted);
 
   const { data: companies = [] } = useQuery({
-    queryKey: ['companies'],
-    queryFn: () => base44.entities.Company.list('-created_date', 100),
+    queryKey: ['companies', user?.current_business_id],
+    queryFn: async () => {
+      if (!user?.current_business_id) return [];
+      return await base44.entities.Company.filter({ business_id: user.current_business_id }, '-created_date', 100);
+    },
+    enabled: !!user?.current_business_id,
   });
 
   const createMutation = useMutation({

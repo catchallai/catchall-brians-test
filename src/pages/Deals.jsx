@@ -34,13 +34,10 @@ export default function Deals() {
   const { data: allDeals = [], isLoading: loadingDeals } = useQuery({
     queryKey: ['deals', user?.current_business_id],
     queryFn: async () => {
-      const deals = await base44.entities.Deal.list('-created_date', 200);
-      if (user?.current_business_id) {
-        return deals.filter(d => d.business_id === user.current_business_id);
-      }
-      return deals;
+      if (!user?.current_business_id) return [];
+      return await base44.entities.Deal.filter({ business_id: user.current_business_id }, '-created_date', 200);
     },
-    enabled: !!user,
+    enabled: !!user?.current_business_id,
   });
 
   const deals = allDeals;
@@ -48,13 +45,10 @@ export default function Deals() {
   const { data: allContacts = [] } = useQuery({
     queryKey: ['contacts', user?.current_business_id],
     queryFn: async () => {
-      const contacts = await base44.entities.Contact.list('-created_date', 500);
-      if (user?.current_business_id) {
-        return contacts.filter(c => c.business_id === user.current_business_id);
-      }
-      return contacts;
+      if (!user?.current_business_id) return [];
+      return await base44.entities.Contact.filter({ business_id: user.current_business_id }, '-created_date', 500);
     },
-    enabled: !!user,
+    enabled: !!user?.current_business_id,
   });
 
   const contacts = allContacts;
@@ -62,13 +56,10 @@ export default function Deals() {
   const { data: allCompanies = [] } = useQuery({
     queryKey: ['companies', user?.current_business_id],
     queryFn: async () => {
-      const companies = await base44.entities.Company.list('-created_date', 200);
-      if (user?.current_business_id) {
-        return companies.filter(c => c.business_id === user.current_business_id);
-      }
-      return companies;
+      if (!user?.current_business_id) return [];
+      return await base44.entities.Company.filter({ business_id: user.current_business_id }, '-created_date', 200);
     },
-    enabled: !!user,
+    enabled: !!user?.current_business_id,
   });
 
   const companies = allCompanies;
