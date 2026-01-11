@@ -22,117 +22,80 @@ import QuickActions from '@/components/dashboard/QuickActions';
 import FavoriteLinksManager from '@/components/dashboard/FavoriteLinksManager';
 
 export default function Dashboard() {
-  // User
-  const { data: user } = useQuery({
-    queryKey: ['current-user'],
-    queryFn: () => base44.auth.me(),
-  });
-
   // CRM Data
   const { data: contacts = [], isLoading: loadingContacts } = useQuery({
-    queryKey: ['contacts', user?.current_business_id],
-    queryFn: async () => {
-      const allContacts = await base44.entities.Contact.list('-created_date', 1000);
-      if (user?.current_business_id) {
-        return allContacts.filter(c => c.business_id === user.current_business_id);
-      }
-      return allContacts;
-    },
-    enabled: !!user,
+    queryKey: ['contacts'],
+    queryFn: () => base44.entities.Contact.list('-created_date', 100),
   });
 
   const { data: companies = [] } = useQuery({
-    queryKey: ['companies', user?.current_business_id],
-    queryFn: async () => {
-      const allCompanies = await base44.entities.Company.list('-created_date', 1000);
-      if (user?.current_business_id) {
-        return allCompanies.filter(c => c.business_id === user.current_business_id);
-      }
-      return allCompanies;
-    },
-    enabled: !!user,
+    queryKey: ['companies'],
+    queryFn: () => base44.entities.Company.list('-created_date', 100),
   });
 
   const { data: deals = [], isLoading: loadingDeals } = useQuery({
-    queryKey: ['deals', user?.current_business_id],
-    queryFn: async () => {
-      const allDeals = await base44.entities.Deal.list('-created_date', 1000);
-      if (user?.current_business_id) {
-        return allDeals.filter(d => d.business_id === user.current_business_id);
-      }
-      return allDeals;
-    },
-    enabled: !!user,
+    queryKey: ['deals'],
+    queryFn: () => base44.entities.Deal.list('-created_date', 100),
   });
 
   // SEO Data
   const { data: websites = [] } = useQuery({
-    queryKey: ['websites', user?.current_business_id],
-    queryFn: async () => {
-      const allWebsites = await base44.entities.Website.list('-created_date', 1000);
-      if (user?.current_business_id) {
-        return allWebsites.filter(w => w.business_id === user.current_business_id);
-      }
-      return allWebsites;
-    },
-    enabled: !!user,
+    queryKey: ['websites'],
+    queryFn: () => base44.entities.Website.list('-created_date', 50),
   });
 
   const { data: keywords = [] } = useQuery({
-    queryKey: ['keywords', user?.current_business_id],
-    queryFn: () => base44.entities.Keyword.list('-created_date', 1000),
-    enabled: !!user,
+    queryKey: ['keywords'],
+    queryFn: () => base44.entities.Keyword.list('-created_date', 200),
   });
 
   const { data: backlinks = [] } = useQuery({
-    queryKey: ['backlinks', user?.current_business_id],
-    queryFn: () => base44.entities.Backlink.list('-created_date', 1000),
-    enabled: !!user,
+    queryKey: ['backlinks'],
+    queryFn: () => base44.entities.Backlink.list('-created_date', 200),
   });
 
   // Social Data
   const { data: mentions = [] } = useQuery({
-    queryKey: ['dashboard-mentions', user?.current_business_id],
-    queryFn: () => base44.entities.ListeningMention.list('-created_date', 1000),
-    enabled: !!user,
+    queryKey: ['dashboard-mentions'],
+    queryFn: () => base44.entities.ListeningMention.list('-created_date', 100),
   });
 
   const { data: alerts = [] } = useQuery({
-    queryKey: ['dashboard-alerts', user?.current_business_id],
-    queryFn: () => base44.entities.ListeningAlert.filter({ is_dismissed: false }, '-created_date', 100),
-    enabled: !!user,
+    queryKey: ['dashboard-alerts'],
+    queryFn: () => base44.entities.ListeningAlert.filter({ is_dismissed: false }, '-created_date', 20),
   });
 
   const { data: listeningKeywords = [] } = useQuery({
-    queryKey: ['listening-keywords', user?.current_business_id],
-    queryFn: () => base44.entities.SocialListening.list('-created_date', 1000),
-    enabled: !!user,
+    queryKey: ['listening-keywords'],
+    queryFn: () => base44.entities.SocialListening.list('-created_date', 50),
   });
 
   // Content Data
   const { data: calendarPosts = [] } = useQuery({
-    queryKey: ['dashboard-posts', user?.current_business_id],
-    queryFn: () => base44.entities.CalendarPost.list('-scheduled_date', 1000),
-    enabled: !!user,
+    queryKey: ['dashboard-posts'],
+    queryFn: () => base44.entities.CalendarPost.list('-scheduled_date', 50),
   });
 
   const { data: brands = [] } = useQuery({
-    queryKey: ['brands', user?.current_business_id],
-    queryFn: () => base44.entities.Brand.list('-created_date', 1000),
-    enabled: !!user,
+    queryKey: ['brands'],
+    queryFn: () => base44.entities.Brand.list('-created_date', 50),
   });
 
   // Marketing Data
   const { data: campaigns = [] } = useQuery({
-    queryKey: ['campaigns', user?.current_business_id],
-    queryFn: () => base44.entities.Campaign.list('-created_date', 1000),
-    enabled: !!user,
+    queryKey: ['campaigns'],
+    queryFn: () => base44.entities.Campaign.list('-created_date', 50),
   });
 
   const { data: emailCampaigns = [] } = useQuery({
-    queryKey: ['email-campaigns', user?.current_business_id],
-    queryFn: () => base44.entities.EmailCampaign.list('-created_date', 1000),
-    enabled: !!user,
+    queryKey: ['email-campaigns'],
+    queryFn: () => base44.entities.EmailCampaign.list('-created_date', 50),
+  });
+
+  // User
+  const { data: user } = useQuery({
+    queryKey: ['current-user'],
+    queryFn: () => base44.auth.me(),
   });
 
   // Get favorite links from user data
