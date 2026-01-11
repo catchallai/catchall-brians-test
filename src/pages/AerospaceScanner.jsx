@@ -36,14 +36,33 @@ export default function AerospaceScanner() {
   const [filtersForAlert, setFiltersForAlert] = useState(null);
   const queryClient = useQueryClient();
 
+  const { data: user } = useQuery({
+    queryKey: ['current-user'],
+    queryFn: () => base44.auth.me(),
+  });
+
   const { data: companies = [], isLoading } = useQuery({
-    queryKey: ['aerospace-companies'],
-    queryFn: () => base44.entities.AerospaceCompany.list('-last_scanned', 100),
+    queryKey: ['aerospace-companies', user?.current_business_id],
+    queryFn: async () => {
+      const allCompanies = await base44.entities.AerospaceCompany.list('-last_scanned', 1000);
+      if (user?.current_business_id) {
+        return allCompanies.filter(c => c.business_id === user.current_business_id);
+      }
+      return allCompanies;
+    },
+    enabled: !!user,
   });
 
   const { data: competitors = [] } = useQuery({
-    queryKey: ['competitors'],
-    queryFn: () => base44.entities.Competitor.list('-created_date', 50),
+    queryKey: ['competitors', user?.current_business_id],
+    queryFn: async () => {
+      const allCompetitors = await base44.entities.Competitor.list('-created_date', 1000);
+      if (user?.current_business_id) {
+        return allCompetitors.filter(c => c.business_id === user.current_business_id);
+      }
+      return allCompetitors;
+    },
+    enabled: !!user,
   });
 
   const createCompanyMutation = useMutation({
@@ -509,6 +528,7 @@ If this is NOT an aerospace/aviation company, return is_aerospace: false.`,
         if (response.is_aerospace) {
           await createCompanyMutation.mutateAsync({
             ...response,
+            business_id: user?.current_business_id,
             last_scanned: new Date().toISOString()
           });
           imported++;
@@ -655,6 +675,7 @@ Provide detailed data including:
 
       await createCompanyMutation.mutateAsync({
         ...response,
+        business_id: user?.current_business_id,
         last_scanned: new Date().toISOString()
       });
 

@@ -32,19 +32,50 @@ export default function DocuTrace() {
   const [copiedCode, setCopiedCode] = useState(null);
   const queryClient = useQueryClient();
 
+  const { data: user } = useQuery({
+    queryKey: ['current-user'],
+    queryFn: () => base44.auth.me(),
+  });
+
   const { data: documents = [], isLoading } = useQuery({
-    queryKey: ['tracked-documents'],
-    queryFn: () => base44.entities.TrackedDocument.list('-created_date', 100)
+    queryKey: ['tracked-documents', user?.current_business_id],
+    queryFn: async () => {
+      const allDocs = await base44.entities.TrackedDocument.list('-created_date', 1000);
+      if (user?.current_business_id) {
+        return allDocs.filter(d => d.business_id === user.current_business_id);
+      }
+      return allDocs;
+    },
+    enabled: !!user,
   });
 
   const { data: contacts = [] } = useQuery({
-    queryKey: ['contacts'],
-    queryFn: () => base44.entities.Contact.list('first_name', 100)
+    queryKey: ['contacts', user?.current_business_id],
+    queryFn: async () => {
+      const allContacts = await base44.entities.Contact.list('first_name', 1000);
+      if (user?.current_business_id) {
+        return allContacts.filter(c => c.business_id === user.current_business_id);
+      }
+      return allContacts;
+    },
+    enabled: !!user,
   });
 
   const { data: deals = [] } = useQuery({
-    queryKey: ['deals'],
-    queryFn: () => base44.entities.Deal.list('title', 100)
+    queryKey: ['deals', user?.current_business_id],
+    queryFn: async () => {
+      const allDeals = await base44.entities.Deal.list('title', 1000);
+      if (user?.current_business_id) {
+        return allDeals.filter(d => d.business_id === user.current_business_id);
+      }
+      return allDeals;
+    },
+    enabled: !!user,
+  });
+
+  const { data: user } = useQuery({
+    queryKey: ['current-user'],
+    queryFn: () => base44.auth.me(),
   });
 
   const uploadMutation = useMutation({
@@ -77,6 +108,7 @@ Provide:
       // Create document record
       return base44.entities.TrackedDocument.create({
         ...docForm,
+        business_id: user?.current_business_id,
         file_url,
         tracking_code: trackingCode,
         share_link: shareLink,

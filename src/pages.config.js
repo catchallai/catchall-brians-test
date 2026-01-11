@@ -5,6 +5,7 @@ import ActivityLogs from './pages/ActivityLogs';
 import AerospaceScanner from './pages/AerospaceScanner';
 import Automation from './pages/Automation';
 import Backlinks from './pages/Backlinks';
+import BusinessManagement from './pages/BusinessManagement';
 import CampaignDetail from './pages/CampaignDetail';
 import Campaigns from './pages/Campaigns';
 import Collaboration from './pages/Collaboration';
@@ -57,7 +58,6 @@ import UserProfile from './pages/UserProfile';
 import UserSettings from './pages/UserSettings';
 import VisitorProfiles from './pages/VisitorProfiles';
 import WebCrawler from './pages/WebCrawler';
-import BusinessManagement from './pages/BusinessManagement';
 import __Layout from './Layout.jsx';
 
 
@@ -69,6 +69,7 @@ export const PAGES = {
     "AerospaceScanner": AerospaceScanner,
     "Automation": Automation,
     "Backlinks": Backlinks,
+    "BusinessManagement": BusinessManagement,
     "CampaignDetail": CampaignDetail,
     "Campaigns": Campaigns,
     "Collaboration": Collaboration,
@@ -121,7 +122,6 @@ export const PAGES = {
     "UserSettings": UserSettings,
     "VisitorProfiles": VisitorProfiles,
     "WebCrawler": WebCrawler,
-    "BusinessManagement": BusinessManagement,
 }
 
 export const pagesConfig = {
