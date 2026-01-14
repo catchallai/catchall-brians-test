@@ -6,13 +6,14 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Plus, Grid3x3, List, Filter, Upload, Download, Search } from "lucide-react";
+import { Plus, Grid3x3, List, Filter, Upload, Download, Search, X } from "lucide-react";
 import OpportunityCard from '@/components/crm/OpportunityCard';
 import OpportunityModal from '@/components/modals/OpportunityModal';
 import EmptyState from '@/components/ui/EmptyState';
 import { useDebounce } from '@/components/hooks/useDebounce';
 import { useToast } from '@/components/ui/toast-provider';
 import ConfirmDialog from '@/components/ui/ConfirmDialog';
+import ImportDialog from '@/components/ui/ImportDialog';
 
 export default function Opportunities() {
   const [showModal, setShowModal] = useState(false);
@@ -22,6 +23,7 @@ export default function Opportunities() {
   const [stageFilter, setStageFilter] = useState('all');
   const [showFilters, setShowFilters] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
+  const [showImport, setShowImport] = useState(false);
   const queryClient = useQueryClient();
   const toast = useToast();
   
@@ -84,6 +86,19 @@ export default function Opportunities() {
     onError: () => toast.error('Failed to delete opportunity'),
   });
 
+  const importMutation = useMutation({
+    mutationFn: async (data) => {
+      const response = await base44.functions.invoke('importOpportunities', { data });
+      return response.data;
+    },
+    onSuccess: (result) => {
+      queryClient.invalidateQueries({ queryKey: ['opportunities'] });
+      toast.success(`Imported ${result.imported} opportunities${result.errors > 0 ? ` (${result.errors} errors)` : ''}`);
+      setShowImport(false);
+    },
+    onError: () => toast.error('Failed to import opportunities'),
+  });
+
   const handleSave = (data) => {
     if (editingOpportunity) {
       updateMutation.mutate({ id: editingOpportunity.id, data });
@@ -140,7 +155,7 @@ export default function Opportunities() {
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
-          <Button variant="outline" className="gap-2 text-sm" size="sm">
+          <Button variant="outline" className="gap-2 text-sm" size="sm" onClick={() => setShowImport(true)}>
             <Upload className="w-4 h-4" />
             Import
           </Button>
@@ -298,6 +313,19 @@ export default function Opportunities() {
         contacts={contacts}
         onSave={handleSave}
         isLoading={createMutation.isPending || updateMutation.isPending}
+      />
+
+      {/* Import Dialog */}
+      <ImportDialog
+        open={showImport}
+        onClose={() => setShowImport(false)}
+        onImport={(data) => importMutation.mutateAsync(data)}
+        entityName="Opportunities"
+        requiredFields={['Opportunity Name', 'email']}
+        optionalFields={['Contact Name', 'phone', 'stage', 'Lead Value', 'source', 'Notes', 'tags']}
+        sampleData={[
+          { 'Opportunity Name': 'New Lead', 'Contact Name': 'John Doe', email: 'john@example.com', phone: '555-1234', stage: '🚨New Lead', 'Lead Value': '1000', source: 'Website', Notes: 'Interested in product', tags: 'hot,qualified' },
+        ]}
       />
 
       {/* Delete Confirmation */}
