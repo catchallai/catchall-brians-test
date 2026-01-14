@@ -13,6 +13,7 @@ import EmailTemplateCard from '@/components/email/EmailTemplateCard';
 import EmailCampaignCard from '@/components/email/EmailCampaignCard';
 import EmailTemplateModal from '@/components/modals/EmailTemplateModal';
 import EmailCampaignModal from '@/components/modals/EmailCampaignModal';
+import DripCampaignModal from '@/components/modals/DripCampaignModal';
 import EmptyState from '@/components/ui/EmptyState';
 import {
   AlertDialog,
@@ -30,6 +31,8 @@ export default function EmailMarketing() {
   const [showCampaignModal, setShowCampaignModal] = useState(false);
   const [editingTemplate, setEditingTemplate] = useState(null);
   const [editingCampaign, setEditingCampaign] = useState(null);
+  const [editingDripCampaign, setEditingDripCampaign] = useState(null);
+  const [showDripModal, setShowDripModal] = useState(false);
   const [sendConfirm, setSendConfirm] = useState(null);
   const queryClient = useQueryClient();
 
@@ -177,6 +180,11 @@ export default function EmailMarketing() {
     queryFn: () => base44.entities.Contact.list('-created_date', 1000),
   });
 
+  const { data: dripCampaigns = [], isLoading: loadingDrips } = useQuery({
+    queryKey: ['drip-campaigns'],
+    queryFn: () => base44.entities.EmailDripCampaign.list('-created_date', 100),
+  });
+
   const createTemplateMutation = useMutation({
     mutationFn: (data) => base44.entities.EmailTemplate.create(data),
     onSuccess: () => {
@@ -257,13 +265,46 @@ export default function EmailMarketing() {
     setShowCampaignModal(true);
   };
 
+  const createDripMutation = useMutation({
+    mutationFn: (data) => base44.entities.EmailDripCampaign.create(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['drip-campaigns'] });
+      setShowDripModal(false);
+      setEditingDripCampaign(null);
+    },
+  });
+
+  const updateDripMutation = useMutation({
+    mutationFn: ({ id, data }) => base44.entities.EmailDripCampaign.update(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['drip-campaigns'] });
+      setShowDripModal(false);
+      setEditingDripCampaign(null);
+    },
+  });
+
+  const toggleDripMutation = useMutation({
+    mutationFn: ({ id, status }) => base44.entities.EmailDripCampaign.update(id, { status }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['drip-campaigns'] });
+    },
+  });
+
+  const handleSaveDrip = (data) => {
+    if (editingDripCampaign) {
+      updateDripMutation.mutate({ id: editingDripCampaign.id, data });
+    } else {
+      createDripMutation.mutate(data);
+    }
+  };
+
   const totalSent = emailCampaigns.reduce((sum, c) => sum + (c.total_sent || 0), 0);
   const totalOpened = emailCampaigns.reduce((sum, c) => sum + (c.total_opened || 0), 0);
   const totalClicked = emailCampaigns.reduce((sum, c) => sum + (c.total_clicked || 0), 0);
   const overallOpenRate = totalSent > 0 ? (totalOpened / totalSent) * 100 : 0;
   const overallClickRate = totalOpened > 0 ? (totalClicked / totalOpened) * 100 : 0;
 
-  const isLoading = loadingTemplates || loadingCampaigns;
+  const isLoading = loadingTemplates || loadingCampaigns || loadingDrips;
 
   return (
     <div className="p-6 lg:p-8 space-y-6 min-h-screen">
@@ -310,6 +351,7 @@ export default function EmailMarketing() {
         <div className="flex items-center justify-between">
           <TabsList>
             <TabsTrigger value="campaigns">Email Campaigns</TabsTrigger>
+            <TabsTrigger value="drips">Drip Campaigns</TabsTrigger>
             <TabsTrigger value="templates">Templates</TabsTrigger>
           </TabsList>
         </div>
@@ -363,6 +405,95 @@ export default function EmailMarketing() {
                     </Button>
                   )}
                 </div>
+              ))}
+            </div>
+          )}
+        </TabsContent>
+
+        <TabsContent value="drips" className="space-y-4">
+          <div className="flex justify-end">
+            <Button 
+              onClick={() => { setEditingDripCampaign(null); setShowDripModal(true); }} 
+              className="gap-2 bg-violet-600 hover:bg-violet-700"
+            >
+              <Plus className="w-4 h-4" />
+              New Drip Campaign
+            </Button>
+          </div>
+
+          {isLoading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {[...Array(3)].map((_, i) => (
+                <Skeleton key={i} className="h-48 rounded-xl" />
+              ))}
+            </div>
+          ) : dripCampaigns.length === 0 ? (
+            <EmptyState
+              icon={Mail}
+              title="No drip campaigns"
+              description="Create automated email sequences that nurture contacts over time."
+              actionLabel="Create Drip Campaign"
+              onAction={() => { setEditingDripCampaign(null); setShowDripModal(true); }}
+            />
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {dripCampaigns.map((drip) => (
+                <Card key={drip.id} className="glass-card hover:shadow-md transition-shadow cursor-pointer" onClick={() => { setEditingDripCampaign(drip); setShowDripModal(true); }}>
+                  <CardContent className="p-6">
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-lg bg-violet-100 dark:bg-violet-900 flex items-center justify-center">
+                          <Mail className="w-5 h-5 text-violet-600 dark:text-violet-400" />
+                        </div>
+                        <div>
+                          <h3 className="font-semibold text-gray-900 dark:text-white">{drip.name}</h3>
+                          <p className="text-xs text-gray-500">{drip.emails?.length || 0} emails</p>
+                        </div>
+                      </div>
+                      <Button
+                        size="sm"
+                        variant={drip.status === 'active' ? 'default' : 'outline'}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleDripMutation.mutate({
+                            id: drip.id,
+                            status: drip.status === 'active' ? 'paused' : 'active'
+                          });
+                        }}
+                        className="text-xs"
+                      >
+                        {drip.status === 'active' ? 'Pause' : 'Activate'}
+                      </Button>
+                    </div>
+                    
+                    <div className="space-y-2 text-sm">
+                      <div className="flex justify-between">
+                        <span className="text-gray-500">Trigger:</span>
+                        <span className="text-gray-900 dark:text-white">{drip.trigger_type?.replace(/_/g, ' ')}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-500">Enrolled:</span>
+                        <span className="text-gray-900 dark:text-white">{drip.enrolled_count || 0}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-500">Completed:</span>
+                        <span className="text-gray-900 dark:text-white">{drip.completed_count || 0}</span>
+                      </div>
+                      {(drip.open_rate > 0 || drip.click_rate > 0) && (
+                        <div className="pt-2 border-t border-gray-100 dark:border-gray-800">
+                          <div className="flex justify-between text-xs">
+                            <span className="text-gray-500">Open Rate:</span>
+                            <span className="text-emerald-600">{drip.open_rate?.toFixed(1)}%</span>
+                          </div>
+                          <div className="flex justify-between text-xs">
+                            <span className="text-gray-500">Click Rate:</span>
+                            <span className="text-blue-600">{drip.click_rate?.toFixed(1)}%</span>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
               ))}
             </div>
           )}
@@ -425,6 +556,15 @@ export default function EmailMarketing() {
         contacts={contacts}
         onSave={handleSaveCampaign}
         isLoading={createCampaignMutation.isPending || updateCampaignMutation.isPending}
+      />
+
+      <DripCampaignModal
+        open={showDripModal}
+        onClose={() => { setShowDripModal(false); setEditingDripCampaign(null); }}
+        dripCampaign={editingDripCampaign}
+        templates={templates}
+        onSave={handleSaveDrip}
+        isLoading={createDripMutation.isPending || updateDripMutation.isPending}
       />
 
       {/* Send Confirmation Dialog */}
