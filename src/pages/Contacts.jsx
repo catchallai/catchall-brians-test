@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Plus, Search, Users, Upload, Download, Trash2, RotateCcw } from "lucide-react";
+import { Plus, Search, Users, Upload, Download, Trash2, RotateCcw, List, Grid3x3 } from "lucide-react";
 import ContactCard from '@/components/crm/ContactCard';
 import ContactModal from '@/components/modals/ContactModal';
 import EmptyState from '@/components/ui/EmptyState';
@@ -31,6 +31,7 @@ export default function Contacts() {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedIds, setSelectedIds] = useState([]);
   const [showDeleted, setShowDeleted] = useState(false);
+  const [viewMode, setViewMode] = useState('list');
   const queryClient = useQueryClient();
   const toast = useToast();
   
@@ -312,6 +313,24 @@ export default function Contacts() {
 
       {/* Filters */}
       <div className="flex flex-col sm:flex-row gap-4">
+        <div className="flex gap-1 bg-gray-100 dark:bg-gray-800 p-1 rounded-lg">
+          <Button
+            variant={viewMode === 'list' ? 'default' : 'ghost'}
+            size="sm"
+            onClick={() => setViewMode('list')}
+            className="h-8 px-3"
+          >
+            <List className="w-4 h-4" />
+          </Button>
+          <Button
+            variant={viewMode === 'grid' ? 'default' : 'ghost'}
+            size="sm"
+            onClick={() => setViewMode('grid')}
+            className="h-8 px-3"
+          >
+            <Grid3x3 className="w-4 h-4" />
+          </Button>
+        </div>
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
           <Input
@@ -360,25 +379,64 @@ export default function Contacts() {
         />
       ) : (
         <>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {paginatedContacts.map((contact) => (
-              <div key={contact.id} className="relative group">
-                <div className="absolute top-3 left-3 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <Checkbox
-                    checked={selectedIds.includes(contact.id)}
-                    onCheckedChange={() => toggleSelect(contact.id)}
-                    className="bg-white"
+          {viewMode === 'grid' ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {paginatedContacts.map((contact) => (
+                <div key={contact.id} className="relative group">
+                  <div className="absolute top-3 left-3 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <Checkbox
+                      checked={selectedIds.includes(contact.id)}
+                      onCheckedChange={() => toggleSelect(contact.id)}
+                      className="bg-white"
+                    />
+                  </div>
+                  <ContactCard
+                    contact={contact}
+                    company={getCompany(contact.company_id)}
+                    onClick={() => handleEdit(contact)}
+                    isSelected={selectedIds.includes(contact.id)}
                   />
                 </div>
-                <ContactCard
-                  contact={contact}
-                  company={getCompany(contact.company_id)}
-                  onClick={() => handleEdit(contact)}
-                  isSelected={selectedIds.includes(contact.id)}
-                />
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {paginatedContacts.map((contact) => {
+                const company = getCompany(contact.company_id);
+                return (
+                  <div 
+                    key={contact.id} 
+                    className="glass-card p-4 rounded-xl hover:shadow-md transition-shadow cursor-pointer group flex items-center gap-4"
+                    onClick={() => handleEdit(contact)}
+                  >
+                    <Checkbox
+                      checked={selectedIds.includes(contact.id)}
+                      onCheckedChange={() => toggleSelect(contact.id)}
+                      className="opacity-0 group-hover:opacity-100 transition-opacity"
+                      onClick={(e) => e.stopPropagation()}
+                    />
+                    <div className="flex-1 grid grid-cols-1 sm:grid-cols-4 gap-4 items-center">
+                      <div className="sm:col-span-1">
+                        <div className="font-semibold text-gray-900 dark:text-white">
+                          {contact.first_name} {contact.last_name}
+                        </div>
+                        <div className="text-sm text-gray-500">{contact.job_title}</div>
+                      </div>
+                      <div className="text-sm text-gray-600 dark:text-gray-400">
+                        {company?.name || contact.company_name || '-'}
+                      </div>
+                      <div className="text-sm text-gray-600 dark:text-gray-400">
+                        {contact.email}
+                      </div>
+                      <div className="text-sm text-gray-600 dark:text-gray-400">
+                        {contact.phone || '-'}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
 
           <Pagination
             currentPage={currentPage}
