@@ -6,11 +6,87 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   ArrowLeft, Play, Save, Globe, Plus, Zap, Mail, Calendar,
-  CheckCircle, FileText, Users, Target, Clock
+  CheckCircle, FileText, Users, Target, Clock, Phone, AlertCircle
 } from "lucide-react";
 import { createPageUrl } from '@/utils';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+
+const WORKFLOW_TEMPLATES = [
+  {
+    name: 'Lead Follow-up Workflow',
+    description: 'Automatically follow up with new leads after initial contact',
+    icon: Users,
+    trigger_type: 'positive_call',
+    actions: [
+      { type: 'create_task', config: { title: 'Send follow-up email', due_in_days: 1 } },
+      { type: 'send_email', config: { template: 'Follow-up Email', delay_days: 1 } },
+      { type: 'create_followup', config: { scheduled_days: 3, type: 'call' } }
+    ]
+  },
+  {
+    name: 'Deal Stage Progression',
+    description: 'Move deals through pipeline stages automatically',
+    icon: Target,
+    trigger_type: 'followup_completed',
+    actions: [
+      { type: 'update_stage', config: { new_stage: 'qualified' } },
+      { type: 'create_task', config: { title: 'Prepare proposal', due_in_days: 2 } },
+      { type: 'send_email', config: { template: 'Proposal Email', delay_days: 2 } }
+    ]
+  },
+  {
+    name: 'Reservation Confirmation',
+    description: 'Send confirmation and follow-up after reservation',
+    icon: Calendar,
+    trigger_type: 'reservation_confirmed',
+    actions: [
+      { type: 'send_email', config: { template: 'Reservation Confirmed', delay_days: 0 } },
+      { type: 'create_task', config: { title: 'Prepare for meeting', due_in_days: 1 } },
+      { type: 'create_followup', config: { scheduled_days: 1, type: 'reminder' } }
+    ]
+  },
+  {
+    name: 'Post-Demo Follow-up',
+    description: 'Nurture leads after product demonstration',
+    icon: CheckCircle,
+    trigger_type: 'followup_completed',
+    actions: [
+      { type: 'send_email', config: { template: 'Thank you for demo', delay_days: 0 } },
+      { type: 'create_task', config: { title: 'Check if questions answered', due_in_days: 2 } },
+      { type: 'create_followup', config: { scheduled_days: 5, type: 'call' } }
+    ]
+  },
+  {
+    name: 'Inactive Deal Recovery',
+    description: 'Re-engage with deals that have gone cold',
+    icon: AlertCircle,
+    trigger_type: 'deal_inactive',
+    actions: [
+      { type: 'create_task', config: { title: 'Review deal status', due_in_days: 0 } },
+      { type: 'send_email', config: { template: 'Re-engagement Email', delay_days: 1 } },
+      { type: 'create_followup', config: { scheduled_days: 7, type: 'call' } }
+    ]
+  },
+  {
+    name: 'Negative Call Recovery',
+    description: 'Handle and recover from unsuccessful calls',
+    icon: Phone,
+    trigger_type: 'negative_call',
+    actions: [
+      { type: 'create_task', config: { title: 'Document objections', due_in_days: 0 } },
+      { type: 'send_email', config: { template: 'Address Concerns', delay_days: 2 } },
+      { type: 'create_followup', config: { scheduled_days: 14, type: 'call' } }
+    ]
+  }
+];
 
 export default function WorkflowBuilder() {
   const navigate = useNavigate();
@@ -22,6 +98,8 @@ export default function WorkflowBuilder() {
   const [workflowName, setWorkflowName] = useState('New Workflow');
   const [isDraft, setIsDraft] = useState(true);
   const [nodes, setNodes] = useState([]);
+  const [showTemplates, setShowTemplates] = useState(false);
+  const [triggerType, setTriggerType] = useState('deal_inactive');
 
   const { data: workflow } = useQuery({
     queryKey: ['workflow', workflowId],
@@ -43,7 +121,7 @@ export default function WorkflowBuilder() {
     mutationFn: async () => {
       const data = {
         name: workflowName,
-        trigger_type: 'deal_inactive',
+        trigger_type: triggerType,
         actions: nodes,
         is_active: !isDraft,
       };
@@ -58,6 +136,20 @@ export default function WorkflowBuilder() {
       queryClient.invalidateQueries({ queryKey: ['workflows'] });
     },
   });
+
+  const applyTemplate = (template) => {
+    setWorkflowName(template.name);
+    setTriggerType(template.trigger_type);
+    setNodes(template.actions);
+    setShowTemplates(false);
+  };
+
+  // Show template selector for new workflows
+  React.useEffect(() => {
+    if (!workflowId && nodes.length === 0) {
+      setShowTemplates(true);
+    }
+  }, [workflowId, nodes.length]);
 
   const publishWorkflow = () => {
     setIsDraft(false);
@@ -147,14 +239,25 @@ export default function WorkflowBuilder() {
                 <div className="space-y-4">
                   {nodes.length === 0 ? (
                     <div className="border-2 border-dashed border-blue-300 dark:border-blue-700 rounded-lg p-8 text-center">
-                      <Button
-                        onClick={addTrigger}
-                        variant="outline"
-                        className="gap-2 border-blue-500 text-blue-600 hover:bg-blue-50"
-                      >
-                        <Plus className="w-4 h-4" />
-                        Add New Trigger
-                      </Button>
+                      <p className="text-gray-500 mb-4">Start building your workflow</p>
+                      <div className="flex gap-3 justify-center">
+                        <Button
+                          onClick={() => setShowTemplates(true)}
+                          variant="outline"
+                          className="gap-2"
+                        >
+                          <FileText className="w-4 h-4" />
+                          Use Template
+                        </Button>
+                        <Button
+                          onClick={addTrigger}
+                          variant="outline"
+                          className="gap-2 border-blue-500 text-blue-600 hover:bg-blue-50"
+                        >
+                          <Plus className="w-4 h-4" />
+                          Start from Scratch
+                        </Button>
+                      </div>
                     </div>
                   ) : (
                     nodes.map((node, idx) => (
@@ -244,6 +347,54 @@ export default function WorkflowBuilder() {
           </div>
         </TabsContent>
       </Tabs>
+
+      {/* Template Selection Dialog */}
+      <Dialog open={showTemplates} onOpenChange={setShowTemplates}>
+        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Choose a Workflow Template</DialogTitle>
+          </DialogHeader>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+            {WORKFLOW_TEMPLATES.map((template, idx) => (
+              <Card
+                key={idx}
+                className="cursor-pointer hover:shadow-md transition-all hover:border-violet-500"
+                onClick={() => applyTemplate(template)}
+              >
+                <CardContent className="p-6">
+                  <div className="flex items-start gap-4">
+                    <div className="w-12 h-12 rounded-lg bg-violet-100 dark:bg-violet-900 flex items-center justify-center shrink-0">
+                      <template.icon className="w-6 h-6 text-violet-600 dark:text-violet-400" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
+                        {template.name}
+                      </h3>
+                      <p className="text-sm text-gray-500 mb-3">{template.description}</p>
+                      <div className="flex items-center gap-2 text-xs text-gray-500">
+                        <Badge variant="secondary" className="text-xs">
+                          {template.trigger_type.replace(/_/g, ' ')}
+                        </Badge>
+                        <span>•</span>
+                        <span>{template.actions.length} actions</span>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+          <div className="mt-6 pt-4 border-t">
+            <Button
+              variant="outline"
+              onClick={() => setShowTemplates(false)}
+              className="w-full"
+            >
+              Start from Scratch Instead
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
