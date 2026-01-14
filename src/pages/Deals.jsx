@@ -4,9 +4,8 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Plus, Target, Settings } from "lucide-react";
+import { Plus, Target } from "lucide-react";
 import DealCard from '@/components/crm/DealCard';
-import DealModal from '@/components/modals/DealModal';
 import PipelineModal from '@/components/modals/PipelineModal';
 import EmptyState from '@/components/ui/EmptyState';
 import SalesFunnel from '@/components/crm/SalesFunnel';
@@ -27,9 +26,7 @@ const STAGE_COLORS = [
 ];
 
 export default function Deals() {
-  const [showModal, setShowModal] = useState(false);
   const [showPipelineModal, setShowPipelineModal] = useState(false);
-  const [editingDeal, setEditingDeal] = useState(null);
   const [draggedDeal, setDraggedDeal] = useState(null);
   const queryClient = useQueryClient();
 
@@ -82,26 +79,10 @@ export default function Deals() {
 
   const companies = allCompanies;
 
-  const createMutation = useMutation({
-    mutationFn: async (data) => {
-      const deal = await base44.entities.Deal.create({
-        ...data,
-        business_id: user?.current_business_id,
-      });
-      return deal;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['deals'] });
-      setShowModal(false);
-    },
-  });
-
   const updateMutation = useMutation({
     mutationFn: ({ id, data }) => base44.entities.Deal.update(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['deals'] });
-      setShowModal(false);
-      setEditingDeal(null);
     },
   });
 
@@ -119,19 +100,6 @@ export default function Deals() {
       setShowPipelineModal(false);
     },
   });
-
-  const handleSave = (data) => {
-    if (editingDeal) {
-      updateMutation.mutate({ id: editingDeal.id, data });
-    } else {
-      createMutation.mutate(data);
-    }
-  };
-
-  const handleEdit = (deal) => {
-    setEditingDeal(deal);
-    setShowModal(true);
-  };
 
   const handleDragStart = (e, deal) => {
     setDraggedDeal(deal);
@@ -207,9 +175,7 @@ export default function Deals() {
         <EmptyState
           icon={Target}
           title="No deals yet"
-          description="Start tracking your sales pipeline by adding your first deal."
-          actionLabel="Create Deal"
-          onAction={() => { setEditingDeal(null); setShowModal(true); }}
+          description="Deals will appear here when they are created."
         />
       ) : (
         <div className="flex gap-3 sm:gap-4 overflow-x-auto pb-4 -mx-4 px-4 sm:mx-0 sm:px-0">
@@ -235,14 +201,13 @@ export default function Deals() {
 
               <div className="space-y-3">
                 {getDealsForStage(stageId).map((deal) => (
-                  <div key={deal.id} onClick={() => handleEdit(deal)}>
-                    <DealCard
-                      deal={deal}
-                      contact={getContact(deal.contact_id)}
-                      onDragStart={handleDragStart}
-                      onDragEnd={() => setDraggedDeal(null)}
-                    />
-                  </div>
+                  <DealCard
+                    key={deal.id}
+                    deal={deal}
+                    contact={getContact(deal.contact_id)}
+                    onDragStart={handleDragStart}
+                    onDragEnd={() => setDraggedDeal(null)}
+                  />
                 ))}
               </div>
             </div>
@@ -251,17 +216,7 @@ export default function Deals() {
         </div>
       )}
 
-      {/* Modals */}
-      <DealModal
-        open={showModal}
-        onClose={() => { setShowModal(false); setEditingDeal(null); }}
-        deal={editingDeal}
-        contacts={contacts}
-        companies={companies}
-        onSave={handleSave}
-        isLoading={createMutation.isPending || updateMutation.isPending}
-      />
-
+      {/* Pipeline Modal */}
       <PipelineModal
         open={showPipelineModal}
         onClose={() => setShowPipelineModal(false)}
