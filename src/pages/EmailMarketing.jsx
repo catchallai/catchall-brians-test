@@ -7,7 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 import { 
   Plus, Mail, Send, FileText, Users, Eye, MousePointer, 
-  AlertCircle, Loader2, CheckCircle 
+  AlertCircle, Loader2, CheckCircle, BarChart3, TrendingUp 
 } from "lucide-react";
 import EmailTemplateCard from '@/components/email/EmailTemplateCard';
 import EmailCampaignCard from '@/components/email/EmailCampaignCard';
@@ -185,6 +185,11 @@ export default function EmailMarketing() {
     queryFn: () => base44.entities.EmailDripCampaign.list('-created_date', 100),
   });
 
+  const { data: emailLogs = [] } = useQuery({
+    queryKey: ['email-logs'],
+    queryFn: () => base44.entities.EmailLog.list('-created_date', 1000),
+  });
+
   const createTemplateMutation = useMutation({
     mutationFn: (data) => base44.entities.EmailTemplate.create(data),
     onSuccess: () => {
@@ -351,6 +356,7 @@ export default function EmailMarketing() {
         <div className="flex items-center justify-between">
           <TabsList>
             <TabsTrigger value="campaigns">Email Campaigns</TabsTrigger>
+            <TabsTrigger value="statistics">Statistics</TabsTrigger>
             <TabsTrigger value="drips">Drip Campaigns</TabsTrigger>
             <TabsTrigger value="templates">Templates</TabsTrigger>
           </TabsList>
@@ -408,6 +414,172 @@ export default function EmailMarketing() {
               ))}
             </div>
           )}
+        </TabsContent>
+
+        <TabsContent value="statistics" className="space-y-6">
+          {/* Engagement Summary */}
+          <Card className="glass-card">
+            <CardContent className="p-6">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Engagement Summary</h3>
+              <div className="space-y-4">
+                <div>
+                  <div className="flex justify-between text-sm mb-2">
+                    <span className="text-gray-600 dark:text-gray-400">Opens</span>
+                    <span className="font-medium text-gray-900 dark:text-white">{totalOpened}</span>
+                  </div>
+                  <div className="h-8 bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden">
+                    <div 
+                      className="h-full bg-violet-500" 
+                      style={{ width: `${totalSent > 0 ? (totalOpened / totalSent) * 100 : 0}%` }}
+                    />
+                  </div>
+                </div>
+                <div>
+                  <div className="flex justify-between text-sm mb-2">
+                    <span className="text-gray-600 dark:text-gray-400">Clicks</span>
+                    <span className="font-medium text-gray-900 dark:text-white">{totalClicked}</span>
+                  </div>
+                  <div className="h-8 bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden">
+                    <div 
+                      className="h-full bg-blue-500" 
+                      style={{ width: `${totalSent > 0 ? (totalClicked / totalSent) * 100 : 0}%` }}
+                    />
+                  </div>
+                </div>
+                <div>
+                  <div className="flex justify-between text-sm mb-2">
+                    <span className="text-gray-600 dark:text-gray-400">Bounced</span>
+                    <span className="font-medium text-gray-900 dark:text-white">{emailCampaigns.reduce((sum, c) => sum + (c.total_bounced || 0), 0)}</span>
+                  </div>
+                  <div className="h-8 bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden">
+                    <div 
+                      className="h-full bg-red-500" 
+                      style={{ width: `${totalSent > 0 ? (emailCampaigns.reduce((sum, c) => sum + (c.total_bounced || 0), 0) / totalSent) * 100 : 0}%` }}
+                    />
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Performance Metrics */}
+          <div>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Performance Metrics</h3>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <Card className="glass-card">
+                <CardContent className="p-6 text-center">
+                  <div className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{emailCampaigns.length}</div>
+                  <div className="text-sm text-gray-500">Campaigns Sent</div>
+                </CardContent>
+              </Card>
+              <Card className="glass-card">
+                <CardContent className="p-6 text-center">
+                  <div className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{totalOpened}</div>
+                  <div className="text-sm text-gray-500">Total Opens</div>
+                </CardContent>
+              </Card>
+              <Card className="glass-card">
+                <CardContent className="p-6 text-center">
+                  <div className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{totalClicked}</div>
+                  <div className="text-sm text-gray-500">Total Clicks</div>
+                </CardContent>
+              </Card>
+              <Card className="glass-card">
+                <CardContent className="p-6 text-center">
+                  <div className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{emailCampaigns.reduce((sum, c) => sum + (c.total_bounced || 0), 0)}</div>
+                  <div className="text-sm text-gray-500">Bounces</div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+
+          {/* Open Rate Chart */}
+          <Card className="glass-card">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Open Rate Over Time</h3>
+                <div className="text-3xl font-bold text-violet-600">{overallOpenRate.toFixed(2)}%</div>
+              </div>
+              <div className="h-64 flex items-end justify-between gap-2">
+                {emailCampaigns.slice(0, 10).reverse().map((campaign, idx) => {
+                  const campaignOpenRate = campaign.total_sent > 0 ? (campaign.total_opened / campaign.total_sent) * 100 : 0;
+                  return (
+                    <div key={campaign.id} className="flex-1 flex flex-col items-center gap-2">
+                      <div 
+                        className="w-full bg-violet-500 rounded-t-lg hover:bg-violet-600 transition-colors cursor-pointer relative group"
+                        style={{ height: `${campaignOpenRate * 2.5}%`, minHeight: campaignOpenRate > 0 ? '4px' : '0' }}
+                        title={`${campaign.name}: ${campaignOpenRate.toFixed(1)}%`}
+                      >
+                        <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                          {campaignOpenRate.toFixed(1)}%
+                        </div>
+                      </div>
+                      <span className="text-xs text-gray-500 transform -rotate-45 origin-top-left mt-2">{campaign.name?.slice(0, 8)}...</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Top Performing Emails */}
+          <Card className="glass-card">
+            <CardContent className="p-6">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Top Performing Emails</h3>
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b border-gray-200 dark:border-gray-700">
+                      <th className="text-left py-3 px-4 text-sm font-medium text-gray-600 dark:text-gray-400">Campaign</th>
+                      <th className="text-right py-3 px-4 text-sm font-medium text-gray-600 dark:text-gray-400">Sent</th>
+                      <th className="text-right py-3 px-4 text-sm font-medium text-gray-600 dark:text-gray-400">Opens</th>
+                      <th className="text-right py-3 px-4 text-sm font-medium text-gray-600 dark:text-gray-400">Open Rate</th>
+                      <th className="text-right py-3 px-4 text-sm font-medium text-gray-600 dark:text-gray-400">Clicks</th>
+                      <th className="text-right py-3 px-4 text-sm font-medium text-gray-600 dark:text-gray-400">Click Rate</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {emailCampaigns
+                      .filter(c => c.total_sent > 0)
+                      .sort((a, b) => {
+                        const aRate = (a.total_opened / a.total_sent) * 100;
+                        const bRate = (b.total_opened / b.total_sent) * 100;
+                        return bRate - aRate;
+                      })
+                      .slice(0, 10)
+                      .map((campaign) => {
+                        const openRate = campaign.total_sent > 0 ? (campaign.total_opened / campaign.total_sent) * 100 : 0;
+                        const clickRate = campaign.total_sent > 0 ? (campaign.total_clicked / campaign.total_sent) * 100 : 0;
+                        return (
+                          <tr key={campaign.id} className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50">
+                            <td className="py-3 px-4">
+                              <div className="font-medium text-gray-900 dark:text-white">{campaign.name}</div>
+                              <div className="text-xs text-gray-500">{templates.find(t => t.id === campaign.template_id)?.name}</div>
+                            </td>
+                            <td className="text-right py-3 px-4 text-gray-900 dark:text-white">{campaign.total_sent}</td>
+                            <td className="text-right py-3 px-4 text-gray-900 dark:text-white">{campaign.total_opened}</td>
+                            <td className="text-right py-3 px-4">
+                              <span className="text-emerald-600 font-medium">{openRate.toFixed(1)}%</span>
+                            </td>
+                            <td className="text-right py-3 px-4 text-gray-900 dark:text-white">{campaign.total_clicked}</td>
+                            <td className="text-right py-3 px-4">
+                              <span className="text-blue-600 font-medium">{clickRate.toFixed(1)}%</span>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                  </tbody>
+                </table>
+                {emailCampaigns.filter(c => c.total_sent > 0).length === 0 && (
+                  <div className="text-center py-12">
+                    <BarChart3 className="w-12 h-12 text-gray-300 dark:text-gray-700 mx-auto mb-3" />
+                    <p className="text-gray-500 dark:text-gray-400">No campaign data yet</p>
+                    <p className="text-sm text-gray-400 dark:text-gray-500 mt-1">Send some campaigns to see statistics</p>
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
         </TabsContent>
 
         <TabsContent value="drips" className="space-y-4">
