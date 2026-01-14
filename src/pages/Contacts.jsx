@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Plus, Search, Users, Upload, Download, Trash2, RotateCcw, List, Grid3x3 } from "lucide-react";
+import { Plus, Search, Users, Upload, Download, Trash2, RotateCcw, List, Grid3x3, Filter, X } from "lucide-react";
 import ContactCard from '@/components/crm/ContactCard';
 import ContactModal from '@/components/modals/ContactModal';
 import EmptyState from '@/components/ui/EmptyState';
@@ -32,10 +32,22 @@ export default function Contacts() {
   const [selectedIds, setSelectedIds] = useState([]);
   const [showDeleted, setShowDeleted] = useState(false);
   const [viewMode, setViewMode] = useState('list');
+  const [filters, setFilters] = useState({
+    companyName: '',
+    email: '',
+    firstName: '',
+    lastName: '',
+    tag: '',
+    city: '',
+    country: '',
+    source: 'all',
+  });
+  const [showFilters, setShowFilters] = useState(false);
   const queryClient = useQueryClient();
   const toast = useToast();
   
   const debouncedSearch = useDebounce(searchTerm, 300);
+  const debouncedFilters = useDebounce(filters, 300);
 
   const { data: user } = useQuery({
     queryKey: ['current-user'],
@@ -257,11 +269,39 @@ export default function Contacts() {
     return contacts.filter(contact => {
       const matchesSearch = !debouncedSearch || 
         `${contact.first_name} ${contact.last_name}`.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
-        contact.email?.toLowerCase().includes(debouncedSearch.toLowerCase());
+        contact.email?.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+        contact.company_name?.toLowerCase().includes(debouncedSearch.toLowerCase());
+      
       const matchesStatus = statusFilter === 'all' || contact.status === statusFilter;
-      return matchesSearch && matchesStatus;
+      
+      const matchesCompany = !debouncedFilters.companyName || 
+        contact.company_name?.toLowerCase().includes(debouncedFilters.companyName.toLowerCase());
+      
+      const matchesEmail = !debouncedFilters.email || 
+        contact.email?.toLowerCase().includes(debouncedFilters.email.toLowerCase());
+      
+      const matchesFirstName = !debouncedFilters.firstName || 
+        contact.first_name?.toLowerCase().includes(debouncedFilters.firstName.toLowerCase());
+      
+      const matchesLastName = !debouncedFilters.lastName || 
+        contact.last_name?.toLowerCase().includes(debouncedFilters.lastName.toLowerCase());
+      
+      const matchesTag = !debouncedFilters.tag || 
+        contact.tags?.some(tag => tag.toLowerCase().includes(debouncedFilters.tag.toLowerCase()));
+      
+      const matchesCity = !debouncedFilters.city || 
+        contact.city?.toLowerCase().includes(debouncedFilters.city.toLowerCase());
+      
+      const matchesCountry = !debouncedFilters.country || 
+        contact.country?.toLowerCase().includes(debouncedFilters.country.toLowerCase());
+      
+      const matchesSource = debouncedFilters.source === 'all' || contact.source === debouncedFilters.source;
+      
+      return matchesSearch && matchesStatus && matchesCompany && matchesEmail && 
+             matchesFirstName && matchesLastName && matchesTag && matchesCity && 
+             matchesCountry && matchesSource;
     });
-  }, [contacts, debouncedSearch, statusFilter]);
+  }, [contacts, debouncedSearch, statusFilter, debouncedFilters]);
 
   const totalPages = Math.ceil(filteredContacts.length / ITEMS_PER_PAGE);
   const paginatedContacts = filteredContacts.slice(
@@ -274,7 +314,7 @@ export default function Contacts() {
   // Reset page when filters change
   React.useEffect(() => {
     setCurrentPage(1);
-  }, [debouncedSearch, statusFilter]);
+  }, [debouncedSearch, statusFilter, debouncedFilters]);
 
   return (
     <div className="p-4 sm:p-6 lg:p-8 space-y-4 sm:space-y-6 min-h-screen">
@@ -312,54 +352,141 @@ export default function Contacts() {
       </div>
 
       {/* Filters */}
-      <div className="flex flex-col sm:flex-row gap-4">
-        <div className="flex gap-1 bg-gray-100 dark:bg-gray-800 p-1 rounded-lg">
+      <div className="space-y-4">
+        <div className="flex flex-col sm:flex-row gap-4">
+          <div className="flex gap-1 bg-gray-100 dark:bg-gray-800 p-1 rounded-lg">
+            <Button
+              variant={viewMode === 'list' ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => setViewMode('list')}
+              className="h-8 px-3"
+            >
+              <List className="w-4 h-4" />
+            </Button>
+            <Button
+              variant={viewMode === 'grid' ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => setViewMode('grid')}
+              className="h-8 px-3"
+            >
+              <Grid3x3 className="w-4 h-4" />
+            </Button>
+          </div>
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <Input
+              placeholder="Search contacts..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10"
+            />
+          </div>
           <Button
-            variant={viewMode === 'list' ? 'default' : 'ghost'}
-            size="sm"
-            onClick={() => setViewMode('list')}
-            className="h-8 px-3"
+            variant={showFilters ? "default" : "outline"}
+            onClick={() => setShowFilters(!showFilters)}
+            className="gap-2"
           >
-            <List className="w-4 h-4" />
+            <Filter className="w-4 h-4" />
+            Filters
           </Button>
           <Button
-            variant={viewMode === 'grid' ? 'default' : 'ghost'}
-            size="sm"
-            onClick={() => setViewMode('grid')}
-            className="h-8 px-3"
+            variant={showDeleted ? "default" : "outline"}
+            onClick={() => setShowDeleted(!showDeleted)}
+            className="gap-2"
           >
-            <Grid3x3 className="w-4 h-4" />
+            <Trash2 className="w-4 h-4" />
+            {showDeleted ? 'Active' : 'Trash'}
           </Button>
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger className="w-full sm:w-40">
+              <SelectValue placeholder="Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Status</SelectItem>
+              <SelectItem value="lead">Lead</SelectItem>
+              <SelectItem value="prospect">Prospect</SelectItem>
+              <SelectItem value="customer">Customer</SelectItem>
+              <SelectItem value="churned">Churned</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-          <Input
-            placeholder="Search contacts..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10"
-          />
-        </div>
-        <Button
-          variant={showDeleted ? "default" : "outline"}
-          onClick={() => setShowDeleted(!showDeleted)}
-          className="gap-2"
-        >
-          <Trash2 className="w-4 h-4" />
-          {showDeleted ? 'Active Contacts' : 'Trash'}
-        </Button>
-        <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-full sm:w-40">
-            <SelectValue placeholder="Status" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Status</SelectItem>
-            <SelectItem value="lead">Lead</SelectItem>
-            <SelectItem value="prospect">Prospect</SelectItem>
-            <SelectItem value="customer">Customer</SelectItem>
-            <SelectItem value="churned">Churned</SelectItem>
-          </SelectContent>
-        </Select>
+
+        {showFilters && (
+          <div className="glass-card p-4 rounded-xl space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="font-semibold text-gray-900 dark:text-white">Advanced Filters</h3>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setFilters({
+                  companyName: '',
+                  email: '',
+                  firstName: '',
+                  lastName: '',
+                  tag: '',
+                  city: '',
+                  country: '',
+                  source: 'all',
+                })}
+              >
+                <X className="w-4 h-4 mr-1" />
+                Clear
+              </Button>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <Input
+                placeholder="Company Name"
+                value={filters.companyName}
+                onChange={(e) => setFilters({...filters, companyName: e.target.value})}
+              />
+              <Input
+                placeholder="Email"
+                value={filters.email}
+                onChange={(e) => setFilters({...filters, email: e.target.value})}
+              />
+              <Input
+                placeholder="First Name"
+                value={filters.firstName}
+                onChange={(e) => setFilters({...filters, firstName: e.target.value})}
+              />
+              <Input
+                placeholder="Last Name"
+                value={filters.lastName}
+                onChange={(e) => setFilters({...filters, lastName: e.target.value})}
+              />
+              <Input
+                placeholder="Tag"
+                value={filters.tag}
+                onChange={(e) => setFilters({...filters, tag: e.target.value})}
+              />
+              <Input
+                placeholder="City"
+                value={filters.city}
+                onChange={(e) => setFilters({...filters, city: e.target.value})}
+              />
+              <Input
+                placeholder="Country"
+                value={filters.country}
+                onChange={(e) => setFilters({...filters, country: e.target.value})}
+              />
+              <Select value={filters.source} onValueChange={(value) => setFilters({...filters, source: value})}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Source" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Sources</SelectItem>
+                  <SelectItem value="website">Website</SelectItem>
+                  <SelectItem value="referral">Referral</SelectItem>
+                  <SelectItem value="linkedin">LinkedIn</SelectItem>
+                  <SelectItem value="cold_outreach">Cold Outreach</SelectItem>
+                  <SelectItem value="event">Event</SelectItem>
+                  <SelectItem value="import">Import</SelectItem>
+                  <SelectItem value="other">Other</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Contact List */}
@@ -400,41 +527,93 @@ export default function Contacts() {
               ))}
             </div>
           ) : (
-            <div className="space-y-2">
-              {paginatedContacts.map((contact) => {
-                const company = getCompany(contact.company_id);
-                return (
-                  <div 
-                    key={contact.id} 
-                    className="glass-card p-4 rounded-xl hover:shadow-md transition-shadow cursor-pointer group flex items-center gap-4"
-                    onClick={() => handleEdit(contact)}
-                  >
-                    <Checkbox
-                      checked={selectedIds.includes(contact.id)}
-                      onCheckedChange={() => toggleSelect(contact.id)}
-                      className="opacity-0 group-hover:opacity-100 transition-opacity"
-                      onClick={(e) => e.stopPropagation()}
-                    />
-                    <div className="flex-1 grid grid-cols-1 sm:grid-cols-4 gap-4 items-center">
-                      <div className="sm:col-span-1">
-                        <div className="font-semibold text-gray-900 dark:text-white">
-                          {contact.first_name} {contact.last_name}
-                        </div>
-                        <div className="text-sm text-gray-500">{contact.job_title}</div>
-                      </div>
-                      <div className="text-sm text-gray-600 dark:text-gray-400">
-                        {company?.name || contact.company_name || '-'}
-                      </div>
-                      <div className="text-sm text-gray-600 dark:text-gray-400">
-                        {contact.email}
-                      </div>
-                      <div className="text-sm text-gray-600 dark:text-gray-400">
-                        {contact.phone || '-'}
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
+            <div className="glass-card rounded-xl overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead className="bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+                    <tr>
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase">
+                        <Checkbox
+                          checked={selectedIds.length === paginatedContacts.length && paginatedContacts.length > 0}
+                          onCheckedChange={(checked) => {
+                            if (checked) {
+                              setSelectedIds(paginatedContacts.map(c => c.id));
+                            } else {
+                              setSelectedIds([]);
+                            }
+                          }}
+                        />
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase">Name</th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase">Phone</th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase">Email</th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase">Created</th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase">Last Activity</th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase">Tags</th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+                    {paginatedContacts.map((contact) => (
+                      <tr 
+                        key={contact.id}
+                        className="hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer"
+                        onClick={() => handleEdit(contact)}
+                      >
+                        <td className="px-4 py-3">
+                          <Checkbox
+                            checked={selectedIds.includes(contact.id)}
+                            onCheckedChange={() => toggleSelect(contact.id)}
+                            onClick={(e) => e.stopPropagation()}
+                          />
+                        </td>
+                        <td className="px-4 py-3">
+                          <div className="font-medium text-gray-900 dark:text-white">
+                            {contact.first_name} {contact.last_name}
+                          </div>
+                          <div className="text-sm text-gray-500">{contact.company_name || '-'}</div>
+                        </td>
+                        <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
+                          {contact.phone || '-'}
+                        </td>
+                        <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
+                          {contact.email}
+                        </td>
+                        <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
+                          {new Date(contact.created_date).toLocaleDateString()}
+                        </td>
+                        <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
+                          {contact.last_contacted ? new Date(contact.last_contacted).toLocaleDateString() : '-'}
+                        </td>
+                        <td className="px-4 py-3">
+                          <div className="flex flex-wrap gap-1">
+                            {contact.tags?.slice(0, 2).map((tag, idx) => (
+                              <span key={idx} className="px-2 py-0.5 text-xs rounded-full bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300">
+                                {tag}
+                              </span>
+                            ))}
+                            {contact.tags?.length > 2 && (
+                              <span className="px-2 py-0.5 text-xs rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400">
+                                +{contact.tags.length - 2}
+                              </span>
+                            )}
+                          </div>
+                        </td>
+                        <td className="px-4 py-3">
+                          <span className={`px-2 py-1 text-xs rounded-full ${
+                            contact.status === 'customer' ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300' :
+                            contact.status === 'prospect' ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300' :
+                            contact.status === 'lead' ? 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300' :
+                            'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300'
+                          }`}>
+                            {contact.status}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
           )}
 
