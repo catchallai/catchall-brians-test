@@ -60,6 +60,7 @@ import UserSettings from './pages/UserSettings';
 import VisitorProfiles from './pages/VisitorProfiles';
 import WebCrawler from './pages/WebCrawler';
 import WorkflowBuilder from './pages/WorkflowBuilder';
+import Opportunities from './pages/Opportunities';
 import __Layout from './Layout.jsx';
 
 
@@ -126,6 +127,7 @@ export const PAGES = {
     "VisitorProfiles": VisitorProfiles,
     "WebCrawler": WebCrawler,
     "WorkflowBuilder": WorkflowBuilder,
+    "Opportunities": Opportunities,
 }
 
 export const pagesConfig = {
