@@ -7,7 +7,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 import { 
   Plus, Mail, Send, FileText, Users, Eye, MousePointer, 
-  AlertCircle, Loader2, CheckCircle, BarChart3, TrendingUp 
+  AlertCircle, Loader2, CheckCircle, BarChart3, TrendingUp,
+  List, Grid3x3 
 } from "lucide-react";
 import EmailTemplateCard from '@/components/email/EmailTemplateCard';
 import EmailCampaignCard from '@/components/email/EmailCampaignCard';
@@ -34,6 +35,7 @@ export default function EmailMarketing() {
   const [editingDripCampaign, setEditingDripCampaign] = useState(null);
   const [showDripModal, setShowDripModal] = useState(false);
   const [sendConfirm, setSendConfirm] = useState(null);
+  const [viewMode, setViewMode] = useState('list');
   const queryClient = useQueryClient();
 
   const { data: templates = [], isLoading: loadingTemplates } = useQuery({
@@ -525,7 +527,29 @@ export default function EmailMarketing() {
           {/* Top Performing Emails */}
           <Card className="glass-card">
             <CardContent className="p-6">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Top Performing Emails</h3>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Top Performing Emails</h3>
+                <div className="flex gap-1 bg-gray-100 dark:bg-gray-800 p-1 rounded-lg">
+                  <Button
+                    variant={viewMode === 'list' ? 'default' : 'ghost'}
+                    size="sm"
+                    onClick={() => setViewMode('list')}
+                    className="h-8 px-3"
+                  >
+                    <List className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    variant={viewMode === 'grid' ? 'default' : 'ghost'}
+                    size="sm"
+                    onClick={() => setViewMode('grid')}
+                    className="h-8 px-3"
+                  >
+                    <Grid3x3 className="w-4 h-4" />
+                  </Button>
+                </div>
+              </div>
+              
+              {viewMode === 'list' ? (
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
@@ -578,6 +602,61 @@ export default function EmailMarketing() {
                   </div>
                 )}
               </div>
+              ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {emailCampaigns
+                  .filter(c => c.total_sent > 0)
+                  .sort((a, b) => {
+                    const aRate = (a.total_opened / a.total_sent) * 100;
+                    const bRate = (b.total_opened / b.total_sent) * 100;
+                    return bRate - aRate;
+                  })
+                  .slice(0, 10)
+                  .map((campaign) => {
+                    const openRate = campaign.total_sent > 0 ? (campaign.total_opened / campaign.total_sent) * 100 : 0;
+                    const clickRate = campaign.total_sent > 0 ? (campaign.total_clicked / campaign.total_sent) * 100 : 0;
+                    return (
+                      <Card key={campaign.id} className="glass-card hover:shadow-md transition-shadow">
+                        <CardContent className="p-4">
+                          <div className="mb-3">
+                            <h4 className="font-semibold text-gray-900 dark:text-white">{campaign.name}</h4>
+                            <p className="text-xs text-gray-500">{templates.find(t => t.id === campaign.template_id)?.name}</p>
+                          </div>
+                          <div className="space-y-2 text-sm">
+                            <div className="flex justify-between">
+                              <span className="text-gray-500">Sent:</span>
+                              <span className="font-medium text-gray-900 dark:text-white">{campaign.total_sent}</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-gray-500">Opens:</span>
+                              <span className="font-medium text-gray-900 dark:text-white">{campaign.total_opened}</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-gray-500">Open Rate:</span>
+                              <span className="font-medium text-emerald-600">{openRate.toFixed(1)}%</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-gray-500">Clicks:</span>
+                              <span className="font-medium text-gray-900 dark:text-white">{campaign.total_clicked}</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-gray-500">Click Rate:</span>
+                              <span className="font-medium text-blue-600">{clickRate.toFixed(1)}%</span>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    );
+                  })}
+                {emailCampaigns.filter(c => c.total_sent > 0).length === 0 && (
+                  <div className="col-span-full text-center py-12">
+                    <BarChart3 className="w-12 h-12 text-gray-300 dark:text-gray-700 mx-auto mb-3" />
+                    <p className="text-gray-500 dark:text-gray-400">No campaign data yet</p>
+                    <p className="text-sm text-gray-400 dark:text-gray-500 mt-1">Send some campaigns to see statistics</p>
+                  </div>
+                )}
+              </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
