@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent } from "@/components/ui/card";
@@ -6,23 +7,31 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Progress } from "@/components/ui/progress";
+import { Badge } from "@/components/ui/badge";
 import { 
   Plus, Zap, Target, Sparkles, RefreshCw, Loader2, 
-  TrendingUp, Users, CheckCircle, AlertCircle
+  TrendingUp, Users, CheckCircle, AlertCircle, GitBranch, Play
 } from "lucide-react";
 import AutomationRuleCard from '@/components/automation/AutomationRuleCard';
 import LeadScoreCard from '@/components/automation/LeadScoreCard';
 import AutomationRuleModal from '@/components/modals/AutomationRuleModal';
 import LeadScoreRuleModal from '@/components/modals/LeadScoreRuleModal';
 import EmptyState from '@/components/ui/EmptyState';
+import { createPageUrl } from '@/utils';
 
 export default function Automation() {
+  const navigate = useNavigate();
   const [showRuleModal, setShowRuleModal] = useState(false);
   const [showScoreModal, setShowScoreModal] = useState(false);
   const [editingRule, setEditingRule] = useState(null);
   const [editingScoreRule, setEditingScoreRule] = useState(null);
   const [enrichingContact, setEnrichingContact] = useState(null);
   const queryClient = useQueryClient();
+
+  const { data: workflows = [], isLoading: loadingWorkflows } = useQuery({
+    queryKey: ['workflows'],
+    queryFn: () => base44.entities.DealWorkflow.list('-created_date', 100),
+  });
 
   const { data: automationRules = [], isLoading: loadingRules } = useQuery({
     queryKey: ['automation-rules'],
@@ -260,14 +269,86 @@ export default function Automation() {
       </div>
 
       {/* Tabs */}
-      <Tabs defaultValue="workflows" className="space-y-4">
+      <Tabs defaultValue="visual-workflows" className="space-y-4">
         <TabsList>
-          <TabsTrigger value="workflows">Workflow Rules</TabsTrigger>
+          <TabsTrigger value="visual-workflows">Workflows</TabsTrigger>
+          <TabsTrigger value="rules">Automation Rules</TabsTrigger>
           <TabsTrigger value="scoring">Lead Scoring</TabsTrigger>
           <TabsTrigger value="enrichment">Data Enrichment</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="workflows" className="space-y-4">
+        <TabsContent value="visual-workflows" className="space-y-4">
+          <div className="flex justify-end">
+            <Button 
+              onClick={() => navigate(createPageUrl('WorkflowBuilder'))}
+              className="gap-2 bg-violet-600 hover:bg-violet-700"
+            >
+              <Plus className="w-4 h-4" />
+              New Workflow
+            </Button>
+          </div>
+
+          {loadingWorkflows ? (
+            <div className="space-y-3">
+              {[...Array(3)].map((_, i) => (
+                <Skeleton key={i} className="h-24 rounded-xl" />
+              ))}
+            </div>
+          ) : workflows.length === 0 ? (
+            <EmptyState
+              icon={GitBranch}
+              title="No workflows created"
+              description="Build visual workflows to automate your sales process."
+              actionLabel="Create Workflow"
+              onAction={() => navigate(createPageUrl('WorkflowBuilder'))}
+            />
+          ) : (
+            <div className="grid gap-4">
+              {workflows.map((workflow) => (
+                <Card
+                  key={workflow.id}
+                  className="glass-card cursor-pointer hover:shadow-md transition-all"
+                  onClick={() => navigate(createPageUrl('WorkflowBuilder') + `?id=${workflow.id}`)}
+                >
+                  <CardContent className="p-6">
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-start gap-4 flex-1">
+                        <div className="w-12 h-12 rounded-xl bg-violet-100 dark:bg-violet-900 flex items-center justify-center shrink-0">
+                          <GitBranch className="w-6 h-6 text-violet-600 dark:text-violet-400" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1">
+                            <h3 className="font-semibold text-gray-900 dark:text-white">
+                              {workflow.name}
+                            </h3>
+                            <Badge variant={workflow.is_active ? "default" : "secondary"} className="text-xs">
+                              {workflow.is_active ? "Active" : "Draft"}
+                            </Badge>
+                          </div>
+                          <p className="text-sm text-gray-500 mb-2">
+                            Trigger: {workflow.trigger_type?.replace(/_/g, ' ')}
+                          </p>
+                          <div className="flex items-center gap-4 text-xs text-gray-500">
+                            <span className="flex items-center gap-1">
+                              <Play className="w-3 h-3" />
+                              {workflow.execution_count || 0} executions
+                            </span>
+                            <span className="flex items-center gap-1">
+                              <Zap className="w-3 h-3" />
+                              {workflow.actions?.length || 0} actions
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
+        </TabsContent>
+
+        <TabsContent value="rules" className="space-y-4">
           <div className="flex justify-end">
             <Button 
               onClick={() => { setEditingRule(null); setShowRuleModal(true); }} 
