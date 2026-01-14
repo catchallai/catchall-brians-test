@@ -38,9 +38,18 @@ export default function CompetitorAnalysis() {
   const [selectedTier, setSelectedTier] = useState('all');
   const queryClient = useQueryClient();
 
+  const { data: user } = useQuery({
+    queryKey: ['current-user'],
+    queryFn: () => base44.auth.me(),
+  });
+
   const { data: competitors = [], isLoading } = useQuery({
-    queryKey: ['competitors'],
-    queryFn: () => base44.entities.Competitor.list('-created_date', 50),
+    queryKey: ['competitors', user?.current_business_id],
+    queryFn: async () => {
+      if (!user?.current_business_id) return [];
+      return await base44.entities.Competitor.filter({ business_id: user.current_business_id }, '-created_date', 50);
+    },
+    enabled: !!user?.current_business_id,
   });
 
   const { data: competitorReports = [] } = useQuery({
@@ -69,7 +78,10 @@ export default function CompetitorAnalysis() {
   });
 
   const createCompetitorMutation = useMutation({
-    mutationFn: (data) => base44.entities.Competitor.create(data),
+    mutationFn: (data) => base44.entities.Competitor.create({
+      ...data,
+      business_id: user?.current_business_id,
+    }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['competitors'] });
       setShowCompetitorModal(false);
@@ -120,7 +132,8 @@ export default function CompetitorAnalysis() {
         if (!existingCompetitorNames.includes(comp.name.toLowerCase())) {
           await base44.entities.Competitor.create({
             name: comp.name,
-            website: comp.website
+            website: comp.website,
+            business_id: user?.current_business_id,
           });
           added++;
         }
