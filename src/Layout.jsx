@@ -68,6 +68,7 @@ import {
 
 const navigation = [
   { name: 'Brand Dashboard', icon: LayoutDashboard, page: 'Dashboard' },
+  { name: 'Executive Dashboard', icon: Award, page: 'ExecutiveDashboard' },
   { name: 'favorites', label: 'Favorites' },
   { name: 'divider', label: 'Business Dev' },
   { name: 'Aerospace Scanner', icon: Rocket, page: 'AerospaceScanner' },
@@ -137,6 +138,7 @@ const navigation = [
 
 const SIDEBAR_ICONS = {
         Dashboard: LayoutDashboard,
+        ExecutiveDashboard: Award,
         BusinessManagement: Building2,
         AerospaceScanner: Rocket,
         VisitorProfiles: UserCircle,
