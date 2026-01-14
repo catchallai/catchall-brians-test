@@ -38,6 +38,130 @@ export default function EmailMarketing() {
     queryFn: () => base44.entities.EmailTemplate.list('-created_date', 100),
   });
 
+  // Create default templates if none exist
+  React.useEffect(() => {
+    if (!loadingTemplates && templates.length === 0) {
+      const defaultTemplates = [
+        {
+          name: 'Welcome Email',
+          subject: 'Welcome to {{company_name}}!',
+          body: `<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+  <h1 style="color: #7c3aed;">Welcome aboard, {{first_name}}!</h1>
+  <p>We're thrilled to have you join us. Here's what you can expect:</p>
+  <ul>
+    <li>Regular updates on new features</li>
+    <li>Exclusive tips and best practices</li>
+    <li>Priority customer support</li>
+  </ul>
+  <p>Need help getting started? Check out our <a href="{{help_url}}" style="color: #7c3aed;">help center</a>.</p>
+  <p style="margin-top: 30px;">Best regards,<br>The {{company_name}} Team</p>
+</div>`,
+          category: 'welcome',
+          layout: 'branded'
+        },
+        {
+          name: 'Product Update',
+          subject: 'New Features Available for {{product_name}}',
+          body: `<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+  <h1 style="color: #7c3aed;">Exciting Product Updates!</h1>
+  <p>Hi {{first_name}},</p>
+  <p>We've just released some amazing new features we think you'll love:</p>
+  <div style="background: #f9fafb; padding: 20px; border-radius: 8px; margin: 20px 0;">
+    <h3 style="margin-top: 0;">What's New</h3>
+    <ul>
+      <li><strong>Feature 1:</strong> Brief description here</li>
+      <li><strong>Feature 2:</strong> Brief description here</li>
+      <li><strong>Feature 3:</strong> Brief description here</li>
+    </ul>
+  </div>
+  <p><a href="{{product_url}}" style="display: inline-block; background: #7c3aed; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px;">Learn More</a></p>
+  <p style="margin-top: 30px;">Happy to help,<br>{{company_name}}</p>
+</div>`,
+          category: 'announcement',
+          layout: 'branded'
+        },
+        {
+          name: 'Newsletter',
+          subject: '{{month}} Newsletter - Top Stories & Updates',
+          body: `<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+  <div style="background: #7c3aed; color: white; padding: 20px; text-align: center;">
+    <h1 style="margin: 0;">{{company_name}} Newsletter</h1>
+    <p style="margin: 5px 0 0 0; opacity: 0.9;">{{month}} {{year}}</p>
+  </div>
+  <div style="padding: 20px;">
+    <h2 style="color: #7c3aed;">This Month's Highlights</h2>
+    
+    <div style="margin: 30px 0;">
+      <h3>Article Title 1</h3>
+      <p>Brief summary of the article content goes here...</p>
+      <a href="{{article_1_url}}" style="color: #7c3aed;">Read more →</a>
+    </div>
+    
+    <div style="margin: 30px 0;">
+      <h3>Article Title 2</h3>
+      <p>Brief summary of the article content goes here...</p>
+      <a href="{{article_2_url}}" style="color: #7c3aed;">Read more →</a>
+    </div>
+    
+    <div style="background: #f9fafb; padding: 15px; border-radius: 8px; margin-top: 30px;">
+      <p style="margin: 0;"><strong>Quick Tip:</strong> Share your pro tip or insight here.</p>
+    </div>
+  </div>
+  <div style="background: #f9fafb; padding: 20px; text-align: center; color: #6b7280; font-size: 12px;">
+    <p>© {{year}} {{company_name}}. All rights reserved.</p>
+  </div>
+</div>`,
+          category: 'newsletter',
+          layout: 'newsletter'
+        },
+        {
+          name: 'Follow-Up',
+          subject: 'Following up on our conversation',
+          body: `<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+  <p>Hi {{first_name}},</p>
+  <p>I wanted to follow up on our recent conversation about {{topic}}.</p>
+  <p>Based on what we discussed, I think {{solution}} would be a great fit for your needs because:</p>
+  <ul>
+    <li>Benefit point 1</li>
+    <li>Benefit point 2</li>
+    <li>Benefit point 3</li>
+  </ul>
+  <p>Would you be available for a quick call this week to discuss next steps? You can <a href="{{calendar_link}}" style="color: #7c3aed;">book a time here</a>.</p>
+  <p>Looking forward to hearing from you!</p>
+  <p style="margin-top: 30px;">Best regards,<br>{{sender_name}}<br>{{company_name}}</p>
+</div>`,
+          category: 'follow_up',
+          layout: 'minimal'
+        },
+        {
+          name: 'Promotional Offer',
+          subject: 'Special Offer: {{discount}}% Off {{product_name}}',
+          body: `<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+  <div style="background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%); color: white; padding: 40px 20px; text-align: center;">
+    <h1 style="margin: 0; font-size: 36px;">Special Offer Inside!</h1>
+    <p style="margin: 10px 0 0 0; font-size: 18px;">Exclusive for {{first_name}}</p>
+  </div>
+  <div style="padding: 30px 20px; text-align: center;">
+    <div style="background: #fef3c7; border: 2px dashed #f59e0b; padding: 20px; border-radius: 8px; margin: 20px 0;">
+      <h2 style="color: #f59e0b; margin: 0; font-size: 48px;">{{discount}}% OFF</h2>
+      <p style="margin: 10px 0 0 0; font-size: 18px;">Use code: <strong>{{promo_code}}</strong></p>
+    </div>
+    <p style="font-size: 16px; color: #6b7280;">Valid until {{expiry_date}}</p>
+    <p style="margin: 30px 0;"><a href="{{shop_url}}" style="display: inline-block; background: #7c3aed; color: white; padding: 16px 32px; text-decoration: none; border-radius: 8px; font-size: 18px; font-weight: bold;">Shop Now</a></p>
+    <p style="font-size: 14px; color: #9ca3af;">This offer is exclusive to our valued customers.</p>
+  </div>
+</div>`,
+          category: 'promotional',
+          layout: 'promotional'
+        }
+      ];
+
+      defaultTemplates.forEach(template => {
+        base44.entities.EmailTemplate.create(template);
+      });
+    }
+  }, [templates, loadingTemplates]);
+
   const { data: emailCampaigns = [], isLoading: loadingCampaigns } = useQuery({
     queryKey: ['email-campaigns'],
     queryFn: () => base44.entities.EmailCampaign.list('-created_date', 100),
