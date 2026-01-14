@@ -4,14 +4,15 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Plus, Target } from "lucide-react";
+import { Plus, Target, Settings } from "lucide-react";
 import DealCard from '@/components/crm/DealCard';
 import DealModal from '@/components/modals/DealModal';
+import PipelineModal from '@/components/modals/PipelineModal';
 import EmptyState from '@/components/ui/EmptyState';
 import SalesFunnel from '@/components/crm/SalesFunnel';
 import StageDistribution from '@/components/crm/StageDistribution';
 
-const STAGES = [
+const DEFAULT_STAGES = [
   { id: 'lead', label: 'Lead', color: 'bg-gray-100' },
   { id: 'qualified', label: 'Qualified', color: 'bg-blue-50' },
   { id: 'proposal', label: 'Proposal', color: 'bg-violet-50' },
@@ -20,8 +21,14 @@ const STAGES = [
   { id: 'lost', label: 'Lost', color: 'bg-red-50' },
 ];
 
+const STAGE_COLORS = [
+  'bg-gray-100', 'bg-blue-50', 'bg-violet-50', 'bg-amber-50', 
+  'bg-emerald-50', 'bg-pink-50', 'bg-cyan-50', 'bg-orange-50'
+];
+
 export default function Deals() {
   const [showModal, setShowModal] = useState(false);
+  const [showPipelineModal, setShowPipelineModal] = useState(false);
   const [editingDeal, setEditingDeal] = useState(null);
   const [draggedDeal, setDraggedDeal] = useState(null);
   const queryClient = useQueryClient();
@@ -30,6 +37,17 @@ export default function Deals() {
     queryKey: ['current-user'],
     queryFn: () => base44.auth.me(),
   });
+
+  const { data: pipelines = [] } = useQuery({
+    queryKey: ['pipelines', user?.current_business_id],
+    queryFn: async () => {
+      if (!user?.current_business_id) return [];
+      return await base44.entities.Pipeline.filter({ business_id: user.current_business_id });
+    },
+    enabled: !!user?.current_business_id,
+  });
+
+  const defaultPipeline = pipelines.find(p => p.is_default) || pipelines[0];
 
   const { data: allDeals = [], isLoading: loadingDeals } = useQuery({
     queryKey: ['deals', user?.current_business_id],
@@ -84,6 +102,21 @@ export default function Deals() {
       queryClient.invalidateQueries({ queryKey: ['deals'] });
       setShowModal(false);
       setEditingDeal(null);
+    },
+  });
+
+  const createPipelineMutation = useMutation({
+    mutationFn: async (data) => {
+      const pipeline = await base44.entities.Pipeline.create({
+        ...data,
+        business_id: user?.current_business_id,
+        is_default: pipelines.length === 0
+      });
+      return pipeline;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['pipelines'] });
+      setShowPipelineModal(false);
     },
   });
 
@@ -152,13 +185,19 @@ export default function Deals() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Deals Pipeline</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Pipeline</h1>
           <p className="text-sm sm:text-base text-gray-500 mt-1">Drag and drop deals to update their stage</p>
         </div>
-        <Button onClick={() => { setEditingDeal(null); setShowModal(true); }} className="gap-2 bg-violet-600 hover:bg-violet-700 w-full sm:w-auto">
-          <Plus className="w-4 h-4" />
-          Add Deal
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={() => setShowPipelineModal(true)} className="gap-2">
+            <Settings className="w-4 h-4" />
+            Create Pipeline
+          </Button>
+          <Button onClick={() => { setEditingDeal(null); setShowModal(true); }} className="gap-2 bg-violet-600 hover:bg-violet-700 w-full sm:w-auto">
+            <Plus className="w-4 h-4" />
+            Create Deal
+          </Button>
+        </div>
       </div>
 
       {/* Funnel & Distribution */}
@@ -175,29 +214,33 @@ export default function Deals() {
           icon={Target}
           title="No deals yet"
           description="Start tracking your sales pipeline by adding your first deal."
-          actionLabel="Add Deal"
+          actionLabel="Create Deal"
           onAction={() => { setEditingDeal(null); setShowModal(true); }}
         />
       ) : (
         <div className="flex gap-3 sm:gap-4 overflow-x-auto pb-4 -mx-4 px-4 sm:mx-0 sm:px-0">
-          {STAGES.map((stage) => (
+          {(defaultPipeline?.stages || DEFAULT_STAGES).map((stage, index) => {
+            const stageId = stage.id;
+            const stageName = stage.name || stage.label;
+            const stageColor = stage.color || STAGE_COLORS[index % STAGE_COLORS.length];
+            return (
             <div
-              key={stage.id}
-              className={`min-w-[260px] sm:min-w-[300px] max-w-[260px] sm:max-w-[300px] rounded-xl ${stage.color} p-3 sm:p-4`}
+              key={stageId}
+              className={`min-w-[260px] sm:min-w-[300px] max-w-[260px] sm:max-w-[300px] rounded-xl ${stageColor} p-3 sm:p-4`}
               onDragOver={handleDragOver}
-              onDrop={(e) => handleDrop(e, stage.id)}
+              onDrop={(e) => handleDrop(e, stageId)}
             >
               <div className="flex items-center justify-between mb-4">
                 <div>
-                  <h3 className="font-semibold text-gray-900">{stage.label}</h3>
+                  <h3 className="font-semibold text-gray-900">{stageName}</h3>
                   <p className="text-sm text-gray-500">
-                    {getDealsForStage(stage.id).length} deals • {formatCurrency(getStageValue(stage.id))}
+                    {getDealsForStage(stageId).length} deals • {formatCurrency(getStageValue(stageId))}
                   </p>
                 </div>
               </div>
 
               <div className="space-y-3">
-                {getDealsForStage(stage.id).map((deal) => (
+                {getDealsForStage(stageId).map((deal) => (
                   <div key={deal.id} onClick={() => handleEdit(deal)}>
                     <DealCard
                       deal={deal}
@@ -209,11 +252,12 @@ export default function Deals() {
                 ))}
               </div>
             </div>
-          ))}
+          );
+          })}
         </div>
       )}
 
-      {/* Modal */}
+      {/* Modals */}
       <DealModal
         open={showModal}
         onClose={() => { setShowModal(false); setEditingDeal(null); }}
@@ -222,6 +266,13 @@ export default function Deals() {
         companies={companies}
         onSave={handleSave}
         isLoading={createMutation.isPending || updateMutation.isPending}
+      />
+
+      <PipelineModal
+        open={showPipelineModal}
+        onClose={() => setShowPipelineModal(false)}
+        onSave={(data) => createPipelineMutation.mutate(data)}
+        isLoading={createPipelineMutation.isPending}
       />
     </div>
   );
