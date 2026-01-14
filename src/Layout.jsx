@@ -86,7 +86,7 @@ const navigation = [
   { name: 'DocuTrace', icon: FileText, page: 'DocuTrace' },
   { name: 'Contact Forms', icon: FileText, page: 'ContactForms' },
   { name: 'Automation', icon: Zap, page: 'Automation' },
-  { name: 'Deals', icon: Target, page: 'Deals' },
+  { name: 'Pipeline', icon: Target, page: 'Deals' },
   { name: 'Activities', icon: Calendar, page: 'Activities' },
   { name: 'Marketing Hub', icon: TrendingUp, page: 'MarketingHub' },
   { name: 'divider', label: 'Sales' },
