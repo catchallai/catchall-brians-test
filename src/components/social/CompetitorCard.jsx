@@ -102,18 +102,19 @@ export default function CompetitorCard({ competitor, onAnalyze, isAnalyzing, onV
                 </DropdownMenuContent>
               </DropdownMenu>
             )}
+            </div>
+            {competitor.website && (
+              <a 
+                href={competitor.website} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-xs text-gray-400 hover:text-violet-600 flex items-center gap-1"
+              >
+                {competitor.website.replace(/https?:\/\//, '').slice(0, 25)}
+                <ExternalLink className="w-3 h-3" />
+              </a>
+            )}
           </div>
-          {competitor.website && (
-            <a 
-              href={competitor.website} 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="text-xs text-gray-400 hover:text-violet-600 flex items-center gap-1"
-            >
-              {competitor.website.replace(/https?:\/\//, '').slice(0, 25)}
-              <ExternalLink className="w-3 h-3" />
-            </a>
-          )}
         </div>
         {competitor.last_analyzed && (
           <Badge variant="outline" className="text-xs text-gray-400">
