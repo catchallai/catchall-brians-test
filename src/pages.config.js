@@ -5,7 +5,9 @@ import ActivityLogs from './pages/ActivityLogs';
 import AerospaceScanner from './pages/AerospaceScanner';
 import Automation from './pages/Automation';
 import Backlinks from './pages/Backlinks';
+import BusinessDevDashboard from './pages/BusinessDevDashboard';
 import BusinessManagement from './pages/BusinessManagement';
+import CRMDashboard from './pages/CRMDashboard';
 import CampaignDetail from './pages/CampaignDetail';
 import Campaigns from './pages/Campaigns';
 import Collaboration from './pages/Collaboration';
@@ -29,6 +31,7 @@ import HelpCenter from './pages/HelpCenter';
 import Home from './pages/Home';
 import Keywords from './pages/Keywords';
 import LeadEnrichment from './pages/LeadEnrichment';
+import LegalDocuments from './pages/LegalDocuments';
 import Listings from './pages/Listings';
 import LocalSEO from './pages/LocalSEO';
 import MarketingHub from './pages/MarketingHub';
@@ -45,12 +48,15 @@ import Reports from './pages/Reports';
 import Reservations from './pages/Reservations';
 import SEOAudit from './pages/SEOAudit';
 import SEODashboard from './pages/SEODashboard';
+import SEODashboardPage from './pages/SEODashboardPage';
 import SEOTools from './pages/SEOTools';
+import SalesDashboard from './pages/SalesDashboard';
 import SalesHub from './pages/SalesHub';
 import SalesQuotas from './pages/SalesQuotas';
 import SalesSequences from './pages/SalesSequences';
 import Settings from './pages/Settings';
 import SocialCalendar from './pages/SocialCalendar';
+import SocialDashboard from './pages/SocialDashboard';
 import SocialLeads from './pages/SocialLeads';
 import SocialListening from './pages/SocialListening';
 import SocialMedia from './pages/SocialMedia';
@@ -60,14 +66,8 @@ import UserProfile from './pages/UserProfile';
 import UserSettings from './pages/UserSettings';
 import VisitorProfiles from './pages/VisitorProfiles';
 import WebCrawler from './pages/WebCrawler';
-import WorkflowBuilder from './pages/WorkflowBuilder';
-import LegalDocuments from './pages/LegalDocuments';
-import BusinessDevDashboard from './pages/BusinessDevDashboard';
-import CRMDashboard from './pages/CRMDashboard';
-import SalesDashboard from './pages/SalesDashboard';
-import SEODashboardPage from './pages/SEODashboardPage';
-import SocialDashboard from './pages/SocialDashboard';
 import WebDashboard from './pages/WebDashboard';
+import WorkflowBuilder from './pages/WorkflowBuilder';
 import __Layout from './Layout.jsx';
 
 
@@ -79,7 +79,9 @@ export const PAGES = {
     "AerospaceScanner": AerospaceScanner,
     "Automation": Automation,
     "Backlinks": Backlinks,
+    "BusinessDevDashboard": BusinessDevDashboard,
     "BusinessManagement": BusinessManagement,
+    "CRMDashboard": CRMDashboard,
     "CampaignDetail": CampaignDetail,
     "Campaigns": Campaigns,
     "Collaboration": Collaboration,
@@ -103,6 +105,7 @@ export const PAGES = {
     "Home": Home,
     "Keywords": Keywords,
     "LeadEnrichment": LeadEnrichment,
+    "LegalDocuments": LegalDocuments,
     "Listings": Listings,
     "LocalSEO": LocalSEO,
     "MarketingHub": MarketingHub,
@@ -119,12 +122,15 @@ export const PAGES = {
     "Reservations": Reservations,
     "SEOAudit": SEOAudit,
     "SEODashboard": SEODashboard,
+    "SEODashboardPage": SEODashboardPage,
     "SEOTools": SEOTools,
+    "SalesDashboard": SalesDashboard,
     "SalesHub": SalesHub,
     "SalesQuotas": SalesQuotas,
     "SalesSequences": SalesSequences,
     "Settings": Settings,
     "SocialCalendar": SocialCalendar,
+    "SocialDashboard": SocialDashboard,
     "SocialLeads": SocialLeads,
     "SocialListening": SocialListening,
     "SocialMedia": SocialMedia,
@@ -134,14 +140,8 @@ export const PAGES = {
     "UserSettings": UserSettings,
     "VisitorProfiles": VisitorProfiles,
     "WebCrawler": WebCrawler,
-    "WorkflowBuilder": WorkflowBuilder,
-    "LegalDocuments": LegalDocuments,
-    "BusinessDevDashboard": BusinessDevDashboard,
-    "CRMDashboard": CRMDashboard,
-    "SalesDashboard": SalesDashboard,
-    "SEODashboardPage": SEODashboardPage,
-    "SocialDashboard": SocialDashboard,
     "WebDashboard": WebDashboard,
+    "WorkflowBuilder": WorkflowBuilder,
 }
 
 export const pagesConfig = {
