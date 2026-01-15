@@ -23,6 +23,7 @@ import {
   FileSearch,
   Menu,
   ChevronDown,
+  ChevronRight,
   LogOut,
   Settings,
   Megaphone,
@@ -69,9 +70,8 @@ import {
 
 const navigation = [
   { name: 'Brand Dashboard', icon: LayoutDashboard, page: 'Dashboard' },
-  { name: 'Executive Dashboard', icon: Award, page: 'ExecutiveDashboard' },
   { name: 'favorites', label: 'Favorites' },
-  { name: 'divider', label: 'Business Dev' },
+  { name: 'divider', label: 'Business Dev', collapsible: true },
   { name: 'Business Dev Dashboard', icon: BarChart3, page: 'BusinessDevDashboard' },
   { name: 'Aerospace Scanner', icon: Rocket, page: 'AerospaceScanner' },
   { name: 'Competitor Analysis', icon: Users, page: 'CompetitorAnalysis' },
@@ -81,7 +81,8 @@ const navigation = [
   { name: 'Listings & Reviews', icon: MapPin, page: 'Listings' },
   { name: 'Media Outreach', icon: Mail, page: 'MediaOutreach' },
   { name: 'Press Monitoring', icon: Newspaper, page: 'PressMonitoring' },
-  { name: 'divider', label: 'CRM' },
+  { name: 'divider', label: 'CRM', collapsible: true },
+  { name: 'CRM Dashboard', icon: BarChart3, page: 'CRMDashboard' },
   { name: 'Email Marketing', icon: Mail, page: 'EmailMarketing' },
   { name: 'Contacts', icon: Users, page: 'Contacts' },
   { name: 'Companies', icon: Building2, page: 'Companies' },
@@ -92,7 +93,8 @@ const navigation = [
   { name: 'Pipeline', icon: Target, page: 'Deals' },
   { name: 'Activities', icon: Calendar, page: 'Activities' },
   { name: 'Marketing Hub', icon: TrendingUp, page: 'MarketingHub' },
-  { name: 'divider', label: 'Sales' },
+  { name: 'divider', label: 'Sales', collapsible: true },
+  { name: 'Sales Dashboard', icon: BarChart3, page: 'SalesDashboard' },
   { name: 'Sales Hub', icon: Target, page: 'SalesHub' },
   { name: 'Lead Enrichment', icon: Users, page: 'LeadEnrichment' },
   { name: 'Sequences', icon: Zap, page: 'SalesSequences' },
@@ -100,25 +102,28 @@ const navigation = [
   { name: 'Meeting Scheduler', icon: Calendar, page: 'MeetingScheduler' },
   { name: 'Sales Quotas', icon: TrendingUp, page: 'SalesQuotas' },
   { name: 'Reservations', icon: Calendar, page: 'Reservations' },
-  { name: 'divider', label: 'Customer Success' },
+  { name: 'divider', label: 'Customer Success', collapsible: true },
   { name: 'CS Dashboard', icon: Award, page: 'CustomerSuccessDashboard' },
   { name: 'Customer Success', icon: Heart, page: 'CustomerSuccess' },
-  { name: 'divider', label: 'SEO' },
+  { name: 'divider', label: 'SEO', collapsible: true },
+  { name: 'SEO Dashboard', icon: BarChart3, page: 'SEODashboardPage' },
   { name: 'SEO Analytics', icon: Search, page: 'SEODashboard' },
   { name: 'SEO Tools', icon: Globe, page: 'SEOTools' },
   { name: 'SEO Audits', icon: FileSearch, page: 'SEOAudit' },
   { name: 'SEO Keywords', icon: Target, page: 'Keywords' },
   { name: 'SEO Backlinks', icon: Link2, page: 'Backlinks' },
   { name: 'SEO Local', icon: MapPin, page: 'LocalSEO' },
-  { name: 'divider', label: 'Social' },
+  { name: 'divider', label: 'Social', collapsible: true },
+  { name: 'Social Dashboard', icon: BarChart3, page: 'SocialDashboard' },
   { name: 'Social Analytics', icon: Share2, page: 'SocialMedia' },
   { name: 'Social Calendar', icon: CalendarDays, page: 'SocialCalendar' },
   { name: 'Social Listening', icon: Radio, page: 'SocialListening' },
   { name: 'Social Leads', icon: UserCircle, page: 'SocialLeads' },
   { name: 'Social Competitors', icon: Users, page: 'CompetitorAnalysis' },
   { name: 'Hashtag Manager', icon: Target, page: 'HashtagManager' },
-  { name: 'divider', label: 'Web' },
-  { name: 'Web Analytics', icon: BarChart3, page: 'TrafficAnalytics' },
+  { name: 'divider', label: 'Web', collapsible: true },
+  { name: 'Web Dashboard', icon: BarChart3, page: 'WebDashboard' },
+  { name: 'Web Analytics', icon: Globe, page: 'TrafficAnalytics' },
   { name: 'Web Audit/Reports', icon: FileSearch, page: 'SEOAudit' },
   { name: 'Web Crawler', icon: Globe, page: 'WebCrawler' },
   { name: 'divider', label: 'Reporting' },
@@ -133,6 +138,8 @@ const navigation = [
   { name: 'Accounting Dashboard', icon: DollarSign, page: 'AccountingDashboard' },
   { name: 'divider', label: 'AI Tools' },
   { name: 'AI Dashboard', icon: Sparkles, page: 'AIDashboard' },
+  { name: 'divider', label: 'Executive' },
+  { name: 'Executive Dashboard', icon: Award, page: 'ExecutiveDashboard' },
   { name: 'divider', label: 'Support' },
   { name: 'Business Management', icon: Building2, page: 'BusinessManagement' },
   { name: 'Help Center', icon: HelpCircle, page: 'HelpCenter' },
@@ -145,6 +152,11 @@ const SIDEBAR_ICONS = {
         ExecutiveDashboard: Award,
         BusinessManagement: Building2,
         BusinessDevDashboard: BarChart3,
+        CRMDashboard: BarChart3,
+        SalesDashboard: BarChart3,
+        SEODashboardPage: BarChart3,
+        SocialDashboard: BarChart3,
+        WebDashboard: BarChart3,
         AerospaceScanner: Rocket,
         VisitorProfiles: UserCircle,
         LegalDocuments: FileSignature,
@@ -200,6 +212,15 @@ const SIDEBAR_ICONS = {
 };
 
 function SidebarContent({ currentPage, onNavigate, isEnabled, user, onAddFavorite, onRemoveFavorite, dragOverFavorites, setDragOverFavorites }) {
+  const [collapsedSections, setCollapsedSections] = React.useState({});
+
+  const toggleSection = (sectionLabel) => {
+    setCollapsedSections(prev => ({
+      ...prev,
+      [sectionLabel]: !prev[sectionLabel]
+    }));
+  };
+
   // Filter navigation based on enabled features
   const filteredNavigation = navigation.filter((item) => {
     if (item.name === 'divider') return true;
@@ -245,13 +266,35 @@ function SidebarContent({ currentPage, onNavigate, isEnabled, user, onAddFavorit
         <nav className="space-y-1">
           {cleanedNavigation.map((item, idx) => {
                             if (item.name === 'divider') {
+                              const isCollapsed = collapsedSections[item.label];
+                              const isCollapsible = item.collapsible;
+                              
                               return (
                                 <div key={idx} className="pt-6 pb-2">
-                                  <p className="px-3 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
+                                  <button
+                                    onClick={() => isCollapsible && toggleSection(item.label)}
+                                    className={`w-full px-3 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider flex items-center gap-2 ${
+                                      isCollapsible ? 'hover:text-gray-600 dark:hover:text-gray-300 cursor-pointer' : ''
+                                    }`}
+                                  >
+                                    {isCollapsible && (
+                                      isCollapsed ? 
+                                        <ChevronRight className="w-3 h-3" /> : 
+                                        <ChevronDown className="w-3 h-3" />
+                                    )}
                                     {item.label}
-                                  </p>
+                                  </button>
                                 </div>
                               );
+                            }
+
+                            // Check if item should be hidden due to collapsed section
+                            const sectionIdx = cleanedNavigation.slice(0, idx).reverse().findIndex(i => i.name === 'divider');
+                            if (sectionIdx !== -1) {
+                              const sectionItem = cleanedNavigation[idx - sectionIdx - 1];
+                              if (sectionItem.collapsible && collapsedSections[sectionItem.label]) {
+                                return null;
+                              }
                             }
 
                             if (item.name === 'favorites') {
