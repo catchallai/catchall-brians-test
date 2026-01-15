@@ -16,6 +16,7 @@ const DEFAULT_FEATURES = {
   pitchDeckAnalyzer: true,
   takeDownRequestor: true,
   accountingDashboard: false,
+  landingPageBuilder: true,
 };
 
 export function useFeatures() {
