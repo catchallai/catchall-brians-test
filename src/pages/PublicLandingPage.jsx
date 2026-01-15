@@ -8,7 +8,8 @@ import { ArrowLeft } from "lucide-react";
 import { createPageUrl } from '@/utils';
 
 export default function PublicLandingPage() {
-  const { slug } = useParams();
+  const urlParams = new URLSearchParams(window.location.search);
+  const slug = urlParams.get('slug');
 
   const { data: page, isLoading, error } = useQuery({
     queryKey: ['landing-page', slug],
