@@ -63,6 +63,11 @@ import WebCrawler from './pages/WebCrawler';
 import WorkflowBuilder from './pages/WorkflowBuilder';
 import LegalDocuments from './pages/LegalDocuments';
 import BusinessDevDashboard from './pages/BusinessDevDashboard';
+import CRMDashboard from './pages/CRMDashboard';
+import SalesDashboard from './pages/SalesDashboard';
+import SEODashboardPage from './pages/SEODashboardPage';
+import SocialDashboard from './pages/SocialDashboard';
+import WebDashboard from './pages/WebDashboard';
 import __Layout from './Layout.jsx';
 
 
@@ -132,6 +137,11 @@ export const PAGES = {
     "WorkflowBuilder": WorkflowBuilder,
     "LegalDocuments": LegalDocuments,
     "BusinessDevDashboard": BusinessDevDashboard,
+    "CRMDashboard": CRMDashboard,
+    "SalesDashboard": SalesDashboard,
+    "SEODashboardPage": SEODashboardPage,
+    "SocialDashboard": SocialDashboard,
+    "WebDashboard": WebDashboard,
 }
 
 export const pagesConfig = {
