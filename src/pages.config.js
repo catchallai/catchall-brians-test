@@ -36,6 +36,7 @@ import MediaLibrary from './pages/MediaLibrary';
 import MediaOutreach from './pages/MediaOutreach';
 import MeetingScheduler from './pages/MeetingScheduler';
 import MobileHub from './pages/MobileHub';
+import Opportunities from './pages/Opportunities';
 import PitchDeckAnalyzer from './pages/PitchDeckAnalyzer';
 import PitchDeckCreator from './pages/PitchDeckCreator';
 import PressMonitoring from './pages/PressMonitoring';
@@ -60,7 +61,7 @@ import UserSettings from './pages/UserSettings';
 import VisitorProfiles from './pages/VisitorProfiles';
 import WebCrawler from './pages/WebCrawler';
 import WorkflowBuilder from './pages/WorkflowBuilder';
-import Opportunities from './pages/Opportunities';
+import LegalDocuments from './pages/LegalDocuments';
 import __Layout from './Layout.jsx';
 
 
@@ -103,6 +104,7 @@ export const PAGES = {
     "MediaOutreach": MediaOutreach,
     "MeetingScheduler": MeetingScheduler,
     "MobileHub": MobileHub,
+    "Opportunities": Opportunities,
     "PitchDeckAnalyzer": PitchDeckAnalyzer,
     "PitchDeckCreator": PitchDeckCreator,
     "PressMonitoring": PressMonitoring,
@@ -127,7 +129,7 @@ export const PAGES = {
     "VisitorProfiles": VisitorProfiles,
     "WebCrawler": WebCrawler,
     "WorkflowBuilder": WorkflowBuilder,
-    "Opportunities": Opportunities,
+    "LegalDocuments": LegalDocuments,
 }
 
 export const pagesConfig = {
