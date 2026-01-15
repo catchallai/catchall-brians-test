@@ -50,6 +50,7 @@ import {
   Sparkles,
   Award,
   Heart,
+  FileSignature,
 } from "lucide-react";
 import ErrorBoundary from '@/components/ui/ErrorBoundary';
 import KeyboardShortcutsDialog, { useKeyboardShortcuts } from '@/components/ui/KeyboardShortcuts';
