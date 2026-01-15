@@ -251,6 +251,7 @@ export default function Collaboration() {
                   user={user}
                 />
               )}
+            </div>
           ) : (
             <Card className="glass-card rounded-2xl">
               <CardContent className="py-16 text-center">
