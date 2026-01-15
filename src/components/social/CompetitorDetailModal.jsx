@@ -60,6 +60,14 @@ export default function CompetitorDetailModal({
         <DialogHeader>
           <DialogTitle className="flex items-center justify-between">
             <div className="flex items-center gap-3">
+              {competitor.logo_url && (
+                <img 
+                  src={competitor.logo_url} 
+                  alt={`${competitor.name} logo`}
+                  className="w-12 h-12 rounded-lg object-contain bg-white dark:bg-gray-700 p-2 border border-gray-200 dark:border-gray-600"
+                  onError={(e) => e.target.style.display = 'none'}
+                />
+              )}
               <div>
                 <span className="text-xl">{competitor.name}</span>
                 {competitor.website && (
