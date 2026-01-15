@@ -139,30 +139,29 @@ export default function CompetitorCard({ competitor, onAnalyze, isAnalyzing, onV
         )}
       </div>
 
-        <div className="flex gap-2">
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={onAnalyze}
-            disabled={isAnalyzing}
-            className="flex-1 gap-1"
-          >
-            {isAnalyzing ? (
-              <Loader2 className="w-3 h-3 animate-spin" />
-            ) : (
-              <RefreshCw className="w-3 h-3" />
-            )}
-            Analyze
-          </Button>
-          <Button
-            size="sm"
-            onClick={onView}
-            className="flex-1 gap-1 bg-violet-600 hover:bg-violet-700"
-          >
-            <Eye className="w-3 h-3" />
-            View
-          </Button>
-        </div>
+      <div className="flex gap-2">
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={onAnalyze}
+          disabled={isAnalyzing}
+          className="flex-1 gap-1"
+        >
+          {isAnalyzing ? (
+            <Loader2 className="w-3 h-3 animate-spin" />
+          ) : (
+            <RefreshCw className="w-3 h-3" />
+          )}
+          Analyze
+        </Button>
+        <Button
+          size="sm"
+          onClick={onView}
+          className="flex-1 gap-1 bg-violet-600 hover:bg-violet-700"
+        >
+          <Eye className="w-3 h-3" />
+          View
+        </Button>
       </div>
     </Card>
   );
