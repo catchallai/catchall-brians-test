@@ -45,6 +45,7 @@ import PitchDeckAnalyzer from './pages/PitchDeckAnalyzer';
 import PitchDeckCreator from './pages/PitchDeckCreator';
 import PressMonitoring from './pages/PressMonitoring';
 import Proposals from './pages/Proposals';
+import PublicDocumentViewer from './pages/PublicDocumentViewer';
 import PublicLandingPage from './pages/PublicLandingPage';
 import PublicLandingPageWrapper from './pages/PublicLandingPageWrapper';
 import Reports from './pages/Reports';
@@ -71,7 +72,6 @@ import VisitorProfiles from './pages/VisitorProfiles';
 import WebCrawler from './pages/WebCrawler';
 import WebDashboard from './pages/WebDashboard';
 import WorkflowBuilder from './pages/WorkflowBuilder';
-import PublicDocumentViewer from './pages/PublicDocumentViewer';
 import __Layout from './Layout.jsx';
 
 
@@ -123,6 +123,7 @@ export const PAGES = {
     "PitchDeckCreator": PitchDeckCreator,
     "PressMonitoring": PressMonitoring,
     "Proposals": Proposals,
+    "PublicDocumentViewer": PublicDocumentViewer,
     "PublicLandingPage": PublicLandingPage,
     "PublicLandingPageWrapper": PublicLandingPageWrapper,
     "Reports": Reports,
@@ -149,7 +150,6 @@ export const PAGES = {
     "WebCrawler": WebCrawler,
     "WebDashboard": WebDashboard,
     "WorkflowBuilder": WorkflowBuilder,
-    "PublicDocumentViewer": PublicDocumentViewer,
 }
 
 export const pagesConfig = {

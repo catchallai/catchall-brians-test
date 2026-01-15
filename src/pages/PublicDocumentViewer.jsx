@@ -93,13 +93,22 @@ export default function PublicDocumentViewer() {
           {/* Content */}
           <div className="p-8 space-y-6">
             {/* Document Preview */}
-            <div className="bg-slate-50 rounded-lg p-8 border-2 border-dashed border-slate-300 flex flex-col items-center justify-center min-h-64 space-y-4">
-              <div className="text-5xl">📄</div>
-              <div className="text-center space-y-2">
-                <p className="text-sm text-slate-600">{document.name}</p>
-                <p className="text-xs text-slate-400">Click download to access the file</p>
+            {document.file_url.toLowerCase().endsWith('.pdf') ? (
+              <iframe
+                src={document.file_url}
+                className="w-full rounded-lg border border-slate-300 bg-white"
+                style={{ minHeight: '500px' }}
+                title={document.name}
+              />
+            ) : (
+              <div className="bg-slate-50 rounded-lg p-8 border-2 border-dashed border-slate-300 flex flex-col items-center justify-center min-h-64 space-y-4">
+                <div className="text-5xl">📄</div>
+                <div className="text-center space-y-2">
+                  <p className="text-sm text-slate-600">{document.name}</p>
+                  <p className="text-xs text-slate-400">Click download to access the file</p>
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Stats */}
             <div className="grid grid-cols-2 gap-4">
