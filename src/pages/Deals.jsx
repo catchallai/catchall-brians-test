@@ -174,8 +174,8 @@ export default function Deals() {
       {deals.length === 0 ? (
         <EmptyState
           icon={Target}
-          title="No deals yet"
-          description="Deals will appear here when they are created."
+          title="No pipelines yet"
+          description="Create a pipeline to start managing deals."
         />
       ) : (
         <div className="flex gap-3 sm:gap-4 overflow-x-auto pb-4 -mx-4 px-4 sm:mx-0 sm:px-0">
