@@ -70,6 +70,7 @@ import WebCrawler from './pages/WebCrawler';
 import WebDashboard from './pages/WebDashboard';
 import WorkflowBuilder from './pages/WorkflowBuilder';
 import PublicLandingPage from './pages/PublicLandingPage';
+import PublicLandingPageWrapper from './pages/PublicLandingPageWrapper';
 import __Layout from './Layout.jsx';
 
 
@@ -146,6 +147,7 @@ export const PAGES = {
     "WebDashboard": WebDashboard,
     "WorkflowBuilder": WorkflowBuilder,
     "PublicLandingPage": PublicLandingPage,
+    "PublicLandingPageWrapper": PublicLandingPageWrapper,
 }
 
 export const pagesConfig = {
