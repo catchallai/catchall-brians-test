@@ -160,21 +160,24 @@ export default function CompetitorAnalysis() {
     mutationFn: async (competitor) => {
       setAnalyzingCompetitor(competitor.id);
       
-      // Fetch logo if website is available
+      // Fetch logo using multiple methods
       let logo_url = null;
       if (competitor.website) {
         try {
-          const logoAnalysis = await base44.integrations.Core.InvokeLLM({
-            prompt: `Visit ${competitor.website} and find the company logo image URL. Return the direct URL to the logo image file (should end in .png, .jpg, .svg, etc). If you cannot find it, return null.`,
-            add_context_from_internet: true,
-            response_json_schema: {
-              type: "object",
-              properties: {
-                logo_url: { type: "string" }
-              }
+          // Method 1: Try Google's favicon service
+          const domain = competitor.website.replace(/^https?:\/\//, '').replace(/\/.*$/, '');
+          logo_url = `https://www.google.com/s2/favicons?domain=${domain}&sz=128`;
+          
+          // Verify the logo loads
+          try {
+            const response = await fetch(logo_url);
+            if (!response.ok) {
+              // Method 2: Try Clearbit logo API as fallback
+              logo_url = `https://logo.clearbit.com/${domain}`;
             }
-          });
-          logo_url = logoAnalysis.logo_url;
+          } catch {
+            // Keep Google favicon as fallback
+          }
         } catch (err) {
           console.error('Logo fetch error:', err);
         }
