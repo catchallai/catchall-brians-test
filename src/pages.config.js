@@ -68,6 +68,7 @@ import VisitorProfiles from './pages/VisitorProfiles';
 import WebCrawler from './pages/WebCrawler';
 import WebDashboard from './pages/WebDashboard';
 import WorkflowBuilder from './pages/WorkflowBuilder';
+import LandingPageBuilder from './pages/LandingPageBuilder';
 import __Layout from './Layout.jsx';
 
 
@@ -142,6 +143,7 @@ export const PAGES = {
     "WebCrawler": WebCrawler,
     "WebDashboard": WebDashboard,
     "WorkflowBuilder": WorkflowBuilder,
+    "LandingPageBuilder": LandingPageBuilder,
 }
 
 export const pagesConfig = {
