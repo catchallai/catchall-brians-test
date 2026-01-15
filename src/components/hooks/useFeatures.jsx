@@ -15,6 +15,7 @@ const DEFAULT_FEATURES = {
   pitchDeckCreator: true,
   pitchDeckAnalyzer: true,
   takeDownRequestor: true,
+  accountingDashboard: false,
 };
 
 export function useFeatures() {
@@ -79,6 +80,7 @@ export const FEATURE_PAGE_MAP = {
   mediaOutreach: 'MediaOutreach',
   collaboration: 'Collaboration',
   mediaLibrary: 'MediaLibrary',
+  accountingDashboard: 'AccountingDashboard',
 };
 
 export const PAGE_FEATURE_MAP = Object.fromEntries(
