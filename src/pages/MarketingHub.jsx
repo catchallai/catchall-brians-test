@@ -12,7 +12,6 @@ import {
   DollarSign, Percent, ArrowUpRight, ArrowDownRight
 } from "lucide-react";
 import LeadScoringPanel from '@/components/marketing/LeadScoringPanel';
-import DripCampaignsPanel from '@/components/marketing/DripCampaignsPanel';
 import UTMTrackingPanel from '@/components/marketing/UTMTrackingPanel';
 import ABTestingPanel from '@/components/marketing/ABTestingPanel';
 import ReferralPanel from '@/components/marketing/ReferralPanel';
@@ -37,11 +36,6 @@ export default function MarketingHub() {
     queryFn: () => base44.entities.LeadScore.list('-total_score', 100),
   });
 
-  const { data: dripCampaigns = [] } = useQuery({
-    queryKey: ['drip-campaigns'],
-    queryFn: () => base44.entities.EmailDripCampaign.list('-created_date', 50),
-  });
-
   const { data: referrals = [] } = useQuery({
     queryKey: ['referrals'],
     queryFn: () => base44.entities.Referral.list('-created_date', 100),
@@ -54,8 +48,6 @@ export default function MarketingHub() {
 
   // Calculate metrics
   const hotLeads = leadScores.filter(l => l.grade === 'A' || l.grade === 'B').length;
-  const activeCampaigns = dripCampaigns.filter(c => c.status === 'active').length;
-  const totalEnrolled = dripCampaigns.reduce((sum, c) => sum + (c.enrolled_count || 0), 0);
   const convertedReferrals = referrals.filter(r => r.status === 'converted').length;
   
   const pipelineValue = deals.filter(d => d.stage !== 'closed_won' && d.stage !== 'closed_lost')
@@ -82,34 +74,6 @@ export default function MarketingHub() {
               <div>
                 <p className="text-2xl font-bold text-gray-900 dark:text-white">{hotLeads}</p>
                 <p className="text-xs text-gray-500">Hot Leads</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="glass-card rounded-2xl">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center">
-                <Mail className="w-5 h-5 text-blue-600" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold text-gray-900 dark:text-white">{activeCampaigns}</p>
-                <p className="text-xs text-gray-500">Active Drips</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="glass-card rounded-2xl">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-violet-100 dark:bg-violet-900/40 flex items-center justify-center">
-                <Users className="w-5 h-5 text-violet-600" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold text-gray-900 dark:text-white">{totalEnrolled}</p>
-                <p className="text-xs text-gray-500">Enrolled</p>
               </div>
             </div>
           </CardContent>
@@ -165,10 +129,6 @@ export default function MarketingHub() {
             <Target className="w-4 h-4" />
             Lead Scoring
           </TabsTrigger>
-          <TabsTrigger value="drip-campaigns" className="gap-1">
-            <Mail className="w-4 h-4" />
-            Drip Campaigns
-          </TabsTrigger>
           <TabsTrigger value="ab-testing" className="gap-1">
             <FlaskConical className="w-4 h-4" />
             A/B Testing
@@ -201,10 +161,6 @@ export default function MarketingHub() {
 
         <TabsContent value="lead-scoring" className="mt-6">
           <LeadScoringPanel contacts={contacts} leadScores={leadScores} deals={deals} />
-        </TabsContent>
-
-        <TabsContent value="drip-campaigns" className="mt-6">
-          <DripCampaignsPanel campaigns={dripCampaigns} contacts={contacts} />
         </TabsContent>
 
         <TabsContent value="ab-testing" className="mt-6">
