@@ -31,9 +31,18 @@ export default function CompetitorCard({ competitor, onAnalyze, isAnalyzing, onV
   return (
     <Card className="p-4 border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-all bg-white dark:bg-gray-800">
       <div className="flex items-start justify-between mb-3">
-        <div className="flex-1">
-          <div className="flex items-center gap-2 mb-1">
-            <h4 className="font-semibold text-gray-900 dark:text-white">{competitor.name}</h4>
+        <div className="flex items-center gap-3 flex-1">
+          {competitor.logo_url && (
+            <img 
+              src={competitor.logo_url} 
+              alt={`${competitor.name} logo`}
+              className="w-10 h-10 rounded-lg object-contain bg-white dark:bg-gray-700 p-1 border border-gray-200 dark:border-gray-600"
+              onError={(e) => e.target.style.display = 'none'}
+            />
+          )}
+          <div className="flex-1">
+            <div className="flex items-center gap-2 mb-1">
+              <h4 className="font-semibold text-gray-900 dark:text-white">{competitor.name}</h4>
             {competitor.tier ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>

@@ -159,6 +159,27 @@ export default function CompetitorAnalysis() {
   const analyzeCompetitorMutation = useMutation({
     mutationFn: async (competitor) => {
       setAnalyzingCompetitor(competitor.id);
+      
+      // Fetch logo if website is available
+      let logo_url = null;
+      if (competitor.website) {
+        try {
+          const logoAnalysis = await base44.integrations.Core.InvokeLLM({
+            prompt: `Visit ${competitor.website} and find the company logo image URL. Return the direct URL to the logo image file (should end in .png, .jpg, .svg, etc). If you cannot find it, return null.`,
+            add_context_from_internet: true,
+            response_json_schema: {
+              type: "object",
+              properties: {
+                logo_url: { type: "string" }
+              }
+            }
+          });
+          logo_url = logoAnalysis.logo_url;
+        } catch (err) {
+          console.error('Logo fetch error:', err);
+        }
+      }
+      
       const analysis = await base44.integrations.Core.InvokeLLM({
         prompt: `Analyze competitor social media presence for: ${competitor.name}
         Website: ${competitor.website || 'N/A'}
@@ -227,6 +248,7 @@ export default function CompetitorAnalysis() {
 
       await base44.entities.Competitor.update(competitor.id, {
         ...analysis,
+        logo_url,
         last_analyzed: new Date().toISOString()
       });
       return analysis;
