@@ -29,7 +29,6 @@ Deno.serve(async (req) => {
       name: documentName,
       file_url: fileUrl,
       tracking_code: shareToken,
-      share_link: `${new URL(req.url).origin}/#/PublicDocumentViewer?token=${shareToken}`,
       status: 'active',
       total_views: 0,
       total_downloads: 0
@@ -38,9 +37,8 @@ Deno.serve(async (req) => {
     return Response.json({
       success: true,
       documentId: document.id,
-      shareLink: document.share_link,
-      fileUrl: fileUrl,
-      trackingCode: shareToken
+      trackingCode: shareToken,
+      fileUrl: fileUrl
     });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
