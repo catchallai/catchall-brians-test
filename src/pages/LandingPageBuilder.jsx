@@ -264,6 +264,7 @@ export default function LandingPageBuilder() {
           setSelectedPage(null);
         }}
         page={selectedPage}
+        isLoading={createPageMutation.isPending || updatePageMutation.isPending}
         onSave={(data) => {
           if (selectedPage) {
             updatePageMutation.mutate({ id: selectedPage.id, data });
