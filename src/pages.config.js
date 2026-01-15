@@ -62,6 +62,7 @@ import VisitorProfiles from './pages/VisitorProfiles';
 import WebCrawler from './pages/WebCrawler';
 import WorkflowBuilder from './pages/WorkflowBuilder';
 import LegalDocuments from './pages/LegalDocuments';
+import BusinessDevDashboard from './pages/BusinessDevDashboard';
 import __Layout from './Layout.jsx';
 
 
@@ -130,6 +131,7 @@ export const PAGES = {
     "WebCrawler": WebCrawler,
     "WorkflowBuilder": WorkflowBuilder,
     "LegalDocuments": LegalDocuments,
+    "BusinessDevDashboard": BusinessDevDashboard,
 }
 
 export const pagesConfig = {
