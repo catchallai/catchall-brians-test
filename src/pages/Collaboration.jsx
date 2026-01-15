@@ -9,17 +9,17 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Users, FolderKanban, MessageSquare, GitBranch, Plus,
-  Loader2, Sparkles, CheckCircle, Clock, AlertTriangle
+  Loader2, Sparkles, CheckCircle, Clock, AlertTriangle, LayoutGrid, List, Columns
 } from "lucide-react";
-import TaskList from '@/components/collaboration/TaskList';
-import CommentThread from '@/components/collaboration/CommentThread';
-import VersionHistory from '@/components/collaboration/VersionHistory';
-import AIAssistant from '@/components/collaboration/AIAssistant';
 import ProjectModal from '@/components/collaboration/ProjectModal';
+import KanbanBoard from '@/components/collaboration/KanbanBoard';
+import TableView from '@/components/collaboration/TableView';
+import TimelineView from '@/components/collaboration/TimelineView';
 
 export default function Collaboration() {
   const [selectedProject, setSelectedProject] = useState(null);
   const [showProjectModal, setShowProjectModal] = useState(false);
+  const [viewMode, setViewMode] = useState('kanban'); // kanban, table, timeline
   const queryClient = useQueryClient();
 
   const { data: user } = useQuery({
@@ -191,49 +191,66 @@ export default function Collaboration() {
         {/* Main Content */}
         <div className="lg:col-span-3">
           {selectedProject ? (
-            <Tabs defaultValue="tasks" className="space-y-4">
+            <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <h2 className="text-xl font-bold text-gray-900">{selectedProject.name}</h2>
-                  <p className="text-sm text-gray-500">{selectedProject.description}</p>
+                  <h2 className="text-2xl font-bold text-gray-900 dark:text-white">{selectedProject.name}</h2>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">{selectedProject.description}</p>
                 </div>
-                <TabsList>
-                  <TabsTrigger value="tasks">Tasks</TabsTrigger>
-                  <TabsTrigger value="comments">Comments</TabsTrigger>
-                  <TabsTrigger value="versions">Versions</TabsTrigger>
-                  <TabsTrigger value="ai">AI Assistant</TabsTrigger>
-                </TabsList>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant={viewMode === 'kanban' ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setViewMode('kanban')}
+                    className="gap-2"
+                  >
+                    <Columns className="w-4 h-4" />
+                    Board
+                  </Button>
+                  <Button
+                    variant={viewMode === 'table' ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setViewMode('table')}
+                    className="gap-2"
+                  >
+                    <List className="w-4 h-4" />
+                    Table
+                  </Button>
+                  <Button
+                    variant={viewMode === 'timeline' ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setViewMode('timeline')}
+                    className="gap-2"
+                  >
+                    <LayoutGrid className="w-4 h-4" />
+                    Timeline
+                  </Button>
+                </div>
               </div>
 
-              <TabsContent value="tasks">
-                <TaskList 
+              {viewMode === 'kanban' && (
+                <KanbanBoard 
                   project={selectedProject} 
                   tasks={projectTasks}
                   user={user}
                 />
-              </TabsContent>
+              )}
 
-              <TabsContent value="comments">
-                <CommentThread 
-                  project={selectedProject}
-                  comments={projectComments}
-                  user={user}
-                />
-              </TabsContent>
-
-              <TabsContent value="versions">
-                <VersionHistory project={selectedProject} user={user} />
-              </TabsContent>
-
-              <TabsContent value="ai">
-                <AIAssistant 
-                  project={selectedProject}
+              {viewMode === 'table' && (
+                <TableView 
+                  project={selectedProject} 
                   tasks={projectTasks}
-                  comments={projectComments}
                   user={user}
                 />
-              </TabsContent>
-            </Tabs>
+              )}
+
+              {viewMode === 'timeline' && (
+                <TimelineView 
+                  project={selectedProject} 
+                  tasks={projectTasks}
+                  user={user}
+                />
+              )}
           ) : (
             <Card className="glass-card rounded-2xl">
               <CardContent className="py-16 text-center">
