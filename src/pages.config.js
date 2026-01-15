@@ -30,6 +30,7 @@ import HashtagManager from './pages/HashtagManager';
 import HelpCenter from './pages/HelpCenter';
 import Home from './pages/Home';
 import Keywords from './pages/Keywords';
+import LandingPageBuilder from './pages/LandingPageBuilder';
 import LeadEnrichment from './pages/LeadEnrichment';
 import LegalDocuments from './pages/LegalDocuments';
 import Listings from './pages/Listings';
@@ -68,7 +69,6 @@ import VisitorProfiles from './pages/VisitorProfiles';
 import WebCrawler from './pages/WebCrawler';
 import WebDashboard from './pages/WebDashboard';
 import WorkflowBuilder from './pages/WorkflowBuilder';
-import LandingPageBuilder from './pages/LandingPageBuilder';
 import __Layout from './Layout.jsx';
 
 
@@ -105,6 +105,7 @@ export const PAGES = {
     "HelpCenter": HelpCenter,
     "Home": Home,
     "Keywords": Keywords,
+    "LandingPageBuilder": LandingPageBuilder,
     "LeadEnrichment": LeadEnrichment,
     "LegalDocuments": LegalDocuments,
     "Listings": Listings,
@@ -143,7 +144,6 @@ export const PAGES = {
     "WebCrawler": WebCrawler,
     "WebDashboard": WebDashboard,
     "WorkflowBuilder": WorkflowBuilder,
-    "LandingPageBuilder": LandingPageBuilder,
 }
 
 export const pagesConfig = {
