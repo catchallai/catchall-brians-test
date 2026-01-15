@@ -244,7 +244,10 @@ export default function LandingPageBuilder() {
                      variant="ghost"
                      size="sm"
                      className="w-full gap-1"
-                     onClick={() => window.open(`${window.location.origin}/PublicLandingPage?slug=${page.slug}`, '_blank')}
+                     onClick={() => {
+                       const shareUrl = `${window.location.origin}/#/PublicLandingPage?slug=${page.slug}`;
+                       window.open(shareUrl, '_blank');
+                     }}
                    >
                      <ExternalLink className="w-3 h-3" />
                      View Live Page
