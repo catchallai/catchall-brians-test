@@ -144,7 +144,7 @@ export default function BusinessDevDashboard() {
     <div className="p-6 space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Business Development Dashboard</h1>
+        <h1 className="text-3xl font-bold tracking-wider text-gray-400 dark:text-gray-500 uppercase">Business Dev</h1>
         <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
           Overview of all business development activities and metrics
         </p>
