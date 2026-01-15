@@ -240,16 +240,16 @@ export default function LandingPageBuilder() {
                 </div>
 
                 {page.status === 'published' && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="w-full gap-1"
-                    onClick={() => window.open(`/landing/${page.slug}`, '_blank')}
-                  >
-                    <ExternalLink className="w-3 h-3" />
-                    View Live Page
-                  </Button>
-                )}
+                   <Button
+                     variant="ghost"
+                     size="sm"
+                     className="w-full gap-1"
+                     onClick={() => window.open(`${window.location.origin}/PublicLandingPage?slug=${page.slug}`, '_blank')}
+                   >
+                     <ExternalLink className="w-3 h-3" />
+                     View Live Page
+                   </Button>
+                 )}
               </CardContent>
             </Card>
           ))}
