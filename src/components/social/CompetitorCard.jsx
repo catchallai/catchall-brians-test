@@ -37,19 +37,28 @@ export default function CompetitorCard({ competitor, onAnalyze, isAnalyzing, onV
             {competitor.tier ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Badge className={`text-xs cursor-pointer hover:opacity-80 ${tierColors[competitor.tier]}`}>
-                    <Shield className="w-3 h-3 mr-1" />
+                  <button className={`inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium cursor-pointer hover:opacity-80 transition-opacity ${tierColors[competitor.tier]}`}>
+                    <Shield className="w-3 h-3" />
                     {tierLabels[competitor.tier]}
-                  </Badge>
+                  </button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent>
-                  <DropdownMenuItem onClick={() => onUpdateTier?.(competitor, 'tier_1')}>
+                  <DropdownMenuItem onClick={(e) => {
+                    e.stopPropagation();
+                    onUpdateTier?.(competitor, 'tier_1');
+                  }}>
                     Tier 1 - Direct Competitor
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => onUpdateTier?.(competitor, 'tier_2')}>
+                  <DropdownMenuItem onClick={(e) => {
+                    e.stopPropagation();
+                    onUpdateTier?.(competitor, 'tier_2');
+                  }}>
                     Tier 2 - Indirect Competitor
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => onUpdateTier?.(competitor, 'tier_3')}>
+                  <DropdownMenuItem onClick={(e) => {
+                    e.stopPropagation();
+                    onUpdateTier?.(competitor, 'tier_3');
+                  }}>
                     Tier 3 - Potential Threat
                   </DropdownMenuItem>
                 </DropdownMenuContent>
@@ -57,19 +66,28 @@ export default function CompetitorCard({ competitor, onAnalyze, isAnalyzing, onV
             ) : (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Badge variant="outline" className="text-xs cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800">
-                    <Shield className="w-3 h-3 mr-1" />
+                  <button className="inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 border border-gray-300 dark:border-gray-600 transition-colors">
+                    <Shield className="w-3 h-3" />
                     Set Tier
-                  </Badge>
+                  </button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent>
-                  <DropdownMenuItem onClick={() => onUpdateTier?.(competitor, 'tier_1')}>
+                  <DropdownMenuItem onClick={(e) => {
+                    e.stopPropagation();
+                    onUpdateTier?.(competitor, 'tier_1');
+                  }}>
                     Tier 1 - Direct Competitor
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => onUpdateTier?.(competitor, 'tier_2')}>
+                  <DropdownMenuItem onClick={(e) => {
+                    e.stopPropagation();
+                    onUpdateTier?.(competitor, 'tier_2');
+                  }}>
                     Tier 2 - Indirect Competitor
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => onUpdateTier?.(competitor, 'tier_3')}>
+                  <DropdownMenuItem onClick={(e) => {
+                    e.stopPropagation();
+                    onUpdateTier?.(competitor, 'tier_3');
+                  }}>
                     Tier 3 - Potential Threat
                   </DropdownMenuItem>
                 </DropdownMenuContent>
