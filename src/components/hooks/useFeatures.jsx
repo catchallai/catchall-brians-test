@@ -81,6 +81,7 @@ export const FEATURE_PAGE_MAP = {
   collaboration: 'Collaboration',
   mediaLibrary: 'MediaLibrary',
   accountingDashboard: 'AccountingDashboard',
+  landingPageBuilder: 'LandingPageBuilder',
 };
 
 export const PAGE_FEATURE_MAP = Object.fromEntries(
