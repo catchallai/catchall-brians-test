@@ -11,8 +11,14 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   Plus, Search, Loader2, Sparkles, Target, Users, TrendingUp,
-  Grid3x3, List, Network as NetworkIcon, Table2
+  Grid3x3, List, Network as NetworkIcon, Table2, Shield
 } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import CompetitorCard from '@/components/social/CompetitorCard';
 import CompetitorDetailModal from '@/components/social/CompetitorDetailModal';
 import CompetitorReportModal from '@/components/modals/CompetitorReportModal';
@@ -628,9 +634,28 @@ Analyze: content strategy, predicted campaigns, industry benchmarks.`,
                             <h3 className="font-semibold text-gray-900 dark:text-white truncate">
                               {competitor.name}
                             </h3>
-                            <Badge variant="outline" className="capitalize">
-                              {competitor.tier?.replace('_', ' ')}
-                            </Badge>
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                                <Badge 
+                                  variant="outline" 
+                                  className="capitalize cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700"
+                                >
+                                  <Shield className="w-3 h-3 mr-1" />
+                                  {competitor.tier?.replace('_', ' ') || 'Set tier'}
+                                </Badge>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent onClick={(e) => e.stopPropagation()}>
+                                <DropdownMenuItem onClick={(e) => { e.stopPropagation(); updateTierMutation.mutate({ competitor, tier: 'tier_1' }); }}>
+                                  Tier 1 - Direct Competitor
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={(e) => { e.stopPropagation(); updateTierMutation.mutate({ competitor, tier: 'tier_2' }); }}>
+                                  Tier 2 - Indirect Competitor
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={(e) => { e.stopPropagation(); updateTierMutation.mutate({ competitor, tier: 'tier_3' }); }}>
+                                  Tier 3 - Potential Threat
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
                             {competitor.last_analyzed && (
                               <Badge className="bg-violet-100 text-violet-700 border-0 text-xs">
                                 <Sparkles className="w-3 h-3 mr-1" />
@@ -742,10 +767,29 @@ Analyze: content strategy, predicted campaigns, industry benchmarks.`,
                                 </p>
                               </div>
                             </td>
-                            <td className="px-4 py-3">
-                              <Badge variant="outline" className="capitalize">
-                                {competitor.tier?.replace('_', ' ')}
-                              </Badge>
+                            <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <Badge 
+                                    variant="outline" 
+                                    className="capitalize cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700"
+                                  >
+                                    <Shield className="w-3 h-3 mr-1" />
+                                    {competitor.tier?.replace('_', ' ') || 'Set tier'}
+                                  </Badge>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent>
+                                  <DropdownMenuItem onClick={() => updateTierMutation.mutate({ competitor, tier: 'tier_1' })}>
+                                    Tier 1 - Direct Competitor
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem onClick={() => updateTierMutation.mutate({ competitor, tier: 'tier_2' })}>
+                                    Tier 2 - Indirect Competitor
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem onClick={() => updateTierMutation.mutate({ competitor, tier: 'tier_3' })}>
+                                    Tier 3 - Potential Threat
+                                  </DropdownMenuItem>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
                             </td>
                             <td className="px-4 py-3">
                               <p className="text-sm font-medium text-gray-900 dark:text-white">
