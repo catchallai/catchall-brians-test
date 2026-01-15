@@ -169,6 +169,19 @@ export default function LandingPageEditorModal({ open, onClose, page, onSave, is
     onSave(formData);
   };
 
+  const handlePublish = () => {
+    if (!validateForm()) {
+      toast?.({
+        title: 'Validation Error',
+        description: 'Please fill in all required fields.',
+        type: 'error',
+      });
+      return;
+    }
+
+    onSave({ ...formData, status: 'published', published_at: new Date().toISOString() });
+  };
+
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
@@ -400,10 +413,15 @@ export default function LandingPageEditorModal({ open, onClose, page, onSave, is
 
           <div className="flex gap-2">
             <Button variant="outline" onClick={onClose} disabled={isLoading}>Cancel</Button>
-            <Button onClick={handleSave} disabled={isLoading} className="gap-2 bg-violet-600 hover:bg-violet-700">
+            <Button onClick={handleSave} disabled={isLoading} className="gap-2 bg-blue-600 hover:bg-blue-700">
               <Save className="w-4 h-4" />
-              {isLoading ? 'Saving...' : 'Save Page'}
+              {isLoading ? 'Saving...' : 'Save Draft'}
             </Button>
+            {page?.status !== 'published' && (
+              <Button onClick={handlePublish} disabled={isLoading} className="gap-2 bg-green-600 hover:bg-green-700">
+                {isLoading ? 'Publishing...' : 'Publish'}
+              </Button>
+            )}
           </div>
         </div>
       </DialogContent>
