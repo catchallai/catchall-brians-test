@@ -7,7 +7,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Trash2, ArrowUp, ArrowDown, Save, Eye } from "lucide-react";
+import { Plus, Trash2, ArrowUp, ArrowDown, Save, AlertCircle } from "lucide-react";
+import { useToast } from "@/components/ui/use-toast";
 import SectionEditor from './SectionEditor';
 
 const TEMPLATES = [
@@ -28,7 +29,9 @@ const SECTION_TYPES = [
   { value: 'form', label: 'Form' }
 ];
 
-export default function LandingPageEditorModal({ open, onClose, page, onSave }) {
+export default function LandingPageEditorModal({ open, onClose, page, onSave, isLoading = false }) {
+  const [errors, setErrors] = useState({});
+  const { toast } = useToast();
   const [formData, setFormData] = useState({
     title: '',
     slug: '',
@@ -139,7 +142,30 @@ export default function LandingPageEditorModal({ open, onClose, page, onSave }) 
     }
   };
 
+  const validateForm = () => {
+    const newErrors = {};
+    
+    if (!formData.title?.trim()) {
+      newErrors.title = 'Page title is required';
+    }
+    if (!formData.slug?.trim()) {
+      newErrors.slug = 'URL slug is required';
+    }
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleSave = () => {
+    if (!validateForm()) {
+      toast?.({
+        title: 'Validation Error',
+        description: 'Please fill in all required fields.',
+        type: 'error',
+      });
+      return;
+    }
+
     onSave(formData);
   };
 
@@ -160,20 +186,30 @@ export default function LandingPageEditorModal({ open, onClose, page, onSave }) 
           <TabsContent value="content" className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label>Page Title</Label>
+                <Label>Page Title *</Label>
                 <Input
                   value={formData.title}
-                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                  onChange={(e) => {
+                    setFormData({ ...formData, title: e.target.value });
+                    if (errors.title) setErrors({ ...errors, title: '' });
+                  }}
                   placeholder="My Landing Page"
+                  className={errors.title ? 'border-red-500' : ''}
                 />
+                {errors.title && <p className="text-sm text-red-500 flex items-center gap-1"><AlertCircle className="w-3 h-3" />{errors.title}</p>}
               </div>
               <div className="space-y-2">
-                <Label>URL Slug</Label>
+                <Label>URL Slug *</Label>
                 <Input
                   value={formData.slug}
-                  onChange={(e) => setFormData({ ...formData, slug: e.target.value.toLowerCase().replace(/\s+/g, '-') })}
+                  onChange={(e) => {
+                    setFormData({ ...formData, slug: e.target.value.toLowerCase().replace(/\s+/g, '-') });
+                    if (errors.slug) setErrors({ ...errors, slug: '' });
+                  }}
                   placeholder="my-landing-page"
+                  className={errors.slug ? 'border-red-500' : ''}
                 />
+                {errors.slug && <p className="text-sm text-red-500 flex items-center gap-1"><AlertCircle className="w-3 h-3" />{errors.slug}</p>}
               </div>
             </div>
 
@@ -363,10 +399,10 @@ export default function LandingPageEditorModal({ open, onClose, page, onSave }) 
           </Select>
 
           <div className="flex gap-2">
-            <Button variant="outline" onClick={onClose}>Cancel</Button>
-            <Button onClick={handleSave} className="gap-2 bg-violet-600 hover:bg-violet-700">
+            <Button variant="outline" onClick={onClose} disabled={isLoading}>Cancel</Button>
+            <Button onClick={handleSave} disabled={isLoading} className="gap-2 bg-violet-600 hover:bg-violet-700">
               <Save className="w-4 h-4" />
-              Save Page
+              {isLoading ? 'Saving...' : 'Save Page'}
             </Button>
           </div>
         </div>
