@@ -37,8 +37,9 @@ export default function DocumentUploadModal({ open, onClose, onSuccess }) {
       const response = await base44.functions.invoke('uploadAndShareDocument', formData);
       
       if (response.data.success) {
-        setShareLink(response.data.shareLink);
-        if (onSuccess) onSuccess(response.data);
+        const shareLink = `${window.location.origin}/#/PublicDocumentViewer?token=${response.data.trackingCode}`;
+        setShareLink(shareLink);
+        if (onSuccess) onSuccess({ ...response.data, shareLink });
       }
     } catch (err) {
       setError(err.message || 'Upload failed');
