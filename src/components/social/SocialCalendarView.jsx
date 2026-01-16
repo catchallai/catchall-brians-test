@@ -24,9 +24,9 @@ const statusColors = {
   published: "border-violet-300 bg-violet-50",
 };
 
-export default function SocialCalendarView({ posts = [], onAddPost, onEditPost, currentMonth, onMonthChange }) {
-  const monthStart = startOfMonth(currentMonth);
-  const monthEnd = endOfMonth(currentMonth);
+export default function SocialCalendarView({ posts = [], onAddPost, onEditPost, currentMonth, onMonthChange, viewType = 'month' }) {
+  const monthStart = viewType === 'month' ? startOfMonth(currentMonth) : startOfWeek(currentMonth);
+  const monthEnd = viewType === 'month' ? endOfMonth(currentMonth) : endOfWeek(currentMonth);
   const calendarStart = startOfWeek(monthStart);
   const calendarEnd = endOfWeek(monthEnd);
   const days = eachDayOfInterval({ start: calendarStart, end: calendarEnd });
@@ -54,7 +54,9 @@ export default function SocialCalendarView({ posts = [], onAddPost, onEditPost, 
             <ChevronLeft className="w-5 h-5" />
           </Button>
           <h3 className="font-bold text-2xl text-gray-900 dark:text-white min-w-[200px] text-center">
-            {format(currentMonth, 'MMMM yyyy')}
+            {viewType === 'week' 
+              ? `Week of ${format(startOfWeek(currentMonth), 'MMM d, yyyy')}`
+              : format(currentMonth, 'MMMM yyyy')}
           </h3>
           <Button 
             variant="outline" 
