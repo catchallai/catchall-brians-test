@@ -62,7 +62,7 @@ function SortableGridItem({ id, post, position, onEdit, onRemove }) {
       {...attributes}
       {...listeners}
       className="aspect-square rounded-xl overflow-hidden relative group cursor-pointer shadow-md hover:shadow-xl transition-all"
-      onClick={() => onEdit(post)}
+      onClick={() => onEdit(post, position)}
     >
       {post.video_url ? (
         <video 
@@ -84,7 +84,7 @@ function SortableGridItem({ id, post, position, onEdit, onRemove }) {
           variant="secondary"
           onClick={(e) => {
             e.stopPropagation();
-            onEdit(post);
+            onEdit(post, position);
           }}
           className="bg-white/90 hover:bg-white text-gray-900"
         >
@@ -171,7 +171,7 @@ export default function NineGridEditor({ posts = [], onPostsChange, onEditPost }
                   id={String(index)}
                   post={post}
                   position={index}
-                  onEdit={() => handleAddPost(index)}
+                  onEdit={(p, pos) => handleAddPost(pos)}
                   onRemove={handleRemove}
                 />
               ))}
