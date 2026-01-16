@@ -53,6 +53,7 @@ import {
         Heart,
         FileSignature,
         Folder,
+        FolderOpen,
       } from "lucide-react";
 import ErrorBoundary from '@/components/ui/ErrorBoundary';
 import KeyboardShortcutsDialog, { useKeyboardShortcuts } from '@/components/ui/KeyboardShortcuts';
