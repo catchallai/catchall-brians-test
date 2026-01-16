@@ -1,15 +1,12 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus, Trash2, Play, Pause } from "lucide-react";
+import { Plus, Trash2 } from "lucide-react";
 import { DndContext, closestCenter, DragOverlay } from '@dnd-kit/core';
 import { SortableContext, useSortable, rectSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 
 function SortableGridItem({ id, post, position, onEdit, onRemove }) {
-  const videoRef = useRef(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-
   const {
     attributes,
     listeners,
@@ -26,18 +23,6 @@ function SortableGridItem({ id, post, position, onEdit, onRemove }) {
   };
 
   const isCenter = position === 4; // Center position (0-indexed: position 4 in 0-8 range)
-
-  const toggleVideo = (e) => {
-    e.stopPropagation();
-    if (videoRef.current) {
-      if (isPlaying) {
-        videoRef.current.pause();
-      } else {
-        videoRef.current.play();
-      }
-      setIsPlaying(!isPlaying);
-    }
-  };
 
   if (isCenter && !post) {
     return (
@@ -76,41 +61,24 @@ function SortableGridItem({ id, post, position, onEdit, onRemove }) {
       style={style}
       {...attributes}
       {...listeners}
-      className="aspect-square rounded-xl overflow-hidden relative group shadow-md hover:shadow-xl transition-all"
+      className="aspect-square rounded-xl overflow-hidden relative group cursor-pointer shadow-md hover:shadow-xl transition-all"
+      onClick={() => onEdit(post)}
     >
-      <div onClick={() => onEdit(post)} className="w-full h-full cursor-pointer">
-        {post.video_url ? (
-          <>
-            <video 
-              ref={videoRef}
-              src={post.video_url}
-              className="w-full h-full object-cover"
-              loop
-              muted={!isPlaying}
-              playsInline
-            />
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              <button
-                onClick={toggleVideo}
-                className="pointer-events-auto w-16 h-16 rounded-full bg-black/70 hover:bg-black/90 flex items-center justify-center transition-all shadow-xl z-10"
-              >
-                {isPlaying ? (
-                  <Pause className="w-8 h-8 text-white" />
-                ) : (
-                  <Play className="w-8 h-8 text-white ml-1" />
-                )}
-              </button>
-            </div>
-          </>
-        ) : post.image_url ? (
-          <img src={post.image_url} alt={post.caption || 'Post'} className="w-full h-full object-cover" />
-        ) : (
-          <div className="w-full h-full bg-gradient-to-br from-violet-400 to-purple-500 flex items-center justify-center">
-            <p className="text-white text-center p-4 text-sm line-clamp-3">{post.caption || 'No caption'}</p>
-          </div>
-        )}
-      </div>
-      <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 pointer-events-none">
+      {post.video_url ? (
+        <video 
+          src={post.video_url}
+          className="w-full h-full object-cover"
+          muted
+          playsInline
+        />
+      ) : post.image_url ? (
+        <img src={post.image_url} alt={post.caption || 'Post'} className="w-full h-full object-cover" />
+      ) : (
+        <div className="w-full h-full bg-gradient-to-br from-violet-400 to-purple-500 flex items-center justify-center">
+          <p className="text-white text-center p-4 text-sm line-clamp-3">{post.caption || 'No caption'}</p>
+        </div>
+      )}
+      <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
         <Button
           size="sm"
           variant="secondary"
@@ -118,7 +86,7 @@ function SortableGridItem({ id, post, position, onEdit, onRemove }) {
             e.stopPropagation();
             onEdit(post);
           }}
-          className="bg-white/90 hover:bg-white text-gray-900 pointer-events-auto"
+          className="bg-white/90 hover:bg-white text-gray-900"
         >
           Edit
         </Button>
@@ -129,7 +97,7 @@ function SortableGridItem({ id, post, position, onEdit, onRemove }) {
             e.stopPropagation();
             onRemove(position);
           }}
-          className="bg-red-500/90 hover:bg-red-600 pointer-events-auto"
+          className="bg-red-500/90 hover:bg-red-600"
         >
           <Trash2 className="w-4 h-4" />
         </Button>
