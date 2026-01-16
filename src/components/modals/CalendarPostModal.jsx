@@ -6,8 +6,10 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Upload, X, Image, Video } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Loader2, Upload, X, Image, Video, Repeat } from "lucide-react";
 import { base44 } from '@/api/base44Client';
+import { addDays, addWeeks, addMonths, format as formatDate } from 'date-fns';
 
 const platforms = ['Twitter', 'LinkedIn', 'Facebook', 'Instagram'];
 
@@ -19,10 +21,15 @@ export default function CalendarPostModal({ open, onClose, post, onSave, isLoadi
     video_url: '',
     media_type: 'none',
     scheduled_date: '',
+    scheduled_time: '09:00',
     platforms: [],
     hashtags: [],
     status: 'draft',
-    order: 0
+    order: 0,
+    is_recurring: false,
+    recurrence_type: 'weekly',
+    recurrence_end_date: '',
+    recurrence_days: []
   });
   const [uploading, setUploading] = useState(false);
   const [uploadingVideo, setUploadingVideo] = useState(false);
@@ -37,10 +44,15 @@ export default function CalendarPostModal({ open, onClose, post, onSave, isLoadi
         video_url: post.video_url || '',
         media_type: post.media_type || 'none',
         scheduled_date: post.scheduled_date || '',
+        scheduled_time: post.scheduled_time || '09:00',
         platforms: post.platforms || [],
         hashtags: post.hashtags || [],
         status: post.status || 'draft',
-        order: post.order || 0
+        order: post.order || 0,
+        is_recurring: post.is_recurring || false,
+        recurrence_type: post.recurrence_type || 'weekly',
+        recurrence_end_date: post.recurrence_end_date || '',
+        recurrence_days: post.recurrence_days || []
       });
     } else {
       setFormData({
@@ -50,10 +62,15 @@ export default function CalendarPostModal({ open, onClose, post, onSave, isLoadi
         video_url: '',
         media_type: 'none',
         scheduled_date: new Date().toISOString().split('T')[0],
+        scheduled_time: '09:00',
         platforms: [],
         hashtags: [],
         status: 'draft',
-        order: 0
+        order: 0,
+        is_recurring: false,
+        recurrence_type: 'weekly',
+        recurrence_end_date: '',
+        recurrence_days: []
       });
     }
   }, [post, open]);
@@ -103,9 +120,47 @@ export default function CalendarPostModal({ open, onClose, post, onSave, isLoadi
     setFormData({ ...formData, hashtags: formData.hashtags.filter(h => h !== tag) });
   };
 
-  const handleSubmit = (e) => {
+  const toggleRecurrenceDay = (day) => {
+    const current = formData.recurrence_days || [];
+    if (current.includes(day)) {
+      setFormData({ ...formData, recurrence_days: current.filter(d => d !== day) });
+    } else {
+      setFormData({ ...formData, recurrence_days: [...current, day] });
+    }
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    onSave(formData);
+    
+    // If recurring, create multiple posts
+    if (formData.is_recurring && formData.recurrence_end_date) {
+      const posts = [];
+      let currentDate = new Date(formData.scheduled_date);
+      const endDate = new Date(formData.recurrence_end_date);
+      
+      while (currentDate <= endDate) {
+        posts.push({
+          ...formData,
+          scheduled_date: formatDate(currentDate, 'yyyy-MM-dd'),
+          parent_post_id: post?.id || null
+        });
+        
+        if (formData.recurrence_type === 'daily') {
+          currentDate = addDays(currentDate, 1);
+        } else if (formData.recurrence_type === 'weekly') {
+          currentDate = addWeeks(currentDate, 1);
+        } else if (formData.recurrence_type === 'monthly') {
+          currentDate = addMonths(currentDate, 1);
+        }
+      }
+      
+      // Save each recurring post
+      for (const postData of posts) {
+        await onSave(postData);
+      }
+    } else {
+      onSave(formData);
+    }
   };
 
   return (
@@ -195,15 +250,93 @@ export default function CalendarPostModal({ open, onClose, post, onSave, isLoadi
             />
           </div>
 
-          {/* Scheduled Date */}
-          <div className="space-y-2">
-            <Label>Scheduled Date *</Label>
-            <Input
-              type="date"
-              value={formData.scheduled_date}
-              onChange={(e) => setFormData({ ...formData, scheduled_date: e.target.value })}
-              required
-            />
+          {/* Scheduled Date & Time */}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label>Scheduled Date *</Label>
+              <Input
+                type="date"
+                value={formData.scheduled_date}
+                onChange={(e) => setFormData({ ...formData, scheduled_date: e.target.value })}
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Time</Label>
+              <Input
+                type="time"
+                value={formData.scheduled_time}
+                onChange={(e) => setFormData({ ...formData, scheduled_time: e.target.value })}
+              />
+            </div>
+          </div>
+
+          {/* Recurring Options */}
+          <div className="space-y-3 p-4 bg-violet-50 dark:bg-violet-900/20 rounded-lg border border-violet-200 dark:border-violet-800">
+            <div className="flex items-center gap-2">
+              <Checkbox
+                id="recurring"
+                checked={formData.is_recurring}
+                onCheckedChange={(checked) => setFormData({ ...formData, is_recurring: checked })}
+              />
+              <Label htmlFor="recurring" className="cursor-pointer font-medium flex items-center gap-2">
+                <Repeat className="w-4 h-4" />
+                Recurring Post
+              </Label>
+            </div>
+            
+            {formData.is_recurring && (
+              <>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-2">
+                    <Label className="text-xs">Repeat Every</Label>
+                    <Select 
+                      value={formData.recurrence_type} 
+                      onValueChange={(v) => setFormData({ ...formData, recurrence_type: v })}
+                    >
+                      <SelectTrigger className="h-9">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="daily">Daily</SelectItem>
+                        <SelectItem value="weekly">Weekly</SelectItem>
+                        <SelectItem value="monthly">Monthly</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-xs">End Date *</Label>
+                    <Input
+                      type="date"
+                      className="h-9"
+                      value={formData.recurrence_end_date}
+                      onChange={(e) => setFormData({ ...formData, recurrence_end_date: e.target.value })}
+                      min={formData.scheduled_date}
+                    />
+                  </div>
+                </div>
+
+                {formData.recurrence_type === 'weekly' && (
+                  <div className="space-y-2">
+                    <Label className="text-xs">Repeat On</Label>
+                    <div className="flex gap-2">
+                      {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day, idx) => (
+                        <Button
+                          key={idx}
+                          type="button"
+                          size="sm"
+                          variant={formData.recurrence_days?.includes(idx) ? 'default' : 'outline'}
+                          className="w-10 h-10 p-0"
+                          onClick={() => toggleRecurrenceDay(idx)}
+                        >
+                          {day[0]}
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
           </div>
 
           {/* Platforms */}

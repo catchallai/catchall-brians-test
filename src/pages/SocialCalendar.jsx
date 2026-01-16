@@ -31,6 +31,7 @@ export default function SocialCalendar() {
   const [approverName, setApproverName] = useState('');
   const [showApprovalSection, setShowApprovalSection] = useState(false);
   const [viewMode, setViewMode] = useState('calendar');
+  const [calendarViewType, setCalendarViewType] = useState('month');
   const [nineGridPosts, setNineGridPosts] = useState([]);
   const printRef = useRef();
   const queryClient = useQueryClient();
@@ -224,13 +225,36 @@ export default function SocialCalendar() {
 
         {/* Calendar View */}
         {viewMode === 'calendar' && (
-          <SocialCalendarView
-            posts={filteredPosts}
-            currentMonth={currentMonth}
-            onMonthChange={setCurrentMonth}
-            onAddPost={() => setShowModal(true)}
-            onEditPost={handleEdit}
-          />
+          <>
+            <div className="flex justify-end mb-4">
+              <div className="flex bg-gray-200 dark:bg-gray-700 rounded-lg p-1">
+                <Button 
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setCalendarViewType('week')}
+                  className={`px-4 ${calendarViewType === 'week' ? 'bg-white dark:bg-gray-600 shadow-sm text-violet-700 dark:text-violet-300 font-semibold' : 'text-gray-600 dark:text-gray-300'}`}
+                >
+                  Week
+                </Button>
+                <Button 
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setCalendarViewType('month')}
+                  className={`px-4 ${calendarViewType === 'month' ? 'bg-white dark:bg-gray-600 shadow-sm text-violet-700 dark:text-violet-300 font-semibold' : 'text-gray-600 dark:text-gray-300'}`}
+                >
+                  Month
+                </Button>
+              </div>
+            </div>
+            <SocialCalendarView
+              posts={filteredPosts}
+              currentMonth={currentMonth}
+              onMonthChange={setCurrentMonth}
+              onAddPost={() => setShowModal(true)}
+              onEditPost={handleEdit}
+              viewType={calendarViewType}
+            />
+          </>
         )}
 
         {/* 9-Grid View */}
