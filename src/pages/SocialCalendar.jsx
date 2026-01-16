@@ -31,7 +31,7 @@ export default function SocialCalendar() {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [approverName, setApproverName] = useState('');
   const [showApprovalSection, setShowApprovalSection] = useState(false);
-  const [viewMode, setViewMode] = useState('calendar');
+  const [viewMode, setViewMode] = useState('nine-grid');
   const [calendarViewType, setCalendarViewType] = useState('month');
   const [nineGridPosts, setNineGridPosts] = useState([]);
   const printRef = useRef();
@@ -159,24 +159,6 @@ export default function SocialCalendar() {
             <Button 
               variant="ghost"
               size="sm"
-              onClick={() => setViewMode('calendar')}
-              className={`gap-1.5 px-4 ${viewMode === 'calendar' ? 'bg-white dark:bg-gray-600 shadow-sm text-violet-700 dark:text-violet-300 font-semibold' : 'text-gray-600 dark:text-gray-300 hover:text-gray-900'}`}
-            >
-              <CalendarDays className="w-4 h-4" />
-              Calendar
-            </Button>
-            <Button 
-              variant="ghost"
-              size="sm"
-              onClick={() => setViewMode('grid')}
-              className={`gap-1.5 px-4 ${viewMode === 'grid' ? 'bg-white dark:bg-gray-600 shadow-sm text-violet-700 dark:text-violet-300 font-semibold' : 'text-gray-600 dark:text-gray-300 hover:text-gray-900'}`}
-            >
-              <LayoutGrid className="w-4 h-4" />
-              Grid
-            </Button>
-            <Button 
-              variant="ghost"
-              size="sm"
               onClick={() => setViewMode('nine-grid')}
               className={`gap-1.5 px-4 ${viewMode === 'nine-grid' ? 'bg-white dark:bg-gray-600 shadow-sm text-violet-700 dark:text-violet-300 font-semibold' : 'text-gray-600 dark:text-gray-300 hover:text-gray-900'}`}
             >
@@ -186,11 +168,29 @@ export default function SocialCalendar() {
             <Button 
               variant="ghost"
               size="sm"
+              onClick={() => setViewMode('calendar')}
+              className={`gap-1.5 px-4 ${viewMode === 'calendar' ? 'bg-white dark:bg-gray-600 shadow-sm text-violet-700 dark:text-violet-300 font-semibold' : 'text-gray-600 dark:text-gray-300 hover:text-gray-900'}`}
+            >
+              <CalendarDays className="w-4 h-4" />
+              Calendar
+            </Button>
+            <Button 
+              variant="ghost"
+              size="sm"
               onClick={() => setViewMode('platform-grid')}
               className={`gap-1.5 px-4 ${viewMode === 'platform-grid' ? 'bg-white dark:bg-gray-600 shadow-sm text-violet-700 dark:text-violet-300 font-semibold' : 'text-gray-600 dark:text-gray-300 hover:text-gray-900'}`}
             >
               <LayoutGrid className="w-4 h-4" />
               Platforms
+            </Button>
+            <Button 
+              variant="ghost"
+              size="sm"
+              onClick={() => setViewMode('grid')}
+              className={`gap-1.5 px-4 ${viewMode === 'grid' ? 'bg-white dark:bg-gray-600 shadow-sm text-violet-700 dark:text-violet-300 font-semibold' : 'text-gray-600 dark:text-gray-300 hover:text-gray-900'}`}
+            >
+              <LayoutGrid className="w-4 h-4" />
+              Grid
             </Button>
           </div>
           <Button variant="outline" onClick={handlePrint} className="gap-2">
