@@ -76,40 +76,41 @@ function SortableGridItem({ id, post, position, onEdit, onRemove }) {
       style={style}
       {...attributes}
       {...listeners}
-      className="aspect-square rounded-xl overflow-hidden relative group cursor-pointer shadow-md hover:shadow-xl transition-all"
-      onClick={() => onEdit(post)}
+      className="aspect-square rounded-xl overflow-hidden relative group shadow-md hover:shadow-xl transition-all"
     >
-      {post.video_url ? (
-        <>
-          <video 
-            ref={videoRef}
-            src={post.video_url}
-            className="w-full h-full object-cover"
-            loop
-            muted={!isPlaying}
-            playsInline
-          />
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-            <button
-              onClick={toggleVideo}
-              className="pointer-events-auto w-16 h-16 rounded-full bg-black/70 hover:bg-black/90 flex items-center justify-center transition-all shadow-xl"
-            >
-              {isPlaying ? (
-                <Pause className="w-8 h-8 text-white" />
-              ) : (
-                <Play className="w-8 h-8 text-white ml-1" />
-              )}
-            </button>
+      <div onClick={() => onEdit(post)} className="w-full h-full cursor-pointer">
+        {post.video_url ? (
+          <>
+            <video 
+              ref={videoRef}
+              src={post.video_url}
+              className="w-full h-full object-cover"
+              loop
+              muted={!isPlaying}
+              playsInline
+            />
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+              <button
+                onClick={toggleVideo}
+                className="pointer-events-auto w-16 h-16 rounded-full bg-black/70 hover:bg-black/90 flex items-center justify-center transition-all shadow-xl z-10"
+              >
+                {isPlaying ? (
+                  <Pause className="w-8 h-8 text-white" />
+                ) : (
+                  <Play className="w-8 h-8 text-white ml-1" />
+                )}
+              </button>
+            </div>
+          </>
+        ) : post.image_url ? (
+          <img src={post.image_url} alt={post.caption || 'Post'} className="w-full h-full object-cover" />
+        ) : (
+          <div className="w-full h-full bg-gradient-to-br from-violet-400 to-purple-500 flex items-center justify-center">
+            <p className="text-white text-center p-4 text-sm line-clamp-3">{post.caption || 'No caption'}</p>
           </div>
-        </>
-      ) : post.image_url ? (
-        <img src={post.image_url} alt={post.caption || 'Post'} className="w-full h-full object-cover" />
-      ) : (
-        <div className="w-full h-full bg-gradient-to-br from-violet-400 to-purple-500 flex items-center justify-center">
-          <p className="text-white text-center p-4 text-sm line-clamp-3">{post.caption || 'No caption'}</p>
-        </div>
-      )}
-      <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+        )}
+      </div>
+      <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 pointer-events-none">
         <Button
           size="sm"
           variant="secondary"
@@ -117,7 +118,7 @@ function SortableGridItem({ id, post, position, onEdit, onRemove }) {
             e.stopPropagation();
             onEdit(post);
           }}
-          className="bg-white/90 hover:bg-white text-gray-900"
+          className="bg-white/90 hover:bg-white text-gray-900 pointer-events-auto"
         >
           Edit
         </Button>
@@ -128,7 +129,7 @@ function SortableGridItem({ id, post, position, onEdit, onRemove }) {
             e.stopPropagation();
             onRemove(position);
           }}
-          className="bg-red-500/90 hover:bg-red-600"
+          className="bg-red-500/90 hover:bg-red-600 pointer-events-auto"
         >
           <Trash2 className="w-4 h-4" />
         </Button>
