@@ -9,17 +9,20 @@ import { Badge } from "@/components/ui/badge";
 import { 
   FileText, Upload, Eye, Download, Link2, Copy, Clock, 
   Calendar, BarChart3, Activity, Loader2, Plus, AlertCircle,
-  MapPin, Monitor, CheckCircle, Sparkles, User
+  MapPin, Monitor, CheckCircle, Sparkles, User, History, Edit
 } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import EmptyState from '@/components/ui/EmptyState';
 import AlertsManager from '@/components/docutrace/AlertsManager';
+import DocumentVersionHistory from '@/components/docutrace/DocumentVersionHistory';
 import { format } from 'date-fns';
 
 export default function DocuTrace() {
   const [showUpload, setShowUpload] = useState(false);
   const [selectedDoc, setSelectedDoc] = useState(null);
+  const [versionHistoryDoc, setVersionHistoryDoc] = useState(null);
+  const [editingDoc, setEditingDoc] = useState(null);
   const [uploadFile, setUploadFile] = useState(null);
   const [docForm, setDocForm] = useState({
     name: '',
@@ -47,10 +50,34 @@ export default function DocuTrace() {
     queryFn: () => base44.entities.Deal.list('title', 100)
   });
 
+  const { data: user } = useQuery({
+    queryKey: ['current-user'],
+    queryFn: () => base44.auth.me(),
+  });
+
   const uploadMutation = useMutation({
     mutationFn: async () => {
       // Upload file
       const { file_url } = await base44.integrations.Core.UploadFile({ file: uploadFile });
+      
+      // Check if we're updating an existing document
+      if (editingDoc) {
+        // Create new version
+        const newVersionNumber = (editingDoc.versions?.length || 0) + 1;
+        const newVersion = {
+          version_number: newVersionNumber,
+          file_url,
+          uploaded_at: new Date().toISOString(),
+          uploaded_by: user?.email || 'User',
+          changes_description: docForm.changes_description || `Updated to version ${newVersionNumber}`
+        };
+
+        return base44.entities.TrackedDocument.update(editingDoc.id, {
+          ...docForm,
+          file_url,
+          versions: [...(editingDoc.versions || []), newVersion]
+        });
+      }
       
       // Generate unique tracking code
       const trackingCode = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
@@ -87,7 +114,7 @@ Provide:
           version_number: 1,
           file_url,
           uploaded_at: new Date().toISOString(),
-          uploaded_by: 'User',
+          uploaded_by: user?.email || 'User',
           changes_description: 'Initial version'
         }]
       });
@@ -95,6 +122,7 @@ Provide:
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tracked-documents'] });
       setShowUpload(false);
+      setEditingDoc(null);
       setUploadFile(null);
       setDocForm({
         name: '',
@@ -102,7 +130,8 @@ Provide:
         contact_id: '',
         deal_id: '',
         expires_at: '',
-        review_date: ''
+        review_date: '',
+        changes_description: ''
       });
     }
   });
@@ -314,10 +343,20 @@ Provide:
                   )}
 
                   {/* Version */}
-                  {doc.versions?.length > 1 && (
+                  {doc.versions?.length > 0 && (
                     <div className="flex items-center gap-2 text-xs text-gray-500 mb-3">
                       <FileText className="w-3 h-3" />
                       Version {doc.versions.length}
+                      {doc.versions.length > 1 && (
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="h-5 px-2 text-xs"
+                          onClick={() => setVersionHistoryDoc(doc)}
+                        >
+                          <History className="w-3 h-3" />
+                        </Button>
+                      )}
                     </div>
                   )}
 
@@ -338,6 +377,25 @@ Provide:
                     <Button
                       size="sm"
                       variant="outline"
+                      onClick={() => {
+                        setEditingDoc(doc);
+                        setDocForm({
+                          name: doc.name,
+                          description: doc.description || '',
+                          contact_id: doc.contact_id || '',
+                          deal_id: doc.deal_id || '',
+                          expires_at: doc.expires_at || '',
+                          review_date: doc.review_date || '',
+                          changes_description: ''
+                        });
+                        setShowUpload(true);
+                      }}
+                    >
+                      <Edit className="w-3 h-3" />
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
                       onClick={() => setSelectedDoc(doc)}
                     >
                       <BarChart3 className="w-3 h-3" />
@@ -350,12 +408,20 @@ Provide:
         )}
 
         {/* Upload Dialog */}
-        <Dialog open={showUpload} onOpenChange={setShowUpload}>
+        <Dialog open={showUpload} onOpenChange={() => {
+          setShowUpload(false);
+          setEditingDoc(null);
+        }}>
           <DialogContent className="sm:max-w-[500px]">
             <DialogHeader>
-              <DialogTitle>Upload Tracked Document</DialogTitle>
+              <DialogTitle>
+                {editingDoc ? 'Update Document Version' : 'Upload Tracked Document'}
+              </DialogTitle>
               <DialogDescription>
-                Upload a PDF document and track when it's viewed or downloaded
+                {editingDoc 
+                  ? 'Upload a new version of this document'
+                  : 'Upload a PDF document and track when it\'s viewed or downloaded'
+                }
               </DialogDescription>
             </DialogHeader>
 
@@ -439,21 +505,35 @@ Provide:
                 />
                 <p className="text-xs text-gray-500 mt-1">Set a reminder to review this document</p>
               </div>
+
+              {editingDoc && (
+                <div>
+                  <label className="text-sm font-medium mb-2 block">Version Changes (Optional)</label>
+                  <Textarea
+                    value={docForm.changes_description}
+                    onChange={(e) => setDocForm({...docForm, changes_description: e.target.value})}
+                    placeholder="What changed in this version?"
+                  />
+                </div>
+              )}
             </div>
 
             <DialogFooter>
-              <Button variant="outline" onClick={() => setShowUpload(false)}>
+              <Button variant="outline" onClick={() => {
+                setShowUpload(false);
+                setEditingDoc(null);
+              }}>
                 Cancel
               </Button>
               <Button
                 onClick={() => uploadMutation.mutate()}
-                disabled={!uploadFile || !docForm.name || uploadMutation.isPending}
+                disabled={!uploadFile || (!editingDoc && !docForm.name) || uploadMutation.isPending}
                 className="gap-2"
               >
                 {uploadMutation.isPending ? (
-                  <><Loader2 className="w-4 h-4 animate-spin" /> Uploading...</>
+                  <><Loader2 className="w-4 h-4 animate-spin" /> {editingDoc ? 'Updating...' : 'Uploading...'}</>
                 ) : (
-                  <><Upload className="w-4 h-4" /> Upload & Track</>
+                  <><Upload className="w-4 h-4" /> {editingDoc ? 'Upload New Version' : 'Upload & Track'}</>
                 )}
               </Button>
             </DialogFooter>
@@ -515,12 +595,22 @@ Provide:
                 {/* Version History */}
                 {selectedDoc.versions?.length > 0 && (
                   <div>
-                    <h4 className="font-semibold mb-3 flex items-center gap-2">
-                      <FileText className="w-4 h-4" />
-                      Version History
-                    </h4>
+                    <div className="flex items-center justify-between mb-3">
+                      <h4 className="font-semibold flex items-center gap-2">
+                        <FileText className="w-4 h-4" />
+                        Version History
+                      </h4>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => setVersionHistoryDoc(selectedDoc)}
+                      >
+                        <History className="w-4 h-4 mr-1" />
+                        View All
+                      </Button>
+                    </div>
                     <div className="space-y-2 mb-6">
-                      {selectedDoc.versions.slice().reverse().map((version, idx) => (
+                      {selectedDoc.versions.slice().reverse().slice(0, 3).map((version, idx) => (
                         <div key={idx} className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg text-sm">
                           <div className="flex items-center justify-between mb-1">
                             <Badge className="bg-blue-600 text-white">v{version.version_number}</Badge>
@@ -583,6 +673,13 @@ Provide:
             )}
           </DialogContent>
         </Dialog>
+
+        {/* Version History Modal */}
+        <DocumentVersionHistory
+          open={!!versionHistoryDoc}
+          onClose={() => setVersionHistoryDoc(null)}
+          document={versionHistoryDoc}
+        />
       </div>
     </div>
   );
