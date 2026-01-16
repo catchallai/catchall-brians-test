@@ -96,7 +96,15 @@ export default function SocialCalendarView({ posts = [], onAddPost, onEditPost, 
           <Button 
             variant="outline" 
             size="icon" 
-            onClick={() => onMonthChange(subMonths(currentMonth, 1))}
+            onClick={() => {
+              if (viewType === 'day') {
+                onMonthChange(addDays(currentMonth, -1));
+              } else if (viewType === 'week') {
+                onMonthChange(addDays(currentMonth, -7));
+              } else {
+                onMonthChange(subMonths(currentMonth, 1));
+              }
+            }}
             className="h-10 w-10"
           >
             <ChevronLeft className="w-5 h-5" />
@@ -111,7 +119,15 @@ export default function SocialCalendarView({ posts = [], onAddPost, onEditPost, 
           <Button 
             variant="outline" 
             size="icon" 
-            onClick={() => onMonthChange(addMonths(currentMonth, 1))}
+            onClick={() => {
+              if (viewType === 'day') {
+                onMonthChange(addDays(currentMonth, 1));
+              } else if (viewType === 'week') {
+                onMonthChange(addDays(currentMonth, 7));
+              } else {
+                onMonthChange(addMonths(currentMonth, 1));
+              }
+            }}
             className="h-10 w-10"
           >
             <ChevronRight className="w-5 h-5" />
