@@ -1,12 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2, Play, Pause } from "lucide-react";
 import { DndContext, closestCenter, DragOverlay } from '@dnd-kit/core';
 import { SortableContext, useSortable, rectSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 
 function SortableGridItem({ id, post, position, onEdit, onRemove }) {
+  const videoRef = useRef(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+
   const {
     attributes,
     listeners,
@@ -23,6 +26,18 @@ function SortableGridItem({ id, post, position, onEdit, onRemove }) {
   };
 
   const isCenter = position === 4; // Center position (0-indexed: position 4 in 0-8 range)
+
+  const toggleVideo = (e) => {
+    e.stopPropagation();
+    if (videoRef.current) {
+      if (isPlaying) {
+        videoRef.current.pause();
+      } else {
+        videoRef.current.play();
+      }
+      setIsPlaying(!isPlaying);
+    }
+  };
 
   if (isCenter && !post) {
     return (
@@ -61,9 +76,33 @@ function SortableGridItem({ id, post, position, onEdit, onRemove }) {
       style={style}
       {...attributes}
       {...listeners}
-      className="aspect-square rounded-xl overflow-hidden relative group cursor-move shadow-md hover:shadow-xl transition-all"
+      className="aspect-square rounded-xl overflow-hidden relative group cursor-pointer shadow-md hover:shadow-xl transition-all"
+      onClick={() => onEdit(post)}
     >
-      {post.image_url ? (
+      {post.video_url ? (
+        <>
+          <video 
+            ref={videoRef}
+            src={post.video_url}
+            className="w-full h-full object-cover"
+            loop
+            muted={!isPlaying}
+            playsInline
+          />
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+            <button
+              onClick={toggleVideo}
+              className="pointer-events-auto w-16 h-16 rounded-full bg-black/70 hover:bg-black/90 flex items-center justify-center transition-all shadow-xl"
+            >
+              {isPlaying ? (
+                <Pause className="w-8 h-8 text-white" />
+              ) : (
+                <Play className="w-8 h-8 text-white ml-1" />
+              )}
+            </button>
+          </div>
+        </>
+      ) : post.image_url ? (
         <img src={post.image_url} alt={post.caption || 'Post'} className="w-full h-full object-cover" />
       ) : (
         <div className="w-full h-full bg-gradient-to-br from-violet-400 to-purple-500 flex items-center justify-center">
