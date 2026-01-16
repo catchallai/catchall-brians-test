@@ -91,7 +91,7 @@ const navigation = [
   { name: 'Companies', icon: Building2, page: 'Companies' },
   { name: 'Opportunities', icon: Target, page: 'Opportunities' },
   { name: 'DocuTrace', icon: FileText, page: 'DocuTrace' },
-  { name: 'Data Rooms', icon: FolderOpen, page: 'DataRooms' },
+  { name: 'Data Rooms', icon: Folder, page: 'DataRooms' },
   { name: 'Contact Forms', icon: FileText, page: 'ContactForms' },
   { name: 'Automation', icon: Zap, page: 'Automation' },
   { name: 'Pipeline', icon: Target, page: 'Deals' },
