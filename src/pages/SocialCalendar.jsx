@@ -276,6 +276,23 @@ export default function SocialCalendar() {
           />
         )}
 
+        {/* Platform Grid View */}
+        {viewMode === 'platform-grid' && (
+          <PlatformGridView
+            posts={filteredPosts}
+            onAddPost={() => setShowModal(true)}
+            onEditPost={(post, platform) => {
+              setSelectedPost({ ...post, editingPlatform: platform });
+              setShowModal(true);
+            }}
+            onDeletePost={(post) => {
+              if (confirm('Delete this post?')) {
+                deleteMutation.mutate(post.id);
+              }
+            }}
+          />
+        )}
+
         {/* Grid View */}
         {viewMode === 'grid' && (
           filteredPosts.length === 0 ? (
