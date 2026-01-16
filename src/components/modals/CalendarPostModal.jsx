@@ -7,13 +7,21 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Loader2, Upload, X, Image, Video, Repeat } from "lucide-react";
 import { base44 } from '@/api/base44Client';
 import { addDays, addWeeks, addMonths, format as formatDate } from 'date-fns';
+import PostComments from '../social/PostComments';
+import { useQuery } from '@tanstack/react-query';
 
 const platforms = ['Twitter', 'LinkedIn', 'Facebook', 'Instagram'];
 
 export default function CalendarPostModal({ open, onClose, post, onSave, isLoading, hashtagPool = [] }) {
+  const { data: currentUser } = useQuery({
+    queryKey: ['current-user'],
+    queryFn: () => base44.auth.me(),
+  });
+
   const [formData, setFormData] = useState({
     title: '',
     caption: '',
@@ -163,13 +171,25 @@ export default function CalendarPostModal({ open, onClose, post, onSave, isLoadi
     }
   };
 
+  const isViewer = currentUser?.social_media_role === 'viewer';
+  const canEdit = !isViewer;
+
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{post ? 'Edit Post' : 'Add Calendar Post'}</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4 mt-4">
+
+        {post ? (
+          <Tabs defaultValue="details" className="mt-4">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="details">Post Details</TabsTrigger>
+              <TabsTrigger value="feedback">Team Feedback</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="details">
+              <form onSubmit={handleSubmit} className="space-y-4">
           {/* Media Upload */}
           <div className="space-y-2">
             <Label>Media</Label>
@@ -414,12 +434,157 @@ export default function CalendarPostModal({ open, onClose, post, onSave, isLoadi
 
           <div className="flex justify-end gap-3 pt-4">
             <Button type="button" variant="outline" onClick={onClose}>Cancel</Button>
-            <Button type="submit" disabled={isLoading}>
+            <Button type="submit" disabled={isLoading || isViewer}>
               {isLoading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
               {post ? 'Update' : 'Add Post'}
             </Button>
           </div>
         </form>
+      </TabsContent>
+
+      <TabsContent value="feedback" className="mt-4">
+        <PostComments postId={post.id} currentUser={currentUser} />
+      </TabsContent>
+    </Tabs>
+        ) : (
+          <form onSubmit={handleSubmit} className="space-y-4 mt-4">
+            {/* Same form fields for new posts */}
+            <div className="space-y-2">
+              <Label>Media</Label>
+              <div className="border-2 border-dashed rounded-lg p-4 text-center">
+                {formData.image_url ? (
+                  <div className="relative">
+                    <img src={formData.image_url} alt="Preview" className="w-full h-40 object-cover rounded" />
+                    <Button 
+                      type="button"
+                      size="icon" 
+                      variant="destructive" 
+                      className="absolute top-2 right-2 h-6 w-6"
+                      onClick={clearMedia}
+                    >
+                      <X className="w-3 h-3" />
+                    </Button>
+                  </div>
+                ) : formData.video_url ? (
+                  <div className="relative">
+                    <video src={formData.video_url} controls className="w-full h-40 object-cover rounded" />
+                    <Button 
+                      type="button"
+                      size="icon" 
+                      variant="destructive" 
+                      className="absolute top-2 right-2 h-6 w-6"
+                      onClick={clearMedia}
+                    >
+                      <X className="w-3 h-3" />
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {uploading || uploadingVideo ? (
+                      <div className="py-4">
+                        <Loader2 className="w-8 h-8 mx-auto animate-spin text-gray-400" />
+                        <p className="text-sm text-gray-500 mt-2">Uploading...</p>
+                      </div>
+                    ) : (
+                      <>
+                        <div className="flex justify-center gap-4">
+                          <label className="cursor-pointer flex flex-col items-center p-4 rounded-lg hover:bg-gray-50 transition-colors">
+                            <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
+                            <Image className="w-8 h-8 text-blue-500 mb-1" />
+                            <span className="text-sm text-gray-600">Photo</span>
+                          </label>
+                          <label className="cursor-pointer flex flex-col items-center p-4 rounded-lg hover:bg-gray-50 transition-colors">
+                            <input type="file" accept="video/*" className="hidden" onChange={handleVideoUpload} />
+                            <Video className="w-8 h-8 text-purple-500 mb-1" />
+                            <span className="text-sm text-gray-600">Video</span>
+                          </label>
+                        </div>
+                        <p className="text-xs text-gray-400">Click to upload photo or video</p>
+                      </>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Title/Headline</Label>
+              <Input
+                value={formData.title}
+                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                placeholder="Enter title or headline..."
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label>Caption</Label>
+              <Textarea
+                value={formData.caption}
+                onChange={(e) => setFormData({ ...formData, caption: e.target.value })}
+                placeholder="Post description..."
+                rows={3}
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Scheduled Date *</Label>
+                <Input
+                  type="date"
+                  value={formData.scheduled_date}
+                  onChange={(e) => setFormData({ ...formData, scheduled_date: e.target.value })}
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Time</Label>
+                <Input
+                  type="time"
+                  value={formData.scheduled_time}
+                  onChange={(e) => setFormData({ ...formData, scheduled_time: e.target.value })}
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Platforms</Label>
+              <div className="flex flex-wrap gap-2">
+                {platforms.map(p => (
+                  <Badge 
+                    key={p}
+                    className={`cursor-pointer ${formData.platforms?.includes(p) ? 'bg-violet-600' : 'bg-gray-200 text-gray-700'}`}
+                    onClick={() => togglePlatform(p)}
+                  >
+                    {p}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Status</Label>
+              <Select value={formData.status} onValueChange={(v) => setFormData({ ...formData, status: v })}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="draft">Draft</SelectItem>
+                  <SelectItem value="pending_approval">Pending Approval</SelectItem>
+                  <SelectItem value="approved">Approved</SelectItem>
+                  <SelectItem value="published">Published</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="flex justify-end gap-3 pt-4">
+              <Button type="button" variant="outline" onClick={onClose}>Cancel</Button>
+              <Button type="submit" disabled={isLoading || isViewer}>
+                {isLoading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                Add Post
+              </Button>
+            </div>
+          </form>
+        )}
       </DialogContent>
     </Dialog>
   );
