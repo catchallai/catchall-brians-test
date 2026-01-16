@@ -24,6 +24,7 @@ import SocialCalendarView from '@/components/social/SocialCalendarView';
 import HashtagPoolCard from '@/components/social/HashtagPoolCard';
 import NineGridEditor from '@/components/social/NineGridEditor';
 import PlatformGridView from '@/components/social/PlatformGridView';
+import TeamManager from '@/components/social/TeamManager';
 
 export default function SocialCalendar() {
   const [showModal, setShowModal] = useState(false);
@@ -132,6 +133,13 @@ export default function SocialCalendar() {
     setApproverName('');
   };
 
+  const { data: user } = useQuery({
+    queryKey: ['current-user'],
+    queryFn: () => base44.auth.me(),
+  });
+
+  const isViewer = user?.social_media_role === 'viewer';
+  const canEdit = !isViewer;
   const dateRange = `${format(startOfMonth(currentMonth), 'MMM d, yyyy')} - ${format(endOfMonth(addMonths(currentMonth, 1)), 'MMM d, yyyy')}`;
 
   if (isLoading) {
@@ -154,6 +162,11 @@ export default function SocialCalendar() {
           <p className="text-gray-500 mt-1">Plan and preview upcoming social media posts</p>
         </div>
         <div className="flex items-center gap-3">
+          {user && (
+            <Badge variant="outline" className="text-xs">
+              {user.social_media_role || 'editor'}
+            </Badge>
+          )}
           {/* View Toggle */}
           <div className="flex bg-gray-200 dark:bg-gray-700 rounded-lg p-1">
             <Button 
@@ -197,10 +210,12 @@ export default function SocialCalendar() {
             <Printer className="w-4 h-4" />
             Print
           </Button>
-          <Button onClick={() => setShowModal(true)} className="gap-2 bg-violet-600 hover:bg-violet-700">
-            <Plus className="w-4 h-4" />
-            Add Post
-          </Button>
+          {canEdit && (
+            <Button onClick={() => setShowModal(true)} className="gap-2 bg-violet-600 hover:bg-violet-700">
+              <Plus className="w-4 h-4" />
+              Add Post
+            </Button>
+          )}
         </div>
       </div>
 
@@ -336,14 +351,15 @@ export default function SocialCalendar() {
           )
         )}
 
-        {/* Hashtag Pool */}
-        <div className="mt-6 print:hidden">
+        {/* Hashtag Pool & Team Manager */}
+        <div className="grid lg:grid-cols-2 gap-6 mt-6 print:hidden">
           <HashtagPoolCard
             hashtags={hashtagPool}
             onAdd={(hashtag) => addHashtagMutation.mutate(hashtag)}
             onDelete={(id) => deleteHashtagMutation.mutate(id)}
             isAddLoading={addHashtagMutation.isPending}
           />
+          <TeamManager />
         </div>
 
         {/* Approval Section */}
