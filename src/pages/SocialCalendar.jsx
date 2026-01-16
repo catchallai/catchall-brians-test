@@ -90,11 +90,11 @@ export default function SocialCalendar() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['hashtag-pool'] }),
   });
 
-  const handleSave = (data) => {
+  const handleSave = async (data) => {
     if (selectedPost) {
-      updateMutation.mutate({ id: selectedPost.id, data });
+      await updateMutation.mutateAsync({ id: selectedPost.id, data });
     } else {
-      createMutation.mutate({ ...data, order: filteredPosts.length });
+      await createMutation.mutateAsync({ ...data, order: filteredPosts.length });
     }
   };
 
@@ -260,8 +260,15 @@ export default function SocialCalendar() {
         {/* 9-Grid View */}
         {viewMode === 'nine-grid' && (
           <NineGridEditor
-            posts={nineGridPosts}
-            onPostsChange={setNineGridPosts}
+            posts={filteredPosts.slice(0, 9)}
+            onPostsChange={(newPosts) => {
+              // Update order of posts
+              newPosts.forEach((post, index) => {
+                if (post) {
+                  updateMutation.mutate({ id: post.id, data: { ...post, order: index } });
+                }
+              });
+            }}
             onEditPost={(post) => {
               setSelectedPost(post);
               setShowModal(true);
