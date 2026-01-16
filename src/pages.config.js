@@ -49,6 +49,7 @@ import PublicDocumentViewer from './pages/PublicDocumentViewer';
 import PublicDocumentViewerWrapper from './pages/PublicDocumentViewerWrapper';
 import PublicLandingPage from './pages/PublicLandingPage';
 import PublicLandingPageWrapper from './pages/PublicLandingPageWrapper';
+import PublicLegalDocumentSigner from './pages/PublicLegalDocumentSigner';
 import Reports from './pages/Reports';
 import Reservations from './pages/Reservations';
 import SEOAudit from './pages/SEOAudit';
@@ -73,7 +74,6 @@ import VisitorProfiles from './pages/VisitorProfiles';
 import WebCrawler from './pages/WebCrawler';
 import WebDashboard from './pages/WebDashboard';
 import WorkflowBuilder from './pages/WorkflowBuilder';
-import PublicLegalDocumentSigner from './pages/PublicLegalDocumentSigner';
 import __Layout from './Layout.jsx';
 
 
@@ -129,6 +129,7 @@ export const PAGES = {
     "PublicDocumentViewerWrapper": PublicDocumentViewerWrapper,
     "PublicLandingPage": PublicLandingPage,
     "PublicLandingPageWrapper": PublicLandingPageWrapper,
+    "PublicLegalDocumentSigner": PublicLegalDocumentSigner,
     "Reports": Reports,
     "Reservations": Reservations,
     "SEOAudit": SEOAudit,
@@ -153,7 +154,6 @@ export const PAGES = {
     "WebCrawler": WebCrawler,
     "WebDashboard": WebDashboard,
     "WorkflowBuilder": WorkflowBuilder,
-    "PublicLegalDocumentSigner": PublicLegalDocumentSigner,
 }
 
 export const pagesConfig = {

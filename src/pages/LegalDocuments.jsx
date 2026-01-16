@@ -88,20 +88,31 @@ export default function LegalDocuments() {
 
   const sendMutation = useMutation({
     mutationFn: async (doc) => {
-      // Send email with tracking link
-      await base44.integrations.Core.SendEmail({
+      // Send email via Resend
+      const response = await base44.functions.invoke('sendResendEmail', {
         to: doc.recipient_email,
         subject: `${doc.title} - Signature Required`,
-        body: `
-          <h2>${doc.title}</h2>
-          <p>Hi ${doc.recipient_name},</p>
-          <p>Please review and sign the following document:</p>
-          <p><strong>${doc.description || doc.title}</strong></p>
-          <p><a href="${window.location.origin}?page=PublicLegalDocumentSigner&token=${doc.tracking_code}" style="background: #7c3aed; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">Review & Sign Document</a></p>
-          <p>This link will expire on ${new Date(doc.expires_date).toLocaleDateString()}.</p>
-          <p>Best regards,<br/>${user?.full_name || 'The Team'}</p>
+        html: `
+          <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
+            <h2 style="color: #7c3aed;">${doc.title}</h2>
+            <p>Hi ${doc.recipient_name},</p>
+            <p>Please review and sign the following document:</p>
+            <p><strong>${doc.description || doc.title}</strong></p>
+            <p style="margin: 30px 0;">
+              <a href="${window.location.origin}?page=PublicLegalDocumentSigner&token=${doc.tracking_code}" 
+                 style="background: #7c3aed; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">
+                Review & Sign Document
+              </a>
+            </p>
+            <p style="color: #666; font-size: 14px;">This link will expire on ${new Date(doc.expires_date).toLocaleDateString()}.</p>
+            <p>Best regards,<br/>${user?.full_name || 'The Team'}</p>
+          </div>
         `
       });
+
+      if (!response.data.success) {
+        throw new Error('Failed to send email');
+      }
 
       // Update document status
       return await base44.entities.LegalDocument.update(doc.id, {
