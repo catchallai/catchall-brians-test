@@ -20,6 +20,7 @@ import ContentStudio from './pages/ContentStudio';
 import CustomerSuccess from './pages/CustomerSuccess';
 import CustomerSuccessDashboard from './pages/CustomerSuccessDashboard';
 import Dashboard from './pages/Dashboard';
+import DataRooms from './pages/DataRooms';
 import Deals from './pages/Deals';
 import DocuTrace from './pages/DocuTrace';
 import EmailMarketing from './pages/EmailMarketing';
@@ -45,6 +46,7 @@ import PitchDeckAnalyzer from './pages/PitchDeckAnalyzer';
 import PitchDeckCreator from './pages/PitchDeckCreator';
 import PressMonitoring from './pages/PressMonitoring';
 import Proposals from './pages/Proposals';
+import PublicDataRoom from './pages/PublicDataRoom';
 import PublicDocumentViewer from './pages/PublicDocumentViewer';
 import PublicDocumentViewerWrapper from './pages/PublicDocumentViewerWrapper';
 import PublicLandingPage from './pages/PublicLandingPage';
@@ -74,8 +76,6 @@ import VisitorProfiles from './pages/VisitorProfiles';
 import WebCrawler from './pages/WebCrawler';
 import WebDashboard from './pages/WebDashboard';
 import WorkflowBuilder from './pages/WorkflowBuilder';
-import DataRooms from './pages/DataRooms';
-import PublicDataRoom from './pages/PublicDataRoom';
 import __Layout from './Layout.jsx';
 
 
@@ -102,6 +102,7 @@ export const PAGES = {
     "CustomerSuccess": CustomerSuccess,
     "CustomerSuccessDashboard": CustomerSuccessDashboard,
     "Dashboard": Dashboard,
+    "DataRooms": DataRooms,
     "Deals": Deals,
     "DocuTrace": DocuTrace,
     "EmailMarketing": EmailMarketing,
@@ -127,6 +128,7 @@ export const PAGES = {
     "PitchDeckCreator": PitchDeckCreator,
     "PressMonitoring": PressMonitoring,
     "Proposals": Proposals,
+    "PublicDataRoom": PublicDataRoom,
     "PublicDocumentViewer": PublicDocumentViewer,
     "PublicDocumentViewerWrapper": PublicDocumentViewerWrapper,
     "PublicLandingPage": PublicLandingPage,
@@ -156,8 +158,6 @@ export const PAGES = {
     "WebCrawler": WebCrawler,
     "WebDashboard": WebDashboard,
     "WorkflowBuilder": WorkflowBuilder,
-    "DataRooms": DataRooms,
-    "PublicDataRoom": PublicDataRoom,
 }
 
 export const pagesConfig = {

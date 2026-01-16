@@ -22,6 +22,7 @@ import CalendarPostCard from '@/components/social/CalendarPostCard';
 import CalendarPostModal from '@/components/modals/CalendarPostModal';
 import SocialCalendarView from '@/components/social/SocialCalendarView';
 import HashtagPoolCard from '@/components/social/HashtagPoolCard';
+import NineGridEditor from '@/components/social/NineGridEditor';
 
 export default function SocialCalendar() {
   const [showModal, setShowModal] = useState(false);
@@ -30,6 +31,7 @@ export default function SocialCalendar() {
   const [approverName, setApproverName] = useState('');
   const [showApprovalSection, setShowApprovalSection] = useState(false);
   const [viewMode, setViewMode] = useState('calendar');
+  const [nineGridPosts, setNineGridPosts] = useState([]);
   const printRef = useRef();
   const queryClient = useQueryClient();
 
@@ -170,6 +172,15 @@ export default function SocialCalendar() {
               <LayoutGrid className="w-4 h-4" />
               Grid
             </Button>
+            <Button 
+              variant="ghost"
+              size="sm"
+              onClick={() => setViewMode('nine-grid')}
+              className={`gap-1.5 px-4 ${viewMode === 'nine-grid' ? 'bg-white dark:bg-gray-600 shadow-sm text-violet-700 dark:text-violet-300 font-semibold' : 'text-gray-600 dark:text-gray-300 hover:text-gray-900'}`}
+            >
+              <LayoutGrid className="w-4 h-4" />
+              9-Grid
+            </Button>
           </div>
           <Button variant="outline" onClick={handlePrint} className="gap-2">
             <Printer className="w-4 h-4" />
@@ -219,6 +230,18 @@ export default function SocialCalendar() {
             onMonthChange={setCurrentMonth}
             onAddPost={() => setShowModal(true)}
             onEditPost={handleEdit}
+          />
+        )}
+
+        {/* 9-Grid View */}
+        {viewMode === 'nine-grid' && (
+          <NineGridEditor
+            posts={nineGridPosts}
+            onPostsChange={setNineGridPosts}
+            onEditPost={(post) => {
+              setSelectedPost(post);
+              setShowModal(true);
+            }}
           />
         )}
 
