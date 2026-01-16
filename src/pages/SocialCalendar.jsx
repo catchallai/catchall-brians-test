@@ -23,6 +23,7 @@ import CalendarPostModal from '@/components/modals/CalendarPostModal';
 import SocialCalendarView from '@/components/social/SocialCalendarView';
 import HashtagPoolCard from '@/components/social/HashtagPoolCard';
 import NineGridEditor from '@/components/social/NineGridEditor';
+import PlatformGridView from '@/components/social/PlatformGridView';
 
 export default function SocialCalendar() {
   const [showModal, setShowModal] = useState(false);
@@ -181,6 +182,15 @@ export default function SocialCalendar() {
             >
               <LayoutGrid className="w-4 h-4" />
               9-Grid
+            </Button>
+            <Button 
+              variant="ghost"
+              size="sm"
+              onClick={() => setViewMode('platform-grid')}
+              className={`gap-1.5 px-4 ${viewMode === 'platform-grid' ? 'bg-white dark:bg-gray-600 shadow-sm text-violet-700 dark:text-violet-300 font-semibold' : 'text-gray-600 dark:text-gray-300 hover:text-gray-900'}`}
+            >
+              <LayoutGrid className="w-4 h-4" />
+              Platforms
             </Button>
           </div>
           <Button variant="outline" onClick={handlePrint} className="gap-2">
