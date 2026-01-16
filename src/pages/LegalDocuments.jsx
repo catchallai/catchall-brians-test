@@ -97,7 +97,7 @@ export default function LegalDocuments() {
           <p>Hi ${doc.recipient_name},</p>
           <p>Please review and sign the following document:</p>
           <p><strong>${doc.description || doc.title}</strong></p>
-          <p><a href="${window.location.origin}/sign/${doc.tracking_code}" style="background: #7c3aed; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">Review & Sign Document</a></p>
+          <p><a href="${window.location.origin}?page=PublicLegalDocumentSigner&token=${doc.tracking_code}" style="background: #7c3aed; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">Review & Sign Document</a></p>
           <p>This link will expire on ${new Date(doc.expires_date).toLocaleDateString()}.</p>
           <p>Best regards,<br/>${user?.full_name || 'The Team'}</p>
         `
@@ -146,7 +146,7 @@ export default function LegalDocuments() {
   };
 
   const copyTrackingLink = (doc) => {
-    const link = `${window.location.origin}/sign/${doc.tracking_code}`;
+    const link = `${window.location.origin}?page=PublicLegalDocumentSigner&token=${doc.tracking_code}`;
     navigator.clipboard.writeText(link);
     toast.success('Tracking link copied to clipboard');
   };
