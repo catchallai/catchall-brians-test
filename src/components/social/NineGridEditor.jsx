@@ -59,45 +59,42 @@ function SortableGridItem({ id, post, position, onEdit, onRemove }) {
     <div
       ref={setNodeRef}
       style={style}
-      {...attributes}
-      {...listeners}
-      className="aspect-square rounded-xl overflow-hidden relative group cursor-pointer shadow-md hover:shadow-xl transition-all"
-      onClick={() => onEdit(post, position)}
+      className="aspect-square rounded-xl overflow-hidden relative group shadow-md hover:shadow-xl transition-all"
     >
-      {post.video_url ? (
-        <video 
-          src={post.video_url}
-          className="w-full h-full object-cover"
-          muted
-          playsInline
-        />
-      ) : post.image_url ? (
-        <img src={post.image_url} alt={post.caption || 'Post'} className="w-full h-full object-cover" />
-      ) : (
-        <div className="w-full h-full bg-gradient-to-br from-violet-400 to-purple-500 flex items-center justify-center">
-          <p className="text-white text-center p-4 text-sm line-clamp-3">{post.caption || 'No caption'}</p>
-        </div>
-      )}
-      <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+      <div
+        {...attributes}
+        {...listeners}
+        className="w-full h-full cursor-grab active:cursor-grabbing"
+      >
+        {post.video_url ? (
+          <video 
+            src={post.video_url}
+            className="w-full h-full object-cover"
+            muted
+            playsInline
+          />
+        ) : post.image_url ? (
+          <img src={post.image_url} alt={post.caption || 'Post'} className="w-full h-full object-cover" />
+        ) : (
+          <div className="w-full h-full bg-gradient-to-br from-violet-400 to-purple-500 flex items-center justify-center">
+            <p className="text-white text-center p-4 text-sm line-clamp-3">{post.caption || 'No caption'}</p>
+          </div>
+        )}
+      </div>
+      <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 pointer-events-none">
         <Button
           size="sm"
           variant="secondary"
-          onClick={(e) => {
-            e.stopPropagation();
-            onEdit(post, position);
-          }}
-          className="bg-white/90 hover:bg-white text-gray-900"
+          onClick={() => onEdit(post, position)}
+          className="bg-white/90 hover:bg-white text-gray-900 pointer-events-auto"
         >
           Edit
         </Button>
         <Button
           size="sm"
           variant="destructive"
-          onClick={(e) => {
-            e.stopPropagation();
-            onRemove(position);
-          }}
-          className="bg-red-500/90 hover:bg-red-600"
+          onClick={() => onRemove(position)}
+          className="bg-red-500/90 hover:bg-red-600 pointer-events-auto"
         >
           <Trash2 className="w-4 h-4" />
         </Button>
