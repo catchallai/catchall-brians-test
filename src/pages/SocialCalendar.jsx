@@ -25,6 +25,7 @@ import HashtagPoolCard from '@/components/social/HashtagPoolCard';
 import NineGridEditor from '@/components/social/NineGridEditor';
 import PlatformGridView from '@/components/social/PlatformGridView';
 import TeamManager from '@/components/social/TeamManager';
+import CalendarNotifications from '@/components/social/CalendarNotifications';
 
 export default function SocialCalendar() {
   const [showModal, setShowModal] = useState(false);
@@ -256,6 +257,14 @@ export default function SocialCalendar() {
                 <Button 
                   variant="ghost"
                   size="sm"
+                  onClick={() => setCalendarViewType('day')}
+                  className={`px-4 ${calendarViewType === 'day' ? 'bg-white dark:bg-gray-600 shadow-sm text-violet-700 dark:text-violet-300 font-semibold' : 'text-gray-600 dark:text-gray-300'}`}
+                >
+                  Day
+                </Button>
+                <Button 
+                  variant="ghost"
+                  size="sm"
                   onClick={() => setCalendarViewType('week')}
                   className={`px-4 ${calendarViewType === 'week' ? 'bg-white dark:bg-gray-600 shadow-sm text-violet-700 dark:text-violet-300 font-semibold' : 'text-gray-600 dark:text-gray-300'}`}
                 >
@@ -351,14 +360,17 @@ export default function SocialCalendar() {
           )
         )}
 
-        {/* Hashtag Pool & Team Manager */}
+        {/* Hashtag Pool, Team Manager & Notifications */}
         <div className="grid lg:grid-cols-2 gap-6 mt-6 print:hidden">
-          <HashtagPoolCard
-            hashtags={hashtagPool}
-            onAdd={(hashtag) => addHashtagMutation.mutate(hashtag)}
-            onDelete={(id) => deleteHashtagMutation.mutate(id)}
-            isAddLoading={addHashtagMutation.isPending}
-          />
+          <div className="space-y-6">
+            <CalendarNotifications />
+            <HashtagPoolCard
+              hashtags={hashtagPool}
+              onAdd={(hashtag) => addHashtagMutation.mutate(hashtag)}
+              onDelete={(id) => deleteHashtagMutation.mutate(id)}
+              isAddLoading={addHashtagMutation.isPending}
+            />
+          </div>
           <TeamManager />
         </div>
 
