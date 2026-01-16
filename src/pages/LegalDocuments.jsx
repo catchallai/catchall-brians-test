@@ -114,10 +114,11 @@ export default function LegalDocuments() {
         throw new Error('Failed to send email');
       }
 
-      // Update document status
+      // Update document status with Resend email ID
       return await base44.entities.LegalDocument.update(doc.id, {
         status: 'sent',
-        sent_date: new Date().toISOString()
+        sent_date: new Date().toISOString(),
+        resend_email_id: response.data.emailId
       });
     },
     onSuccess: () => {
