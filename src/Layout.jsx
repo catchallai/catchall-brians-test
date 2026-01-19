@@ -536,7 +536,7 @@ export default function Layout({ children, currentPageName }) {
             </Button>
           </SheetTrigger>
           <SheetContent side="left" className="p-0 w-72 dark:bg-gray-900 dark:border-gray-800">
-                            <SidebarContent currentPage={currentPageName} onNavigate={() => setSidebarOpen(false)} isEnabled={isEnabled} user={user} onAddFavorite={handleAddFavorite} onRemoveFavorite={handleRemoveFavorite} dragOverFavorites={dragOverFavorites} setDragOverFavorites={setDragOverFavorites} />
+                            <SidebarContent currentPage={currentPageName} onNavigate={() => setSidebarOpen(false)} isEnabled={isEnabled} user={user} onAddFavorite={handleAddFavorite} onRemoveFavorite={handleRemoveFavorite} dragOverFavorites={dragOverFavorites} setDragOverFavorites={setDragOverFavorites} isCollapsed={false} />
                           </SheetContent>
         </Sheet>
 
