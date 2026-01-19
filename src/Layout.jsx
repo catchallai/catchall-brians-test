@@ -217,7 +217,7 @@ const SIDEBAR_ICONS = {
   ActivityLogs: Activity,
 };
 
-function SidebarContent({ currentPage, onNavigate, isEnabled, user, onAddFavorite, onRemoveFavorite, dragOverFavorites, setDragOverFavorites }) {
+function SidebarContent({ currentPage, onNavigate, isEnabled, user, onAddFavorite, onRemoveFavorite, dragOverFavorites, setDragOverFavorites, isCollapsed }) {
   const [collapsedSections, setCollapsedSections] = React.useState({});
 
   const toggleSection = (sectionLabel) => {
@@ -258,18 +258,20 @@ function SidebarContent({ currentPage, onNavigate, isEnabled, user, onAddFavorit
           <img 
             src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6925162397800755912704a9/3da4d00f2_catchall.jpg" 
             alt="CatchAll" 
-            className="h-8 object-contain"
+            className={`h-8 object-contain transition-all ${sidebarCollapsed ? 'mx-auto' : ''}`}
           />
-          <div>
-            <h1 className="font-bold text-gray-900 dark:text-white text-lg">CatchAll</h1>
-            <p className="text-xs text-gray-400 dark:text-gray-500">Business Suite</p>
-          </div>
+          {!sidebarCollapsed && (
+            <div>
+              <h1 className="font-bold text-gray-900 dark:text-white text-lg">CatchAll</h1>
+              <p className="text-xs text-gray-400 dark:text-gray-500">Business Suite</p>
+            </div>
+          )}
         </Link>
       </div>
 
       {/* Navigation */}
       <ScrollArea className="flex-1 px-4 py-6">
-        <nav className="space-y-1">
+        <nav className={`space-y-1 ${isCollapsed ? 'flex flex-col items-center' : ''}`}>
           {cleanedNavigation.map((item, idx) => {
                             if (item.name === 'divider') {
                               const isCollapsed = collapsedSections[item.label];
@@ -394,14 +396,15 @@ function SidebarContent({ currentPage, onNavigate, isEnabled, user, onAddFavorit
                                   e.dataTransfer.setData('text/plain', JSON.stringify({ page: item.page, label: item.name }));
                                   e.dataTransfer.effectAllowed = 'copy';
                                 }}
+                                title={isCollapsed ? item.name : ''}
                                 className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 cursor-grab active:cursor-grabbing ${
                                   isActive
                                     ? 'bg-violet-50 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300'
                                     : 'text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white'
-                                }`}
+                                } ${isCollapsed ? 'justify-center' : ''}`}
                               >
                                 <item.icon className={`w-5 h-5 ${isActive ? 'text-violet-600 dark:text-violet-400' : 'text-gray-400 dark:text-gray-500'}`} />
-                                {item.name}
+                                {!isCollapsed && item.name}
                               </Link>
                             );
                           })}
@@ -413,11 +416,21 @@ function SidebarContent({ currentPage, onNavigate, isEnabled, user, onAddFavorit
 
 export default function Layout({ children, currentPageName }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
+    const saved = localStorage.getItem('sidebarCollapsed');
+    return saved === 'true';
+  });
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [showShortcuts, setShowShortcuts] = useState(false);
   const [dragOverFavorites, setDragOverFavorites] = useState(false);
   const queryClient = useQueryClient();
   const { isEnabled } = useFeatures();
+
+  const toggleSidebar = () => {
+    const newState = !sidebarCollapsed;
+    setSidebarCollapsed(newState);
+    localStorage.setItem('sidebarCollapsed', newState);
+  };
 
   // Keyboard shortcuts
   useKeyboardShortcuts({
@@ -561,7 +574,9 @@ export default function Layout({ children, currentPageName }) {
       </div>
 
       {/* Desktop Top Bar with Search */}
-      <div className="hidden lg:flex fixed top-0 left-64 right-0 h-14 glass-topbar z-30 items-center justify-between px-6">
+      <div className={`hidden lg:flex fixed top-0 right-0 h-14 glass-topbar z-30 items-center justify-between px-6 transition-all duration-300 ${
+        sidebarCollapsed ? 'left-16' : 'left-64'
+      }`}>
         <GlobalSearch />
         <div className="flex items-center gap-3">
             <NotificationBell />
@@ -596,28 +611,43 @@ export default function Layout({ children, currentPageName }) {
       </div>
 
       {/* Desktop Sidebar */}
-              <aside className="hidden lg:fixed lg:inset-y-0 lg:flex lg:w-64 lg:flex-col glass-sidebar z-30">
-                                    <SidebarContent currentPage={currentPageName} isEnabled={isEnabled} user={user} onAddFavorite={handleAddFavorite} onRemoveFavorite={handleRemoveFavorite} dragOverFavorites={dragOverFavorites} setDragOverFavorites={setDragOverFavorites} />
+              <aside className={`hidden lg:fixed lg:inset-y-0 lg:flex lg:flex-col glass-sidebar z-30 transition-all duration-300 ${
+                sidebarCollapsed ? 'lg:w-16' : 'lg:w-64'
+              }`}>
+                                    <SidebarContent currentPage={currentPageName} isEnabled={isEnabled} user={user} onAddFavorite={handleAddFavorite} onRemoveFavorite={handleRemoveFavorite} dragOverFavorites={dragOverFavorites} setDragOverFavorites={setDragOverFavorites} isCollapsed={sidebarCollapsed} />
+
+                                    {/* Toggle Button */}
+                                    <button
+                                    onClick={toggleSidebar}
+                                    className="absolute -right-3 top-20 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-full p-1.5 shadow-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-all z-50"
+                                    title={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+                                    >
+                                    <ChevronRight className={`w-4 h-4 text-gray-600 dark:text-gray-300 transition-transform duration-300 ${sidebarCollapsed ? '' : 'rotate-180'}`} />
+                                    </button>
         
         {/* User Section */}
         <div className="p-4 border-t border-gray-100 dark:border-gray-800">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <button className="w-full flex items-center gap-3 p-2 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+              <button className={`w-full flex items-center gap-3 p-2 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors ${isCollapsed ? 'justify-center' : ''}`}>
                 <Avatar className="w-9 h-9">
                   <AvatarFallback className="bg-violet-100 dark:bg-violet-900 text-violet-600 dark:text-violet-300 text-sm font-medium">
                     {user?.full_name?.[0] || user?.email?.[0]?.toUpperCase() || 'U'}
                   </AvatarFallback>
                 </Avatar>
-                <div className="flex-1 text-left min-w-0">
-                  <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
-                    {user?.full_name || 'User'}
-                  </p>
-                  <p className="text-xs text-gray-400 dark:text-gray-500 truncate">
-                    {user?.email}
-                  </p>
-                </div>
-                <ChevronDown className="w-4 h-4 text-gray-400" />
+                {!isCollapsed && (
+                  <>
+                    <div className="flex-1 text-left min-w-0">
+                      <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                        {user?.full_name || 'User'}
+                      </p>
+                      <p className="text-xs text-gray-400 dark:text-gray-500 truncate">
+                        {user?.email}
+                      </p>
+                    </div>
+                    <ChevronDown className="w-4 h-4 text-gray-400" />
+                  </>
+                )}
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
@@ -631,7 +661,7 @@ export default function Layout({ children, currentPageName }) {
       </aside>
 
       {/* Main Content */}
-              <main className="lg:pl-64">
+              <main className={`transition-all duration-300 ${sidebarCollapsed ? 'lg:pl-16' : 'lg:pl-64'}`}>
                 <div className="pt-16 lg:pt-14 min-h-screen gradient-bg">
                   <ErrorBoundary>
                     {children}
