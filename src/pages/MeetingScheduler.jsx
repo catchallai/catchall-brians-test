@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Plus, Calendar, Clock, Link2, CheckCircle, XCircle } from "lucide-react";
 import EmptyState from '@/components/ui/EmptyState';
 import MeetingLinkModal from '@/components/modals/MeetingLinkModal';
+import GoogleCalendarConnect from '@/components/settings/GoogleCalendarConnect';
 
 export default function MeetingScheduler() {
   const [showModal, setShowModal] = useState(false);
@@ -54,6 +55,9 @@ export default function MeetingScheduler() {
           Create Meeting Link
         </Button>
       </div>
+
+      {/* Google Calendar Integration */}
+      <GoogleCalendarConnect />
 
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">

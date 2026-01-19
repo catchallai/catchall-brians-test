@@ -76,6 +76,7 @@ import VisitorProfiles from './pages/VisitorProfiles';
 import WebCrawler from './pages/WebCrawler';
 import WebDashboard from './pages/WebDashboard';
 import WorkflowBuilder from './pages/WorkflowBuilder';
+import GoogleCalendarCallback from './pages/GoogleCalendarCallback';
 import __Layout from './Layout.jsx';
 
 
@@ -158,6 +159,7 @@ export const PAGES = {
     "WebCrawler": WebCrawler,
     "WebDashboard": WebDashboard,
     "WorkflowBuilder": WorkflowBuilder,
+    "GoogleCalendarCallback": GoogleCalendarCallback,
 }
 
 export const pagesConfig = {
