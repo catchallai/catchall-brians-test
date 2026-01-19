@@ -176,11 +176,11 @@ export default function SocialCalendarView({ posts = [], onAddPost, onEditPost, 
                   ? (isToday ? 'text-violet-600 dark:text-violet-400' : 'text-gray-900 dark:text-gray-100') 
                   : 'text-gray-400 dark:text-gray-500'
               }`}>
-                <span className={`${isToday ? 'bg-violet-600 text-white w-8 h-8 rounded-full flex items-center justify-center text-sm' : ''}`}>
+                <span className={`${isToday ? 'bg-violet-600 dark:bg-violet-500 text-white w-8 h-8 rounded-full flex items-center justify-center text-sm' : ''}`}>
                   {format(day, 'd')}
                 </span>
                 {dayPosts.length > 0 && (
-                  <Badge className="text-xs h-6 px-2 bg-violet-100 text-violet-700 dark:bg-violet-900 dark:text-violet-300 font-semibold">
+                  <Badge className="text-xs h-6 px-2 bg-violet-100 text-violet-700 dark:bg-violet-900/50 dark:text-violet-300 font-semibold">
                     {dayPosts.length}
                   </Badge>
                 )}
@@ -242,26 +242,26 @@ export default function SocialCalendarView({ posts = [], onAddPost, onEditPost, 
           {Object.entries(platformColors).slice(0, 5).map(([platform, color]) => (
             <div key={platform} className="flex items-center gap-1.5">
               <div className={`w-3 h-3 rounded-full ${color}`} />
-              <span className="text-xs text-gray-500 dark:text-gray-400 capitalize">{platform}</span>
+              <span className="text-xs text-gray-600 dark:text-gray-400 capitalize font-medium">{platform}</span>
             </div>
           ))}
         </div>
         <div className="flex gap-3">
           <div className="flex items-center gap-1.5">
-            <div className="w-3 h-3 rounded border-2 border-gray-300 bg-gray-50 dark:bg-gray-800" />
-            <span className="text-xs text-gray-500 dark:text-gray-400">Draft</span>
+            <div className="w-3 h-3 rounded border-2 border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700" />
+            <span className="text-xs text-gray-600 dark:text-gray-400 font-medium">Draft</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <div className="w-3 h-3 rounded border-2 border-amber-300 bg-amber-50 dark:bg-amber-900/20" />
-            <span className="text-xs text-gray-500 dark:text-gray-400">Pending</span>
+            <div className="w-3 h-3 rounded border-2 border-amber-300 dark:border-amber-600 bg-amber-50 dark:bg-amber-900/30" />
+            <span className="text-xs text-gray-600 dark:text-gray-400 font-medium">Pending</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <div className="w-3 h-3 rounded border-2 border-emerald-300 bg-emerald-50 dark:bg-emerald-900/20" />
-            <span className="text-xs text-gray-500 dark:text-gray-400">Approved</span>
+            <div className="w-3 h-3 rounded border-2 border-emerald-300 dark:border-emerald-600 bg-emerald-50 dark:bg-emerald-900/30" />
+            <span className="text-xs text-gray-600 dark:text-gray-400 font-medium">Approved</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <div className="w-3 h-3 rounded border-2 border-violet-300 bg-violet-50 dark:bg-violet-900/20" />
-            <span className="text-xs text-gray-500 dark:text-gray-400">Published</span>
+            <div className="w-3 h-3 rounded border-2 border-violet-300 dark:border-violet-600 bg-violet-50 dark:bg-violet-900/30" />
+            <span className="text-xs text-gray-600 dark:text-gray-400 font-medium">Published</span>
           </div>
         </div>
       </div>

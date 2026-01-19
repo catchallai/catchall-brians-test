@@ -45,9 +45,9 @@ export default function CalendarNotifications() {
   };
 
   const notificationColors = {
-    upcoming_post: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300',
-    approval_request: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300',
-    post_published: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300',
+    upcoming_post: 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300',
+    approval_request: 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300',
+    post_published: 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300',
   };
 
   if (notifications.length === 0) {
@@ -60,7 +60,7 @@ export default function CalendarNotifications() {
         <CardTitle className="flex items-center gap-2">
           <Bell className="w-5 h-5" />
           Notifications
-          <Badge className="bg-violet-600 text-white">{notifications.length}</Badge>
+          <Badge className="bg-violet-600 dark:bg-violet-500 text-white">{notifications.length}</Badge>
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
