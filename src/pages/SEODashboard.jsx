@@ -157,6 +157,15 @@ For each issue, provide:
     onError: () => toast.error('Failed to update website')
   });
 
+  const deleteMutation = useMutation({
+    mutationFn: (id) => base44.entities.Website.delete(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['websites'] });
+      toast.success('Website deleted successfully');
+    },
+    onError: () => toast.error('Failed to delete website')
+  });
+
   const analyzeWebsiteMutation = useMutation({
     mutationFn: async (website) => {
       setAnalyzingWebsite(website.id);
@@ -364,6 +373,7 @@ For each issue, provide:
                     backlinks={getWebsiteBacklinks(website.id)}
                     onEdit={() => handleEdit(website)}
                     onAnalyze={() => analyzeWebsiteMutation.mutate(website)}
+                    onDelete={() => deleteMutation.mutate(website.id)}
                     isAnalyzing={analyzingWebsite === website.id}
                   />
                 ))}
