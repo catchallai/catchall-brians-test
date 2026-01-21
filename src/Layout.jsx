@@ -221,7 +221,7 @@ const SIDEBAR_ICONS = {
   ActivityLogs: Activity,
 };
 
-function SidebarContent({ currentPage, onNavigate, isEnabled, user, onAddFavorite, onRemoveFavorite, dragOverFavorites, setDragOverFavorites, isCollapsed }) {
+function SidebarContent({ currentPage, onNavigate, isEnabled, user, onAddFavorite, onRemoveFavorite, dragOverFavorites, setDragOverFavorites, isCollapsed, userSectionAccess = [] }) {
   const [collapsedSections, setCollapsedSections] = React.useState({});
 
   const toggleSection = (sectionLabel) => {
@@ -568,7 +568,7 @@ export default function Layout({ children, currentPageName }) {
             </Button>
           </SheetTrigger>
           <SheetContent side="left" className="p-0 w-72 dark:bg-gray-900 dark:border-gray-800">
-                            <SidebarContent currentPage={currentPageName} onNavigate={() => setSidebarOpen(false)} isEnabled={isEnabled} user={user} onAddFavorite={handleAddFavorite} onRemoveFavorite={handleRemoveFavorite} dragOverFavorites={dragOverFavorites} setDragOverFavorites={setDragOverFavorites} isCollapsed={false} />
+                            <SidebarContent currentPage={currentPageName} onNavigate={() => setSidebarOpen(false)} isEnabled={isEnabled} user={user} onAddFavorite={handleAddFavorite} onRemoveFavorite={handleRemoveFavorite} dragOverFavorites={dragOverFavorites} setDragOverFavorites={setDragOverFavorites} isCollapsed={false} userSectionAccess={userSectionAccess} />
                           </SheetContent>
         </Sheet>
 
@@ -646,7 +646,7 @@ export default function Layout({ children, currentPageName }) {
               <aside className={`hidden lg:fixed lg:inset-y-0 lg:flex lg:flex-col glass-sidebar z-30 transition-all duration-300 ${
                 sidebarCollapsed ? 'lg:w-16' : 'lg:w-64'
               }`}>
-                                    <SidebarContent currentPage={currentPageName} isEnabled={isEnabled} user={user} onAddFavorite={handleAddFavorite} onRemoveFavorite={handleRemoveFavorite} dragOverFavorites={dragOverFavorites} setDragOverFavorites={setDragOverFavorites} isCollapsed={sidebarCollapsed} />
+                                    <SidebarContent currentPage={currentPageName} isEnabled={isEnabled} user={user} onAddFavorite={handleAddFavorite} onRemoveFavorite={handleRemoveFavorite} dragOverFavorites={dragOverFavorites} setDragOverFavorites={setDragOverFavorites} isCollapsed={sidebarCollapsed} userSectionAccess={userSectionAccess} />
 
                                     {/* Toggle Button */}
                                     <button
