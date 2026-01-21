@@ -444,6 +444,7 @@ export default function Automation() {
                   key={rule.id}
                   rule={rule}
                   onToggle={handleToggleScoreRule}
+                  onDelete={handleDeleteScoreRule}
                   onClick={() => { setEditingScoreRule(rule); setShowScoreModal(true); }}
                 />
               ))}
