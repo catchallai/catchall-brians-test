@@ -167,7 +167,7 @@ export default function Dashboard() {
               <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-2">
                 Good evening, {user?.full_name?.split(' ')[0] || 'there'} 👋
               </h1>
-              <p className="text-violet-100 text-sm sm:text-base lg:text-lg">Here's what's happening with your brand today</p>
+              <p className="text-violet-100 text-sm sm:text-base lg:text-lg">Here's what's happening with SyberJet today</p>
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-3 lg:gap-4">
               <div className="bg-white/10 backdrop-blur-sm rounded-lg sm:rounded-xl px-3 py-3 sm:px-4 sm:py-4 border border-white/20">
