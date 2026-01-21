@@ -26,40 +26,8 @@ Deno.serve(async (req) => {
       sectionAccessMap[access.section] = access.enabled;
     });
 
-    // Check if user has access to this entity
-    if (sectionAccessMap[entityName] === false) {
-      return Response.json({ error: 'Access denied to this resource' }, { status: 403 });
-    }
-
-    // Call checkDepartmentAccess to validate
-    const accessCheck = await base44.functions.invoke('checkDepartmentAccess', {
-      section: entityName.toLowerCase()
-    });
-
-    if (!accessCheck.data.hasAccess) {
-      return Response.json({ error: 'Department does not have access to this resource' }, { status: 403 });
-    }
-
-    // Build query based on department and entity type
-    let queryFilters = { ...filters };
-
-    // Department-specific filtering
-    if (userDept === 'sales') {
-      // Sales can only see contacts and deals they're assigned to (or all if no assignment field)
-      if (entityName === 'Contact' || entityName === 'Deal') {
-        // Could add: queryFilters.assigned_to = user.email;
-      }
-    } else if (userDept === 'marketing') {
-      // Marketing can see campaigns, contacts, and their own data
-      if (entityName === 'Campaign' || entityName === 'EmailCampaign') {
-        queryFilters.created_by = user.email;
-      }
-    } else if (userDept === 'business_dev') {
-      // Business dev can see all contacts and companies
-    }
-
-    // Fetch data using service role
-    const data = await base44.asServiceRole.entities[entityName].filter(queryFilters, '-updated_date', 1000);
+    // Fetch all data - all users can see all data
+    const data = await base44.asServiceRole.entities[entityName].filter(filters, '-updated_date', 1000);
 
     return Response.json({
       success: true,
