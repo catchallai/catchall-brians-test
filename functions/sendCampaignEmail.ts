@@ -1,4 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.4';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
 import { Resend } from 'npm:resend';
 
 const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
@@ -78,12 +78,16 @@ Deno.serve(async (req) => {
                     .replace(/{{name}}/gi, recipientName)
                     .replace(/{{email}}/gi, recipientEmail);
 
-                await resend.emails.send({
-                    from: campaign.from_email || 'catchall@syberjet.com',
+                const emailResponse = await resend.emails.send({
+                    from: campaign.from_email || 'noreply@catchall.syberjet.com',
                     to: recipientEmail,
                     subject: subject,
                     html: htmlContent
                 });
+
+                if (!emailResponse.id) {
+                    throw new Error(emailResponse.error?.message || 'Failed to send email');
+                }
 
                 results.sent++;
 
