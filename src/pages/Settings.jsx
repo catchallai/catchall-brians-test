@@ -14,10 +14,11 @@ import { useToast } from '@/components/ui/toast-provider';
 import { useTheme } from '@/components/theme/ThemeProvider';
 import {
   User, Bell, Shield, Palette, Globe, Database, 
-  Save, Loader2, Check, Mail, Clock, Zap, ToggleRight, RefreshCw
+  Save, Loader2, Check, Mail, Clock, Zap, ToggleRight, RefreshCw, Lock
 } from "lucide-react";
 import FeatureManager from '@/components/settings/FeatureManager';
 import AutoSyncSettings from '@/components/settings/AutoSyncSettings';
+import RolePermissionsManager from '@/components/settings/RolePermissionsManager';
 
 export default function Settings() {
   const [saving, setSaving] = useState(false);
@@ -144,6 +145,10 @@ export default function Settings() {
           <TabsTrigger value="autosync" className="gap-2">
             <RefreshCw className="w-4 h-4" />
             Auto-Sync
+          </TabsTrigger>
+          <TabsTrigger value="rbac" className="gap-2">
+            <Lock className="w-4 h-4" />
+            RBAC
           </TabsTrigger>
         </TabsList>
 
@@ -393,6 +398,11 @@ export default function Settings() {
         {/* Auto-Sync Tab */}
         <TabsContent value="autosync">
           <AutoSyncSettings />
+        </TabsContent>
+
+        {/* RBAC Tab */}
+        <TabsContent value="rbac">
+          <RolePermissionsManager />
         </TabsContent>
       </Tabs>
     </div>
