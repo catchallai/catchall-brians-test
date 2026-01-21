@@ -12,6 +12,7 @@ import {
   CheckCircle, FileText, Users, Target, Clock, Phone, AlertCircle, X, Edit2, Copy, Trash2
 } from "lucide-react";
 import { createPageUrl } from '@/utils';
+import NodeEditor from '@/components/workflow/NodeEditor';
 import {
   Dialog,
   DialogContent,
