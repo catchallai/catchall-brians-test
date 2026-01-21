@@ -89,10 +89,17 @@ export default function Listings() {
     
     for (const website of websites) {
       const analysis = await base44.integrations.Core.InvokeLLM({
-        prompt: `Analyze business listings for: ${website.name}
+        prompt: `Analyze business listings for SyberJet Aircraft locations ONLY in the following areas:
+        - Utah
+        - West Virginia (WV)
+        - Arizona
+        - San Antonio, Texas
+        
         Website: ${website.url}
         
         Search ALL major listing platforms: Google Business Profile, Yelp, Facebook Business, Apple Maps, Bing Places, TripAdvisor, Foursquare, Yellow Pages, and any other relevant directories.
+        
+        CRITICAL: Only include listings for SyberJet Aircraft in the specified locations. Ignore any other locations or businesses.
         
         For EACH platform found, perform a detailed audit:
         
