@@ -274,9 +274,12 @@ function SidebarContent({ currentPage, onNavigate, isEnabled, user, onAddFavorit
         <nav className={`space-y-1 ${isCollapsed ? 'flex flex-col items-center' : ''}`}>
           {cleanedNavigation.map((item, idx) => {
                             if (item.name === 'divider') {
-                              const isCollapsed = collapsedSections[item.label];
+                              const isSectionCollapsed = collapsedSections[item.label];
                               const isCollapsible = item.collapsible;
-                              
+
+                              // Hide dividers when sidebar is collapsed
+                              if (isCollapsed) return null;
+
                               return (
                                 <div key={idx} className="pt-6 pb-2">
                                   <button
@@ -286,7 +289,7 @@ function SidebarContent({ currentPage, onNavigate, isEnabled, user, onAddFavorit
                                     }`}
                                   >
                                     {isCollapsible && (
-                                      isCollapsed ? 
+                                      isSectionCollapsed ? 
                                         <ChevronRight className="w-3 h-3" /> : 
                                         <ChevronDown className="w-3 h-3" />
                                     )}
@@ -306,6 +309,9 @@ function SidebarContent({ currentPage, onNavigate, isEnabled, user, onAddFavorit
                             }
 
                             if (item.name === 'favorites') {
+                                                // Hide favorites section when sidebar is collapsed
+                                                if (isCollapsed) return null;
+                                                
                                                 return (
                                                   <div 
                                                     key={idx} 
