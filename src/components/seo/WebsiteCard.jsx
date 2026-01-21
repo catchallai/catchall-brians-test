@@ -1,7 +1,7 @@
 import React from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ExternalLink, Settings, Sparkles, Loader2, Search, Link2, TrendingUp, Globe, Clock } from "lucide-react";
+import { ExternalLink, Settings, Sparkles, Loader2, Search, Link2, TrendingUp, Globe, Clock, Trash2 } from "lucide-react";
 import SEOScoreGauge from './SEOScoreGauge';
 import moment from 'moment';
 
@@ -10,7 +10,8 @@ export default function WebsiteCard({
   keywords, 
   backlinks, 
   onEdit, 
-  onAnalyze, 
+  onAnalyze,
+  onDelete, 
   isAnalyzing
 }) {
   const top10Keywords = keywords.filter(k => k.current_position && k.current_position <= 10).length;
@@ -85,6 +86,21 @@ export default function WebsiteCard({
             >
               <Settings className="w-4 h-4" />
             </Button>
+            {onDelete && (
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="h-9 w-9 rounded-xl text-red-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (confirm('Delete this website? This will also remove all associated keywords and backlinks.')) {
+                    onDelete();
+                  }
+                }}
+              >
+                <Trash2 className="w-4 h-4" />
+              </Button>
+            )}
           </div>
         </div>
 
