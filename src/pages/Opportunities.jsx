@@ -9,6 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Plus, Grid3x3, List, Filter, Upload, Download, Search, X } from "lucide-react";
 import OpportunityCard from '@/components/crm/OpportunityCard';
 import OpportunityModal from '@/components/modals/OpportunityModal';
+import PipelineKanban from '@/components/crm/PipelineKanban';
 import EmptyState from '@/components/ui/EmptyState';
 import { useDebounce } from '@/components/hooks/useDebounce';
 import { useToast } from '@/components/ui/toast-provider';
@@ -288,12 +289,28 @@ export default function Opportunities() {
           )}
         </TabsContent>
 
-        <TabsContent value="pipelines">
-          <EmptyState
-            icon={Grid3x3}
-            title="Pipeline view coming soon"
-            description="Manage your opportunity pipelines and stages."
-          />
+        <TabsContent value="pipelines" className="space-y-4">
+          {isLoading ? (
+            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-4">
+              {[...Array(8)].map((_, i) => (
+                <Skeleton key={i} className="h-96 rounded-xl" />
+              ))}
+            </div>
+          ) : opportunities.length === 0 ? (
+            <EmptyState
+              icon={Grid3x3}
+              title="No opportunities yet"
+              description="Start tracking opportunities by creating your first one."
+              actionLabel="Add Opportunity"
+              onAction={() => { setEditingOpportunity(null); setShowModal(true); }}
+            />
+          ) : (
+            <PipelineKanban
+              opportunities={opportunities}
+              onEdit={handleEdit}
+              onDelete={(opp) => setDeleteConfirm(opp)}
+            />
+          )}
         </TabsContent>
 
         <TabsContent value="bulk">
