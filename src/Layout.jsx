@@ -231,15 +231,27 @@ function SidebarContent({ currentPage, onNavigate, isEnabled, user, onAddFavorit
     }));
   };
 
-  // Filter navigation based on enabled features
+  // Create section access map
+  const sectionAccessMap = {};
+  userSectionAccess.forEach(access => {
+    sectionAccessMap[access.section] = access.enabled;
+  });
+
+  // Filter navigation based on enabled features and user section access
   const filteredNavigation = navigation.filter((item) => {
     if (item.name === 'divider') return true;
-    // Always show Dashboard, Settings, Activity Logs, Help Center
-    if (['Dashboard', 'Settings', 'ActivityLogs', 'HelpCenter', 'SEOTools'].includes(item.page)) return true;
-    // Check if feature is enabled
+
+    // Always show Dashboard, Help Center, Activity Logs
+    if (['Dashboard', 'HelpCenter', 'ActivityLogs'].includes(item.page)) return true;
+
+    // Check feature flags
     const featureKey = PAGE_FEATURE_MAP[item.page];
-    if (!featureKey) return true; // If no feature mapping, show it
-    return isEnabled(featureKey);
+    if (featureKey && !isEnabled(featureKey)) return false;
+
+    // Check user section access (if section disabled, hide)
+    if (sectionAccessMap[item.page] === false) return false;
+
+    return true;
   });
 
   // Remove consecutive dividers and trailing dividers
@@ -461,6 +473,16 @@ export default function Layout({ children, currentPageName }) {
       return records[0] || null;
     },
     enabled: !!user?.id,
+  });
+
+  const { data: userSectionAccess = [] } = useQuery({
+    queryKey: ['user-section-access', user?.email],
+    queryFn: async () => {
+      if (!user?.email) return [];
+      const records = await base44.entities.UserSectionAccess.filter({ user_email: user.email });
+      return records;
+    },
+    enabled: !!user?.email,
   });
 
   // Show onboarding for new users
