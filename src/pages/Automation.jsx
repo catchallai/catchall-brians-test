@@ -212,11 +212,22 @@ export default function Automation() {
   };
 
   const handleToggleRule = (id, isActive) => {
+    e?.stopPropagation();
     updateRuleMutation.mutate({ id, data: { is_active: isActive } });
   };
 
   const handleToggleScoreRule = (id, isActive) => {
     updateScoreRuleMutation.mutate({ id, data: { is_active: isActive } });
+  };
+
+  const handleDeleteRule = (id) => {
+    base44.entities.AutomationRule.delete(id);
+    queryClient.invalidateQueries({ queryKey: ['automation-rules'] });
+  };
+
+  const handleDeleteScoreRule = (id) => {
+    base44.entities.LeadScoreRule.delete(id);
+    queryClient.invalidateQueries({ queryKey: ['lead-score-rules'] });
   };
 
   const activeRules = automationRules.filter(r => r.is_active).length;
@@ -380,6 +391,7 @@ export default function Automation() {
                   key={rule.id}
                   rule={rule}
                   onToggle={handleToggleRule}
+                  onDelete={handleDeleteRule}
                   onClick={() => { setEditingRule(rule); setShowRuleModal(true); }}
                 />
               ))}
