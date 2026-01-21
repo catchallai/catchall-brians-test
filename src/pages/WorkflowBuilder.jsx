@@ -292,9 +292,17 @@ export default function WorkflowBuilder() {
              </div>
 
             {/* Canvas Area */}
-            <div className="flex-1 overflow-auto relative">
-              <div className="absolute inset-0 flex items-start justify-center pt-20">
-                <div className="space-y-4">
+             <div className="flex-1 overflow-auto relative">
+               <div className="absolute inset-0 flex items-start justify-center pt-20 pb-20 gap-8">
+                 {selectedNodeIdx !== null && (
+                   <NodeEditor
+                     node={nodes[selectedNodeIdx]}
+                     nodeIndex={selectedNodeIdx}
+                     onUpdate={updateNode}
+                     onClose={() => setSelectedNodeIdx(null)}
+                   />
+                 )}
+                 <div className="space-y-4">
                   {nodes.length === 0 ? (
                     <div className="border-2 border-dashed border-blue-300 dark:border-blue-700 rounded-lg p-8 text-center">
                       <p className="text-gray-500 mb-4">Start building your workflow</p>
