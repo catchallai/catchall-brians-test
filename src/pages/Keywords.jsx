@@ -24,14 +24,27 @@ export default function Keywords() {
   const queryClient = useQueryClient();
   const toast = useToast();
 
+  const { data: user } = useQuery({
+    queryKey: ['current-user'],
+    queryFn: () => base44.auth.me(),
+  });
+
   const { data: keywords = [], isLoading } = useQuery({
-    queryKey: ['keywords'],
-    queryFn: () => base44.entities.Keyword.list('-created_date', 500),
+    queryKey: ['keywords', user?.current_business_id],
+    queryFn: async () => {
+      if (!user?.current_business_id) return [];
+      return await base44.entities.Keyword.filter({ business_id: user.current_business_id }, '-created_date', 500);
+    },
+    enabled: !!user?.current_business_id,
   });
 
   const { data: websites = [] } = useQuery({
-    queryKey: ['websites'],
-    queryFn: () => base44.entities.Website.list('-created_date', 50),
+    queryKey: ['websites', user?.current_business_id],
+    queryFn: async () => {
+      if (!user?.current_business_id) return [];
+      return await base44.entities.Website.filter({ business_id: user.current_business_id }, '-created_date', 50);
+    },
+    enabled: !!user?.current_business_id,
   });
 
   const createMutation = useMutation({

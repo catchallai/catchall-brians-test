@@ -46,19 +46,36 @@ export default function Backlinks() {
   const queryClient = useQueryClient();
   const toast = useToast();
 
+  const { data: user } = useQuery({
+    queryKey: ['current-user'],
+    queryFn: () => base44.auth.me(),
+  });
+
   const { data: backlinks = [], isLoading } = useQuery({
-    queryKey: ['backlinks'],
-    queryFn: () => base44.entities.Backlink.list('-created_date', 500),
+    queryKey: ['backlinks', user?.current_business_id],
+    queryFn: async () => {
+      if (!user?.current_business_id) return [];
+      return await base44.entities.Backlink.filter({ business_id: user.current_business_id }, '-created_date', 500);
+    },
+    enabled: !!user?.current_business_id,
   });
 
   const { data: websites = [] } = useQuery({
-    queryKey: ['websites'],
-    queryFn: () => base44.entities.Website.list('-created_date', 50),
+    queryKey: ['websites', user?.current_business_id],
+    queryFn: async () => {
+      if (!user?.current_business_id) return [];
+      return await base44.entities.Website.filter({ business_id: user.current_business_id }, '-created_date', 50);
+    },
+    enabled: !!user?.current_business_id,
   });
 
   const { data: competitors = [] } = useQuery({
-    queryKey: ['competitors'],
-    queryFn: () => base44.entities.Competitor.list('-created_date', 20),
+    queryKey: ['competitors', user?.current_business_id],
+    queryFn: async () => {
+      if (!user?.current_business_id) return [];
+      return await base44.entities.Competitor.filter({ business_id: user.current_business_id }, '-created_date', 20);
+    },
+    enabled: !!user?.current_business_id,
   });
 
   const createMutation = useMutation({

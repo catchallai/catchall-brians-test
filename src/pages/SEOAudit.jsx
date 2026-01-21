@@ -22,24 +22,45 @@ export default function SEOAudit() {
   const [activeTab, setActiveTab] = useState('overview');
   const queryClient = useQueryClient();
 
+  const { data: user } = useQuery({
+    queryKey: ['current-user'],
+    queryFn: () => base44.auth.me(),
+  });
+
   const { data: websites = [], isLoading: loadingWebsites } = useQuery({
-    queryKey: ['websites'],
-    queryFn: () => base44.entities.Website.list('-created_date', 50),
+    queryKey: ['websites', user?.current_business_id],
+    queryFn: async () => {
+      if (!user?.current_business_id) return [];
+      return await base44.entities.Website.filter({ business_id: user.current_business_id }, '-created_date', 50);
+    },
+    enabled: !!user?.current_business_id,
   });
 
   const { data: audits = [], isLoading: loadingAudits } = useQuery({
-    queryKey: ['seo-audits'],
-    queryFn: () => base44.entities.SEOAudit.list('-created_date', 100),
+    queryKey: ['seo-audits', user?.current_business_id],
+    queryFn: async () => {
+      if (!user?.current_business_id) return [];
+      return await base44.entities.SEOAudit.filter({ business_id: user.current_business_id }, '-created_date', 100);
+    },
+    enabled: !!user?.current_business_id,
   });
 
   const { data: keywords = [] } = useQuery({
-    queryKey: ['keywords-audit'],
-    queryFn: () => base44.entities.Keyword.list('-created_date', 100),
+    queryKey: ['keywords-audit', user?.current_business_id],
+    queryFn: async () => {
+      if (!user?.current_business_id) return [];
+      return await base44.entities.Keyword.filter({ business_id: user.current_business_id }, '-created_date', 100);
+    },
+    enabled: !!user?.current_business_id,
   });
 
   const { data: backlinks = [] } = useQuery({
-    queryKey: ['backlinks-audit'],
-    queryFn: () => base44.entities.Backlink.list('-created_date', 200),
+    queryKey: ['backlinks-audit', user?.current_business_id],
+    queryFn: async () => {
+      if (!user?.current_business_id) return [];
+      return await base44.entities.Backlink.filter({ business_id: user.current_business_id }, '-created_date', 200);
+    },
+    enabled: !!user?.current_business_id,
   });
 
   const createAuditMutation = useMutation({
