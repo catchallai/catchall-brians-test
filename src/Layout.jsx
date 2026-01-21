@@ -258,9 +258,9 @@ function SidebarContent({ currentPage, onNavigate, isEnabled, user, onAddFavorit
           <img 
             src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6925162397800755912704a9/3da4d00f2_catchall.jpg" 
             alt="CatchAll" 
-            className={`h-8 object-contain transition-all ${sidebarCollapsed ? 'mx-auto' : ''}`}
+            className={`h-8 object-contain transition-all ${isCollapsed ? 'mx-auto' : ''}`}
           />
-          {!sidebarCollapsed && (
+          {!isCollapsed && (
             <div>
               <h1 className="font-bold text-gray-900 dark:text-white text-lg">CatchAll</h1>
               <p className="text-xs text-gray-400 dark:text-gray-500">Business Suite</p>
@@ -629,13 +629,13 @@ export default function Layout({ children, currentPageName }) {
         <div className="p-4 border-t border-gray-100 dark:border-gray-800">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <button className={`w-full flex items-center gap-3 p-2 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors ${isCollapsed ? 'justify-center' : ''}`}>
+              <button className={`w-full flex items-center gap-3 p-2 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors ${sidebarCollapsed ? 'justify-center' : ''}`}>
                 <Avatar className="w-9 h-9">
                   <AvatarFallback className="bg-violet-100 dark:bg-violet-900 text-violet-600 dark:text-violet-300 text-sm font-medium">
                     {user?.full_name?.[0] || user?.email?.[0]?.toUpperCase() || 'U'}
                   </AvatarFallback>
                 </Avatar>
-                {!isCollapsed && (
+                {!sidebarCollapsed && (
                   <>
                     <div className="flex-1 text-left min-w-0">
                       <p className="text-sm font-medium text-gray-900 dark:text-white truncate">

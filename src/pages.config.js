@@ -27,6 +27,7 @@ import EmailMarketing from './pages/EmailMarketing';
 import EmailTracking from './pages/EmailTracking';
 import EquipmentInventory from './pages/EquipmentInventory';
 import ExecutiveDashboard from './pages/ExecutiveDashboard';
+import GoogleCalendarCallback from './pages/GoogleCalendarCallback';
 import HashtagManager from './pages/HashtagManager';
 import HelpCenter from './pages/HelpCenter';
 import Home from './pages/Home';
@@ -76,7 +77,6 @@ import VisitorProfiles from './pages/VisitorProfiles';
 import WebCrawler from './pages/WebCrawler';
 import WebDashboard from './pages/WebDashboard';
 import WorkflowBuilder from './pages/WorkflowBuilder';
-import GoogleCalendarCallback from './pages/GoogleCalendarCallback';
 import __Layout from './Layout.jsx';
 
 
@@ -110,6 +110,7 @@ export const PAGES = {
     "EmailTracking": EmailTracking,
     "EquipmentInventory": EquipmentInventory,
     "ExecutiveDashboard": ExecutiveDashboard,
+    "GoogleCalendarCallback": GoogleCalendarCallback,
     "HashtagManager": HashtagManager,
     "HelpCenter": HelpCenter,
     "Home": Home,
@@ -159,7 +160,6 @@ export const PAGES = {
     "WebCrawler": WebCrawler,
     "WebDashboard": WebDashboard,
     "WorkflowBuilder": WorkflowBuilder,
-    "GoogleCalendarCallback": GoogleCalendarCallback,
 }
 
 export const pagesConfig = {
