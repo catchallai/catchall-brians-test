@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   ArrowLeft, Play, Save, Globe, Plus, Zap, Mail, Calendar,
-  CheckCircle, FileText, Users, Target, Clock, Phone, AlertCircle
+  CheckCircle, FileText, Users, Target, Clock, Phone, AlertCircle, X, Edit2, Copy, Trash2
 } from "lucide-react";
 import { createPageUrl } from '@/utils';
 import {
@@ -100,6 +100,7 @@ export default function WorkflowBuilder() {
   const [nodes, setNodes] = useState([]);
   const [showTemplates, setShowTemplates] = useState(false);
   const [triggerType, setTriggerType] = useState('deal_inactive');
+  const [selectedNodeIdx, setSelectedNodeIdx] = useState(null);
 
   const { data: workflow } = useQuery({
     queryKey: ['workflow', workflowId],
@@ -156,8 +157,35 @@ export default function WorkflowBuilder() {
     saveWorkflowMutation.mutate();
   };
 
-  const addTrigger = () => {
-    setNodes([...nodes, { type: 'trigger', config: { event: 'New trigger' } }]);
+  const addAction = (actionType) => {
+    const actionConfigs = {
+      'send_email': { type: 'send_email', config: { template: 'Select template', delay_days: 0 } },
+      'create_task': { type: 'create_task', config: { title: 'New task', due_in_days: 1 } },
+      'update_stage': { type: 'update_stage', config: { new_stage: 'qualified' } },
+      'create_followup': { type: 'create_followup', config: { scheduled_days: 3, type: 'call' } },
+      'notify': { type: 'notify', config: { message: 'Team notification' } },
+    };
+    setNodes([...nodes, actionConfigs[actionType] || { type: actionType, config: {} }]);
+  };
+
+  const deleteNode = (idx) => {
+    setNodes(nodes.filter((_, i) => i !== idx));
+    setSelectedNodeIdx(null);
+  };
+
+  const duplicateNode = (idx) => {
+    const newNode = JSON.parse(JSON.stringify(nodes[idx]));
+    setNodes([...nodes.slice(0, idx + 1), newNode, ...nodes.slice(idx + 1)]);
+  };
+
+  const updateNode = (idx, updates) => {
+    const newNodes = [...nodes];
+    newNodes[idx] = { ...newNodes[idx], ...updates };
+    setNodes(newNodes);
+  };
+
+  const handleSave = () => {
+    saveWorkflowMutation.mutate();
   };
 
   return (
@@ -182,23 +210,33 @@ export default function WorkflowBuilder() {
           />
         </div>
         <div className="flex items-center gap-3">
-          <Button variant="outline" size="sm" className="gap-2">
-            <Play className="w-4 h-4" />
-            Test Workflow
-          </Button>
-          <Badge variant={isDraft ? "secondary" : "default"}>
-            {isDraft ? "Draft" : "Published"}
-          </Badge>
-          <Button
-            size="sm"
-            onClick={publishWorkflow}
-            disabled={saveWorkflowMutation.isPending}
-            className="bg-violet-600 hover:bg-violet-700 gap-2"
-          >
-            <Globe className="w-4 h-4" />
-            Publish
-          </Button>
-        </div>
+           <Button 
+             variant="outline" 
+             size="sm" 
+             onClick={handleSave}
+             disabled={saveWorkflowMutation.isPending}
+             className="gap-2"
+           >
+             <Save className="w-4 h-4" />
+             Save
+           </Button>
+           <Button variant="outline" size="sm" className="gap-2">
+             <Play className="w-4 h-4" />
+             Test
+           </Button>
+           <Badge variant={isDraft ? "secondary" : "default"}>
+             {isDraft ? "Draft" : "Published"}
+           </Badge>
+           <Button
+             size="sm"
+             onClick={publishWorkflow}
+             disabled={saveWorkflowMutation.isPending}
+             className="bg-violet-600 hover:bg-violet-700 gap-2"
+           >
+             <Globe className="w-4 h-4" />
+             Publish
+           </Button>
+         </div>
       </div>
 
       {/* Tabs */}
@@ -215,23 +253,43 @@ export default function WorkflowBuilder() {
         <TabsContent value="builder" className="flex-1 m-0 p-0">
           <div className="flex h-full">
             {/* Left Sidebar */}
-            <div className="w-12 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex flex-col items-center py-4 gap-4">
-              <button className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg">
-                <FileText className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-              </button>
-              <button className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg">
-                <Users className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-              </button>
-              <button className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg">
-                <Target className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-              </button>
-              <button className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg">
-                <Clock className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-              </button>
-              <button className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg">
-                <Zap className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-              </button>
-            </div>
+             <div className="w-12 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex flex-col items-center py-4 gap-2">
+               <button 
+                 title="Send Email"
+                 onClick={() => addAction('send_email')}
+                 className="p-2 hover:bg-violet-100 dark:hover:bg-violet-900 rounded-lg transition-colors"
+               >
+                 <Mail className="w-5 h-5 text-gray-600 dark:text-gray-400 hover:text-violet-600" />
+               </button>
+               <button 
+                 title="Create Task"
+                 onClick={() => addAction('create_task')}
+                 className="p-2 hover:bg-violet-100 dark:hover:bg-violet-900 rounded-lg transition-colors"
+               >
+                 <FileText className="w-5 h-5 text-gray-600 dark:text-gray-400 hover:text-violet-600" />
+               </button>
+               <button 
+                 title="Update Stage"
+                 onClick={() => addAction('update_stage')}
+                 className="p-2 hover:bg-violet-100 dark:hover:bg-violet-900 rounded-lg transition-colors"
+               >
+                 <Target className="w-5 h-5 text-gray-600 dark:text-gray-400 hover:text-violet-600" />
+               </button>
+               <button 
+                 title="Schedule Followup"
+                 onClick={() => addAction('create_followup')}
+                 className="p-2 hover:bg-violet-100 dark:hover:bg-violet-900 rounded-lg transition-colors"
+               >
+                 <Clock className="w-5 h-5 text-gray-600 dark:text-gray-400 hover:text-violet-600" />
+               </button>
+               <button 
+                 title="Send Notification"
+                 onClick={() => addAction('notify')}
+                 className="p-2 hover:bg-violet-100 dark:hover:bg-violet-900 rounded-lg transition-colors"
+               >
+                 <Zap className="w-5 h-5 text-gray-600 dark:text-gray-400 hover:text-violet-600" />
+               </button>
+             </div>
 
             {/* Canvas Area */}
             <div className="flex-1 overflow-auto relative">
@@ -250,49 +308,78 @@ export default function WorkflowBuilder() {
                           Use Template
                         </Button>
                         <Button
-                          onClick={addTrigger}
-                          variant="outline"
-                          className="gap-2 border-blue-500 text-blue-600 hover:bg-blue-50"
-                        >
-                          <Plus className="w-4 h-4" />
-                          Start from Scratch
-                        </Button>
+                           onClick={() => addAction('send_email')}
+                           variant="outline"
+                           className="gap-2 border-violet-500 text-violet-600 hover:bg-violet-50"
+                         >
+                           <Plus className="w-4 h-4" />
+                           Add First Action
+                         </Button>
                       </div>
                     </div>
                   ) : (
-                    nodes.map((node, idx) => (
-                      <div key={idx} className="flex flex-col items-center gap-2">
-                        <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 shadow-sm w-80">
-                          <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-lg bg-violet-100 dark:bg-violet-900 flex items-center justify-center">
-                              <Zap className="w-5 h-5 text-violet-600 dark:text-violet-400" />
-                            </div>
-                            <div className="flex-1">
-                              <p className="font-medium text-sm">{node.config?.event || 'Trigger'}</p>
-                              <p className="text-xs text-gray-500">{node.type}</p>
+                    nodes.map((node, idx) => {
+                      const actionIcons = {
+                        send_email: Mail,
+                        create_task: FileText,
+                        update_stage: Target,
+                        create_followup: Clock,
+                        notify: Zap,
+                      };
+                      const ActionIcon = actionIcons[node.type] || Zap;
+                      const isSelected = selectedNodeIdx === idx;
+
+                      return (
+                        <div key={idx} className="flex flex-col items-center gap-2">
+                          <div 
+                            onClick={() => setSelectedNodeIdx(idx)}
+                            className={`bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm w-80 cursor-pointer transition-all ${
+                              isSelected 
+                                ? 'border-2 border-violet-500 dark:border-violet-400' 
+                                : 'border border-gray-200 dark:border-gray-700 hover:border-violet-300'
+                            }`}
+                          >
+                            <div className="flex items-center gap-3">
+                              <div className="w-10 h-10 rounded-lg bg-violet-100 dark:bg-violet-900 flex items-center justify-center shrink-0">
+                                <ActionIcon className="w-5 h-5 text-violet-600 dark:text-violet-400" />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className="font-medium text-sm capitalize">{node.type.replace(/_/g, ' ')}</p>
+                                <p className="text-xs text-gray-500 truncate">
+                                  {node.config?.title || node.config?.template || node.config?.message || 'Action'}
+                                </p>
+                              </div>
+                              {isSelected && (
+                                <div className="flex items-center gap-1">
+                                  <button
+                                    onClick={(e) => { e.stopPropagation(); duplicateNode(idx); }}
+                                    className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
+                                  >
+                                    <Copy className="w-4 h-4 text-gray-400" />
+                                  </button>
+                                  <button
+                                    onClick={(e) => { e.stopPropagation(); deleteNode(idx); }}
+                                    className="p-1 hover:bg-red-100 dark:hover:bg-red-900 rounded"
+                                  >
+                                    <Trash2 className="w-4 h-4 text-red-500" />
+                                  </button>
+                                </div>
+                              )}
                             </div>
                           </div>
+                          {idx < nodes.length - 1 && (
+                            <div className="w-px h-8 bg-gray-300 dark:bg-gray-600" />
+                          )}
                         </div>
-                        {idx < nodes.length - 1 && (
-                          <div className="w-px h-8 bg-gray-300 dark:bg-gray-600" />
-                        )}
-                      </div>
-                    ))
+                      );
+                    })
                   )}
                   
                   {nodes.length > 0 && (
                     <>
                       <div className="w-px h-8 bg-gray-300 dark:bg-gray-600 mx-auto" />
-                      <div className="flex justify-center">
-                        <Button
-                          onClick={addTrigger}
-                          variant="outline"
-                          size="sm"
-                          className="gap-2"
-                        >
-                          <Plus className="w-4 h-4" />
-                          Add Action
-                        </Button>
+                      <div className="flex flex-col gap-2 items-center">
+                        <p className="text-xs text-gray-500">Use sidebar icons to add actions</p>
                       </div>
                     </>
                   )}
