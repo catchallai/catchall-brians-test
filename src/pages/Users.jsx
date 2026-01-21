@@ -34,6 +34,9 @@ export default function Users() {
   const [deleteConfirm, setDeleteConfirm] = useState(null);
   const [editingDept, setEditingDept] = useState(null);
   const [selectedDept, setSelectedDept] = useState('');
+  const [editingRole, setEditingRole] = useState(null);
+  const [selectedRole, setSelectedRole] = useState('');
+  const [showSectionAccess, setShowSectionAccess] = useState(null);
   const queryClient = useQueryClient();
 
   const { data: users = [], isLoading } = useQuery({
@@ -44,6 +47,16 @@ export default function Users() {
   const { data: departments = [] } = useQuery({
     queryKey: ['user-departments'],
     queryFn: () => base44.entities.UserDepartment.list('-created_date', 1000),
+  });
+
+  const { data: sectionAccess = [] } = useQuery({
+    queryKey: ['user-section-access'],
+    queryFn: () => base44.entities.UserSectionAccess.list('-created_date', 1000),
+  });
+
+  const { data: currentUser } = useQuery({
+    queryKey: ['current-user'],
+    queryFn: () => base44.auth.me(),
   });
 
   const updateDeptMutation = useMutation({
@@ -59,6 +72,30 @@ export default function Users() {
       queryClient.invalidateQueries({ queryKey: ['user-departments'] });
       setEditingDept(null);
       setSelectedDept('');
+    },
+  });
+
+  const updateRoleMutation = useMutation({
+    mutationFn: ({ user_email, new_role }) => 
+      base44.functions.invoke('updateUserRole', { user_email, new_role }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['users'] });
+      setEditingRole(null);
+      setSelectedRole('');
+    },
+  });
+
+  const toggleSectionMutation = useMutation({
+    mutationFn: ({ user_email, section, enabled }) => {
+      const existing = sectionAccess.find(s => s.user_email === user_email && s.section === section);
+      if (existing) {
+        return base44.entities.UserSectionAccess.update(existing.id, { enabled });
+      } else {
+        return base44.entities.UserSectionAccess.create({ user_email, section, enabled });
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['user-section-access'] });
     },
   });
 
@@ -99,6 +136,16 @@ export default function Users() {
     };
     return colors[dept] || 'bg-gray-100 text-gray-700';
   };
+
+  // Only show this page to admins
+  if (!currentUser || currentUser.role !== 'admin') {
+    return (
+      <div className="p-6 lg:p-8 text-center">
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Access Denied</h1>
+        <p className="text-gray-500 mt-2">Only admins can access user management</p>
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 lg:p-8 space-y-6 min-h-screen">
@@ -215,9 +262,54 @@ export default function Users() {
                         <span className="text-gray-600 dark:text-gray-400 text-sm">{user.email}</span>
                       </td>
                       <td className="py-4 px-6">
-                        <Badge className={`${getRoleColor(user.role)} border-0`}>
-                          {user.role}
-                        </Badge>
+                        {editingRole?.id === user.id ? (
+                          <div className="flex gap-2">
+                            <Select value={selectedRole} onValueChange={setSelectedRole}>
+                              <SelectTrigger className="w-32 h-8">
+                                <SelectValue placeholder="Select role" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {ROLES.map(role => (
+                                  <SelectItem key={role} value={role}>{role.charAt(0).toUpperCase() + role.slice(1)}</SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                            <Button
+                              size="sm"
+                              variant="default"
+                              onClick={() => {
+                                updateRoleMutation.mutate({ user_email: user.email, new_role: selectedRole });
+                              }}
+                              disabled={!selectedRole || updateRoleMutation.isPending}
+                            >
+                              {updateRoleMutation.isPending ? <Loader2 className="w-3 h-3 animate-spin" /> : 'Save'}
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => setEditingRole(null)}
+                            >
+                              Cancel
+                            </Button>
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-2">
+                            <Badge className={`${getRoleColor(user.role)} border-0`}>
+                              {user.role}
+                            </Badge>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => {
+                                setEditingRole(user);
+                                setSelectedRole(user.role);
+                              }}
+                              className="h-7 w-7 p-0"
+                            >
+                              <Edit2 className="w-3 h-3" />
+                            </Button>
+                          </div>
+                        )}
                       </td>
                       <td className="py-4 px-6">
                         {isEditing ? (
@@ -279,14 +371,24 @@ export default function Users() {
                         </span>
                       </td>
                       <td className="py-4 px-6 text-right">
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          className="h-7 w-7 p-0 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
-                          onClick={() => setDeleteConfirm(user)}
-                        >
-                          <Trash2 className="w-3 h-3" />
-                        </Button>
+                        <div className="flex gap-1 justify-end">
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="h-7 w-7 p-0"
+                            onClick={() => setShowSectionAccess(showSectionAccess?.id === user.id ? null : user)}
+                          >
+                            <Shield className="w-3 h-3" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="h-7 w-7 p-0 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
+                            onClick={() => setDeleteConfirm(user)}
+                          >
+                            <Trash2 className="w-3 h-3" />
+                          </Button>
+                        </div>
                       </td>
                     </tr>
                   );
@@ -294,6 +396,49 @@ export default function Users() {
               </tbody>
             </table>
           </div>
+        </Card>
+      )}
+
+      {/* Section Access Modal */}
+      {showSectionAccess && (
+        <Card className="glass-card">
+          <CardContent className="p-6">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+              Section Access for {showSectionAccess.full_name}
+            </h3>
+            <div className="space-y-2 max-h-96 overflow-y-auto">
+              {['dashboard', 'contacts', 'companies', 'deals', 'activities', 'campaigns', 'emailMarketing', 'seoDashboard', 'keywords', 'backlinks', 'seoAudit', 'socialMedia', 'socialListening', 'socialCalendar', 'contentStudio', 'landing_pages', 'automation', 'docutrace', 'legal_documents', 'data_rooms', 'reports', 'settings', 'admin'].map(section => {
+                const access = sectionAccess.find(s => s.user_email === showSectionAccess.email && s.section === section);
+                const isEnabled = access ? access.enabled : true;
+                return (
+                  <div key={section} className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800">
+                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{section.replace(/_/g, ' ')}</span>
+                    <button
+                      onClick={() => toggleSectionMutation.mutate({
+                        user_email: showSectionAccess.email,
+                        section,
+                        enabled: !isEnabled
+                      })}
+                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                        isEnabled ? 'bg-green-600' : 'bg-gray-300'
+                      }`}
+                    >
+                      <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                        isEnabled ? 'translate-x-6' : 'translate-x-1'
+                      }`} />
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+            <Button
+              variant="outline"
+              className="w-full mt-4"
+              onClick={() => setShowSectionAccess(null)}
+            >
+              Close
+            </Button>
+          </CardContent>
         </Card>
       )}
 
