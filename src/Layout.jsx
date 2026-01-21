@@ -145,6 +145,8 @@ const navigation = [
   { name: 'divider', label: 'Executive' },
   { name: 'Executive Dashboard', icon: Award, page: 'ExecutiveDashboard' },
   { name: 'divider', label: 'Support' },
+  { name: 'Users', icon: Users, page: 'Users' },
+  { name: 'User Directory', icon: UserCircle, page: 'UserDirectory' },
   { name: 'Business Management', icon: Building2, page: 'BusinessManagement' },
   { name: 'Help Center', icon: HelpCircle, page: 'HelpCenter' },
   { name: 'Settings', icon: Settings, page: 'Settings' },
@@ -153,6 +155,8 @@ const navigation = [
 
 const SIDEBAR_ICONS = {
               Dashboard: LayoutDashboard,
+              Users: Users,
+              UserDirectory: UserCircle,
               ExecutiveDashboard: Award,
               BusinessManagement: Building2,
               BusinessDevDashboard: BarChart3,
