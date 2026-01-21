@@ -33,11 +33,10 @@ Deno.serve(async (req) => {
 
     // Call checkDepartmentAccess to validate
     const accessCheck = await base44.functions.invoke('checkDepartmentAccess', {
-      entity: entityName,
-      department: userDept
+      section: entityName.toLowerCase()
     });
 
-    if (!accessCheck.data.allowed) {
+    if (!accessCheck.data.hasAccess) {
       return Response.json({ error: 'Department does not have access to this resource' }, { status: 403 });
     }
 
