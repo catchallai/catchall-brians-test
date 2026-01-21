@@ -10,6 +10,7 @@ import { Plus, Grid3x3, List, Filter, Upload, Download, Search, X } from "lucide
 import OpportunityCard from '@/components/crm/OpportunityCard';
 import OpportunityModal from '@/components/modals/OpportunityModal';
 import PipelineKanban from '@/components/crm/PipelineKanban';
+import BulkActionsPanel from '@/components/crm/BulkActionsPanel';
 import EmptyState from '@/components/ui/EmptyState';
 import { useDebounce } from '@/components/hooks/useDebounce';
 import { useToast } from '@/components/ui/toast-provider';
@@ -313,11 +314,12 @@ export default function Opportunities() {
           )}
         </TabsContent>
 
-        <TabsContent value="bulk">
-          <EmptyState
-            icon={Grid3x3}
-            title="Bulk actions coming soon"
-            description="Perform bulk operations on multiple opportunities."
+        <TabsContent value="bulk" className="space-y-4">
+          <BulkActionsPanel
+            opportunities={opportunities}
+            onDelete={(id) => deleteMutation.mutate(id)}
+            onUpdateStage={(id, stage) => updateMutation.mutate({ id, data: { stage } })}
+            isLoading={deleteMutation.isPending || updateMutation.isPending}
           />
         </TabsContent>
       </Tabs>
