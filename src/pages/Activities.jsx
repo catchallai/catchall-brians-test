@@ -25,44 +25,38 @@ export default function Activities() {
   });
 
   const { data: allActivities = [], isLoading } = useQuery({
-    queryKey: ['activities', user?.current_business_id],
+    queryKey: ['activities'],
     queryFn: async () => {
-      if (!user?.current_business_id) return [];
-      return await base44.entities.Activity.filter({ business_id: user.current_business_id }, '-created_date', 200);
+      return await base44.entities.Activity.list('-created_date', 200);
     },
-    enabled: !!user?.current_business_id,
+    enabled: !!user,
   });
 
   const activities = allActivities;
 
   const { data: allContacts = [] } = useQuery({
-    queryKey: ['contacts', user?.current_business_id],
+    queryKey: ['contacts'],
     queryFn: async () => {
-      if (!user?.current_business_id) return [];
-      return await base44.entities.Contact.filter({ business_id: user.current_business_id }, '-created_date', 500);
+      return await base44.entities.Contact.list('-created_date', 500);
     },
-    enabled: !!user?.current_business_id,
+    enabled: !!user,
   });
 
   const contacts = allContacts;
 
   const { data: allDeals = [] } = useQuery({
-    queryKey: ['deals', user?.current_business_id],
+    queryKey: ['deals'],
     queryFn: async () => {
-      if (!user?.current_business_id) return [];
-      return await base44.entities.Deal.filter({ business_id: user.current_business_id }, '-created_date', 200);
+      return await base44.entities.Deal.list('-created_date', 200);
     },
-    enabled: !!user?.current_business_id,
+    enabled: !!user,
   });
 
   const deals = allDeals;
 
   const createMutation = useMutation({
     mutationFn: async (data) => {
-      const activity = await base44.entities.Activity.create({
-        ...data,
-        business_id: user?.current_business_id,
-      });
+      const activity = await base44.entities.Activity.create(data);
       return activity;
     },
     onSuccess: () => {

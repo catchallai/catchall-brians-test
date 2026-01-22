@@ -36,45 +36,41 @@ export default function Deals() {
   });
 
   const { data: pipelines = [] } = useQuery({
-    queryKey: ['pipelines', user?.current_business_id],
+    queryKey: ['pipelines'],
     queryFn: async () => {
-      if (!user?.current_business_id) return [];
-      return await base44.entities.Pipeline.filter({ business_id: user.current_business_id });
+      return await base44.entities.Pipeline.list();
     },
-    enabled: !!user?.current_business_id,
+    enabled: !!user,
   });
 
   const defaultPipeline = pipelines.find(p => p.is_default) || pipelines[0];
 
   const { data: allDeals = [], isLoading: loadingDeals } = useQuery({
-    queryKey: ['deals', user?.current_business_id],
+    queryKey: ['deals'],
     queryFn: async () => {
-      if (!user?.current_business_id) return [];
-      return await base44.entities.Deal.filter({ business_id: user.current_business_id }, '-created_date', 200);
+      return await base44.entities.Deal.list('-created_date', 200);
     },
-    enabled: !!user?.current_business_id,
+    enabled: !!user,
   });
 
   const deals = allDeals;
 
   const { data: allContacts = [] } = useQuery({
-    queryKey: ['contacts', user?.current_business_id],
+    queryKey: ['contacts'],
     queryFn: async () => {
-      if (!user?.current_business_id) return [];
-      return await base44.entities.Contact.filter({ business_id: user.current_business_id }, '-created_date', 500);
+      return await base44.entities.Contact.list('-created_date', 500);
     },
-    enabled: !!user?.current_business_id,
+    enabled: !!user,
   });
 
   const contacts = allContacts;
 
   const { data: allCompanies = [] } = useQuery({
-    queryKey: ['companies', user?.current_business_id],
+    queryKey: ['companies'],
     queryFn: async () => {
-      if (!user?.current_business_id) return [];
-      return await base44.entities.Company.filter({ business_id: user.current_business_id }, '-created_date', 200);
+      return await base44.entities.Company.list('-created_date', 200);
     },
-    enabled: !!user?.current_business_id,
+    enabled: !!user,
   });
 
   const companies = allCompanies;
@@ -90,7 +86,6 @@ export default function Deals() {
     mutationFn: async (data) => {
       const pipeline = await base44.entities.Pipeline.create({
         ...data,
-        business_id: user?.current_business_id,
         is_default: pipelines.length === 0
       });
       return pipeline;
