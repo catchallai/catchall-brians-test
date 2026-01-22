@@ -330,6 +330,7 @@ export default function SocialCalendar() {
                  setSelectedPost(post);
                  setShowModal(true);
                }}
+               onPreviewPost={(post) => setPreviewPost(post)}
                baseScheduleDate={startOfMonth(currentMonth).toISOString().split('T')[0]}
              />
              <PostGallery
