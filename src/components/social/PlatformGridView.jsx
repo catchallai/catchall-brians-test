@@ -143,6 +143,17 @@ export default function PlatformGridView({ posts = [], onAddPost, onEditPost, on
                       variant="secondary"
                       onClick={(e) => {
                         e.stopPropagation();
+                        onPreviewPost?.(post.originalPost);
+                      }}
+                      className="gap-1"
+                    >
+                      Preview
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      onClick={(e) => {
+                        e.stopPropagation();
                         onEditPost(post.originalPost, post.platform);
                       }}
                       className="gap-1"
