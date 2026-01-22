@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useSecureQuery } from '@/components/hooks/useSecureQuery';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -24,36 +25,27 @@ export default function Activities() {
     queryFn: () => base44.auth.me(),
   });
 
-  const { data: allActivities = [], isLoading } = useQuery({
-    queryKey: ['activities', user?.current_business_id],
-    queryFn: async () => {
-      if (!user?.current_business_id) return [];
-      return await base44.entities.Activity.filter({ business_id: user.current_business_id }, '-created_date', 200);
-    },
-    enabled: !!user?.current_business_id,
-  });
+  const { data: allActivities = [], isLoading } = useSecureQuery(
+    'Activity',
+    user?.current_business_id ? { business_id: user.current_business_id } : {},
+    { enabled: !!user?.current_business_id }
+  );
 
   const activities = allActivities;
 
-  const { data: allContacts = [] } = useQuery({
-    queryKey: ['contacts', user?.current_business_id],
-    queryFn: async () => {
-      if (!user?.current_business_id) return [];
-      return await base44.entities.Contact.filter({ business_id: user.current_business_id }, '-created_date', 500);
-    },
-    enabled: !!user?.current_business_id,
-  });
+  const { data: allContacts = [] } = useSecureQuery(
+    'Contact',
+    user?.current_business_id ? { business_id: user.current_business_id } : {},
+    { enabled: !!user?.current_business_id }
+  );
 
   const contacts = allContacts;
 
-  const { data: allDeals = [] } = useQuery({
-    queryKey: ['deals', user?.current_business_id],
-    queryFn: async () => {
-      if (!user?.current_business_id) return [];
-      return await base44.entities.Deal.filter({ business_id: user.current_business_id }, '-created_date', 200);
-    },
-    enabled: !!user?.current_business_id,
-  });
+  const { data: allDeals = [] } = useSecureQuery(
+    'Deal',
+    user?.current_business_id ? { business_id: user.current_business_id } : {},
+    { enabled: !!user?.current_business_id }
+  );
 
   const deals = allDeals;
 

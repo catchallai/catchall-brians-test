@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useSecureQuery } from '@/components/hooks/useSecureQuery';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
@@ -23,25 +24,19 @@ export default function Companies() {
     queryFn: () => base44.auth.me(),
   });
 
-  const { data: allCompanies = [], isLoading } = useQuery({
-    queryKey: ['companies', user?.current_business_id],
-    queryFn: async () => {
-      if (!user?.current_business_id) return [];
-      return await base44.entities.Company.filter({ business_id: user.current_business_id }, '-created_date', 200);
-    },
-    enabled: !!user?.current_business_id,
-  });
+  const { data: allCompanies = [], isLoading } = useSecureQuery(
+    'Company',
+    user?.current_business_id ? { business_id: user.current_business_id } : {},
+    { enabled: !!user?.current_business_id }
+  );
 
   const companies = allCompanies;
 
-  const { data: allContacts = [] } = useQuery({
-    queryKey: ['contacts', user?.current_business_id],
-    queryFn: async () => {
-      if (!user?.current_business_id) return [];
-      return await base44.entities.Contact.filter({ business_id: user.current_business_id }, '-created_date', 500);
-    },
-    enabled: !!user?.current_business_id,
-  });
+  const { data: allContacts = [] } = useSecureQuery(
+    'Contact',
+    user?.current_business_id ? { business_id: user.current_business_id } : {},
+    { enabled: !!user?.current_business_id }
+  );
 
   const contacts = allContacts;
 
