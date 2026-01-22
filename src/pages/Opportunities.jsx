@@ -1,7 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useSecureQuery } from '@/components/hooks/useSecureQuery';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -37,17 +36,23 @@ export default function Opportunities() {
     queryFn: () => base44.auth.me(),
   });
 
-  const { data: opportunities = [], isLoading } = useSecureQuery(
-    'Opportunity',
-    user?.current_business_id ? { business_id: user.current_business_id } : {},
-    { enabled: !!user?.current_business_id }
-  );
+  const { data: opportunities = [], isLoading } = useQuery({
+    queryKey: ['opportunities', user?.current_business_id],
+    queryFn: async () => {
+      if (!user?.current_business_id) return [];
+      return await base44.entities.Opportunity.filter({ business_id: user.current_business_id }, '-created_date', 1000);
+    },
+    enabled: !!user?.current_business_id,
+  });
 
-  const { data: contacts = [] } = useSecureQuery(
-    'Contact',
-    user?.current_business_id ? { business_id: user.current_business_id } : {},
-    { enabled: !!user?.current_business_id }
-  );
+  const { data: contacts = [] } = useQuery({
+    queryKey: ['contacts', user?.current_business_id],
+    queryFn: async () => {
+      if (!user?.current_business_id) return [];
+      return await base44.entities.Contact.filter({ business_id: user.current_business_id }, '-created_date', 1000);
+    },
+    enabled: !!user?.current_business_id,
+  });
 
   const createMutation = useMutation({
     mutationFn: (data) => base44.entities.Opportunity.create({

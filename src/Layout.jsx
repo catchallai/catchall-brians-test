@@ -2,7 +2,6 @@ import React, { useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -74,167 +73,86 @@ import {
 const navigation = [
   { name: 'Brand Dashboard', icon: LayoutDashboard, page: 'Dashboard' },
   { name: 'favorites', label: 'Favorites' },
-  { 
-    name: 'divider', 
-    label: 'Business Dev', 
-    collapsible: true,
-    items: [
-      { name: 'Business Dev Dashboard', icon: BarChart3, page: 'BusinessDevDashboard' },
-      { name: 'Aerospace Scanner', icon: Rocket, page: 'AerospaceScanner' },
-      { name: 'Competitor Analysis', icon: Users, page: 'CompetitorAnalysis' },
-      { name: 'Lead Analysis', icon: UserCircle, page: 'VisitorProfiles' },
-      { name: 'Legal Documents', icon: FileSignature, page: 'LegalDocuments' },
-      { name: 'Listings & Reviews', icon: MapPin, page: 'Listings' },
-      { name: 'Media Outreach', icon: Mail, page: 'MediaOutreach' },
-      { name: 'Press Monitoring', icon: Newspaper, page: 'PressMonitoring' },
-    ]
-  },
-  { 
-    name: 'divider', 
-    label: 'CRM', 
-    collapsible: true,
-    items: [
-      { name: 'CRM Dashboard', icon: BarChart3, page: 'CRMDashboard' },
-      { name: 'Marketing Hub', icon: TrendingUp, page: 'MarketingHub' },
-      { name: 'Email Marketing', icon: Mail, page: 'EmailMarketing' },
-      { name: 'Landing Pages', icon: Globe, page: 'LandingPageBuilder' },
-      { name: 'Contacts', icon: Users, page: 'Contacts' },
-      { name: 'Companies', icon: Building2, page: 'Companies' },
-      { name: 'Opportunities', icon: Target, page: 'Opportunities' },
-      { name: 'DocuTrace', icon: FileText, page: 'DocuTrace' },
-      { name: 'Data Rooms', icon: Folder, page: 'DataRooms' },
-      { name: 'Contact Forms', icon: FileText, page: 'ContactForms' },
-      { name: 'Automation', icon: Zap, page: 'Automation' },
-      { name: 'Pipeline', icon: Target, page: 'Deals' },
-      { name: 'Activities', icon: Calendar, page: 'Activities' },
-    ]
-  },
-  { 
-    name: 'divider', 
-    label: 'Sales', 
-    collapsible: true,
-    items: [
-      { name: 'Sales Dashboard', icon: BarChart3, page: 'SalesDashboard' },
-      { name: 'Sales Hub', icon: Target, page: 'SalesHub' },
-      { name: 'Lead Enrichment', icon: Users, page: 'LeadEnrichment' },
-      { name: 'Sequences', icon: Zap, page: 'SalesSequences' },
-      { name: 'Proposals', icon: FileText, page: 'Proposals' },
-      { name: 'Meeting Scheduler', icon: Calendar, page: 'MeetingScheduler' },
-      { name: 'Sales Quotas', icon: TrendingUp, page: 'SalesQuotas' },
-      { name: 'Reservations', icon: Calendar, page: 'Reservations' },
-    ]
-  },
-  { 
-    name: 'divider', 
-    label: 'Customer Success', 
-    collapsible: true,
-    items: [
-      { name: 'CS Dashboard', icon: Award, page: 'CustomerSuccessDashboard' },
-      { name: 'Customer Success', icon: Heart, page: 'CustomerSuccess' },
-    ]
-  },
-  { 
-    name: 'divider', 
-    label: 'SEO', 
-    collapsible: true,
-    items: [
-      { name: 'SEO Dashboard', icon: BarChart3, page: 'SEODashboardPage' },
-      { name: 'SEO Analytics', icon: Search, page: 'SEODashboard' },
-      { name: 'SEO Tools', icon: Globe, page: 'SEOTools' },
-      { name: 'SEO Audits', icon: FileSearch, page: 'SEOAudit' },
-      { name: 'SEO Keywords', icon: Target, page: 'Keywords' },
-      { name: 'SEO Backlinks', icon: Link2, page: 'Backlinks' },
-      { name: 'SEO Local', icon: MapPin, page: 'LocalSEO' },
-    ]
-  },
-  { 
-    name: 'divider', 
-    label: 'Social', 
-    collapsible: true,
-    items: [
-      { name: 'Social Dashboard', icon: BarChart3, page: 'SocialDashboard' },
-      { name: 'Social Analytics', icon: Share2, page: 'SocialMedia' },
-      { name: 'Social Calendar', icon: CalendarDays, page: 'SocialCalendar' },
-      { name: 'Social Listening', icon: Radio, page: 'SocialListening' },
-      { name: 'Social Leads', icon: UserCircle, page: 'SocialLeads' },
-      { name: 'Social Competitors', icon: Users, page: 'CompetitorAnalysis' },
-      { name: 'Hashtag Manager', icon: Target, page: 'HashtagManager' },
-    ]
-  },
-  { 
-    name: 'divider', 
-    label: 'Web', 
-    collapsible: true,
-    items: [
-      { name: 'Web Dashboard', icon: BarChart3, page: 'WebDashboard' },
-      { name: 'Web Analytics', icon: Globe, page: 'TrafficAnalytics' },
-      { name: 'Web Audit/Reports', icon: FileSearch, page: 'SEOAudit' },
-      { name: 'Web Crawler', icon: Globe, page: 'WebCrawler' },
-    ]
-  },
-  { 
-    name: 'divider', 
-    label: 'Reporting',
-    items: [
-      { name: 'Reports', icon: FileBarChart, page: 'Reports' },
-      { name: 'TakeDown Requestor', icon: AlertTriangle, page: 'TakeDownRequestor' },
-    ]
-  },
-  { 
-    name: 'divider', 
-    label: 'Collaboration',
-    items: [
-      { name: 'Team Projects', icon: Users, page: 'Collaboration' },
-    ]
-  },
-  { 
-    name: 'divider', 
-    label: 'Assets',
-    items: [
-      { name: 'Media Library', icon: FileText, page: 'MediaLibrary' },
-      { name: 'Content Studio', icon: PenTool, page: 'ContentStudio' },
-      { name: 'Equipment Inventory', icon: Package, page: 'EquipmentInventory' },
-    ]
-  },
-  { 
-    name: 'divider', 
-    label: 'Finance',
-    items: [
-      { name: 'Accounting Dashboard', icon: DollarSign, page: 'AccountingDashboard' },
-    ]
-  },
-  { 
-    name: 'divider', 
-    label: 'AI Tools',
-    items: [
-      { name: 'AI Dashboard', icon: Sparkles, page: 'AIDashboard' },
-    ]
-  },
-  { 
-    name: 'divider', 
-    label: 'Executive',
-    items: [
-      { name: 'Executive Dashboard', icon: Award, page: 'ExecutiveDashboard' },
-    ]
-  },
-  { 
-    name: 'divider', 
-    label: 'Support',
-    items: [
-      { name: 'Users', icon: Users, page: 'Users' },
-      { name: 'User Directory', icon: UserCircle, page: 'UserDirectory' },
-      { name: 'Business Management', icon: Building2, page: 'BusinessManagement' },
-      { name: 'Help Center', icon: HelpCircle, page: 'HelpCenter' },
-      { name: 'Settings', icon: Settings, page: 'Settings' },
-      { name: 'Activity Logs', icon: Activity, page: 'ActivityLogs' },
-    ]
-  },
+  { name: 'divider', label: 'Business Dev', collapsible: true },
+  { name: 'Business Dev Dashboard', icon: BarChart3, page: 'BusinessDevDashboard' },
+  { name: 'Aerospace Scanner', icon: Rocket, page: 'AerospaceScanner' },
+  { name: 'Competitor Analysis', icon: Users, page: 'CompetitorAnalysis' },
+  { name: 'Lead Analysis', icon: UserCircle, page: 'VisitorProfiles' },
+  { name: 'Legal Documents', icon: FileSignature, page: 'LegalDocuments' },
+  { name: 'Listings & Reviews', icon: MapPin, page: 'Listings' },
+  { name: 'Media Outreach', icon: Mail, page: 'MediaOutreach' },
+  { name: 'Press Monitoring', icon: Newspaper, page: 'PressMonitoring' },
+  { name: 'divider', label: 'CRM', collapsible: true },
+  { name: 'CRM Dashboard', icon: BarChart3, page: 'CRMDashboard' },
+  { name: 'Marketing Hub', icon: TrendingUp, page: 'MarketingHub' },
+  { name: 'Email Marketing', icon: Mail, page: 'EmailMarketing' },
+  { name: 'Landing Pages', icon: Globe, page: 'LandingPageBuilder' },
+  { name: 'Contacts', icon: Users, page: 'Contacts' },
+  { name: 'Companies', icon: Building2, page: 'Companies' },
+  { name: 'Opportunities', icon: Target, page: 'Opportunities' },
+  { name: 'DocuTrace', icon: FileText, page: 'DocuTrace' },
+  { name: 'Data Rooms', icon: Folder, page: 'DataRooms' },
+  { name: 'Contact Forms', icon: FileText, page: 'ContactForms' },
+  { name: 'Automation', icon: Zap, page: 'Automation' },
+  { name: 'Pipeline', icon: Target, page: 'Deals' },
+  { name: 'Activities', icon: Calendar, page: 'Activities' },
+  { name: 'divider', label: 'Sales', collapsible: true },
+  { name: 'Sales Dashboard', icon: BarChart3, page: 'SalesDashboard' },
+  { name: 'Sales Hub', icon: Target, page: 'SalesHub' },
+  { name: 'Lead Enrichment', icon: Users, page: 'LeadEnrichment' },
+  { name: 'Sequences', icon: Zap, page: 'SalesSequences' },
+  { name: 'Proposals', icon: FileText, page: 'Proposals' },
+  { name: 'Meeting Scheduler', icon: Calendar, page: 'MeetingScheduler' },
+  { name: 'Sales Quotas', icon: TrendingUp, page: 'SalesQuotas' },
+  { name: 'Reservations', icon: Calendar, page: 'Reservations' },
+  { name: 'divider', label: 'Customer Success', collapsible: true },
+  { name: 'CS Dashboard', icon: Award, page: 'CustomerSuccessDashboard' },
+  { name: 'Customer Success', icon: Heart, page: 'CustomerSuccess' },
+  { name: 'divider', label: 'SEO', collapsible: true },
+  { name: 'SEO Dashboard', icon: BarChart3, page: 'SEODashboardPage' },
+  { name: 'SEO Analytics', icon: Search, page: 'SEODashboard' },
+  { name: 'SEO Tools', icon: Globe, page: 'SEOTools' },
+  { name: 'SEO Audits', icon: FileSearch, page: 'SEOAudit' },
+  { name: 'SEO Keywords', icon: Target, page: 'Keywords' },
+  { name: 'SEO Backlinks', icon: Link2, page: 'Backlinks' },
+  { name: 'SEO Local', icon: MapPin, page: 'LocalSEO' },
+  { name: 'divider', label: 'Social', collapsible: true },
+  { name: 'Social Dashboard', icon: BarChart3, page: 'SocialDashboard' },
+  { name: 'Social Analytics', icon: Share2, page: 'SocialMedia' },
+  { name: 'Social Calendar', icon: CalendarDays, page: 'SocialCalendar' },
+  { name: 'Social Listening', icon: Radio, page: 'SocialListening' },
+  { name: 'Social Leads', icon: UserCircle, page: 'SocialLeads' },
+  { name: 'Social Competitors', icon: Users, page: 'CompetitorAnalysis' },
+  { name: 'Hashtag Manager', icon: Target, page: 'HashtagManager' },
+  { name: 'divider', label: 'Web', collapsible: true },
+  { name: 'Web Dashboard', icon: BarChart3, page: 'WebDashboard' },
+  { name: 'Web Analytics', icon: Globe, page: 'TrafficAnalytics' },
+  { name: 'Web Audit/Reports', icon: FileSearch, page: 'SEOAudit' },
+  { name: 'Web Crawler', icon: Globe, page: 'WebCrawler' },
+  { name: 'divider', label: 'Reporting' },
+  { name: 'Reports', icon: FileBarChart, page: 'Reports' },
+  { name: 'TakeDown Requestor', icon: AlertTriangle, page: 'TakeDownRequestor' },
+  { name: 'divider', label: 'Collaboration' },
+  { name: 'Team Projects', icon: Users, page: 'Collaboration' },
+  { name: 'divider', label: 'Assets' },
+  { name: 'Media Library', icon: FileText, page: 'MediaLibrary' },
+  { name: 'Content Studio', icon: PenTool, page: 'ContentStudio' },
+  { name: 'Equipment Inventory', icon: Package, page: 'EquipmentInventory' },
+  { name: 'divider', label: 'Finance' },
+  { name: 'Accounting Dashboard', icon: DollarSign, page: 'AccountingDashboard' },
+  { name: 'divider', label: 'AI Tools' },
+  { name: 'AI Dashboard', icon: Sparkles, page: 'AIDashboard' },
+  { name: 'divider', label: 'Executive' },
+  { name: 'Executive Dashboard', icon: Award, page: 'ExecutiveDashboard' },
+  { name: 'divider', label: 'Support' },
+  { name: 'Business Management', icon: Building2, page: 'BusinessManagement' },
+  { name: 'Help Center', icon: HelpCircle, page: 'HelpCenter' },
+  { name: 'Settings', icon: Settings, page: 'Settings' },
+  { name: 'Activity Logs', icon: Activity, page: 'ActivityLogs' },
   ];
 
 const SIDEBAR_ICONS = {
               Dashboard: LayoutDashboard,
-              Users: Users,
-              UserDirectory: UserCircle,
               ExecutiveDashboard: Award,
               BusinessManagement: Building2,
               BusinessDevDashboard: BarChart3,
@@ -299,9 +217,8 @@ const SIDEBAR_ICONS = {
   ActivityLogs: Activity,
 };
 
-function SidebarContent({ currentPage, onNavigate, isEnabled, user, onAddFavorite, onRemoveFavorite, dragOverFavorites, setDragOverFavorites, isCollapsed, userSectionAccess = [] }) {
+function SidebarContent({ currentPage, onNavigate, isEnabled, user, onAddFavorite, onRemoveFavorite, dragOverFavorites, setDragOverFavorites, isCollapsed }) {
   const [collapsedSections, setCollapsedSections] = React.useState({});
-  const [searchQuery, setSearchQuery] = React.useState('');
 
   const toggleSection = (sectionLabel) => {
     setCollapsedSections(prev => ({
@@ -310,64 +227,25 @@ function SidebarContent({ currentPage, onNavigate, isEnabled, user, onAddFavorit
     }));
   };
 
-  // Create section access map
-  const sectionAccessMap = {};
-  userSectionAccess.forEach(access => {
-    sectionAccessMap[access.section] = access.enabled;
-  });
-
-  // Filter function for items
-  const filterItem = (item) => {
-    if (item.name === 'divider' || item.name === 'favorites') return true;
-
-    // Always show Dashboard, Help Center, Activity Logs
-    if (['Dashboard', 'HelpCenter', 'ActivityLogs'].includes(item.page)) return true;
-
-    // Check feature flags
+  // Filter navigation based on enabled features
+  const filteredNavigation = navigation.filter((item) => {
+    if (item.name === 'divider') return true;
+    // Always show Dashboard, Settings, Activity Logs, Help Center
+    if (['Dashboard', 'Settings', 'ActivityLogs', 'HelpCenter', 'SEOTools'].includes(item.page)) return true;
+    // Check if feature is enabled
     const featureKey = PAGE_FEATURE_MAP[item.page];
-    if (featureKey && !isEnabled(featureKey)) return false;
-
-    // Check user section access (if section disabled, hide)
-    if (sectionAccessMap[item.page] === false) return false;
-
-    return true;
-  };
-
-  // Filter navigation based on search and permissions
-  const filteredNavigation = navigation.map((item) => {
-    if (item.name === 'divider' && item.items) {
-      // Filter sub-items
-      const filteredItems = item.items.filter(subItem => {
-        if (!filterItem(subItem)) return false;
-        if (searchQuery) {
-          return subItem.name.toLowerCase().includes(searchQuery.toLowerCase());
-        }
-        return true;
-      });
-
-      return { ...item, items: filteredItems };
-    }
-    return item;
-  }).filter((item) => {
-    if (item.name === 'divider') {
-      // Keep divider only if it has items
-      return item.items && item.items.length > 0;
-    }
-    if (item.name === 'favorites') return true;
-    return filterItem(item);
+    if (!featureKey) return true; // If no feature mapping, show it
+    return isEnabled(featureKey);
   });
 
-  // Filter by search query for top-level items
-  const searchFilteredNavigation = searchQuery 
-    ? filteredNavigation.filter((item) => {
-        if (item.name === 'divider') {
-          // Already filtered items in map above
-          return item.items && item.items.length > 0;
-        }
-        if (item.name === 'favorites') return false;
-        return item.name.toLowerCase().includes(searchQuery.toLowerCase());
-      })
-    : filteredNavigation;
+  // Remove consecutive dividers and trailing dividers
+  const cleanedNavigation = filteredNavigation.filter((item, idx, arr) => {
+    if (item.name !== 'divider' && item.name !== 'favorites') return true;
+    if (item.name === 'favorites') return true;
+    const nextItem = arr[idx + 1];
+    if (!nextItem || nextItem.name === 'divider') return false;
+    return true;
+  });
 
   // Get user's favorite links (max 3)
   const favoriteLinks = (user?.favorite_links || []).slice(0, 3);
@@ -391,26 +269,10 @@ function SidebarContent({ currentPage, onNavigate, isEnabled, user, onAddFavorit
         </Link>
       </div>
 
-      {/* Search - only show when not collapsed */}
-      {!isCollapsed && (
-        <div className="px-4 pt-4 pb-2">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-            <Input
-              type="text"
-              placeholder="Search navigation..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9 h-9 bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700"
-            />
-          </div>
-        </div>
-      )}
-
       {/* Navigation */}
       <ScrollArea className="flex-1 px-4 py-6">
         <nav className={`space-y-1 ${isCollapsed ? 'flex flex-col items-center' : ''}`}>
-          {searchFilteredNavigation.map((item, idx) => {
+          {cleanedNavigation.map((item, idx) => {
                             if (item.name === 'divider') {
                               const isSectionCollapsed = collapsedSections[item.label];
                               const isCollapsible = item.collapsible;
@@ -419,52 +281,31 @@ function SidebarContent({ currentPage, onNavigate, isEnabled, user, onAddFavorit
                               if (isCollapsed) return null;
 
                               return (
-                                <div key={idx}>
-                                  <div className="pt-6 pb-2">
-                                    <button
-                                      onClick={() => isCollapsible && toggleSection(item.label)}
-                                      className={`w-full px-3 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider flex items-center gap-2 ${
-                                        isCollapsible ? 'hover:text-gray-600 dark:hover:text-gray-300 cursor-pointer' : ''
-                                      }`}
-                                    >
-                                      {isCollapsible && (
-                                        isSectionCollapsed ? 
-                                          <ChevronRight className="w-3 h-3" /> : 
-                                          <ChevronDown className="w-3 h-3" />
-                                      )}
-                                      {item.label}
-                                    </button>
-                                  </div>
-                                  {/* Render sub-items */}
-                                  {!isSectionCollapsed && item.items && (
-                                    <div className="ml-3 space-y-1 border-l-2 border-gray-200 dark:border-gray-700 pl-2">
-                                      {item.items.map((subItem, subIdx) => {
-                                        const isActive = currentPage === subItem.page;
-                                        return (
-                                          <Link
-                                            key={subIdx}
-                                            to={createPageUrl(subItem.page)}
-                                            onClick={onNavigate}
-                                            draggable
-                                            onDragStart={(e) => {
-                                              e.dataTransfer.setData('text/plain', JSON.stringify({ page: subItem.page, label: subItem.name }));
-                                              e.dataTransfer.effectAllowed = 'copy';
-                                            }}
-                                            className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 cursor-grab active:cursor-grabbing ${
-                                              isActive
-                                                ? 'bg-violet-50 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300'
-                                                : 'text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white'
-                                            }`}
-                                          >
-                                            <subItem.icon className={`w-4 h-4 ${isActive ? 'text-violet-600 dark:text-violet-400' : 'text-gray-400 dark:text-gray-500'}`} />
-                                            {subItem.name}
-                                          </Link>
-                                        );
-                                      })}
-                                    </div>
-                                  )}
+                                <div key={idx} className="pt-6 pb-2">
+                                  <button
+                                    onClick={() => isCollapsible && toggleSection(item.label)}
+                                    className={`w-full px-3 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider flex items-center gap-2 ${
+                                      isCollapsible ? 'hover:text-gray-600 dark:hover:text-gray-300 cursor-pointer' : ''
+                                    }`}
+                                  >
+                                    {isCollapsible && (
+                                      isSectionCollapsed ? 
+                                        <ChevronRight className="w-3 h-3" /> : 
+                                        <ChevronDown className="w-3 h-3" />
+                                    )}
+                                    {item.label}
+                                  </button>
                                 </div>
                               );
+                            }
+
+                            // Check if item should be hidden due to collapsed section
+                            const sectionIdx = cleanedNavigation.slice(0, idx).reverse().findIndex(i => i.name === 'divider');
+                            if (sectionIdx !== -1) {
+                              const sectionItem = cleanedNavigation[idx - sectionIdx - 1];
+                              if (sectionItem.collapsible && collapsedSections[sectionItem.label]) {
+                                return null;
+                              }
                             }
 
                             if (item.name === 'favorites') {
@@ -618,16 +459,6 @@ export default function Layout({ children, currentPageName }) {
     enabled: !!user?.id,
   });
 
-  const { data: userSectionAccess = [] } = useQuery({
-    queryKey: ['user-section-access', user?.email],
-    queryFn: async () => {
-      if (!user?.email) return [];
-      const records = await base44.entities.UserSectionAccess.filter({ user_email: user.email });
-      return records;
-    },
-    enabled: !!user?.email,
-  });
-
   // Show onboarding for new users
   React.useEffect(() => {
     if (user?.id && onboardingStatus === null) {
@@ -711,7 +542,7 @@ export default function Layout({ children, currentPageName }) {
             </Button>
           </SheetTrigger>
           <SheetContent side="left" className="p-0 w-72 dark:bg-gray-900 dark:border-gray-800">
-                            <SidebarContent currentPage={currentPageName} onNavigate={() => setSidebarOpen(false)} isEnabled={isEnabled} user={user} onAddFavorite={handleAddFavorite} onRemoveFavorite={handleRemoveFavorite} dragOverFavorites={dragOverFavorites} setDragOverFavorites={setDragOverFavorites} isCollapsed={false} userSectionAccess={userSectionAccess} />
+                            <SidebarContent currentPage={currentPageName} onNavigate={() => setSidebarOpen(false)} isEnabled={isEnabled} user={user} onAddFavorite={handleAddFavorite} onRemoveFavorite={handleRemoveFavorite} dragOverFavorites={dragOverFavorites} setDragOverFavorites={setDragOverFavorites} isCollapsed={false} />
                           </SheetContent>
         </Sheet>
 
@@ -789,7 +620,7 @@ export default function Layout({ children, currentPageName }) {
               <aside className={`hidden lg:fixed lg:inset-y-0 lg:flex lg:flex-col glass-sidebar z-30 transition-all duration-300 ${
                 sidebarCollapsed ? 'lg:w-16' : 'lg:w-64'
               }`}>
-                                    <SidebarContent currentPage={currentPageName} isEnabled={isEnabled} user={user} onAddFavorite={handleAddFavorite} onRemoveFavorite={handleRemoveFavorite} dragOverFavorites={dragOverFavorites} setDragOverFavorites={setDragOverFavorites} isCollapsed={sidebarCollapsed} userSectionAccess={userSectionAccess} />
+                                    <SidebarContent currentPage={currentPageName} isEnabled={isEnabled} user={user} onAddFavorite={handleAddFavorite} onRemoveFavorite={handleRemoveFavorite} dragOverFavorites={dragOverFavorites} setDragOverFavorites={setDragOverFavorites} isCollapsed={sidebarCollapsed} />
 
                                     {/* Toggle Button */}
                                     <button

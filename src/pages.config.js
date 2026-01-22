@@ -71,10 +71,8 @@ import SocialListening from './pages/SocialListening';
 import SocialMedia from './pages/SocialMedia';
 import TakeDownRequestor from './pages/TakeDownRequestor';
 import TrafficAnalytics from './pages/TrafficAnalytics';
-import UserDirectory from './pages/UserDirectory';
 import UserProfile from './pages/UserProfile';
 import UserSettings from './pages/UserSettings';
-import Users from './pages/Users';
 import VisitorProfiles from './pages/VisitorProfiles';
 import WebCrawler from './pages/WebCrawler';
 import WebDashboard from './pages/WebDashboard';
@@ -156,10 +154,8 @@ export const PAGES = {
     "SocialMedia": SocialMedia,
     "TakeDownRequestor": TakeDownRequestor,
     "TrafficAnalytics": TrafficAnalytics,
-    "UserDirectory": UserDirectory,
     "UserProfile": UserProfile,
     "UserSettings": UserSettings,
-    "Users": Users,
     "VisitorProfiles": VisitorProfiles,
     "WebCrawler": WebCrawler,
     "WebDashboard": WebDashboard,
