@@ -87,6 +87,11 @@ function SortableGridItem({ id, post, gridLabel, onEdit, onAddPost, position }) 
 
 export default function NineGridEditor({ posts = [], onPostsChange, onEditPost, onPostDateChange, gridLabels = [], baseScheduleDate = null }) {
   const [activeId, setActiveId] = useState(null);
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      distance: 8,
+    })
+  );
 
   // Ensure we have exactly 9 slots - take the first post from each group of posts
   const gridPosts = Array(9).fill(null).map((_, i) => posts[i] || null);
