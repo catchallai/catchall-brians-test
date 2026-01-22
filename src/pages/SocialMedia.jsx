@@ -96,75 +96,67 @@ export default function SocialMedia() {
   });
 
   const { data: socialAccountsRaw = [], isLoading: loadingAccounts } = useQuery({
-    queryKey: ['social-accounts', user?.current_business_id],
+    queryKey: ['social-accounts'],
     queryFn: async () => {
-      if (!user?.current_business_id) return [];
-      return await base44.entities.SocialAccount.filter({ business_id: user.current_business_id }, '-created_date', 50);
+      return await base44.entities.SocialAccount.list('-created_date', 50);
     },
-    enabled: !!user?.current_business_id,
+    enabled: !!user,
   });
 
   const { data: socialPostsRaw = [], isLoading: loadingPosts } = useQuery({
-    queryKey: ['social-posts', user?.current_business_id],
+    queryKey: ['social-posts'],
     queryFn: async () => {
-      if (!user?.current_business_id) return [];
-      return await base44.entities.SocialPost.filter({ business_id: user.current_business_id }, '-created_date', 500);
+      return await base44.entities.SocialPost.list('-created_date', 500);
     },
-    enabled: !!user?.current_business_id,
+    enabled: !!user,
   });
 
   const { data: scheduledPostsRaw = [] } = useQuery({
-    queryKey: ['scheduled-posts', user?.current_business_id],
+    queryKey: ['scheduled-posts'],
     queryFn: async () => {
-      if (!user?.current_business_id) return [];
-      return await base44.entities.ScheduledPost.filter({ business_id: user.current_business_id }, '-created_date', 100);
+      return await base44.entities.ScheduledPost.list('-created_date', 100);
     },
-    enabled: !!user?.current_business_id,
+    enabled: !!user,
   });
 
   const { data: competitorsRaw = [] } = useQuery({
-    queryKey: ['competitors', user?.current_business_id],
+    queryKey: ['competitors'],
     queryFn: async () => {
-      if (!user?.current_business_id) return [];
-      return await base44.entities.Competitor.filter({ business_id: user.current_business_id }, '-created_date', 50);
+      return await base44.entities.Competitor.list('-created_date', 50);
     },
-    enabled: !!user?.current_business_id,
+    enabled: !!user,
   });
 
   const { data: contentInsightsRaw = [] } = useQuery({
-    queryKey: ['content-insights', user?.current_business_id],
+    queryKey: ['content-insights'],
     queryFn: async () => {
-      if (!user?.current_business_id) return [];
-      return await base44.entities.ContentInsight.filter({ business_id: user.current_business_id }, '-created_date', 50);
+      return await base44.entities.ContentInsight.list('-created_date', 50);
     },
-    enabled: !!user?.current_business_id,
+    enabled: !!user,
   });
 
   const { data: abTestsRaw = [] } = useQuery({
-    queryKey: ['ab-tests', user?.current_business_id],
+    queryKey: ['ab-tests'],
     queryFn: async () => {
-      if (!user?.current_business_id) return [];
-      return await base44.entities.ABTest.filter({ business_id: user.current_business_id }, '-created_date', 50);
+      return await base44.entities.ABTest.list('-created_date', 50);
     },
-    enabled: !!user?.current_business_id,
+    enabled: !!user,
   });
 
   const { data: competitorReportsRaw = [] } = useQuery({
-    queryKey: ['competitor-reports', user?.current_business_id],
+    queryKey: ['competitor-reports'],
     queryFn: async () => {
-      if (!user?.current_business_id) return [];
-      return await base44.entities.CompetitorReport.filter({ business_id: user.current_business_id }, '-created_date', 100);
+      return await base44.entities.CompetitorReport.list('-created_date', 100);
     },
-    enabled: !!user?.current_business_id,
+    enabled: !!user,
   });
 
   const { data: companies = [] } = useQuery({
-    queryKey: ['companies', user?.current_business_id],
+    queryKey: ['companies'],
     queryFn: async () => {
-      if (!user?.current_business_id) return [];
-      return await base44.entities.Company.filter({ business_id: user.current_business_id }, '-created_date', 50);
+      return await base44.entities.Company.list('-created_date', 50);
     },
-    enabled: !!user?.current_business_id,
+    enabled: !!user,
   });
 
   // Use data directly - Base44 SDK returns normalized data

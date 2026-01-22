@@ -52,12 +52,11 @@ export default function CompetitorAnalysis() {
   });
 
   const { data: competitors = [], isLoading } = useQuery({
-    queryKey: ['competitors', user?.current_business_id],
+    queryKey: ['competitors'],
     queryFn: async () => {
-      if (!user?.current_business_id) return [];
-      return await base44.entities.Competitor.filter({ business_id: user.current_business_id }, '-created_date', 50);
+      return await base44.entities.Competitor.list('-created_date', 50);
     },
-    enabled: !!user?.current_business_id,
+    enabled: !!user,
   });
 
   const { data: competitorReports = [] } = useQuery({
@@ -86,10 +85,7 @@ export default function CompetitorAnalysis() {
   });
 
   const createCompetitorMutation = useMutation({
-    mutationFn: (data) => base44.entities.Competitor.create({
-      ...data,
-      business_id: user?.current_business_id,
-    }),
+    mutationFn: (data) => base44.entities.Competitor.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['competitors'] });
       setShowCompetitorModal(false);
@@ -141,7 +137,6 @@ export default function CompetitorAnalysis() {
           await base44.entities.Competitor.create({
             name: comp.name,
             website: comp.website,
-            business_id: user?.current_business_id,
           });
           added++;
         }
