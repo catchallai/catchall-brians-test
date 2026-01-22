@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useSecureQuery } from '@/components/hooks/useSecureQuery';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -51,39 +52,21 @@ export default function CompetitorAnalysis() {
     queryFn: () => base44.auth.me(),
   });
 
-  const { data: competitors = [], isLoading } = useQuery({
-    queryKey: ['competitors', user?.current_business_id],
-    queryFn: async () => {
-      if (!user?.current_business_id) return [];
-      return await base44.entities.Competitor.filter({ business_id: user.current_business_id }, '-created_date', 50);
-    },
-    enabled: !!user?.current_business_id,
-  });
+  const { data: competitors = [], isLoading } = useSecureQuery(
+    'Competitor',
+    user?.current_business_id ? { business_id: user.current_business_id } : {},
+    { enabled: !!user?.current_business_id }
+  );
 
-  const { data: competitorReports = [] } = useQuery({
-    queryKey: ['competitor-reports'],
-    queryFn: () => base44.entities.CompetitorReport.list('-created_date', 100),
-  });
+  const { data: competitorReports = [] } = useSecureQuery('CompetitorReport');
 
-  const { data: socialAccounts = [] } = useQuery({
-    queryKey: ['social-accounts'],
-    queryFn: () => base44.entities.SocialAccount.list('-created_date', 50),
-  });
+  const { data: socialAccounts = [] } = useSecureQuery('SocialAccount');
 
-  const { data: scheduledPosts = [] } = useQuery({
-    queryKey: ['scheduled-posts'],
-    queryFn: () => base44.entities.ScheduledPost.list('-created_date', 100),
-  });
+  const { data: scheduledPosts = [] } = useSecureQuery('ScheduledPost');
 
-  const { data: socialPosts = [] } = useQuery({
-    queryKey: ['social-posts'],
-    queryFn: () => base44.entities.SocialPost.list('-created_date', 500),
-  });
+  const { data: socialPosts = [] } = useSecureQuery('SocialPost');
 
-  const { data: companies = [] } = useQuery({
-    queryKey: ['companies'],
-    queryFn: () => base44.entities.Company.list('-created_date', 50),
-  });
+  const { data: companies = [] } = useSecureQuery('Company');
 
   const createCompetitorMutation = useMutation({
     mutationFn: (data) => base44.entities.Competitor.create({
