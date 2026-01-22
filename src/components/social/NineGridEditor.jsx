@@ -3,7 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { DndContext, closestCenter, DragOverlay, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
-import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { SortableContext, useSortable, rectSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 
 function SortableGridItem({ id, post, gridLabel, onEdit, onAddPost, position }) {
@@ -92,16 +92,14 @@ export default function NineGridEditor({ posts = [], onPostsChange, onEditPost, 
       const newIndex = parseInt(over.id);
       
       const newPosts = [...gridPosts];
-      const movedPost = newPosts[oldIndex];
-      newPosts[oldIndex] = newPosts[newIndex];
-      newPosts[newIndex] = movedPost;
+      [newPosts[oldIndex], newPosts[newIndex]] = [newPosts[newIndex], newPosts[oldIndex]];
       
       // Calculate new date if post moved and callback is provided
-      if (movedPost && onPostDateChange && baseScheduleDate) {
-        const dayInterval = 3; // Post every 3 days
+      if (newPosts[newIndex] && onPostDateChange && baseScheduleDate) {
+        const dayInterval = 3;
         const newDate = new Date(baseScheduleDate);
         newDate.setDate(newDate.getDate() + (newIndex * dayInterval));
-        onPostDateChange(movedPost.id, newDate.toISOString());
+        onPostDateChange(newPosts[newIndex].id, newDate.toISOString());
       }
       
       onPostsChange(newPosts.filter(p => p !== null));
@@ -130,7 +128,7 @@ export default function NineGridEditor({ posts = [], onPostsChange, onEditPost, 
           onDragStart={handleDragStart}
           onDragEnd={handleDragEnd}
         >
-          <SortableContext items={gridPosts.map((_, i) => String(i))} strategy={verticalListSortingStrategy}>
+          <SortableContext items={gridPosts.map((_, i) => String(i))} strategy={rectSortingStrategy}>
             <div className="grid grid-cols-3 gap-4">
               {gridPosts.map((post, index) => (
                 <SortableGridItem
