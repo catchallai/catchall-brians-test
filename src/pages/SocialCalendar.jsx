@@ -33,6 +33,7 @@ import PostPreviewModal from '@/components/social/PostPreviewModal';
 export default function SocialCalendar() {
   const [showModal, setShowModal] = useState(false);
   const [selectedPost, setSelectedPost] = useState(null);
+  const [previewPost, setPreviewPost] = useState(null);
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [approverName, setApproverName] = useState('');
   const [showApprovalSection, setShowApprovalSection] = useState(false);
