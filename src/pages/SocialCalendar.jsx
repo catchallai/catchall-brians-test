@@ -24,6 +24,7 @@ import SocialCalendarView from '@/components/social/SocialCalendarView';
 import HashtagPoolCard from '@/components/social/HashtagPoolCard';
 import NineGridEditor from '@/components/social/NineGridEditor';
 import PlatformGridView from '@/components/social/PlatformGridView';
+import PostGallery from '@/components/social/PostGallery';
 import TeamManager from '@/components/social/TeamManager';
 import CalendarNotifications from '@/components/social/CalendarNotifications';
 
