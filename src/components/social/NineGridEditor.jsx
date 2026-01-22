@@ -44,11 +44,11 @@ function SortableGridItem({ id, post, gridLabel, onEdit, onAddPost, position }) 
       onClick={() => onEdit(post)}
     >
       {post.image_url ? (
-        <img src={post.image_url} alt={post.caption || 'Post'} className="w-full h-full object-cover" />
+        <img src={post.image_url} alt={post.caption || 'Post'} className="w-full h-full object-contain bg-gray-100 dark:bg-gray-900" />
       ) : post.video_url ? (
         <video 
           src={post.video_url}
-          className="w-full h-full object-cover"
+          className="w-full h-full object-contain bg-gray-100 dark:bg-gray-900"
           muted
           playsInline
         />
@@ -145,11 +145,11 @@ export default function NineGridEditor({ posts = [], onPostsChange, onEditPost, 
             {activeId !== null && gridPosts[parseInt(activeId)] && (
               <div className="aspect-square rounded-xl overflow-hidden shadow-2xl opacity-90 max-w-xs">
                 {gridPosts[parseInt(activeId)].image_url ? (
-                  <img 
-                    src={gridPosts[parseInt(activeId)].image_url} 
-                    alt="Dragging" 
-                    className="w-full h-full object-cover" 
-                  />
+                   <img 
+                     src={gridPosts[parseInt(activeId)].image_url} 
+                     alt="Dragging" 
+                     className="w-full h-full object-contain" 
+                   />
                 ) : (
                   <div className="w-full h-full bg-gradient-to-br from-violet-400 to-purple-500 flex items-center justify-center">
                     <p className="text-white text-center p-4 text-sm">{gridPosts[parseInt(activeId)].caption}</p>
