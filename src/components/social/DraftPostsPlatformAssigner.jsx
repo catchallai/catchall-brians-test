@@ -29,7 +29,7 @@ export default function DraftPostsPlatformAssigner({ posts = [], onUpdatePost })
 
   const handleSave = () => {
     if (selectedPost && selectedPlatforms.length > 0) {
-      onUpdatePost({ id: selectedPost.id, data: { ...selectedPost, platforms: selectedPlatforms } });
+      onUpdatePost({ id: selectedPost.id, platforms: selectedPlatforms });
       setSelectedPost(null);
       setSelectedPlatforms([]);
     }
