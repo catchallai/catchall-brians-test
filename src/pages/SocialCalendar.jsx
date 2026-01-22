@@ -295,31 +295,37 @@ export default function SocialCalendar() {
 
         {/* 9-Grid View */}
          {viewMode === 'nine-grid' && (
-           <NineGridEditor
-             posts={filteredPosts}
-             onPostsChange={(newPosts) => {
-               // Update order and dates based on position
-               newPosts.forEach((post, index) => {
-                 if (post) {
-                   const newDate = new Date(currentMonth);
-                   newDate.setDate(newDate.getDate() + (index * 3));
-                   updateMutation.mutate({ 
-                     id: post.id, 
-                     data: { 
-                       ...post, 
-                       order: index,
-                       scheduled_date: newDate.toISOString().split('T')[0]
-                     } 
-                   });
-                 }
-               });
-             }}
-             onEditPost={(post) => {
-               setSelectedPost(post);
-               setShowModal(true);
-             }}
-             baseScheduleDate={startOfMonth(currentMonth).toISOString().split('T')[0]}
-           />
+           <>
+             <NineGridEditor
+               posts={filteredPosts.filter(p => !galleryPosts.some(gp => gp.id === p.id))}
+               onPostsChange={(newPosts) => {
+                 // Update order and dates based on position
+                 newPosts.forEach((post, index) => {
+                   if (post) {
+                     const newDate = new Date(currentMonth);
+                     newDate.setDate(newDate.getDate() + (index * 3));
+                     updateMutation.mutate({ 
+                       id: post.id, 
+                       data: { 
+                         ...post, 
+                         order: index,
+                         scheduled_date: newDate.toISOString().split('T')[0]
+                       } 
+                     });
+                   }
+                 });
+               }}
+               onEditPost={(post) => {
+                 setSelectedPost(post);
+                 setShowModal(true);
+               }}
+               baseScheduleDate={startOfMonth(currentMonth).toISOString().split('T')[0]}
+             />
+             <PostGallery
+               posts={galleryPosts}
+               onPostsChange={setGalleryPosts}
+             />
+           </>
          )}
 
         {/* Platform Grid View */}
