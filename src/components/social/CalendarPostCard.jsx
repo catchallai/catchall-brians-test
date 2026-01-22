@@ -88,11 +88,9 @@ export default function CalendarPostCard({ post, onEdit, onDelete, compact = fal
           <Badge className={`${statusColors[post.status]} text-xs`}>
             {post.status?.replace('_', ' ')}
           </Badge>
-          {post.platforms && post.platforms.length > 0 && (
-            <Badge className="bg-violet-100 text-violet-700 text-xs">
-              {post.platforms.join(', ')}
-            </Badge>
-          )}
+          <Badge className="bg-violet-100 text-violet-700 text-xs">
+            {post.platforms && post.platforms.length > 0 ? post.platforms.join(', ') : 'No platform'}
+          </Badge>
         </div>
       </div>
 
