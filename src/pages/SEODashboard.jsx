@@ -34,30 +34,27 @@ export default function SEODashboard() {
   });
 
   const { data: websites = [], isLoading: loadingWebsites } = useQuery({
-    queryKey: ['websites', user?.current_business_id],
+    queryKey: ['websites'],
     queryFn: async () => {
-      if (!user?.current_business_id) return [];
-      return await base44.entities.Website.filter({ business_id: user.current_business_id }, '-created_date', 50);
+      return await base44.entities.Website.list('-created_date', 50);
     },
-    enabled: !!user?.current_business_id,
+    enabled: !!user,
   });
 
   const { data: keywords = [] } = useQuery({
-    queryKey: ['keywords', user?.current_business_id],
+    queryKey: ['keywords'],
     queryFn: async () => {
-      if (!user?.current_business_id) return [];
-      return await base44.entities.Keyword.filter({ business_id: user.current_business_id }, '-created_date', 500);
+      return await base44.entities.Keyword.list('-created_date', 500);
     },
-    enabled: !!user?.current_business_id,
+    enabled: !!user,
   });
 
   const { data: backlinks = [] } = useQuery({
-    queryKey: ['backlinks', user?.current_business_id],
+    queryKey: ['backlinks'],
     queryFn: async () => {
-      if (!user?.current_business_id) return [];
-      return await base44.entities.Backlink.filter({ business_id: user.current_business_id }, '-created_date', 500);
+      return await base44.entities.Backlink.list('-created_date', 500);
     },
-    enabled: !!user?.current_business_id,
+    enabled: !!user,
   });
 
   const { data: mentions = [] } = useQuery({

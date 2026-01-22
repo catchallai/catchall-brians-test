@@ -1,6 +1,5 @@
 import AIDashboard from './pages/AIDashboard';
 import AccountingDashboard from './pages/AccountingDashboard';
-import Activities from './pages/Activities';
 import ActivityLogs from './pages/ActivityLogs';
 import AerospaceScanner from './pages/AerospaceScanner';
 import Automation from './pages/Automation';
@@ -11,15 +10,11 @@ import CRMDashboard from './pages/CRMDashboard';
 import CampaignDetail from './pages/CampaignDetail';
 import Campaigns from './pages/Campaigns';
 import Collaboration from './pages/Collaboration';
-import Companies from './pages/Companies';
-import CompetitorAnalysis from './pages/CompetitorAnalysis';
 import ContactForms from './pages/ContactForms';
-import Contacts from './pages/Contacts';
 import ContentStrategy from './pages/ContentStrategy';
 import ContentStudio from './pages/ContentStudio';
 import CustomerSuccess from './pages/CustomerSuccess';
 import CustomerSuccessDashboard from './pages/CustomerSuccessDashboard';
-import Dashboard from './pages/Dashboard';
 import DataRooms from './pages/DataRooms';
 import Deals from './pages/Deals';
 import DocuTrace from './pages/DocuTrace';
@@ -42,7 +37,6 @@ import MediaLibrary from './pages/MediaLibrary';
 import MediaOutreach from './pages/MediaOutreach';
 import MeetingScheduler from './pages/MeetingScheduler';
 import MobileHub from './pages/MobileHub';
-import Opportunities from './pages/Opportunities';
 import PitchDeckAnalyzer from './pages/PitchDeckAnalyzer';
 import PitchDeckCreator from './pages/PitchDeckCreator';
 import PressMonitoring from './pages/PressMonitoring';
@@ -77,13 +71,18 @@ import VisitorProfiles from './pages/VisitorProfiles';
 import WebCrawler from './pages/WebCrawler';
 import WebDashboard from './pages/WebDashboard';
 import WorkflowBuilder from './pages/WorkflowBuilder';
+import Dashboard from './pages/Dashboard';
+import Activities from './pages/Activities';
+import Companies from './pages/Companies';
+import Contacts from './pages/Contacts';
+import Opportunities from './pages/Opportunities';
+import CompetitorAnalysis from './pages/CompetitorAnalysis';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
     "AIDashboard": AIDashboard,
     "AccountingDashboard": AccountingDashboard,
-    "Activities": Activities,
     "ActivityLogs": ActivityLogs,
     "AerospaceScanner": AerospaceScanner,
     "Automation": Automation,
@@ -94,15 +93,11 @@ export const PAGES = {
     "CampaignDetail": CampaignDetail,
     "Campaigns": Campaigns,
     "Collaboration": Collaboration,
-    "Companies": Companies,
-    "CompetitorAnalysis": CompetitorAnalysis,
     "ContactForms": ContactForms,
-    "Contacts": Contacts,
     "ContentStrategy": ContentStrategy,
     "ContentStudio": ContentStudio,
     "CustomerSuccess": CustomerSuccess,
     "CustomerSuccessDashboard": CustomerSuccessDashboard,
-    "Dashboard": Dashboard,
     "DataRooms": DataRooms,
     "Deals": Deals,
     "DocuTrace": DocuTrace,
@@ -125,7 +120,6 @@ export const PAGES = {
     "MediaOutreach": MediaOutreach,
     "MeetingScheduler": MeetingScheduler,
     "MobileHub": MobileHub,
-    "Opportunities": Opportunities,
     "PitchDeckAnalyzer": PitchDeckAnalyzer,
     "PitchDeckCreator": PitchDeckCreator,
     "PressMonitoring": PressMonitoring,
@@ -160,6 +154,12 @@ export const PAGES = {
     "WebCrawler": WebCrawler,
     "WebDashboard": WebDashboard,
     "WorkflowBuilder": WorkflowBuilder,
+    "Dashboard": Dashboard,
+    "Activities": Activities,
+    "Companies": Companies,
+    "Contacts": Contacts,
+    "Opportunities": Opportunities,
+    "CompetitorAnalysis": CompetitorAnalysis,
 }
 
 export const pagesConfig = {

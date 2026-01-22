@@ -19,10 +19,7 @@ export default function BusinessSelector({ user }) {
   const { data: businesses = [], isLoading } = useQuery({
     queryKey: ['businesses'],
     queryFn: async () => {
-      const allBusinesses = await base44.entities.Business.list('-created_date', 100);
-      // Filter to only businesses user has access to (admins see all)
-      if (user?.role === 'admin') return allBusinesses;
-      return allBusinesses.filter(b => user?.assigned_businesses?.includes(b.id));
+      return await base44.entities.Business.list('-created_date', 100);
     },
     enabled: !!user,
   });

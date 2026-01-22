@@ -55,31 +55,26 @@ export default function Contacts() {
   });
 
   const { data: allContacts = [], isLoading: loadingContacts } = useQuery({
-    queryKey: ['contacts', user?.current_business_id],
+    queryKey: ['contacts'],
     queryFn: async () => {
-      if (!user?.current_business_id) return [];
-      return await base44.entities.Contact.filter({ business_id: user.current_business_id }, '-created_date', 1000);
+      return await base44.entities.Contact.list('-created_date', 1000);
     },
-    enabled: !!user?.current_business_id,
+    enabled: !!user,
   });
 
   const contacts = allContacts.filter(c => showDeleted ? c.deleted : !c.deleted);
 
   const { data: companies = [] } = useQuery({
-    queryKey: ['companies', user?.current_business_id],
+    queryKey: ['companies'],
     queryFn: async () => {
-      if (!user?.current_business_id) return [];
-      return await base44.entities.Company.filter({ business_id: user.current_business_id }, '-created_date', 100);
+      return await base44.entities.Company.list('-created_date', 100);
     },
-    enabled: !!user?.current_business_id,
+    enabled: !!user,
   });
 
   const createMutation = useMutation({
     mutationFn: async (data) => {
-      const contact = await base44.entities.Contact.create({
-        ...data,
-        business_id: user?.current_business_id,
-      });
+      const contact = await base44.entities.Contact.create(data);
       await logActivity(ActivityActions.CREATE, 'Contact', contact.id, `${data.first_name} ${data.last_name}`);
       return contact;
     },
@@ -188,17 +183,15 @@ export default function Contacts() {
         if (!companyMap[nameLower]) {
           const newCompany = await base44.entities.Company.create({
             name: companyName,
-            business_id: user?.current_business_id,
           });
           companyMap[nameLower] = newCompany.id;
         }
       }
 
-      // Create contacts with company_id and business_id
+      // Create contacts with company_id
       for (const row of data) {
         const companyName = getFieldValue(row, 'company_name', 'Firm', 'Company', 'Company Name', 'firm', 'organization');
         const contactData = {
-          business_id: user?.current_business_id,
           company_name: companyName,
           company_id: companyName ? companyMap[companyName.toLowerCase()] : null,
           first_name: getFieldValue(row, 'first_name', 'First Name', 'firstName', 'first', 'name'),
