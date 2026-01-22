@@ -14,7 +14,7 @@ export function useSecureQuery(entityName, filters = {}, options = {}) {
           entityName,
           filters
         });
-        return response.data || [];
+        return response.data?.data || [];
       } catch (error) {
         if (error.response?.status === 403) {
           console.warn(`Access denied to ${entityName}`);
