@@ -296,10 +296,19 @@ export default function SocialCalendar() {
            <NineGridEditor
              posts={filteredPosts}
              onPostsChange={(newPosts) => {
-               // Update order of posts
+               // Update order and dates based on position
                newPosts.forEach((post, index) => {
                  if (post) {
-                   updateMutation.mutate({ id: post.id, data: { ...post, order: index } });
+                   const newDate = new Date(currentMonth);
+                   newDate.setDate(newDate.getDate() + (index * 3));
+                   updateMutation.mutate({ 
+                     id: post.id, 
+                     data: { 
+                       ...post, 
+                       order: index,
+                       scheduled_date: newDate.toISOString().split('T')[0]
+                     } 
+                   });
                  }
                });
              }}
@@ -307,6 +316,7 @@ export default function SocialCalendar() {
                setSelectedPost(post);
                setShowModal(true);
              }}
+             baseScheduleDate={startOfMonth(currentMonth).toISOString().split('T')[0]}
            />
          )}
 
