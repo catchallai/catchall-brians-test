@@ -28,7 +28,6 @@ import PostGallery from '@/components/social/PostGallery';
 import TeamManager from '@/components/social/TeamManager';
 import CalendarNotifications from '@/components/social/CalendarNotifications';
 import DraftPostsPlatformAssigner from '@/components/social/DraftPostsPlatformAssigner';
-import PostPlatformManager from '@/components/social/PostPlatformManager';
 
 export default function SocialCalendar() {
   const [showModal, setShowModal] = useState(false);
@@ -224,8 +223,8 @@ export default function SocialCalendar() {
         </div>
       </div>
 
-      {/* Post Platform Manager */}
-      <PostPlatformManager
+      {/* Draft Posts Platform Assigner */}
+      <DraftPostsPlatformAssigner
         posts={filteredPosts}
         onUpdatePost={({ id, platforms }) => {
           updateMutation.mutate({ id, data: { platforms } });
