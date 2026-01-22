@@ -3,7 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { DndContext, closestCenter, DragOverlay, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
-import { SortableContext, useSortable, rectSortingStrategy } from '@dnd-kit/sortable';
+import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 
 function SortableGridItem({ id, post, gridLabel, onEdit, onAddPost, position }) {
@@ -126,7 +126,7 @@ export default function NineGridEditor({ posts = [], onPostsChange, onEditPost, 
           onDragStart={handleDragStart}
           onDragEnd={handleDragEnd}
         >
-          <SortableContext items={gridPosts.map((_, i) => String(i))} strategy={rectSortingStrategy}>
+          <SortableContext items={gridPosts.map((_, i) => String(i))} strategy={verticalListSortingStrategy}>
             <div className="grid grid-cols-3 gap-4">
               {gridPosts.map((post, index) => (
                 <SortableGridItem
