@@ -70,7 +70,7 @@ function SortableGridItem({ id, post, gridLabel, onEdit, onAddPost, position, on
   );
 }
 
-export default function NineGridEditor({ posts = [], onPostsChange, onEditPost, onPostDateChange, gridLabels = [], baseScheduleDate = null }) {
+export default function NineGridEditor({ posts = [], onPostsChange, onEditPost, onPostDateChange, onPreviewPost, gridLabels = [], baseScheduleDate = null }) {
   const [activeId, setActiveId] = useState(null);
   const sensors = useSensors(
     useSensor(PointerSensor, {
