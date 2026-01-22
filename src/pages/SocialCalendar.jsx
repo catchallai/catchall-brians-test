@@ -226,8 +226,8 @@ export default function SocialCalendar() {
       {/* Draft Posts Platform Assigner */}
       <DraftPostsPlatformAssigner
         posts={filteredPosts}
-        onUpdatePost={(payload) => {
-          updateMutation.mutate(payload);
+        onUpdatePost={({ id, platforms }) => {
+          updateMutation.mutate({ id, data: { platforms } });
         }}
       />
 
