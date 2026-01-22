@@ -14,7 +14,7 @@ const platformConfig = {
   tiktok: { name: 'TikTok', color: 'bg-black', icon: '🎵' }
 };
 
-export default function PlatformGridView({ posts = [], onAddPost, onEditPost, onDeletePost, onPreviewPost }) {
+export default function PlatformGridView({ posts = [], onAddPost, onEditPost, onDeletePost }) {
   // Expand posts to individual platform posts
   const platformPosts = posts.flatMap(post => {
     if (!post.platforms || post.platforms.length === 0) {
@@ -138,17 +138,6 @@ export default function PlatformGridView({ posts = [], onAddPost, onEditPost, on
 
                   {/* Hover Actions */}
                   <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                    <Button
-                      size="sm"
-                      variant="secondary"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onPreviewPost?.(post.originalPost);
-                      }}
-                      className="gap-1"
-                    >
-                      Preview
-                    </Button>
                     <Button
                       size="sm"
                       variant="secondary"

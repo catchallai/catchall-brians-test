@@ -28,12 +28,10 @@ import PostGallery from '@/components/social/PostGallery';
 import TeamManager from '@/components/social/TeamManager';
 import CalendarNotifications from '@/components/social/CalendarNotifications';
 import DraftPostsPlatformAssigner from '@/components/social/DraftPostsPlatformAssigner';
-import PostPreviewModal from '@/components/social/PostPreviewModal';
 
 export default function SocialCalendar() {
   const [showModal, setShowModal] = useState(false);
   const [selectedPost, setSelectedPost] = useState(null);
-  const [previewPost, setPreviewPost] = useState(null);
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [approverName, setApproverName] = useState('');
   const [showApprovalSection, setShowApprovalSection] = useState(false);
@@ -330,7 +328,6 @@ export default function SocialCalendar() {
                  setSelectedPost(post);
                  setShowModal(true);
                }}
-               onPreviewPost={(post) => setPreviewPost(post)}
                baseScheduleDate={startOfMonth(currentMonth).toISOString().split('T')[0]}
              />
              <PostGallery
@@ -354,7 +351,6 @@ export default function SocialCalendar() {
                 deleteMutation.mutate(post.id);
               }
             }}
-            onPreviewPost={(post) => setPreviewPost(post)}
           />
         )}
 
@@ -375,11 +371,11 @@ export default function SocialCalendar() {
           ) : (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 print:grid-cols-3 print:gap-3">
               {filteredPosts.map((post) => (
-                <div key={post.id} className="flex flex-col cursor-pointer" onClick={() => setPreviewPost(post)}>
+                <div key={post.id} className="flex flex-col">
                   <CalendarPostCard 
                     post={post} 
-                    onEdit={(e) => { e.stopPropagation(); handleEdit(post); }}
-                    onDelete={(e) => { e.stopPropagation(); handleDelete(post); }}
+                    onEdit={handleEdit}
+                    onDelete={handleDelete}
                     compact
                   />
                   {post.caption && (
@@ -475,13 +471,6 @@ export default function SocialCalendar() {
         onSave={handleSave}
         isLoading={createMutation.isPending || updateMutation.isPending}
         hashtagPool={hashtagPool}
-      />
-
-      {/* Post Preview Modal */}
-      <PostPreviewModal
-        open={!!previewPost}
-        onClose={() => setPreviewPost(null)}
-        post={previewPost}
       />
 
       {/* Print Styles */}
