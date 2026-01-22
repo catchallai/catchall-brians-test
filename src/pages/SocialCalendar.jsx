@@ -37,6 +37,7 @@ export default function SocialCalendar() {
   const [viewMode, setViewMode] = useState('nine-grid');
   const [calendarViewType, setCalendarViewType] = useState('month');
   const [nineGridPosts, setNineGridPosts] = useState([]);
+  const [galleryPosts, setGalleryPosts] = useState([]);
   const printRef = useRef();
   const queryClient = useQueryClient();
 
