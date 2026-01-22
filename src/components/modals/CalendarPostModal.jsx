@@ -140,6 +140,12 @@ export default function CalendarPostModal({ open, onClose, post, onSave, isLoadi
   const handleSubmit = async (e) => {
     e.preventDefault();
     
+    // Ensure platforms array is included
+    const dataToSave = {
+      ...formData,
+      platforms: formData.platforms && formData.platforms.length > 0 ? formData.platforms : []
+    };
+    
     // If recurring, create multiple posts
     if (formData.is_recurring && formData.recurrence_end_date) {
       const posts = [];
@@ -148,7 +154,7 @@ export default function CalendarPostModal({ open, onClose, post, onSave, isLoadi
       
       while (currentDate <= endDate) {
         posts.push({
-          ...formData,
+          ...dataToSave,
           scheduled_date: formatDate(currentDate, 'yyyy-MM-dd'),
           parent_post_id: post?.id || null
         });
@@ -167,7 +173,7 @@ export default function CalendarPostModal({ open, onClose, post, onSave, isLoadi
         await onSave(postData);
       }
     } else {
-      onSave(formData);
+      onSave(dataToSave);
     }
   };
 
