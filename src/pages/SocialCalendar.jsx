@@ -28,6 +28,7 @@ import PostGallery from '@/components/social/PostGallery';
 import TeamManager from '@/components/social/TeamManager';
 import CalendarNotifications from '@/components/social/CalendarNotifications';
 import DraftPostsPlatformAssigner from '@/components/social/DraftPostsPlatformAssigner';
+import PostPreviewModal from '@/components/social/PostPreviewModal';
 
 export default function SocialCalendar() {
   const [showModal, setShowModal] = useState(false);

@@ -64,7 +64,6 @@ import SalesHub from './pages/SalesHub';
 import SalesQuotas from './pages/SalesQuotas';
 import SalesSequences from './pages/SalesSequences';
 import Settings from './pages/Settings';
-import SocialCalendar from './pages/SocialCalendar';
 import SocialDashboard from './pages/SocialDashboard';
 import SocialLeads from './pages/SocialLeads';
 import SocialListening from './pages/SocialListening';
@@ -77,6 +76,7 @@ import VisitorProfiles from './pages/VisitorProfiles';
 import WebCrawler from './pages/WebCrawler';
 import WebDashboard from './pages/WebDashboard';
 import WorkflowBuilder from './pages/WorkflowBuilder';
+import SocialCalendar from './pages/SocialCalendar';
 import __Layout from './Layout.jsx';
 
 
@@ -147,7 +147,6 @@ export const PAGES = {
     "SalesQuotas": SalesQuotas,
     "SalesSequences": SalesSequences,
     "Settings": Settings,
-    "SocialCalendar": SocialCalendar,
     "SocialDashboard": SocialDashboard,
     "SocialLeads": SocialLeads,
     "SocialListening": SocialListening,
@@ -160,6 +159,7 @@ export const PAGES = {
     "WebCrawler": WebCrawler,
     "WebDashboard": WebDashboard,
     "WorkflowBuilder": WorkflowBuilder,
+    "SocialCalendar": SocialCalendar,
 }
 
 export const pagesConfig = {
