@@ -145,14 +145,15 @@ export default function NineGridEditor({ posts = [], onPostsChange, onEditPost, 
             <div className="grid grid-cols-3 gap-4">
               {gridPosts.map((post, index) => (
                 <SortableGridItem
-                  key={index}
-                  id={String(index)}
-                  post={post}
-                  gridLabel={gridLabels[index]}
-                  position={index}
-                  onEdit={onEditPost}
-                  onAddPost={handleAddPost}
-                />
+                   key={index}
+                   id={String(index)}
+                   post={post}
+                   gridLabel={gridLabels[index]}
+                   position={index}
+                   onEdit={onEditPost}
+                   onAddPost={handleAddPost}
+                   onPreview={onPreviewPost}
+                 />
               ))}
             </div>
           </SortableContext>
