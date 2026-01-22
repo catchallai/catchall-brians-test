@@ -78,7 +78,7 @@ function SortableGridItem({ id, post, gridLabel, onEdit, onAddPost, position }) 
   );
 }
 
-export default function NineGridEditor({ posts = [], onPostsChange, onEditPost, gridLabels = [] }) {
+export default function NineGridEditor({ posts = [], onPostsChange, onEditPost, onPostDateChange, gridLabels = [], baseScheduleDate = null }) {
   const [activeId, setActiveId] = useState(null);
 
   // Ensure we have exactly 9 slots - take the first post from each group of posts
@@ -99,6 +99,14 @@ export default function NineGridEditor({ posts = [], onPostsChange, onEditPost, 
       const movedPost = newPosts[oldIndex];
       newPosts[oldIndex] = newPosts[newIndex];
       newPosts[newIndex] = movedPost;
+      
+      // Calculate new date if post moved and callback is provided
+      if (movedPost && onPostDateChange && baseScheduleDate) {
+        const dayInterval = 3; // Post every 3 days
+        const newDate = new Date(baseScheduleDate);
+        newDate.setDate(newDate.getDate() + (newIndex * dayInterval));
+        onPostDateChange(movedPost.id, newDate.toISOString());
+      }
       
       onPostsChange(newPosts.filter(p => p !== null));
     }
