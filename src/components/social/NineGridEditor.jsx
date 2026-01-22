@@ -12,12 +12,19 @@ function SortableGridItem({ id, post, gridLabel, onEdit, onAddPost, position }) 
     transform,
     transition,
     isDragging,
+    isOver,
   } = useSortable({ id });
 
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
     opacity: isDragging ? 0.5 : 1,
+  };
+
+  const handleClick = (e) => {
+    if (isDragging) return;
+    e.stopPropagation();
+    onEdit(post);
   };
 
   if (!post) {
