@@ -84,10 +84,15 @@ export default function CalendarPostCard({ post, onEdit, onDelete, compact = fal
         </div>
 
         {/* Status Badge */}
-        <div className="absolute top-2 left-2">
+        <div className="absolute top-2 left-2 flex flex-col gap-1">
           <Badge className={`${statusColors[post.status]} text-xs`}>
             {post.status?.replace('_', ' ')}
           </Badge>
+          {post.platforms && post.platforms.length > 0 && (
+            <Badge className="bg-violet-100 text-violet-700 text-xs">
+              {post.platforms.join(', ')}
+            </Badge>
+          )}
         </div>
       </div>
 
