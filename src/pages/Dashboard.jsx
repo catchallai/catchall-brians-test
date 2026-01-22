@@ -1,6 +1,7 @@
 import React from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
+import { useSecureQuery } from '@/components/hooks/useSecureQuery';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Link } from 'react-router-dom';
@@ -23,74 +24,27 @@ import FavoriteLinksManager from '@/components/dashboard/FavoriteLinksManager';
 
 export default function Dashboard() {
   // CRM Data
-  const { data: contacts = [], isLoading: loadingContacts } = useQuery({
-    queryKey: ['contacts'],
-    queryFn: () => base44.entities.Contact.list('-created_date', 100),
-  });
-
-  const { data: companies = [] } = useQuery({
-    queryKey: ['companies'],
-    queryFn: () => base44.entities.Company.list('-created_date', 100),
-  });
-
-  const { data: deals = [], isLoading: loadingDeals } = useQuery({
-    queryKey: ['deals'],
-    queryFn: () => base44.entities.Deal.list('-created_date', 100),
-  });
+  const { data: contacts = [], isLoading: loadingContacts } = useSecureQuery('Contact');
+  const { data: companies = [] } = useSecureQuery('Company');
+  const { data: deals = [], isLoading: loadingDeals } = useSecureQuery('Deal');
 
   // SEO Data
-  const { data: websites = [] } = useQuery({
-    queryKey: ['websites'],
-    queryFn: () => base44.entities.Website.list('-created_date', 50),
-  });
-
-  const { data: keywords = [] } = useQuery({
-    queryKey: ['keywords'],
-    queryFn: () => base44.entities.Keyword.list('-created_date', 200),
-  });
-
-  const { data: backlinks = [] } = useQuery({
-    queryKey: ['backlinks'],
-    queryFn: () => base44.entities.Backlink.list('-created_date', 200),
-  });
+  const { data: websites = [] } = useSecureQuery('Website');
+  const { data: keywords = [] } = useSecureQuery('Keyword');
+  const { data: backlinks = [] } = useSecureQuery('Backlink');
 
   // Social Data
-  const { data: mentions = [] } = useQuery({
-    queryKey: ['dashboard-mentions'],
-    queryFn: () => base44.entities.ListeningMention.list('-created_date', 100),
-  });
-
-  const { data: alerts = [] } = useQuery({
-    queryKey: ['dashboard-alerts'],
-    queryFn: () => base44.entities.ListeningAlert.filter({ is_dismissed: false }, '-created_date', 20),
-  });
-
-  const { data: listeningKeywords = [] } = useQuery({
-    queryKey: ['listening-keywords'],
-    queryFn: () => base44.entities.SocialListening.list('-created_date', 50),
-  });
+  const { data: mentions = [] } = useSecureQuery('ListeningMention');
+  const { data: alerts = [] } = useSecureQuery('ListeningAlert', { is_dismissed: false });
+  const { data: listeningKeywords = [] } = useSecureQuery('SocialListening');
 
   // Content Data
-  const { data: calendarPosts = [] } = useQuery({
-    queryKey: ['dashboard-posts'],
-    queryFn: () => base44.entities.CalendarPost.list('-scheduled_date', 50),
-  });
-
-  const { data: brands = [] } = useQuery({
-    queryKey: ['brands'],
-    queryFn: () => base44.entities.Brand.list('-created_date', 50),
-  });
+  const { data: calendarPosts = [] } = useSecureQuery('CalendarPost');
+  const { data: brands = [] } = useSecureQuery('Brand');
 
   // Marketing Data
-  const { data: campaigns = [] } = useQuery({
-    queryKey: ['campaigns'],
-    queryFn: () => base44.entities.Campaign.list('-created_date', 50),
-  });
-
-  const { data: emailCampaigns = [] } = useQuery({
-    queryKey: ['email-campaigns'],
-    queryFn: () => base44.entities.EmailCampaign.list('-created_date', 50),
-  });
+  const { data: campaigns = [] } = useSecureQuery('Campaign');
+  const { data: emailCampaigns = [] } = useSecureQuery('EmailCampaign');
 
   // User
   const { data: user } = useQuery({
