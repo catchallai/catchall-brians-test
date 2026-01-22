@@ -13,6 +13,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Loader2, Sparkles, Calendar, Send, X, AlertCircle } from "lucide-react";
+import AIPostAssistant from "@/components/social/AIPostAssistant";
 
 const PLATFORMS = [
   { id: 'twitter', label: 'X (Twitter)', icon: '𝕏', maxChars: 280, color: 'bg-gray-900 text-white' },
@@ -29,7 +30,8 @@ export default function ComposePostModal({
   onSchedule, 
   onAdapt,
   isLoading,
-  isAdapting 
+  isAdapting,
+  imageUrl = null
 }) {
   const [masterContent, setMasterContent] = useState('');
   const [selectedAccounts, setSelectedAccounts] = useState([]);
@@ -75,6 +77,18 @@ export default function ComposePostModal({
 
   const removeHashtag = (tag) => {
     setHashtags(hashtags.filter(t => t !== tag));
+  };
+
+  const handleCaptionSuggested = (caption) => {
+    if (masterContent) {
+      setMasterContent(caption);
+    }
+  };
+
+  const handleHashtagSuggested = (tag) => {
+    if (!hashtags.includes(tag)) {
+      setHashtags([...hashtags, tag]);
+    }
   };
 
   const handleAdaptContent = async () => {
@@ -130,7 +144,17 @@ export default function ComposePostModal({
           </TabsList>
 
           {/* Compose Tab */}
-          <TabsContent value="compose" className="flex-1 overflow-y-auto space-y-4 mt-4">
+           <TabsContent value="compose" className="flex-1 overflow-y-auto space-y-4 mt-4">
+            {/* AI Assistant */}
+            {(imageUrl || masterContent) && (
+              <AIPostAssistant
+                imageUrl={imageUrl}
+                currentCaption={masterContent}
+                onCaptionSuggested={handleCaptionSuggested}
+                onHashtagSuggested={handleHashtagSuggested}
+              />
+            )}
+
             {/* Master Content */}
             <div className="space-y-2">
               <Label>Your Message</Label>
