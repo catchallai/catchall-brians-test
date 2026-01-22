@@ -50,22 +50,34 @@ function SortableGridItem({ id, post, gridLabel, onEdit, onAddPost, onPreview, p
       {...attributes}
       title="Drag to move or hold and drag outside grid to the Post Gallery"
     >
-      {post.image_url ? (
-        <img src={post.image_url} alt={post.caption || 'Post'} className="w-full h-full object-contain bg-gray-100 dark:bg-gray-900" />
-      ) : post.video_url ? (
-        <video 
-          src={post.video_url}
-          className="w-full h-full object-contain bg-gray-100 dark:bg-gray-900"
-          muted
-          playsInline
-        />
+      {post.media_url ? (
+        post.media_url.match(/\.(mp4|webm|mov)$/i) ? (
+          <video 
+            src={post.media_url}
+            className="w-full h-full object-contain bg-gray-100 dark:bg-gray-900"
+            muted
+            playsInline
+          />
+        ) : (
+          <img src={post.media_url} alt={post.caption || 'Post'} className="w-full h-full object-contain bg-gray-100 dark:bg-gray-900" />
+        )
       ) : (
         <div className="w-full h-full bg-gradient-to-br from-violet-400 to-purple-500 flex items-center justify-center">
           <p className="text-white text-center p-4 text-sm font-medium line-clamp-3">{post.caption || 'No caption'}</p>
         </div>
       )}
       
-
+      <div className="absolute inset-0 bg-black/0 hover:bg-black/40 transition-all flex items-center justify-center opacity-0 hover:opacity-100">
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onPreview?.(post);
+          }}
+          className="px-3 py-1.5 bg-white dark:bg-gray-900 text-gray-900 dark:text-white text-xs font-semibold rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-all"
+        >
+          Preview
+        </button>
+      </div>
     </div>
   );
 }
