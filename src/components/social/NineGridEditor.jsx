@@ -21,11 +21,7 @@ function SortableGridItem({ id, post, gridLabel, onEdit, onAddPost, position }) 
     opacity: isDragging ? 0.5 : 1,
   };
 
-  const handleClick = (e) => {
-    if (isDragging) return;
-    e.stopPropagation();
-    onEdit(post);
-  };
+
 
   if (!post) {
     return (
@@ -48,7 +44,6 @@ function SortableGridItem({ id, post, gridLabel, onEdit, onAddPost, position }) 
       ref={setNodeRef}
       style={style}
       className="aspect-square rounded-xl overflow-hidden relative group shadow-md hover:shadow-xl transition-all cursor-grab active:cursor-grabbing"
-      onClick={handleClick}
     >
       {post.image_url ? (
         <img src={post.image_url} alt={post.caption || 'Post'} className="w-full h-full object-contain bg-gray-100 dark:bg-gray-900" />
@@ -65,22 +60,7 @@ function SortableGridItem({ id, post, gridLabel, onEdit, onAddPost, position }) 
         </div>
       )}
       
-      {gridLabel && (
-        <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity">
-          <p className="text-white font-bold text-lg text-center px-4">{gridLabel}</p>
-        </div>
-      )}
-      
-      <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 pointer-events-none">
-        <Button
-          size="sm"
-          variant="secondary"
-          onClick={(e) => { e.stopPropagation(); onEdit(post); }}
-          className="bg-white/90 hover:bg-white text-gray-900 pointer-events-auto"
-        >
-          Edit
-        </Button>
-      </div>
+
     </div>
   );
 }
