@@ -177,7 +177,7 @@ export default function SocialCalendar() {
               className={`gap-1.5 px-4 ${viewMode === 'nine-grid' ? 'bg-white dark:bg-gray-600 shadow-sm text-violet-700 dark:text-violet-300 font-semibold' : 'text-gray-600 dark:text-gray-300 hover:text-gray-900'}`}
             >
               <LayoutGrid className="w-4 h-4" />
-              Posts
+              9-Grid
             </Button>
             <Button 
               variant="ghost"
@@ -293,30 +293,21 @@ export default function SocialCalendar() {
 
         {/* 9-Grid View */}
          {viewMode === 'nine-grid' && (
-           filteredPosts.length === 0 ? (
-             <Card className="glass-card rounded-2xl">
-               <CardContent className="py-16 text-center">
-                 <Calendar className="w-12 h-12 mx-auto mb-4 text-gray-300" />
-                 <h3 className="text-lg font-semibold text-gray-900 mb-2">No posts scheduled</h3>
-                 <p className="text-gray-500 mb-4">Add your first post to the calendar</p>
-                 <Button onClick={() => setShowModal(true)} className="gap-2">
-                   <Plus className="w-4 h-4" />
-                   Add Post
-                 </Button>
-               </CardContent>
-             </Card>
-           ) : (
-             <div className="space-y-4 max-w-2xl">
-               {filteredPosts.map((post) => (
-                 <CalendarPostCard 
-                   key={post.id}
-                   post={post} 
-                   onEdit={handleEdit}
-                   onDelete={handleDelete}
-                 />
-               ))}
-             </div>
-           )
+           <NineGridEditor
+             posts={filteredPosts}
+             onPostsChange={(newPosts) => {
+               // Update order of posts
+               newPosts.forEach((post, index) => {
+                 if (post) {
+                   updateMutation.mutate({ id: post.id, data: { ...post, order: index } });
+                 }
+               });
+             }}
+             onEditPost={(post) => {
+               setSelectedPost(post);
+               setShowModal(true);
+             }}
+           />
          )}
 
         {/* Platform Grid View */}
