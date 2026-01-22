@@ -6,7 +6,7 @@ import { DndContext, closestCenter, DragOverlay, PointerSensor, useSensor, useSe
 import { SortableContext, useSortable, rectSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 
-function SortableGridItem({ id, post, gridLabel, onEdit, onAddPost, position, onDragStart }) {
+function SortableGridItem({ id, post, gridLabel, onEdit, onAddPost, onPreview, position, onDragStart }) {
   const {
     setNodeRef,
     transform,
