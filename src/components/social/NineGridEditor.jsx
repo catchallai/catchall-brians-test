@@ -141,6 +141,7 @@ export default function NineGridEditor({ posts = [], onPostsChange, onEditPost, 
         </div>
 
         <DndContext
+          sensors={sensors}
           collisionDetection={closestCenter}
           onDragStart={handleDragStart}
           onDragEnd={handleDragEnd}
