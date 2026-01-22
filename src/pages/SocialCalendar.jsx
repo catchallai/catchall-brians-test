@@ -223,6 +223,14 @@ export default function SocialCalendar() {
         </div>
       </div>
 
+      {/* Draft Posts Platform Assigner */}
+      <DraftPostsPlatformAssigner
+        posts={filteredPosts}
+        onUpdatePost={(payload) => {
+          updateMutation.mutate(payload);
+        }}
+      />
+
       {/* Printable Calendar View */}
       <div ref={printRef} className="print:p-8">
         {/* Calendar Header */}
