@@ -373,11 +373,11 @@ export default function SocialCalendar() {
           ) : (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 print:grid-cols-3 print:gap-3">
               {filteredPosts.map((post) => (
-                <div key={post.id} className="flex flex-col">
+                <div key={post.id} className="flex flex-col cursor-pointer" onClick={() => setPreviewPost(post)}>
                   <CalendarPostCard 
                     post={post} 
-                    onEdit={handleEdit}
-                    onDelete={handleDelete}
+                    onEdit={(e) => { e.stopPropagation(); handleEdit(post); }}
+                    onDelete={(e) => { e.stopPropagation(); handleDelete(post); }}
                     compact
                   />
                   {post.caption && (
