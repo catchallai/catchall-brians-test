@@ -534,7 +534,7 @@ export default function Layout({ children, currentPageName }) {
     }} />
     <div className="min-h-screen gradient-bg transition-colors duration-300">
       {/* Mobile Header */}
-      <div className="lg:hidden fixed top-0 left-0 right-0 h-16 glass-topbar z-40 flex items-center gap-3 px-4">
+      <div className="lg:hidden sticky top-0 left-0 right-0 h-16 glass-topbar z-40 flex items-center gap-3 px-4">
         <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
           <SheetTrigger asChild>
             <Button variant="ghost" size="icon" className="shrink-0">
@@ -580,7 +580,7 @@ export default function Layout({ children, currentPageName }) {
       </div>
 
       {/* Desktop Top Bar with Search */}
-      <div className={`hidden lg:flex fixed top-0 right-0 h-14 glass-topbar z-30 items-center justify-between px-6 transition-all duration-300 ${
+      <div className={`hidden lg:flex sticky top-0 right-0 h-14 glass-topbar z-30 items-center justify-between px-6 transition-all duration-300 ${
         sidebarCollapsed ? 'left-16' : 'left-64'
       }`}>
         <GlobalSearch />
@@ -668,7 +668,7 @@ export default function Layout({ children, currentPageName }) {
 
       {/* Main Content */}
               <main className={`transition-all duration-300 ${sidebarCollapsed ? 'lg:pl-16' : 'lg:pl-64'}`}>
-                <div className="pt-16 lg:pt-14 min-h-screen gradient-bg">
+                <div className="min-h-screen gradient-bg">
                   <ErrorBoundary>
                     {children}
                   </ErrorBoundary>
