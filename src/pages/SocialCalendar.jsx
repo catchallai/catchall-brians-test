@@ -475,6 +475,13 @@ export default function SocialCalendar() {
         hashtagPool={hashtagPool}
       />
 
+      {/* Post Preview Modal */}
+      <PostPreviewModal
+        open={!!previewPost}
+        onClose={() => setPreviewPost(null)}
+        post={previewPost}
+      />
+
       {/* Print Styles */}
       <style>{`
         @media print {
