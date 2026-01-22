@@ -40,7 +40,7 @@ function SortableGridItem({ id, post, gridLabel, onEdit, onAddPost, position }) 
     <div
       ref={setNodeRef}
       style={style}
-      className="aspect-square rounded-xl overflow-hidden relative group shadow-md hover:shadow-xl transition-all cursor-pointer"
+      className="aspect-square rounded-xl overflow-hidden relative group shadow-md hover:shadow-xl transition-all cursor-grab active:cursor-grabbing"
       onClick={() => onEdit(post)}
     >
       {post.image_url ? (
@@ -96,11 +96,8 @@ export default function NineGridEditor({ posts = [], onPostsChange, onEditPost, 
       const newIndex = parseInt(over.id);
       
       const newPosts = [...gridPosts];
-      const [movedPost] = newPosts.splice(oldIndex, 1, null);
-      
-      if (newPosts[newIndex]) {
-        newPosts[oldIndex] = newPosts[newIndex];
-      }
+      const movedPost = newPosts[oldIndex];
+      newPosts[oldIndex] = newPosts[newIndex];
       newPosts[newIndex] = movedPost;
       
       onPostsChange(newPosts.filter(p => p !== null));
