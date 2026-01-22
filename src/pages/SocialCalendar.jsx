@@ -354,6 +354,7 @@ export default function SocialCalendar() {
                 deleteMutation.mutate(post.id);
               }
             }}
+            onPreviewPost={(post) => setPreviewPost(post)}
           />
         )}
 
