@@ -48,6 +48,7 @@ function SortableGridItem({ id, post, gridLabel, onEdit, onAddPost, position, on
       className="aspect-square rounded-xl overflow-hidden relative group shadow-md hover:shadow-xl transition-all cursor-grab active:cursor-grabbing"
       {...listeners}
       {...attributes}
+      title="Drag to move or hold and drag outside grid to the Post Gallery"
     >
       {post.image_url ? (
         <img src={post.image_url} alt={post.caption || 'Post'} className="w-full h-full object-contain bg-gray-100 dark:bg-gray-900" />
