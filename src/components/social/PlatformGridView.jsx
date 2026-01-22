@@ -14,7 +14,7 @@ const platformConfig = {
   tiktok: { name: 'TikTok', color: 'bg-black', icon: '🎵' }
 };
 
-export default function PlatformGridView({ posts = [], onAddPost, onEditPost, onDeletePost }) {
+export default function PlatformGridView({ posts = [], onAddPost, onEditPost, onDeletePost, onPreviewPost }) {
   // Expand posts to individual platform posts
   const platformPosts = posts.flatMap(post => {
     if (!post.platforms || post.platforms.length === 0) {
