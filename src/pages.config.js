@@ -81,6 +81,8 @@ import WorkflowBuilder from './pages/WorkflowBuilder';
 import ContactDetail from './pages/ContactDetail';
 import Communications from './pages/Communications';
 import Payments from './pages/Payments';
+import Projects from './pages/Projects';
+import ProjectDetail from './pages/ProjectDetail';
 import __Layout from './Layout.jsx';
 
 
@@ -168,6 +170,8 @@ export const PAGES = {
     "ContactDetail": ContactDetail,
     "Communications": Communications,
     "Payments": Payments,
+    "Projects": Projects,
+    "ProjectDetail": ProjectDetail,
 }
 
 export const pagesConfig = {
