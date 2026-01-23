@@ -8,13 +8,15 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
-import { Plus, Search, Building2, Globe, Users, MapPin, Eye } from "lucide-react";
+import { Plus, Search, Building2, Globe, Users, MapPin, Eye, Upload } from "lucide-react";
 import CompanyModal from '@/components/modals/CompanyModal';
 import CompanyDetailPanel from '@/components/crm/CompanyDetailPanel';
+import ImportAviationDataModal from '@/components/modals/ImportAviationDataModal';
 import EmptyState from '@/components/ui/EmptyState';
 
 export default function Companies() {
   const [showModal, setShowModal] = useState(false);
+  const [showImportModal, setShowImportModal] = useState(false);
   const [showDetailPanel, setShowDetailPanel] = useState(false);
   const [editingCompany, setEditingCompany] = useState(null);
   const [selectedCompany, setSelectedCompany] = useState(null);
@@ -129,10 +131,16 @@ export default function Companies() {
           <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Companies</h1>
           <p className="text-sm sm:text-base text-gray-500 mt-1">{companies.length} companies total</p>
         </div>
-        <Button onClick={() => { setEditingCompany(null); setShowModal(true); }} className="gap-2 bg-violet-600 hover:bg-violet-700 w-full sm:w-auto">
-          <Plus className="w-4 h-4" />
-          Add Company
-        </Button>
+        <div className="flex gap-2 w-full sm:w-auto">
+          <Button onClick={() => { setEditingCompany(null); setShowModal(true); }} className="gap-2 bg-violet-600 hover:bg-violet-700 flex-1 sm:flex-initial">
+            <Plus className="w-4 h-4" />
+            Add Company
+          </Button>
+          <Button onClick={() => setShowImportModal(true)} variant="outline" className="gap-2 flex-1 sm:flex-initial">
+            <Upload className="w-4 h-4" />
+            Import
+          </Button>
+        </div>
       </div>
 
       {/* Filters */}
@@ -267,6 +275,9 @@ export default function Companies() {
           )}
         </SheetContent>
       </Sheet>
+
+      {/* Import Modal */}
+      <ImportAviationDataModal open={showImportModal} onClose={() => setShowImportModal(false)} />
     </div>
   );
 }
