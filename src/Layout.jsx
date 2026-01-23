@@ -95,6 +95,8 @@ const navigation = [
   { name: 'Automation', icon: Zap, page: 'Automation' },
   { name: 'Pipeline', icon: Target, page: 'Deals' },
   { name: 'Activities', icon: Calendar, page: 'Activities' },
+  { name: 'Communications', icon: Mail, page: 'Communications' },
+  { name: 'Payments', icon: DollarSign, page: 'Payments' },
   { name: 'divider', label: 'Sales', collapsible: true },
   { name: 'Sales Dashboard', icon: BarChart3, page: 'SalesDashboard' },
   { name: 'Sales Hub', icon: Target, page: 'SalesHub' },
@@ -212,10 +214,12 @@ const SIDEBAR_ICONS = {
   Collaboration: Users,
   MediaLibrary: FileText,
   ContactForms: FileText,
+  Communications: Mail,
+  Payments: DollarSign,
   Settings: Settings,
   HelpCenter: HelpCircle,
   ActivityLogs: Activity,
-};
+  };
 
 function SidebarContent({ currentPage, onNavigate, isEnabled, user, onAddFavorite, onRemoveFavorite, dragOverFavorites, setDragOverFavorites, isCollapsed }) {
   const [collapsedSections, setCollapsedSections] = React.useState({});
