@@ -43,14 +43,27 @@ export default function Automation() {
     queryFn: () => base44.entities.LeadScoreRule.list('-created_date', 100),
   });
 
+  const { data: user } = useQuery({
+    queryKey: ['current-user'],
+    queryFn: () => base44.auth.me(),
+  });
+
   const { data: contacts = [] } = useQuery({
-    queryKey: ['contacts'],
-    queryFn: () => base44.entities.Contact.list('-created_date', 500),
+    queryKey: ['contacts', user?.current_business_id],
+    queryFn: async () => {
+      if (!user?.current_business_id) return [];
+      return await base44.entities.Contact.filter({ business_id: user.current_business_id }, '-created_date', 500);
+    },
+    enabled: !!user?.current_business_id,
   });
 
   const { data: companies = [] } = useQuery({
-    queryKey: ['companies'],
-    queryFn: () => base44.entities.Company.list('-created_date', 200),
+    queryKey: ['companies', user?.current_business_id],
+    queryFn: async () => {
+      if (!user?.current_business_id) return [];
+      return await base44.entities.Company.filter({ business_id: user.current_business_id }, '-created_date', 200);
+    },
+    enabled: !!user?.current_business_id,
   });
 
   const { data: templates = [] } = useQuery({

@@ -7,10 +7,12 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Plus, Target } from "lucide-react";
 import DealCard from '@/components/crm/DealCard';
 import DealModal from '@/components/modals/DealModal';
+import DealDetailModal from '@/components/crm/DealDetailModal';
 import PipelineModal from '@/components/modals/PipelineModal';
 import EmptyState from '@/components/ui/EmptyState';
 import SalesFunnel from '@/components/crm/SalesFunnel';
 import StageDistribution from '@/components/crm/StageDistribution';
+import ConfirmDialog from '@/components/ui/ConfirmDialog';
 import { useToast } from '@/components/ui/toast-provider';
 
 const DEFAULT_STAGES = [
@@ -30,7 +32,10 @@ const STAGE_COLORS = [
 export default function Deals() {
   const [showPipelineModal, setShowPipelineModal] = useState(false);
   const [showDealModal, setShowDealModal] = useState(false);
+  const [showDealDetail, setShowDealDetail] = useState(false);
   const [editingDeal, setEditingDeal] = useState(null);
+  const [selectedDealId, setSelectedDealId] = useState(null);
+  const [deleteConfirm, setDeleteConfirm] = useState(null);
   const [draggedDeal, setDraggedDeal] = useState(null);
   const queryClient = useQueryClient();
   const toast = useToast();
@@ -51,31 +56,34 @@ export default function Deals() {
   const defaultPipeline = pipelines.find(p => p.is_default) || pipelines[0];
 
   const { data: allDeals = [], isLoading: loadingDeals } = useQuery({
-    queryKey: ['deals'],
+    queryKey: ['deals', user?.current_business_id],
     queryFn: async () => {
-      return await base44.entities.Deal.list('-created_date', 200);
+      if (!user?.current_business_id) return [];
+      return await base44.entities.Deal.filter({ business_id: user.current_business_id }, '-created_date', 200);
     },
-    enabled: !!user,
+    enabled: !!user?.current_business_id,
   });
 
   const deals = allDeals;
 
   const { data: allContacts = [] } = useQuery({
-    queryKey: ['contacts'],
+    queryKey: ['contacts', user?.current_business_id],
     queryFn: async () => {
-      return await base44.entities.Contact.list('-created_date', 500);
+      if (!user?.current_business_id) return [];
+      return await base44.entities.Contact.filter({ business_id: user.current_business_id }, '-created_date', 500);
     },
-    enabled: !!user,
+    enabled: !!user?.current_business_id,
   });
 
   const contacts = allContacts;
 
   const { data: allCompanies = [] } = useQuery({
-    queryKey: ['companies'],
+    queryKey: ['companies', user?.current_business_id],
     queryFn: async () => {
-      return await base44.entities.Company.list('-created_date', 200);
+      if (!user?.current_business_id) return [];
+      return await base44.entities.Company.filter({ business_id: user.current_business_id }, '-created_date', 200);
     },
-    enabled: !!user,
+    enabled: !!user?.current_business_id,
   });
 
   const companies = allCompanies;
@@ -88,7 +96,10 @@ export default function Deals() {
   });
 
   const createDealMutation = useMutation({
-    mutationFn: (data) => base44.entities.Deal.create(data),
+    mutationFn: (data) => base44.entities.Deal.create({
+      ...data,
+      business_id: user?.current_business_id,
+    }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['deals'] });
       setShowDealModal(false);
@@ -138,6 +149,11 @@ export default function Deals() {
     } else {
       createDealMutation.mutate(data);
     }
+  };
+
+  const handleViewDeal = (deal) => {
+    setSelectedDealId(deal.id);
+    setShowDealDetail(true);
   };
 
   const handleEditDeal = (deal) => {
@@ -251,7 +267,7 @@ export default function Deals() {
 
               <div className="space-y-3">
                 {getDealsForStage(stageId).map((deal) => (
-                  <div key={deal.id} onClick={() => handleEditDeal(deal)}>
+                  <div key={deal.id} onClick={() => handleViewDeal(deal)}>
                     <DealCard
                       deal={deal}
                       contact={getContact(deal.contact_id)}
@@ -276,6 +292,32 @@ export default function Deals() {
         companies={companies}
         onSave={handleSaveDeal}
         isLoading={createDealMutation.isPending || updateDealMutation.isPending}
+      />
+
+      {/* Deal Detail Modal */}
+      <DealDetailModal
+        open={showDealDetail}
+        onClose={() => { setShowDealDetail(false); setSelectedDealId(null); }}
+        dealId={selectedDealId}
+        onEdit={(deal) => {
+          setShowDealDetail(false);
+          handleEditDeal(deal);
+        }}
+        onDelete={(deal) => {
+          setShowDealDetail(false);
+          setDeleteConfirm(deal);
+        }}
+      />
+
+      {/* Delete Confirm */}
+      <ConfirmDialog
+        open={!!deleteConfirm}
+        onClose={() => setDeleteConfirm(null)}
+        onConfirm={() => deleteDealMutation.mutate(deleteConfirm.id)}
+        title="Delete Deal"
+        description={`Are you sure you want to delete "${deleteConfirm?.title}"?`}
+        confirmLabel="Delete"
+        isLoading={deleteDealMutation.isPending}
       />
 
       {/* Pipeline Modal */}

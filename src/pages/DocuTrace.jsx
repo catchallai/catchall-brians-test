@@ -36,18 +36,30 @@ export default function DocuTrace() {
   const queryClient = useQueryClient();
 
   const { data: documents = [], isLoading } = useQuery({
-    queryKey: ['tracked-documents'],
-    queryFn: () => base44.entities.TrackedDocument.list('-created_date', 100)
+    queryKey: ['tracked-documents', user?.current_business_id],
+    queryFn: async () => {
+      if (!user?.current_business_id) return [];
+      return await base44.entities.TrackedDocument.filter({ business_id: user.current_business_id }, '-created_date', 100);
+    },
+    enabled: !!user?.current_business_id,
   });
 
   const { data: contacts = [] } = useQuery({
-    queryKey: ['contacts'],
-    queryFn: () => base44.entities.Contact.list('first_name', 100)
+    queryKey: ['contacts', user?.current_business_id],
+    queryFn: async () => {
+      if (!user?.current_business_id) return [];
+      return await base44.entities.Contact.filter({ business_id: user.current_business_id }, 'first_name', 100);
+    },
+    enabled: !!user?.current_business_id,
   });
 
   const { data: deals = [] } = useQuery({
-    queryKey: ['deals'],
-    queryFn: () => base44.entities.Deal.list('title', 100)
+    queryKey: ['deals', user?.current_business_id],
+    queryFn: async () => {
+      if (!user?.current_business_id) return [];
+      return await base44.entities.Deal.filter({ business_id: user.current_business_id }, 'title', 100);
+    },
+    enabled: !!user?.current_business_id,
   });
 
   const { data: user } = useQuery({
@@ -104,6 +116,7 @@ Provide:
       // Create document record
       return base44.entities.TrackedDocument.create({
         ...docForm,
+        business_id: user?.current_business_id,
         file_url,
         tracking_code: trackingCode,
         share_link: shareLink,

@@ -16,23 +16,39 @@ export default function CRMDashboard() {
   });
 
   const { data: contacts = [], isLoading: loadingContacts } = useQuery({
-    queryKey: ['contacts'],
-    queryFn: () => base44.entities.Contact.list('-created_date', 500),
+    queryKey: ['contacts', user?.current_business_id],
+    queryFn: async () => {
+      if (!user?.current_business_id) return [];
+      return await base44.entities.Contact.filter({ business_id: user.current_business_id }, '-created_date', 500);
+    },
+    enabled: !!user?.current_business_id,
   });
 
   const { data: companies = [], isLoading: loadingCompanies } = useQuery({
-    queryKey: ['companies'],
-    queryFn: () => base44.entities.Company.list('-created_date', 200),
+    queryKey: ['companies', user?.current_business_id],
+    queryFn: async () => {
+      if (!user?.current_business_id) return [];
+      return await base44.entities.Company.filter({ business_id: user.current_business_id }, '-created_date', 200);
+    },
+    enabled: !!user?.current_business_id,
   });
 
   const { data: opportunities = [], isLoading: loadingOpportunities } = useQuery({
-    queryKey: ['opportunities'],
-    queryFn: () => base44.entities.Opportunity.list('-created_date', 200),
+    queryKey: ['opportunities', user?.current_business_id],
+    queryFn: async () => {
+      if (!user?.current_business_id) return [];
+      return await base44.entities.Opportunity.filter({ business_id: user.current_business_id }, '-created_date', 200);
+    },
+    enabled: !!user?.current_business_id,
   });
 
   const { data: deals = [], isLoading: loadingDeals } = useQuery({
-    queryKey: ['deals'],
-    queryFn: () => base44.entities.Deal.list('-created_date', 200),
+    queryKey: ['deals', user?.current_business_id],
+    queryFn: async () => {
+      if (!user?.current_business_id) return [];
+      return await base44.entities.Deal.filter({ business_id: user.current_business_id }, '-created_date', 200);
+    },
+    enabled: !!user?.current_business_id,
   });
 
   const isLoading = loadingContacts || loadingCompanies || loadingOpportunities || loadingDeals;

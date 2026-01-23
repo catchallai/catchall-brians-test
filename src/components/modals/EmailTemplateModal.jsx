@@ -74,13 +74,6 @@ export default function EmailTemplateModal({ open, onClose, template, onSave, is
     onSave(formData);
   };
 
-  const insertVariable = (tag) => {
-    setFormData(prev => ({
-      ...prev,
-      body: prev.body + tag
-    }));
-  };
-
   const copyVariable = (tag) => {
     navigator.clipboard.writeText(tag);
     setCopied(tag);

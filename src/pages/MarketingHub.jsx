@@ -21,14 +21,27 @@ import ReEngagementPanel from '@/components/marketing/ReEngagementPanel';
 import MarketingROIPanel from '@/components/marketing/MarketingROIPanel';
 
 export default function MarketingHub() {
+  const { data: user } = useQuery({
+    queryKey: ['current-user'],
+    queryFn: () => base44.auth.me(),
+  });
+
   const { data: contacts = [] } = useQuery({
-    queryKey: ['contacts'],
-    queryFn: () => base44.entities.Contact.list('-created_date', 500),
+    queryKey: ['contacts', user?.current_business_id],
+    queryFn: async () => {
+      if (!user?.current_business_id) return [];
+      return await base44.entities.Contact.filter({ business_id: user.current_business_id }, '-created_date', 500);
+    },
+    enabled: !!user?.current_business_id,
   });
 
   const { data: deals = [] } = useQuery({
-    queryKey: ['deals'],
-    queryFn: () => base44.entities.Deal.list('-created_date', 200),
+    queryKey: ['deals', user?.current_business_id],
+    queryFn: async () => {
+      if (!user?.current_business_id) return [];
+      return await base44.entities.Deal.filter({ business_id: user.current_business_id }, '-created_date', 200);
+    },
+    enabled: !!user?.current_business_id,
   });
 
   const { data: leadScores = [] } = useQuery({

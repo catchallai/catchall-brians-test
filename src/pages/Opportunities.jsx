@@ -6,11 +6,12 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Plus, Grid3x3, List, Filter, Upload, Download, Search, X } from "lucide-react";
+import { Plus, Grid3x3, List, Filter, Upload, Search, X } from "lucide-react";
 import OpportunityCard from '@/components/crm/OpportunityCard';
 import OpportunityModal from '@/components/modals/OpportunityModal';
 import PipelineKanban from '@/components/crm/PipelineKanban';
 import BulkActionsPanel from '@/components/crm/BulkActionsPanel';
+import ExportDataMenu from '@/components/crm/ExportDataMenu';
 import EmptyState from '@/components/ui/EmptyState';
 import { useDebounce } from '@/components/hooks/useDebounce';
 import { useToast } from '@/components/ui/toast-provider';
@@ -161,10 +162,20 @@ export default function Opportunities() {
             <Upload className="w-4 h-4" />
             Import
           </Button>
-          <Button variant="outline" className="gap-2 text-sm" size="sm">
-            <Download className="w-4 h-4" />
-            Export
-          </Button>
+          <ExportDataMenu
+            data={filteredOpportunities}
+            entityName="Opportunities"
+            fields={[
+              { key: 'title', label: 'Opportunity Name' },
+              { key: 'contact_name', label: 'Contact Name' },
+              { key: 'contact_email', label: 'Email' },
+              { key: 'contact_phone', label: 'Phone' },
+              { key: 'stage', label: 'Stage' },
+              { key: 'value', label: 'Value' },
+              { key: 'source', label: 'Source' },
+              { key: 'notes', label: 'Notes' },
+            ]}
+          />
           <Button onClick={() => { setEditingOpportunity(null); setShowModal(true); }} className="gap-2 bg-violet-600 hover:bg-violet-700">
             <Plus className="w-4 h-4" />
             Add opportunity

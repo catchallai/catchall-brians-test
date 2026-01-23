@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Building2, Mail, Phone } from "lucide-react";
 
-export default function ContactCard({ contact, company, onClick }) {
+export default function ContactCard({ contact, company, onClick, isSelected }) {
   const statusColors = {
     lead: "bg-blue-100 text-blue-700 border-blue-200",
     prospect: "bg-amber-100 text-amber-700 border-amber-200",

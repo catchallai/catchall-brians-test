@@ -177,9 +177,18 @@ export default function EmailMarketing() {
     queryFn: () => base44.entities.Campaign.list('-created_date', 200),
   });
 
+  const { data: user } = useQuery({
+    queryKey: ['current-user'],
+    queryFn: () => base44.auth.me(),
+  });
+
   const { data: contacts = [] } = useQuery({
-    queryKey: ['contacts'],
-    queryFn: () => base44.entities.Contact.list('-created_date', 1000),
+    queryKey: ['contacts', user?.current_business_id],
+    queryFn: async () => {
+      if (!user?.current_business_id) return [];
+      return await base44.entities.Contact.filter({ business_id: user.current_business_id }, '-created_date', 1000);
+    },
+    enabled: !!user?.current_business_id,
   });
 
   const { data: dripCampaigns = [], isLoading: loadingDrips } = useQuery({
