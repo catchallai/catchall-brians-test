@@ -145,6 +145,32 @@ export default function EmailContactModal({ open, onClose, contact, businessId }
           </div>
         ) : (
           <div className="space-y-4">
+            {/* Template Selection */}
+            {emailTemplates.length > 0 && (
+              <div>
+                <label className="text-sm font-medium mb-2 block">Use Template (Optional)</label>
+                <div className="grid grid-cols-2 gap-2 max-h-32 overflow-y-auto p-2 border rounded-lg bg-gray-50 dark:bg-gray-800">
+                  {emailTemplates.map((template) => (
+                    <button
+                      key={template.id}
+                      onClick={() => handleSelectTemplate(template)}
+                      className={`p-2 rounded text-left text-xs transition-colors ${
+                        selectedTemplate?.id === template.id
+                          ? 'bg-violet-100 dark:bg-violet-900 border border-violet-500'
+                          : 'bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 hover:border-violet-400'
+                      }`}
+                    >
+                      <div className="flex items-center gap-1 font-medium truncate">
+                        <FileText className="w-3 h-3" />
+                        {template.name}
+                      </div>
+                      <div className="text-gray-500 dark:text-gray-400 truncate text-xs mt-0.5">{template.subject}</div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* From Account */}
             <div>
               <label className="text-sm font-medium">From Account *</label>
