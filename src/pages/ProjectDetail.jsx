@@ -8,8 +8,8 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Plus, Edit2, Trash2, CheckCircle2, Circle } from "lucide-react";
-import TaskModal from '@/components/modals/TaskModal';
-import MilestoneModal from '@/components/modals/MilestoneModal';
+import TaskModal from '@/components/modals/TaskModal.jsx';
+import MilestoneModal from '@/components/modals/MilestoneModal.jsx';
 
 export default function ProjectDetail() {
   const [searchParams] = useSearchParams();
