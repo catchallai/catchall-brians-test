@@ -16,6 +16,7 @@ import Pagination from '@/components/ui/Pagination';
 import BulkActions from '@/components/ui/BulkActions';
 import ImportDialog from '@/components/ui/ImportDialog';
 import ConfirmDialog from '@/components/ui/ConfirmDialog';
+import ContactBulkActionsPanel from '@/components/crm/ContactBulkActionsPanel';
 import { useDebounce } from '@/components/hooks/useDebounce';
 import { exportToCSV } from '@/components/utils/exportData';
 import { useToast } from '@/components/ui/toast-provider';
@@ -636,27 +637,74 @@ export default function Contacts() {
       )}
 
       {/* Bulk Actions */}
-      <BulkActions
-        selectedCount={selectedIds.length}
-        totalCount={filteredContacts.length}
-        isAllSelected={selectedIds.length === filteredContacts.length && filteredContacts.length > 0}
-        onSelectAll={() => setSelectedIds(filteredContacts.map(c => c.id))}
-        onDeselectAll={() => setSelectedIds([])}
-        onDelete={showDeleted ? undefined : () => setShowDeleteConfirm(true)}
-        onExport={handleExport}
-      >
-        {showDeleted && selectedIds.length > 0 && (
-          <Button
-            onClick={() => restoreMutation.mutate(selectedIds)}
-            disabled={restoreMutation.isPending}
-            className="gap-2 bg-green-600 hover:bg-green-700"
-            size="sm"
-          >
-            <RotateCcw className="w-4 h-4" />
-            Restore ({selectedIds.length})
-          </Button>
-        )}
-      </BulkActions>
+      {selectedIds.length > 0 && (
+       <div className="glass-card p-4 rounded-xl space-y-4">
+         <div className="flex items-center justify-between">
+           <div className="flex items-center gap-4">
+             <span className="font-semibold text-gray-900 dark:text-white">
+               {selectedIds.length} contact{selectedIds.length !== 1 ? 's' : ''} selected
+             </span>
+             {selectedIds.length < filteredContacts.length && (
+               <Button
+                 variant="ghost"
+                 size="sm"
+                 onClick={() => setSelectedIds(filteredContacts.map(c => c.id))}
+                 className="text-sm text-violet-600 hover:text-violet-700"
+               >
+                 Select all {filteredContacts.length}
+               </Button>
+             )}
+           </div>
+           <Button
+             variant="ghost"
+             size="sm"
+             onClick={() => setSelectedIds([])}
+             className="text-gray-600 hover:text-gray-700"
+           >
+             <X className="w-4 h-4" />
+           </Button>
+         </div>
+
+         <div className="flex flex-wrap gap-3 items-center">
+           {!showDeleted && (
+             <ContactBulkActionsPanel
+               selectedContactIds={selectedIds}
+               contacts={contacts}
+               user={user}
+               onComplete={() => setSelectedIds([])}
+             />
+           )}
+           <Button
+             variant="outline"
+             size="sm"
+             onClick={handleExport}
+             className="gap-2"
+           >
+             <Download className="w-4 h-4" />
+             Export
+           </Button>
+           {showDeleted && selectedIds.length > 0 && (
+             <Button
+               onClick={() => restoreMutation.mutate(selectedIds)}
+               disabled={restoreMutation.isPending}
+               className="gap-2 bg-green-600 hover:bg-green-700"
+               size="sm"
+             >
+               <RotateCcw className="w-4 h-4" />
+               Restore
+             </Button>
+           )}
+           <Button
+             variant="outline"
+             size="sm"
+             onClick={() => setShowDeleteConfirm(true)}
+             className="gap-2 text-red-600 hover:text-red-700 border-red-200 hover:border-red-300"
+           >
+             Delete
+           </Button>
+         </div>
+       </div>
+      )}
 
       {/* Modal */}
       <ContactModal
