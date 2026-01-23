@@ -6,6 +6,8 @@ import { Badge } from "@/components/ui/badge";
 import { formatDistanceToNow } from 'date-fns';
 import { MessageSquare, CheckCircle, Plus, Edit, AlertCircle, AtSign } from "lucide-react";
 
+import { Mail } from "lucide-react";
+
 const activityIcons = {
   created: Plus,
   updated: Edit,
@@ -13,6 +15,7 @@ const activityIcons = {
   status_changed: CheckCircle,
   assigned: CheckCircle,
   mentioned: AtSign,
+  email_sent: Mail,
 };
 
 const activityColors = {
@@ -22,6 +25,7 @@ const activityColors = {
   status_changed: 'bg-amber-100 text-amber-800',
   assigned: 'bg-pink-100 text-pink-800',
   mentioned: 'bg-orange-100 text-orange-800',
+  email_sent: 'bg-blue-100 text-blue-800',
 };
 
 export default function ActivityFeed({ entityType, entityId }) {
@@ -106,6 +110,19 @@ export default function ActivityFeed({ entityType, entityId }) {
                       <span className="text-xs text-orange-600 dark:text-orange-400">
                         Mentioned: {activity.mentions.join(', ')}
                       </span>
+                    </div>
+                  )}
+                  {activity.activity_type === 'email_sent' && activity.metadata && (
+                    <div className="mt-3 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                      <p className="text-xs font-medium text-gray-900 dark:text-white mb-1">
+                        <strong>Subject:</strong> {activity.metadata.subject}
+                      </p>
+                      <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">
+                        <strong>To:</strong> {activity.metadata.to}
+                      </p>
+                      <div className="text-xs text-gray-600 dark:text-gray-400 mt-2 max-h-24 overflow-y-auto">
+                        <div dangerouslySetInnerHTML={{ __html: activity.description }} />
+                      </div>
                     </div>
                   )}
                 </div>
