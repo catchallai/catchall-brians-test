@@ -17,6 +17,7 @@ import EmailCampaignModal from '@/components/modals/EmailCampaignModal';
 import DripCampaignModal from '@/components/modals/DripCampaignModal';
 import CampaignPreview from '@/components/email/CampaignPreview';
 import EmptyState from '@/components/ui/EmptyState';
+import EmailAnalyticsDashboard from '@/components/email/EmailAnalyticsDashboard';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -447,6 +448,10 @@ export default function EmailMarketing() {
               ))}
             </div>
           )}
+        </TabsContent>
+
+        <TabsContent value="analytics" className="space-y-6">
+          <EmailAnalyticsDashboard businessId={user?.current_business_id} />
         </TabsContent>
 
         <TabsContent value="statistics" className="space-y-6">
