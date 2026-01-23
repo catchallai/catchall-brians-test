@@ -15,6 +15,7 @@ import EmailCampaignCard from '@/components/email/EmailCampaignCard';
 import EmailTemplateModal from '@/components/modals/EmailTemplateModal';
 import EmailCampaignModal from '@/components/modals/EmailCampaignModal';
 import DripCampaignModal from '@/components/modals/DripCampaignModal';
+import CampaignPreview from '@/components/email/CampaignPreview';
 import EmptyState from '@/components/ui/EmptyState';
 import {
   AlertDialog,
@@ -36,6 +37,8 @@ export default function EmailMarketing() {
   const [showDripModal, setShowDripModal] = useState(false);
   const [sendConfirm, setSendConfirm] = useState(null);
   const [viewMode, setViewMode] = useState('list');
+  const [showPreview, setShowPreview] = useState(false);
+  const [previewCampaign, setPreviewCampaign] = useState(null);
   const queryClient = useQueryClient();
 
   const { data: templates = [], isLoading: loadingTemplates } = useQuery({
@@ -281,6 +284,11 @@ export default function EmailMarketing() {
     setShowCampaignModal(true);
   };
 
+  const handlePreviewCampaign = (campaign) => {
+    setPreviewCampaign(campaign);
+    setShowPreview(true);
+  };
+
   const createDripMutation = useMutation({
     mutationFn: (data) => base44.entities.EmailDripCampaign.create(data),
     onSuccess: () => {
@@ -405,22 +413,36 @@ export default function EmailMarketing() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {emailCampaigns.map((emailCampaign) => (
-                <div key={emailCampaign.id} className="relative">
-                  <EmailCampaignCard
-                    emailCampaign={emailCampaign}
-                    template={templates.find(t => t.id === emailCampaign.template_id)}
-                    onClick={() => handleEditCampaign(emailCampaign)}
-                  />
+                <div key={emailCampaign.id} className="relative group">
+                <EmailCampaignCard
+                  emailCampaign={emailCampaign}
+                  template={templates.find(t => t.id === emailCampaign.template_id)}
+                  onClick={() => handleEditCampaign(emailCampaign)}
+                />
+                <div className="absolute bottom-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="gap-1 bg-white"
+                    onClick={(e) => { 
+                      e.stopPropagation(); 
+                      handlePreviewCampaign(emailCampaign);
+                    }}
+                  >
+                    <Eye className="w-3 h-3" />
+                    Preview
+                  </Button>
                   {emailCampaign.status === 'draft' && emailCampaign.contact_ids?.length > 0 && (
                     <Button
                       size="sm"
-                      className="absolute bottom-4 right-4 gap-1 bg-emerald-600 hover:bg-emerald-700"
+                      className="gap-1 bg-emerald-600 hover:bg-emerald-700"
                       onClick={(e) => { e.stopPropagation(); setSendConfirm(emailCampaign); }}
                     >
                       <Send className="w-3 h-3" />
                       Send
                     </Button>
                   )}
+                </div>
                 </div>
               ))}
             </div>
@@ -859,6 +881,14 @@ export default function EmailMarketing() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Campaign Preview */}
+      <CampaignPreview
+        open={showPreview}
+        onClose={() => setShowPreview(false)}
+        template={templates.find(t => t.id === previewCampaign?.template_id)}
+        sampleContact={contacts[0]}
+      />
     </div>
   );
 }
