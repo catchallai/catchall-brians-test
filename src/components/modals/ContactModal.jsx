@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Loader2 } from "lucide-react";
 
-export default function ContactModal({ open, onClose, contact, companies, onSave, isLoading }) {
+export default function ContactModal({ open, onClose, contact, companies, onSave, isLoading, allowMultipleCompanies = false }) {
   const [formData, setFormData] = useState({
     company_name: '',
     first_name: '',
@@ -16,6 +16,7 @@ export default function ContactModal({ open, onClose, contact, companies, onSave
     email: '',
     phone: '',
     company_id: '',
+    company_ids: [],
     job_title: '',
     linkedin_url: '',
     status: 'lead',
@@ -33,6 +34,7 @@ export default function ContactModal({ open, onClose, contact, companies, onSave
         email: contact.email || '',
         phone: contact.phone || '',
         company_id: contact.company_id || '',
+        company_ids: contact.company_ids || [],
         job_title: contact.job_title || '',
         linkedin_url: contact.linkedin_url || '',
         status: contact.status || 'lead',
@@ -47,6 +49,7 @@ export default function ContactModal({ open, onClose, contact, companies, onSave
         email: '',
         phone: '',
         company_id: '',
+        company_ids: [],
         job_title: '',
         linkedin_url: '',
         status: 'lead',
@@ -155,9 +158,9 @@ export default function ContactModal({ open, onClose, contact, companies, onSave
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className={`${allowMultipleCompanies ? 'space-y-4' : 'grid grid-cols-2 gap-4'}`}>
             <div className="space-y-2">
-              <Label>Company</Label>
+              <Label>Company {allowMultipleCompanies ? '(Primary)' : ''}</Label>
               <Select
                 value={formData.company_id}
                 onValueChange={(value) => setFormData({ ...formData, company_id: value })}
@@ -192,6 +195,37 @@ export default function ContactModal({ open, onClose, contact, companies, onSave
               </Select>
             </div>
           </div>
+
+          {allowMultipleCompanies && (
+            <div className="space-y-2">
+              <Label>Link to Additional Companies</Label>
+              <div className="grid grid-cols-2 gap-2">
+                {companies?.map((company) => (
+                  <label key={company.id} className="flex items-center gap-2 cursor-pointer p-2 hover:bg-gray-50 dark:hover:bg-gray-800 rounded">
+                    <input
+                      type="checkbox"
+                      checked={formData.company_ids?.includes(company.id) || false}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          setFormData({
+                            ...formData,
+                            company_ids: [...(formData.company_ids || []), company.id]
+                          });
+                        } else {
+                          setFormData({
+                            ...formData,
+                            company_ids: (formData.company_ids || []).filter(id => id !== company.id)
+                          });
+                        }
+                      }}
+                      className="rounded"
+                    />
+                    <span className="text-sm">{company.name}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+          )}
 
           <div className="space-y-2">
             <Label>Source</Label>
