@@ -44,6 +44,39 @@ export default function EmailContactModal({ open, onClose, contact, businessId }
     },
   });
 
+  const { data: emailTemplates = [] } = useQuery({
+    queryKey: ['email-templates'],
+    queryFn: () => base44.entities.EmailTemplate.list('-created_date', 100),
+  });
+
+  const renderWithVariables = (text) => {
+    if (!text) return '';
+    let result = text;
+    
+    const variables = {
+      first_name: contact?.first_name || SAMPLE_DATA.first_name,
+      last_name: contact?.last_name || SAMPLE_DATA.last_name,
+      email: contact?.email || SAMPLE_DATA.email,
+      company_name: contact?.company_name || SAMPLE_DATA.company_name,
+      job_title: contact?.job_title || SAMPLE_DATA.job_title,
+    };
+
+    Object.entries(variables).forEach(([key, value]) => {
+      result = result.replace(new RegExp(`\\{\\{${key}\\}\\}`, 'g'), value);
+    });
+
+    return result;
+  };
+
+  const handleSelectTemplate = (template) => {
+    setSelectedTemplate(template);
+    setFormData({
+      ...formData,
+      subject: renderWithVariables(template.subject),
+      body: renderWithVariables(template.body),
+    });
+  };
+
   const sendEmailMutation = useMutation({
     mutationFn: async (data) => {
       // Call backend function to send email
