@@ -124,33 +124,8 @@ export default function EmailTemplateModal({ open, onClose, template, onSave, is
     const previewSubject = getPreviewContent(formData.subject);
     const previewBody = getPreviewContent(formData.body);
 
-    const layoutStyles = {
-      minimal: {
-        container: 'bg-white p-6 max-w-lg mx-auto',
-        header: '',
-        body: 'text-gray-700 whitespace-pre-wrap',
-      },
-      branded: {
-        container: 'bg-white max-w-lg mx-auto overflow-hidden rounded-lg shadow',
-        header: 'bg-gradient-to-r from-violet-600 to-purple-600 p-6 text-white text-center',
-        body: 'p-6 text-gray-700 whitespace-pre-wrap',
-      },
-      newsletter: {
-        container: 'bg-gray-100 p-4',
-        header: 'bg-white rounded-t-lg p-6 border-b-4 border-violet-600',
-        body: 'bg-white rounded-b-lg p-6 text-gray-700 whitespace-pre-wrap',
-      },
-      promotional: {
-        container: 'bg-gradient-to-br from-violet-50 to-purple-50 p-4',
-        header: 'bg-white rounded-lg shadow-lg p-6 mb-4 text-center',
-        body: 'bg-white rounded-lg shadow p-6 text-gray-700 whitespace-pre-wrap',
-      },
-    };
-
-    const style = layoutStyles[formData.layout] || layoutStyles.minimal;
-
     return (
-      <div className="border rounded-lg overflow-hidden bg-gray-50">
+      <div className="border rounded-lg overflow-hidden bg-white">
         <div className="bg-gray-100 px-4 py-2 border-b flex items-center gap-2">
           <div className="flex gap-1">
             <div className="w-3 h-3 rounded-full bg-red-400" />
@@ -159,22 +134,13 @@ export default function EmailTemplateModal({ open, onClose, template, onSave, is
           </div>
           <span className="text-xs text-gray-500 ml-2">Email Preview</span>
         </div>
-        <div className="p-4 bg-gray-200 min-h-[300px]">
-          <div className={style.container}>
-            {style.header && (
-              <div className={style.header}>
-                <h2 className="font-bold text-lg">{previewSubject || 'Subject Line'}</h2>
-              </div>
-            )}
-            {!style.header && (
-              <div className="mb-4 pb-4 border-b">
-                <p className="text-xs text-gray-500">Subject:</p>
-                <p className="font-semibold text-gray-900">{previewSubject || 'Subject Line'}</p>
-              </div>
-            )}
-            <div className={style.body}>
-              {previewBody || 'Your email content will appear here...'}
+        <div className="p-6 bg-gray-100 min-h-[400px] overflow-auto">
+          <div className="bg-white rounded-lg shadow-sm p-6 max-w-2xl mx-auto">
+            <div className="mb-4 pb-4 border-b">
+              <p className="text-xs text-gray-500 mb-1">Subject:</p>
+              <p className="font-semibold text-gray-900">{previewSubject || 'Subject Line'}</p>
             </div>
+            <div className="prose prose-sm max-w-none dark:prose-invert" dangerouslySetInnerHTML={{ __html: previewBody || '<p>Your email content will appear here...</p>' }} />
           </div>
         </div>
         <div className="bg-gray-100 px-4 py-2 border-t">
