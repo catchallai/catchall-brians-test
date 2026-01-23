@@ -4,7 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Plus, Target } from "lucide-react";
+import { Plus, Target, BarChart3, Zap } from "lucide-react";
 import DealCard from '@/components/crm/DealCard';
 import DealModal from '@/components/modals/DealModal';
 import DealDetailModal from '@/components/crm/DealDetailModal';
@@ -14,6 +14,10 @@ import SalesFunnel from '@/components/crm/SalesFunnel';
 import StageDistribution from '@/components/crm/StageDistribution';
 import ConfirmDialog from '@/components/ui/ConfirmDialog';
 import { useToast } from '@/components/ui/toast-provider';
+import DealKanbanBoard from '@/components/sales/DealKanbanBoard';
+import DealForecasting from '@/components/sales/DealForecasting';
+import DealAutomationRules from '@/components/sales/DealAutomationRules';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const DEFAULT_STAGES = [
   { id: 'lead', label: 'Lead', color: 'bg-gray-100' },
@@ -37,6 +41,7 @@ export default function Deals() {
   const [selectedDealId, setSelectedDealId] = useState(null);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
   const [draggedDeal, setDraggedDeal] = useState(null);
+  const [activeTab, setActiveTab] = useState('kanban');
   const queryClient = useQueryClient();
   const toast = useToast();
 
@@ -228,59 +233,61 @@ export default function Deals() {
         </div>
       </div>
 
-      {/* Funnel & Distribution */}
-      {deals.length > 0 && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <SalesFunnel deals={deals} />
-          <StageDistribution deals={deals} />
-        </div>
-      )}
-
-      {/* Pipeline */}
+      {/* Tabs */}
       {deals.length === 0 ? (
         <EmptyState
           icon={Target}
-          title="No pipelines yet"
-          description="Create a pipeline to start managing deals."
+          title="No deals yet"
+          description="Create your first deal to start managing your pipeline."
         />
       ) : (
-        <div className="flex gap-3 sm:gap-4 overflow-x-auto pb-4 -mx-4 px-4 sm:mx-0 sm:px-0">
-          {(defaultPipeline?.stages || DEFAULT_STAGES).map((stage, index) => {
-            const stageId = stage.id;
-            const stageName = stage.name || stage.label;
-            const stageColor = stage.color || STAGE_COLORS[index % STAGE_COLORS.length];
-            return (
-            <div
-              key={stageId}
-              className={`min-w-[260px] sm:min-w-[300px] max-w-[260px] sm:max-w-[300px] rounded-xl ${stageColor} p-3 sm:p-4`}
-              onDragOver={handleDragOver}
-              onDrop={(e) => handleDrop(e, stageId)}
-            >
-              <div className="flex items-center justify-between mb-4">
-                <div>
-                  <h3 className="font-semibold text-gray-900">{stageName}</h3>
-                  <p className="text-sm text-gray-500">
-                    {getDealsForStage(stageId).length} deals • {formatCurrency(getStageValue(stageId))}
-                  </p>
-                </div>
-              </div>
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="grid w-full max-w-md grid-cols-3">
+            <TabsTrigger value="kanban" className="gap-2">
+              <Target className="w-4 h-4" />
+              Pipeline
+            </TabsTrigger>
+            <TabsTrigger value="forecast" className="gap-2">
+              <BarChart3 className="w-4 h-4" />
+              Forecast
+            </TabsTrigger>
+            <TabsTrigger value="automation" className="gap-2">
+              <Zap className="w-4 h-4" />
+              Automation
+            </TabsTrigger>
+          </TabsList>
 
-              <div className="space-y-3">
-                {getDealsForStage(stageId).map((deal) => (
-                  <div key={deal.id} onClick={() => handleViewDeal(deal)}>
-                    <DealCard
-                      deal={deal}
-                      contact={getContact(deal.contact_id)}
-                      onDragStart={handleDragStart}
-                      onDragEnd={() => setDraggedDeal(null)}
-                    />
-                  </div>
-                ))}
-              </div>
+          {/* Kanban View */}
+          <TabsContent value="kanban" className="mt-6">
+            {/* Funnel & Distribution */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+              <SalesFunnel deals={deals} />
+              <StageDistribution deals={deals} />
             </div>
-          );
-          })}
-        </div>
+
+            {/* Kanban Board */}
+            <DealKanbanBoard
+              deals={deals}
+              stages={defaultPipeline?.stages || DEFAULT_STAGES}
+              stageColors={STAGE_COLORS}
+              onDragStart={handleDragStart}
+              onDragOver={handleDragOver}
+              onDrop={handleDrop}
+              onViewDeal={handleViewDeal}
+              getContact={getContact}
+            />
+          </TabsContent>
+
+          {/* Forecast View */}
+          <TabsContent value="forecast" className="mt-6">
+            <DealForecasting deals={deals} />
+          </TabsContent>
+
+          {/* Automation View */}
+          <TabsContent value="automation" className="mt-6">
+            <DealAutomationRules businessId={user?.current_business_id} />
+          </TabsContent>
+        </Tabs>
       )}
 
       {/* Deal Modal */}
