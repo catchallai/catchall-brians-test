@@ -7,9 +7,17 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
-import { Bold, Italic, List, Send, Loader2, Check } from "lucide-react";
+import { Bold, Italic, List, Send, Loader2, Check, FileText } from "lucide-react";
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
+
+const SAMPLE_DATA = {
+  first_name: 'John',
+  last_name: 'Smith',
+  email: 'john@example.com',
+  company_name: 'Acme Corp',
+  job_title: 'Marketing Manager',
+};
 
 export default function EmailContactModal({ open, onClose, contact, businessId }) {
   const [formData, setFormData] = useState({
@@ -19,6 +27,7 @@ export default function EmailContactModal({ open, onClose, contact, businessId }
     body: '',
   });
   const [showSuccess, setShowSuccess] = useState(false);
+  const [selectedTemplate, setSelectedTemplate] = useState(null);
   const queryClient = useQueryClient();
 
   const { data: user } = useQuery({
