@@ -40,6 +40,8 @@ export default function EmailMarketing() {
   const [viewMode, setViewMode] = useState('list');
   const [showPreview, setShowPreview] = useState(false);
   const [previewCampaign, setPreviewCampaign] = useState(null);
+  const [deleteConfirm, setDeleteConfirm] = useState(null);
+  const [testEmail, setTestEmail] = useState(null);
   const queryClient = useQueryClient();
 
   const { data: templates = [], isLoading: loadingTemplates } = useQuery({
@@ -241,6 +243,22 @@ export default function EmailMarketing() {
     },
   });
 
+  const deleteCampaignMutation = useMutation({
+    mutationFn: (id) => base44.entities.EmailCampaign.delete(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['email-campaigns'] });
+      setDeleteConfirm(null);
+    },
+  });
+
+  const deleteTemplateMutation = useMutation({
+    mutationFn: (id) => base44.entities.EmailTemplate.delete(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['email-templates'] });
+      setDeleteConfirm(null);
+    },
+  });
+
   const sendCampaignMutation = useMutation({
     mutationFn: async (emailCampaign) => {
       // Update campaign status to sending
@@ -256,6 +274,20 @@ export default function EmailMarketing() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['email-campaigns'] });
       setSendConfirm(null);
+    },
+  });
+
+  const testEmailMutation = useMutation({
+    mutationFn: async (data) => {
+      const response = await base44.functions.invoke('testSendEmail', {
+        to: data.testEmail,
+        templateId: data.templateId,
+        campaignId: data.campaignId,
+      });
+      return response.data;
+    },
+    onSuccess: () => {
+      setTestEmail(null);
     },
   });
 
@@ -414,39 +446,66 @@ export default function EmailMarketing() {
             />
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {emailCampaigns.map((emailCampaign) => (
-                <div key={emailCampaign.id} className="relative group">
-                <EmailCampaignCard
-                  emailCampaign={emailCampaign}
-                  template={templates.find(t => t.id === emailCampaign.template_id)}
-                  onClick={() => handleEditCampaign(emailCampaign)}
-                />
-                <div className="absolute bottom-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="gap-1 bg-white"
-                    onClick={(e) => { 
-                      e.stopPropagation(); 
-                      handlePreviewCampaign(emailCampaign);
-                    }}
-                  >
-                    <Eye className="w-3 h-3" />
-                    Preview
-                  </Button>
-                  {emailCampaign.status === 'draft' && emailCampaign.contact_ids?.length > 0 && (
-                    <Button
-                      size="sm"
-                      className="gap-1 bg-emerald-600 hover:bg-emerald-700"
-                      onClick={(e) => { e.stopPropagation(); setSendConfirm(emailCampaign); }}
-                    >
-                      <Send className="w-3 h-3" />
-                      Send
-                    </Button>
-                  )}
-                </div>
-                </div>
-              ))}
+               {emailCampaigns.map((emailCampaign) => (
+                 <div key={emailCampaign.id} className="relative group">
+                 <EmailCampaignCard
+                   emailCampaign={emailCampaign}
+                   template={templates.find(t => t.id === emailCampaign.template_id)}
+                   onClick={() => handleEditCampaign(emailCampaign)}
+                 />
+                 <div className="absolute bottom-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                   <Button
+                     size="sm"
+                     variant="outline"
+                     className="gap-1 bg-white"
+                     onClick={(e) => { 
+                       e.stopPropagation(); 
+                       handlePreviewCampaign(emailCampaign);
+                     }}
+                   >
+                     <Eye className="w-3 h-3" />
+                     Preview
+                   </Button>
+                   {emailCampaign.status === 'draft' && (
+                     <>
+                       <Button
+                         size="sm"
+                         variant="outline"
+                         className="gap-1 bg-white"
+                         onClick={(e) => { 
+                           e.stopPropagation(); 
+                           setTestEmail(emailCampaign);
+                         }}
+                       >
+                         <Mail className="w-3 h-3" />
+                         Test
+                       </Button>
+                       {emailCampaign.contact_ids?.length > 0 && (
+                         <Button
+                           size="sm"
+                           className="gap-1 bg-emerald-600 hover:bg-emerald-700"
+                           onClick={(e) => { e.stopPropagation(); setSendConfirm(emailCampaign); }}
+                         >
+                           <Send className="w-3 h-3" />
+                           Send
+                         </Button>
+                       )}
+                     </>
+                   )}
+                   <Button
+                     size="sm"
+                     variant="outline"
+                     className="gap-1 bg-white text-red-600 hover:bg-red-50"
+                     onClick={(e) => { 
+                       e.stopPropagation(); 
+                       setDeleteConfirm({ type: 'campaign', id: emailCampaign.id, name: emailCampaign.name });
+                     }}
+                   >
+                     Delete
+                   </Button>
+                 </div>
+                 </div>
+               ))}
             </div>
           )}
         </TabsContent>
@@ -815,11 +874,25 @@ export default function EmailMarketing() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {templates.map((template) => (
-                <EmailTemplateCard
-                  key={template.id}
-                  template={template}
-                  onClick={() => handleEditTemplate(template)}
-                />
+                <div key={template.id} className="relative group">
+                  <EmailTemplateCard
+                    template={template}
+                    onClick={() => handleEditTemplate(template)}
+                  />
+                  <div className="absolute bottom-2 right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="gap-1 bg-white text-red-600 hover:bg-red-50"
+                      onClick={(e) => { 
+                        e.stopPropagation(); 
+                        setDeleteConfirm({ type: 'template', id: template.id, name: template.name });
+                      }}
+                    >
+                      Delete
+                    </Button>
+                  </div>
+                </div>
               ))}
             </div>
           )}
@@ -895,6 +968,75 @@ export default function EmailMarketing() {
         template={templates.find(t => t.id === previewCampaign?.template_id)}
         sampleContact={contacts[0]}
       />
+
+      {/* Delete Confirmation */}
+      <AlertDialog open={!!deleteConfirm} onOpenChange={() => setDeleteConfirm(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete {deleteConfirm?.type === 'campaign' ? 'Campaign' : 'Template'}?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently delete "{deleteConfirm?.name}". This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (deleteConfirm.type === 'campaign') {
+                  deleteCampaignMutation.mutate(deleteConfirm.id);
+                } else {
+                  deleteTemplateMutation.mutate(deleteConfirm.id);
+                }
+              }}
+              disabled={deleteCampaignMutation.isPending || deleteTemplateMutation.isPending}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Test Email Dialog */}
+      <AlertDialog open={!!testEmail} onOpenChange={() => setTestEmail(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Send Test Email</AlertDialogTitle>
+            <AlertDialogDescription>
+              We'll send a preview of this campaign to your email address.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="py-4">
+            <label className="text-sm font-medium text-gray-900 dark:text-white">Email Address</label>
+            <input
+              type="email"
+              defaultValue={user?.email || ''}
+              id="test-email-input"
+              placeholder="you@example.com"
+              className="mt-2 w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+            />
+          </div>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                const testEmailInput = document.getElementById('test-email-input').value;
+                if (testEmailInput) {
+                  testEmailMutation.mutate({
+                    testEmail: testEmailInput,
+                    campaignId: testEmail.id,
+                    templateId: testEmail.template_id,
+                  });
+                }
+              }}
+              disabled={testEmailMutation.isPending}
+              className="bg-blue-600 hover:bg-blue-700"
+            >
+              {testEmailMutation.isPending ? 'Sending...' : 'Send Test'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
