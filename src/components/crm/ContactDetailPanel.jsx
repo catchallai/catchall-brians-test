@@ -12,6 +12,9 @@ import {
 import { format } from "date-fns";
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
+import ActivityFeed from '@/components/collaboration/ActivityFeed';
+import TaskAssignment from '@/components/collaboration/TaskAssignment';
+import NoteWithMentions from '@/components/collaboration/NoteWithMentions';
 
 export default function ContactDetailPanel({ contactId, onClose }) {
   const { data: contact, isLoading } = useQuery({
@@ -221,6 +224,26 @@ export default function ContactDetailPanel({ contactId, onClose }) {
           </CardContent>
         </Card>
       )}
+
+      {/* Task Assignment */}
+      <TaskAssignment entityType="contact" entityId={contactId} />
+
+      {/* Add Note with Mentions */}
+      <Card className="glass-card">
+        <CardHeader>
+          <CardTitle className="text-lg">Add Note</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <NoteWithMentions 
+            entityType="contact" 
+            entityId={contactId}
+            businessId={contact?.business_id}
+          />
+        </CardContent>
+      </Card>
+
+      {/* Activity Feed */}
+      <ActivityFeed entityType="contact" entityId={contactId} />
     </div>
   );
 }
