@@ -35,6 +35,11 @@ export default function DocuTrace() {
   const [copiedCode, setCopiedCode] = useState(null);
   const queryClient = useQueryClient();
 
+  const { data: user } = useQuery({
+    queryKey: ['current-user'],
+    queryFn: () => base44.auth.me(),
+  });
+
   const { data: documents = [], isLoading } = useQuery({
     queryKey: ['tracked-documents', user?.current_business_id],
     queryFn: async () => {
@@ -60,11 +65,6 @@ export default function DocuTrace() {
       return await base44.entities.Deal.filter({ business_id: user.current_business_id }, 'title', 100);
     },
     enabled: !!user?.current_business_id,
-  });
-
-  const { data: user } = useQuery({
-    queryKey: ['current-user'],
-    queryFn: () => base44.auth.me(),
   });
 
   const uploadMutation = useMutation({
