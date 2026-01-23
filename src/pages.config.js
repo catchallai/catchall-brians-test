@@ -79,6 +79,8 @@ import WebCrawler from './pages/WebCrawler';
 import WebDashboard from './pages/WebDashboard';
 import WorkflowBuilder from './pages/WorkflowBuilder';
 import ContactDetail from './pages/ContactDetail';
+import Communications from './pages/Communications';
+import Payments from './pages/Payments';
 import __Layout from './Layout.jsx';
 
 
@@ -164,6 +166,8 @@ export const PAGES = {
     "WebDashboard": WebDashboard,
     "WorkflowBuilder": WorkflowBuilder,
     "ContactDetail": ContactDetail,
+    "Communications": Communications,
+    "Payments": Payments,
 }
 
 export const pagesConfig = {
