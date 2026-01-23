@@ -70,10 +70,11 @@ export default function EmailContactModal({ open, onClose, contact, businessId }
 
   const handleSelectTemplate = (template) => {
     setSelectedTemplate(template);
+    const htmlBody = renderWithVariables(template.body);
     setFormData({
       ...formData,
       subject: renderWithVariables(template.subject),
-      body: renderWithVariables(template.body),
+      body: htmlBody,
     });
   };
 
