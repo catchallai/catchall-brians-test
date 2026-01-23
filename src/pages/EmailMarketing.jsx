@@ -376,6 +376,7 @@ export default function EmailMarketing() {
         <div className="flex items-center justify-between">
           <TabsList>
             <TabsTrigger value="campaigns">Email Campaigns</TabsTrigger>
+            <TabsTrigger value="analytics">Analytics</TabsTrigger>
             <TabsTrigger value="statistics">Statistics</TabsTrigger>
             <TabsTrigger value="drips">Drip Campaigns</TabsTrigger>
             <TabsTrigger value="templates">Templates</TabsTrigger>
