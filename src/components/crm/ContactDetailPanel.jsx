@@ -15,8 +15,12 @@ import { createPageUrl } from '@/utils';
 import ActivityFeed from '@/components/collaboration/ActivityFeed';
 import TaskAssignment from '@/components/collaboration/TaskAssignment';
 import NoteWithMentions from '@/components/collaboration/NoteWithMentions';
+import EmailContactModal from '@/components/modals/EmailContactModal';
+import { Mail } from 'lucide-react';
 
 export default function ContactDetailPanel({ contactId, onClose }) {
+  const [showEmailModal, setShowEmailModal] = React.useState(false);
+
   const { data: contact, isLoading } = useQuery({
     queryKey: ['contact', contactId],
     queryFn: async () => {
@@ -92,12 +96,35 @@ export default function ContactDetailPanel({ contactId, onClose }) {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
-            {contact.email && (
-              <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
-                <Mail className="w-4 h-4" />
-                <a href={`mailto:${contact.email}`} className="hover:text-violet-600">{contact.email}</a>
-              </div>
-            )}
+           {contact.job_title && (
+             <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
+               <Briefcase className="w-4 h-4" />
+               {contact.job_title}
+             </div>
+           )}
+           {contact.source && (
+             <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
+               <Tag className="w-4 h-4" />
+               {contact.source.replace('_', ' ')}
+             </div>
+           )}
+           {contact.email && (
+             <div className="flex items-center justify-between gap-2">
+               <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
+                 <Mail className="w-4 h-4" />
+                 <a href={`mailto:${contact.email}`} className="hover:text-violet-600">{contact.email}</a>
+               </div>
+               <Button
+                 size="sm"
+                 variant="outline"
+                 onClick={() => setShowEmailModal(true)}
+                 className="gap-1 text-xs"
+               >
+                 <Mail className="w-3 h-3" />
+                 Send Email
+               </Button>
+             </div>
+           )}
             {contact.phone && (
               <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
                 <Phone className="w-4 h-4" />
@@ -244,6 +271,14 @@ export default function ContactDetailPanel({ contactId, onClose }) {
 
       {/* Activity Feed */}
       <ActivityFeed entityType="contact" entityId={contactId} />
+
+      {/* Email Modal */}
+      <EmailContactModal
+        open={showEmailModal}
+        onClose={() => setShowEmailModal(false)}
+        contact={contact}
+        businessId={contact?.business_id}
+      />
     </div>
   );
 }
