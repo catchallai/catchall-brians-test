@@ -108,20 +108,9 @@ export default function ContactDetailPanel({ contactId, onClose }) {
              </div>
            )}
            {contact.email && (
-             <div className="flex items-center justify-between gap-2">
-               <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
-                 <Mail className="w-4 h-4" />
-                 <a href={`mailto:${contact.email}`} className="hover:text-violet-600">{contact.email}</a>
-               </div>
-               <Button
-                 size="sm"
-                 variant="outline"
-                 onClick={() => setShowEmailModal(true)}
-                 className="gap-1 text-xs"
-               >
-                 <Mail className="w-3 h-3" />
-                 Send Email
-               </Button>
+             <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
+               <Mail className="w-4 h-4" />
+               <a href={`mailto:${contact.email}`} className="hover:text-violet-600">{contact.email}</a>
              </div>
            )}
             {contact.phone && (
@@ -147,6 +136,18 @@ export default function ContactDetailPanel({ contactId, onClose }) {
               </div>
             )}
           </div>
+
+          {contact.email && (
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => setShowEmailModal(true)}
+              className="gap-1 text-xs mt-4"
+            >
+              <Mail className="w-3 h-3" />
+              Send Email
+            </Button>
+          )}
 
           {contact.tags && contact.tags.length > 0 && (
             <div className="flex flex-wrap gap-2 mt-4">
