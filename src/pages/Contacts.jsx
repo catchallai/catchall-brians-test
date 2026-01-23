@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Skeleton } from "@/components/ui/skeleton";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
-import { Plus, Search, Users, Upload, Download, Trash2, RotateCcw, List, Grid3x3, Filter, X, Eye } from "lucide-react";
+import { Plus, Search, Users, Upload, Download, Trash2, RotateCcw, List, Grid3x3, Filter, X, Eye, ArrowUpDown } from "lucide-react";
 import ContactCard from '@/components/crm/ContactCard';
 import ContactModal from '@/components/modals/ContactModal';
 import ContactDetailPanel from '@/components/crm/ContactDetailPanel';
@@ -46,7 +46,9 @@ export default function Contacts() {
     city: '',
     country: '',
     source: 'all',
+    jobTitle: '',
   });
+  const [sortBy, setSortBy] = useState('created_date');
   const [showFilters, setShowFilters] = useState(false);
   const queryClient = useQueryClient();
   const toast = useToast();
@@ -274,7 +276,7 @@ export default function Contacts() {
   };
 
   const filteredContacts = useMemo(() => {
-    return contacts.filter(contact => {
+    let filtered = contacts.filter(contact => {
       const matchesSearch = !debouncedSearch || 
         `${contact.first_name} ${contact.last_name}`.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
         contact.email?.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
@@ -294,6 +296,9 @@ export default function Contacts() {
       const matchesLastName = !debouncedFilters.lastName || 
         contact.last_name?.toLowerCase().includes(debouncedFilters.lastName.toLowerCase());
       
+      const matchesJobTitle = !debouncedFilters.jobTitle ||
+        contact.job_title?.toLowerCase().includes(debouncedFilters.jobTitle.toLowerCase());
+      
       const matchesTag = !debouncedFilters.tag || 
         contact.tags?.some(tag => tag.toLowerCase().includes(debouncedFilters.tag.toLowerCase()));
       
@@ -307,9 +312,21 @@ export default function Contacts() {
       
       return matchesSearch && matchesStatus && matchesCompany && matchesEmail && 
              matchesFirstName && matchesLastName && matchesTag && matchesCity && 
-             matchesCountry && matchesSource;
+             matchesCountry && matchesSource && matchesJobTitle;
     });
-  }, [contacts, debouncedSearch, statusFilter, debouncedFilters]);
+
+    // Sort by selected field
+    return filtered.sort((a, b) => {
+      if (sortBy === 'name') {
+        return `${a.first_name} ${a.last_name}`.localeCompare(`${b.first_name} ${b.last_name}`);
+      } else if (sortBy === 'company') {
+        return (a.company_name || '').localeCompare(b.company_name || '');
+      } else if (sortBy === 'created_date') {
+        return new Date(b.created_date) - new Date(a.created_date);
+      }
+      return 0;
+    });
+  }, [contacts, debouncedSearch, statusFilter, debouncedFilters, sortBy]);
 
   const totalPages = Math.ceil(filteredContacts.length / ITEMS_PER_PAGE);
   const paginatedContacts = filteredContacts.slice(
@@ -427,21 +444,22 @@ export default function Contacts() {
                 variant="ghost"
                 size="sm"
                 onClick={() => setFilters({
-                  companyName: '',
-                  email: '',
-                  firstName: '',
-                  lastName: '',
-                  tag: '',
-                  city: '',
-                  country: '',
-                  source: 'all',
-                })}
-              >
+                    companyName: '',
+                    email: '',
+                    firstName: '',
+                    lastName: '',
+                    tag: '',
+                    city: '',
+                    country: '',
+                    source: 'all',
+                    jobTitle: '',
+                  })}
+                >
                 <X className="w-4 h-4 mr-1" />
                 Clear
               </Button>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
               <Input
                 placeholder="Company Name"
                 value={filters.companyName}
@@ -461,6 +479,11 @@ export default function Contacts() {
                 placeholder="Last Name"
                 value={filters.lastName}
                 onChange={(e) => setFilters({...filters, lastName: e.target.value})}
+              />
+              <Input
+                placeholder="Job Title"
+                value={filters.jobTitle}
+                onChange={(e) => setFilters({...filters, jobTitle: e.target.value})}
               />
               <Input
                 placeholder="Tag"
@@ -490,6 +513,16 @@ export default function Contacts() {
                   <SelectItem value="event">Event</SelectItem>
                   <SelectItem value="import">Import</SelectItem>
                   <SelectItem value="other">Other</SelectItem>
+                </SelectContent>
+              </Select>
+              <Select value={sortBy} onValueChange={setSortBy}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Sort by" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="created_date">Recently Added</SelectItem>
+                  <SelectItem value="name">Name (A-Z)</SelectItem>
+                  <SelectItem value="company">Company (A-Z)</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -525,13 +558,13 @@ export default function Contacts() {
                       className="bg-white"
                     />
                   </div>
-                  <div onClick={() => handleEdit(contact, true)}>
+                  <Link to={createPageUrl('ContactDetail') + '?id=' + contact.id}>
                     <ContactCard
                       contact={contact}
                       company={getCompany(contact.company_id)}
                       isSelected={selectedIds.includes(contact.id)}
                     />
-                  </div>
+                  </Link>
                 </div>
               ))}
             </div>
