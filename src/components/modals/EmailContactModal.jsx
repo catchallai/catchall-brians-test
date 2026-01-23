@@ -145,7 +145,7 @@ export default function EmailContactModal({ open, onClose, contact, businessId }
             {/* Message Body with Rich Editor */}
             <div>
               <label className="text-sm font-medium mb-2 block">Message *</label>
-              <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+              <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden [&_.ql-toolbar]:bg-gray-50 [&_.ql-toolbar]:dark:bg-gray-700 [&_.ql-toolbar_button]:text-gray-700 [&_.ql-toolbar_button]:dark:text-gray-300 [&_.ql-toolbar_button.ql-active]:bg-gray-300 [&_.ql-toolbar_button.ql-active]:dark:bg-gray-600">
                 <ReactQuill
                   value={formData.body}
                   onChange={(content) => setFormData({ ...formData, body: content })}
