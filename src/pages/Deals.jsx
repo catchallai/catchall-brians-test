@@ -6,10 +6,12 @@ import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Plus, Target } from "lucide-react";
 import DealCard from '@/components/crm/DealCard';
+import DealModal from '@/components/modals/DealModal';
 import PipelineModal from '@/components/modals/PipelineModal';
 import EmptyState from '@/components/ui/EmptyState';
 import SalesFunnel from '@/components/crm/SalesFunnel';
 import StageDistribution from '@/components/crm/StageDistribution';
+import { useToast } from '@/components/ui/toast-provider';
 
 const DEFAULT_STAGES = [
   { id: 'lead', label: 'Lead', color: 'bg-gray-100' },
@@ -27,8 +29,11 @@ const STAGE_COLORS = [
 
 export default function Deals() {
   const [showPipelineModal, setShowPipelineModal] = useState(false);
+  const [showDealModal, setShowDealModal] = useState(false);
+  const [editingDeal, setEditingDeal] = useState(null);
   const [draggedDeal, setDraggedDeal] = useState(null);
   const queryClient = useQueryClient();
+  const toast = useToast();
 
   const { data: user } = useQuery({
     queryKey: ['current-user'],
@@ -82,6 +87,37 @@ export default function Deals() {
     },
   });
 
+  const createDealMutation = useMutation({
+    mutationFn: (data) => base44.entities.Deal.create(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['deals'] });
+      setShowDealModal(false);
+      setEditingDeal(null);
+      toast.success('Deal created successfully');
+    },
+    onError: () => toast.error('Failed to create deal'),
+  });
+
+  const updateDealMutation = useMutation({
+    mutationFn: ({ id, data }) => base44.entities.Deal.update(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['deals'] });
+      setShowDealModal(false);
+      setEditingDeal(null);
+      toast.success('Deal updated successfully');
+    },
+    onError: () => toast.error('Failed to update deal'),
+  });
+
+  const deleteDealMutation = useMutation({
+    mutationFn: (id) => base44.entities.Deal.delete(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['deals'] });
+      toast.success('Deal deleted');
+    },
+    onError: () => toast.error('Failed to delete deal'),
+  });
+
   const createPipelineMutation = useMutation({
     mutationFn: async (data) => {
       const pipeline = await base44.entities.Pipeline.create({
@@ -95,6 +131,19 @@ export default function Deals() {
       setShowPipelineModal(false);
     },
   });
+
+  const handleSaveDeal = (data) => {
+    if (editingDeal) {
+      updateDealMutation.mutate({ id: editingDeal.id, data });
+    } else {
+      createDealMutation.mutate(data);
+    }
+  };
+
+  const handleEditDeal = (deal) => {
+    setEditingDeal(deal);
+    setShowDealModal(true);
+  };
 
   const handleDragStart = (e, deal) => {
     setDraggedDeal(deal);
@@ -148,13 +197,19 @@ export default function Deals() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Pipeline</h1>
-          <p className="text-sm sm:text-base text-gray-500 mt-1">Drag and drop deals to update their stage</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Sales Pipeline</h1>
+          <p className="text-sm sm:text-base text-gray-500 mt-1">Manage active deals through your sales process • Drag to update stage</p>
         </div>
-        <Button onClick={() => setShowPipelineModal(true)} className="gap-2 bg-violet-600 hover:bg-violet-700">
-          <Plus className="w-4 h-4" />
-          Create Pipeline
-        </Button>
+        <div className="flex gap-2">
+          <Button onClick={() => setShowDealModal(true)} className="gap-2 bg-violet-600 hover:bg-violet-700">
+            <Plus className="w-4 h-4" />
+            Add Deal
+          </Button>
+          <Button onClick={() => setShowPipelineModal(true)} variant="outline" className="gap-2">
+            <Plus className="w-4 h-4" />
+            Customize Pipeline
+          </Button>
+        </div>
       </div>
 
       {/* Funnel & Distribution */}
@@ -196,13 +251,14 @@ export default function Deals() {
 
               <div className="space-y-3">
                 {getDealsForStage(stageId).map((deal) => (
-                  <DealCard
-                    key={deal.id}
-                    deal={deal}
-                    contact={getContact(deal.contact_id)}
-                    onDragStart={handleDragStart}
-                    onDragEnd={() => setDraggedDeal(null)}
-                  />
+                  <div key={deal.id} onClick={() => handleEditDeal(deal)}>
+                    <DealCard
+                      deal={deal}
+                      contact={getContact(deal.contact_id)}
+                      onDragStart={handleDragStart}
+                      onDragEnd={() => setDraggedDeal(null)}
+                    />
+                  </div>
                 ))}
               </div>
             </div>
@@ -210,6 +266,17 @@ export default function Deals() {
           })}
         </div>
       )}
+
+      {/* Deal Modal */}
+      <DealModal
+        open={showDealModal}
+        onClose={() => { setShowDealModal(false); setEditingDeal(null); }}
+        deal={editingDeal}
+        contacts={contacts}
+        companies={companies}
+        onSave={handleSaveDeal}
+        isLoading={createDealMutation.isPending || updateDealMutation.isPending}
+      />
 
       {/* Pipeline Modal */}
       <PipelineModal

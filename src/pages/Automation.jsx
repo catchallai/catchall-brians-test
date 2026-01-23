@@ -212,7 +212,6 @@ export default function Automation() {
   };
 
   const handleToggleRule = (id, isActive) => {
-    e?.stopPropagation();
     updateRuleMutation.mutate({ id, data: { is_active: isActive } });
   };
 

@@ -7,13 +7,17 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Plus, Search, Building2, Globe, Users, MapPin } from "lucide-react";
+import { Sheet, SheetContent } from "@/components/ui/sheet";
+import { Plus, Search, Building2, Globe, Users, MapPin, Eye } from "lucide-react";
 import CompanyModal from '@/components/modals/CompanyModal';
+import CompanyDetailPanel from '@/components/crm/CompanyDetailPanel';
 import EmptyState from '@/components/ui/EmptyState';
 
 export default function Companies() {
   const [showModal, setShowModal] = useState(false);
+  const [showDetailPanel, setShowDetailPanel] = useState(false);
   const [editingCompany, setEditingCompany] = useState(null);
+  const [selectedCompany, setSelectedCompany] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [industryFilter, setIndustryFilter] = useState('all');
   const queryClient = useQueryClient();
@@ -76,9 +80,14 @@ export default function Companies() {
     }
   };
 
-  const handleEdit = (company) => {
-    setEditingCompany(company);
-    setShowModal(true);
+  const handleEdit = (company, viewOnly = false) => {
+    if (viewOnly) {
+      setSelectedCompany(company);
+      setShowDetailPanel(true);
+    } else {
+      setEditingCompany(company);
+      setShowModal(true);
+    }
   };
 
   const getContactCount = (companyId) => contacts.filter(c => c.company_id === companyId).length;
@@ -170,8 +179,7 @@ export default function Companies() {
           {filteredCompanies.map((company) => (
             <Card
               key={company.id}
-              className="p-5 glass-card rounded-2xl hover:shadow-lg transition-all cursor-pointer group"
-              onClick={() => handleEdit(company)}
+              className="p-5 glass-card rounded-2xl hover:shadow-lg transition-all group relative"
             >
               <div className="flex items-start gap-4">
                 <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white font-bold text-lg">
@@ -204,16 +212,38 @@ export default function Companies() {
                 )}
               </div>
 
-              <div className="mt-4 pt-4 border-t border-gray-100 flex items-center justify-between">
-                <div className="flex items-center gap-2 text-gray-500">
+              <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700 flex items-center justify-between">
+                <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400">
                   <Users className="w-4 h-4" />
                   <span className="text-sm">{getContactCount(company.id)} contacts</span>
                 </div>
                 {company.annual_revenue && (
-                  <span className="text-sm font-semibold text-emerald-600">
+                  <span className="text-sm font-semibold text-emerald-600 dark:text-emerald-400">
                     {formatRevenue(company.annual_revenue)}
                   </span>
                 )}
+              </div>
+              
+              <div className="mt-3 flex gap-2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="flex-1"
+                  onClick={() => handleEdit(company, true)}
+                >
+                  <Eye className="w-3 h-3 mr-1" />
+                  View Details
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleEdit(company);
+                  }}
+                >
+                  Edit
+                </Button>
               </div>
             </Card>
           ))}
@@ -228,6 +258,15 @@ export default function Companies() {
         onSave={handleSave}
         isLoading={createMutation.isPending || updateMutation.isPending}
       />
+
+      {/* Detail Panel */}
+      <Sheet open={showDetailPanel} onOpenChange={setShowDetailPanel}>
+        <SheetContent className="w-full sm:max-w-2xl overflow-y-auto">
+          {selectedCompany && (
+            <CompanyDetailPanel companyId={selectedCompany.id} />
+          )}
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }

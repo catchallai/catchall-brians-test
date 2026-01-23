@@ -3,12 +3,13 @@ import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Plus, Search, Calendar } from "lucide-react";
+import { Plus, Search, Calendar, List } from "lucide-react";
 import ActivityItem from '@/components/crm/ActivityItem';
 import ActivityModal from '@/components/modals/ActivityModal';
+import ActivityCalendarView from '@/components/crm/ActivityCalendarView';
 import EmptyState from '@/components/ui/EmptyState';
 
 export default function Activities() {
@@ -17,6 +18,7 @@ export default function Activities() {
   const [searchTerm, setSearchTerm] = useState('');
   const [typeFilter, setTypeFilter] = useState('all');
   const [completedFilter, setCompletedFilter] = useState('pending');
+  const [viewMode, setViewMode] = useState('list');
   const queryClient = useQueryClient();
 
   const { data: user } = useQuery({
@@ -120,6 +122,24 @@ export default function Activities() {
 
       {/* Filters */}
       <div className="flex flex-col sm:flex-row gap-4">
+        <div className="flex gap-1 bg-gray-100 dark:bg-gray-800 p-1 rounded-lg">
+          <Button
+            variant={viewMode === 'list' ? 'default' : 'ghost'}
+            size="sm"
+            onClick={() => setViewMode('list')}
+            className="h-8 px-3"
+          >
+            <List className="w-4 h-4" />
+          </Button>
+          <Button
+            variant={viewMode === 'calendar' ? 'default' : 'ghost'}
+            size="sm"
+            onClick={() => setViewMode('calendar')}
+            className="h-8 px-3"
+          >
+            <Calendar className="w-4 h-4" />
+          </Button>
+        </div>
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
           <Input
@@ -151,7 +171,7 @@ export default function Activities() {
         </Select>
       </div>
 
-      {/* Activity List */}
+      {/* Activity Views */}
       {isLoading ? (
         <div className="space-y-4">
           {[...Array(5)].map((_, i) => (
@@ -165,6 +185,15 @@ export default function Activities() {
           description="Keep track of calls, emails, meetings, and tasks here."
           actionLabel="Add Activity"
           onAction={() => { setEditingActivity(null); setShowModal(true); }}
+        />
+      ) : viewMode === 'calendar' ? (
+        <ActivityCalendarView
+          activities={filteredActivities}
+          onActivityClick={handleEdit}
+          onDateClick={(date) => {
+            setEditingActivity({ due_date: date.toISOString() });
+            setShowModal(true);
+          }}
         />
       ) : (
         <div className="space-y-3">

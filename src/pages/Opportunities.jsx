@@ -153,7 +153,7 @@ export default function Opportunities() {
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Opportunities</h1>
           <p className="text-sm sm:text-base text-gray-500 mt-1">
-            {filteredOpportunities.length} opportunities • ${totalValue.toFixed(2)} total value
+            Track leads from various sources • {filteredOpportunities.length} opportunities • ${totalValue.toFixed(2)} total value
           </p>
         </div>
         <div className="flex flex-wrap gap-2">

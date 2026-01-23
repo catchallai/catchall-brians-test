@@ -6,9 +6,11 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Plus, Search, Users, Upload, Download, Trash2, RotateCcw, List, Grid3x3, Filter, X } from "lucide-react";
+import { Sheet, SheetContent } from "@/components/ui/sheet";
+import { Plus, Search, Users, Upload, Download, Trash2, RotateCcw, List, Grid3x3, Filter, X, Eye } from "lucide-react";
 import ContactCard from '@/components/crm/ContactCard';
 import ContactModal from '@/components/modals/ContactModal';
+import ContactDetailPanel from '@/components/crm/ContactDetailPanel';
 import EmptyState from '@/components/ui/EmptyState';
 import Pagination from '@/components/ui/Pagination';
 import BulkActions from '@/components/ui/BulkActions';
@@ -25,7 +27,9 @@ export default function Contacts() {
   const [showModal, setShowModal] = useState(false);
   const [showImport, setShowImport] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showDetailPanel, setShowDetailPanel] = useState(false);
   const [editingContact, setEditingContact] = useState(null);
+  const [selectedContact, setSelectedContact] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [currentPage, setCurrentPage] = useState(1);
@@ -55,26 +59,31 @@ export default function Contacts() {
   });
 
   const { data: allContacts = [], isLoading: loadingContacts } = useQuery({
-    queryKey: ['contacts'],
+    queryKey: ['contacts', user?.current_business_id],
     queryFn: async () => {
-      return await base44.entities.Contact.list('-created_date', 1000);
+      if (!user?.current_business_id) return [];
+      return await base44.entities.Contact.filter({ business_id: user.current_business_id }, '-created_date', 1000);
     },
-    enabled: !!user,
+    enabled: !!user?.current_business_id,
   });
 
   const contacts = allContacts.filter(c => showDeleted ? c.deleted : !c.deleted);
 
   const { data: companies = [] } = useQuery({
-    queryKey: ['companies'],
+    queryKey: ['companies', user?.current_business_id],
     queryFn: async () => {
-      return await base44.entities.Company.list('-created_date', 100);
+      if (!user?.current_business_id) return [];
+      return await base44.entities.Company.filter({ business_id: user.current_business_id }, '-created_date', 100);
     },
-    enabled: !!user,
+    enabled: !!user?.current_business_id,
   });
 
   const createMutation = useMutation({
     mutationFn: async (data) => {
-      const contact = await base44.entities.Contact.create(data);
+      const contact = await base44.entities.Contact.create({
+        ...data,
+        business_id: user?.current_business_id,
+      });
       await logActivity(ActivityActions.CREATE, 'Contact', contact.id, `${data.first_name} ${data.last_name}`);
       return contact;
     },
@@ -228,9 +237,14 @@ export default function Contacts() {
     }
   };
 
-  const handleEdit = (contact) => {
-    setEditingContact(contact);
-    setShowModal(true);
+  const handleEdit = (contact, viewOnly = false) => {
+    if (viewOnly) {
+      setSelectedContact(contact);
+      setShowDetailPanel(true);
+    } else {
+      setEditingContact(contact);
+      setShowModal(true);
+    }
   };
 
   const handleExport = async () => {
@@ -510,12 +524,13 @@ export default function Contacts() {
                       className="bg-white"
                     />
                   </div>
-                  <ContactCard
-                    contact={contact}
-                    company={getCompany(contact.company_id)}
-                    onClick={() => handleEdit(contact)}
-                    isSelected={selectedIds.includes(contact.id)}
-                  />
+                  <div onClick={() => handleEdit(contact, true)}>
+                    <ContactCard
+                      contact={contact}
+                      company={getCompany(contact.company_id)}
+                      isSelected={selectedIds.includes(contact.id)}
+                    />
+                  </div>
                 </div>
               ))}
             </div>
@@ -680,6 +695,15 @@ export default function Contacts() {
         confirmLabel="Delete"
         isLoading={deleteMutation.isPending || deleteAllMutation.isPending}
       />
+
+      {/* Detail Panel */}
+      <Sheet open={showDetailPanel} onOpenChange={setShowDetailPanel}>
+        <SheetContent className="w-full sm:max-w-2xl overflow-y-auto">
+          {selectedContact && (
+            <ContactDetailPanel contactId={selectedContact.id} />
+          )}
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }
