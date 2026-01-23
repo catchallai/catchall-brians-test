@@ -16,7 +16,6 @@ import ActivityFeed from '@/components/collaboration/ActivityFeed';
 import TaskAssignment from '@/components/collaboration/TaskAssignment';
 import NoteWithMentions from '@/components/collaboration/NoteWithMentions';
 import EmailContactModal from '@/components/modals/EmailContactModal';
-import { Mail } from 'lucide-react';
 
 export default function ContactDetailPanel({ contactId, onClose }) {
   const [showEmailModal, setShowEmailModal] = React.useState(false);
