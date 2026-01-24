@@ -97,6 +97,7 @@ export default function VideoCallInterface({
         });
       }
     } else {
+      await stopScreenShare();
       setIsScreenSharing(false);
       const updatedParticipants = activeCall.participants.map(p =>
         p.email === user?.email ? { ...p, is_screen_sharing: false } : p
