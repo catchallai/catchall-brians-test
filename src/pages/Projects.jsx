@@ -7,7 +7,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Plus, Search, Briefcase, TrendingUp, Filter, X } from "lucide-react";
+import { Plus, Search, Briefcase, Filter, X, Calendar, DollarSign, Users } from "lucide-react";
 import EmptyState from '@/components/ui/EmptyState';
 import ProjectModal from '@/components/modals/ProjectModal';
 import { Link } from 'react-router-dom';
@@ -28,49 +28,29 @@ export default function Projects() {
   });
 
   const { data: projects = [], isLoading } = useQuery({
-    queryKey: ['projects', user?.current_business_id],
+    queryKey: ['projects'],
     queryFn: async () => {
-      if (!user?.current_business_id) return [];
-      return await base44.entities.Project.filter({ business_id: user.current_business_id }, '-created_date', 200);
+      return await base44.entities.Project.list('-created_date', 200);
     },
-    enabled: !!user?.current_business_id,
   });
 
   const { data: companies = [] } = useQuery({
-    queryKey: ['companies', user?.current_business_id],
+    queryKey: ['companies'],
     queryFn: async () => {
-      if (!user?.current_business_id) return [];
-      return await base44.entities.Company.filter({ business_id: user.current_business_id });
+      return await base44.entities.Company.list();
     },
-    enabled: !!user?.current_business_id,
   });
 
   const { data: contacts = [] } = useQuery({
-    queryKey: ['contacts', user?.current_business_id],
+    queryKey: ['contacts'],
     queryFn: async () => {
-      if (!user?.current_business_id) return [];
-      return await base44.entities.Contact.filter({ business_id: user.current_business_id });
+      return await base44.entities.Contact.list();
     },
-    enabled: !!user?.current_business_id,
   });
 
   const createMutation = useMutation({
     mutationFn: async (data) => {
-      const project = await base44.entities.Project.create({
-        ...data,
-        business_id: user?.current_business_id,
-      });
-      // Log activity
-      await base44.entities.Activity.create({
-        business_id: user?.current_business_id,
-        entity_type: 'project',
-        entity_id: project.id,
-        activity_type: 'created',
-        title: `Created project "${data.name}"`,
-        performed_by: user?.email,
-        performed_by_name: user?.full_name,
-      });
-      return project;
+      return await base44.entities.Project.create(data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['projects'] });
@@ -126,14 +106,62 @@ export default function Projects() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Projects</h1>
-          <p className="text-gray-500 mt-1">{projects.length} projects total</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Project Management</h1>
+          <p className="text-gray-500 mt-1">Manage and track all your projects</p>
         </div>
         <Button onClick={() => { setEditingProject(null); setShowModal(true); }} className="gap-2 bg-violet-600 hover:bg-violet-700">
           <Plus className="w-4 h-4" />
           New Project
         </Button>
       </div>
+
+      {/* Stats Cards */}
+      {projects.length > 0 && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <Card className="p-4 glass-card">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Total Projects</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">{projects.length}</p>
+              </div>
+              <Briefcase className="w-8 h-8 text-violet-600" />
+            </div>
+          </Card>
+          <Card className="p-4 glass-card">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Active Projects</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">
+                  {projects.filter(p => p.status === 'active').length}
+                </p>
+              </div>
+              <Calendar className="w-8 h-8 text-green-600" />
+            </div>
+          </Card>
+          <Card className="p-4 glass-card">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Total Budget</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">
+                  ${projects.reduce((sum, p) => sum + (p.budget || 0), 0).toLocaleString()}
+                </p>
+              </div>
+              <DollarSign className="w-8 h-8 text-blue-600" />
+            </div>
+          </Card>
+          <Card className="p-4 glass-card">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Avg Progress</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">
+                  {Math.round(projects.reduce((sum, p) => sum + (p.progress || 0), 0) / projects.length)}%
+                </p>
+              </div>
+              <Users className="w-8 h-8 text-orange-600" />
+            </div>
+          </Card>
+        </div>
+      )}
 
       {/* Filters */}
       <div className="space-y-4">
