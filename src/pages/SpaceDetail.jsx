@@ -226,12 +226,21 @@ export default function SpaceDetail() {
             )}
           </div>
         </div>
-        <Link to={`${createPageUrl('WikiPageEditor')}?spaceId=${spaceId}`}>
-          <Button className="gap-2 bg-violet-600 hover:bg-violet-700">
-            <Plus className="w-4 h-4" />
-            New Page
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            onClick={() => navigate(`${createPageUrl('SpaceTemplates')}?spaceId=${spaceId}`)}
+          >
+            <FileText className="w-4 h-4 mr-2" />
+            Templates
           </Button>
-        </Link>
+          <Link to={`${createPageUrl('WikiPageEditor')}?spaceId=${spaceId}`}>
+            <Button className="gap-2 bg-violet-600 hover:bg-violet-700">
+              <Plus className="w-4 h-4" />
+              New Page
+            </Button>
+          </Link>
+        </div>
       </div>
 
       {/* Search */}
