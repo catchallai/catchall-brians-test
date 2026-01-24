@@ -139,8 +139,6 @@ const navigation = [
   { name: 'TakeDown Requestor', icon: AlertTriangle, page: 'TakeDownRequestor' },
   { name: 'divider', label: 'Project Management', collapsible: true },
   { name: 'Projects', icon: Briefcase, page: 'Projects' },
-  { name: 'divider', label: 'Collaboration' },
-  { name: 'Team Projects', icon: Users, page: 'Collaboration' },
   { name: 'divider', label: 'Assets' },
   { name: 'Media Library', icon: FileText, page: 'MediaLibrary' },
   { name: 'Content Studio', icon: PenTool, page: 'ContentStudio' },

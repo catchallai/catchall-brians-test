@@ -11,8 +11,10 @@ import CRMDashboard from './pages/CRMDashboard';
 import CampaignDetail from './pages/CampaignDetail';
 import Campaigns from './pages/Campaigns';
 import Collaboration from './pages/Collaboration';
+import Communications from './pages/Communications';
 import Companies from './pages/Companies';
 import CompetitorAnalysis from './pages/CompetitorAnalysis';
+import ContactDetail from './pages/ContactDetail';
 import ContactForms from './pages/ContactForms';
 import Contacts from './pages/Contacts';
 import ContentStrategy from './pages/ContentStrategy';
@@ -44,9 +46,12 @@ import MediaOutreach from './pages/MediaOutreach';
 import MeetingScheduler from './pages/MeetingScheduler';
 import MobileHub from './pages/MobileHub';
 import Opportunities from './pages/Opportunities';
+import Payments from './pages/Payments';
 import PitchDeckAnalyzer from './pages/PitchDeckAnalyzer';
 import PitchDeckCreator from './pages/PitchDeckCreator';
 import PressMonitoring from './pages/PressMonitoring';
+import ProjectDetail from './pages/ProjectDetail';
+import Projects from './pages/Projects';
 import Proposals from './pages/Proposals';
 import PublicDataRoom from './pages/PublicDataRoom';
 import PublicDocumentViewer from './pages/PublicDocumentViewer';
@@ -78,11 +83,6 @@ import VisitorProfiles from './pages/VisitorProfiles';
 import WebCrawler from './pages/WebCrawler';
 import WebDashboard from './pages/WebDashboard';
 import WorkflowBuilder from './pages/WorkflowBuilder';
-import ContactDetail from './pages/ContactDetail';
-import Communications from './pages/Communications';
-import Payments from './pages/Payments';
-import Projects from './pages/Projects';
-import ProjectDetail from './pages/ProjectDetail';
 import __Layout from './Layout.jsx';
 
 
@@ -100,8 +100,10 @@ export const PAGES = {
     "CampaignDetail": CampaignDetail,
     "Campaigns": Campaigns,
     "Collaboration": Collaboration,
+    "Communications": Communications,
     "Companies": Companies,
     "CompetitorAnalysis": CompetitorAnalysis,
+    "ContactDetail": ContactDetail,
     "ContactForms": ContactForms,
     "Contacts": Contacts,
     "ContentStrategy": ContentStrategy,
@@ -133,9 +135,12 @@ export const PAGES = {
     "MeetingScheduler": MeetingScheduler,
     "MobileHub": MobileHub,
     "Opportunities": Opportunities,
+    "Payments": Payments,
     "PitchDeckAnalyzer": PitchDeckAnalyzer,
     "PitchDeckCreator": PitchDeckCreator,
     "PressMonitoring": PressMonitoring,
+    "ProjectDetail": ProjectDetail,
+    "Projects": Projects,
     "Proposals": Proposals,
     "PublicDataRoom": PublicDataRoom,
     "PublicDocumentViewer": PublicDocumentViewer,
@@ -167,11 +172,6 @@ export const PAGES = {
     "WebCrawler": WebCrawler,
     "WebDashboard": WebDashboard,
     "WorkflowBuilder": WorkflowBuilder,
-    "ContactDetail": ContactDetail,
-    "Communications": Communications,
-    "Payments": Payments,
-    "Projects": Projects,
-    "ProjectDetail": ProjectDetail,
 }
 
 export const pagesConfig = {
