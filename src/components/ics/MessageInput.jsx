@@ -4,9 +4,29 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import FileUploader from './FileUploader';
 
-export default function MessageInput({ onSendMessage, darkMode }) {
+export default function MessageInput({ onSendMessage, onTyping, darkMode }) {
   const [message, setMessage] = useState('');
   const [attachedFiles, setAttachedFiles] = useState([]);
+  const typingTimeoutRef = React.useRef(null);
+
+  const handleMessageChange = (e) => {
+    setMessage(e.target.value);
+    
+    // Notify typing
+    if (onTyping) {
+      onTyping(true);
+      
+      // Clear previous timeout
+      if (typingTimeoutRef.current) {
+        clearTimeout(typingTimeoutRef.current);
+      }
+      
+      // Set new timeout to stop typing after 3 seconds of inactivity
+      typingTimeoutRef.current = setTimeout(() => {
+        onTyping(false);
+      }, 3000);
+    }
+  };
 
   const handleSend = (e) => {
     e.preventDefault();
@@ -19,6 +39,11 @@ export default function MessageInput({ onSendMessage, darkMode }) {
 
     setMessage('');
     setAttachedFiles([]);
+    
+    // Stop typing indicator
+    if (onTyping) {
+      onTyping(false);
+    }
   };
 
   return (
@@ -74,7 +99,7 @@ export default function MessageInput({ onSendMessage, darkMode }) {
           <Input
             type="text"
             value={message}
-            onChange={(e) => setMessage(e.target.value)}
+            onChange={handleMessageChange}
             placeholder="Type a message..."
             className={`flex-1 bg-transparent outline-none border-0 ${
               darkMode
