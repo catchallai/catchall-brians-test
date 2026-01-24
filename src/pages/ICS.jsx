@@ -453,7 +453,7 @@ export default function ICS() {
             onSendMessage={handleSendMessage}
             onStartCall={handleStartCall}
             onShowProfile={() => setShowProfile(true)}
-            typingUsers={selectedChannel ? typingByChannel[selectedChannel.id] || [] : []}
+            typingUsers={Object.values(typingStatus).filter(name => name !== user?.full_name)}
             onTyping={handleTyping}
           />
         </>
