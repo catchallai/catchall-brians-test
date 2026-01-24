@@ -125,6 +125,21 @@ export function useWebRTC(roomId, user, participants) {
     }
   }, []);
 
+  const muteParticipant = useCallback((participantEmail) => {
+    setMutedParticipants(prev => ({
+      ...prev,
+      [participantEmail]: true,
+    }));
+  }, []);
+
+  const unmuteParticipant = useCallback((participantEmail) => {
+    setMutedParticipants(prev => {
+      const updated = { ...prev };
+      delete updated[participantEmail];
+      return updated;
+    });
+  }, []);
+
   const createPeerConnection = useCallback((participantId) => {
     const config = {
       iceServers: [
