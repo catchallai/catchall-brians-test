@@ -7,6 +7,7 @@ import {
   Settings,
   Sun,
   Moon,
+  Shield,
 } from 'lucide-react';
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
