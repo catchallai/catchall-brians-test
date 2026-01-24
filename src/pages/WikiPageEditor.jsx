@@ -4,7 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, Save, Sparkles, Clock, FileText } from "lucide-react";
+import { ArrowLeft, Save, Sparkles, Clock, FileText, MessageSquare } from "lucide-react";
 import { createPageUrl } from '@/utils';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
@@ -19,8 +19,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import VersionHistory from '@/components/wiki/VersionHistory';
 import TemplateSelector from '@/components/wiki/TemplateSelector';
+import CommentsPanel from '@/components/wiki/CommentsPanel';
+import ActiveEditors from '@/components/wiki/ActiveEditors';
 
 const modules = {
   toolbar: [
@@ -99,6 +102,21 @@ export default function WikiPageEditor() {
     enabled: !!spaceId && !pageId,
   });
 
+  const { data: activeEditors = [] } = useQuery({
+    queryKey: ['wiki-presence', pageId],
+    queryFn: async () => {
+      const allPresence = await base44.entities.WikiPagePresence.list();
+      const oneMinuteAgo = new Date(Date.now() - 60000).toISOString();
+      return allPresence.filter(p => 
+        p.page_id === pageId && 
+        p.last_seen > oneMinuteAgo && 
+        p.user_email !== user?.email
+      );
+    },
+    enabled: !!pageId && !!user,
+    refetchInterval: 5000,
+  });
+
   useEffect(() => {
     if (page) {
       setTitle(page.title);
@@ -115,6 +133,40 @@ export default function WikiPageEditor() {
       setShowTemplateSelector(true);
     }
   }, [pageId, templates]);
+
+  // Track user presence
+  useEffect(() => {
+    if (!pageId || !user) return;
+
+    let presenceId = null;
+
+    const updatePresence = async () => {
+      const presence = {
+        page_id: pageId,
+        user_email: user.email,
+        user_name: user.full_name,
+        is_editing: isEditing,
+        last_seen: new Date().toISOString(),
+      };
+
+      if (presenceId) {
+        await base44.entities.WikiPagePresence.update(presenceId, presence);
+      } else {
+        const created = await base44.entities.WikiPagePresence.create(presence);
+        presenceId = created.id;
+      }
+    };
+
+    updatePresence();
+    const interval = setInterval(updatePresence, 10000);
+
+    return () => {
+      clearInterval(interval);
+      if (presenceId) {
+        base44.entities.WikiPagePresence.delete(presenceId).catch(() => {});
+      }
+    };
+  }, [pageId, user, isEditing]);
 
   const saveMutation = useMutation({
     mutationFn: async (data) => {
@@ -236,14 +288,30 @@ export default function WikiPageEditor() {
             </Select>
             
             {pageId && (
-              <Button 
-                variant="outline"
-                onClick={() => setShowVersionHistory(true)}
-                className="gap-2"
-              >
-                <Clock className="w-4 h-4" />
-                History
-              </Button>
+              <>
+                <Button 
+                  variant="outline"
+                  onClick={() => setShowVersionHistory(true)}
+                  className="gap-2"
+                >
+                  <Clock className="w-4 h-4" />
+                  History
+                </Button>
+
+                <Sheet open={showComments} onOpenChange={setShowComments}>
+                  <SheetTrigger asChild>
+                    <Button variant="outline" className="gap-2">
+                      <MessageSquare className="w-4 h-4" />
+                      Comments
+                    </Button>
+                  </SheetTrigger>
+                  <SheetContent className="w-full sm:w-96 p-0 flex flex-col">
+                    <CommentsPanel pageId={pageId} spaceId={spaceId} user={user} />
+                  </SheetContent>
+                </Sheet>
+
+                <ActiveEditors editors={activeEditors} />
+              </>
             )}
 
             <DropdownMenu>
@@ -327,7 +395,11 @@ export default function WikiPageEditor() {
             <ReactQuill
               theme="snow"
               value={content}
-              onChange={setContent}
+              onChange={(value) => {
+                setContent(value);
+                setIsEditing(true);
+              }}
+              onBlur={() => setIsEditing(false)}
               modules={modules}
               className="h-full"
               placeholder="Start writing..."
