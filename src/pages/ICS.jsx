@@ -33,6 +33,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { format } from 'date-fns';
 import VideoCallInterface from '@/components/ics/VideoCallInterface';
+import { usePresence } from '@/components/ics/usePresence';
+import PresenceIndicator from '@/components/ics/PresenceIndicator';
 
 export default function ICS() {
   const [selectedChannel, setSelectedChannel] = useState(null);
@@ -50,6 +52,8 @@ export default function ICS() {
     queryKey: ['current-user'],
     queryFn: () => base44.auth.me(),
   });
+
+  const { userPresence, allPresence, getPresence, updatePresence } = usePresence(user);
 
   const { data: channels = [] } = useQuery({
     queryKey: ['channels'],
@@ -192,6 +196,7 @@ export default function ICS() {
 
   const handleStartCall = () => {
     const roomId = `call-${selectedChannel.id}-${Date.now()}`;
+    updatePresence('online', true, roomId);
     startCallMutation.mutate({
       channel_id: selectedChannel.id,
       room_id: roomId,
@@ -214,6 +219,7 @@ export default function ICS() {
 
   const handleEndCall = () => {
     if (activeCall) {
+      updatePresence('online', false);
       endCallMutation.mutate(activeCall.id);
     }
   };
@@ -336,26 +342,36 @@ export default function ICS() {
           </div>
 
           <ScrollArea className="flex-1 px-2">
-            <div className="space-y-1">
-              {filteredChannels.map((channel) => (
-                <button
-                  key={channel.id}
-                  onClick={() => setSelectedChannel(channel)}
-                  className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-left transition-colors ${
-                    selectedChannel?.id === channel.id
-                      ? 'bg-violet-600 text-white'
-                      : 'text-gray-300 hover:bg-gray-800'
-                  }`}
-                >
-                  {channel.type === 'public' ? (
-                    <Hash className="w-4 h-4 flex-shrink-0" />
-                  ) : (
-                    <Lock className="w-4 h-4 flex-shrink-0" />
-                  )}
-                  <span className="truncate font-medium">{channel.name}</span>
-                </button>
-              ))}
-            </div>
+           <div className="space-y-1">
+             {filteredChannels.map((channel) => {
+               const channelPresence = channel.members?.map(email => getPresence(email)).filter(Boolean) || [];
+               const onlineCount = channelPresence.filter(p => p.status === 'online').length;
+
+               return (
+                 <button
+                   key={channel.id}
+                   onClick={() => setSelectedChannel(channel)}
+                   className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-left transition-colors ${
+                     selectedChannel?.id === channel.id
+                       ? 'bg-violet-600 text-white'
+                       : 'text-gray-300 hover:bg-gray-800'
+                   }`}
+                 >
+                   {channel.type === 'public' ? (
+                     <Hash className="w-4 h-4 flex-shrink-0" />
+                   ) : (
+                     <Lock className="w-4 h-4 flex-shrink-0" />
+                   )}
+                   <span className="truncate font-medium">{channel.name}</span>
+                   {onlineCount > 0 && (
+                     <span className="ml-auto text-xs bg-green-600 px-2 py-0.5 rounded-full">
+                       {onlineCount}
+                     </span>
+                   )}
+                 </button>
+               );
+             })}
+           </div>
           </ScrollArea>
         </div>
 
@@ -417,28 +433,44 @@ export default function ICS() {
             {/* Messages Area */}
             <ScrollArea className="flex-1 p-6">
               <div className="space-y-4">
-                {messages.map((message) => (
-                  <div key={message.id} className="flex gap-3 group">
-                    <Avatar>
-                      <AvatarFallback className="bg-violet-100 dark:bg-violet-900 text-violet-600 dark:text-violet-300">
-                        {message.sender_name?.[0] || 'U'}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-baseline gap-2">
-                        <span className="font-semibold text-gray-900 dark:text-white">
-                          {message.sender_name}
-                        </span>
-                        <span className="text-xs text-gray-500">
-                          {format(new Date(message.created_date), 'h:mm a')}
-                        </span>
+                {messages.map((message) => {
+                  const senderPresence = getPresence(message.sender_email);
+                  return (
+                    <div key={message.id} className="flex gap-3 group">
+                      <div className="relative">
+                        <Avatar>
+                          <AvatarFallback className="bg-violet-100 dark:bg-violet-900 text-violet-600 dark:text-violet-300">
+                            {message.sender_name?.[0] || 'U'}
+                          </AvatarFallback>
+                        </Avatar>
+                        {senderPresence && (
+                          <div className="absolute -bottom-1 -right-1 bg-gray-900 dark:bg-gray-800 rounded-full p-1">
+                            <PresenceIndicator presence={senderPresence} size="sm" />
+                          </div>
+                        )}
                       </div>
-                      <p className="text-gray-700 dark:text-gray-300 mt-1 whitespace-pre-wrap break-words">
-                        {message.content}
-                      </p>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-baseline gap-2">
+                          <span className="font-semibold text-gray-900 dark:text-white">
+                            {message.sender_name}
+                          </span>
+                          {senderPresence && (
+                            <span className="text-xs px-1.5 py-0.5 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 flex items-center gap-1">
+                              <PresenceIndicator presence={senderPresence} size="sm" />
+                              {senderPresence.in_call ? 'In Call' : senderPresence.status}
+                            </span>
+                          )}
+                          <span className="text-xs text-gray-500">
+                            {format(new Date(message.created_date), 'h:mm a')}
+                          </span>
+                        </div>
+                        <p className="text-gray-700 dark:text-gray-300 mt-1 whitespace-pre-wrap break-words">
+                          {message.content}
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
                 <div ref={messagesEndRef} />
               </div>
             </ScrollArea>
