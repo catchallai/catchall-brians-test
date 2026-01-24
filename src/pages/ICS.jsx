@@ -42,7 +42,9 @@ import Sidebar from '@/components/ics/Sidebar';
 import ConversationsList from '@/components/ics/ConversationsList';
 import ChatArea from '@/components/ics/ChatArea';
 import NotificationPreferences from '@/components/notifications/NotificationPreferences.jsx';
+import NotificationCenter from '@/components/notifications/NotificationCenter';
 import { playNotificationSound, isInDND } from '@/components/notifications/NotificationSounds';
+import { extractMentions, createMentionNotifications } from '@/components/notifications/MentionParser';
 
 export default function ICS() {
   const [selectedChannel, setSelectedChannel] = useState(null);
@@ -151,6 +153,12 @@ export default function ICS() {
     mutationFn: (data) => base44.entities.Message.create(data),
     onSuccess: (newMessage) => {
       queryClient.invalidateQueries({ queryKey: ['messages'] });
+      
+      // Handle mentions
+      const mentionedEmails = extractMentions(newMessage.content, channels.flatMap(c => c.members));
+      if (mentionedEmails.length > 0) {
+        createMentionNotifications(base44, newMessage, mentionedEmails);
+      }
       
       // Trigger notification for new messages from others
       if (newMessage.sender_email !== user?.email && notificationPrefs) {
@@ -349,10 +357,13 @@ export default function ICS() {
         user={user}
         unreadCount={channels.filter(c => messages.filter(m => m.channel_id === c.id && m.created_date > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)).length > 0).length}
         notificationButton={
-          <NotificationPreferences 
-            user={user} 
-            onPreferencesUpdate={handlePreferencesUpdate}
-          />
+          <div className="flex flex-col gap-2 w-full">
+            <NotificationCenter user={user} />
+            <NotificationPreferences 
+              user={user} 
+              onPreferencesUpdate={handlePreferencesUpdate}
+            />
+          </div>
         }
       />
 
