@@ -23,7 +23,6 @@ import { useDebounce } from '@/components/hooks/useDebounce';
 import { exportToCSV } from '@/components/utils/exportData';
 import { useToast } from '@/components/ui/toast-provider';
 import { logActivity, ActivityActions } from '@/components/utils/activityLogger';
-import { base44 } from '@/api/base44Client';
 
 const ITEMS_PER_PAGE = 25;
 
