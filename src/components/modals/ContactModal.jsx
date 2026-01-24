@@ -75,6 +75,7 @@ export default function ContactModal({ open, onClose, contact, companies, onSave
         website: contact.website || '',
         contact_page_url: contact.contact_page_url || '',
         general_emails: contact.general_emails || [],
+        general_phones: contact.general_phones || [],
         contact_sources_urls: contact.contact_sources_urls || [],
         role_1_title: contact.role_1_title || '',
         role_1_name: contact.role_1_name || '',
