@@ -11,7 +11,6 @@ import CRMDashboard from './pages/CRMDashboard';
 import CampaignDetail from './pages/CampaignDetail';
 import Campaigns from './pages/Campaigns';
 import Collaboration from './pages/Collaboration';
-import Communications from './pages/Communications';
 import Companies from './pages/Companies';
 import CompetitorAnalysis from './pages/CompetitorAnalysis';
 import ContactDetail from './pages/ContactDetail';
@@ -77,6 +76,7 @@ import SocialLeads from './pages/SocialLeads';
 import SocialListening from './pages/SocialListening';
 import SocialMedia from './pages/SocialMedia';
 import SpaceDetail from './pages/SpaceDetail';
+import SpaceTemplates from './pages/SpaceTemplates';
 import Spaces from './pages/Spaces';
 import TakeDownRequestor from './pages/TakeDownRequestor';
 import TrafficAnalytics from './pages/TrafficAnalytics';
@@ -87,7 +87,7 @@ import WebCrawler from './pages/WebCrawler';
 import WebDashboard from './pages/WebDashboard';
 import WikiPageEditor from './pages/WikiPageEditor';
 import WorkflowBuilder from './pages/WorkflowBuilder';
-import SpaceTemplates from './pages/SpaceTemplates';
+import ICS from './pages/ICS';
 import __Layout from './Layout.jsx';
 
 
@@ -105,7 +105,6 @@ export const PAGES = {
     "CampaignDetail": CampaignDetail,
     "Campaigns": Campaigns,
     "Collaboration": Collaboration,
-    "Communications": Communications,
     "Companies": Companies,
     "CompetitorAnalysis": CompetitorAnalysis,
     "ContactDetail": ContactDetail,
@@ -171,6 +170,7 @@ export const PAGES = {
     "SocialListening": SocialListening,
     "SocialMedia": SocialMedia,
     "SpaceDetail": SpaceDetail,
+    "SpaceTemplates": SpaceTemplates,
     "Spaces": Spaces,
     "TakeDownRequestor": TakeDownRequestor,
     "TrafficAnalytics": TrafficAnalytics,
@@ -181,7 +181,7 @@ export const PAGES = {
     "WebDashboard": WebDashboard,
     "WikiPageEditor": WikiPageEditor,
     "WorkflowBuilder": WorkflowBuilder,
-    "SpaceTemplates": SpaceTemplates,
+    "ICS": ICS,
 }
 
 export const pagesConfig = {
