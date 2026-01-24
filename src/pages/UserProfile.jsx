@@ -12,7 +12,8 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/components/ui/toast-provider';
 import { 
   User, Mail, Shield, Bell, Palette, Activity, 
-  Camera, Save, Key, Crown, Calendar, TrendingUp
+  Camera, Save, Key, Crown, Calendar, TrendingUp, 
+  Upload, Smile, Clock, Volume2, VolumeX, Moon, Sun
 } from "lucide-react";
 
 export default function UserProfile() {
