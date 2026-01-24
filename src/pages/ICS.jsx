@@ -35,6 +35,8 @@ import { format } from 'date-fns';
 import VideoCallInterface from '@/components/ics/VideoCallInterface';
 import { usePresence } from '@/components/ics/usePresence';
 import PresenceIndicator from '@/components/ics/PresenceIndicator';
+import FileUploader from '@/components/ics/FileUploader';
+import FilePreview from '@/components/ics/FilePreview';
 
 export default function ICS() {
   const [selectedChannel, setSelectedChannel] = useState(null);
@@ -45,6 +47,7 @@ export default function ICS() {
   const [newChannelType, setNewChannelType] = useState('public');
   const [newChannelDesc, setNewChannelDesc] = useState('');
   const [isInCall, setIsInCall] = useState(false);
+  const [attachedFiles, setAttachedFiles] = useState([]);
   const messagesEndRef = useRef(null);
   const queryClient = useQueryClient();
 
@@ -184,14 +187,18 @@ export default function ICS() {
 
   const handleSendMessage = (e) => {
     e.preventDefault();
-    if (!messageInput.trim() || !selectedChannel) return;
+    if ((!messageInput.trim() && attachedFiles.length === 0) || !selectedChannel) return;
 
     sendMessageMutation.mutate({
       channel_id: selectedChannel.id,
-      content: messageInput,
+      content: messageInput || (attachedFiles.length > 0 ? 'Shared files' : ''),
       sender_email: user?.email,
       sender_name: user?.full_name,
+      attachments: attachedFiles,
     });
+    
+    setMessageInput('');
+    setAttachedFiles([]);
   };
 
   const handleStartCall = () => {
@@ -467,20 +474,52 @@ export default function ICS() {
                         <p className="text-gray-700 dark:text-gray-300 mt-1 whitespace-pre-wrap break-words">
                           {message.content}
                         </p>
-                      </div>
-                    </div>
-                  );
-                })}
+                        {message.attachments && message.attachments.length > 0 && (
+                          <div className="mt-3 space-y-2">
+                            {message.attachments.map((file, idx) => (
+                              <FilePreview key={idx} file={file} />
+                            ))}
+                          </div>
+                        )}
+                        </div>
+                        </div>
+                        );
+                        })}
                 <div ref={messagesEndRef} />
               </div>
             </ScrollArea>
 
             {/* Message Input */}
             <div className="p-4 border-t border-gray-200 dark:border-gray-800">
+              <div className="mb-3">
+                <FileUploader 
+                  onFilesSelected={setAttachedFiles}
+                  maxFiles={5}
+                />
+              </div>
+              {attachedFiles.length > 0 && (
+                <div className="mb-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+                  <p className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-2">
+                    {attachedFiles.length} file(s) attached
+                  </p>
+                  <div className="space-y-1">
+                    {attachedFiles.map((file, idx) => (
+                      <div key={idx} className="flex items-center justify-between text-xs">
+                        <span className="text-gray-700 dark:text-gray-300 truncate">
+                          {file.name}
+                        </span>
+                        <button
+                          onClick={() => setAttachedFiles(prev => prev.filter((_, i) => i !== idx))}
+                          className="text-red-500 hover:text-red-700"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
               <form onSubmit={handleSendMessage} className="flex items-center gap-2">
-                <Button type="button" variant="ghost" size="icon">
-                  <Paperclip className="w-5 h-5" />
-                </Button>
                 <Input
                   value={messageInput}
                   onChange={(e) => setMessageInput(e.target.value)}
@@ -492,7 +531,7 @@ export default function ICS() {
                 </Button>
                 <Button
                   type="submit"
-                  disabled={!messageInput.trim() || sendMessageMutation.isPending}
+                  disabled={((!messageInput.trim() && attachedFiles.length === 0) || sendMessageMutation.isPending)}
                 >
                   <Send className="w-4 h-4" />
                 </Button>
