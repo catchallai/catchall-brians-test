@@ -7,6 +7,8 @@ export function useWebRTC(roomId, user, participants) {
   const [isVideoEnabled, setIsVideoEnabled] = useState(true);
   const [videoQuality, setVideoQuality] = useState('hd'); // 'sd', 'hd', 'fhd'
   const [mutedParticipants, setMutedParticipants] = useState({}); // Track muted participants
+  const [recordingChunks, setRecordingChunks] = useState([]);
+  const [mediaRecorder, setMediaRecorder] = useState(null);
   const peerConnections = useRef({});
   const localStreamRef = useRef(null);
 
