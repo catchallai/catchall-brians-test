@@ -35,6 +35,7 @@ import { format } from 'date-fns';
 import VideoCallInterface from '@/components/ics/VideoCallInterface';
 import { usePresence } from '@/components/ics/usePresence';
 import PresenceIndicator from '@/components/ics/PresenceIndicator';
+import StatusSelector from '@/components/ics/StatusSelector';
 import FileUploader from '@/components/ics/FileUploader';
 import FilePreview from '@/components/ics/FilePreview';
 
@@ -280,6 +281,17 @@ export default function ICS() {
           <h1 className="text-xl font-bold text-gray-900 dark:text-white">ICS</h1>
           <span className="text-sm text-gray-500">Internal Communication System</span>
         </div>
+        <div className="flex items-center gap-4">
+          {userPresence && (
+            <div className="flex items-center gap-2">
+              <PresenceIndicator presence={userPresence} size="md" showCustomStatus={true} />
+              <StatusSelector 
+                currentStatus={userPresence}
+                onStatusChange={(statusData) => updatePresence('online', false, null, statusData)}
+              />
+            </div>
+          )}
+        </div>
         <Dialog open={showNewChannel} onOpenChange={setShowNewChannel}>
           <DialogTrigger asChild>
             <Button className="gap-2">
@@ -463,8 +475,8 @@ export default function ICS() {
                           </span>
                           {senderPresence && (
                             <span className="text-xs px-1.5 py-0.5 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 flex items-center gap-1">
-                              <PresenceIndicator presence={senderPresence} size="sm" />
-                              {senderPresence.in_call ? 'In Call' : senderPresence.status}
+                              <PresenceIndicator presence={senderPresence} size="sm" showCustomStatus={true} />
+                              {senderPresence.custom_status ? senderPresence.custom_status : (senderPresence.in_call ? 'In Call' : senderPresence.status)}
                             </span>
                           )}
                           <span className="text-xs text-gray-500">

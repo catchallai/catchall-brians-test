@@ -11,32 +11,34 @@ export function usePresence(user) {
   const [isLoading, setIsLoading] = useState(true);
 
   // Initialize and update user's presence
-  const updatePresence = useCallback(async (status = 'online', inCall = false, callId = null) => {
+  const updatePresence = useCallback(async (status = 'online', inCall = false, callId = null, customStatus = null) => {
     if (!user?.email) return;
 
     try {
       // Check if presence record exists
       const existing = await base44.entities.Presence.filter({ user_email: user.email });
       
+      const updateData = {
+        status,
+        in_call: inCall,
+        call_id: callId,
+        last_activity: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        ...(customStatus && {
+          custom_status: customStatus.custom_status,
+          status_emoji: customStatus.status_emoji,
+        }),
+      };
+
       if (existing.length > 0) {
         // Update existing
-        await base44.entities.Presence.update(existing[0].id, {
-          status,
-          in_call: inCall,
-          call_id: callId,
-          last_activity: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        });
+        await base44.entities.Presence.update(existing[0].id, updateData);
       } else {
         // Create new
         await base44.entities.Presence.create({
           user_email: user.email,
           user_name: user.full_name,
-          status,
-          in_call: inCall,
-          call_id: callId,
-          last_activity: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
+          ...updateData,
         });
       }
 
@@ -46,6 +48,8 @@ export function usePresence(user) {
         status,
         in_call: inCall,
         call_id: callId,
+        custom_status: customStatus?.custom_status || '',
+        status_emoji: customStatus?.status_emoji || '',
       });
     } catch (error) {
       console.error('Error updating presence:', error);
@@ -65,6 +69,8 @@ export function usePresence(user) {
           status: record.status,
           in_call: record.in_call,
           call_id: record.call_id,
+          custom_status: record.custom_status,
+          status_emoji: record.status_emoji,
         };
       });
 
@@ -143,6 +149,8 @@ export function usePresence(user) {
             status: event.data.status,
             in_call: event.data.in_call,
             call_id: event.data.call_id,
+            custom_status: event.data.custom_status,
+            status_emoji: event.data.status_emoji,
           },
         }));
       } else if (event.type === 'delete') {
