@@ -202,6 +202,7 @@ export function useWebRTC(roomId, user, participants) {
     toggleVideo,
     changeVideoQuality,
     startScreenShare,
+    stopScreenShare,
     createPeerConnection,
     cleanupConnections,
   };
