@@ -420,38 +420,103 @@ export default function ICS() {
           />
         </>
       ) : activeView === 'contacts' ? (
-        <UsersList
-          users={allUsers}
-          allPresence={allPresence}
-          darkMode={darkMode}
-          onSelectUser={(selectedUser, action) => {
-            if (action === 'message') {
-              // Create or find direct message channel
+        <>
+          <UsersList
+            users={allUsers}
+            allPresence={allPresence}
+            darkMode={darkMode}
+            onSelectUser={(selectedUser, action) => {
+              if (action === 'message') {
+                // Create or find direct message channel
+                const dmChannel = channels.find(c => 
+                  c.type === 'dm' && 
+                  c.members?.includes(selectedUser.email) &&
+                  c.members?.includes(user?.email)
+                );
+                
+                if (dmChannel) {
+                  setSelectedChannel(dmChannel);
+                } else {
+                  // Create new DM channel
+                  createChannelMutation.mutate({
+                    name: selectedUser.full_name,
+                    type: 'dm',
+                    created_by: user?.email,
+                    members: [user?.email, selectedUser.email],
+                    last_activity: new Date().toISOString(),
+                  });
+                }
+                setActiveView('chat');
+              } else if (action === 'call') {
+                // Start a call with the user
+                handleStartCall();
+              }
+            }}
+            currentUser={user}
+            onViewProfile={(contact) => {
+              setSelectedContact(contact);
+              setShowContactPanel(true);
+            }}
+          />
+
+          <ContactDetailPanel
+            contact={selectedContact}
+            presence={selectedContact ? allPresence[selectedContact.email] : null}
+            darkMode={darkMode}
+            isOpen={showContactPanel}
+            onClose={() => {
+              setShowContactPanel(false);
+              setSelectedContact(null);
+            }}
+            onDirectMessage={(contact) => {
               const dmChannel = channels.find(c => 
                 c.type === 'dm' && 
-                c.members?.includes(selectedUser.email) &&
+                c.members?.includes(contact.email) &&
                 c.members?.includes(user?.email)
               );
               
               if (dmChannel) {
                 setSelectedChannel(dmChannel);
               } else {
-                // Create new DM channel
                 createChannelMutation.mutate({
-                  name: selectedUser.full_name,
+                  name: contact.full_name,
                   type: 'dm',
                   created_by: user?.email,
-                  members: [user?.email, selectedUser.email],
+                  members: [user?.email, contact.email],
                   last_activity: new Date().toISOString(),
                 });
               }
+              setShowContactPanel(false);
               setActiveView('chat');
-            } else if (action === 'call') {
-              // Start a call with the user
+            }}
+            onVideoCall={(contact) => {
               handleStartCall();
-            }
-          }}
-          currentUser={user}
+              setShowContactPanel(false);
+            }}
+            onGroupMessage={() => {
+              // Can be expanded to create group channels
+              console.log('Group message feature coming soon');
+            }}
+            onScheduleCall={() => {
+              // Can be expanded to schedule calls
+              console.log('Schedule call feature coming soon');
+            }}
+            isOwnProfile={false}
+          />
+        </>
+      ) : activeView === 'account' ? (
+        <ContactDetailPanel
+          contact={user}
+          presence={userPresence}
+          darkMode={darkMode}
+          isOpen={true}
+          onClose={() => setActiveView('chat')}
+          onDirectMessage={() => {}}
+          onVideoCall={() => {}}
+          onGroupMessage={() => {}}
+          onScheduleCall={() => {}}
+          isOwnProfile={true}
+          onEditProfile={() => setShowProfile(true)}
         />
       ) : activeView === 'notifications' ? (
         <NotificationsView user={user} darkMode={darkMode} />
