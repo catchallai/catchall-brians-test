@@ -18,7 +18,9 @@ import {
   Settings,
   Maximize,
   Volume2,
-  VolumeX
+  VolumeX,
+  Image as ImageIcon,
+  X as XIcon
 } from "lucide-react";
 import { format } from 'date-fns';
 import {
@@ -43,7 +45,17 @@ export default function VideoCallInterface({
   const [showWaitingRoom, setShowWaitingRoom] = useState(false);
   const [isScreenSharing, setIsScreenSharing] = useState(false);
   const [pinnedParticipants, setPinnedParticipants] = useState([]); // Support multiple pins
+  const [showBackgroundSelector, setShowBackgroundSelector] = useState(false);
+  const [selectedBackground, setSelectedBackground] = useState(null);
   const videoRefs = useRef({});
+
+  const VIRTUAL_BACKGROUNDS = [
+    { name: 'None', value: null },
+    { name: 'Blur', value: 'blur' },
+    { name: 'Office', value: 'office', color: 'bg-blue-100' },
+    { name: 'Park', value: 'park', color: 'bg-green-100' },
+    { name: 'Beach', value: 'beach', color: 'bg-yellow-100' },
+  ];
 
   const {
     localStream,
@@ -441,6 +453,39 @@ export default function VideoCallInterface({
           >
             {isScreenSharing ? <StopCircle className="w-5 h-5" /> : <ScreenShare className="w-5 h-5" />}
           </Button>
+          <div className="relative">
+            <Button
+              variant={selectedBackground ? "default" : "secondary"}
+              size="lg"
+              onClick={() => setShowBackgroundSelector(!showBackgroundSelector)}
+              title="Virtual background"
+            >
+              <ImageIcon className="w-5 h-5" />
+            </Button>
+            {showBackgroundSelector && (
+              <div className="absolute bottom-16 left-1/2 transform -translate-x-1/2 bg-gray-700 rounded-lg shadow-lg p-3 z-50 w-48">
+                <div className="grid grid-cols-2 gap-2">
+                  {VIRTUAL_BACKGROUNDS.map((bg) => (
+                    <button
+                      key={bg.value}
+                      onClick={() => {
+                        setSelectedBackground(bg.value);
+                        setShowBackgroundSelector(false);
+                      }}
+                      className={`p-3 rounded text-sm text-center transition-all ${
+                        selectedBackground === bg.value
+                          ? 'ring-2 ring-violet-500 bg-gray-600'
+                          : 'bg-gray-600 hover:bg-gray-500'
+                      }`}
+                    >
+                      {bg.color && <div className={`${bg.color} w-full h-6 rounded mb-1`}></div>}
+                      {bg.name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
           <Button
             variant={activeCall?.recording_status === 'recording' ? "destructive" : "secondary"}
             size="lg"
