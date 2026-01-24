@@ -55,30 +55,15 @@ export default function ProjectDetail() {
 
   const { data: contacts = [] } = useQuery({
     queryKey: ['contacts'],
-    queryFn: async () => {
-      if (!user?.current_business_id) return [];
-      return await base44.entities.Contact.filter({ business_id: user.current_business_id });
-    },
-    enabled: !!user?.current_business_id,
+    queryFn: () => base44.entities.Contact.list(),
   });
 
   const createTaskMutation = useMutation({
     mutationFn: async (data) => {
-      const task = await base44.entities.ProjectTask.create({
+      return await base44.entities.ProjectTask.create({
         ...data,
         project_id: projectId,
-        business_id: user?.current_business_id,
       });
-      await base44.entities.Activity.create({
-        business_id: user?.current_business_id,
-        entity_type: 'project',
-        entity_id: projectId,
-        activity_type: 'note_added',
-        title: `Added task "${data.title}"`,
-        performed_by: user?.email,
-        performed_by_name: user?.full_name,
-      });
-      return task;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['project-tasks'] });
@@ -99,7 +84,6 @@ export default function ProjectDetail() {
       return await base44.entities.ProjectMilestone.create({
         ...data,
         project_id: projectId,
-        business_id: user?.current_business_id,
       });
     },
     onSuccess: () => {
