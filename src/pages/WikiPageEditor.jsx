@@ -101,7 +101,7 @@ export default function WikiPageEditor() {
       const pages = await base44.entities.WikiPage.list();
       return pages.filter(p => p.space_id === spaceId && p.template === true);
     },
-    enabled: !!spaceId && !pageId,
+    enabled: !!spaceId,
   });
 
   const { data: activeEditors = [] } = useQuery({
@@ -131,10 +131,12 @@ export default function WikiPageEditor() {
   }, [page]);
 
   useEffect(() => {
-    if (!pageId && templates.length > 0) {
-      setShowTemplateSelector(true);
+    if (!pageId && spaceId && !content) {
+      if (space?.require_template || templates.length > 0) {
+        setShowTemplateSelector(true);
+      }
     }
-  }, [pageId, templates]);
+  }, [pageId, spaceId, templates, content, space]);
 
   // Track user presence
   useEffect(() => {
@@ -245,6 +247,13 @@ export default function WikiPageEditor() {
   const handleSelectTemplate = (template) => {
     setTitle('');
     setContent(template.content);
+    setShowTemplateSelector(false);
+  };
+
+  const handleCreateBlank = () => {
+    if (space?.require_template) {
+      return; // Don't allow blank pages if templates are required
+    }
     setShowTemplateSelector(false);
   };
 
@@ -438,10 +447,12 @@ export default function WikiPageEditor() {
       {/* Template Selector Modal */}
       <TemplateSelector
         open={showTemplateSelector}
-        onClose={() => setShowTemplateSelector(false)}
+        onClose={() => !space?.require_template && setShowTemplateSelector(false)}
         templates={templates}
         onSelectTemplate={handleSelectTemplate}
-        onCreateBlank={() => setShowTemplateSelector(false)}
+        onCreateBlank={handleCreateBlank}
+        requireTemplate={space?.require_template}
+        defaultTemplateId={space?.default_template_id}
       />
     </div>
   );
