@@ -29,8 +29,8 @@ export default function ProjectDetail() {
     queryKey: ['project', projectId],
     queryFn: async () => {
       if (!projectId) return null;
-      const projects = await base44.entities.Project.filter({ id: projectId });
-      return projects[0];
+      const projects = await base44.entities.Project.list();
+      return projects.find(p => p.id === projectId) || null;
     },
     enabled: !!projectId,
   });
