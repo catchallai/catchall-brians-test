@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   MessageSquare, 
   Video, 
@@ -19,7 +20,11 @@ import {
   Send,
   Paperclip,
   Smile,
-  MoreVertical
+  MoreVertical,
+  Archive,
+  Bell,
+  Mail,
+  Clock
 } from "lucide-react";
 import {
   Dialog,
