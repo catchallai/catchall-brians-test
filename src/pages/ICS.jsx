@@ -67,6 +67,7 @@ export default function ICS() {
   const [selectedContact, setSelectedContact] = useState(null);
   const [showContactPanel, setShowContactPanel] = useState(false);
   const [editingOwnProfile, setEditingOwnProfile] = useState(false);
+  const [incomingCall, setIncomingCall] = useState(null);
   const messagesEndRef = useRef(null);
   const queryClient = useQueryClient();
 
