@@ -177,6 +177,7 @@ export default function ContactModal({ open, onClose, contact, companies, onSave
         <DialogHeader>
           <DialogTitle>{contact ? 'Edit Contact' : 'Add New Contact'}</DialogTitle>
         </DialogHeader>
+        <form onSubmit={handleSubmit}>
         <Tabs defaultValue="basic" className="w-full mt-4">
           <TabsList className="grid w-full grid-cols-4 mb-4">
             <TabsTrigger value="basic">Basic</TabsTrigger>
@@ -185,7 +186,7 @@ export default function ContactModal({ open, onClose, contact, companies, onSave
             <TabsTrigger value="additional">Additional</TabsTrigger>
           </TabsList>
 
-              <TabsContent value="basic" className="space-y-4">
+          <TabsContent value="basic" className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="first_name">First Name *</Label>
