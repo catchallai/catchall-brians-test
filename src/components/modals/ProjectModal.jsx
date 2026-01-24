@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Loader2 } from "lucide-react";
+import { base44 } from '@/api/base44Client';
 
 export default function ProjectModal({ open, onClose, project, companies, contacts, onSave, isLoading }) {
   const [formData, setFormData] = useState({
@@ -65,14 +66,28 @@ export default function ProjectModal({ open, onClose, project, companies, contac
     }
   }, [project, open]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.name) {
       setErrors({ name: 'Project name is required' });
       return;
     }
     setErrors({});
-    onSave(formData);
+    
+    // Get current business from user if not set
+    let projectData = { ...formData };
+    if (!projectData.business_id) {
+      try {
+        const user = await base44.auth.me();
+        if (user?.current_business_id) {
+          projectData.business_id = user.current_business_id;
+        }
+      } catch (err) {
+        console.error('Error fetching user:', err);
+      }
+    }
+    
+    onSave(projectData);
   };
 
   const addTeamMember = () => {
