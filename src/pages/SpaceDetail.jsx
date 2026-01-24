@@ -36,7 +36,7 @@ export default function SpaceDetail() {
     queryFn: async () => {
       if (!spaceId) return [];
       const allPages = await base44.entities.WikiPage.list();
-      return allPages.filter(p => p.space_id === spaceId);
+      return allPages.filter(p => p.space_id === spaceId && !p.template);
     },
     enabled: !!spaceId,
   });
@@ -175,13 +175,14 @@ export default function SpaceDetail() {
 
       {/* Pages List */}
       {pages.length === 0 ? (
-        <EmptyState
-          icon={FileText}
-          title="No pages yet"
-          description="Create your first page to start documenting."
-          actionLabel="Create Page"
-          onAction={() => {}}
-        />
+        <Link to={`${createPageUrl('WikiPageEditor')}?spaceId=${spaceId}`}>
+          <EmptyState
+            icon={FileText}
+            title="No pages yet"
+            description="Create your first page to start documenting."
+            actionLabel="Create Page"
+          />
+        </Link>
       ) : (
         <div className="space-y-2">
           {filteredPages.map(page => (
