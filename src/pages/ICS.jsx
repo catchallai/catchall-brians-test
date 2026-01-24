@@ -41,6 +41,7 @@ import FilePreview from '@/components/ics/FilePreview';
 import Sidebar from '@/components/ics/Sidebar';
 import ConversationsList from '@/components/ics/ConversationsList';
 import ChatArea from '@/components/ics/ChatArea';
+import UsersList from '@/components/ics/UsersList';
 import NotificationPreferences from '@/components/notifications/NotificationPreferences.jsx';
 import NotificationCenter from '@/components/notifications/NotificationCenter';
 import { playNotificationSound, isInDND } from '@/components/notifications/NotificationSounds';
@@ -93,6 +94,15 @@ export default function ICS() {
         !c.is_archived && 
         (c.type === 'public' || c.members?.includes(user?.email))
       );
+    },
+    enabled: !!user,
+  });
+
+  const { data: allUsers = [] } = useQuery({
+    queryKey: ['all-users'],
+    queryFn: async () => {
+      const users = await base44.entities.User.list('-created_date', 500);
+      return users.filter(u => u.email !== user?.email);
     },
     enabled: !!user,
   });
@@ -391,6 +401,40 @@ export default function ICS() {
             onTyping={handleTyping}
           />
         </>
+        ) : activeView === 'contacts' ? (
+        <UsersList
+          users={allUsers}
+          allPresence={allPresence}
+          darkMode={darkMode}
+          onSelectUser={(selectedUser, action) => {
+            if (action === 'message') {
+              // Create or find direct message channel
+              const dmChannel = channels.find(c => 
+                c.type === 'dm' && 
+                c.members?.includes(selectedUser.email) &&
+                c.members?.includes(user?.email)
+              );
+              
+              if (dmChannel) {
+                setSelectedChannel(dmChannel);
+              } else {
+                // Create new DM channel
+                createChannelMutation.mutate({
+                  name: selectedUser.full_name,
+                  type: 'dm',
+                  created_by: user?.email,
+                  members: [user?.email, selectedUser.email],
+                  last_activity: new Date().toISOString(),
+                });
+              }
+              setActiveView('chat');
+            } else if (action === 'call') {
+              // Start a call with the user
+              handleStartCall();
+            }
+          }}
+          currentUser={user}
+        />
         ) : null}
         </div>
         );
