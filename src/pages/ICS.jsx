@@ -50,6 +50,7 @@ import NotificationCenter from '@/components/notifications/NotificationCenter';
 import { playNotificationSound, isInDND } from '@/components/notifications/NotificationSounds';
 import { extractMentions, createMentionNotifications } from '@/components/notifications/MentionParser';
 import ICSAdminPortal from '@/components/ics/ICSAdminPortal.jsx';
+import ContactDetailPanel from '@/components/ics/ContactDetailPanel';
 
 export default function ICS() {
   const [selectedChannel, setSelectedChannel] = useState(null);
