@@ -41,6 +41,8 @@ import FilePreview from '@/components/ics/FilePreview';
 import Sidebar from '@/components/ics/Sidebar';
 import ConversationsList from '@/components/ics/ConversationsList';
 import ChatArea from '@/components/ics/ChatArea';
+import NotificationPreferences from '@/components/notifications/NotificationPreferences';
+import { playNotificationSound, isInDND } from '@/components/notifications/NotificationSounds';
 
 export default function ICS() {
   const [selectedChannel, setSelectedChannel] = useState(null);
@@ -51,6 +53,7 @@ export default function ICS() {
   const [darkMode, setDarkMode] = useState(true);
   const [isInCall, setIsInCall] = useState(false);
   const [typingByChannel, setTypingByChannel] = useState({});
+  const [notificationPrefs, setNotificationPrefs] = useState(null);
   const messagesEndRef = useRef(null);
   const queryClient = useQueryClient();
 
@@ -60,6 +63,25 @@ export default function ICS() {
   });
 
   const { userPresence, allPresence, getPresence, updatePresence } = usePresence(user);
+
+  // Load notification preferences
+  const { data: prefsData } = useQuery({
+    queryKey: ['notification-prefs', user?.email],
+    queryFn: async () => {
+      if (!user) return null;
+      const records = await base44.entities.NotificationPreference.filter({
+        user_email: user.email,
+      });
+      return records[0] || null;
+    },
+    enabled: !!user,
+  });
+
+  useEffect(() => {
+    if (prefsData) {
+      setNotificationPrefs(prefsData);
+    }
+  }, [prefsData]);
 
   const { data: channels = [] } = useQuery({
     queryKey: ['channels'],
@@ -127,8 +149,32 @@ export default function ICS() {
 
   const sendMessageMutation = useMutation({
     mutationFn: (data) => base44.entities.Message.create(data),
-    onSuccess: () => {
+    onSuccess: (newMessage) => {
       queryClient.invalidateQueries({ queryKey: ['messages'] });
+      
+      // Trigger notification for new messages from others
+      if (newMessage.sender_email !== user?.email && notificationPrefs) {
+        const isMuted = notificationPrefs.muted_channels?.includes(selectedChannel?.id);
+        const inDND = isInDND(notificationPrefs.dnd_start_time, notificationPrefs.dnd_end_time);
+        
+        if (!isMuted && (!inDND || !notificationPrefs.do_not_disturb_enabled)) {
+          if (notificationPrefs.messages_enabled && notificationPrefs.sound_enabled) {
+            playNotificationSound(notificationPrefs.sound_type);
+          }
+          
+          if (notificationPrefs.desktop_notifications_enabled) {
+            try {
+              new Notification(`New message from ${newMessage.sender_name}`, {
+                body: newMessage.content.substring(0, 100),
+                icon: '/logo.png',
+                tag: 'new-message',
+              });
+            } catch (err) {
+              console.log('Desktop notifications not supported');
+            }
+          }
+        }
+      }
     },
   });
 
@@ -197,6 +243,11 @@ export default function ICS() {
       sender_name: user?.full_name,
       attachments: messageData.attachments,
     });
+  };
+
+  const handlePreferencesUpdate = (updatedPrefs) => {
+    setNotificationPrefs(updatedPrefs);
+    queryClient.invalidateQueries({ queryKey: ['notification-prefs'] });
   };
 
   const handleStartCall = () => {
@@ -297,6 +348,12 @@ export default function ICS() {
         onSettingsClick={() => setShowSettings(true)}
         user={user}
         unreadCount={channels.filter(c => messages.filter(m => m.channel_id === c.id && m.created_date > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)).length > 0).length}
+        notificationButton={
+          <NotificationPreferences 
+            user={user} 
+            onPreferencesUpdate={handlePreferencesUpdate}
+          />
+        }
       />
 
       {activeView === 'chat' ? (
