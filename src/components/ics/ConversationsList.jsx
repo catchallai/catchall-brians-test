@@ -13,6 +13,7 @@ export default function ConversationsList({
   onNewChat,
   darkMode,
   allPresence,
+  typingByChannel = {},
 }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [activeTab, setActiveTab] = useState('all');
@@ -26,6 +27,7 @@ export default function ConversationsList({
     const channelPresence = channel.members
       ?.map(email => allPresence[email])
       .filter(Boolean) || [];
+    const typingUsers = typingByChannel[channel.id] || [];
 
     return (
       <button
@@ -77,10 +79,15 @@ export default function ConversationsList({
 
           <p
             className={`text-sm truncate mt-1 ${
-              darkMode ? 'text-slate-400' : 'text-slate-500'
+              typingUsers.length > 0 
+                ? 'text-violet-400 font-medium' 
+                : darkMode ? 'text-slate-400' : 'text-slate-500'
             }`}
           >
-            {channel.description || 'No messages yet'}
+            {typingUsers.length > 0 
+              ? `${typingUsers.slice(0, 2).join(', ')}${typingUsers.length > 2 ? '...' : ''} typing`
+              : channel.description || 'No messages yet'
+            }
           </p>
 
           {channel.members && (
