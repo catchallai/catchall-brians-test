@@ -250,7 +250,7 @@ export default function Projects() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredProjects.map((project) => (
-            <Link key={project.id} to={createPageUrl('ProjectDetail', `id=${project.id}`)}>
+            <Link key={project.id} to={`${createPageUrl('ProjectDetail')}?id=${project.id}`}>
               <Card className="p-5 glass-card hover:shadow-lg transition-all h-full cursor-pointer">
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex-1">
