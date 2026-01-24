@@ -7,6 +7,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import MessageInput from './MessageInput';
 import FilePreview from './FilePreview';
 import PresenceIndicator from './PresenceIndicator';
+import VideoCallInterface from './VideoCallInterface';
 
 export default function ChatArea({
   channel,
