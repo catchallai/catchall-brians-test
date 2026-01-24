@@ -5,7 +5,7 @@ import { useSearchParams, Link, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Plus, Search, FileText, ArrowLeft, ChevronRight, MoreVertical, Pencil, Trash2 } from "lucide-react";
+import { Plus, Search, FileText, ArrowLeft, ChevronRight, MoreVertical, Pencil, Trash2, List, BookOpen, GripVertical } from "lucide-react";
 import EmptyState from '@/components/ui/EmptyState';
 import { createPageUrl } from '@/utils';
 import {
@@ -14,6 +14,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
+import TableOfContents from '@/components/wiki/TableOfContents';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function SpaceDetail() {
   const [searchParams] = useSearchParams();
@@ -49,6 +52,50 @@ export default function SpaceDetail() {
     },
   });
 
+  const updateOrderMutation = useMutation({
+    mutationFn: async ({ pageId, order }) => {
+      return await base44.entities.WikiPage.update(pageId, { order });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['space-pages'] });
+    },
+  });
+
+  const handleDragEnd = (result) => {
+    if (!result.destination) return;
+
+    const { source, destination } = result;
+    if (source.index === destination.index) return;
+
+    const sourceParentId = source.droppableId === 'root' ? null : source.droppableId;
+    const destParentId = destination.droppableId === 'root' ? null : destination.droppableId;
+
+    // Get pages from the destination parent
+    const siblingPages = pages
+      .filter(p => (destParentId ? p.parent_page_id === destParentId : !p.parent_page_id))
+      .sort((a, b) => (a.order || 0) - (b.order || 0));
+
+    const draggedPage = pages.find(p => p.id === result.draggableId);
+    
+    // Remove from old position
+    const filteredPages = siblingPages.filter(p => p.id !== draggedPage.id);
+    
+    // Insert at new position
+    filteredPages.splice(destination.index, 0, draggedPage);
+
+    // Update order for all affected pages
+    filteredPages.forEach((page, index) => {
+      if (page.order !== index) {
+        updateOrderMutation.mutate({ pageId: page.id, order: index });
+      }
+    });
+
+    // If parent changed, update parent
+    if (sourceParentId !== destParentId) {
+      base44.entities.WikiPage.update(draggedPage.id, { parent_page_id: destParentId });
+    }
+  };
+
   if (spaceLoading) return <div className="p-6">Loading...</div>;
   if (!space) return <div className="p-6 text-center">Space not found</div>;
 
@@ -74,62 +121,88 @@ export default function SpaceDetail() {
     ? pages.filter(p => p.title.toLowerCase().includes(searchTerm.toLowerCase()))
     : rootPages;
 
-  const PageItem = ({ page, level = 0 }) => {
+  const PageItem = ({ page, level = 0, index }) => {
     const children = getChildPages(page.id);
     const [expanded, setExpanded] = useState(true);
 
     return (
-      <>
-        <Card className="p-3 glass-card hover:shadow-md transition-all group" style={{ marginLeft: `${level * 24}px` }}>
-          <div className="flex items-center justify-between">
-            <Link 
-              to={`${createPageUrl('WikiPageEditor')}?spaceId=${spaceId}&pageId=${page.id}`}
-              className="flex items-center gap-3 flex-1 min-w-0"
+      <Draggable draggableId={page.id} index={index}>
+        {(provided, snapshot) => (
+          <div ref={provided.innerRef} {...provided.draggableProps}>
+            <Card 
+              className={`p-3 glass-card hover:shadow-md transition-all group ${
+                snapshot.isDragging ? 'shadow-lg ring-2 ring-violet-500' : ''
+              }`} 
+              style={{ 
+                marginLeft: `${level * 24}px`,
+                ...provided.draggableProps.style 
+              }}
             >
-              {children.length > 0 && (
-                <button
-                  onClick={(e) => { e.preventDefault(); setExpanded(!expanded); }}
-                  className="p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded"
-                >
-                  <ChevronRight className={`w-4 h-4 transition-transform ${expanded ? 'rotate-90' : ''}`} />
-                </button>
-              )}
-              <FileText className="w-4 h-4 text-gray-400 flex-shrink-0" />
-              <span className="font-medium text-gray-900 dark:text-white truncate group-hover:text-violet-600">
-                {page.title}
-              </span>
-              {page.status === 'draft' && (
-                <span className="text-xs text-gray-400">Draft</span>
-              )}
-            </Link>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm" className="opacity-0 group-hover:opacity-100">
-                  <MoreVertical className="w-4 h-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem asChild>
-                  <Link to={`${createPageUrl('WikiPageEditor')}?spaceId=${spaceId}&pageId=${page.id}`}>
-                    <Pencil className="w-4 h-4 mr-2" />
-                    Edit
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2 flex-1 min-w-0">
+                  <div {...provided.dragHandleProps} className="cursor-grab active:cursor-grabbing opacity-0 group-hover:opacity-100">
+                    <GripVertical className="w-4 h-4 text-gray-400" />
+                  </div>
+                  <Link 
+                    to={`${createPageUrl('WikiPageEditor')}?spaceId=${spaceId}&pageId=${page.id}`}
+                    className="flex items-center gap-3 flex-1 min-w-0"
+                  >
+                    {children.length > 0 && (
+                      <button
+                        onClick={(e) => { e.preventDefault(); setExpanded(!expanded); }}
+                        className="p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded"
+                      >
+                        <ChevronRight className={`w-4 h-4 transition-transform ${expanded ? 'rotate-90' : ''}`} />
+                      </button>
+                    )}
+                    <FileText className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                    <span className="font-medium text-gray-900 dark:text-white truncate group-hover:text-violet-600">
+                      {page.title}
+                    </span>
+                    {page.status === 'draft' && (
+                      <span className="text-xs text-gray-400">Draft</span>
+                    )}
                   </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem 
-                  onClick={() => deleteMutation.mutate(page.id)}
-                  className="text-red-600"
-                >
-                  <Trash2 className="w-4 h-4 mr-2" />
-                  Delete
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+                </div>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="sm" className="opacity-0 group-hover:opacity-100">
+                      <MoreVertical className="w-4 h-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem asChild>
+                      <Link to={`${createPageUrl('WikiPageEditor')}?spaceId=${spaceId}&pageId=${page.id}`}>
+                        <Pencil className="w-4 h-4 mr-2" />
+                        Edit
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem 
+                      onClick={() => deleteMutation.mutate(page.id)}
+                      className="text-red-600"
+                    >
+                      <Trash2 className="w-4 h-4 mr-2" />
+                      Delete
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            </Card>
+            {expanded && children.length > 0 && (
+              <Droppable droppableId={page.id} type="page">
+                {(provided) => (
+                  <div ref={provided.innerRef} {...provided.droppableProps}>
+                    {children.map((child, idx) => (
+                      <PageItem key={child.id} page={child} level={level + 1} index={idx} />
+                    ))}
+                    {provided.placeholder}
+                  </div>
+                )}
+              </Droppable>
+            )}
           </div>
-        </Card>
-        {expanded && children.map(child => (
-          <PageItem key={child.id} page={child} level={level + 1} />
-        ))}
-      </>
+        )}
+      </Draggable>
     );
   };
 
@@ -184,11 +257,37 @@ export default function SpaceDetail() {
           onAction={() => navigate(`${createPageUrl('WikiPageEditor')}?spaceId=${spaceId}`)}
         />
       ) : (
-        <div className="space-y-2">
-          {filteredPages.map(page => (
-            <PageItem key={page.id} page={page} />
-          ))}
-        </div>
+        <Tabs defaultValue="list" className="w-full">
+          <TabsList className="mb-4">
+            <TabsTrigger value="list" className="gap-2">
+              <List className="w-4 h-4" />
+              List View
+            </TabsTrigger>
+            <TabsTrigger value="toc" className="gap-2">
+              <BookOpen className="w-4 h-4" />
+              Table of Contents
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="list">
+            <DragDropContext onDragEnd={handleDragEnd}>
+              <Droppable droppableId="root" type="page">
+                {(provided) => (
+                  <div ref={provided.innerRef} {...provided.droppableProps} className="space-y-2">
+                    {filteredPages.map((page, index) => (
+                      <PageItem key={page.id} page={page} index={index} />
+                    ))}
+                    {provided.placeholder}
+                  </div>
+                )}
+              </Droppable>
+            </DragDropContext>
+          </TabsContent>
+
+          <TabsContent value="toc">
+            <TableOfContents pages={pages} spaceId={spaceId} />
+          </TabsContent>
+        </Tabs>
       )}
     </div>
   );
