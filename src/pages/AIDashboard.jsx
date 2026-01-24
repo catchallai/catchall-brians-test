@@ -2,7 +2,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Sparkles, Users, Zap, Target, TrendingUp, PenTool, Search, FlaskConical, BarChart3, Radio, Users2, Globe, MessageSquare } from "lucide-react";
+import { Sparkles, Users, Zap, Target as TargetIcon, TrendingUp, PenTool, Search, FlaskConical, BarChart3, Radio, Users2, Globe, MessageSquare } from "lucide-react";
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 
