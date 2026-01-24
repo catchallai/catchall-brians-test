@@ -346,7 +346,14 @@ export default function VideoCallInterface({
                       muted={participant.isLocal}
                       className="w-full h-full object-cover rounded"
                     />
-                    <div className="absolute bottom-1 left-1 bg-black/70 px-1 py-0.5 rounded text-xs text-white">
+                    <div className="absolute bottom-1 left-1 bg-black/70 px-1 py-0.5 rounded text-xs text-white flex items-center gap-0.5">
+                      <span>{participant.status_emoji}</span>
+                      <span className="w-1.5 h-1.5 rounded-full" style={{
+                        backgroundColor: participant.status === 'online' ? '#10b981' :
+                                        participant.status === 'away' ? '#eab308' :
+                                        participant.status === 'busy' ? '#ef4444' :
+                                        '#9ca3af'
+                      }}></span>
                       {participant.name}
                     </div>
                   </div>
