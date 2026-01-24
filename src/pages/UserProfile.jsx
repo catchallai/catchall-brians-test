@@ -64,7 +64,26 @@ export default function UserProfile() {
   };
 
   const handleSavePreferences = () => {
+    // Persist theme to localStorage
+    localStorage.setItem('theme', preferences.theme);
     updateProfileMutation.mutate(preferences);
+  };
+
+  const handleSaveNotificationPrefs = () => {
+    updateProfileMutation.mutate(notificationPrefs);
+  };
+
+  const handleAvatarUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      try {
+        const { file_url } = await base44.integrations.Core.UploadFile({ file });
+        updateProfileMutation.mutate({ avatar_url: file_url });
+        toast.success('Avatar updated successfully');
+      } catch (error) {
+        toast.error('Failed to upload avatar');
+      }
+    }
   };
 
   React.useEffect(() => {
