@@ -157,13 +157,35 @@ export default function ContactModal({ open, onClose, contact, companies, onSave
     onSave(sanitizedData);
   };
 
+  const addArrayItem = (field, value) => {
+    setFormData({
+      ...formData,
+      [field]: [...(formData[field] || []), value]
+    });
+  };
+
+  const removeArrayItem = (field, index) => {
+    setFormData({
+      ...formData,
+      [field]: formData[field].filter((_, i) => i !== index)
+    });
+  };
+
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-lg">
+      <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{contact ? 'Edit Contact' : 'Add New Contact'}</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4 mt-4">
+        <Tabs defaultValue="basic" className="w-full mt-4">
+          <TabsList className="grid w-full grid-cols-4 mb-4">
+            <TabsTrigger value="basic">Basic</TabsTrigger>
+            <TabsTrigger value="company">Company</TabsTrigger>
+            <TabsTrigger value="roles">Roles</TabsTrigger>
+            <TabsTrigger value="additional">Additional</TabsTrigger>
+          </TabsList>
+
+          <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="company_name">Firm</Label>
             <Input
