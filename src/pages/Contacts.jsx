@@ -240,10 +240,11 @@ export default function Contacts() {
 
         // Only create if we have at least email or both first name and last name
         if (contactData.email || (contactData.first_name && contactData.last_name)) {
+          contactData.business_id = user?.current_business_id;
           await base44.entities.Contact.create(contactData);
         }
-      }
-      await logActivity(ActivityActions.IMPORT, 'Contact', null, null, { count: data.length });
+        }
+        await logActivity(ActivityActions.IMPORT, 'Contact', null, null, { count: data.length });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['contacts'] });
