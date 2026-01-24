@@ -556,6 +556,7 @@ export default function ICS() {
             onToggleRecording={handleToggleRecording}
             onToggleWaitingRoom={handleToggleWaitingRoom}
             onAdmitUser={handleAdmitUser}
+            onRejectUser={handleRejectUser}
             updateCallMutation={updateCallMutation}
           />
         </>
