@@ -829,17 +829,17 @@ export default function Contacts() {
 
       {/* Import Dialog */}
       <ImportDialog
-        open={showImport}
-        onClose={() => setShowImport(false)}
-        onImport={(data) => importMutation.mutateAsync(data)}
-        entityName="Contacts"
-        requiredFields={['first_name', 'email']}
-        optionalFields={['company_name', 'last_name', 'job_title', 'phone', 'linkedin_url', 'notes']}
-        sampleData={[
-          { company_name: 'Acme Corp', first_name: 'John', last_name: 'Doe', job_title: 'CEO', email: 'john@example.com', phone: '555-1234', linkedin_url: 'https://linkedin.com/in/johndoe', notes: 'Met at conference' },
-          { company_name: 'Tech Inc', first_name: 'Jane', last_name: 'Smith', job_title: 'CTO', email: 'jane@example.com', phone: '555-5678', linkedin_url: 'https://linkedin.com/in/janesmith', notes: 'Interested in product demo' },
-        ]}
-      />
+         open={showImport}
+         onClose={() => setShowImport(false)}
+         onImport={(data) => importMutation.mutateAsync(data)}
+         entityName="Contacts"
+         requiredFields={['first_name', 'email']}
+         optionalFields={['company_name', 'last_name', 'job_title', 'phone', 'linkedin_url', 'status', 'source', 'tier', 'category', 'country', 'hq_city', 'website', 'contact_page_url', 'general_emails', 'contact_sources_urls', 'role_1_title', 'role_1_name', 'role_1_email', 'role_1_phone', 'role_1_source_url', 'role_2_title', 'role_2_name', 'role_2_email', 'role_2_phone', 'role_2_source_url', 'signer_title', 'signer_name', 'signer_email', 'signer_phone', 'signer_source_url', 'loi_summary', 'loi_source_urls', 'notes_angle', 'notes']}
+         sampleData={[
+           { company_name: 'Acme Corp', first_name: 'John', last_name: 'Doe', job_title: 'CEO', email: 'john@example.com', phone: '555-1234', linkedin_url: 'https://linkedin.com/in/johndoe', status: 'prospect', source: 'cold_outreach', tier: 'Tier 1', category: 'US Fractional', country: 'USA', hq_city: 'New York', website: 'https://acme.com', contact_page_url: 'https://acme.com/contact', notes: 'Met at conference' },
+           { company_name: 'Tech Inc', first_name: 'Jane', last_name: 'Smith', job_title: 'CTO', email: 'jane@example.com', phone: '555-5678', linkedin_url: 'https://linkedin.com/in/janesmith', status: 'lead', source: 'linkedin', tier: 'Tier 2', category: 'Charter', country: 'USA', hq_city: 'San Francisco', website: 'https://techinc.com', notes: 'Interested in product demo' },
+         ]}
+       />
 
       {/* Delete Confirmation */}
       <ConfirmDialog
