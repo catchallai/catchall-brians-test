@@ -68,6 +68,9 @@ export default function ICS() {
   const [showContactPanel, setShowContactPanel] = useState(false);
   const [editingOwnProfile, setEditingOwnProfile] = useState(false);
   const [incomingCall, setIncomingCall] = useState(null);
+  const [newChannelName, setNewChannelName] = useState('');
+  const [newChannelDesc, setNewChannelDesc] = useState('');
+  const [newChannelType, setNewChannelType] = useState('public');
   const messagesEndRef = useRef(null);
   const queryClient = useQueryClient();
 
@@ -418,6 +421,15 @@ export default function ICS() {
       callId: activeCall.id,
       userEmail,
       userName,
+    });
+  };
+
+  const handleRejectUser = (userEmail) => {
+    if (!activeCall) return;
+    const updatedWaitingRoom = activeCall.waiting_room?.filter(u => u.email !== userEmail) || [];
+    updateCallMutation.mutate({
+      callId: activeCall.id,
+      data: { waiting_room: updatedWaitingRoom },
     });
   };
 
