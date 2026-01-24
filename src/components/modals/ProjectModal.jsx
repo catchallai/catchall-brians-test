@@ -72,7 +72,17 @@ export default function ProjectModal({ open, onClose, project, companies, contac
       return;
     }
     setErrors({});
-    onSave(formData);
+    
+    // Clean up empty numeric fields
+    const cleanedData = { ...formData };
+    if (cleanedData.budget === '' || cleanedData.budget === null) {
+      delete cleanedData.budget;
+    }
+    if (cleanedData.budget_spent === '' || cleanedData.budget_spent === null) {
+      delete cleanedData.budget_spent;
+    }
+    
+    onSave(cleanedData);
   };
 
   const addTeamMember = () => {
