@@ -128,6 +128,34 @@ export default function ICS() {
     refetchInterval: 5000,
   });
 
+  const { data: contacts = [] } = useQuery({
+    queryKey: ['contacts-list'],
+    queryFn: async () => {
+      const allContacts = await base44.entities.Contact.list();
+      return allContacts;
+    },
+  });
+
+  const { data: archivedChannels = [] } = useQuery({
+    queryKey: ['archived-channels'],
+    queryFn: async () => {
+      const allChannels = await base44.entities.Channel.list();
+      return allChannels.filter(c => c.is_archived);
+    },
+  });
+
+  const { data: notifications = [] } = useQuery({
+    queryKey: ['notifications', user?.email],
+    queryFn: async () => {
+      if (!user?.email) return [];
+      const allNotifications = await base44.entities.Notification.filter({
+        user_email: user.email,
+      }, '-created_date', 50);
+      return allNotifications;
+    },
+    enabled: !!user?.email,
+  });
+
   // Subscribe to new messages
   useEffect(() => {
     if (!selectedChannel) return;
