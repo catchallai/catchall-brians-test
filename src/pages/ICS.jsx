@@ -42,6 +42,8 @@ import Sidebar from '@/components/ics/Sidebar';
 import ConversationsList from '@/components/ics/ConversationsList';
 import ChatArea from '@/components/ics/ChatArea';
 import UsersList from '@/components/ics/UsersList';
+import NotificationsView from '@/components/ics/NotificationsView';
+import ArchivedList from '@/components/ics/ArchivedList';
 import NotificationPreferences from '@/components/notifications/NotificationPreferences.jsx';
 import NotificationCenter from '@/components/notifications/NotificationCenter';
 import { playNotificationSound, isInDND } from '@/components/notifications/NotificationSounds';
@@ -103,6 +105,15 @@ export default function ICS() {
     queryFn: async () => {
       const users = await base44.entities.User.list('-created_date', 500);
       return users.filter(u => u.email !== user?.email);
+    },
+    enabled: !!user,
+  });
+
+  const { data: archivedChannels = [] } = useQuery({
+    queryKey: ['archived-channels'],
+    queryFn: async () => {
+      const allChannels = await base44.entities.Channel.list();
+      return allChannels.filter(c => c.is_archived);
     },
     enabled: !!user,
   });
@@ -401,7 +412,7 @@ export default function ICS() {
             onTyping={handleTyping}
           />
         </>
-        ) : activeView === 'contacts' ? (
+      ) : activeView === 'contacts' ? (
         <UsersList
           users={allUsers}
           allPresence={allPresence}
@@ -435,7 +446,18 @@ export default function ICS() {
           }}
           currentUser={user}
         />
-        ) : null}
+      ) : activeView === 'notifications' ? (
+        <NotificationsView user={user} darkMode={darkMode} />
+      ) : activeView === 'archived' ? (
+        <ArchivedList 
+          channels={archivedChannels} 
+          darkMode={darkMode}
+          onSelectChannel={(channel) => {
+            setSelectedChannel(channel);
+            setActiveView('chat');
+          }}
+        />
+      ) : null}
         </div>
         );
 }
