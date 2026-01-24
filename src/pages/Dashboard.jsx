@@ -25,17 +25,17 @@ export default function Dashboard() {
   // CRM Data
   const { data: contacts = [], isLoading: loadingContacts } = useQuery({
     queryKey: ['contacts'],
-    queryFn: () => base44.entities.Contact.list('-created_date', 100),
+    queryFn: () => base44.entities.Contact.list('-created_date', 500),
   });
 
   const { data: companies = [] } = useQuery({
     queryKey: ['companies'],
-    queryFn: () => base44.entities.Company.list('-created_date', 100),
+    queryFn: () => base44.entities.Company.list('-created_date', 500),
   });
 
   const { data: deals = [], isLoading: loadingDeals } = useQuery({
     queryKey: ['deals'],
-    queryFn: () => base44.entities.Deal.list('-created_date', 100),
+    queryFn: () => base44.entities.Deal.list('-created_date', 500),
   });
 
   // SEO Data
