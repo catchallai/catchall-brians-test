@@ -125,9 +125,21 @@ export default function Sidebar({
         >
           <Settings size={20} />
         </button>
-        <div className="mt-2">
-          <Avatar className="w-8 h-8">
-            <AvatarFallback className="bg-gradient-to-br from-red-600 to-red-700 text-white text-xs font-bold">
+        <button
+          onClick={onAccountClick}
+          className={`p-2.5 rounded-xl transition-all ${
+            activeView === 'account'
+              ? 'bg-violet-600 text-white shadow-lg shadow-violet-900/30'
+              : darkMode
+                ? 'text-slate-400 hover:text-white hover:bg-slate-800'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200'
+          }`}
+        >
+          <User size={20} />
+        </button>
+        <div className="mt-2 cursor-pointer" onClick={onAccountClick}>
+          <Avatar className="w-8 h-8 hover:opacity-80 transition-opacity">
+            <AvatarFallback className="bg-gradient-to-br from-violet-600 to-violet-700 text-white text-xs font-bold">
               {user?.full_name?.split(' ').map(n => n[0]).join('') || 'U'}
             </AvatarFallback>
           </Avatar>
