@@ -53,6 +53,23 @@ export default function ChatArea({
     );
   }
 
+  // If call is active, show video interface
+  if (activeCall && activeCall.status === 'active') {
+    return (
+      <div className={`flex-1 flex flex-col ${darkMode ? 'bg-slate-950' : 'bg-slate-50'}`}>
+        <VideoCallInterface
+          activeCall={activeCall}
+          user={user}
+          onEndCall={onEndCall}
+          onToggleRecording={onToggleRecording}
+          onToggleWaitingRoom={onToggleWaitingRoom}
+          onAdmitUser={onAdmitUser}
+          updateCallMutation={updateCallMutation}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className={`flex-1 flex flex-col ${darkMode ? 'bg-slate-950' : 'bg-slate-50'}`}>
       {/* Chat Header */}
