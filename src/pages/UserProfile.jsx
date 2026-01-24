@@ -342,77 +342,120 @@ export default function UserProfile() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Bell className="w-5 h-5 text-violet-600" />
-                Email Notifications
+                Notification Types
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="font-medium text-gray-900 dark:text-white">Email Notifications</p>
-                  <p className="text-sm text-gray-500">Receive email updates about your activity</p>
+                  <p className="font-medium text-gray-900 dark:text-white">Messages</p>
+                  <p className="text-sm text-gray-500">Notify me of new messages</p>
                 </div>
                 <Switch 
-                  checked={preferences.email_notifications}
-                  onCheckedChange={(checked) => setPreferences({...preferences, email_notifications: checked})}
+                  checked={notificationPrefs.messages_enabled}
+                  onCheckedChange={(checked) => setNotificationPrefs({...notificationPrefs, messages_enabled: checked})}
                 />
               </div>
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="font-medium text-gray-900 dark:text-white">Marketing Emails</p>
-                  <p className="text-sm text-gray-500">Receive emails about new features and updates</p>
+                  <p className="font-medium text-gray-900 dark:text-white">Mentions</p>
+                  <p className="text-sm text-gray-500">Alert me when someone mentions me</p>
                 </div>
                 <Switch 
-                  checked={preferences.marketing_emails}
-                  onCheckedChange={(checked) => setPreferences({...preferences, marketing_emails: checked})}
+                  checked={notificationPrefs.mentions_enabled}
+                  onCheckedChange={(checked) => setNotificationPrefs({...notificationPrefs, mentions_enabled: checked})}
                 />
               </div>
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="font-medium text-gray-900 dark:text-white">Weekly Digest</p>
-                  <p className="text-sm text-gray-500">Get a weekly summary of your activity</p>
+                  <p className="font-medium text-gray-900 dark:text-white">Updates</p>
+                  <p className="text-sm text-gray-500">Important system and security updates</p>
                 </div>
                 <Switch 
-                  checked={preferences.weekly_digest}
-                  onCheckedChange={(checked) => setPreferences({...preferences, weekly_digest: checked})}
+                  checked={notificationPrefs.updates_enabled}
+                  onCheckedChange={(checked) => setNotificationPrefs({...notificationPrefs, updates_enabled: checked})}
                 />
-              </div>
-              <div className="flex justify-end">
-                <Button 
-                  onClick={handleSavePreferences}
-                  className="bg-violet-600 hover:bg-violet-700"
-                >
-                  <Save className="w-4 h-4 mr-2" />
-                  Save Preferences
-                </Button>
               </div>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader>
-              <CardTitle>Push Notifications</CardTitle>
+              <CardTitle>Sound & Desktop Notifications</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="font-medium text-gray-900 dark:text-white">New Mentions</p>
-                  <p className="text-sm text-gray-500">When someone mentions your brand</p>
+                  <p className="font-medium text-gray-900 dark:text-white flex items-center gap-2">
+                    <Volume2 className="w-4 h-4 text-violet-600" />
+                    Sound Notifications
+                  </p>
+                  <p className="text-sm text-gray-500">Play sound for new notifications</p>
                 </div>
-                <Switch defaultChecked />
+                <Switch 
+                  checked={notificationPrefs.sound_enabled}
+                  onCheckedChange={(checked) => setNotificationPrefs({...notificationPrefs, sound_enabled: checked})}
+                />
               </div>
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="font-medium text-gray-900 dark:text-white">New Leads</p>
-                  <p className="text-sm text-gray-500">When a new lead is captured</p>
+                  <p className="font-medium text-gray-900 dark:text-white">Desktop Notifications</p>
+                  <p className="text-sm text-gray-500">Show browser notifications even when app is closed</p>
                 </div>
-                <Switch defaultChecked />
+                <Switch 
+                  checked={notificationPrefs.desktop_notifications_enabled}
+                  onCheckedChange={(checked) => setNotificationPrefs({...notificationPrefs, desktop_notifications_enabled: checked})}
+                />
               </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Clock className="w-5 h-5 text-violet-600" />
+                Do Not Disturb (DND)
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="font-medium text-gray-900 dark:text-white">Report Ready</p>
-                  <p className="text-sm text-gray-500">When your scheduled reports are ready</p>
+                  <p className="font-medium text-gray-900 dark:text-white">Enable DND Schedule</p>
+                  <p className="text-sm text-gray-500">Mute notifications during specific hours</p>
                 </div>
-                <Switch defaultChecked />
+                <Switch 
+                  checked={notificationPrefs.do_not_disturb_enabled}
+                  onCheckedChange={(checked) => setNotificationPrefs({...notificationPrefs, do_not_disturb_enabled: checked})}
+                />
+              </div>
+              {notificationPrefs.do_not_disturb_enabled && (
+                <div className="grid grid-cols-2 gap-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                  <div className="space-y-2">
+                    <Label>Start Time</Label>
+                    <Input 
+                      type="time" 
+                      value={notificationPrefs.dnd_start_time}
+                      onChange={(e) => setNotificationPrefs({...notificationPrefs, dnd_start_time: e.target.value})}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>End Time</Label>
+                    <Input 
+                      type="time" 
+                      value={notificationPrefs.dnd_end_time}
+                      onChange={(e) => setNotificationPrefs({...notificationPrefs, dnd_end_time: e.target.value})}
+                    />
+                  </div>
+                </div>
+              )}
+              <div className="flex justify-end pt-4">
+                <Button 
+                  onClick={handleSaveNotificationPrefs}
+                  className="bg-violet-600 hover:bg-violet-700"
+                >
+                  <Save className="w-4 h-4 mr-2" />
+                  Save Notification Settings
+                </Button>
               </div>
             </CardContent>
           </Card>
