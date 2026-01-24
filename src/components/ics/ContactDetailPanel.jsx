@@ -1,30 +1,22 @@
 import React, { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
-import {
-  X,
-  MessageSquare,
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { 
+  X, 
+  MessageSquare, 
+  Video, 
+  Phone, 
+  Users, 
+  Edit2,
   Mail,
-  Phone,
-  Video,
-  Users,
-  Calendar,
-  Clock,
-  MapPin,
   Briefcase,
+  Calendar,
+  Link as LinkIcon
 } from 'lucide-react';
 import PresenceIndicator from './PresenceIndicator';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from '@/components/ui/dialog';
-import { format } from 'date-fns';
 
 export default function ContactDetailPanel({
   contact,
@@ -33,233 +25,269 @@ export default function ContactDetailPanel({
   isOpen,
   onClose,
   onDirectMessage,
-  onGroupMessage,
   onVideoCall,
+  onGroupMessage,
   onScheduleCall,
-  isOwnProfile = false,
-  onEditProfile = null,
+  isOwnProfile,
+  onEditProfile,
 }) {
-  const [showGroupDialog, setShowGroupDialog] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editData, setEditData] = useState(null);
 
-  const getInitials = (name) => {
-    return name
-      ?.split(' ')
-      .map((n) => n[0])
-      .join('')
-      .toUpperCase() || '?';
+  if (!isOpen || !contact) return null;
+
+  const handleEditToggle = () => {
+    if (isEditing) {
+      setEditData(null);
+    } else {
+      setEditData({ ...contact });
+    }
+    setIsEditing(!isEditing);
   };
 
-  const statusColors = {
-    online: 'bg-green-500',
-    away: 'bg-yellow-500',
-    busy: 'bg-red-500',
-    offline: 'bg-gray-500',
-  };
+  const contactData = editData || contact;
 
   return (
-    <>
-      {/* Slide-out Panel */}
-      <div
-        className={`fixed right-0 top-0 h-full w-96 transform transition-transform duration-300 z-40 ${
-          isOpen ? 'translate-x-0' : 'translate-x-full'
-        } ${darkMode ? 'bg-slate-900 border-l border-slate-800' : 'bg-white border-l border-gray-200'}`}
-      >
-        <ScrollArea className="h-full">
-          <div className="p-6 space-y-6">
-            {/* Header */}
-            <div className="flex items-start justify-between">
-              <h2 className={`text-xl font-semibold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-                {isOwnProfile ? 'My Profile' : 'Contact Details'}
+    <div className={`fixed right-0 top-0 bottom-0 w-96 shadow-xl z-40 overflow-hidden flex flex-col ${
+      darkMode ? 'bg-slate-900 border-l border-slate-800' : 'bg-white border-l border-gray-200'
+    }`}>
+      {/* Header */}
+      <div className={`p-6 border-b ${darkMode ? 'border-slate-800' : 'border-gray-200'}`}>
+        <div className="flex items-start justify-between gap-4 mb-4">
+          <div className="flex items-start gap-4 flex-1">
+            <div className="relative">
+              <Avatar className="w-14 h-14">
+                <AvatarFallback className={`text-lg font-semibold ${
+                  darkMode ? 'bg-violet-600 text-white' : 'bg-violet-100 text-violet-700'
+                }`}>
+                  {contact.full_name?.[0]?.toUpperCase() || contact.email?.[0]?.toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+              {!isOwnProfile && presence && (
+                <PresenceIndicator presence={presence} size="sm" showLabel={false} />
+              )}
+            </div>
+            <div className="flex-1">
+              <h2 className={`text-lg font-semibold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                {contact.full_name || 'User'}
               </h2>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={onClose}
-                className={`h-8 w-8 ${darkMode ? 'hover:bg-slate-800' : 'hover:bg-gray-100'}`}
-              >
-                <X className="w-5 h-5" />
-              </Button>
-            </div>
-
-            {/* Profile Section */}
-            <Card className={`p-6 ${darkMode ? 'bg-slate-800 border-slate-700' : 'bg-gray-50 border-gray-200'}`}>
-              <div className="flex flex-col items-center gap-4">
-                <div className="relative">
-                  <Avatar className="w-24 h-24">
-                    <AvatarFallback className={`text-2xl font-bold ${darkMode ? 'bg-slate-700 text-white' : 'bg-gray-200 text-gray-900'}`}>
-                      {getInitials(contact?.full_name)}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="absolute bottom-1 right-1">
-                    <PresenceIndicator presence={presence} size="md" />
-                  </div>
-                </div>
-
-                <div className="text-center">
-                  <h3 className={`text-lg font-semibold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-                    {contact?.full_name || 'User'}
-                  </h3>
-                  <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                    {contact?.email}
-                  </p>
-                  {presence?.custom_status && (
-                    <div className={`text-xs mt-2 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                      {presence.status_emoji} {presence.custom_status}
-                    </div>
-                  )}
-                </div>
-
-                <div className="flex gap-2 flex-wrap justify-center">
-                  <Badge className={`${statusColors[presence?.status || 'offline']}`}>
-                    {presence?.status || 'offline'}
-                  </Badge>
-                  {presence?.in_call && (
-                    <Badge className="bg-blue-600">In a call</Badge>
-                  )}
-                </div>
-
-                {isOwnProfile && onEditProfile ? (
-                  <Button
-                    onClick={onEditProfile}
-                    className="w-full bg-violet-600 hover:bg-violet-700"
-                  >
-                    Edit Profile
-                  </Button>
-                ) : (
-                  <div className="flex gap-2 w-full">
-                    <Button
-                      onClick={() => onDirectMessage(contact)}
-                      variant="outline"
-                      className="flex-1 gap-2"
-                    >
-                      <MessageSquare className="w-4 h-4" />
-                      Message
-                    </Button>
-                    <Button
-                      onClick={() => onVideoCall(contact)}
-                      className="flex-1 gap-2 bg-violet-600 hover:bg-violet-700"
-                    >
-                      <Video className="w-4 h-4" />
-                      Video
-                    </Button>
-                  </div>
-                )}
-
-                {!isOwnProfile && (
-                  <div className="flex gap-2 w-full">
-                    <Button
-                      onClick={() => setShowGroupDialog(true)}
-                      variant="outline"
-                      className="flex-1 gap-2 text-xs"
-                    >
-                      <Users className="w-4 h-4" />
-                      Add to Group
-                    </Button>
-                    <Button
-                      onClick={() => onScheduleCall(contact)}
-                      variant="outline"
-                      className="flex-1 gap-2 text-xs"
-                    >
-                      <Calendar className="w-4 h-4" />
-                      Schedule
-                    </Button>
-                  </div>
-                )}
-              </div>
-            </Card>
-
-            {/* Contact Information */}
-            <div className="space-y-4">
-              <h4 className={`font-semibold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-                Contact Information
-              </h4>
-
-              {/* Email */}
-              <div className="flex items-start gap-3">
-                <Mail className={`w-5 h-5 mt-0.5 flex-shrink-0 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`} />
-                <div className="flex-1 min-w-0">
-                  <p className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>Email</p>
-                  <p className={`text-sm font-medium truncate ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-                    {contact?.email}
-                  </p>
-                </div>
-              </div>
-
-              {/* Role */}
-              {contact?.role && (
-                <div className="flex items-start gap-3">
-                  <Briefcase className={`w-5 h-5 mt-0.5 flex-shrink-0 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`} />
-                  <div className="flex-1">
-                    <p className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>Role</p>
-                    <p className={`text-sm font-medium ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-                      {contact.role === 'admin' ? 'Administrator' : 'User'}
-                    </p>
-                  </div>
-                </div>
-              )}
-
-              {/* User Status */}
-              <div className="flex items-start gap-3">
-                <Clock className={`w-5 h-5 mt-0.5 flex-shrink-0 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`} />
-                <div className="flex-1">
-                  <p className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>Status</p>
-                  <p className={`text-sm font-medium capitalize ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-                    {presence?.status || 'offline'}
-                  </p>
-                </div>
-              </div>
-
-              {/* Last Activity */}
-              {presence?.last_activity && (
-                <div className="flex items-start gap-3">
-                  <Clock className={`w-5 h-5 mt-0.5 flex-shrink-0 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`} />
-                  <div className="flex-1">
-                    <p className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>Last Activity</p>
-                    <p className={`text-sm font-medium ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-                      {format(new Date(presence.last_activity), 'MMM d, h:mm a')}
-                    </p>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Member Since */}
-            {contact?.created_date && (
-              <div className={`p-4 rounded-lg ${darkMode ? 'bg-slate-800 border border-slate-700' : 'bg-gray-50 border border-gray-200'}`}>
-                <p className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>Member Since</p>
-                <p className={`text-sm font-medium ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-                  {format(new Date(contact.created_date), 'MMMM d, yyyy')}
+              <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                {contact.email}
+              </p>
+              {!isOwnProfile && presence?.custom_status && (
+                <p className={`text-xs mt-1 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                  {presence.status_emoji} {presence.custom_status}
                 </p>
-              </div>
-            )}
+              )}
+            </div>
           </div>
-        </ScrollArea>
+          <button
+            onClick={onClose}
+            className={`p-2 rounded-lg transition-colors ${
+              darkMode 
+                ? 'hover:bg-slate-800 text-gray-400' 
+                : 'hover:bg-gray-100 text-gray-600'
+            }`}
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="grid grid-cols-2 gap-2">
+          {!isOwnProfile && (
+            <>
+              <Button
+                size="sm"
+                className="gap-2"
+                onClick={() => onDirectMessage(contact)}
+              >
+                <MessageSquare className="w-4 h-4" />
+                Message
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                className="gap-2"
+                onClick={() => onVideoCall(contact)}
+              >
+                <Video className="w-4 h-4" />
+                Video Call
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                className="gap-2"
+                onClick={() => onGroupMessage(contact)}
+              >
+                <Users className="w-4 h-4" />
+                Add to Group
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                className="gap-2"
+                onClick={() => onScheduleCall(contact)}
+              >
+                <Calendar className="w-4 h-4" />
+                Schedule
+              </Button>
+            </>
+          )}
+          {isOwnProfile && (
+            <Button
+              size="sm"
+              className="gap-2 col-span-2"
+              onClick={handleEditToggle}
+            >
+              <Edit2 className="w-4 h-4" />
+              {isEditing ? 'Cancel' : 'Edit Profile'}
+            </Button>
+          )}
+        </div>
       </div>
 
-      {/* Overlay */}
-      {isOpen && (
-        <div
-          className="fixed inset-0 bg-black bg-opacity-50 z-30"
-          onClick={onClose}
-        />
-      )}
+      {/* Content */}
+      <ScrollArea className="flex-1">
+        <div className="p-6 space-y-6">
+          {/* Basic Info */}
+          <div>
+            <h3 className={`font-semibold mb-3 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+              Contact Information
+            </h3>
+            <div className="space-y-3">
+              {isOwnProfile && isEditing ? (
+                <>
+                  <div>
+                    <label className={`text-xs font-medium block mb-1 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                      Full Name
+                    </label>
+                    <Input
+                      value={editData.full_name || ''}
+                      onChange={(e) => setEditData({ ...editData, full_name: e.target.value })}
+                      className={darkMode ? 'bg-slate-800 border-slate-700 text-white' : ''}
+                    />
+                  </div>
+                  <div>
+                    <label className={`text-xs font-medium block mb-1 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                      Email
+                    </label>
+                    <Input
+                      value={editData.email}
+                      disabled
+                      className={darkMode ? 'bg-slate-800 border-slate-700 text-white' : ''}
+                    />
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="flex items-center gap-2">
+                    <Mail className={`w-4 h-4 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`} />
+                    <a
+                      href={`mailto:${contact.email}`}
+                      className={`text-sm ${darkMode ? 'text-violet-400 hover:text-violet-300' : 'text-violet-600 hover:text-violet-700'}`}
+                    >
+                      {contact.email}
+                    </a>
+                  </div>
+                  {contact.phone && (
+                    <div className="flex items-center gap-2">
+                      <Phone className={`w-4 h-4 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`} />
+                      <span className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                        {contact.phone}
+                      </span>
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+          </div>
 
-      {/* Group Message Dialog */}
-      <Dialog open={showGroupDialog} onOpenChange={setShowGroupDialog}>
-        <DialogContent className={darkMode ? 'bg-slate-900 border-slate-800' : ''}>
-          <DialogHeader>
-            <DialogTitle className={darkMode ? 'text-white' : ''}>
-              Add {contact?.full_name} to Group
-            </DialogTitle>
-            <DialogDescription>
-              This would typically show existing groups or allow creating a new group with this contact.
-            </DialogDescription>
-          </DialogHeader>
-          <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-            Feature coming soon: Select or create a group to add this contact.
-          </p>
-        </DialogContent>
-      </Dialog>
-    </>
+          {/* Job Title */}
+          {(contact.job_title || (isOwnProfile && isEditing)) && (
+            <div>
+              <h3 className={`font-semibold mb-2 flex items-center gap-2 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                <Briefcase className="w-4 h-4" />
+                Job Title
+              </h3>
+              {isOwnProfile && isEditing ? (
+                <Input
+                  value={editData.job_title || ''}
+                  onChange={(e) => setEditData({ ...editData, job_title: e.target.value })}
+                  placeholder="Enter job title"
+                  className={darkMode ? 'bg-slate-800 border-slate-700 text-white' : ''}
+                />
+              ) : (
+                <p className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  {contact.job_title || 'Not specified'}
+                </p>
+              )}
+            </div>
+          )}
+
+          {/* Bio/Status */}
+          {(contact.bio || (isOwnProfile && isEditing)) && (
+            <div>
+              <h3 className={`font-semibold mb-2 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                About
+              </h3>
+              {isOwnProfile && isEditing ? (
+                <Textarea
+                  value={editData.bio || ''}
+                  onChange={(e) => setEditData({ ...editData, bio: e.target.value })}
+                  placeholder="Tell us about yourself"
+                  className={`h-20 ${darkMode ? 'bg-slate-800 border-slate-700 text-white' : ''}`}
+                />
+              ) : (
+                <p className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  {contact.bio || 'No information provided'}
+                </p>
+              )}
+            </div>
+          )}
+
+          {/* Status */}
+          {!isOwnProfile && presence && (
+            <div>
+              <h3 className={`font-semibold mb-2 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                Status
+              </h3>
+              <div className="flex items-center gap-2">
+                <div className={`w-2.5 h-2.5 rounded-full ${
+                  presence.status === 'online' ? 'bg-green-500' :
+                  presence.status === 'away' ? 'bg-yellow-500' :
+                  'bg-gray-500'
+                }`} />
+                <span className={`text-sm capitalize ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  {presence.status}
+                </span>
+              </div>
+            </div>
+          )}
+        </div>
+      </ScrollArea>
+
+      {/* Edit Save Footer */}
+      {isOwnProfile && isEditing && (
+        <div className={`p-4 border-t ${darkMode ? 'border-slate-800' : 'border-gray-200'} flex gap-2`}>
+          <Button
+            variant="outline"
+            onClick={handleEditToggle}
+            className="flex-1"
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={() => {
+              // Handle save - could integrate with mutation
+              handleEditToggle();
+            }}
+            className="flex-1"
+          >
+            Save Changes
+          </Button>
+        </div>
+      )}
+    </div>
   );
 }
