@@ -240,34 +240,46 @@ export default function VideoCallInterface({
         </div>
 
         {/* Waiting Room */}
-        {showWaitingRoom && activeCall?.waiting_room?.length > 0 && (
-          <Card className="mb-4 p-4 bg-gray-700 border-gray-600">
-            <h3 className="text-white font-medium mb-3 flex items-center gap-2">
-              <UserPlus className="w-4 h-4" />
-              Waiting Room ({activeCall.waiting_room.length})
-            </h3>
+        {showWaitingRoom && activeCall?.waiting_room?.length > 0 && isHost && (
+          <Card className="mb-4 p-4 bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-yellow-900 dark:text-yellow-100 font-semibold flex items-center gap-2">
+                <UserPlus className="w-4 h-4" />
+                Waiting Room ({activeCall.waiting_room.length})
+              </h3>
+              <Button
+                size="sm"
+                onClick={() => activeCall.waiting_room.forEach(u => onAdmitUser(u.email, u.name))}
+                className="bg-green-600 hover:bg-green-700"
+              >
+                Admit All
+              </Button>
+            </div>
             <div className="space-y-2">
               {activeCall.waiting_room.map((person, idx) => (
-                <div key={idx} className="flex items-center justify-between bg-gray-800 p-3 rounded-lg">
+                <div key={idx} className="flex items-center justify-between p-3 bg-white dark:bg-gray-800 rounded-lg">
                   <div className="flex items-center gap-2">
-                    <Avatar>
-                      <AvatarFallback className="bg-violet-600 text-white">
+                    <Avatar className="w-9 h-9">
+                      <AvatarFallback className="bg-yellow-200 dark:bg-yellow-700 text-yellow-900 dark:text-yellow-100 text-sm">
                         {person.name?.[0]}
                       </AvatarFallback>
                     </Avatar>
                     <div>
-                      <p className="text-white text-sm font-medium">{person.name}</p>
-                      <p className="text-gray-400 text-xs">
-                        Waiting since {format(new Date(person.requested_at), 'h:mm a')}
+                      <p className="text-gray-900 dark:text-white text-sm font-medium">{person.name}</p>
+                      <p className="text-gray-500 dark:text-gray-400 text-xs">
+                        {format(new Date(person.requested_at), 'h:mm a')}
                       </p>
                     </div>
                   </div>
-                  <Button
-                    size="sm"
-                    onClick={() => onAdmitUser(person.email, person.name)}
-                  >
-                    Admit
-                  </Button>
+                  <div className="flex gap-2">
+                    <Button
+                      size="sm"
+                      onClick={() => onAdmitUser(person.email, person.name)}
+                      className="bg-green-600 hover:bg-green-700"
+                    >
+                      Admit
+                    </Button>
+                  </div>
                 </div>
               ))}
             </div>
