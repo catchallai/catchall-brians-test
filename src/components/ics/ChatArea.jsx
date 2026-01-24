@@ -20,6 +20,12 @@ export default function ChatArea({
   isLoading,
   typingUsers = [],
   onTyping,
+  activeCall,
+  onEndCall,
+  onToggleRecording,
+  onToggleWaitingRoom,
+  onAdmitUser,
+  updateCallMutation,
 }) {
   const messagesEndRef = useRef(null);
 
