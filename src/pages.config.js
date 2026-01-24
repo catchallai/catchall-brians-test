@@ -76,6 +76,8 @@ import SocialDashboard from './pages/SocialDashboard';
 import SocialLeads from './pages/SocialLeads';
 import SocialListening from './pages/SocialListening';
 import SocialMedia from './pages/SocialMedia';
+import SpaceDetail from './pages/SpaceDetail';
+import Spaces from './pages/Spaces';
 import TakeDownRequestor from './pages/TakeDownRequestor';
 import TrafficAnalytics from './pages/TrafficAnalytics';
 import UserProfile from './pages/UserProfile';
@@ -83,10 +85,9 @@ import UserSettings from './pages/UserSettings';
 import VisitorProfiles from './pages/VisitorProfiles';
 import WebCrawler from './pages/WebCrawler';
 import WebDashboard from './pages/WebDashboard';
-import WorkflowBuilder from './pages/WorkflowBuilder';
-import Spaces from './pages/Spaces';
-import SpaceDetail from './pages/SpaceDetail';
 import WikiPageEditor from './pages/WikiPageEditor';
+import WorkflowBuilder from './pages/WorkflowBuilder';
+import SpaceTemplates from './pages/SpaceTemplates';
 import __Layout from './Layout.jsx';
 
 
@@ -169,6 +170,8 @@ export const PAGES = {
     "SocialLeads": SocialLeads,
     "SocialListening": SocialListening,
     "SocialMedia": SocialMedia,
+    "SpaceDetail": SpaceDetail,
+    "Spaces": Spaces,
     "TakeDownRequestor": TakeDownRequestor,
     "TrafficAnalytics": TrafficAnalytics,
     "UserProfile": UserProfile,
@@ -176,10 +179,9 @@ export const PAGES = {
     "VisitorProfiles": VisitorProfiles,
     "WebCrawler": WebCrawler,
     "WebDashboard": WebDashboard,
-    "WorkflowBuilder": WorkflowBuilder,
-    "Spaces": Spaces,
-    "SpaceDetail": SpaceDetail,
     "WikiPageEditor": WikiPageEditor,
+    "WorkflowBuilder": WorkflowBuilder,
+    "SpaceTemplates": SpaceTemplates,
 }
 
 export const pagesConfig = {
