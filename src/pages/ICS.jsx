@@ -137,7 +137,7 @@ export default function ICS() {
         .sort((a, b) => new Date(a.created_date) - new Date(b.created_date));
     },
     enabled: !!selectedChannel,
-    refetchInterval: 3000,
+    refetchInterval: 5000,
   });
 
   const { data: activeCall } = useQuery({
@@ -148,7 +148,7 @@ export default function ICS() {
       return calls.find(c => c.channel_id === selectedChannel.id && c.status === 'active');
     },
     enabled: !!selectedChannel,
-    refetchInterval: 5000,
+    refetchInterval: 10000,
   });
 
   // Monitor for incoming calls
@@ -165,7 +165,7 @@ export default function ICS() {
       );
     },
     enabled: !!user?.email,
-    refetchInterval: 2000,
+    refetchInterval: 5000,
   });
 
   useEffect(() => {
@@ -449,7 +449,7 @@ export default function ICS() {
       return result;
     },
     enabled: !!selectedChannel,
-    refetchInterval: 500,
+    refetchInterval: 2000,
   });
 
   // Subscribe to typing status
