@@ -42,7 +42,7 @@ export default function VideoCallInterface({
 }) {
   const [showWaitingRoom, setShowWaitingRoom] = useState(false);
   const [isScreenSharing, setIsScreenSharing] = useState(false);
-  const [pinnedParticipant, setPinnedParticipant] = useState(null);
+  const [pinnedParticipants, setPinnedParticipants] = useState([]); // Support multiple pins
   const videoRefs = useRef({});
 
   const {
@@ -51,12 +51,15 @@ export default function VideoCallInterface({
     isAudioEnabled,
     isVideoEnabled,
     videoQuality,
+    mutedParticipants,
     initializeLocalStream,
     toggleAudio,
     toggleVideo,
     changeVideoQuality,
     startScreenShare,
     stopScreenShare,
+    muteParticipant,
+    unmuteParticipant,
     createPeerConnection,
     cleanupConnections,
   } = useWebRTC(activeCall?.room_id, user, activeCall?.participants);
