@@ -51,6 +51,7 @@ import { playNotificationSound, isInDND } from '@/components/notifications/Notif
 import { extractMentions, createMentionNotifications } from '@/components/notifications/MentionParser';
 import ICSAdminPortal from '@/components/ics/ICSAdminPortal.jsx';
 import ContactDetailPanel from '@/components/ics/ContactDetailPanel';
+import IncomingCallNotification from '@/components/ics/IncomingCallNotification';
 
 export default function ICS() {
   const [selectedChannel, setSelectedChannel] = useState(null);
