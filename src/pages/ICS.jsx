@@ -329,15 +329,18 @@ export default function ICS() {
     startCallMutation.mutate({
       channel_id: selectedChannel.id,
       room_id: roomId,
+      host_email: user?.email,
       started_by: user?.email,
       started_at: new Date().toISOString(),
       participants: [{
         email: user?.email,
         name: user?.full_name,
         joined_at: new Date().toISOString(),
+        is_screen_sharing: false,
       }],
       waiting_room: waitingRoom,
       recording_status: 'not_started',
+      recording_started_at: null,
       settings: {
         waiting_room_enabled: false,
         allow_screen_share: true,
