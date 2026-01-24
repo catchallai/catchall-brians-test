@@ -1,292 +1,195 @@
 import React, { useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Card, CardContent } from "@/components/ui/card";
-import { Bold, Italic, List, Send, Loader2, Check, FileText } from "lucide-react";
-import ReactQuill from 'react-quill';
-import 'react-quill/dist/quill.snow.css';
-
-const SAMPLE_DATA = {
-  first_name: 'John',
-  last_name: 'Smith',
-  email: 'john@example.com',
-  company_name: 'Acme Corp',
-  job_title: 'Marketing Manager',
-};
+import { Label } from "@/components/ui/label";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Mail, Send, Loader } from "lucide-react";
+import { useToast } from "@/components/ui/toast-provider";
 
 export default function EmailContactModal({ open, onClose, contact, businessId }) {
-  const [formData, setFormData] = useState({
-    from_account: '',
-    to_email: contact?.email || '',
-    subject: '',
-    body: '',
-  });
-  const [showSuccess, setShowSuccess] = useState(false);
-  const [selectedTemplate, setSelectedTemplate] = useState(null);
+  const [subject, setSubject] = useState('');
+  const [message, setMessage] = useState('');
+  const [selectedTemplate, setSelectedTemplate] = useState('');
+  const [senderEmail, setSenderEmail] = useState('');
   const queryClient = useQueryClient();
+  const toast = useToast();
 
   const { data: user } = useQuery({
     queryKey: ['current-user'],
     queryFn: () => base44.auth.me(),
   });
 
-  const { data: emailAccounts = [] } = useQuery({
-    queryKey: ['email-accounts'],
+  const { data: templates = [], isLoading: templatesLoading } = useQuery({
+    queryKey: ['email-templates', businessId],
     queryFn: async () => {
-      // For now, just return the current user's email as an option
-      const userData = await base44.auth.me();
-      return [{ id: userData.email, name: userData.full_name, email: userData.email }];
+      if (!businessId) return [];
+      return await base44.entities.EmailTemplate.filter({ business_id: businessId }, '-created_date', 50);
     },
+    enabled: !!businessId && open,
   });
-
-  const { data: emailTemplates = [] } = useQuery({
-    queryKey: ['email-templates'],
-    queryFn: () => base44.entities.EmailTemplate.list('-created_date', 100),
-  });
-
-  const renderWithVariables = (text) => {
-    if (!text) return '';
-    let result = text;
-    
-    const variables = {
-      first_name: contact?.first_name || SAMPLE_DATA.first_name,
-      last_name: contact?.last_name || SAMPLE_DATA.last_name,
-      email: contact?.email || SAMPLE_DATA.email,
-      company_name: contact?.company_name || SAMPLE_DATA.company_name,
-      job_title: contact?.job_title || SAMPLE_DATA.job_title,
-    };
-
-    Object.entries(variables).forEach(([key, value]) => {
-      result = result.replace(new RegExp(`\\{\\{${key}\\}\\}`, 'g'), value);
-    });
-
-    return result;
-  };
-
-  const handleSelectTemplate = (template) => {
-    setSelectedTemplate(template);
-    const htmlBody = renderWithVariables(template.body);
-    setFormData({
-      ...formData,
-      subject: renderWithVariables(template.subject),
-      body: htmlBody,
-    });
-  };
 
   const sendEmailMutation = useMutation({
     mutationFn: async (data) => {
-      // Call backend function to send email
-      const response = await base44.functions.invoke('sendContactEmail', {
-        to: data.to_email,
+      // Send via Resend integration
+      await base44.integrations.Core.SendEmail({
+        to: contact.email,
         subject: data.subject,
-        body: data.body,
-        from_email: data.from_account,
-      });
-      return response.data;
-    },
-    onSuccess: async () => {
-      // Log as activity
-      await base44.entities.Activity.create({
-        entity_type: 'contact',
-        entity_id: contact.id,
-        activity_type: 'email_sent',
-        title: `Sent email to ${contact.first_name} ${contact.last_name}`,
-        description: formData.body,
-        performed_by: user?.email,
-        performed_by_name: user?.full_name,
-        metadata: {
-          subject: formData.subject,
-          to: formData.to_email,
-          from: formData.from_account,
-        },
+        body: data.message,
+        from_name: 'Contact Team',
       });
 
-      queryClient.invalidateQueries({ queryKey: ['activities'] });
-      setShowSuccess(true);
-      
-      setTimeout(() => {
-        setShowSuccess(false);
-        onClose();
-        setFormData({
-          from_account: '',
-          to_email: contact?.email || '',
-          subject: '',
-          body: '',
-        });
-      }, 2000);
+      // Log the email
+      await base44.entities.EmailLog.create({
+        contact_id: contact.id,
+        recipient_email: contact.email,
+        subject: data.subject,
+        message_preview: data.message.substring(0, 100),
+        status: 'sent',
+        sent_at: new Date().toISOString(),
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['email-logs', contact.id] });
+      toast.success('Email sent successfully');
+      handleClose();
+    },
+    onError: (error) => {
+      toast.error('Failed to send email: ' + error.message);
     },
   });
 
-  const handleSendEmail = () => {
-    if (!formData.from_account || !formData.to_email || !formData.subject || !formData.body.trim()) {
+  const handleTemplateSelect = (templateId) => {
+    const template = templates.find(t => t.id === templateId);
+    if (template) {
+      setSelectedTemplate(templateId);
+      setSubject(template.subject);
+      setMessage(template.body);
+    }
+  };
+
+  const handleSend = () => {
+    if (!subject.trim() || !message.trim()) {
+      toast.error('Please fill in subject and message');
       return;
     }
-    sendEmailMutation.mutate(formData);
+    sendEmailMutation.mutate({ subject, message });
+  };
+
+  const handleClose = () => {
+    setSubject('');
+    setMessage('');
+    setSelectedTemplate('');
+    setSenderEmail('');
+    onClose();
   };
 
   return (
-    <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+    <Dialog open={open} onOpenChange={handleClose}>
+      <DialogContent className="max-w-2xl">
         <DialogHeader>
-          <DialogTitle>Send Email to {contact?.first_name} {contact?.last_name}</DialogTitle>
+          <DialogTitle className="flex items-center gap-2">
+            <Mail className="w-5 h-5" />
+            Send Email to {contact?.first_name} {contact?.last_name}
+          </DialogTitle>
         </DialogHeader>
 
-        {showSuccess ? (
-          <div className="flex flex-col items-center justify-center py-12">
-            <div className="w-16 h-16 bg-emerald-100 dark:bg-emerald-900/30 rounded-full flex items-center justify-center mb-4">
-              <Check className="w-8 h-8 text-emerald-600" />
+        <div className="space-y-4 max-h-[60vh] overflow-y-auto">
+          {/* Recipient */}
+          <div>
+            <Label className="text-sm font-medium">To</Label>
+            <div className="mt-1 p-2 bg-gray-50 dark:bg-gray-800 rounded-md text-sm">
+              {contact?.email}
             </div>
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Email Sent!</h3>
-            <p className="text-gray-600 dark:text-gray-400 text-center">Your email has been sent successfully and added to the activity feed.</p>
           </div>
-        ) : (
-          <div className="space-y-4">
-            {/* Template Selection */}
-            {emailTemplates.length > 0 && (
-              <div>
-                <label className="text-sm font-medium mb-2 block">Use Template (Optional)</label>
-                <div className="grid grid-cols-2 gap-2 max-h-32 overflow-y-auto p-2 border rounded-lg bg-gray-50 dark:bg-gray-800">
-                  {emailTemplates.map((template) => (
-                    <button
-                      key={template.id}
-                      onClick={() => handleSelectTemplate(template)}
-                      className={`p-2 rounded text-left text-xs transition-colors ${
-                        selectedTemplate?.id === template.id
-                          ? 'bg-violet-100 dark:bg-violet-900 border border-violet-500'
-                          : 'bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 hover:border-violet-400'
-                      }`}
-                    >
-                      <div className="flex items-center gap-1 font-medium truncate">
-                        <FileText className="w-3 h-3" />
-                        {template.name}
-                      </div>
-                      <div className="text-gray-500 dark:text-gray-400 truncate text-xs mt-0.5">{template.subject}</div>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
 
-            {/* From Account */}
+          {/* Template Selection */}
+          {templates.length > 0 && (
             <div>
-              <label className="text-sm font-medium">From Account *</label>
-              <Select value={formData.from_account} onValueChange={(v) => setFormData({ ...formData, from_account: v })}>
-                <SelectTrigger className="mt-1">
-                  <SelectValue placeholder="Select email account" />
+              <Label htmlFor="template" className="text-sm font-medium">Email Template</Label>
+              <Select value={selectedTemplate} onValueChange={handleTemplateSelect}>
+                <SelectTrigger id="template" className="mt-1">
+                  <SelectValue placeholder="Select a template (optional)" />
                 </SelectTrigger>
                 <SelectContent>
-                  {emailAccounts.map((account) => (
-                    <SelectItem key={account.id} value={account.email}>
-                      {account.name} ({account.email})
-                    </SelectItem>
-                  ))}
+                  <SelectItem value={null}>No Template</SelectItem>
+                  {templatesLoading ? (
+                    <div className="p-2 text-xs text-gray-500">Loading templates...</div>
+                  ) : (
+                    templates.map(template => (
+                      <SelectItem key={template.id} value={template.id}>
+                        {template.name}
+                      </SelectItem>
+                    ))
+                  )}
                 </SelectContent>
               </Select>
             </div>
+          )}
 
-            {/* To Email */}
-            <div>
-              <label className="text-sm font-medium">To *</label>
-              <Input
-                value={formData.to_email}
-                onChange={(e) => setFormData({ ...formData, to_email: e.target.value })}
-                type="email"
-                className="mt-1"
-              />
-            </div>
-
-            {/* Subject */}
-            <div>
-              <label className="text-sm font-medium">Subject *</label>
-              <Input
-                value={formData.subject}
-                onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-                placeholder="Email subject"
-                className="mt-1"
-              />
-            </div>
-
-            {/* Message Body with Rich Editor */}
-            <div>
-              <label className="text-sm font-medium mb-2 block">Message *</label>
-              <style>{`
-                .email-editor .ql-toolbar {
-                  background: #f9fafb !important;
-                  border: 1px solid #e5e7eb !important;
-                }
-                .dark .email-editor .ql-toolbar {
-                  background: #374151 !important;
-                  border: 1px solid #4b5563 !important;
-                }
-                .email-editor .ql-toolbar button {
-                  color: #374151 !important;
-                }
-                .dark .email-editor .ql-toolbar button {
-                  color: #f3f4f6 !important;
-                }
-                .email-editor .ql-toolbar button:hover,
-                .email-editor .ql-toolbar button.ql-active {
-                  color: #7c3aed !important;
-                }
-                .dark .email-editor .ql-toolbar button:hover,
-                .dark .email-editor .ql-toolbar button.ql-active {
-                  color: #a78bfa !important;
-                }
-              `}</style>
-              <div className="email-editor border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
-                <ReactQuill
-                  value={formData.body}
-                  onChange={(content) => setFormData({ ...formData, body: content })}
-                  theme="snow"
-                  modules={{
-                    toolbar: [
-                      ['bold', 'italic', 'underline'],
-                      ['list', 'bullet'],
-                      ['link'],
-                      ['clean'],
-                    ],
-                  }}
-                  className="bg-white dark:bg-gray-800"
-                  style={{ height: '200px' }}
-                />
-              </div>
+          {/* From Email */}
+          <div>
+            <Label htmlFor="sender" className="text-sm font-medium">From</Label>
+            <div className="mt-1 p-2 bg-gray-50 dark:bg-gray-800 rounded-md text-sm">
+              {user?.email || 'Your email'}
             </div>
           </div>
-        )}
 
-        {!showSuccess && (
-          <DialogFooter>
-            <Button variant="outline" onClick={onClose}>Cancel</Button>
-            <Button
-              onClick={handleSendEmail}
-              disabled={
-                !formData.from_account ||
-                !formData.to_email ||
-                !formData.subject ||
-                !formData.body.trim() ||
-                sendEmailMutation.isPending
-              }
-              className="gap-2 bg-violet-600 hover:bg-violet-700"
-            >
-              {sendEmailMutation.isPending ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  Sending...
-                </>
-              ) : (
-                <>
-                  <Send className="w-4 h-4" />
-                  Send Email
-                </>
-              )}
-            </Button>
-          </DialogFooter>
-        )}
+          {/* Subject */}
+          <div>
+            <Label htmlFor="subject" className="text-sm font-medium">Subject</Label>
+            <Input
+              id="subject"
+              placeholder="Email subject"
+              value={subject}
+              onChange={(e) => setSubject(e.target.value)}
+              className="mt-1"
+            />
+          </div>
+
+          {/* Message */}
+          <div>
+            <Label htmlFor="message" className="text-sm font-medium">Message</Label>
+            <Textarea
+              id="message"
+              placeholder="Write your message here..."
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              className="mt-1 min-h-[200px]"
+            />
+          </div>
+        </div>
+
+        <DialogFooter>
+          <Button variant="outline" onClick={handleClose}>Cancel</Button>
+          <Button 
+            onClick={handleSend}
+            disabled={sendEmailMutation.isPending || !subject.trim() || !message.trim()}
+            className="gap-2 bg-violet-600 hover:bg-violet-700"
+          >
+            {sendEmailMutation.isPending ? (
+              <>
+                <Loader className="w-4 h-4 animate-spin" />
+                Sending...
+              </>
+            ) : (
+              <>
+                <Send className="w-4 h-4" />
+                Send Email
+              </>
+            )}
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
