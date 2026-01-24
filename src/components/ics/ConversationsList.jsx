@@ -34,7 +34,7 @@ export default function ConversationsList({
           isSelected
             ? darkMode
               ? 'bg-slate-800'
-              : 'bg-red-50'
+              : 'bg-violet-50'
             : darkMode
               ? 'hover:bg-slate-800/50'
               : 'hover:bg-slate-50'
@@ -109,7 +109,7 @@ export default function ConversationsList({
           </h1>
           <Button
             onClick={onNewChat}
-            className="bg-red-600 hover:bg-red-700 text-white shadow-lg shadow-red-900/30"
+            className="bg-violet-600 hover:bg-violet-700 text-white shadow-lg shadow-violet-900/30"
             size="icon"
           >
             <Plus size={18} />
@@ -144,7 +144,7 @@ export default function ConversationsList({
               onClick={() => setActiveTab(tab)}
               className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors capitalize ${
                 activeTab === tab
-                  ? 'bg-red-600 text-white'
+                  ? 'bg-violet-600 text-white'
                   : darkMode
                     ? 'text-slate-400 hover:text-white hover:bg-slate-800'
                     : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'

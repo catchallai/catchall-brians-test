@@ -101,7 +101,7 @@ export default function MessageInput({ onSendMessage, darkMode }) {
             </Button>
             <Button
               type="submit"
-              className="bg-red-600 hover:bg-red-700 text-white ml-2 shadow-lg shadow-red-900/30"
+              className="bg-violet-600 hover:bg-violet-700 text-white ml-2 shadow-lg shadow-violet-900/30"
               size="icon"
               disabled={!message.trim() && attachedFiles.length === 0}
             >

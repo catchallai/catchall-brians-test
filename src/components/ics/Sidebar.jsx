@@ -24,7 +24,7 @@ export default function Sidebar({
       onClick={onClick}
       className={`relative p-2.5 rounded-xl transition-all group ${
         active
-          ? 'bg-red-600 text-white shadow-lg shadow-red-900/30'
+          ? 'bg-violet-600 text-white shadow-lg shadow-violet-900/30'
           : darkMode
             ? 'text-slate-400 hover:text-white hover:bg-slate-800'
             : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200'
@@ -32,7 +32,7 @@ export default function Sidebar({
     >
       <Icon size={20} />
       {badge > 0 && (
-        <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-600 rounded-full text-xs text-white flex items-center justify-center font-medium">
+        <span className="absolute -top-1 -right-1 w-5 h-5 bg-violet-600 rounded-full text-xs text-white flex items-center justify-center font-medium">
           {badge > 9 ? '9+' : badge}
         </span>
       )}
@@ -56,7 +56,7 @@ export default function Sidebar({
     >
       {/* Logo */}
       <div className="mb-8">
-        <div className="w-10 h-10 bg-gradient-to-br from-red-600 to-red-700 rounded-xl flex items-center justify-center shadow-lg shadow-red-900/30">
+        <div className="w-10 h-10 bg-gradient-to-br from-violet-600 to-violet-700 rounded-xl flex items-center justify-center shadow-lg shadow-violet-900/30">
           <span className="text-white font-bold text-sm">SJ</span>
         </div>
       </div>
