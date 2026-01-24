@@ -130,14 +130,26 @@ export default function VideoCallInterface({
     })) || []),
   ];
 
+  const isHost = user?.email === activeCall?.host_email;
+
+  const togglePinParticipant = (participantId) => {
+    setPinnedParticipants(prev =>
+      prev.includes(participantId)
+        ? prev.filter(id => id !== participantId)
+        : [...prev, participantId]
+    );
+  };
+
   const gridClass = allParticipants.length === 1 ? 'grid-cols-1'
     : allParticipants.length === 2 ? 'grid-cols-2'
     : allParticipants.length <= 4 ? 'grid-cols-2'
     : allParticipants.length <= 9 ? 'grid-cols-3'
     : 'grid-cols-4';
 
-  const mainParticipant = pinnedParticipant || allParticipants[0];
-  const otherParticipants = allParticipants.filter(p => p.id !== mainParticipant?.id);
+  const mainParticipants = pinnedParticipants.length > 0
+    ? allParticipants.filter(p => pinnedParticipants.includes(p.id))
+    : [allParticipants[0]];
+  const otherParticipants = allParticipants.filter(p => !pinnedParticipants.includes(p.id) && p.id !== mainParticipants[0]?.id);
 
   return (
     <div className="bg-gray-900 p-4">
