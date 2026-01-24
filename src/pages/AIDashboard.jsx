@@ -142,7 +142,7 @@ export default function AIDashboard() {
             </div>
             <div>
               <div className="w-12 h-12 rounded-full bg-emerald-100 dark:bg-emerald-900/40 flex items-center justify-center mx-auto mb-3">
-                <Target className="w-6 h-6 text-emerald-600" />
+                <TargetIcon className="w-6 h-6 text-emerald-600" />
               </div>
               <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Higher Accuracy</h3>
               <p className="text-sm text-gray-600 dark:text-gray-400">AI-driven insights eliminate guesswork and boost ROI</p>
