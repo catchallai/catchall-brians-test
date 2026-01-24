@@ -595,9 +595,11 @@ export default function ICS() {
                 c.members?.includes(contact.email) &&
                 c.members?.includes(user?.email)
               );
-              
+
               if (dmChannel) {
                 setSelectedChannel(dmChannel);
+                setShowContactPanel(false);
+                setActiveView('chat');
               } else {
                 createChannelMutation.mutate({
                   name: contact.full_name,
@@ -606,14 +608,22 @@ export default function ICS() {
                   members: [user?.email, contact.email],
                   last_activity: new Date().toISOString(),
                 });
+                setShowContactPanel(false);
               }
-              setShowContactPanel(false);
-              setActiveView('chat');
             }}
             onVideoCall={(contact) => {
-              handleStartCall();
+              const dmChannel = channels.find(c => 
+                c.type === 'dm' && 
+                c.members?.includes(contact.email) &&
+                c.members?.includes(user?.email)
+              );
+
+              if (dmChannel) {
+                setSelectedChannel(dmChannel);
+                handleStartCall();
+              }
               setShowContactPanel(false);
-            }}
+            }
             onGroupMessage={() => {
               // Can be expanded to create group channels
               console.log('Group message feature coming soon');
