@@ -261,14 +261,16 @@ export default function VideoCallInterface({
         )}
 
         {/* Video Grid */}
-        {allParticipants.length <= 4 ? (
-          <div className={`grid ${gridClass} gap-4 mb-4`}>
-            {allParticipants.map((participant) => (
-              <div
-                key={participant.id}
-                className="aspect-video bg-gray-700 rounded-lg relative overflow-hidden group cursor-pointer"
-                onClick={() => setPinnedParticipant(participant.id === pinnedParticipant?.id ? null : participant)}
-              >
+         {allParticipants.length <= 4 ? (
+           <div className={`grid ${gridClass} gap-4 mb-4`}>
+             {allParticipants.map((participant) => (
+               <div
+                 key={participant.id}
+                 className={`aspect-video bg-gray-700 rounded-lg relative overflow-hidden group cursor-pointer border-2 ${
+                   pinnedParticipants.includes(participant.id) ? 'border-violet-500' : 'border-transparent'
+                 }`}
+                 onClick={() => togglePinParticipant(participant.id)}
+               >
                 <video
                   ref={el => videoRefs.current[participant.id] = el}
                   autoPlay
