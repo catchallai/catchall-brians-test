@@ -279,7 +279,7 @@ export default function WikiPageEditor() {
 
       {/* Editor Content */}
       <div className="pt-16 lg:pl-64">
-        <div className="max-w-4xl mx-auto p-8 space-y-6">
+        <div className="w-full mx-auto p-8 space-y-6">
           {/* Parent Page Selection */}
           {allPages.length > 0 && (
             <Select value={parentPageId} onValueChange={setParentPageId}>
