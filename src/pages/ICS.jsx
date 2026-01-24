@@ -428,29 +428,177 @@ export default function ICS() {
       />
 
       {activeView === 'chat' ? (
-        <>
-          <ConversationsList
-            channels={channels}
-            selectedChannelId={selectedChannel?.id}
-            onSelectChannel={setSelectedChannel}
-            onNewChat={() => setShowNewChannel(true)}
-            darkMode={darkMode}
-            allPresence={allPresence}
-            typingByChannel={typingByChannel}
-          />
+        <div className="flex-1 flex flex-col overflow-hidden">
+          <Tabs value={chatTab} onValueChange={setChatTab} className="w-full h-full flex flex-col">
+            <TabsList className="px-4 py-3 border-b border-slate-800">
+              <TabsTrigger value="messages" className="gap-2">
+                <MessageSquare className="w-4 h-4" />
+                Messages
+              </TabsTrigger>
+              <TabsTrigger value="contacts" className="gap-2">
+                <Users className="w-4 h-4" />
+                Contacts
+              </TabsTrigger>
+              <TabsTrigger value="notifications" className="gap-2">
+                <Bell className="w-4 h-4" />
+                Notifications
+              </TabsTrigger>
+              <TabsTrigger value="archive" className="gap-2">
+                <Archive className="w-4 h-4" />
+                Archive
+              </TabsTrigger>
+            </TabsList>
 
-          <ChatArea
-            channel={selectedChannel}
-            user={user}
-            messages={messages}
-            darkMode={darkMode}
-            onSendMessage={handleSendMessage}
-            onStartCall={handleStartCall}
-            onShowProfile={() => setShowProfile(true)}
-            typingUsers={selectedChannel ? typingByChannel[selectedChannel.id] || [] : []}
-            onTyping={handleTyping}
-          />
-        </>
+            <TabsContent value="messages" className="flex-1 overflow-hidden flex">
+              <ConversationsList
+                channels={channels}
+                selectedChannelId={selectedChannel?.id}
+                onSelectChannel={setSelectedChannel}
+                onNewChat={() => setShowNewChannel(true)}
+                darkMode={darkMode}
+                allPresence={allPresence}
+                typingByChannel={typingByChannel}
+              />
+
+              <ChatArea
+                channel={selectedChannel}
+                user={user}
+                messages={messages}
+                darkMode={darkMode}
+                onSendMessage={handleSendMessage}
+                onStartCall={handleStartCall}
+                onShowProfile={() => setShowProfile(true)}
+                typingUsers={selectedChannel ? typingByChannel[selectedChannel.id] || [] : []}
+                onTyping={handleTyping}
+              />
+            </TabsContent>
+
+            <TabsContent value="contacts" className="flex-1 overflow-hidden flex flex-col">
+              <div className={`flex-1 flex flex-col ${darkMode ? 'bg-slate-950' : 'bg-slate-50'}`}>
+                <div className="p-4 border-b border-slate-800">
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-500" />
+                    <Input
+                      placeholder="Search contacts..."
+                      value={searchContacts}
+                      onChange={(e) => setSearchContacts(e.target.value)}
+                      className="pl-10 bg-slate-800 border-slate-700"
+                    />
+                  </div>
+                </div>
+                <ScrollArea className="flex-1">
+                  <div className="space-y-2 p-4">
+                    {filteredContacts.length === 0 ? (
+                      <div className="text-center py-8 text-slate-400">
+                        <Users className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                        <p className="text-sm">No contacts found</p>
+                      </div>
+                    ) : (
+                      filteredContacts.map(contact => (
+                        <div key={contact.id} className="p-3 rounded-lg bg-slate-800 hover:bg-slate-700 cursor-pointer transition">
+                          <div className="flex items-center gap-3">
+                            <Avatar className="w-8 h-8">
+                              <AvatarFallback className="bg-violet-600 text-white text-xs">
+                                {contact.first_name[0]}{contact.last_name[0]}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium text-white truncate">
+                                {contact.first_name} {contact.last_name}
+                              </p>
+                              <p className="text-xs text-slate-400 truncate">{contact.email}</p>
+                            </div>
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </ScrollArea>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="notifications" className="flex-1 overflow-hidden flex flex-col">
+              <div className={`flex-1 flex flex-col ${darkMode ? 'bg-slate-950' : 'bg-slate-50'}`}>
+                <ScrollArea className="flex-1">
+                  <div className="space-y-2 p-4">
+                    {notifications.length === 0 ? (
+                      <div className="text-center py-8 text-slate-400">
+                        <Bell className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                        <p className="text-sm">No notifications yet</p>
+                      </div>
+                    ) : (
+                      notifications.map(notif => (
+                        <div
+                          key={notif.id}
+                          className={`p-3 rounded-lg cursor-pointer transition ${
+                            notif.is_read 
+                              ? 'bg-slate-800 hover:bg-slate-700' 
+                              : 'bg-violet-900/30 hover:bg-violet-900/50 border border-violet-500/30'
+                          }`}
+                          onClick={() => !notif.is_read && markNotificationAsRead.mutate(notif.id)}
+                        >
+                          <div className="flex items-start gap-3">
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium text-white">{notif.title}</p>
+                              <p className="text-xs text-slate-300 mt-1">{notif.body}</p>
+                              <p className="text-xs text-slate-500 mt-2">
+                                {format(new Date(notif.created_date), 'MMM d, h:mm a')}
+                              </p>
+                            </div>
+                            {!notif.is_read && (
+                              <div className="w-2 h-2 rounded-full bg-violet-500 mt-1 flex-shrink-0" />
+                            )}
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </ScrollArea>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="archive" className="flex-1 overflow-hidden flex flex-col">
+              <div className={`flex-1 flex flex-col ${darkMode ? 'bg-slate-950' : 'bg-slate-50'}`}>
+                <ScrollArea className="flex-1">
+                  <div className="space-y-2 p-4">
+                    {archivedChannels.length === 0 ? (
+                      <div className="text-center py-8 text-slate-400">
+                        <Archive className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                        <p className="text-sm">No archived channels</p>
+                      </div>
+                    ) : (
+                      archivedChannels.map(channel => (
+                        <div key={channel.id} className="p-3 rounded-lg bg-slate-800 hover:bg-slate-700 transition">
+                          <div className="flex items-center justify-between gap-3">
+                            <div className="flex items-center gap-3 flex-1 min-w-0">
+                              <div className="flex-1 min-w-0">
+                                <p className="text-sm font-medium text-white truncate">
+                                  {channel.type === 'private' && <Lock className="w-3 h-3 inline mr-1" />}
+                                  {channel.type === 'public' && <Hash className="w-3 h-3 inline mr-1" />}
+                                  {channel.name}
+                                </p>
+                                <p className="text-xs text-slate-400 truncate">{channel.description || 'No description'}</p>
+                              </div>
+                            </div>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => unarchiveChannelMutation.mutate(channel.id)}
+                              disabled={unarchiveChannelMutation.isPending}
+                              className="flex-shrink-0"
+                            >
+                              Restore
+                            </Button>
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </ScrollArea>
+              </div>
+            </TabsContent>
+          </Tabs>
+        </div>
         ) : null}
         </div>
         );
