@@ -3,7 +3,7 @@ import { base44 } from '@/api/base44Client';
 
 const AWAY_TIMEOUT = 5 * 60 * 1000; // 5 minutes
 const OFFLINE_TIMEOUT = 30 * 60 * 1000; // 30 minutes
-const UPDATE_INTERVAL = 30 * 1000; // Update every 30 seconds
+const UPDATE_INTERVAL = 60 * 1000; // Update every 60 seconds
 
 export function usePresence(user) {
   const [userPresence, setUserPresence] = useState(null);
