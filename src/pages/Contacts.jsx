@@ -326,7 +326,35 @@ export default function Contacts() {
     onError: (error) => toast.error('Failed to import contacts: ' + (error?.message || 'Unknown error')),
   });
 
-  const handleSave = (data) => {
+  const handleSave = async (data) => {
+    // Create or update company if company_name is provided
+    if (data.company_name && !data.company_id) {
+      const existingCompany = companies.find(c => c.name.toLowerCase() === data.company_name.toLowerCase());
+      if (existingCompany) {
+        data.company_id = existingCompany.id;
+      } else {
+        // Create new company with contact data
+        const newCompany = await base44.entities.Company.create({
+          name: data.company_name,
+          business_id: user?.current_business_id,
+          tier: data.tier || null,
+          category: data.category || null,
+          country: data.country || null,
+          hq_city: data.hq_city || null,
+          website: data.website || null,
+          contact_page_url: data.contact_page_url || null,
+          general_emails: data.general_emails || [],
+          general_phones: data.general_phones || [],
+          contact_sources_urls: data.contact_sources_urls || [],
+          loi_summary: data.loi_summary || null,
+          loi_source_urls: data.loi_source_urls || [],
+          notes_angle: data.notes_angle || null,
+        });
+        data.company_id = newCompany.id;
+        queryClient.invalidateQueries({ queryKey: ['companies'] });
+      }
+    }
+
     if (editingContact) {
       updateMutation.mutate({ id: editingContact.id, data });
     } else {
