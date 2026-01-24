@@ -381,6 +381,31 @@ export default function ICS() {
     });
   };
 
+  const markNotificationAsRead = useMutation({
+    mutationFn: (notificationId) => base44.entities.Notification.update(notificationId, {
+      is_read: true,
+      read_at: new Date().toISOString(),
+    }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['notifications'] });
+    },
+  });
+
+  const unarchiveChannelMutation = useMutation({
+    mutationFn: (channelId) => base44.entities.Channel.update(channelId, {
+      is_archived: false,
+    }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['archived-channels'] });
+      queryClient.invalidateQueries({ queryKey: ['channels'] });
+    },
+  });
+
+  const filteredContacts = contacts.filter(c => 
+    `${c.first_name} ${c.last_name}`.toLowerCase().includes(searchContacts.toLowerCase()) ||
+    c.email?.toLowerCase().includes(searchContacts.toLowerCase())
+  );
+
   return (
     <div className={`h-screen flex ${darkMode ? 'bg-slate-950' : 'bg-slate-50'}`}>
       <Sidebar
