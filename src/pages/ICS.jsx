@@ -145,7 +145,7 @@ export default function ICS() {
     queryFn: async () => {
       if (!selectedChannel) return null;
       const calls = await base44.entities.VideoCall.list();
-      return calls.find(c => c.channel_id === selectedChannel.id && c.status === 'active');
+      return calls.find(c => c.channel_id === selectedChannel.id && c.status === 'active') || null;
     },
     enabled: !!selectedChannel,
     refetchInterval: 10000,
@@ -162,7 +162,7 @@ export default function ICS() {
         c.status === 'active' && 
         !c.participants?.some(p => p.email === user?.email) &&
         c.waiting_room?.some(w => w.email === user?.email)
-      );
+      ) || null;
     },
     enabled: !!user?.email,
     refetchInterval: 5000,
@@ -443,9 +443,11 @@ export default function ICS() {
         is_typing: true,
       });
       const result = {};
-      typingRecords.forEach(record => {
-        result[record.user_email] = record.user_name;
-      });
+      if (typingRecords && typingRecords.length > 0) {
+        typingRecords.forEach(record => {
+          result[record.user_email] = record.user_name;
+        });
+      }
       return result;
     },
     enabled: !!selectedChannel,
