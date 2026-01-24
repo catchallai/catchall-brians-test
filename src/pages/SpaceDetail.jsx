@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useSearchParams, Link } from 'react-router-dom';
+import { useSearchParams, Link, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -17,6 +17,7 @@ import {
 
 export default function SpaceDetail() {
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const spaceId = searchParams.get('id');
   const [searchTerm, setSearchTerm] = useState('');
   const queryClient = useQueryClient();
@@ -175,14 +176,13 @@ export default function SpaceDetail() {
 
       {/* Pages List */}
       {pages.length === 0 ? (
-        <Link to={`${createPageUrl('WikiPageEditor')}?spaceId=${spaceId}`}>
-          <EmptyState
-            icon={FileText}
-            title="No pages yet"
-            description="Create your first page to start documenting."
-            actionLabel="Create Page"
-          />
-        </Link>
+        <EmptyState
+          icon={FileText}
+          title="No pages yet"
+          description="Create your first page to start documenting."
+          actionLabel="Create Page"
+          onAction={() => navigate(`${createPageUrl('WikiPageEditor')}?spaceId=${spaceId}`)}
+        />
       ) : (
         <div className="space-y-2">
           {filteredPages.map(page => (
