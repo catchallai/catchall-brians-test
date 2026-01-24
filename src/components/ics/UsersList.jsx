@@ -58,7 +58,10 @@ export default function UsersList({ users, allPresence, darkMode, onSelectUser, 
                       : 'hover:bg-gray-50 active:bg-gray-100'
                   }`}
                 >
-                  <div className="flex items-start gap-3">
+                  <div 
+                    className="flex items-start gap-3 flex-1 cursor-pointer"
+                    onClick={() => onViewProfile?.(user)}
+                  >
                     <div className="relative">
                       <Avatar className="w-10 h-10">
                         <AvatarFallback className={`${darkMode ? 'bg-slate-700 text-white' : 'bg-gray-200 text-gray-900'}`}>
@@ -81,28 +84,28 @@ export default function UsersList({ users, allPresence, darkMode, onSelectUser, 
                         </div>
                       )}
                     </div>
-
-                    {!isCurrentUser && (
-                      <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          className={`h-8 w-8 p-0 ${darkMode ? 'hover:bg-slate-700' : 'hover:bg-gray-200'}`}
-                          onClick={() => onSelectUser(user, 'message')}
-                        >
-                          <MessageSquare className="w-4 h-4" />
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          className={`h-8 w-8 p-0 ${darkMode ? 'hover:bg-slate-700' : 'hover:bg-gray-200'}`}
-                          onClick={() => onSelectUser(user, 'call')}
-                        >
-                          <Phone className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    )}
                   </div>
+
+                  {!isCurrentUser && (
+                    <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className={`h-8 w-8 p-0 ${darkMode ? 'hover:bg-slate-700' : 'hover:bg-gray-200'}`}
+                        onClick={() => onSelectUser(user, 'message')}
+                      >
+                        <MessageSquare className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className={`h-8 w-8 p-0 ${darkMode ? 'hover:bg-slate-700' : 'hover:bg-gray-200'}`}
+                        onClick={() => onSelectUser(user, 'call')}
+                      >
+                        <Phone className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  )}
                 </div>
               );
             })
