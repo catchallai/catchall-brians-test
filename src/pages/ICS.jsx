@@ -352,26 +352,63 @@ export default function ICS() {
     });
   };
 
-  const handleTyping = (isTyping) => {
+  const { data: typingStatus = {} } = useQuery({
+    queryKey: ['typing-status', selectedChannel?.id],
+    queryFn: async () => {
+      if (!selectedChannel) return {};
+      const typingRecords = await base44.entities.Presence.filter({
+        channel_id: selectedChannel.id,
+        is_typing: true,
+      });
+      const result = {};
+      typingRecords.forEach(record => {
+        result[record.user_email] = record.user_name;
+      });
+      return result;
+    },
+    enabled: !!selectedChannel,
+    refetchInterval: 500,
+  });
+
+  // Subscribe to typing status
+  useEffect(() => {
+    if (!selectedChannel) return;
+    
+    const unsubscribe = base44.entities.Presence.subscribe((event) => {
+      if (event.data.channel_id === selectedChannel.id) {
+        queryClient.invalidateQueries({ queryKey: ['typing-status', selectedChannel.id] });
+      }
+    });
+
+    return unsubscribe;
+  }, [selectedChannel, queryClient]);
+
+  const handleTyping = async (isTyping) => {
     if (!selectedChannel || !user) return;
     
-    setTypingByChannel(prev => {
-      const channelTyping = prev[selectedChannel.id] || [];
-      if (isTyping) {
-        if (!channelTyping.includes(user.full_name)) {
-          return {
-            ...prev,
-            [selectedChannel.id]: [...channelTyping, user.full_name],
-          };
-        }
+    try {
+      const presenceRecords = await base44.entities.Presence.filter({
+        user_email: user.email,
+        channel_id: selectedChannel.id,
+      });
+      
+      if (presenceRecords.length > 0) {
+        await base44.entities.Presence.update(presenceRecords[0].id, {
+          is_typing: isTyping,
+        });
       } else {
-        return {
-          ...prev,
-          [selectedChannel.id]: channelTyping.filter(name => name !== user.full_name),
-        };
+        await base44.entities.Presence.create({
+          user_email: user.email,
+          user_name: user.full_name,
+          channel_id: selectedChannel.id,
+          is_typing: isTyping,
+          status: 'online',
+        });
       }
-      return prev;
-    });
+      queryClient.invalidateQueries({ queryKey: ['typing-status', selectedChannel.id] });
+    } catch (err) {
+      console.error('Error updating typing status:', err);
+    }
   };
 
   return (

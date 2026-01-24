@@ -34,6 +34,7 @@ import HashtagManager from './pages/HashtagManager';
 import HelpCenter from './pages/HelpCenter';
 import Home from './pages/Home';
 import ICS from './pages/ICS';
+import ICSAdmin from './pages/ICSAdmin';
 import Keywords from './pages/Keywords';
 import LandingPageBuilder from './pages/LandingPageBuilder';
 import LeadEnrichment from './pages/LeadEnrichment';
@@ -88,7 +89,6 @@ import WebCrawler from './pages/WebCrawler';
 import WebDashboard from './pages/WebDashboard';
 import WikiPageEditor from './pages/WikiPageEditor';
 import WorkflowBuilder from './pages/WorkflowBuilder';
-import ICSAdmin from './pages/ICSAdmin';
 import __Layout from './Layout.jsx';
 
 
@@ -129,6 +129,7 @@ export const PAGES = {
     "HelpCenter": HelpCenter,
     "Home": Home,
     "ICS": ICS,
+    "ICSAdmin": ICSAdmin,
     "Keywords": Keywords,
     "LandingPageBuilder": LandingPageBuilder,
     "LeadEnrichment": LeadEnrichment,
@@ -183,7 +184,6 @@ export const PAGES = {
     "WebDashboard": WebDashboard,
     "WikiPageEditor": WikiPageEditor,
     "WorkflowBuilder": WorkflowBuilder,
-    "ICSAdmin": ICSAdmin,
 }
 
 export const pagesConfig = {
