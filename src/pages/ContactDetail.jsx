@@ -10,6 +10,8 @@ import { ArrowLeft, Mail, Phone, Linkedin, Calendar, Building2, BriefcaseIcon, E
 import { Skeleton } from "@/components/ui/skeleton";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import ContactModal from '@/components/modals/ContactModal';
+import EmailContactModal from '@/components/modals/EmailContactModal';
+import EmailTrackingPanel from '@/components/crm/EmailTrackingPanel';
 import ActivityFeed from '@/components/collaboration/ActivityFeed';
 
 const urlParams = new URLSearchParams(window.location.search);
@@ -18,6 +20,7 @@ const contactId = urlParams.get('id');
 export default function ContactDetail() {
   const [showEditModal, setShowEditModal] = useState(false);
   const [showActivityPanel, setShowActivityPanel] = useState(false);
+  const [showEmailModal, setShowEmailModal] = useState(false);
 
   const { data: user } = useQuery({
     queryKey: ['current-user'],
@@ -138,10 +141,16 @@ export default function ContactDetail() {
             </div>
           </div>
         </div>
-        <Button onClick={() => setShowEditModal(true)} className="gap-2">
-          <Edit2 className="w-4 h-4" />
-          Edit Contact
-        </Button>
+        <div className="flex gap-2">
+          <Button onClick={() => setShowEmailModal(true)} variant="outline" className="gap-2">
+            <Mail className="w-4 h-4" />
+            Send Email
+          </Button>
+          <Button onClick={() => setShowEditModal(true)} className="gap-2 bg-violet-600 hover:bg-violet-700">
+            <Edit2 className="w-4 h-4" />
+            Edit Contact
+          </Button>
+        </div>
       </div>
 
       {/* Contact Information */}
@@ -219,6 +228,9 @@ export default function ContactDetail() {
               <p className="text-gray-600 dark:text-gray-400 whitespace-pre-wrap">{contact.notes}</p>
             </Card>
           )}
+
+          {/* Email Tracking */}
+          <EmailTrackingPanel contactId={contact.id} />
 
           {/* Activity Feed */}
           <Card className="p-6">
@@ -300,6 +312,14 @@ export default function ContactDetail() {
         }}
         isLoading={false}
         allowMultipleCompanies={true}
+      />
+
+      {/* Email Modal */}
+      <EmailContactModal
+        open={showEmailModal}
+        onClose={() => setShowEmailModal(false)}
+        contact={contact}
+        businessId={user?.current_business_id}
       />
     </div>
   );
