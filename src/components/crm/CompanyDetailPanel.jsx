@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { 
-  Users, Globe, MapPin, Phone, DollarSign, Building2, Mail, Briefcase 
+  Users, Globe, MapPin, Phone, DollarSign, Building2, Mail, Briefcase, Target 
 } from "lucide-react";
 
 export default function CompanyDetailPanel({ companyId }) {
