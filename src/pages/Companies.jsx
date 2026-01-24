@@ -225,19 +225,36 @@ export default function Companies() {
                     <span>{[company.city, company.country].filter(Boolean).join(', ')}</span>
                   </div>
                 )}
-              </div>
-
-              <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700 flex items-center justify-between">
-                <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400">
-                  <Users className="w-4 h-4" />
-                  <span className="text-sm">{getContactCount(company.id)} contacts</span>
                 </div>
-                {company.annual_revenue && (
-                  <span className="text-sm font-semibold text-emerald-600 dark:text-emerald-400">
-                    {formatRevenue(company.annual_revenue)}
-                  </span>
-                )}
-              </div>
+
+                {(() => {
+                const primaryContact = getPrimaryContact(company.id);
+                return (
+                  <>
+                    {primaryContact && (
+                      <div className="mt-4 p-3 bg-gray-50 dark:bg-gray-700/30 rounded-lg text-sm">
+                        <p className="text-xs text-gray-500 dark:text-gray-400 uppercase font-semibold mb-1">Primary Contact</p>
+                        <p className="font-medium text-gray-900 dark:text-white">{primaryContact.first_name} {primaryContact.last_name}</p>
+                        {primaryContact.job_title && <p className="text-xs text-gray-600 dark:text-gray-300">{primaryContact.job_title}</p>}
+                        {primaryContact.email && <p className="text-xs text-violet-600 dark:text-violet-400 truncate">{primaryContact.email}</p>}
+                        {primaryContact.phone && <p className="text-xs text-gray-600 dark:text-gray-300">{primaryContact.phone}</p>}
+                      </div>
+                    )}
+
+                    <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700 flex items-center justify-between">
+                      <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400">
+                        <Users className="w-4 h-4" />
+                        <span className="text-sm">{getContactCount(company.id)} contacts</span>
+                      </div>
+                      {company.annual_revenue && (
+                        <span className="text-sm font-semibold text-emerald-600 dark:text-emerald-400">
+                          {formatRevenue(company.annual_revenue)}
+                        </span>
+                      )}
+                    </div>
+                  </>
+                );
+                })()}
               
               <div className="mt-3 flex gap-2">
                 <Button
