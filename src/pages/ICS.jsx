@@ -623,7 +623,7 @@ export default function ICS() {
                 handleStartCall();
               }
               setShowContactPanel(false);
-            }
+            }}
             onGroupMessage={() => {
               // Can be expanded to create group channels
               console.log('Group message feature coming soon');
