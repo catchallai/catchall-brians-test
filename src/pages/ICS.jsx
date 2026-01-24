@@ -50,6 +50,7 @@ export default function ICS() {
   const [showProfile, setShowProfile] = useState(false);
   const [darkMode, setDarkMode] = useState(true);
   const [isInCall, setIsInCall] = useState(false);
+  const [typingByChannel, setTypingByChannel] = useState({});
   const messagesEndRef = useRef(null);
   const queryClient = useQueryClient();
 
@@ -264,6 +265,28 @@ export default function ICS() {
     });
   };
 
+  const handleTyping = (isTyping) => {
+    if (!selectedChannel || !user) return;
+    
+    setTypingByChannel(prev => {
+      const channelTyping = prev[selectedChannel.id] || [];
+      if (isTyping) {
+        if (!channelTyping.includes(user.full_name)) {
+          return {
+            ...prev,
+            [selectedChannel.id]: [...channelTyping, user.full_name],
+          };
+        }
+      } else {
+        return {
+          ...prev,
+          [selectedChannel.id]: channelTyping.filter(name => name !== user.full_name),
+        };
+      }
+      return prev;
+    });
+  };
+
   return (
     <div className={`h-screen flex ${darkMode ? 'bg-slate-950' : 'bg-slate-50'}`}>
       <Sidebar
@@ -285,6 +308,7 @@ export default function ICS() {
             onNewChat={() => setShowNewChannel(true)}
             darkMode={darkMode}
             allPresence={allPresence}
+            typingByChannel={typingByChannel}
           />
 
           <ChatArea
@@ -295,6 +319,8 @@ export default function ICS() {
             onSendMessage={handleSendMessage}
             onStartCall={handleStartCall}
             onShowProfile={() => setShowProfile(true)}
+            typingUsers={selectedChannel ? typingByChannel[selectedChannel.id] || [] : []}
+            onTyping={handleTyping}
           />
         </>
         ) : null}
