@@ -382,6 +382,7 @@ export default function ICS() {
         darkMode={darkMode}
         onThemeToggle={() => setDarkMode(!darkMode)}
         onSettingsClick={() => setShowSettings(true)}
+        onAccountClick={() => setActiveView('account')}
         user={user}
         unreadCount={channels.filter(c => messages.filter(m => m.channel_id === c.id && m.created_date > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)).length > 0).length}
         notificationButton={
