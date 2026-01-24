@@ -25,6 +25,7 @@ export default function ChatArea({
   onToggleRecording,
   onToggleWaitingRoom,
   onAdmitUser,
+  onRejectUser,
   updateCallMutation,
 }) {
   const messagesEndRef = useRef(null);
@@ -58,14 +59,15 @@ export default function ChatArea({
     return (
       <div className={`flex-1 flex flex-col ${darkMode ? 'bg-slate-950' : 'bg-slate-50'}`}>
         <VideoCallInterface
-          activeCall={activeCall}
-          user={user}
-          onEndCall={onEndCall}
-          onToggleRecording={onToggleRecording}
-          onToggleWaitingRoom={onToggleWaitingRoom}
-          onAdmitUser={onAdmitUser}
-          updateCallMutation={updateCallMutation}
-        />
+           activeCall={activeCall}
+           user={user}
+           onEndCall={onEndCall}
+           onToggleRecording={onToggleRecording}
+           onToggleWaitingRoom={onToggleWaitingRoom}
+           onAdmitUser={onAdmitUser}
+           onRejectUser={onRejectUser}
+           updateCallMutation={updateCallMutation}
+         />
       </div>
     );
   }
