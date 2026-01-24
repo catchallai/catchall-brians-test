@@ -20,6 +20,7 @@ import { Card } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Textarea } from "@/components/ui/textarea";
 import VersionHistory from '@/components/wiki/VersionHistory';
 import TemplateSelector from '@/components/wiki/TemplateSelector';
 import CommentsPanel from '@/components/wiki/CommentsPanel';
@@ -56,6 +57,7 @@ export default function WikiPageEditor() {
   const [showTemplateSelector, setShowTemplateSelector] = useState(false);
   const [showComments, setShowComments] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [changeSummary, setChangeSummary] = useState('');
 
   const { data: user } = useQuery({
     queryKey: ['current-user'],
@@ -180,6 +182,7 @@ export default function WikiPageEditor() {
           title: page.title,
           content: page.content,
           edited_by: user?.email,
+          change_summary: changeSummary || undefined,
         });
 
         return await base44.entities.WikiPage.update(pageId, {
@@ -199,6 +202,7 @@ export default function WikiPageEditor() {
       queryClient.invalidateQueries({ queryKey: ['space-pages'] });
       queryClient.invalidateQueries({ queryKey: ['wiki-page'] });
       queryClient.invalidateQueries({ queryKey: ['wiki-versions'] });
+      setChangeSummary('');
       if (!pageId) {
         navigate(`${createPageUrl('WikiPageEditor')}?spaceId=${spaceId}&pageId=${savedPage.id}`);
       }
@@ -372,6 +376,21 @@ export default function WikiPageEditor() {
             placeholder="Page title..."
             className="text-4xl font-bold border-0 px-0 focus-visible:ring-0"
           />
+
+          {/* Change Summary */}
+          {pageId && (
+            <div>
+              <Label className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                What changed? (Optional)
+              </Label>
+              <Textarea
+                value={changeSummary}
+                onChange={(e) => setChangeSummary(e.target.value)}
+                placeholder="Describe your changes (e.g., 'Updated pricing information', 'Fixed typos')"
+                className="h-16"
+              />
+            </div>
+          )}
 
           {/* AI Summary */}
           {aiSummary && (
