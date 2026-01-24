@@ -18,6 +18,7 @@ export default function Sidebar({
   onSettingsClick,
   user,
   unreadCount = 0,
+  notificationButton,
 }) {
   const NavButton = ({ icon: Icon, active, onClick, tooltip, badge }) => (
     <button
@@ -102,6 +103,7 @@ export default function Sidebar({
         >
           {darkMode ? <Sun size={20} /> : <Moon size={20} />}
         </button>
+        {notificationButton}
         <button
           onClick={onSettingsClick}
           className={`p-2.5 rounded-xl transition-all ${
