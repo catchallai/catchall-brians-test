@@ -594,10 +594,12 @@ export default function Layout({ children, currentPageName }) {
       </div>
 
       {/* Desktop Top Bar with Search */}
-      <div className={`hidden lg:flex top-0 right-0 h-14 glass-topbar z-30 items-center justify-between px-6 transition-all duration-300 ${
+      <div className={`hidden lg:flex top-0 right-0 h-14 glass-topbar z-30 items-center justify-end px-6 transition-all duration-300 ${
         sidebarCollapsed ? 'left-16' : 'left-64'
       }`}>
-        <GlobalSearch />
+        <div className="flex items-center gap-4 ml-auto">
+          <GlobalSearch />
+        </div>
         <div className="flex items-center gap-3">
             <NotificationBell />
             <ThemeToggle />
