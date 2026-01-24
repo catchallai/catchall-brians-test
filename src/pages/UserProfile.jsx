@@ -34,7 +34,21 @@ export default function UserProfile() {
     email_notifications: user?.email_notifications ?? true,
     marketing_emails: user?.marketing_emails ?? false,
     weekly_digest: user?.weekly_digest ?? true,
-    theme: user?.theme || 'light',
+    theme: user?.theme || localStorage.getItem('theme') || 'light',
+    status: user?.status || 'online',
+    status_emoji: user?.status_emoji || '✨',
+  });
+
+  const [notificationPrefs, setNotificationPrefs] = useState({
+    messages_enabled: user?.messages_enabled ?? true,
+    mentions_enabled: user?.mentions_enabled ?? true,
+    updates_enabled: user?.updates_enabled ?? true,
+    sound_enabled: user?.sound_enabled ?? true,
+    desktop_notifications_enabled: user?.desktop_notifications_enabled ?? true,
+    do_not_disturb_enabled: user?.do_not_disturb_enabled ?? false,
+    dnd_start_time: user?.dnd_start_time || '22:00',
+    dnd_end_time: user?.dnd_end_time || '08:00',
+    muted_channels: user?.muted_channels || [],
   });
 
   const updateProfileMutation = useMutation({
