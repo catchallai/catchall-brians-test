@@ -18,18 +18,7 @@ import {
   Send,
   Paperclip,
   Smile,
-  MoreVertical,
-  PhoneOff,
-  Mic,
-  MicOff,
-  VideoOff as VideoOffIcon,
-  Monitor,
-  Settings,
-  Circle,
-  UserPlus,
-  Shield,
-  ScreenShare,
-  StopCircle
+  MoreVertical
 } from "lucide-react";
 import {
   Dialog,
@@ -42,6 +31,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { format } from 'date-fns';
+import VideoCallInterface from '@/components/ics/VideoCallInterface';
 
 export default function ICS() {
   const [selectedChannel, setSelectedChannel] = useState(null);
@@ -52,10 +42,6 @@ export default function ICS() {
   const [newChannelType, setNewChannelType] = useState('public');
   const [newChannelDesc, setNewChannelDesc] = useState('');
   const [isInCall, setIsInCall] = useState(false);
-  const [isMuted, setIsMuted] = useState(false);
-  const [isVideoOff, setIsVideoOff] = useState(false);
-  const [isScreenSharing, setIsScreenSharing] = useState(false);
-  const [showWaitingRoom, setShowWaitingRoom] = useState(false);
   const messagesEndRef = useRef(null);
   const queryClient = useQueryClient();
 
@@ -152,7 +138,6 @@ export default function ICS() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['active-call'] });
       setIsInCall(false);
-      setIsScreenSharing(false);
     },
   });
 
@@ -243,23 +228,6 @@ export default function ICS() {
           ? new Date().toISOString() 
           : activeCall.recording_started_at,
       },
-    });
-  };
-
-  const handleToggleScreenShare = () => {
-    if (!activeCall) return;
-    const newIsSharing = !isScreenSharing;
-    setIsScreenSharing(newIsSharing);
-    
-    const updatedParticipants = activeCall.participants.map(p => 
-      p.email === user?.email 
-        ? { ...p, is_screen_sharing: newIsSharing }
-        : p
-    );
-    
-    updateCallMutation.mutate({
-      callId: activeCall.id,
-      data: { participants: updatedParticipants },
     });
   };
 
@@ -434,153 +402,15 @@ export default function ICS() {
 
             {/* Video Call Interface */}
             {isInCall && (
-              <div className="bg-gray-900 p-4">
-                <Card className="bg-gray-800 border-gray-700 p-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 bg-violet-600 rounded-full flex items-center justify-center relative">
-                        <Video className="w-6 h-6 text-white" />
-                        {activeCall?.recording_status === 'recording' && (
-                          <Circle className="w-3 h-3 text-red-500 fill-red-500 absolute -top-1 -right-1 animate-pulse" />
-                        )}
-                      </div>
-                      <div>
-                        <p className="text-white font-medium">Video Call Active</p>
-                        <div className="flex items-center gap-2 text-sm text-gray-400">
-                          <span>{activeCall?.participants?.length || 1} participant(s)</span>
-                          {activeCall?.recording_status === 'recording' && (
-                            <span className="flex items-center gap-1 text-red-400">
-                              <Circle className="w-2 h-2 fill-red-400" />
-                              Recording
-                            </span>
-                          )}
-                          {activeCall?.waiting_room?.length > 0 && (
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => setShowWaitingRoom(!showWaitingRoom)}
-                              className="text-yellow-400 hover:text-yellow-300"
-                            >
-                              <UserPlus className="w-4 h-4 mr-1" />
-                              {activeCall.waiting_room.length} waiting
-                            </Button>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={handleToggleWaitingRoom}
-                        className={activeCall?.settings?.waiting_room_enabled ? "bg-violet-600 text-white" : ""}
-                      >
-                        <Shield className="w-4 h-4 mr-2" />
-                        Waiting Room {activeCall?.settings?.waiting_room_enabled ? "On" : "Off"}
-                      </Button>
-                      <Button onClick={handleEndCall} variant="destructive">
-                        <PhoneOff className="w-4 h-4 mr-2" />
-                        End Call
-                      </Button>
-                    </div>
-                  </div>
-
-                  {/* Waiting Room */}
-                  {showWaitingRoom && activeCall?.waiting_room?.length > 0 && (
-                    <Card className="mb-4 p-4 bg-gray-700 border-gray-600">
-                      <h3 className="text-white font-medium mb-3 flex items-center gap-2">
-                        <UserPlus className="w-4 h-4" />
-                        Waiting Room ({activeCall.waiting_room.length})
-                      </h3>
-                      <div className="space-y-2">
-                        {activeCall.waiting_room.map((person, idx) => (
-                          <div key={idx} className="flex items-center justify-between bg-gray-800 p-3 rounded-lg">
-                            <div className="flex items-center gap-2">
-                              <Avatar>
-                                <AvatarFallback className="bg-violet-600 text-white">
-                                  {person.name?.[0]}
-                                </AvatarFallback>
-                              </Avatar>
-                              <div>
-                                <p className="text-white text-sm font-medium">{person.name}</p>
-                                <p className="text-gray-400 text-xs">
-                                  Waiting since {format(new Date(person.requested_at), 'h:mm a')}
-                                </p>
-                              </div>
-                            </div>
-                            <Button
-                              size="sm"
-                              onClick={() => handleAdmitUser(person.email, person.name)}
-                            >
-                              Admit
-                            </Button>
-                          </div>
-                        ))}
-                      </div>
-                    </Card>
-                  )}
-                  
-                  <div className="grid grid-cols-2 gap-4 mb-4">
-                    {activeCall?.participants?.map((participant, idx) => (
-                      <div key={idx} className="aspect-video bg-gray-700 rounded-lg flex items-center justify-center relative">
-                        {participant.is_screen_sharing && (
-                          <div className="absolute top-2 right-2 bg-blue-600 px-2 py-1 rounded text-xs text-white flex items-center gap-1">
-                            <Monitor className="w-3 h-3" />
-                            Sharing
-                          </div>
-                        )}
-                        <Avatar className="w-16 h-16">
-                          <AvatarFallback className="bg-violet-600 text-white text-xl">
-                            {participant.name?.[0]}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div className="absolute bottom-2 left-2 bg-black/70 px-2 py-1 rounded text-xs text-white">
-                          {participant.name}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className="flex justify-center gap-3">
-                    <Button
-                      variant={isMuted ? "destructive" : "secondary"}
-                      size="lg"
-                      onClick={() => setIsMuted(!isMuted)}
-                      title={isMuted ? "Unmute" : "Mute"}
-                    >
-                      {isMuted ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
-                    </Button>
-                    <Button
-                      variant={isVideoOff ? "destructive" : "secondary"}
-                      size="lg"
-                      onClick={() => setIsVideoOff(!isVideoOff)}
-                      title={isVideoOff ? "Turn on camera" : "Turn off camera"}
-                    >
-                      {isVideoOff ? <VideoOffIcon className="w-5 h-5" /> : <Video className="w-5 h-5" />}
-                    </Button>
-                    <Button
-                      variant={isScreenSharing ? "default" : "secondary"}
-                      size="lg"
-                      onClick={handleToggleScreenShare}
-                      title={isScreenSharing ? "Stop sharing" : "Share screen"}
-                    >
-                      {isScreenSharing ? <StopCircle className="w-5 h-5" /> : <ScreenShare className="w-5 h-5" />}
-                    </Button>
-                    <Button
-                      variant={activeCall?.recording_status === 'recording' ? "destructive" : "secondary"}
-                      size="lg"
-                      onClick={handleToggleRecording}
-                      title={activeCall?.recording_status === 'recording' ? "Pause recording" : "Start recording"}
-                    >
-                      {activeCall?.recording_status === 'recording' ? (
-                        <StopCircle className="w-5 h-5" />
-                      ) : (
-                        <Circle className="w-5 h-5" />
-                      )}
-                    </Button>
-                  </div>
-                </Card>
-              </div>
+              <VideoCallInterface
+                activeCall={activeCall}
+                user={user}
+                onEndCall={handleEndCall}
+                onToggleRecording={handleToggleRecording}
+                onToggleWaitingRoom={handleToggleWaitingRoom}
+                onAdmitUser={handleAdmitUser}
+                updateCallMutation={updateCallMutation}
+              />
             )}
 
             {/* Messages Area */}
