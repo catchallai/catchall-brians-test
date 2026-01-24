@@ -548,33 +548,28 @@ export default function ICS() {
             users={allUsers}
             allPresence={allPresence}
             darkMode={darkMode}
-            onSelectUser={(selectedUser, action) => {
-              if (action === 'message') {
-                // Create or find direct message channel
-                const dmChannel = channels.find(c => 
-                  c.type === 'dm' && 
-                  c.members?.includes(selectedUser.email) &&
-                  c.members?.includes(user?.email)
-                );
-                
-                if (dmChannel) {
-                  setSelectedChannel(dmChannel);
-                } else {
-                  // Create new DM channel
-                  createChannelMutation.mutate({
-                    name: selectedUser.full_name,
-                    type: 'dm',
-                    created_by: user?.email,
-                    members: [user?.email, selectedUser.email],
-                    last_activity: new Date().toISOString(),
-                  });
-                }
-                setActiveView('chat');
-              } else if (action === 'call') {
-                // Start a call with the user
-                handleStartCall();
+            onSelectUser={(selectedUser) => {
+              // Create or find direct message channel
+              const dmChannel = channels.find(c => 
+                c.type === 'dm' && 
+                c.members?.includes(selectedUser.email) &&
+                c.members?.includes(user?.email)
+              );
+
+              if (dmChannel) {
+                setSelectedChannel(dmChannel);
+              } else {
+                // Create new DM channel
+                createChannelMutation.mutate({
+                  name: selectedUser.full_name,
+                  type: 'dm',
+                  created_by: user?.email,
+                  members: [user?.email, selectedUser.email],
+                  last_activity: new Date().toISOString(),
+                });
               }
-            }}
+              setActiveView('chat');
+            }
             currentUser={user}
             onViewProfile={(contact) => {
               setSelectedContact(contact);
