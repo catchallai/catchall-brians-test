@@ -307,17 +307,26 @@ export default function VideoCallInterface({
                   }`}></span>
                   {participant.status}
                 </div>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setPinnedParticipant(participant);
-                  }}
-                >
-                  <Maximize className="w-4 h-4 text-white" />
-                </Button>
+                {isHost && !participant.isLocal && (
+                   <Button
+                     variant="ghost"
+                     size="sm"
+                     className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-black/50 hover:bg-red-600"
+                     onClick={(e) => {
+                       e.stopPropagation();
+                       mutedParticipants[participant.email]
+                         ? unmuteParticipant(participant.email)
+                         : muteParticipant(participant.email);
+                     }}
+                     title={mutedParticipants[participant.email] ? "Unmute" : "Mute"}
+                   >
+                     {mutedParticipants[participant.email] ? (
+                       <MicOff className="w-4 h-4 text-white" />
+                     ) : (
+                       <Mic className="w-4 h-4 text-white" />
+                     )}
+                   </Button>
+                 )}
               </div>
             ))}
           </div>
