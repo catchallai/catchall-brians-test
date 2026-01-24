@@ -61,6 +61,7 @@ export default function ICS() {
   const [isInCall, setIsInCall] = useState(false);
   const [typingByChannel, setTypingByChannel] = useState({});
   const [notificationPrefs, setNotificationPrefs] = useState(null);
+  const [showAdmin, setShowAdmin] = useState(false);
   const messagesEndRef = useRef(null);
   const queryClient = useQueryClient();
 
