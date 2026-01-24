@@ -41,7 +41,7 @@ import FilePreview from '@/components/ics/FilePreview';
 import Sidebar from '@/components/ics/Sidebar';
 import ConversationsList from '@/components/ics/ConversationsList';
 import ChatArea from '@/components/ics/ChatArea';
-import NotificationPreferences from '@/components/notifications/NotificationPreferences';
+import NotificationPreferences from '@/components/notifications/NotificationPreferences.jsx';
 import { playNotificationSound, isInDND } from '@/components/notifications/NotificationSounds';
 
 export default function ICS() {
