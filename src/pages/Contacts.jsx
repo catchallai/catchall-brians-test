@@ -23,6 +23,7 @@ import { useDebounce } from '@/components/hooks/useDebounce';
 import { exportToCSV } from '@/components/utils/exportData';
 import { useToast } from '@/components/ui/toast-provider';
 import { logActivity, ActivityActions } from '@/components/utils/activityLogger';
+import { base44 } from '@/api/base44Client';
 
 const ITEMS_PER_PAGE = 25;
 
@@ -90,6 +91,24 @@ export default function Contacts() {
         business_id: user?.current_business_id,
       });
       await logActivity(ActivityActions.CREATE, 'Contact', contact.id, `${data.first_name} ${data.last_name}`);
+      
+      // Create notification for contact addition
+      try {
+        await base44.functions.invoke('createNotification', {
+          user_email: user?.email,
+          type: 'contact_added',
+          title: `New contact created: ${data.first_name} ${data.last_name}`,
+          body: data.company_name || data.job_title || 'Contact added to your database',
+          related_entity_type: 'Contact',
+          related_entity_id: contact.id,
+          actor_email: user?.email,
+          actor_name: user?.full_name,
+          action_url: `/contacts?id=${contact.id}`,
+        });
+      } catch (err) {
+        console.log('Notification creation skipped');
+      }
+      
       return contact;
     },
     onSuccess: () => {
