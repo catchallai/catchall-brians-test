@@ -628,19 +628,20 @@ export default function ContactModal({ open, onClose, contact, companies, onSave
                   </div>
                 </div>
               )}
-            </TabsContent>
-          </form>
+              </TabsContent>
+              </Tabs>
 
-          <div className="flex justify-end gap-3 pt-4 border-t mt-4">
-            <Button type="button" variant="outline" onClick={onClose}>
+              <div className="flex justify-end gap-3 pt-4 border-t mt-4">
+              <Button type="button" variant="outline" onClick={onClose}>
               Cancel
-            </Button>
-            <Button onClick={handleSubmit} disabled={isLoading}>
+              </Button>
+              <Button type="submit" disabled={isLoading}>
               {isLoading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
               {contact ? 'Update Contact' : 'Add Contact'}
-            </Button>
-          </div>
-      </DialogContent>
+              </Button>
+              </div>
+              </form>
+              </DialogContent>
     </Dialog>
   );
 }
