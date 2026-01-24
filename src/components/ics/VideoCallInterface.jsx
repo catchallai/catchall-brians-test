@@ -40,6 +40,7 @@ export default function VideoCallInterface({
   onToggleRecording,
   onToggleWaitingRoom,
   onAdmitUser,
+  onRejectUser,
   updateCallMutation,
 }) {
   const [showWaitingRoom, setShowWaitingRoom] = useState(false);
@@ -278,6 +279,13 @@ export default function VideoCallInterface({
                       className="bg-green-600 hover:bg-green-700"
                     >
                       Admit
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="destructive"
+                      onClick={() => onRejectUser(person.email)}
+                    >
+                      Reject
                     </Button>
                   </div>
                 </div>
