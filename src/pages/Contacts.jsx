@@ -784,48 +784,71 @@ export default function Contacts() {
                             onClick={(e) => e.stopPropagation()}
                           />
                         </td>
-                        <td className="px-4 py-3">
-                          <div className="font-medium text-gray-900 dark:text-white">
-                            {contact.first_name} {contact.last_name}
-                          </div>
-                          <div className="text-sm text-gray-500">{contact.company_name || '-'}</div>
-                        </td>
-                        <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
-                          {contact.phone || '-'}
-                        </td>
-                        <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
-                          {contact.email}
-                        </td>
-                        <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
-                          {new Date(contact.created_date).toLocaleDateString()}
-                        </td>
-                        <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
-                          {contact.last_contacted ? new Date(contact.last_contacted).toLocaleDateString() : '-'}
-                        </td>
-                        <td className="px-4 py-3">
-                          <div className="flex flex-wrap gap-1">
-                            {contact.tags?.slice(0, 2).map((tag, idx) => (
-                              <span key={idx} className="px-2 py-0.5 text-xs rounded-full bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300">
-                                {tag}
-                              </span>
-                            ))}
-                            {contact.tags?.length > 2 && (
-                              <span className="px-2 py-0.5 text-xs rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400">
-                                +{contact.tags.length - 2}
-                              </span>
-                            )}
-                          </div>
-                        </td>
-                        <td className="px-4 py-3">
-                          <span className={`px-2 py-1 text-xs rounded-full ${
-                            contact.status === 'customer' ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300' :
-                            contact.status === 'prospect' ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300' :
-                            contact.status === 'lead' ? 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300' :
-                            'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300'
-                          }`}>
-                            {contact.status}
-                          </span>
-                        </td>
+                        {visibleColumns.name && (
+                          <td className="px-4 py-3">
+                            <div className="font-medium text-gray-900 dark:text-white">
+                              {contact.first_name} {contact.last_name}
+                            </div>
+                          </td>
+                        )}
+                        {visibleColumns.company && (
+                          <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
+                            {contact.company_name || '-'}
+                          </td>
+                        )}
+                        {visibleColumns.phone && (
+                          <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
+                            {contact.phone || '-'}
+                          </td>
+                        )}
+                        {visibleColumns.email && (
+                          <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
+                            {contact.email}
+                          </td>
+                        )}
+                        {visibleColumns.title && (
+                          <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
+                            {contact.job_title || '-'}
+                          </td>
+                        )}
+                        {visibleColumns.created && (
+                          <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
+                            {new Date(contact.created_date).toLocaleDateString()}
+                          </td>
+                        )}
+                        {visibleColumns.lastActivity && (
+                          <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
+                            {contact.last_contacted ? new Date(contact.last_contacted).toLocaleDateString() : '-'}
+                          </td>
+                        )}
+                        {visibleColumns.tags && (
+                          <td className="px-4 py-3">
+                            <div className="flex flex-wrap gap-1">
+                              {contact.tags?.slice(0, 2).map((tag, idx) => (
+                                <span key={idx} className="px-2 py-0.5 text-xs rounded-full bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300">
+                                  {tag}
+                                </span>
+                              ))}
+                              {contact.tags?.length > 2 && (
+                                <span className="px-2 py-0.5 text-xs rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400">
+                                  +{contact.tags.length - 2}
+                                </span>
+                              )}
+                            </div>
+                          </td>
+                        )}
+                        {visibleColumns.status && (
+                          <td className="px-4 py-3">
+                            <span className={`px-2 py-1 text-xs rounded-full ${
+                              contact.status === 'customer' ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300' :
+                              contact.status === 'prospect' ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300' :
+                              contact.status === 'lead' ? 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300' :
+                              'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300'
+                            }`}>
+                              {contact.status}
+                            </span>
+                          </td>
+                        )}
                       </tr>
                     ))}
                   </tbody>
