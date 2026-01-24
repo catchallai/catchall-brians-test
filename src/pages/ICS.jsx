@@ -54,6 +54,7 @@ import { extractMentions, createMentionNotifications } from '@/components/notifi
 export default function ICS() {
   const [selectedChannel, setSelectedChannel] = useState(null);
   const [activeView, setActiveView] = useState('chat');
+  const [chatTab, setChatTab] = useState('messages'); // 'messages', 'contacts', 'notifications', 'archive'
   const [showNewChannel, setShowNewChannel] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
@@ -61,6 +62,7 @@ export default function ICS() {
   const [isInCall, setIsInCall] = useState(false);
   const [typingByChannel, setTypingByChannel] = useState({});
   const [notificationPrefs, setNotificationPrefs] = useState(null);
+  const [searchContacts, setSearchContacts] = useState('');
   const messagesEndRef = useRef(null);
   const queryClient = useQueryClient();
 
