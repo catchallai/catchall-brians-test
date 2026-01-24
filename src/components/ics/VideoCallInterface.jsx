@@ -384,8 +384,10 @@ export default function VideoCallInterface({
                 {otherParticipants.map((participant) => (
                   <div
                     key={participant.id}
-                    className="w-32 h-20 bg-gray-700 rounded relative cursor-pointer flex-shrink-0"
-                    onClick={() => setPinnedParticipant(participant)}
+                    className={`w-32 h-20 bg-gray-700 rounded relative cursor-pointer flex-shrink-0 border-2 ${
+                      pinnedParticipants.includes(participant.id) ? 'border-violet-500' : 'border-transparent'
+                    }`}
+                    onClick={() => togglePinParticipant(participant.id)}
                   >
                     <video
                       ref={el => videoRefs.current[participant.id] = el}
