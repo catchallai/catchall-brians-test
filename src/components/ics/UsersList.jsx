@@ -86,26 +86,16 @@ export default function UsersList({ users, allPresence, darkMode, onSelectUser, 
                     </div>
                   </div>
 
-                  {!isCurrentUser && (
-                    <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        className={`h-8 w-8 p-0 ${darkMode ? 'hover:bg-slate-700' : 'hover:bg-gray-200'}`}
-                        onClick={() => onSelectUser(user, 'message')}
-                      >
-                        <MessageSquare className="w-4 h-4" />
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        className={`h-8 w-8 p-0 ${darkMode ? 'hover:bg-slate-700' : 'hover:bg-gray-200'}`}
-                        onClick={() => onSelectUser(user, 'call')}
-                      >
-                        <Phone className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  )}
+                  <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className={`h-8 w-8 p-0 ${darkMode ? 'hover:bg-slate-700' : 'hover:bg-gray-200'}`}
+                      onClick={() => onViewProfile?.(user)}
+                    >
+                      <MessageSquare className="w-4 h-4" />
+                    </Button>
+                  </div>
                 </div>
               );
             })
