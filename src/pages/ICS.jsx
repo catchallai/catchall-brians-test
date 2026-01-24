@@ -151,6 +151,29 @@ export default function ICS() {
     refetchInterval: 5000,
   });
 
+  // Monitor for incoming calls
+  const { data: incomingCallData } = useQuery({
+    queryKey: ['incoming-calls', user?.email],
+    queryFn: async () => {
+      if (!user?.email) return null;
+      const calls = await base44.entities.VideoCall.list();
+      // Find active calls where user is in waiting_room or a participant
+      return calls.find(c => 
+        c.status === 'active' && 
+        !c.participants?.some(p => p.email === user?.email) &&
+        c.waiting_room?.some(w => w.email === user?.email)
+      );
+    },
+    enabled: !!user?.email,
+    refetchInterval: 2000,
+  });
+
+  useEffect(() => {
+    if (incomingCallData && !incomingCall) {
+      setIncomingCall(incomingCallData);
+    }
+  }, [incomingCallData, incomingCall]);
+
   // Subscribe to new messages
   useEffect(() => {
     if (!selectedChannel) return;
