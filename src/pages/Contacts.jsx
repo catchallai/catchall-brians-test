@@ -222,6 +222,7 @@ export default function Contacts() {
       }
 
       // Create contacts with company_id
+      let successCount = 0;
       for (const row of data) {
         const companyName = getFieldValue(row, 'company_name', 'Firm', 'Company', 'Company Name', 'firm', 'organization');
         const contactData = {
@@ -268,17 +269,23 @@ export default function Contacts() {
         // Only create if we have at least email or both first name and last name
         if (contactData.email || (contactData.first_name && contactData.last_name)) {
           contactData.business_id = user?.current_business_id;
-          await base44.entities.Contact.create(contactData);
+          try {
+            await base44.entities.Contact.create(contactData);
+            successCount++;
+          } catch (err) {
+            console.error('Error creating contact:', err);
+          }
         }
-        }
-        await logActivity(ActivityActions.IMPORT, 'Contact', null, null, { count: data.length });
+      }
+      await logActivity(ActivityActions.IMPORT, 'Contact', null, null, { count: successCount });
+      return { successCount, totalRows: data.length };
     },
-    onSuccess: () => {
+    onSuccess: (result) => {
       queryClient.invalidateQueries({ queryKey: ['contacts'] });
       queryClient.invalidateQueries({ queryKey: ['companies'] });
-      toast.success('Contacts imported successfully');
+      toast.success(`Successfully imported ${result.successCount} of ${result.totalRows} contacts`);
     },
-    onError: () => toast.error('Failed to import contacts'),
+    onError: (error) => toast.error('Failed to import contacts: ' + (error?.message || 'Unknown error')),
   });
 
   const handleSave = (data) => {
