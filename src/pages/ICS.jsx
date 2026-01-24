@@ -460,6 +460,10 @@ export default function ICS() {
             setActiveView('chat');
           }}
         />
+      ) : activeView === 'admin' ? (
+        <div className="flex-1 overflow-auto">
+          <ICSAdminPortal user={user} darkMode={darkMode} />
+        </div>
       ) : null}
 
       {/* Settings Panel */}
