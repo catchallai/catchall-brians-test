@@ -142,6 +142,64 @@ export function useWebRTC(roomId, user, participants) {
     });
   }, []);
 
+  const startRecording = useCallback(async () => {
+    if (!localStream) return null;
+    
+    try {
+      const recordedChunks = [];
+      const audioContext = new AudioContext();
+      const source = audioContext.createMediaStreamSource(localStream);
+      const destination = audioContext.createMediaStreamDestination();
+      
+      source.connect(destination);
+      
+      // Combine local and remote audio/video
+      const canvas = document.createElement('canvas');
+      canvas.width = 1280;
+      canvas.height = 720;
+      const ctx = canvas.getContext('2d');
+      
+      const combinedStream = new MediaStream([
+        ...destination.stream.getAudioTracks(),
+        ...canvas.captureStream(30).getVideoTracks(),
+      ]);
+      
+      const recorder = new MediaRecorder(combinedStream, {
+        mimeType: 'video/webm;codecs=vp9',
+      });
+      
+      recorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          recordedChunks.push(event.data);
+        }
+      };
+      
+      recorder.start();
+      setMediaRecorder(recorder);
+      setRecordingChunks(recordedChunks);
+      
+      return recorder;
+    } catch (error) {
+      console.error('Error starting recording:', error);
+      return null;
+    }
+  }, [localStream]);
+
+  const stopRecording = useCallback(() => {
+    if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+      return new Promise((resolve) => {
+        mediaRecorder.onstop = () => {
+          const blob = new Blob(recordingChunks, { type: 'video/webm' });
+          resolve(blob);
+        };
+        mediaRecorder.stop();
+        setMediaRecorder(null);
+        setRecordingChunks([]);
+      });
+    }
+    return null;
+  }, [mediaRecorder, recordingChunks]);
+
   const createPeerConnection = useCallback((participantId) => {
     const config = {
       iceServers: [
