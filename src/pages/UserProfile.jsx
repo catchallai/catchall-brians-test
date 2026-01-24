@@ -467,24 +467,88 @@ export default function UserProfile() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
+                <Smile className="w-5 h-5 text-violet-600" />
+                Status & Availability
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label>Status</Label>
+                <select 
+                  value={preferences.status}
+                  onChange={(e) => setPreferences({...preferences, status: e.target.value})}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                >
+                  <option value="online">🟢 Online</option>
+                  <option value="away">🟡 Away</option>
+                  <option value="offline">⚫ Offline</option>
+                  <option value="busy">🔴 Busy</option>
+                </select>
+              </div>
+              <div className="space-y-2">
+                <Label>Status Emoji</Label>
+                <div className="flex gap-2">
+                  <Input 
+                    value={preferences.status_emoji}
+                    onChange={(e) => setPreferences({...preferences, status_emoji: e.target.value})}
+                    maxLength={2}
+                    placeholder="✨"
+                    className="w-20"
+                  />
+                  <p className="text-sm text-gray-500 flex items-center">Current: {preferences.status_emoji}</p>
+                </div>
+              </div>
+              <div className="flex justify-end">
+                <Button 
+                  onClick={handleSavePreferences}
+                  className="bg-violet-600 hover:bg-violet-700"
+                >
+                  <Save className="w-4 h-4 mr-2" />
+                  Save Status
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
                 <Palette className="w-5 h-5 text-violet-600" />
                 Appearance
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label>Theme</Label>
+                <Label>Theme (Persists across sessions)</Label>
                 <div className="grid grid-cols-3 gap-3">
-                  <button className="p-4 border-2 border-violet-500 rounded-lg bg-white dark:bg-gray-800 hover:border-violet-600 transition-colors">
-                    <div className="w-full h-12 bg-gradient-to-br from-gray-100 to-gray-200 rounded mb-2"></div>
+                  <button 
+                    onClick={() => {
+                      setPreferences({...preferences, theme: 'light'});
+                      localStorage.setItem('theme', 'light');
+                    }}
+                    className={`p-4 border-2 rounded-lg bg-white dark:bg-gray-800 transition-colors ${preferences.theme === 'light' ? 'border-violet-500' : 'border-gray-300 dark:border-gray-600'} hover:border-violet-600`}
+                  >
+                    <Sun className="w-6 h-6 mx-auto mb-2 text-yellow-500" />
                     <p className="text-sm font-medium">Light</p>
                   </button>
-                  <button className="p-4 border-2 border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 hover:border-violet-600 transition-colors">
-                    <div className="w-full h-12 bg-gradient-to-br from-gray-800 to-gray-900 rounded mb-2"></div>
+                  <button 
+                    onClick={() => {
+                      setPreferences({...preferences, theme: 'dark'});
+                      localStorage.setItem('theme', 'dark');
+                    }}
+                    className={`p-4 border-2 rounded-lg bg-white dark:bg-gray-800 transition-colors ${preferences.theme === 'dark' ? 'border-violet-500' : 'border-gray-300 dark:border-gray-600'} hover:border-violet-600`}
+                  >
+                    <Moon className="w-6 h-6 mx-auto mb-2 text-blue-400" />
                     <p className="text-sm font-medium">Dark</p>
                   </button>
-                  <button className="p-4 border-2 border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 hover:border-violet-600 transition-colors">
-                    <div className="w-full h-12 bg-gradient-to-r from-gray-100 via-gray-200 to-gray-800 rounded mb-2"></div>
+                  <button 
+                    onClick={() => {
+                      setPreferences({...preferences, theme: 'auto'});
+                      localStorage.setItem('theme', 'auto');
+                    }}
+                    className={`p-4 border-2 rounded-lg bg-white dark:bg-gray-800 transition-colors ${preferences.theme === 'auto' ? 'border-violet-500' : 'border-gray-300 dark:border-gray-600'} hover:border-violet-600`}
+                  >
+                    <div className="w-6 h-6 mx-auto mb-2 bg-gradient-to-r from-yellow-500 to-blue-400 rounded"></div>
                     <p className="text-sm font-medium">Auto</p>
                   </button>
                 </div>
