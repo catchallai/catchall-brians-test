@@ -56,6 +56,12 @@ export default function FileUploader({ onFilesSelected, maxFiles = 5 }) {
     });
   };
 
+  const handleClick = () => {
+    if (!isUploading && uploadedFiles.length < maxFiles) {
+      fileInputRef.current?.click();
+    }
+  };
+
   return (
     <div>
       <input
@@ -68,20 +74,19 @@ export default function FileUploader({ onFilesSelected, maxFiles = 5 }) {
         accept="image/*,video/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt"
       />
 
-      <Button
+      <button
         type="button"
-        variant="ghost"
-        size="icon"
-        onClick={() => fileInputRef.current?.click()}
+        onClick={handleClick}
         disabled={isUploading || uploadedFiles.length >= maxFiles}
         title={uploadedFiles.length >= maxFiles ? `Maximum ${maxFiles} files reached` : 'Attach file'}
+        className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded transition-colors"
       >
         {isUploading ? (
           <Upload className="w-5 h-5 animate-spin" />
         ) : (
           <Paperclip className="w-5 h-5" />
         )}
-      </Button>
+      </button>
 
       {/* File preview list */}
       {uploadedFiles.length > 0 && (
