@@ -527,6 +527,72 @@ export default function Contacts() {
             <Trash2 className="w-4 h-4" />
             {showDeleted ? 'Active' : 'Trash'}
           </Button>
+          {viewMode === 'list' && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" className="gap-2">
+                  <Eye className="w-4 h-4" />
+                  Columns
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuCheckboxItem
+                  checked={visibleColumns.name}
+                  onCheckedChange={(checked) => setVisibleColumns({...visibleColumns, name: checked})}
+                >
+                  Name
+                </DropdownMenuCheckboxItem>
+                <DropdownMenuCheckboxItem
+                  checked={visibleColumns.company}
+                  onCheckedChange={(checked) => setVisibleColumns({...visibleColumns, company: checked})}
+                >
+                  Company
+                </DropdownMenuCheckboxItem>
+                <DropdownMenuCheckboxItem
+                  checked={visibleColumns.phone}
+                  onCheckedChange={(checked) => setVisibleColumns({...visibleColumns, phone: checked})}
+                >
+                  Phone
+                </DropdownMenuCheckboxItem>
+                <DropdownMenuCheckboxItem
+                  checked={visibleColumns.email}
+                  onCheckedChange={(checked) => setVisibleColumns({...visibleColumns, email: checked})}
+                >
+                  Email
+                </DropdownMenuCheckboxItem>
+                <DropdownMenuCheckboxItem
+                  checked={visibleColumns.title}
+                  onCheckedChange={(checked) => setVisibleColumns({...visibleColumns, title: checked})}
+                >
+                  Job Title
+                </DropdownMenuCheckboxItem>
+                <DropdownMenuCheckboxItem
+                  checked={visibleColumns.created}
+                  onCheckedChange={(checked) => setVisibleColumns({...visibleColumns, created: checked})}
+                >
+                  Created
+                </DropdownMenuCheckboxItem>
+                <DropdownMenuCheckboxItem
+                  checked={visibleColumns.lastActivity}
+                  onCheckedChange={(checked) => setVisibleColumns({...visibleColumns, lastActivity: checked})}
+                >
+                  Last Activity
+                </DropdownMenuCheckboxItem>
+                <DropdownMenuCheckboxItem
+                  checked={visibleColumns.tags}
+                  onCheckedChange={(checked) => setVisibleColumns({...visibleColumns, tags: checked})}
+                >
+                  Tags
+                </DropdownMenuCheckboxItem>
+                <DropdownMenuCheckboxItem
+                  checked={visibleColumns.status}
+                  onCheckedChange={(checked) => setVisibleColumns({...visibleColumns, status: checked})}
+                >
+                  Status
+                </DropdownMenuCheckboxItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
           <Select value={statusFilter} onValueChange={setStatusFilter}>
             <SelectTrigger className="w-full sm:w-40">
               <SelectValue placeholder="Status" />
