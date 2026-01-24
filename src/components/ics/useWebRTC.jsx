@@ -282,6 +282,8 @@ export function useWebRTC(roomId, user, participants) {
     stopScreenShare,
     muteParticipant,
     unmuteParticipant,
+    startRecording,
+    stopRecording,
     createPeerConnection,
     cleanupConnections,
   };
