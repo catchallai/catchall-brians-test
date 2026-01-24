@@ -569,7 +569,7 @@ export default function ICS() {
                 });
               }
               setActiveView('chat');
-            }
+            }}
             currentUser={user}
             onViewProfile={(contact) => {
               setSelectedContact(contact);
