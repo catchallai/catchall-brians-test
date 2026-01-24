@@ -17,6 +17,8 @@ export default function ChatArea({
   onStartCall,
   onShowProfile,
   isLoading,
+  typingUsers = [],
+  onTyping,
 }) {
   const messagesEndRef = useRef(null);
 
@@ -145,6 +147,25 @@ export default function ChatArea({
             </div>
           )}
 
+          {typingUsers && typingUsers.length > 0 && (
+            <div className="flex items-end gap-3">
+              <Avatar className="w-8 h-8">
+                <AvatarFallback className="bg-slate-600 text-white text-xs">
+                  {typingUsers[0]?.charAt(0) || 'U'}
+                </AvatarFallback>
+              </Avatar>
+              <div className={`px-4 py-3 rounded-2xl ${
+                darkMode ? 'bg-slate-800' : 'bg-white shadow-sm'
+              }`}>
+                <div className="flex items-center gap-1.5">
+                  <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                  <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                  <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                </div>
+              </div>
+            </div>
+          )}
+
           <div ref={messagesEndRef} />
         </div>
       </ScrollArea>
@@ -155,7 +176,7 @@ export default function ChatArea({
           darkMode ? 'border-slate-800 bg-slate-900/50' : 'border-slate-200 bg-white'
         }`}
       >
-        <MessageInput onSendMessage={onSendMessage} darkMode={darkMode} />
+        <MessageInput onSendMessage={onSendMessage} onTyping={onTyping} darkMode={darkMode} />
       </div>
     </div>
   );
