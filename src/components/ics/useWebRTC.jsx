@@ -104,6 +104,26 @@ export function useWebRTC(roomId, user, participants) {
     }
   }, []);
 
+  const stopScreenShare = useCallback(async () => {
+    try {
+      const sender = Object.values(peerConnections.current)[0]
+        ?.getSenders()
+        .find(s => s.track?.kind === 'video');
+
+      if (sender && localStreamRef.current) {
+        const videoTrack = localStreamRef.current.getVideoTracks()[0];
+        if (videoTrack) {
+          await sender.replaceTrack(videoTrack);
+        }
+      }
+
+      return true;
+    } catch (error) {
+      console.error('Error stopping screen share:', error);
+      return false;
+    }
+  }, []);
+
   const createPeerConnection = useCallback((participantId) => {
     const config = {
       iceServers: [
