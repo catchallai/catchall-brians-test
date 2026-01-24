@@ -39,6 +39,16 @@ export default function EmailContactModal({ open, onClose, contact, businessId }
     enabled: !!businessId && open,
   });
 
+  // Extract unique sender emails from templates
+  const senderEmails = React.useMemo(() => {
+    const emails = new Set();
+    templates.forEach(t => {
+      if (t.sender_email) emails.add(t.sender_email);
+    });
+    if (user?.email) emails.add(user.email);
+    return Array.from(emails);
+  }, [templates, user?.email]);
+
   const sendEmailMutation = useMutation({
     mutationFn: async (data) => {
       // Send via Resend integration
@@ -140,9 +150,24 @@ export default function EmailContactModal({ open, onClose, contact, businessId }
           {/* From Email */}
           <div>
             <Label htmlFor="sender" className="text-sm font-medium">From</Label>
-            <div className="mt-1 p-2 bg-gray-50 dark:bg-gray-800 rounded-md text-sm">
-              {user?.email || 'Your email'}
-            </div>
+            {senderEmails.length > 1 ? (
+              <Select value={senderEmail} onValueChange={setSenderEmail}>
+                <SelectTrigger id="sender" className="mt-1">
+                  <SelectValue placeholder="Select sender email" />
+                </SelectTrigger>
+                <SelectContent>
+                  {senderEmails.map((email) => (
+                    <SelectItem key={email} value={email}>
+                      {email}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            ) : (
+              <div className="mt-1 p-2 bg-gray-50 dark:bg-gray-800 rounded-md text-sm">
+                {senderEmail || user?.email || 'Your email'}
+              </div>
+            )}
           </div>
 
           {/* Subject */}
