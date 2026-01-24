@@ -53,8 +53,27 @@ export default function Contacts() {
   });
   const [sortBy, setSortBy] = useState('created_date');
   const [showFilters, setShowFilters] = useState(false);
+  const [visibleColumns, setVisibleColumns] = useState(() => {
+    const saved = localStorage.getItem('contactsVisibleColumns');
+    return saved ? JSON.parse(saved) : {
+      name: true,
+      phone: true,
+      email: true,
+      created: true,
+      lastActivity: true,
+      tags: true,
+      status: true,
+      company: true,
+      title: true,
+    };
+  });
   const queryClient = useQueryClient();
   const toast = useToast();
+
+  // Update localStorage whenever columns change
+  React.useEffect(() => {
+    localStorage.setItem('contactsVisibleColumns', JSON.stringify(visibleColumns));
+  }, [visibleColumns]);
   
   const debouncedSearch = useDebounce(searchTerm, 300);
   const debouncedFilters = useDebounce(filters, 300);
