@@ -1,19 +1,83 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Plus, Search, FolderOpen, FileText, Users } from "lucide-react";
+import { Plus, Search, FolderOpen, FileText, Users, ArrowRight } from "lucide-react";
 import EmptyState from '@/components/ui/EmptyState';
+import SpaceModal from '@/components/modals/SpaceModal';
+import { Link } from 'react-router-dom';
+import { createPageUrl } from '@/utils';
 
 export default function Spaces() {
   const [searchTerm, setSearchTerm] = useState('');
+  const [showModal, setShowModal] = useState(false);
+  const [editingSpace, setEditingSpace] = useState(null);
+  const queryClient = useQueryClient();
 
   const { data: user } = useQuery({
     queryKey: ['current-user'],
     queryFn: () => base44.auth.me(),
   });
+
+  const { data: spaces = [], isLoading } = useQuery({
+    queryKey: ['spaces'],
+    queryFn: () => base44.entities.Space.list('-created_date'),
+  });
+
+  const { data: pages = [] } = useQuery({
+    queryKey: ['wiki-pages'],
+    queryFn: () => base44.entities.WikiPage.list(),
+  });
+
+  const createMutation = useMutation({
+    mutationFn: (data) => base44.entities.Space.create(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['spaces'] });
+      setShowModal(false);
+      setEditingSpace(null);
+    },
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: ({ id, data }) => base44.entities.Space.update(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['spaces'] });
+      setShowModal(false);
+      setEditingSpace(null);
+    },
+  });
+
+  const handleSave = (data) => {
+    if (editingSpace) {
+      updateMutation.mutate({ id: editingSpace.id, data });
+    } else {
+      createMutation.mutate(data);
+    }
+  };
+
+  const filteredSpaces = spaces.filter(space => 
+    !searchTerm || space.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const colorClasses = {
+    violet: 'bg-violet-500',
+    blue: 'bg-blue-500',
+    green: 'bg-green-500',
+    orange: 'bg-orange-500',
+    red: 'bg-red-500',
+    pink: 'bg-pink-500',
+    cyan: 'bg-cyan-500',
+    yellow: 'bg-yellow-500',
+  };
+
+  const getSpacePageCount = (spaceId) => {
+    return pages.filter(p => p.space_id === spaceId).length;
+  };
+
+  const totalPages = pages.length;
+  const totalCollaborators = new Set(spaces.flatMap(s => s.members || [])).size;
 
   return (
     <div className="p-4 sm:p-6 lg:p-8 space-y-6 min-h-screen">
@@ -23,61 +87,117 @@ export default function Spaces() {
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Spaces</h1>
           <p className="text-gray-500 mt-1">Organize your documentation and knowledge base</p>
         </div>
-        <Button className="gap-2 bg-violet-600 hover:bg-violet-700">
+        <Button 
+          onClick={() => { setEditingSpace(null); setShowModal(true); }}
+          className="gap-2 bg-violet-600 hover:bg-violet-700"
+        >
           <Plus className="w-4 h-4" />
           New Space
         </Button>
       </div>
 
       {/* Search */}
-      <div className="relative max-w-md">
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-        <Input
-          placeholder="Search spaces..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="pl-10"
-        />
-      </div>
+      {spaces.length > 0 && (
+        <div className="relative max-w-md">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+          <Input
+            placeholder="Search spaces..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-10"
+          />
+        </div>
+      )}
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <Card className="p-4 glass-card">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Total Spaces</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">0</p>
+      {spaces.length > 0 && (
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <Card className="p-4 glass-card">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Total Spaces</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">{spaces.length}</p>
+              </div>
+              <FolderOpen className="w-8 h-8 text-violet-600" />
             </div>
-            <FolderOpen className="w-8 h-8 text-violet-600" />
-          </div>
-        </Card>
-        <Card className="p-4 glass-card">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Documents</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">0</p>
+          </Card>
+          <Card className="p-4 glass-card">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Total Pages</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">{totalPages}</p>
+              </div>
+              <FileText className="w-8 h-8 text-blue-600" />
             </div>
-            <FileText className="w-8 h-8 text-blue-600" />
-          </div>
-        </Card>
-        <Card className="p-4 glass-card">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Collaborators</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">0</p>
+          </Card>
+          <Card className="p-4 glass-card">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Collaborators</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">{totalCollaborators}</p>
+              </div>
+              <Users className="w-8 h-8 text-green-600" />
             </div>
-            <Users className="w-8 h-8 text-green-600" />
-          </div>
-        </Card>
-      </div>
+          </Card>
+        </div>
+      )}
 
-      {/* Empty State */}
-      <EmptyState
-        icon={FolderOpen}
-        title="No spaces yet"
-        description="Create your first space to start organizing documentation and knowledge."
-        actionLabel="Create Space"
-        onAction={() => {}}
+      {/* Spaces Grid */}
+      {isLoading ? (
+        <div className="text-center py-12">Loading...</div>
+      ) : filteredSpaces.length === 0 && searchTerm ? (
+        <div className="text-center py-12">
+          <p className="text-gray-500">No spaces found matching "{searchTerm}"</p>
+        </div>
+      ) : filteredSpaces.length === 0 ? (
+        <EmptyState
+          icon={FolderOpen}
+          title="No spaces yet"
+          description="Create your first space to start organizing documentation and knowledge."
+          actionLabel="Create Space"
+          onAction={() => { setEditingSpace(null); setShowModal(true); }}
+        />
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {filteredSpaces.map((space) => (
+            <Link key={space.id} to={`${createPageUrl('SpaceDetail')}?id=${space.id}`}>
+              <Card className="p-5 glass-card hover:shadow-lg transition-all cursor-pointer group">
+                <div className="flex items-start gap-4">
+                  <div className={`w-12 h-12 rounded-lg ${colorClasses[space.color]} flex items-center justify-center text-2xl flex-shrink-0`}>
+                    {space.icon}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold text-gray-900 dark:text-white truncate group-hover:text-violet-600">
+                      {space.name}
+                    </h3>
+                    <p className="text-sm text-gray-500 line-clamp-2 mt-1">
+                      {space.description || 'No description'}
+                    </p>
+                    <div className="flex items-center gap-4 mt-3 text-xs text-gray-400">
+                      <span className="flex items-center gap-1">
+                        <FileText className="w-3 h-3" />
+                        {getSpacePageCount(space.id)} pages
+                      </span>
+                      {space.is_public && (
+                        <span className="text-green-600">Public</span>
+                      )}
+                    </div>
+                  </div>
+                  <ArrowRight className="w-5 h-5 text-gray-400 group-hover:text-violet-600 group-hover:translate-x-1 transition-all" />
+                </div>
+              </Card>
+            </Link>
+          ))}
+        </div>
+      )}
+
+      {/* Modal */}
+      <SpaceModal
+        open={showModal}
+        onClose={() => { setShowModal(false); setEditingSpace(null); }}
+        space={editingSpace}
+        onSave={handleSave}
+        isLoading={createMutation.isPending || updateMutation.isPending}
       />
     </div>
   );
