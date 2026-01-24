@@ -264,10 +264,6 @@ export default function ICS() {
     });
   };
 
-  const filteredChannels = channels.filter(c =>
-    c.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
   return (
     <div className={`h-screen flex ${darkMode ? 'bg-slate-950' : 'bg-slate-50'}`}>
       <Sidebar
