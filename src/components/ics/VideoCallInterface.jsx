@@ -110,11 +110,20 @@ export default function VideoCallInterface({
   };
 
   const allParticipants = [
-    { id: 'local', email: user?.email, name: user?.full_name, isLocal: true },
+    { 
+      id: 'local', 
+      email: user?.email, 
+      name: user?.full_name, 
+      isLocal: true,
+      status: user?.status || 'online',
+      status_emoji: user?.status_emoji || '✨',
+    },
     ...(activeCall?.participants?.filter(p => p.email !== user?.email).map((p, idx) => ({
       id: `remote-${idx}`,
       ...p,
       isLocal: false,
+      status: p.status || 'online',
+      status_emoji: p.status_emoji || '✨',
     })) || []),
   ];
 
