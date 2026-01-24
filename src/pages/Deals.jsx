@@ -115,7 +115,31 @@ export default function Deals() {
   });
 
   const updateDealMutation = useMutation({
-    mutationFn: ({ id, data }) => base44.entities.Deal.update(id, data),
+    mutationFn: async ({ id, data }) => {
+      const oldDeal = deals.find(d => d.id === id);
+      const result = await base44.entities.Deal.update(id, data);
+      
+      // Create notification if stage changed
+      if (oldDeal && oldDeal.stage !== data.stage) {
+        try {
+          await base44.functions.invoke('createNotification', {
+            user_email: user?.email,
+            type: 'deal_update',
+            title: `Deal status changed: ${data.title}`,
+            body: `Moved from ${oldDeal.stage} to ${data.stage}`,
+            related_entity_type: 'Deal',
+            related_entity_id: id,
+            actor_email: user?.email,
+            actor_name: user?.full_name,
+            action_url: `/deals?id=${id}`,
+          });
+        } catch (err) {
+          console.log('Notification creation skipped');
+        }
+      }
+      
+      return result;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['deals'] });
       setShowDealModal(false);
