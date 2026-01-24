@@ -51,6 +51,8 @@ export default function WikiPageEditor() {
   const [generatingSummary, setGeneratingSummary] = useState(false);
   const [showVersionHistory, setShowVersionHistory] = useState(false);
   const [showTemplateSelector, setShowTemplateSelector] = useState(false);
+  const [showComments, setShowComments] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
 
   const { data: user } = useQuery({
     queryKey: ['current-user'],
