@@ -131,9 +131,10 @@ export default function UserProfile() {
               {user?.full_name?.[0] || user?.email?.[0]?.toUpperCase() || 'U'}
             </AvatarFallback>
           </Avatar>
-          <button className="absolute bottom-0 right-0 w-8 h-8 rounded-full bg-violet-600 text-white flex items-center justify-center hover:bg-violet-700 transition-colors shadow-lg">
+          <label className="absolute bottom-0 right-0 w-8 h-8 rounded-full bg-violet-600 text-white flex items-center justify-center hover:bg-violet-700 transition-colors shadow-lg cursor-pointer">
             <Camera className="w-4 h-4" />
-          </button>
+            <input type="file" accept="image/*" onChange={handleAvatarUpload} className="hidden" />
+          </label>
         </div>
         <div className="flex-1">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{user?.full_name || 'User'}</h1>
