@@ -667,6 +667,14 @@ export default function ICS() {
         onThemeToggle={() => setDarkMode(!darkMode)}
         onPreferencesUpdate={handlePreferencesUpdate}
       />
+
+      {/* Incoming Call Notification */}
+      <IncomingCallNotification
+        call={incomingCall}
+        onAccept={handleAcceptCall}
+        onDecline={handleDeclineCall}
+        darkMode={darkMode}
+      />
         </div>
         );
 }
