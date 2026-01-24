@@ -30,6 +30,7 @@ export default function ContactModal({ open, onClose, contact, companies, onSave
     website: '',
     contact_page_url: '',
     general_emails: [],
+    general_phones: [],
     contact_sources_urls: [],
     role_1_title: '',
     role_1_name: '',
@@ -115,6 +116,7 @@ export default function ContactModal({ open, onClose, contact, companies, onSave
         website: '',
         contact_page_url: '',
         general_emails: [],
+        general_phones: [],
         contact_sources_urls: [],
         role_1_title: '',
         role_1_name: '',
@@ -366,38 +368,76 @@ export default function ContactModal({ open, onClose, contact, companies, onSave
                 />
               </div>
 
-              <div className="space-y-2">
-                <Label>General Emails</Label>
+              <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  {formData.general_emails?.map((email, idx) => (
-                    <div key={idx} className="flex gap-2 items-center">
-                      <Input value={email} disabled />
-                      <Button type="button" variant="ghost" size="icon" onClick={() => removeArrayItem('general_emails', idx)}>
-                        <X className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  ))}
-                  <div className="flex gap-2">
-                    <Input
-                      placeholder="Add email"
-                      id="new_email"
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
-                          e.preventDefault();
-                          if (e.target.value) {
-                            addArrayItem('general_emails', e.target.value);
-                            e.target.value = '';
+                  <Label>General Emails</Label>
+                  <div className="space-y-2">
+                    {formData.general_emails?.map((email, idx) => (
+                      <div key={idx} className="flex gap-2 items-center">
+                        <Input value={email} disabled />
+                        <Button type="button" variant="ghost" size="icon" onClick={() => removeArrayItem('general_emails', idx)}>
+                          <X className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    ))}
+                    <div className="flex gap-2">
+                      <Input
+                        placeholder="Add email"
+                        id="new_email"
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault();
+                            if (e.target.value) {
+                              addArrayItem('general_emails', e.target.value);
+                              e.target.value = '';
+                            }
                           }
+                        }}
+                      />
+                      <Button type="button" onClick={(e) => {
+                        const input = document.getElementById('new_email');
+                        if (input?.value) {
+                          addArrayItem('general_emails', input.value);
+                          input.value = '';
                         }
-                      }}
-                    />
-                    <Button type="button" onClick={(e) => {
-                      const input = document.getElementById('new_email');
-                      if (input?.value) {
-                        addArrayItem('general_emails', input.value);
-                        input.value = '';
-                      }
-                    }}>Add</Button>
+                      }}>Add</Button>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label>General Phones</Label>
+                  <div className="space-y-2">
+                    {formData.general_phones?.map((phone, idx) => (
+                      <div key={idx} className="flex gap-2 items-center">
+                        <Input value={phone} disabled />
+                        <Button type="button" variant="ghost" size="icon" onClick={() => removeArrayItem('general_phones', idx)}>
+                          <X className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    ))}
+                    <div className="flex gap-2">
+                      <Input
+                        placeholder="Add phone"
+                        id="new_phone"
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault();
+                            if (e.target.value) {
+                              addArrayItem('general_phones', e.target.value);
+                              e.target.value = '';
+                            }
+                          }
+                        }}
+                      />
+                      <Button type="button" onClick={(e) => {
+                        const input = document.getElementById('new_phone');
+                        if (input?.value) {
+                          addArrayItem('general_phones', input.value);
+                          input.value = '';
+                        }
+                      }}>Add</Button>
+                    </div>
                   </div>
                 </div>
               </div>

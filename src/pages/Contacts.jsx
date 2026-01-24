@@ -242,6 +242,7 @@ export default function Contacts() {
           website: getFieldValue(row, 'website', 'Website'),
           contact_page_url: getFieldValue(row, 'contact_page_url', 'Contact Page URL'),
           general_emails: getFieldValue(row, 'general_emails', 'General Emails') ? [getFieldValue(row, 'general_emails', 'General Emails')] : [],
+          general_phones: getFieldValue(row, 'general_phones', 'General Phones') ? [getFieldValue(row, 'general_phones', 'General Phones')] : [],
           contact_sources_urls: getFieldValue(row, 'contact_sources_urls', 'Contact Source URLs') ? [getFieldValue(row, 'contact_sources_urls', 'Contact Source URLs')] : [],
           role_1_title: getFieldValue(row, 'role_1_title', 'Primary Role - Title'),
           role_1_name: getFieldValue(row, 'role_1_name', 'Primary Role - Name'),
@@ -320,6 +321,7 @@ export default function Contacts() {
       { key: 'website', label: 'Website' },
       { key: 'contact_page_url', label: 'Contact Page URL' },
       { key: 'general_emails', label: 'General Emails' },
+      { key: 'general_phones', label: 'General Phones' },
       { key: 'contact_sources_urls', label: 'Contact Source URLs' },
       { key: 'role_1_title', label: 'Primary Role - Title' },
       { key: 'role_1_name', label: 'Primary Role - Name' },
@@ -834,10 +836,10 @@ export default function Contacts() {
          onImport={(data) => importMutation.mutateAsync(data)}
          entityName="Contacts"
          requiredFields={['first_name', 'email']}
-         optionalFields={['company_name', 'last_name', 'job_title', 'phone', 'linkedin_url', 'status', 'source', 'tier', 'category', 'country', 'hq_city', 'website', 'contact_page_url', 'general_emails', 'contact_sources_urls', 'role_1_title', 'role_1_name', 'role_1_email', 'role_1_phone', 'role_1_source_url', 'role_2_title', 'role_2_name', 'role_2_email', 'role_2_phone', 'role_2_source_url', 'signer_title', 'signer_name', 'signer_email', 'signer_phone', 'signer_source_url', 'loi_summary', 'loi_source_urls', 'notes_angle', 'notes']}
+         optionalFields={['company_name', 'last_name', 'job_title', 'phone', 'linkedin_url', 'status', 'source', 'tier', 'category', 'country', 'hq_city', 'website', 'contact_page_url', 'general_emails', 'general_phones', 'contact_sources_urls', 'role_1_title', 'role_1_name', 'role_1_email', 'role_1_phone', 'role_1_source_url', 'role_2_title', 'role_2_name', 'role_2_email', 'role_2_phone', 'role_2_source_url', 'signer_title', 'signer_name', 'signer_email', 'signer_phone', 'signer_source_url', 'loi_summary', 'loi_source_urls', 'notes_angle', 'notes']}
          sampleData={[
-           { company_name: 'Acme Corp', first_name: 'John', last_name: 'Doe', job_title: 'CEO', email: 'john@example.com', phone: '555-1234', linkedin_url: 'https://linkedin.com/in/johndoe', status: 'prospect', source: 'cold_outreach', tier: 'Tier 1', category: 'US Fractional', country: 'USA', hq_city: 'New York', website: 'https://acme.com', contact_page_url: 'https://acme.com/contact', notes: 'Met at conference' },
-           { company_name: 'Tech Inc', first_name: 'Jane', last_name: 'Smith', job_title: 'CTO', email: 'jane@example.com', phone: '555-5678', linkedin_url: 'https://linkedin.com/in/janesmith', status: 'lead', source: 'linkedin', tier: 'Tier 2', category: 'Charter', country: 'USA', hq_city: 'San Francisco', website: 'https://techinc.com', notes: 'Interested in product demo' },
+           { company_name: 'Acme Corp', first_name: 'John', last_name: 'Doe', job_title: 'CEO', email: 'john@example.com', phone: '555-1234', linkedin_url: 'https://linkedin.com/in/johndoe', status: 'prospect', source: 'cold_outreach', tier: 'Tier 1', category: 'US Fractional', country: 'USA', hq_city: 'New York', website: 'https://acme.com', contact_page_url: 'https://acme.com/contact', general_emails: 'info@acme.com', general_phones: '555-0123', notes: 'Met at conference' },
+           { company_name: 'Tech Inc', first_name: 'Jane', last_name: 'Smith', job_title: 'CTO', email: 'jane@example.com', phone: '555-5678', linkedin_url: 'https://linkedin.com/in/janesmith', status: 'lead', source: 'linkedin', tier: 'Tier 2', category: 'Charter', country: 'USA', hq_city: 'San Francisco', website: 'https://techinc.com', general_emails: 'contact@techinc.com', general_phones: '555-0456', notes: 'Interested in product demo' },
          ]}
        />
 
