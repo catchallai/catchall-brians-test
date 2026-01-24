@@ -215,6 +215,7 @@ export default function Contacts() {
         if (!companyMap[nameLower]) {
           const newCompany = await base44.entities.Company.create({
             name: companyName,
+            business_id: user?.current_business_id,
           });
           companyMap[nameLower] = newCompany.id;
         }

@@ -33,6 +33,7 @@ import GoogleCalendarCallback from './pages/GoogleCalendarCallback';
 import HashtagManager from './pages/HashtagManager';
 import HelpCenter from './pages/HelpCenter';
 import Home from './pages/Home';
+import ICS from './pages/ICS';
 import Keywords from './pages/Keywords';
 import LandingPageBuilder from './pages/LandingPageBuilder';
 import LeadEnrichment from './pages/LeadEnrichment';
@@ -87,7 +88,6 @@ import WebCrawler from './pages/WebCrawler';
 import WebDashboard from './pages/WebDashboard';
 import WikiPageEditor from './pages/WikiPageEditor';
 import WorkflowBuilder from './pages/WorkflowBuilder';
-import ICS from './pages/ICS';
 import __Layout from './Layout.jsx';
 
 
@@ -127,6 +127,7 @@ export const PAGES = {
     "HashtagManager": HashtagManager,
     "HelpCenter": HelpCenter,
     "Home": Home,
+    "ICS": ICS,
     "Keywords": Keywords,
     "LandingPageBuilder": LandingPageBuilder,
     "LeadEnrichment": LeadEnrichment,
@@ -181,7 +182,6 @@ export const PAGES = {
     "WebDashboard": WebDashboard,
     "WikiPageEditor": WikiPageEditor,
     "WorkflowBuilder": WorkflowBuilder,
-    "ICS": ICS,
 }
 
 export const pagesConfig = {
