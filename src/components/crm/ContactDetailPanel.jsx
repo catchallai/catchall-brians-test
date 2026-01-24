@@ -16,6 +16,7 @@ import ActivityFeed from '@/components/collaboration/ActivityFeed';
 import TaskAssignment from '@/components/collaboration/TaskAssignment';
 import NoteWithMentions from '@/components/collaboration/NoteWithMentions';
 import EmailContactModal from '@/components/modals/EmailContactModal';
+import EmailTrackingPanel from '@/components/crm/EmailTrackingPanel';
 
 export default function ContactDetailPanel({ contactId, onClose }) {
   const [showEmailModal, setShowEmailModal] = React.useState(false);
@@ -268,6 +269,9 @@ export default function ContactDetailPanel({ contactId, onClose }) {
           />
         </CardContent>
       </Card>
+
+      {/* Email Tracking */}
+      <EmailTrackingPanel contactId={contactId} />
 
       {/* Activity Feed */}
       <ActivityFeed entityType="contact" entityId={contactId} />
