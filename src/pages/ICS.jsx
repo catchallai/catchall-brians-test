@@ -10,6 +10,7 @@ import {
   MessageSquare, 
   Video, 
   Phone, 
+  PhoneOff,
   Plus, 
   Hash, 
   Lock, 
