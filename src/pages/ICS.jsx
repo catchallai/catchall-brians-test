@@ -314,6 +314,18 @@ export default function ICS() {
   const handleStartCall = () => {
     const roomId = `call-${selectedChannel.id}-${Date.now()}`;
     updatePresence('online', true, roomId);
+    
+    // Get other members of the channel for waiting room
+    const otherMembers = selectedChannel?.members?.filter(m => m !== user?.email) || [];
+    const waitingRoom = otherMembers.map(email => {
+      const member = allUsers.find(u => u.email === email);
+      return {
+        email,
+        name: member?.full_name || email,
+        requested_at: new Date().toISOString(),
+      };
+    });
+
     startCallMutation.mutate({
       channel_id: selectedChannel.id,
       room_id: roomId,
@@ -324,7 +336,7 @@ export default function ICS() {
         name: user?.full_name,
         joined_at: new Date().toISOString(),
       }],
-      waiting_room: [],
+      waiting_room: waitingRoom,
       recording_status: 'not_started',
       settings: {
         waiting_room_enabled: false,
@@ -332,6 +344,48 @@ export default function ICS() {
         auto_record: false,
       },
     });
+  };
+
+  const handleAcceptCall = async (callType = 'video') => {
+    if (!incomingCall || !user) return;
+    
+    // Add current user to participants
+    const updatedParticipants = [...incomingCall.participants, {
+      email: user.email,
+      name: user.full_name,
+      joined_at: new Date().toISOString(),
+    }];
+    
+    // Remove from waiting room
+    const updatedWaitingRoom = incomingCall.waiting_room?.filter(w => w.email !== user.email) || [];
+    
+    await base44.entities.VideoCall.update(incomingCall.id, {
+      participants: updatedParticipants,
+      waiting_room: updatedWaitingRoom,
+    });
+    
+    // Find or create the channel and set it as active
+    const callChannel = channels.find(c => c.id === incomingCall.channel_id);
+    if (callChannel) {
+      setSelectedChannel(callChannel);
+      setActiveView('chat');
+    }
+    
+    setIncomingCall(null);
+    queryClient.invalidateQueries({ queryKey: ['active-call'] });
+  };
+
+  const handleDeclineCall = async () => {
+    if (!incomingCall || !user) return;
+    
+    // Just remove from waiting room
+    const updatedWaitingRoom = incomingCall.waiting_room?.filter(w => w.email !== user.email) || [];
+    
+    await base44.entities.VideoCall.update(incomingCall.id, {
+      waiting_room: updatedWaitingRoom,
+    });
+    
+    setIncomingCall(null);
   };
 
   const handleEndCall = () => {
