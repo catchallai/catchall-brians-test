@@ -4,7 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, Save, Eye, MoreVertical } from "lucide-react";
+import { ArrowLeft, Save, Sparkles, Clock, FileText } from "lucide-react";
 import { createPageUrl } from '@/utils';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
@@ -16,6 +16,11 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Card } from "@/components/ui/card";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import VersionHistory from '@/components/wiki/VersionHistory';
+import TemplateSelector from '@/components/wiki/TemplateSelector';
 
 const modules = {
   toolbar: [
@@ -41,6 +46,11 @@ export default function WikiPageEditor() {
   const [content, setContent] = useState('');
   const [status, setStatus] = useState('published');
   const [parentPageId, setParentPageId] = useState('');
+  const [aiSummary, setAiSummary] = useState('');
+  const [isTemplate, setIsTemplate] = useState(false);
+  const [generatingSummary, setGeneratingSummary] = useState(false);
+  const [showVersionHistory, setShowVersionHistory] = useState(false);
+  const [showTemplateSelector, setShowTemplateSelector] = useState(false);
 
   const { data: user } = useQuery({
     queryKey: ['current-user'],
@@ -77,32 +87,64 @@ export default function WikiPageEditor() {
     enabled: !!spaceId,
   });
 
+  const { data: templates = [] } = useQuery({
+    queryKey: ['wiki-templates', spaceId],
+    queryFn: async () => {
+      if (!spaceId) return [];
+      const pages = await base44.entities.WikiPage.list();
+      return pages.filter(p => p.space_id === spaceId && p.template === true);
+    },
+    enabled: !!spaceId && !pageId,
+  });
+
   useEffect(() => {
     if (page) {
       setTitle(page.title);
       setContent(page.content || '');
       setStatus(page.status || 'published');
       setParentPageId(page.parent_page_id || '');
+      setAiSummary(page.ai_summary || '');
+      setIsTemplate(page.template || false);
     }
   }, [page]);
 
+  useEffect(() => {
+    if (!pageId && templates.length > 0) {
+      setShowTemplateSelector(true);
+    }
+  }, [pageId, templates]);
+
   const saveMutation = useMutation({
     mutationFn: async (data) => {
+      const currentVersion = page?.version_number || 0;
+      
       if (pageId) {
+        // Save version history
+        await base44.entities.WikiPageVersion.create({
+          page_id: pageId,
+          version_number: currentVersion,
+          title: page.title,
+          content: page.content,
+          edited_by: user?.email,
+        });
+
         return await base44.entities.WikiPage.update(pageId, {
           ...data,
           last_edited_by: user?.email,
+          version_number: currentVersion + 1,
         });
       } else {
         return await base44.entities.WikiPage.create({
           ...data,
           space_id: spaceId,
+          version_number: 1,
         });
       }
     },
     onSuccess: (savedPage) => {
       queryClient.invalidateQueries({ queryKey: ['space-pages'] });
       queryClient.invalidateQueries({ queryKey: ['wiki-page'] });
+      queryClient.invalidateQueries({ queryKey: ['wiki-versions'] });
       if (!pageId) {
         navigate(`${createPageUrl('WikiPageEditor')}?spaceId=${spaceId}&pageId=${savedPage.id}`);
       }
@@ -115,7 +157,37 @@ export default function WikiPageEditor() {
       content,
       status,
       parent_page_id: parentPageId || null,
+      ai_summary: aiSummary,
+      template: isTemplate,
     });
+  };
+
+  const generateSummary = async () => {
+    if (!content) return;
+    setGeneratingSummary(true);
+    try {
+      const plainText = content.replace(/<[^>]*>/g, '');
+      const response = await base44.integrations.Core.InvokeLLM({
+        prompt: `Summarize this wiki page in 2-3 concise sentences:\n\n${plainText}`,
+      });
+      setAiSummary(response);
+    } catch (error) {
+      console.error('Failed to generate summary:', error);
+    } finally {
+      setGeneratingSummary(false);
+    }
+  };
+
+  const handleRevert = async (version) => {
+    setTitle(version.title);
+    setContent(version.content);
+    await handleSave();
+  };
+
+  const handleSelectTemplate = (template) => {
+    setTitle('');
+    setContent(template.content);
+    setShowTemplateSelector(false);
   };
 
   if (!space) return <div className="p-6">Loading...</div>;
@@ -160,6 +232,39 @@ export default function WikiPageEditor() {
                 <SelectItem value="draft">Draft</SelectItem>
               </SelectContent>
             </Select>
+            
+            {pageId && (
+              <Button 
+                variant="outline"
+                onClick={() => setShowVersionHistory(true)}
+                className="gap-2"
+              >
+                <Clock className="w-4 h-4" />
+                History
+              </Button>
+            )}
+
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline">Options</Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={generateSummary} disabled={generatingSummary}>
+                  <Sparkles className="w-4 h-4 mr-2" />
+                  {generatingSummary ? 'Generating...' : 'Generate AI Summary'}
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <div className="px-2 py-2 flex items-center justify-between">
+                  <Label htmlFor="template-toggle" className="text-sm cursor-pointer">Mark as Template</Label>
+                  <Switch
+                    id="template-toggle"
+                    checked={isTemplate}
+                    onCheckedChange={setIsTemplate}
+                  />
+                </div>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
             <Button 
               onClick={handleSave}
               disabled={saveMutation.isPending || !title}
@@ -198,6 +303,23 @@ export default function WikiPageEditor() {
             className="text-4xl font-bold border-0 px-0 focus-visible:ring-0"
           />
 
+          {/* AI Summary */}
+          {aiSummary && (
+            <Card className="p-4 bg-violet-50 dark:bg-violet-900/20 border-violet-200 dark:border-violet-800">
+              <div className="flex items-start gap-2">
+                <Sparkles className="w-5 h-5 text-violet-600 flex-shrink-0 mt-0.5" />
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-violet-900 dark:text-violet-300 mb-1">
+                    AI Summary
+                  </p>
+                  <p className="text-sm text-violet-700 dark:text-violet-400">
+                    {aiSummary}
+                  </p>
+                </div>
+              </div>
+            </Card>
+          )}
+
           {/* Rich Text Editor */}
           <div className="min-h-[500px]">
             <ReactQuill
@@ -211,6 +333,23 @@ export default function WikiPageEditor() {
           </div>
         </div>
       </div>
+
+      {/* Version History Modal */}
+      <VersionHistory
+        open={showVersionHistory}
+        onClose={() => setShowVersionHistory(false)}
+        pageId={pageId}
+        onRevert={handleRevert}
+      />
+
+      {/* Template Selector Modal */}
+      <TemplateSelector
+        open={showTemplateSelector}
+        onClose={() => setShowTemplateSelector(false)}
+        templates={templates}
+        onSelectTemplate={handleSelectTemplate}
+        onCreateBlank={() => setShowTemplateSelector(false)}
+      />
     </div>
   );
 }
