@@ -56,6 +56,7 @@ export default function VideoCallInterface({
     toggleVideo,
     changeVideoQuality,
     startScreenShare,
+    stopScreenShare,
     createPeerConnection,
     cleanupConnections,
   } = useWebRTC(activeCall?.room_id, user, activeCall?.participants);
