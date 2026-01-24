@@ -534,6 +534,12 @@ export default function ICS() {
             onShowProfile={() => setShowProfile(true)}
             typingUsers={Object.values(typingStatus).filter(name => name !== user?.full_name)}
             onTyping={handleTyping}
+            activeCall={activeCall}
+            onEndCall={handleEndCall}
+            onToggleRecording={handleToggleRecording}
+            onToggleWaitingRoom={handleToggleWaitingRoom}
+            onAdmitUser={handleAdmitUser}
+            updateCallMutation={updateCallMutation}
           />
         </>
       ) : activeView === 'contacts' ? (
