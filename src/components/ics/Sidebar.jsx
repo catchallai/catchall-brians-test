@@ -21,6 +21,7 @@ export default function Sidebar({
   user,
   unreadCount = 0,
   notificationButton,
+  onAccountClick,
 }) {
   const NavButton = ({ icon: Icon, active, onClick, tooltip, badge }) => (
     <button
