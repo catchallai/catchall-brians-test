@@ -38,17 +38,18 @@ import PresenceIndicator from '@/components/ics/PresenceIndicator';
 import StatusSelector from '@/components/ics/StatusSelector';
 import FileUploader from '@/components/ics/FileUploader';
 import FilePreview from '@/components/ics/FilePreview';
+import Sidebar from '@/components/ics/Sidebar';
+import ConversationsList from '@/components/ics/ConversationsList';
+import ChatArea from '@/components/ics/ChatArea';
 
 export default function ICS() {
   const [selectedChannel, setSelectedChannel] = useState(null);
-  const [messageInput, setMessageInput] = useState('');
-  const [searchTerm, setSearchTerm] = useState('');
+  const [activeView, setActiveView] = useState('chat');
   const [showNewChannel, setShowNewChannel] = useState(false);
-  const [newChannelName, setNewChannelName] = useState('');
-  const [newChannelType, setNewChannelType] = useState('public');
-  const [newChannelDesc, setNewChannelDesc] = useState('');
+  const [showSettings, setShowSettings] = useState(false);
+  const [showProfile, setShowProfile] = useState(false);
+  const [darkMode, setDarkMode] = useState(true);
   const [isInCall, setIsInCall] = useState(false);
-  const [attachedFiles, setAttachedFiles] = useState([]);
   const messagesEndRef = useRef(null);
   const queryClient = useQueryClient();
 
@@ -127,7 +128,6 @@ export default function ICS() {
     mutationFn: (data) => base44.entities.Message.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['messages'] });
-      setMessageInput('');
     },
   });
 
@@ -186,20 +186,16 @@ export default function ICS() {
     });
   };
 
-  const handleSendMessage = (e) => {
-    e.preventDefault();
-    if ((!messageInput.trim() && attachedFiles.length === 0) || !selectedChannel) return;
+  const handleSendMessage = (messageData) => {
+    if (!selectedChannel) return;
 
     sendMessageMutation.mutate({
       channel_id: selectedChannel.id,
-      content: messageInput || (attachedFiles.length > 0 ? 'Shared files' : ''),
+      content: messageData.content,
       sender_email: user?.email,
       sender_name: user?.full_name,
-      attachments: attachedFiles,
+      attachments: messageData.attachments,
     });
-    
-    setMessageInput('');
-    setAttachedFiles([]);
   };
 
   const handleStartCall = () => {
@@ -273,297 +269,39 @@ export default function ICS() {
   );
 
   return (
-    <div className="h-screen flex flex-col bg-gray-50 dark:bg-gray-900">
-      {/* Header */}
-      <div className="h-16 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 px-6 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <MessageSquare className="w-6 h-6 text-violet-600" />
-          <h1 className="text-xl font-bold text-gray-900 dark:text-white">ICS</h1>
-          <span className="text-sm text-gray-500">Internal Communication System</span>
+    <div className={`h-screen flex ${darkMode ? 'bg-slate-950' : 'bg-slate-50'}`}>
+      <Sidebar
+        activeView={activeView}
+        onViewChange={setActiveView}
+        darkMode={darkMode}
+        onThemeToggle={() => setDarkMode(!darkMode)}
+        onSettingsClick={() => setShowSettings(true)}
+        user={user}
+        unreadCount={channels.filter(c => messages.filter(m => m.channel_id === c.id && m.created_date > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)).length > 0).length}
+      />
+
+      {activeView === 'chat' ? (
+        <>
+          <ConversationsList
+            channels={channels}
+            selectedChannelId={selectedChannel?.id}
+            onSelectChannel={setSelectedChannel}
+            onNewChat={() => setShowNewChannel(true)}
+            darkMode={darkMode}
+            allPresence={allPresence}
+          />
+
+          <ChatArea
+            channel={selectedChannel}
+            user={user}
+            messages={messages}
+            darkMode={darkMode}
+            onSendMessage={handleSendMessage}
+            onStartCall={handleStartCall}
+            onShowProfile={() => setShowProfile(true)}
+          />
+        </>
+        ) : null}
         </div>
-        <div className="flex items-center gap-4">
-          {userPresence && (
-            <div className="flex items-center gap-2">
-              <PresenceIndicator presence={userPresence} size="md" showCustomStatus={true} />
-              <StatusSelector 
-                currentStatus={userPresence}
-                onStatusChange={(statusData) => updatePresence('online', false, null, statusData)}
-              />
-            </div>
-          )}
-        </div>
-        <Dialog open={showNewChannel} onOpenChange={setShowNewChannel}>
-          <DialogTrigger asChild>
-            <Button className="gap-2">
-              <Plus className="w-4 h-4" />
-              New Channel
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Create Channel</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4 mt-4">
-              <div>
-                <Label>Channel Name</Label>
-                <Input
-                  value={newChannelName}
-                  onChange={(e) => setNewChannelName(e.target.value)}
-                  placeholder="general, announcements, random..."
-                />
-              </div>
-              <div>
-                <Label>Description</Label>
-                <Textarea
-                  value={newChannelDesc}
-                  onChange={(e) => setNewChannelDesc(e.target.value)}
-                  placeholder="What's this channel about?"
-                  rows={3}
-                />
-              </div>
-              <div>
-                <Label>Type</Label>
-                <Select value={newChannelType} onValueChange={setNewChannelType}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="public">Public - Anyone can join</SelectItem>
-                    <SelectItem value="private">Private - Invite only</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <Button
-                onClick={handleCreateChannel}
-                disabled={!newChannelName || createChannelMutation.isPending}
-                className="w-full"
-              >
-                Create Channel
-              </Button>
-            </div>
-          </DialogContent>
-        </Dialog>
-      </div>
-
-      <div className="flex-1 flex overflow-hidden">
-        {/* Sidebar - Channels */}
-        <div className="w-64 bg-gray-900 text-white flex flex-col">
-          <div className="p-4 space-y-3">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-              <Input
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Search channels..."
-                className="pl-10 bg-gray-800 border-gray-700 text-white placeholder:text-gray-400"
-              />
-            </div>
-          </div>
-
-          <ScrollArea className="flex-1 px-2">
-           <div className="space-y-1">
-             {filteredChannels.map((channel) => {
-               const channelPresence = channel.members?.map(email => getPresence(email)).filter(Boolean) || [];
-               const onlineCount = channelPresence.filter(p => p.status === 'online').length;
-
-               return (
-                 <button
-                   key={channel.id}
-                   onClick={() => setSelectedChannel(channel)}
-                   className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-left transition-colors ${
-                     selectedChannel?.id === channel.id
-                       ? 'bg-violet-600 text-white'
-                       : 'text-gray-300 hover:bg-gray-800'
-                   }`}
-                 >
-                   {channel.type === 'public' ? (
-                     <Hash className="w-4 h-4 flex-shrink-0" />
-                   ) : (
-                     <Lock className="w-4 h-4 flex-shrink-0" />
-                   )}
-                   <span className="truncate font-medium">{channel.name}</span>
-                   {onlineCount > 0 && (
-                     <span className="ml-auto text-xs bg-green-600 px-2 py-0.5 rounded-full">
-                       {onlineCount}
-                     </span>
-                   )}
-                 </button>
-               );
-             })}
-           </div>
-          </ScrollArea>
-        </div>
-
-        {/* Main Content Area */}
-        {selectedChannel ? (
-          <div className="flex-1 flex flex-col bg-white dark:bg-gray-900">
-            {/* Channel Header */}
-            <div className="h-16 border-b border-gray-200 dark:border-gray-800 px-6 flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <Hash className="w-5 h-5 text-gray-400" />
-                <div>
-                  <h2 className="font-semibold text-gray-900 dark:text-white">{selectedChannel.name}</h2>
-                  {selectedChannel.description && (
-                    <p className="text-sm text-gray-500">{selectedChannel.description}</p>
-                  )}
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                {activeCall ? (
-                  <Button
-                    variant={isInCall ? "destructive" : "default"}
-                    onClick={isInCall ? handleEndCall : () => setIsInCall(true)}
-                    className="gap-2"
-                  >
-                    {isInCall ? (
-                      <>
-                        <PhoneOff className="w-4 h-4" />
-                        Leave Call
-                      </>
-                    ) : (
-                      <>
-                        <Video className="w-4 h-4" />
-                        Join Call ({activeCall.participants?.length || 0})
-                      </>
-                    )}
-                  </Button>
-                ) : (
-                  <Button onClick={handleStartCall} variant="outline" className="gap-2">
-                    <Video className="w-4 h-4" />
-                    Start Call
-                  </Button>
-                )}
-              </div>
-            </div>
-
-            {/* Video Call Interface */}
-            {isInCall && (
-              <VideoCallInterface
-                activeCall={activeCall}
-                user={user}
-                onEndCall={handleEndCall}
-                onToggleRecording={handleToggleRecording}
-                onToggleWaitingRoom={handleToggleWaitingRoom}
-                onAdmitUser={handleAdmitUser}
-                updateCallMutation={updateCallMutation}
-              />
-            )}
-
-            {/* Messages Area */}
-            <ScrollArea className="flex-1 p-6">
-              <div className="space-y-4">
-                {messages.map((message) => {
-                  const senderPresence = getPresence(message.sender_email);
-                  return (
-                    <div key={message.id} className="flex gap-3 group">
-                      <div className="relative">
-                        <Avatar>
-                          <AvatarFallback className="bg-violet-100 dark:bg-violet-900 text-violet-600 dark:text-violet-300">
-                            {message.sender_name?.[0] || 'U'}
-                          </AvatarFallback>
-                        </Avatar>
-                        {senderPresence && (
-                          <div className="absolute -bottom-1 -right-1 bg-gray-900 dark:bg-gray-800 rounded-full p-1">
-                            <PresenceIndicator presence={senderPresence} size="sm" />
-                          </div>
-                        )}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-baseline gap-2">
-                          <span className="font-semibold text-gray-900 dark:text-white">
-                            {message.sender_name}
-                          </span>
-                          {senderPresence && (
-                            <span className="text-xs px-1.5 py-0.5 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 flex items-center gap-1">
-                              <PresenceIndicator presence={senderPresence} size="sm" showCustomStatus={true} />
-                              {senderPresence.custom_status ? senderPresence.custom_status : (senderPresence.in_call ? 'In Call' : senderPresence.status)}
-                            </span>
-                          )}
-                          <span className="text-xs text-gray-500">
-                            {format(new Date(message.created_date), 'h:mm a')}
-                          </span>
-                        </div>
-                        <p className="text-gray-700 dark:text-gray-300 mt-1 whitespace-pre-wrap break-words">
-                          {message.content}
-                        </p>
-                        {message.attachments && message.attachments.length > 0 && (
-                          <div className="mt-3 space-y-2">
-                            {message.attachments.map((file, idx) => (
-                              <FilePreview key={idx} file={file} />
-                            ))}
-                          </div>
-                        )}
-                        </div>
-                        </div>
-                        );
-                        })}
-                <div ref={messagesEndRef} />
-              </div>
-            </ScrollArea>
-
-            {/* Message Input */}
-            <div className="p-4 border-t border-gray-200 dark:border-gray-800">
-              <div className="mb-3">
-                <FileUploader 
-                  onFilesSelected={setAttachedFiles}
-                  maxFiles={5}
-                />
-              </div>
-              {attachedFiles.length > 0 && (
-                <div className="mb-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
-                  <p className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-2">
-                    {attachedFiles.length} file(s) attached
-                  </p>
-                  <div className="space-y-1">
-                    {attachedFiles.map((file, idx) => (
-                      <div key={idx} className="flex items-center justify-between text-xs">
-                        <span className="text-gray-700 dark:text-gray-300 truncate">
-                          {file.name}
-                        </span>
-                        <button
-                          onClick={() => setAttachedFiles(prev => prev.filter((_, i) => i !== idx))}
-                          className="text-red-500 hover:text-red-700"
-                        >
-                          ✕
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-              <form onSubmit={handleSendMessage} className="flex items-center gap-2">
-                <Input
-                  value={messageInput}
-                  onChange={(e) => setMessageInput(e.target.value)}
-                  placeholder={`Message #${selectedChannel.name}`}
-                  className="flex-1"
-                />
-                <Button type="button" variant="ghost" size="icon">
-                  <Smile className="w-5 h-5" />
-                </Button>
-                <Button
-                  type="submit"
-                  disabled={((!messageInput.trim() && attachedFiles.length === 0) || sendMessageMutation.isPending)}
-                >
-                  <Send className="w-4 h-4" />
-                </Button>
-              </form>
-            </div>
-          </div>
-        ) : (
-          <div className="flex-1 flex items-center justify-center bg-white dark:bg-gray-900">
-            <div className="text-center">
-              <MessageSquare className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-                Select a channel to start
-              </h3>
-              <p className="text-gray-500">
-                Choose a channel from the sidebar or create a new one
-              </p>
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
-  );
+        );
 }
