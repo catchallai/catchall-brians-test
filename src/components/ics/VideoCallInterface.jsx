@@ -332,29 +332,51 @@ export default function VideoCallInterface({
           </div>
         ) : (
           <div className="mb-4">
-            {/* Main view */}
-            <div className="aspect-video bg-gray-700 rounded-lg relative overflow-hidden mb-2">
-              <video
-                ref={el => videoRefs.current[mainParticipant.id] = el}
-                autoPlay
-                playsInline
-                muted={mainParticipant.isLocal}
-                className="w-full h-full object-cover"
-              />
-              <div className="absolute bottom-2 left-2 bg-black/70 px-2 py-1 rounded text-xs text-white flex items-center gap-1">
-                <span>{mainParticipant.status_emoji}</span>
-                {mainParticipant.name}
-                {mainParticipant.isLocal && ' (You)'}
-              </div>
-              <div className="absolute top-2 left-2 bg-black/70 px-2 py-1 rounded text-xs text-white flex items-center gap-1">
-                <span className={`w-2 h-2 rounded-full ${
-                  mainParticipant.status === 'online' ? 'bg-green-500' :
-                  mainParticipant.status === 'away' ? 'bg-yellow-500' :
-                  mainParticipant.status === 'busy' ? 'bg-red-500' :
-                  'bg-gray-500'
-                }`}></span>
-                {mainParticipant.status}
-              </div>
+            {/* Main view - show pinned participants */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mb-2">
+              {mainParticipants.map((participant) => (
+                <div key={participant.id} className="aspect-video bg-gray-700 rounded-lg relative overflow-hidden border-2 border-violet-500">
+                  <video
+                    ref={el => videoRefs.current[participant.id] = el}
+                    autoPlay
+                    playsInline
+                    muted={participant.isLocal}
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute bottom-2 left-2 bg-black/70 px-2 py-1 rounded text-xs text-white flex items-center gap-1">
+                    <span>{participant.status_emoji}</span>
+                    {participant.name}
+                    {participant.isLocal && ' (You)'}
+                  </div>
+                  <div className="absolute top-2 left-2 bg-black/70 px-2 py-1 rounded text-xs text-white flex items-center gap-1">
+                    <span className={`w-2 h-2 rounded-full ${
+                      participant.status === 'online' ? 'bg-green-500' :
+                      participant.status === 'away' ? 'bg-yellow-500' :
+                      participant.status === 'busy' ? 'bg-red-500' :
+                      'bg-gray-500'
+                    }`}></span>
+                    {participant.status}
+                  </div>
+                  {isHost && !participant.isLocal && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="absolute bottom-2 right-2 bg-black/50 hover:bg-red-600"
+                      onClick={() => {
+                        mutedParticipants[participant.email]
+                          ? unmuteParticipant(participant.email)
+                          : muteParticipant(participant.email);
+                      }}
+                    >
+                      {mutedParticipants[participant.email] ? (
+                        <MicOff className="w-4 h-4 text-white" />
+                      ) : (
+                        <Mic className="w-4 h-4 text-white" />
+                      )}
+                    </Button>
+                  )}
+                </div>
+              ))}
             </div>
             {/* Thumbnail strip */}
             <ScrollArea className="w-full">
