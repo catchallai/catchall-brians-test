@@ -63,6 +63,9 @@ export default function ICS() {
   const [typingByChannel, setTypingByChannel] = useState({});
   const [notificationPrefs, setNotificationPrefs] = useState(null);
   const [showAdmin, setShowAdmin] = useState(false);
+  const [selectedContact, setSelectedContact] = useState(null);
+  const [showContactPanel, setShowContactPanel] = useState(false);
+  const [editingOwnProfile, setEditingOwnProfile] = useState(false);
   const messagesEndRef = useRef(null);
   const queryClient = useQueryClient();
 
