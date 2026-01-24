@@ -90,6 +90,14 @@ export default function Sidebar({
           onClick={() => onViewChange('archived')}
           tooltip="Archived"
         />
+        {user?.role === 'admin' && (
+          <NavButton
+            icon={Shield}
+            active={activeView === 'admin'}
+            onClick={() => onViewChange('admin')}
+            tooltip="Admin"
+          />
+        )}
       </nav>
 
       {/* Bottom Actions */}
