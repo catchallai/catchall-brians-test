@@ -94,6 +94,13 @@ export default function Companies() {
 
   const getContactCount = (companyId) => contacts.filter(c => c.company_id === companyId).length;
 
+  const getCompanyContacts = (companyId) => contacts.filter(c => c.company_id === companyId);
+
+  const getPrimaryContact = (companyId) => {
+    const companyContacts = getCompanyContacts(companyId);
+    return companyContacts.length > 0 ? companyContacts[0] : null;
+  };
+
   const filteredCompanies = companies.filter(company => {
     const matchesSearch = !searchTerm || 
       company.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
