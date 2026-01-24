@@ -253,7 +253,7 @@ export default function ICS() {
       ended_at: new Date().toISOString(),
     }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['active-call'] });
+      queryClient.invalidateQueries({ queryKey: ['active-call', selectedChannel?.id] });
       setIsInCall(false);
     },
   });
