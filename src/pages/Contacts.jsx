@@ -233,9 +233,27 @@ export default function Contacts() {
       for (const companyName of uniqueCompanyNames) {
         const nameLower = companyName.toLowerCase();
         if (!companyMap[nameLower]) {
+          // Find first contact with this company to extract company details
+          const contactWithCompany = data.find(row => {
+            const name = getFieldValue(row, 'company_name', 'Firm', 'Company', 'Company Name', 'firm', 'organization');
+            return name && name.toLowerCase() === nameLower;
+          });
+          
           const newCompany = await base44.entities.Company.create({
             name: companyName,
             business_id: user?.current_business_id,
+            tier: contactWithCompany ? getFieldValue(contactWithCompany, 'tier', 'Tier') : null,
+            category: contactWithCompany ? getFieldValue(contactWithCompany, 'category', 'Category') : null,
+            country: contactWithCompany ? getFieldValue(contactWithCompany, 'country', 'Country / Region', 'Country') : null,
+            hq_city: contactWithCompany ? getFieldValue(contactWithCompany, 'hq_city', 'HQ City') : null,
+            website: contactWithCompany ? getFieldValue(contactWithCompany, 'website', 'Website') : null,
+            contact_page_url: contactWithCompany ? getFieldValue(contactWithCompany, 'contact_page_url', 'Contact Page URL') : null,
+            general_emails: contactWithCompany && getFieldValue(contactWithCompany, 'general_emails', 'General Emails') ? [getFieldValue(contactWithCompany, 'general_emails', 'General Emails')] : [],
+            general_phones: contactWithCompany && getFieldValue(contactWithCompany, 'general_phones', 'General Phones') ? [getFieldValue(contactWithCompany, 'general_phones', 'General Phones')] : [],
+            contact_sources_urls: contactWithCompany && getFieldValue(contactWithCompany, 'contact_sources_urls', 'Contact Source URLs') ? [getFieldValue(contactWithCompany, 'contact_sources_urls', 'Contact Source URLs')] : [],
+            loi_summary: contactWithCompany ? getFieldValue(contactWithCompany, 'loi_summary', 'LOI / MOU Summary') : null,
+            loi_source_urls: contactWithCompany && getFieldValue(contactWithCompany, 'loi_source_urls', 'LOI / MOU Source URLs') ? [getFieldValue(contactWithCompany, 'loi_source_urls', 'LOI / MOU Source URLs')] : [],
+            notes_angle: contactWithCompany ? getFieldValue(contactWithCompany, 'notes_angle', 'Notes / Angle') : null,
           });
           companyMap[nameLower] = newCompany.id;
         }
