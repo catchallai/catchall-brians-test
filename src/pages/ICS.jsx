@@ -44,6 +44,7 @@ import ChatArea from '@/components/ics/ChatArea';
 import UsersList from '@/components/ics/UsersList';
 import NotificationsView from '@/components/ics/NotificationsView';
 import ArchivedList from '@/components/ics/ArchivedList';
+import SettingsPanel from '@/components/ics/SettingsPanel';
 import NotificationPreferences from '@/components/notifications/NotificationPreferences.jsx';
 import NotificationCenter from '@/components/notifications/NotificationCenter';
 import { playNotificationSound, isInDND } from '@/components/notifications/NotificationSounds';
@@ -458,6 +459,16 @@ export default function ICS() {
           }}
         />
       ) : null}
+
+      {/* Settings Panel */}
+      <SettingsPanel
+        open={showSettings}
+        onClose={() => setShowSettings(false)}
+        user={user}
+        darkMode={darkMode}
+        onThemeToggle={() => setDarkMode(!darkMode)}
+        onPreferencesUpdate={handlePreferencesUpdate}
+      />
         </div>
         );
 }
