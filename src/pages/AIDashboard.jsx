@@ -93,7 +93,7 @@ export default function AIDashboard() {
   const stats = [
     { label: 'AI Features', value: '25+', icon: Sparkles },
     { label: 'Automations', value: '100+', icon: Zap },
-    { label: 'Integrations', value: '50+', icon: Target },
+    { label: 'Integrations', value: '50+', icon: TargetIcon },
     { label: 'ROI Increase', value: '247%', icon: TrendingUp },
   ];
 
