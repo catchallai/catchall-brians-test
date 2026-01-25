@@ -62,26 +62,36 @@ export default function CompetitorAnalysis() {
   const { data: competitorReports = [] } = useQuery({
     queryKey: ['competitor-reports'],
     queryFn: () => base44.entities.CompetitorReport.list('-created_date', 100),
+    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+    retry: 1,
   });
 
   const { data: socialAccounts = [] } = useQuery({
     queryKey: ['social-accounts'],
     queryFn: () => base44.entities.SocialAccount.list('-created_date', 50),
+    staleTime: 5 * 60 * 1000,
+    retry: 1,
   });
 
   const { data: scheduledPosts = [] } = useQuery({
     queryKey: ['scheduled-posts'],
     queryFn: () => base44.entities.ScheduledPost.list('-created_date', 100),
+    staleTime: 5 * 60 * 1000,
+    retry: 1,
   });
 
   const { data: socialPosts = [] } = useQuery({
     queryKey: ['social-posts'],
     queryFn: () => base44.entities.SocialPost.list('-created_date', 500),
+    staleTime: 10 * 60 * 1000, // Cache longer since this has more data
+    retry: 1,
   });
 
   const { data: companies = [] } = useQuery({
     queryKey: ['companies'],
     queryFn: () => base44.entities.Company.list('-created_date', 50),
+    staleTime: 5 * 60 * 1000,
+    retry: 1,
   });
 
   const createCompetitorMutation = useMutation({
