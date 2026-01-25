@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
 import { Loader2, X } from "lucide-react";
 
 export default function ContactModal({ open, onClose, contact, companies, onSave, isLoading, allowMultipleCompanies = false }) {
@@ -323,13 +324,36 @@ export default function ContactModal({ open, onClose, contact, companies, onSave
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="category">Category</Label>
-                <Input
-                  id="category"
-                  value={Array.isArray(formData.category) ? formData.category.join(', ') : ''}
-                  onChange={(e) => setFormData({ ...formData, category: e.target.value.split(',').map(c => c.trim()).filter(Boolean) })}
-                  placeholder="e.g., US Fractional, Jet Card, Charter (comma-separated)"
-                />
+                <Label>Category (Select Multiple)</Label>
+                <div className="grid grid-cols-1 gap-2 p-3 border rounded-lg max-h-48 overflow-y-auto">
+                  {['US Fractional Charter', 'US Part135 Operators', 'US Regional Membership', 'Leasing Finance', 'US Regional Airlines'].map((cat) => (
+                    <label key={cat} className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 p-2 rounded">
+                      <input
+                        type="checkbox"
+                        checked={(formData.category || []).includes(cat)}
+                        onChange={(e) => {
+                          const current = formData.category || [];
+                          if (e.target.checked) {
+                            setFormData({ ...formData, category: [...current, cat] });
+                          } else {
+                            setFormData({ ...formData, category: current.filter(c => c !== cat) });
+                          }
+                        }}
+                        className="rounded"
+                      />
+                      <span className="text-sm">{cat}</span>
+                    </label>
+                  ))}
+                </div>
+                {formData.category && formData.category.length > 0 && (
+                  <div className="flex flex-wrap gap-1 mt-2">
+                    {formData.category.map((cat) => (
+                      <Badge key={cat} variant="secondary" className="text-xs">
+                        {cat}
+                      </Badge>
+                    ))}
+                  </div>
+                )}
               </div>
 
               <div className="grid grid-cols-2 gap-4">
