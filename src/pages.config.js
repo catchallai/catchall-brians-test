@@ -93,6 +93,7 @@ import WorkflowBuilder from './pages/WorkflowBuilder';
 import WorkflowEngine from './pages/WorkflowEngine';
 import SEOOpportunities from './pages/SEOOpportunities';
 import SocialPerformance from './pages/SocialPerformance';
+import MarketingDashboard from './pages/MarketingDashboard';
 import __Layout from './Layout.jsx';
 
 
@@ -192,6 +193,7 @@ export const PAGES = {
     "WorkflowEngine": WorkflowEngine,
     "SEOOpportunities": SEOOpportunities,
     "SocialPerformance": SocialPerformance,
+    "MarketingDashboard": MarketingDashboard,
 }
 
 export const pagesConfig = {
