@@ -475,21 +475,34 @@ function LayoutContent({ children, currentPageName }) {
     enabled: !!user?.id,
   });
 
-  // Show onboarding for new users
-  React.useEffect(() => {
-    if (user?.id && onboardingStatus === null) {
-      // New user - create onboarding record and show modal
-      base44.entities.UserOnboarding.create({
-        user_id: user.id,
-        started_at: new Date().toISOString()
-      }).then(() => {
-        qClient.invalidateQueries({ queryKey: ['user-onboarding'] });
-        setShowOnboarding(true);
-      });
-    } else if (onboardingStatus && !onboardingStatus.is_complete && !onboardingStatus.skipped) {
-      setShowOnboarding(true);
-    }
-  }, [user?.id, onboardingStatus, qClient]);
+  // Show onboarding for new users or users without full_name
+        React.useEffect(() => {
+          if (user?.id) {
+            // Check if user is missing full_name (populate from email if needed)
+            if (!user.full_name || user.full_name.trim() === '') {
+              const nameFromEmail = user.email?.split('@')[0] || 'User';
+              base44.auth.updateMe({ 
+                full_name: nameFromEmail.charAt(0).toUpperCase() + nameFromEmail.slice(1) 
+              }).then(() => {
+                qClient.invalidateQueries({ queryKey: ['current-user'] });
+              });
+            }
+
+            // Check onboarding status
+            if (onboardingStatus === null) {
+              // New user - create onboarding record and show modal
+              base44.entities.UserOnboarding.create({
+                user_id: user.id,
+                started_at: new Date().toISOString()
+              }).then(() => {
+                qClient.invalidateQueries({ queryKey: ['user-onboarding'] });
+                setShowOnboarding(true);
+              });
+            } else if (onboardingStatus && !onboardingStatus.is_complete && !onboardingStatus.skipped) {
+              setShowOnboarding(true);
+            }
+          }
+        }, [user?.id, onboardingStatus, qClient]);
 
   const handleOnboardingComplete = async () => {
     if (onboardingStatus) {
