@@ -1923,6 +1923,24 @@ For well-known companies like Boeing, Lockheed Martin, SpaceX, etc., find their 
                         </div>
                       )}
 
+                      {/* Strategic Partnerships */}
+                      {company.partnerships?.length > 0 && (
+                        <div>
+                          <div className="flex items-center gap-2 mb-2">
+                            <Users className="w-4 h-4 text-teal-500" />
+                            <h4 className="font-semibold text-sm">Strategic Partnerships</h4>
+                          </div>
+                          <div className="space-y-2">
+                            {company.partnerships.map((partnership, i) => (
+                              <div key={i} className="bg-teal-50 dark:bg-teal-900/20 p-3 rounded-lg border border-teal-200 dark:border-teal-800">
+                                <p className="font-medium text-sm mb-1">{partnership.partner}</p>
+                                <p className="text-xs text-gray-600 dark:text-gray-400">{partnership.description}</p>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
                       {/* Competitors */}
                       {company.competitors?.length > 0 && (
                         <div>
