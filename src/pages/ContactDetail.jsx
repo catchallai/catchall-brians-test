@@ -6,7 +6,7 @@ import { createPageUrl } from '@/utils';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Mail, Phone, Linkedin, Calendar, Building2, BriefcaseIcon, Edit2, MapPin, Globe, Link2, FileText, Users } from "lucide-react";
+import { ArrowLeft, Mail, Phone, Linkedin, Calendar, Building2, BriefcaseIcon, Edit2, MapPin, Globe, Link2, FileText, Users, MessageSquare, Send } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import ContactModal from '@/components/modals/ContactModal';
@@ -57,6 +57,17 @@ export default function ContactDetail() {
     },
     enabled: !!contact?.id,
   });
+
+  const { data: notes = [], refetch: refetchNotes } = useQuery({
+    queryKey: ['contact-notes', contact?.id],
+    queryFn: async () => {
+      if (!contact?.id) return [];
+      return await base44.entities.ContactNote.filter({ contact_id: contact.id }, '-created_date');
+    },
+    enabled: !!contact?.id,
+  });
+
+  const [newNote, setNewNote] = useState('');
 
   const associatedCompanies = contact?.company_ids?.length 
     ? companies.filter(c => contact.company_ids.includes(c.id))
@@ -512,6 +523,67 @@ export default function ContactDetail() {
               </div>
             </Card>
           )}
+
+          <Card className="p-6">
+            <h3 className="font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+              <MessageSquare className="w-5 h-5" />
+              Team Notes ({notes.length})
+            </h3>
+            
+            {/* Add Note */}
+            <div className="mb-4">
+              <textarea
+                value={newNote}
+                onChange={(e) => setNewNote(e.target.value)}
+                placeholder="Add a note to share with team..."
+                className="w-full p-3 border rounded-lg text-sm resize-none focus:ring-2 focus:ring-violet-500 focus:border-violet-500 dark:bg-gray-800 dark:border-gray-700"
+                rows={3}
+              />
+              <Button
+                onClick={async () => {
+                  if (!newNote.trim()) return;
+                  await base44.entities.ContactNote.create({
+                    contact_id: contact.id,
+                    note: newNote,
+                    author_name: user?.full_name || user?.email,
+                    author_email: user?.email,
+                  });
+                  setNewNote('');
+                  refetchNotes();
+                }}
+                disabled={!newNote.trim()}
+                className="mt-2 w-full"
+                size="sm"
+              >
+                <Send className="w-4 h-4 mr-2" />
+                Add Note
+              </Button>
+            </div>
+
+            {/* Notes List */}
+            <div className="space-y-3 max-h-96 overflow-y-auto">
+              {notes.map((note) => (
+                <div key={note.id} className="p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
+                  <div className="flex items-start justify-between gap-2 mb-2">
+                    <span className="text-sm font-medium text-gray-900 dark:text-white">
+                      {note.author_name}
+                    </span>
+                    <span className="text-xs text-gray-500">
+                      {new Date(note.created_date).toLocaleDateString()}
+                    </span>
+                  </div>
+                  <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
+                    {note.note}
+                  </p>
+                </div>
+              ))}
+              {notes.length === 0 && (
+                <p className="text-sm text-gray-500 text-center py-4">
+                  No notes yet. Add the first note above.
+                </p>
+              )}
+            </div>
+          </Card>
         </div>
       </div>
 
