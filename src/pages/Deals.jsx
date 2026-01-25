@@ -65,6 +65,14 @@ export default function Deals() {
     queryFn: () => base44.entities.Deal.list('-created_date', 200),
   });
 
+  // Real-time subscription
+  React.useEffect(() => {
+    const unsubscribe = base44.entities.Deal.subscribe((event) => {
+      queryClient.invalidateQueries({ queryKey: ['deals'] });
+    });
+    return unsubscribe;
+  }, [queryClient]);
+
   const deals = allDeals;
 
   const { data: allContacts = [] } = useQuery({
@@ -283,6 +291,7 @@ export default function Deals() {
               onDragOver={handleDragOver}
               onDrop={handleDrop}
               onViewDeal={handleViewDeal}
+              onEditDeal={handleEditDeal}
               getContact={getContact}
             />
           </TabsContent>
