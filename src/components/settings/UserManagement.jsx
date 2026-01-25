@@ -25,7 +25,18 @@ export default function UserManagement() {
   const [inviteRole, setInviteRole] = useState('user');
   const [inviteOpen, setInviteOpen] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
-  const [editData, setEditData] = useState({ full_name: '', role: '' });
+  const [editData, setEditData] = useState({
+    full_name: '',
+    role: '',
+    title: '',
+    phone: '',
+    address: '',
+    city: '',
+    state: '',
+    zip_code: '',
+    country: '',
+    department: '',
+  });
   const queryClient = useQueryClient();
   const toast = useToast();
 
@@ -223,42 +234,138 @@ export default function UserManagement() {
                                 size="sm"
                                 onClick={() => {
                                   setEditingUser(user);
-                                  setEditData({ full_name: user.full_name || '', role: user.role });
+                                  setEditData({
+                                    full_name: user.full_name || '',
+                                    role: user.role,
+                                    title: user.title || '',
+                                    phone: user.phone || '',
+                                    address: user.address || '',
+                                    city: user.city || '',
+                                    state: user.state || '',
+                                    zip_code: user.zip_code || '',
+                                    country: user.country || '',
+                                    department: user.department || '',
+                                  });
                                 }}
                               >
                                 <Edit2 className="w-4 h-4" />
                               </Button>
                             </DialogTrigger>
-                            <DialogContent>
+                            <DialogContent className="max-h-[90vh] overflow-y-auto">
                               <DialogHeader>
                                 <DialogTitle>Edit User</DialogTitle>
                                 <DialogDescription>Update user information and role</DialogDescription>
                               </DialogHeader>
                               <div className="space-y-4">
-                                <div className="space-y-2">
-                                  <Label>Full Name</Label>
-                                  <Input
-                                    value={editData.full_name}
-                                    onChange={(e) => setEditData({ ...editData, full_name: e.target.value })}
-                                  />
+                                {/* Personal Info */}
+                                <div className="border-t pt-4">
+                                  <h3 className="font-semibold text-sm mb-3 text-gray-900 dark:text-white">Personal Information</h3>
+                                  <div className="space-y-3">
+                                    <div className="space-y-2">
+                                      <Label>Full Name</Label>
+                                      <Input
+                                        value={editData.full_name}
+                                        onChange={(e) => setEditData({ ...editData, full_name: e.target.value })}
+                                      />
+                                    </div>
+                                    <div className="space-y-2">
+                                      <Label>Email</Label>
+                                      <Input value={user.email} disabled className="bg-gray-50 dark:bg-gray-800" />
+                                      <p className="text-xs text-gray-500">Email cannot be changed</p>
+                                    </div>
+                                    <div className="space-y-2">
+                                      <Label>Job Title</Label>
+                                      <Input
+                                        value={editData.title}
+                                        onChange={(e) => setEditData({ ...editData, title: e.target.value })}
+                                      />
+                                    </div>
+                                    <div className="space-y-2">
+                                      <Label>Department</Label>
+                                      <Input
+                                        value={editData.department}
+                                        onChange={(e) => setEditData({ ...editData, department: e.target.value })}
+                                      />
+                                    </div>
+                                  </div>
                                 </div>
-                                <div className="space-y-2">
-                                  <Label>Email</Label>
-                                  <Input value={user.email} disabled className="bg-gray-50 dark:bg-gray-800" />
-                                  <p className="text-xs text-gray-500">Email cannot be changed</p>
+
+                                {/* Contact Info */}
+                                <div className="border-t pt-4">
+                                  <h3 className="font-semibold text-sm mb-3 text-gray-900 dark:text-white">Contact Information</h3>
+                                  <div className="space-y-3">
+                                    <div className="space-y-2">
+                                      <Label>Phone</Label>
+                                      <Input
+                                        value={editData.phone}
+                                        onChange={(e) => setEditData({ ...editData, phone: e.target.value })}
+                                      />
+                                    </div>
+                                  </div>
                                 </div>
-                                <div className="space-y-2">
-                                  <Label>Role</Label>
-                                  <Select value={editData.role} onValueChange={(value) => setEditData({ ...editData, role: value })}>
-                                    <SelectTrigger>
-                                      <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                      <SelectItem value="user">User</SelectItem>
-                                      <SelectItem value="admin">Admin</SelectItem>
-                                    </SelectContent>
-                                  </Select>
+
+                                {/* Location */}
+                                <div className="border-t pt-4">
+                                  <h3 className="font-semibold text-sm mb-3 text-gray-900 dark:text-white">Location</h3>
+                                  <div className="space-y-3">
+                                    <div className="space-y-2">
+                                      <Label>Street Address</Label>
+                                      <Input
+                                        value={editData.address}
+                                        onChange={(e) => setEditData({ ...editData, address: e.target.value })}
+                                      />
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-3">
+                                      <div className="space-y-2">
+                                        <Label>City</Label>
+                                        <Input
+                                          value={editData.city}
+                                          onChange={(e) => setEditData({ ...editData, city: e.target.value })}
+                                        />
+                                      </div>
+                                      <div className="space-y-2">
+                                        <Label>State/Province</Label>
+                                        <Input
+                                          value={editData.state}
+                                          onChange={(e) => setEditData({ ...editData, state: e.target.value })}
+                                        />
+                                      </div>
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-3">
+                                      <div className="space-y-2">
+                                        <Label>Zip/Postal Code</Label>
+                                        <Input
+                                          value={editData.zip_code}
+                                          onChange={(e) => setEditData({ ...editData, zip_code: e.target.value })}
+                                        />
+                                      </div>
+                                      <div className="space-y-2">
+                                        <Label>Country</Label>
+                                        <Input
+                                          value={editData.country}
+                                          onChange={(e) => setEditData({ ...editData, country: e.target.value })}
+                                        />
+                                      </div>
+                                    </div>
+                                  </div>
                                 </div>
+
+                                {/* Role */}
+                                <div className="border-t pt-4">
+                                  <div className="space-y-2">
+                                    <Label>Role</Label>
+                                    <Select value={editData.role} onValueChange={(value) => setEditData({ ...editData, role: value })}>
+                                      <SelectTrigger>
+                                        <SelectValue />
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                        <SelectItem value="user">User</SelectItem>
+                                        <SelectItem value="admin">Admin</SelectItem>
+                                      </SelectContent>
+                                    </Select>
+                                  </div>
+                                </div>
+
                                 <Button
                                   onClick={() => updateUserMutation.mutate(user.id, editData)}
                                   disabled={updateUserMutation.isPending}
