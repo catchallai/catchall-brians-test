@@ -19,6 +19,7 @@ import {
 import FeatureManager from '@/components/settings/FeatureManager';
 import AutoSyncSettings from '@/components/settings/AutoSyncSettings';
 import RolePermissionsManager from '@/components/settings/RolePermissionsManager';
+import UserManagement from '@/components/settings/UserManagement';
 
 export default function Settings() {
   const [saving, setSaving] = useState(false);
@@ -149,6 +150,10 @@ export default function Settings() {
           <TabsTrigger value="rbac" className="gap-2">
             <Lock className="w-4 h-4" />
             RBAC
+          </TabsTrigger>
+          <TabsTrigger value="users" className="gap-2">
+            <User className="w-4 h-4" />
+            Team Users
           </TabsTrigger>
         </TabsList>
 
@@ -403,6 +408,11 @@ export default function Settings() {
         {/* RBAC Tab */}
         <TabsContent value="rbac">
           <RolePermissionsManager />
+        </TabsContent>
+
+        {/* Users Tab */}
+        <TabsContent value="users">
+          <UserManagement />
         </TabsContent>
       </Tabs>
     </div>
