@@ -6,7 +6,7 @@ import { createPageUrl } from '@/utils';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Mail, Phone, Linkedin, Calendar, Building2, BriefcaseIcon, Edit2 } from "lucide-react";
+import { ArrowLeft, Mail, Phone, Linkedin, Calendar, Building2, BriefcaseIcon, Edit2, MapPin, Globe, Link2, FileText, Users } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import ContactModal from '@/components/modals/ContactModal';
@@ -194,6 +194,222 @@ export default function ContactDetail() {
               )}
             </div>
           </Card>
+
+          {/* Company Information */}
+          {(contact.company_name || contact.website || contact.country || contact.hq_city) && (
+            <Card className="p-6">
+              <h2 className="font-semibold text-gray-900 dark:text-white mb-4">Company Information</h2>
+              <div className="space-y-4">
+                {contact.company_name && (
+                  <div className="flex items-center gap-3">
+                    <Building2 className="w-5 h-5 text-gray-400" />
+                    <span className="text-gray-900 dark:text-white">{contact.company_name}</span>
+                  </div>
+                )}
+                {contact.tier && (
+                  <div className="flex items-center gap-3">
+                    <BriefcaseIcon className="w-5 h-5 text-gray-400" />
+                    <Badge variant="secondary">{contact.tier}</Badge>
+                  </div>
+                )}
+                {contact.category && contact.category.length > 0 && (
+                  <div className="flex items-start gap-3">
+                    <Users className="w-5 h-5 text-gray-400 mt-1" />
+                    <div className="flex flex-wrap gap-1">
+                      {contact.category.map((cat) => (
+                        <Badge key={cat} variant="outline" className="text-xs">
+                          {cat}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {(contact.country || contact.hq_city) && (
+                  <div className="flex items-center gap-3">
+                    <MapPin className="w-5 h-5 text-gray-400" />
+                    <span className="text-gray-600 dark:text-gray-400">
+                      {[contact.hq_city, contact.country].filter(Boolean).join(', ')}
+                    </span>
+                  </div>
+                )}
+                {contact.website && (
+                  <div className="flex items-center gap-3">
+                    <Globe className="w-5 h-5 text-gray-400" />
+                    <a href={contact.website} target="_blank" rel="noopener noreferrer" className="text-violet-600 hover:underline">
+                      {contact.website}
+                    </a>
+                  </div>
+                )}
+                {contact.contact_page_url && (
+                  <div className="flex items-center gap-3">
+                    <Link2 className="w-5 h-5 text-gray-400" />
+                    <a href={contact.contact_page_url} target="_blank" rel="noopener noreferrer" className="text-violet-600 hover:underline text-sm">
+                      Contact Page
+                    </a>
+                  </div>
+                )}
+                {contact.general_emails && contact.general_emails.length > 0 && (
+                  <div className="flex items-start gap-3">
+                    <Mail className="w-5 h-5 text-gray-400 mt-1" />
+                    <div className="space-y-1">
+                      <p className="text-xs text-gray-500 mb-1">General Emails:</p>
+                      {contact.general_emails.map((email, i) => (
+                        <a key={i} href={`mailto:${email}`} className="block text-sm text-violet-600 hover:underline">
+                          {email}
+                        </a>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {contact.general_phones && contact.general_phones.length > 0 && (
+                  <div className="flex items-start gap-3">
+                    <Phone className="w-5 h-5 text-gray-400 mt-1" />
+                    <div className="space-y-1">
+                      <p className="text-xs text-gray-500 mb-1">General Phones:</p>
+                      {contact.general_phones.map((phone, i) => (
+                        <a key={i} href={`tel:${phone}`} className="block text-sm text-violet-600 hover:underline">
+                          {phone}
+                        </a>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </Card>
+          )}
+
+          {/* Key Roles */}
+          {(contact.role_1_name || contact.role_2_name || contact.signer_name) && (
+            <Card className="p-6">
+              <h2 className="font-semibold text-gray-900 dark:text-white mb-4">Key Roles</h2>
+              <div className="space-y-6">
+                {contact.role_1_name && (
+                  <div className="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
+                    <h4 className="font-medium text-gray-900 dark:text-white mb-2">
+                      {contact.role_1_title || 'Primary Role'}
+                    </h4>
+                    <div className="space-y-2 text-sm">
+                      <p className="text-gray-700 dark:text-gray-300">{contact.role_1_name}</p>
+                      {contact.role_1_email && (
+                        <a href={`mailto:${contact.role_1_email}`} className="block text-violet-600 hover:underline">
+                          {contact.role_1_email}
+                        </a>
+                      )}
+                      {contact.role_1_phone && (
+                        <a href={`tel:${contact.role_1_phone}`} className="block text-violet-600 hover:underline">
+                          {contact.role_1_phone}
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                )}
+                {contact.role_2_name && (
+                  <div className="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
+                    <h4 className="font-medium text-gray-900 dark:text-white mb-2">
+                      {contact.role_2_title || 'Secondary Role'}
+                    </h4>
+                    <div className="space-y-2 text-sm">
+                      <p className="text-gray-700 dark:text-gray-300">{contact.role_2_name}</p>
+                      {contact.role_2_email && (
+                        <a href={`mailto:${contact.role_2_email}`} className="block text-violet-600 hover:underline">
+                          {contact.role_2_email}
+                        </a>
+                      )}
+                      {contact.role_2_phone && (
+                        <a href={`tel:${contact.role_2_phone}`} className="block text-violet-600 hover:underline">
+                          {contact.role_2_phone}
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                )}
+                {contact.signer_name && (
+                  <div className="p-4 bg-violet-50 dark:bg-violet-900/20 rounded-lg border border-violet-200 dark:border-violet-800">
+                    <h4 className="font-medium text-gray-900 dark:text-white mb-2">
+                      {contact.signer_title || 'Signer / Exec Sponsor'}
+                    </h4>
+                    <div className="space-y-2 text-sm">
+                      <p className="text-gray-700 dark:text-gray-300">{contact.signer_name}</p>
+                      {contact.signer_email && (
+                        <a href={`mailto:${contact.signer_email}`} className="block text-violet-600 hover:underline">
+                          {contact.signer_email}
+                        </a>
+                      )}
+                      {contact.signer_phone && (
+                        <a href={`tel:${contact.signer_phone}`} className="block text-violet-600 hover:underline">
+                          {contact.signer_phone}
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </Card>
+          )}
+
+          {/* LOI/MOU Information */}
+          {(contact.loi_summary || (contact.loi_source_urls && contact.loi_source_urls.length > 0)) && (
+            <Card className="p-6">
+              <h2 className="font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                <FileText className="w-5 h-5" />
+                LOI / MOU / Prior Orders
+              </h2>
+              {contact.loi_summary && (
+                <p className="text-gray-700 dark:text-gray-300 text-sm mb-3 whitespace-pre-wrap">
+                  {contact.loi_summary}
+                </p>
+              )}
+              {contact.loi_source_urls && contact.loi_source_urls.length > 0 && (
+                <div className="space-y-2">
+                  <p className="text-xs text-gray-500">Source URLs:</p>
+                  {contact.loi_source_urls.map((url, i) => (
+                    <a
+                      key={i}
+                      href={url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="block text-sm text-violet-600 hover:underline truncate"
+                    >
+                      {url}
+                    </a>
+                  ))}
+                </div>
+              )}
+            </Card>
+          )}
+
+          {/* Notes & Angle */}
+          {contact.notes_angle && (
+            <Card className="p-6">
+              <h2 className="font-semibold text-gray-900 dark:text-white mb-3">Notes / Angle</h2>
+              <p className="text-gray-700 dark:text-gray-300 text-sm whitespace-pre-wrap">
+                {contact.notes_angle}
+              </p>
+            </Card>
+          )}
+
+          {/* Contact Sources */}
+          {contact.contact_sources_urls && contact.contact_sources_urls.length > 0 && (
+            <Card className="p-6">
+              <h2 className="font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                <Link2 className="w-5 h-5" />
+                Contact Sources
+              </h2>
+              <div className="space-y-2">
+                {contact.contact_sources_urls.map((url, i) => (
+                  <a
+                    key={i}
+                    href={url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block text-sm text-violet-600 hover:underline truncate"
+                  >
+                    {url}
+                  </a>
+                ))}
+              </div>
+            </Card>
+          )}
 
           {/* Associated Companies */}
           <Card className="p-6">
