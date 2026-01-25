@@ -11,54 +11,29 @@ import {
 } from "lucide-react";
 
 export default function CRMDashboard() {
-  const { data: user } = useQuery({
-    queryKey: ['current-user'],
-    queryFn: () => base44.auth.me(),
-  });
-
   const { data: contacts = [], isLoading: loadingContacts } = useQuery({
-    queryKey: ['contacts', user?.current_business_id],
-    queryFn: async () => {
-      if (!user?.current_business_id) return [];
-      return await base44.entities.Contact.filter({ business_id: user.current_business_id }, '-created_date', 500);
-    },
-    enabled: !!user?.current_business_id,
+    queryKey: ['contacts'],
+    queryFn: () => base44.entities.Contact.list('-created_date', 500),
   });
 
   const { data: companies = [], isLoading: loadingCompanies } = useQuery({
-    queryKey: ['companies', user?.current_business_id],
-    queryFn: async () => {
-      if (!user?.current_business_id) return [];
-      return await base44.entities.Company.filter({ business_id: user.current_business_id }, '-created_date', 200);
-    },
-    enabled: !!user?.current_business_id,
+    queryKey: ['companies'],
+    queryFn: () => base44.entities.Company.list('-created_date', 200),
   });
 
   const { data: opportunities = [], isLoading: loadingOpportunities } = useQuery({
-    queryKey: ['opportunities', user?.current_business_id],
-    queryFn: async () => {
-      if (!user?.current_business_id) return [];
-      return await base44.entities.Opportunity.filter({ business_id: user.current_business_id }, '-created_date', 200);
-    },
-    enabled: !!user?.current_business_id,
+    queryKey: ['opportunities'],
+    queryFn: () => base44.entities.Opportunity.list('-created_date', 200),
   });
 
   const { data: deals = [], isLoading: loadingDeals } = useQuery({
-    queryKey: ['deals', user?.current_business_id],
-    queryFn: async () => {
-      if (!user?.current_business_id) return [];
-      return await base44.entities.Deal.filter({ business_id: user.current_business_id }, '-created_date', 200);
-    },
-    enabled: !!user?.current_business_id,
+    queryKey: ['deals'],
+    queryFn: () => base44.entities.Deal.list('-created_date', 200),
   });
 
   const { data: activities = [], isLoading: loadingActivities } = useQuery({
-    queryKey: ['activities', user?.current_business_id],
-    queryFn: async () => {
-      if (!user?.current_business_id) return [];
-      return await base44.entities.Activity.filter({ business_id: user.current_business_id }, '-created_date', 100);
-    },
-    enabled: !!user?.current_business_id,
+    queryKey: ['activities'],
+    queryFn: () => base44.entities.Activity.list('-created_date', 100),
   });
 
   const { data: emailLogs = [], isLoading: loadingEmailLogs } = useQuery({

@@ -154,7 +154,6 @@ const navigation = [
   { name: 'divider', label: 'Executive' },
   { name: 'Executive Dashboard', icon: Award, page: 'ExecutiveDashboard' },
   { name: 'divider', label: 'Support' },
-  { name: 'Business Management', icon: Building2, page: 'BusinessManagement' },
   { name: 'Help Center', icon: HelpCircle, page: 'HelpCenter' },
   { name: 'Settings', icon: Settings, page: 'Settings' },
   { name: 'Activity Logs', icon: Activity, page: 'ActivityLogs' },
