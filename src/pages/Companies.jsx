@@ -203,9 +203,21 @@ export default function Companies() {
               className="p-5 glass-card rounded-2xl hover:shadow-lg transition-all group relative"
             >
               <div className="flex items-start gap-4">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white font-bold text-lg">
-                  {company.name?.[0]?.toUpperCase()}
-                </div>
+                {company.logo_url ? (
+                  <img 
+                    src={company.logo_url} 
+                    alt={company.name}
+                    className="w-12 h-12 rounded-xl object-cover border border-gray-200 dark:border-gray-700"
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                      e.target.parentNode.innerHTML = `<div class="w-12 h-12 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white font-bold text-lg">${company.name?.[0]?.toUpperCase()}</div>`;
+                    }}
+                  />
+                ) : (
+                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white font-bold text-lg">
+                    {company.name?.[0]?.toUpperCase()}
+                  </div>
+                )}
                 <div className="flex-1 min-w-0">
                   <h3 className="font-semibold text-gray-900 dark:text-white truncate group-hover:text-violet-600 transition-colors">
                     {company.name}
@@ -306,9 +318,21 @@ export default function Companies() {
                   <tr key={company.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/30 transition-colors">
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm">
-                          {company.name?.[0]?.toUpperCase()}
-                        </div>
+                        {company.logo_url ? (
+                          <img 
+                            src={company.logo_url} 
+                            alt={company.name}
+                            className="w-10 h-10 rounded-lg object-cover border border-gray-200 dark:border-gray-700"
+                            onError={(e) => {
+                              e.target.style.display = 'none';
+                              e.target.parentNode.innerHTML = `<div class="w-10 h-10 rounded-lg bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm">${company.name?.[0]?.toUpperCase()}</div>`;
+                            }}
+                          />
+                        ) : (
+                          <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm">
+                            {company.name?.[0]?.toUpperCase()}
+                          </div>
+                        )}
                         <div>
                           <p className="font-semibold text-gray-900 dark:text-white">{company.name}</p>
                         </div>
