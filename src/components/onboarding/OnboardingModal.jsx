@@ -10,98 +10,112 @@ import {
 const ONBOARDING_STEPS = [
   {
     id: 'welcome',
-    title: 'Welcome to CRM + SEO Suite!',
-    description: 'Your all-in-one platform for managing customer relationships, tracking SEO performance, and growing your social media presence.',
+    title: 'Welcome to CatchAll Business Suite!',
+    description: 'Your complete platform for business development, CRM, sales, marketing, SEO, and more—all in one place.',
     icon: Sparkles,
     color: 'bg-violet-500',
     tips: [
-      'Manage contacts and deals in one place',
-      'Track keyword rankings and backlinks',
-      'Schedule social media posts with AI',
-      'Automate your marketing workflows'
+      'Track aerospace opportunities and competitors',
+      'Manage contacts, companies, and opportunities',
+      'Monitor SEO performance and social media',
+      'Automate workflows and collaborate with your team'
     ]
   },
   {
-    id: 'crm',
-    title: 'CRM & Lead Management',
-    description: 'Organize your contacts, companies, and deals. Track every interaction and move deals through your pipeline.',
-    icon: Users,
+    id: 'bizdev',
+    title: 'Business Development',
+    description: 'Scan aerospace industry trends, analyze competitors, and track leads with AI-powered insights.',
+    icon: BarChart3,
     color: 'bg-blue-500',
     tips: [
-      'Add contacts and link them to companies',
-      'Create deals and track their progress',
-      'Log activities like calls, emails, and meetings',
-      'Capture leads from social media interactions'
+      'Aerospace Scanner monitors industry news and opportunities',
+      'Track visitor activity and score leads automatically',
+      'Manage legal documents and contracts',
+      'Monitor press mentions and media coverage'
+    ],
+    page: 'BusinessDevDashboard'
+  },
+  {
+    id: 'crm',
+    title: 'CRM & Opportunities',
+    description: 'Organize contacts, companies, and opportunities. Track deals from first touch to close.',
+    icon: Users,
+    color: 'bg-emerald-500',
+    tips: [
+      'Import and enrich contact data automatically',
+      'Link contacts to multiple companies',
+      'Create opportunities and track progress',
+      'Use DocuTrace for document tracking and Data Rooms for secure file sharing'
     ],
     page: 'Contacts'
   },
   {
-    id: 'deals',
-    title: 'Deal Pipeline',
-    description: 'Visualize your sales pipeline and track deal stages from lead to close.',
+    id: 'sales',
+    title: 'Sales Tools',
+    description: 'Streamline your sales process with sequences, proposals, and meeting scheduling.',
     icon: Target,
-    color: 'bg-emerald-500',
+    color: 'bg-cyan-500',
     tips: [
-      'Create deals with values and expected close dates',
-      'Move deals through stages: Lead → Qualified → Proposal → Won',
-      'Track win probability and forecast revenue',
-      'Link deals to contacts and companies'
+      'Enrich leads with AI-powered data',
+      'Create automated email sequences',
+      'Generate and track proposals',
+      'Schedule meetings with integrated calendar'
     ],
-    page: 'Deals'
+    page: 'SalesHub'
   },
   {
     id: 'seo',
-    title: 'SEO Tools',
-    description: 'Monitor your website\'s search performance, track keywords, and analyze backlinks.',
+    title: 'SEO & Analytics',
+    description: 'Monitor website performance, track keywords, analyze backlinks, and optimize local SEO.',
     icon: Search,
     color: 'bg-amber-500',
     tips: [
-      'Add websites to monitor their SEO health',
-      'Track keyword rankings over time',
-      'Discover and monitor backlinks',
-      'Run comprehensive SEO audits'
+      'Run comprehensive SEO audits',
+      'Track keyword rankings and competitors',
+      'Monitor and analyze backlinks',
+      'Manage local SEO and Google Business Profile'
     ],
     page: 'SEODashboard'
   },
   {
     id: 'social',
-    title: 'Social Media Management',
-    description: 'Analyze your social presence, schedule posts, and track competitors.',
+    title: 'Social & Content',
+    description: 'Plan content, schedule posts, monitor conversations, and analyze social performance.',
     icon: Share2,
     color: 'bg-pink-500',
     tips: [
-      'Connect your social media accounts',
-      'Schedule posts with AI optimization',
-      'Run A/B tests on your content',
-      'Analyze competitor strategies'
+      'Create and schedule social media posts',
+      'Monitor brand mentions and sentiment',
+      'Build landing pages without code',
+      'Track social leads and engagement'
     ],
     page: 'SocialMedia'
   },
   {
-    id: 'marketing',
-    title: 'Marketing Automation',
-    description: 'Create campaigns, send emails, and automate your marketing workflows.',
-    icon: Mail,
+    id: 'collaboration',
+    title: 'Collaboration & Communication',
+    description: 'Manage projects, share knowledge, and communicate with your team in real-time.',
+    icon: Building2,
     color: 'bg-indigo-500',
     tips: [
-      'Design email templates with the visual editor',
-      'Create and send email campaigns',
-      'Set up automation rules for follow-ups',
-      'Track campaign performance'
+      'Create projects and assign tasks',
+      'Build knowledge bases with Spaces',
+      'Real-time chat and video calls with ICS',
+      'Track time and manage resources'
     ],
-    page: 'EmailMarketing'
+    page: 'Projects'
   },
   {
     id: 'complete',
     title: 'You\'re All Set!',
-    description: 'You\'re ready to start using CRM + SEO Suite. Explore the features and grow your business!',
+    description: 'You\'re ready to start using CatchAll Business Suite. Explore the features and grow your business!',
     icon: CheckCircle,
     color: 'bg-emerald-500',
     tips: [
-      'Visit the Help Center anytime for guides',
-      'Use tooltips (?) for quick help',
-      'Check the Dashboard for an overview',
-      'Reach out if you need assistance'
+      'Customize enabled features in Settings',
+      'Visit Help Center for detailed guides',
+      'Use keyboard shortcuts (press ? for help)',
+      'Drag navigation items to Favorites for quick access'
     ]
   }
 ];

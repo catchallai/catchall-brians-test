@@ -16,53 +16,79 @@ import { useToast } from '@/components/ui/toast-provider';
 
 // Feature definitions with tiers
 const FEATURES = {
+  // Business Development - Starter
+  aerospaceScanner: { name: 'Aerospace Scanner', icon: Rocket, tier: 'starter', category: 'Business Dev', default: true },
+  competitorAnalysis: { name: 'Competitor Analysis', icon: Users, tier: 'starter', category: 'Business Dev', default: true },
+  visitorProfiles: { name: 'Lead Analysis', icon: Users, tier: 'starter', category: 'Business Dev', default: true },
+  legalDocuments: { name: 'Legal Documents', icon: FileText, tier: 'starter', category: 'Business Dev', default: true },
+  listings: { name: 'Listings & Reviews', icon: MapPin, tier: 'starter', category: 'Business Dev', default: true },
+  mediaOutreach: { name: 'Media Outreach', icon: Mail, tier: 'starter', category: 'Business Dev', default: true },
+  pressMonitoring: { name: 'Press Monitoring', icon: Newspaper, tier: 'starter', category: 'Business Dev', default: true },
+  
   // CRM - Starter
   contacts: { name: 'Contacts', icon: Users, tier: 'starter', category: 'CRM', default: true },
   companies: { name: 'Companies', icon: Building2, tier: 'starter', category: 'CRM', default: true },
-  deals: { name: 'Deals', icon: Target, tier: 'starter', category: 'CRM', default: true },
+  opportunities: { name: 'Opportunities', icon: Target, tier: 'starter', category: 'CRM', default: true },
+  docuTrace: { name: 'DocuTrace', icon: FileText, tier: 'starter', category: 'CRM', default: true },
+  dataRooms: { name: 'Data Rooms', icon: FileText, tier: 'starter', category: 'CRM', default: true },
+  automation: { name: 'Automation', icon: Zap, tier: 'starter', category: 'CRM', default: true },
+  deals: { name: 'Pipeline', icon: Target, tier: 'starter', category: 'CRM', default: true },
   activities: { name: 'Activities', icon: Calendar, tier: 'starter', category: 'CRM', default: true },
+  emailMarketing: { name: 'Email Marketing', icon: Mail, tier: 'starter', category: 'CRM', default: true },
+  marketingHub: { name: 'Marketing Hub', icon: TrendingUp, tier: 'starter', category: 'CRM', default: true },
   
-  // Marketing - Starter
-  campaigns: { name: 'Campaigns', icon: Mail, tier: 'starter', category: 'Marketing', default: true },
-  emailMarketing: { name: 'Email Marketing', icon: Mail, tier: 'starter', category: 'Marketing', default: true },
-  reports: { name: 'Reports', icon: BarChart3, tier: 'starter', category: 'Marketing', default: true },
+  // Sales - Growth
+  salesHub: { name: 'Sales Hub', icon: Target, tier: 'growth', category: 'Sales', default: false },
+  leadEnrichment: { name: 'Lead Enrichment', icon: Users, tier: 'growth', category: 'Sales', default: false },
+  sequences: { name: 'Sequences', icon: Zap, tier: 'growth', category: 'Sales', default: false },
+  proposals: { name: 'Proposals', icon: FileText, tier: 'growth', category: 'Sales', default: false },
+  meetingScheduler: { name: 'Meeting Scheduler', icon: Calendar, tier: 'growth', category: 'Sales', default: false },
+  salesQuotas: { name: 'Sales Quotas', icon: TrendingUp, tier: 'growth', category: 'Sales', default: false },
+  reservations: { name: 'Reservations', icon: Calendar, tier: 'growth', category: 'Sales', default: false },
+  
+  // Customer Success - Enterprise
+  customerSuccess: { name: 'Customer Success', icon: Users, tier: 'enterprise', category: 'Customer Success', default: false },
   
   // SEO - Starter
-  seoDashboard: { name: 'SEO Dashboard', icon: Search, tier: 'starter', category: 'SEO', default: true },
+  seoDashboard: { name: 'SEO Analytics', icon: Search, tier: 'starter', category: 'SEO', default: true },
+  seoTools: { name: 'SEO Tools', icon: Globe, tier: 'starter', category: 'SEO', default: true },
+  seoAudit: { name: 'SEO Audits', icon: FileSearch, tier: 'starter', category: 'SEO', default: true },
   keywords: { name: 'Keywords', icon: Target, tier: 'starter', category: 'SEO', default: true },
+  backlinks: { name: 'Backlinks', icon: Link2, tier: 'starter', category: 'SEO', default: true },
+  localSEO: { name: 'Local SEO', icon: MapPin, tier: 'starter', category: 'SEO', default: true },
   
-  // Growth Tier
-  socialMedia: { name: 'Social Media', icon: Share2, tier: 'growth', category: 'Social', default: false },
-  socialListening: { name: 'Social Listening', icon: Radio, tier: 'growth', category: 'Social', default: false },
+  // Social - Growth
+  socialMedia: { name: 'Social Analytics', icon: Share2, tier: 'growth', category: 'Social', default: false },
   socialCalendar: { name: 'Social Calendar', icon: Calendar, tier: 'growth', category: 'Social', default: false },
-  hashtagManager: { name: 'Hashtag Pool', icon: Target, tier: 'growth', category: 'Social', default: false },
-  competitorAnalysis: { name: 'Competitor Analysis', icon: Users, tier: 'growth', category: 'Social', default: false },
-  socialLeads: { name: 'Social Leads', icon: UserPlus, tier: 'growth', category: 'CRM', default: false },
-  contactForms: { name: 'Contact Forms', icon: FileText, tier: 'growth', category: 'CRM', default: false },
-  automation: { name: 'Automation', icon: Zap, tier: 'growth', category: 'CRM', default: false },
-  backlinks: { name: 'Backlinks', icon: Link2, tier: 'growth', category: 'SEO', default: false },
-  seoAudit: { name: 'SEO Audit', icon: FileSearch, tier: 'growth', category: 'SEO', default: false },
-  contentStrategy: { name: 'Content Strategy', icon: FileText, tier: 'growth', category: 'SEO', default: false },
+  landingPages: { name: 'Landing Pages', icon: Globe, tier: 'growth', category: 'Social', default: false },
+  socialListening: { name: 'Social Listening', icon: Radio, tier: 'growth', category: 'Social', default: false },
+  socialLeads: { name: 'Social Leads', icon: UserPlus, tier: 'growth', category: 'Social', default: false },
+  hashtagManager: { name: 'Hashtag Manager', icon: Target, tier: 'growth', category: 'Social', default: false },
   
-  // Enterprise Tier
-  marketingHub: { name: 'Marketing Hub', icon: TrendingUp, tier: 'enterprise', category: 'Marketing', default: false },
-  leadScoring: { name: 'Lead Scoring', icon: Target, tier: 'enterprise', category: 'Marketing', default: false },
-  dripCampaigns: { name: 'Drip Campaigns', icon: Mail, tier: 'enterprise', category: 'Marketing', default: false },
-  abTesting: { name: 'A/B Testing', icon: FlaskConical, tier: 'enterprise', category: 'Marketing', default: false },
-  referrals: { name: 'Referral Program', icon: UserPlus, tier: 'enterprise', category: 'Marketing', default: false },
-  competitorAlerts: { name: 'Competitor Alerts', icon: Bell, tier: 'enterprise', category: 'Marketing', default: false },
-  reEngagement: { name: 'Re-engagement', icon: RefreshCw, tier: 'enterprise', category: 'Marketing', default: false },
-  listings: { name: 'Listings', icon: MapPin, tier: 'enterprise', category: 'SEO', default: false },
-  pressMonitoring: { name: 'Press Monitoring', icon: Newspaper, tier: 'enterprise', category: 'SEO', default: false },
-  webCrawler: { name: 'Web Crawler', icon: Globe, tier: 'enterprise', category: 'SEO', default: false },
-  trafficAnalytics: { name: 'Traffic Analytics', icon: BarChart3, tier: 'enterprise', category: 'Analytics', default: false },
-  visitorProfiles: { name: 'Visitor Profiles & AI Lead Scoring', icon: Users, tier: 'enterprise', category: 'Analytics', default: false },
-  userJourneyMapping: { name: 'User Journey Mapping', icon: TrendingUp, tier: 'enterprise', category: 'Analytics', default: false },
-  localSEO: { name: 'Local SEO', icon: MapPin, tier: 'enterprise', category: 'SEO', default: false },
-  contentStudio: { name: 'Content Studio', icon: PenTool, tier: 'enterprise', category: 'SEO', default: false },
-  mediaOutreach: { name: 'Media Outreach', icon: Mail, tier: 'enterprise', category: 'SEO', default: false },
-  collaboration: { name: 'Team Projects', icon: Users, tier: 'enterprise', category: 'Collaboration', default: false },
+  // Web - Growth
+  trafficAnalytics: { name: 'Web Analytics', icon: BarChart3, tier: 'growth', category: 'Web', default: false },
+  webCrawler: { name: 'Web Crawler', icon: Globe, tier: 'growth', category: 'Web', default: false },
+  contactForms: { name: 'Contact Forms', icon: FileText, tier: 'growth', category: 'Web', default: false },
+  
+  // Documentation - Enterprise
+  spaces: { name: 'Spaces', icon: FileText, tier: 'enterprise', category: 'Documentation', default: false },
+  
+  // Payments - Enterprise
+  payments: { name: 'Payments', icon: TrendingUp, tier: 'enterprise', category: 'Payments', default: false },
+  
+  // Reporting - Starter
+  reports: { name: 'Reports', icon: BarChart3, tier: 'starter', category: 'Reporting', default: true },
+  
+  // Project Management - Enterprise
+  projects: { name: 'Projects', icon: Users, tier: 'enterprise', category: 'Projects', default: false },
+  
+  // Communications - Enterprise
+  ics: { name: 'ICS', icon: Mail, tier: 'enterprise', category: 'Communications', default: false },
+  
+  // Assets - Enterprise
   mediaLibrary: { name: 'Media Library', icon: FileText, tier: 'enterprise', category: 'Assets', default: false },
+  contentStudio: { name: 'Content Studio', icon: PenTool, tier: 'enterprise', category: 'Assets', default: false },
+  equipmentInventory: { name: 'Equipment Inventory', icon: Users, tier: 'enterprise', category: 'Assets', default: false },
 };
 
 const TIER_ICONS = {
