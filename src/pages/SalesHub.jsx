@@ -16,11 +16,13 @@ import SalesForecastCard from '@/components/sales/SalesForecastCard';
 import WorkflowPanel from '@/components/sales/WorkflowPanel';
 import LeadScoringPanel from '@/components/sales/LeadScoringPanel';
 import SalesPipelineKanban from '@/components/sales/SalesPipelineKanban';
+import DealSearchFilter from '@/components/sales/DealSearchFilter';
 
 export default function SalesHub() {
   const [showCallLogger, setShowCallLogger] = useState(false);
   const [editingCall, setEditingCall] = useState(null);
   const [draggedDeal, setDraggedDeal] = useState(null);
+  const [filteredDeals, setFilteredDeals] = useState([]);
   const queryClient = useQueryClient();
 
   const { data: salesCalls = [] } = useQuery({
@@ -727,6 +729,30 @@ Consider:
       </div>
 
       {/* Main Dashboard Content */}
+      {/* Deal Search & Filter */}
+      <div className="col-span-full">
+        <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">Find Deals</h2>
+        <DealSearchFilter 
+          deals={deals}
+          onFilter={setFilteredDeals}
+        />
+        {filteredDeals.length > 0 && (
+          <div className="mt-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 max-h-96 overflow-y-auto">
+            {filteredDeals.map(deal => (
+              <Card key={deal.id} className="glass-card cursor-pointer hover:shadow-md" onClick={() => window.scrollTo(0, 0)}>
+                <CardContent className="p-4">
+                  <p className="font-medium text-sm text-gray-900 dark:text-white truncate">{deal.title}</p>
+                  <div className="flex items-center justify-between mt-2">
+                    <span className="text-sm font-bold text-gray-900 dark:text-white">${(deal.value / 1000).toFixed(0)}k</span>
+                    <Badge variant="outline" className="text-xs">{deal.stage}</Badge>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
+      </div>
+
       {/* Pipeline Kanban */}
       <div className="col-span-full">
         <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">Deal Pipeline</h2>
