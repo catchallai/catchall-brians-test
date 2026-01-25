@@ -21,11 +21,11 @@ import { Label } from '@/components/ui/label';
 export default function UserManagement() {
   const [searchTerm, setSearchTerm] = useState('');
   const [roleFilter, setRoleFilter] = useState('all roles');
-  const [editingUser, setEditingUser] = useState(null);
   const [inviteEmail, setInviteEmail] = useState('');
   const [inviteRole, setInviteRole] = useState('user');
   const [inviteOpen, setInviteOpen] = useState(false);
-  const [editRole, setEditRole] = useState('');
+  const [editingUser, setEditingUser] = useState(null);
+  const [editData, setEditData] = useState({ full_name: '', role: '' });
   const queryClient = useQueryClient();
   const toast = useToast();
 
@@ -48,16 +48,16 @@ export default function UserManagement() {
     onError: (error) => toast.error(error.message || 'Failed to invite user'),
   });
 
-  const updateRoleMutation = useMutation({
-    mutationFn: async (userId, newRole) => {
-      await base44.entities.User.update(userId, { role: newRole });
+  const updateUserMutation = useMutation({
+    mutationFn: async (userId, data) => {
+      await base44.entities.User.update(userId, data);
     },
     onSuccess: () => {
-      toast.success('User role updated');
+      toast.success('User updated');
       setEditingUser(null);
       queryClient.invalidateQueries({ queryKey: ['users'] });
     },
-    onError: () => toast.error('Failed to update user role'),
+    onError: () => toast.error('Failed to update user'),
   });
 
   const deleteMutation = useMutation({
@@ -210,65 +210,74 @@ export default function UserManagement() {
                       </td>
                       <td className="py-4 px-6 text-gray-600 dark:text-gray-400">{user.email}</td>
                       <td className="py-4 px-6">
-                        {editingUser?.id === user.id ? (
-                          <Select value={editRole} onValueChange={setEditRole}>
-                            <SelectTrigger className="w-24">
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="user">User</SelectItem>
-                              <SelectItem value="admin">Admin</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        ) : (
-                          <Badge className={user.role === 'admin' ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700'}>
-                            {user.role}
-                          </Badge>
-                        )}
+                        <Badge className={user.role === 'admin' ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700'}>
+                          {user.role}
+                        </Badge>
                       </td>
                       <td className="py-4 px-6 text-right">
                         <div className="flex items-center justify-end gap-2">
-                          {editingUser?.id === user.id ? (
-                            <>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => updateRoleMutation.mutate(user.id, editRole)}
-                                disabled={updateRoleMutation.isPending}
-                              >
-                                <Check className="w-4 h-4 text-green-600" />
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => setEditingUser(null)}
-                              >
-                                <X className="w-4 h-4 text-gray-400" />
-                              </Button>
-                            </>
-                          ) : (
-                            <>
+                          <Dialog open={editingUser?.id === user.id} onOpenChange={(open) => !open && setEditingUser(null)}>
+                            <DialogTrigger asChild>
                               <Button
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => {
                                   setEditingUser(user);
-                                  setEditRole(user.role);
+                                  setEditData({ full_name: user.full_name || '', role: user.role });
                                 }}
                               >
                                 <Edit2 className="w-4 h-4" />
                               </Button>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => deleteMutation.mutate(user.id)}
-                                disabled={deleteMutation.isPending}
-                                className="text-red-600 hover:text-red-700"
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </Button>
-                            </>
-                          )}
+                            </DialogTrigger>
+                            <DialogContent>
+                              <DialogHeader>
+                                <DialogTitle>Edit User</DialogTitle>
+                                <DialogDescription>Update user information and role</DialogDescription>
+                              </DialogHeader>
+                              <div className="space-y-4">
+                                <div className="space-y-2">
+                                  <Label>Full Name</Label>
+                                  <Input
+                                    value={editData.full_name}
+                                    onChange={(e) => setEditData({ ...editData, full_name: e.target.value })}
+                                  />
+                                </div>
+                                <div className="space-y-2">
+                                  <Label>Email</Label>
+                                  <Input value={user.email} disabled className="bg-gray-50 dark:bg-gray-800" />
+                                  <p className="text-xs text-gray-500">Email cannot be changed</p>
+                                </div>
+                                <div className="space-y-2">
+                                  <Label>Role</Label>
+                                  <Select value={editData.role} onValueChange={(value) => setEditData({ ...editData, role: value })}>
+                                    <SelectTrigger>
+                                      <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="user">User</SelectItem>
+                                      <SelectItem value="admin">Admin</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                </div>
+                                <Button
+                                  onClick={() => updateUserMutation.mutate(user.id, editData)}
+                                  disabled={updateUserMutation.isPending}
+                                  className="w-full"
+                                >
+                                  {updateUserMutation.isPending ? 'Saving...' : 'Save Changes'}
+                                </Button>
+                              </div>
+                            </DialogContent>
+                          </Dialog>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => deleteMutation.mutate(user.id)}
+                            disabled={deleteMutation.isPending}
+                            className="text-red-600 hover:text-red-700"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
                         </div>
                       </td>
                     </tr>
