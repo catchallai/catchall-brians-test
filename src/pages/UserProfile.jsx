@@ -57,26 +57,19 @@ export default function UserProfile() {
   });
 
   const updateProfileMutation = useMutation({
-    mutationFn: async (data) => {
-      console.log('Sending to updateMe:', data);
-      const result = await base44.auth.updateMe(data);
-      console.log('updateMe response:', result);
-      return result;
-    },
-    onSuccess: (response) => {
-      console.log('Mutation success, refetching user...');
+    mutationFn: (data) => base44.auth.updateMe(data),
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['current-user'] });
       toast.success('Profile updated successfully');
     },
     onError: (error) => {
-      console.error('Profile update failed:', error);
       toast.error(error?.message || 'Failed to update profile');
     },
   });
 
   const handleSaveProfile = () => {
-    console.log('Saving profile data:', profileData);
-    updateProfileMutation.mutate(profileData);
+    const { full_name, email, ...updateData } = profileData;
+    updateProfileMutation.mutate(updateData);
   };
 
   const handleSavePreferences = () => {
@@ -209,18 +202,20 @@ export default function UserProfile() {
                 <Label>Full Name</Label>
                 <Input 
                   value={profileData.full_name}
-                  onChange={(e) => setProfileData({...profileData, full_name: e.target.value})}
-                  placeholder="Enter your full name"
+                  disabled
+                  placeholder="Contact admin to change"
                 />
+                <p className="text-xs text-gray-500">Contact administrator to change your name</p>
               </div>
               <div className="space-y-2">
                 <Label>Email Address</Label>
                 <Input 
                   value={profileData.email}
-                  onChange={(e) => setProfileData({...profileData, email: e.target.value})}
-                  placeholder="Enter your email"
+                  disabled
                   type="email"
+                  placeholder="Contact admin to change"
                 />
+                <p className="text-xs text-gray-500">Contact administrator to change your email</p>
               </div>
               <div className="space-y-2">
                 <Label>Bio</Label>
