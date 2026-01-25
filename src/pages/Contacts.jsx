@@ -65,6 +65,13 @@ export default function Contacts() {
       status: true,
       company: true,
       title: true,
+      tier: false,
+      category: false,
+      country: false,
+      primaryRoleTitle: false,
+      primaryRoleName: false,
+      secondaryRoleTitle: false,
+      secondaryRoleName: false,
     };
   });
   const queryClient = useQueryClient();
@@ -622,6 +629,48 @@ export default function Contacts() {
                 >
                   Status
                 </DropdownMenuCheckboxItem>
+                <DropdownMenuCheckboxItem
+                  checked={visibleColumns.tier}
+                  onCheckedChange={(checked) => setVisibleColumns({...visibleColumns, tier: checked})}
+                >
+                  Tier
+                </DropdownMenuCheckboxItem>
+                <DropdownMenuCheckboxItem
+                  checked={visibleColumns.category}
+                  onCheckedChange={(checked) => setVisibleColumns({...visibleColumns, category: checked})}
+                >
+                  Category
+                </DropdownMenuCheckboxItem>
+                <DropdownMenuCheckboxItem
+                  checked={visibleColumns.country}
+                  onCheckedChange={(checked) => setVisibleColumns({...visibleColumns, country: checked})}
+                >
+                  Country
+                </DropdownMenuCheckboxItem>
+                <DropdownMenuCheckboxItem
+                  checked={visibleColumns.primaryRoleTitle}
+                  onCheckedChange={(checked) => setVisibleColumns({...visibleColumns, primaryRoleTitle: checked})}
+                >
+                  Primary Role Title
+                </DropdownMenuCheckboxItem>
+                <DropdownMenuCheckboxItem
+                  checked={visibleColumns.primaryRoleName}
+                  onCheckedChange={(checked) => setVisibleColumns({...visibleColumns, primaryRoleName: checked})}
+                >
+                  Primary Role Name
+                </DropdownMenuCheckboxItem>
+                <DropdownMenuCheckboxItem
+                  checked={visibleColumns.secondaryRoleTitle}
+                  onCheckedChange={(checked) => setVisibleColumns({...visibleColumns, secondaryRoleTitle: checked})}
+                >
+                  Secondary Role Title
+                </DropdownMenuCheckboxItem>
+                <DropdownMenuCheckboxItem
+                  checked={visibleColumns.secondaryRoleName}
+                  onCheckedChange={(checked) => setVisibleColumns({...visibleColumns, secondaryRoleName: checked})}
+                >
+                  Secondary Role Name
+                </DropdownMenuCheckboxItem>
               </DropdownMenuContent>
             </DropdownMenu>
           )}
@@ -794,6 +843,13 @@ export default function Contacts() {
                       {visibleColumns.phone && <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase">Phone</th>}
                       {visibleColumns.email && <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase">Email</th>}
                       {visibleColumns.title && <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase">Title</th>}
+                      {visibleColumns.tier && <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase">Tier</th>}
+                      {visibleColumns.category && <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase">Category</th>}
+                      {visibleColumns.country && <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase">Country</th>}
+                      {visibleColumns.primaryRoleTitle && <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase">Primary Role Title</th>}
+                      {visibleColumns.primaryRoleName && <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase">Primary Role Name</th>}
+                      {visibleColumns.secondaryRoleTitle && <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase">Secondary Role Title</th>}
+                      {visibleColumns.secondaryRoleName && <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase">Secondary Role Name</th>}
                       {visibleColumns.created && <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase">Created</th>}
                       {visibleColumns.lastActivity && <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase">Last Activity</th>}
                       {visibleColumns.tags && <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase">Tags</th>}
@@ -841,6 +897,41 @@ export default function Contacts() {
                         {visibleColumns.title && (
                           <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
                             {contact.job_title || '-'}
+                          </td>
+                        )}
+                        {visibleColumns.tier && (
+                          <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
+                            {contact.tier || '-'}
+                          </td>
+                        )}
+                        {visibleColumns.category && (
+                          <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
+                            {contact.category || '-'}
+                          </td>
+                        )}
+                        {visibleColumns.country && (
+                          <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
+                            {contact.country || '-'}
+                          </td>
+                        )}
+                        {visibleColumns.primaryRoleTitle && (
+                          <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
+                            {contact.role_1_title || '-'}
+                          </td>
+                        )}
+                        {visibleColumns.primaryRoleName && (
+                          <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
+                            {contact.role_1_name || '-'}
+                          </td>
+                        )}
+                        {visibleColumns.secondaryRoleTitle && (
+                          <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
+                            {contact.role_2_title || '-'}
+                          </td>
+                        )}
+                        {visibleColumns.secondaryRoleName && (
+                          <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
+                            {contact.role_2_name || '-'}
                           </td>
                         )}
                         {visibleColumns.created && (
