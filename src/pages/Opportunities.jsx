@@ -38,28 +38,17 @@ export default function Opportunities() {
   });
 
   const { data: opportunities = [], isLoading } = useQuery({
-    queryKey: ['opportunities', user?.current_business_id],
-    queryFn: async () => {
-      if (!user?.current_business_id) return [];
-      return await base44.entities.Opportunity.filter({ business_id: user.current_business_id }, '-created_date', 1000);
-    },
-    enabled: !!user?.current_business_id,
+    queryKey: ['opportunities'],
+    queryFn: () => base44.entities.Opportunity.list('-created_date', 1000),
   });
 
   const { data: contacts = [] } = useQuery({
-    queryKey: ['contacts', user?.current_business_id],
-    queryFn: async () => {
-      if (!user?.current_business_id) return [];
-      return await base44.entities.Contact.filter({ business_id: user.current_business_id }, '-created_date', 1000);
-    },
-    enabled: !!user?.current_business_id,
+    queryKey: ['contacts'],
+    queryFn: () => base44.entities.Contact.list('-created_date', 1000),
   });
 
   const createMutation = useMutation({
-    mutationFn: (data) => base44.entities.Opportunity.create({
-      ...data,
-      business_id: user?.current_business_id,
-    }),
+    mutationFn: (data) => base44.entities.Opportunity.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['opportunities'] });
       setShowModal(false);
