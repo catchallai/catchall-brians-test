@@ -22,22 +22,32 @@ import RolePermissionsManager from '@/components/settings/RolePermissionsManager
 import UserManagement from '@/components/settings/UserManagement';
 
 export default function Settings() {
-  const [saving, setSaving] = useState(false);
-  const queryClient = useQueryClient();
-  const toast = useToast();
-  const { theme, setTheme } = useTheme();
+   const [saving, setSaving] = useState(false);
+   const [activeTab, setActiveTab] = useState('profile');
+   const queryClient = useQueryClient();
+   const toast = useToast();
+   const { theme, setTheme } = useTheme();
 
-  const { data: user, isLoading } = useQuery({
-    queryKey: ['current-user'],
-    queryFn: () => base44.auth.me(),
-  });
+   const { data: user, isLoading } = useQuery({
+     queryKey: ['current-user'],
+     queryFn: () => base44.auth.me(),
+   });
 
-  const [profile, setProfile] = useState({
-    full_name: '',
-    email: '',
-    timezone: 'America/New_York',
-    language: 'en',
-  });
+   const { data: socialAccounts = [] } = useQuery({
+     queryKey: ['social-accounts'],
+     queryFn: () => base44.entities.SocialAccount.list('-created_date', 50),
+   });
+
+   const [profile, setProfile] = useState({
+     full_name: '',
+     email: '',
+     timezone: 'America/New_York',
+     language: 'en',
+     job_title: '',
+     company: '',
+     phone: '',
+     bio: '',
+   });
 
   const [notifications, setNotifications] = useState({
     email_deals: true,
@@ -62,6 +72,10 @@ export default function Settings() {
         email: user.email || '',
         timezone: user.timezone || 'America/New_York',
         language: user.language || 'en',
+        job_title: user.job_title || '',
+        company: user.company || '',
+        phone: user.phone || '',
+        bio: user.bio || '',
       });
       if (user.notification_settings) {
         setNotifications(user.notification_settings);
@@ -85,10 +99,9 @@ export default function Settings() {
 
   const handleSave = async () => {
     setSaving(true);
+    const { full_name, email, ...otherProfile } = profile;
     await saveMutation.mutateAsync({
-      full_name: profile.full_name,
-      timezone: profile.timezone,
-      language: profile.language,
+      ...otherProfile,
       notification_settings: notifications,
       preferences: preferences,
     });
@@ -121,12 +134,12 @@ export default function Settings() {
         </Button>
       </div>
 
-      <Tabs defaultValue="profile" className="space-y-6">
-        <TabsList className="glass-card flex-wrap h-auto gap-1">
-          <TabsTrigger value="profile" className="gap-2">
-            <User className="w-4 h-4" />
-            Profile
-          </TabsTrigger>
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+         <TabsList className="glass-card flex-wrap h-auto gap-1">
+           <TabsTrigger value="profile" className="gap-2">
+             <User className="w-4 h-4" />
+             Profile
+           </TabsTrigger>
           <TabsTrigger value="notifications" className="gap-2">
             <Bell className="w-4 h-4" />
             Notifications
@@ -172,13 +185,43 @@ export default function Settings() {
                   <Label>Full Name</Label>
                   <Input
                     value={profile.full_name}
-                    onChange={(e) => setProfile({ ...profile, full_name: e.target.value })}
+                    disabled
+                    className="bg-gray-50 dark:bg-gray-800"
                   />
+                  <p className="text-xs text-gray-500">Contact admin to change</p>
                 </div>
                 <div className="space-y-2">
                   <Label>Email</Label>
                   <Input value={profile.email} disabled className="bg-gray-50 dark:bg-gray-800" />
-                  <p className="text-xs text-gray-500">Email cannot be changed</p>
+                  <p className="text-xs text-gray-500">Contact admin to change</p>
+                </div>
+                <div className="space-y-2">
+                  <Label>Job Title</Label>
+                  <Input
+                    value={profile.job_title}
+                    onChange={(e) => setProfile({ ...profile, job_title: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Company</Label>
+                  <Input
+                    value={profile.company}
+                    onChange={(e) => setProfile({ ...profile, company: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Phone</Label>
+                  <Input
+                    value={profile.phone}
+                    onChange={(e) => setProfile({ ...profile, phone: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-2 md:col-span-2">
+                  <Label>Bio</Label>
+                  <Input
+                    value={profile.bio}
+                    onChange={(e) => setProfile({ ...profile, bio: e.target.value })}
+                  />
                 </div>
               </div>
 
