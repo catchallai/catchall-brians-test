@@ -29,6 +29,7 @@ import EmailMarketing from './pages/EmailMarketing';
 import EmailTracking from './pages/EmailTracking';
 import EquipmentInventory from './pages/EquipmentInventory';
 import ExecutiveDashboard from './pages/ExecutiveDashboard';
+import FeedbackManagement from './pages/FeedbackManagement';
 import GoogleCalendarCallback from './pages/GoogleCalendarCallback';
 import HashtagManager from './pages/HashtagManager';
 import HelpCenter from './pages/HelpCenter';
@@ -90,7 +91,8 @@ import WebDashboard from './pages/WebDashboard';
 import WikiPageEditor from './pages/WikiPageEditor';
 import WorkflowBuilder from './pages/WorkflowBuilder';
 import WorkflowEngine from './pages/WorkflowEngine';
-import FeedbackManagement from './pages/FeedbackManagement';
+import SEOOpportunities from './pages/SEOOpportunities';
+import SocialPerformance from './pages/SocialPerformance';
 import __Layout from './Layout.jsx';
 
 
@@ -126,6 +128,7 @@ export const PAGES = {
     "EmailTracking": EmailTracking,
     "EquipmentInventory": EquipmentInventory,
     "ExecutiveDashboard": ExecutiveDashboard,
+    "FeedbackManagement": FeedbackManagement,
     "GoogleCalendarCallback": GoogleCalendarCallback,
     "HashtagManager": HashtagManager,
     "HelpCenter": HelpCenter,
@@ -187,7 +190,8 @@ export const PAGES = {
     "WikiPageEditor": WikiPageEditor,
     "WorkflowBuilder": WorkflowBuilder,
     "WorkflowEngine": WorkflowEngine,
-    "FeedbackManagement": FeedbackManagement,
+    "SEOOpportunities": SEOOpportunities,
+    "SocialPerformance": SocialPerformance,
 }
 
 export const pagesConfig = {
