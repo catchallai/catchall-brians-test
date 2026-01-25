@@ -536,7 +536,7 @@ export default function ContactDetail() {
                 value={newNote}
                 onChange={(e) => setNewNote(e.target.value)}
                 placeholder="Add a note to share with team..."
-                className="w-full p-3 border rounded-lg text-sm resize-none focus:ring-2 focus:ring-violet-500 focus:border-violet-500 dark:bg-gray-800 dark:border-gray-700"
+                className="w-full p-3 border rounded-lg text-sm resize-none focus:ring-2 focus:ring-violet-500 focus:border-violet-500 bg-white dark:bg-gray-900 dark:border-gray-700 text-gray-900 dark:text-white"
                 rows={3}
               />
               <Button
