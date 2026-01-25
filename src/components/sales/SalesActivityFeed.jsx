@@ -1,107 +1,93 @@
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Phone, Calendar, Clock } from "lucide-react";
-import { format, isToday, isYesterday, formatDistanceToNow } from 'date-fns';
+import { CheckCircle, Phone, FileText, Calendar, TrendingUp, Clock } from "lucide-react";
 
-export default function SalesActivityFeed({ calls, reservations, contacts, deals }) {
-  const getContactName = (contactId) => {
-    const contact = contacts.find(c => c.id === contactId);
-    return contact ? `${contact.first_name} ${contact.last_name}` : 'Unknown';
-  };
+const ACTIVITY_ICONS = {
+  deal_won: CheckCircle,
+  deal_moved: TrendingUp,
+  call_logged: Phone,
+  proposal_sent: FileText,
+  meeting_scheduled: Calendar,
+  follow_up_created: Clock,
+};
 
-  const getDealName = (dealId) => {
-    const deal = deals.find(d => d.id === dealId);
-    return deal ? deal.title : null;
-  };
+const ACTIVITY_COLORS = {
+  deal_won: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
+  deal_moved: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
+  call_logged: 'bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-400',
+  proposal_sent: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
+  meeting_scheduled: 'bg-cyan-100 text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-400',
+  follow_up_created: 'bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-400',
+};
 
-  const getDateLabel = (date) => {
-    const d = new Date(date);
-    if (isToday(d)) return 'Today';
-    if (isYesterday(d)) return 'Yesterday';
-    return format(d, 'MMM d, yyyy');
-  };
+const getActivityDescription = (activity) => {
+  switch (activity.type) {
+    case 'deal_won':
+      return `🎉 ${activity.user_name} closed deal: ${activity.deal_name} for $${(activity.value / 1000).toFixed(0)}k`;
+    case 'deal_moved':
+      return `→ ${activity.user_name} moved ${activity.deal_name} to ${activity.new_stage}`;
+    case 'call_logged':
+      return `📞 ${activity.user_name} logged call with ${activity.contact_name}`;
+    case 'proposal_sent':
+      return `📄 ${activity.user_name} sent proposal to ${activity.contact_name}`;
+    case 'meeting_scheduled':
+      return `📅 ${activity.user_name} scheduled meeting with ${activity.contact_name}`;
+    case 'follow_up_created':
+      return `⏰ ${activity.user_name} created follow-up for ${activity.contact_name}`;
+    default:
+      return activity.description;
+  }
+};
 
-  // Combine and sort activities
-  const activities = [
-    ...calls.map(c => ({
-      type: 'call',
-      date: c.call_date,
-      data: c
-    })),
-    ...reservations.map(r => ({
-      type: 'reservation',
-      date: r.reservation_date,
-      data: r
-    }))
-  ].sort((a, b) => new Date(b.date) - new Date(a.date));
+const formatTime = (date) => {
+  const now = new Date();
+  const diff = now - new Date(date);
+  const minutes = Math.floor(diff / 60000);
+  const hours = Math.floor(diff / 3600000);
+  const days = Math.floor(diff / 86400000);
+
+  if (minutes < 1) return 'just now';
+  if (minutes < 60) return `${minutes}m ago`;
+  if (hours < 24) return `${hours}h ago`;
+  if (days < 7) return `${days}d ago`;
+  return new Date(date).toLocaleDateString();
+};
+
+export default function SalesActivityFeed({ activities = [] }) {
+  const recentActivities = activities.slice(0, 10);
 
   return (
     <Card className="glass-card">
-      <CardHeader>
-        <CardTitle>Recent Activity</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-4">
-          {activities.length === 0 ? (
-            <p className="text-center text-gray-500 py-8">No activity yet</p>
-          ) : (
-            activities.map((activity, i) => (
-              <div key={i} className="flex gap-3 border-b last:border-0 pb-4 last:pb-0">
-                <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                  activity.type === 'call' ? 'bg-emerald-100' : 'bg-violet-100'
-                }`}>
-                  {activity.type === 'call' ? (
-                    <Phone className="w-5 h-5 text-emerald-600" />
-                  ) : (
-                    <Calendar className="w-5 h-5 text-violet-600" />
-                  )}
-                </div>
-                <div className="flex-1">
-                  {activity.type === 'call' ? (
-                    <>
-                      <p className="font-medium text-sm">
-                        {activity.data.call_type === 'outbound' ? 'Called' : 'Received call from'} {getContactName(activity.data.contact_id)}
-                      </p>
-                      {activity.data.notes && (
-                        <p className="text-xs text-gray-600 mt-1 line-clamp-2">{activity.data.notes}</p>
-                      )}
-                      <div className="flex items-center gap-2 mt-2">
-                        <Badge className="text-xs bg-emerald-100 text-emerald-700 border-0">
-                          {activity.data.call_status.replace('_', ' ')}
-                        </Badge>
-                        {activity.data.duration_minutes && (
-                          <span className="text-xs text-gray-500">{activity.data.duration_minutes} min</span>
-                        )}
-                      </div>
-                    </>
-                  ) : (
-                    <>
-                      <p className="font-medium text-sm">
-                        {activity.data.title} - {getContactName(activity.data.contact_id)}
-                      </p>
-                      {activity.data.product_service && (
-                        <p className="text-xs text-gray-600 mt-1">{activity.data.product_service}</p>
-                      )}
-                      <div className="flex items-center gap-2 mt-2">
-                        <Badge className="text-xs bg-violet-100 text-violet-700 border-0">
-                          {activity.data.status}
-                        </Badge>
-                        {activity.data.value && (
-                          <span className="text-xs text-gray-500">${activity.data.value.toLocaleString()}</span>
-                        )}
-                      </div>
-                    </>
-                  )}
-                  <div className="flex items-center gap-1 text-xs text-gray-400 mt-2">
-                    <Clock className="w-3 h-3" />
-                    <span>{getDateLabel(activity.date)} • {formatDistanceToNow(new Date(activity.date), { addSuffix: true })}</span>
+      <CardContent className="p-6">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Team Activity</h3>
+        
+        {recentActivities.length === 0 ? (
+          <p className="text-sm text-gray-500 text-center py-8">No recent activity</p>
+        ) : (
+          <div className="space-y-3 max-h-96 overflow-y-auto">
+            {recentActivities.map((activity) => {
+              const Icon = ACTIVITY_ICONS[activity.type] || Clock;
+              const colorClass = ACTIVITY_COLORS[activity.type] || 'bg-gray-100 text-gray-700';
+
+              return (
+                <div key={activity.id} className="flex items-start gap-3 pb-3 border-b border-gray-200 dark:border-gray-700 last:border-0">
+                  <div className={`p-2 rounded-lg ${colorClass} flex-shrink-0`}>
+                    <Icon className="w-4 h-4" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm text-gray-900 dark:text-white">
+                      {getActivityDescription(activity)}
+                    </p>
+                    <p className="text-xs text-gray-500 mt-1">
+                      {formatTime(activity.created_date)}
+                    </p>
                   </div>
                 </div>
-              </div>
-            ))
-          )}
-        </div>
+              );
+            })}
+          </div>
+        )}
       </CardContent>
     </Card>
   );
