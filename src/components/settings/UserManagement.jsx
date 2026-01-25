@@ -61,7 +61,26 @@ export default function UserManagement() {
 
   const updateUserMutation = useMutation({
     mutationFn: async ({ userId, data }) => {
-      await base44.entities.User.update(userId, data);
+      // Use backend function for full_name and email (admin fields)
+      const { full_name, email, ...otherData } = data;
+      
+      const updatePayload = { ...otherData };
+      if (full_name) updatePayload.full_name = full_name;
+      if (email) updatePayload.email = email;
+
+      // If updating name or email, use admin function
+      if (full_name || email) {
+        await base44.functions.invoke('updateUserProfile', {
+          userId,
+          full_name,
+          email,
+        });
+      }
+
+      // Update other fields via regular API
+      if (Object.keys(otherData).length > 0) {
+        await base44.entities.User.update(userId, otherData);
+      }
     },
     onSuccess: () => {
       toast.success('User updated');
@@ -70,7 +89,7 @@ export default function UserManagement() {
       queryClient.invalidateQueries({ queryKey: ['current-user'] });
       queryClient.invalidateQueries({ queryKey: ['team-members'] });
     },
-    onError: () => toast.error('Failed to update user'),
+    onError: (error) => toast.error(error?.message || 'Failed to update user'),
   });
 
   const deleteMutation = useMutation({
@@ -272,8 +291,10 @@ export default function UserManagement() {
                                     </div>
                                     <div className="space-y-2">
                                       <Label>Email</Label>
-                                      <Input value={user.email} disabled className="bg-gray-50 dark:bg-gray-800" />
-                                      <p className="text-xs text-gray-500">Email cannot be changed</p>
+                                      <Input
+                                        value={editData.email || user.email}
+                                        onChange={(e) => setEditData({ ...editData, email: e.target.value })}
+                                      />
                                     </div>
                                     <div className="space-y-2">
                                       <Label>Job Title</Label>
