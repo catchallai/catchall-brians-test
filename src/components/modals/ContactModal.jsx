@@ -326,7 +326,7 @@ export default function ContactModal({ open, onClose, contact, companies, onSave
               <div className="space-y-2">
                 <Label>Category (Select Multiple)</Label>
                 <div className="grid grid-cols-1 gap-2 p-3 border rounded-lg max-h-48 overflow-y-auto">
-                  {['US Fractional Charter', 'US Part135 Operators', 'US Regional Membership', 'Leasing Finance', 'US Regional Airlines'].map((cat) => (
+                  {['US Fractional Charter', 'US Part 135 Operations', 'US Regional Membership', 'Leading France', 'US Regional Airlines', 'US Seaplane Ops', 'US Membership', 'US Charter Marketplace', 'US Fractional Jet Card', 'US Public Charter', 'Intl BizAv Operators', 'Intl Regional Charter', 'Intl Seaplane Charter', 'Corporate Flight Depts', 'LOI & MOU History'].map((cat) => (
                     <label key={cat} className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 p-2 rounded">
                       <input
                         type="checkbox"
