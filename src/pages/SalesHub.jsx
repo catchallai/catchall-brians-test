@@ -15,6 +15,7 @@ import FollowUpPanel from '@/components/sales/FollowUpPanel';
 import SalesForecastCard from '@/components/sales/SalesForecastCard';
 import WorkflowPanel from '@/components/sales/WorkflowPanel';
 import LeadScoringPanel from '@/components/sales/LeadScoringPanel';
+import SalesPipelineKanban from '@/components/sales/SalesPipelineKanban';
 
 export default function SalesHub() {
   const [showCallLogger, setShowCallLogger] = useState(false);
@@ -26,8 +27,6 @@ export default function SalesHub() {
     queryKey: ['sales-calls'],
     queryFn: () => base44.entities.SalesCall.list('-call_date', 100),
   });
-
-
 
   const { data: contacts = [] } = useQuery({
     queryKey: ['contacts'],
@@ -74,6 +73,20 @@ export default function SalesHub() {
   });
 
   const latestForecast = forecasts[0];
+
+  const updateDealMutation = useMutation({
+    mutationFn: ({ id, data }) => base44.entities.Deal.update(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['deals'] });
+    },
+  });
+
+  const handleDealDrop = (deal, newStage) => {
+    updateDealMutation.mutate({
+      id: deal.id,
+      data: { ...deal, stage: newStage }
+    });
+  };
 
   const createCallMutation = useMutation({
     mutationFn: async (data) => {
@@ -714,6 +727,15 @@ Consider:
       </div>
 
       {/* Main Dashboard Content */}
+      {/* Pipeline Kanban */}
+      <div className="col-span-full">
+        <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">Deal Pipeline</h2>
+        <SalesPipelineKanban 
+          deals={deals} 
+          onDealDrop={handleDealDrop}
+        />
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <LeadScoringPanel
           contacts={contacts}
