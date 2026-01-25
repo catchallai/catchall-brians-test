@@ -7,8 +7,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 import { 
   UserCircle, MapPin, Clock, Eye, MousePointer, Building2, Sparkles, 
   TrendingUp, Target, Zap, Star, Globe, Monitor, Smartphone, Tablet,
@@ -194,8 +196,18 @@ export default function VisitorProfiles() {
   const [showSegmentAnalysis, setShowSegmentAnalysis] = useState(false);
   const [activeSegment, setActiveSegment] = useState(null);
   const [segmentFilters, setSegmentFilters] = useState(null);
+  const [showCreateContact, setShowCreateContact] = useState(false);
+  const [showScheduleFollowUp, setShowScheduleFollowUp] = useState(false);
+  const [newNote, setNewNote] = useState('');
+  const [noteType, setNoteType] = useState('general');
+  const [followUpDate, setFollowUpDate] = useState('');
 
   const queryClient = useQueryClient();
+  
+  const { data: user } = useQuery({
+    queryKey: ['current-user'],
+    queryFn: () => base44.auth.me()
+  });
   
   // Fetch real visitor sessions
   const { data: sessions, isLoading } = useQuery({
@@ -229,6 +241,85 @@ export default function VisitorProfiles() {
       queryClient.invalidateQueries({ queryKey: ['visitor-notification-rules'] });
     },
   });
+
+  // Fetch notes for selected visitor
+  const { data: visitorNotes = [] } = useQuery({
+    queryKey: ['visitor-notes', selectedVisitor?.sessionId],
+    queryFn: () => selectedVisitor ? base44.entities.VisitorNote.filter({ 
+      visitor_session_id: selectedVisitor.sessionId 
+    }) : [],
+    enabled: !!selectedVisitor
+  });
+
+  // Create contact mutation
+  const createContactMutation = useMutation({
+    mutationFn: (data) => base44.entities.Contact.create(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['contacts'] });
+      setShowCreateContact(false);
+      alert('Lead created successfully!');
+    }
+  });
+
+  // Create note mutation
+  const createNoteMutation = useMutation({
+    mutationFn: (data) => base44.entities.VisitorNote.create(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['visitor-notes'] });
+      setNewNote('');
+      setNoteType('general');
+    }
+  });
+
+  // Handle create lead
+  const handleCreateLead = () => {
+    if (!selectedVisitor) return;
+    
+    createContactMutation.mutate({
+      company_name: selectedVisitor.company,
+      first_name: '',
+      last_name: '',
+      email: '',
+      status: 'lead',
+      source: 'website',
+      notes: `Lead Score: ${selectedVisitor.leadScore}\nIndustry: ${selectedVisitor.industry}\nPages Viewed: ${selectedVisitor.pagesViewed}\nTime on Site: ${selectedVisitor.timeOnSite}\nDevice: ${selectedVisitor.device}\nReferrer: ${selectedVisitor.referrer}`,
+      city: selectedVisitor.city,
+      country: selectedVisitor.country
+    });
+  };
+
+  // Handle schedule follow-up
+  const handleScheduleFollowUp = () => {
+    if (!selectedVisitor || !followUpDate) return;
+
+    createNoteMutation.mutate({
+      visitor_session_id: selectedVisitor.sessionId,
+      visitor_company: selectedVisitor.company,
+      note: `Follow-up scheduled`,
+      note_type: 'follow_up',
+      author_name: user?.full_name || user?.email || 'Team Member',
+      author_email: user?.email || '',
+      follow_up_date: new Date(followUpDate).toISOString()
+    });
+
+    setShowScheduleFollowUp(false);
+    setFollowUpDate('');
+    alert('Follow-up scheduled successfully!');
+  };
+
+  // Handle add note
+  const handleAddNote = () => {
+    if (!selectedVisitor || !newNote.trim()) return;
+
+    createNoteMutation.mutate({
+      visitor_session_id: selectedVisitor.sessionId,
+      visitor_company: selectedVisitor.company,
+      note: newNote,
+      note_type: noteType,
+      author_name: user?.full_name || user?.email || 'Team Member',
+      author_email: user?.email || ''
+    });
+  };
 
   // Check for notification triggers
   React.useEffect(() => {
@@ -848,13 +939,91 @@ export default function VisitorProfiles() {
                   </div>
                 </div>
 
+                {/* Team Notes Section */}
+                <div>
+                  <h4 className="font-medium text-gray-900 dark:text-white mb-3 flex items-center gap-2">
+                    <Activity className="w-4 h-4 text-gray-400" />
+                    Team Notes & Activity
+                  </h4>
+                  
+                  {/* Add Note Form */}
+                  <div className="mb-4 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                    <div className="space-y-2">
+                      <Select value={noteType} onValueChange={setNoteType}>
+                        <SelectTrigger className="h-8 text-sm">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="general">General Note</SelectItem>
+                          <SelectItem value="call">Phone Call</SelectItem>
+                          <SelectItem value="email">Email</SelectItem>
+                          <SelectItem value="meeting">Meeting</SelectItem>
+                          <SelectItem value="follow_up">Follow-up</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <Textarea
+                        value={newNote}
+                        onChange={(e) => setNewNote(e.target.value)}
+                        placeholder="Add a note about this lead..."
+                        className="text-sm"
+                        rows={2}
+                      />
+                      <Button 
+                        onClick={handleAddNote}
+                        size="sm"
+                        disabled={!newNote.trim()}
+                        className="w-full"
+                      >
+                        Add Note
+                      </Button>
+                    </div>
+                  </div>
+
+                  {/* Notes List */}
+                  <div className="space-y-2 max-h-64 overflow-y-auto">
+                    {visitorNotes.length === 0 ? (
+                      <p className="text-sm text-gray-500 text-center py-4">No notes yet. Add the first note above.</p>
+                    ) : (
+                      visitorNotes.map((note) => (
+                        <div key={note.id} className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-3">
+                          <div className="flex items-start justify-between mb-1">
+                            <div className="flex items-center gap-2">
+                              <Badge variant="outline" className="text-xs">
+                                {note.note_type}
+                              </Badge>
+                              <span className="text-xs text-gray-500">{note.author_name}</span>
+                            </div>
+                            <span className="text-xs text-gray-400">
+                              {new Date(note.created_date).toLocaleDateString()}
+                            </span>
+                          </div>
+                          <p className="text-sm text-gray-700 dark:text-gray-300">{note.note}</p>
+                          {note.follow_up_date && (
+                            <div className="mt-2 text-xs text-violet-600 dark:text-violet-400">
+                              📅 Follow-up: {new Date(note.follow_up_date).toLocaleString()}
+                            </div>
+                          )}
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+
                 {/* Actions */}
                 <div className="flex gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
-                  <Button className="flex-1 bg-violet-600 hover:bg-violet-700">
+                  <Button 
+                    className="flex-1 bg-violet-600 hover:bg-violet-700"
+                    onClick={handleCreateLead}
+                    disabled={createContactMutation.isPending}
+                  >
                     <Mail className="w-4 h-4 mr-2" />
-                    Create Lead
+                    {createContactMutation.isPending ? 'Creating...' : 'Create Lead'}
                   </Button>
-                  <Button variant="outline" className="flex-1">
+                  <Button 
+                    variant="outline" 
+                    className="flex-1"
+                    onClick={() => setShowScheduleFollowUp(true)}
+                  >
                     <Calendar className="w-4 h-4 mr-2" />
                     Schedule Follow-up
                   </Button>
@@ -862,6 +1031,40 @@ export default function VisitorProfiles() {
               </div>
             </>
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Schedule Follow-up Dialog */}
+      <Dialog open={showScheduleFollowUp} onOpenChange={setShowScheduleFollowUp}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Schedule Follow-up</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label>Follow-up Date & Time</Label>
+              <Input
+                type="datetime-local"
+                value={followUpDate}
+                onChange={(e) => setFollowUpDate(e.target.value)}
+                className="mt-2"
+              />
+            </div>
+            <p className="text-sm text-gray-500">
+              This will create a reminder note for {selectedVisitor?.company}
+            </p>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowScheduleFollowUp(false)}>
+              Cancel
+            </Button>
+            <Button 
+              onClick={handleScheduleFollowUp}
+              disabled={!followUpDate}
+            >
+              Schedule
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
