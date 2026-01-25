@@ -67,6 +67,8 @@ export default function UserManagement() {
       toast.success('User updated');
       setEditingUser(null);
       queryClient.invalidateQueries({ queryKey: ['users'] });
+      queryClient.invalidateQueries({ queryKey: ['current-user'] });
+      queryClient.invalidateQueries({ queryKey: ['team-members'] });
     },
     onError: () => toast.error('Failed to update user'),
   });
