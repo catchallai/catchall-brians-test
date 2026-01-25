@@ -12,6 +12,12 @@ import CSMPerformanceCard from '@/components/success/CSMPerformanceCard';
 import ChurnRiskAnalytics from '@/components/success/ChurnRiskAnalytics';
 import HealthScoreTrends from '@/components/success/HealthScoreTrends';
 import FeedbackSentimentAnalysis from '@/components/success/FeedbackSentimentAnalysis';
+import CSMTaskManager from '@/components/success/CSMTaskManager';
+import AlertCenter from '@/components/success/AlertCenter';
+import RenewalTracker from '@/components/success/RenewalTracker';
+import RevenueMetrics from '@/components/success/RevenueMetrics';
+import CSMWorkloadView from '@/components/success/CSMWorkloadView';
+import ExecutiveScorecard from '@/components/success/ExecutiveScorecard';
 
 export default function CustomerSuccessDashboard() {
   const [csmFilter, setCsmFilter] = useState('all');
@@ -121,13 +127,13 @@ export default function CustomerSuccessDashboard() {
   const isLoading = loadingHealth || loadingOnboarding || loadingOpps;
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Customer Success Dashboard</h1>
-          <p className="text-gray-500 mt-1">Comprehensive customer health and performance metrics</p>
-        </div>
+     <div className="p-4 sm:p-6 lg:p-8 space-y-6">
+       {/* Header */}
+       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+         <div>
+           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">CS Dashboard</h1>
+           <p className="text-gray-500 mt-1">Tasks, alerts, renewals, revenue, and team performance</p>
+         </div>
         <div className="flex gap-2">
           <Select value={csmFilter} onValueChange={setCsmFilter}>
             <SelectTrigger className="w-40">
@@ -206,25 +212,43 @@ export default function CustomerSuccessDashboard() {
         </div>
       )}
 
-      {/* Churn Risk Analytics */}
-      <ChurnRiskAnalytics
-        healthScores={filteredHealthScores}
-        onboardings={filteredOnboardings}
-        interactions={interactions}
-        opportunities={filteredOpportunities}
-      />
+      {/* Executive Scorecard */}
+       <ExecutiveScorecard />
 
-      {/* Health Score Trends by Segment and CSM */}
-      <HealthScoreTrends
-        healthScores={filteredHealthScores}
-        contacts={contacts}
-      />
+       {/* Tasks & Alerts */}
+       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+         <CSMTaskManager csmFilter={csmFilter} />
+         <AlertCenter />
+       </div>
 
-      {/* Customer Feedback & Sentiment */}
-      <FeedbackSentimentAnalysis
-        surveys={surveys}
-        interactions={interactions}
-      />
+       {/* Renewals & Revenue */}
+       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+         <RenewalTracker />
+         <RevenueMetrics />
+       </div>
+
+       {/* CSM Workload */}
+       <CSMWorkloadView />
+
+       {/* Churn Risk Analytics */}
+       <ChurnRiskAnalytics
+         healthScores={filteredHealthScores}
+         onboardings={filteredOnboardings}
+         interactions={interactions}
+         opportunities={filteredOpportunities}
+       />
+
+       {/* Health Score Trends by Segment and CSM */}
+       <HealthScoreTrends
+         healthScores={filteredHealthScores}
+         contacts={contacts}
+       />
+
+       {/* Customer Feedback & Sentiment */}
+       <FeedbackSentimentAnalysis
+         surveys={surveys}
+         interactions={interactions}
+       />
 
       {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
