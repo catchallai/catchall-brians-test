@@ -119,7 +119,7 @@ export default function CRMDashboard() {
 
   const quickLinks = [
     { name: 'Contacts', icon: Users, page: 'Contacts', count: stats.contacts.total, color: 'blue' },
-    { name: 'Companies', icon: Building2, page: 'Companies', count: stats.companies, color: 'violet' },
+    { name: 'Companies', icon: Building2, page: 'Companies', count: stats.companies.total, color: 'violet' },
     { name: 'Opportunities', icon: Target, page: 'Opportunities', count: stats.opportunities.total, color: 'emerald' },
     { name: 'Pipeline', icon: Target, page: 'Deals', count: stats.pipeline, color: 'amber' },
     { name: 'Email Marketing', icon: Mail, page: 'EmailMarketing', color: 'cyan' },
