@@ -18,17 +18,17 @@ export default function BulkOwnerAssignment({ selectedIds, contacts, teamMembers
 
     try {
       const owner = teamMembers.find(m => m.email === selectedOwner);
-      
+
       for (const id of selectedIds) {
         const contact = contacts.find(c => c.id === id);
         await base44.entities.Contact.update(id, {
           owner_email: selectedOwner,
-          owner_name: owner?.name || selectedOwner
+          owner_name: owner?.full_name || selectedOwner
         });
       }
 
       queryClient.invalidateQueries({ queryKey: ['contacts'] });
-      toast.success(`Assigned ${selectedIds.length} contact(s) to ${owner?.name || selectedOwner}`);
+      toast.success(`Assigned ${selectedIds.length} contact(s) to ${owner?.full_name || selectedOwner}`);
       setSelectedOwner('');
     } catch (err) {
       toast.error('Failed to assign contacts');
@@ -49,7 +49,7 @@ export default function BulkOwnerAssignment({ selectedIds, contacts, teamMembers
             <option value="">Assign owner...</option>
             {teamMembers.map(member => (
               <option key={member.email} value={member.email}>
-                {member.name}
+                {member.full_name}
               </option>
             ))}
           </select>
