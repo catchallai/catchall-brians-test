@@ -69,7 +69,7 @@ export default function ContactModal({ open, onClose, contact, companies, onSave
         source: contact.source || '',
         notes: contact.notes || '',
         tier: contact.tier || '',
-        category: contact.category || '',
+        category: contact.category || [],
         country: contact.country || '',
         hq_city: contact.hq_city || '',
         website: contact.website || '',
@@ -111,7 +111,7 @@ export default function ContactModal({ open, onClose, contact, companies, onSave
         source: '',
         notes: '',
         tier: '',
-        category: '',
+        category: [],
         country: '',
         hq_city: '',
         website: '',
@@ -326,9 +326,9 @@ export default function ContactModal({ open, onClose, contact, companies, onSave
                 <Label htmlFor="category">Category</Label>
                 <Input
                   id="category"
-                  value={formData.category}
-                  onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                  placeholder="e.g., US Fractional, Jet Card, Charter"
+                  value={Array.isArray(formData.category) ? formData.category.join(', ') : ''}
+                  onChange={(e) => setFormData({ ...formData, category: e.target.value.split(',').map(c => c.trim()).filter(Boolean) })}
+                  placeholder="e.g., US Fractional, Jet Card, Charter (comma-separated)"
                 />
               </div>
 
