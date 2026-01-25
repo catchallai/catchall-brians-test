@@ -89,6 +89,7 @@ import WebCrawler from './pages/WebCrawler';
 import WebDashboard from './pages/WebDashboard';
 import WikiPageEditor from './pages/WikiPageEditor';
 import WorkflowBuilder from './pages/WorkflowBuilder';
+import WorkflowEngine from './pages/WorkflowEngine';
 import __Layout from './Layout.jsx';
 
 
@@ -184,6 +185,7 @@ export const PAGES = {
     "WebDashboard": WebDashboard,
     "WikiPageEditor": WikiPageEditor,
     "WorkflowBuilder": WorkflowBuilder,
+    "WorkflowEngine": WorkflowEngine,
 }
 
 export const pagesConfig = {
