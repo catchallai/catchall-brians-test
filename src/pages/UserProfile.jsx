@@ -62,6 +62,10 @@ export default function UserProfile() {
       queryClient.invalidateQueries({ queryKey: ['current-user'] });
       toast.success('Profile updated successfully');
     },
+    onError: (error) => {
+      console.error('Profile update failed:', error);
+      toast.error(error?.message || 'Failed to update profile');
+    },
   });
 
   const handleSaveProfile = () => {
