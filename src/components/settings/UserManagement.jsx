@@ -60,7 +60,7 @@ export default function UserManagement() {
   });
 
   const updateUserMutation = useMutation({
-    mutationFn: async (userId, data) => {
+    mutationFn: async ({ userId, data }) => {
       await base44.entities.User.update(userId, data);
     },
     onSuccess: () => {
@@ -369,7 +369,7 @@ export default function UserManagement() {
                                 </div>
 
                                 <Button
-                                  onClick={() => updateUserMutation.mutate(user.id, editData)}
+                                  onClick={() => updateUserMutation.mutate({ userId: user.id, data: editData })}
                                   disabled={updateUserMutation.isPending}
                                   className="w-full"
                                 >
