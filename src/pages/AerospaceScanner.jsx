@@ -22,6 +22,8 @@ import SWOTAnalysis from '@/components/aerospace/SWOTAnalysis';
 import CompetitorLandscape from '@/components/aerospace/CompetitorLandscape';
 import TrendCharts from '@/components/aerospace/TrendCharts';
 import CompanyComparison from '@/components/aerospace/CompanyComparison';
+import PortfolioManager from '@/components/aerospace/PortfolioManager';
+import PortfolioDetail from '@/components/aerospace/PortfolioDetail';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -38,6 +40,9 @@ export default function AerospaceScanner() {
   const [filtersForAlert, setFiltersForAlert] = useState(null);
   const [selectedForComparison, setSelectedForComparison] = useState([]);
   const [showComparison, setShowComparison] = useState(false);
+  const [showPortfolios, setShowPortfolios] = useState(false);
+  const [selectedPortfolio, setSelectedPortfolio] = useState(null);
+  const [selectedCompaniesForPortfolio, setSelectedCompaniesForPortfolio] = useState([]);
   const queryClient = useQueryClient();
 
   const { data: companies = [], isLoading } = useQuery({
@@ -1091,6 +1096,15 @@ For well-known companies like Boeing, Lockheed Martin, SpaceX, etc., find their 
               </div>
             </div>
             <div className="flex gap-2">
+              {selectedCompaniesForPortfolio.length > 0 && (
+                <Button
+                  onClick={() => setShowPortfolios(true)}
+                  className="bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 gap-2"
+                >
+                  <Briefcase className="w-4 h-4" />
+                  Add to Portfolio ({selectedCompaniesForPortfolio.length})
+                </Button>
+              )}
               {selectedForComparison.length > 0 && (
                 <Button
                   onClick={() => setShowComparison(true)}
@@ -1100,6 +1114,14 @@ For well-known companies like Boeing, Lockheed Martin, SpaceX, etc., find their 
                   Compare ({selectedForComparison.length})
                 </Button>
               )}
+              <Button
+                onClick={() => setShowPortfolios(true)}
+                variant="outline"
+                className="gap-2"
+              >
+                <Briefcase className="w-4 h-4" />
+                Portfolios
+              </Button>
               <Button
                 onClick={() => setShowAddCompany(true)}
                 variant="outline"
@@ -1306,17 +1328,32 @@ For well-known companies like Boeing, Lockheed Martin, SpaceX, etc., find their 
                 <CardHeader className="pb-3">
                   <div className="flex items-start justify-between">
                     <div className="flex items-start gap-3 flex-1">
-                      <Checkbox
-                        checked={selectedForComparison.some(c => c.id === company.id)}
-                        onCheckedChange={(checked) => {
-                          if (checked) {
-                            setSelectedForComparison([...selectedForComparison, company]);
-                          } else {
-                            setSelectedForComparison(selectedForComparison.filter(c => c.id !== company.id));
-                          }
-                        }}
-                        className="mt-1"
-                      />
+                      <div className="flex gap-2">
+                        <Checkbox
+                          checked={selectedForComparison.some(c => c.id === company.id)}
+                          onCheckedChange={(checked) => {
+                            if (checked) {
+                              setSelectedForComparison([...selectedForComparison, company]);
+                            } else {
+                              setSelectedForComparison(selectedForComparison.filter(c => c.id !== company.id));
+                            }
+                          }}
+                          className="mt-1"
+                          title="Select for comparison"
+                        />
+                        <Checkbox
+                          checked={selectedCompaniesForPortfolio.some(c => c.id === company.id)}
+                          onCheckedChange={(checked) => {
+                            if (checked) {
+                              setSelectedCompaniesForPortfolio([...selectedCompaniesForPortfolio, company]);
+                            } else {
+                              setSelectedCompaniesForPortfolio(selectedCompaniesForPortfolio.filter(c => c.id !== company.id));
+                            }
+                          }}
+                          className="mt-1"
+                          title="Select for portfolio"
+                        />
+                      </div>
                       <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2">
                         {company.logo_url && (
@@ -2036,6 +2073,69 @@ For well-known companies like Boeing, Lockheed Martin, SpaceX, etc., find their 
           onClose={() => setShowComparison(false)}
         />
       )}
+
+      {/* Portfolio Management */}
+      <Dialog open={showPortfolios} onOpenChange={setShowPortfolios}>
+        <DialogContent className="max-w-6xl max-h-[90vh] overflow-auto">
+          <DialogHeader>
+            <DialogTitle>Portfolio Management</DialogTitle>
+          </DialogHeader>
+          {selectedPortfolio ? (
+            <PortfolioDetail
+              portfolio={selectedPortfolio}
+              onBack={() => setSelectedPortfolio(null)}
+              user={user}
+            />
+          ) : (
+            <>
+              <PortfolioManager
+                user={user}
+                onSelectPortfolio={setSelectedPortfolio}
+              />
+              {selectedCompaniesForPortfolio.length > 0 && (
+                <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                  <h4 className="font-semibold mb-2">Add selected companies to portfolio:</h4>
+                  <div className="flex flex-wrap gap-2 mb-3">
+                    {selectedCompaniesForPortfolio.map(c => (
+                      <Badge key={c.id}>{c.company_name}</Badge>
+                    ))}
+                  </div>
+                  <div className="flex gap-2">
+                    {user && (
+                      <Button
+                        onClick={async () => {
+                          const portfolios = await base44.entities.AerospacePortfolio.filter({ 
+                            user_email: user.email 
+                          });
+                          for (const portfolio of portfolios) {
+                            const newCompanyIds = [
+                              ...(portfolio.company_ids || []),
+                              ...selectedCompaniesForPortfolio.map(c => c.id).filter(id => !portfolio.company_ids?.includes(id))
+                            ];
+                            await base44.entities.AerospacePortfolio.update(portfolio.id, { 
+                              company_ids: newCompanyIds 
+                            });
+                          }
+                          queryClient.invalidateQueries({ queryKey: ['aerospace-portfolios'] });
+                          setSelectedCompaniesForPortfolio([]);
+                        }}
+                      >
+                        Add to All Portfolios
+                      </Button>
+                    )}
+                    <Button
+                      variant="outline"
+                      onClick={() => setSelectedCompaniesForPortfolio([])}
+                    >
+                      Clear Selection
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
