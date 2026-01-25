@@ -111,6 +111,7 @@ const navigation = [
   { name: 'divider', label: 'Customer Success', collapsible: true },
   { name: 'CS Dashboard', icon: Award, page: 'CustomerSuccessDashboard' },
   { name: 'Customer Success', icon: Heart, page: 'CustomerSuccess' },
+  { name: 'Customer Feedback', icon: MessageSquare, page: 'FeedbackManagement' },
   { name: 'divider', label: 'SEO', collapsible: true },
   { name: 'SEO Dashboard', icon: BarChart3, page: 'SEODashboardPage' },
   { name: 'SEO Analytics', icon: Search, page: 'SEODashboard' },
