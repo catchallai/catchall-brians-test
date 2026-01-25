@@ -11,6 +11,7 @@ import {
 import SalesPipelineKanban from '@/components/sales/SalesPipelineKanban';
 import SalesActivityFeed from '@/components/sales/SalesActivityFeed';
 import QuotaProgressTracker from '@/components/sales/QuotaProgressTracker';
+import WinLossAnalysis from '@/components/sales/WinLossAnalysis';
 
 export default function SalesDashboard() {
   const queryClient = useQueryClient();
@@ -143,6 +144,12 @@ export default function SalesDashboard() {
             </div>
           </CardContent>
         </Card>
+      </div>
+
+      {/* Win/Loss Analysis */}
+      <div className="col-span-full">
+        <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">Win/Loss Analysis</h2>
+        <WinLossAnalysis deals={deals} />
       </div>
 
       {/* Pipeline Kanban */}
