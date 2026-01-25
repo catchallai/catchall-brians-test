@@ -21,6 +21,7 @@ import ExecutiveScorecard from '@/components/success/ExecutiveScorecard';
 import ChurnRiskPredictor from '@/components/success/ChurnRiskPredictor';
 import BatchOperations from '@/components/success/BatchOperations';
 import CustomerSegmentation from '@/components/success/CustomerSegmentation';
+import BusinessReviewScheduler from '@/components/success/BusinessReviewScheduler';
 
 export default function CustomerSuccessDashboard() {
   const [csmFilter, setCsmFilter] = useState('all');
@@ -246,14 +247,19 @@ export default function CustomerSuccessDashboard() {
         <CustomerSegmentation contacts={contacts} healthScores={filteredHealthScores} />
       </div>
 
-      {/* Batch Operations & CSM Workload */}
+      {/* Batch Operations & Business Reviews */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
         <div className="overflow-hidden">
           <BatchOperations contacts={contacts} />
         </div>
         <div className="overflow-hidden">
-          <CSMWorkloadView />
+          <BusinessReviewScheduler contacts={contacts} />
         </div>
+      </div>
+
+      {/* CSM Workload */}
+      <div className="overflow-hidden">
+        <CSMWorkloadView />
       </div>
 
        {/* Churn Risk Analytics */}
