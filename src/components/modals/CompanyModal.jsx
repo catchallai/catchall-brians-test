@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2 } from "lucide-react";
+import { Loader2, RefreshCw, Building2 } from "lucide-react";
 
 export default function CompanyModal({ open, onClose, company, onSave, isLoading }) {
   const [formData, setFormData] = useState({
@@ -19,7 +19,9 @@ export default function CompanyModal({ open, onClose, company, onSave, isLoading
     country: '',
     phone: '',
     description: '',
+    logo_url: '',
   });
+  const [syncingLogo, setSyncingLogo] = useState(false);
 
   useEffect(() => {
     if (company) {
@@ -34,6 +36,7 @@ export default function CompanyModal({ open, onClose, company, onSave, isLoading
         country: company.country || '',
         phone: company.phone || '',
         description: company.description || '',
+        logo_url: company.logo_url || '',
       });
     } else {
       setFormData({
@@ -47,9 +50,41 @@ export default function CompanyModal({ open, onClose, company, onSave, isLoading
         country: '',
         phone: '',
         description: '',
+        logo_url: '',
       });
     }
   }, [company, open]);
+
+  const syncCompanyLogo = async () => {
+    if (!formData.website) return;
+    
+    setSyncingLogo(true);
+    try {
+      // Extract domain from URL
+      const domain = formData.website.replace(/^https?:\/\//, '').replace(/\/.*$/, '');
+      
+      // Try multiple logo services
+      const logoUrls = [
+        `https://logo.clearbit.com/${domain}`,
+        `https://www.google.com/s2/favicons?domain=${domain}&sz=128`,
+      ];
+      
+      // Test if Clearbit logo exists
+      const img = new Image();
+      img.onload = () => {
+        setFormData({ ...formData, logo_url: logoUrls[0] });
+        setSyncingLogo(false);
+      };
+      img.onerror = () => {
+        // Fallback to Google favicon
+        setFormData({ ...formData, logo_url: logoUrls[1] });
+        setSyncingLogo(false);
+      };
+      img.src = logoUrls[0];
+    } catch (error) {
+      setSyncingLogo(false);
+    }
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -74,6 +109,49 @@ export default function CompanyModal({ open, onClose, company, onSave, isLoading
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               required
             />
+          </div>
+
+          {/* Company Logo */}
+          <div className="space-y-2">
+            <Label>Company Logo</Label>
+            <div className="flex items-center gap-3">
+              <div className="w-16 h-16 rounded-lg border-2 border-gray-200 dark:border-gray-700 flex items-center justify-center overflow-hidden bg-gray-50 dark:bg-gray-800">
+                {formData.logo_url ? (
+                  <img 
+                    src={formData.logo_url} 
+                    alt="Company logo" 
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                      e.target.parentNode.innerHTML = `<div class="w-12 h-12 rounded-lg bg-violet-100 dark:bg-violet-900 flex items-center justify-center"><span class="text-violet-600 dark:text-violet-300 font-bold text-xl">${formData.name?.[0]?.toUpperCase() || 'C'}</span></div>`;
+                    }}
+                  />
+                ) : (
+                  <Building2 className="w-8 h-8 text-gray-400" />
+                )}
+              </div>
+              <div className="flex-1">
+                <Input
+                  placeholder="Logo URL or auto-sync from website"
+                  value={formData.logo_url}
+                  onChange={(e) => setFormData({ ...formData, logo_url: e.target.value })}
+                />
+              </div>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={syncCompanyLogo}
+                disabled={!formData.website || syncingLogo}
+                title="Auto-sync logo from company website"
+              >
+                {syncingLogo ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <RefreshCw className="w-4 h-4" />
+                )}
+              </Button>
+            </div>
+            <p className="text-xs text-gray-500">Add website first, then click sync to auto-fetch company logo</p>
           </div>
 
           <div className="grid grid-cols-2 gap-4">

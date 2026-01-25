@@ -45,9 +45,21 @@ export default function CompanyDetailPanel({ companyId }) {
       <Card className="glass-card">
         <CardContent className="pt-6">
           <div className="flex items-start gap-4 mb-4">
-            <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white font-bold text-2xl">
-              {company.name?.[0]?.toUpperCase()}
-            </div>
+            {company.logo_url ? (
+              <img 
+                src={company.logo_url} 
+                alt={company.name}
+                className="w-16 h-16 rounded-xl object-cover border border-gray-200 dark:border-gray-700"
+                onError={(e) => {
+                  e.target.style.display = 'none';
+                  e.target.parentNode.innerHTML = `<div class="w-16 h-16 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white font-bold text-2xl">${company.name?.[0]?.toUpperCase()}</div>`;
+                }}
+              />
+            ) : (
+              <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white font-bold text-2xl">
+                {company.name?.[0]?.toUpperCase()}
+              </div>
+            )}
             <div className="flex-1">
               <h2 className="text-2xl font-bold text-gray-900 dark:text-white">{company.name}</h2>
               {company.industry && (
