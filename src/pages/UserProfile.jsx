@@ -68,7 +68,7 @@ export default function UserProfile() {
   });
 
   const handleSaveProfile = () => {
-    const { full_name, email, ...updateData } = profileData;
+    const { email, ...updateData } = profileData;
     updateProfileMutation.mutate(updateData);
   };
 
@@ -202,18 +202,17 @@ export default function UserProfile() {
                 <Label>Full Name</Label>
                 <Input 
                   value={profileData.full_name}
-                  disabled
-                  placeholder="Contact admin to change"
+                  onChange={(e) => setProfileData({...profileData, full_name: e.target.value})}
+                  placeholder="Enter your full name"
                 />
-                <p className="text-xs text-gray-500">Contact administrator to change your name</p>
               </div>
               <div className="space-y-2">
                 <Label>Email Address</Label>
                 <Input 
                   value={profileData.email}
-                  disabled
                   type="email"
-                  placeholder="Contact admin to change"
+                  disabled
+                  placeholder="Contact admin to change email"
                 />
                 <p className="text-xs text-gray-500">Contact administrator to change your email</p>
               </div>
