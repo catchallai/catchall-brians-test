@@ -8,7 +8,8 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
-import { Plus, Search, Building2, Globe, Users, MapPin, Eye, Upload } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Plus, Search, Building2, Globe, Users, MapPin, Eye, Upload, Grid3x3, List } from "lucide-react";
 import CompanyModal from '@/components/modals/CompanyModal';
 import CompanyDetailPanel from '@/components/crm/CompanyDetailPanel';
 import ImportAviationDataModal from '@/components/modals/ImportAviationDataModal';
@@ -22,6 +23,7 @@ export default function Companies() {
   const [selectedCompany, setSelectedCompany] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [industryFilter, setIndustryFilter] = useState('all');
+  const [viewMode, setViewMode] = useState('grid'); // 'grid' or 'list'
   const queryClient = useQueryClient();
 
   const { data: user } = useQuery({
@@ -158,6 +160,24 @@ export default function Companies() {
             ))}
           </SelectContent>
         </Select>
+        <div className="flex gap-1 bg-gray-100 dark:bg-gray-800 p-1 rounded-lg">
+          <Button
+            size="sm"
+            variant={viewMode === 'grid' ? 'default' : 'ghost'}
+            onClick={() => setViewMode('grid')}
+            className="gap-1"
+          >
+            <Grid3x3 className="w-4 h-4" />
+          </Button>
+          <Button
+            size="sm"
+            variant={viewMode === 'list' ? 'default' : 'ghost'}
+            onClick={() => setViewMode('list')}
+            className="gap-1"
+          >
+            <List className="w-4 h-4" />
+          </Button>
+        </div>
       </div>
 
       {/* Company List */}
@@ -175,7 +195,7 @@ export default function Companies() {
           actionLabel="Add Company"
           onAction={() => { setEditingCompany(null); setShowModal(true); }}
         />
-      ) : (
+      ) : viewMode === 'grid' ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredCompanies.map((company) => (
             <Card
@@ -187,11 +207,11 @@ export default function Companies() {
                   {company.name?.[0]?.toUpperCase()}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h3 className="font-semibold text-gray-900 truncate group-hover:text-violet-600 transition-colors">
+                  <h3 className="font-semibold text-gray-900 dark:text-white truncate group-hover:text-violet-600 transition-colors">
                     {company.name}
                   </h3>
                   {company.industry && (
-                    <Badge variant="secondary" className="mt-1 bg-gray-100 text-gray-600 text-xs">
+                    <Badge variant="secondary" className="mt-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-xs">
                       {industryLabels[company.industry] || company.industry}
                     </Badge>
                   )}
@@ -200,13 +220,13 @@ export default function Companies() {
 
               <div className="mt-4 space-y-2 text-sm">
                 {company.website && (
-                  <div className="flex items-center gap-2 text-gray-500">
+                  <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400">
                     <Globe className="w-4 h-4" />
                     <span className="truncate">{company.website}</span>
                   </div>
                 )}
                 {(company.city || company.country) && (
-                  <div className="flex items-center gap-2 text-gray-500">
+                  <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400">
                     <MapPin className="w-4 h-4" />
                     <span>{[company.city, company.country].filter(Boolean).join(', ')}</span>
                   </div>
@@ -266,6 +286,84 @@ export default function Companies() {
             </Card>
           ))}
         </div>
+      ) : (
+        <Card className="glass-card">
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-gray-50 dark:bg-gray-800/50">
+                <tr>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase">Company</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase">Industry</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase">Location</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase">Website</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase">Contacts</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase">Revenue</th>
+                  <th className="px-4 py-3 text-right text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+                {filteredCompanies.map((company) => (
+                  <tr key={company.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/30 transition-colors">
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm">
+                          {company.name?.[0]?.toUpperCase()}
+                        </div>
+                        <div>
+                          <p className="font-semibold text-gray-900 dark:text-white">{company.name}</p>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
+                      {company.industry ? (
+                        <Badge variant="secondary" className="bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-xs">
+                          {industryLabels[company.industry] || company.industry}
+                        </Badge>
+                      ) : '-'}
+                    </td>
+                    <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
+                      {[company.city, company.country].filter(Boolean).join(', ') || '-'}
+                    </td>
+                    <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
+                      {company.website ? (
+                        <a href={company.website} target="_blank" rel="noopener noreferrer" className="text-violet-600 dark:text-violet-400 hover:underline truncate block max-w-xs">
+                          {company.website}
+                        </a>
+                      ) : '-'}
+                    </td>
+                    <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
+                      <div className="flex items-center gap-1">
+                        <Users className="w-4 h-4" />
+                        {getContactCount(company.id)}
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 text-sm font-semibold text-emerald-600 dark:text-emerald-400">
+                      {company.annual_revenue ? formatRevenue(company.annual_revenue) : '-'}
+                    </td>
+                    <td className="px-4 py-3 text-right">
+                      <div className="flex gap-2 justify-end">
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => handleEdit(company, true)}
+                        >
+                          <Eye className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => handleEdit(company)}
+                        >
+                          Edit
+                        </Button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </Card>
       )}
 
       {/* Modal */}
