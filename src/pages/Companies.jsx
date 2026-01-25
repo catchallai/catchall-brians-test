@@ -47,7 +47,22 @@ export default function Companies() {
   const contacts = allContacts;
 
   const createMutation = useMutation({
-    mutationFn: (data) => base44.entities.Company.create(data),
+    mutationFn: async (data) => {
+      const company = await base44.entities.Company.create(data);
+      
+      // Auto-enrich company data from internet
+      try {
+        await base44.functions.invoke('enrichCompanyData', {
+          company_id: company.id,
+          company_name: company.name,
+          website: company.website
+        });
+      } catch (err) {
+        console.log('Auto-enrichment skipped:', err);
+      }
+      
+      return company;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['companies'] });
       setShowModal(false);
