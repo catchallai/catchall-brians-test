@@ -247,19 +247,17 @@ export default function CustomerSuccessDashboard() {
         <CustomerSegmentation contacts={contacts} healthScores={filteredHealthScores} />
       </div>
 
-      {/* Batch Operations & Business Reviews */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+      {/* Batch Operations, Calendar, & CSM Workload */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
         <div className="overflow-hidden">
           <BatchOperations contacts={contacts} />
         </div>
         <div className="overflow-hidden">
           <BusinessReviewScheduler contacts={contacts} />
         </div>
-      </div>
-
-      {/* CSM Workload */}
-      <div className="overflow-hidden">
-        <CSMWorkloadView />
+        <div className="overflow-hidden">
+          <CSMWorkloadView />
+        </div>
       </div>
 
        {/* Churn Risk Analytics */}
