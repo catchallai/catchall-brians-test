@@ -5,11 +5,17 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Trophy, TrendingUp, Target, Phone, Calendar, DollarSign } from "lucide-react";
+import QuotaTrendsChart from '@/components/sales/QuotaTrendsChart';
 
 export default function SalesQuotas() {
   const { data: quotas = [] } = useQuery({
     queryKey: ['sales-quotas'],
     queryFn: () => base44.entities.SalesQuota.list('-achievement_percentage', 50),
+  });
+
+  const { data: allQuotas = [] } = useQuery({
+    queryKey: ['all-sales-quotas'],
+    queryFn: () => base44.entities.SalesQuota.list('-created_date', 200),
   });
 
   const currentPeriodQuotas = quotas.filter(q => {
@@ -37,6 +43,19 @@ export default function SalesQuotas() {
           <p className="text-sm sm:text-base text-gray-500 mt-1">Track team performance</p>
         </div>
       </div>
+
+      {/* Quota Trends */}
+      {sortedQuotas.length > 0 && (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {sortedQuotas.slice(0, 1).map(quota => (
+            <QuotaTrendsChart
+              key={quota.id}
+              currentQuota={quota}
+              previousQuotas={allQuotas.filter(q => q.user_email === quota.user_email && q.id !== quota.id).slice(0, 3)}
+            />
+          ))}
+        </div>
+      )}
 
       {/* Top Performers */}
       {sortedQuotas.length > 0 && (
