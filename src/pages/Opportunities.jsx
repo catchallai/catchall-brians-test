@@ -3,10 +3,12 @@ import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Plus, Grid3x3, List, Filter, Upload, Search, X } from "lucide-react";
+import { Plus, Grid3x3, List, Filter, Upload, Search, X, DollarSign, User, Mail, Phone } from "lucide-react";
 import OpportunityCard from '@/components/crm/OpportunityCard';
 import OpportunityModal from '@/components/modals/OpportunityModal';
 import PipelineKanban from '@/components/crm/PipelineKanban';
@@ -266,27 +268,119 @@ export default function Opportunities() {
               ))}
             </div>
           ) : (
-            <div className="space-y-8">
-              {Object.entries(opportunitiesByStage).map(([stage, opps]) => (
-                opps.length > 0 && (
-                  <div key={stage}>
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3 capitalize">
-                      {stage.replace('_', ' ')} ({opps.length})
-                    </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                      {opps.map((opportunity) => (
-                        <OpportunityCard
-                          key={opportunity.id}
-                          opportunity={opportunity}
-                          onEdit={() => handleEdit(opportunity)}
-                          onDelete={() => setDeleteConfirm(opportunity)}
-                        />
-                      ))}
-                    </div>
-                  </div>
-                )
-              ))}
-            </div>
+            <Card className="glass-card">
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead className="bg-gray-50 dark:bg-gray-800/50">
+                    <tr>
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase">Opportunity</th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase">Contact</th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase">Email</th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase">Phone</th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase">Stage</th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase">Value</th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase">Source</th>
+                      <th className="px-4 py-3 text-right text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+                    {filteredOpportunities.map((opportunity) => {
+                      const stageLabels = {
+                        new_lead: 'New Lead',
+                        email_list: 'Email List',
+                        media_inquiry: 'Media Inquiry',
+                        reservation_request: 'Reservation Request',
+                        no_response: 'No Response',
+                        contacted: 'Contacted',
+                        closed: 'Closed',
+                        not_interested: 'Not Interested',
+                      };
+
+                      const stageColors = {
+                        new_lead: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300',
+                        email_list: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300',
+                        media_inquiry: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300',
+                        reservation_request: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300',
+                        no_response: 'bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-300',
+                        contacted: 'bg-cyan-100 text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-300',
+                        closed: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300',
+                        not_interested: 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300',
+                      };
+
+                      return (
+                        <tr key={opportunity.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/30 transition-colors">
+                          <td className="px-4 py-3">
+                            <div>
+                              <p className="font-semibold text-gray-900 dark:text-white">{opportunity.title}</p>
+                              {opportunity.notes && (
+                                <p className="text-xs text-gray-500 dark:text-gray-400 truncate max-w-xs mt-0.5">{opportunity.notes}</p>
+                              )}
+                            </div>
+                          </td>
+                          <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
+                            <div className="flex items-center gap-2">
+                              <User className="w-4 h-4 text-gray-400" />
+                              {opportunity.contact_name || '-'}
+                            </div>
+                          </td>
+                          <td className="px-4 py-3 text-sm">
+                            {opportunity.contact_email ? (
+                              <a href={`mailto:${opportunity.contact_email}`} className="text-violet-600 dark:text-violet-400 hover:underline flex items-center gap-2">
+                                <Mail className="w-4 h-4" />
+                                {opportunity.contact_email}
+                              </a>
+                            ) : '-'}
+                          </td>
+                          <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
+                            {opportunity.contact_phone ? (
+                              <div className="flex items-center gap-2">
+                                <Phone className="w-4 h-4 text-gray-400" />
+                                {opportunity.contact_phone}
+                              </div>
+                            ) : '-'}
+                          </td>
+                          <td className="px-4 py-3">
+                            <Badge className={`${stageColors[opportunity.stage] || 'bg-gray-100 text-gray-700'} text-xs`}>
+                              {stageLabels[opportunity.stage] || opportunity.stage}
+                            </Badge>
+                          </td>
+                          <td className="px-4 py-3 text-sm font-semibold text-emerald-600 dark:text-emerald-400">
+                            {opportunity.value ? (
+                              <div className="flex items-center gap-1">
+                                <DollarSign className="w-4 h-4" />
+                                {opportunity.value.toFixed(2)}
+                              </div>
+                            ) : '-'}
+                          </td>
+                          <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
+                            {opportunity.source || '-'}
+                          </td>
+                          <td className="px-4 py-3 text-right">
+                            <div className="flex gap-2 justify-end">
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={() => handleEdit(opportunity)}
+                              >
+                                Edit
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={() => setDeleteConfirm(opportunity)}
+                                className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20"
+                              >
+                                Delete
+                              </Button>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </Card>
           )}
         </TabsContent>
 
