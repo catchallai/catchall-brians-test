@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Link } from 'react-router-dom';
@@ -8,8 +8,13 @@ import { createPageUrl } from '@/utils';
 import {
   Target, Users, FileText, Calendar, TrendingUp, Zap, DollarSign, ArrowRight
 } from "lucide-react";
+import SalesPipelineKanban from '@/components/sales/SalesPipelineKanban';
+import SalesActivityFeed from '@/components/sales/SalesActivityFeed';
+import QuotaProgressTracker from '@/components/sales/QuotaProgressTracker';
 
 export default function SalesDashboard() {
+  const queryClient = useQueryClient();
+
   const { data: deals = [], isLoading: loadingDeals } = useQuery({
     queryKey: ['deals'],
     queryFn: () => base44.entities.Deal.list('-created_date', 200),
@@ -24,6 +29,30 @@ export default function SalesDashboard() {
     queryKey: ['sales-quotas'],
     queryFn: () => base44.entities.SalesQuota.list('-created_date', 50),
   });
+
+  const { data: activities = [] } = useQuery({
+    queryKey: ['sales-activities'],
+    queryFn: () => base44.entities.Activity.filter({ entity_type: 'deal' }, '-created_date', 50),
+  });
+
+  const { data: forecasts = [] } = useQuery({
+    queryKey: ['sales-forecasts'],
+    queryFn: () => base44.entities.SalesForecast.list('-created_date', 50),
+  });
+
+  const updateDealMutation = useMutation({
+    mutationFn: ({ id, data }) => base44.entities.Deal.update(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['deals'] });
+    },
+  });
+
+  const handleDealDrop = (deal, newStage) => {
+    updateDealMutation.mutate({
+      id: deal.id,
+      data: { ...deal, stage: newStage }
+    });
+  };
 
   const isLoading = loadingDeals || loadingProposals || loadingQuotas;
 
@@ -69,9 +98,9 @@ export default function SalesDashboard() {
   return (
     <div className="p-6 space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-wider text-gray-400 dark:text-gray-500 uppercase">Sales</h1>
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Sales Dashboard</h1>
         <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-          Sales performance and activity overview
+          Pipeline, forecasts, and team performance
         </p>
       </div>
 
@@ -116,7 +145,30 @@ export default function SalesDashboard() {
         </Card>
       </div>
 
-      <div>
+      {/* Pipeline Kanban */}
+      <div className="col-span-full">
+        <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">Sales Pipeline</h2>
+        <SalesPipelineKanban 
+          deals={deals} 
+          onDealDrop={handleDealDrop}
+        />
+      </div>
+
+      {/* Activity & Quota */}
+      <div className="col-span-full grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <SalesActivityFeed activities={activities} />
+        
+        {quotas.map(quota => (
+          <QuotaProgressTracker 
+            key={quota.id}
+            quota={quota}
+            forecast={forecasts.find(f => f.user_email === quota.user_email)}
+          />
+        ))}
+      </div>
+
+      {/* Quick Access */}
+      <div className="col-span-full">
         <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">Quick Access</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {quickLinks.map((link) => {
