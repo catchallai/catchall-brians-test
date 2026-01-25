@@ -45,6 +45,11 @@ export default function AerospaceScanner() {
   const [selectedCompaniesForPortfolio, setSelectedCompaniesForPortfolio] = useState([]);
   const queryClient = useQueryClient();
 
+  const { data: user } = useQuery({
+    queryKey: ['current-user'],
+    queryFn: () => base44.auth.me()
+  });
+
   const { data: companies = [], isLoading } = useQuery({
     queryKey: ['aerospace-companies'],
     queryFn: () => base44.entities.AerospaceCompany.list('-last_scanned', 100),
