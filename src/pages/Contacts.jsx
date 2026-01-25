@@ -84,31 +84,20 @@ export default function Contacts() {
   });
 
   const { data: allContacts = [], isLoading: loadingContacts } = useQuery({
-    queryKey: ['contacts', user?.current_business_id],
-    queryFn: async () => {
-      if (!user?.current_business_id) return [];
-      return await base44.entities.Contact.filter({ business_id: user.current_business_id }, '-created_date', 1000);
-    },
-    enabled: !!user?.current_business_id,
+    queryKey: ['contacts'],
+    queryFn: () => base44.entities.Contact.list('-created_date', 1000),
   });
 
   const contacts = allContacts.filter(c => showDeleted ? c.deleted : !c.deleted);
 
   const { data: companies = [] } = useQuery({
-    queryKey: ['companies', user?.current_business_id],
-    queryFn: async () => {
-      if (!user?.current_business_id) return [];
-      return await base44.entities.Company.filter({ business_id: user.current_business_id }, '-created_date', 100);
-    },
-    enabled: !!user?.current_business_id,
+    queryKey: ['companies'],
+    queryFn: () => base44.entities.Company.list('-created_date', 100),
   });
 
   const createMutation = useMutation({
     mutationFn: async (data) => {
-      const contact = await base44.entities.Contact.create({
-        ...data,
-        business_id: user?.current_business_id,
-      });
+      const contact = await base44.entities.Contact.create(data);
       await logActivity(ActivityActions.CREATE, 'Contact', contact.id, `${data.first_name} ${data.last_name}`);
       
       // Create notification for contact addition
@@ -241,7 +230,6 @@ export default function Contacts() {
           
           const newCompany = await base44.entities.Company.create({
             name: companyName,
-            business_id: user?.current_business_id,
             tier: contactWithCompany ? getFieldValue(contactWithCompany, 'tier', 'Tier') : null,
             category: contactWithCompany ? getFieldValue(contactWithCompany, 'category', 'Category') : null,
             country: contactWithCompany ? getFieldValue(contactWithCompany, 'country', 'Country / Region', 'Country') : null,
@@ -306,7 +294,6 @@ export default function Contacts() {
 
         // Only create if we have at least email or both first name and last name
         if (contactData.email || (contactData.first_name && contactData.last_name)) {
-          contactData.business_id = user?.current_business_id;
           try {
             await base44.entities.Contact.create(contactData);
             successCount++;
@@ -336,7 +323,6 @@ export default function Contacts() {
         // Create new company with contact data
         const newCompany = await base44.entities.Company.create({
           name: data.company_name,
-          business_id: user?.current_business_id,
           tier: data.tier || null,
           category: data.category || null,
           country: data.country || null,
