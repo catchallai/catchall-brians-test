@@ -6,6 +6,8 @@ import { Calendar, Plus } from "lucide-react";
 import ReservationModal from '@/components/sales/ReservationModal';
 import ReservationCard from '@/components/sales/ReservationCard';
 import EmptyState from '@/components/ui/EmptyState';
+import ReservationCalendarView from '@/components/sales/ReservationCalendarView';
+import ReservationPaymentTracker from '@/components/sales/ReservationPaymentTracker';
 
 export default function Reservations() {
   const [showReservationModal, setShowReservationModal] = useState(false);
@@ -72,6 +74,14 @@ export default function Reservations() {
         </Button>
       </div>
 
+      {/* Payment & Calendar */}
+      {reservations.length > 0 && (
+        <>
+          <ReservationPaymentTracker reservations={reservations} />
+          <ReservationCalendarView reservations={reservations} />
+        </>
+      )}
+
       {/* Reservations Grid */}
       {reservations.length === 0 ? (
         <EmptyState
@@ -82,16 +92,19 @@ export default function Reservations() {
           onAction={() => setShowReservationModal(true)}
         />
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {reservations.map(reservation => (
-            <ReservationCard
-              key={reservation.id}
-              reservation={reservation}
-              contactName={getContactName(reservation.contact_id)}
-              dealName={getDealName(reservation.deal_id)}
-              onEdit={() => { setEditingReservation(reservation); setShowReservationModal(true); }}
-            />
-          ))}
+        <div>
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">All Reservations</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {reservations.map(reservation => (
+              <ReservationCard
+                key={reservation.id}
+                reservation={reservation}
+                contactName={getContactName(reservation.contact_id)}
+                dealName={getDealName(reservation.deal_id)}
+                onEdit={() => { setEditingReservation(reservation); setShowReservationModal(true); }}
+              />
+            ))}
+          </div>
         </div>
       )}
 
