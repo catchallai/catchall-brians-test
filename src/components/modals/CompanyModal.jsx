@@ -22,6 +22,7 @@ export default function CompanyModal({ open, onClose, company, onSave, isLoading
     logo_url: '',
   });
   const [syncingLogo, setSyncingLogo] = useState(false);
+  const [logoFailed, setLogoFailed] = useState(false);
 
   useEffect(() => {
     if (company) {
@@ -116,16 +117,19 @@ export default function CompanyModal({ open, onClose, company, onSave, isLoading
             <Label>Company Logo</Label>
             <div className="flex items-center gap-3">
               <div className="w-16 h-16 rounded-lg border-2 border-gray-200 dark:border-gray-700 flex items-center justify-center overflow-hidden bg-gray-50 dark:bg-gray-800">
-                {formData.logo_url ? (
+                {formData.logo_url && !logoFailed ? (
                   <img 
                     src={formData.logo_url} 
                     alt="Company logo" 
                     className="w-full h-full object-cover"
-                    onError={(e) => {
-                      e.target.style.display = 'none';
-                      e.target.parentNode.innerHTML = `<div class="w-12 h-12 rounded-lg bg-violet-100 dark:bg-violet-900 flex items-center justify-center"><span class="text-violet-600 dark:text-violet-300 font-bold text-xl">${formData.name?.[0]?.toUpperCase() || 'C'}</span></div>`;
-                    }}
+                    onError={() => setLogoFailed(true)}
                   />
+                ) : formData.logo_url && logoFailed ? (
+                  <div className="w-12 h-12 rounded-lg bg-violet-100 dark:bg-violet-900 flex items-center justify-center">
+                    <span className="text-violet-600 dark:text-violet-300 font-bold text-xl">
+                      {formData.name?.[0]?.toUpperCase() || 'C'}
+                    </span>
+                  </div>
                 ) : (
                   <Building2 className="w-8 h-8 text-gray-400" />
                 )}

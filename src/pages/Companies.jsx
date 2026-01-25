@@ -24,6 +24,7 @@ export default function Companies() {
   const [searchTerm, setSearchTerm] = useState('');
   const [industryFilter, setIndustryFilter] = useState('all');
   const [viewMode, setViewMode] = useState('grid'); // 'grid' or 'list'
+  const [failedLogos, setFailedLogos] = useState(new Set());
   const queryClient = useQueryClient();
 
   const { data: user } = useQuery({
@@ -203,15 +204,12 @@ export default function Companies() {
               className="p-5 glass-card rounded-2xl hover:shadow-lg transition-all group relative"
             >
               <div className="flex items-start gap-4">
-                {company.logo_url ? (
+                {company.logo_url && !failedLogos.has(company.id) ? (
                   <img 
                     src={company.logo_url} 
                     alt={company.name}
                     className="w-12 h-12 rounded-xl object-cover border border-gray-200 dark:border-gray-700"
-                    onError={(e) => {
-                      e.target.style.display = 'none';
-                      e.target.parentNode.innerHTML = `<div class="w-12 h-12 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white font-bold text-lg">${company.name?.[0]?.toUpperCase()}</div>`;
-                    }}
+                    onError={() => setFailedLogos(prev => new Set(prev).add(company.id))}
                   />
                 ) : (
                   <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white font-bold text-lg">
@@ -318,15 +316,12 @@ export default function Companies() {
                   <tr key={company.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/30 transition-colors">
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-3">
-                        {company.logo_url ? (
+                        {company.logo_url && !failedLogos.has(company.id) ? (
                           <img 
                             src={company.logo_url} 
                             alt={company.name}
                             className="w-10 h-10 rounded-lg object-cover border border-gray-200 dark:border-gray-700"
-                            onError={(e) => {
-                              e.target.style.display = 'none';
-                              e.target.parentNode.innerHTML = `<div class="w-10 h-10 rounded-lg bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm">${company.name?.[0]?.toUpperCase()}</div>`;
-                            }}
+                            onError={() => setFailedLogos(prev => new Set(prev).add(company.id))}
                           />
                         ) : (
                           <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm">

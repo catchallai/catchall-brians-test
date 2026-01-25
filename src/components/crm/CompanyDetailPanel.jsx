@@ -10,6 +10,8 @@ import {
 } from "lucide-react";
 
 export default function CompanyDetailPanel({ companyId }) {
+  const [logoFailed, setLogoFailed] = React.useState(false);
+  
   const { data: company, isLoading: loadingCompany } = useQuery({
     queryKey: ['company', companyId],
     queryFn: async () => {
@@ -45,15 +47,12 @@ export default function CompanyDetailPanel({ companyId }) {
       <Card className="glass-card">
         <CardContent className="pt-6">
           <div className="flex items-start gap-4 mb-4">
-            {company.logo_url ? (
+            {company.logo_url && !logoFailed ? (
               <img 
                 src={company.logo_url} 
                 alt={company.name}
                 className="w-16 h-16 rounded-xl object-cover border border-gray-200 dark:border-gray-700"
-                onError={(e) => {
-                  e.target.style.display = 'none';
-                  e.target.parentNode.innerHTML = `<div class="w-16 h-16 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white font-bold text-2xl">${company.name?.[0]?.toUpperCase()}</div>`;
-                }}
+                onError={() => setLogoFailed(true)}
               />
             ) : (
               <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white font-bold text-2xl">
