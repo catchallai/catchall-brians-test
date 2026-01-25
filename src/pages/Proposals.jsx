@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Plus, FileText, Eye, Check, X, Clock } from "lucide-react";
 import EmptyState from '@/components/ui/EmptyState';
 import ProposalModal from '@/components/modals/ProposalModal';
+import ProposalTemplateLibrary from '@/components/sales/ProposalTemplateLibrary';
 
 const STATUS_CONFIG = {
   draft: { label: 'Draft', color: 'bg-gray-100 text-gray-700', icon: FileText },
@@ -20,6 +21,7 @@ const STATUS_CONFIG = {
 export default function Proposals() {
   const [showModal, setShowModal] = useState(false);
   const [editingProposal, setEditingProposal] = useState(null);
+  const [showTemplates, setShowTemplates] = useState(false);
   const queryClient = useQueryClient();
 
   const { data: proposals = [] } = useQuery({
@@ -57,6 +59,15 @@ export default function Proposals() {
     return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(value || 0);
   };
 
+  const handleTemplateSelect = (template) => {
+    setEditingProposal({
+      ...template,
+      content: template.content
+    });
+    setShowModal(true);
+    setShowTemplates(false);
+  };
+
   return (
     <div className="p-4 sm:p-6 lg:p-8 space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -64,11 +75,31 @@ export default function Proposals() {
           <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Proposals & Quotes</h1>
           <p className="text-sm sm:text-base text-gray-500 mt-1">Track and manage sales proposals</p>
         </div>
-        <Button onClick={() => { setEditingProposal(null); setShowModal(true); }} className="gap-2 bg-violet-600 hover:bg-violet-700">
-          <Plus className="w-4 h-4" />
-          Create Proposal
-        </Button>
+        <div className="flex gap-2">
+          <Button 
+            onClick={() => setShowTemplates(!showTemplates)} 
+            variant="outline"
+            className="gap-2"
+          >
+            <FileText className="w-4 h-4" />
+            Templates
+          </Button>
+          <Button onClick={() => { setEditingProposal(null); setShowModal(true); }} className="gap-2 bg-violet-600 hover:bg-violet-700">
+            <Plus className="w-4 h-4" />
+            Create Proposal
+          </Button>
+        </div>
       </div>
+
+      {/* Templates */}
+      {showTemplates && (
+        <Card className="glass-card col-span-full">
+          <CardContent className="p-6">
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Proposal Templates</h2>
+            <ProposalTemplateLibrary onSelectTemplate={handleTemplateSelect} />
+          </CardContent>
+        </Card>
+      )}
 
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
