@@ -122,7 +122,7 @@ export default function Settings() {
       </div>
 
       <Tabs defaultValue="profile" className="space-y-6">
-        <TabsList className="glass-card">
+        <TabsList className="glass-card flex-wrap h-auto gap-1">
           <TabsTrigger value="profile" className="gap-2">
             <User className="w-4 h-4" />
             Profile

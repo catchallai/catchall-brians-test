@@ -6,18 +6,69 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Loader2, UserPlus, Trash2, Edit2 } from 'lucide-react';
+import { Loader2, UserPlus, Trash2, Edit2, Check, X } from 'lucide-react';
 import { useToast } from '@/components/ui/toast-provider';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
 
 export default function UserManagement() {
   const [searchTerm, setSearchTerm] = useState('');
   const [roleFilter, setRoleFilter] = useState('all roles');
+  const [editingUser, setEditingUser] = useState(null);
+  const [inviteEmail, setInviteEmail] = useState('');
+  const [inviteRole, setInviteRole] = useState('user');
+  const [inviteOpen, setInviteOpen] = useState(false);
+  const [editRole, setEditRole] = useState('');
   const queryClient = useQueryClient();
   const toast = useToast();
 
   const { data: users = [], isLoading } = useQuery({
     queryKey: ['users'],
     queryFn: () => base44.entities.User.list(),
+  });
+
+  const inviteMutation = useMutation({
+    mutationFn: async () => {
+      await base44.users.inviteUser(inviteEmail, inviteRole);
+    },
+    onSuccess: () => {
+      toast.success('User invited successfully');
+      setInviteEmail('');
+      setInviteRole('user');
+      setInviteOpen(false);
+      queryClient.invalidateQueries({ queryKey: ['users'] });
+    },
+    onError: (error) => toast.error(error.message || 'Failed to invite user'),
+  });
+
+  const updateRoleMutation = useMutation({
+    mutationFn: async (userId, newRole) => {
+      await base44.entities.User.update(userId, { role: newRole });
+    },
+    onSuccess: () => {
+      toast.success('User role updated');
+      setEditingUser(null);
+      queryClient.invalidateQueries({ queryKey: ['users'] });
+    },
+    onError: () => toast.error('Failed to update user role'),
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: async (userId) => {
+      await base44.entities.User.delete(userId);
+    },
+    onSuccess: () => {
+      toast.success('User removed');
+      queryClient.invalidateQueries({ queryKey: ['users'] });
+    },
+    onError: () => toast.error('Failed to delete user'),
   });
 
   const filteredUsers = users.filter(user => {
@@ -49,10 +100,50 @@ export default function UserManagement() {
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Users</h2>
           <p className="text-gray-500 dark:text-gray-400 mt-1">Manage team members and their roles</p>
         </div>
-        <Button className="gap-2">
-          <UserPlus className="w-4 h-4" />
-          Invite User
-        </Button>
+        <Dialog open={inviteOpen} onOpenChange={setInviteOpen}>
+          <DialogTrigger asChild>
+            <Button className="gap-2">
+              <UserPlus className="w-4 h-4" />
+              Invite User
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Invite User</DialogTitle>
+              <DialogDescription>Add a new team member to your workspace</DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label>Email Address</Label>
+                <Input
+                  type="email"
+                  placeholder="user@example.com"
+                  value={inviteEmail}
+                  onChange={(e) => setInviteEmail(e.target.value)}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Role</Label>
+                <Select value={inviteRole} onValueChange={setInviteRole}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="user">User</SelectItem>
+                    <SelectItem value="admin">Admin</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <Button
+                onClick={() => inviteMutation.mutate()}
+                disabled={!inviteEmail || inviteMutation.isPending}
+                className="w-full"
+              >
+                {inviteMutation.isPending ? 'Sending...' : 'Send Invite'}
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
 
       {/* Stats */}
@@ -119,18 +210,65 @@ export default function UserManagement() {
                       </td>
                       <td className="py-4 px-6 text-gray-600 dark:text-gray-400">{user.email}</td>
                       <td className="py-4 px-6">
-                        <Badge className={user.role === 'admin' ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700'}>
-                          {user.role}
-                        </Badge>
+                        {editingUser?.id === user.id ? (
+                          <Select value={editRole} onValueChange={setEditRole}>
+                            <SelectTrigger className="w-24">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="user">User</SelectItem>
+                              <SelectItem value="admin">Admin</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        ) : (
+                          <Badge className={user.role === 'admin' ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700'}>
+                            {user.role}
+                          </Badge>
+                        )}
                       </td>
                       <td className="py-4 px-6 text-right">
                         <div className="flex items-center justify-end gap-2">
-                          <Button variant="ghost" size="sm" className="gap-2">
-                            <Edit2 className="w-4 h-4" />
-                          </Button>
-                          <Button variant="ghost" size="sm" className="gap-2 text-red-600 hover:text-red-700">
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
+                          {editingUser?.id === user.id ? (
+                            <>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => updateRoleMutation.mutate(user.id, editRole)}
+                                disabled={updateRoleMutation.isPending}
+                              >
+                                <Check className="w-4 h-4 text-green-600" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => setEditingUser(null)}
+                              >
+                                <X className="w-4 h-4 text-gray-400" />
+                              </Button>
+                            </>
+                          ) : (
+                            <>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => {
+                                  setEditingUser(user);
+                                  setEditRole(user.role);
+                                }}
+                              >
+                                <Edit2 className="w-4 h-4" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => deleteMutation.mutate(user.id)}
+                                disabled={deleteMutation.isPending}
+                                className="text-red-600 hover:text-red-700"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            </>
+                          )}
                         </div>
                       </td>
                     </tr>
