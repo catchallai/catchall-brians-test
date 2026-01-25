@@ -17,6 +17,7 @@ import WorkflowPanel from '@/components/sales/WorkflowPanel';
 import LeadScoringPanel from '@/components/sales/LeadScoringPanel';
 import SalesPipelineKanban from '@/components/sales/SalesPipelineKanban';
 import DealSearchFilter from '@/components/sales/DealSearchFilter';
+import { Badge } from "@/components/ui/badge";
 
 export default function SalesHub() {
   const [showCallLogger, setShowCallLogger] = useState(false);
