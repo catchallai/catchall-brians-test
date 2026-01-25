@@ -1984,7 +1984,6 @@ For well-known companies like Boeing, Lockheed Martin, SpaceX, etc., find their 
           </DialogFooter>
         </DialogContent>
       </Dialog>
-      </div>
     </div>
   );
 }
