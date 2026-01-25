@@ -8,6 +8,7 @@ import { Plus, Calendar, Clock, Link2, CheckCircle, XCircle } from "lucide-react
 import EmptyState from '@/components/ui/EmptyState';
 import MeetingLinkModal from '@/components/modals/MeetingLinkModal';
 import GoogleCalendarConnect from '@/components/settings/GoogleCalendarConnect';
+import MeetingNoShowAnalysis from '@/components/sales/MeetingNoShowAnalysis';
 
 export default function MeetingScheduler() {
   const [showModal, setShowModal] = useState(false);
@@ -130,7 +131,14 @@ export default function MeetingScheduler() {
                     </p>
                   </div>
 
-                  <Button variant="outline" className="w-full gap-2">
+                  <Button 
+                    variant="outline" 
+                    className="w-full gap-2"
+                    onClick={() => {
+                      const url = `${window.location.origin}/book/${link.id}`;
+                      navigator.clipboard.writeText(url);
+                    }}
+                  >
                     <Link2 className="w-4 h-4" />
                     Copy Link
                   </Button>
@@ -141,37 +149,41 @@ export default function MeetingScheduler() {
         )}
       </div>
 
-      {/* Upcoming Bookings */}
-      {upcomingBookings.length > 0 && (
-        <div>
-          <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">Upcoming Meetings</h2>
-          <div className="space-y-3">
-            {upcomingBookings.slice(0, 5).map(booking => (
-              <Card key={booking.id} className="glass-card">
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="font-medium text-gray-900 dark:text-white">{booking.attendee_name}</p>
-                      <p className="text-sm text-gray-500">{booking.attendee_email}</p>
-                      <p className="text-sm text-gray-600 mt-1">
-                        {new Date(booking.scheduled_date).toLocaleString()}
-                      </p>
-                    </div>
-                    <div className="flex gap-2">
-                      <Button size="sm" variant="outline">
-                        <CheckCircle className="w-4 h-4" />
-                      </Button>
-                      <Button size="sm" variant="outline">
-                        <XCircle className="w-4 h-4" />
-                      </Button>
+      {/* Meeting Patterns & Upcoming */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <MeetingNoShowAnalysis bookings={bookings} />
+
+        {upcomingBookings.length > 0 && (
+          <Card className="glass-card">
+            <CardContent className="p-6">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Upcoming Meetings</h3>
+              <div className="space-y-3 max-h-96 overflow-y-auto">
+                {upcomingBookings.slice(0, 5).map(booking => (
+                  <div key={booking.id} className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <p className="font-medium text-sm text-gray-900 dark:text-white">{booking.attendee_name}</p>
+                        <p className="text-xs text-gray-500 mt-0.5">{booking.attendee_email}</p>
+                        <p className="text-xs text-gray-600 mt-1">
+                          {new Date(booking.scheduled_date).toLocaleString()}
+                        </p>
+                      </div>
+                      <div className="flex gap-1">
+                        <Button size="sm" variant="outline" className="h-7 w-7 p-0">
+                          <CheckCircle className="w-4 h-4" />
+                        </Button>
+                        <Button size="sm" variant="outline" className="h-7 w-7 p-0">
+                          <XCircle className="w-4 h-4" />
+                        </Button>
+                      </div>
                     </div>
                   </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      )}
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+      </div>
 
       <MeetingLinkModal
         open={showModal}
