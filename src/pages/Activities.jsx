@@ -35,6 +35,14 @@ export default function Activities() {
     enabled: !!user?.current_business_id,
   });
 
+  // Real-time subscription
+  React.useEffect(() => {
+    const unsubscribe = base44.entities.Activity.subscribe((event) => {
+      queryClient.invalidateQueries({ queryKey: ['activities'] });
+    });
+    return unsubscribe;
+  }, [queryClient]);
+
   const activities = allActivities;
 
   const { data: allContacts = [] } = useQuery({
