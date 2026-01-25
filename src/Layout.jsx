@@ -60,8 +60,11 @@ import {
 import ErrorBoundary from '@/components/ui/ErrorBoundary';
 import KeyboardShortcutsDialog, { useKeyboardShortcuts } from '@/components/ui/KeyboardShortcuts';
 import { base44 } from '@/api/base44Client';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient, QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useFeatures, PAGE_FEATURE_MAP } from '@/components/hooks/useFeatures';
+
+// Create a client
+const queryClient = new QueryClient();
 import OnboardingModal from '@/components/onboarding/OnboardingModal';
 import { ToastProvider } from '@/components/ui/toast-provider';
 import {
@@ -433,7 +436,7 @@ function SidebarContent({ currentPage, onNavigate, isEnabled, user, onAddFavorit
   );
 }
 
-export default function Layout({ children, currentPageName }) {
+function LayoutContent({ children, currentPageName }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
     const saved = localStorage.getItem('sidebarCollapsed');
@@ -442,7 +445,7 @@ export default function Layout({ children, currentPageName }) {
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [showShortcuts, setShowShortcuts] = useState(false);
   const [dragOverFavorites, setDragOverFavorites] = useState(false);
-  const queryClient = useQueryClient();
+  const qClient = useQueryClient();
   const { isEnabled } = useFeatures();
 
   const toggleSidebar = () => {
@@ -480,13 +483,13 @@ export default function Layout({ children, currentPageName }) {
         user_id: user.id,
         started_at: new Date().toISOString()
       }).then(() => {
-        queryClient.invalidateQueries({ queryKey: ['user-onboarding'] });
+        qClient.invalidateQueries({ queryKey: ['user-onboarding'] });
         setShowOnboarding(true);
       });
     } else if (onboardingStatus && !onboardingStatus.is_complete && !onboardingStatus.skipped) {
       setShowOnboarding(true);
     }
-  }, [user?.id, onboardingStatus]);
+  }, [user?.id, onboardingStatus, qClient]);
 
   const handleOnboardingComplete = async () => {
     if (onboardingStatus) {
@@ -494,7 +497,7 @@ export default function Layout({ children, currentPageName }) {
         is_complete: true,
         completed_at: new Date().toISOString()
       });
-      queryClient.invalidateQueries({ queryKey: ['user-onboarding'] });
+      qClient.invalidateQueries({ queryKey: ['user-onboarding'] });
     }
     setShowOnboarding(false);
   };
@@ -504,7 +507,7 @@ export default function Layout({ children, currentPageName }) {
       await base44.entities.UserOnboarding.update(onboardingStatus.id, {
         skipped: true
       });
-      queryClient.invalidateQueries({ queryKey: ['user-onboarding'] });
+      qClient.invalidateQueries({ queryKey: ['user-onboarding'] });
     }
     setShowOnboarding(false);
   };
@@ -521,16 +524,16 @@ export default function Layout({ children, currentPageName }) {
     
     const newFavorites = [...currentFavorites, { page: navItem.page, label: navItem.label }];
     await base44.auth.updateMe({ favorite_links: newFavorites });
-    queryClient.invalidateQueries({ queryKey: ['current-user'] });
-  }, [user, queryClient]);
+    qClient.invalidateQueries({ queryKey: ['current-user'] });
+  }, [user, qClient]);
 
   const handleRemoveFavorite = useCallback(async (page) => {
     if (!user) return;
     const currentFavorites = user.favorite_links || [];
     const newFavorites = currentFavorites.filter(f => f.page !== page);
     await base44.auth.updateMe({ favorite_links: newFavorites });
-    queryClient.invalidateQueries({ queryKey: ['current-user'] });
-  }, [user, queryClient]);
+    qClient.invalidateQueries({ queryKey: ['current-user'] });
+  }, [user, qClient]);
 
   return (
     <ThemeProvider>
@@ -707,3 +710,13 @@ export default function Layout({ children, currentPageName }) {
           </ThemeProvider>
           );
         }
+
+export default function Layout({ children, currentPageName }) {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <LayoutContent currentPageName={currentPageName}>
+        {children}
+      </LayoutContent>
+    </QueryClientProvider>
+  );
+}
