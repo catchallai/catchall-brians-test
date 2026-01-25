@@ -57,8 +57,14 @@ export default function UserProfile() {
   });
 
   const updateProfileMutation = useMutation({
-    mutationFn: (data) => base44.auth.updateMe(data),
-    onSuccess: () => {
+    mutationFn: async (data) => {
+      console.log('Sending to updateMe:', data);
+      const result = await base44.auth.updateMe(data);
+      console.log('updateMe response:', result);
+      return result;
+    },
+    onSuccess: (response) => {
+      console.log('Mutation success, refetching user...');
       queryClient.invalidateQueries({ queryKey: ['current-user'] });
       toast.success('Profile updated successfully');
     },
@@ -69,6 +75,7 @@ export default function UserProfile() {
   });
 
   const handleSaveProfile = () => {
+    console.log('Saving profile data:', profileData);
     updateProfileMutation.mutate(profileData);
   };
 
