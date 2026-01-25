@@ -20,12 +20,14 @@ import BulkActions from '@/components/ui/BulkActions';
 import ImportDialog from '@/components/ui/ImportDialog';
 import ConfirmDialog from '@/components/ui/ConfirmDialog';
 import ContactBulkActionsPanel from '@/components/crm/ContactBulkActionsPanel';
+import ContactDeduplicationTool from '@/components/crm/ContactDeduplicationTool';
+import BulkOwnerAssignment from '@/components/crm/BulkOwnerAssignment';
 import { useDebounce } from '@/components/hooks/useDebounce';
 import { exportToCSV } from '@/components/utils/exportData';
 import { useToast } from '@/components/ui/toast-provider';
 import { logActivity, ActivityActions } from '@/components/utils/activityLogger';
 
-const ITEMS_PER_PAGE = 25;
+const ITEMS_PER_PAGE = 50;
 
 export default function Contacts() {
   const [showModal, setShowModal] = useState(false);
@@ -95,11 +97,24 @@ export default function Contacts() {
     queryFn: () => base44.entities.Contact.list('-created_date', 1000),
   });
 
-  const contacts = allContacts.filter(c => showDeleted ? c.deleted : !c.deleted);
+  // Real-time subscription for changes
+  React.useEffect(() => {
+    const unsubscribe = base44.entities.Contact.subscribe((event) => {
+      queryClient.invalidateQueries({ queryKey: ['contacts'] });
+    });
+    return unsubscribe;
+  }, [queryClient]);
+
+  const contacts = allContacts.filter(c => showDeleted ? c.deleted : !c.deleted && !c.duplicate_of_id);
 
   const { data: companies = [] } = useQuery({
     queryKey: ['companies'],
     queryFn: () => base44.entities.Company.list('-created_date', 100),
+  });
+
+  const { data: teamMembers = [] } = useQuery({
+    queryKey: ['team-members'],
+    queryFn: () => base44.entities.User.list(),
   });
 
   const createMutation = useMutation({
@@ -487,6 +502,15 @@ export default function Contacts() {
 
   return (
     <div className="p-4 sm:p-6 lg:p-8 space-y-4 sm:space-y-6 min-h-screen">
+      {/* Duplicate Detection Banner */}
+      {allContacts.some(c => c.duplicate_of_id) && (
+        <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+          <p className="text-sm text-red-700 dark:text-red-300">
+            ⚠️ {allContacts.filter(c => c.duplicate_of_id).length} duplicate contacts detected. Use deduplication tool below to merge.
+          </p>
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
@@ -990,14 +1014,28 @@ export default function Contacts() {
         </>
       )}
 
+      {/* Deduplication Tool */}
+      {!showDeleted && (
+        <ContactDeduplicationTool 
+          contacts={allContacts} 
+          onDeduped={() => queryClient.invalidateQueries({ queryKey: ['contacts'] })}
+        />
+      )}
+
       {/* Bulk Actions */}
       {selectedIds.length > 0 && (
-       <div className="glass-card p-4 rounded-xl space-y-4">
-         <div className="flex items-center justify-between">
-           <div className="flex items-center gap-4">
-             <span className="font-semibold text-gray-900 dark:text-white">
-               {selectedIds.length} contact{selectedIds.length !== 1 ? 's' : ''} selected
-             </span>
+       <div className="space-y-4">
+         <BulkOwnerAssignment 
+           selectedIds={selectedIds} 
+           contacts={contacts}
+           teamMembers={teamMembers}
+         />
+         <div className="glass-card p-4 rounded-xl space-y-4">
+           <div className="flex items-center justify-between">
+             <div className="flex items-center gap-4">
+               <span className="font-semibold text-gray-900 dark:text-white">
+                 {selectedIds.length} contact{selectedIds.length !== 1 ? 's' : ''} selected
+               </span>
              {selectedIds.length < filteredContacts.length && (
                <Button
                  variant="ghost"
@@ -1057,10 +1095,11 @@ export default function Contacts() {
              Delete
            </Button>
          </div>
-       </div>
-      )}
+         </div>
+         </div>
+         )}
 
-      {/* Modal */}
+         {/* Modal */}
       <ContactModal
         open={showModal}
         onClose={() => { setShowModal(false); setEditingContact(null); }}
