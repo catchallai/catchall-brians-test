@@ -21,8 +21,10 @@ import AlertsManager from '@/components/aerospace/AlertsManager';
 import SWOTAnalysis from '@/components/aerospace/SWOTAnalysis';
 import CompetitorLandscape from '@/components/aerospace/CompetitorLandscape';
 import TrendCharts from '@/components/aerospace/TrendCharts';
+import CompanyComparison from '@/components/aerospace/CompanyComparison';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Checkbox } from "@/components/ui/checkbox";
 
 export default function AerospaceScanner() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -34,6 +36,8 @@ export default function AerospaceScanner() {
   const [isAddingCompany, setIsAddingCompany] = useState(false);
   const [advancedFilters, setAdvancedFilters] = useState(null);
   const [filtersForAlert, setFiltersForAlert] = useState(null);
+  const [selectedForComparison, setSelectedForComparison] = useState([]);
+  const [showComparison, setShowComparison] = useState(false);
   const queryClient = useQueryClient();
 
   const { data: companies = [], isLoading } = useQuery({
@@ -1087,6 +1091,15 @@ For well-known companies like Boeing, Lockheed Martin, SpaceX, etc., find their 
               </div>
             </div>
             <div className="flex gap-2">
+              {selectedForComparison.length > 0 && (
+                <Button
+                  onClick={() => setShowComparison(true)}
+                  className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 gap-2"
+                >
+                  <Target className="w-4 h-4" />
+                  Compare ({selectedForComparison.length})
+                </Button>
+              )}
               <Button
                 onClick={() => setShowAddCompany(true)}
                 variant="outline"
@@ -1292,7 +1305,19 @@ For well-known companies like Boeing, Lockheed Martin, SpaceX, etc., find their 
               <Card key={company.id} className="bg-white/80 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all">
                 <CardHeader className="pb-3">
                   <div className="flex items-start justify-between">
-                    <div className="flex-1">
+                    <div className="flex items-start gap-3 flex-1">
+                      <Checkbox
+                        checked={selectedForComparison.some(c => c.id === company.id)}
+                        onCheckedChange={(checked) => {
+                          if (checked) {
+                            setSelectedForComparison([...selectedForComparison, company]);
+                          } else {
+                            setSelectedForComparison(selectedForComparison.filter(c => c.id !== company.id));
+                          }
+                        }}
+                        className="mt-1"
+                      />
+                      <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2">
                         {company.logo_url && (
                           <img 
@@ -1339,6 +1364,7 @@ For well-known companies like Boeing, Lockheed Martin, SpaceX, etc., find their 
                           <ExternalLink className="w-3 h-3" />
                         </a>
                       )}
+                      </div>
                     </div>
                     <div className="flex gap-2">
                       <Button
@@ -1984,6 +2010,14 @@ For well-known companies like Boeing, Lockheed Martin, SpaceX, etc., find their 
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Company Comparison Modal */}
+      {showComparison && selectedForComparison.length > 0 && (
+        <CompanyComparison
+          companies={selectedForComparison}
+          onClose={() => setShowComparison(false)}
+        />
+      )}
     </div>
   );
 }
