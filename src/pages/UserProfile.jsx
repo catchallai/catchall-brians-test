@@ -28,6 +28,11 @@ export default function UserProfile() {
   const [profileData, setProfileData] = useState({
     full_name: user?.full_name || '',
     email: user?.email || '',
+    phone: user?.phone || '',
+    company: user?.company || '',
+    website: user?.website || '',
+    bio: user?.bio || '',
+    location: user?.location || '',
   });
 
   const [preferences, setPreferences] = useState({
@@ -91,6 +96,11 @@ export default function UserProfile() {
       setProfileData({
         full_name: user.full_name || '',
         email: user.email || '',
+        phone: user.phone || '',
+        company: user.company || '',
+        website: user.website || '',
+        bio: user.bio || '',
+        location: user.location || '',
       });
       setPreferences({
         email_notifications: user.email_notifications ?? true,
@@ -204,16 +214,16 @@ export default function UserProfile() {
               <div className="space-y-2">
                 <Label>Bio</Label>
                 <Input 
-                  value={user?.bio || ''}
-                  onChange={(e) => updateProfileMutation.mutate({bio: e.target.value})}
+                  value={profileData.bio}
+                  onChange={(e) => setProfileData({...profileData, bio: e.target.value})}
                   placeholder="Tell us about yourself"
                 />
               </div>
               <div className="space-y-2">
                 <Label>Location</Label>
                 <Input 
-                  value={user?.location || ''}
-                  onChange={(e) => updateProfileMutation.mutate({location: e.target.value})}
+                  value={profileData.location}
+                  onChange={(e) => setProfileData({...profileData, location: e.target.value})}
                   placeholder="City, Country"
                 />
               </div>
@@ -240,27 +250,27 @@ export default function UserProfile() {
             <CardContent className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>Phone Number</Label>
-                  <Input 
-                    value={user?.phone || ''}
-                    onChange={(e) => updateProfileMutation.mutate({phone: e.target.value})}
-                    placeholder="+1 (555) 000-0000"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Company</Label>
-                  <Input 
-                    value={user?.company || ''}
-                    onChange={(e) => updateProfileMutation.mutate({company: e.target.value})}
-                    placeholder="Your company name"
-                  />
-                </div>
+                    <Label>Phone Number</Label>
+                    <Input 
+                      value={profileData.phone}
+                      onChange={(e) => setProfileData({...profileData, phone: e.target.value})}
+                      placeholder="+1 (555) 000-0000"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Company</Label>
+                    <Input 
+                      value={profileData.company}
+                      onChange={(e) => setProfileData({...profileData, company: e.target.value})}
+                      placeholder="Your company name"
+                    />
+                  </div>
               </div>
               <div className="space-y-2">
                 <Label>Website</Label>
                 <Input 
-                  value={user?.website || ''}
-                  onChange={(e) => updateProfileMutation.mutate({website: e.target.value})}
+                  value={profileData.website}
+                  onChange={(e) => setProfileData({...profileData, website: e.target.value})}
                   placeholder="https://yourwebsite.com"
                 />
               </div>
