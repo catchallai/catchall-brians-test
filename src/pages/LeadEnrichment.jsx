@@ -2,18 +2,22 @@ import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { Users, Plus } from "lucide-react";
 import LeadEnrichmentModal from '@/components/sales/LeadEnrichmentModal';
 import EnrichedLeadsTable from '@/components/sales/EnrichedLeadsTable';
 import EmptyState from '@/components/ui/EmptyState';
+import EnrichmentQualityDisplay from '@/components/sales/EnrichmentQualityDisplay';
 
 export default function LeadEnrichment() {
   const [showEnrichmentModal, setShowEnrichmentModal] = useState(false);
+  const [selectedLead, setSelectedLead] = useState(null);
+  const [minScore, setMinScore] = useState(0);
   const queryClient = useQueryClient();
 
   const { data: enrichedLeads = [], isLoading } = useQuery({
     queryKey: ['enriched-leads'],
-    queryFn: () => base44.entities.LeadEnrichment.list('-created_date', 100),
+    queryFn: () => base44.entities.LeadEnrichment.list('-enrichment_score', 100),
   });
 
   const { data: contacts = [] } = useQuery({
@@ -145,6 +149,28 @@ Also provide an enrichment_score (0-100) based on how much data was found.`,
         </Button>
       </div>
 
+      {/* Quality Filter */}
+      {enrichedLeads.length > 0 && (
+        <Card className="glass-card">
+          <CardContent className="p-4">
+            <label className="flex items-center gap-3">
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                Min Quality Score:
+              </span>
+              <input
+                type="range"
+                min="0"
+                max="100"
+                value={minScore}
+                onChange={(e) => setMinScore(parseInt(e.target.value))}
+                className="flex-1 max-w-xs"
+              />
+              <span className="text-sm font-bold text-gray-900 dark:text-white">{minScore}</span>
+            </label>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Enriched Leads */}
       {enrichedLeads.length === 0 ? (
         <EmptyState
@@ -155,10 +181,86 @@ Also provide an enrichment_score (0-100) based on how much data was found.`,
           onAction={() => setShowEnrichmentModal(true)}
         />
       ) : (
-        <EnrichedLeadsTable
-          leads={enrichedLeads}
-          onCreateContact={(lead) => createContactFromLeadMutation.mutate(lead)}
-        />
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {enrichedLeads.filter(l => l.enrichment_score >= minScore).map(lead => (
+              <div 
+                key={lead.id}
+                className="cursor-pointer" 
+                onClick={() => setSelectedLead(lead)}
+              >
+                <EnrichmentQualityDisplay lead={lead} />
+              </div>
+            ))}
+          </div>
+
+          {selectedLead && (
+            <Card className="glass-card col-span-full">
+              <CardContent className="p-6">
+                <div className="flex items-start justify-between mb-4">
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                      {selectedLead.full_name}
+                    </h3>
+                    <p className="text-sm text-gray-500 mt-1">{selectedLead.headline}</p>
+                  </div>
+                  <Button 
+                    onClick={() => createContactFromLeadMutation.mutate(selectedLead)}
+                    disabled={createContactFromLeadMutation.isPending}
+                  >
+                    Add to Contacts
+                  </Button>
+                </div>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
+                  {selectedLead.email && (
+                    <div>
+                      <p className="text-xs text-gray-500">Email</p>
+                      <p className="font-medium text-gray-900 dark:text-white">{selectedLead.email}</p>
+                    </div>
+                  )}
+                  {selectedLead.phone && (
+                    <div>
+                      <p className="text-xs text-gray-500">Phone</p>
+                      <p className="font-medium text-gray-900 dark:text-white">{selectedLead.phone}</p>
+                    </div>
+                  )}
+                  {selectedLead.company && (
+                    <div>
+                      <p className="text-xs text-gray-500">Company</p>
+                      <p className="font-medium text-gray-900 dark:text-white">{selectedLead.company}</p>
+                    </div>
+                  )}
+                  {selectedLead.job_title && (
+                    <div>
+                      <p className="text-xs text-gray-500">Title</p>
+                      <p className="font-medium text-gray-900 dark:text-white">{selectedLead.job_title}</p>
+                    </div>
+                  )}
+                  {selectedLead.location && (
+                    <div>
+                      <p className="text-xs text-gray-500">Location</p>
+                      <p className="font-medium text-gray-900 dark:text-white">{selectedLead.location}</p>
+                    </div>
+                  )}
+                  {selectedLead.connections && (
+                    <div>
+                      <p className="text-xs text-gray-500">Connections</p>
+                      <p className="font-medium text-gray-900 dark:text-white">{selectedLead.connections}</p>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          <div>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">All Enriched Leads</h3>
+            <EnrichedLeadsTable
+              leads={enrichedLeads.filter(l => l.enrichment_score >= minScore)}
+              onCreateContact={(lead) => createContactFromLeadMutation.mutate(lead)}
+            />
+          </div>
+        </div>
       )}
 
       {/* Modal */}
