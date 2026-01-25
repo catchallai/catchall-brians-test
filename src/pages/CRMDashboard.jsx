@@ -43,6 +43,13 @@ export default function CRMDashboard() {
 
   const isLoading = loadingContacts || loadingCompanies || loadingOpportunities || loadingDeals || loadingActivities || loadingEmailLogs;
 
+  // Alert data
+  const unownedContacts = contacts.filter(c => !c.owner_email && c.status === 'lead').length;
+  const overdueDealsProbability = deals.filter(d => {
+    const daysUntilClose = new Date(d.expected_close_date) - new Date();
+    return daysUntilClose < 0 && d.stage !== 'won' && d.stage !== 'lost';
+  }).length;
+
   const now = new Date();
   const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
   const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
@@ -124,6 +131,22 @@ export default function CRMDashboard() {
           Customer relationship management overview
         </p>
       </div>
+
+      {/* Alerts */}
+      {unownedContacts > 0 && (
+        <div className="p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl">
+          <p className="text-sm text-amber-800 dark:text-amber-200">
+            ⚠️ <strong>{unownedContacts} leads</strong> need owner assignment to prevent duplicate outreach
+          </p>
+        </div>
+      )}
+      {overdueDealsProbability > 0 && (
+        <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl">
+          <p className="text-sm text-red-800 dark:text-red-200">
+            🔴 <strong>{overdueDealsProbability} deals</strong> past expected close date
+          </p>
+        </div>
+      )}
 
       {/* Primary Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
