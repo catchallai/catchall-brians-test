@@ -62,9 +62,6 @@ import KeyboardShortcutsDialog, { useKeyboardShortcuts } from '@/components/ui/K
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient, QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useFeatures, PAGE_FEATURE_MAP } from '@/components/hooks/useFeatures';
-
-// Create a client
-const queryClient = new QueryClient();
 import OnboardingModal from '@/components/onboarding/OnboardingModal';
 import { ToastProvider } from '@/components/ui/toast-provider';
 import {
@@ -74,6 +71,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+
+// Create a client
+const queryClient = new QueryClient();
 
 const navigation = [
   { name: 'Brand Dashboard', icon: LayoutDashboard, page: 'Dashboard' },
