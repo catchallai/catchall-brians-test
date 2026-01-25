@@ -18,6 +18,9 @@ import RenewalTracker from '@/components/success/RenewalTracker';
 import RevenueMetrics from '@/components/success/RevenueMetrics';
 import CSMWorkloadView from '@/components/success/CSMWorkloadView';
 import ExecutiveScorecard from '@/components/success/ExecutiveScorecard';
+import ChurnRiskPredictor from '@/components/success/ChurnRiskPredictor';
+import BatchOperations from '@/components/success/BatchOperations';
+import CustomerSegmentation from '@/components/success/CustomerSegmentation';
 
 export default function CustomerSuccessDashboard() {
   const [csmFilter, setCsmFilter] = useState('all');
@@ -127,14 +130,14 @@ export default function CustomerSuccessDashboard() {
   const isLoading = loadingHealth || loadingOnboarding || loadingOpps;
 
   return (
-     <div className="p-4 sm:p-6 lg:p-8 space-y-6">
+     <div className="p-2 sm:p-4 lg:p-6 space-y-4 sm:space-y-6">
        {/* Header */}
-       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-         <div>
-           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">CS Dashboard</h1>
-           <p className="text-gray-500 mt-1">Tasks, alerts, renewals, revenue, and team performance</p>
+       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4">
+         <div className="min-w-0">
+           <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white truncate">CS Dashboard</h1>
+           <p className="text-xs sm:text-sm text-gray-500 mt-1">Tasks, alerts, renewals, revenue, and team performance</p>
          </div>
-        <div className="flex gap-2">
+         <div className="flex gap-2 flex-wrap">
           <Select value={csmFilter} onValueChange={setCsmFilter}>
             <SelectTrigger className="w-40">
               <SelectValue placeholder="Filter by CSM" />
@@ -166,69 +169,92 @@ export default function CustomerSuccessDashboard() {
           {[...Array(6)].map((_, i) => <Skeleton key={i} className="h-32 rounded-xl" />)}
         </div>
       ) : (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-          <Card className="glass-card">
-            <CardContent className="p-4 text-center">
-              <Heart className="w-6 h-6 text-violet-500 mx-auto mb-2" />
-              <p className="text-3xl font-bold text-violet-600">{avgHealth}</p>
-              <p className="text-xs text-gray-500">Avg Health</p>
+         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-3 lg:gap-4">
+           <Card className="glass-card">
+             <CardContent className="p-3 sm:p-4 text-center">
+               <Heart className="w-4 sm:w-6 h-4 sm:h-6 text-violet-500 mx-auto mb-1 sm:mb-2" />
+               <p className="text-xl sm:text-3xl font-bold text-violet-600">{avgHealth}</p>
+               <p className="text-xs text-gray-500">Avg Health</p>
             </CardContent>
           </Card>
           <Card className="glass-card">
-            <CardContent className="p-4 text-center">
-              <CheckCircle className="w-6 h-6 text-emerald-500 mx-auto mb-2" />
-              <p className="text-3xl font-bold text-emerald-600">{healthyCount}</p>
+            <CardContent className="p-3 sm:p-4 text-center">
+              <CheckCircle className="w-4 sm:w-6 h-4 sm:h-6 text-emerald-500 mx-auto mb-1 sm:mb-2" />
+              <p className="text-xl sm:text-3xl font-bold text-emerald-600">{healthyCount}</p>
               <p className="text-xs text-gray-500">Healthy</p>
             </CardContent>
           </Card>
           <Card className="glass-card">
-            <CardContent className="p-4 text-center">
-              <TrendingDown className="w-6 h-6 text-amber-500 mx-auto mb-2" />
-              <p className="text-3xl font-bold text-amber-600">{atRiskCount}</p>
+            <CardContent className="p-3 sm:p-4 text-center">
+              <TrendingDown className="w-4 sm:w-6 h-4 sm:h-6 text-amber-500 mx-auto mb-1 sm:mb-2" />
+              <p className="text-xl sm:text-3xl font-bold text-amber-600">{atRiskCount}</p>
               <p className="text-xs text-gray-500">At Risk</p>
             </CardContent>
           </Card>
           <Card className="glass-card">
-            <CardContent className="p-4 text-center">
-              <Users className="w-6 h-6 text-blue-500 mx-auto mb-2" />
-              <p className="text-3xl font-bold text-blue-600">{avgOnboardingProgress}%</p>
+            <CardContent className="p-3 sm:p-4 text-center">
+              <Users className="w-4 sm:w-6 h-4 sm:h-6 text-blue-500 mx-auto mb-1 sm:mb-2" />
+              <p className="text-xl sm:text-3xl font-bold text-blue-600">{avgOnboardingProgress}%</p>
               <p className="text-xs text-gray-500">Onboarding Avg</p>
             </CardContent>
           </Card>
           <Card className="glass-card">
-            <CardContent className="p-4 text-center">
-              <Target className="w-6 h-6 text-violet-500 mx-auto mb-2" />
-              <p className="text-3xl font-bold text-violet-600">${(totalOppValue / 1000).toFixed(0)}K</p>
-              <p className="text-xs text-gray-500">Pipeline Value</p>
+            <CardContent className="p-3 sm:p-4 text-center">
+              <Target className="w-4 sm:w-6 h-4 sm:h-6 text-violet-500 mx-auto mb-1 sm:mb-2" />
+              <p className="text-xl sm:text-3xl font-bold text-violet-600">${(totalOppValue / 1000).toFixed(0)}K</p>
+              <p className="text-xs text-gray-500">Pipeline</p>
             </CardContent>
           </Card>
           <Card className="glass-card">
-            <CardContent className="p-4 text-center">
-              <TrendingUp className="w-6 h-6 text-emerald-500 mx-auto mb-2" />
-              <p className="text-3xl font-bold text-emerald-600">{conversionRate}%</p>
-              <p className="text-xs text-gray-500">Conversion Rate</p>
+            <CardContent className="p-3 sm:p-4 text-center">
+              <TrendingUp className="w-4 sm:w-6 h-4 sm:h-6 text-emerald-500 mx-auto mb-1 sm:mb-2" />
+              <p className="text-xl sm:text-3xl font-bold text-emerald-600">{conversionRate}%</p>
+              <p className="text-xs text-gray-500">Conv Rate</p>
             </CardContent>
           </Card>
         </div>
       )}
 
       {/* Executive Scorecard */}
-       <ExecutiveScorecard />
+      <div className="overflow-x-auto">
+        <ExecutiveScorecard />
+      </div>
 
-       {/* Tasks & Alerts */}
-       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-         <CSMTaskManager csmFilter={csmFilter} />
-         <AlertCenter />
-       </div>
+      {/* Tasks & Alerts */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+        <div className="overflow-hidden">
+          <CSMTaskManager csmFilter={csmFilter} />
+        </div>
+        <div className="overflow-hidden">
+          <AlertCenter />
+        </div>
+      </div>
 
-       {/* Renewals & Revenue */}
-       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-         <RenewalTracker />
-         <RevenueMetrics />
-       </div>
+      {/* Renewals & Revenue */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+        <div className="overflow-hidden">
+          <RenewalTracker />
+        </div>
+        <div className="overflow-hidden">
+          <RevenueMetrics />
+        </div>
+      </div>
 
-       {/* CSM Workload */}
-       <CSMWorkloadView />
+      {/* Churn Risk & Segmentation */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+        <ChurnRiskPredictor contacts={contacts} />
+        <CustomerSegmentation contacts={contacts} healthScores={filteredHealthScores} />
+      </div>
+
+      {/* Batch Operations & CSM Workload */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+        <div className="overflow-hidden">
+          <BatchOperations contacts={contacts} />
+        </div>
+        <div className="overflow-hidden">
+          <CSMWorkloadView />
+        </div>
+      </div>
 
        {/* Churn Risk Analytics */}
        <ChurnRiskAnalytics
