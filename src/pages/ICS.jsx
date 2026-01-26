@@ -78,6 +78,26 @@ export default function ICS() {
     queryFn: () => base44.auth.me(),
   });
 
+  // Initialize real-time notifications
+  const { markAsRead, markChannelAsRead, unreadCounts } = useICCNotifications(
+    user,
+    channels,
+    messages
+  );
+
+  // Handle notification click - navigate to channel
+  useEffect(() => {
+    if (clickedNotification) {
+      const channel = channels?.find(c => c.id === clickedNotification.channel_id);
+      if (channel) {
+        setSelectedChannel(channel);
+        markChannelAsRead(clickedNotification.channel_id);
+        setActiveView('chat');
+        setClickedNotification(null);
+      }
+    }
+  }, [clickedNotification, channels, markChannelAsRead]);
+
   const { userPresence, allPresence, getPresence, updatePresence } = usePresence(user);
 
   // Load notification preferences
@@ -508,13 +528,21 @@ export default function ICS() {
 
   return (
     <div className="h-screen flex bg-slate-50">
+      {/* Real-time notification alert */}
+      <NotificationAlert
+        channelId={selectedChannel?.id}
+        user={user}
+        onNotificationClick={setClickedNotification}
+      />
+
       <Sidebar
         activeView={activeView}
         onViewChange={setActiveView}
         onSettingsClick={() => setShowSettings(true)}
         onAccountClick={() => setActiveView('account')}
         user={user}
-        unreadCount={channels.filter(c => messages.filter(m => m.channel_id === c.id && m.created_date > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)).length > 0).length}
+        unreadCount={Object.values(unreadCounts).reduce((sum, count) => sum + count, 0)}
+        unreadCounts={unreadCounts}
         notificationButton={
           <div className="flex flex-col gap-2 w-full">
             <NotificationCenter user={user} />
