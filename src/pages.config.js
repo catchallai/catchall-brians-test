@@ -161,7 +161,7 @@ export const PAGES = {
     "ProjectCalendar": ProjectCalendar,
     "ProjectDetail": ProjectDetail,
     "Projects": Projects,
-    "ProjectsEnhanced": ProjectsEnhanced,
+    "ProjectsDashboard": ProjectsDashboard,
     "Proposals": Proposals,
     "PublicDataRoom": PublicDataRoom,
     "PublicDocumentViewer": PublicDocumentViewer,
