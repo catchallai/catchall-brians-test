@@ -75,7 +75,13 @@ export default function NotificationPreferences({ user, onPreferencesUpdate }) {
     setPrefs(prev => ({ ...prev, [key]: value }));
   };
 
-  if (!prefs) return null;
+  if (!prefs) {
+    return (
+      <Button variant="ghost" size="icon" title="Notification settings" disabled>
+        <Settings className="w-5 h-5" />
+      </Button>
+    );
+  }
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
