@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -48,7 +49,7 @@ export default function Reports() {
   const [versionHistoryReport, setVersionHistoryReport] = useState(null);
   const [showScheduleModal, setShowScheduleModal] = useState(false);
   const [schedulingReport, setSchedulingReport] = useState(null);
-  const [showShareModal, setShowShareModal] = useState(false);
+  const [showTeamShareModal, setShowTeamShareModal] = useState(false);
   const [sharingReport, setSharingReport] = useState(null);
   const [showComments, setShowComments] = useState(false);
   const [commentingReport, setCommentingReport] = useState(null);
@@ -367,7 +368,7 @@ export default function Reports() {
           }}
           onShare={(report) => {
             setSharingReport(report);
-            setShowShareModal(true);
+            setShowTeamShareModal(true);
           }}
           onComment={(report) => {
             setCommentingReport(report);
@@ -475,13 +476,13 @@ export default function Reports() {
         />
       )}
 
-      {/* Share Modal */}
+      {/* Team Share Modal */}
       {sharingReport && (
         <ReportShareModal
           report={sharingReport}
-          open={showShareModal}
+          open={showTeamShareModal}
           onClose={() => {
-            setShowShareModal(false);
+            setShowTeamShareModal(false);
             setSharingReport(null);
           }}
         />
