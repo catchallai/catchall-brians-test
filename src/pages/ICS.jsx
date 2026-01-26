@@ -114,6 +114,26 @@ export default function ICS() {
     enabled: !!user,
   });
 
+  // Initialize real-time notifications
+  const { markAsRead, markChannelAsRead, unreadCounts } = useICCNotifications(
+    user,
+    channels,
+    messages
+  );
+
+  // Handle notification click - navigate to channel
+  useEffect(() => {
+    if (clickedNotification) {
+      const channel = channels?.find(c => c.id === clickedNotification.channel_id);
+      if (channel) {
+        setSelectedChannel(channel);
+        markChannelAsRead(clickedNotification.channel_id);
+        setActiveView('chat');
+        setClickedNotification(null);
+      }
+    }
+  }, [clickedNotification, channels, markChannelAsRead]);
+
   const { data: allUsers = [] } = useQuery({
     queryKey: ['all-users'],
     queryFn: async () => {
