@@ -183,6 +183,46 @@ export default function ExecutiveDashboard() {
           />
         </div>
 
+      {/* Quick Action Buttons */}
+      <div className="grid grid-cols-3 lg:grid-cols-6 gap-2">
+        <Link to={createPageUrl('SalesHub')}>
+          <Button variant="outline" className="w-full flex flex-col items-center gap-2 h-auto py-3 dark:border-gray-700">
+            <Zap className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+            <span className="text-xs font-medium">Sales Hub</span>
+          </Button>
+        </Link>
+        <Link to={createPageUrl('MarketingHub')}>
+          <Button variant="outline" className="w-full flex flex-col items-center gap-2 h-auto py-3 dark:border-gray-700">
+            <BarChart3 className="w-5 h-5 text-violet-600 dark:text-violet-400" />
+            <span className="text-xs font-medium">Marketing</span>
+          </Button>
+        </Link>
+        <Link to={createPageUrl('Reports')}>
+          <Button variant="outline" className="w-full flex flex-col items-center gap-2 h-auto py-3 dark:border-gray-700">
+            <FileBarChart className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+            <span className="text-xs font-medium">Reports</span>
+          </Button>
+        </Link>
+        <Link to={createPageUrl('VisitorProfiles')}>
+          <Button variant="outline" className="w-full flex flex-col items-center gap-2 h-auto py-3 dark:border-gray-700">
+            <Users className="w-5 h-5 text-cyan-600 dark:text-cyan-400" />
+            <span className="text-xs font-medium">Leads</span>
+          </Button>
+        </Link>
+        <Link to={createPageUrl('Reservations')}>
+          <Button variant="outline" className="w-full flex flex-col items-center gap-2 h-auto py-3 dark:border-gray-700">
+            <Clock className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+            <span className="text-xs font-medium">Calendar</span>
+          </Button>
+        </Link>
+        <Link to={createPageUrl('ICS')}>
+          <Button variant="outline" className="w-full flex flex-col items-center gap-2 h-auto py-3 dark:border-gray-700">
+            <Activity className="w-5 h-5 text-rose-600 dark:text-rose-400" />
+            <span className="text-xs font-medium">Team</span>
+          </Button>
+        </Link>
+      </div>
+
       {/* Quick Access Sections */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
         {/* Competitor Analysis */}
