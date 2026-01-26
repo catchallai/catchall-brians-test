@@ -369,7 +369,9 @@ export default function WhiteboardCanvas({ isHost, onDataChange, versions = [], 
                     <div>
                       <p className="text-sm font-medium">Version {version.version_number}</p>
                       <p className="text-xs text-gray-500">{version.created_by}</p>
-                      <p className="text-xs text-gray-400">{new Date(version.timestamp).toLocaleString()}</p>
+                      {version.timestamp && (
+                        <p className="text-xs text-gray-400">{new Date(version.timestamp).toLocaleString()}</p>
+                      )}
                       {version.description && (
                         <p className="text-xs text-gray-600 mt-1">{version.description}</p>
                       )}
