@@ -277,6 +277,21 @@ export default function VideoCallInterface({
                     )}
                   </>
                 )}
+                {isHost && (
+                  <>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={togglePublicJoin}>
+                      <LinkIcon className="w-4 h-4 mr-2" />
+                      Public Join {activeCall?.settings?.allow_public_join ? 'On' : 'Off'}
+                    </DropdownMenuItem>
+                    {activeCall?.settings?.allow_public_join && (
+                      <DropdownMenuItem onClick={() => setShowPublicLink(true)}>
+                        <Copy className="w-4 h-4 mr-2" />
+                        Copy Join Link
+                      </DropdownMenuItem>
+                    )}
+                  </>
+                )}
               </DropdownMenuContent>
             </DropdownMenu>
             <Button onClick={onEndCall} variant="destructive">
