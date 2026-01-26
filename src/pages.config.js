@@ -29,6 +29,7 @@ import EmailMarketing from './pages/EmailMarketing';
 import EmailTracking from './pages/EmailTracking';
 import EquipmentInventory from './pages/EquipmentInventory';
 import ExecutiveDashboard from './pages/ExecutiveDashboard';
+import FeedbackManagement from './pages/FeedbackManagement';
 import GoogleCalendarCallback from './pages/GoogleCalendarCallback';
 import HashtagManager from './pages/HashtagManager';
 import HelpCenter from './pages/HelpCenter';
@@ -41,6 +42,7 @@ import LeadEnrichment from './pages/LeadEnrichment';
 import LegalDocuments from './pages/LegalDocuments';
 import Listings from './pages/Listings';
 import LocalSEO from './pages/LocalSEO';
+import MarketingDashboard from './pages/MarketingDashboard';
 import MarketingHub from './pages/MarketingHub';
 import MediaLibrary from './pages/MediaLibrary';
 import MediaOutreach from './pages/MediaOutreach';
@@ -66,6 +68,7 @@ import Reservations from './pages/Reservations';
 import SEOAudit from './pages/SEOAudit';
 import SEODashboard from './pages/SEODashboard';
 import SEODashboardPage from './pages/SEODashboardPage';
+import SEOOpportunities from './pages/SEOOpportunities';
 import SEOTools from './pages/SEOTools';
 import SalesDashboard from './pages/SalesDashboard';
 import SalesHub from './pages/SalesHub';
@@ -77,6 +80,7 @@ import SocialDashboard from './pages/SocialDashboard';
 import SocialLeads from './pages/SocialLeads';
 import SocialListening from './pages/SocialListening';
 import SocialMedia from './pages/SocialMedia';
+import SocialPerformance from './pages/SocialPerformance';
 import SpaceDetail from './pages/SpaceDetail';
 import SpaceTemplates from './pages/SpaceTemplates';
 import Spaces from './pages/Spaces';
@@ -90,10 +94,7 @@ import WebDashboard from './pages/WebDashboard';
 import WikiPageEditor from './pages/WikiPageEditor';
 import WorkflowBuilder from './pages/WorkflowBuilder';
 import WorkflowEngine from './pages/WorkflowEngine';
-import FeedbackManagement from './pages/FeedbackManagement';
-import SEOOpportunities from './pages/SEOOpportunities';
-import SocialPerformance from './pages/SocialPerformance';
-import MarketingDashboard from './pages/MarketingDashboard';
+import WebAnalyticsAdvanced from './pages/WebAnalyticsAdvanced';
 import __Layout from './Layout.jsx';
 
 
@@ -129,6 +130,7 @@ export const PAGES = {
     "EmailTracking": EmailTracking,
     "EquipmentInventory": EquipmentInventory,
     "ExecutiveDashboard": ExecutiveDashboard,
+    "FeedbackManagement": FeedbackManagement,
     "GoogleCalendarCallback": GoogleCalendarCallback,
     "HashtagManager": HashtagManager,
     "HelpCenter": HelpCenter,
@@ -141,6 +143,7 @@ export const PAGES = {
     "LegalDocuments": LegalDocuments,
     "Listings": Listings,
     "LocalSEO": LocalSEO,
+    "MarketingDashboard": MarketingDashboard,
     "MarketingHub": MarketingHub,
     "MediaLibrary": MediaLibrary,
     "MediaOutreach": MediaOutreach,
@@ -166,6 +169,7 @@ export const PAGES = {
     "SEOAudit": SEOAudit,
     "SEODashboard": SEODashboard,
     "SEODashboardPage": SEODashboardPage,
+    "SEOOpportunities": SEOOpportunities,
     "SEOTools": SEOTools,
     "SalesDashboard": SalesDashboard,
     "SalesHub": SalesHub,
@@ -177,6 +181,7 @@ export const PAGES = {
     "SocialLeads": SocialLeads,
     "SocialListening": SocialListening,
     "SocialMedia": SocialMedia,
+    "SocialPerformance": SocialPerformance,
     "SpaceDetail": SpaceDetail,
     "SpaceTemplates": SpaceTemplates,
     "Spaces": Spaces,
@@ -190,10 +195,7 @@ export const PAGES = {
     "WikiPageEditor": WikiPageEditor,
     "WorkflowBuilder": WorkflowBuilder,
     "WorkflowEngine": WorkflowEngine,
-    "FeedbackManagement": FeedbackManagement,
-    "SEOOpportunities": SEOOpportunities,
-    "SocialPerformance": SocialPerformance,
-    "MarketingDashboard": MarketingDashboard,
+    "WebAnalyticsAdvanced": WebAnalyticsAdvanced,
 }
 
 export const pagesConfig = {

@@ -132,6 +132,7 @@ const navigation = [
   { name: 'divider', label: 'Web', collapsible: true },
   { name: 'Web Dashboard', icon: BarChart3, page: 'WebDashboard' },
   { name: 'Web Analytics', icon: Globe, page: 'TrafficAnalytics' },
+  { name: 'Advanced Analytics', icon: Activity, page: 'WebAnalyticsAdvanced' },
   { name: 'Web Audit/Reports', icon: FileSearch, page: 'SEOAudit' },
   { name: 'Web Crawler', icon: Globe, page: 'WebCrawler' },
   { name: 'Contact Forms', icon: FileText, page: 'ContactForms' },
