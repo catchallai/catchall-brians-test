@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useICCNotifications } from '@/components/ics/useICCNotifications';
+import NotificationAlert from '@/components/ics/NotificationAlert';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
@@ -67,6 +69,7 @@ export default function ICS() {
   const [showContactPanel, setShowContactPanel] = useState(false);
   const [editingOwnProfile, setEditingOwnProfile] = useState(false);
   const [incomingCall, setIncomingCall] = useState(null);
+  const [clickedNotification, setClickedNotification] = useState(null);
   const [newChannelName, setNewChannelName] = useState('');
   const [newChannelDesc, setNewChannelDesc] = useState('');
   const [newChannelType, setNewChannelType] = useState('public');
@@ -77,26 +80,6 @@ export default function ICS() {
     queryKey: ['current-user'],
     queryFn: () => base44.auth.me(),
   });
-
-  // Initialize real-time notifications
-  const { markAsRead, markChannelAsRead, unreadCounts } = useICCNotifications(
-    user,
-    channels,
-    messages
-  );
-
-  // Handle notification click - navigate to channel
-  useEffect(() => {
-    if (clickedNotification) {
-      const channel = channels?.find(c => c.id === clickedNotification.channel_id);
-      if (channel) {
-        setSelectedChannel(channel);
-        markChannelAsRead(clickedNotification.channel_id);
-        setActiveView('chat');
-        setClickedNotification(null);
-      }
-    }
-  }, [clickedNotification, channels, markChannelAsRead]);
 
   const { userPresence, allPresence, getPresence, updatePresence } = usePresence(user);
 
