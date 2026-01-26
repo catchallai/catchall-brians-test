@@ -7,7 +7,7 @@ import { base44 } from '@/api/base44Client';
 import { 
   Calendar, Clock, Users, MoreHorizontal, Play, Download, 
   Trash2, Copy, Share2, AlertCircle, CheckCircle, Loader2,
-  Search, Target, Link2, MapPin, FileText, PieChart, TrendingUp, Mail, Activity
+  Search, Target, Link2, MapPin, FileText, PieChart, TrendingUp, Mail, Activity, History
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -232,6 +232,22 @@ export default function ReportList({
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => onRun(report)}>
+                        <Play className="w-4 h-4 mr-2" />
+                        Run Now
+                      </DropdownMenuItem>
+                      {onSchedule && (
+                        <DropdownMenuItem onClick={() => onSchedule(report)}>
+                          <Calendar className="w-4 h-4 mr-2" />
+                          Schedule
+                        </DropdownMenuItem>
+                      )}
+                      {onViewHistory && (
+                        <DropdownMenuItem onClick={() => onViewHistory(report)}>
+                          <History className="w-4 h-4 mr-2" />
+                          Version History
+                        </DropdownMenuItem>
+                      )}
                       <DropdownMenuItem onClick={() => onDuplicate(report)}>
                         <Copy className="w-4 h-4 mr-2" />
                         Duplicate
