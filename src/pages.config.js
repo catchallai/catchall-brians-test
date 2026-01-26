@@ -56,6 +56,7 @@ import PressMonitoring from './pages/PressMonitoring';
 import ProjectCalendar from './pages/ProjectCalendar';
 import ProjectDetail from './pages/ProjectDetail';
 import Projects from './pages/Projects';
+import ProjectsEnhanced from './pages/ProjectsEnhanced';
 import Proposals from './pages/Proposals';
 import PublicDataRoom from './pages/PublicDataRoom';
 import PublicDocumentViewer from './pages/PublicDocumentViewer';
@@ -89,13 +90,13 @@ import TrafficAnalytics from './pages/TrafficAnalytics';
 import UserProfile from './pages/UserProfile';
 import UserSettings from './pages/UserSettings';
 import VisitorProfiles from './pages/VisitorProfiles';
+import WebAnalyticsAdvanced from './pages/WebAnalyticsAdvanced';
 import WebCrawler from './pages/WebCrawler';
 import WebDashboard from './pages/WebDashboard';
 import WikiPageEditor from './pages/WikiPageEditor';
 import WorkflowBuilder from './pages/WorkflowBuilder';
 import WorkflowEngine from './pages/WorkflowEngine';
-import WebAnalyticsAdvanced from './pages/WebAnalyticsAdvanced';
-import ProjectsEnhanced from './pages/ProjectsEnhanced';
+import Inbox from './pages/Inbox';
 import __Layout from './Layout.jsx';
 
 
@@ -158,6 +159,7 @@ export const PAGES = {
     "ProjectCalendar": ProjectCalendar,
     "ProjectDetail": ProjectDetail,
     "Projects": Projects,
+    "ProjectsEnhanced": ProjectsEnhanced,
     "Proposals": Proposals,
     "PublicDataRoom": PublicDataRoom,
     "PublicDocumentViewer": PublicDocumentViewer,
@@ -191,13 +193,13 @@ export const PAGES = {
     "UserProfile": UserProfile,
     "UserSettings": UserSettings,
     "VisitorProfiles": VisitorProfiles,
+    "WebAnalyticsAdvanced": WebAnalyticsAdvanced,
     "WebCrawler": WebCrawler,
     "WebDashboard": WebDashboard,
     "WikiPageEditor": WikiPageEditor,
     "WorkflowBuilder": WorkflowBuilder,
     "WorkflowEngine": WorkflowEngine,
-    "WebAnalyticsAdvanced": WebAnalyticsAdvanced,
-    "ProjectsEnhanced": ProjectsEnhanced,
+    "Inbox": Inbox,
 }
 
 export const pagesConfig = {

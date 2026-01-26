@@ -157,10 +157,12 @@ export default function ProjectDetail() {
             </Badge>
           </div>
         </div>
-        <Button variant="outline" size="sm" className="gap-2">
-          <Edit2 className="w-4 h-4" />
-          Edit Project
-        </Button>
+        <Link to={`${createPageUrl('Projects')}`}>
+          <Button variant="outline" size="sm" className="gap-2">
+            <Edit2 className="w-4 h-4" />
+            Edit Project
+          </Button>
+        </Link>
       </div>
 
       {/* Progress & Stats */}

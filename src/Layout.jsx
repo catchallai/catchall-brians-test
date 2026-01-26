@@ -140,6 +140,7 @@ const navigation = [
   { name: 'Web Crawler', icon: Globe, page: 'WebCrawler' },
   { name: 'Contact Forms', icon: FileText, page: 'ContactForms' },
   { name: 'divider', label: 'Project Management', collapsible: true },
+  { name: 'Inbox', icon: MessageSquare, page: 'Inbox' },
   { name: 'Projects', icon: Briefcase, page: 'Projects' },
   { name: 'Project Board', icon: LayoutDashboard, page: 'ProjectsEnhanced' },
   { name: 'Project Calendar', icon: CalendarDays, page: 'ProjectCalendar' },
