@@ -298,7 +298,6 @@ export default function Reports() {
         </div>
 
         {/* Report List */}
-        <>
         <ReportList 
           reports={filteredReports}
           selectedIds={selectedReportIds}
