@@ -58,6 +58,8 @@ export default function ReportList({
   onRun, 
   onDelete, 
   onDuplicate,
+  onExport,
+  onView,
   runningId 
 }) {
   const [downloadingId, setDownloadingId] = React.useState(null);
@@ -133,7 +135,10 @@ export default function ReportList({
                 {/* Main Info */}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <h3 className="font-medium text-gray-900 dark:text-white hover:text-violet-600 dark:hover:text-violet-400 cursor-pointer">
+                    <h3 
+                      className="font-medium text-gray-900 dark:text-white hover:text-violet-600 dark:hover:text-violet-400 cursor-pointer"
+                      onClick={() => onView && report.report_data && onView(report)}
+                    >
                       {report.name}
                     </h3>
                     {report.schedule !== 'manual' && (
@@ -194,19 +199,17 @@ export default function ReportList({
                       <Play className="w-4 h-4" />
                     )}
                   </Button>
-                  <Button 
-                    size="icon" 
-                    variant="ghost" 
-                    className="h-8 w-8"
-                    onClick={() => handleDownloadPdf(report)}
-                    disabled={downloadingId === report.id}
-                  >
-                    {downloadingId === report.id ? (
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                    ) : (
+                  {report.report_data && onExport && (
+                    <Button 
+                      size="icon" 
+                      variant="ghost" 
+                      className="h-8 w-8"
+                      onClick={() => onExport(report)}
+                      title="Export Report"
+                    >
                       <Download className="w-4 h-4" />
-                    )}
-                  </Button>
+                    </Button>
+                  )}
                   <Button 
                     size="icon" 
                     variant="ghost" 

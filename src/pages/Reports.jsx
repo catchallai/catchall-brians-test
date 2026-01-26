@@ -17,7 +17,7 @@ import ReportCustomizer from '@/components/reports/ReportCustomizer';
 import CreateTemplateModal from '@/components/reports/CreateTemplateModal';
 import ReportViewer from '@/components/seo/ReportViewer';
 import ShareReportModal from '@/components/reports/ShareReportModal';
-import ReportsDashboard from '@/components/reports/ReportsDashboard';
+
 import DesignIssuesReportModal from '@/components/reports/DesignIssuesReportModal';
 import ReportExporter from '@/components/reports/ReportExporter';
 import ScheduledReports from '@/components/reports/ScheduledReports';
@@ -28,7 +28,7 @@ export default function Reports() {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState('all');
   const [filterSchedule, setFilterSchedule] = useState('all');
-  const [activeTab, setActiveTab] = useState('dashboard');
+  const [activeTab, setActiveTab] = useState('reports');
   const [selectedReportIds, setSelectedReportIds] = useState([]);
   const [runningReportId, setRunningReportId] = useState(null);
   const [viewingReport, setViewingReport] = useState(null);
@@ -48,20 +48,7 @@ export default function Reports() {
     queryFn: () => base44.entities.Website.list('-created_date', 50),
   });
 
-  const { data: keywords = [] } = useQuery({
-    queryKey: ['keywords-reports'],
-    queryFn: () => base44.entities.Keyword.list('-created_date', 100),
-  });
 
-  const { data: mentions = [] } = useQuery({
-    queryKey: ['mentions-reports'],
-    queryFn: () => base44.entities.ListeningMention.list('-created_date', 100),
-  });
-
-  const { data: backlinks = [] } = useQuery({
-    queryKey: ['backlinks-reports'],
-    queryFn: () => base44.entities.Backlink.list('-created_date', 100),
-  });
 
   const { data: customTemplates = [] } = useQuery({
     queryKey: ['report-templates'],
@@ -248,126 +235,96 @@ export default function Reports() {
 
       {/* Report List Section */}
       <div className="space-y-4">
-        {/* Tabs and Filters */}
+        {/* Filters */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList>
-              <TabsTrigger value="dashboard" className="gap-2">
-                <BarChart3 className="w-4 h-4" />
-                Dashboard
-              </TabsTrigger>
-              <TabsTrigger value="reports" className="gap-2">
-                Reports <Badge variant="secondary">{reports.length}</Badge>
-              </TabsTrigger>
-            </TabsList>
-          </Tabs>
+          <div className="flex items-center gap-2">
+            <Badge variant="default" className="cursor-pointer dark:bg-violet-600">
+              All {reports.length}
+            </Badge>
+            <Badge variant="outline" className="cursor-pointer dark:border-gray-600 dark:text-gray-300">
+              My Own {myReports.length}
+            </Badge>
+            <Badge variant="outline" className="cursor-pointer dark:border-gray-600 dark:text-gray-300">
+              Shared with Me {sharedReports.length}
+            </Badge>
+            <Badge variant="outline" className="cursor-pointer dark:border-gray-600 dark:text-gray-300">
+              My Team's {reports.length}
+            </Badge>
+          </div>
 
           <div className="flex items-center gap-2">
             <Button variant="outline" size="sm" className="gap-1" onClick={() => setShowShareModal(true)}>
               <Share2 className="w-4 h-4" />
               Share
             </Button>
+            <Select value={filterSchedule} onValueChange={setFilterSchedule}>
+              <SelectTrigger className="w-32 h-8 dark:bg-gray-700 dark:border-gray-600">
+                <SelectValue placeholder="Scheduling" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All</SelectItem>
+                <SelectItem value="manual">Manual</SelectItem>
+                <SelectItem value="weekly">Weekly</SelectItem>
+                <SelectItem value="monthly">Monthly</SelectItem>
+              </SelectContent>
+            </Select>
+            <div className="relative">
+              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <Input
+                placeholder="Search for report"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-8 h-8 w-48 dark:bg-gray-700 dark:border-gray-600"
+              />
+            </div>
           </div>
         </div>
 
-        {/* Dashboard Tab Content */}
-        {activeTab === 'dashboard' && (
-          <ReportsDashboard 
-            websites={websites}
-            keywords={keywords}
-            mentions={mentions}
-            backlinks={backlinks}
+        {/* Select All */}
+        <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+          <input 
+            type="checkbox" 
+            className="rounded border-gray-300 dark:border-gray-600"
+            checked={selectedReportIds.length === filteredReports.length && filteredReports.length > 0}
+            onChange={(e) => {
+              if (e.target.checked) {
+                setSelectedReportIds(filteredReports.map(r => r.id));
+              } else {
+                setSelectedReportIds([]);
+              }
+            }}
           />
-        )}
+          <span>Select all</span>
+        </div>
 
-        {/* Reports Tab Content */}
-        {activeTab === 'reports' && (
-          <>
-            {/* Sub-tabs and Filters */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <div className="flex items-center gap-2">
-                <Badge variant="default" className="cursor-pointer dark:bg-violet-600">
-                  All {reports.length}
-                </Badge>
-                <Badge variant="outline" className="cursor-pointer dark:border-gray-600 dark:text-gray-300">
-                  My Own {myReports.length}
-                </Badge>
-                <Badge variant="outline" className="cursor-pointer dark:border-gray-600 dark:text-gray-300">
-                  Shared with Me {sharedReports.length}
-                </Badge>
-                <Badge variant="outline" className="cursor-pointer dark:border-gray-600 dark:text-gray-300">
-                  My Team's {reports.length}
-                </Badge>
-              </div>
-              <div className="flex items-center gap-2">
-                <Select value={filterSchedule} onValueChange={setFilterSchedule}>
-                  <SelectTrigger className="w-32 h-8 dark:bg-gray-700 dark:border-gray-600">
-                    <SelectValue placeholder="Scheduling" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All</SelectItem>
-                    <SelectItem value="manual">Manual</SelectItem>
-                    <SelectItem value="weekly">Weekly</SelectItem>
-                    <SelectItem value="monthly">Monthly</SelectItem>
-                  </SelectContent>
-                </Select>
-                <div className="relative">
-                  <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                  <Input
-                    placeholder="Search for report"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-8 h-8 w-48 dark:bg-gray-700 dark:border-gray-600"
-                  />
-                </div>
-              </div>
+        {/* Report List */}
+        <>
+        <ReportList 
+          reports={filteredReports}
+          selectedIds={selectedReportIds}
+          onSelect={handleSelectReport}
+          onRun={(report) => runReportMutation.mutate(report)}
+          onDelete={(id) => deleteMutation.mutate(id)}
+          onDuplicate={handleDuplicate}
+          onExport={(report) => setExportingReport(report)}
+          onView={(report) => setViewingReport(report)}
+          runningId={runningReportId}
+        />
+
+        {/* Pagination */}
+        {filteredReports.length > 0 && (
+          <div className="flex items-center justify-between pt-4 border-t dark:border-gray-700">
+            <div className="flex items-center gap-2">
+              <Button variant="outline" size="sm" disabled className="dark:border-gray-600">Prev</Button>
+              <Button variant="outline" size="sm" disabled className="dark:border-gray-600">Next</Button>
             </div>
-
-            {/* Select All */}
             <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
-              <input 
-                type="checkbox" 
-                className="rounded border-gray-300 dark:border-gray-600"
-                checked={selectedReportIds.length === filteredReports.length && filteredReports.length > 0}
-                onChange={(e) => {
-                  if (e.target.checked) {
-                    setSelectedReportIds(filteredReports.map(r => r.id));
-                  } else {
-                    setSelectedReportIds([]);
-                  }
-                }}
-              />
-              <span>Select all</span>
+              <span>Page</span>
+              <Input type="number" defaultValue={1} className="w-12 h-8 text-center dark:bg-gray-700 dark:border-gray-600" />
+              <span>of 1</span>
             </div>
-
-            {/* Report List */}
-            <ReportList 
-              reports={filteredReports}
-              selectedIds={selectedReportIds}
-              onSelect={handleSelectReport}
-              onRun={(report) => runReportMutation.mutate(report)}
-              onDelete={(id) => deleteMutation.mutate(id)}
-              onDuplicate={handleDuplicate}
-              onExport={(report) => setExportingReport(report)}
-              runningId={runningReportId}
-            />
-
-            {/* Pagination */}
-            {filteredReports.length > 0 && (
-              <div className="flex items-center justify-between pt-4 border-t dark:border-gray-700">
-                <div className="flex items-center gap-2">
-                  <Button variant="outline" size="sm" disabled className="dark:border-gray-600">Prev</Button>
-                  <Button variant="outline" size="sm" disabled className="dark:border-gray-600">Next</Button>
-                </div>
-                <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
-                  <span>Page</span>
-                  <Input type="number" defaultValue={1} className="w-12 h-8 text-center dark:bg-gray-700 dark:border-gray-600" />
-                  <span>of 1</span>
-                </div>
-              </div>
-            )}
-          </>
-        )}
+          </div>
+        )
 
 
       </div>
