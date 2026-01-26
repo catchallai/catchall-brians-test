@@ -266,7 +266,6 @@ const SIDEBAR_ICONS = {
 
 function SidebarContent({ currentPage, onNavigate, isEnabled, user, onAddFavorite, onRemoveFavorite, dragOverFavorites, setDragOverFavorites, isCollapsed }) {
   const [collapsedSections, setCollapsedSections] = React.useState({});
-  const [currentSection, setCurrentSection] = React.useState(null);
 
   const toggleSection = (sectionLabel) => {
     setCollapsedSections(prev => ({
@@ -325,11 +324,6 @@ function SidebarContent({ currentPage, onNavigate, isEnabled, user, onAddFavorit
                               const isSectionCollapsed = collapsedSections[item.label];
                               const isCollapsible = item.collapsible;
                               const sectionColor = SECTION_COLORS[item.label] || { bg: '', text: 'text-gray-400 dark:text-gray-500', border: 'border-l-gray-400' };
-
-                              // Update current section
-                              if (item.label !== 'favorites') {
-                                setCurrentSection(item.label);
-                              }
 
                               // Hide dividers when sidebar is collapsed
                               if (isCollapsed) return null;
