@@ -127,14 +127,6 @@ export default function ProjectsEnhanced() {
   const spentBudget = selectedProject.budget_spent || 0;
   const budgetPercentage = totalBudget > 0 ? (spentBudget / totalBudget * 100).toFixed(0) : 0;
 
-  const { data: epics = [] } = useQuery({
-    queryKey: ['epics', selectedProject?.id],
-    queryFn: () => selectedProject
-      ? base44.entities.Epic.filter({ project_id: selectedProject.id })
-      : [],
-    enabled: !!selectedProject
-  });
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
       {/* Header */}
