@@ -170,9 +170,30 @@ const navigation = [
   { name: 'Activity Logs', icon: Activity, page: 'ActivityLogs' },
   ];
 
+// Color coding for navigation sections
+const SECTION_COLORS = {
+  'Business Dev': { bg: 'bg-blue-50 dark:bg-blue-900/20', text: 'text-blue-600 dark:text-blue-400', border: 'border-l-blue-500' },
+  'CRM': { bg: 'bg-violet-50 dark:bg-violet-900/20', text: 'text-violet-600 dark:text-violet-400', border: 'border-l-violet-500' },
+  'Sales': { bg: 'bg-emerald-50 dark:bg-emerald-900/20', text: 'text-emerald-600 dark:text-emerald-400', border: 'border-l-emerald-500' },
+  'Customer Success': { bg: 'bg-pink-50 dark:bg-pink-900/20', text: 'text-pink-600 dark:text-pink-400', border: 'border-l-pink-500' },
+  'SEO': { bg: 'bg-orange-50 dark:bg-orange-900/20', text: 'text-orange-600 dark:text-orange-400', border: 'border-l-orange-500' },
+  'Social': { bg: 'bg-cyan-50 dark:bg-cyan-900/20', text: 'text-cyan-600 dark:text-cyan-400', border: 'border-l-cyan-500' },
+  'Web': { bg: 'bg-indigo-50 dark:bg-indigo-900/20', text: 'text-indigo-600 dark:text-indigo-400', border: 'border-l-indigo-500' },
+  'Project Management': { bg: 'bg-amber-50 dark:bg-amber-900/20', text: 'text-amber-600 dark:text-amber-400', border: 'border-l-amber-500' },
+  'Documentation': { bg: 'bg-teal-50 dark:bg-teal-900/20', text: 'text-teal-600 dark:text-teal-400', border: 'border-l-teal-500' },
+  'Communications': { bg: 'bg-purple-50 dark:bg-purple-900/20', text: 'text-purple-600 dark:text-purple-400', border: 'border-l-purple-500' },
+  'Payments': { bg: 'bg-green-50 dark:bg-green-900/20', text: 'text-green-600 dark:text-green-400', border: 'border-l-green-500' },
+  'Assets': { bg: 'bg-rose-50 dark:bg-rose-900/20', text: 'text-rose-600 dark:text-rose-400', border: 'border-l-rose-500' },
+  'Reporting': { bg: 'bg-fuchsia-50 dark:bg-fuchsia-900/20', text: 'text-fuchsia-600 dark:text-fuchsia-400', border: 'border-l-fuchsia-500' },
+  'Finance': { bg: 'bg-lime-50 dark:bg-lime-900/20', text: 'text-lime-600 dark:text-lime-400', border: 'border-l-lime-500' },
+  'AI Tools': { bg: 'bg-violet-50 dark:bg-violet-900/20', text: 'text-violet-600 dark:text-violet-400', border: 'border-l-violet-500' },
+  'Executive': { bg: 'bg-slate-50 dark:bg-slate-900/20', text: 'text-slate-600 dark:text-slate-400', border: 'border-l-slate-500' },
+  'Support': { bg: 'bg-gray-50 dark:bg-gray-900/20', text: 'text-gray-600 dark:text-gray-400', border: 'border-l-gray-500' },
+};
+
 const SIDEBAR_ICONS = {
-              Dashboard: LayoutDashboard,
-              ExecutiveDashboard: Award,
+                    Dashboard: LayoutDashboard,
+                    ExecutiveDashboard: Award,
               BusinessManagement: Building2,
               BusinessDevDashboard: BarChart3,
               CRMDashboard: BarChart3,
@@ -245,6 +266,7 @@ const SIDEBAR_ICONS = {
 
 function SidebarContent({ currentPage, onNavigate, isEnabled, user, onAddFavorite, onRemoveFavorite, dragOverFavorites, setDragOverFavorites, isCollapsed }) {
   const [collapsedSections, setCollapsedSections] = React.useState({});
+  const [currentSection, setCurrentSection] = React.useState(null);
 
   const toggleSection = (sectionLabel) => {
     setCollapsedSections(prev => ({
@@ -302,6 +324,12 @@ function SidebarContent({ currentPage, onNavigate, isEnabled, user, onAddFavorit
                             if (item.name === 'divider') {
                               const isSectionCollapsed = collapsedSections[item.label];
                               const isCollapsible = item.collapsible;
+                              const sectionColor = SECTION_COLORS[item.label] || { bg: '', text: 'text-gray-400 dark:text-gray-500', border: 'border-l-gray-400' };
+
+                              // Update current section
+                              if (item.label !== 'favorites') {
+                                setCurrentSection(item.label);
+                              }
 
                               // Hide dividers when sidebar is collapsed
                               if (isCollapsed) return null;
@@ -310,8 +338,10 @@ function SidebarContent({ currentPage, onNavigate, isEnabled, user, onAddFavorit
                                 <div key={idx} className="pt-6 pb-2">
                                   <button
                                     onClick={() => isCollapsible && toggleSection(item.label)}
-                                    className={`w-full px-3 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider flex items-center gap-2 ${
-                                      isCollapsible ? 'hover:text-gray-600 dark:hover:text-gray-300 cursor-pointer' : ''
+                                    className={`w-full px-3 py-2 text-xs font-semibold uppercase tracking-wider flex items-center gap-2 rounded-lg ${
+                                      sectionColor.bg
+                                    } ${sectionColor.text} border-l-4 ${sectionColor.border} ${
+                                      isCollapsible ? 'hover:opacity-80 cursor-pointer' : ''
                                     }`}
                                   >
                                     {isCollapsible && (
