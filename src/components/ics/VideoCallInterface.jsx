@@ -327,9 +327,11 @@ export default function VideoCallInterface({
                     </Avatar>
                     <div>
                       <p className="text-gray-900 dark:text-white text-sm font-medium">{person.name}</p>
-                      <p className="text-gray-500 dark:text-gray-400 text-xs">
-                        {format(new Date(person.requested_at), 'h:mm a')}
-                      </p>
+                      {person.requested_at && (
+                        <p className="text-gray-500 dark:text-gray-400 text-xs">
+                          {format(new Date(person.requested_at), 'h:mm a')}
+                        </p>
+                      )}
                     </div>
                   </div>
                   <div className="flex gap-2">
