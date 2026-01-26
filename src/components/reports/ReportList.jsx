@@ -60,6 +60,8 @@ export default function ReportList({
   onDuplicate,
   onExport,
   onView,
+  onViewHistory,
+  onSchedule,
   runningId 
 }) {
   const [downloadingId, setDownloadingId] = React.useState(null);

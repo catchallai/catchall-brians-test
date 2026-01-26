@@ -21,6 +21,9 @@ import ShareReportModal from '@/components/reports/ShareReportModal';
 import DesignIssuesReportModal from '@/components/reports/DesignIssuesReportModal';
 import ReportExporter from '@/components/reports/ReportExporter';
 import ScheduledReports from '@/components/reports/ScheduledReports';
+import ReportBrandingSettings from '@/components/reports/ReportBrandingSettings';
+import ReportVersionHistory from '@/components/reports/ReportVersionHistory';
+import EnhancedScheduleModal from '@/components/reports/EnhancedScheduleModal';
 
 export default function Reports() {
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -37,6 +40,11 @@ export default function Reports() {
   const [showDesignIssuesModal, setShowDesignIssuesModal] = useState(false);
   const [exportingReport, setExportingReport] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const [showBrandingSettings, setShowBrandingSettings] = useState(false);
+  const [showVersionHistory, setShowVersionHistory] = useState(false);
+  const [versionHistoryReport, setVersionHistoryReport] = useState(null);
+  const [showScheduleModal, setShowScheduleModal] = useState(false);
+  const [schedulingReport, setSchedulingReport] = useState(null);
   const queryClient = useQueryClient();
 
   const { data: reports = [], isLoading } = useQuery({
@@ -90,6 +98,11 @@ export default function Reports() {
     mutationFn: async (report) => {
       setRunningReportId(report.id);
       const website = websites.find(w => w.id === report.website_id);
+      const user = await base44.auth.me();
+      
+      // Get current version number
+      const existingVersions = await base44.entities.ReportVersion.filter({ report_id: report.id });
+      const newVersionNumber = (existingVersions[0]?.version_number || 0) + 1;
       
       const reportData = await base44.integrations.Core.InvokeLLM({
         prompt: `Generate a comprehensive SEO report for: ${website?.name || 'Website'}
@@ -119,16 +132,39 @@ export default function Reports() {
         }
       });
 
+      // Save version
+      await base44.entities.ReportVersion.create({
+        report_id: report.id,
+        version_number: newVersionNumber,
+        report_data: reportData,
+        metrics: report.metrics || [],
+        generated_by: user.email,
+        change_summary: `Regenerated report with latest data`
+      });
+
+      // Update report
       await base44.entities.SEOReport.update(report.id, {
         last_run: new Date().toISOString(),
         report_data: reportData,
         error: null
       });
 
+      // Create audit log
+      await base44.entities.ReportAuditLog.create({
+        report_id: report.id,
+        action: 'regenerated',
+        user_email: user.email,
+        details: {
+          version: newVersionNumber,
+          timestamp: new Date().toISOString()
+        }
+      });
+
       return reportData;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['seo-reports'] });
+      queryClient.invalidateQueries({ queryKey: ['report-versions'] });
       setRunningReportId(null);
     },
     onError: async (error, report) => {
@@ -224,7 +260,11 @@ export default function Reports() {
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">My Reports</h1>
           <p className="text-gray-500 dark:text-gray-400 mt-1">Report data from various digital marketing tools and see results in one place</p>
         </div>
-        </div>
+        <Button variant="outline" onClick={() => setShowBrandingSettings(true)}>
+          <Sparkles className="w-4 h-4 mr-2" />
+          Branding Settings
+        </Button>
+      </div>
 
       {/* Report Templates */}
       <ReportTemplates 
@@ -310,6 +350,14 @@ export default function Reports() {
           onDuplicate={handleDuplicate}
           onExport={(report) => setExportingReport(report)}
           onView={(report) => setViewingReport(report)}
+          onViewHistory={(report) => {
+            setVersionHistoryReport(report);
+            setShowVersionHistory(true);
+          }}
+          onSchedule={(report) => {
+            setSchedulingReport(report);
+            setShowScheduleModal(true);
+          }}
           runningId={runningReportId}
         />
 
@@ -378,6 +426,37 @@ export default function Reports() {
           report={exportingReport}
           open={!!exportingReport}
           onClose={() => setExportingReport(null)}
+        />
+      )}
+
+      {/* Branding Settings */}
+      <ReportBrandingSettings
+        open={showBrandingSettings}
+        onClose={() => setShowBrandingSettings(false)}
+      />
+
+      {/* Version History */}
+      <ReportVersionHistory
+        report={versionHistoryReport}
+        open={showVersionHistory}
+        onClose={() => {
+          setShowVersionHistory(false);
+          setVersionHistoryReport(null);
+        }}
+        onRevert={() => {
+          queryClient.invalidateQueries({ queryKey: ['seo-reports'] });
+        }}
+      />
+
+      {/* Enhanced Schedule Modal */}
+      {schedulingReport && (
+        <EnhancedScheduleModal
+          report={schedulingReport}
+          open={showScheduleModal}
+          onClose={() => {
+            setShowScheduleModal(false);
+            setSchedulingReport(null);
+          }}
         />
       )}
     </div>
