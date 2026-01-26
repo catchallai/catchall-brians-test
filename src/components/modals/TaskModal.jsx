@@ -6,6 +6,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Loader2 } from "lucide-react";
+import { base44 } from '@/api/base44Client';
+import { useQuery } from '@tanstack/react-query';
 
 export default function TaskModal({ open, onClose, task, onSave, isLoading }) {
   const [formData, setFormData] = useState({
@@ -20,6 +22,11 @@ export default function TaskModal({ open, onClose, task, onSave, isLoading }) {
     progress: 0,
   });
   const [errors, setErrors] = useState({});
+
+  const { data: users = [] } = useQuery({
+    queryKey: ['users'],
+    queryFn: () => base44.entities.User.list()
+  });
 
   useEffect(() => {
     if (task) {
@@ -100,12 +107,12 @@ export default function TaskModal({ open, onClose, task, onSave, isLoading }) {
               onValueChange={(value) => setFormData({ ...formData, assigned_to: value })}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Select contact" />
+                <SelectValue placeholder="Select user" />
               </SelectTrigger>
               <SelectContent>
-                {contacts?.map((contact) => (
-                  <SelectItem key={contact.id} value={contact.id}>
-                    {contact.first_name} {contact.last_name}
+                {users?.map((user) => (
+                  <SelectItem key={user.id} value={user.email}>
+                    {user.full_name} ({user.email})
                   </SelectItem>
                 ))}
               </SelectContent>
