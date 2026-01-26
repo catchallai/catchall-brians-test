@@ -17,6 +17,8 @@ import WorkflowPanel from '@/components/sales/WorkflowPanel';
 import LeadScoringPanel from '@/components/sales/LeadScoringPanel';
 import SalesPipelineKanban from '@/components/sales/SalesPipelineKanban';
 import DealSearchFilter from '@/components/sales/DealSearchFilter';
+import SalesPipelineAnalytics from '@/components/sales/SalesPipelineAnalytics';
+import DealProgressionRules from '@/components/sales/DealProgressionRules';
 import { Badge } from "@/components/ui/badge";
 
 export default function SalesHub() {
@@ -24,6 +26,7 @@ export default function SalesHub() {
   const [editingCall, setEditingCall] = useState(null);
   const [draggedDeal, setDraggedDeal] = useState(null);
   const [filteredDeals, setFilteredDeals] = useState([]);
+  const [showAnalytics, setShowAnalytics] = useState(false);
   const queryClient = useQueryClient();
 
   const { data: salesCalls = [] } = useQuery({
@@ -761,6 +764,44 @@ Consider:
           deals={deals} 
           onDealDrop={handleDealDrop}
         />
+      </div>
+
+      {/* Automated Deal Progression Rules */}
+      <DealProgressionRules 
+        deals={deals}
+        salesCalls={salesCalls}
+        onApplyRules={(count) => {
+          queryClient.invalidateQueries({ queryKey: ['deals'] });
+          if (count > 0) {
+            alert(`${count} deals progressed automatically`);
+          }
+        }}
+      />
+
+      {/* Sales Analytics */}
+      <div>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Sales Performance Analytics</h2>
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={() => setShowAnalytics(!showAnalytics)}
+          >
+            {showAnalytics ? 'Hide' : 'Show'} Details
+          </Button>
+        </div>
+        {showAnalytics && (
+          <SalesPipelineAnalytics 
+            deals={deals}
+            onExport={() => {
+              const data = JSON.stringify(deals, null, 2);
+              const element = document.createElement('a');
+              element.setAttribute('href', 'data:application/json;charset=utf-8,' + encodeURIComponent(data));
+              element.setAttribute('download', `sales-analytics-${new Date().toISOString().split('T')[0]}.json`);
+              element.click();
+            }}
+          />
+        )}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
