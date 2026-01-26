@@ -64,6 +64,7 @@ import { useQuery, useMutation, useQueryClient, QueryClient, QueryClientProvider
 import { useFeatures, PAGE_FEATURE_MAP } from '@/components/hooks/useFeatures';
 import OnboardingModal from '@/components/onboarding/OnboardingModal';
 import { ToastProvider } from '@/components/ui/toast-provider';
+import ChatBubble from '@/components/chat/ChatBubble';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -758,6 +759,9 @@ function LayoutContent({ children, currentPageName }) {
                   </ErrorBoundary>
                 </div>
               </main>
+
+              {/* Chat Bubble */}
+              <ChatBubble />
 
               {/* Keyboard Shortcuts Dialog */}
               <KeyboardShortcutsDialog 
