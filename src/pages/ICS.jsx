@@ -59,7 +59,6 @@ export default function ICS() {
   const [showNewChannel, setShowNewChannel] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
-  const [darkMode, setDarkMode] = useState(true);
   const [isInCall, setIsInCall] = useState(false);
   const [typingByChannel, setTypingByChannel] = useState({});
   const [notificationPrefs, setNotificationPrefs] = useState(null);
@@ -508,12 +507,10 @@ export default function ICS() {
   };
 
   return (
-    <div className={`h-screen flex ${darkMode ? 'bg-slate-950' : 'bg-slate-50'}`}>
+    <div className="h-screen flex bg-slate-50">
       <Sidebar
         activeView={activeView}
         onViewChange={setActiveView}
-        darkMode={darkMode}
-        onThemeToggle={() => setDarkMode(!darkMode)}
         onSettingsClick={() => setShowSettings(true)}
         onAccountClick={() => setActiveView('account')}
         user={user}
@@ -536,7 +533,6 @@ export default function ICS() {
             selectedChannelId={selectedChannel?.id}
             onSelectChannel={setSelectedChannel}
             onNewChat={() => setShowNewChannel(true)}
-            darkMode={darkMode}
             allPresence={allPresence}
             typingByChannel={typingByChannel}
           />
@@ -545,7 +541,6 @@ export default function ICS() {
             channel={selectedChannel}
             user={user}
             messages={messages}
-            darkMode={darkMode}
             onSendMessage={handleSendMessage}
             onStartCall={handleStartCall}
             onShowProfile={() => setShowProfile(true)}
@@ -565,9 +560,7 @@ export default function ICS() {
           <UsersList
             users={allUsers}
             allPresence={allPresence}
-            darkMode={darkMode}
             onSelectUser={(selectedUser) => {
-              // Create or find direct message channel
               const dmChannel = channels.find(c => 
                 c.type === 'dm' && 
                 c.members?.includes(selectedUser.email) &&
@@ -577,7 +570,6 @@ export default function ICS() {
               if (dmChannel) {
                 setSelectedChannel(dmChannel);
               } else {
-                // Create new DM channel
                 createChannelMutation.mutate({
                   name: selectedUser.full_name,
                   type: 'dm',
@@ -598,7 +590,6 @@ export default function ICS() {
           <ContactDetailPanel
             contact={selectedContact}
             presence={selectedContact ? allPresence[selectedContact.email] : null}
-            darkMode={darkMode}
             isOpen={showContactPanel}
             onClose={() => {
               setShowContactPanel(false);
@@ -640,11 +631,9 @@ export default function ICS() {
               setShowContactPanel(false);
             }}
             onGroupMessage={() => {
-              // Can be expanded to create group channels
               console.log('Group message feature coming soon');
             }}
             onScheduleCall={() => {
-              // Can be expanded to schedule calls
               console.log('Schedule call feature coming soon');
             }}
             isOwnProfile={false}
@@ -654,7 +643,6 @@ export default function ICS() {
         <ContactDetailPanel
           contact={user}
           presence={userPresence}
-          darkMode={darkMode}
           isOpen={true}
           onClose={() => setActiveView('chat')}
           onDirectMessage={() => {}}
@@ -665,11 +653,10 @@ export default function ICS() {
           onEditProfile={() => setShowProfile(true)}
         />
       ) : activeView === 'notifications' ? (
-        <NotificationsView user={user} darkMode={darkMode} />
+        <NotificationsView user={user} />
       ) : activeView === 'archived' ? (
         <ArchivedList 
-          channels={archivedChannels} 
-          darkMode={darkMode}
+          channels={archivedChannels}
           onSelectChannel={(channel) => {
             setSelectedChannel(channel);
             setActiveView('chat');
@@ -677,7 +664,7 @@ export default function ICS() {
         />
       ) : activeView === 'admin' ? (
         <div className="flex-1 overflow-auto">
-          <ICSAdminPortal user={user} darkMode={darkMode} />
+          <ICSAdminPortal user={user} />
         </div>
       ) : null}
 
@@ -686,8 +673,6 @@ export default function ICS() {
         open={showSettings}
         onClose={() => setShowSettings(false)}
         user={user}
-        darkMode={darkMode}
-        onThemeToggle={() => setDarkMode(!darkMode)}
         onPreferencesUpdate={handlePreferencesUpdate}
       />
 
@@ -696,7 +681,6 @@ export default function ICS() {
         call={incomingCall}
         onAccept={handleAcceptCall}
         onDecline={handleDeclineCall}
-        darkMode={darkMode}
       />
         </div>
         );
