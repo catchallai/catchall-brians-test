@@ -131,12 +131,13 @@ export default function ProjectModal({ open, onClose, project, companies, contac
           </div>
 
           <div>
-            <Label>Company</Label>
+            <Label>Company (Optional)</Label>
             <Select value={formData.company_id} onValueChange={(value) => setFormData({ ...formData, company_id: value })}>
               <SelectTrigger>
-                <SelectValue placeholder="Select company" />
+                <SelectValue placeholder="Select company (optional)" />
               </SelectTrigger>
               <SelectContent>
+                <SelectItem value={null}>None</SelectItem>
                 {companies?.map((company) => (
                   <SelectItem key={company.id} value={company.id}>{company.name}</SelectItem>
                 ))}
