@@ -323,9 +323,7 @@ export default function Reports() {
               <span>of 1</span>
             </div>
           </div>
-        )
-
-
+        )}
       </div>
 
       {/* Create Report Modal */}
