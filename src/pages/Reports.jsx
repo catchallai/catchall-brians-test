@@ -39,7 +39,7 @@ export default function Reports() {
   const [selectedReportIds, setSelectedReportIds] = useState([]);
   const [runningReportId, setRunningReportId] = useState(null);
   const [viewingReport, setViewingReport] = useState(null);
-  const [showShareModal, setShowShareModal] = useState(false);
+  const [showBulkShareModal, setShowBulkShareModal] = useState(false);
   const [showCreateTemplateModal, setShowCreateTemplateModal] = useState(false);
   const [showDesignIssuesModal, setShowDesignIssuesModal] = useState(false);
   const [exportingReport, setExportingReport] = useState(null);
@@ -304,7 +304,7 @@ export default function Reports() {
           </div>
 
           <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" className="gap-1" onClick={() => setShowShareModal(true)}>
+            <Button variant="outline" size="sm" className="gap-1" onClick={() => setShowBulkShareModal(true)}>
               <Share2 className="w-4 h-4" />
               Share
             </Button>
@@ -412,10 +412,10 @@ export default function Reports() {
         />
       )}
 
-      {/* Share Modal */}
+      {/* Bulk Share Modal */}
       <ShareReportModal
-        open={showShareModal}
-        onClose={() => setShowShareModal(false)}
+        open={showBulkShareModal}
+        onClose={() => setShowBulkShareModal(false)}
         reports={reports}
         selectedIds={selectedReportIds}
         onShare={handleShare}
