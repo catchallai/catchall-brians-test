@@ -138,6 +138,7 @@ const navigation = [
   { name: 'Contact Forms', icon: FileText, page: 'ContactForms' },
   { name: 'divider', label: 'Project Management', collapsible: true },
   { name: 'Projects', icon: Briefcase, page: 'Projects' },
+  { name: 'Project Board', icon: LayoutDashboard, page: 'ProjectsEnhanced' },
   { name: 'Project Calendar', icon: CalendarDays, page: 'ProjectCalendar' },
   { name: 'divider', label: 'Documentation', collapsible: true },
   { name: 'Spaces', icon: FolderOpen, page: 'Spaces' },
