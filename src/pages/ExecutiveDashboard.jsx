@@ -13,11 +13,17 @@ import {
   Target,
   DollarSign,
   Activity,
-  AlertCircle
+  AlertCircle,
+  Zap,
+  BarChart3,
+  Clock,
+  Settings
 } from "lucide-react";
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Skeleton } from "@/components/ui/skeleton";
+import ExecutiveMetricCard from '@/components/dashboard/ExecutiveMetricCard';
+import AlertWidget from '@/components/dashboard/AlertWidget';
 
 export default function ExecutiveDashboard() {
   const [selectedTab, setSelectedTab] = React.useState('overview');
@@ -91,86 +97,91 @@ export default function ExecutiveDashboard() {
     .sort((a, b) => b.score - a.score)
     .slice(0, 5);
 
+  // Calculate trends (mock data - replace with real calculations)
+  const winRate = deals.filter(d => d.stage === 'won').length > 0 
+    ? `${Math.round((deals.filter(d => d.stage === 'won').length / deals.length) * 100)}%`
+    : '0%';
+
+  const alertsData = [
+    deals.filter(d => d.stage === 'stuck' || d.stage === 'at_risk').length > 0 && {
+      type: 'warning',
+      title: `${deals.filter(d => d.stage === 'stuck' || d.stage === 'at_risk').length} deals at risk`,
+      message: 'Review stalled opportunities'
+    },
+    highQualityLeads > 0 && {
+      type: 'info',
+      title: `${highQualityLeads} high-value leads`,
+      message: 'Ready for outreach'
+    },
+    upcomingReservations > 0 && {
+      type: 'info',
+      title: `${upcomingReservations} meetings scheduled`,
+      message: 'Next 7 days'
+    }
+  ].filter(Boolean);
+
   return (
     <div className="min-h-screen pb-20 lg:pb-8">
       {/* Mobile Header */}
       <div className="sticky top-0 z-10 glass-topbar p-4 lg:p-6">
-        <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white">Executive</h1>
-        <p className="text-sm text-gray-500 mt-1">Key metrics and insights</p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white">Executive Dashboard</h1>
+            <p className="text-xs lg:text-sm text-gray-500 mt-1">Real-time business overview</p>
+          </div>
+          <Link to={createPageUrl('Settings')}>
+            <Button variant="ghost" size="icon" className="rounded-full">
+              <Settings className="w-5 h-5" />
+            </Button>
+          </Link>
+        </div>
       </div>
 
       <div className="p-4 lg:p-8 space-y-4 lg:space-y-6">
-
-      {/* Key Metrics */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-6">
-        <Card className="p-4 lg:p-6 glass-card">
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between">
-            <div className="flex items-center gap-2 lg:block mb-2 lg:mb-0">
-              <div className="w-8 h-8 lg:hidden rounded-lg bg-violet-100 dark:bg-violet-900/30 flex items-center justify-center">
-                <Target className="w-4 h-4 text-violet-600 dark:text-violet-400" />
-              </div>
-              <p className="text-xs lg:text-sm text-gray-500 dark:text-gray-400">High-Quality Leads</p>
-            </div>
-            <p className="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white">
-              {loadingVisitors ? <Skeleton className="h-8 w-12" /> : highQualityLeads}
-            </p>
-            <div className="hidden lg:flex w-12 h-12 rounded-xl bg-violet-100 dark:bg-violet-900/30 items-center justify-center">
-              <Target className="w-6 h-6 text-violet-600 dark:text-violet-400" />
-            </div>
+        {/* Alerts Section */}
+        {alertsData.length > 0 && (
+          <div>
+            <AlertWidget alerts={alertsData} />
           </div>
-        </Card>
+        )}
 
-        <Card className="p-4 lg:p-6 glass-card">
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between">
-            <div className="flex items-center gap-2 lg:block mb-2 lg:mb-0">
-              <div className="w-8 h-8 lg:hidden rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
-                <Users className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-              </div>
-              <p className="text-xs lg:text-sm text-gray-500 dark:text-gray-400">Competitors</p>
-            </div>
-            <p className="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white">
-              {loadingCompetitors ? <Skeleton className="h-8 w-12" /> : competitors.length}
-            </p>
-            <div className="hidden lg:flex w-12 h-12 rounded-xl bg-blue-100 dark:bg-blue-900/30 items-center justify-center">
-              <Users className="w-6 h-6 text-blue-600 dark:text-blue-400" />
-            </div>
-          </div>
-        </Card>
+        {/* Key Metrics - Super Responsive */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 lg:gap-4">
+          <ExecutiveMetricCard
+            label="High-Value Leads"
+            value={loadingVisitors ? <Skeleton className="h-8 w-12" /> : highQualityLeads}
+            icon={Target}
+            color="violet"
+            trend={highQualityLeads > 0 ? `+${highQualityLeads}` : null}
+            trendDirection="up"
+            subtext="This week"
+          />
 
-        <Card className="p-4 lg:p-6 glass-card">
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between">
-            <div className="flex items-center gap-2 lg:block mb-2 lg:mb-0">
-              <div className="w-8 h-8 lg:hidden rounded-lg bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center">
-                <Calendar className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-              </div>
-              <p className="text-xs lg:text-sm text-gray-500 dark:text-gray-400">Reservations</p>
-            </div>
-            <p className="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white">
-              {loadingReservations ? <Skeleton className="h-8 w-12" /> : upcomingReservations}
-            </p>
-            <div className="hidden lg:flex w-12 h-12 rounded-xl bg-emerald-100 dark:bg-emerald-900/30 items-center justify-center">
-              <Calendar className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
-            </div>
-          </div>
-        </Card>
+          <ExecutiveMetricCard
+            label="Pipeline Value"
+            value={`$${(pipelineValue / 1000000).toFixed(1)}M`}
+            icon={DollarSign}
+            color="amber"
+            trend={deals.length > 0 ? `${deals.length} deals` : null}
+            subtext="Open deals"
+          />
 
-        <Card className="p-4 lg:p-6 glass-card">
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between">
-            <div className="flex items-center gap-2 lg:block mb-2 lg:mb-0">
-              <div className="w-8 h-8 lg:hidden rounded-lg bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
-                <DollarSign className="w-4 h-4 text-amber-600 dark:text-amber-400" />
-              </div>
-              <p className="text-xs lg:text-sm text-gray-500 dark:text-gray-400">Pipeline</p>
-            </div>
-            <p className="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white">
-              ${(pipelineValue / 1000000).toFixed(1)}M
-            </p>
-            <div className="hidden lg:flex w-12 h-12 rounded-xl bg-amber-100 dark:bg-amber-900/30 items-center justify-center">
-              <DollarSign className="w-6 h-6 text-amber-600 dark:text-amber-400" />
-            </div>
-          </div>
-        </Card>
-      </div>
+          <ExecutiveMetricCard
+            label="Meetings"
+            value={loadingReservations ? <Skeleton className="h-8 w-12" /> : upcomingReservations}
+            icon={Calendar}
+            color="emerald"
+            subtext="Upcoming"
+          />
+
+          <ExecutiveMetricCard
+            label="Win Rate"
+            value={winRate}
+            icon={TrendingUp}
+            color="blue"
+            trend={deals.length > 0 ? 'On track' : 'No data'}
+          />
+        </div>
 
       {/* Quick Access Sections */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
