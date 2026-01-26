@@ -65,6 +65,7 @@ import { useFeatures, PAGE_FEATURE_MAP } from '@/components/hooks/useFeatures';
 import OnboardingModal from '@/components/onboarding/OnboardingModal';
 import { ToastProvider } from '@/components/ui/toast-provider';
 import ChatBubble from '@/components/chat/ChatBubble';
+import NotificationCenter from '@/components/notifications/NotificationCenter';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -669,8 +670,8 @@ function LayoutContent({ children, currentPageName }) {
         <div className="flex items-center gap-4 ml-auto">
           <GlobalSearch />
         </div>
-        <div className="flex items-center gap-3">
-            <NotificationBell />
+        <div className="flex items-center gap-2">
+            <NotificationCenter user={user} />
             <ThemeToggle />
             <DropdownMenu>
             <DropdownMenuTrigger asChild>
