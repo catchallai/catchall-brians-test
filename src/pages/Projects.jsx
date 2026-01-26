@@ -7,11 +7,13 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Plus, Search, Briefcase, Filter, X, Calendar, DollarSign, Users } from "lucide-react";
+import { Plus, Search, Briefcase, Filter, X, Calendar, DollarSign, Users, LayoutGrid, List } from "lucide-react";
 import EmptyState from '@/components/ui/EmptyState';
 import ProjectModal from '@/components/modals/ProjectModal';
+import TaskModal from '@/components/modals/TaskModal';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
+import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 
 export default function Projects() {
   const [showModal, setShowModal] = useState(false);
@@ -20,6 +22,10 @@ export default function Projects() {
   const [statusFilter, setStatusFilter] = useState('all');
   const [priorityFilter, setPriorityFilter] = useState('all');
   const [showFilters, setShowFilters] = useState(false);
+  const [viewMode, setViewMode] = useState('board'); // 'board' or 'grid'
+  const [selectedProject, setSelectedProject] = useState(null);
+  const [showTaskModal, setShowTaskModal] = useState(false);
+  const [editingTask, setEditingTask] = useState(null);
   const queryClient = useQueryClient();
 
   const { data: user } = useQuery({
@@ -48,6 +54,13 @@ export default function Projects() {
     },
   });
 
+  const { data: tasks = [] } = useQuery({
+    queryKey: ['all-tasks'],
+    queryFn: async () => {
+      return await base44.entities.Task.list('-created_date', 500);
+    },
+  });
+
   const createMutation = useMutation({
     mutationFn: async (data) => {
       return await base44.entities.Project.create(data);
@@ -70,12 +83,55 @@ export default function Projects() {
     },
   });
 
+  const createTaskMutation = useMutation({
+    mutationFn: async (data) => {
+      return await base44.entities.Task.create(data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['all-tasks'] });
+      setShowTaskModal(false);
+      setEditingTask(null);
+    },
+  });
+
+  const updateTaskMutation = useMutation({
+    mutationFn: async ({ id, data }) => {
+      return await base44.entities.Task.update(id, data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['all-tasks'] });
+    },
+  });
+
   const handleSave = (data) => {
     if (editingProject) {
       updateMutation.mutate({ id: editingProject.id, data });
     } else {
       createMutation.mutate(data);
     }
+  };
+
+  const handleTaskSave = (data) => {
+    if (editingTask) {
+      updateTaskMutation.mutate({ id: editingTask.id, data });
+    } else {
+      createTaskMutation.mutate({ ...data, project_id: selectedProject?.id });
+    }
+    setShowTaskModal(false);
+    setEditingTask(null);
+  };
+
+  const handleDragEnd = (result) => {
+    if (!result.destination) return;
+
+    const { draggableId, destination } = result;
+    const taskId = draggableId;
+    const newStatus = destination.droppableId;
+
+    updateTaskMutation.mutate({
+      id: taskId,
+      data: { status: newStatus }
+    });
   };
 
   const filteredProjects = useMemo(() => {
@@ -111,6 +167,18 @@ export default function Projects() {
     return contact ? `${contact.first_name} ${contact.last_name}` : 'N/A';
   };
 
+  // Get backlog tasks (no project assigned)
+  const backlogTasks = tasks.filter(t => !t.project_id);
+  const projectTasks = selectedProject ? tasks.filter(t => t.project_id === selectedProject.id) : [];
+  
+  const tasksByStatus = {
+    backlog: backlogTasks,
+    todo: projectTasks.filter(t => t.status === 'todo'),
+    in_progress: projectTasks.filter(t => t.status === 'in_progress'),
+    review: projectTasks.filter(t => t.status === 'review'),
+    done: projectTasks.filter(t => t.status === 'done'),
+  };
+
   return (
     <div className="p-4 sm:p-6 lg:p-8 space-y-6 min-h-screen">
       {/* Header */}
@@ -119,10 +187,28 @@ export default function Projects() {
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Project Management</h1>
           <p className="text-gray-500 mt-1">Manage and track all your projects</p>
         </div>
-        <Button onClick={() => { setEditingProject(null); setShowModal(true); }} className="gap-2 bg-violet-600 hover:bg-violet-700">
-          <Plus className="w-4 h-4" />
-          New Project
-        </Button>
+        <div className="flex gap-2">
+          <div className="flex gap-1 p-1 bg-gray-100 dark:bg-gray-800 rounded-lg">
+            <Button
+              variant={viewMode === 'grid' ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => setViewMode('grid')}
+            >
+              <LayoutGrid className="w-4 h-4" />
+            </Button>
+            <Button
+              variant={viewMode === 'board' ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => setViewMode('board')}
+            >
+              <List className="w-4 h-4" />
+            </Button>
+          </div>
+          <Button onClick={() => { setEditingProject(null); setShowModal(true); }} className="gap-2 bg-violet-600 hover:bg-violet-700">
+            <Plus className="w-4 h-4" />
+            New Project
+          </Button>
+        </div>
       </div>
 
       {/* Stats Cards */}
@@ -242,26 +328,31 @@ export default function Projects() {
         )}
       </div>
 
-      {/* Projects Grid */}
-      {isLoading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {[...Array(6)].map((_, i) => (
-            <Skeleton key={i} className="h-48 rounded-xl" />
-          ))}
-        </div>
-      ) : filteredProjects.length === 0 ? (
-        <EmptyState
-          icon={Briefcase}
-          title="No projects yet"
-          description="Start creating projects to organize your work."
-          actionLabel="New Project"
-          onAction={() => { setEditingProject(null); setShowModal(true); }}
-        />
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filteredProjects.map((project) => (
-            <Link key={project.id} to={`${createPageUrl('ProjectDetail')}?id=${project.id}`}>
-              <Card className="p-5 glass-card hover:shadow-lg transition-all h-full cursor-pointer">
+      {/* Content */}
+      {viewMode === 'grid' ? (
+        /* Projects Grid */
+        isLoading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {[...Array(6)].map((_, i) => (
+              <Skeleton key={i} className="h-48 rounded-xl" />
+            ))}
+          </div>
+        ) : filteredProjects.length === 0 ? (
+          <EmptyState
+            icon={Briefcase}
+            title="No projects yet"
+            description="Start creating projects to organize your work."
+            actionLabel="New Project"
+            onAction={() => { setEditingProject(null); setShowModal(true); }}
+          />
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {filteredProjects.map((project) => (
+              <Card 
+                key={project.id} 
+                className="p-5 glass-card hover:shadow-lg transition-all h-full cursor-pointer"
+                onClick={() => setSelectedProject(project)}
+              >
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex-1">
                     <h3 className="font-semibold text-gray-900 dark:text-white truncate">
@@ -307,26 +398,143 @@ export default function Projects() {
                     Budget: ${project.budget.toLocaleString()} / Spent: ${project.budget_spent.toLocaleString()}
                   </p>
                 )}
-
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="w-full mt-4"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    setEditingProject(project);
-                    setShowModal(true);
-                  }}
-                >
-                  Edit
-                </Button>
               </Card>
-            </Link>
-          ))}
+            ))}
+          </div>
+        )
+      ) : (
+        /* Board View */
+        <div>
+          {/* Project Selector */}
+          <div className="mb-4">
+            <Select value={selectedProject?.id || ''} onValueChange={(id) => setSelectedProject(projects.find(p => p.id === id))}>
+              <SelectTrigger className="w-64">
+                <SelectValue placeholder="Select a project" />
+              </SelectTrigger>
+              <SelectContent>
+                {projects.map(project => (
+                  <SelectItem key={project.id} value={project.id}>
+                    {project.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {selectedProject && (
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h2 className="text-xl font-bold text-gray-900 dark:text-white">{selectedProject.name}</h2>
+                <p className="text-sm text-gray-500">{projectTasks.length} tasks</p>
+              </div>
+              <Button onClick={() => { setEditingTask(null); setShowTaskModal(true); }} className="gap-2">
+                <Plus className="w-4 h-4" />
+                Add Task
+              </Button>
+            </div>
+          )}
+
+          {/* Board */}
+          <DragDropContext onDragEnd={handleDragEnd}>
+            <div className="flex gap-4 overflow-x-auto pb-4">
+              {/* Backlog Column */}
+              <div className="flex-shrink-0 w-80">
+                <div className="bg-gray-100 dark:bg-gray-800 rounded-lg p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="font-semibold text-gray-900 dark:text-white">Backlog</h3>
+                    <Badge variant="secondary">{tasksByStatus.backlog.length}</Badge>
+                  </div>
+                  <Droppable droppableId="backlog">
+                    {(provided, snapshot) => (
+                      <div
+                        ref={provided.innerRef}
+                        {...provided.droppableProps}
+                        className={`space-y-2 min-h-32 ${snapshot.isDraggingOver ? 'bg-blue-50 dark:bg-blue-900/20' : ''}`}
+                      >
+                        {tasksByStatus.backlog.map((task, index) => (
+                          <Draggable key={task.id} draggableId={task.id} index={index}>
+                            {(provided, snapshot) => (
+                              <Card
+                                ref={provided.innerRef}
+                                {...provided.draggableProps}
+                                {...provided.dragHandleProps}
+                                className={`p-3 cursor-move ${snapshot.isDragging ? 'shadow-lg' : ''}`}
+                                onClick={() => { setEditingTask(task); setShowTaskModal(true); }}
+                              >
+                                <p className="text-sm font-medium text-gray-900 dark:text-white">{task.title}</p>
+                                {task.priority && (
+                                  <Badge className={`${priorityColors[task.priority]} text-xs mt-2`}>
+                                    {task.priority}
+                                  </Badge>
+                                )}
+                              </Card>
+                            )}
+                          </Draggable>
+                        ))}
+                        {provided.placeholder}
+                      </div>
+                    )}
+                  </Droppable>
+                </div>
+              </div>
+
+              {/* Task Status Columns */}
+              {selectedProject && ['todo', 'in_progress', 'review', 'done'].map(status => (
+                <div key={status} className="flex-shrink-0 w-80">
+                  <div className="bg-gray-100 dark:bg-gray-800 rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="font-semibold text-gray-900 dark:text-white capitalize">
+                        {status.replace('_', ' ')}
+                      </h3>
+                      <Badge variant="secondary">{tasksByStatus[status].length}</Badge>
+                    </div>
+                    <Droppable droppableId={status}>
+                      {(provided, snapshot) => (
+                        <div
+                          ref={provided.innerRef}
+                          {...provided.droppableProps}
+                          className={`space-y-2 min-h-32 ${snapshot.isDraggingOver ? 'bg-blue-50 dark:bg-blue-900/20' : ''}`}
+                        >
+                          {tasksByStatus[status].map((task, index) => (
+                            <Draggable key={task.id} draggableId={task.id} index={index}>
+                              {(provided, snapshot) => (
+                                <Card
+                                  ref={provided.innerRef}
+                                  {...provided.draggableProps}
+                                  {...provided.dragHandleProps}
+                                  className={`p-3 cursor-move ${snapshot.isDragging ? 'shadow-lg' : ''}`}
+                                  onClick={() => { setEditingTask(task); setShowTaskModal(true); }}
+                                >
+                                  <p className="text-sm font-medium text-gray-900 dark:text-white">{task.title}</p>
+                                  <div className="flex gap-2 mt-2 flex-wrap">
+                                    {task.priority && (
+                                      <Badge className={`${priorityColors[task.priority]} text-xs`}>
+                                        {task.priority}
+                                      </Badge>
+                                    )}
+                                    {task.assigned_to && (
+                                      <Badge variant="outline" className="text-xs">
+                                        {task.assigned_to.split('@')[0]}
+                                      </Badge>
+                                    )}
+                                  </div>
+                                </Card>
+                              )}
+                            </Draggable>
+                          ))}
+                          {provided.placeholder}
+                        </div>
+                      )}
+                    </Droppable>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </DragDropContext>
         </div>
       )}
 
-      {/* Modal */}
+      {/* Modals */}
       <ProjectModal
         open={showModal}
         onClose={() => { setShowModal(false); setEditingProject(null); }}
@@ -335,6 +543,14 @@ export default function Projects() {
         contacts={contacts}
         onSave={handleSave}
         isLoading={createMutation.isPending || updateMutation.isPending}
+      />
+
+      <TaskModal
+        open={showTaskModal}
+        onClose={() => { setShowTaskModal(false); setEditingTask(null); }}
+        task={editingTask}
+        onSave={handleTaskSave}
+        isLoading={createTaskMutation.isPending || updateTaskMutation.isPending}
       />
     </div>
   );
