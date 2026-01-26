@@ -36,6 +36,8 @@ import {
   DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu";
 import { useWebRTC } from './useWebRTC';
+import WhiteboardCanvas from './WhiteboardCanvas';
+import { WhiteboardVersionManager } from './WhiteboardVersionManager';
 
 export default function VideoCallInterface({
   activeCall,
@@ -52,7 +54,20 @@ export default function VideoCallInterface({
   const [pinnedParticipants, setPinnedParticipants] = useState([]); // Support multiple pins
   const [showBackgroundSelector, setShowBackgroundSelector] = useState(false);
   const [selectedBackground, setSelectedBackground] = useState(null);
+  const [showWhiteboard, setShowWhiteboard] = useState(false);
+  const [showPublicLink, setShowPublicLink] = useState(false);
+  const [publicLink, setPublicLink] = useState('');
   const videoRefs = useRef({});
+
+  const { data: whiteboardVersions = [] } = useQuery({
+    queryKey: ['whiteboard-versions', activeCall?.id],
+    queryFn: async () => {
+      if (!activeCall?.id) return [];
+      return await WhiteboardVersionManager.getVersions(base44, activeCall.id);
+    },
+    enabled: !!activeCall?.id,
+    refetchInterval: 10000,
+  });
 
   const VIRTUAL_BACKGROUNDS = [
     { name: 'None', value: null },
