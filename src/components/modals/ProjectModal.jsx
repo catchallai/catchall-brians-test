@@ -147,12 +147,12 @@ export default function ProjectModal({ open, onClose, project, companies, contac
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <Label>Budget ($)</Label>
+              <Label>Budget (Optional)</Label>
               <Input
                 type="number"
                 value={formData.budget}
                 onChange={(e) => setFormData({ ...formData, budget: parseFloat(e.target.value) || '' })}
-                placeholder="0"
+                placeholder="Enter budget (optional)"
               />
             </div>
 
