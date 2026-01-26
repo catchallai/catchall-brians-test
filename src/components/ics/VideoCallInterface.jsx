@@ -360,10 +360,25 @@ export default function VideoCallInterface({
           <div className="mb-4 h-96">
             <WhiteboardCanvas
               isHost={isHost}
+              versions={whiteboardVersions}
               onDataChange={(data) => {
                 updateCallMutation.mutate({
                   callId: activeCall.id,
                   data: { whiteboard_data: data },
+                });
+                if (isHost) {
+                  WhiteboardVersionManager.saveVersion(
+                    base44,
+                    activeCall.id,
+                    data,
+                    user?.email
+                  ).catch(err => console.error(err));
+                }
+              }}
+              onRevert={(version) => {
+                updateCallMutation.mutate({
+                  callId: activeCall.id,
+                  data: { whiteboard_data: version.canvas_state },
                 });
               }}
             />
