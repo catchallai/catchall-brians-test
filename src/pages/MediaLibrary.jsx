@@ -19,10 +19,13 @@ import {
 import {
   Plus, Search, Upload, Image, FileVideo, FileText, Folder,
   Download, Copy, Trash2, Loader2, X, Check, Grid, List,
-  Star, Filter
+  Star, Filter, CheckSquare
 } from "lucide-react";
 import EmptyState from '@/components/ui/EmptyState';
 import { useToast } from '@/components/ui/toast-provider';
+import BulkAssetActions from '@/components/assets/BulkAssetActions';
+import FolderManager from '@/components/assets/FolderManager';
+import ImageOptimizer from '@/components/assets/ImageOptimizer';
 
 const FILE_TYPES = [
   { id: 'logo', label: 'Logos', icon: Star },
@@ -33,6 +36,8 @@ const FILE_TYPES = [
   { id: 'other', label: 'Other', icon: Folder },
 ];
 
+const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB limit
+
 export default function MediaLibrary() {
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [selectedAsset, setSelectedAsset] = useState(null);
@@ -40,12 +45,15 @@ export default function MediaLibrary() {
   const [filterType, setFilterType] = useState('all');
   const [viewMode, setViewMode] = useState('grid');
   const [uploading, setUploading] = useState(false);
+  const [selectedAssets, setSelectedAssets] = useState([]);
+  const [currentFolderId, setCurrentFolderId] = useState(null);
   const [newAsset, setNewAsset] = useState({
     name: '',
     file_type: 'image',
     category: '',
     tags: [],
-    description: ''
+    description: '',
+    folder_id: null
   });
   const [tagInput, setTagInput] = useState('');
   const queryClient = useQueryClient();
@@ -85,15 +93,42 @@ export default function MediaLibrary() {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    // File size validation
+    if (file.size > MAX_FILE_SIZE) {
+      toast.error(`File size exceeds ${MAX_FILE_SIZE / 1024 / 1024}MB limit`);
+      return;
+    }
+
     setUploading(true);
-    const { file_url } = await base44.integrations.Core.UploadFile({ file });
-    setNewAsset(prev => ({ 
-      ...prev, 
-      file_url,
-      name: prev.name || file.name.split('.')[0],
-      file_size: formatFileSize(file.size)
-    }));
-    setUploading(false);
+    
+    try {
+      // Check for duplicates using file name as simple hash
+      const existingAssets = assets.filter(a => a.name === file.name);
+      if (existingAssets.length > 0) {
+        if (!confirm('An asset with this name already exists. Upload anyway?')) {
+          setUploading(false);
+          return;
+        }
+      }
+
+      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      
+      // Create audit log
+      const newAssetData = { 
+        ...newAsset, 
+        file_url,
+        name: newAsset.name || file.name.split('.')[0],
+        file_size: formatFileSize(file.size),
+        file_hash: file.name + file.size, // Simple hash
+        folder_id: currentFolderId
+      };
+      
+      setNewAsset(newAssetData);
+    } catch (error) {
+      toast.error('Upload failed');
+    } finally {
+      setUploading(false);
+    }
   };
 
   const formatFileSize = (bytes) => {
@@ -113,9 +148,24 @@ export default function MediaLibrary() {
     setNewAsset(prev => ({ ...prev, tags: prev.tags.filter(t => t !== tag) }));
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!newAsset.file_url || !newAsset.name) return;
-    createMutation.mutate(newAsset);
+    
+    const asset = await createMutation.mutateAsync(newAsset);
+    
+    // Create audit log
+    await base44.entities.AssetAuditLog.create({
+      asset_id: asset.id,
+      action: 'uploaded',
+      user_email: (await base44.auth.me()).email,
+      details: { file_type: newAsset.file_type, file_size: newAsset.file_size }
+    });
+  };
+
+  const toggleSelectAsset = (assetId) => {
+    setSelectedAssets(prev =>
+      prev.includes(assetId) ? prev.filter(id => id !== assetId) : [...prev, assetId]
+    );
   };
 
   const copyToClipboard = (url) => {
@@ -129,7 +179,8 @@ export default function MediaLibrary() {
       asset.tags?.some(t => t.toLowerCase().includes(searchQuery.toLowerCase())) ||
       asset.category?.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesType = filterType === 'all' || asset.file_type === filterType;
-    return matchesSearch && matchesType;
+    const matchesFolder = currentFolderId === null || asset.folder_id === currentFolderId;
+    return matchesSearch && matchesType && matchesFolder;
   });
 
   const categories = [...new Set(assets.map(a => a.category).filter(Boolean))];
@@ -151,18 +202,33 @@ export default function MediaLibrary() {
   }
 
   return (
-    <div className="p-6 lg:p-8 space-y-6 bg-gray-50 min-h-screen">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Media Library</h1>
-          <p className="text-gray-500 mt-1">Store and organize logos, icons, and brand assets</p>
-        </div>
-        <Button onClick={() => setShowUploadModal(true)} className="gap-2 bg-violet-600 hover:bg-violet-700">
-          <Upload className="w-4 h-4" />
-          Upload Asset
-        </Button>
+    <div className="flex min-h-screen">
+      {/* Sidebar */}
+      <div className="w-64 border-r bg-white dark:bg-gray-900 p-4 hidden lg:block">
+        <FolderManager onFolderSelect={setCurrentFolderId} currentFolderId={currentFolderId} />
       </div>
+
+      {/* Main Content */}
+      <div className="flex-1 p-6 lg:p-8 space-y-6 bg-gray-50">
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Media Library</h1>
+            <p className="text-gray-500 mt-1">Store and organize logos, icons, and brand assets • Max {MAX_FILE_SIZE / 1024 / 1024}MB per file</p>
+          </div>
+          <div className="flex gap-2">
+            {selectedAssets.length > 0 && (
+              <Button variant="outline" onClick={() => setSelectedAssets([])} className="gap-2">
+                <CheckSquare className="w-4 h-4" />
+                {selectedAssets.length} Selected
+              </Button>
+            )}
+            <Button onClick={() => setShowUploadModal(true)} className="gap-2 bg-violet-600 hover:bg-violet-700">
+              <Upload className="w-4 h-4" />
+              Upload Asset
+            </Button>
+          </div>
+        </div>
 
       {/* Filters */}
       <div className="flex flex-col sm:flex-row gap-4">
@@ -244,9 +310,22 @@ export default function MediaLibrary() {
           {filteredAssets.map(asset => (
             <Card 
               key={asset.id} 
-              className="glass-card rounded-2xl overflow-hidden cursor-pointer hover:shadow-lg transition-all group"
-              onClick={() => setSelectedAsset(asset)}
+              className={`glass-card rounded-2xl overflow-hidden cursor-pointer hover:shadow-lg transition-all group relative ${
+                selectedAssets.includes(asset.id) ? 'ring-2 ring-violet-500' : ''
+              }`}
+              onClick={(e) => {
+                if (e.shiftKey) {
+                  toggleSelectAsset(asset.id);
+                } else {
+                  setSelectedAsset(asset);
+                }
+              }}
             >
+              {selectedAssets.includes(asset.id) && (
+                <div className="absolute top-2 left-2 z-10 bg-violet-600 text-white rounded-full p-1">
+                  <Check className="w-3 h-3" />
+                </div>
+              )}
               <div className="aspect-square bg-gray-100 relative">
                 {['logo', 'icon', 'image'].includes(asset.file_type) ? (
                   <img 
@@ -498,6 +577,17 @@ export default function MediaLibrary() {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Bulk Actions Bar */}
+      <BulkAssetActions
+        selectedAssets={selectedAssets}
+        onClear={() => setSelectedAssets([])}
+        onComplete={() => {
+          setSelectedAssets([]);
+          queryClient.invalidateQueries({ queryKey: ['media-assets'] });
+        }}
+      />
+    </div>
     </div>
   );
 }

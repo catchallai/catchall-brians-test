@@ -13,7 +13,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import {
   Lightbulb, FileText, Wand2, Sparkles, Target, TrendingUp,
   Plus, Search, Filter, Zap, BookOpen, PenTool, CheckCircle,
-  Clock, ArrowRight, Star, Loader2, Users, Share2
+  Clock, ArrowRight, Star, Loader2, Users, Share2, Shield, Download, History
 } from "lucide-react";
 import ContentIdeaCard from '@/components/content/ContentIdeaCard';
 import ContentBriefModal from '@/components/content/ContentBriefModal';
@@ -21,6 +21,9 @@ import ArticleGeneratorModal from '@/components/content/ArticleGeneratorModal';
 import BrandVoiceSettings from '@/components/content/BrandVoiceSettings';
 import CRMContentGenerator from '@/components/content/CRMContentGenerator';
 import ShareToSocialModal from '@/components/content/ShareToSocialModal';
+import PlagiarismChecker from '@/components/content/PlagiarismChecker';
+import ContentVersionHistory from '@/components/content/ContentVersionHistory';
+import ContentExporter from '@/components/content/ContentExporter';
 
 export default function ContentStudio() {
   const [showBriefModal, setShowBriefModal] = useState(false);
@@ -30,6 +33,10 @@ export default function ContentStudio() {
   const [isGeneratingIdeas, setIsGeneratingIdeas] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
   const [sharingArticle, setSharingArticle] = useState(null);
+  const [showVersionHistory, setShowVersionHistory] = useState(false);
+  const [versionArticleId, setVersionArticleId] = useState(null);
+  const [showExportModal, setShowExportModal] = useState(false);
+  const [exportingArticle, setExportingArticle] = useState(null);
   const queryClient = useQueryClient();
   const toast = useToast();
 
@@ -373,6 +380,12 @@ For each idea provide:
                           </div>
                           <span className="text-sm text-gray-500">{article.word_count} words</span>
                           <Badge variant="outline">{article.status}</Badge>
+                          {article.plagiarism_score && (
+                            <Badge className={article.plagiarism_score >= 90 ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}>
+                              <Shield className="w-3 h-3 mr-1" />
+                              {article.plagiarism_score}%
+                            </Badge>
+                          )}
                         </div>
                       </div>
                       <div className="flex gap-2">
@@ -381,10 +394,25 @@ For each idea provide:
                           variant="outline" 
                           size="sm" 
                           className="gap-1"
+                          onClick={() => { setVersionArticleId(article.id); setShowVersionHistory(true); }}
+                        >
+                          <History className="w-4 h-4" />
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="gap-1"
+                          onClick={() => { setExportingArticle(article); setShowExportModal(true); }}
+                        >
+                          <Download className="w-4 h-4" />
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="gap-1"
                           onClick={() => { setSharingArticle(article); setShowShareModal(true); }}
                         >
                           <Share2 className="w-4 h-4" />
-                          Share
                         </Button>
                         {boostsRemaining > 0 && (
                           <Button size="sm" className="gap-1 bg-orange-500 hover:bg-orange-600">
@@ -423,6 +451,22 @@ For each idea provide:
         open={showShareModal}
         onClose={() => { setShowShareModal(false); setSharingArticle(null); }}
         article={sharingArticle}
+      />
+
+      <ContentVersionHistory
+        articleId={versionArticleId}
+        open={showVersionHistory}
+        onClose={() => { setShowVersionHistory(false); setVersionArticleId(null); }}
+        onRestore={(version) => {
+          toast.success('Version restored - feature coming soon');
+          setShowVersionHistory(false);
+        }}
+      />
+
+      <ContentExporter
+        article={exportingArticle}
+        open={showExportModal}
+        onClose={() => { setShowExportModal(false); setExportingArticle(null); }}
       />
     </div>
   );

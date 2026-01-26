@@ -4,17 +4,26 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { base44 } from '@/api/base44Client';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Package, Plus, Search, TrendingDown, AlertCircle, Calendar, DollarSign, Edit, Trash2 } from "lucide-react";
+import { useQuery, useMutation, useQueryClient } from '@tantml:react-query';
+import { Package, Plus, Search, TrendingDown, AlertCircle, Calendar, DollarSign, Edit, Trash2, QrCode, Upload, Download, Shield } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import QRCodeGenerator from '@/components/equipment/QRCodeGenerator';
+import MaintenanceHistory from '@/components/equipment/MaintenanceHistory';
+import CheckoutSystem from '@/components/equipment/CheckoutSystem';
+import { useToast } from '@/components/ui/toast-provider';
 
 export default function EquipmentInventory() {
   const [search, setSearch] = useState('');
   const [modalOpen, setModalOpen] = useState(false);
   const [editingEquipment, setEditingEquipment] = useState(null);
+  const [selectedEquipment, setSelectedEquipment] = useState(null);
+  const [showQRModal, setShowQRModal] = useState(false);
+  const [qrEquipment, setQREquipment] = useState(null);
+  const [uploadingPhotos, setUploadingPhotos] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     category: 'IT',
@@ -28,10 +37,15 @@ export default function EquipmentInventory() {
     warranty_expiry: '',
     maintenance_schedule: 'As Needed',
     status: 'Active',
-    notes: ''
+    notes: '',
+    insurance_policy: '',
+    insurance_expiry: '',
+    insurance_provider: '',
+    photo_urls: []
   });
 
   const queryClient = useQueryClient();
+  const toast = useToast();
 
   const { data: equipment = [] } = useQuery({
     queryKey: ['equipment'],
@@ -96,6 +110,44 @@ export default function EquipmentInventory() {
     }
   };
 
+  const handlePhotoUpload = async (e) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
+
+    setUploadingPhotos(true);
+    const urls = [];
+    
+    for (const file of files) {
+      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      urls.push(file_url);
+    }
+    
+    setFormData(prev => ({
+      ...prev,
+      photo_urls: [...(prev.photo_urls || []), ...urls]
+    }));
+    setUploadingPhotos(false);
+    toast.success(`${files.length} photo(s) uploaded`);
+  };
+
+  const handleExportCSV = () => {
+    const headers = ['Name', 'Category', 'Serial', 'Status', 'Condition', 'Value', 'Location', 'Assigned To'];
+    const rows = equipment.map(e => [
+      e.name, e.category, e.serial_number || '', e.status, e.condition,
+      e.current_value || '', e.location || '', e.assigned_to || ''
+    ]);
+    
+    const csv = [headers, ...rows].map(row => row.join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `equipment-inventory-${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+    window.URL.revokeObjectURL(url);
+    toast.success('CSV exported');
+  };
+
   const filteredEquipment = equipment.filter(item =>
     item.name?.toLowerCase().includes(search.toLowerCase()) ||
     item.serial_number?.toLowerCase().includes(search.toLowerCase()) ||
@@ -140,10 +192,16 @@ export default function EquipmentInventory() {
           </h1>
           <p className="text-gray-500 dark:text-gray-400 mt-1">Manage your company assets and equipment</p>
         </div>
-        <Button onClick={() => { resetForm(); setModalOpen(true); }} className="bg-indigo-600 hover:bg-indigo-700">
-          <Plus className="w-5 h-5 mr-2" />
-          Add Equipment
-        </Button>
+        <div className="flex gap-2">
+          <Button onClick={handleExportCSV} variant="outline" className="gap-2">
+            <Download className="w-4 h-4" />
+            Export CSV
+          </Button>
+          <Button onClick={() => { resetForm(); setModalOpen(true); }} className="bg-indigo-600 hover:bg-indigo-700">
+            <Plus className="w-5 h-5 mr-2" />
+            Add Equipment
+          </Button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -252,6 +310,12 @@ export default function EquipmentInventory() {
                     </div>
                   </div>
                   <div className="flex gap-2">
+                    <Button variant="outline" size="sm" onClick={(e) => { e.stopPropagation(); setSelectedEquipment(item); }}>
+                      View Details
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={() => { setQREquipment(item); setShowQRModal(true); }}>
+                      <QrCode className="w-4 h-4" />
+                    </Button>
                     <Button variant="outline" size="sm" onClick={() => handleEdit(item)}>
                       <Edit className="w-4 h-4" />
                     </Button>
@@ -359,6 +423,71 @@ export default function EquipmentInventory() {
               <Label>Notes</Label>
               <Textarea value={formData.notes} onChange={(e) => setFormData({...formData, notes: e.target.value})} rows={3} />
             </div>
+
+            {/* Insurance Section */}
+            <div className="border-t pt-4">
+              <h4 className="font-semibold mb-3 flex items-center gap-2">
+                <Shield className="w-4 h-4" />
+                Insurance Information
+              </h4>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label>Policy Number</Label>
+                  <Input value={formData.insurance_policy} onChange={(e) => setFormData({...formData, insurance_policy: e.target.value})} />
+                </div>
+                <div>
+                  <Label>Provider</Label>
+                  <Input value={formData.insurance_provider} onChange={(e) => setFormData({...formData, insurance_provider: e.target.value})} />
+                </div>
+              </div>
+              <div className="mt-3">
+                <Label>Insurance Expiry</Label>
+                <Input type="date" value={formData.insurance_expiry} onChange={(e) => setFormData({...formData, insurance_expiry: e.target.value})} />
+              </div>
+            </div>
+
+            {/* Photos Section */}
+            <div className="border-t pt-4">
+              <Label>Equipment Photos</Label>
+              <div className="mt-2 space-y-3">
+                <label className="border-2 border-dashed rounded-lg p-4 flex items-center justify-center cursor-pointer hover:border-violet-500 transition-colors">
+                  <input
+                    type="file"
+                    multiple
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handlePhotoUpload}
+                  />
+                  {uploadingPhotos ? (
+                    <Loader2 className="w-5 h-5 animate-spin text-violet-600" />
+                  ) : (
+                    <div className="text-center">
+                      <Upload className="w-6 h-6 text-gray-400 mx-auto mb-1" />
+                      <p className="text-sm text-gray-600">Upload photos</p>
+                    </div>
+                  )}
+                </label>
+                {formData.photo_urls?.length > 0 && (
+                  <div className="flex flex-wrap gap-2">
+                    {formData.photo_urls.map((url, idx) => (
+                      <div key={idx} className="relative">
+                        <img src={url} alt="" className="w-20 h-20 object-cover rounded-lg" />
+                        <button
+                          onClick={() => setFormData(prev => ({
+                            ...prev,
+                            photo_urls: prev.photo_urls.filter((_, i) => i !== idx)
+                          }))}
+                          className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+
             <div className="flex justify-end gap-2">
               <Button variant="outline" onClick={() => setModalOpen(false)}>Cancel</Button>
               <Button onClick={handleSubmit} className="bg-indigo-600 hover:bg-indigo-700">
@@ -368,6 +497,98 @@ export default function EquipmentInventory() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Equipment Detail Modal */}
+      <Dialog open={!!selectedEquipment} onOpenChange={() => setSelectedEquipment(null)}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{selectedEquipment?.name}</DialogTitle>
+          </DialogHeader>
+          {selectedEquipment && (
+            <Tabs defaultValue="details">
+              <TabsList>
+                <TabsTrigger value="details">Details</TabsTrigger>
+                <TabsTrigger value="maintenance">Maintenance</TabsTrigger>
+                <TabsTrigger value="checkout">Checkout</TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="details" className="space-y-4">
+                {selectedEquipment.photo_urls?.length > 0 && (
+                  <div className="grid grid-cols-3 gap-2">
+                    {selectedEquipment.photo_urls.map((url, idx) => (
+                      <img key={idx} src={url} alt="" className="w-full h-32 object-cover rounded-lg" />
+                    ))}
+                  </div>
+                )}
+                
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <p className="text-gray-500">Category</p>
+                    <p className="font-medium">{selectedEquipment.category}</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-500">Serial Number</p>
+                    <p className="font-medium">{selectedEquipment.serial_number || 'N/A'}</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-500">Current Value</p>
+                    <p className="font-medium">${selectedEquipment.current_value?.toLocaleString() || 'N/A'}</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-500">Condition</p>
+                    <Badge className={getConditionColor(selectedEquipment.condition)}>
+                      {selectedEquipment.condition}
+                    </Badge>
+                  </div>
+                </div>
+
+                {/* Insurance Info */}
+                {selectedEquipment.insurance_policy && (
+                  <Card className="bg-blue-50 dark:bg-blue-900/20 border-blue-200">
+                    <CardContent className="p-4">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Shield className="w-4 h-4 text-blue-600" />
+                        <h4 className="font-semibold text-sm">Insurance</h4>
+                      </div>
+                      <div className="grid grid-cols-2 gap-3 text-sm">
+                        <div>
+                          <p className="text-gray-600">Policy #</p>
+                          <p className="font-medium">{selectedEquipment.insurance_policy}</p>
+                        </div>
+                        <div>
+                          <p className="text-gray-600">Provider</p>
+                          <p className="font-medium">{selectedEquipment.insurance_provider}</p>
+                        </div>
+                        {selectedEquipment.insurance_expiry && (
+                          <div>
+                            <p className="text-gray-600">Expiry</p>
+                            <p className="font-medium">{new Date(selectedEquipment.insurance_expiry).toLocaleDateString()}</p>
+                          </div>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+              </TabsContent>
+
+              <TabsContent value="maintenance">
+                <MaintenanceHistory equipmentId={selectedEquipment.id} />
+              </TabsContent>
+
+              <TabsContent value="checkout">
+                <CheckoutSystem equipment={selectedEquipment} />
+              </TabsContent>
+            </Tabs>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* QR Code Modal */}
+      <QRCodeGenerator
+        equipment={qrEquipment}
+        open={showQRModal}
+        onClose={() => { setShowQRModal(false); setQREquipment(null); }}
+      />
     </div>
   );
 }
