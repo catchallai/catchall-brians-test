@@ -59,9 +59,9 @@ export default function ProjectDetail() {
     enabled: !!projectId,
   });
 
-  const { data: contacts = [] } = useQuery({
-    queryKey: ['contacts'],
-    queryFn: () => base44.entities.Contact.list(),
+  const { data: users = [] } = useQuery({
+    queryKey: ['users'],
+    queryFn: () => base44.entities.User.list(),
   });
 
   const { data: dependencies = [] } = useQuery({
@@ -135,9 +135,9 @@ export default function ProjectDetail() {
     completed: tasks.filter(t => t.status === 'completed').length,
   };
 
-  const getContactName = (contactId) => {
-    const contact = contacts.find(c => c.id === contactId);
-    return contact ? `${contact.first_name} ${contact.last_name}` : 'N/A';
+  const getUserName = (email) => {
+    const user = users.find(u => u.email === email);
+    return user ? user.full_name : email || 'Unassigned';
   };
 
   return (
@@ -228,7 +228,7 @@ export default function ProjectDetail() {
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <h4 className="font-semibold text-gray-900 dark:text-white">{task.title}</h4>
-                      <p className="text-sm text-gray-500">{getContactName(task.assigned_to)}</p>
+                      <p className="text-sm text-gray-500">{getUserName(task.assigned_to)}</p>
                       {task.due_date && (
                         <p className="text-xs text-gray-400 mt-1">
                           Due: {new Date(task.due_date).toLocaleDateString()}
@@ -335,7 +335,6 @@ export default function ProjectDetail() {
         open={showTaskModal}
         onClose={() => { setShowTaskModal(false); setEditingTask(null); }}
         task={editingTask}
-        contacts={contacts}
         onSave={(data) => createTaskMutation.mutate(data)}
         isLoading={createTaskMutation.isPending}
       />
