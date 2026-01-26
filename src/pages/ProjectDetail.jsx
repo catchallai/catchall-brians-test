@@ -7,9 +7,15 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Plus, Edit2, Trash2, CheckCircle2, Circle } from "lucide-react";
+import { Plus, Edit2, Trash2, CheckCircle2, Circle, ArrowLeft } from "lucide-react";
+import { Link } from 'react-router-dom';
+import { createPageUrl } from '@/utils';
 import TaskModal from '@/components/modals/TaskModal.jsx';
 import MilestoneModal from '@/components/modals/MilestoneModal.jsx';
+import DependencyManager from '@/components/projects/DependencyManager.jsx';
+import ActivityLog from '@/components/projects/ActivityLog.jsx';
+import ResourcePlanner from '@/components/projects/ResourcePlanner.jsx';
+import TimeTracker from '@/components/projects/TimeTracker.jsx';
 
 export default function ProjectDetail() {
   const [searchParams] = useSearchParams();
@@ -56,6 +62,25 @@ export default function ProjectDetail() {
   const { data: contacts = [] } = useQuery({
     queryKey: ['contacts'],
     queryFn: () => base44.entities.Contact.list(),
+  });
+
+  const { data: dependencies = [] } = useQuery({
+    queryKey: ['task-dependencies', projectId],
+    queryFn: async () => {
+      if (!projectId) return [];
+      return await base44.entities.TaskDependency.list();
+    },
+    enabled: !!projectId
+  });
+
+  const { data: timeLogs = [] } = useQuery({
+    queryKey: ['time-logs', projectId],
+    queryFn: async () => {
+      if (!projectId) return [];
+      const allLogs = await base44.entities.TimeLog.list('-date', 200);
+      return allLogs.filter(log => tasks.some(t => t.id === log.task_id));
+    },
+    enabled: !!projectId && tasks.length > 0
   });
 
   const createTaskMutation = useMutation({
@@ -119,11 +144,18 @@ export default function ProjectDetail() {
     <div className="p-4 sm:p-6 lg:p-8 space-y-6 min-h-screen">
       {/* Header */}
       <div className="flex items-start justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{project.name}</h1>
-          <Badge className={statusColors[project.status]} className="mt-2">
-            {project.status.replace('_', ' ')}
-          </Badge>
+        <div className="flex items-center gap-3">
+          <Link to={createPageUrl('Projects')}>
+            <Button variant="ghost" size="icon">
+              <ArrowLeft className="w-4 h-4" />
+            </Button>
+          </Link>
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{project.name}</h1>
+            <Badge className={statusColors[project.status]} className="mt-2">
+              {project.status.replace('_', ' ')}
+            </Badge>
+          </div>
         </div>
         <Button variant="outline" size="sm" className="gap-2">
           <Edit2 className="w-4 h-4" />
@@ -168,9 +200,11 @@ export default function ProjectDetail() {
 
       {/* Tabs */}
       <Tabs defaultValue="tasks" className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="tasks">Tasks ({tasks.length})</TabsTrigger>
           <TabsTrigger value="milestones">Milestones ({milestones.length})</TabsTrigger>
+          <TabsTrigger value="resources">Resources</TabsTrigger>
+          <TabsTrigger value="activity">Activity</TabsTrigger>
           <TabsTrigger value="details">Details</TabsTrigger>
         </TabsList>
 
@@ -242,6 +276,19 @@ export default function ProjectDetail() {
               ))}
             </div>
           )}
+        </TabsContent>
+
+        {/* Resources Tab */}
+        <TabsContent value="resources" className="mt-4 space-y-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <ResourcePlanner tasks={tasks} timeLogs={timeLogs} />
+            <TimeTracker taskId={tasks[0]?.id} timeLogs={timeLogs} />
+          </div>
+        </TabsContent>
+
+        {/* Activity Tab */}
+        <TabsContent value="activity" className="mt-4">
+          <ActivityLog projectId={projectId} />
         </TabsContent>
 
         {/* Details Tab */}

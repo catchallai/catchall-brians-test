@@ -1,183 +1,106 @@
 import React, { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2 } from "lucide-react";
+import { Loader2, X } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Badge } from "@/components/ui/badge";
 
 export default function ProjectModal({ open, onClose, project, companies, contacts, onSave, isLoading }) {
   const [formData, setFormData] = useState({
     name: '',
     description: '',
-    company_id: '',
-    contact_id: '',
     status: 'planning',
-    start_date: new Date().toISOString().split('T')[0],
-    end_date: '',
-    progress: 0,
+    priority: 'medium',
+    company_id: '',
     budget: '',
     budget_spent: 0,
-    team_members: [],
-    priority: 'medium',
-    tags: [],
-    notes: '',
+    progress: 0,
+    start_date: '',
+    end_date: '',
+    team_members: []
   });
-  const [errors, setErrors] = useState({});
-  const [teamEmail, setTeamEmail] = useState('');
+  const [memberEmail, setMemberEmail] = useState('');
 
   useEffect(() => {
     if (project) {
       setFormData({
         name: project.name || '',
         description: project.description || '',
-        company_id: project.company_id || '',
-        contact_id: project.contact_id || '',
         status: project.status || 'planning',
-        start_date: project.start_date || '',
-        end_date: project.end_date || '',
-        progress: project.progress || 0,
+        priority: project.priority || 'medium',
+        company_id: project.company_id || '',
         budget: project.budget || '',
         budget_spent: project.budget_spent || 0,
-        team_members: project.team_members || [],
-        priority: project.priority || 'medium',
-        tags: project.tags || [],
-        notes: project.notes || '',
+        progress: project.progress || 0,
+        start_date: project.start_date || '',
+        end_date: project.end_date || '',
+        team_members: project.team_members || []
       });
     } else {
       setFormData({
         name: '',
         description: '',
-        company_id: '',
-        contact_id: '',
         status: 'planning',
-        start_date: new Date().toISOString().split('T')[0],
-        end_date: '',
-        progress: 0,
+        priority: 'medium',
+        company_id: '',
         budget: '',
         budget_spent: 0,
-        team_members: [],
-        priority: 'medium',
-        tags: [],
-        notes: '',
+        progress: 0,
+        start_date: '',
+        end_date: '',
+        team_members: []
       });
     }
   }, [project, open]);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!formData.name) {
-      setErrors({ name: 'Project name is required' });
-      return;
-    }
-    setErrors({});
-    
-    // Clean up empty numeric fields
-    const cleanedData = { ...formData };
-    if (cleanedData.budget === '' || cleanedData.budget === null) {
-      delete cleanedData.budget;
-    }
-    if (cleanedData.budget_spent === '' || cleanedData.budget_spent === null) {
-      delete cleanedData.budget_spent;
-    }
-    
-    onSave(cleanedData);
+  const handleSubmit = () => {
+    onSave(formData);
   };
 
   const addTeamMember = () => {
-    if (teamEmail && !formData.team_members.includes(teamEmail)) {
-      setFormData({
-        ...formData,
-        team_members: [...formData.team_members, teamEmail],
-      });
-      setTeamEmail('');
+    if (memberEmail && !formData.team_members.includes(memberEmail)) {
+      setFormData({ ...formData, team_members: [...formData.team_members, memberEmail] });
+      setMemberEmail('');
     }
   };
 
   const removeTeamMember = (email) => {
-    setFormData({
-      ...formData,
-      team_members: formData.team_members.filter(e => e !== email),
-    });
+    setFormData({ ...formData, team_members: formData.team_members.filter(m => m !== email) });
   };
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{project ? 'Edit Project' : 'Create Project'}</DialogTitle>
+          <DialogTitle>{project ? 'Edit Project' : 'Create New Project'}</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4 mt-4">
-          <div className="space-y-2">
-            <Label htmlFor="name">Project Name *</Label>
+        <div className="space-y-4">
+          <div>
+            <Label>Project Name *</Label>
             <Input
-              id="name"
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              placeholder="Project name"
-              className={errors.name ? 'border-red-500' : ''}
+              placeholder="e.g., Q1 SEO Campaign"
             />
-            {errors.name && <p className="text-xs text-red-500">{errors.name}</p>}
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="description">Description</Label>
+          <div>
+            <Label>Description</Label>
             <Textarea
-              id="description"
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              placeholder="Project description"
+              placeholder="Project description..."
               rows={3}
             />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="company_id">Company</Label>
-              <Select
-                value={formData.company_id}
-                onValueChange={(value) => setFormData({ ...formData, company_id: value })}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select company" />
-                </SelectTrigger>
-                <SelectContent>
-                  {companies?.map((company) => (
-                    <SelectItem key={company.id} value={company.id}>
-                      {company.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="contact_id">Project Lead</Label>
-              <Select
-                value={formData.contact_id}
-                onValueChange={(value) => setFormData({ ...formData, contact_id: value })}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select lead" />
-                </SelectTrigger>
-                <SelectContent>
-                  {contacts?.map((contact) => (
-                    <SelectItem key={contact.id} value={contact.id}>
-                      {contact.first_name} {contact.last_name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="status">Status</Label>
-              <Select
-                value={formData.status}
-                onValueChange={(value) => setFormData({ ...formData, status: value })}
-              >
+            <div>
+              <Label>Status</Label>
+              <Select value={formData.status} onValueChange={(value) => setFormData({ ...formData, status: value })}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -190,12 +113,10 @@ export default function ProjectModal({ open, onClose, project, companies, contac
                 </SelectContent>
               </Select>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="priority">Priority</Label>
-              <Select
-                value={formData.priority}
-                onValueChange={(value) => setFormData({ ...formData, priority: value })}
-              >
+
+            <div>
+              <Label>Priority</Label>
+              <Select value={formData.priority} onValueChange={(value) => setFormData({ ...formData, priority: value })}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -209,20 +130,56 @@ export default function ProjectModal({ open, onClose, project, companies, contac
             </div>
           </div>
 
+          <div>
+            <Label>Company</Label>
+            <Select value={formData.company_id} onValueChange={(value) => setFormData({ ...formData, company_id: value })}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select company" />
+              </SelectTrigger>
+              <SelectContent>
+                {companies?.map((company) => (
+                  <SelectItem key={company.id} value={company.id}>{company.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
           <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="start_date">Start Date</Label>
+            <div>
+              <Label>Budget ($)</Label>
               <Input
-                id="start_date"
+                type="number"
+                value={formData.budget}
+                onChange={(e) => setFormData({ ...formData, budget: parseFloat(e.target.value) || '' })}
+                placeholder="0"
+              />
+            </div>
+
+            <div>
+              <Label>Progress (%)</Label>
+              <Input
+                type="number"
+                min="0"
+                max="100"
+                value={formData.progress}
+                onChange={(e) => setFormData({ ...formData, progress: parseInt(e.target.value) || 0 })}
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label>Start Date</Label>
+              <Input
                 type="date"
                 value={formData.start_date}
                 onChange={(e) => setFormData({ ...formData, start_date: e.target.value })}
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="end_date">End Date</Label>
+
+            <div>
+              <Label>End Date</Label>
               <Input
-                id="end_date"
                 type="date"
                 value={formData.end_date}
                 onChange={(e) => setFormData({ ...formData, end_date: e.target.value })}
@@ -230,98 +187,39 @@ export default function ProjectModal({ open, onClose, project, companies, contac
             </div>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="progress">Progress (%)</Label>
-            <Input
-              id="progress"
-              type="number"
-              min="0"
-              max="100"
-              value={formData.progress}
-              onChange={(e) => setFormData({ ...formData, progress: parseInt(e.target.value) || 0 })}
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="budget">Budget</Label>
-              <Input
-                id="budget"
-                type="number"
-                value={formData.budget}
-                onChange={(e) => setFormData({ ...formData, budget: parseFloat(e.target.value) || 0 })}
-                placeholder="0.00"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="budget_spent">Spent</Label>
-              <Input
-                id="budget_spent"
-                type="number"
-                value={formData.budget_spent}
-                onChange={(e) => setFormData({ ...formData, budget_spent: parseFloat(e.target.value) || 0 })}
-                placeholder="0.00"
-              />
-            </div>
-          </div>
-
-          <div className="space-y-2">
+          <div>
             <Label>Team Members</Label>
             <div className="flex gap-2 mb-2">
               <Input
-                placeholder="Email address"
-                value={teamEmail}
-                onChange={(e) => setTeamEmail(e.target.value)}
-                onKeyPress={(e) => {
-                  if (e.key === 'Enter') {
-                    e.preventDefault();
-                    addTeamMember();
-                  }
-                }}
+                type="email"
+                value={memberEmail}
+                onChange={(e) => setMemberEmail(e.target.value)}
+                placeholder="email@example.com"
+                onKeyPress={(e) => e.key === 'Enter' && addTeamMember()}
               />
-              <Button type="button" variant="outline" onClick={addTeamMember}>
-                Add
-              </Button>
+              <Button type="button" onClick={addTeamMember} size="sm">Add</Button>
             </div>
-            <div className="space-y-2">
-              {formData.team_members.map((email, idx) => (
-                <div key={idx} className="flex items-center justify-between bg-gray-100 dark:bg-gray-800 p-2 rounded">
-                  <span className="text-sm">{email}</span>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => removeTeamMember(email)}
-                    className="text-red-500"
-                  >
-                    ✕
-                  </Button>
-                </div>
+            <div className="flex flex-wrap gap-2">
+              {formData.team_members.map((email) => (
+                <Badge key={email} variant="outline" className="gap-1">
+                  {email}
+                  <X className="w-3 h-3 cursor-pointer" onClick={() => removeTeamMember(email)} />
+                </Badge>
               ))}
             </div>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="notes">Notes</Label>
-            <Textarea
-              id="notes"
-              value={formData.notes}
-              onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-              placeholder="Additional notes"
-              rows={2}
-            />
-          </div>
-
-          <div className="flex justify-end gap-3 pt-4">
-            <Button type="button" variant="outline" onClick={onClose}>
-              Cancel
-            </Button>
-            <Button type="submit" disabled={isLoading}>
+          <div className="flex justify-end gap-2 pt-4">
+            <Button variant="outline" onClick={onClose}>Cancel</Button>
+            <Button 
+              onClick={handleSubmit}
+              disabled={!formData.name || isLoading}
+            >
               {isLoading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
               {project ? 'Update' : 'Create'} Project
             </Button>
           </div>
-        </form>
+        </div>
       </DialogContent>
     </Dialog>
   );

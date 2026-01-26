@@ -59,13 +59,23 @@ export default function Projects() {
     },
   });
 
+  const updateMutation = useMutation({
+    mutationFn: async ({ id, data }) => {
+      return await base44.entities.Project.update(id, data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['projects'] });
+      setShowModal(false);
+      setEditingProject(null);
+    },
+  });
+
   const handleSave = (data) => {
     if (editingProject) {
-      base44.entities.Project.update(editingProject.id, data);
+      updateMutation.mutate({ id: editingProject.id, data });
     } else {
       createMutation.mutate(data);
     }
-    queryClient.invalidateQueries({ queryKey: ['projects'] });
   };
 
   const filteredProjects = useMemo(() => {
@@ -324,7 +334,7 @@ export default function Projects() {
         companies={companies}
         contacts={contacts}
         onSave={handleSave}
-        isLoading={createMutation.isPending}
+        isLoading={createMutation.isPending || updateMutation.isPending}
       />
     </div>
   );
