@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,16 +8,71 @@ import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { 
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-  PieChart, Pie, Cell, LineChart, Line, Legend
+  PieChart, Pie, Cell, LineChart, Line, Legend, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar
 } from 'recharts';
 import { 
   TrendingUp, AlertCircle, CheckCircle, Clock, DollarSign,
-  Users, Target, Calendar, ArrowRight
+  Users, Target, Calendar, ArrowRight, Sparkles, Brain, TrendingDown, Lightbulb
 } from 'lucide-react';
 
 const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
 
+// Calculate Project Health Score (0-100)
+const calculateHealthScore = (project, tasks) => {
+  const projectTasks = tasks.filter(t => t.project_id === project.id);
+  if (projectTasks.length === 0) return 50;
+
+  let score = 100;
+
+  // Completion rate (40 points)
+  const completedTasks = projectTasks.filter(t => t.status === 'done').length;
+  const completionRate = completedTasks / projectTasks.length;
+  score = completionRate * 40;
+
+  // Blocked tasks penalty (20 points)
+  const blockedTasks = projectTasks.filter(t => t.status === 'blocked').length;
+  const blockedPenalty = (blockedTasks / projectTasks.length) * 20;
+  score += (20 - blockedPenalty);
+
+  // Budget health (20 points)
+  if (project.budget && project.budget > 0) {
+    const budgetUtilization = (project.budget_spent || 0) / project.budget;
+    if (budgetUtilization <= 0.9) {
+      score += 20;
+    } else if (budgetUtilization <= 1.0) {
+      score += 10;
+    }
+  } else {
+    score += 15; // neutral if no budget
+  }
+
+  // Timeline health (20 points)
+  if (project.end_date) {
+    const daysToEnd = (new Date(project.end_date) - new Date()) / (1000 * 60 * 60 * 24);
+    if (daysToEnd > 30) {
+      score += 20;
+    } else if (daysToEnd > 0) {
+      score += 10;
+    } else if (daysToEnd < 0 && completionRate < 1) {
+      score -= 10; // overdue penalty
+    }
+  } else {
+    score += 15; // neutral if no end date
+  }
+
+  return Math.max(0, Math.min(100, Math.round(score)));
+};
+
+const getHealthColor = (score) => {
+  if (score >= 80) return { bg: 'bg-green-100', text: 'text-green-800', ring: 'ring-green-500' };
+  if (score >= 60) return { bg: 'bg-yellow-100', text: 'text-yellow-800', ring: 'ring-yellow-500' };
+  if (score >= 40) return { bg: 'bg-orange-100', text: 'text-orange-800', ring: 'ring-orange-500' };
+  return { bg: 'bg-red-100', text: 'text-red-800', ring: 'ring-red-500' };
+};
+
 export default function ProjectsDashboard() {
+  const [aiInsights, setAiInsights] = useState(null);
+  const [loadingInsights, setLoadingInsights] = useState(false);
   const { data: projects = [], isLoading: projectsLoading } = useQuery({
     queryKey: ['projects'],
     queryFn: () => base44.entities.Project.list('-created_date', 100)
@@ -37,6 +92,82 @@ export default function ProjectsDashboard() {
     queryKey: ['users'],
     queryFn: () => base44.entities.User.list()
   });
+
+  // Generate AI Insights
+  useEffect(() => {
+    if (projects.length > 0 && tasks.length > 0 && !aiInsights) {
+      generateAIInsights();
+    }
+  }, [projects.length, tasks.length]);
+
+  const generateAIInsights = async () => {
+    setLoadingInsights(true);
+    try {
+      const projectSummary = projects.map(p => {
+        const projectTasks = tasks.filter(t => t.project_id === p.id);
+        const completedCount = projectTasks.filter(t => t.status === 'done').length;
+        const blockedCount = projectTasks.filter(t => t.status === 'blocked').length;
+        const healthScore = calculateHealthScore(p, tasks);
+        
+        return {
+          name: p.name,
+          status: p.status,
+          tasks: projectTasks.length,
+          completed: completedCount,
+          blocked: blockedCount,
+          health: healthScore,
+          budget: p.budget,
+          spent: p.budget_spent,
+          endDate: p.end_date
+        };
+      });
+
+      const response = await base44.integrations.Core.InvokeLLM({
+        prompt: `Analyze these projects and provide strategic insights:
+
+${JSON.stringify(projectSummary, null, 2)}
+
+Provide a JSON response with:
+1. "trends": Array of 3 key trends you observe across projects
+2. "predictions": Array of 2-3 specific projects at risk of delays with reasoning
+3. "recommendations": Array of 3 actionable resource allocation or process improvements
+4. "velocity": Overall team velocity assessment (high/medium/low) with reasoning
+
+Keep insights concise, actionable, and data-driven.`,
+        response_json_schema: {
+          type: "object",
+          properties: {
+            trends: { type: "array", items: { type: "string" } },
+            predictions: { 
+              type: "array", 
+              items: { 
+                type: "object",
+                properties: {
+                  project: { type: "string" },
+                  risk: { type: "string" },
+                  reasoning: { type: "string" }
+                }
+              }
+            },
+            recommendations: { type: "array", items: { type: "string" } },
+            velocity: {
+              type: "object",
+              properties: {
+                level: { type: "string" },
+                reasoning: { type: "string" }
+              }
+            }
+          }
+        }
+      });
+
+      setAiInsights(response);
+    } catch (error) {
+      console.error('Failed to generate AI insights:', error);
+    } finally {
+      setLoadingInsights(false);
+    }
+  };
 
   const analytics = useMemo(() => {
     const totalProjects = projects.length;
@@ -111,6 +242,23 @@ export default function ProjectsDashboard() {
       return projectBlocked > 0 || (projectTasks.length > 0 && completionRate < 30);
     }).slice(0, 5);
 
+    // Project health scores
+    const projectHealthScores = projects
+      .filter(p => p.status !== 'completed')
+      .map(project => ({
+        id: project.id,
+        name: project.name,
+        score: calculateHealthScore(project, tasks),
+        status: project.status,
+        tasks: tasks.filter(t => t.project_id === project.id).length
+      }))
+      .sort((a, b) => a.score - b.score);
+
+    // Average health score
+    const avgHealthScore = projectHealthScores.length > 0
+      ? Math.round(projectHealthScores.reduce((sum, p) => sum + p.score, 0) / projectHealthScores.length)
+      : 0;
+
     return {
       totalProjects,
       activeProjects,
@@ -127,7 +275,9 @@ export default function ProjectsDashboard() {
       projectHealth,
       teamWorkload,
       atRiskProjects,
-      blockedTasks
+      blockedTasks,
+      projectHealthScores,
+      avgHealthScore
     };
   }, [projects, tasks, timeLogs, users]);
 
@@ -238,6 +388,83 @@ export default function ProjectsDashboard() {
         </Card>
       </div>
 
+      {/* AI Insights Section */}
+      {aiInsights && (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Key Trends */}
+          <Card className="glass-card border-t-4 border-blue-500">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <TrendingUp className="w-5 h-5 text-blue-600" />
+                Key Trends
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ul className="space-y-3">
+                {aiInsights.trends?.map((trend, idx) => (
+                  <li key={idx} className="flex items-start gap-2 text-sm">
+                    <span className="text-blue-600 mt-0.5">▸</span>
+                    <span className="text-gray-700 dark:text-gray-300">{trend}</span>
+                  </li>
+                ))}
+              </ul>
+            </CardContent>
+          </Card>
+
+          {/* Delay Predictions */}
+          <Card className="glass-card border-t-4 border-orange-500">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <Brain className="w-5 h-5 text-orange-600" />
+                Delay Predictions
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {aiInsights.predictions?.map((pred, idx) => (
+                  <div key={idx} className="p-3 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
+                    <p className="font-semibold text-sm text-gray-900 dark:text-white">{pred.project}</p>
+                    <p className="text-xs text-orange-700 dark:text-orange-400 mt-1">{pred.risk}</p>
+                    <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">{pred.reasoning}</p>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Recommendations */}
+          <Card className="glass-card border-t-4 border-green-500">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <Lightbulb className="w-5 h-5 text-green-600" />
+                Recommendations
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ul className="space-y-3">
+                {aiInsights.recommendations?.map((rec, idx) => (
+                  <li key={idx} className="flex items-start gap-2 text-sm">
+                    <span className="text-green-600 mt-0.5">✓</span>
+                    <span className="text-gray-700 dark:text-gray-300">{rec}</span>
+                  </li>
+                ))}
+              </ul>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {loadingInsights && (
+        <Card className="glass-card">
+          <CardContent className="p-6">
+            <div className="flex items-center gap-3">
+              <Sparkles className="w-5 h-5 text-blue-600 animate-pulse" />
+              <p className="text-gray-600 dark:text-gray-400">Generating AI-powered insights...</p>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Alerts */}
       {(analytics.atRiskProjects.length > 0 || analytics.blockedTasks > 0) && (
         <Card className="glass-card border-l-4 border-orange-500">
@@ -259,6 +486,59 @@ export default function ProjectsDashboard() {
           </CardContent>
         </Card>
       )}
+
+      {/* Project Health Overview */}
+      <Card className="glass-card">
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle className="flex items-center gap-2">
+              <Target className="w-5 h-5 text-purple-600" />
+              Project Health Scores
+            </CardTitle>
+            <div className="text-right">
+              <p className="text-sm text-gray-500">Average Health</p>
+              <p className="text-2xl font-bold text-purple-600">{analytics.avgHealthScore}</p>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-3">
+            {analytics.projectHealthScores.slice(0, 8).map(project => {
+              const healthColor = getHealthColor(project.score);
+              return (
+                <div key={project.id} className="flex items-center gap-3">
+                  <div className="flex-1">
+                    <div className="flex items-center justify-between mb-1">
+                      <Link 
+                        to={createPageUrl('ProjectDetail') + `?id=${project.id}`}
+                        className="text-sm font-medium text-gray-900 dark:text-white hover:text-blue-600"
+                      >
+                        {project.name}
+                      </Link>
+                      <div className="flex items-center gap-2">
+                        <Badge variant="outline" className="text-xs">{project.status}</Badge>
+                        <span className={`text-sm font-bold ${healthColor.text}`}>
+                          {project.score}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                      <div 
+                        className={`h-2 rounded-full transition-all ${
+                          project.score >= 80 ? 'bg-green-500' :
+                          project.score >= 60 ? 'bg-yellow-500' :
+                          project.score >= 40 ? 'bg-orange-500' : 'bg-red-500'
+                        }`}
+                        style={{ width: `${project.score}%` }}
+                      />
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Charts Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
