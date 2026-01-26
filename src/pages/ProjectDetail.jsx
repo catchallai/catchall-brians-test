@@ -140,68 +140,287 @@ export default function ProjectDetail() {
     return user ? user.full_name : email || 'Unassigned';
   };
 
+  const totalHours = timeLogs.reduce((sum, log) => sum + (log.hours || 0), 0);
+  const completionRate = tasks.length > 0 ? (taskStatusCounts.completed / tasks.length * 100).toFixed(0) : 0;
+  const budgetPercentage = project.budget > 0 ? ((project.budget_spent || 0) / project.budget * 100).toFixed(0) : 0;
+
   return (
-    <div className="p-4 sm:p-6 lg:p-8 space-y-6 min-h-screen">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
       {/* Header */}
-      <div className="flex items-start justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <Link to={createPageUrl('Projects')}>
-            <Button variant="ghost" size="icon">
-              <ArrowLeft className="w-4 h-4" />
+      <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-4">
+        <div className="flex items-center justify-between max-w-7xl mx-auto">
+          <div className="flex items-center gap-3">
+            <Link to={createPageUrl('Projects')}>
+              <Button variant="ghost" size="sm">
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Back
+              </Button>
+            </Link>
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{project.name}</h1>
+              <p className="text-sm text-gray-500">{project.description}</p>
+            </div>
+          </div>
+          
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm">Share</Button>
+            <Button size="sm" className="bg-blue-600 hover:bg-blue-700" onClick={() => { setEditingTask(null); setShowTaskModal(true); }}>
+              <Plus className="w-4 h-4 mr-2" /> Add Task
             </Button>
-          </Link>
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{project.name}</h1>
-            <Badge className={statusColors[project.status]} className="mt-2">
-              {project.status.replace('_', ' ')}
-            </Badge>
           </div>
         </div>
-        <Link to={`${createPageUrl('Projects')}`}>
-          <Button variant="outline" size="sm" className="gap-2">
-            <Edit2 className="w-4 h-4" />
-            Edit Project
-          </Button>
-        </Link>
       </div>
 
-      {/* Progress & Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card className="p-4">
-          <div className="text-sm text-gray-500 mb-1">Progress</div>
-          <div className="text-2xl font-bold">{project.progress}%</div>
-          <div className="w-full bg-gray-200 rounded h-2 mt-2">
-            <div className="bg-violet-600 h-2 rounded" style={{ width: `${project.progress}%` }} />
-          </div>
-        </Card>
+      <div className="max-w-7xl mx-auto p-6 space-y-6">
+        {/* Top Metrics Row */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <Card className="bg-white dark:bg-gray-800 border-0 shadow-sm p-4">
+            <div>
+              <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">Project Budget</p>
+              <p className="text-2xl font-bold">${((project.budget || 0) / 1000).toFixed(0)}k</p>
+              <p className="text-xs text-gray-400">/ total</p>
+            </div>
+          </Card>
 
-        <Card className="p-4">
-          <div className="text-sm text-gray-500 mb-1">Tasks</div>
-          <div className="text-2xl font-bold">{tasks.length}</div>
-          <div className="text-xs text-gray-400 mt-2">
-            {taskStatusCounts.completed} completed · {taskStatusCounts.in_progress} in progress
-          </div>
-        </Card>
+          <Card className="bg-white dark:bg-gray-800 border-0 shadow-sm p-4">
+            <div>
+              <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">Spent</p>
+              <p className="text-2xl font-bold">${((project.budget_spent || 0) / 1000).toFixed(1)}k</p>
+              <p className="text-xs text-gray-400">{budgetPercentage}% used</p>
+            </div>
+          </Card>
 
-        <Card className="p-4">
-          <div className="text-sm text-gray-500 mb-1">Milestones</div>
-          <div className="text-2xl font-bold">{milestones.length}</div>
-          <div className="text-xs text-gray-400 mt-2">
-            {milestones.filter(m => m.status === 'completed').length} completed
-          </div>
-        </Card>
+          <Card className="bg-white dark:bg-gray-800 border-0 shadow-sm p-4 flex items-center justify-center">
+            <div className="text-center">
+              <div className="relative inline-flex items-center justify-center">
+                <svg className="w-24 h-24 transform -rotate-90">
+                  <circle cx="48" cy="48" r="40" stroke="#e5e7eb" strokeWidth="8" fill="none" />
+                  <circle
+                    cx="48"
+                    cy="48"
+                    r="40"
+                    stroke="#3b82f6"
+                    strokeWidth="8"
+                    fill="none"
+                    strokeDasharray={`${2 * Math.PI * 40}`}
+                    strokeDashoffset={`${2 * Math.PI * 40 * (1 - completionRate / 100)}`}
+                    strokeLinecap="round"
+                  />
+                </svg>
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="text-center">
+                    <p className="text-2xl font-bold text-blue-600">{completionRate}%</p>
+                    <p className="text-xs text-gray-400">{taskStatusCounts.completed} of {tasks.length}</p>
+                  </div>
+                </div>
+              </div>
+              <p className="text-xs text-gray-500 mt-2">Goal completion</p>
+            </div>
+          </Card>
 
-        <Card className="p-4">
-          <div className="text-sm text-gray-500 mb-1">Budget</div>
-          <div className="text-2xl font-bold">${(project.budget || 0).toLocaleString()}</div>
-          <div className="text-xs text-gray-400 mt-2">
-            ${(project.budget_spent || 0).toLocaleString()} spent
+          <Card className="bg-white dark:bg-gray-800 border-0 shadow-sm p-4">
+            <div>
+              <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">Time Logged</p>
+              <p className="text-2xl font-bold">{totalHours.toFixed(0)}h</p>
+              <p className="text-xs text-gray-400">Total hours</p>
+            </div>
+          </Card>
+        </div>
+
+        {/* Main Content Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Left Column - Board Summary */}
+          <div className="lg:col-span-2 space-y-6">
+            {/* Board Summary */}
+            <Card className="bg-white dark:bg-gray-800 border-0 shadow-sm">
+              <div className="p-4 border-b border-gray-100 dark:border-gray-700">
+                <h3 className="text-lg font-semibold flex items-center gap-2">
+                  <span className="text-blue-600">📊</span> Board Summary
+                </h3>
+              </div>
+              <div className="p-4 space-y-4">
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-gray-600">Status</span>
+                    <Badge className={statusColors[project.status]}>
+                      {project.status.replace('_', ' ')}
+                    </Badge>
+                  </div>
+                  <div>
+                    <div className="flex justify-between text-xs mb-1">
+                      <span>Working on</span>
+                      <span className="font-medium">{taskStatusCounts.in_progress} tasks</span>
+                    </div>
+                    <div className="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-2">
+                      <div className="bg-yellow-500 h-2 rounded-full" style={{ width: tasks.length > 0 ? `${(taskStatusCounts.in_progress / tasks.length * 100)}%` : '0%' }} />
+                    </div>
+                  </div>
+                  <div>
+                    <div className="flex justify-between text-xs mb-1">
+                      <span>To Do</span>
+                      <span className="font-medium">{taskStatusCounts.todo} tasks</span>
+                    </div>
+                    <div className="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-2">
+                      <div className="bg-gray-400 h-2 rounded-full" style={{ width: tasks.length > 0 ? `${(taskStatusCounts.todo / tasks.length * 100)}%` : '0%' }} />
+                    </div>
+                  </div>
+                  <div>
+                    <div className="flex justify-between text-xs mb-1">
+                      <span>Done</span>
+                      <span className="font-medium">{taskStatusCounts.completed} tasks</span>
+                    </div>
+                    <div className="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-2">
+                      <div className="bg-green-500 h-2 rounded-full" style={{ width: `${completionRate}%` }} />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </Card>
+
+            {/* Milestones Progress */}
+            <Card className="bg-white dark:bg-gray-800 border-0 shadow-sm">
+              <div className="p-4 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between">
+                <h3 className="text-lg font-semibold flex items-center gap-2">
+                  <span className="text-purple-600">🎯</span> Milestones
+                </h3>
+                <Button size="sm" variant="outline" onClick={() => { setEditingMilestone(null); setShowMilestoneModal(true); }}>
+                  <Plus className="w-4 h-4 mr-1" /> Add
+                </Button>
+              </div>
+              <div className="p-4 space-y-4">
+                {milestones.length === 0 ? (
+                  <p className="text-sm text-gray-500 text-center py-4">No milestones yet</p>
+                ) : (
+                  milestones.map((milestone) => (
+                    <div key={milestone.id} className="border-l-4 border-blue-500 pl-4 py-2">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-2">
+                          {milestone.status === 'completed' ? (
+                            <CheckCircle2 className="w-5 h-5 text-green-500" />
+                          ) : (
+                            <Circle className="w-5 h-5 text-gray-400" />
+                          )}
+                          <div>
+                            <h4 className="font-semibold text-sm">{milestone.name}</h4>
+                            <p className="text-xs text-gray-500">Due: {new Date(milestone.due_date).toLocaleDateString()}</p>
+                          </div>
+                        </div>
+                        <Badge variant="outline">{milestone.status}</Badge>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </Card>
+
+            {/* Tasks List */}
+            <Card className="bg-white dark:bg-gray-800 border-0 shadow-sm">
+              <div className="p-4 border-b border-gray-100 dark:border-gray-700">
+                <h3 className="text-lg font-semibold flex items-center gap-2">
+                  <span className="text-orange-600">✓</span> All Tasks
+                </h3>
+              </div>
+              <div className="p-4 space-y-3">
+                {tasks.length === 0 ? (
+                  <p className="text-sm text-gray-500 text-center py-4">No tasks yet</p>
+                ) : (
+                  tasks.map((task) => (
+                    <div key={task.id} className="flex items-start gap-3 p-3 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors border border-gray-100 dark:border-gray-700">
+                      <div className="flex-1">
+                        <p className="text-sm font-medium">{task.title}</p>
+                        <div className="flex items-center gap-2 mt-1">
+                          <Badge variant="outline" className="text-xs">
+                            {task.status}
+                          </Badge>
+                          {task.assigned_to && (
+                            <span className="text-xs text-gray-500">{getUserName(task.assigned_to)}</span>
+                          )}
+                          {task.due_date && (
+                            <span className="text-xs text-gray-400">Due: {new Date(task.due_date).toLocaleDateString()}</span>
+                          )}
+                        </div>
+                      </div>
+                      <Button variant="ghost" size="sm" onClick={() => deleteTaskMutation.mutate(task.id)}>
+                        <Trash2 className="w-4 h-4 text-red-500" />
+                      </Button>
+                    </div>
+                  ))
+                )}
+              </div>
+            </Card>
           </div>
-        </Card>
+
+          {/* Right Column - Team & Details */}
+          <div className="space-y-6">
+            {/* Team Leaderboard */}
+            <Card className="bg-white dark:bg-gray-800 border-0 shadow-sm">
+              <div className="p-4 border-b border-gray-100 dark:border-gray-700">
+                <h3 className="text-lg font-semibold flex items-center gap-2">
+                  <span className="text-yellow-600">🏆</span> Leaderboard
+                </h3>
+              </div>
+              <div className="p-4 space-y-3">
+                {Object.entries(
+                  tasks.reduce((acc, task) => {
+                    if (task.assigned_to && task.status === 'completed') {
+                      acc[task.assigned_to] = (acc[task.assigned_to] || 0) + 1;
+                    }
+                    return acc;
+                  }, {})
+                )
+                  .sort((a, b) => b[1] - a[1])
+                  .slice(0, 5)
+                  .map(([email, count], idx) => (
+                    <div key={email} className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center text-white font-bold text-sm">
+                        #{idx + 1}
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-sm font-medium">{getUserName(email)}</p>
+                        <p className="text-xs text-gray-500">{count} tasks completed</p>
+                      </div>
+                    </div>
+                  ))}
+                {tasks.filter(t => t.status === 'completed').length === 0 && (
+                  <p className="text-sm text-gray-500 text-center py-4">No completed tasks yet</p>
+                )}
+              </div>
+            </Card>
+
+            {/* Project Details */}
+            <Card className="bg-white dark:bg-gray-800 border-0 shadow-sm">
+              <div className="p-4 border-b border-gray-100 dark:border-gray-700">
+                <h3 className="text-lg font-semibold flex items-center gap-2">
+                  <span className="text-indigo-600">ℹ️</span> Project Details
+                </h3>
+              </div>
+              <div className="p-4 space-y-3 text-sm">
+                {project.start_date && (
+                  <div>
+                    <p className="text-gray-500 text-xs">Start Date</p>
+                    <p className="font-medium">{new Date(project.start_date).toLocaleDateString()}</p>
+                  </div>
+                )}
+                {project.end_date && (
+                  <div>
+                    <p className="text-gray-500 text-xs">End Date</p>
+                    <p className="font-medium">{new Date(project.end_date).toLocaleDateString()}</p>
+                  </div>
+                )}
+                {project.team_members?.length > 0 && (
+                  <div>
+                    <p className="text-gray-500 text-xs">Team Members</p>
+                    <p className="font-medium">{project.team_members.join(', ')}</p>
+                  </div>
+                )}
+              </div>
+            </Card>
+          </div>
+        </div>
       </div>
 
-      {/* Tabs */}
-      <Tabs defaultValue="tasks" className="w-full">
+      {/* Legacy Tabs (hidden but keeping for compatibility) */}
+      <Tabs defaultValue="tasks" className="w-full hidden">
         <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="tasks">Tasks ({tasks.length})</TabsTrigger>
           <TabsTrigger value="milestones">Milestones ({milestones.length})</TabsTrigger>

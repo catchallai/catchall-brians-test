@@ -36,6 +36,7 @@ import HelpCenter from './pages/HelpCenter';
 import Home from './pages/Home';
 import ICS from './pages/ICS';
 import ICSAdmin from './pages/ICSAdmin';
+import Inbox from './pages/Inbox';
 import Keywords from './pages/Keywords';
 import LandingPageBuilder from './pages/LandingPageBuilder';
 import LeadEnrichment from './pages/LeadEnrichment';
@@ -96,7 +97,6 @@ import WebDashboard from './pages/WebDashboard';
 import WikiPageEditor from './pages/WikiPageEditor';
 import WorkflowBuilder from './pages/WorkflowBuilder';
 import WorkflowEngine from './pages/WorkflowEngine';
-import Inbox from './pages/Inbox';
 import __Layout from './Layout.jsx';
 
 
@@ -139,6 +139,7 @@ export const PAGES = {
     "Home": Home,
     "ICS": ICS,
     "ICSAdmin": ICSAdmin,
+    "Inbox": Inbox,
     "Keywords": Keywords,
     "LandingPageBuilder": LandingPageBuilder,
     "LeadEnrichment": LeadEnrichment,
@@ -199,7 +200,6 @@ export const PAGES = {
     "WikiPageEditor": WikiPageEditor,
     "WorkflowBuilder": WorkflowBuilder,
     "WorkflowEngine": WorkflowEngine,
-    "Inbox": Inbox,
 }
 
 export const pagesConfig = {
