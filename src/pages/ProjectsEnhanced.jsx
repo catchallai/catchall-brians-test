@@ -379,17 +379,17 @@ export default function ProjectsEnhanced() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {tasks
-                    .reduce((acc, task) => {
+                  {Object.entries(
+                    tasks.reduce((acc, task) => {
                       if (task.assigned_to && task.status === 'done') {
                         acc[task.assigned_to] = (acc[task.assigned_to] || 0) + 1;
                       }
                       return acc;
                     }, {})
-                    |> Object.entries(#)
-                    |> #.sort((a, b) => b[1] - a[1])
-                    |> #.slice(0, 5)
-                    |> #.map(([email, count], idx) => (
+                  )
+                    .sort((a, b) => b[1] - a[1])
+                    .slice(0, 5)
+                    .map(([email, count], idx) => (
                       <div key={email} className="flex items-center gap-3">
                         <div className="w-8 h-8 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center text-white font-bold text-sm">
                           #{idx + 1}
