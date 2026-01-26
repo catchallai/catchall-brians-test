@@ -265,7 +265,25 @@ const SIDEBAR_ICONS = {
   };
 
 function SidebarContent({ currentPage, onNavigate, isEnabled, user, onAddFavorite, onRemoveFavorite, dragOverFavorites, setDragOverFavorites, isCollapsed }) {
-  const [collapsedSections, setCollapsedSections] = React.useState({});
+  const [collapsedSections, setCollapsedSections] = React.useState({
+    'Business Dev': true,
+    'CRM': true,
+    'Sales': true,
+    'Customer Success': true,
+    'SEO': true,
+    'Social': true,
+    'Web': true,
+    'Project Management': true,
+    'Documentation': true,
+    'Communications': true,
+    'Payments': true,
+    'Assets': true,
+    'Reporting': true,
+    'Finance': true,
+    'AI Tools': true,
+    'Executive': true,
+    'Support': true,
+  });
 
   const toggleSection = (sectionLabel) => {
     setCollapsedSections(prev => ({
