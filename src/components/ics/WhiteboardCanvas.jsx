@@ -40,17 +40,19 @@ export default function WhiteboardCanvas({ isHost, onDataChange, versions = [], 
     const rect = canvas.getBoundingClientRect();
     const ctx = canvas.getContext('2d');
 
-    setIsDrawing(true);
-    setStartPos({
+    const pos = {
       x: e.clientX - rect.left,
       y: e.clientY - rect.top,
-    });
+    };
+
+    setIsDrawing(true);
+    setStartPos(pos);
 
     if (mode === 'draw' || mode === 'erase') {
       ctx.strokeStyle = mode === 'erase' ? 'rgba(255,255,255,1)' : color;
       ctx.lineWidth = mode === 'erase' ? lineWidth * 2 : lineWidth;
       ctx.beginPath();
-      ctx.moveTo(startPos.x, startPos.y);
+      ctx.moveTo(pos.x, pos.y);
     } else {
       setTempCanvas(canvas.toDataURL());
     }
