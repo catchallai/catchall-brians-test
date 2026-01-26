@@ -45,7 +45,7 @@ export default function ProjectDetail() {
     queryKey: ['project-tasks', projectId],
     queryFn: async () => {
       if (!projectId) return [];
-      return await base44.entities.ProjectTask.filter({ project_id: projectId }, '-created_date');
+      return await base44.entities.Task.filter({ project_id: projectId }, '-created_date');
     },
     enabled: !!projectId,
   });
@@ -85,10 +85,28 @@ export default function ProjectDetail() {
 
   const createTaskMutation = useMutation({
     mutationFn: async (data) => {
-      return await base44.entities.ProjectTask.create({
+      const task = await base44.entities.Task.create({
         ...data,
         project_id: projectId,
       });
+      
+      // Send notification if task is assigned
+      if (task.assigned_to) {
+        try {
+          await base44.functions.invoke('notifyAssignment', {
+            task_id: task.id,
+            entity_type: 'task',
+            assigned_to: task.assigned_to,
+            assigned_by: user.email,
+            title: task.title,
+            due_date: task.due_date
+          });
+        } catch (error) {
+          console.error('Failed to send notification:', error);
+        }
+      }
+      
+      return task;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['project-tasks'] });
@@ -98,7 +116,7 @@ export default function ProjectDetail() {
   });
 
   const deleteTaskMutation = useMutation({
-    mutationFn: (taskId) => base44.entities.ProjectTask.delete(taskId),
+    mutationFn: (taskId) => base44.entities.Task.delete(taskId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['project-tasks'] });
     },

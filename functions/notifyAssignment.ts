@@ -3,7 +3,7 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
-    const { task_id, entity_type, assigned_to, assigned_by, title } = await req.json();
+    const { task_id, entity_type, assigned_to, assigned_by, title, due_date } = await req.json();
 
     // Create notification
     await base44.asServiceRole.entities.Notification.create({
@@ -26,7 +26,8 @@ Deno.serve(async (req) => {
       entity_type,
       assigned_to,
       assigned_by,
-      is_read: false
+      is_read: false,
+      due_date: due_date || null
     });
 
     // Send email notification

@@ -56,7 +56,7 @@ export default function TaskModal({ open, onClose, task, onSave, isLoading }) {
     }
   }, [task, open]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.title) {
       setErrors({ title: 'Task title is required' });
@@ -67,7 +67,25 @@ export default function TaskModal({ open, onClose, task, onSave, isLoading }) {
       return;
     }
     setErrors({});
-    onSave(formData);
+    
+    // Call onSave and get the result
+    const result = await onSave(formData);
+    
+    // If this is a new assignment (no existing task or assignee changed), notify the user
+    if ((!task || task.assigned_to !== formData.assigned_to) && result?.id) {
+      try {
+        const currentUser = await base44.auth.me();
+        await base44.functions.invoke('notifyAssignment', {
+          task_id: result.id,
+          entity_type: 'task',
+          assigned_to: formData.assigned_to,
+          assigned_by: currentUser.email,
+          title: formData.title
+        });
+      } catch (error) {
+        console.error('Failed to send notification:', error);
+      }
+    }
   };
 
   return (
