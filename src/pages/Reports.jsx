@@ -36,6 +36,7 @@ export default function Reports() {
   const [showCreateTemplateModal, setShowCreateTemplateModal] = useState(false);
   const [showDesignIssuesModal, setShowDesignIssuesModal] = useState(false);
   const [exportingReport, setExportingReport] = useState(null);
+  const [selectedCategory, setSelectedCategory] = useState('all');
   const queryClient = useQueryClient();
 
   const { data: reports = [], isLoading } = useQuery({
@@ -231,6 +232,8 @@ export default function Reports() {
         customTemplates={customTemplates}
         onDeleteTemplate={(id) => deleteTemplateMutation.mutate(id)}
         onCreateTemplate={() => setShowCreateTemplateModal(true)}
+        selectedCategory={selectedCategory}
+        onCategoryChange={setSelectedCategory}
       />
 
       {/* Report List Section */}

@@ -157,7 +157,7 @@ const categoryLabels = {
   summary: 'Summary'
 };
 
-export default function ReportTemplates({ onSelect, selectedCategory = 'all', customTemplates = [], onDeleteTemplate, onCreateTemplate }) {
+export default function ReportTemplates({ onSelect, selectedCategory = 'all', onCategoryChange, customTemplates = [], onDeleteTemplate, onCreateTemplate }) {
   const allTemplates = [
     ...REPORT_TEMPLATES,
     ...customTemplates.map(t => ({
@@ -184,6 +184,7 @@ export default function ReportTemplates({ onSelect, selectedCategory = 'all', cu
                 key={cat} 
                 variant={selectedCategory === cat ? 'default' : 'outline'}
                 className="cursor-pointer capitalize"
+                onClick={() => onCategoryChange && onCategoryChange(cat)}
               >
                 {cat === 'all' ? 'All' : categoryLabels[cat]}
               </Badge>
