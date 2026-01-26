@@ -61,6 +61,7 @@ export default function WhiteboardCanvas({ isHost, onDataChange, versions = [], 
   const draw = (e) => {
     if (!isDrawing || !isHost || !startPos) return;
     const canvas = canvasRef.current;
+    if (!canvas) return;
     const rect = canvas.getBoundingClientRect();
     const ctx = canvas.getContext('2d');
     const currentPos = {
@@ -73,16 +74,14 @@ export default function WhiteboardCanvas({ isHost, onDataChange, versions = [], 
       ctx.stroke();
     } else if (mode === 'erase') {
       ctx.clearRect(currentPos.x - lineWidth, currentPos.y - lineWidth, lineWidth * 2, lineWidth * 2);
-    } else if (['rect', 'circle', 'arrow'].includes(mode)) {
-      if (tempCanvas) {
-        const img = new Image();
-        img.src = tempCanvas;
-        img.onload = () => {
-          ctx.clearRect(0, 0, canvas.width, canvas.height);
-          ctx.drawImage(img, 0, 0);
-          drawShape(ctx, mode, startPos, currentPos);
-        };
-      }
+    } else if (['rect', 'circle', 'arrow'].includes(mode) && tempCanvas) {
+      const img = new Image();
+      img.src = tempCanvas;
+      img.onload = () => {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, 0, 0);
+        drawShape(ctx, mode, startPos, currentPos);
+      };
     }
   };
 
