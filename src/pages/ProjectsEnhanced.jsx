@@ -50,6 +50,14 @@ export default function ProjectsEnhanced() {
     queryFn: () => base44.entities.TimeLog.list('-date', 100)
   });
 
+  const { data: epics = [] } = useQuery({
+    queryKey: ['epics', selectedProject?.id],
+    queryFn: () => selectedProject
+      ? base44.entities.Epic.filter({ project_id: selectedProject.id })
+      : [],
+    enabled: !!selectedProject
+  });
+
   const createSprintMutation = useMutation({
     mutationFn: async () => {
       const startDate = new Date();
