@@ -44,16 +44,16 @@ export default function DraggableDashboard({
 
   const sizeClasses = {
     small: 'col-span-1',
-    medium: 'col-span-1 lg:col-span-1',
+    medium: 'col-span-1',
     large: 'col-span-1 lg:col-span-2',
     full: 'col-span-1 lg:col-span-2'
   };
 
   const heightClasses = {
-    small: 'h-48',
-    medium: 'h-64',
-    large: 'h-80',
-    full: 'h-96'
+    small: 'h-64',
+    medium: 'h-80',
+    large: 'h-96',
+    full: 'h-[500px]'
   };
 
   return (
@@ -116,13 +116,13 @@ export default function DraggableDashboard({
 
       {/* Draggable Grid */}
       <DragDropContext onDragEnd={handleDragEnd}>
-        <Droppable droppableId="dashboard" direction="horizontal">
+        <Droppable droppableId="dashboard" direction="vertical">
           {(provided, snapshot) => (
             <div
               ref={provided.innerRef}
               {...provided.droppableProps}
-              className={`grid grid-cols-1 lg:grid-cols-2 gap-4 transition-colors rounded-xl p-1 ${
-                snapshot.isDraggingOver ? 'bg-violet-50 dark:bg-violet-900/10' : ''
+              className={`grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-2 gap-6 transition-colors ${
+                snapshot.isDraggingOver ? 'bg-violet-50 dark:bg-violet-900/10 p-2 rounded-xl' : ''
               }`}
             >
               {activeWidgetIds.map((widgetId, index) => {
@@ -139,29 +139,29 @@ export default function DraggableDashboard({
                       <div
                         ref={provided.innerRef}
                         {...provided.draggableProps}
-                        className={`${isExpanded ? 'col-span-1 lg:col-span-2' : sizeClasses[size]} ${
+                        className={`${isExpanded ? 'col-span-1 lg:col-span-2 xl:col-span-2' : sizeClasses[size]} ${
                           snapshot.isDragging ? 'z-50' : ''
                         }`}
                       >
                         <Card 
-                          className={`border-0 shadow-sm bg-white dark:bg-gray-800 transition-all ${
-                            snapshot.isDragging ? 'shadow-xl ring-2 ring-violet-500' : ''
+                          className={`h-full border shadow-md bg-white dark:bg-gray-800 transition-all ${
+                            snapshot.isDragging ? 'shadow-2xl ring-2 ring-violet-500 scale-105' : 'hover:shadow-lg'
                           }`}
                         >
-                          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-                            <div className="flex items-center gap-2">
+                          <CardHeader className="flex flex-row items-center justify-between pb-3 space-y-0 border-b">
+                            <div className="flex items-center gap-2 flex-1 min-w-0">
                               <div 
                                 {...provided.dragHandleProps}
                                 className="cursor-grab active:cursor-grabbing p-1 -ml-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700"
                               >
                                 <GripVertical className="w-4 h-4 text-gray-400" />
                               </div>
-                              {Icon && <Icon className="w-4 h-4 text-violet-600 dark:text-violet-400" />}
-                              <CardTitle className="text-sm font-medium text-gray-900 dark:text-white">
+                              {Icon && <Icon className="w-5 h-5 text-violet-600 dark:text-violet-400" />}
+                              <CardTitle className="text-base font-semibold text-gray-900 dark:text-white truncate">
                                 {widget.name}
                               </CardTitle>
                             </div>
-                            <div className="flex items-center gap-1">
+                            <div className="flex items-center gap-1 flex-shrink-0">
                               <Select 
                                 value={size} 
                                 onValueChange={(newSize) => onWidgetResize(widgetId, newSize)}
@@ -197,8 +197,10 @@ export default function DraggableDashboard({
                               </Button>
                             </div>
                           </CardHeader>
-                          <CardContent className={isExpanded ? 'h-96' : heightClasses[size]}>
-                            {renderWidget(widget, { isExpanded, size })}
+                          <CardContent className={`p-4 overflow-hidden ${isExpanded ? 'h-[500px]' : heightClasses[size]}`}>
+                            <div className="h-full w-full">
+                              {renderWidget(widget, { isExpanded, size })}
+                            </div>
                           </CardContent>
                         </Card>
                       </div>
