@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from "@/components/ui/button";
@@ -16,9 +16,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Bell, Trash2, CheckCircle2, Circle, Filter } from 'lucide-react';
+import { Bell, Trash2, CheckCircle2, Circle, Filter, Settings, Volume2, Moon } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
+import NotificationPreferences from './NotificationPreferences';
 
 const typeColors = {
   message: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
@@ -36,7 +41,41 @@ export default function NotificationCenter({ user }) {
   const [isOpen, setIsOpen] = useState(false);
   const [filterType, setFilterType] = useState('all');
   const [showRead, setShowRead] = useState(false);
+  const [showPreferences, setShowPreferences] = useState(false);
+  const [dndActive, setDndActive] = useState(false);
   const queryClient = useQueryClient();
+
+  // Check if in Do Not Disturb window
+  useEffect(() => {
+    const checkDND = async () => {
+      if (!user?.email) return;
+      try {
+        const prefs = await base44.entities.NotificationPreference.filter({
+          user_email: user.email,
+        });
+        if (prefs[0]?.do_not_disturb_enabled) {
+          const now = new Date();
+          const startTime = prefs[0].dnd_start_time || '22:00';
+          const endTime = prefs[0].dnd_end_time || '08:00';
+          const [startHour, startMin] = startTime.split(':').map(Number);
+          const [endHour, endMin] = endTime.split(':').map(Number);
+          
+          const startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), startHour, startMin);
+          const endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), endHour, endMin);
+          
+          if (startDate > endDate) endDate.setDate(endDate.getDate() + 1);
+          
+          setDndActive(now >= startDate && now <= endDate);
+        }
+      } catch (err) {
+        console.error('Failed to check DND:', err);
+      }
+    };
+
+    checkDND();
+    const interval = setInterval(checkDND, 60000);
+    return () => clearInterval(interval);
+  }, [user?.email]);
 
   const { data: notifications = [] } = useQuery({
     queryKey: ['notifications', user?.email, showRead],
@@ -101,35 +140,35 @@ export default function NotificationCenter({ user }) {
               {unreadCount > 9 ? '9+' : unreadCount}
             </span>
           )}
+          {dndActive && (
+            <span className="absolute bottom-0 right-0 w-3 h-3 bg-amber-500 rounded-full border border-white dark:border-gray-900" title="Do Not Disturb active" />
+          )}
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-2xl max-h-[80vh] flex flex-col">
         <DialogHeader>
           <div className="flex items-center justify-between">
-            <DialogTitle className="flex items-center gap-2">
+            <DialogTitle className="flex items-center gap-3">
               <Bell className="w-5 h-5" />
-              Notifications
+              Notification Center
+              {dndActive && (
+                <span className="ml-2 px-2 py-1 bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-200 rounded-full text-xs font-semibold flex items-center gap-1">
+                  <Moon className="w-3 h-3" /> DND Active
+                </span>
+              )}
               {unreadCount > 0 && (
-                <span className="ml-2 px-2 py-1 bg-red-100 text-red-800 rounded-full text-xs font-semibold">
+                <span className="ml-2 px-2 py-1 bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-200 rounded-full text-xs font-semibold">
                   {unreadCount} unread
                 </span>
               )}
             </DialogTitle>
-            {unreadCount > 0 && (
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => markAllAsReadMutation.mutate()}
-              >
-                Mark all read
-              </Button>
-            )}
+            <NotificationPreferences user={user} />
           </div>
         </DialogHeader>
 
-        <div className="flex gap-3 pb-4">
+        <div className="flex gap-2 pb-4">
           <Select value={filterType} onValueChange={setFilterType}>
-            <SelectTrigger className="w-40">
+            <SelectTrigger className="flex-1">
               <SelectValue placeholder="Filter type" />
             </SelectTrigger>
             <SelectContent>
@@ -140,6 +179,8 @@ export default function NotificationCenter({ user }) {
               <SelectItem value="deal_update">Deals</SelectItem>
               <SelectItem value="project_update">Projects</SelectItem>
               <SelectItem value="task_assigned">Tasks</SelectItem>
+              <SelectItem value="comment">Comments</SelectItem>
+              <SelectItem value="contact_added">Contacts</SelectItem>
             </SelectContent>
           </Select>
 
@@ -147,9 +188,9 @@ export default function NotificationCenter({ user }) {
             variant={showRead ? 'default' : 'outline'}
             size="sm"
             onClick={() => setShowRead(!showRead)}
+            className="text-xs"
           >
-            <Filter className="w-4 h-4 mr-2" />
-            {showRead ? 'Show unread' : 'Show all'}
+            {showRead ? 'Unread' : 'All'}
           </Button>
         </div>
 
