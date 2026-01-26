@@ -19,6 +19,8 @@ import ReportViewer from '@/components/seo/ReportViewer';
 import ShareReportModal from '@/components/reports/ShareReportModal';
 import ReportsDashboard from '@/components/reports/ReportsDashboard';
 import DesignIssuesReportModal from '@/components/reports/DesignIssuesReportModal';
+import ReportExporter from '@/components/reports/ReportExporter';
+import ScheduledReports from '@/components/reports/ScheduledReports';
 
 export default function Reports() {
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -33,6 +35,7 @@ export default function Reports() {
   const [showShareModal, setShowShareModal] = useState(false);
   const [showCreateTemplateModal, setShowCreateTemplateModal] = useState(false);
   const [showDesignIssuesModal, setShowDesignIssuesModal] = useState(false);
+  const [exportingReport, setExportingReport] = useState(null);
   const queryClient = useQueryClient();
 
   const { data: reports = [], isLoading } = useQuery({
@@ -269,12 +272,15 @@ export default function Reports() {
 
         {/* Dashboard Tab Content */}
         {activeTab === 'dashboard' && (
-          <ReportsDashboard 
-            websites={websites}
-            keywords={keywords}
-            mentions={mentions}
-            backlinks={backlinks}
-          />
+          <>
+            <ReportsDashboard 
+              websites={websites}
+              keywords={keywords}
+              mentions={mentions}
+              backlinks={backlinks}
+            />
+            <ScheduledReports reports={reports} />
+          </>
         )}
 
         {/* Reports Tab Content */}
@@ -345,6 +351,7 @@ export default function Reports() {
               onRun={(report) => runReportMutation.mutate(report)}
               onDelete={(id) => deleteMutation.mutate(id)}
               onDuplicate={handleDuplicate}
+              onExport={(report) => setExportingReport(report)}
               runningId={runningReportId}
             />
 
@@ -410,6 +417,15 @@ export default function Reports() {
         onClose={() => setShowDesignIssuesModal(false)}
         websites={websites}
       />
+
+      {/* Report Exporter */}
+      {exportingReport && (
+        <ReportExporter
+          report={exportingReport}
+          open={!!exportingReport}
+          onClose={() => setExportingReport(null)}
+        />
+      )}
     </div>
   );
 }

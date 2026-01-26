@@ -28,10 +28,20 @@ export default function TakeDownRequestor() {
 
   const { data: requests = [] } = useQuery({
     queryKey: ['takedown-requests'],
-    queryFn: async () => {
-      // This would be a custom entity to store takedown requests
-      // For now, return empty array
-      return [];
+    queryFn: () => base44.entities.TakedownRequest.list('-created_date')
+  });
+
+  const saveRequestMutation = useMutation({
+    mutationFn: (data) => base44.entities.TakedownRequest.create(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['takedown-requests'] });
+    }
+  });
+
+  const updateRequestMutation = useMutation({
+    mutationFn: ({ id, data }) => base44.entities.TakedownRequest.update(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['takedown-requests'] });
     }
   });
 
@@ -74,11 +84,58 @@ The letter should be professional, legally sound, and include all necessary elem
       });
 
       setGeneratedRequest(response);
+      
+      // Save the request with generated notice
+      await saveRequestMutation.mutateAsync({
+        ...formData,
+        original_content_url: formData.your_content_url,
+        generated_notice: response,
+        status: 'draft'
+      });
     } catch (error) {
       console.error('Error generating takedown request:', error);
     } finally {
       setGenerating(false);
     }
+  };
+
+  const handleSendRequest = async (requestId) => {
+    try {
+      const request = requests.find(r => r.id === requestId);
+      if (!request) return;
+
+      // Send email via Resend
+      await base44.integrations.Core.SendEmail({
+        to: request.contact_email,
+        subject: request.generated_notice.subject_line,
+        body: request.generated_notice.letter_body
+      });
+
+      // Update status
+      await updateRequestMutation.mutateAsync({
+        id: requestId,
+        data: {
+          status: 'sent',
+          sent_date: new Date().toISOString()
+        }
+      });
+
+      alert('Takedown notice sent successfully!');
+    } catch (error) {
+      console.error('Error sending request:', error);
+      alert('Failed to send request. Please try again.');
+    }
+  };
+
+  const handleStatusUpdate = async (requestId, newStatus, notes = '') => {
+    await updateRequestMutation.mutateAsync({
+      id: requestId,
+      data: {
+        status: newStatus,
+        response_date: newStatus !== 'draft' && newStatus !== 'sent' ? new Date().toISOString() : undefined,
+        resolution_notes: notes || undefined
+      }
+    });
   };
 
   const infringementTypes = [
@@ -293,12 +350,80 @@ The letter should be professional, legally sound, and include all necessary elem
         </div>
       </div>
 
+      {/* Request History */}
+      {requests.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Request History</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {requests.map(request => (
+                <div key={request.id} className="p-4 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                  <div className="flex items-start justify-between mb-2">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <Badge className={getStatusColor(request.status)}>
+                          {getStatusIcon(request.status)}
+                          <span className="ml-1">{request.status}</span>
+                        </Badge>
+                        <span className="text-sm text-gray-500">
+                          {infringementTypes.find(t => t.value === request.infringement_type)?.label}
+                        </span>
+                      </div>
+                      <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                        {request.infringing_url}
+                      </p>
+                      <p className="text-xs text-gray-500 mt-1">
+                        Platform: {request.platform} • Created: {new Date(request.created_date).toLocaleDateString()}
+                      </p>
+                    </div>
+                    <div className="flex gap-2">
+                      {request.status === 'draft' && (
+                        <Button size="sm" variant="outline" onClick={() => handleSendRequest(request.id)}>
+                          <Send className="w-3 h-3 mr-1" />
+                          Send
+                        </Button>
+                      )}
+                      {request.status === 'sent' && (
+                        <Select 
+                          onValueChange={(val) => handleStatusUpdate(request.id, val)}
+                          value={request.status}
+                        >
+                          <SelectTrigger className="w-32 h-8">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="sent">Sent</SelectItem>
+                            <SelectItem value="acknowledged">Acknowledged</SelectItem>
+                            <SelectItem value="resolved">Resolved</SelectItem>
+                            <SelectItem value="rejected">Rejected</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {generatedRequest && (
         <Card>
           <CardHeader>
             <div className="flex items-center justify-between">
               <CardTitle>Generated Takedown Notice</CardTitle>
-              <Button variant="outline" size="sm">
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => {
+                  if (requests.length > 0) {
+                    handleSendRequest(requests[0].id);
+                  }
+                }}
+              >
                 <Mail className="w-4 h-4 mr-2" />
                 Send via Email
               </Button>
