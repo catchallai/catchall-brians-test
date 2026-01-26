@@ -66,7 +66,6 @@ import PublicDocumentViewerWrapper from './pages/PublicDocumentViewerWrapper';
 import PublicLandingPage from './pages/PublicLandingPage';
 import PublicLandingPageWrapper from './pages/PublicLandingPageWrapper';
 import PublicLegalDocumentSigner from './pages/PublicLegalDocumentSigner';
-import PublicCallJoin from './pages/PublicCallJoin';
 import Reports from './pages/Reports';
 import ReportsDashboardPage from './pages/ReportsDashboardPage';
 import Reservations from './pages/Reservations';
@@ -100,6 +99,7 @@ import WebDashboard from './pages/WebDashboard';
 import WikiPageEditor from './pages/WikiPageEditor';
 import WorkflowBuilder from './pages/WorkflowBuilder';
 import WorkflowEngine from './pages/WorkflowEngine';
+import PublicCallJoin from './pages/PublicCallJoin';
 import __Layout from './Layout.jsx';
 
 
@@ -172,7 +172,6 @@ export const PAGES = {
     "PublicLandingPage": PublicLandingPage,
     "PublicLandingPageWrapper": PublicLandingPageWrapper,
     "PublicLegalDocumentSigner": PublicLegalDocumentSigner,
-    "PublicCallJoin": PublicCallJoin,
     "Reports": Reports,
     "ReportsDashboardPage": ReportsDashboardPage,
     "Reservations": Reservations,
@@ -206,6 +205,7 @@ export const PAGES = {
     "WikiPageEditor": WikiPageEditor,
     "WorkflowBuilder": WorkflowBuilder,
     "WorkflowEngine": WorkflowEngine,
+    "PublicCallJoin": PublicCallJoin,
 }
 
 export const pagesConfig = {
