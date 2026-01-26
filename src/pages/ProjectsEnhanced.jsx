@@ -7,10 +7,10 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Plus, LayoutGrid, List, CalendarDays, Users, Zap } from "lucide-react";
 
-import SprintBoard from '@/components/projects/SprintBoard';
-import GanttChart from '@/components/projects/GanttChart';
-import TimeTracker from '@/components/projects/TimeTracker';
-import WorkloadView from '@/components/projects/WorkloadView';
+import SprintBoard from '@/components/projects/SprintBoard.jsx';
+import GanttChart from '@/components/projects/GanttChart.jsx';
+import TimeTracker from '@/components/projects/TimeTracker.jsx';
+import WorkloadView from '@/components/projects/WorkloadView.jsx';
 import KanbanBoard from '@/components/collaboration/KanbanBoard';
 import TaskList from '@/components/collaboration/TaskList';
 
