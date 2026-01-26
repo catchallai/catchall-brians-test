@@ -272,15 +272,12 @@ export default function Reports() {
 
         {/* Dashboard Tab Content */}
         {activeTab === 'dashboard' && (
-          <>
-            <ReportsDashboard 
-              websites={websites}
-              keywords={keywords}
-              mentions={mentions}
-              backlinks={backlinks}
-            />
-            <ScheduledReports reports={reports} />
-          </>
+          <ReportsDashboard 
+            websites={websites}
+            keywords={keywords}
+            mentions={mentions}
+            backlinks={backlinks}
+          />
         )}
 
         {/* Reports Tab Content */}
