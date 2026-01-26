@@ -7,7 +7,7 @@ import { base44 } from '@/api/base44Client';
 import { 
   Calendar, Clock, Users, MoreHorizontal, Play, Download, 
   Trash2, Copy, Share2, AlertCircle, CheckCircle, Loader2,
-  Search, Target, Link2, MapPin, FileText, PieChart, TrendingUp, Mail, Activity, History
+  Search, Target, Link2, MapPin, FileText, PieChart, TrendingUp, Mail, Activity, History, MessageSquare
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -62,6 +62,8 @@ export default function ReportList({
   onView,
   onViewHistory,
   onSchedule,
+  onShare,
+  onComment,
   runningId 
 }) {
   const [downloadingId, setDownloadingId] = React.useState(null);
@@ -212,19 +214,28 @@ export default function ReportList({
                       <Download className="w-4 h-4" />
                     </Button>
                   )}
-                  <Button 
-                    size="icon" 
-                    variant="ghost" 
-                    className="h-8 w-8"
-                    onClick={() => handleSendEmail(report)}
-                    disabled={sendingId === report.id}
-                  >
-                    {sendingId === report.id ? (
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                    ) : (
-                      <Mail className="w-4 h-4" />
-                    )}
-                  </Button>
+                  {onShare && (
+                    <Button 
+                      size="icon" 
+                      variant="ghost" 
+                      className="h-8 w-8"
+                      onClick={() => onShare(report)}
+                      title="Share Report"
+                    >
+                      <Share2 className="w-4 h-4" />
+                    </Button>
+                  )}
+                  {onComment && (
+                    <Button 
+                      size="icon" 
+                      variant="ghost" 
+                      className="h-8 w-8"
+                      onClick={() => onComment(report)}
+                      title="Comments & Activity"
+                    >
+                      <MessageSquare className="w-4 h-4" />
+                    </Button>
+                  )}
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button size="icon" variant="ghost" className="h-8 w-8">

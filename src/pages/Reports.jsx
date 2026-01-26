@@ -24,6 +24,9 @@ import ScheduledReports from '@/components/reports/ScheduledReports';
 import ReportBrandingSettings from '@/components/reports/ReportBrandingSettings';
 import ReportVersionHistory from '@/components/reports/ReportVersionHistory';
 import EnhancedScheduleModal from '@/components/reports/EnhancedScheduleModal';
+import ReportShareModal from '@/components/reports/ReportShareModal';
+import ReportComments from '@/components/reports/ReportComments';
+import ReportActivityFeed from '@/components/reports/ReportActivityFeed';
 
 export default function Reports() {
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -45,6 +48,10 @@ export default function Reports() {
   const [versionHistoryReport, setVersionHistoryReport] = useState(null);
   const [showScheduleModal, setShowScheduleModal] = useState(false);
   const [schedulingReport, setSchedulingReport] = useState(null);
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [sharingReport, setSharingReport] = useState(null);
+  const [showComments, setShowComments] = useState(false);
+  const [commentingReport, setCommentingReport] = useState(null);
   const queryClient = useQueryClient();
 
   const { data: reports = [], isLoading } = useQuery({
@@ -358,6 +365,14 @@ export default function Reports() {
             setSchedulingReport(report);
             setShowScheduleModal(true);
           }}
+          onShare={(report) => {
+            setSharingReport(report);
+            setShowShareModal(true);
+          }}
+          onComment={(report) => {
+            setCommentingReport(report);
+            setShowComments(true);
+          }}
           runningId={runningReportId}
         />
 
@@ -458,6 +473,36 @@ export default function Reports() {
             setSchedulingReport(null);
           }}
         />
+      )}
+
+      {/* Share Modal */}
+      {sharingReport && (
+        <ReportShareModal
+          report={sharingReport}
+          open={showShareModal}
+          onClose={() => {
+            setShowShareModal(false);
+            setSharingReport(null);
+          }}
+        />
+      )}
+
+      {/* Comments Dialog */}
+      {commentingReport && (
+        <Dialog open={showComments} onOpenChange={(open) => {
+          setShowComments(open);
+          if (!open) setCommentingReport(null);
+        }}>
+          <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>{commentingReport.name} - Discussion</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <ReportComments report={commentingReport} />
+              <ReportActivityFeed reportId={commentingReport.id} limit={10} />
+            </div>
+          </DialogContent>
+        </Dialog>
       )}
     </div>
   );
