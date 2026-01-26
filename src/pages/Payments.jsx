@@ -3,15 +3,16 @@ import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Plus, Search, DollarSign, TrendingUp, Filter, X, Download } from "lucide-react";
+import { Plus, Search, DollarSign, TrendingUp, Filter, X, Download, Settings, FileText, CreditCard } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import EmptyState from '@/components/ui/EmptyState';
 import PaymentModal from '@/components/modals/PaymentModal';
 import InvoiceModal from '@/components/modals/InvoiceModal';
+import PaymentGatewayAdmin from '@/components/payments/PaymentGatewayAdmin';
 
 export default function Payments() {
   const [showPaymentModal, setShowPaymentModal] = useState(false);
@@ -154,12 +155,12 @@ export default function Payments() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Payments</h1>
-          <p className="text-gray-500 mt-1">Manage invoices and payments</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Payment Gateway</h1>
+          <p className="text-gray-500 mt-1">Manage payments, invoices, and gateway configurations</p>
         </div>
         <div className="flex gap-2">
           <Button onClick={() => { setEditingInvoice(null); setShowInvoiceModal(true); }} variant="outline" className="gap-2">
-            <Plus className="w-4 h-4" />
+            <FileText className="w-4 h-4" />
             New Invoice
           </Button>
           <Button onClick={() => { setEditingPayment(null); setShowPaymentModal(true); }} className="gap-2 bg-violet-600 hover:bg-violet-700">
@@ -171,7 +172,7 @@ export default function Payments() {
 
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="p-6">
+        <Card className="p-6 glass-card">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-500 mb-1">Total Revenue</p>
@@ -185,7 +186,7 @@ export default function Payments() {
           </div>
         </Card>
 
-        <Card className="p-6">
+        <Card className="p-6 glass-card">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-500 mb-1">Pending Payments</p>
@@ -199,14 +200,14 @@ export default function Payments() {
           </div>
         </Card>
 
-        <Card className="p-6">
+        <Card className="p-6 glass-card">
           <div>
             <p className="text-sm text-gray-500 mb-1">Total Invoices</p>
             <p className="text-3xl font-bold text-gray-900 dark:text-white">{invoices.length}</p>
           </div>
         </Card>
 
-        <Card className="p-6">
+        <Card className="p-6 glass-card">
           <div>
             <p className="text-sm text-gray-500 mb-1">Total Transactions</p>
             <p className="text-3xl font-bold text-gray-900 dark:text-white">{payments.length}</p>
@@ -216,9 +217,19 @@ export default function Payments() {
 
       {/* Tabs */}
       <Tabs defaultValue="payments" className="w-full">
-        <TabsList className="grid w-full grid-cols-2 mb-6">
-          <TabsTrigger value="payments">Payments ({payments.length})</TabsTrigger>
-          <TabsTrigger value="invoices">Invoices ({invoices.length})</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-3 mb-6">
+          <TabsTrigger value="payments" className="gap-2">
+            <CreditCard className="w-4 h-4" />
+            Payments ({payments.length})
+          </TabsTrigger>
+          <TabsTrigger value="invoices" className="gap-2">
+            <FileText className="w-4 h-4" />
+            Invoices ({invoices.length})
+          </TabsTrigger>
+          <TabsTrigger value="gateways" className="gap-2">
+            <Settings className="w-4 h-4" />
+            Gateway Settings
+          </TabsTrigger>
         </TabsList>
 
         {/* Payments Tab */}
@@ -403,6 +414,11 @@ export default function Payments() {
               ))}
             </div>
           )}
+        </TabsContent>
+
+        {/* Gateway Settings Tab */}
+        <TabsContent value="gateways">
+          <PaymentGatewayAdmin />
         </TabsContent>
       </Tabs>
 

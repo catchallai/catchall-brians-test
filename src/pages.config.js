@@ -57,6 +57,7 @@ import PressMonitoring from './pages/PressMonitoring';
 import ProjectCalendar from './pages/ProjectCalendar';
 import ProjectDetail from './pages/ProjectDetail';
 import Projects from './pages/Projects';
+import ProjectsDashboard from './pages/ProjectsDashboard';
 import ProjectsEnhanced from './pages/ProjectsEnhanced';
 import Proposals from './pages/Proposals';
 import PublicDataRoom from './pages/PublicDataRoom';
@@ -97,7 +98,6 @@ import WebDashboard from './pages/WebDashboard';
 import WikiPageEditor from './pages/WikiPageEditor';
 import WorkflowBuilder from './pages/WorkflowBuilder';
 import WorkflowEngine from './pages/WorkflowEngine';
-import ProjectsDashboard from './pages/ProjectsDashboard';
 import __Layout from './Layout.jsx';
 
 
@@ -161,6 +161,7 @@ export const PAGES = {
     "ProjectCalendar": ProjectCalendar,
     "ProjectDetail": ProjectDetail,
     "Projects": Projects,
+    "ProjectsDashboard": ProjectsDashboard,
     "ProjectsEnhanced": ProjectsEnhanced,
     "Proposals": Proposals,
     "PublicDataRoom": PublicDataRoom,
@@ -201,7 +202,6 @@ export const PAGES = {
     "WikiPageEditor": WikiPageEditor,
     "WorkflowBuilder": WorkflowBuilder,
     "WorkflowEngine": WorkflowEngine,
-    "ProjectsDashboard": ProjectsDashboard,
 }
 
 export const pagesConfig = {
