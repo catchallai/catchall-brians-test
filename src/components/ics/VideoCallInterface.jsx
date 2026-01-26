@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import {
   Video,
   Mic,
@@ -20,7 +21,10 @@ import {
   Volume2,
   VolumeX,
   Image as ImageIcon,
-  X as XIcon
+  X as XIcon,
+  Pencil,
+  Link as LinkIcon,
+  Copy
 } from "lucide-react";
 import { format } from 'date-fns';
 import {
@@ -147,6 +151,33 @@ export default function VideoCallInterface({
 
   const isHost = user?.email === activeCall?.host_email;
 
+  // Generate public join link
+  useEffect(() => {
+    if (activeCall?.room_id && isHost) {
+      const baseUrl = window.location.origin;
+      setPublicLink(`${baseUrl}/call/join/${activeCall.room_id}`);
+    }
+  }, [activeCall?.room_id, isHost]);
+
+  const copyPublicLink = () => {
+    navigator.clipboard.writeText(publicLink);
+    // Show success toast or notification
+  };
+
+  const togglePublicJoin = async () => {
+    if (!isHost || !activeCall) return;
+    const newSetting = !activeCall.settings?.allow_public_join;
+    updateCallMutation.mutate({
+      callId: activeCall.id,
+      data: {
+        settings: {
+          ...activeCall.settings,
+          allow_public_join: newSetting,
+        },
+      },
+    });
+  };
+
   const togglePinParticipant = (participantId) => {
     setPinnedParticipants(prev =>
       prev.includes(participantId)
@@ -231,6 +262,21 @@ export default function VideoCallInterface({
                   <Shield className="w-4 h-4 mr-2" />
                   Waiting Room {activeCall?.settings?.waiting_room_enabled ? 'On' : 'Off'}
                 </DropdownMenuItem>
+                {isHost && (
+                  <>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={togglePublicJoin}>
+                      <LinkIcon className="w-4 h-4 mr-2" />
+                      Public Join {activeCall?.settings?.allow_public_join ? 'On' : 'Off'}
+                    </DropdownMenuItem>
+                    {activeCall?.settings?.allow_public_join && (
+                      <DropdownMenuItem onClick={() => setShowPublicLink(true)}>
+                        <Copy className="w-4 h-4 mr-2" />
+                        Copy Join Link
+                      </DropdownMenuItem>
+                    )}
+                  </>
+                )}
               </DropdownMenuContent>
             </DropdownMenu>
             <Button onClick={onEndCall} variant="destructive">
@@ -294,6 +340,21 @@ export default function VideoCallInterface({
           </Card>
         )}
 
+        {/* Main Content - Video Grid or Whiteboard */}
+        {showWhiteboard ? (
+          <div className="mb-4 h-96">
+            <WhiteboardCanvas
+              isHost={isHost}
+              onDataChange={(data) => {
+                updateCallMutation.mutate({
+                  callId: activeCall.id,
+                  data: { whiteboard_data: data },
+                });
+              }}
+            />
+          </div>
+        ) : (
+        <>
         {/* Video Grid */}
          {allParticipants.length <= 4 ? (
            <div className={`grid ${gridClass} gap-4 mb-4`}>
@@ -444,10 +505,12 @@ export default function VideoCallInterface({
                 ))}
               </div>
             </ScrollArea>
-          </div>
-        )}
+            </div>
+            )}
+            </>
+            )}
 
-        {/* Controls */}
+            {/* Controls */}
         <div className="flex justify-center gap-3">
           <Button
             variant={isAudioEnabled ? "secondary" : "destructive"}
@@ -518,8 +581,43 @@ export default function VideoCallInterface({
               <Circle className="w-5 h-5" />
             )}
           </Button>
-        </div>
-      </Card>
-    </div>
-  );
-}
+          {isHost && (
+            <Button
+              variant={showWhiteboard ? "default" : "secondary"}
+              size="lg"
+              onClick={() => setShowWhiteboard(!showWhiteboard)}
+              title="Whiteboard"
+            >
+              <Pencil className="w-5 h-5" />
+            </Button>
+          )}
+          </div>
+          </Card>
+
+          {/* Public Link Dialog */}
+          <Dialog open={showPublicLink} onOpenChange={setShowPublicLink}>
+          <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Share Call Link</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <p className="text-sm text-gray-600">
+              Share this link to let anyone join the call without an account:
+            </p>
+            <div className="flex items-center gap-2">
+              <input
+                type="text"
+                value={publicLink}
+                readOnly
+                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-sm"
+              />
+              <Button onClick={copyPublicLink} size="sm">
+                <Copy className="w-4 h-4" />
+              </Button>
+            </div>
+          </div>
+          </DialogContent>
+          </Dialog>
+          </div>
+          );
+          }
