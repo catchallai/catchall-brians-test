@@ -14,6 +14,8 @@ import TaskModal from '@/components/modals/TaskModal';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
+import ProjectKanbanBoard from '@/components/projects/ProjectKanbanBoard';
+import ProjectTimeline from '@/components/projects/ProjectTimeline';
 
 export default function Projects() {
   const [showModal, setShowModal] = useState(false);
@@ -22,7 +24,7 @@ export default function Projects() {
   const [statusFilter, setStatusFilter] = useState('all');
   const [priorityFilter, setPriorityFilter] = useState('all');
   const [showFilters, setShowFilters] = useState(false);
-  const [viewMode, setViewMode] = useState('board'); // 'board' or 'grid'
+  const [viewMode, setViewMode] = useState('board'); // 'board', 'grid', or 'timeline'
   const [selectedProject, setSelectedProject] = useState(null);
   const [showTaskModal, setShowTaskModal] = useState(false);
   const [editingTask, setEditingTask] = useState(null);
@@ -193,6 +195,7 @@ export default function Projects() {
               variant={viewMode === 'grid' ? 'default' : 'ghost'}
               size="sm"
               onClick={() => setViewMode('grid')}
+              title="Grid View"
             >
               <LayoutGrid className="w-4 h-4" />
             </Button>
@@ -200,8 +203,17 @@ export default function Projects() {
               variant={viewMode === 'board' ? 'default' : 'ghost'}
               size="sm"
               onClick={() => setViewMode('board')}
+              title="Kanban Board"
             >
               <List className="w-4 h-4" />
+            </Button>
+            <Button
+              variant={viewMode === 'timeline' ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => setViewMode('timeline')}
+              title="Timeline View"
+            >
+              <Calendar className="w-4 h-4" />
             </Button>
           </div>
           <Button onClick={() => { setEditingProject(null); setShowModal(true); }} className="gap-2 bg-violet-600 hover:bg-violet-700">
@@ -402,8 +414,8 @@ export default function Projects() {
             ))}
           </div>
         )
-      ) : (
-        /* Board View */
+      ) : viewMode === 'board' ? (
+        /* Kanban Board View */
         <div>
           {/* Project Selector */}
           <div className="mb-4">
@@ -421,117 +433,45 @@ export default function Projects() {
             </Select>
           </div>
 
-          {selectedProject && (
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <h2 className="text-xl font-bold text-gray-900 dark:text-white">{selectedProject.name}</h2>
-                <p className="text-sm text-gray-500">{projectTasks.length} tasks</p>
+          {selectedProject ? (
+            <>
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <h2 className="text-xl font-bold text-gray-900 dark:text-white">{selectedProject.name}</h2>
+                  <p className="text-sm text-gray-500">{projectTasks.length} tasks</p>
+                </div>
+                <Button onClick={() => { setEditingTask(null); setShowTaskModal(true); }} className="gap-2">
+                  <Plus className="w-4 h-4" />
+                  Add Task
+                </Button>
               </div>
-              <Button onClick={() => { setEditingTask(null); setShowTaskModal(true); }} className="gap-2">
-                <Plus className="w-4 h-4" />
-                Add Task
-              </Button>
-            </div>
+              <ProjectKanbanBoard
+                tasks={projectTasks}
+                onTaskClick={(task) => { setEditingTask(task); setShowTaskModal(true); }}
+                onStatusChange={(taskId, newStatus) => {
+                  updateTaskMutation.mutate({ id: taskId, data: { status: newStatus } });
+                }}
+                onAddTask={(status) => {
+                  setEditingTask({ status });
+                  setShowTaskModal(true);
+                }}
+              />
+            </>
+          ) : (
+            <Card className="p-12 text-center">
+              <p className="text-gray-500 dark:text-gray-400">Select a project to view its kanban board</p>
+            </Card>
           )}
-
-          {/* Board */}
-          <DragDropContext onDragEnd={handleDragEnd}>
-            <div className="flex gap-4 overflow-x-auto pb-4">
-              {/* Backlog Column */}
-              <div className="flex-shrink-0 w-80">
-                <div className="bg-gray-100 dark:bg-gray-800 rounded-lg p-4">
-                  <div className="flex items-center justify-between mb-3">
-                    <h3 className="font-semibold text-gray-900 dark:text-white">Backlog</h3>
-                    <Badge variant="secondary">{tasksByStatus.backlog.length}</Badge>
-                  </div>
-                  <Droppable droppableId="backlog">
-                    {(provided, snapshot) => (
-                      <div
-                        ref={provided.innerRef}
-                        {...provided.droppableProps}
-                        className={`space-y-2 min-h-32 ${snapshot.isDraggingOver ? 'bg-blue-50 dark:bg-blue-900/20' : ''}`}
-                      >
-                        {tasksByStatus.backlog.map((task, index) => (
-                          <Draggable key={task.id} draggableId={task.id} index={index}>
-                            {(provided, snapshot) => (
-                              <Card
-                                ref={provided.innerRef}
-                                {...provided.draggableProps}
-                                {...provided.dragHandleProps}
-                                className={`p-3 cursor-move ${snapshot.isDragging ? 'shadow-lg' : ''}`}
-                                onClick={() => { setEditingTask(task); setShowTaskModal(true); }}
-                              >
-                                <p className="text-sm font-medium text-gray-900 dark:text-white">{task.title}</p>
-                                {task.priority && (
-                                  <Badge className={`${priorityColors[task.priority]} text-xs mt-2`}>
-                                    {task.priority}
-                                  </Badge>
-                                )}
-                              </Card>
-                            )}
-                          </Draggable>
-                        ))}
-                        {provided.placeholder}
-                      </div>
-                    )}
-                  </Droppable>
-                </div>
-              </div>
-
-              {/* Task Status Columns */}
-              {selectedProject && ['todo', 'in_progress', 'review', 'done'].map(status => (
-                <div key={status} className="flex-shrink-0 w-80">
-                  <div className="bg-gray-100 dark:bg-gray-800 rounded-lg p-4">
-                    <div className="flex items-center justify-between mb-3">
-                      <h3 className="font-semibold text-gray-900 dark:text-white capitalize">
-                        {status.replace('_', ' ')}
-                      </h3>
-                      <Badge variant="secondary">{tasksByStatus[status].length}</Badge>
-                    </div>
-                    <Droppable droppableId={status}>
-                      {(provided, snapshot) => (
-                        <div
-                          ref={provided.innerRef}
-                          {...provided.droppableProps}
-                          className={`space-y-2 min-h-32 ${snapshot.isDraggingOver ? 'bg-blue-50 dark:bg-blue-900/20' : ''}`}
-                        >
-                          {tasksByStatus[status].map((task, index) => (
-                            <Draggable key={task.id} draggableId={task.id} index={index}>
-                              {(provided, snapshot) => (
-                                <Card
-                                  ref={provided.innerRef}
-                                  {...provided.draggableProps}
-                                  {...provided.dragHandleProps}
-                                  className={`p-3 cursor-move ${snapshot.isDragging ? 'shadow-lg' : ''}`}
-                                  onClick={() => { setEditingTask(task); setShowTaskModal(true); }}
-                                >
-                                  <p className="text-sm font-medium text-gray-900 dark:text-white">{task.title}</p>
-                                  <div className="flex gap-2 mt-2 flex-wrap">
-                                    {task.priority && (
-                                      <Badge className={`${priorityColors[task.priority]} text-xs`}>
-                                        {task.priority}
-                                      </Badge>
-                                    )}
-                                    {task.assigned_to && (
-                                      <Badge variant="outline" className="text-xs">
-                                        {task.assigned_to.split('@')[0]}
-                                      </Badge>
-                                    )}
-                                  </div>
-                                </Card>
-                              )}
-                            </Draggable>
-                          ))}
-                          {provided.placeholder}
-                        </div>
-                      )}
-                    </Droppable>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </DragDropContext>
         </div>
+      ) : (
+        /* Timeline View */
+        <ProjectTimeline
+          projects={filteredProjects}
+          tasks={tasks}
+          milestones={[]}
+          onProjectClick={(project) => { setEditingProject(project); setShowModal(true); }}
+          onTaskClick={(task) => { setEditingTask(task); setShowTaskModal(true); }}
+        />
       )}
 
       {/* Modals */}
