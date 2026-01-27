@@ -80,7 +80,6 @@ import SalesHub from './pages/SalesHub';
 import SalesQuotas from './pages/SalesQuotas';
 import SalesSequences from './pages/SalesSequences';
 import Settings from './pages/Settings';
-import SocialCalendar from './pages/SocialCalendar';
 import SocialDashboard from './pages/SocialDashboard';
 import SocialLeads from './pages/SocialLeads';
 import SocialListening from './pages/SocialListening';
@@ -100,6 +99,7 @@ import WebDashboard from './pages/WebDashboard';
 import WikiPageEditor from './pages/WikiPageEditor';
 import WorkflowBuilder from './pages/WorkflowBuilder';
 import WorkflowEngine from './pages/WorkflowEngine';
+import SocialCalendar from './pages/SocialCalendar';
 import __Layout from './Layout.jsx';
 
 
@@ -186,7 +186,6 @@ export const PAGES = {
     "SalesQuotas": SalesQuotas,
     "SalesSequences": SalesSequences,
     "Settings": Settings,
-    "SocialCalendar": SocialCalendar,
     "SocialDashboard": SocialDashboard,
     "SocialLeads": SocialLeads,
     "SocialListening": SocialListening,
@@ -206,6 +205,7 @@ export const PAGES = {
     "WikiPageEditor": WikiPageEditor,
     "WorkflowBuilder": WorkflowBuilder,
     "WorkflowEngine": WorkflowEngine,
+    "SocialCalendar": SocialCalendar,
 }
 
 export const pagesConfig = {

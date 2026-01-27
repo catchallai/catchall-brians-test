@@ -224,35 +224,6 @@ export default function SocialCalendar() {
         </div>
       </div>
 
-      {/* Platform Preview Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 mb-6">
-        <PlatformPreviewCard 
-          platform="Facebook" 
-          posts={filteredPosts} 
-          onEditPost={handleEdit}
-        />
-        <PlatformPreviewCard 
-          platform="Instagram" 
-          posts={filteredPosts} 
-          onEditPost={handleEdit}
-        />
-        <PlatformPreviewCard 
-          platform="LinkedIn" 
-          posts={filteredPosts} 
-          onEditPost={handleEdit}
-        />
-        <PlatformPreviewCard 
-          platform="Twitter" 
-          posts={filteredPosts} 
-          onEditPost={handleEdit}
-        />
-        <PlatformPreviewCard 
-          platform="YouTube" 
-          posts={filteredPosts} 
-          onEditPost={handleEdit}
-        />
-      </div>
-
       {/* Draft Posts Platform Assigner */}
       <DraftPostsPlatformAssigner
         posts={filteredPosts}
@@ -369,19 +340,33 @@ export default function SocialCalendar() {
 
         {/* Platform Grid View */}
         {viewMode === 'platform-grid' && (
-          <PlatformGridView
-            posts={filteredPosts}
-            onAddPost={() => setShowModal(true)}
-            onEditPost={(post, platform) => {
-              setSelectedPost({ ...post, editingPlatform: platform });
-              setShowModal(true);
-            }}
-            onDeletePost={(post) => {
-              if (confirm('Delete this post?')) {
-                deleteMutation.mutate(post.id);
-              }
-            }}
-          />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
+            <PlatformPreviewCard 
+              platform="Facebook" 
+              posts={filteredPosts} 
+              onEditPost={handleEdit}
+            />
+            <PlatformPreviewCard 
+              platform="Instagram" 
+              posts={filteredPosts} 
+              onEditPost={handleEdit}
+            />
+            <PlatformPreviewCard 
+              platform="LinkedIn" 
+              posts={filteredPosts} 
+              onEditPost={handleEdit}
+            />
+            <PlatformPreviewCard 
+              platform="Twitter" 
+              posts={filteredPosts} 
+              onEditPost={handleEdit}
+            />
+            <PlatformPreviewCard 
+              platform="YouTube" 
+              posts={filteredPosts} 
+              onEditPost={handleEdit}
+            />
+          </div>
         )}
 
         {/* Grid View */}
