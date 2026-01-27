@@ -337,8 +337,8 @@ function SidebarContent({ currentPage, onNavigate, isEnabled, user, onAddFavorit
       </div>
 
       {/* Navigation */}
-      <ScrollArea className="flex-1 px-4 py-6">
-        <nav className={`space-y-1 ${isCollapsed ? 'flex flex-col items-center' : ''}`}>
+      <ScrollArea className="flex-1 px-4 py-4">
+        <nav className={`space-y-0.5 ${isCollapsed ? 'flex flex-col items-center' : ''}`}>
           {cleanedNavigation.map((item, idx) => {
                             if (item.name === 'divider') {
                               const isSectionCollapsed = collapsedSections[item.label];
@@ -349,7 +349,7 @@ function SidebarContent({ currentPage, onNavigate, isEnabled, user, onAddFavorit
                               if (isCollapsed) return null;
 
                               return (
-                                <div key={idx} className="pt-6 pb-2">
+                                <div key={idx} className="pt-4 pb-1">
                                   <button
                                     onClick={() => isCollapsible && toggleSection(item.label)}
                                     className={`w-full px-3 py-2 text-xs font-semibold uppercase tracking-wider flex items-center gap-2 rounded-lg ${
@@ -385,7 +385,7 @@ function SidebarContent({ currentPage, onNavigate, isEnabled, user, onAddFavorit
                                                 return (
                                                   <div 
                                                     key={idx} 
-                                                    className={`space-y-1 pl-4 border-l-2 ml-3 mt-1 transition-all duration-200 ${
+                                                    className={`space-y-0.5 pl-4 border-l-2 ml-3 mb-2 transition-all duration-200 ${
                                                       dragOverFavorites 
                                                         ? 'border-violet-500 bg-violet-50 dark:bg-violet-900/20 rounded-r-lg' 
                                                         : 'border-violet-200 dark:border-violet-800'
@@ -473,7 +473,7 @@ function SidebarContent({ currentPage, onNavigate, isEnabled, user, onAddFavorit
                                   e.dataTransfer.effectAllowed = 'copy';
                                 }}
                                 title={isCollapsed ? item.name : ''}
-                                className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 cursor-grab active:cursor-grabbing ${
+                                className={`flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium transition-all duration-200 cursor-grab active:cursor-grabbing ${
                                   isActive
                                     ? 'bg-violet-50 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300'
                                     : 'text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white'
