@@ -41,17 +41,17 @@ export default function Dashboard() {
   // SEO Data
   const { data: websites = [] } = useQuery({
     queryKey: ['websites'],
-    queryFn: () => base44.entities.Website.list('-created_date', 200),
+    queryFn: () => base44.entities.Website.list('-created_date', 50),
   });
 
   const { data: keywords = [] } = useQuery({
     queryKey: ['keywords'],
-    queryFn: () => base44.entities.Keyword.list('-created_date', 500),
+    queryFn: () => base44.entities.Keyword.list('-created_date', 200),
   });
 
   const { data: backlinks = [] } = useQuery({
     queryKey: ['backlinks'],
-    queryFn: () => base44.entities.Backlink.list('-created_date', 500),
+    queryFn: () => base44.entities.Backlink.list('-created_date', 200),
   });
 
   // Social Data
@@ -116,10 +116,8 @@ export default function Dashboard() {
     .filter(d => d.stage === 'won')
     .reduce((sum, d) => sum + (d.value || 0), 0);
 
-  // Calculate SEO Score - filter out websites with no score
-  const websitesWithScore = websites.filter(w => w.seo_score && w.seo_score > 0);
-  const avgSEOScore = websitesWithScore.length > 0 
-    ? Math.round(websitesWithScore.reduce((sum, w) => sum + w.seo_score, 0) / websitesWithScore.length)
+  const avgSEOScore = websites.length > 0 
+    ? Math.round(websites.reduce((sum, w) => sum + (w.seo_score || 0), 0) / websites.length)
     : 0;
 
   const top10Keywords = keywords.filter(k => k.current_position && k.current_position <= 10).length;
@@ -127,14 +125,7 @@ export default function Dashboard() {
   const scheduledPosts = calendarPosts.filter(p => p.status === 'scheduled').length;
   const unreadAlerts = alerts.filter(a => !a.is_read).length;
   
-  // Sum all traffic sources
-  const monthlyTraffic = websites.reduce((sum, w) => {
-    const organic = w.organic_traffic || 0;
-    const total = w.total_traffic || 0;
-    const monthly = w.monthly_visitors || 0;
-    return sum + Math.max(organic, total, monthly);
-  }, 0);
-  
+  const monthlyTraffic = websites.reduce((sum, w) => sum + (w.organic_traffic || 0), 0);
   const totalEngagement = mentions.reduce((sum, m) => sum + (m.engagement_rate || 0), 0);
   const avgEngagementRate = mentions.length > 0 ? (totalEngagement / mentions.length).toFixed(1) : 0;
   const criticalAlerts = alerts.filter(a => a.severity === 'critical' || a.severity === 'high').length;
