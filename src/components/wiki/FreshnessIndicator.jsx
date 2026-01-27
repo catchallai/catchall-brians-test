@@ -3,7 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { AlertCircle, CheckCircle, Clock } from "lucide-react";
 
 export default function FreshnessIndicator({ page }) {
-  if (!page.updated_date) return null;
+  if (!page || !page.updated_date) return null;
 
   const daysSinceUpdate = (new Date() - new Date(page.updated_date)) / (1000 * 60 * 60 * 24);
   

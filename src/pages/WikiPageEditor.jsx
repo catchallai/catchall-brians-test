@@ -340,7 +340,7 @@ export default function WikiPageEditor() {
           </div>
 
           <div className="flex items-center gap-2">
-            {pageId && <FreshnessIndicator page={page} />}
+            {pageId && page && <FreshnessIndicator page={page} />}
             
             <Select value={status} onValueChange={setStatus}>
               <SelectTrigger className="w-40">
