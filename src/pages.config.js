@@ -60,6 +60,7 @@ import Projects from './pages/Projects';
 import ProjectsDashboard from './pages/ProjectsDashboard';
 import ProjectsEnhanced from './pages/ProjectsEnhanced';
 import Proposals from './pages/Proposals';
+import PublicCallJoin from './pages/PublicCallJoin';
 import PublicDataRoom from './pages/PublicDataRoom';
 import PublicDocumentViewer from './pages/PublicDocumentViewer';
 import PublicDocumentViewerWrapper from './pages/PublicDocumentViewerWrapper';
@@ -99,7 +100,6 @@ import WebDashboard from './pages/WebDashboard';
 import WikiPageEditor from './pages/WikiPageEditor';
 import WorkflowBuilder from './pages/WorkflowBuilder';
 import WorkflowEngine from './pages/WorkflowEngine';
-import PublicCallJoin from './pages/PublicCallJoin';
 import __Layout from './Layout.jsx';
 
 
@@ -166,6 +166,7 @@ export const PAGES = {
     "ProjectsDashboard": ProjectsDashboard,
     "ProjectsEnhanced": ProjectsEnhanced,
     "Proposals": Proposals,
+    "PublicCallJoin": PublicCallJoin,
     "PublicDataRoom": PublicDataRoom,
     "PublicDocumentViewer": PublicDocumentViewer,
     "PublicDocumentViewerWrapper": PublicDocumentViewerWrapper,
@@ -205,7 +206,6 @@ export const PAGES = {
     "WikiPageEditor": WikiPageEditor,
     "WorkflowBuilder": WorkflowBuilder,
     "WorkflowEngine": WorkflowEngine,
-    "PublicCallJoin": PublicCallJoin,
 }
 
 export const pagesConfig = {

@@ -641,9 +641,13 @@ function LayoutContent({ children, currentPageName }) {
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon" className="rounded-full shrink-0">
               <Avatar className="w-8 h-8">
-                <AvatarFallback className="bg-violet-100 dark:bg-violet-900 text-violet-600 dark:text-violet-300 text-sm">
-                  {user?.full_name?.[0] || user?.email?.[0]?.toUpperCase() || 'U'}
-                </AvatarFallback>
+                {user?.avatar_url ? (
+                  <img src={user.avatar_url} alt={user.full_name} className="w-full h-full object-cover" />
+                ) : (
+                  <AvatarFallback className="bg-violet-100 dark:bg-violet-900 text-violet-600 dark:text-violet-300 text-sm">
+                    {user?.full_name?.[0] || user?.email?.[0]?.toUpperCase() || 'U'}
+                  </AvatarFallback>
+                )}
               </Avatar>
             </Button>
           </DropdownMenuTrigger>
@@ -723,10 +727,14 @@ function LayoutContent({ children, currentPageName }) {
             <DropdownMenuTrigger asChild>
               <button className={`w-full flex items-center gap-3 p-2 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors ${sidebarCollapsed ? 'justify-center' : ''}`}>
                 <Avatar className="w-9 h-9">
-                  <AvatarFallback className="bg-violet-100 dark:bg-violet-900 text-violet-600 dark:text-violet-300 text-sm font-medium">
-                    {user?.full_name?.[0] || user?.email?.[0]?.toUpperCase() || 'U'}
-                  </AvatarFallback>
-                </Avatar>
+                      {user?.avatar_url ? (
+                        <img src={user.avatar_url} alt={user.full_name} className="w-full h-full object-cover" />
+                      ) : (
+                        <AvatarFallback className="bg-violet-100 dark:bg-violet-900 text-violet-600 dark:text-violet-300 text-sm font-medium">
+                          {user?.full_name?.[0] || user?.email?.[0]?.toUpperCase() || 'U'}
+                        </AvatarFallback>
+                      )}
+                    </Avatar>
                 {!sidebarCollapsed && (
                   <>
                     <div className="flex-1 text-left min-w-0">

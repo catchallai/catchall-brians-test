@@ -141,9 +141,13 @@ export default function UserProfile() {
       <div className="flex items-start gap-6">
         <div className="relative">
           <Avatar className="w-24 h-24 border-4 border-white dark:border-gray-800 shadow-lg">
-            <AvatarFallback className="bg-gradient-to-br from-violet-500 to-purple-600 text-white text-3xl font-bold">
-              {user?.full_name?.[0] || user?.email?.[0]?.toUpperCase() || 'U'}
-            </AvatarFallback>
+            {user?.avatar_url ? (
+              <img src={user.avatar_url} alt={user.full_name} className="w-full h-full object-cover" />
+            ) : (
+              <AvatarFallback className="bg-gradient-to-br from-violet-500 to-purple-600 text-white text-3xl font-bold">
+                {user?.full_name?.[0] || user?.email?.[0]?.toUpperCase() || 'U'}
+              </AvatarFallback>
+            )}
           </Avatar>
           <label className="absolute bottom-0 right-0 w-8 h-8 rounded-full bg-violet-600 text-white flex items-center justify-center hover:bg-violet-700 transition-colors shadow-lg cursor-pointer">
             <Camera className="w-4 h-4" />
