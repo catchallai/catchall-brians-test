@@ -4,7 +4,11 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, Save, Sparkles, Clock, FileText, MessageSquare } from "lucide-react";
+import { ArrowLeft, Save, Sparkles, Clock, FileText, MessageSquare, Eye, Star, Link2, Copy, Calendar as CalendarIcon, Upload } from "lucide-react";
+import PageExportMenu from '@/components/wiki/PageExportMenu';
+import RelatedPagesPanel from '@/components/wiki/RelatedPagesPanel';
+import PageWatchersPanel from '@/components/wiki/PageWatchersPanel';
+import FreshnessIndicator from '@/components/wiki/FreshnessIndicator';
 import { createPageUrl } from '@/utils';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
@@ -58,6 +62,9 @@ export default function WikiPageEditor() {
   const [showComments, setShowComments] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [changeSummary, setChangeSummary] = useState('');
+  const [showSidebar, setShowSidebar] = useState(true);
+  const [scheduledPublishDate, setScheduledPublishDate] = useState('');
+  const [showDuplicateDialog, setShowDuplicateDialog] = useState(false);
 
   const { data: user } = useQuery({
     queryKey: ['current-user'],
@@ -172,6 +179,46 @@ export default function WikiPageEditor() {
     };
   }, [pageId, user, isEditing]);
 
+  const { data: bookmarks = [] } = useQuery({
+    queryKey: ['user-bookmarks', user?.email],
+    queryFn: async () => {
+      if (!user) return [];
+      const allBookmarks = await base44.entities.WikiPageBookmark.list();
+      return allBookmarks.filter(b => b.user_email === user.email);
+    },
+    enabled: !!user && !!pageId,
+  });
+
+  const isBookmarked = bookmarks.some(b => b.page_id === pageId);
+
+  const toggleBookmark = async () => {
+    const bookmark = bookmarks.find(b => b.page_id === pageId);
+    if (bookmark) {
+      await base44.entities.WikiPageBookmark.delete(bookmark.id);
+    } else {
+      await base44.entities.WikiPageBookmark.create({
+        page_id: pageId,
+        user_email: user.email
+      });
+    }
+    queryClient.invalidateQueries({ queryKey: ['user-bookmarks'] });
+  };
+
+  const duplicatePage = async () => {
+    if (!page) return;
+    const duplicated = await base44.entities.WikiPage.create({
+      space_id: spaceId,
+      title: `${page.title} (Copy)`,
+      content: page.content,
+      status: 'draft',
+      template: page.template,
+      tags: page.tags,
+      folder_id: page.folder_id,
+      parent_page_id: page.parent_page_id,
+    });
+    navigate(`${createPageUrl('WikiPageEditor')}?spaceId=${spaceId}&pageId=${duplicated.id}`);
+  };
+
   const saveMutation = useMutation({
     mutationFn: async (data) => {
       const currentVersion = page?.version_number || 0;
@@ -191,6 +238,8 @@ export default function WikiPageEditor() {
           ...data,
           last_edited_by: user?.email,
           version_number: currentVersion + 1,
+          view_count: (page.view_count || 0) + 1,
+          last_viewed_at: new Date().toISOString(),
         });
       } else {
         return await base44.entities.WikiPage.create({
@@ -219,6 +268,7 @@ export default function WikiPageEditor() {
       parent_page_id: parentPageId || null,
       ai_summary: aiSummary,
       template: isTemplate,
+      scheduled_publish_date: scheduledPublishDate || null,
     });
   };
 
@@ -290,18 +340,41 @@ export default function WikiPageEditor() {
           </div>
 
           <div className="flex items-center gap-2">
+            {pageId && <FreshnessIndicator page={page} />}
+            
             <Select value={status} onValueChange={setStatus}>
-              <SelectTrigger className="w-32">
+              <SelectTrigger className="w-40">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="published">Published</SelectItem>
                 <SelectItem value="draft">Draft</SelectItem>
+                {space?.enable_approval_workflow && (
+                  <SelectItem value="pending_approval">Pending Approval</SelectItem>
+                )}
               </SelectContent>
             </Select>
             
             {pageId && (
               <>
+                <Button 
+                  variant="outline"
+                  onClick={toggleBookmark}
+                  className="gap-2"
+                >
+                  <Star className={`w-4 h-4 ${isBookmarked ? 'fill-yellow-500 text-yellow-500' : ''}`} />
+                </Button>
+
+                <Button 
+                  variant="outline"
+                  onClick={duplicatePage}
+                  className="gap-2"
+                >
+                  <Copy className="w-4 h-4" />
+                </Button>
+
+                <PageExportMenu page={page} />
+
                 <Button 
                   variant="outline"
                   onClick={() => setShowVersionHistory(true)}
@@ -345,6 +418,11 @@ export default function WikiPageEditor() {
                     onCheckedChange={setIsTemplate}
                   />
                 </div>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => setShowSidebar(!showSidebar)}>
+                  <Link2 className="w-4 h-4 mr-2" />
+                  {showSidebar ? 'Hide' : 'Show'} Sidebar
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
 
@@ -361,8 +439,8 @@ export default function WikiPageEditor() {
       </div>
 
       {/* Editor Content */}
-      <div className="pt-16 lg:pl-64">
-        <div className="w-full mx-auto p-8 space-y-6">
+      <div className="pt-16 lg:pl-64 flex">
+        <div className={`flex-1 p-8 space-y-6 ${showSidebar && pageId ? 'max-w-4xl' : 'max-w-5xl mx-auto'}`}>
           {/* Parent Page Selection */}
           {allPages.length > 0 && (
             <Select value={parentPageId} onValueChange={setParentPageId}>
@@ -401,6 +479,26 @@ export default function WikiPageEditor() {
             </div>
           )}
 
+          {/* Scheduled Publishing */}
+          {!pageId || status === 'draft' ? (
+            <div>
+              <Label className="text-sm text-gray-600 dark:text-gray-400 mb-2 flex items-center gap-2">
+                <CalendarIcon className="w-4 h-4" />
+                Schedule Publishing (Optional)
+              </Label>
+              <Input
+                type="datetime-local"
+                value={scheduledPublishDate}
+                onChange={(e) => setScheduledPublishDate(e.target.value)}
+              />
+              {scheduledPublishDate && (
+                <p className="text-xs text-gray-500 mt-1">
+                  Will be published on {new Date(scheduledPublishDate).toLocaleString()}
+                </p>
+              )}
+            </div>
+          ) : null}
+
           {/* AI Summary */}
           {aiSummary && (
             <Card className="p-4 bg-violet-50 dark:bg-violet-900/20 border-violet-200 dark:border-violet-800">
@@ -434,6 +532,14 @@ export default function WikiPageEditor() {
             />
           </div>
         </div>
+
+        {/* Right Sidebar - Related Content & Watchers */}
+        {showSidebar && pageId && (
+          <div className="w-80 border-l border-gray-200 dark:border-gray-800 p-6 space-y-6 overflow-y-auto">
+            <PageWatchersPanel pageId={pageId} user={user} />
+            <RelatedPagesPanel currentPage={page} />
+          </div>
+        )}
       </div>
 
       {/* Version History Modal */}

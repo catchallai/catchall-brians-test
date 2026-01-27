@@ -5,7 +5,11 @@ import { useSearchParams, Link, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Plus, Search, FileText, ArrowLeft, ChevronRight, MoreVertical, Pencil, Trash2, List, BookOpen, GripVertical } from "lucide-react";
+import { Plus, Search, FileText, ArrowLeft, ChevronRight, MoreVertical, Pencil, Trash2, List, BookOpen, GripVertical, Folder as FolderIcon, CheckSquare, Zap } from "lucide-react";
+import FolderTree from '@/components/wiki/FolderTree';
+import BulkPageActions from '@/components/wiki/BulkPageActions';
+import QuickNavigationDialog from '@/components/wiki/QuickNavigationDialog';
+import FullTextSearch from '@/components/wiki/FullTextSearch';
 import EmptyState from '@/components/ui/EmptyState';
 import { createPageUrl } from '@/utils';
 import {
@@ -23,7 +27,22 @@ export default function SpaceDetail() {
   const navigate = useNavigate();
   const spaceId = searchParams.get('id');
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedPages, setSelectedPages] = useState([]);
+  const [showQuickNav, setShowQuickNav] = useState(false);
+  const [showFolderModal, setShowFolderModal] = useState(false);
   const queryClient = useQueryClient();
+
+  // Cmd+K shortcut
+  React.useEffect(() => {
+    const handleKeyDown = (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        setShowQuickNav(true);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   const { data: space, isLoading: spaceLoading } = useQuery({
     queryKey: ['space', spaceId],
@@ -43,6 +62,16 @@ export default function SpaceDetail() {
       return allPages.filter(p => p.space_id === spaceId && !p.template);
     },
     enabled: !!spaceId,
+  });
+
+  const { data: folders = [] } = useQuery({
+    queryKey: ['space-folders', spaceId],
+    queryFn: async () => {
+      if (!spaceId) return [];
+      const allFolders = await base44.entities.WikiPageFolder.list();
+      return allFolders.filter(f => f.space_id === spaceId);
+    },
+    enabled: !!spaceId && space?.enable_folders,
   });
 
   const deleteMutation = useMutation({
@@ -229,11 +258,35 @@ export default function SpaceDetail() {
         <div className="flex gap-2">
           <Button
             variant="outline"
+            onClick={() => setShowQuickNav(true)}
+            className="gap-2"
+          >
+            <Zap className="w-4 h-4" />
+            Quick Nav
+          </Button>
+          {space?.enable_folders && (
+            <Button
+              variant="outline"
+              onClick={() => setShowFolderModal(true)}
+              className="gap-2"
+            >
+              <FolderIcon className="w-4 h-4" />
+              New Folder
+            </Button>
+          )}
+          <Button
+            variant="outline"
             onClick={() => navigate(`${createPageUrl('SpaceTemplates')}?spaceId=${spaceId}`)}
           >
             <FileText className="w-4 h-4 mr-2" />
             Templates
           </Button>
+          {selectedPages.length > 0 && (
+            <Button variant="outline" className="gap-2">
+              <CheckSquare className="w-4 h-4" />
+              {selectedPages.length} Selected
+            </Button>
+          )}
           <Link to={`${createPageUrl('WikiPageEditor')}?spaceId=${spaceId}`}>
             <Button className="gap-2 bg-violet-600 hover:bg-violet-700">
               <Plus className="w-4 h-4" />
@@ -245,15 +298,7 @@ export default function SpaceDetail() {
 
       {/* Search */}
       {pages.length > 0 && (
-        <div className="relative max-w-md">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-          <Input
-            placeholder="Search pages..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10"
-          />
-        </div>
+        <FullTextSearch spaceId={spaceId} />
       )}
 
       {/* Pages List */}
@@ -279,18 +324,35 @@ export default function SpaceDetail() {
           </TabsList>
 
           <TabsContent value="list">
-            <DragDropContext onDragEnd={handleDragEnd}>
-              <Droppable droppableId="root" type="page">
-                {(provided) => (
-                  <div ref={provided.innerRef} {...provided.droppableProps} className="space-y-2">
-                    {filteredPages.map((page, index) => (
-                      <PageItem key={page.id} page={page} index={index} />
-                    ))}
-                    {provided.placeholder}
-                  </div>
-                )}
-              </Droppable>
-            </DragDropContext>
+            {space?.enable_folders ? (
+              <FolderTree
+                folders={folders}
+                pages={pages}
+                spaceId={spaceId}
+                onAddFolder={(parentId) => setShowFolderModal(true)}
+                onDeleteFolder={(folderId) => {
+                  if (confirm('Delete this folder and all its contents?')) {
+                    base44.entities.WikiPageFolder.delete(folderId);
+                    queryClient.invalidateQueries({ queryKey: ['space-folders'] });
+                  }
+                }}
+                onAddPage={(folderId) => navigate(`${createPageUrl('WikiPageEditor')}?spaceId=${spaceId}&folderId=${folderId}`)}
+                currentPageId={null}
+              />
+            ) : (
+              <DragDropContext onDragEnd={handleDragEnd}>
+                <Droppable droppableId="root" type="page">
+                  {(provided) => (
+                    <div ref={provided.innerRef} {...provided.droppableProps} className="space-y-2">
+                      {filteredPages.map((page, index) => (
+                        <PageItem key={page.id} page={page} index={index} />
+                      ))}
+                      {provided.placeholder}
+                    </div>
+                  )}
+                </Droppable>
+              </DragDropContext>
+            )}
           </TabsContent>
 
           <TabsContent value="toc">
@@ -298,6 +360,20 @@ export default function SpaceDetail() {
           </TabsContent>
         </Tabs>
       )}
+
+      {/* Bulk Actions */}
+      <BulkPageActions
+        selectedPages={selectedPages}
+        onClearSelection={() => setSelectedPages([])}
+        folders={folders}
+      />
+
+      {/* Quick Navigation */}
+      <QuickNavigationDialog
+        open={showQuickNav}
+        onClose={() => setShowQuickNav(false)}
+        spaceId={spaceId}
+      />
     </div>
   );
 }

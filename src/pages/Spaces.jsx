@@ -4,7 +4,10 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Plus, Search, FolderOpen, FileText, Users, ArrowRight } from "lucide-react";
+import { Plus, Search, FolderOpen, FileText, Users, ArrowRight, Zap } from "lucide-react";
+import RecentPagesWidget from '@/components/wiki/RecentPagesWidget';
+import QuickNavigationDialog from '@/components/wiki/QuickNavigationDialog';
+import FullTextSearch from '@/components/wiki/FullTextSearch';
 import EmptyState from '@/components/ui/EmptyState';
 import SpaceModal from '@/components/modals/SpaceModal';
 import { Link } from 'react-router-dom';
@@ -14,7 +17,20 @@ export default function Spaces() {
   const [searchTerm, setSearchTerm] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [editingSpace, setEditingSpace] = useState(null);
+  const [showQuickNav, setShowQuickNav] = useState(false);
   const queryClient = useQueryClient();
+
+  // Cmd+K shortcut
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        setShowQuickNav(true);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   const { data: user } = useQuery({
     queryKey: ['current-user'],
@@ -96,17 +112,26 @@ export default function Spaces() {
         </Button>
       </div>
 
-      {/* Search */}
+      {/* Search & Quick Actions */}
       {spaces.length > 0 && (
-        <div className="relative max-w-md">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-          <Input
-            placeholder="Search spaces..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10"
-          />
+        <div className="flex flex-col sm:flex-row gap-4">
+          <div className="flex-1 max-w-md">
+            <FullTextSearch spaceId={null} />
+          </div>
+          <Button
+            variant="outline"
+            onClick={() => setShowQuickNav(true)}
+            className="gap-2"
+          >
+            <Zap className="w-4 h-4" />
+            Quick Nav (Cmd+K)
+          </Button>
         </div>
+      )}
+
+      {/* Recent Pages Widget */}
+      {spaces.length > 0 && (
+        <RecentPagesWidget spaceId={null} limit={5} />
       )}
 
       {/* Stats Cards */}
@@ -191,13 +216,19 @@ export default function Spaces() {
         </div>
       )}
 
-      {/* Modal */}
+      {/* Modals */}
       <SpaceModal
         open={showModal}
         onClose={() => { setShowModal(false); setEditingSpace(null); }}
         space={editingSpace}
         onSave={handleSave}
         isLoading={createMutation.isPending || updateMutation.isPending}
+      />
+
+      <QuickNavigationDialog
+        open={showQuickNav}
+        onClose={() => setShowQuickNav(false)}
+        spaceId={null}
       />
     </div>
   );
