@@ -224,35 +224,6 @@ export default function SocialCalendar() {
         </div>
       </div>
 
-      {/* Platform Preview Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 mb-6">
-        <PlatformPreviewCard 
-          platform="Facebook" 
-          posts={filteredPosts} 
-          onEditPost={handleEdit}
-        />
-        <PlatformPreviewCard 
-          platform="Instagram" 
-          posts={filteredPosts} 
-          onEditPost={handleEdit}
-        />
-        <PlatformPreviewCard 
-          platform="LinkedIn" 
-          posts={filteredPosts} 
-          onEditPost={handleEdit}
-        />
-        <PlatformPreviewCard 
-          platform="Twitter" 
-          posts={filteredPosts} 
-          onEditPost={handleEdit}
-        />
-        <PlatformPreviewCard 
-          platform="YouTube" 
-          posts={filteredPosts} 
-          onEditPost={handleEdit}
-        />
-      </div>
-
       {/* Draft Posts Platform Assigner */}
       <DraftPostsPlatformAssigner
         posts={filteredPosts}
