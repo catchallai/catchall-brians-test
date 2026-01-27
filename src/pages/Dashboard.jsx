@@ -136,13 +136,35 @@ export default function Dashboard() {
     return `$${value.toLocaleString()}`;
   };
 
-  // Header quick stats
-  const headerStats = [
-    { label: 'Pipeline', value: formatCurrency(totalPipelineValue), change: '+12%', changeType: 'up' },
-    { label: 'Won Revenue', value: formatCurrency(wonDealsValue), change: '+24%', changeType: 'up' },
-    { label: 'SEO Score', value: avgSEOScore || '-', change: avgSEOScore > 70 ? '+5pts' : null, changeType: avgSEOScore > 70 ? 'up' : null },
-    { label: 'Social Mentions', value: mentions.length, change: mentions.length > 10 ? 'Active' : null },
-  ];
+  // Calculate revenue and conversion metrics
+  const thisMonthDeals = deals.filter(d => {
+    const createdDate = new Date(d.created_date);
+    const now = new Date();
+    return createdDate.getMonth() === now.getMonth() && createdDate.getFullYear() === now.getFullYear();
+  });
+
+  const lastMonthDeals = deals.filter(d => {
+    const createdDate = new Date(d.created_date);
+    const now = new Date();
+    const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    return createdDate.getMonth() === lastMonth.getMonth() && createdDate.getFullYear() === lastMonth.getFullYear();
+  });
+
+  const thisMonthRevenue = thisMonthDeals.filter(d => d.stage === 'won').reduce((sum, d) => sum + (d.value || 0), 0);
+  const lastMonthRevenue = lastMonthDeals.filter(d => d.stage === 'won').reduce((sum, d) => sum + (d.value || 0), 0);
+  const revenueChange = lastMonthRevenue > 0 ? (((thisMonthRevenue - lastMonthRevenue) / lastMonthRevenue) * 100).toFixed(0) : 0;
+
+  const thisMonthPipelineValue = thisMonthDeals.filter(d => !['won', 'lost'].includes(d.stage)).reduce((sum, d) => sum + (d.value || 0), 0);
+  const lastMonthPipelineValue = lastMonthDeals.filter(d => !['won', 'lost'].includes(d.stage)).reduce((sum, d) => sum + (d.value || 0), 0);
+  const pipelineChange = lastMonthPipelineValue > 0 ? (((thisMonthPipelineValue - lastMonthPipelineValue) / lastMonthPipelineValue) * 100).toFixed(0) : 0;
+
+  // Get time-based greeting
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return 'Good morning';
+    if (hour < 18) return 'Good afternoon';
+    return 'Good evening';
+  };
 
   if (isLoading) {
     return (
@@ -165,40 +187,44 @@ export default function Dashboard() {
           <div className="flex flex-col gap-4 sm:gap-6">
             <div className="text-white">
               <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-2">
-                Good evening, {user?.full_name?.split(' ')[0] || 'there'} 👋
+                {getGreeting()}, {user?.full_name?.split(' ')[0] || 'there'} 👋
               </h1>
-              <p className="text-violet-100 text-sm sm:text-base lg:text-lg">Here's what's happening with SyberJet today</p>
+              <p className="text-violet-100 text-sm sm:text-base lg:text-lg">Here's your business overview</p>
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-3 lg:gap-4">
               <div className="bg-white/10 backdrop-blur-sm rounded-lg sm:rounded-xl px-3 py-3 sm:px-4 sm:py-4 border border-white/20">
+                <p className="text-violet-100 text-xs sm:text-sm mb-1">Revenue</p>
+                <p className="text-white text-lg sm:text-2xl font-bold">{formatCurrency(wonDealsValue)}</p>
+                <p className={`text-[10px] sm:text-xs font-medium ${revenueChange >= 0 ? 'text-emerald-300' : 'text-red-300'}`}>
+                  {revenueChange >= 0 ? '+' : ''}{revenueChange}% month
+                </p>
+              </div>
+              <div className="bg-white/10 backdrop-blur-sm rounded-lg sm:rounded-xl px-3 py-3 sm:px-4 sm:py-4 border border-white/20">
                 <p className="text-violet-100 text-xs sm:text-sm mb-1">Pipeline</p>
                 <p className="text-white text-lg sm:text-2xl font-bold">{formatCurrency(totalPipelineValue)}</p>
-                <p className="text-emerald-300 text-[10px] sm:text-xs font-medium">+12% month</p>
+                <p className={`text-[10px] sm:text-xs font-medium ${pipelineChange >= 0 ? 'text-emerald-300' : 'text-red-300'}`}>
+                  {pipelineChange >= 0 ? '+' : ''}{pipelineChange}% month
+                </p>
               </div>
               <div className="bg-white/10 backdrop-blur-sm rounded-lg sm:rounded-xl px-3 py-3 sm:px-4 sm:py-4 border border-white/20">
                 <p className="text-violet-100 text-xs sm:text-sm mb-1">SEO Score</p>
                 <p className="text-white text-lg sm:text-2xl font-bold">{avgSEOScore || '-'}</p>
-                <p className="text-emerald-300 text-[10px] sm:text-xs font-medium">{avgSEOScore > 70 ? '+5pts' : 'N/A'}</p>
+                <p className="text-blue-300 text-[10px] sm:text-xs font-medium">{avgSEOScore > 70 ? 'Good' : avgSEOScore > 0 ? 'Fair' : 'N/A'}</p>
               </div>
               <div className="bg-white/10 backdrop-blur-sm rounded-lg sm:rounded-xl px-3 py-3 sm:px-4 sm:py-4 border border-white/20">
                 <p className="text-violet-100 text-xs sm:text-sm mb-1">Web Traffic</p>
                 <p className="text-white text-lg sm:text-2xl font-bold">{monthlyTraffic >= 1000 ? `${(monthlyTraffic/1000).toFixed(1)}K` : monthlyTraffic}</p>
-                <p className="text-blue-300 text-[10px] sm:text-xs font-medium">monthly visits</p>
+                <p className="text-cyan-300 text-[10px] sm:text-xs font-medium">visits/mo</p>
               </div>
               <div className="bg-white/10 backdrop-blur-sm rounded-lg sm:rounded-xl px-3 py-3 sm:px-4 sm:py-4 border border-white/20">
-                <p className="text-violet-100 text-xs sm:text-sm mb-1">Engagement</p>
-                <p className="text-white text-lg sm:text-2xl font-bold">{avgEngagementRate}%</p>
-                <p className="text-cyan-300 text-[10px] sm:text-xs font-medium">social rate</p>
-              </div>
-              <div className="bg-white/10 backdrop-blur-sm rounded-lg sm:rounded-xl px-3 py-3 sm:px-4 sm:py-4 border border-white/20">
-                <p className="text-violet-100 text-xs sm:text-sm mb-1">Mentions</p>
+                <p className="text-violet-100 text-xs sm:text-sm mb-1">Social</p>
                 <p className="text-white text-lg sm:text-2xl font-bold">{mentions.length}</p>
-                <p className="text-amber-300 text-[10px] sm:text-xs font-medium">{mentions.length > 10 ? 'Active' : 'Low'}</p>
+                <p className="text-amber-300 text-[10px] sm:text-xs font-medium">{avgEngagementRate}% engage</p>
               </div>
               <div className="bg-white/10 backdrop-blur-sm rounded-lg sm:rounded-xl px-3 py-3 sm:px-4 sm:py-4 border border-white/20">
                 <p className="text-violet-100 text-xs sm:text-sm mb-1">Alerts</p>
                 <p className="text-white text-lg sm:text-2xl font-bold">{criticalAlerts}</p>
-                <p className={`text-[10px] sm:text-xs font-medium ${criticalAlerts > 0 ? 'text-red-300' : 'text-emerald-300'}`}>{criticalAlerts > 0 ? 'critical' : 'none'}</p>
+                <p className={`text-[10px] sm:text-xs font-medium ${criticalAlerts > 0 ? 'text-red-300' : 'text-emerald-300'}`}>{criticalAlerts > 0 ? 'need action' : 'all clear'}</p>
               </div>
             </div>
           </div>
