@@ -28,6 +28,7 @@ import PostGallery from '@/components/social/PostGallery';
 import TeamManager from '@/components/social/TeamManager';
 import CalendarNotifications from '@/components/social/CalendarNotifications';
 import DraftPostsPlatformAssigner from '@/components/social/DraftPostsPlatformAssigner';
+import PlatformPreviewCard from '@/components/social/PlatformPreviewCard';
 
 export default function SocialCalendar() {
   const [showModal, setShowModal] = useState(false);
@@ -221,6 +222,35 @@ export default function SocialCalendar() {
             </Button>
           )}
         </div>
+      </div>
+
+      {/* Platform Preview Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 mb-6">
+        <PlatformPreviewCard 
+          platform="Facebook" 
+          posts={filteredPosts} 
+          onEditPost={handleEdit}
+        />
+        <PlatformPreviewCard 
+          platform="Instagram" 
+          posts={filteredPosts} 
+          onEditPost={handleEdit}
+        />
+        <PlatformPreviewCard 
+          platform="LinkedIn" 
+          posts={filteredPosts} 
+          onEditPost={handleEdit}
+        />
+        <PlatformPreviewCard 
+          platform="Twitter" 
+          posts={filteredPosts} 
+          onEditPost={handleEdit}
+        />
+        <PlatformPreviewCard 
+          platform="YouTube" 
+          posts={filteredPosts} 
+          onEditPost={handleEdit}
+        />
       </div>
 
       {/* Draft Posts Platform Assigner */}
