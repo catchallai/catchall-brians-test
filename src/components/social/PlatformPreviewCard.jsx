@@ -29,7 +29,11 @@ export default function PlatformPreviewCard({ platform, posts, onEditPost }) {
   
   // Get the first 9 posts for this platform
   const platformPosts = posts
-    .filter(post => post.platforms?.includes(platform.toLowerCase()))
+    .filter(post => 
+      post.platforms && 
+      Array.isArray(post.platforms) &&
+      post.platforms.some(p => p.toLowerCase() === platform.toLowerCase())
+    )
     .slice(0, 9);
 
   return (
