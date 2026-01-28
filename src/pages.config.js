@@ -155,6 +155,7 @@ import DealsModule from './pages/DealsModule';
 import EmailsModule from './pages/EmailsModule';
 import InvoicesModule from './pages/InvoicesModule';
 import NotesModule from './pages/NotesModule';
+import OrdersModule from './pages/OrdersModule';
 import __Layout from './Layout.jsx';
 
 
@@ -267,6 +268,7 @@ export const PAGES = {
     "EmailsModule": EmailsModule,
     "InvoicesModule": InvoicesModule,
     "NotesModule": NotesModule,
+    "OrdersModule": OrdersModule,
 }
 
 export const pagesConfig = {
