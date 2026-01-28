@@ -270,60 +270,77 @@ export default function Contacts() {
       }
 
       // Create contacts with company_id
-      let successCount = 0;
-      for (const row of data) {
-        const companyName = getFieldValue(row, 'company_name', 'Firm', 'Company', 'Company Name', 'firm', 'organization');
-        const contactData = {
-          company_name: companyName,
-          company_id: companyName ? companyMap[companyName.toLowerCase()] : null,
-          first_name: getFieldValue(row, 'first_name', 'First Name', 'firstName', 'first', 'name'),
-          last_name: getFieldValue(row, 'last_name', 'Last Name', 'lastName', 'last', 'surname'),
-          email: getFieldValue(row, 'email', 'Email', 'e-mail', 'Email Address'),
-          phone: getFieldValue(row, 'phone', 'Phone', 'Phone 1', 'Phone Number', 'telephone', 'mobile'),
-          status: getFieldValue(row, 'status', 'Status') || 'lead',
-          job_title: getFieldValue(row, 'job_title', 'Job Title', 'Title', 'jobTitle', 'title', 'position', 'role'),
-          linkedin_url: getFieldValue(row, 'linkedin_url', 'Linkedin', 'LinkedIn', 'LinkedIn URL', 'linkedin'),
-          source: getFieldValue(row, 'source', 'Source') || 'import',
-          tier: getFieldValue(row, 'tier', 'Tier'),
-          category: getFieldValue(row, 'category', 'Category'),
-          country: getFieldValue(row, 'country', 'Country / Region', 'Country'),
-          hq_city: getFieldValue(row, 'hq_city', 'HQ City'),
-          website: getFieldValue(row, 'website', 'Website'),
-          contact_page_url: getFieldValue(row, 'contact_page_url', 'Contact Page URL'),
-          general_emails: getFieldValue(row, 'general_emails', 'General Emails') ? [getFieldValue(row, 'general_emails', 'General Emails')] : [],
-          general_phones: getFieldValue(row, 'general_phones', 'General Phones') ? [getFieldValue(row, 'general_phones', 'General Phones')] : [],
-          contact_sources_urls: getFieldValue(row, 'contact_sources_urls', 'Contact Source URLs') ? [getFieldValue(row, 'contact_sources_urls', 'Contact Source URLs')] : [],
-          role_1_title: getFieldValue(row, 'role_1_title', 'Primary Role - Title'),
-          role_1_name: getFieldValue(row, 'role_1_name', 'Primary Role - Name'),
-          role_1_email: getFieldValue(row, 'role_1_email', 'Primary Role - Email'),
-          role_1_phone: getFieldValue(row, 'role_1_phone', 'Primary Role - Phone'),
-          role_1_source_url: getFieldValue(row, 'role_1_source_url', 'Primary Role - Source URL'),
-          role_2_title: getFieldValue(row, 'role_2_title', 'Secondary Role - Title'),
-          role_2_name: getFieldValue(row, 'role_2_name', 'Secondary Role - Name'),
-          role_2_email: getFieldValue(row, 'role_2_email', 'Secondary Role - Email'),
-          role_2_phone: getFieldValue(row, 'role_2_phone', 'Secondary Role - Phone'),
-          role_2_source_url: getFieldValue(row, 'role_2_source_url', 'Secondary Role - Source URL'),
-          signer_title: getFieldValue(row, 'signer_title', 'Signer - Title'),
-          signer_name: getFieldValue(row, 'signer_name', 'Signer - Name'),
-          signer_email: getFieldValue(row, 'signer_email', 'Signer - Email'),
-          signer_phone: getFieldValue(row, 'signer_phone', 'Signer - Phone'),
-          signer_source_url: getFieldValue(row, 'signer_source_url', 'Signer - Source URL'),
-          loi_summary: getFieldValue(row, 'loi_summary', 'LOI / MOU Summary'),
-          loi_source_urls: getFieldValue(row, 'loi_source_urls', 'LOI / MOU Source URLs') ? [getFieldValue(row, 'loi_source_urls', 'LOI / MOU Source URLs')] : [],
-          notes_angle: getFieldValue(row, 'notes_angle', 'Notes / Angle'),
-          notes: getFieldValue(row, 'notes', 'Notes', 'note', 'comments'),
-        };
+       let successCount = 0;
+       const failedContacts = [];
 
-        // Only create if we have at least email or both first name and last name
-        if (contactData.email || (contactData.first_name && contactData.last_name)) {
-          try {
-            await base44.entities.Contact.create(contactData);
-            successCount++;
-          } catch (err) {
-            console.error('Error creating contact:', err);
-          }
-        }
-      }
+       for (const row of data) {
+         const companyName = getFieldValue(row, 'company_name', 'Firm', 'Company', 'Company Name', 'firm', 'organization');
+         const firstName = getFieldValue(row, 'first_name', 'First Name', 'firstName', 'first', 'name');
+         const lastName = getFieldValue(row, 'last_name', 'Last Name', 'lastName', 'last', 'surname');
+         const email = getFieldValue(row, 'email', 'Email', 'e-mail', 'Email Address');
+
+         // Only create if we have at least email or both first name and last name
+         if (!email && !(firstName && lastName)) {
+           failedContacts.push({
+             row,
+             reason: 'Missing required fields (need email or both first/last name)'
+           });
+           continue;
+         }
+
+         const contactData = {
+           company_name: companyName,
+           company_id: companyName ? companyMap[companyName.toLowerCase()] : null,
+           first_name: firstName,
+           last_name: lastName,
+           email: email,
+           phone: getFieldValue(row, 'phone', 'Phone', 'Phone 1', 'Phone Number', 'telephone', 'mobile'),
+           status: getFieldValue(row, 'status', 'Status') || 'lead',
+           job_title: getFieldValue(row, 'job_title', 'Job Title', 'Title', 'jobTitle', 'title', 'position', 'role'),
+           linkedin_url: getFieldValue(row, 'linkedin_url', 'Linkedin', 'LinkedIn', 'LinkedIn URL', 'linkedin'),
+           source: getFieldValue(row, 'source', 'Source') || 'import',
+           tier: getFieldValue(row, 'tier', 'Tier'),
+           category: getFieldValue(row, 'category', 'Category'),
+           country: getFieldValue(row, 'country', 'Country / Region', 'Country'),
+           hq_city: getFieldValue(row, 'hq_city', 'HQ City'),
+           website: getFieldValue(row, 'website', 'Website'),
+           contact_page_url: getFieldValue(row, 'contact_page_url', 'Contact Page URL'),
+           general_emails: getFieldValue(row, 'general_emails', 'General Emails') ? [getFieldValue(row, 'general_emails', 'General Emails')] : [],
+           general_phones: getFieldValue(row, 'general_phones', 'General Phones') ? [getFieldValue(row, 'general_phones', 'General Phones')] : [],
+           contact_sources_urls: getFieldValue(row, 'contact_sources_urls', 'Contact Source URLs') ? [getFieldValue(row, 'contact_sources_urls', 'Contact Source URLs')] : [],
+           role_1_title: getFieldValue(row, 'role_1_title', 'Primary Role - Title'),
+           role_1_name: getFieldValue(row, 'role_1_name', 'Primary Role - Name'),
+           role_1_email: getFieldValue(row, 'role_1_email', 'Primary Role - Email'),
+           role_1_phone: getFieldValue(row, 'role_1_phone', 'Primary Role - Phone'),
+           role_1_source_url: getFieldValue(row, 'role_1_source_url', 'Primary Role - Source URL'),
+           role_2_title: getFieldValue(row, 'role_2_title', 'Secondary Role - Title'),
+           role_2_name: getFieldValue(row, 'role_2_name', 'Secondary Role - Name'),
+           role_2_email: getFieldValue(row, 'role_2_email', 'Secondary Role - Email'),
+           role_2_phone: getFieldValue(row, 'role_2_phone', 'Secondary Role - Phone'),
+           role_2_source_url: getFieldValue(row, 'role_2_source_url', 'Secondary Role - Source URL'),
+           signer_title: getFieldValue(row, 'signer_title', 'Signer - Title'),
+           signer_name: getFieldValue(row, 'signer_name', 'Signer - Name'),
+           signer_email: getFieldValue(row, 'signer_email', 'Signer - Email'),
+           signer_phone: getFieldValue(row, 'signer_phone', 'Signer - Phone'),
+           signer_source_url: getFieldValue(row, 'signer_source_url', 'Signer - Source URL'),
+           loi_summary: getFieldValue(row, 'loi_summary', 'LOI / MOU Summary'),
+           loi_source_urls: getFieldValue(row, 'loi_source_urls', 'LOI / MOU Source URLs') ? [getFieldValue(row, 'loi_source_urls', 'LOI / MOU Source URLs')] : [],
+           notes_angle: getFieldValue(row, 'notes_angle', 'Notes / Angle'),
+           notes: getFieldValue(row, 'notes', 'Notes', 'note', 'comments'),
+         };
+
+         try {
+           await base44.entities.Contact.create(contactData);
+           successCount++;
+         } catch (err) {
+           failedContacts.push({
+             row,
+             reason: err.message || 'Unknown error'
+           });
+         }
+       }
+
+       return { successCount, totalRows: data.length, failedContacts };
       await logActivity(ActivityActions.IMPORT, 'Contact', null, null, { count: successCount });
       return { successCount, totalRows: data.length };
     },

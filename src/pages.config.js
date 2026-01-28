@@ -1,3 +1,52 @@
+/**
+ * pages.config.js - Page routing configuration
+ * 
+ * This file is AUTO-GENERATED. Do not add imports or modify PAGES manually.
+ * Pages are auto-registered when you create files in the ./pages/ folder.
+ * 
+ * THE ONLY EDITABLE VALUE: mainPage
+ * This controls which page is the landing page (shown when users visit the app).
+ * 
+ * Example file structure:
+ * 
+ *   import HomePage from './pages/HomePage';
+ *   import Dashboard from './pages/Dashboard';
+ *   import Settings from './pages/Settings';
+ *   
+ *   export const PAGES = {
+ *       "HomePage": HomePage,
+ *       "Dashboard": Dashboard,
+ *       "Settings": Settings,
+ *   }
+ *   
+ *   export const pagesConfig = {
+ *       mainPage: "HomePage",
+ *       Pages: PAGES,
+ *   };
+ * 
+ * Example with Layout (wraps all pages):
+ *
+ *   import Home from './pages/Home';
+ *   import Settings from './pages/Settings';
+ *   import __Layout from './Layout.jsx';
+ *
+ *   export const PAGES = {
+ *       "Home": Home,
+ *       "Settings": Settings,
+ *   }
+ *
+ *   export const pagesConfig = {
+ *       mainPage: "Home",
+ *       Pages: PAGES,
+ *       Layout: __Layout,
+ *   };
+ *
+ * To change the main page from HomePage to Dashboard, use find_replace:
+ *   Old: mainPage: "HomePage",
+ *   New: mainPage: "Dashboard",
+ *
+ * The mainPage value must match a key in the PAGES object exactly.
+ */
 import AIDashboard from './pages/AIDashboard';
 import AccountingDashboard from './pages/AccountingDashboard';
 import Activities from './pages/Activities';
@@ -80,6 +129,7 @@ import SalesHub from './pages/SalesHub';
 import SalesQuotas from './pages/SalesQuotas';
 import SalesSequences from './pages/SalesSequences';
 import Settings from './pages/Settings';
+import SocialCalendar from './pages/SocialCalendar';
 import SocialDashboard from './pages/SocialDashboard';
 import SocialLeads from './pages/SocialLeads';
 import SocialListening from './pages/SocialListening';
@@ -99,7 +149,6 @@ import WebDashboard from './pages/WebDashboard';
 import WikiPageEditor from './pages/WikiPageEditor';
 import WorkflowBuilder from './pages/WorkflowBuilder';
 import WorkflowEngine from './pages/WorkflowEngine';
-import SocialCalendar from './pages/SocialCalendar';
 import __Layout from './Layout.jsx';
 
 
@@ -186,6 +235,7 @@ export const PAGES = {
     "SalesQuotas": SalesQuotas,
     "SalesSequences": SalesSequences,
     "Settings": Settings,
+    "SocialCalendar": SocialCalendar,
     "SocialDashboard": SocialDashboard,
     "SocialLeads": SocialLeads,
     "SocialListening": SocialListening,
@@ -205,7 +255,6 @@ export const PAGES = {
     "WikiPageEditor": WikiPageEditor,
     "WorkflowBuilder": WorkflowBuilder,
     "WorkflowEngine": WorkflowEngine,
-    "SocialCalendar": SocialCalendar,
 }
 
 export const pagesConfig = {
