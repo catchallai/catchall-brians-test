@@ -294,7 +294,7 @@ export default function Contacts() {
            first_name: firstName,
            last_name: lastName,
            email: email,
-           phone: getFieldValue(row, 'phone', 'Phone', 'Phone 1', 'Phone Number', 'telephone', 'mobile'),
+           phone: getFieldValue(row, 'phone', 'Phone', 'Phone 1', 'Phone Number', 'telephone', 'mobile', 'Phone 1'),
            status: getFieldValue(row, 'status', 'Status') || 'lead',
            job_title: getFieldValue(row, 'job_title', 'Job Title', 'Title', 'jobTitle', 'title', 'position', 'role'),
            linkedin_url: getFieldValue(row, 'linkedin_url', 'Linkedin', 'LinkedIn', 'LinkedIn URL', 'linkedin'),
