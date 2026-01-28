@@ -12,8 +12,9 @@ import { Button } from '@/components/ui/button';
 
 const NAVIGATION_ITEMS = [
   { label: 'Calls', page: 'CallsModule' },
-  { label: 'Contacts', page: 'Contacts' },
-  { label: 'Companies', page: 'Companies' },
+  { label: 'Contacts', page: 'Contacts', subItems: [
+    { label: 'Companies', page: 'Companies' }
+  ] },
   { label: 'Deals', page: 'Deals' },
   { label: 'Emails', page: 'EmailsModule' },
   { label: 'Invoices', page: 'InvoicesModule' },
