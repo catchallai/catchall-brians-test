@@ -527,7 +527,16 @@ export default function Contacts() {
   }, [debouncedSearch, statusFilter, debouncedFilters]);
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 space-y-4 sm:space-y-6 min-h-screen">
+    <div className="flex h-screen bg-white dark:bg-slate-900">
+      {/* Sidebar */}
+      <ContactsSidebar activeFilter={sidebarFilter} onFilterChange={setSidebarFilter} />
+
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col min-h-screen">
+        {/* View Tabs */}
+        <ContactsViewTabs activeTab={activeTab} onTabChange={setActiveTab} />
+
+        <div className="flex-1 overflow-auto p-4 sm:p-6 lg:p-8 space-y-4 sm:space-y-6">
       {/* Duplicate Detection Banner */}
       {allContacts.some(c => c.duplicate_of_id) && (
         <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
