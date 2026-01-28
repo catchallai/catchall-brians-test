@@ -462,8 +462,15 @@ export default function Companies() {
         </SheetContent>
       </Sheet>
 
-      {/* Import Modal */}
-      <ImportAviationDataModal open={showImportModal} onClose={() => setShowImportModal(false)} />
+      {/* Import Dialog */}
+      <ImportDialog
+        open={showImportDialog}
+        onClose={() => setShowImportDialog(false)}
+        onImport={handleImport}
+        entityName="Company"
+        requiredFields={['name']}
+        optionalFields={['website', 'industry', 'city', 'country', 'phone', 'annual_revenue', 'description']}
+      />
     </div>
   );
 }
