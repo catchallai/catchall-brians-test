@@ -44,6 +44,8 @@ export default function Contacts() {
   const [selectedIds, setSelectedIds] = useState([]);
   const [showDeleted, setShowDeleted] = useState(false);
   const [viewMode, setViewMode] = useState('list');
+  const [activeTab, setActiveTab] = useState('all');
+  const [sidebarFilter, setSidebarFilter] = useState('Contacts');
   const [filters, setFilters] = useState({
     companyName: '',
     email: '',
