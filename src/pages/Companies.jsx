@@ -9,11 +9,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Skeleton } from "@/components/ui/skeleton";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, Search, Building2, Globe, Users, MapPin, Eye, Upload, Grid3x3, List } from "lucide-react";
+import { Plus, Search, Building2, Globe, Users, MapPin, Eye, Upload, Grid3x3, List, Download } from "lucide-react";
 import CompanyModal from '@/components/modals/CompanyModal';
 import CompanyDetailPanel from '@/components/crm/CompanyDetailPanel';
-import ImportAviationDataModal from '@/components/modals/ImportAviationDataModal';
+import ImportDialog from '@/components/ui/ImportDialog';
 import EmptyState from '@/components/ui/EmptyState';
+import { exportToCSV } from '@/components/utils/exportData';
 
 export default function Companies() {
   const [showModal, setShowModal] = useState(false);
