@@ -340,9 +340,8 @@ export default function Contacts() {
          }
        }
 
+       await logActivity(ActivityActions.IMPORT, 'Contact', null, null, { count: successCount });
        return { successCount, totalRows: data.length, failedContacts };
-      await logActivity(ActivityActions.IMPORT, 'Contact', null, null, { count: successCount });
-      return { successCount, totalRows: data.length, failedContacts };
       },
       onSuccess: (result) => {
       queryClient.invalidateQueries({ queryKey: ['contacts'] });
