@@ -1180,6 +1180,8 @@ export default function Contacts() {
           )}
         </SheetContent>
       </Sheet>
-    </div>
-  );
-}
+       </div>
+      </div>
+      </div>
+      );
+      }
