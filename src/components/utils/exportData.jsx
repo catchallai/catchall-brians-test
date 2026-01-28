@@ -47,7 +47,7 @@ const downloadFile = (content, filename, mimeType) => {
 
 // Parse CSV to array
 export const parseCSV = (csvText) => {
-  const lines = csvText.split('\n').filter(line => line.trim());
+  const lines = csvText.split('\n');
   if (lines.length < 2) return { headers: [], data: [] };
   
   const parseRow = (row) => {
@@ -75,15 +75,21 @@ export const parseCSV = (csvText) => {
     return result;
   };
   
+  // Parse header from first line
   const headers = parseRow(lines[0]);
-  const data = lines.slice(1).map(line => {
-    const values = parseRow(line);
-    const obj = {};
-    headers.forEach((header, index) => {
-      obj[header] = values[index] || '';
+  
+  // Parse data rows - skip empty lines and count only rows with actual content
+  const data = lines
+    .slice(1)
+    .filter(line => line.trim()) // Skip blank lines
+    .map(line => {
+      const values = parseRow(line);
+      const obj = {};
+      headers.forEach((header, index) => {
+        obj[header] = values[index] || '';
+      });
+      return obj;
     });
-    return obj;
-  });
   
   return { headers, data };
 };
