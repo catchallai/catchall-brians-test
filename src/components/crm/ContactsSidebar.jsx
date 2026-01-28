@@ -39,19 +39,19 @@ export default function ContactsSidebar({ activeModule = 'Calls' }) {
             variant="outline" 
             className="w-full justify-between gap-2 mb-6"
           >
-            <span className="font-medium">{selectedItem}</span>
+            <span className="font-medium">{selectedItem?.label || 'Calls'}</span>
             <ChevronDown className="w-4 h-4" />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-56">
           {NAVIGATION_ITEMS.map((item) => (
-            <DropdownMenuItem
-              key={item}
-              onClick={() => handleSelect(item)}
-              className={selectedItem === item ? 'bg-violet-50 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300' : ''}
-            >
-              {item}
-            </DropdownMenuItem>
+            <Link key={item.label} to={createPageUrl(item.page)}>
+              <DropdownMenuItem
+                className={selectedItem?.label === item.label ? 'bg-violet-50 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300' : ''}
+              >
+                {item.label}
+              </DropdownMenuItem>
+            </Link>
           ))}
         </DropdownMenuContent>
       </DropdownMenu>
