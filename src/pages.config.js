@@ -159,6 +159,7 @@ import OrdersModule from './pages/OrdersModule';
 import PostalMailModule from './pages/PostalMailModule';
 import ProductsModule from './pages/ProductsModule';
 import QuotesModule from './pages/QuotesModule';
+import SubscriptionsModule from './pages/SubscriptionsModule';
 import __Layout from './Layout.jsx';
 
 
@@ -275,6 +276,7 @@ export const PAGES = {
     "PostalMailModule": PostalMailModule,
     "ProductsModule": ProductsModule,
     "QuotesModule": QuotesModule,
+    "SubscriptionsModule": SubscriptionsModule,
 }
 
 export const pagesConfig = {
