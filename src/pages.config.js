@@ -150,6 +150,7 @@ import WikiPageEditor from './pages/WikiPageEditor';
 import WorkflowBuilder from './pages/WorkflowBuilder';
 import WorkflowEngine from './pages/WorkflowEngine';
 import CallsModule from './pages/CallsModule';
+import CompaniesModule from './pages/CompaniesModule';
 import __Layout from './Layout.jsx';
 
 
@@ -257,6 +258,7 @@ export const PAGES = {
     "WorkflowBuilder": WorkflowBuilder,
     "WorkflowEngine": WorkflowEngine,
     "CallsModule": CallsModule,
+    "CompaniesModule": CompaniesModule,
 }
 
 export const pagesConfig = {
