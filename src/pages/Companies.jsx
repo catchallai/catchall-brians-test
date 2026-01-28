@@ -98,6 +98,44 @@ export default function Companies() {
     }
   };
 
+  const handleImport = async (data) => {
+    const requiredFields = ['name'];
+    let successCount = 0;
+
+    for (const row of data) {
+      try {
+        const companyData = {};
+        Object.keys(row).forEach(key => {
+          if (row[key]) companyData[key] = row[key];
+        });
+
+        if (!companyData.name) continue;
+
+        await base44.entities.Company.create(companyData);
+        successCount++;
+      } catch (err) {
+        console.error('Failed to import company:', err);
+      }
+    }
+
+    queryClient.invalidateQueries({ queryKey: ['companies'] });
+    return { successCount, totalRows: data.length };
+  };
+
+  const handleExport = () => {
+    const columns = [
+      { key: 'name', label: 'Name' },
+      { key: 'website', label: 'Website' },
+      { key: 'industry', label: 'Industry' },
+      { key: 'city', label: 'City' },
+      { key: 'country', label: 'Country' },
+      { key: 'phone', label: 'Phone' },
+      { key: 'annual_revenue', label: 'Annual Revenue' },
+      { key: 'description', label: 'Description' }
+    ];
+    exportToCSV(filteredCompanies, 'companies', columns);
+  };
+
   const getContactCount = (companyId) => contacts.filter(c => c.company_id === companyId).length;
 
   const getCompanyContacts = (companyId) => contacts.filter(c => c.company_id === companyId);
