@@ -342,13 +342,19 @@ export default function Contacts() {
 
        return { successCount, totalRows: data.length, failedContacts };
       await logActivity(ActivityActions.IMPORT, 'Contact', null, null, { count: successCount });
-      return { successCount, totalRows: data.length };
-    },
-    onSuccess: (result) => {
+      return { successCount, totalRows: data.length, failedContacts };
+      },
+      onSuccess: (result) => {
       queryClient.invalidateQueries({ queryKey: ['contacts'] });
       queryClient.invalidateQueries({ queryKey: ['companies'] });
-      toast.success(`Successfully imported ${result.successCount} of ${result.totalRows} contacts`);
-    },
+
+      if (result.failedContacts?.length > 0) {
+        toast.success(`Imported ${result.successCount} of ${result.totalRows} contacts. ${result.failedContacts.length} failed - check console for details.`);
+        console.log('Failed contacts:', result.failedContacts);
+      } else {
+        toast.success(`Successfully imported ${result.successCount} of ${result.totalRows} contacts`);
+      }
+      },
     onError: (error) => toast.error('Failed to import contacts: ' + (error?.message || 'Unknown error')),
   });
 
