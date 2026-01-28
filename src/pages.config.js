@@ -152,6 +152,7 @@ import WorkflowEngine from './pages/WorkflowEngine';
 import CallsModule from './pages/CallsModule';
 import CompaniesModule from './pages/CompaniesModule';
 import DealsModule from './pages/DealsModule';
+import EmailsModule from './pages/EmailsModule';
 import __Layout from './Layout.jsx';
 
 
@@ -261,6 +262,7 @@ export const PAGES = {
     "CallsModule": CallsModule,
     "CompaniesModule": CompaniesModule,
     "DealsModule": DealsModule,
+    "EmailsModule": EmailsModule,
 }
 
 export const pagesConfig = {
