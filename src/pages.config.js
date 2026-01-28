@@ -153,6 +153,7 @@ import CallsModule from './pages/CallsModule';
 import CompaniesModule from './pages/CompaniesModule';
 import DealsModule from './pages/DealsModule';
 import EmailsModule from './pages/EmailsModule';
+import InvoicesModule from './pages/InvoicesModule';
 import __Layout from './Layout.jsx';
 
 
@@ -263,6 +264,7 @@ export const PAGES = {
     "CompaniesModule": CompaniesModule,
     "DealsModule": DealsModule,
     "EmailsModule": EmailsModule,
+    "InvoicesModule": InvoicesModule,
 }
 
 export const pagesConfig = {
