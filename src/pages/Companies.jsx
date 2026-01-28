@@ -26,6 +26,7 @@ export default function Companies() {
   const [industryFilter, setIndustryFilter] = useState('all');
   const [viewMode, setViewMode] = useState('grid'); // 'grid' or 'list'
   const [failedLogos, setFailedLogos] = useState(new Set());
+  const [showImportDialog, setShowImportDialog] = useState(false);
   const queryClient = useQueryClient();
 
   const { data: user } = useQuery({
