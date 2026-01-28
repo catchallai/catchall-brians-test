@@ -161,6 +161,7 @@ import ProductsModule from './pages/ProductsModule';
 import QuotesModule from './pages/QuotesModule';
 import SubscriptionsModule from './pages/SubscriptionsModule';
 import TicketsModule from './pages/TicketsModule';
+import MarketingEventsModule from './pages/MarketingEventsModule';
 import __Layout from './Layout.jsx';
 
 
@@ -279,6 +280,7 @@ export const PAGES = {
     "QuotesModule": QuotesModule,
     "SubscriptionsModule": SubscriptionsModule,
     "TicketsModule": TicketsModule,
+    "MarketingEventsModule": MarketingEventsModule,
 }
 
 export const pagesConfig = {
