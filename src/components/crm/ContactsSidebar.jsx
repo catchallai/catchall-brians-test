@@ -12,9 +12,8 @@ import { Button } from '@/components/ui/button';
 
 const NAVIGATION_ITEMS = [
   { label: 'Calls', page: 'CallsModule' },
-  { label: 'Contacts', page: 'Contacts', subItems: [
-    { label: 'Companies', page: 'Companies' }
-  ] },
+  { label: 'Contacts', page: 'Contacts' },
+  { label: 'Companies', page: 'Companies' },
   { label: 'Deals', page: 'Deals' },
   { label: 'Emails', page: 'EmailsModule' },
   { label: 'Invoices', page: 'InvoicesModule' },
@@ -46,34 +45,13 @@ export default function ContactsSidebar({ activeModule = 'Calls' }) {
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-56">
           {NAVIGATION_ITEMS.map((item) => (
-            item.subItems ? (
-              <div key={item.label}>
-                <Link to={createPageUrl(item.page)}>
-                  <DropdownMenuItem
-                    className={selectedItem?.label === item.label ? 'bg-violet-50 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300' : ''}
-                  >
-                    {item.label}
-                  </DropdownMenuItem>
-                </Link>
-                {item.subItems.map((subItem) => (
-                  <Link key={subItem.label} to={createPageUrl(subItem.page)}>
-                    <DropdownMenuItem
-                      className={`pl-8 ${selectedItem?.label === subItem.label ? 'bg-violet-50 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300' : ''}`}
-                    >
-                      {subItem.label}
-                    </DropdownMenuItem>
-                  </Link>
-                ))}
-              </div>
-            ) : (
-              <Link key={item.label} to={createPageUrl(item.page)}>
-                <DropdownMenuItem
-                  className={selectedItem?.label === item.label ? 'bg-violet-50 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300' : ''}
-                >
-                  {item.label}
-                </DropdownMenuItem>
-              </Link>
-            )
+            <Link key={item.label} to={createPageUrl(item.page)}>
+              <DropdownMenuItem
+                className={selectedItem?.label === item.label ? 'bg-violet-50 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300' : ''}
+              >
+                {item.label}
+              </DropdownMenuItem>
+            </Link>
           ))}
         </DropdownMenuContent>
       </DropdownMenu>
