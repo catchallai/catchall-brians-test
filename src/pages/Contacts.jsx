@@ -277,7 +277,7 @@ export default function Contacts() {
          const companyName = getFieldValue(row, 'company_name', 'Firm', 'Company', 'Company Name', 'firm', 'organization');
          const firstName = getFieldValue(row, 'first_name', 'First Name', 'firstName', 'first', 'name');
          const lastName = getFieldValue(row, 'last_name', 'Last Name', 'lastName', 'last', 'surname');
-         const email = getFieldValue(row, 'email', 'Email', 'e-mail', 'Email Address');
+         const email = getFieldValue(row, 'email', 'Email', 'e-mail', 'Email Address', 'Work Email');
 
          // Only create if we have at least email or both first name and last name
          if (!email && !(firstName && lastName)) {
