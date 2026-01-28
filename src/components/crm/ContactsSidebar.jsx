@@ -1,5 +1,7 @@
 import React from 'react';
 import { ChevronDown } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { createPageUrl } from '@/utils';
 import { 
   DropdownMenu, 
   DropdownMenuTrigger, 
@@ -9,29 +11,24 @@ import {
 import { Button } from '@/components/ui/button';
 
 const NAVIGATION_ITEMS = [
-  'Calls',
-  'Contacts',
-  'Companies',
-  'Deals',
-  'Emails',
-  'Invoices',
-  'Marketing Events',
-  'Notes',
-  'Orders',
-  'Postal Mail',
-  'Products',
-  'Quotes',
-  'Subscriptions',
-  'Ticket',
+  { label: 'Calls', page: 'CallsModule' },
+  { label: 'Contacts', page: 'Contacts' },
+  { label: 'Companies', page: 'Companies' },
+  { label: 'Deals', page: 'Deals' },
+  { label: 'Emails', page: 'EmailsModule' },
+  { label: 'Invoices', page: 'InvoicesModule' },
+  { label: 'Marketing Events', page: 'MarketingEventsModule' },
+  { label: 'Notes', page: 'NotesModule' },
+  { label: 'Orders', page: 'OrdersModule' },
+  { label: 'Postal Mail', page: 'PostalMailModule' },
+  { label: 'Products', page: 'ProductsModule' },
+  { label: 'Quotes', page: 'QuotesModule' },
+  { label: 'Subscriptions', page: 'SubscriptionsModule' },
+  { label: 'Ticket', page: 'TicketsModule' },
 ];
 
-export default function ContactsSidebar({ activeFilter, onFilterChange }) {
-  const [selectedItem, setSelectedItem] = React.useState('Calls');
-
-  const handleSelect = (item) => {
-    setSelectedItem(item);
-    onFilterChange(item);
-  };
+export default function ContactsSidebar({ activeModule = 'Calls' }) {
+  const selectedItem = NAVIGATION_ITEMS.find(item => item.label === activeModule);
 
   return (
     <div className="w-64 border-r border-gray-200 dark:border-gray-800 bg-white dark:bg-slate-900 flex flex-col p-4">
