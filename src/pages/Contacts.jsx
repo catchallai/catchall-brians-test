@@ -14,6 +14,8 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import ContactCard from '@/components/crm/ContactCard';
 import ContactModal from '@/components/modals/ContactModal';
 import ContactDetailPanel from '@/components/crm/ContactDetailPanel';
+import ContactsSidebar from '@/components/crm/ContactsSidebar';
+import ContactsViewTabs from '@/components/crm/ContactsViewTabs';
 import EmptyState from '@/components/ui/EmptyState';
 import Pagination from '@/components/ui/Pagination';
 import BulkActions from '@/components/ui/BulkActions';
