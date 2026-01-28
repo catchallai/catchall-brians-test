@@ -47,10 +47,14 @@ const downloadFile = (content, filename, mimeType) => {
 
 // Parse CSV to array
 export const parseCSV = (csvText) => {
-  const lines = csvText.split('\n');
+  const lines = csvText.split('\n').filter(line => line.trim());
   if (lines.length < 2) return { headers: [], data: [] };
   
-  const parseRow = (row) => {
+  // Detect delimiter (tab or comma)
+  const firstLine = lines[0];
+  const delimiter = firstLine.includes('\t') ? '\t' : ',';
+  
+  const parseRow = (row, delim) => {
     const result = [];
     let current = '';
     let inQuotes = false;
@@ -64,7 +68,7 @@ export const parseCSV = (csvText) => {
         } else {
           inQuotes = !inQuotes;
         }
-      } else if (char === ',' && !inQuotes) {
+      } else if (char === delim && !inQuotes) {
         result.push(current.trim());
         current = '';
       } else {
@@ -76,14 +80,13 @@ export const parseCSV = (csvText) => {
   };
   
   // Parse header from first line
-  const headers = parseRow(lines[0]);
+  const headers = parseRow(firstLine, delimiter);
   
-  // Parse data rows - skip empty lines and count only rows with actual content
+  // Parse data rows
   const data = lines
     .slice(1)
-    .filter(line => line.trim()) // Skip blank lines
     .map(line => {
-      const values = parseRow(line);
+      const values = parseRow(line, delimiter);
       const obj = {};
       headers.forEach((header, index) => {
         obj[header] = values[index] || '';
