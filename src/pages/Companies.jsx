@@ -183,15 +183,19 @@ export default function Companies() {
           <p className="text-sm sm:text-base text-gray-500 mt-1">{companies.length} companies total</p>
         </div>
         <div className="flex gap-2 w-full sm:w-auto">
-          <Button onClick={() => { setEditingCompany(null); setShowModal(true); }} className="gap-2 bg-violet-600 hover:bg-violet-700 flex-1 sm:flex-initial">
-            <Plus className="w-4 h-4" />
-            Add Company
-          </Button>
-          <Button onClick={() => setShowImportModal(true)} variant="outline" className="gap-2 flex-1 sm:flex-initial">
-            <Upload className="w-4 h-4" />
-            Import
-          </Button>
-        </div>
+           <Button onClick={() => { setEditingCompany(null); setShowModal(true); }} className="gap-2 bg-violet-600 hover:bg-violet-700 flex-1 sm:flex-initial">
+             <Plus className="w-4 h-4" />
+             Add Company
+           </Button>
+           <Button onClick={() => setShowImportDialog(true)} variant="outline" className="gap-2 flex-1 sm:flex-initial">
+             <Upload className="w-4 h-4" />
+             Import
+           </Button>
+           <Button onClick={handleExport} variant="outline" className="gap-2 flex-1 sm:flex-initial">
+             <Download className="w-4 h-4" />
+             Export
+           </Button>
+         </div>
       </div>
 
       {/* Filters */}
