@@ -529,7 +529,7 @@ export default function Contacts() {
   return (
     <div className="flex h-screen bg-white dark:bg-slate-900">
       {/* Sidebar */}
-      <ContactsSidebar activeFilter={sidebarFilter} onFilterChange={setSidebarFilter} />
+      <ContactsSidebar activeModule="Contacts" />
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col min-h-screen">
