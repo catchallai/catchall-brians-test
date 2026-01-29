@@ -927,10 +927,12 @@ export default function Contacts() {
                         />
                       </th>
                       {visibleColumns.name && <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase">Name</th>}
-                      {visibleColumns.company && <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase">Company</th>}
-                      {visibleColumns.phone && <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase">Phone</th>}
                       {visibleColumns.email && <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase">Email</th>}
                       {visibleColumns.title && <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase">Title</th>}
+                      {visibleColumns.phone && <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase">Phone</th>}
+                      {visibleColumns.company && <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase">Company</th>}
+                      {visibleColumns.status && <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase">Status</th>}
+                      {visibleColumns.tags && <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase">Tags</th>}
                       {visibleColumns.tier && <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase">Tier</th>}
                       {visibleColumns.category && <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase">Category</th>}
                       {visibleColumns.country && <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase">Country</th>}
@@ -940,8 +942,6 @@ export default function Contacts() {
                       {visibleColumns.secondaryRoleName && <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase">Secondary Role Name</th>}
                       {visibleColumns.created && <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase">Created</th>}
                       {visibleColumns.lastActivity && <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase">Last Activity</th>}
-                      {visibleColumns.tags && <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase">Tags</th>}
-                      {visibleColumns.status && <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase">Status</th>}
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
@@ -967,16 +967,6 @@ export default function Contacts() {
                             </div>
                           </td>
                         )}
-                        {visibleColumns.company && (
-                          <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
-                            {contact.company_name || '-'}
-                          </td>
-                        )}
-                        {visibleColumns.phone && (
-                          <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
-                            {contact.phone || '-'}
-                          </td>
-                        )}
                         {visibleColumns.email && (
                           <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
                             {contact.email}
@@ -985,6 +975,44 @@ export default function Contacts() {
                         {visibleColumns.title && (
                           <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
                             {contact.job_title || '-'}
+                          </td>
+                        )}
+                        {visibleColumns.phone && (
+                          <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
+                            {contact.phone || '-'}
+                          </td>
+                        )}
+                        {visibleColumns.company && (
+                          <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
+                            {contact.company_name || '-'}
+                          </td>
+                        )}
+                        {visibleColumns.status && (
+                          <td className="px-4 py-3">
+                            <span className={`px-2 py-1 text-xs rounded-full ${
+                              contact.status === 'customer' ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300' :
+                              contact.status === 'prospect' ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300' :
+                              contact.status === 'lead' ? 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300' :
+                              'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300'
+                            }`}>
+                              {contact.status}
+                            </span>
+                          </td>
+                        )}
+                        {visibleColumns.tags && (
+                          <td className="px-4 py-3">
+                            <div className="flex flex-wrap gap-1">
+                              {contact.tags?.slice(0, 2).map((tag, idx) => (
+                                <span key={idx} className="px-2 py-0.5 text-xs rounded-full bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300">
+                                  {tag}
+                                </span>
+                              ))}
+                              {contact.tags?.length > 2 && (
+                                <span className="px-2 py-0.5 text-xs rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400">
+                                  +{contact.tags.length - 2}
+                                </span>
+                              )}
+                            </div>
                           </td>
                         )}
                         {visibleColumns.tier && (
@@ -1030,34 +1058,6 @@ export default function Contacts() {
                         {visibleColumns.lastActivity && (
                           <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
                             {contact.last_contacted ? new Date(contact.last_contacted).toLocaleDateString() : '-'}
-                          </td>
-                        )}
-                        {visibleColumns.tags && (
-                          <td className="px-4 py-3">
-                            <div className="flex flex-wrap gap-1">
-                              {contact.tags?.slice(0, 2).map((tag, idx) => (
-                                <span key={idx} className="px-2 py-0.5 text-xs rounded-full bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300">
-                                  {tag}
-                                </span>
-                              ))}
-                              {contact.tags?.length > 2 && (
-                                <span className="px-2 py-0.5 text-xs rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400">
-                                  +{contact.tags.length - 2}
-                                </span>
-                              )}
-                            </div>
-                          </td>
-                        )}
-                        {visibleColumns.status && (
-                          <td className="px-4 py-3">
-                            <span className={`px-2 py-1 text-xs rounded-full ${
-                              contact.status === 'customer' ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300' :
-                              contact.status === 'prospect' ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300' :
-                              contact.status === 'lead' ? 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300' :
-                              'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300'
-                            }`}>
-                              {contact.status}
-                            </span>
                           </td>
                         )}
                       </tr>
