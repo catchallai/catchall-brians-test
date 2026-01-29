@@ -82,6 +82,15 @@ export default function CompaniesModule() {
     },
   });
 
+  const deleteMutation = useMutation({
+    mutationFn: (id) => base44.entities.Company.delete(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['companies'] });
+      setShowModal(false);
+      setEditingCompany(null);
+    },
+  });
+
   const handleSave = (data) => {
     if (editingCompany) {
       updateMutation.mutate({ id: editingCompany.id, data });
@@ -496,7 +505,8 @@ export default function CompaniesModule() {
         onClose={() => { setShowModal(false); setEditingCompany(null); }}
         company={editingCompany}
         onSave={handleSave}
-        isLoading={createMutation.isPending || updateMutation.isPending}
+        onDelete={(id) => deleteMutation.mutate(id)}
+        isLoading={createMutation.isPending || updateMutation.isPending || deleteMutation.isPending}
       />
 
       <Sheet open={showDetailPanel} onOpenChange={setShowDetailPanel}>

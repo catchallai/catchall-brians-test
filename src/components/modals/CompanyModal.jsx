@@ -5,9 +5,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, RefreshCw, Building2 } from "lucide-react";
+import { Loader2, RefreshCw, Building2, Trash2 } from "lucide-react";
 
-export default function CompanyModal({ open, onClose, company, onSave, isLoading }) {
+export default function CompanyModal({ open, onClose, company, onSave, onDelete, isLoading }) {
   const [formData, setFormData] = useState({
     name: '',
     website: '',
@@ -272,14 +272,28 @@ export default function CompanyModal({ open, onClose, company, onSave, isLoading
             />
           </div>
 
-          <div className="flex justify-end gap-3 pt-4">
-            <Button type="button" variant="outline" onClick={onClose}>
-              Cancel
-            </Button>
-            <Button type="submit" disabled={isLoading}>
-              {isLoading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-              {company ? 'Update Company' : 'Add Company'}
-            </Button>
+          <div className="flex justify-between gap-3 pt-4">
+            {company && onDelete && (
+              <Button 
+                type="button" 
+                variant="outline" 
+                onClick={() => onDelete(company.id)}
+                className="text-red-600 hover:text-red-700 border-red-200 hover:border-red-300"
+                disabled={isLoading}
+              >
+                <Trash2 className="w-4 h-4 mr-2" />
+                Delete
+              </Button>
+            )}
+            <div className="flex gap-3 ml-auto">
+              <Button type="button" variant="outline" onClick={onClose}>
+                Cancel
+              </Button>
+              <Button type="submit" disabled={isLoading}>
+                {isLoading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                {company ? 'Update Company' : 'Add Company'}
+              </Button>
+            </div>
           </div>
         </form>
       </DialogContent>
