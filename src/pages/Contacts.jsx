@@ -116,6 +116,11 @@ export default function Contacts() {
     queryFn: () => base44.entities.Company.list('-created_date', 100),
   });
 
+  const { data: opportunities = [] } = useQuery({
+    queryKey: ['opportunities'],
+    queryFn: () => base44.entities.Opportunity.list('-created_date', 1000),
+  });
+
   const { data: teamMembers = [] } = useQuery({
     queryKey: ['team-members'],
     queryFn: () => base44.entities.User.list(),
@@ -462,6 +467,27 @@ export default function Contacts() {
 
   const filteredContacts = useMemo(() => {
     let filtered = contacts.filter(contact => {
+      // Filter by tab
+      if (activeTab === 'open-opportunities') {
+        const hasOpenOpportunity = opportunities.some(opp => 
+          opp.contact_id === contact.id && 
+          !['closed', 'not_interested'].includes(opp.stage)
+        );
+        if (!hasOpenOpportunity) return false;
+      } else if (activeTab === 'need-follow-up') {
+        const hasNeedFollowUp = opportunities.some(opp => 
+          opp.contact_id === contact.id && 
+          ['no_response', 'new_lead', 'email_list', 'media_inquiry'].includes(opp.stage)
+        );
+        if (!hasNeedFollowUp) return false;
+      } else if (activeTab === 'in-progress') {
+        const hasInProgress = opportunities.some(opp => 
+          opp.contact_id === contact.id && 
+          ['contacted', 'reservation_request'].includes(opp.stage)
+        );
+        if (!hasInProgress) return false;
+      }
+
       const matchesSearch = !debouncedSearch || 
         `${contact.first_name} ${contact.last_name}`.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
         contact.email?.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
@@ -511,7 +537,7 @@ export default function Contacts() {
       }
       return 0;
     });
-  }, [contacts, debouncedSearch, statusFilter, debouncedFilters, sortBy]);
+  }, [contacts, debouncedSearch, statusFilter, debouncedFilters, sortBy, activeTab, opportunities]);
 
   const totalPages = Math.ceil(filteredContacts.length / ITEMS_PER_PAGE);
   const paginatedContacts = filteredContacts.slice(
