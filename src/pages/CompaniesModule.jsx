@@ -28,6 +28,7 @@ export default function CompaniesModule() {
     owner: null,
     tier: null,
     country: null,
+    city: null,
   });
   const [showModal, setShowModal] = useState(false);
   const [showDetailPanel, setShowDetailPanel] = useState(false);
@@ -216,13 +217,14 @@ export default function CompaniesModule() {
       const matchesSize = !filters.size || company.size === filters.size;
       const matchesTier = !filters.tier || company.tier === filters.tier;
       const matchesCountry = !filters.country || company.country?.toLowerCase().includes(filters.country.toLowerCase());
+      const matchesCity = !filters.city || company.city?.toLowerCase().includes(filters.city.toLowerCase());
       
       const matchesTab = activeTab === 'all' || 
         (activeTab === 'tier1' && company.tier === 'Tier 1') ||
         (activeTab === 'tier2' && company.tier === 'Tier 2') ||
         (activeTab === 'tier3' && company.tier === 'Tier 3');
       
-      return matchesSearch && matchesIndustry && matchesSize && matchesTier && matchesCountry && matchesTab;
+      return matchesSearch && matchesIndustry && matchesSize && matchesTier && matchesCountry && matchesCity && matchesTab;
     });
   }, [allCompanies, searchTerm, filters, activeTab]);
 
@@ -363,9 +365,9 @@ export default function CompaniesModule() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
-              <DropdownMenuItem onClick={() => handleFilterChange('tier', 'tier1')}>Tier 1</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleFilterChange('tier', 'tier2')}>Tier 2</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleFilterChange('tier', 'tier3')}>Tier 3</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleFilterChange('tier', 'Tier 1')}>Tier 1</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleFilterChange('tier', 'Tier 2')}>Tier 2</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleFilterChange('tier', 'Tier 3')}>Tier 3</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
 
@@ -384,17 +386,14 @@ export default function CompaniesModule() {
             </DropdownMenuContent>
           </DropdownMenu>
 
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" className="h-8 text-xs gap-1">
-                Advanced filters
-                <ChevronDown className="w-3 h-3" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
-              <DropdownMenuItem>More options</DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <div className="relative">
+            <Input
+              placeholder="Filter by city..."
+              value={filters.city || ''}
+              onChange={(e) => handleFilterChange('city', e.target.value || null)}
+              className="h-8 w-32 text-xs"
+            />
+          </div>
 
           {hasActiveFilters && (
             <Button
@@ -403,7 +402,7 @@ export default function CompaniesModule() {
               className="h-8 text-xs text-gray-500 hover:text-gray-700"
               onClick={() => {
                 setSearchTerm('');
-                setFilters({ industry: null, size: null, owner: null, tier: null, country: null });
+                setFilters({ industry: null, size: null, owner: null, tier: null, country: null, city: null });
               }}
             >
               Clear all
