@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { 
   Calendar, Phone, Mail, Briefcase, MapPin, Tag, 
-  Activity, DollarSign, Target, Building2, ExternalLink, AlertCircle, Paperclip
+  Activity, DollarSign, Target, Building2, ExternalLink, AlertCircle, Paperclip, CheckSquare, Loader2
 } from "lucide-react";
 import { format } from "date-fns";
 import { Link } from 'react-router-dom';
@@ -17,9 +17,17 @@ import TaskAssignment from '@/components/collaboration/TaskAssignment';
 import NoteWithMentions from '@/components/collaboration/NoteWithMentions';
 import EmailContactModal from '@/components/modals/EmailContactModal';
 import EmailTrackingPanel from '@/components/crm/EmailTrackingPanel';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
+import { useToast } from '@/components/ui/toast-provider';
 
 export default function ContactDetailPanel({ contactId, onClose }) {
   const [showEmailModal, setShowEmailModal] = React.useState(false);
+  const [showTaskModal, setShowTaskModal] = React.useState(false);
+  const [taskTitle, setTaskTitle] = React.useState('');
+  const [taskDescription, setTaskDescription] = React.useState('');
+  const [creatingTask, setCreatingTask] = React.useState(false);
+  const toast = useToast();
 
   const { data: contact, isLoading } = useQuery({
     queryKey: ['contact', contactId],
@@ -74,6 +82,33 @@ export default function ContactDetailPanel({ contactId, onClose }) {
   }
 
   if (!contact) return null;
+
+  const handleCreateTask = async () => {
+    if (!taskTitle.trim()) {
+      toast.error('Task title is required');
+      return;
+    }
+
+    setCreatingTask(true);
+    try {
+      await base44.entities.Task.create({
+        contact_id: contactId,
+        company_id: contact.company_id,
+        title: taskTitle,
+        description: taskDescription,
+        due_date: new Date().toISOString().split('T')[0],
+        status: 'todo',
+      });
+      toast.success('Follow-up task created');
+      setTaskTitle('');
+      setTaskDescription('');
+      setShowTaskModal(false);
+    } catch (error) {
+      toast.error('Failed to create task');
+    } finally {
+      setCreatingTask(false);
+    }
+  };
 
   const totalDealValue = deals.reduce((sum, d) => sum + (d.value || 0), 0);
 
@@ -144,17 +179,28 @@ export default function ContactDetailPanel({ contactId, onClose }) {
             )}
           </div>
 
-          {contact.email && (
+          <div className="flex gap-2 mt-4">
+            {contact.email && (
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => setShowEmailModal(true)}
+                className="gap-1 text-xs"
+              >
+                <Mail className="w-3 h-3" />
+                Send Email
+              </Button>
+            )}
             <Button
               size="sm"
               variant="outline"
-              onClick={() => setShowEmailModal(true)}
-              className="gap-1 text-xs mt-4"
+              onClick={() => setShowTaskModal(true)}
+              className="gap-1 text-xs"
             >
-              <Mail className="w-3 h-3" />
-              Send Email
+              <CheckSquare className="w-3 h-3" />
+              Follow-up Task
             </Button>
-          )}
+          </div>
 
           {contact.tags && contact.tags.length > 0 && (
             <div className="flex flex-wrap gap-2 mt-4">
@@ -317,12 +363,59 @@ export default function ContactDetailPanel({ contactId, onClose }) {
       <ActivityFeed entityType="contact" entityId={contactId} />
 
       {/* Email Modal */}
-      <EmailContactModal
-        open={showEmailModal}
-        onClose={() => setShowEmailModal(false)}
-        contact={contact}
-        businessId={contact?.business_id}
-      />
-    </div>
-  );
-}
+       <EmailContactModal
+         open={showEmailModal}
+         onClose={() => setShowEmailModal(false)}
+         contact={contact}
+         businessId={contact?.business_id}
+       />
+
+       {/* Task Modal */}
+       <Dialog open={showTaskModal} onOpenChange={setShowTaskModal}>
+         <DialogContent className="sm:max-w-md">
+           <DialogHeader>
+             <DialogTitle>Create Follow-up Task</DialogTitle>
+           </DialogHeader>
+           <div className="space-y-4 mt-4">
+             <div className="space-y-2">
+               <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Task Title *</label>
+               <Input
+                 placeholder="e.g., Call to discuss proposal"
+                 value={taskTitle}
+                 onChange={(e) => setTaskTitle(e.target.value)}
+                 disabled={creatingTask}
+               />
+             </div>
+             <div className="space-y-2">
+               <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Notes</label>
+               <Textarea
+                 placeholder="Additional details..."
+                 value={taskDescription}
+                 onChange={(e) => setTaskDescription(e.target.value)}
+                 rows={3}
+                 disabled={creatingTask}
+               />
+             </div>
+             <div className="flex gap-3 pt-4">
+               <Button
+                 variant="outline"
+                 onClick={() => setShowTaskModal(false)}
+                 disabled={creatingTask}
+               >
+                 Cancel
+               </Button>
+               <Button
+                 onClick={handleCreateTask}
+                 disabled={creatingTask}
+                 className="gap-2"
+               >
+                 {creatingTask && <Loader2 className="w-4 h-4 animate-spin" />}
+                 Create Task
+               </Button>
+             </div>
+           </div>
+         </DialogContent>
+       </Dialog>
+      </div>
+      );
+      }
