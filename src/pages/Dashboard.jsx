@@ -107,6 +107,9 @@ export default function Dashboard() {
 
   const isLoading = loadingContacts || loadingDeals;
 
+  // Filter out deleted and duplicate contacts (match Contacts module logic)
+  const activeContacts = contacts.filter(c => !c.deleted && !c.duplicate_of_id);
+
   // Calculate metrics
   const totalPipelineValue = deals
     .filter(d => !['won', 'lost'].includes(d.stage))
