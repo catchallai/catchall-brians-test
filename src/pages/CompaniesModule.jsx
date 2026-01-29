@@ -99,19 +99,27 @@ export default function CompaniesModule() {
       for (const company of companiesWithoutLogos) {
         try {
           const domain = company.website.replace(/^https?:\/\//, '').replace(/\/.*$/, '');
-          const logoUrl = `https://logo.clearbit.com/${domain}`;
+          const logoUrls = [
+            `https://logo.clearbit.com/${domain}`,
+            `https://www.google.com/s2/favicons?domain=${domain}&sz=128`,
+          ];
           
-          // Test if logo exists
-          const response = await fetch(logoUrl, { method: 'HEAD' });
-          if (response.ok) {
-            await base44.entities.Company.update(company.id, { logo_url: logoUrl });
-            syncedCount++;
-          } else {
-            // Fallback to Google favicon
-            const fallbackUrl = `https://www.google.com/s2/favicons?domain=${domain}&sz=128`;
-            await base44.entities.Company.update(company.id, { logo_url: fallbackUrl });
-            syncedCount++;
-          }
+          // Test if Clearbit logo exists using Image object
+          await new Promise((resolve) => {
+            const img = new Image();
+            img.onload = async () => {
+              await base44.entities.Company.update(company.id, { logo_url: logoUrls[0] });
+              syncedCount++;
+              resolve();
+            };
+            img.onerror = async () => {
+              // Fallback to Google favicon
+              await base44.entities.Company.update(company.id, { logo_url: logoUrls[1] });
+              syncedCount++;
+              resolve();
+            };
+            img.src = logoUrls[0];
+          });
         } catch (err) {
           console.log(`Failed to sync logo for ${company.name}`);
         }
