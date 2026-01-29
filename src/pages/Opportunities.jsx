@@ -671,7 +671,27 @@ export default function Opportunities() {
         </TabsContent>
 
         <TabsContent value="pipelines" className="space-y-4">
-          {isLoading ? (
+           {/* View Mode Toggle */}
+           <div className="flex gap-1 bg-gray-100 dark:bg-gray-800 p-1 rounded-lg w-fit">
+             <Button
+               variant={viewMode === 'grid' ? 'default' : 'ghost'}
+               size="sm"
+               onClick={() => setViewMode('grid')}
+               className="h-8 px-3"
+             >
+               <Grid3x3 className="w-4 h-4" />
+             </Button>
+             <Button
+               variant={viewMode === 'list' ? 'default' : 'ghost'}
+               size="sm"
+               onClick={() => setViewMode('list')}
+               className="h-8 px-3"
+             >
+               <List className="w-4 h-4" />
+             </Button>
+           </div>
+
+           {isLoading ? (
             <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-4">
               {[...Array(8)].map((_, i) => (
                 <Skeleton key={i} className="h-96 rounded-xl" />
