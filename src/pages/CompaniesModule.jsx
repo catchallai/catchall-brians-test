@@ -7,7 +7,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Plus, Search, Building2, ChevronDown, ChevronLeft, ChevronRight, Download, Globe, MapPin, Users, Eye, Upload, RefreshCw } from "lucide-react";
+import { Plus, Search, Building2, ChevronDown, ChevronLeft, ChevronRight, Download, Globe, MapPin, Users, Eye, Upload, RefreshCw, ArrowUpDown } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import EmptyState from '@/components/ui/EmptyState';
@@ -36,6 +36,7 @@ export default function CompaniesModule() {
   const [selectedCompany, setSelectedCompany] = useState(null);
   const [showImportDialog, setShowImportDialog] = useState(false);
   const [failedLogos, setFailedLogos] = useState(new Set());
+  const [sortOrder, setSortOrder] = useState('asc');
 
   const queryClient = useQueryClient();
 
@@ -208,7 +209,7 @@ export default function CompaniesModule() {
   };
 
   const filteredCompanies = useMemo(() => {
-    return allCompanies.filter(company => {
+    const filtered = allCompanies.filter(company => {
       const matchesSearch = !searchTerm || 
         company.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         company.website?.toLowerCase().includes(searchTerm.toLowerCase());
@@ -226,7 +227,13 @@ export default function CompaniesModule() {
       
       return matchesSearch && matchesIndustry && matchesSize && matchesTier && matchesCountry && matchesCity && matchesTab;
     });
-  }, [allCompanies, searchTerm, filters, activeTab]);
+
+    return filtered.sort((a, b) => {
+      const nameA = a.name?.toLowerCase() || '';
+      const nameB = b.name?.toLowerCase() || '';
+      return sortOrder === 'asc' ? nameA.localeCompare(nameB) : nameB.localeCompare(nameA);
+    });
+  }, [allCompanies, searchTerm, filters, activeTab, sortOrder]);
 
   const handleExport = () => {
     const columns = [
@@ -431,7 +438,15 @@ export default function CompaniesModule() {
               <table className="w-full">
                 <thead className="bg-gray-50 dark:bg-gray-800/50 sticky top-0 z-10">
                   <tr>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase">Company</th>
+                    <th 
+                      className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                      onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
+                    >
+                      <div className="flex items-center gap-2">
+                        Company
+                        <ArrowUpDown className="w-3 h-3" />
+                      </div>
+                    </th>
                     <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase">Industry</th>
                     <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase">Tier</th>
                     <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase">Location</th>
