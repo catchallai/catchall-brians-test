@@ -61,7 +61,6 @@ import CallsModule from './pages/CallsModule';
 import CampaignDetail from './pages/CampaignDetail';
 import Campaigns from './pages/Campaigns';
 import Collaboration from './pages/Collaboration';
-import Companies from './pages/Companies';
 import CompaniesModule from './pages/CompaniesModule';
 import CompetitorAnalysis from './pages/CompetitorAnalysis';
 import ContactDetail from './pages/ContactDetail';
@@ -180,7 +179,6 @@ export const PAGES = {
     "CampaignDetail": CampaignDetail,
     "Campaigns": Campaigns,
     "Collaboration": Collaboration,
-    "Companies": Companies,
     "CompaniesModule": CompaniesModule,
     "CompetitorAnalysis": CompetitorAnalysis,
     "ContactDetail": ContactDetail,
