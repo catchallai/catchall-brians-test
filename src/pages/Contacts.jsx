@@ -56,6 +56,7 @@ export default function Contacts() {
     country: '',
     source: 'all',
     jobTitle: '',
+    tier: null,
   });
   const [sortBy, setSortBy] = useState('created_date');
   const [showFilters, setShowFilters] = useState(false);
@@ -521,9 +522,11 @@ export default function Contacts() {
       
       const matchesSource = debouncedFilters.source === 'all' || contact.source === debouncedFilters.source;
       
+      const matchesTier = !debouncedFilters.tier || contact.tier === debouncedFilters.tier;
+      
       return matchesSearch && matchesStatus && matchesCompany && matchesEmail && 
              matchesFirstName && matchesLastName && matchesTag && matchesCity && 
-             matchesCountry && matchesSource && matchesJobTitle;
+             matchesCountry && matchesSource && matchesJobTitle && matchesTier;
     });
 
     // Sort by selected field
@@ -751,6 +754,20 @@ export default function Contacts() {
               <SelectItem value="churned">Churned</SelectItem>
             </SelectContent>
           </Select>
+          <Select 
+            value={filters.tier || 'all'} 
+            onValueChange={(value) => setFilters({...filters, tier: value === 'all' ? null : value})}
+          >
+            <SelectTrigger className="w-full sm:w-32">
+              <SelectValue placeholder="Tier" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Tiers</SelectItem>
+              <SelectItem value="Tier 1">Tier 1</SelectItem>
+              <SelectItem value="Tier 2">Tier 2</SelectItem>
+              <SelectItem value="Tier 3">Tier 3</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
 
         {showFilters && (
@@ -770,6 +787,7 @@ export default function Contacts() {
                     country: '',
                     source: 'all',
                     jobTitle: '',
+                    tier: null,
                   })}
                 >
                 <X className="w-4 h-4 mr-1" />
