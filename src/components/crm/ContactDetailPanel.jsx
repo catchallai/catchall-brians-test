@@ -19,6 +19,7 @@ import EmailContactModal from '@/components/modals/EmailContactModal';
 import EmailTrackingPanel from '@/components/crm/EmailTrackingPanel';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
 import { useToast } from '@/components/ui/toast-provider';
 
 export default function ContactDetailPanel({ contactId, onClose }) {
