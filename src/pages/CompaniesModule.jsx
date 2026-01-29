@@ -57,7 +57,23 @@ export default function CompaniesModule() {
 
   const createMutation = useMutation({
     mutationFn: async (data) => {
-      const company = await base44.entities.Company.create(data);
+      let companyData = { ...data };
+      
+      // If no website provided, find it automatically
+      if (!companyData.website && companyData.name) {
+        try {
+          const result = await base44.functions.invoke('findCompanyWebsite', {
+            company_name: companyData.name
+          });
+          if (result.data?.website) {
+            companyData.website = result.data.website;
+          }
+        } catch (err) {
+          console.log('Website lookup failed:', err);
+        }
+      }
+      
+      const company = await base44.entities.Company.create(companyData);
       try {
         await base44.functions.invoke('enrichCompanyData', {
           company_id: company.id,
