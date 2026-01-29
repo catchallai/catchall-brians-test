@@ -581,6 +581,25 @@ export default function ContactDetail() {
             <h3 className="font-semibold text-gray-900 dark:text-white mb-3">Details</h3>
             <div className="space-y-4 text-sm">
               <div>
+                <p className="text-gray-500 mb-2">Assigned To</p>
+                <Select value={contact.owner_email || ''} onValueChange={(ownerEmail) => {
+                  base44.entities.Contact.update(contact.id, { owner_email: ownerEmail });
+                  queryClient.invalidateQueries({ queryKey: ['contact', contactId] });
+                }}>
+                  <SelectTrigger className="h-8">
+                    <SelectValue placeholder="Unassigned" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value={null}>Unassigned</SelectItem>
+                    {teamMembers.map((member) => (
+                      <SelectItem key={member.id} value={member.email}>
+                        {member.full_name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
                 <p className="text-gray-500 mb-2">Status</p>
                 <Select value={contact.status} onValueChange={(newStatus) => {
                   base44.entities.Contact.update(contact.id, { status: newStatus });
