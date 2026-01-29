@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Skeleton } from "@/components/ui/skeleton";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
-import { Plus, Search, Users, Upload, Download, Trash2, RotateCcw, List, Grid3x3, Filter, X, Eye, EyeOff, ArrowUpDown } from "lucide-react";
+import { Plus, Search, Users, Upload, Download, Trash2, RotateCcw, Filter, X, Eye } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuCheckboxItem } from "@/components/ui/dropdown-menu";
 import ContactCard from '@/components/crm/ContactCard';
 import ContactModal from '@/components/modals/ContactModal';
@@ -43,7 +43,7 @@ export default function Contacts() {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedIds, setSelectedIds] = useState([]);
   const [showDeleted, setShowDeleted] = useState(false);
-  const [viewMode, setViewMode] = useState('list');
+
   const [activeTab, setActiveTab] = useState('all');
   const [sidebarFilter, setSidebarFilter] = useState('Contacts');
   const [filters, setFilters] = useState({
@@ -582,24 +582,6 @@ export default function Contacts() {
       {/* Filters */}
       <div className="space-y-4">
         <div className="flex flex-col sm:flex-row gap-4">
-          <div className="flex gap-1 bg-gray-100 dark:bg-gray-800 p-1 rounded-lg">
-            <Button
-              variant={viewMode === 'list' ? 'default' : 'ghost'}
-              size="sm"
-              onClick={() => setViewMode('list')}
-              className="h-8 px-3"
-            >
-              <List className="w-4 h-4" />
-            </Button>
-            <Button
-              variant={viewMode === 'grid' ? 'default' : 'ghost'}
-              size="sm"
-              onClick={() => setViewMode('grid')}
-              className="h-8 px-3"
-            >
-              <Grid3x3 className="w-4 h-4" />
-            </Button>
-          </div>
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
             <Input
@@ -625,8 +607,7 @@ export default function Contacts() {
             <Trash2 className="w-4 h-4" />
             {showDeleted ? 'Active' : 'Trash'}
           </Button>
-          {viewMode === 'list' && (
-            <DropdownMenu>
+          <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" className="gap-2">
                   <Eye className="w-4 h-4" />
@@ -732,7 +713,6 @@ export default function Contacts() {
                 </DropdownMenuCheckboxItem>
               </DropdownMenuContent>
             </DropdownMenu>
-          )}
           <Select value={statusFilter} onValueChange={setStatusFilter}>
             <SelectTrigger className="w-full sm:w-40">
               <SelectValue placeholder="Status" />
@@ -858,29 +838,7 @@ export default function Contacts() {
         />
       ) : (
         <>
-          {viewMode === 'grid' ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {paginatedContacts.map((contact) => (
-                <div key={contact.id} className="relative group">
-                  <div className="absolute top-3 left-3 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <Checkbox
-                      checked={selectedIds.includes(contact.id)}
-                      onCheckedChange={() => toggleSelect(contact.id)}
-                      className="bg-white"
-                    />
-                  </div>
-                  <Link to={createPageUrl('ContactDetail') + '?id=' + contact.id}>
-                    <ContactCard
-                      contact={contact}
-                      company={getCompany(contact.company_id)}
-                      isSelected={selectedIds.includes(contact.id)}
-                    />
-                  </Link>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="glass-card rounded-xl overflow-hidden">
+          <div className="glass-card rounded-xl overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead className="bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
@@ -1037,7 +995,6 @@ export default function Contacts() {
                 </table>
               </div>
             </div>
-          )}
 
           <Pagination
             currentPage={currentPage}
