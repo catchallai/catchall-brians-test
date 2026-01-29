@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Mail, Phone, Linkedin, Calendar, Building2, BriefcaseIcon, Edit2, MapPin, Globe, Link2, FileText, Users, MessageSquare, Send } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ArrowLeft, Mail, Phone, Linkedin, Calendar, Building2, BriefcaseIcon, Edit2, MapPin, Globe, Link2, FileText, Users, MessageSquare, Send, Plus, X } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import ContactModal from '@/components/modals/ContactModal';
@@ -21,6 +22,10 @@ export default function ContactDetail() {
   const [showEditModal, setShowEditModal] = useState(false);
   const [showActivityPanel, setShowActivityPanel] = useState(false);
   const [showEmailModal, setShowEmailModal] = useState(false);
+  const [showAddCompanyModal, setShowAddCompanyModal] = useState(false);
+  const [taskTitle, setTaskTitle] = useState('');
+  const [showTaskForm, setShowTaskForm] = useState(false);
+  const queryClient = useQueryClient();
 
   const { data: user } = useQuery({
     queryKey: ['current-user'],
@@ -68,6 +73,18 @@ export default function ContactDetail() {
   });
 
   const [newNote, setNewNote] = useState('');
+  const [selectedCompanyForAdd, setSelectedCompanyForAdd] = useState('');
+
+  const createTaskMutation = useMutation({
+    mutationFn: async (taskData) => {
+      return await base44.entities.Task.create(taskData);
+    },
+    onSuccess: () => {
+      setTaskTitle('');
+      setShowTaskForm(false);
+      queryClient.invalidateQueries({ queryKey: ['contact', contactId] });
+    },
+  });
 
   const associatedCompanies = contact?.company_ids?.length 
     ? companies.filter(c => contact.company_ids.includes(c.id))
@@ -424,27 +441,94 @@ export default function ContactDetail() {
 
           {/* Associated Companies */}
           <Card className="p-6">
-            <h2 className="font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-              <Building2 className="w-5 h-5" />
-              Associated Companies ({associatedCompanies.length})
-            </h2>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                <Building2 className="w-5 h-5" />
+                Associated Companies ({associatedCompanies.length})
+              </h2>
+              <Button size="sm" variant="outline" onClick={() => setShowAddCompanyModal(true)} className="gap-1">
+                <Plus className="w-4 h-4" />
+                Add
+              </Button>
+            </div>
             {associatedCompanies.length > 0 ? (
               <div className="space-y-3">
                 {associatedCompanies.map((company) => (
-                  <Link
+                  <div
                     key={company.id}
-                    to={createPageUrl('Companies')}
-                    className="block p-3 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
+                    className="p-3 rounded-lg border border-gray-200 dark:border-gray-700 flex items-start justify-between group hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
                   >
-                    <div className="font-medium text-gray-900 dark:text-white">{company.name}</div>
-                    {company.industry && (
-                      <div className="text-sm text-gray-500">{company.industry}</div>
-                    )}
-                  </Link>
+                    <Link
+                      to={createPageUrl('Companies')}
+                      className="flex-1"
+                    >
+                      <div className="font-medium text-gray-900 dark:text-white hover:text-violet-600">{company.name}</div>
+                      {company.industry && (
+                        <div className="text-sm text-gray-500">{company.industry}</div>
+                      )}
+                    </Link>
+                    <button
+                      onClick={() => {
+                        const newCompanyIds = (contact.company_ids || []).filter(id => id !== company.id);
+                        base44.entities.Contact.update(contact.id, { company_ids: newCompanyIds });
+                        queryClient.invalidateQueries({ queryKey: ['contact', contactId] });
+                      }}
+                      className="opacity-0 group-hover:opacity-100 p-1 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-all"
+                      title="Remove association"
+                    >
+                      <X className="w-4 h-4 text-gray-400 hover:text-red-500" />
+                    </button>
+                  </div>
                 ))}
               </div>
             ) : (
               <p className="text-gray-500 text-sm">No associated companies</p>
+            )}
+
+            {/* Add Company Modal */}
+            {showAddCompanyModal && (
+              <div className="mt-4 space-y-3">
+                <Select value={selectedCompanyForAdd} onValueChange={setSelectedCompanyForAdd}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a company..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {companies.filter(c => !associatedCompanies.find(ac => ac.id === c.id)).map((company) => (
+                      <SelectItem key={company.id} value={company.id}>
+                        {company.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <div className="flex gap-2">
+                  <Button 
+                    size="sm"
+                    onClick={() => {
+                      if (selectedCompanyForAdd) {
+                        const newCompanyIds = [...(contact.company_ids || []), selectedCompanyForAdd];
+                        base44.entities.Contact.update(contact.id, { company_ids: newCompanyIds });
+                        queryClient.invalidateQueries({ queryKey: ['contact', contactId] });
+                        setShowAddCompanyModal(false);
+                        setSelectedCompanyForAdd('');
+                      }
+                    }}
+                    disabled={!selectedCompanyForAdd}
+                    className="flex-1"
+                  >
+                    Add Company
+                  </Button>
+                  <Button 
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => {
+                      setShowAddCompanyModal(false);
+                      setSelectedCompanyForAdd('');
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              </div>
             )}
           </Card>
 
@@ -485,10 +569,23 @@ export default function ContactDetail() {
         <div className="space-y-4">
           <Card className="p-6">
             <h3 className="font-semibold text-gray-900 dark:text-white mb-3">Details</h3>
-            <div className="space-y-3 text-sm">
+            <div className="space-y-4 text-sm">
               <div>
-                <p className="text-gray-500">Status</p>
-                <p className="font-medium text-gray-900 dark:text-white capitalize">{contact.status}</p>
+                <p className="text-gray-500 mb-2">Status</p>
+                <Select value={contact.status} onValueChange={(newStatus) => {
+                  base44.entities.Contact.update(contact.id, { status: newStatus });
+                  queryClient.invalidateQueries({ queryKey: ['contact', contactId] });
+                }}>
+                  <SelectTrigger className="h-8">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="lead">Lead</SelectItem>
+                    <SelectItem value="prospect">Prospect</SelectItem>
+                    <SelectItem value="customer">Customer</SelectItem>
+                    <SelectItem value="churned">Churned</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
               <div>
                 <p className="text-gray-500">Source</p>
@@ -523,6 +620,59 @@ export default function ContactDetail() {
               </div>
             </Card>
           )}
+
+          {/* Follow-up Tasks */}
+          <Card className="p-6">
+            <h3 className="font-semibold text-gray-900 dark:text-white mb-4">Follow-up Task</h3>
+            {showTaskForm ? (
+              <div className="space-y-3">
+                <textarea
+                  value={taskTitle}
+                  onChange={(e) => setTaskTitle(e.target.value)}
+                  placeholder="Create a follow-up task..."
+                  className="w-full p-2 border rounded-lg text-sm resize-none focus:ring-2 focus:ring-violet-500 focus:border-violet-500 bg-white dark:bg-gray-900 dark:border-gray-700 text-gray-900 dark:text-white"
+                  rows={2}
+                />
+                <div className="flex gap-2">
+                  <Button
+                    size="sm"
+                    onClick={() => {
+                      if (taskTitle.trim()) {
+                        createTaskMutation.mutate({
+                          title: taskTitle,
+                          contact_id: contact.id,
+                          status: 'open',
+                          priority: 'medium',
+                        });
+                      }
+                    }}
+                    disabled={!taskTitle.trim()}
+                    className="flex-1"
+                  >
+                    Create Task
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => {
+                      setShowTaskForm(false);
+                      setTaskTitle('');
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <Button
+                variant="outline"
+                className="w-full"
+                onClick={() => setShowTaskForm(true)}
+              >
+                + Create Follow-up Task
+              </Button>
+            )}
+          </Card>
 
           <Card className="p-6">
             <h3 className="font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
