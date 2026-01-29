@@ -20,6 +20,7 @@ export default function CompanyModal({ open, onClose, company, onSave, onDelete,
     phone: '',
     description: '',
     logo_url: '',
+    tier: '',
   });
   const [syncingLogo, setSyncingLogo] = useState(false);
   const [logoFailed, setLogoFailed] = useState(false);
@@ -38,6 +39,7 @@ export default function CompanyModal({ open, onClose, company, onSave, onDelete,
         phone: company.phone || '',
         description: company.description || '',
         logo_url: company.logo_url || '',
+        tier: company.tier || '',
       });
     } else {
       setFormData({
@@ -52,6 +54,7 @@ export default function CompanyModal({ open, onClose, company, onSave, onDelete,
         phone: '',
         description: '',
         logo_url: '',
+        tier: '',
       });
     }
   }, [company, open]);
@@ -203,24 +206,41 @@ export default function CompanyModal({ open, onClose, company, onSave, onDelete,
               </Select>
             </div>
             <div className="space-y-2">
-              <Label>Company Size</Label>
+              <Label>Tier</Label>
               <Select
-                value={formData.size}
-                onValueChange={(value) => setFormData({ ...formData, size: value })}
+                value={formData.tier}
+                onValueChange={(value) => setFormData({ ...formData, tier: value })}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select size" />
+                  <SelectValue placeholder="Select tier" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="1-10">1-10 employees</SelectItem>
-                  <SelectItem value="11-50">11-50 employees</SelectItem>
-                  <SelectItem value="51-200">51-200 employees</SelectItem>
-                  <SelectItem value="201-500">201-500 employees</SelectItem>
-                  <SelectItem value="501-1000">501-1000 employees</SelectItem>
-                  <SelectItem value="1000+">1000+ employees</SelectItem>
+                  <SelectItem value="Tier 1">Tier 1</SelectItem>
+                  <SelectItem value="Tier 2">Tier 2</SelectItem>
+                  <SelectItem value="Tier 3">Tier 3</SelectItem>
                 </SelectContent>
               </Select>
             </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label>Company Size</Label>
+            <Select
+              value={formData.size}
+              onValueChange={(value) => setFormData({ ...formData, size: value })}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select size" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="1-10">1-10 employees</SelectItem>
+                <SelectItem value="11-50">11-50 employees</SelectItem>
+                <SelectItem value="51-200">51-200 employees</SelectItem>
+                <SelectItem value="201-500">201-500 employees</SelectItem>
+                <SelectItem value="501-1000">501-1000 employees</SelectItem>
+                <SelectItem value="1000+">1000+ employees</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="space-y-2">
