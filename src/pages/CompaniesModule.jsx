@@ -347,116 +347,109 @@ export default function CompaniesModule() {
         </div>
 
         {/* Content Area */}
-        <div className="flex-1 overflow-auto p-6 sm:p-8">
+        <div className="flex-1 overflow-auto">
           {isLoading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {[...Array(6)].map((_, i) => (
-                <Skeleton key={i} className="h-64 rounded-xl" />
-              ))}
+            <div className="p-6">
+              <Skeleton className="h-96 rounded-xl" />
             </div>
           ) : filteredCompanies.length === 0 ? (
-            <EmptyState
-              icon={Building2}
-              title="No matches for the current filters."
-              description="Expecting to see a new record? Try again in a few seconds as the system catches up."
-              actionLabel="Add Company"
-              onAction={() => { setEditingCompany(null); setShowModal(true); }}
-            />
+            <div className="p-6 sm:p-8">
+              <EmptyState
+                icon={Building2}
+                title="No matches for the current filters."
+                description="Expecting to see a new record? Try again in a few seconds as the system catches up."
+                actionLabel="Add Company"
+                onAction={() => { setEditingCompany(null); setShowModal(true); }}
+              />
+            </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {filteredCompanies.map((company) => (
-                <Card
-                  key={company.id}
-                  className="p-5 glass-card rounded-2xl hover:shadow-lg transition-all group relative"
-                >
-                  <div className="flex items-start gap-4">
-                    {company.logo_url && !failedLogos.has(company.id) ? (
-                      <img 
-                        src={company.logo_url} 
-                        alt={company.name}
-                        className="w-12 h-12 rounded-xl object-cover border border-gray-200 dark:border-gray-700"
-                        onError={() => setFailedLogos(prev => new Set(prev).add(company.id))}
-                      />
-                    ) : (
-                      <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white font-bold text-lg">
-                        {company.name?.[0]?.toUpperCase()}
-                      </div>
-                    )}
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-semibold text-gray-900 dark:text-white truncate group-hover:text-violet-600 transition-colors">
-                        {company.name}
-                      </h3>
-                      {company.industry && (
-                        <Badge variant="secondary" className="mt-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-xs">
-                          {industryLabels[company.industry] || company.industry}
-                        </Badge>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="mt-4 space-y-2 text-sm">
-                    {company.website && (
-                      <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400">
-                        <Globe className="w-4 h-4" />
-                        <span className="truncate">{company.website}</span>
-                      </div>
-                    )}
-                    {(company.city || company.country) && (
-                      <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400">
-                        <MapPin className="w-4 h-4" />
-                        <span>{[company.city, company.country].filter(Boolean).join(', ')}</span>
-                      </div>
-                    )}
-                  </div>
-
-                  {(() => {
-                    const primaryContact = getPrimaryContact(company.id);
-                    return (
-                      <>
-                        {primaryContact && (
-                          <div className="mt-4 p-3 bg-gray-50 dark:bg-gray-700/30 rounded-lg text-sm">
-                            <p className="text-xs text-gray-500 dark:text-gray-400 uppercase font-semibold mb-1">Primary Contact</p>
-                            <p className="font-medium text-gray-900 dark:text-white">{primaryContact.first_name} {primaryContact.last_name}</p>
-                            {primaryContact.job_title && <p className="text-xs text-gray-600 dark:text-gray-300">{primaryContact.job_title}</p>}
-                            {primaryContact.email && <p className="text-xs text-violet-600 dark:text-violet-400 truncate">{primaryContact.email}</p>}
-                          </div>
-                        )}
-
-                        <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700 flex items-center justify-between">
-                          <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400">
-                            <Users className="w-4 h-4" />
-                            <span className="text-sm">{getContactCount(company.id)} contacts</span>
-                          </div>
-                          {company.annual_revenue && (
-                            <span className="text-sm font-semibold text-emerald-600 dark:text-emerald-400">
-                              {formatRevenue(company.annual_revenue)}
-                            </span>
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-gray-50 dark:bg-gray-800/50 sticky top-0 z-10">
+                  <tr>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase">Company</th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase">Industry</th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase">Tier</th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase">Location</th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase">Website</th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase">Contacts</th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase">Revenue</th>
+                    <th className="px-4 py-3 text-right text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-slate-900">
+                  {filteredCompanies.map((company) => (
+                    <tr key={company.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/30 transition-colors">
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-3">
+                          {company.logo_url && !failedLogos.has(company.id) ? (
+                            <img 
+                              src={company.logo_url} 
+                              alt={company.name}
+                              className="w-10 h-10 rounded-lg object-cover border border-gray-200 dark:border-gray-700"
+                              onError={() => setFailedLogos(prev => new Set(prev).add(company.id))}
+                            />
+                          ) : (
+                            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm">
+                              {company.name?.[0]?.toUpperCase()}
+                            </div>
                           )}
+                          <div>
+                            <p className="font-semibold text-gray-900 dark:text-white">{company.name}</p>
+                          </div>
                         </div>
-                      </>
-                    );
-                  })()}
-                  
-                  <div className="mt-3 flex gap-2">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="flex-1"
-                      onClick={() => handleEdit(company, true)}
-                    >
-                      <Eye className="w-3 h-3 mr-1" />
-                      View Details
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => handleEdit(company)}
-                    >
-                      Edit
-                    </Button>
-                  </div>
-                </Card>
-              ))}
+                      </td>
+                      <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
+                        {company.industry ? (
+                          <Badge variant="secondary" className="bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-xs">
+                            {industryLabels[company.industry] || company.industry}
+                          </Badge>
+                        ) : '-'}
+                      </td>
+                      <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
+                        {company.tier || '-'}
+                      </td>
+                      <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
+                        {[company.city, company.country].filter(Boolean).join(', ') || '-'}
+                      </td>
+                      <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
+                        {company.website ? (
+                          <a href={company.website} target="_blank" rel="noopener noreferrer" className="text-violet-600 dark:text-violet-400 hover:underline truncate block max-w-xs">
+                            {company.website}
+                          </a>
+                        ) : '-'}
+                      </td>
+                      <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
+                        <div className="flex items-center gap-1">
+                          <Users className="w-4 h-4" />
+                          {getContactCount(company.id)}
+                        </div>
+                      </td>
+                      <td className="px-4 py-3 text-sm font-semibold text-emerald-600 dark:text-emerald-400">
+                        {company.annual_revenue ? formatRevenue(company.annual_revenue) : '-'}
+                      </td>
+                      <td className="px-4 py-3 text-right">
+                        <div className="flex gap-2 justify-end">
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => handleEdit(company, true)}
+                          >
+                            <Eye className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => handleEdit(company)}
+                          >
+                            Edit
+                          </Button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           )}
         </div>
