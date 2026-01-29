@@ -97,7 +97,7 @@ const navigation = [
   { name: 'Marketing Hub', icon: TrendingUp, page: 'MarketingHub' },
   { name: 'Email Marketing', icon: Mail, page: 'EmailMarketing' },
   { name: 'Contacts', icon: Users, page: 'Contacts' },
-  { name: 'Companies', icon: Building2, page: 'Companies' },
+  { name: 'Companies', icon: Building2, page: 'CompaniesModule' },
   { name: 'Opportunities', icon: Target, page: 'Opportunities' },
   { name: 'Automation', icon: Zap, page: 'Automation' },
   { name: 'Pipeline', icon: Target, page: 'Deals' },
