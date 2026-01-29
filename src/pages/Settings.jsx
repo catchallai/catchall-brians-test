@@ -20,6 +20,7 @@ import FeatureManager from '@/components/settings/FeatureManager';
 import AutoSyncSettings from '@/components/settings/AutoSyncSettings';
 import RolePermissionsManager from '@/components/settings/RolePermissionsManager';
 import UserManagement from '@/components/settings/UserManagement';
+import DataManagement from '@/components/settings/DataManagement';
 
 export default function Settings() {
    const [saving, setSaving] = useState(false);
@@ -165,10 +166,14 @@ export default function Settings() {
             RBAC
           </TabsTrigger>
           <TabsTrigger value="users" className="gap-2">
-            <User className="w-4 h-4" />
-            Team Users
-          </TabsTrigger>
-        </TabsList>
+             <User className="w-4 h-4" />
+             Team Users
+           </TabsTrigger>
+           <TabsTrigger value="data" className="gap-2">
+             <Database className="w-4 h-4" />
+             Data Management
+           </TabsTrigger>
+          </TabsList>
 
         {/* Profile Tab */}
         <TabsContent value="profile">
@@ -457,7 +462,20 @@ export default function Settings() {
         <TabsContent value="users">
           <UserManagement />
         </TabsContent>
-      </Tabs>
+
+        {/* Data Management Tab */}
+        <TabsContent value="data">
+          {user?.role === 'admin' ? (
+            <DataManagement />
+          ) : (
+            <Card className="glass-card rounded-2xl">
+              <CardContent className="pt-6">
+                <p className="text-gray-600 dark:text-gray-400">Admin access required for data management.</p>
+              </CardContent>
+            </Card>
+          )}
+        </TabsContent>
+        </Tabs>
     </div>
   );
 }
