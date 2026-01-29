@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { 
   Calendar, Phone, Mail, Briefcase, MapPin, Tag, 
-  Activity, DollarSign, Target, Building2, ExternalLink 
+  Activity, DollarSign, Target, Building2, ExternalLink, AlertCircle, Paperclip
 } from "lucide-react";
 import { format } from "date-fns";
 import { Link } from 'react-router-dom';
@@ -45,6 +45,12 @@ export default function ContactDetailPanel({ contactId, onClose }) {
   const { data: opportunities = [] } = useQuery({
     queryKey: ['contact-opportunities', contactId],
     queryFn: () => base44.entities.Opportunity.filter({ contact_id: contactId }, '-created_date', 20),
+    enabled: !!contactId,
+  });
+
+  const { data: tickets = [] } = useQuery({
+    queryKey: ['contact-tickets', contactId],
+    queryFn: () => base44.entities.Ticket.filter({ contact_id: contactId }, '-created_date', 20),
     enabled: !!contactId,
   });
 
@@ -246,6 +252,40 @@ export default function ContactDetailPanel({ contactId, onClose }) {
                   <p className="text-lg font-bold text-emerald-600 dark:text-emerald-400">
                     ${(deal.value / 1000).toFixed(0)}k
                   </p>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Tickets */}
+      {tickets.length > 0 && (
+        <Card className="glass-card">
+          <CardHeader>
+            <CardTitle className="text-lg flex items-center gap-2">
+              <AlertCircle className="w-5 h-5" />
+              Support Tickets
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {tickets.map((ticket) => (
+                <div key={ticket.id} className="flex items-start justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                  <div className="flex-1">
+                    <p className="font-medium text-gray-900 dark:text-white text-sm">{ticket.ticket_name}</p>
+                    <p className="text-xs text-gray-500 mt-1">
+                      {ticket.ticket_number && `#${ticket.ticket_number}`}
+                    </p>
+                  </div>
+                  <Badge variant="outline" className={`text-xs ${
+                    ticket.status === 'Closed' ? 'bg-green-100 text-green-700' :
+                    ticket.status === 'In Progress' ? 'bg-blue-100 text-blue-700' :
+                    ticket.status === 'New' ? 'bg-yellow-100 text-yellow-700' :
+                    'bg-gray-100 text-gray-700'
+                  }`}>
+                    {ticket.status}
+                  </Badge>
                 </div>
               ))}
             </div>
