@@ -13,7 +13,7 @@ import { Button } from '@/components/ui/button';
 const NAVIGATION_ITEMS = [
         { label: 'Calls', page: 'CallsModule' },
         { label: 'Contacts', page: 'Contacts' },
-        { label: 'Companies', page: 'Companies' },
+        { label: 'Companies', page: 'CompaniesModule' },
         { label: 'Deals', page: 'DealsModule' },
   { label: 'Emails', page: 'EmailsModule' },
   { label: 'Invoices', page: 'InvoicesModule' },

@@ -57,10 +57,12 @@ import Backlinks from './pages/Backlinks';
 import BusinessDevDashboard from './pages/BusinessDevDashboard';
 import BusinessManagement from './pages/BusinessManagement';
 import CRMDashboard from './pages/CRMDashboard';
+import CallsModule from './pages/CallsModule';
 import CampaignDetail from './pages/CampaignDetail';
 import Campaigns from './pages/Campaigns';
 import Collaboration from './pages/Collaboration';
 import Companies from './pages/Companies';
+import CompaniesModule from './pages/CompaniesModule';
 import CompetitorAnalysis from './pages/CompetitorAnalysis';
 import ContactDetail from './pages/ContactDetail';
 import ContactForms from './pages/ContactForms';
@@ -73,9 +75,11 @@ import CustomerSuccessDashboard from './pages/CustomerSuccessDashboard';
 import Dashboard from './pages/Dashboard';
 import DataRooms from './pages/DataRooms';
 import Deals from './pages/Deals';
+import DealsModule from './pages/DealsModule';
 import DocuTrace from './pages/DocuTrace';
 import EmailMarketing from './pages/EmailMarketing';
 import EmailTracking from './pages/EmailTracking';
+import EmailsModule from './pages/EmailsModule';
 import EquipmentInventory from './pages/EquipmentInventory';
 import ExecutiveDashboard from './pages/ExecutiveDashboard';
 import FeedbackManagement from './pages/FeedbackManagement';
@@ -86,6 +90,7 @@ import Home from './pages/Home';
 import ICS from './pages/ICS';
 import ICSAdmin from './pages/ICSAdmin';
 import Inbox from './pages/Inbox';
+import InvoicesModule from './pages/InvoicesModule';
 import Keywords from './pages/Keywords';
 import LandingPageBuilder from './pages/LandingPageBuilder';
 import LeadEnrichment from './pages/LeadEnrichment';
@@ -93,16 +98,21 @@ import LegalDocuments from './pages/LegalDocuments';
 import Listings from './pages/Listings';
 import LocalSEO from './pages/LocalSEO';
 import MarketingDashboard from './pages/MarketingDashboard';
+import MarketingEventsModule from './pages/MarketingEventsModule';
 import MarketingHub from './pages/MarketingHub';
 import MediaLibrary from './pages/MediaLibrary';
 import MediaOutreach from './pages/MediaOutreach';
 import MeetingScheduler from './pages/MeetingScheduler';
 import MobileHub from './pages/MobileHub';
+import NotesModule from './pages/NotesModule';
 import Opportunities from './pages/Opportunities';
+import OrdersModule from './pages/OrdersModule';
 import Payments from './pages/Payments';
 import PitchDeckAnalyzer from './pages/PitchDeckAnalyzer';
 import PitchDeckCreator from './pages/PitchDeckCreator';
+import PostalMailModule from './pages/PostalMailModule';
 import PressMonitoring from './pages/PressMonitoring';
+import ProductsModule from './pages/ProductsModule';
 import ProjectCalendar from './pages/ProjectCalendar';
 import ProjectDetail from './pages/ProjectDetail';
 import Projects from './pages/Projects';
@@ -116,6 +126,7 @@ import PublicDocumentViewerWrapper from './pages/PublicDocumentViewerWrapper';
 import PublicLandingPage from './pages/PublicLandingPage';
 import PublicLandingPageWrapper from './pages/PublicLandingPageWrapper';
 import PublicLegalDocumentSigner from './pages/PublicLegalDocumentSigner';
+import QuotesModule from './pages/QuotesModule';
 import Reports from './pages/Reports';
 import ReportsDashboardPage from './pages/ReportsDashboardPage';
 import Reservations from './pages/Reservations';
@@ -138,7 +149,9 @@ import SocialPerformance from './pages/SocialPerformance';
 import SpaceDetail from './pages/SpaceDetail';
 import SpaceTemplates from './pages/SpaceTemplates';
 import Spaces from './pages/Spaces';
+import SubscriptionsModule from './pages/SubscriptionsModule';
 import TakeDownRequestor from './pages/TakeDownRequestor';
+import TicketsModule from './pages/TicketsModule';
 import TrafficAnalytics from './pages/TrafficAnalytics';
 import UserProfile from './pages/UserProfile';
 import UserSettings from './pages/UserSettings';
@@ -149,19 +162,6 @@ import WebDashboard from './pages/WebDashboard';
 import WikiPageEditor from './pages/WikiPageEditor';
 import WorkflowBuilder from './pages/WorkflowBuilder';
 import WorkflowEngine from './pages/WorkflowEngine';
-import CallsModule from './pages/CallsModule';
-import CompaniesModule from './pages/CompaniesModule';
-import DealsModule from './pages/DealsModule';
-import EmailsModule from './pages/EmailsModule';
-import InvoicesModule from './pages/InvoicesModule';
-import NotesModule from './pages/NotesModule';
-import OrdersModule from './pages/OrdersModule';
-import PostalMailModule from './pages/PostalMailModule';
-import ProductsModule from './pages/ProductsModule';
-import QuotesModule from './pages/QuotesModule';
-import SubscriptionsModule from './pages/SubscriptionsModule';
-import TicketsModule from './pages/TicketsModule';
-import MarketingEventsModule from './pages/MarketingEventsModule';
 import __Layout from './Layout.jsx';
 
 
@@ -176,10 +176,12 @@ export const PAGES = {
     "BusinessDevDashboard": BusinessDevDashboard,
     "BusinessManagement": BusinessManagement,
     "CRMDashboard": CRMDashboard,
+    "CallsModule": CallsModule,
     "CampaignDetail": CampaignDetail,
     "Campaigns": Campaigns,
     "Collaboration": Collaboration,
     "Companies": Companies,
+    "CompaniesModule": CompaniesModule,
     "CompetitorAnalysis": CompetitorAnalysis,
     "ContactDetail": ContactDetail,
     "ContactForms": ContactForms,
@@ -192,9 +194,11 @@ export const PAGES = {
     "Dashboard": Dashboard,
     "DataRooms": DataRooms,
     "Deals": Deals,
+    "DealsModule": DealsModule,
     "DocuTrace": DocuTrace,
     "EmailMarketing": EmailMarketing,
     "EmailTracking": EmailTracking,
+    "EmailsModule": EmailsModule,
     "EquipmentInventory": EquipmentInventory,
     "ExecutiveDashboard": ExecutiveDashboard,
     "FeedbackManagement": FeedbackManagement,
@@ -205,6 +209,7 @@ export const PAGES = {
     "ICS": ICS,
     "ICSAdmin": ICSAdmin,
     "Inbox": Inbox,
+    "InvoicesModule": InvoicesModule,
     "Keywords": Keywords,
     "LandingPageBuilder": LandingPageBuilder,
     "LeadEnrichment": LeadEnrichment,
@@ -212,16 +217,21 @@ export const PAGES = {
     "Listings": Listings,
     "LocalSEO": LocalSEO,
     "MarketingDashboard": MarketingDashboard,
+    "MarketingEventsModule": MarketingEventsModule,
     "MarketingHub": MarketingHub,
     "MediaLibrary": MediaLibrary,
     "MediaOutreach": MediaOutreach,
     "MeetingScheduler": MeetingScheduler,
     "MobileHub": MobileHub,
+    "NotesModule": NotesModule,
     "Opportunities": Opportunities,
+    "OrdersModule": OrdersModule,
     "Payments": Payments,
     "PitchDeckAnalyzer": PitchDeckAnalyzer,
     "PitchDeckCreator": PitchDeckCreator,
+    "PostalMailModule": PostalMailModule,
     "PressMonitoring": PressMonitoring,
+    "ProductsModule": ProductsModule,
     "ProjectCalendar": ProjectCalendar,
     "ProjectDetail": ProjectDetail,
     "Projects": Projects,
@@ -235,6 +245,7 @@ export const PAGES = {
     "PublicLandingPage": PublicLandingPage,
     "PublicLandingPageWrapper": PublicLandingPageWrapper,
     "PublicLegalDocumentSigner": PublicLegalDocumentSigner,
+    "QuotesModule": QuotesModule,
     "Reports": Reports,
     "ReportsDashboardPage": ReportsDashboardPage,
     "Reservations": Reservations,
@@ -257,7 +268,9 @@ export const PAGES = {
     "SpaceDetail": SpaceDetail,
     "SpaceTemplates": SpaceTemplates,
     "Spaces": Spaces,
+    "SubscriptionsModule": SubscriptionsModule,
     "TakeDownRequestor": TakeDownRequestor,
+    "TicketsModule": TicketsModule,
     "TrafficAnalytics": TrafficAnalytics,
     "UserProfile": UserProfile,
     "UserSettings": UserSettings,
@@ -268,19 +281,6 @@ export const PAGES = {
     "WikiPageEditor": WikiPageEditor,
     "WorkflowBuilder": WorkflowBuilder,
     "WorkflowEngine": WorkflowEngine,
-    "CallsModule": CallsModule,
-    "CompaniesModule": CompaniesModule,
-    "DealsModule": DealsModule,
-    "EmailsModule": EmailsModule,
-    "InvoicesModule": InvoicesModule,
-    "NotesModule": NotesModule,
-    "OrdersModule": OrdersModule,
-    "PostalMailModule": PostalMailModule,
-    "ProductsModule": ProductsModule,
-    "QuotesModule": QuotesModule,
-    "SubscriptionsModule": SubscriptionsModule,
-    "TicketsModule": TicketsModule,
-    "MarketingEventsModule": MarketingEventsModule,
 }
 
 export const pagesConfig = {
