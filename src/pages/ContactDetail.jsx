@@ -75,7 +75,7 @@ export default function ContactDetail() {
   const { data: teamMembers = [] } = useQuery({
     queryKey: ['team-members'],
     queryFn: async () => {
-      const allUsers = await base44.asServiceRole.entities.User.list('-created_date', 100);
+      const allUsers = await base44.entities.User.list('-created_date', 100);
       return allUsers.filter(u => u.id !== user?.id);
     },
     enabled: !!user?.id,
