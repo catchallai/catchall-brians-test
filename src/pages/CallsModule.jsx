@@ -8,12 +8,15 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import EmptyState from '@/components/ui/EmptyState';
 import ContactsSidebar from '@/components/crm/ContactsSidebar';
+import CallLogModal from '@/components/modals/CallLogModal';
 
 export default function CallsModule() {
   const [searchTerm, setSearchTerm] = useState('');
   const [activeTab, setActiveTab] = useState('recorded');
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(25);
+  const [callModalOpen, setCallModalOpen] = useState(false);
+  const [callModalType, setCallModalType] = useState('new');
   const [filters, setFilters] = useState({
     transcript: null,
     assignedTo: null,
@@ -47,11 +50,26 @@ export default function CallsModule() {
                 <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Calls</h1>
               </div>
               <div className="flex flex-wrap gap-2">
-                <Button variant="outline" className="gap-2" size="sm">
+                <Button 
+                  variant="outline" 
+                  className="gap-2" 
+                  size="sm"
+                  onClick={() => {
+                    setCallModalType('log');
+                    setCallModalOpen(true);
+                  }}
+                >
                   <Phone className="w-4 h-4" />
                   Log Call
                 </Button>
-                <Button className="gap-2 bg-violet-600 hover:bg-violet-700" size="sm">
+                <Button 
+                  className="gap-2 bg-violet-600 hover:bg-violet-700" 
+                  size="sm"
+                  onClick={() => {
+                    setCallModalType('new');
+                    setCallModalOpen(true);
+                  }}
+                >
                   <Plus className="w-4 h-4" />
                   New Call
                 </Button>
@@ -222,6 +240,13 @@ export default function CallsModule() {
           </Button>
         </div>
       </div>
+
+      <CallLogModal 
+        open={callModalOpen}
+        onClose={() => setCallModalOpen(false)}
+        isLogCall={callModalType === 'log'}
+        onSuccess={() => setCallModalOpen(false)}
+      />
     </div>
   );
 }
