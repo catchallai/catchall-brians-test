@@ -18,7 +18,8 @@ export default function ImportDialog({
   entityName,
   requiredFields = [],
   optionalFields = [],
-  sampleData = []
+  sampleData = [],
+  onImportComplete
 }) {
   const [file, setFile] = useState(null);
   const [parsedData, setParsedData] = useState(null);
@@ -109,7 +110,10 @@ export default function ImportDialog({
     if (!parsedData) return;
     setIsImporting(true);
     try {
-      await onImport(parsedData.data);
+      const result = await onImport(parsedData.data);
+      if (onImportComplete) {
+        onImportComplete(result);
+      }
       onClose();
       resetState();
     } catch (error) {

@@ -170,22 +170,41 @@ export default function CompaniesModule() {
   };
 
   const handleImport = async (data) => {
+    // Get existing companies to check for duplicates
+    const existingCompanies = await base44.entities.Company.list('-created_date', 1000);
+    const existingNames = new Set(existingCompanies.map(c => c.name?.toLowerCase()).filter(Boolean));
+    
     let successCount = 0;
+    const duplicateCompanies = [];
+    const failedCompanies = [];
+    
     for (const row of data) {
       try {
         const companyData = {};
         Object.keys(row).forEach(key => {
           if (row[key]) companyData[key] = row[key];
         });
-        if (!companyData.name) continue;
+        
+        if (!companyData.name) {
+          failedCompanies.push({ name: 'Unknown', reason: 'Missing company name' });
+          continue;
+        }
+        
+        // Check for duplicate
+        if (existingNames.has(companyData.name.toLowerCase())) {
+          duplicateCompanies.push(companyData.name);
+          continue;
+        }
+        
         await base44.entities.Company.create(companyData);
         successCount++;
       } catch (err) {
         console.error('Failed to import company:', err);
+        failedCompanies.push({ name: row.name || 'Unknown', reason: err.message });
       }
     }
     queryClient.invalidateQueries({ queryKey: ['companies'] });
-    return { successCount, totalRows: data.length };
+    return { successCount, totalRows: data.length, duplicateCompanies, failedCompanies };
   };
 
   const handleFilterChange = (filterName, value) => {
@@ -610,6 +629,22 @@ export default function CompaniesModule() {
         entityName="Company"
         requiredFields={['name']}
         optionalFields={['website', 'industry', 'city', 'country', 'phone', 'tier', 'annual_revenue', 'description']}
+        onImportComplete={(result) => {
+          const messages = [];
+          if (result.duplicateCompanies?.length > 0) {
+            messages.push(`⚠️ ${result.duplicateCompanies.length} duplicate companies skipped: ${result.duplicateCompanies.join(', ')}`);
+          }
+          if (result.failedCompanies?.length > 0) {
+            messages.push(`❌ ${result.failedCompanies.length} companies failed`);
+            console.log('Failed companies:', result.failedCompanies);
+          }
+          if (result.successCount > 0) {
+            messages.push(`✅ Successfully imported ${result.successCount} companies`);
+          }
+          if (messages.length > 0) {
+            alert(messages.join('\n'));
+          }
+        }}
       />
     </div>
   );

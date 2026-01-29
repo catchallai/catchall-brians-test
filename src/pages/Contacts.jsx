@@ -244,12 +244,19 @@ export default function Contacts() {
         companyMap[c.name.toLowerCase()] = c.id;
       });
 
+      // Get existing contacts to check for duplicates
+      const existingContacts = await base44.entities.Contact.list('-created_date', 2000);
+      const existingEmails = new Set(existingContacts.map(c => c.email?.toLowerCase()).filter(Boolean));
+
       // Extract unique company names from import data
       const uniqueCompanyNames = [...new Set(
         data.map(row => getFieldValue(row, 'company_name', 'Firm', 'Company', 'Company Name', 'firm', 'organization'))
           .filter(name => name && name.trim())
       )];
 
+      // Check for duplicate companies
+      const duplicateCompanies = uniqueCompanyNames.filter(name => companyMap[name.toLowerCase()]);
+      
       // Create new companies that don't exist
       for (const companyName of uniqueCompanyNames) {
         const nameLower = companyName.toLowerCase();
@@ -282,6 +289,7 @@ export default function Contacts() {
       // Create contacts with company_id
        let successCount = 0;
        const failedContacts = [];
+       const duplicateContacts = [];
 
        for (const row of data) {
          const companyName = getFieldValue(row, 'company_name', 'Firm', 'Company', 'Company Name', 'firm', 'organization');
@@ -294,6 +302,15 @@ export default function Contacts() {
            failedContacts.push({
              row,
              reason: 'Missing required fields (need email or both first/last name)'
+           });
+           continue;
+         }
+
+         // Check for duplicate email
+         if (email && existingEmails.has(email.toLowerCase())) {
+           duplicateContacts.push({
+             email,
+             name: `${firstName} ${lastName}`.trim()
            });
            continue;
          }
@@ -351,17 +368,27 @@ export default function Contacts() {
        }
 
        await logActivity(ActivityActions.IMPORT, 'Contact', null, null, { count: successCount });
-       return { successCount, totalRows: data.length, failedContacts };
+       return { successCount, totalRows: data.length, failedContacts, duplicateContacts };
       },
       onSuccess: (result) => {
       queryClient.invalidateQueries({ queryKey: ['contacts'] });
       queryClient.invalidateQueries({ queryKey: ['companies'] });
 
+      const messages = [];
+      if (result.duplicateContacts?.length > 0) {
+        const duplicateList = result.duplicateContacts.map(d => `${d.name} (${d.email})`).join(', ');
+        messages.push(`⚠️ ${result.duplicateContacts.length} duplicate contacts skipped: ${duplicateList}`);
+      }
       if (result.failedContacts?.length > 0) {
-        toast.success(`Imported ${result.successCount} of ${result.totalRows} contacts. ${result.failedContacts.length} failed - check console for details.`);
+        messages.push(`❌ ${result.failedContacts.length} contacts failed validation`);
         console.log('Failed contacts:', result.failedContacts);
-      } else {
-        toast.success(`Successfully imported ${result.successCount} of ${result.totalRows} contacts`);
+      }
+      if (result.successCount > 0) {
+        messages.push(`✅ Successfully imported ${result.successCount} contacts`);
+      }
+      
+      if (messages.length > 0) {
+        toast.success(messages.join(' | '));
       }
       },
     onError: (error) => toast.error('Failed to import contacts: ' + (error?.message || 'Unknown error')),
