@@ -249,9 +249,9 @@ export default function Dashboard() {
                 </div>
                 <TrendingUp className="w-4 h-4 text-emerald-500" />
               </div>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white mb-1">{contacts.length}</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-white mb-1">{activeContacts.length}</p>
               <p className="text-sm text-gray-500 dark:text-gray-400">Total Contacts</p>
-              <p className="text-xs text-gray-400 mt-1">{contacts.filter(c => c.status === 'lead').length} leads</p>
+              <p className="text-xs text-gray-400 mt-1">{activeContacts.filter(c => c.status === 'lead').length} leads</p>
             </CardContent>
           </Card>
 
