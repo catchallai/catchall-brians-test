@@ -7,7 +7,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Plus, Search, Building2, ChevronDown, ChevronLeft, ChevronRight, Download, Globe, MapPin, Users, Eye, Upload } from "lucide-react";
+import { Plus, Search, Building2, ChevronDown, ChevronLeft, ChevronRight, Download, Globe, MapPin, Users, Eye, Upload, RefreshCw } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import EmptyState from '@/components/ui/EmptyState';
@@ -88,6 +88,40 @@ export default function CompaniesModule() {
       queryClient.invalidateQueries({ queryKey: ['companies'] });
       setShowModal(false);
       setEditingCompany(null);
+    },
+  });
+
+  const syncAllLogosMutation = useMutation({
+    mutationFn: async () => {
+      const companiesWithoutLogos = allCompanies.filter(c => c.website && !c.logo_url);
+      let syncedCount = 0;
+
+      for (const company of companiesWithoutLogos) {
+        try {
+          const domain = company.website.replace(/^https?:\/\//, '').replace(/\/.*$/, '');
+          const logoUrl = `https://logo.clearbit.com/${domain}`;
+          
+          // Test if logo exists
+          const response = await fetch(logoUrl, { method: 'HEAD' });
+          if (response.ok) {
+            await base44.entities.Company.update(company.id, { logo_url: logoUrl });
+            syncedCount++;
+          } else {
+            // Fallback to Google favicon
+            const fallbackUrl = `https://www.google.com/s2/favicons?domain=${domain}&sz=128`;
+            await base44.entities.Company.update(company.id, { logo_url: fallbackUrl });
+            syncedCount++;
+          }
+        } catch (err) {
+          console.log(`Failed to sync logo for ${company.name}`);
+        }
+      }
+
+      return syncedCount;
+    },
+    onSuccess: (count) => {
+      queryClient.invalidateQueries({ queryKey: ['companies'] });
+      alert(`Successfully synced ${count} company logos`);
     },
   });
 
@@ -213,6 +247,20 @@ export default function CompaniesModule() {
                 <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Companies</h1>
               </div>
               <div className="flex flex-wrap gap-2">
+                <Button 
+                  onClick={() => syncAllLogosMutation.mutate()} 
+                  variant="outline" 
+                  className="gap-2" 
+                  size="sm"
+                  disabled={syncAllLogosMutation.isPending}
+                >
+                  {syncAllLogosMutation.isPending ? (
+                    <RefreshCw className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <RefreshCw className="w-4 h-4" />
+                  )}
+                  Sync All Logos
+                </Button>
                 <Button onClick={() => setShowImportDialog(true)} variant="outline" className="gap-2" size="sm">
                   <Upload className="w-4 h-4" />
                   Import
