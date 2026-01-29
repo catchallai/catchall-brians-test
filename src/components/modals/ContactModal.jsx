@@ -8,9 +8,14 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, X } from "lucide-react";
+import { Loader2, X, CheckSquare } from "lucide-react";
+import { base44 } from '@/api/base44Client';
 
 export default function ContactModal({ open, onClose, contact, companies, onSave, isLoading, allowMultipleCompanies = false }) {
+  const [showTaskSection, setShowTaskSection] = useState(false);
+  const [taskTitle, setTaskTitle] = useState('');
+  const [taskDescription, setTaskDescription] = useState('');
+  const [creatingTask, setCreatingTask] = useState(false);
   const [formData, setFormData] = useState({
     company_name: '',
     first_name: '',
@@ -173,6 +178,25 @@ export default function ContactModal({ open, onClose, contact, companies, onSave
       ...formData,
       [field]: formData[field].filter((_, i) => i !== index)
     });
+  };
+
+  const handleCreateTask = async () => {
+    if (!taskTitle.trim()) return;
+    setCreatingTask(true);
+    try {
+      await base44.entities.Task.create({
+        title: taskTitle,
+        description: taskDescription,
+        status: 'todo',
+      });
+      setTaskTitle('');
+      setTaskDescription('');
+      setShowTaskSection(false);
+    } catch (error) {
+      console.error('Failed to create task:', error);
+    } finally {
+      setCreatingTask(false);
+    }
   };
 
   return (
@@ -695,6 +719,51 @@ export default function ContactModal({ open, onClose, contact, companies, onSave
               )}
               </TabsContent>
               </Tabs>
+
+              {/* Follow-up Task Section */}
+              <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                <button
+                  type="button"
+                  onClick={() => setShowTaskSection(!showTaskSection)}
+                  className="flex items-center gap-2 text-sm font-medium text-blue-700 dark:text-blue-400 mb-3"
+                >
+                  <CheckSquare className="w-4 h-4" />
+                  {showTaskSection ? 'Hide' : 'Add'} Follow-up Task
+                </button>
+                {showTaskSection && (
+                  <div className="space-y-3">
+                    <div className="space-y-1">
+                      <Label className="text-xs">Task Title</Label>
+                      <Input
+                        placeholder="e.g., Follow up on proposal"
+                        value={taskTitle}
+                        onChange={(e) => setTaskTitle(e.target.value)}
+                        disabled={creatingTask}
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-xs">Notes</Label>
+                      <Textarea
+                        placeholder="Additional details..."
+                        value={taskDescription}
+                        onChange={(e) => setTaskDescription(e.target.value)}
+                        rows={2}
+                        disabled={creatingTask}
+                      />
+                    </div>
+                    <Button
+                      type="button"
+                      size="sm"
+                      onClick={handleCreateTask}
+                      disabled={!taskTitle.trim() || creatingTask}
+                      className="w-full gap-2"
+                    >
+                      {creatingTask && <Loader2 className="w-3 h-3 animate-spin" />}
+                      Create Task
+                    </Button>
+                  </div>
+                )}
+              </div>
 
               <div className="flex justify-end gap-3 pt-4 border-t mt-4">
               <Button type="button" variant="outline" onClick={onClose}>
