@@ -146,7 +146,25 @@ export default function OrdersModule() {
             <div className="text-center py-12 text-gray-500">Loading orders...</div>
           ) : filteredOrders.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 text-center">
-              <img src="https://illustrations.popsy.co/amber/order-checkout.svg" alt="Orders" className="w-48 h-48 mb-6 opacity-80" />
+              <div className="mb-8">
+                <svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" className="mx-auto">
+                  {/* Clipboard */}
+                  <rect x="50" y="30" width="100" height="140" rx="8" fill="#E0E7FF" stroke="#6366F1" strokeWidth="2"/>
+                  <rect x="70" y="20" width="60" height="20" rx="4" fill="#6366F1"/>
+                  
+                  {/* Lines representing order items */}
+                  <line x1="65" y1="60" x2="135" y2="60" stroke="#6366F1" strokeWidth="2" strokeLinecap="round"/>
+                  <line x1="65" y1="80" x2="135" y2="80" stroke="#6366F1" strokeWidth="2" strokeLinecap="round"/>
+                  <line x1="65" y1="100" x2="135" y2="100" stroke="#6366F1" strokeWidth="2" strokeLinecap="round"/>
+                  <line x1="65" y1="120" x2="120" y2="120" stroke="#6366F1" strokeWidth="2" strokeLinecap="round"/>
+                  
+                  {/* Shopping cart */}
+                  <circle cx="150" cy="160" r="30" fill="#10B981" opacity="0.9"/>
+                  <path d="M140 155h20l2 8h-24l2-8zm4-5l-2 5h16l-2-5h-12z" fill="white"/>
+                  <circle cx="145" cy="168" r="2" fill="white"/>
+                  <circle cx="155" cy="168" r="2" fill="white"/>
+                </svg>
+              </div>
               <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
                 See all of your orders in one place
               </h3>
