@@ -298,12 +298,12 @@ export default function Contacts() {
          }
 
          const contactData = {
-           company_name: companyName,
-           company_id: companyName ? companyMap[companyName.toLowerCase()] : null,
-           first_name: firstName,
-           last_name: lastName,
-           email: email,
-           phone: getFieldValue(row, 'phone', 'Phone', 'Phone 1', 'Phone Number', 'telephone', 'mobile', 'Phone 1'),
+          company_name: companyName,
+          company_id: companyName ? companyMap[companyName.toLowerCase()] : null,
+          first_name: firstName,
+          last_name: lastName,
+          email: email,
+          phone: getFieldValue(row, 'Phone 1', 'phone', 'Phone', 'Phone Number', 'telephone', 'mobile'),
            status: getFieldValue(row, 'status', 'Status') || 'lead',
            job_title: getFieldValue(row, 'job_title', 'Job Title', 'Title', 'jobTitle', 'title', 'position', 'role'),
            linkedin_url: getFieldValue(row, 'linkedin_url', 'Linkedin', 'LinkedIn', 'LinkedIn URL', 'linkedin'),
