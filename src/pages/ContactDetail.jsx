@@ -72,6 +72,15 @@ export default function ContactDetail() {
     enabled: !!contact?.id,
   });
 
+  const { data: teamMembers = [] } = useQuery({
+    queryKey: ['team-members'],
+    queryFn: async () => {
+      const allUsers = await base44.asServiceRole.entities.User.list('-created_date', 100);
+      return allUsers.filter(u => u.id !== user?.id);
+    },
+    enabled: !!user?.id,
+  });
+
   const [newNote, setNewNote] = useState('');
   const [selectedCompanyForAdd, setSelectedCompanyForAdd] = useState('');
 
