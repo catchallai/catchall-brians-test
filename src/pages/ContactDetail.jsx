@@ -83,6 +83,7 @@ export default function ContactDetail() {
       setTaskTitle('');
       setShowTaskForm(false);
       queryClient.invalidateQueries({ queryKey: ['contact', contactId] });
+      queryClient.invalidateQueries({ queryKey: ['tasks'] });
     },
   });
 
