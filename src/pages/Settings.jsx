@@ -21,6 +21,7 @@ import AutoSyncSettings from '@/components/settings/AutoSyncSettings';
 import RolePermissionsManager from '@/components/settings/RolePermissionsManager';
 import UserManagement from '@/components/settings/UserManagement';
 import DataManagement from '@/components/settings/DataManagement';
+import AIToggleSettings from '@/components/settings/AIToggleSettings';
 
 export default function Settings() {
    const [saving, setSaving] = useState(false);
@@ -170,10 +171,14 @@ export default function Settings() {
              Team Users
            </TabsTrigger>
            <TabsTrigger value="data" className="gap-2">
-             <Database className="w-4 h-4" />
-             Data Management
-           </TabsTrigger>
-          </TabsList>
+               <Database className="w-4 h-4" />
+               Data Management
+             </TabsTrigger>
+             <TabsTrigger value="ai" className="gap-2">
+               <Zap className="w-4 h-4" />
+               AI Settings
+             </TabsTrigger>
+            </TabsList>
 
         {/* Profile Tab */}
         <TabsContent value="profile">
@@ -471,6 +476,19 @@ export default function Settings() {
             <Card className="glass-card rounded-2xl">
               <CardContent className="pt-6">
                 <p className="text-gray-600 dark:text-gray-400">Admin access required for data management.</p>
+              </CardContent>
+            </Card>
+          )}
+        </TabsContent>
+
+        {/* AI Settings Tab */}
+        <TabsContent value="ai">
+          {user?.role === 'admin' ? (
+            <AIToggleSettings />
+          ) : (
+            <Card className="glass-card rounded-2xl">
+              <CardContent className="pt-6">
+                <p className="text-gray-600 dark:text-gray-400">Admin access required to manage AI settings.</p>
               </CardContent>
             </Card>
           )}
