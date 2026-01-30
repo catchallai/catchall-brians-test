@@ -76,6 +76,7 @@ import DataRooms from './pages/DataRooms';
 import Deals from './pages/Deals';
 import DealsModule from './pages/DealsModule';
 import DocuTrace from './pages/DocuTrace';
+import Documentation from './pages/Documentation';
 import EmailMarketing from './pages/EmailMarketing';
 import EmailTracking from './pages/EmailTracking';
 import EmailsModule from './pages/EmailsModule';
@@ -161,7 +162,6 @@ import WebDashboard from './pages/WebDashboard';
 import WikiPageEditor from './pages/WikiPageEditor';
 import WorkflowBuilder from './pages/WorkflowBuilder';
 import WorkflowEngine from './pages/WorkflowEngine';
-import Documentation from './pages/Documentation';
 import __Layout from './Layout.jsx';
 
 
@@ -195,6 +195,7 @@ export const PAGES = {
     "Deals": Deals,
     "DealsModule": DealsModule,
     "DocuTrace": DocuTrace,
+    "Documentation": Documentation,
     "EmailMarketing": EmailMarketing,
     "EmailTracking": EmailTracking,
     "EmailsModule": EmailsModule,
@@ -280,7 +281,6 @@ export const PAGES = {
     "WikiPageEditor": WikiPageEditor,
     "WorkflowBuilder": WorkflowBuilder,
     "WorkflowEngine": WorkflowEngine,
-    "Documentation": Documentation,
 }
 
 export const pagesConfig = {
