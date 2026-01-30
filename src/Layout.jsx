@@ -167,6 +167,7 @@ const navigation = [
   { name: 'Executive Dashboard', icon: Award, page: 'ExecutiveDashboard' },
   { name: 'divider', label: 'Support', collapsible: true },
   { name: 'Help Center', icon: HelpCircle, page: 'HelpCenter' },
+  { name: 'Documentation', icon: FileText, page: 'Documentation' },
   { name: 'Settings', icon: Settings, page: 'Settings' },
   { name: 'Activity Logs', icon: Activity, page: 'ActivityLogs' },
   ];
