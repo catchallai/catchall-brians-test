@@ -161,6 +161,7 @@ import WebDashboard from './pages/WebDashboard';
 import WikiPageEditor from './pages/WikiPageEditor';
 import WorkflowBuilder from './pages/WorkflowBuilder';
 import WorkflowEngine from './pages/WorkflowEngine';
+import Documentation from './pages/Documentation';
 import __Layout from './Layout.jsx';
 
 
@@ -279,6 +280,7 @@ export const PAGES = {
     "WikiPageEditor": WikiPageEditor,
     "WorkflowBuilder": WorkflowBuilder,
     "WorkflowEngine": WorkflowEngine,
+    "Documentation": Documentation,
 }
 
 export const pagesConfig = {
