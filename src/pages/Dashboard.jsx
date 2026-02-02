@@ -118,7 +118,7 @@ export default function Dashboard() {
     await base44.auth.updateMe({ favorite_links: newFavorites });
   };
 
-  const isLoading = loadingContacts || loadingDeals;
+  const isLoading = loadingContacts || loadingDeals || loadingUser;
 
   // Filter out deleted and duplicate contacts (match Contacts module logic)
   const activeContacts = contacts.filter(c => !c.deleted && !c.duplicate_of_id);
