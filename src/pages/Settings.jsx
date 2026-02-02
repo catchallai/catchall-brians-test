@@ -22,6 +22,7 @@ import RolePermissionsManager from '@/components/settings/RolePermissionsManager
 import UserManagement from '@/components/settings/UserManagement';
 import DataManagement from '@/components/settings/DataManagement';
 import AIToggleSettings from '@/components/settings/AIToggleSettings';
+import HubSpotSync from '@/components/settings/HubSpotSync';
 
 export default function Settings() {
    const [saving, setSaving] = useState(false);
@@ -161,6 +162,10 @@ export default function Settings() {
           <TabsTrigger value="autosync" className="gap-2">
             <RefreshCw className="w-4 h-4" />
             Auto-Sync
+          </TabsTrigger>
+          <TabsTrigger value="integrations" className="gap-2">
+            <Globe className="w-4 h-4" />
+            Integrations
           </TabsTrigger>
           <TabsTrigger value="rbac" className="gap-2">
             <Lock className="w-4 h-4" />
@@ -456,6 +461,11 @@ export default function Settings() {
         {/* Auto-Sync Tab */}
         <TabsContent value="autosync">
           <AutoSyncSettings />
+        </TabsContent>
+
+        {/* Integrations Tab */}
+        <TabsContent value="integrations">
+          <HubSpotSync />
         </TabsContent>
 
         {/* RBAC Tab */}
