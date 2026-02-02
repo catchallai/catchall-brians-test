@@ -10,7 +10,7 @@ export default function DashboardHeader({ user, stats }) {
     return 'Good evening';
   };
 
-  const firstName = user?.full_name?.split(' ')[0] || 'there';
+  const firstName = user?.full_name?.split(' ')[0] || user?.email?.split('@')[0] || 'there';
 
   return (
     <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-violet-600 via-purple-600 to-indigo-600 p-6 lg:p-8 text-white">

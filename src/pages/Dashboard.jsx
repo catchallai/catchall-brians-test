@@ -106,7 +106,7 @@ export default function Dashboard() {
   });
 
   // User
-  const { data: user } = useQuery({
+  const { data: user, isLoading: loadingUser } = useQuery({
     queryKey: ['current-user'],
     queryFn: () => base44.auth.me(),
   });
