@@ -1,17 +1,19 @@
 import React from 'react';
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { GripVertical, DollarSign, TrendingUp, Calendar } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { GripVertical, DollarSign, TrendingUp, Calendar, Edit, Eye } from "lucide-react";
 import { DndContext, DragOverlay, closestCorners, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy, useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { format } from 'date-fns';
 
-function DealCard({ deal, contact, onClick }) {
+function DealCard({ deal, contact, onClick, onEdit }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: deal.id,
   });
+  const [isHovered, setIsHovered] = React.useState(false);
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -39,8 +41,9 @@ function DealCard({ deal, contact, onClick }) {
     <Card
       ref={setNodeRef}
       style={style}
-      className="p-3 cursor-pointer hover:shadow-md transition-all bg-white dark:bg-gray-800 border-l-4 border-l-violet-500"
-      onClick={onClick}
+      className="p-3 group relative hover:shadow-md transition-all bg-white dark:bg-gray-800 border-l-4 border-l-violet-500"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
     >
       <div className="flex items-start gap-2">
         <div
@@ -88,6 +91,34 @@ function DealCard({ deal, contact, onClick }) {
           )}
         </div>
       </div>
+
+      {/* Hover Actions */}
+      {isHovered && (
+        <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+          <Button
+            size="icon"
+            variant="secondary"
+            className="h-7 w-7 bg-white dark:bg-gray-700 shadow-md"
+            onClick={(e) => {
+              e.stopPropagation();
+              onEdit(deal);
+            }}
+          >
+            <Edit className="w-3.5 h-3.5" />
+          </Button>
+          <Button
+            size="icon"
+            variant="secondary"
+            className="h-7 w-7 bg-white dark:bg-gray-700 shadow-md"
+            onClick={(e) => {
+              e.stopPropagation();
+              onClick();
+            }}
+          >
+            <Eye className="w-3.5 h-3.5" />
+          </Button>
+        </div>
+      )}
     </Card>
   );
 }
@@ -100,6 +131,7 @@ export default function DealKanbanBoard({
   onDragOver, 
   onDrop, 
   onViewDeal,
+  onEditDeal,
   getContact 
 }) {
   const [activeId, setActiveId] = React.useState(null);
@@ -217,6 +249,7 @@ export default function DealKanbanBoard({
                         deal={deal}
                         contact={contact}
                         onClick={() => onViewDeal(deal)}
+                        onEdit={onEditDeal}
                       />
                     );
                   })}
