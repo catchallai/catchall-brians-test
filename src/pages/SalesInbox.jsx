@@ -124,9 +124,9 @@ export default function SalesInbox() {
 
   const filteredEmails = emails.filter(email => {
     const matchesSearch = !searchTerm || 
-      email.from_email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      email.from_email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       email.from_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      email.subject.toLowerCase().includes(searchTerm.toLowerCase());
+      email.subject?.toLowerCase().includes(searchTerm.toLowerCase());
     return matchesSearch;
   });
 
@@ -249,7 +249,7 @@ export default function SalesInbox() {
                     <div className="flex items-start gap-3">
                       <Avatar className="w-10 h-10">
                         <AvatarFallback className="bg-violet-100 dark:bg-violet-900 text-violet-600 dark:text-violet-300">
-                          {email.from_name?.[0] || email.from_email[0].toUpperCase()}
+                          {email.from_name?.[0] || email.from_email?.[0]?.toUpperCase() || '?'}
                         </AvatarFallback>
                       </Avatar>
                       <div className="flex-1 min-w-0">
@@ -297,7 +297,7 @@ export default function SalesInbox() {
                       <div className="flex items-center gap-2">
                         <Avatar className="w-8 h-8">
                           <AvatarFallback className="bg-violet-100 dark:bg-violet-900 text-violet-600 dark:text-violet-300">
-                            {selectedEmail.from_name?.[0] || selectedEmail.from_email[0].toUpperCase()}
+                            {selectedEmail.from_name?.[0] || selectedEmail.from_email?.[0]?.toUpperCase() || '?'}
                           </AvatarFallback>
                         </Avatar>
                         <div>
