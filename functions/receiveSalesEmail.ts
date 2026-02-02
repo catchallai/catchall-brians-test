@@ -5,13 +5,24 @@ Deno.serve(async (req) => {
     const base44 = createClientFromRequest(req);
     const payload = await req.json();
 
-    // Resend webhook payload format
+    // Handle both Gmail format and generic format
     const { from, to, subject, text, html, date, headers } = payload;
+
+    // Extract email and name from various formats
+    let fromEmail = '';
+    let fromName = '';
+    
+    if (typeof from === 'string') {
+      fromEmail = from;
+    } else if (from && typeof from === 'object') {
+      fromEmail = from.email || from.address || '';
+      fromName = from.name || '';
+    }
 
     // Create sales email record
     await base44.asServiceRole.entities.SalesEmail.create({
-      from_email: from.email || from,
-      from_name: from.name || null,
+      from_email: fromEmail,
+      from_name: fromName || null,
       to_email: to || 'sales@syberjet.com',
       subject: subject || '(no subject)',
       body: text || '',
@@ -26,8 +37,7 @@ Deno.serve(async (req) => {
     });
 
     // Try to match with existing contact
-    if (from.email || from) {
-      const fromEmail = from.email || from;
+    if (fromEmail) {
       const contacts = await base44.asServiceRole.entities.Contact.filter({ 
         email: fromEmail 
       });
