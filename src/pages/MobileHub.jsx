@@ -25,6 +25,9 @@ export default function MobileHub() {
   const [showComposer, setShowComposer] = useState(false);
   const [postContent, setPostContent] = useState('');
   const [selectedPlatforms, setSelectedPlatforms] = useState(['twitter', 'linkedin']);
+  const [selectedEmail, setSelectedEmail] = useState(null);
+  const [showEmailDetail, setShowEmailDetail] = useState(false);
+  const [replyContent, setReplyContent] = useState('');
   const queryClient = useQueryClient();
 
   const { data: user } = useQuery({
@@ -62,6 +65,11 @@ export default function MobileHub() {
     queryFn: () => base44.entities.SocialAccount.list('-created_date', 10),
   });
 
+  const { data: emails = [] } = useQuery({
+    queryKey: ['sales-emails-mobile'],
+    queryFn: () => base44.entities.SalesEmail.filter({ is_read: false }, '-received_date', 10),
+  });
+
   const markNotificationRead = useMutation({
     mutationFn: (id) => base44.entities.Notification.update(id, { is_read: true }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['notifications-mobile'] }),
@@ -80,6 +88,27 @@ export default function MobileHub() {
       queryClient.invalidateQueries({ queryKey: ['scheduled-posts-mobile'] });
       setShowComposer(false);
       setPostContent('');
+    },
+  });
+
+  const sendReplyMutation = useMutation({
+    mutationFn: async ({ emailId, content }) => {
+      const email = emails.find(e => e.id === emailId);
+      await base44.integrations.Core.SendEmail({
+        to: email.from_email,
+        subject: `Re: ${email.subject}`,
+        body: content,
+      });
+      await base44.entities.SalesEmail.update(emailId, {
+        is_replied: true,
+        is_read: true,
+        status: 'closed'
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['sales-emails-mobile'] });
+      setShowEmailDetail(false);
+      setReplyContent('');
     },
   });
 
@@ -189,12 +218,17 @@ export default function MobileHub() {
                   </button>
                   <Link to={createPageUrl('Contacts')} className="flex flex-col items-center gap-1 p-3 rounded-xl bg-blue-50 dark:bg-blue-900/20">
                     <Users className="w-5 h-5 text-blue-600" />
-                    <span className="text-xs text-gray-600 dark:text-gray-400">CRM</span>
+                    <span className="text-xs text-gray-600 dark:text-gray-400">Contacts</span>
                   </Link>
-                  <Link to={createPageUrl('SocialListening')} className="flex flex-col items-center gap-1 p-3 rounded-xl bg-emerald-50 dark:bg-emerald-900/20">
-                    <Radio className="w-5 h-5 text-emerald-600" />
-                    <span className="text-xs text-gray-600 dark:text-gray-400">Listen</span>
-                  </Link>
+                  <button onClick={() => setActiveTab('inbox')} className="flex flex-col items-center gap-1 p-3 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 relative">
+                    <Mail className="w-5 h-5 text-emerald-600" />
+                    {emails.length > 0 && (
+                      <Badge className="absolute -top-1 -right-1 w-5 h-5 p-0 flex items-center justify-center bg-red-500 text-white text-[10px]">
+                        {emails.length}
+                      </Badge>
+                    )}
+                    <span className="text-xs text-gray-600 dark:text-gray-400">Inbox</span>
+                  </button>
                   <Link to={createPageUrl('TrafficAnalytics')} className="flex flex-col items-center gap-1 p-3 rounded-xl bg-amber-50 dark:bg-amber-900/20">
                     <BarChart3 className="w-5 h-5 text-amber-600" />
                     <span className="text-xs text-gray-600 dark:text-gray-400">Stats</span>
@@ -497,6 +531,59 @@ export default function MobileHub() {
             </Card>
           </TabsContent>
 
+          <TabsContent value="inbox" className="mt-0 space-y-4">
+            {/* Sales Inbox */}
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="font-semibold text-gray-900 dark:text-white">Sales Inbox</h3>
+                  <Badge variant="outline">{emails.length} unread</Badge>
+                </div>
+                <div className="space-y-2">
+                  {emails.map((email) => (
+                    <div 
+                      key={email.id} 
+                      onClick={() => {
+                        setSelectedEmail(email);
+                        setShowEmailDetail(true);
+                        base44.entities.SalesEmail.update(email.id, { is_read: true });
+                      }}
+                      className="flex gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-xl cursor-pointer active:bg-gray-100 dark:active:bg-gray-700"
+                    >
+                      <Avatar className="w-10 h-10">
+                        <AvatarFallback className="bg-emerald-100 text-emerald-600">
+                          {email.from_name?.[0] || email.from_email?.[0]?.toUpperCase() || '?'}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-start justify-between gap-2">
+                          <p className="font-medium text-gray-900 dark:text-white text-sm truncate">
+                            {email.from_name || email.from_email}
+                          </p>
+                          <span className="text-xs text-gray-400 flex-shrink-0">
+                            {new Date(email.received_date || email.created_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                          </span>
+                        </div>
+                        <p className="text-sm font-medium text-gray-700 dark:text-gray-300 truncate">{email.subject}</p>
+                        <p className="text-xs text-gray-500 line-clamp-2">{email.body?.substring(0, 80)}...</p>
+                      </div>
+                    </div>
+                  ))}
+                  {emails.length === 0 && (
+                    <div className="text-center py-8">
+                      <Mail className="w-12 h-12 mx-auto text-gray-300 mb-2" />
+                      <p className="text-sm text-gray-500">No unread emails</p>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+
+            <Link to={createPageUrl('SalesInbox')}>
+              <Button className="w-full" variant="outline">View All Emails</Button>
+            </Link>
+          </TabsContent>
+
           <TabsContent value="stats" className="mt-0 space-y-4">
             {/* Analytics Summary */}
             <div className="grid grid-cols-2 gap-3">
@@ -630,6 +717,18 @@ export default function MobileHub() {
             <span className="text-xs font-medium">Alerts</span>
           </button>
           <button 
+            onClick={() => setActiveTab('inbox')}
+            className={`flex flex-col items-center gap-1 px-4 py-2 rounded-xl transition-colors relative ${
+              activeTab === 'inbox' ? 'text-violet-600 bg-violet-50 dark:bg-violet-900/20' : 'text-gray-500'
+            }`}
+          >
+            <Mail className="w-5 h-5" />
+            {emails.length > 0 && (
+              <span className="absolute top-1 right-2 w-2 h-2 bg-red-500 rounded-full" />
+            )}
+            <span className="text-xs font-medium">Inbox</span>
+          </button>
+          <button 
             onClick={() => setActiveTab('stats')}
             className={`flex flex-col items-center gap-1 px-4 py-2 rounded-xl transition-colors ${
               activeTab === 'stats' ? 'text-violet-600 bg-violet-50 dark:bg-violet-900/20' : 'text-gray-500'
@@ -640,6 +739,78 @@ export default function MobileHub() {
           </button>
         </div>
       </div>
+
+      {/* Email Detail Sheet */}
+      <Sheet open={showEmailDetail} onOpenChange={setShowEmailDetail}>
+        <SheetContent side="bottom" className="h-[85vh] rounded-t-3xl">
+          <SheetHeader>
+            <SheetTitle>Email from {selectedEmail?.from_name || selectedEmail?.from_email}</SheetTitle>
+          </SheetHeader>
+          {selectedEmail && (
+            <ScrollArea className="h-[calc(85vh-120px)] mt-4">
+              <div className="space-y-4">
+                <div>
+                  <p className="text-sm text-gray-500 mb-1">Subject</p>
+                  <p className="font-medium text-gray-900 dark:text-white">{selectedEmail.subject}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500 mb-1">From</p>
+                  <div className="flex items-center gap-2">
+                    <Avatar className="w-8 h-8">
+                      <AvatarFallback className="bg-emerald-100 text-emerald-600">
+                        {selectedEmail.from_name?.[0] || selectedEmail.from_email?.[0]?.toUpperCase() || '?'}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <p className="text-sm font-medium">{selectedEmail.from_name || selectedEmail.from_email}</p>
+                      <p className="text-xs text-gray-500">{selectedEmail.from_email}</p>
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500 mb-2">Message</p>
+                  <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-xl whitespace-pre-wrap text-sm">
+                    {selectedEmail.body}
+                  </div>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500 mb-2">Quick Reply</p>
+                  <Textarea
+                    placeholder="Type your reply..."
+                    value={replyContent}
+                    onChange={(e) => setReplyContent(e.target.value)}
+                    className="min-h-[120px]"
+                  />
+                </div>
+                <div className="flex gap-2">
+                  <Button 
+                    className="flex-1 gap-2 bg-emerald-600 hover:bg-emerald-700"
+                    disabled={!replyContent.trim() || sendReplyMutation.isPending}
+                    onClick={() => sendReplyMutation.mutate({ emailId: selectedEmail.id, content: replyContent })}
+                  >
+                    {sendReplyMutation.isPending ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <Send className="w-4 h-4" />
+                    )}
+                    Send Reply
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    onClick={() => {
+                      base44.entities.SalesEmail.update(selectedEmail.id, { status: 'closed' });
+                      setShowEmailDetail(false);
+                      queryClient.invalidateQueries({ queryKey: ['sales-emails-mobile'] });
+                    }}
+                  >
+                    Archive
+                  </Button>
+                </div>
+              </div>
+            </ScrollArea>
+          )}
+        </SheetContent>
+      </Sheet>
 
       {/* Post Composer Sheet */}
       <Sheet open={showComposer} onOpenChange={setShowComposer}>
