@@ -36,7 +36,7 @@ export default function RecentActivityFeed({ activities = [], contacts = [], dea
       items.push({
         type: 'contact_created',
         title: `New contact added`,
-        description: `${c.first_name} ${c.last_name || ''} from ${c.company_id ? 'a company' : c.source || 'unknown source'}`,
+        description: `${c.first_name || 'Contact'} ${c.last_name || ''} from ${c.company_id ? 'a company' : c.source || 'unknown source'}`,
         date: c.created_date
       });
     });
@@ -46,7 +46,7 @@ export default function RecentActivityFeed({ activities = [], contacts = [], dea
       items.push({
         type: d.stage === 'won' ? 'deal_won' : d.stage === 'lost' ? 'deal_lost' : 'deal_created',
         title: d.stage === 'won' ? 'Deal won!' : d.stage === 'lost' ? 'Deal lost' : 'New deal created',
-        description: `${d.title} - $${d.value?.toLocaleString() || 0}`,
+        description: `${d.title || 'Deal'} - $${d.value?.toLocaleString() || 0}`,
         date: d.created_date
       });
     });
@@ -55,8 +55,8 @@ export default function RecentActivityFeed({ activities = [], contacts = [], dea
     mentions.slice(0, 2).forEach(m => {
       items.push({
         type: 'mention',
-        title: `New ${m.platform} mention`,
-        description: m.content?.slice(0, 60) + '...',
+        title: `New ${m.platform || 'social'} mention`,
+        description: (m.content || '').slice(0, 60) + '...',
         date: m.created_date
       });
     });
