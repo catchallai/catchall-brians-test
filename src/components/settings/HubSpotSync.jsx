@@ -11,7 +11,7 @@ export default function HubSpotSync() {
   const [syncType, setSyncType] = useState('both');
   const [direction, setDirection] = useState('bidirectional');
   const [results, setResults] = useState(null);
-  const { addToast } = useToast();
+  const toast = useToast();
 
   const handleSync = async () => {
     setSyncing(true);
@@ -25,20 +25,12 @@ export default function HubSpotSync() {
 
       if (response.data.success) {
         setResults(response.data.results);
-        addToast({
-          title: 'Sync completed successfully',
-          description: `Synced contacts and companies with HubSpot`,
-          variant: 'success'
-        });
+        toast.success('Sync completed successfully');
       } else {
         throw new Error(response.data.error || 'Sync failed');
       }
     } catch (error) {
-      addToast({
-        title: 'Sync failed',
-        description: error.message,
-        variant: 'destructive'
-      });
+      toast.error(`Sync failed: ${error.message}`);
     } finally {
       setSyncing(false);
     }
