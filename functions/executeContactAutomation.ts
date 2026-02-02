@@ -3,7 +3,21 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
-    const { contact_id, old_status, new_status } = await req.json();
+    const payload = await req.json();
+
+    // Handle entity automation payload
+    let contact_id, old_status, new_status;
+    
+    if (payload.event && payload.event.entity_name === 'Contact') {
+      contact_id = payload.event.entity_id;
+      new_status = payload.data?.status;
+      old_status = payload.old_data?.status;
+    } else {
+      // Handle direct function call
+      contact_id = payload.contact_id;
+      new_status = payload.new_status;
+      old_status = payload.old_status;
+    }
 
     if (!contact_id || !new_status) {
       return Response.json({ error: 'Missing required fields' }, { status: 400 });
