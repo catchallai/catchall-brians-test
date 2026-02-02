@@ -17,8 +17,10 @@ import {
   Calendar, BarChart3, Send, Image, Twitter, Linkedin, Facebook, Instagram,
   Phone, Mail, Building2, DollarSign, Clock, CheckCircle, AlertTriangle,
   ChevronRight, Home, Radio, FileText, Settings, Loader2, RefreshCw,
-  Smartphone, Zap, Eye, Heart, Share2, MessageCircle
+  Smartphone, Zap, Eye, Heart, Share2, MessageCircle, Edit, UserPlus
 } from "lucide-react";
+import QuickContactSheet from '@/components/mobile/QuickContactSheet';
+import QuickDealSheet from '@/components/mobile/QuickDealSheet';
 
 export default function MobileHub() {
   const [activeTab, setActiveTab] = useState('home');
@@ -28,6 +30,10 @@ export default function MobileHub() {
   const [selectedEmail, setSelectedEmail] = useState(null);
   const [showEmailDetail, setShowEmailDetail] = useState(false);
   const [replyContent, setReplyContent] = useState('');
+  const [showContactSheet, setShowContactSheet] = useState(false);
+  const [selectedContact, setSelectedContact] = useState(null);
+  const [showDealSheet, setShowDealSheet] = useState(false);
+  const [selectedDeal, setSelectedDeal] = useState(null);
   const queryClient = useQueryClient();
 
   const { data: user } = useQuery({
@@ -325,35 +331,56 @@ export default function MobileHub() {
           <TabsContent value="crm" className="mt-0 space-y-4">
             {/* CRM Quick Access */}
             <div className="flex gap-2 mb-4">
-              <Link to={createPageUrl('Contacts')} className="flex-1">
-                <Card className="h-full">
-                  <CardContent className="p-4 text-center">
-                    <Users className="w-8 h-8 mx-auto text-violet-600 mb-2" />
-                    <p className="text-sm font-medium">Contacts</p>
-                    <p className="text-2xl font-bold text-gray-900 dark:text-white">{contacts.length}</p>
-                  </CardContent>
-                </Card>
-              </Link>
-              <Link to={createPageUrl('Deals')} className="flex-1">
-                <Card className="h-full">
-                  <CardContent className="p-4 text-center">
-                    <Target className="w-8 h-8 mx-auto text-emerald-600 mb-2" />
-                    <p className="text-sm font-medium">Deals</p>
-                    <p className="text-2xl font-bold text-gray-900 dark:text-white">{deals.length}</p>
-                  </CardContent>
-                </Card>
-              </Link>
+              <Card className="flex-1">
+                <CardContent className="p-4 text-center">
+                  <Users className="w-8 h-8 mx-auto text-violet-600 mb-2" />
+                  <p className="text-sm font-medium">Contacts</p>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-white">{contacts.length}</p>
+                </CardContent>
+              </Card>
+              <Card className="flex-1">
+                <CardContent className="p-4 text-center">
+                  <Target className="w-8 h-8 mx-auto text-emerald-600 mb-2" />
+                  <p className="text-sm font-medium">Deals</p>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-white">{deals.length}</p>
+                </CardContent>
+              </Card>
+            </div>
+
+            <div className="flex gap-2">
+              <Button 
+                className="flex-1 gap-2 bg-violet-600 hover:bg-violet-700"
+                onClick={() => {
+                  setSelectedContact(null);
+                  setShowContactSheet(true);
+                }}
+              >
+                <UserPlus className="w-4 h-4" />
+                New Contact
+              </Button>
+              <Button 
+                className="flex-1 gap-2 bg-emerald-600 hover:bg-emerald-700"
+                onClick={() => {
+                  setSelectedDeal(null);
+                  setShowDealSheet(true);
+                }}
+              >
+                <Plus className="w-4 h-4" />
+                New Deal
+              </Button>
             </div>
 
             {/* Recent Contacts */}
             <Card>
               <CardContent className="p-4">
-                <h3 className="font-semibold text-gray-900 dark:text-white mb-3">Recent Contacts</h3>
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="font-semibold text-gray-900 dark:text-white">Recent Contacts</h3>
+                  <Link to={createPageUrl('Contacts')} className="text-xs text-violet-600">View All</Link>
+                </div>
                 <div className="space-y-2">
                   {contacts.slice(0, 5).map((contact) => (
-                    <Link 
+                    <div 
                       key={contact.id} 
-                      to={createPageUrl('Contacts') + `?id=${contact.id}`}
                       className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-xl"
                     >
                       <Avatar className="w-10 h-10">
@@ -380,8 +407,19 @@ export default function MobileHub() {
                             <Mail className="w-4 h-4" />
                           </Button>
                         </a>
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          className="w-8 h-8"
+                          onClick={() => {
+                            setSelectedContact(contact);
+                            setShowContactSheet(true);
+                          }}
+                        >
+                          <Edit className="w-4 h-4" />
+                        </Button>
                       </div>
-                    </Link>
+                    </div>
                   ))}
                 </div>
               </CardContent>
@@ -390,12 +428,14 @@ export default function MobileHub() {
             {/* Recent Deals */}
             <Card>
               <CardContent className="p-4">
-                <h3 className="font-semibold text-gray-900 dark:text-white mb-3">Active Deals</h3>
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="font-semibold text-gray-900 dark:text-white">Active Deals</h3>
+                  <Link to={createPageUrl('Deals')} className="text-xs text-violet-600">View All</Link>
+                </div>
                 <div className="space-y-2">
                   {deals.slice(0, 5).map((deal) => (
-                    <Link 
+                    <div 
                       key={deal.id} 
-                      to={createPageUrl('Deals') + `?id=${deal.id}`}
                       className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-xl"
                     >
                       <div className="flex-1 min-w-0">
@@ -404,10 +444,23 @@ export default function MobileHub() {
                         </p>
                         <p className="text-xs text-gray-500">{deal.stage}</p>
                       </div>
-                      <div className="text-right">
-                        <p className="font-semibold text-emerald-600">${(deal.value || 0).toLocaleString()}</p>
+                      <div className="flex items-center gap-2">
+                        <div className="text-right">
+                          <p className="font-semibold text-emerald-600">${(deal.value || 0).toLocaleString()}</p>
+                        </div>
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          className="w-8 h-8"
+                          onClick={() => {
+                            setSelectedDeal(deal);
+                            setShowDealSheet(true);
+                          }}
+                        >
+                          <Edit className="w-4 h-4" />
+                        </Button>
                       </div>
-                    </Link>
+                    </div>
                   ))}
                 </div>
               </CardContent>
@@ -811,6 +864,26 @@ export default function MobileHub() {
           )}
         </SheetContent>
       </Sheet>
+
+      {/* Contact Sheet */}
+      <QuickContactSheet
+        open={showContactSheet}
+        onClose={() => {
+          setShowContactSheet(false);
+          setSelectedContact(null);
+        }}
+        contact={selectedContact}
+      />
+
+      {/* Deal Sheet */}
+      <QuickDealSheet
+        open={showDealSheet}
+        onClose={() => {
+          setShowDealSheet(false);
+          setSelectedDeal(null);
+        }}
+        deal={selectedDeal}
+      />
 
       {/* Post Composer Sheet */}
       <Sheet open={showComposer} onOpenChange={setShowComposer}>
