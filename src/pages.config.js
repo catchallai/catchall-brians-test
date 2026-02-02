@@ -137,6 +137,7 @@ import SEOOpportunities from './pages/SEOOpportunities';
 import SEOTools from './pages/SEOTools';
 import SalesDashboard from './pages/SalesDashboard';
 import SalesHub from './pages/SalesHub';
+import SalesInbox from './pages/SalesInbox';
 import SalesQuotas from './pages/SalesQuotas';
 import SalesSequences from './pages/SalesSequences';
 import Settings from './pages/Settings';
@@ -162,7 +163,6 @@ import WebDashboard from './pages/WebDashboard';
 import WikiPageEditor from './pages/WikiPageEditor';
 import WorkflowBuilder from './pages/WorkflowBuilder';
 import WorkflowEngine from './pages/WorkflowEngine';
-import SalesInbox from './pages/SalesInbox';
 import __Layout from './Layout.jsx';
 
 
@@ -257,6 +257,7 @@ export const PAGES = {
     "SEOTools": SEOTools,
     "SalesDashboard": SalesDashboard,
     "SalesHub": SalesHub,
+    "SalesInbox": SalesInbox,
     "SalesQuotas": SalesQuotas,
     "SalesSequences": SalesSequences,
     "Settings": Settings,
@@ -282,7 +283,6 @@ export const PAGES = {
     "WikiPageEditor": WikiPageEditor,
     "WorkflowBuilder": WorkflowBuilder,
     "WorkflowEngine": WorkflowEngine,
-    "SalesInbox": SalesInbox,
 }
 
 export const pagesConfig = {

@@ -26,70 +26,83 @@ export default function Dashboard() {
   const { data: contacts = [], isLoading: loadingContacts } = useQuery({
     queryKey: ['contacts'],
     queryFn: () => base44.entities.Contact.list('-created_date', 1000),
+    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
   });
 
   const { data: companies = [] } = useQuery({
     queryKey: ['companies'],
     queryFn: () => base44.entities.Company.list('-created_date', 1000),
+    staleTime: 5 * 60 * 1000,
   });
 
   const { data: deals = [], isLoading: loadingDeals } = useQuery({
     queryKey: ['deals'],
     queryFn: () => base44.entities.Deal.list('-created_date', 1000),
+    staleTime: 5 * 60 * 1000,
   });
 
   // SEO Data
   const { data: websites = [] } = useQuery({
     queryKey: ['websites'],
     queryFn: () => base44.entities.Website.list('-created_date', 50),
+    staleTime: 10 * 60 * 1000, // Cache for 10 minutes
   });
 
   const { data: keywords = [] } = useQuery({
     queryKey: ['keywords'],
     queryFn: () => base44.entities.Keyword.list('-created_date', 200),
+    staleTime: 10 * 60 * 1000,
   });
 
   const { data: backlinks = [] } = useQuery({
     queryKey: ['backlinks'],
     queryFn: () => base44.entities.Backlink.list('-created_date', 200),
+    staleTime: 10 * 60 * 1000,
   });
 
   // Social Data
   const { data: mentions = [] } = useQuery({
     queryKey: ['dashboard-mentions'],
     queryFn: () => base44.entities.ListeningMention.list('-created_date', 100),
+    staleTime: 5 * 60 * 1000,
   });
 
   const { data: alerts = [] } = useQuery({
     queryKey: ['dashboard-alerts'],
     queryFn: () => base44.entities.ListeningAlert.filter({ is_dismissed: false }, '-created_date', 20),
+    staleTime: 2 * 60 * 1000,
   });
 
   const { data: listeningKeywords = [] } = useQuery({
     queryKey: ['listening-keywords'],
     queryFn: () => base44.entities.SocialListening.list('-created_date', 50),
+    staleTime: 10 * 60 * 1000,
   });
 
   // Content Data
   const { data: calendarPosts = [] } = useQuery({
     queryKey: ['dashboard-posts'],
     queryFn: () => base44.entities.CalendarPost.list('-scheduled_date', 50),
+    staleTime: 5 * 60 * 1000,
   });
 
   const { data: brands = [] } = useQuery({
     queryKey: ['brands'],
     queryFn: () => base44.entities.Brand.list('-created_date', 50),
+    staleTime: 10 * 60 * 1000,
   });
 
   // Marketing Data
   const { data: campaigns = [] } = useQuery({
     queryKey: ['campaigns'],
     queryFn: () => base44.entities.Campaign.list('-created_date', 50),
+    staleTime: 10 * 60 * 1000,
   });
 
   const { data: emailCampaigns = [] } = useQuery({
     queryKey: ['email-campaigns'],
     queryFn: () => base44.entities.EmailCampaign.list('-created_date', 50),
+    staleTime: 10 * 60 * 1000,
   });
 
   // User
