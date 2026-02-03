@@ -2,7 +2,9 @@ import React from 'react';
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Pencil, Trash2, Image, Play } from "lucide-react";
+import { Pencil, Trash2, Image, Play, Send, Zap } from "lucide-react";
+import { base44 } from '@/api/base44Client';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 export default function CalendarPostCard({ post, onEdit, onDelete, compact = false }) {
   const queryClient = useQueryClient();
@@ -70,8 +72,20 @@ export default function CalendarPostCard({ post, onEdit, onDelete, compact = fal
           </span>
         </div>
 
-        {/* Edit/Delete Buttons */}
+        {/* Edit/Delete/Publish Buttons */}
         <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
+          {post.status === 'scheduled' && post.auto_post && (
+            <Button 
+              size="icon" 
+              variant="secondary" 
+              className="h-7 w-7 bg-emerald-500/90 hover:bg-emerald-600 text-white"
+              onClick={(e) => { e.stopPropagation(); publishNowMutation.mutate(); }}
+              disabled={publishNowMutation.isPending}
+              title="Publish Now"
+            >
+              <Send className="w-3 h-3" />
+            </Button>
+          )}
           {onEdit && (
             <Button 
               size="icon" 
@@ -99,6 +113,12 @@ export default function CalendarPostCard({ post, onEdit, onDelete, compact = fal
           <Badge className={`${statusColors[post.status]} text-xs`}>
             {post.status?.replace('_', ' ')}
           </Badge>
+          {post.auto_post && (
+            <Badge className="bg-emerald-100 text-emerald-700 text-xs flex items-center gap-1">
+              <Zap className="w-2.5 h-2.5" />
+              Auto-Post
+            </Badge>
+          )}
           <Badge className="bg-violet-100 text-violet-700 text-xs">
             {post.platforms && post.platforms.length > 0 ? post.platforms.join(', ') : 'No platform'}
           </Badge>

@@ -8,7 +8,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Loader2, Upload, X, Image, Video, Repeat } from "lucide-react";
+import { Loader2, Upload, X, Image, Video, Repeat, Zap } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
 import { base44 } from '@/api/base44Client';
 import { addDays, addWeeks, addMonths, format as formatDate } from 'date-fns';
 import PostComments from '../social/PostComments';
@@ -37,7 +38,9 @@ export default function CalendarPostModal({ open, onClose, post, onSave, isLoadi
     is_recurring: false,
     recurrence_type: 'weekly',
     recurrence_end_date: '',
-    recurrence_days: []
+    recurrence_days: [],
+    auto_post: false,
+    scheduled_hour: 9
   });
   const [uploading, setUploading] = useState(false);
   const [uploadingVideo, setUploadingVideo] = useState(false);
@@ -60,7 +63,9 @@ export default function CalendarPostModal({ open, onClose, post, onSave, isLoadi
         is_recurring: post.is_recurring || false,
         recurrence_type: post.recurrence_type || 'weekly',
         recurrence_end_date: post.recurrence_end_date || '',
-        recurrence_days: post.recurrence_days || []
+        recurrence_days: post.recurrence_days || [],
+        auto_post: post.auto_post || false,
+        scheduled_hour: post.scheduled_hour || 9
       });
     } else {
       setFormData({
@@ -78,7 +83,9 @@ export default function CalendarPostModal({ open, onClose, post, onSave, isLoadi
         is_recurring: false,
         recurrence_type: 'weekly',
         recurrence_end_date: '',
-        recurrence_days: []
+        recurrence_days: [],
+        auto_post: false,
+        scheduled_hour: 9
       });
     }
   }, [post, open]);
@@ -295,6 +302,21 @@ export default function CalendarPostModal({ open, onClose, post, onSave, isLoadi
                 onChange={(e) => setFormData({ ...formData, scheduled_time: e.target.value })}
               />
             </div>
+          </div>
+
+          {/* Auto-Post Toggle */}
+          <div className="flex items-center justify-between p-4 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg border border-emerald-200 dark:border-emerald-800">
+            <div className="flex items-center gap-3">
+              <Zap className="w-5 h-5 text-emerald-600" />
+              <div>
+                <Label className="text-sm font-semibold">Auto-Post</Label>
+                <p className="text-xs text-gray-500">Automatically publish at scheduled time</p>
+              </div>
+            </div>
+            <Switch
+              checked={formData.auto_post}
+              onCheckedChange={(checked) => setFormData({ ...formData, auto_post: checked })}
+            />
           </div>
 
           {/* Recurring Options */}
