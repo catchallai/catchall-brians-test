@@ -241,6 +241,7 @@ const SIDEBAR_ICONS = {
   SocialMedia: Share2,
   SocialListening: Radio,
   SocialCalendar: CalendarDays,
+  SocialAccounts: Key,
   CompetitorAnalysis: Users,
   Campaigns: Megaphone,
   EmailMarketing: Mail,
