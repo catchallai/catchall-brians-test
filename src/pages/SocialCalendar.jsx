@@ -29,9 +29,11 @@ import TeamManager from '@/components/social/TeamManager';
 import CalendarNotifications from '@/components/social/CalendarNotifications';
 import DraftPostsPlatformAssigner from '@/components/social/DraftPostsPlatformAssigner';
 import PlatformPreviewCard from '@/components/social/PlatformPreviewCard';
+import BulkScheduleModal from '@/components/social/BulkScheduleModal';
 
 export default function SocialCalendar() {
   const [showModal, setShowModal] = useState(false);
+  const [showBulkModal, setShowBulkModal] = useState(false);
   const [selectedPost, setSelectedPost] = useState(null);
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [approverName, setApproverName] = useState('');
@@ -95,6 +97,16 @@ export default function SocialCalendar() {
   const deleteHashtagMutation = useMutation({
     mutationFn: (id) => base44.entities.HashtagPool.delete(id),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['hashtag-pool'] }),
+  });
+
+  const publishNowMutation = useMutation({
+    mutationFn: async (postId) => {
+      const response = await base44.functions.invoke('autoPostToSocial', { postId });
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['calendar-posts'] });
+    },
   });
 
   const handleSave = async (data) => {
@@ -216,10 +228,16 @@ export default function SocialCalendar() {
             Print
           </Button>
           {canEdit && (
-            <Button onClick={() => setShowModal(true)} className="gap-2 bg-violet-600 hover:bg-violet-700">
-              <Plus className="w-4 h-4" />
-              Add Post
-            </Button>
+            <>
+              <Button onClick={() => setShowBulkModal(true)} variant="outline" className="gap-2">
+                <Plus className="w-4 h-4" />
+                Bulk Schedule
+              </Button>
+              <Button onClick={() => setShowModal(true)} className="gap-2 bg-violet-600 hover:bg-violet-700">
+                <Plus className="w-4 h-4" />
+                Add Post
+              </Button>
+            </>
           )}
         </div>
       </div>
@@ -478,7 +496,7 @@ export default function SocialCalendar() {
         </Card>
       </div>
 
-      {/* Modal */}
+      {/* Modals */}
       <CalendarPostModal
         open={showModal}
         onClose={() => { setShowModal(false); setSelectedPost(null); }}
@@ -486,6 +504,11 @@ export default function SocialCalendar() {
         onSave={handleSave}
         isLoading={createMutation.isPending || updateMutation.isPending}
         hashtagPool={hashtagPool}
+      />
+
+      <BulkScheduleModal
+        open={showBulkModal}
+        onClose={() => setShowBulkModal(false)}
       />
 
       {/* Print Styles */}

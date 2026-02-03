@@ -5,6 +5,17 @@ import { Button } from "@/components/ui/button";
 import { Pencil, Trash2, Image, Play } from "lucide-react";
 
 export default function CalendarPostCard({ post, onEdit, onDelete, compact = false }) {
+  const queryClient = useQueryClient();
+
+  const publishNowMutation = useMutation({
+    mutationFn: async () => {
+      const response = await base44.functions.invoke('autoPostToSocial', { postId: post.id });
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['calendar-posts'] });
+    },
+  });
   const statusColors = {
     draft: 'bg-gray-100 text-gray-700',
     pending_approval: 'bg-amber-100 text-amber-700',
