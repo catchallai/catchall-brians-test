@@ -143,7 +143,8 @@ const navigation = [
   { name: 'Web Audit/Reports', icon: FileSearch, page: 'SEOAudit' },
   { name: 'Web Crawler', icon: Globe, page: 'WebCrawler' },
   { name: 'Contact Forms', icon: FileText, page: 'ContactForms' },
-  { name: 'divider', label: 'Project Management', collapsible: true },
+  { name: 'divider', label: 'Team Collaboration', collapsible: true },
+  { name: 'Team Hub', icon: Users, page: 'TeamCollaboration' },
   { name: 'Inbox', icon: MessageSquare, page: 'Inbox' },
   { name: 'Projects Dashboard', icon: BarChart3, page: 'ProjectsDashboard' },
   { name: 'Projects', icon: Briefcase, page: 'Projects' },
@@ -199,6 +200,7 @@ const SECTION_COLORS = {
 const SIDEBAR_ICONS = {
                     Dashboard: LayoutDashboard,
                     ExecutiveDashboard: Award,
+              TeamCollaboration: Users,
               BusinessManagement: Building2,
               BusinessDevDashboard: BarChart3,
               CRMDashboard: BarChart3,
