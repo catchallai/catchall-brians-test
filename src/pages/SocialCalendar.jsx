@@ -17,6 +17,7 @@ import {
   ChevronLeft,
   ChevronRight
 } from "lucide-react";
+import { Dialog } from "@/components/ui/dialog";
 import { format, startOfMonth, endOfMonth, addMonths, subMonths } from 'date-fns';
 import CalendarPostCard from '@/components/social/CalendarPostCard';
 import CalendarPostModal from '@/components/modals/CalendarPostModal';
@@ -30,11 +31,15 @@ import CalendarNotifications from '@/components/social/CalendarNotifications';
 import DraftPostsPlatformAssigner from '@/components/social/DraftPostsPlatformAssigner';
 import PlatformPreviewCard from '@/components/social/PlatformPreviewCard';
 import BulkScheduleModal from '@/components/social/BulkScheduleModal';
+import PostTemplateManager from '@/components/social/PostTemplateManager';
+import PostQueueManager from '@/components/social/PostQueueManager';
+import OptimalTimeAnalyzer from '@/components/social/OptimalTimeAnalyzer';
 
 export default function SocialCalendar() {
   const [showModal, setShowModal] = useState(false);
   const [showBulkModal, setShowBulkModal] = useState(false);
   const [selectedPost, setSelectedPost] = useState(null);
+  const [showTemplateModal, setShowTemplateModal] = useState(false);
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [approverName, setApproverName] = useState('');
   const [showApprovalSection, setShowApprovalSection] = useState(false);
@@ -115,6 +120,19 @@ export default function SocialCalendar() {
     } else {
       await createMutation.mutateAsync({ ...data, order: filteredPosts.length });
     }
+  };
+
+  const handleUseTemplate = (template) => {
+    setSelectedPost({
+      title: template.title_template || '',
+      caption: template.caption_template || '',
+      platforms: template.platforms || [],
+      hashtags: template.hashtags || [],
+      media_type: template.media_type || 'none',
+      status: 'draft'
+    });
+    setShowTemplateModal(false);
+    setShowModal(true);
   };
 
   const handleEdit = (post) => {
@@ -229,6 +247,10 @@ export default function SocialCalendar() {
           </Button>
           {canEdit && (
             <>
+              <Button onClick={() => setShowTemplateModal(true)} variant="outline" className="gap-2">
+                <Plus className="w-4 h-4" />
+                Templates
+              </Button>
               <Button onClick={() => setShowBulkModal(true)} variant="outline" className="gap-2">
                 <Plus className="w-4 h-4" />
                 Bulk Schedule
@@ -420,9 +442,10 @@ export default function SocialCalendar() {
           )
         )}
 
-        {/* Hashtag Pool, Team Manager & Notifications */}
+        {/* Enhanced Features Grid */}
         <div className="grid lg:grid-cols-2 gap-6 mt-6 print:hidden">
           <div className="space-y-6">
+            <PostQueueManager />
             <CalendarNotifications />
             <HashtagPoolCard
               hashtags={hashtagPool}
@@ -431,7 +454,10 @@ export default function SocialCalendar() {
               isAddLoading={addHashtagMutation.isPending}
             />
           </div>
-          <TeamManager />
+          <div className="space-y-6">
+            <OptimalTimeAnalyzer />
+            <TeamManager />
+          </div>
         </div>
 
         {/* Approval Section */}
@@ -510,6 +536,12 @@ export default function SocialCalendar() {
         open={showBulkModal}
         onClose={() => setShowBulkModal(false)}
       />
+
+      <Dialog open={showTemplateModal} onOpenChange={setShowTemplateModal}>
+        <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
+          <PostTemplateManager onUseTemplate={handleUseTemplate} />
+        </DialogContent>
+      </Dialog>
 
       {/* Print Styles */}
       <style>{`
