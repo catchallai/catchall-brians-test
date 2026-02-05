@@ -39,8 +39,7 @@ export default function CalendarPostModal({ open, onClose, post, onSave, isLoadi
     recurrence_type: 'weekly',
     recurrence_end_date: '',
     recurrence_days: [],
-    auto_post: false,
-    scheduled_hour: 9
+    auto_post: false
   });
   const [uploading, setUploading] = useState(false);
   const [uploadingVideo, setUploadingVideo] = useState(false);
@@ -64,8 +63,7 @@ export default function CalendarPostModal({ open, onClose, post, onSave, isLoadi
         recurrence_type: post.recurrence_type || 'weekly',
         recurrence_end_date: post.recurrence_end_date || '',
         recurrence_days: post.recurrence_days || [],
-        auto_post: post.auto_post || false,
-        scheduled_hour: post.scheduled_hour || 9
+        auto_post: post.auto_post || false
       });
     } else {
       setFormData({
@@ -84,8 +82,7 @@ export default function CalendarPostModal({ open, onClose, post, onSave, isLoadi
         recurrence_type: 'weekly',
         recurrence_end_date: '',
         recurrence_days: [],
-        auto_post: false,
-        scheduled_hour: 9
+        auto_post: false
       });
     }
   }, [post, open]);
