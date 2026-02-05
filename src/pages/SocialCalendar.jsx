@@ -17,7 +17,7 @@ import {
   ChevronLeft,
   ChevronRight
 } from "lucide-react";
-import { Dialog } from "@/components/ui/dialog";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { format, startOfMonth, endOfMonth, addMonths, subMonths } from 'date-fns';
 import CalendarPostCard from '@/components/social/CalendarPostCard';
 import CalendarPostModal from '@/components/modals/CalendarPostModal';
