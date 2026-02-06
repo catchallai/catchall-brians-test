@@ -112,13 +112,6 @@ export default function TeamCollaboration() {
       icon: UserPlus,
       link: null,
       color: 'bg-violet-500'
-    },
-    {
-      title: 'Media Folders',
-      description: 'Organize photos & videos',
-      icon: Folder,
-      link: null,
-      color: 'bg-emerald-500'
     }
   ];
 
@@ -179,12 +172,11 @@ export default function TeamCollaboration() {
         ))}
       </div>
 
-      {/* Contractors & Media Management */}
+      {/* Contractors Management */}
       <Tabs defaultValue="overview" className="space-y-6">
         <TabsList>
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="contractors">Contractors</TabsTrigger>
-          <TabsTrigger value="media">Media Folders</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview">
@@ -395,11 +387,10 @@ export default function TeamCollaboration() {
         <TabsContent value="contractors">
           <ContractorManagement />
         </TabsContent>
-
-        <TabsContent value="media">
-          <MediaFolderManager />
-        </TabsContent>
       </Tabs>
+
+      {/* Media Folders - Below Project Calendar */}
+      <MediaFolderManager />
     </div>
   );
 }
