@@ -15,9 +15,14 @@ import {
   Phone,
   ExternalLink,
   Edit2,
-  Trash2
+  Trash2,
+  Heart
 } from "lucide-react";
 import { format } from 'date-fns';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import TimesheetApproval from './TimesheetApproval';
+import ContractorInvoicing from './ContractorInvoicing';
+import ContractorRatingSystem from './ContractorRatingSystem';
 
 export default function ContractorManagement() {
   const [showAddModal, setShowAddModal] = useState(false);
@@ -128,7 +133,15 @@ export default function ContractorManagement() {
   ).slice(0, 5);
 
   return (
-    <div className="space-y-6">
+    <Tabs defaultValue="contractors" className="space-y-6">
+      <TabsList>
+        <TabsTrigger value="contractors">Contractors</TabsTrigger>
+        <TabsTrigger value="timesheets">Timesheets</TabsTrigger>
+        <TabsTrigger value="invoices">Invoices</TabsTrigger>
+        <TabsTrigger value="ratings">Ratings</TabsTrigger>
+      </TabsList>
+
+      <TabsContent value="contractors" className="space-y-6">
       {/* Contractors List */}
       <Card className="glass-card rounded-2xl">
         <CardHeader className="flex flex-row items-center justify-between">
@@ -143,13 +156,28 @@ export default function ContractorManagement() {
             {contractors.map(contractor => (
               <div key={contractor.id} className="p-4 rounded-lg border hover:bg-gray-50 dark:hover:bg-gray-800">
                 <div className="flex items-start justify-between mb-3">
-                  <div>
-                    <h4 className="font-semibold text-gray-900 dark:text-white">{contractor.name}</h4>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">{contractor.role}</p>
+                  <div className="flex items-start gap-2">
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <h4 className="font-semibold text-gray-900 dark:text-white">{contractor.name}</h4>
+                        {contractor.is_preferred && (
+                          <Heart className="w-4 h-4 fill-violet-500 text-violet-500" />
+                        )}
+                      </div>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">{contractor.role}</p>
+                    </div>
                   </div>
-                  <Badge className={contractor.availability === 'available' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}>
-                    {contractor.availability}
-                  </Badge>
+                  <div className="flex items-center gap-2">
+                    {contractor.rating && (
+                      <Badge variant="outline" className="gap-1">
+                        <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+                        {contractor.rating.toFixed(1)}
+                      </Badge>
+                    )}
+                    <Badge className={contractor.availability === 'available' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}>
+                      {contractor.availability}
+                    </Badge>
+                  </div>
                 </div>
 
                 <div className="space-y-2 text-sm text-gray-600 dark:text-gray-400 mb-3">
@@ -171,10 +199,10 @@ export default function ContractorManagement() {
                       ${contractor.rate}/{contractor.rate_type}
                     </div>
                   )}
-                  {contractor.rating && (
+                  {contractor.completed_projects > 0 && (
                     <div className="flex items-center gap-2">
-                      <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-                      {contractor.rating}/5
+                      <Calendar className="w-3 h-3" />
+                      {contractor.completed_projects} projects completed
                     </div>
                   )}
                 </div>
@@ -441,6 +469,19 @@ export default function ContractorManagement() {
           </div>
         </DialogContent>
       </Dialog>
-    </div>
+      </TabsContent>
+
+      <TabsContent value="timesheets">
+        <TimesheetApproval />
+      </TabsContent>
+
+      <TabsContent value="invoices">
+        <ContractorInvoicing />
+      </TabsContent>
+
+      <TabsContent value="ratings">
+        <ContractorRatingSystem />
+      </TabsContent>
+    </Tabs>
   );
 }
