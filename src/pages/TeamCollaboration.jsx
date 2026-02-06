@@ -389,8 +389,14 @@ export default function TeamCollaboration() {
         </TabsContent>
       </Tabs>
 
-      {/* Media Folders - Below Project Calendar */}
-      <MediaFolderManager />
+      {/* Media Folders Section */}
+      <div className="space-y-4">
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Media Folders</h2>
+          <p className="text-gray-500 text-sm mt-1">Organize and manage your media assets</p>
+        </div>
+        <MediaFolderManager />
+      </div>
     </div>
   );
 }
