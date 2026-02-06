@@ -15,7 +15,8 @@ import {
   LayoutGrid,
   CalendarDays,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Zap
 } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { format, startOfMonth, endOfMonth, addMonths, subMonths } from 'date-fns';
@@ -34,12 +35,14 @@ import BulkScheduleModal from '@/components/social/BulkScheduleModal';
 import PostTemplateManager from '@/components/social/PostTemplateManager';
 import PostQueueManager from '@/components/social/PostQueueManager';
 import OptimalTimeAnalyzer from '@/components/social/OptimalTimeAnalyzer';
+import QuickPostModal from '@/components/social/QuickPostModal';
 
 export default function SocialCalendar() {
   const [showModal, setShowModal] = useState(false);
   const [showBulkModal, setShowBulkModal] = useState(false);
   const [selectedPost, setSelectedPost] = useState(null);
   const [showTemplateModal, setShowTemplateModal] = useState(false);
+  const [showQuickPost, setShowQuickPost] = useState(false);
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [approverName, setApproverName] = useState('');
   const [showApprovalSection, setShowApprovalSection] = useState(false);
@@ -247,6 +250,10 @@ export default function SocialCalendar() {
           </Button>
           {canEdit && (
             <>
+              <Button onClick={() => setShowQuickPost(true)} variant="outline" className="gap-2">
+                <Zap className="w-4 h-4" />
+                Quick Post
+              </Button>
               <Button onClick={() => setShowTemplateModal(true)} variant="outline" className="gap-2">
                 <Plus className="w-4 h-4" />
                 Templates
@@ -523,6 +530,11 @@ export default function SocialCalendar() {
       </div>
 
       {/* Modals */}
+      <QuickPostModal
+        open={showQuickPost}
+        onClose={() => setShowQuickPost(false)}
+      />
+
       <CalendarPostModal
         open={showModal}
         onClose={() => { setShowModal(false); setSelectedPost(null); }}
