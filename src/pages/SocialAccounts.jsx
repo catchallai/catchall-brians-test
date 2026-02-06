@@ -27,6 +27,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 export default function SocialAccounts() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [selectedPlatform, setSelectedPlatform] = useState(null);
+  const [connectingOAuth, setConnectingOAuth] = useState(false);
   const [credentials, setCredentials] = useState({
     api_key: '',
     api_secret: '',
@@ -96,7 +97,8 @@ export default function SocialAccounts() {
       color: 'bg-gray-900',
       description: 'Post tweets and threads automatically',
       setupUrl: 'https://developer.twitter.com/en/portal/dashboard',
-      fields: ['api_key', 'api_secret', 'access_token', 'access_token_secret']
+      fields: ['api_key', 'api_secret', 'access_token', 'access_token_secret'],
+      supportsOAuth: false
     },
     {
       name: 'LinkedIn',
@@ -104,7 +106,8 @@ export default function SocialAccounts() {
       color: 'bg-blue-600',
       description: 'Share professional updates and articles',
       setupUrl: 'https://www.linkedin.com/developers/apps',
-      fields: ['access_token']
+      fields: ['access_token'],
+      supportsOAuth: true
     },
     {
       name: 'Facebook',
@@ -112,7 +115,8 @@ export default function SocialAccounts() {
       color: 'bg-blue-500',
       description: 'Post to pages and groups',
       setupUrl: 'https://developers.facebook.com/apps',
-      fields: ['access_token', 'page_id']
+      fields: ['access_token', 'page_id'],
+      supportsOAuth: false
     },
     {
       name: 'Instagram',
@@ -120,7 +124,8 @@ export default function SocialAccounts() {
       color: 'bg-gradient-to-br from-purple-600 to-orange-400',
       description: 'Share photos and stories',
       setupUrl: 'https://developers.facebook.com/apps',
-      fields: ['access_token', 'instagram_account_id']
+      fields: ['access_token', 'instagram_account_id'],
+      supportsOAuth: false
     },
     {
       name: 'YouTube',
@@ -128,9 +133,65 @@ export default function SocialAccounts() {
       color: 'bg-red-600',
       description: 'Upload videos and shorts',
       setupUrl: 'https://console.cloud.google.com/apis/credentials',
-      fields: ['access_token']
+      fields: ['access_token'],
+      supportsOAuth: false
+    },
+    {
+      name: 'TikTok',
+      icon: () => (
+        <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
+          <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/>
+        </svg>
+      ),
+      color: 'bg-black',
+      description: 'Share short-form video content',
+      setupUrl: 'https://developers.tiktok.com/',
+      fields: [],
+      supportsOAuth: true
     }
   ];
+
+  const handleConnectOAuth = async (platformName) => {
+    setConnectingOAuth(true);
+    try {
+      if (platformName === 'LinkedIn') {
+        await base44.connectors.requestAuthorization('linkedin', {
+          scopes: ['openid', 'profile', 'email', 'w_member_social'],
+          reason: 'To post updates to your LinkedIn profile'
+        });
+        
+        // After authorization, create the account record
+        await addAccountMutation.mutateAsync({
+          platform: 'LinkedIn',
+          account_name: 'LinkedIn Account',
+          connection_type: 'oauth',
+          is_active: true,
+          status: 'active'
+        });
+        
+        setShowAddModal(false);
+      } else if (platformName === 'TikTok') {
+        await base44.connectors.requestAuthorization('tiktok', {
+          scopes: ['user.info.basic', 'user.info.profile', 'video.list'],
+          reason: 'To access your TikTok profile information'
+        });
+        
+        await addAccountMutation.mutateAsync({
+          platform: 'TikTok',
+          account_name: 'TikTok Account',
+          connection_type: 'oauth',
+          is_active: true,
+          status: 'active'
+        });
+        
+        setShowAddModal(false);
+      }
+    } catch (error) {
+      alert(`Failed to connect: ${error.message}`);
+    } finally {
+      setConnectingOAuth(false);
+    }
+  };
 
   const handleAddAccount = () => {
     if (!selectedPlatform) return;
@@ -140,6 +201,7 @@ export default function SocialAccounts() {
       platform: selectedPlatform,
       account_name: credentials.account_name,
       credentials: credentials,
+      connection_type: 'manual',
       is_active: true,
       status: 'active'
     });
@@ -324,20 +386,63 @@ export default function SocialAccounts() {
 
           {selectedPlatform && (
             <div className="space-y-4 mt-4">
-              <Alert className="border-blue-200 bg-blue-50 dark:bg-blue-900/20">
-                <Info className="w-4 h-4 text-blue-600" />
-                <AlertDescription className="text-sm text-blue-800 dark:text-blue-200">
-                  You'll need API credentials from {selectedPlatform}'s developer portal.
-                  <a 
-                    href={platforms.find(p => p.name === selectedPlatform)?.setupUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 ml-2 underline font-medium"
-                  >
-                    Open Developer Portal <ExternalLink className="w-3 h-3" />
-                  </a>
-                </AlertDescription>
-              </Alert>
+              {platforms.find(p => p.name === selectedPlatform)?.supportsOAuth ? (
+                <>
+                  <Alert className="border-green-200 bg-green-50 dark:bg-green-900/20">
+                    <CheckCircle className="w-4 h-4 text-green-600" />
+                    <AlertDescription className="text-sm text-green-800 dark:text-green-200">
+                      <strong>Easy Setup:</strong> Click the button below to securely connect your {selectedPlatform} account. 
+                      You'll be redirected to authorize access.
+                    </AlertDescription>
+                  </Alert>
+
+                  <div className="flex flex-col items-center justify-center py-8 gap-4">
+                    <div className={`w-20 h-20 ${platforms.find(p => p.name === selectedPlatform)?.color} rounded-2xl flex items-center justify-center`}>
+                      {(() => {
+                        const Icon = platforms.find(p => p.name === selectedPlatform)?.icon;
+                        return typeof Icon === 'function' ? <Icon /> : <Icon className="w-10 h-10 text-white" />;
+                      })()}
+                    </div>
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                      Connect {selectedPlatform}
+                    </h3>
+                    <Button
+                      onClick={() => handleConnectOAuth(selectedPlatform)}
+                      disabled={connectingOAuth}
+                      size="lg"
+                      className="gap-2"
+                    >
+                      {connectingOAuth ? (
+                        <>Connecting...</>
+                      ) : (
+                        <>
+                          <CheckCircle className="w-5 h-5" />
+                          Authorize with {selectedPlatform}
+                        </>
+                      )}
+                    </Button>
+                    <p className="text-xs text-gray-500 text-center max-w-md">
+                      We'll securely redirect you to {selectedPlatform} to authorize posting permissions. 
+                      Your credentials are never stored by us.
+                    </p>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <Alert className="border-blue-200 bg-blue-50 dark:bg-blue-900/20">
+                    <Info className="w-4 h-4 text-blue-600" />
+                    <AlertDescription className="text-sm text-blue-800 dark:text-blue-200">
+                      You'll need API credentials from {selectedPlatform}'s developer portal.
+                      <a 
+                        href={platforms.find(p => p.name === selectedPlatform)?.setupUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 ml-2 underline font-medium"
+                      >
+                        Open Developer Portal <ExternalLink className="w-3 h-3" />
+                      </a>
+                    </AlertDescription>
+                  </Alert>
 
               <div>
                 <Label>Account Name / Handle</Label>
@@ -401,17 +506,19 @@ export default function SocialAccounts() {
                 </div>
               )}
 
-              <div className="flex gap-3 justify-end pt-4">
-                <Button variant="outline" onClick={() => setShowAddModal(false)}>
-                  Cancel
-                </Button>
-                <Button
-                  onClick={handleAddAccount}
-                  disabled={!credentials.account_name || addAccountMutation.isPending}
-                >
-                  {addAccountMutation.isPending ? 'Connecting...' : 'Connect Account'}
-                </Button>
-              </div>
+                  <div className="flex gap-3 justify-end pt-4">
+                    <Button variant="outline" onClick={() => setShowAddModal(false)}>
+                      Cancel
+                    </Button>
+                    <Button
+                      onClick={handleAddAccount}
+                      disabled={!credentials.account_name || addAccountMutation.isPending}
+                    >
+                      {addAccountMutation.isPending ? 'Connecting...' : 'Connect Account'}
+                    </Button>
+                  </div>
+                </>
+              )}
             </div>
           )}
         </DialogContent>

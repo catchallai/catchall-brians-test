@@ -86,12 +86,34 @@ Deno.serve(async (req) => {
     // LinkedIn posting
     if (platforms.includes('LinkedIn')) {
       const linkedinAccount = socialAccounts.find(a => a.platform === 'LinkedIn');
-      if (linkedinAccount?.credentials?.access_token) {
-        results.push({
-          platform: 'LinkedIn',
-          success: false,
-          error: 'LinkedIn API integration coming soon'
-        });
+      if (linkedinAccount) {
+        try {
+          const response = await base44.asServiceRole.functions.invoke('postToLinkedIn', {
+            text: post.caption || post.content || '',
+            postId: postId
+          });
+
+          if (response.data.success) {
+            results.push({
+              platform: 'LinkedIn',
+              success: true,
+              id: response.data.id,
+              url: response.data.url
+            });
+          } else {
+            results.push({
+              platform: 'LinkedIn',
+              success: false,
+              error: response.data.error || 'Failed to post'
+            });
+          }
+        } catch (error) {
+          results.push({
+            platform: 'LinkedIn',
+            success: false,
+            error: error.message
+          });
+        }
       } else {
         results.push({
           platform: 'LinkedIn',
