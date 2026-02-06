@@ -26,9 +26,17 @@ Deno.serve(async (req) => {
     const results = [];
     const platforms = post.platforms || [];
 
+    // Get connected social accounts
+    const socialAccounts = await base44.asServiceRole.entities.SocialAccount.filter({
+      is_active: true
+    });
+
     // Post to Twitter if included
     if (platforms.includes('Twitter') || platforms.includes('twitter')) {
-      const twitterToken = Deno.env.get('TWITTER_BEARER_TOKEN');
+      const twitterAccount = socialAccounts.find(a => a.platform === 'Twitter');
+      const twitterToken = twitterAccount?.credentials?.access_token || 
+                          twitterAccount?.credentials?.bearer_token ||
+                          Deno.env.get('TWITTER_BEARER_TOKEN');
       
       if (twitterToken) {
         try {
@@ -75,19 +83,77 @@ Deno.serve(async (req) => {
       }
     }
 
-    // For other platforms (Instagram, Facebook, LinkedIn, YouTube)
-    // These would require additional API setup
-    const unsupportedPlatforms = platforms.filter(p => 
-      !['Twitter', 'twitter'].includes(p)
-    );
-    
-    unsupportedPlatforms.forEach(platform => {
-      results.push({
-        platform,
-        success: false,
-        error: 'Platform not yet supported. Please configure API access.'
-      });
-    });
+    // LinkedIn posting
+    if (platforms.includes('LinkedIn')) {
+      const linkedinAccount = socialAccounts.find(a => a.platform === 'LinkedIn');
+      if (linkedinAccount?.credentials?.access_token) {
+        results.push({
+          platform: 'LinkedIn',
+          success: false,
+          error: 'LinkedIn API integration coming soon'
+        });
+      } else {
+        results.push({
+          platform: 'LinkedIn',
+          success: false,
+          error: 'No LinkedIn account connected. Go to Social Accounts to connect.'
+        });
+      }
+    }
+
+    // Facebook posting
+    if (platforms.includes('Facebook')) {
+      const facebookAccount = socialAccounts.find(a => a.platform === 'Facebook');
+      if (facebookAccount?.credentials?.access_token) {
+        results.push({
+          platform: 'Facebook',
+          success: false,
+          error: 'Facebook API integration coming soon'
+        });
+      } else {
+        results.push({
+          platform: 'Facebook',
+          success: false,
+          error: 'No Facebook account connected. Go to Social Accounts to connect.'
+        });
+      }
+    }
+
+    // Instagram posting
+    if (platforms.includes('Instagram')) {
+      const instagramAccount = socialAccounts.find(a => a.platform === 'Instagram');
+      if (instagramAccount?.credentials?.access_token) {
+        results.push({
+          platform: 'Instagram',
+          success: false,
+          error: 'Instagram API integration coming soon'
+        });
+      } else {
+        results.push({
+          platform: 'Instagram',
+          success: false,
+          error: 'No Instagram account connected. Go to Social Accounts to connect.'
+        });
+      }
+    }
+
+    // YouTube posting
+    if (platforms.includes('YouTube')) {
+      const youtubeAccount = socialAccounts.find(a => a.platform === 'YouTube');
+      if (youtubeAccount?.credentials?.access_token) {
+        results.push({
+          platform: 'YouTube',
+          success: false,
+          error: 'YouTube API integration coming soon'
+        });
+      } else {
+        results.push({
+          platform: 'YouTube',
+          success: false,
+          error: 'No YouTube account connected. Go to Social Accounts to connect.'
+        });
+      }
+    }
 
     // Update post status
     const hasSuccessfulPost = results.some(r => r.success);
