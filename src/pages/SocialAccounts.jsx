@@ -152,45 +152,7 @@ export default function SocialAccounts() {
   ];
 
   const handleConnectOAuth = async (platformName) => {
-    setConnectingOAuth(true);
-    try {
-      if (platformName === 'LinkedIn') {
-        await base44.connectors.requestAuthorization('linkedin', {
-          scopes: ['openid', 'profile', 'email', 'w_member_social'],
-          reason: 'To post updates to your LinkedIn profile'
-        });
-        
-        // After authorization, create the account record
-        await addAccountMutation.mutateAsync({
-          platform: 'LinkedIn',
-          account_name: 'LinkedIn Account',
-          connection_type: 'oauth',
-          is_active: true,
-          status: 'active'
-        });
-        
-        setShowAddModal(false);
-      } else if (platformName === 'TikTok') {
-        await base44.connectors.requestAuthorization('tiktok', {
-          scopes: ['user.info.basic', 'user.info.profile', 'video.list'],
-          reason: 'To access your TikTok profile information'
-        });
-        
-        await addAccountMutation.mutateAsync({
-          platform: 'TikTok',
-          account_name: 'TikTok Account',
-          connection_type: 'oauth',
-          is_active: true,
-          status: 'active'
-        });
-        
-        setShowAddModal(false);
-      }
-    } catch (error) {
-      alert(`Failed to connect: ${error.message}`);
-    } finally {
-      setConnectingOAuth(false);
-    }
+    alert(`OAuth integration requires backend setup. For now, ${platformName} needs to be connected via the developer portal with API credentials. Click "Manual Setup" below to enter your credentials.`);
   };
 
   const handleAddAccount = () => {
@@ -406,25 +368,27 @@ export default function SocialAccounts() {
                     <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                       Connect {selectedPlatform}
                     </h3>
+                    
+                    <Alert className="border-yellow-200 bg-yellow-50 dark:bg-yellow-900/20">
+                      <AlertCircle className="w-4 h-4 text-yellow-600" />
+                      <AlertDescription className="text-sm text-yellow-800 dark:text-yellow-200">
+                        <strong>OAuth coming soon!</strong> For now, use manual setup with API credentials from the developer portal.
+                      </AlertDescription>
+                    </Alert>
+
                     <Button
-                      onClick={() => handleConnectOAuth(selectedPlatform)}
-                      disabled={connectingOAuth}
+                      onClick={() => {
+                        const platform = platforms.find(p => p.name === selectedPlatform);
+                        platform.supportsOAuth = false;
+                        setSelectedPlatform(selectedPlatform);
+                      }}
+                      variant="outline"
                       size="lg"
                       className="gap-2"
                     >
-                      {connectingOAuth ? (
-                        <>Connecting...</>
-                      ) : (
-                        <>
-                          <CheckCircle className="w-5 h-5" />
-                          Authorize with {selectedPlatform}
-                        </>
-                      )}
+                      <Key className="w-5 h-5" />
+                      Use Manual Setup Instead
                     </Button>
-                    <p className="text-xs text-gray-500 text-center max-w-md">
-                      We'll securely redirect you to {selectedPlatform} to authorize posting permissions. 
-                      Your credentials are never stored by us.
-                    </p>
                   </div>
                 </>
               ) : (
