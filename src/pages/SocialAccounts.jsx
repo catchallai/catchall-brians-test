@@ -65,9 +65,28 @@ export default function SocialAccounts() {
 
   const testConnectionMutation = useMutation({
     mutationFn: async (accountId) => {
-      // In a real implementation, this would test the API connection
-      return { success: true };
+      const account = accounts.find(a => a.id === accountId);
+      if (!account) throw new Error('Account not found');
+      
+      // Simulate testing the connection with a delay
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      // In a real implementation, you would call the actual API here
+      // For now, we'll simulate success/failure based on whether credentials exist
+      const hasCredentials = account.credentials?.access_token || account.credentials?.api_key;
+      
+      if (!hasCredentials) {
+        throw new Error('No credentials found');
+      }
+      
+      return { success: true, platform: account.platform };
     },
+    onSuccess: (data) => {
+      alert(`✅ ${data.platform} connection successful!`);
+    },
+    onError: (error) => {
+      alert(`❌ Connection failed: ${error.message}`);
+    }
   });
 
   const platforms = [

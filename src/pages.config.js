@@ -153,6 +153,7 @@ import SpaceTemplates from './pages/SpaceTemplates';
 import Spaces from './pages/Spaces';
 import SubscriptionsModule from './pages/SubscriptionsModule';
 import TakeDownRequestor from './pages/TakeDownRequestor';
+import TeamCollaboration from './pages/TeamCollaboration';
 import TicketsModule from './pages/TicketsModule';
 import TrafficAnalytics from './pages/TrafficAnalytics';
 import UserProfile from './pages/UserProfile';
@@ -164,7 +165,6 @@ import WebDashboard from './pages/WebDashboard';
 import WikiPageEditor from './pages/WikiPageEditor';
 import WorkflowBuilder from './pages/WorkflowBuilder';
 import WorkflowEngine from './pages/WorkflowEngine';
-import TeamCollaboration from './pages/TeamCollaboration';
 import __Layout from './Layout.jsx';
 
 
@@ -275,6 +275,7 @@ export const PAGES = {
     "Spaces": Spaces,
     "SubscriptionsModule": SubscriptionsModule,
     "TakeDownRequestor": TakeDownRequestor,
+    "TeamCollaboration": TeamCollaboration,
     "TicketsModule": TicketsModule,
     "TrafficAnalytics": TrafficAnalytics,
     "UserProfile": UserProfile,
@@ -286,7 +287,6 @@ export const PAGES = {
     "WikiPageEditor": WikiPageEditor,
     "WorkflowBuilder": WorkflowBuilder,
     "WorkflowEngine": WorkflowEngine,
-    "TeamCollaboration": TeamCollaboration,
 }
 
 export const pagesConfig = {
