@@ -142,17 +142,27 @@ export default function SocialAccounts() {
   const handleConnectOAuth = async (platformName) => {
     setConnectingOAuth(true);
     try {
-      // Create the account record first
-      await addAccountMutation.mutateAsync({
-        platform: platformName,
-        account_name: `${platformName} Account`,
-        connection_type: 'oauth',
-        is_active: true,
-        status: 'active'
-      });
-      
-      alert(`✅ ${platformName} connected successfully! The account is now authorized and ready to use.`);
-      setShowAddModal(false);
+      if (platformName === 'LinkedIn') {
+        // Verify connection by getting LinkedIn profile info
+        const response = await base44.functions.invoke('verifyLinkedInConnection', {});
+        
+        if (response.data.success) {
+          // Create the account record with actual profile info
+          await addAccountMutation.mutateAsync({
+            platform: 'LinkedIn',
+            account_name: response.data.name || 'LinkedIn Account',
+            connection_type: 'oauth',
+            is_active: true,
+            status: 'active',
+            profile_url: response.data.profileUrl
+          });
+          
+          alert(`✅ LinkedIn connected successfully as ${response.data.name}!`);
+          setShowAddModal(false);
+        } else {
+          throw new Error(response.data.error || 'Failed to verify connection');
+        }
+      }
     } catch (error) {
       alert(`Failed to connect: ${error.message}`);
     } finally {
