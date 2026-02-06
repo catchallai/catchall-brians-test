@@ -14,6 +14,7 @@ import {
   HardDrive,
   Trash2
 } from "lucide-react";
+import FolderContentModal from './FolderContentModal';
 
 const FOLDER_TYPES = [
   { type: 'RAW', icon: Image, color: 'bg-blue-500', description: 'Raw photo files' },
@@ -25,6 +26,7 @@ const FOLDER_TYPES = [
 export default function MediaFolderManager() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [customFolderName, setCustomFolderName] = useState('');
+  const [selectedFolder, setSelectedFolder] = useState(null);
   const queryClient = useQueryClient();
 
   const { data: folders = [] } = useQuery({
@@ -120,7 +122,11 @@ export default function MediaFolderManager() {
             {typeFolders.length > 0 && (
               <div className="pl-10 space-y-2">
                 {typeFolders.map(folder => (
-                  <div key={folder.id} className="flex items-center justify-between p-2 rounded-lg border hover:bg-gray-50 dark:hover:bg-gray-800">
+                  <div 
+                    key={folder.id} 
+                    className="flex items-center justify-between p-2 rounded-lg border hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer"
+                    onClick={() => setSelectedFolder(folder)}
+                  >
                     <div>
                       <div className="font-medium text-sm text-gray-900 dark:text-white">
                         {folder.name}
@@ -132,7 +138,8 @@ export default function MediaFolderManager() {
                     <Button 
                       size="sm" 
                       variant="ghost"
-                      onClick={() => {
+                      onClick={(e) => {
+                        e.stopPropagation();
                         if (confirm('Delete this folder?')) {
                           deleteMutation.mutate(folder.id);
                         }
@@ -153,7 +160,11 @@ export default function MediaFolderManager() {
             <h3 className="font-semibold text-gray-900 dark:text-white">Custom Folders</h3>
             <div className="space-y-2">
               {customFolders.map(folder => (
-                <div key={folder.id} className="flex items-center justify-between p-2 rounded-lg border hover:bg-gray-50 dark:hover:bg-gray-800">
+                <div 
+                  key={folder.id} 
+                  className="flex items-center justify-between p-2 rounded-lg border hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer"
+                  onClick={() => setSelectedFolder(folder)}
+                >
                   <div className="flex items-center gap-2">
                     <div className={`${folder.color || 'bg-violet-500'} w-8 h-8 rounded-lg flex items-center justify-center`}>
                       <Folder className="w-4 h-4 text-white" />
@@ -170,7 +181,8 @@ export default function MediaFolderManager() {
                   <Button 
                     size="sm" 
                     variant="ghost"
-                    onClick={() => {
+                    onClick={(e) => {
+                      e.stopPropagation();
                       if (confirm('Delete this folder?')) {
                         deleteMutation.mutate(folder.id);
                       }
@@ -218,6 +230,13 @@ export default function MediaFolderManager() {
           </div>
         </div>
       </CardContent>
+
+      {/* Folder Content Modal */}
+      <FolderContentModal
+        folder={selectedFolder}
+        open={!!selectedFolder}
+        onClose={() => setSelectedFolder(null)}
+      />
     </Card>
   );
 }
