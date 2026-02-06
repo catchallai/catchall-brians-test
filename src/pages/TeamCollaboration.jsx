@@ -14,10 +14,15 @@ import {
   ArrowRight,
   CheckCircle,
   Clock,
-  AlertCircle
+  AlertCircle,
+  UserPlus,
+  Folder
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { format } from 'date-fns';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import ContractorManagement from '@/components/collaboration/ContractorManagement';
+import MediaFolderManager from '@/components/collaboration/MediaFolderManager';
 
 export default function TeamCollaboration() {
   const { data: user } = useQuery({
@@ -100,6 +105,20 @@ export default function TeamCollaboration() {
       icon: MessageSquare,
       link: 'Inbox',
       color: 'bg-pink-500'
+    },
+    {
+      title: 'Contractors',
+      description: 'Manage contractors & schedule',
+      icon: UserPlus,
+      link: null,
+      color: 'bg-violet-500'
+    },
+    {
+      title: 'Media Folders',
+      description: 'Organize photos & videos',
+      icon: Folder,
+      link: null,
+      color: 'bg-emerald-500'
     }
   ];
 
@@ -128,10 +147,24 @@ export default function TeamCollaboration() {
       </div>
 
       {/* Quick Links */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4">
         {quickLinks.map((item) => (
-          <Link key={item.link} to={createPageUrl(item.link)}>
-            <Card className="hover:shadow-lg transition-all cursor-pointer h-full">
+          item.link ? (
+            <Link key={item.link} to={createPageUrl(item.link)}>
+              <Card className="hover:shadow-lg transition-all cursor-pointer h-full">
+                <CardContent className="p-4 flex flex-col items-center text-center">
+                  <div className={`${item.color} w-12 h-12 rounded-xl flex items-center justify-center mb-3`}>
+                    <item.icon className="w-6 h-6 text-white" />
+                  </div>
+                  <h3 className="font-semibold text-gray-900 dark:text-white text-sm mb-1">
+                    {item.title}
+                  </h3>
+                  <p className="text-xs text-gray-500">{item.description}</p>
+                </CardContent>
+              </Card>
+            </Link>
+          ) : (
+            <Card key={item.title} className="hover:shadow-lg transition-all h-full">
               <CardContent className="p-4 flex flex-col items-center text-center">
                 <div className={`${item.color} w-12 h-12 rounded-xl flex items-center justify-center mb-3`}>
                   <item.icon className="w-6 h-6 text-white" />
@@ -142,12 +175,21 @@ export default function TeamCollaboration() {
                 <p className="text-xs text-gray-500">{item.description}</p>
               </CardContent>
             </Card>
-          </Link>
+          )
         ))}
       </div>
 
-      {/* Main Content Grid */}
-      <div className="grid lg:grid-cols-2 gap-6">
+      {/* Contractors & Media Management */}
+      <Tabs defaultValue="overview" className="space-y-6">
+        <TabsList>
+          <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="contractors">Contractors</TabsTrigger>
+          <TabsTrigger value="media">Media Folders</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="overview">
+          {/* Main Content Grid */}
+          <div className="grid lg:grid-cols-2 gap-6">
         {/* Active Projects */}
         <Card className="glass-card rounded-2xl">
           <CardHeader className="flex flex-row items-center justify-between">
@@ -348,6 +390,16 @@ export default function TeamCollaboration() {
           </CardContent>
         </Card>
       </div>
+        </TabsContent>
+
+        <TabsContent value="contractors">
+          <ContractorManagement />
+        </TabsContent>
+
+        <TabsContent value="media">
+          <MediaFolderManager />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
