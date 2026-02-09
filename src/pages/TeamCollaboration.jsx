@@ -23,8 +23,11 @@ import { format } from 'date-fns';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ContractorManagement from '@/components/collaboration/ContractorManagement';
 import MediaFolderManager from '@/components/collaboration/MediaFolderManager';
+import QuickAddCalendarModal from '@/components/collaboration/QuickAddCalendarModal';
 
 export default function TeamCollaboration() {
+  const [showQuickAdd, setShowQuickAdd] = React.useState(false);
+
   const { data: user } = useQuery({
     queryKey: ['current-user'],
     queryFn: () => base44.auth.me()
@@ -137,6 +140,10 @@ export default function TeamCollaboration() {
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Team Collaboration</h1>
           <p className="text-gray-500 mt-1">Your hub for projects, calendars, and team coordination</p>
         </div>
+        <Button onClick={() => setShowQuickAdd(true)} className="gap-2">
+          <Calendar className="w-4 h-4" />
+          Quick Add to Calendar
+        </Button>
       </div>
 
       {/* Quick Links */}
@@ -397,6 +404,9 @@ export default function TeamCollaboration() {
         </div>
         <MediaFolderManager />
       </div>
+
+      {/* Quick Add Modal */}
+      <QuickAddCalendarModal open={showQuickAdd} onClose={() => setShowQuickAdd(false)} />
     </div>
   );
 }
