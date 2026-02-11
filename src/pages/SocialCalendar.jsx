@@ -439,6 +439,7 @@ export default function SocialCalendar() {
                     onEdit={handleEdit}
                     onDelete={handleDelete}
                     compact
+                    showDeleteButton={true}
                   />
                   {post.caption && (
                     <p className="text-xs text-gray-600 mt-2 line-clamp-3 px-1">{post.caption}</p>

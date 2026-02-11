@@ -6,7 +6,7 @@ import { Pencil, Trash2, Image, Play, Send, Zap } from "lucide-react";
 import { base44 } from '@/api/base44Client';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
-export default function CalendarPostCard({ post, onEdit, onDelete, compact = false }) {
+export default function CalendarPostCard({ post, onEdit, onDelete, compact = false, showDeleteButton = false }) {
   const queryClient = useQueryClient();
 
   const publishNowMutation = useMutation({
@@ -73,7 +73,7 @@ export default function CalendarPostCard({ post, onEdit, onDelete, compact = fal
         </div>
 
         {/* Edit/Delete/Publish Buttons */}
-        <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
+        <div className={`absolute top-2 right-2 flex gap-1 transition-opacity ${showDeleteButton ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
           {post.status === 'scheduled' && post.auto_post && (
             <Button 
               size="icon" 
