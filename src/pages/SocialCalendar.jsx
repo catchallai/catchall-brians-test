@@ -48,7 +48,7 @@ export default function SocialCalendar() {
   const [showApprovalSection, setShowApprovalSection] = useState(false);
   const [viewMode, setViewMode] = useState('nine-grid');
   const [calendarViewType, setCalendarViewType] = useState('month');
-  const [nineGridPosts, setNineGridPosts] = useState([]);
+  const [nineGridPosts, setNineGridPosts] = useState(Array(9).fill(null));
   const [galleryPosts, setGalleryPosts] = useState([]);
   const printRef = useRef();
   const queryClient = useQueryClient();
@@ -354,29 +354,12 @@ export default function SocialCalendar() {
          {viewMode === 'nine-grid' && (
            <>
              <NineGridEditor
-               posts={filteredPosts.filter(p => !galleryPosts.some(gp => gp.id === p.id))}
-               onPostsChange={(newPosts) => {
-                 // Update order and dates based on position
-                 newPosts.forEach((post, index) => {
-                   if (post) {
-                     const newDate = new Date(currentMonth);
-                     newDate.setDate(newDate.getDate() + (index * 3));
-                     updateMutation.mutate({ 
-                       id: post.id, 
-                       data: { 
-                         ...post, 
-                         order: index,
-                         scheduled_date: newDate.toISOString().split('T')[0]
-                       } 
-                     });
-                   }
-                 });
-               }}
+               posts={nineGridPosts}
+               onPostsChange={setNineGridPosts}
                onEditPost={(post) => {
                  setSelectedPost(post);
                  setShowModal(true);
                }}
-               baseScheduleDate={startOfMonth(currentMonth).toISOString().split('T')[0]}
              />
              <PostGallery
                posts={galleryPosts}
