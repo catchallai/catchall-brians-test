@@ -78,8 +78,8 @@ export default function NineGridEditor({ posts = [], onPostsChange, onEditPost, 
     })
   );
 
-  // Ensure we have exactly 9 slots - take the first post from each group of posts
-  const gridPosts = Array(9).fill(null).map((_, i) => posts[i] || null);
+  // Ensure we have exactly 9 slots - all empty by default
+  const gridPosts = Array(9).fill(null);
 
   const handleDragStart = (event) => {
     setActiveId(event.active.id);
