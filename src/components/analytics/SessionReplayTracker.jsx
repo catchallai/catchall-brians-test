@@ -1,9 +1,8 @@
 import { useEffect } from 'react';
+import { base44 } from '@/api/base44Client';
 
 export default function SessionReplayTracker() {
   useEffect(() => {
-    const API_KEY = "sk_lfa4iduz2rr4q2dqwrbq0w";
-    const API_URL = "https://preview-sandbox--84959bbb4fa913ddfb762f8b27943e4f.base44.app/api/functions/trackSession";
     
     let sessionId = Math.random().toString(36).substring(2) + Date.now().toString(36);
     let sessionStart = Date.now();
