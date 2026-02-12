@@ -9,6 +9,7 @@ import GlobalSearch from '@/components/search/GlobalSearch';
 import { ThemeProvider, useTheme } from '@/components/theme/ThemeProvider';
 import ThemeToggle from '@/components/theme/ThemeToggle';
 import NotificationBell from '@/components/notifications/NotificationBell';
+import SessionReplayTracker from '@/components/analytics/SessionReplayTracker';
 
 import {
                         LayoutDashboard,
@@ -613,6 +614,7 @@ function LayoutContent({ children, currentPageName }) {
   return (
     <ThemeProvider>
     <ToastProvider>
+    <SessionReplayTracker />
     {/* Google Analytics */}
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-15KW7LZW87"></script>
     <script dangerouslySetInnerHTML={{
