@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { Download, Eye, AlertCircle } from "lucide-react";
+import SessionReplayTracker from '@/components/analytics/SessionReplayTracker';
 
 export default function PublicDocumentViewer() {
   const urlParams = new URLSearchParams(window.location.search);
@@ -82,6 +83,7 @@ export default function PublicDocumentViewer() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-6">
+      <SessionReplayTracker />
       <div className="max-w-2xl mx-auto">
         <div className="bg-white rounded-xl shadow-lg overflow-hidden">
           {/* Header */}

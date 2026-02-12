@@ -6,6 +6,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import { createPageUrl } from '@/utils';
+import SessionReplayTracker from '@/components/analytics/SessionReplayTracker';
 
 export default function PublicLandingPage() {
   const urlParams = new URLSearchParams(window.location.search);
@@ -49,6 +50,7 @@ export default function PublicLandingPage() {
 
   return (
     <div className="min-h-screen bg-white">
+      <SessionReplayTracker />
       {/* Render sections */}
       {page.sections && page.sections.length > 0 ? (
         <div className="divide-y">

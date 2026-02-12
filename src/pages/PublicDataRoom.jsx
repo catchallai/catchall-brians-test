@@ -16,6 +16,7 @@ import {
   Shield,
   AlertCircle 
 } from 'lucide-react';
+import SessionReplayTracker from '@/components/analytics/SessionReplayTracker';
 
 export default function PublicDataRoom() {
   const [password, setPassword] = useState('');
@@ -162,6 +163,7 @@ export default function PublicDataRoom() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-violet-50 to-cyan-50 p-6">
+      <SessionReplayTracker />
       <div className="max-w-6xl mx-auto space-y-6">
         <Card>
           <CardHeader>
