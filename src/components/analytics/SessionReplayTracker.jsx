@@ -27,14 +27,8 @@ export default function SessionReplayTracker() {
     function sendBatch() {
       if (events.length === 0) return;
       
-      fetch(API_URL, {
-        method: "POST",
-        headers: { 
-          "Content-Type": "application/json",
-          "X-API-Key": API_KEY 
-        },
-        body: JSON.stringify({ events: [...events] })
-      }).catch(console.error);
+      base44.functions.invoke('trackSession', { events: [...events] })
+        .catch(console.error);
       
       events = [];
     }
