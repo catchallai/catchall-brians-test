@@ -283,7 +283,7 @@ function SidebarContent({ currentPage, onNavigate, isEnabled, user, onAddFavorit
     'SEO': true,
     'Social': true,
     'Web': true,
-    'Project Management': true,
+    'Team Collaboration': true,
     'Documentation': true,
     'Communications': true,
     'Payments': true,
