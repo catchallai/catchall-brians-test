@@ -354,10 +354,21 @@ export default function SocialCalendar() {
          {viewMode === 'nine-grid' && (
            <>
              <NineGridEditor
-               posts={nineGridPosts}
-               onPostsChange={setNineGridPosts}
-               onEditPost={(post) => {
+               posts={filteredPosts}
+               onPostsChange={(updatedPosts) => {
+                 // Update order in DB based on new grid positions
+                 updatedPosts.forEach((post, idx) => {
+                   if (post && post.id) {
+                     updateMutation.mutate({ id: post.id, data: { order: idx } });
+                   }
+                 });
+               }}
+               onEditPost={(post, isPreview) => {
                  setSelectedPost(post);
+                 setShowModal(true);
+               }}
+               onAddPost={(position, suggestedDate) => {
+                 setSelectedPost(suggestedDate ? { scheduled_date: suggestedDate } : null);
                  setShowModal(true);
                }}
              />
