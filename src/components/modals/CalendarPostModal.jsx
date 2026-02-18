@@ -206,7 +206,7 @@ export default function CalendarPostModal({ open, onClose, post, onSave, isLoadi
             <div className="border-2 border-dashed rounded-lg p-4 text-center">
               {formData.image_url ? (
                 <div className="relative">
-                  <img src={formData.image_url} alt="Preview" className="w-full h-40 object-cover rounded" />
+                  <img src={formData.image_url} alt="Preview" className="w-full rounded object-contain max-h-80" style={{background:'#f3f4f6'}} />
                   <Button 
                     type="button"
                     size="icon" 
@@ -219,7 +219,7 @@ export default function CalendarPostModal({ open, onClose, post, onSave, isLoadi
                 </div>
               ) : formData.video_url ? (
                 <div className="relative">
-                  <video src={formData.video_url} controls className="w-full h-40 object-cover rounded" />
+                  <video src={formData.video_url} controls className="w-full rounded max-h-80" />
                   <Button 
                     type="button"
                     size="icon" 
