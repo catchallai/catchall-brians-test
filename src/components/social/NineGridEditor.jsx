@@ -1,21 +1,19 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { DndContext, closestCenter, DragOverlay, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { SortableContext, useSortable, rectSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 
-function SortableGridItem({ id, post, gridLabel, onEdit, onAddPost, position, onDragStart }) {
+function SortableGridItem({ id, post, position, onAddPost, onEditPost }) {
   const {
     setNodeRef,
     transform,
     transition,
     isDragging,
-    isOver,
     listeners,
     attributes,
-  } = useSortable({ id });
+  } = useSortable({ id, disabled: !post });
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -23,7 +21,27 @@ function SortableGridItem({ id, post, gridLabel, onEdit, onAddPost, position, on
     opacity: isDragging ? 0.5 : 1,
   };
 
+  const clickTimer = useRef(null);
 
+  const handleClick = () => {
+    if (!post) {
+      // Single click on empty = create new post
+      onAddPost(position);
+      return;
+    }
+    // Single click on filled = edit
+    if (clickTimer.current) {
+      clearTimeout(clickTimer.current);
+      clickTimer.current = null;
+      // Double click = preview (same as edit for now, differentiated by flag)
+      onEditPost(post, true);
+      return;
+    }
+    clickTimer.current = setTimeout(() => {
+      clickTimer.current = null;
+      onEditPost(post, false);
+    }, 220);
+  };
 
   if (!post) {
     return (
@@ -36,6 +54,7 @@ function SortableGridItem({ id, post, gridLabel, onEdit, onAddPost, position, on
         <div className="text-center">
           <Plus className="w-8 h-8 text-gray-400 dark:text-gray-500 group-hover:text-violet-500 transition-colors mx-auto mb-2" />
           <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Add Post</p>
+          <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">Click to create</p>
         </div>
       </div>
     );
@@ -48,14 +67,15 @@ function SortableGridItem({ id, post, gridLabel, onEdit, onAddPost, position, on
       className="aspect-square rounded-xl overflow-hidden relative group shadow-md hover:shadow-xl transition-all cursor-grab active:cursor-grabbing"
       {...listeners}
       {...attributes}
-      title="Drag to move or hold and drag outside grid to the Post Gallery"
+      onClick={handleClick}
+      title="Click to edit · Double-click to preview · Drag to reorder"
     >
       {post.image_url ? (
-        <img src={post.image_url} alt={post.caption || 'Post'} className="w-full h-full object-contain bg-gray-100 dark:bg-gray-900" />
+        <img src={post.image_url} alt={post.caption || 'Post'} className="w-full h-full object-cover" />
       ) : post.video_url ? (
-        <video 
+        <video
           src={post.video_url}
-          className="w-full h-full object-contain bg-gray-100 dark:bg-gray-900"
+          className="w-full h-full object-cover"
           muted
           playsInline
         />
@@ -64,54 +84,69 @@ function SortableGridItem({ id, post, gridLabel, onEdit, onAddPost, position, on
           <p className="text-white text-center p-4 text-sm font-medium line-clamp-3">{post.caption || 'No caption'}</p>
         </div>
       )}
-      
 
+      {/* Hover overlay */}
+      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-all flex items-end">
+        <div className="w-full p-2 opacity-0 group-hover:opacity-100 transition-all">
+          {post.scheduled_date && (
+            <p className="text-white text-xs font-medium bg-black/50 rounded px-1.5 py-0.5 inline-block">
+              {new Date(post.scheduled_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+            </p>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
 
-export default function NineGridEditor({ posts = [], onPostsChange, onEditPost, onPostDateChange, gridLabels = [], baseScheduleDate = null }) {
+export default function NineGridEditor({ posts = [], onPostsChange, onEditPost, onAddPost, baseScheduleDate = null }) {
   const [activeId, setActiveId] = useState(null);
   const sensors = useSensors(
-    useSensor(PointerSensor, {
-      distance: 8,
-    })
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } })
   );
 
-  // Ensure we have exactly 9 slots - all empty by default
-  const gridPosts = Array(9).fill(null);
+  // Sort posts by scheduled_date ascending, fill into slots left-to-right
+  const sortedPosts = [...posts].sort((a, b) => {
+    if (!a.scheduled_date) return 1;
+    if (!b.scheduled_date) return -1;
+    return new Date(a.scheduled_date) - new Date(b.scheduled_date);
+  });
 
-  const handleDragStart = (event) => {
-    setActiveId(event.active.id);
-  };
+  const gridSlots = Array(9).fill(null);
+  sortedPosts.slice(0, 9).forEach((post, i) => {
+    gridSlots[i] = post;
+  });
+
+  const handleDragStart = (event) => setActiveId(event.active.id);
 
   const handleDragEnd = (event) => {
     const { active, over } = event;
-    
     if (over && active.id !== over.id) {
       const oldIndex = parseInt(active.id);
       const newIndex = parseInt(over.id);
-      
-      const newPosts = [...gridPosts];
-      [newPosts[oldIndex], newPosts[newIndex]] = [newPosts[newIndex], newPosts[oldIndex]];
-      
-      // Calculate new date if post moved and callback is provided
-      if (newPosts[newIndex] && onPostDateChange && baseScheduleDate) {
-        const dayInterval = 3;
-        const newDate = new Date(baseScheduleDate);
-        newDate.setDate(newDate.getDate() + (newIndex * dayInterval));
-        onPostDateChange(newPosts[newIndex].id, newDate.toISOString());
-      }
-      
-      onPostsChange(newPosts.filter(p => p !== null));
+      const newSlots = [...gridSlots];
+      [newSlots[oldIndex], newSlots[newIndex]] = [newSlots[newIndex], newSlots[oldIndex]];
+      onPostsChange(newSlots.filter(p => p !== null));
     }
-    
     setActiveId(null);
   };
 
   const handleAddPost = (position) => {
-    onEditPost(null, position);
+    // Calculate a suggested date based on position if baseScheduleDate exists
+    let suggestedDate = null;
+    if (baseScheduleDate) {
+      const base = new Date(baseScheduleDate);
+      base.setDate(base.getDate() + position * 3);
+      suggestedDate = base.toISOString().split('T')[0];
+    }
+    onAddPost(position, suggestedDate);
   };
+
+  const handleEditPost = (post, isPreview) => {
+    onEditPost(post, isPreview);
+  };
+
+  const activePost = activeId !== null ? gridSlots[parseInt(activeId)] : null;
 
   return (
     <Card className="glass-card rounded-2xl">
@@ -119,7 +154,9 @@ export default function NineGridEditor({ posts = [], onPostsChange, onEditPost, 
         <div className="flex items-center justify-between mb-6">
           <div>
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white">9-Grid Layout</h3>
-            <p className="text-sm text-gray-500 dark:text-gray-400">Drag posts to rearrange</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              Posts auto-sort by date · Click empty to create · Click post to edit · Double-click to preview
+            </p>
           </div>
         </div>
 
@@ -129,34 +166,29 @@ export default function NineGridEditor({ posts = [], onPostsChange, onEditPost, 
           onDragStart={handleDragStart}
           onDragEnd={handleDragEnd}
         >
-          <SortableContext items={gridPosts.map((_, i) => String(i))} strategy={rectSortingStrategy}>
+          <SortableContext items={gridSlots.map((_, i) => String(i))} strategy={rectSortingStrategy}>
             <div className="grid grid-cols-3 gap-4">
-              {gridPosts.map((post, index) => (
+              {gridSlots.map((post, index) => (
                 <SortableGridItem
                   key={index}
                   id={String(index)}
                   post={post}
-                  gridLabel={gridLabels[index]}
                   position={index}
-                  onEdit={onEditPost}
                   onAddPost={handleAddPost}
+                  onEditPost={handleEditPost}
                 />
               ))}
             </div>
           </SortableContext>
 
           <DragOverlay>
-            {activeId !== null && gridPosts[parseInt(activeId)] && (
-              <div className="aspect-square rounded-xl overflow-hidden shadow-2xl opacity-90 max-w-xs">
-                {gridPosts[parseInt(activeId)].image_url ? (
-                   <img 
-                     src={gridPosts[parseInt(activeId)].image_url} 
-                     alt="Dragging" 
-                     className="w-full h-full object-contain" 
-                   />
+            {activePost && (
+              <div className="aspect-square rounded-xl overflow-hidden shadow-2xl opacity-90 w-40">
+                {activePost.image_url ? (
+                  <img src={activePost.image_url} alt="Dragging" className="w-full h-full object-cover" />
                 ) : (
                   <div className="w-full h-full bg-gradient-to-br from-violet-400 to-purple-500 flex items-center justify-center">
-                    <p className="text-white text-center p-4 text-sm">{gridPosts[parseInt(activeId)].caption}</p>
+                    <p className="text-white text-center p-4 text-sm">{activePost.caption}</p>
                   </div>
                 )}
               </div>
