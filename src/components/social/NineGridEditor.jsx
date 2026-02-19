@@ -101,8 +101,10 @@ function SortableGridItem({ id, post, position, onAddPost, onEditPost }) {
 
 export default function NineGridEditor({ posts = [], onPostsChange, onEditPost, onAddPost, baseScheduleDate = null }) {
   const [activeId, setActiveId] = useState(null);
+  const [localSlots, setLocalSlots] = useState(null); // optimistic local state
+
   const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 8 } })
+    useSensor(PointerSensor, { activationConstraint: { distance: 4 } })
   );
 
   // Sort posts by scheduled_date ascending, fill into slots left-to-right
@@ -112,12 +114,18 @@ export default function NineGridEditor({ posts = [], onPostsChange, onEditPost, 
     return new Date(a.scheduled_date) - new Date(b.scheduled_date);
   });
 
-  const gridSlots = Array(9).fill(null);
+  const baseSlots = Array(9).fill(null);
   sortedPosts.slice(0, 9).forEach((post, i) => {
-    gridSlots[i] = post;
+    baseSlots[i] = post;
   });
 
-  const handleDragStart = (event) => setActiveId(event.active.id);
+  // Use local optimistic slots while dragging, otherwise use computed slots
+  const gridSlots = localSlots || baseSlots;
+
+  const handleDragStart = (event) => {
+    setActiveId(event.active.id);
+    setLocalSlots([...baseSlots]); // snapshot current state
+  };
 
   const handleDragEnd = (event) => {
     const { active, over } = event;
@@ -126,9 +134,11 @@ export default function NineGridEditor({ posts = [], onPostsChange, onEditPost, 
       const newIndex = parseInt(over.id);
       const newSlots = [...gridSlots];
       [newSlots[oldIndex], newSlots[newIndex]] = [newSlots[newIndex], newSlots[oldIndex]];
-      onPostsChange(newSlots.filter(p => p !== null));
+      setLocalSlots(newSlots); // instant UI update
+      onPostsChange(newSlots.filter(p => p !== null)); // async backend save
     }
     setActiveId(null);
+    setLocalSlots(null);
   };
 
   const handleAddPost = (position) => {
