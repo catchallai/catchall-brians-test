@@ -134,8 +134,21 @@ export default function NineGridEditor({ posts = [], onPostsChange, onEditPost, 
       const newIndex = parseInt(over.id);
       const newSlots = [...gridSlots];
       [newSlots[oldIndex], newSlots[newIndex]] = [newSlots[newIndex], newSlots[oldIndex]];
-      setLocalSlots(newSlots); // instant UI update
-      onPostsChange(newSlots.filter(p => p !== null)); // async backend save
+      
+      // Update scheduled dates based on new position
+      const today = new Date();
+      const updatedSlots = newSlots.map((post, idx) => {
+        if (!post) return null;
+        const newDate = new Date(today);
+        newDate.setDate(newDate.getDate() + idx);
+        return {
+          ...post,
+          scheduled_date: newDate.toISOString().split('T')[0],
+        };
+      });
+      
+      setLocalSlots(updatedSlots); // instant UI update
+      onPostsChange(updatedSlots.filter(p => p !== null)); // async backend save
     }
     setActiveId(null);
     setLocalSlots(null);
