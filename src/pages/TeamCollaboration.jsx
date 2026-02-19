@@ -9,6 +9,7 @@ import {
   Users, 
   Briefcase, 
   CalendarDays, 
+  Calendar,
   MessageSquare, 
   FolderOpen,
   ArrowRight,
