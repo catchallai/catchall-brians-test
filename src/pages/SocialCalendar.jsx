@@ -212,6 +212,15 @@ export default function SocialCalendar() {
             <Button 
               variant="ghost"
               size="sm"
+              onClick={() => setViewMode('composer')}
+              className={`gap-1.5 px-4 ${viewMode === 'composer' ? 'bg-white dark:bg-gray-600 shadow-sm text-violet-700 dark:text-violet-300 font-semibold' : 'text-gray-600 dark:text-gray-300 hover:text-gray-900'}`}
+            >
+              <PenSquare className="w-4 h-4" />
+              Compose
+            </Button>
+            <Button 
+              variant="ghost"
+              size="sm"
               onClick={() => setViewMode('nine-grid')}
               className={`gap-1.5 px-4 ${viewMode === 'nine-grid' ? 'bg-white dark:bg-gray-600 shadow-sm text-violet-700 dark:text-violet-300 font-semibold' : 'text-gray-600 dark:text-gray-300 hover:text-gray-900'}`}
             >
