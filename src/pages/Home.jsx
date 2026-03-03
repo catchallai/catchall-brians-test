@@ -142,7 +142,9 @@ export default function Home() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {FEATURES.map((f) => (
               <div key={f.title} className="bg-white rounded-2xl p-6 border border-gray-100 hover:shadow-sm transition-shadow">
-                <div className="text-3xl mb-4">{f.icon}</div>
+                <div className={`inline-flex items-center justify-center w-11 h-11 rounded-xl ${f.bg} mb-4`}>
+                  <f.icon className={`w-5 h-5 ${f.color}`} />
+                </div>
                 <h3 className="font-semibold text-gray-900 mb-2">{f.title}</h3>
                 <p className="text-sm text-gray-500 leading-relaxed">{f.desc}</p>
               </div>
