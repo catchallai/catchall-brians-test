@@ -319,6 +319,18 @@ export default function SocialCalendar() {
           </CardContent>
         </Card>
 
+        {/* Composer View (Buffer-style) */}
+        {viewMode === 'composer' && (
+          <Card className="glass-card rounded-2xl">
+            <CardContent className="p-6">
+              <BufferComposer
+                hashtagPool={hashtagPool}
+                onSuccess={() => {}}
+              />
+            </CardContent>
+          </Card>
+        )}
+
         {/* Calendar View */}
         {viewMode === 'calendar' && (
           <>
