@@ -1,35 +1,48 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { createPageUrl } from '@/utils';
+import { BarChart2, CalendarDays, Search, Users, Mail, Zap } from 'lucide-react';
 
 const FEATURES = [
   {
-    icon: '📊',
+    icon: BarChart2,
+    color: 'text-violet-600',
+    bg: 'bg-violet-50',
     title: 'CRM & Sales',
     desc: 'Manage contacts, deals, pipelines, and sequences in one unified workspace.',
   },
   {
-    icon: '📅',
+    icon: CalendarDays,
+    color: 'text-cyan-600',
+    bg: 'bg-cyan-50',
     title: 'Social Calendar',
     desc: 'Plan, schedule, and publish content across all your social media platforms.',
   },
   {
-    icon: '🔍',
+    icon: Search,
+    color: 'text-orange-600',
+    bg: 'bg-orange-50',
     title: 'SEO & Analytics',
     desc: 'Track rankings, backlinks, and web performance with actionable insights.',
   },
   {
-    icon: '🤝',
+    icon: Users,
+    color: 'text-emerald-600',
+    bg: 'bg-emerald-50',
     title: 'Team Collaboration',
     desc: 'Projects, tasks, wikis, and real-time communication — all in one place.',
   },
   {
-    icon: '✉️',
+    icon: Mail,
+    color: 'text-pink-600',
+    bg: 'bg-pink-50',
     title: 'Email Marketing',
     desc: 'Build campaigns, automate drip sequences, and track engagement.',
   },
   {
-    icon: '⚡',
+    icon: Zap,
+    color: 'text-amber-600',
+    bg: 'bg-amber-50',
     title: 'Automation',
     desc: 'Trigger workflows, score leads, and eliminate manual work at scale.',
   },
