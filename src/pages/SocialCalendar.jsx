@@ -16,7 +16,8 @@ import {
   CalendarDays,
   ChevronLeft,
   ChevronRight,
-  Zap
+  Zap,
+  PenSquare
 } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { format, startOfMonth, endOfMonth, addMonths, subMonths } from 'date-fns';
