@@ -36,6 +36,7 @@ import PostTemplateManager from '@/components/social/PostTemplateManager';
 import PostQueueManager from '@/components/social/PostQueueManager';
 import OptimalTimeAnalyzer from '@/components/social/OptimalTimeAnalyzer';
 import QuickPostModal from '@/components/social/QuickPostModal';
+import BufferComposer from '@/components/social/BufferComposer';
 
 export default function SocialCalendar() {
   const [showModal, setShowModal] = useState(false);
