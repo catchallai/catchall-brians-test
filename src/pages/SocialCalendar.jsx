@@ -48,7 +48,7 @@ export default function SocialCalendar() {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [approverName, setApproverName] = useState('');
   const [showApprovalSection, setShowApprovalSection] = useState(false);
-  const [viewMode, setViewMode] = useState('nine-grid');
+  const [viewMode, setViewMode] = useState('composer');
   const [calendarViewType, setCalendarViewType] = useState('month');
   const [nineGridPosts, setNineGridPosts] = useState(Array(9).fill(null));
   const [galleryPosts, setGalleryPosts] = useState([]);
