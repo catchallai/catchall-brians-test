@@ -1,21 +1,105 @@
-import React, { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import React, { useState, useEffect, useRef } from 'react';
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Loader2, Upload, X, Image, Video, Repeat, Zap } from "lucide-react";
-import { Switch } from "@/components/ui/switch";
+import { Loader2, X, Image as ImageIcon, Smile, Hash, Link2, Plus, ChevronDown, Sparkles, Maximize2, Calendar, CheckCircle2 } from "lucide-react";
 import { base44 } from '@/api/base44Client';
-import { addDays, addWeeks, addMonths, format as formatDate } from 'date-fns';
-import PostComments from '../social/PostComments';
 import { useQuery } from '@tanstack/react-query';
+import PostComments from '../social/PostComments';
 
-const platforms = ['Twitter', 'LinkedIn', 'Facebook', 'Instagram'];
+const PLATFORMS = [
+  { id: 'Facebook',  color: 'bg-blue-600',  letter: 'f',  label: 'Facebook',       limit: 63206 },
+  { id: 'Instagram', color: 'bg-gradient-to-br from-pink-500 to-purple-600', letter: 'IG', label: 'Instagram', limit: 2200 },
+  { id: 'LinkedIn',  color: 'bg-blue-700',  letter: 'in', label: 'LinkedIn',        limit: 3000 },
+  { id: 'Twitter',   color: 'bg-black',     letter: 'X',  label: 'Twitter / X',     limit: 280  },
+];
+
+function PlatformAvatar({ platform, active, onClick }) {
+  return (
+    <button
+      onClick={onClick}
+      title={platform.label}
+      className={`relative w-11 h-11 rounded-full flex items-center justify-center text-white text-xs font-bold border-2 transition-all ${platform.color} ${
+        active ? 'border-violet-500 ring-2 ring-violet-300 scale-110' : 'border-white opacity-60 hover:opacity-90'
+      }`}
+    >
+      {platform.letter}
+      {active && (
+        <span className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-violet-500 rounded-full flex items-center justify-center">
+          <CheckCircle2 className="w-2.5 h-2.5 text-white" />
+        </span>
+      )}
+    </button>
+  );
+}
+
+function PlatformPreviewPanel({ platform, caption, imageUrl, videoUrl }) {
+  const p = PLATFORMS.find(pl => pl.id === platform) || PLATFORMS[3];
+  const overLimit = caption.length > p.limit;
+  const truncated = caption.length > p.limit ? caption.slice(0, p.limit) + '…' : caption;
+
+  return (
+    <div className="flex flex-col h-full">
+      <p className="text-sm font-semibold text-gray-700 mb-4 flex items-center gap-2">
+        {p.label} Preview
+        <span className="text-xs font-normal text-gray-400 cursor-help">ⓘ</span>
+      </p>
+
+      {!caption && !imageUrl && !videoUrl ? (
+        <div className="flex-1 flex flex-col items-center justify-center text-center gap-4 text-gray-300">
+          {/* Placeholder wireframe */}
+          <div className="relative w-48">
+            <div className="absolute -top-3 -right-3 text-gray-200 text-2xl">✦</div>
+            <div className="absolute -bottom-3 -left-3 text-gray-200 text-2xl">✦</div>
+            <div className="bg-gray-100 rounded-lg p-4 space-y-2">
+              <div className="flex items-center gap-2">
+                <div className="w-6 h-6 rounded-full bg-gray-200" />
+                <div className="flex-1 h-2 bg-gray-200 rounded" />
+              </div>
+              <div className="h-2 bg-gray-200 rounded w-3/4" />
+              <div className="h-2 bg-gray-200 rounded w-1/2" />
+              <div className="bg-gray-200 rounded h-24 mt-2" />
+            </div>
+          </div>
+          <p className="text-sm text-gray-400 mt-2">See your post's preview here</p>
+        </div>
+      ) : (
+        <div className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm">
+          <div className="flex items-center gap-2 px-3 py-2.5 border-b border-gray-100">
+            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold ${p.color}`}>
+              {p.letter}
+            </div>
+            <div>
+              <p className="text-xs font-semibold text-gray-800">Your Account</p>
+              <p className="text-xs text-gray-400">Just now</p>
+            </div>
+          </div>
+          {imageUrl && <img src={imageUrl} alt="Preview" className="w-full object-cover max-h-48" />}
+          {videoUrl && !imageUrl && <video src={videoUrl} className="w-full max-h-48 object-cover" muted />}
+          <div className="p-3">
+            <p className="text-sm text-gray-700 whitespace-pre-wrap line-clamp-6">
+              {truncated || <span className="text-gray-300 italic">Your caption will appear here…</span>}
+            </p>
+            {caption.length > 0 && (
+              <p className={`text-xs mt-2 ${overLimit ? 'text-red-500 font-medium' : 'text-gray-400'}`}>
+                {caption.length} / {p.limit}
+              </p>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+const DEFAULT_FORM = {
+  title: '', caption: '', image_url: '', video_url: '',
+  media_type: 'none', scheduled_date: new Date().toISOString().split('T')[0],
+  scheduled_time: '09:00', platforms: [], hashtags: [], status: 'draft',
+  order: 0, is_recurring: false, recurrence_type: 'weekly',
+  recurrence_end_date: '', recurrence_days: [], auto_post: false,
+};
 
 export default function CalendarPostModal({ open, onClose, post, onSave, isLoading, hashtagPool = [] }) {
   const { data: currentUser } = useQuery({
@@ -23,593 +107,319 @@ export default function CalendarPostModal({ open, onClose, post, onSave, isLoadi
     queryFn: () => base44.auth.me(),
   });
 
-  const [formData, setFormData] = useState({
-    title: '',
-    caption: '',
-    image_url: '',
-    video_url: '',
-    media_type: 'none',
-    scheduled_date: '',
-    scheduled_time: '09:00',
-    platforms: [],
-    hashtags: [],
-    status: 'draft',
-    order: 0,
-    is_recurring: false,
-    recurrence_type: 'weekly',
-    recurrence_end_date: '',
-    recurrence_days: [],
-    auto_post: false
-  });
+  const [formData, setFormData] = useState({ ...DEFAULT_FORM });
   const [uploading, setUploading] = useState(false);
-  const [uploadingVideo, setUploadingVideo] = useState(false);
-  const [hashtagInput, setHashtagInput] = useState('');
+  const [previewPlatform, setPreviewPlatform] = useState('Twitter');
+  const [showPreview, setShowPreview] = useState(true);
+  const [activeTab, setActiveTab] = useState('details');
+  const [saved, setSaved] = useState(false);
+  const [showSchedulePicker, setShowSchedulePicker] = useState(false);
+  const fileInputRef = useRef();
+  const videoInputRef = useRef();
 
   useEffect(() => {
-    if (post) {
-      setFormData({
-        title: post.title || '',
-        caption: post.caption || '',
-        image_url: post.image_url || '',
-        video_url: post.video_url || '',
-        media_type: post.media_type || 'none',
-        scheduled_date: post.scheduled_date || '',
-        scheduled_time: post.scheduled_time || '09:00',
-        platforms: post.platforms || [],
-        hashtags: post.hashtags || [],
-        status: post.status || 'draft',
-        order: post.order || 0,
-        is_recurring: post.is_recurring || false,
-        recurrence_type: post.recurrence_type || 'weekly',
-        recurrence_end_date: post.recurrence_end_date || '',
-        recurrence_days: post.recurrence_days || [],
-        auto_post: post.auto_post || false
-      });
-    } else {
-      setFormData({
-        title: '',
-        caption: '',
-        image_url: '',
-        video_url: '',
-        media_type: 'none',
-        scheduled_date: new Date().toISOString().split('T')[0],
-        scheduled_time: '09:00',
-        platforms: [],
-        hashtags: [],
-        status: 'draft',
-        order: 0,
-        is_recurring: false,
-        recurrence_type: 'weekly',
-        recurrence_end_date: '',
-        recurrence_days: [],
-        auto_post: false
-      });
+    if (open) {
+      setActiveTab('details');
+      setSaved(false);
+      if (post) {
+        setFormData({
+          title: post.title || '', caption: post.caption || '',
+          image_url: post.image_url || '', video_url: post.video_url || '',
+          media_type: post.media_type || 'none',
+          scheduled_date: post.scheduled_date || new Date().toISOString().split('T')[0],
+          scheduled_time: post.scheduled_time || '09:00',
+          platforms: post.platforms || [], hashtags: post.hashtags || [],
+          status: post.status || 'draft', order: post.order || 0,
+          is_recurring: post.is_recurring || false,
+          recurrence_type: post.recurrence_type || 'weekly',
+          recurrence_end_date: post.recurrence_end_date || '',
+          recurrence_days: post.recurrence_days || [],
+          auto_post: post.auto_post || false,
+        });
+        if (post.platforms?.[0]) setPreviewPlatform(post.platforms[0]);
+      } else {
+        setFormData({ ...DEFAULT_FORM, scheduled_date: new Date().toISOString().split('T')[0] });
+      }
     }
   }, [post, open]);
 
   const handleImageUpload = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    
     setUploading(true);
     const { file_url } = await base44.integrations.Core.UploadFile({ file });
-    setFormData({ ...formData, image_url: file_url, video_url: '', media_type: 'image' });
+    setFormData(f => ({ ...f, image_url: file_url, video_url: '', media_type: 'image' }));
     setUploading(false);
   };
 
   const handleVideoUpload = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    
-    setUploadingVideo(true);
+    setUploading(true);
     const { file_url } = await base44.integrations.Core.UploadFile({ file });
-    setFormData({ ...formData, video_url: file_url, image_url: '', media_type: 'video' });
-    setUploadingVideo(false);
+    setFormData(f => ({ ...f, video_url: file_url, image_url: '', media_type: 'video' }));
+    setUploading(false);
   };
 
-  const clearMedia = () => {
-    setFormData({ ...formData, image_url: '', video_url: '', media_type: 'none' });
-  };
-
-  const togglePlatform = (platform) => {
-    const current = formData.platforms || [];
-    if (current.includes(platform)) {
-      setFormData({ ...formData, platforms: current.filter(p => p !== platform) });
-    } else {
-      setFormData({ ...formData, platforms: [...current, platform] });
-    }
-  };
-
-  const addHashtag = (tag) => {
-    const cleanTag = tag.replace('#', '').trim();
-    if (cleanTag && !formData.hashtags?.includes(cleanTag)) {
-      setFormData({ ...formData, hashtags: [...(formData.hashtags || []), cleanTag] });
-    }
-    setHashtagInput('');
-  };
-
-  const removeHashtag = (tag) => {
-    setFormData({ ...formData, hashtags: formData.hashtags.filter(h => h !== tag) });
-  };
-
-  const toggleRecurrenceDay = (day) => {
-    const current = formData.recurrence_days || [];
-    if (current.includes(day)) {
-      setFormData({ ...formData, recurrence_days: current.filter(d => d !== day) });
-    } else {
-      setFormData({ ...formData, recurrence_days: [...current, day] });
-    }
-  };
-
-  const handleSubmit = async (e) => {
+  const handleDrop = (e) => {
     e.preventDefault();
-    
-    // Ensure platforms array is included
-    const dataToSave = {
-      ...formData,
-      platforms: formData.platforms && formData.platforms.length > 0 ? formData.platforms : []
-    };
-    
-    // If recurring, create multiple posts
-    if (formData.is_recurring && formData.recurrence_end_date) {
-      const posts = [];
-      let currentDate = new Date(formData.scheduled_date);
-      const endDate = new Date(formData.recurrence_end_date);
-      
-      while (currentDate <= endDate) {
-        posts.push({
-          ...dataToSave,
-          scheduled_date: formatDate(currentDate, 'yyyy-MM-dd'),
-          parent_post_id: post?.id || null
-        });
-        
-        if (formData.recurrence_type === 'daily') {
-          currentDate = addDays(currentDate, 1);
-        } else if (formData.recurrence_type === 'weekly') {
-          currentDate = addWeeks(currentDate, 1);
-        } else if (formData.recurrence_type === 'monthly') {
-          currentDate = addMonths(currentDate, 1);
-        }
-      }
-      
-      // Save each recurring post
-      for (const postData of posts) {
-        await onSave(postData);
-      }
-    } else {
-      onSave(dataToSave);
-    }
+    const file = e.dataTransfer.files?.[0];
+    if (!file) return;
+    const isVideo = file.type.startsWith('video/');
+    const syntheticEvent = { target: { files: [file] } };
+    if (isVideo) handleVideoUpload(syntheticEvent);
+    else handleImageUpload(syntheticEvent);
+  };
+
+  const togglePlatform = (id) => {
+    setFormData(f => ({
+      ...f,
+      platforms: f.platforms.includes(id) ? f.platforms.filter(p => p !== id) : [...f.platforms, id],
+    }));
+    setPreviewPlatform(id);
+  };
+
+  const handleSubmit = (status) => {
+    onSave({ ...formData, status });
+    if (status === 'draft') setSaved(true);
   };
 
   const isViewer = currentUser?.social_media_role === 'viewer';
-  const canEdit = !isViewer;
+  const activePlatform = PLATFORMS.find(p => p.id === previewPlatform) || PLATFORMS[3];
+  const overLimit = formData.caption.length > activePlatform.limit;
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>{post ? 'Edit Post' : 'Add Calendar Post'}</DialogTitle>
-        </DialogHeader>
+      <DialogContent className="p-0 max-w-5xl w-full max-h-[92vh] overflow-hidden rounded-2xl" style={{ gap: 0 }}>
+        {/* Header */}
+        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+          <div className="flex items-center gap-3">
+            <h2 className="text-lg font-bold text-gray-900">{post ? 'Edit Post' : 'Create Post'}</h2>
+            <button className="flex items-center gap-1 text-xs text-gray-500 border border-gray-200 rounded-full px-2.5 py-1 hover:bg-gray-50 transition-colors">
+              🏷 Tags <ChevronDown className="w-3 h-3" />
+            </button>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button variant="ghost" size="sm" className="gap-1.5 text-gray-600 text-sm" onClick={() => {}}>
+              <Sparkles className="w-4 h-4" /> AI Assistant
+            </Button>
+            <Button
+              variant={showPreview ? 'default' : 'outline'}
+              size="sm"
+              className={`gap-1.5 text-sm ${showPreview ? 'bg-blue-600 hover:bg-blue-700 text-white' : ''}`}
+              onClick={() => setShowPreview(v => !v)}
+            >
+              👁 Preview
+            </Button>
+            <button className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors text-gray-400">
+              <Maximize2 className="w-4 h-4" />
+            </button>
+            <button onClick={onClose} className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors text-gray-400">
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
 
-        {post ? (
-          <Tabs defaultValue="details" className="mt-4">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="details">Post Details</TabsTrigger>
-              <TabsTrigger value="feedback">Team Feedback</TabsTrigger>
-            </TabsList>
+        {/* Body */}
+        <div className="flex overflow-hidden" style={{ maxHeight: 'calc(92vh - 130px)' }}>
+          {/* LEFT: Composer */}
+          <div className={`flex flex-col overflow-y-auto ${showPreview ? 'w-[58%]' : 'w-full'} border-r border-gray-100`}>
+            {/* Platform Avatars */}
+            <div className="flex items-center gap-3 px-6 pt-5 pb-4">
+              {PLATFORMS.map(pl => (
+                <PlatformAvatar
+                  key={pl.id}
+                  platform={pl}
+                  active={formData.platforms.includes(pl.id)}
+                  onClick={() => togglePlatform(pl.id)}
+                />
+              ))}
+              <span className="text-xs text-gray-400 ml-1">Click to toggle platforms</span>
+            </div>
 
-            <TabsContent value="details">
-              <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Media Upload */}
-          <div className="space-y-2">
-            <Label>Media</Label>
-            <div className="border-2 border-dashed rounded-lg p-4 text-center">
+            {/* Caption area */}
+            <div className="px-6 flex gap-3 flex-1">
+              <div className={`w-9 h-9 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0 mt-0.5 ${activePlatform.color}`}>
+                {activePlatform.letter}
+              </div>
+              <Textarea
+                value={formData.caption}
+                onChange={(e) => setFormData(f => ({ ...f, caption: e.target.value }))}
+                placeholder="What would you like to share?"
+                className="border-0 shadow-none focus-visible:ring-0 resize-none text-[15px] text-gray-800 p-0 min-h-[160px] leading-relaxed"
+              />
+            </div>
+
+            {/* Media drop zone / preview */}
+            <div className="px-6 pb-2">
               {formData.image_url ? (
-                <div className="relative">
-                  <img src={formData.image_url} alt="Preview" className="w-full rounded object-contain max-h-80" style={{background:'#f3f4f6'}} />
-                  <Button 
-                    type="button"
-                    size="icon" 
-                    variant="destructive" 
-                    className="absolute top-2 right-2 h-6 w-6"
-                    onClick={clearMedia}
-                  >
-                    <X className="w-3 h-3" />
-                  </Button>
+                <div className="relative inline-block mt-2">
+                  <img src={formData.image_url} alt="Preview" className="rounded-xl max-h-52 object-cover" />
+                  <button onClick={() => setFormData(f => ({ ...f, image_url: '', media_type: 'none' }))}
+                    className="absolute top-2 right-2 bg-black/60 hover:bg-black/80 text-white rounded-full p-1">
+                    <X className="w-3.5 h-3.5" />
+                  </button>
                 </div>
               ) : formData.video_url ? (
-                <div className="relative">
-                  <video src={formData.video_url} controls className="w-full rounded max-h-80" />
-                  <Button 
-                    type="button"
-                    size="icon" 
-                    variant="destructive" 
-                    className="absolute top-2 right-2 h-6 w-6"
-                    onClick={clearMedia}
-                  >
-                    <X className="w-3 h-3" />
-                  </Button>
+                <div className="relative mt-2">
+                  <video src={formData.video_url} controls className="rounded-xl max-h-52 w-full" />
+                  <button onClick={() => setFormData(f => ({ ...f, video_url: '', media_type: 'none' }))}
+                    className="absolute top-2 right-2 bg-black/60 hover:bg-black/80 text-white rounded-full p-1">
+                    <X className="w-3.5 h-3.5" />
+                  </button>
                 </div>
               ) : (
-                <div className="space-y-3">
-                  {uploading || uploadingVideo ? (
-                    <div className="py-4">
-                      <Loader2 className="w-8 h-8 mx-auto animate-spin text-gray-400" />
-                      <p className="text-sm text-gray-500 mt-2">Uploading...</p>
-                    </div>
+                <div
+                  onDrop={handleDrop}
+                  onDragOver={(e) => e.preventDefault()}
+                  className="mt-2 border-2 border-dashed border-gray-200 rounded-xl p-5 flex flex-col items-center gap-2 cursor-pointer hover:border-violet-300 hover:bg-violet-50/30 transition-colors"
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  {uploading ? (
+                    <Loader2 className="w-6 h-6 animate-spin text-violet-500" />
                   ) : (
                     <>
-                      <div className="flex justify-center gap-4">
-                        <label className="cursor-pointer flex flex-col items-center p-4 rounded-lg hover:bg-gray-50 transition-colors">
-                          <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
-                          <Image className="w-8 h-8 text-blue-500 mb-1" />
-                          <span className="text-sm text-gray-600">Photo</span>
-                        </label>
-                        <label className="cursor-pointer flex flex-col items-center p-4 rounded-lg hover:bg-gray-50 transition-colors">
-                          <input type="file" accept="video/*" className="hidden" onChange={handleVideoUpload} />
-                          <Video className="w-8 h-8 text-purple-500 mb-1" />
-                          <span className="text-sm text-gray-600">Video</span>
-                        </label>
-                      </div>
-                      <p className="text-xs text-gray-400">Click to upload photo or video</p>
+                      <ImageIcon className="w-7 h-7 text-gray-300" />
+                      <p className="text-sm text-gray-400">
+                        Drag &amp; drop or{' '}
+                        <span className="text-blue-500 font-medium underline cursor-pointer">select a file</span>
+                      </p>
                     </>
                   )}
+                  <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
+                  <input ref={videoInputRef} type="file" accept="video/*" className="hidden" onChange={handleVideoUpload} />
                 </div>
               )}
             </div>
-          </div>
 
-          {/* Title */}
-          <div className="space-y-2">
-            <Label>Title/Headline</Label>
-            <Input
-              value={formData.title}
-              onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-              placeholder="Enter title or headline..."
-            />
-          </div>
-
-          {/* Caption */}
-          <div className="space-y-2">
-            <Label>Caption</Label>
-            <Textarea
-              value={formData.caption}
-              onChange={(e) => setFormData({ ...formData, caption: e.target.value })}
-              placeholder="Post description..."
-              rows={3}
-            />
-          </div>
-
-          {/* Scheduled Date & Time */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label>Scheduled Date *</Label>
-              <Input
-                type="date"
-                value={formData.scheduled_date}
-                onChange={(e) => setFormData({ ...formData, scheduled_date: e.target.value })}
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Time</Label>
-              <Input
-                type="time"
-                value={formData.scheduled_time}
-                onChange={(e) => setFormData({ ...formData, scheduled_time: e.target.value })}
-              />
-            </div>
-          </div>
-
-          {/* Auto-Post Toggle */}
-          <div className="flex items-center justify-between p-4 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg border border-emerald-200 dark:border-emerald-800">
-            <div className="flex items-center gap-3">
-              <Zap className="w-5 h-5 text-emerald-600" />
-              <div>
-                <Label className="text-sm font-semibold">Auto-Post</Label>
-                <p className="text-xs text-gray-500">Automatically publish at scheduled time</p>
+            {/* Toolbar */}
+            <div className="flex items-center justify-between px-6 py-3 border-t border-gray-100 mt-2">
+              <div className="flex items-center gap-1">
+                <button onClick={() => fileInputRef.current?.click()}
+                  className="flex items-center gap-1 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg px-2 py-1.5 text-sm transition-colors">
+                  <Plus className="w-4 h-4" />
+                  <ChevronDown className="w-3 h-3" />
+                </button>
+                <button className="p-1.5 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors">
+                  <Smile className="w-5 h-5" />
+                </button>
+                <button className="p-1.5 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors">
+                  <Hash className="w-5 h-5" />
+                </button>
+                <button className="p-1.5 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors">
+                  <Link2 className="w-5 h-5" />
+                </button>
+              </div>
+              <div className="flex items-center gap-3">
+                <span className={`text-sm font-medium ${overLimit ? 'text-red-500' : 'text-gray-400'}`}>
+                  {activePlatform.limit - formData.caption.length}
+                </span>
+                <button
+                  onClick={() => {}}
+                  className="flex items-center gap-1.5 text-sm font-semibold text-blue-600 hover:text-blue-700 border border-blue-200 hover:border-blue-400 rounded-full px-3 py-1 transition-colors"
+                >
+                  <Plus className="w-3.5 h-3.5" /> Start Thread
+                </button>
               </div>
             </div>
-            <Switch
-              checked={formData.auto_post}
-              onCheckedChange={(checked) => setFormData({ ...formData, auto_post: checked })}
-            />
-          </div>
 
-          {/* Recurring Options */}
-          <div className="space-y-3 p-4 bg-violet-50 dark:bg-violet-900/20 rounded-lg border border-violet-200 dark:border-violet-800">
-            <div className="flex items-center gap-2">
-              <Checkbox
-                id="recurring"
-                checked={formData.is_recurring}
-                onCheckedChange={(checked) => setFormData({ ...formData, is_recurring: checked })}
-              />
-              <Label htmlFor="recurring" className="cursor-pointer font-medium flex items-center gap-2">
-                <Repeat className="w-4 h-4" />
-                Recurring Post
-              </Label>
-            </div>
-            
-            {formData.is_recurring && (
-              <>
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="space-y-2">
-                    <Label className="text-xs">Repeat Every</Label>
-                    <Select 
-                      value={formData.recurrence_type} 
-                      onValueChange={(v) => setFormData({ ...formData, recurrence_type: v })}
-                    >
-                      <SelectTrigger className="h-9">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="daily">Daily</SelectItem>
-                        <SelectItem value="weekly">Weekly</SelectItem>
-                        <SelectItem value="monthly">Monthly</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-2">
-                    <Label className="text-xs">End Date *</Label>
-                    <Input
-                      type="date"
-                      className="h-9"
-                      value={formData.recurrence_end_date}
-                      onChange={(e) => setFormData({ ...formData, recurrence_end_date: e.target.value })}
-                      min={formData.scheduled_date}
-                    />
-                  </div>
-                </div>
-
-                {formData.recurrence_type === 'weekly' && (
-                  <div className="space-y-2">
-                    <Label className="text-xs">Repeat On</Label>
-                    <div className="flex gap-2">
-                      {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day, idx) => (
-                        <Button
-                          key={idx}
-                          type="button"
-                          size="sm"
-                          variant={formData.recurrence_days?.includes(idx) ? 'default' : 'outline'}
-                          className="w-10 h-10 p-0"
-                          onClick={() => toggleRecurrenceDay(idx)}
-                        >
-                          {day[0]}
-                        </Button>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </>
-            )}
-          </div>
-
-          {/* Platforms */}
-          <div className="space-y-2">
-            <Label>Platforms</Label>
-            <div className="flex flex-wrap gap-2">
-              {platforms.map(p => (
-                <Badge 
-                  key={p}
-                  className={`cursor-pointer ${formData.platforms?.includes(p) ? 'bg-violet-600' : 'bg-gray-200 text-gray-700'}`}
-                  onClick={() => togglePlatform(p)}
-                >
-                  {p}
-                </Badge>
-              ))}
-            </div>
-          </div>
-
-          {/* Hashtags */}
-          <div className="space-y-2">
-            <Label>Hashtags</Label>
-            <div className="flex gap-2">
-              <Input
-                value={hashtagInput}
-                onChange={(e) => setHashtagInput(e.target.value)}
-                placeholder="Add hashtag"
-                onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addHashtag(hashtagInput))}
-              />
-              <Button type="button" onClick={() => addHashtag(hashtagInput)}>Add</Button>
-            </div>
-            {formData.hashtags?.length > 0 && (
-              <div className="flex flex-wrap gap-1 mt-2">
-                {formData.hashtags.map(tag => (
-                  <Badge key={tag} variant="outline" className="gap-1">
-                    #{tag}
-                    <X className="w-3 h-3 cursor-pointer" onClick={() => removeHashtag(tag)} />
-                  </Badge>
+            {/* Hashtag pool quick-add */}
+            {hashtagPool.length > 0 && (
+              <div className="px-6 pb-3 flex flex-wrap gap-1">
+                {hashtagPool.slice(0, 10).map(h => (
+                  <button key={h.id}
+                    onClick={() => setFormData(f => ({ ...f, caption: f.caption + (f.caption ? ' ' : '') + '#' + h.hashtag }))}
+                    className="text-xs text-violet-600 bg-violet-50 hover:bg-violet-100 border border-violet-200 rounded-full px-2 py-0.5 transition-colors">
+                    #{h.hashtag}
+                  </button>
                 ))}
               </div>
             )}
-            {hashtagPool.length > 0 && (
-              <div className="mt-2">
-                <p className="text-xs text-gray-500 mb-1">From pool:</p>
-                <div className="flex flex-wrap gap-1">
-                  {hashtagPool.slice(0, 10).map(h => (
-                    <Badge 
-                      key={h.id} 
-                      variant="outline" 
-                      className="cursor-pointer text-xs hover:bg-violet-50"
-                      onClick={() => addHashtag(h.hashtag)}
-                    >
-                      #{h.hashtag}
-                    </Badge>
-                  ))}
+          </div>
+
+          {/* RIGHT: Preview */}
+          {showPreview && (
+            <div className="flex-1 flex flex-col bg-gray-50 overflow-y-auto">
+              {/* Platform preview tabs */}
+              <div className="flex border-b border-gray-200 bg-white">
+                {PLATFORMS.map(pl => (
+                  <button key={pl.id}
+                    onClick={() => setPreviewPlatform(pl.id)}
+                    className={`px-3 py-2 text-xs font-medium border-b-2 transition-colors ${
+                      previewPlatform === pl.id
+                        ? 'border-blue-500 text-blue-600'
+                        : 'border-transparent text-gray-400 hover:text-gray-600'
+                    }`}
+                  >
+                    {pl.id === 'Twitter' ? 'Twitter / X' : pl.id}
+                  </button>
+                ))}
+              </div>
+              <div className="p-6 flex-1">
+                <PlatformPreviewPanel
+                  platform={previewPlatform}
+                  caption={formData.caption}
+                  imageUrl={formData.image_url}
+                  videoUrl={formData.video_url}
+                />
+              </div>
+
+              {/* Schedule settings inside preview panel */}
+              <div className="border-t border-gray-200 bg-white px-5 py-4 space-y-3">
+                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Schedule</p>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-xs text-gray-500 mb-1 block">Date</label>
+                    <input type="date" value={formData.scheduled_date}
+                      onChange={(e) => setFormData(f => ({ ...f, scheduled_date: e.target.value }))}
+                      className="w-full text-sm border border-gray-200 rounded-lg px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-violet-400" />
+                  </div>
+                  <div>
+                    <label className="text-xs text-gray-500 mb-1 block">Time</label>
+                    <input type="time" value={formData.scheduled_time}
+                      onChange={(e) => setFormData(f => ({ ...f, scheduled_time: e.target.value }))}
+                      className="w-full text-sm border border-gray-200 rounded-lg px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-violet-400" />
+                  </div>
                 </div>
               </div>
-            )}
-          </div>
+            </div>
+          )}
+        </div>
 
-          {/* Status */}
-          <div className="space-y-2">
-            <Label>Status</Label>
-            <Select value={formData.status} onValueChange={(v) => setFormData({ ...formData, status: v })}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="draft">Draft</SelectItem>
-                <SelectItem value="pending_approval">Pending Approval</SelectItem>
-                <SelectItem value="approved">Approved</SelectItem>
-                <SelectItem value="published">Published</SelectItem>
-              </SelectContent>
-            </Select>
+        {/* Footer */}
+        <div className="flex items-center justify-between px-6 py-4 border-t border-gray-100 bg-white">
+          <div className="flex items-center gap-3">
+            <label className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer select-none">
+              <input type="checkbox" className="rounded" onChange={() => {}} />
+              Create Another
+            </label>
+            <button
+              onClick={() => handleSubmit('draft')}
+              disabled={isLoading || !formData.caption}
+              className="text-sm text-gray-500 hover:text-gray-800 font-medium disabled:opacity-40 transition-colors"
+            >
+              {isLoading ? <Loader2 className="w-4 h-4 animate-spin inline mr-1" /> : null}
+              Save Draft
+            </button>
           </div>
-
-          <div className="flex justify-end gap-3 pt-4">
-            <Button type="button" variant="outline" onClick={onClose}>Cancel</Button>
-            <Button type="submit" disabled={isLoading || isViewer}>
+          <div className="flex items-center gap-2">
+            <div className="flex items-center border border-gray-200 rounded-xl overflow-hidden">
+              <button className="flex items-center gap-2 px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 transition-colors">
+                <Calendar className="w-4 h-4" />
+                Next Available
+                <ChevronDown className="w-3.5 h-3.5" />
+              </button>
+            </div>
+            <Button
+              onClick={() => handleSubmit('pending_approval')}
+              disabled={isLoading || isViewer || !formData.caption || formData.platforms.length === 0}
+              className="bg-gray-800 hover:bg-black text-white rounded-xl px-5 py-2 text-sm font-semibold disabled:opacity-40 transition-colors"
+            >
               {isLoading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-              {post ? 'Update' : 'Add Post'}
+              Schedule Post
             </Button>
           </div>
-        </form>
-      </TabsContent>
-
-      <TabsContent value="feedback" className="mt-4">
-        <PostComments postId={post.id} currentUser={currentUser} />
-      </TabsContent>
-    </Tabs>
-        ) : (
-          <form onSubmit={handleSubmit} className="space-y-4 mt-4">
-            {/* Same form fields for new posts */}
-            <div className="space-y-2">
-              <Label>Media</Label>
-              <div className="border-2 border-dashed rounded-lg p-4 text-center">
-                {formData.image_url ? (
-                  <div className="relative">
-                    <img src={formData.image_url} alt="Preview" className="w-full rounded object-contain max-h-80" style={{background:'#f3f4f6'}} />
-                    <Button 
-                      type="button"
-                      size="icon" 
-                      variant="destructive" 
-                      className="absolute top-2 right-2 h-6 w-6"
-                      onClick={clearMedia}
-                    >
-                      <X className="w-3 h-3" />
-                    </Button>
-                  </div>
-                ) : formData.video_url ? (
-                  <div className="relative">
-                    <video src={formData.video_url} controls className="w-full rounded max-h-80" />
-                    <Button 
-                      type="button"
-                      size="icon" 
-                      variant="destructive" 
-                      className="absolute top-2 right-2 h-6 w-6"
-                      onClick={clearMedia}
-                    >
-                      <X className="w-3 h-3" />
-                    </Button>
-                  </div>
-                ) : (
-                  <div className="space-y-3">
-                    {uploading || uploadingVideo ? (
-                      <div className="py-4">
-                        <Loader2 className="w-8 h-8 mx-auto animate-spin text-gray-400" />
-                        <p className="text-sm text-gray-500 mt-2">Uploading...</p>
-                      </div>
-                    ) : (
-                      <>
-                        <div className="flex justify-center gap-4">
-                          <label className="cursor-pointer flex flex-col items-center p-4 rounded-lg hover:bg-gray-50 transition-colors">
-                            <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
-                            <Image className="w-8 h-8 text-blue-500 mb-1" />
-                            <span className="text-sm text-gray-600">Photo</span>
-                          </label>
-                          <label className="cursor-pointer flex flex-col items-center p-4 rounded-lg hover:bg-gray-50 transition-colors">
-                            <input type="file" accept="video/*" className="hidden" onChange={handleVideoUpload} />
-                            <Video className="w-8 h-8 text-purple-500 mb-1" />
-                            <span className="text-sm text-gray-600">Video</span>
-                          </label>
-                        </div>
-                        <p className="text-xs text-gray-400">Click to upload photo or video</p>
-                      </>
-                    )}
-                  </div>
-                )}
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label>Title/Headline</Label>
-              <Input
-                value={formData.title}
-                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                placeholder="Enter title or headline..."
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label>Caption</Label>
-              <Textarea
-                value={formData.caption}
-                onChange={(e) => setFormData({ ...formData, caption: e.target.value })}
-                placeholder="Post description..."
-                rows={3}
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Scheduled Date *</Label>
-                <Input
-                  type="date"
-                  value={formData.scheduled_date}
-                  onChange={(e) => setFormData({ ...formData, scheduled_date: e.target.value })}
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Time</Label>
-                <Input
-                  type="time"
-                  value={formData.scheduled_time}
-                  onChange={(e) => setFormData({ ...formData, scheduled_time: e.target.value })}
-                />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label>Platforms</Label>
-              <div className="flex flex-wrap gap-2">
-                {platforms.map(p => (
-                  <Badge 
-                    key={p}
-                    className={`cursor-pointer ${formData.platforms?.includes(p) ? 'bg-violet-600' : 'bg-gray-200 text-gray-700'}`}
-                    onClick={() => togglePlatform(p)}
-                  >
-                    {p}
-                  </Badge>
-                ))}
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label>Status</Label>
-              <Select value={formData.status} onValueChange={(v) => setFormData({ ...formData, status: v })}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="draft">Draft</SelectItem>
-                  <SelectItem value="pending_approval">Pending Approval</SelectItem>
-                  <SelectItem value="approved">Approved</SelectItem>
-                  <SelectItem value="published">Published</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="flex justify-end gap-3 pt-4">
-              <Button type="button" variant="outline" onClick={onClose}>Cancel</Button>
-              <Button type="submit" disabled={isLoading || isViewer}>
-                {isLoading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-                Add Post
-              </Button>
-            </div>
-          </form>
-        )}
+        </div>
       </DialogContent>
     </Dialog>
   );
