@@ -15,9 +15,10 @@ const roleIcons = {
 };
 
 const roleColors = {
-  admin: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300',
-  editor: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300',
-  viewer: 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300',
+  admin:    'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300',
+  approver: 'bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-300',
+  editor:   'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300',
+  viewer:   'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300',
 };
 
 export default function TeamManager() {
@@ -94,22 +95,16 @@ export default function TeamManager() {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="admin">
-                        <div className="flex items-center gap-2">
-                          <Shield className="w-4 h-4" />
-                          Admin
-                        </div>
+                        <div className="flex items-center gap-2"><Shield className="w-4 h-4" /> Admin</div>
+                      </SelectItem>
+                      <SelectItem value="approver">
+                        <div className="flex items-center gap-2"><Shield className="w-4 h-4 text-violet-500" /> Approver</div>
                       </SelectItem>
                       <SelectItem value="editor">
-                        <div className="flex items-center gap-2">
-                          <Edit className="w-4 h-4" />
-                          Editor
-                        </div>
+                        <div className="flex items-center gap-2"><Edit className="w-4 h-4" /> Editor</div>
                       </SelectItem>
                       <SelectItem value="viewer">
-                        <div className="flex items-center gap-2">
-                          <Eye className="w-4 h-4" />
-                          Viewer
-                        </div>
+                        <div className="flex items-center gap-2"><Eye className="w-4 h-4" /> Viewer</div>
                       </SelectItem>
                     </SelectContent>
                   </Select>
@@ -122,9 +117,10 @@ export default function TeamManager() {
         <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
           <h4 className="font-medium text-sm text-blue-900 dark:text-blue-300 mb-2">Role Permissions</h4>
           <ul className="text-xs text-blue-700 dark:text-blue-400 space-y-1">
-            <li><strong>Admin:</strong> Full access - create, edit, delete posts, manage team, approve content</li>
-            <li><strong>Editor:</strong> Create and edit posts, add comments, cannot delete or manage team</li>
-            <li><strong>Viewer:</strong> View-only access, can view posts and comments but cannot edit</li>
+            <li><strong>Admin:</strong> Full access — create, edit, delete, assign, approve, manage team</li>
+            <li><strong>Approver:</strong> Review submissions, approve or reject posts, request changes</li>
+            <li><strong>Editor:</strong> Create &amp; edit posts, submit for review, leave comments</li>
+            <li><strong>Viewer:</strong> View-only — can see posts and comments but cannot edit</li>
           </ul>
         </div>
       </CardContent>
