@@ -4,7 +4,7 @@ import {
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "@/components/ui/tooltip";
+} from "@/components/ui/tooltip-primitives";
 
 export default function Tooltip({ children, content, side = "top", delayDuration = 300 }) {
   return (
