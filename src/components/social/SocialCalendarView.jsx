@@ -200,13 +200,15 @@ export default function SocialCalendarView({ posts = [], onAddPost, onEditPost, 
                       key={post.id}
                       draggable
                       onDragStart={(e) => handleDragStart(e, post)}
-                      onClick={() => onEditPost(post)}
-                      className={`text-sm p-2 rounded-lg cursor-move border-2 transition-all hover:shadow-md hover:scale-[1.02] ${
+                      className={`text-sm p-2 rounded-lg cursor-move border-2 transition-all hover:shadow-md group/post ${
                         statusColors[post.status] || statusColors.draft
                       } ${draggedPost?.id === post.id ? 'opacity-50' : ''}`}
                     >
                       <div className="flex items-center justify-between gap-2 mb-1">
-                        <div className="flex items-center gap-2 min-w-0">
+                        <div
+                          className="flex items-center gap-2 min-w-0 flex-1 cursor-pointer"
+                          onClick={() => onEditPost(post)}
+                        >
                           {post.platforms?.[0] && (
                             <div className={`w-3 h-3 rounded-full flex-shrink-0 ${platformColors[post.platforms[0]] || 'bg-gray-400'}`} />
                           )}
@@ -215,9 +217,22 @@ export default function SocialCalendarView({ posts = [], onAddPost, onEditPost, 
                             {(post.caption?.length > 18 && !post.title) ? '...' : ''}
                           </span>
                         </div>
-                        <Badge className={`text-xs px-1.5 py-0.5 ${statusInfo.class}`}>
-                          {statusInfo.label}
-                        </Badge>
+                        <div className="flex items-center gap-1 flex-shrink-0">
+                          <Badge className={`text-xs px-1.5 py-0.5 ${statusInfo.class}`}>
+                            {statusInfo.label}
+                          </Badge>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              if (confirm('Delete this post?')) {
+                                deletePostMutation.mutate(post.id);
+                              }
+                            }}
+                            className="opacity-0 group-hover/post:opacity-100 transition-opacity p-0.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded"
+                          >
+                            <Trash2 className="w-3 h-3" />
+                          </button>
+                        </div>
                       </div>
                       {viewType === 'day' && post.scheduled_time && (
                         <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
