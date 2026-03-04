@@ -374,8 +374,10 @@ export default function CalendarPostModal({ open, onClose, post, onSave, isLoadi
             )}
           </div>
 
+          )} {/* end compose tab */}
+
           {/* RIGHT: Preview */}
-          {showPreview && (
+          {(activeTab === 'compose' || !post) && showPreview && (
             <div className="flex-1 flex flex-col bg-gray-50 overflow-y-auto">
               {/* Platform preview tabs */}
               <div className="flex border-b border-gray-200 bg-white">
