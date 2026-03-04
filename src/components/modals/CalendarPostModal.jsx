@@ -3,10 +3,11 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, X, Image as ImageIcon, Smile, Hash, Link2, Plus, ChevronDown, Sparkles, Maximize2, Calendar, CheckCircle2 } from "lucide-react";
+import { Loader2, X, Image as ImageIcon, Smile, Hash, Link2, Plus, ChevronDown, Sparkles, Maximize2, Calendar, CheckCircle2, MessageSquare, GitBranch } from "lucide-react";
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import PostComments from '../social/PostComments';
+import PostApprovalPanel from '../social/PostApprovalPanel';
 
 const PLATFORMS = [
   { id: 'Facebook',  color: 'bg-blue-600',  letter: 'f',  label: 'Facebook',       limit: 63206 },
@@ -111,7 +112,7 @@ export default function CalendarPostModal({ open, onClose, post, onSave, isLoadi
   const [uploading, setUploading] = useState(false);
   const [previewPlatform, setPreviewPlatform] = useState('Twitter');
   const [showPreview, setShowPreview] = useState(true);
-  const [activeTab, setActiveTab] = useState('details');
+  const [activeTab, setActiveTab] = useState('compose');
   const [saved, setSaved] = useState(false);
   const [showSchedulePicker, setShowSchedulePicker] = useState(false);
   const fileInputRef = useRef();
