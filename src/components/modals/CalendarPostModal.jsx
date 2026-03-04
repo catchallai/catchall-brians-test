@@ -259,8 +259,7 @@ export default function CalendarPostModal({ open, onClose, post, onSave, isLoadi
           )}
 
           {/* LEFT: Composer */}
-          {(activeTab === 'compose' || !post) && (
-          <div className={`flex flex-col overflow-y-auto ${showPreview ? 'w-[58%]' : 'w-full'} border-r border-gray-100`}>
+          {(activeTab === 'compose' || !post) && <div className={`flex flex-col overflow-y-auto ${showPreview ? 'w-[58%]' : 'w-full'} border-r border-gray-100`}>
             {/* Platform Avatars */}
             <div className="flex items-center gap-3 px-6 pt-5 pb-4">
               {PLATFORMS.map(pl => (
