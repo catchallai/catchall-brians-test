@@ -577,14 +577,33 @@ export default function CalendarPostModal({ open, onClose, post, onSave, isLoadi
                   </div>
                 </div>
 
-                {/* Workflow status badge */}
-                <div className="flex items-center gap-2 pt-1">
-                  <Info className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
-                  <p className="text-xs text-gray-500">
-                    {isAdmin
-                      ? 'As an admin/approver, you can schedule directly or require approval.'
-                      : 'Posts go to "Pending Review" for approval before publishing.'}
-                  </p>
+                {/* Approval toggle */}
+                <div className="border border-gray-200 rounded-xl overflow-hidden">
+                  <button
+                    onClick={() => setRequireApproval(v => !v)}
+                    className={`w-full flex items-center justify-between px-4 py-3 text-sm transition-colors ${
+                      requireApproval
+                        ? 'bg-violet-50 border-b border-violet-100'
+                        : 'hover:bg-gray-50'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2">
+                      <ShieldCheck className={`w-4 h-4 ${requireApproval ? 'text-violet-600' : 'text-gray-400'}`} />
+                      <span className={`font-medium ${requireApproval ? 'text-violet-700' : 'text-gray-700'}`}>
+                        Requires Approval
+                      </span>
+                    </div>
+                    <div className={`w-9 h-5 rounded-full flex items-center transition-all px-0.5 ${
+                      requireApproval ? 'bg-violet-600 justify-end' : 'bg-gray-200 justify-start'
+                    }`}>
+                      <div className="w-4 h-4 bg-white rounded-full shadow" />
+                    </div>
+                  </button>
+                  {requireApproval && (
+                    <div className="px-4 py-2.5 bg-violet-50 text-xs text-violet-700">
+                      This post will be sent for team approval before going live.
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
