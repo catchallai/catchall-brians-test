@@ -141,7 +141,9 @@ export default function SocialCalendar() {
   };
 
   const handleEdit = (post) => {
-    setSelectedPost(post);
+    // Always get the freshest version of the post from the fetched list
+    const freshPost = posts.find(p => p.id === post.id) || post;
+    setSelectedPost(freshPost);
     setShowModal(true);
   };
 

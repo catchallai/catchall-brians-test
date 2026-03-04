@@ -52,6 +52,7 @@ import AccountingDashboard from './pages/AccountingDashboard';
 import Activities from './pages/Activities';
 import ActivityLogs from './pages/ActivityLogs';
 import AerospaceScanner from './pages/AerospaceScanner';
+import AllChannels from './pages/AllChannels';
 import Automation from './pages/Automation';
 import Backlinks from './pages/Backlinks';
 import BusinessDevDashboard from './pages/BusinessDevDashboard';
@@ -166,7 +167,6 @@ import WebDashboard from './pages/WebDashboard';
 import WikiPageEditor from './pages/WikiPageEditor';
 import WorkflowBuilder from './pages/WorkflowBuilder';
 import WorkflowEngine from './pages/WorkflowEngine';
-import AllChannels from './pages/AllChannels';
 import __Layout from './Layout.jsx';
 
 
@@ -176,6 +176,7 @@ export const PAGES = {
     "Activities": Activities,
     "ActivityLogs": ActivityLogs,
     "AerospaceScanner": AerospaceScanner,
+    "AllChannels": AllChannels,
     "Automation": Automation,
     "Backlinks": Backlinks,
     "BusinessDevDashboard": BusinessDevDashboard,
@@ -290,7 +291,6 @@ export const PAGES = {
     "WikiPageEditor": WikiPageEditor,
     "WorkflowBuilder": WorkflowBuilder,
     "WorkflowEngine": WorkflowEngine,
-    "AllChannels": AllChannels,
 }
 
 export const pagesConfig = {
