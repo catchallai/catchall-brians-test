@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Loader2, Route, Sparkles, ArrowRight, TrendingUp, TrendingDown, AlertTriangle, Lightbulb, Target, MousePointer, Eye, Clock, CheckCircle, XCircle, Users, Globe, Filter, ChevronDown, Zap } from "lucide-react";
 import { base44 } from '@/api/base44Client';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip-primitives";
 
 // Segment definitions
 const VISITOR_SEGMENTS = [
