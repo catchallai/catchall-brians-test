@@ -244,7 +244,22 @@ export default function CalendarPostModal({ open, onClose, post, onSave, isLoadi
 
         {/* Body */}
         <div className="flex overflow-hidden" style={{ maxHeight: 'calc(92vh - 130px)' }}>
+          {/* Approval tab */}
+          {activeTab === 'approval' && post && (
+            <div className="flex-1 overflow-y-auto p-6">
+              <PostApprovalPanel post={post} onUpdate={() => {}} />
+            </div>
+          )}
+
+          {/* Comments tab */}
+          {activeTab === 'comments' && post && (
+            <div className="flex-1 overflow-y-auto p-6">
+              <PostComments postId={post.id} currentUser={currentUser} />
+            </div>
+          )}
+
           {/* LEFT: Composer */}
+          {(activeTab === 'compose' || !post) && (
           <div className={`flex flex-col overflow-y-auto ${showPreview ? 'w-[58%]' : 'w-full'} border-r border-gray-100`}>
             {/* Platform Avatars */}
             <div className="flex items-center gap-3 px-6 pt-5 pb-4">
