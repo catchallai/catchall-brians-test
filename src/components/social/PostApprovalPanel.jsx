@@ -49,6 +49,7 @@ export default function PostApprovalPanel({ post, onUpdate }) {
     mutationFn: (data) => base44.entities.CalendarPost.update(post.id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['calendar-posts'] });
+      queryClient.invalidateQueries({ queryKey: ['calendar-posts-all'] });
       setNote('');
     },
   });
