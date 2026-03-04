@@ -165,6 +165,7 @@ import WebDashboard from './pages/WebDashboard';
 import WikiPageEditor from './pages/WikiPageEditor';
 import WorkflowBuilder from './pages/WorkflowBuilder';
 import WorkflowEngine from './pages/WorkflowEngine';
+import SocialTags from './pages/SocialTags';
 import __Layout from './Layout.jsx';
 
 
@@ -287,6 +288,7 @@ export const PAGES = {
     "WikiPageEditor": WikiPageEditor,
     "WorkflowBuilder": WorkflowBuilder,
     "WorkflowEngine": WorkflowEngine,
+    "SocialTags": SocialTags,
 }
 
 export const pagesConfig = {
