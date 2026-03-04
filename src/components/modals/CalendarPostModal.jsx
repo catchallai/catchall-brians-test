@@ -221,6 +221,27 @@ export default function CalendarPostModal({ open, onClose, post, onSave, isLoadi
           </div>
         </div>
 
+        {/* Tabs (only for existing posts) */}
+        {post && (
+          <div className="flex border-b border-gray-100 px-6 bg-white">
+            {[
+              { id: 'compose',  label: 'Compose',  icon: ImageIcon },
+              { id: 'approval', label: 'Approval Workflow', icon: GitBranch },
+              { id: 'comments', label: 'Team Feedback', icon: MessageSquare },
+            ].map(tab => (
+              <button key={tab.id} onClick={() => setActiveTab(tab.id)}
+                className={`flex items-center gap-1.5 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+                  activeTab === tab.id
+                    ? 'border-violet-500 text-violet-600'
+                    : 'border-transparent text-gray-400 hover:text-gray-600'
+                }`}>
+                <tab.icon className="w-4 h-4" />
+                {tab.label}
+              </button>
+            ))}
+          </div>
+        )}
+
         {/* Body */}
         <div className="flex overflow-hidden" style={{ maxHeight: 'calc(92vh - 130px)' }}>
           {/* LEFT: Composer */}
