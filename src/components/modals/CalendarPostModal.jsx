@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import {
   Loader2, X, Image as ImageIcon, Smile, Hash, Link2, Plus, ChevronDown,
   Sparkles, Maximize2, Calendar, CheckCircle2, MessageSquare, GitBranch,
-  Clock, Repeat, Zap, Send, FileText, ChevronRight, Info
+  Clock, Repeat, Zap, Send, FileText, ChevronRight, Info, ShieldCheck
 } from "lucide-react";
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
