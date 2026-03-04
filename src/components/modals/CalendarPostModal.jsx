@@ -3,18 +3,34 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, X, Image as ImageIcon, Smile, Hash, Link2, Plus, ChevronDown, Sparkles, Maximize2, Calendar, CheckCircle2, MessageSquare, GitBranch } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Loader2, X, Image as ImageIcon, Smile, Hash, Link2, Plus, ChevronDown,
+  Sparkles, Maximize2, Calendar, CheckCircle2, MessageSquare, GitBranch,
+  Clock, Repeat, Zap, Send, FileText, ChevronRight, Info
+} from "lucide-react";
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import PostComments from '../social/PostComments';
 import PostApprovalPanel from '../social/PostApprovalPanel';
 
 const PLATFORMS = [
-  { id: 'Facebook',  color: 'bg-blue-600',  letter: 'f',  label: 'Facebook',       limit: 63206 },
+  { id: 'Facebook',  color: 'bg-blue-600',  letter: 'f',  label: 'Facebook',    limit: 63206 },
   { id: 'Instagram', color: 'bg-gradient-to-br from-pink-500 to-purple-600', letter: 'IG', label: 'Instagram', limit: 2200 },
-  { id: 'LinkedIn',  color: 'bg-blue-700',  letter: 'in', label: 'LinkedIn',        limit: 3000 },
-  { id: 'Twitter',   color: 'bg-black',     letter: 'X',  label: 'Twitter / X',     limit: 280  },
+  { id: 'LinkedIn',  color: 'bg-blue-700',  letter: 'in', label: 'LinkedIn',     limit: 3000 },
+  { id: 'Twitter',   color: 'bg-black',     letter: 'X',  label: 'Twitter / X',  limit: 280 },
 ];
+
+// Best times by platform based on general audience activity research
+const BEST_TIMES = {
+  Facebook:  [{ day: 'Wednesday', time: '11:00', label: 'Wed 11am' }, { day: 'Thursday', time: '13:00', label: 'Thu 1pm' }, { day: 'Friday', time: '10:00', label: 'Fri 10am' }],
+  Instagram: [{ day: 'Monday', time: '11:00', label: 'Mon 11am' }, { day: 'Wednesday', time: '14:00', label: 'Wed 2pm' }, { day: 'Friday', time: '10:00', label: 'Fri 10am' }],
+  LinkedIn:  [{ day: 'Tuesday', time: '09:00', label: 'Tue 9am' }, { day: 'Wednesday', time: '12:00', label: 'Wed 12pm' }, { day: 'Thursday', time: '10:00', label: 'Thu 10am' }],
+  Twitter:   [{ day: 'Wednesday', time: '09:00', label: 'Wed 9am' }, { day: 'Friday', time: '09:00', label: 'Fri 9am' }, { day: 'Tuesday', time: '10:00', label: 'Tue 10am' }],
+};
+
+const DAYS_OF_WEEK = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
 function PlatformAvatar({ platform, active, onClick }) {
   return (
@@ -49,10 +65,7 @@ function PlatformPreviewPanel({ platform, caption, imageUrl, videoUrl }) {
 
       {!caption && !imageUrl && !videoUrl ? (
         <div className="flex-1 flex flex-col items-center justify-center text-center gap-4 text-gray-300">
-          {/* Placeholder wireframe */}
           <div className="relative w-48">
-            <div className="absolute -top-3 -right-3 text-gray-200 text-2xl">✦</div>
-            <div className="absolute -bottom-3 -left-3 text-gray-200 text-2xl">✦</div>
             <div className="bg-gray-100 rounded-lg p-4 space-y-2">
               <div className="flex items-center gap-2">
                 <div className="w-6 h-6 rounded-full bg-gray-200" />
@@ -94,6 +107,105 @@ function PlatformPreviewPanel({ platform, caption, imageUrl, videoUrl }) {
   );
 }
 
+function BestTimeSuggestions({ platforms, onApply }) {
+  // Get best times for the selected platforms
+  const activePlatforms = platforms.length > 0 ? platforms : ['Twitter'];
+  const primaryPlatform = activePlatforms[0];
+  const suggestions = BEST_TIMES[primaryPlatform] || BEST_TIMES['Twitter'];
+
+  const getNextOccurrence = (dayName, time) => {
+    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const targetDay = days.findIndex(d => d === dayName);
+    const today = new Date();
+    const todayDay = today.getDay();
+    let daysUntil = (targetDay - todayDay + 7) % 7;
+    if (daysUntil === 0) daysUntil = 7; // Push to next week if same day
+    const next = new Date(today);
+    next.setDate(today.getDate() + daysUntil);
+    return next.toISOString().split('T')[0];
+  };
+
+  return (
+    <div className="space-y-2">
+      <div className="flex items-center gap-1.5 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
+        <Zap className="w-3.5 h-3.5 text-amber-500 flex-shrink-0" />
+        <span>Best times for <strong>{primaryPlatform}</strong> based on typical audience activity:</span>
+      </div>
+      <div className="grid grid-cols-3 gap-2">
+        {suggestions.map((s, i) => (
+          <button
+            key={i}
+            onClick={() => onApply(getNextOccurrence(s.day, s.time), s.time)}
+            className="text-xs border border-gray-200 rounded-lg px-2 py-2 hover:border-violet-400 hover:bg-violet-50 transition-colors text-center group"
+          >
+            <div className="font-semibold text-gray-700 group-hover:text-violet-700">{s.label}</div>
+            <div className="text-gray-400 group-hover:text-violet-500 mt-0.5">Apply →</div>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function RecurringSchedulePanel({ formData, setFormData }) {
+  const toggleDay = (dayIndex) => {
+    const days = formData.recurrence_days || [];
+    const updated = days.includes(dayIndex)
+      ? days.filter(d => d !== dayIndex)
+      : [...days, dayIndex];
+    setFormData(f => ({ ...f, recurrence_days: updated }));
+  };
+
+  return (
+    <div className="space-y-3 pt-1">
+      <div className="flex items-center gap-2">
+        <Select
+          value={formData.recurrence_type || 'weekly'}
+          onValueChange={(v) => setFormData(f => ({ ...f, recurrence_type: v }))}
+        >
+          <SelectTrigger className="h-8 text-xs w-28">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="daily">Daily</SelectItem>
+            <SelectItem value="weekly">Weekly</SelectItem>
+            <SelectItem value="monthly">Monthly</SelectItem>
+          </SelectContent>
+        </Select>
+        <span className="text-xs text-gray-400">repeat</span>
+      </div>
+
+      {formData.recurrence_type === 'weekly' && (
+        <div className="flex gap-1 flex-wrap">
+          {DAYS_OF_WEEK.map((day, idx) => (
+            <button
+              key={day}
+              onClick={() => toggleDay(idx)}
+              className={`w-9 h-9 rounded-full text-xs font-medium transition-all ${
+                (formData.recurrence_days || []).includes(idx)
+                  ? 'bg-violet-600 text-white'
+                  : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+              }`}
+            >
+              {day}
+            </button>
+          ))}
+        </div>
+      )}
+
+      <div>
+        <label className="text-xs text-gray-500 mb-1 block">End date (optional)</label>
+        <input
+          type="date"
+          value={formData.recurrence_end_date || ''}
+          onChange={(e) => setFormData(f => ({ ...f, recurrence_end_date: e.target.value }))}
+          className="w-full text-xs border border-gray-200 rounded-lg px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-violet-400"
+        />
+      </div>
+    </div>
+  );
+}
+
 const DEFAULT_FORM = {
   title: '', caption: '', image_url: '', video_url: '',
   media_type: 'none', scheduled_date: new Date().toISOString().split('T')[0],
@@ -114,14 +226,15 @@ export default function CalendarPostModal({ open, onClose, post, onSave, isLoadi
   const [showPreview, setShowPreview] = useState(true);
   const [activeTab, setActiveTab] = useState('compose');
   const [saved, setSaved] = useState(false);
-  const [showSchedulePicker, setShowSchedulePicker] = useState(false);
+  const [showBestTimes, setShowBestTimes] = useState(false);
   const fileInputRef = useRef();
   const videoInputRef = useRef();
 
   useEffect(() => {
     if (open) {
-      setActiveTab('details');
+      setActiveTab('compose');
       setSaved(false);
+      setShowBestTimes(false);
       if (post) {
         setFormData({
           title: post.title || '', caption: post.caption || '',
@@ -185,7 +298,13 @@ export default function CalendarPostModal({ open, onClose, post, onSave, isLoadi
     if (status === 'draft') setSaved(true);
   };
 
+  const applyBestTime = (date, time) => {
+    setFormData(f => ({ ...f, scheduled_date: date, scheduled_time: time }));
+    setShowBestTimes(false);
+  };
+
   const isViewer = currentUser?.social_media_role === 'viewer';
+  const isAdmin = currentUser?.role === 'admin' || currentUser?.social_media_role === 'admin' || currentUser?.social_media_role === 'approver';
   const activePlatform = PLATFORMS.find(p => p.id === previewPlatform) || PLATFORMS[3];
   const overLimit = formData.caption.length > activePlatform.limit;
 
@@ -243,7 +362,7 @@ export default function CalendarPostModal({ open, onClose, post, onSave, isLoadi
         )}
 
         {/* Body */}
-        <div className="flex overflow-hidden" style={{ maxHeight: 'calc(92vh - 130px)' }}>
+        <div className="flex overflow-hidden" style={{ maxHeight: 'calc(92vh - 140px)' }}>
           {/* Approval tab */}
           {activeTab === 'approval' && post && (
             <div className="flex-1 overflow-y-auto p-6">
@@ -282,7 +401,7 @@ export default function CalendarPostModal({ open, onClose, post, onSave, isLoadi
                 value={formData.caption}
                 onChange={(e) => setFormData(f => ({ ...f, caption: e.target.value }))}
                 placeholder="What would you like to share?"
-                className="border-0 shadow-none focus-visible:ring-0 resize-none text-[15px] text-gray-800 p-0 min-h-[160px] leading-relaxed"
+                className="border-0 shadow-none focus-visible:ring-0 resize-none text-[15px] text-gray-800 p-0 min-h-[120px] leading-relaxed"
               />
             </div>
 
@@ -290,7 +409,7 @@ export default function CalendarPostModal({ open, onClose, post, onSave, isLoadi
             <div className="px-6 pb-2">
               {formData.image_url ? (
                 <div className="relative inline-block mt-2">
-                  <img src={formData.image_url} alt="Preview" className="rounded-xl max-h-52 object-cover" />
+                  <img src={formData.image_url} alt="Preview" className="rounded-xl max-h-40 object-cover" />
                   <button onClick={() => setFormData(f => ({ ...f, image_url: '', media_type: 'none' }))}
                     className="absolute top-2 right-2 bg-black/60 hover:bg-black/80 text-white rounded-full p-1">
                     <X className="w-3.5 h-3.5" />
@@ -298,7 +417,7 @@ export default function CalendarPostModal({ open, onClose, post, onSave, isLoadi
                 </div>
               ) : formData.video_url ? (
                 <div className="relative mt-2">
-                  <video src={formData.video_url} controls className="rounded-xl max-h-52 w-full" />
+                  <video src={formData.video_url} controls className="rounded-xl max-h-40 w-full" />
                   <button onClick={() => setFormData(f => ({ ...f, video_url: '', media_type: 'none' }))}
                     className="absolute top-2 right-2 bg-black/60 hover:bg-black/80 text-white rounded-full p-1">
                     <X className="w-3.5 h-3.5" />
@@ -308,7 +427,7 @@ export default function CalendarPostModal({ open, onClose, post, onSave, isLoadi
                 <div
                   onDrop={handleDrop}
                   onDragOver={(e) => e.preventDefault()}
-                  className="mt-2 border-2 border-dashed border-gray-200 rounded-xl p-5 flex flex-col items-center gap-2 cursor-pointer hover:border-violet-300 hover:bg-violet-50/30 transition-colors"
+                  className="mt-2 border-2 border-dashed border-gray-200 rounded-xl p-4 flex flex-col items-center gap-2 cursor-pointer hover:border-violet-300 hover:bg-violet-50/30 transition-colors"
                   onClick={() => fileInputRef.current?.click()}
                 >
                   {uploading ? (
@@ -329,7 +448,7 @@ export default function CalendarPostModal({ open, onClose, post, onSave, isLoadi
             </div>
 
             {/* Toolbar */}
-            <div className="flex items-center justify-between px-6 py-3 border-t border-gray-100 mt-2">
+            <div className="flex items-center justify-between px-6 py-2.5 border-t border-gray-100 mt-1">
               <div className="flex items-center gap-1">
                 <button onClick={() => fileInputRef.current?.click()}
                   className="flex items-center gap-1 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg px-2 py-1.5 text-sm transition-colors">
@@ -361,7 +480,7 @@ export default function CalendarPostModal({ open, onClose, post, onSave, isLoadi
 
             {/* Hashtag pool quick-add */}
             {hashtagPool.length > 0 && (
-              <div className="px-6 pb-3 flex flex-wrap gap-1">
+              <div className="px-6 pb-2 flex flex-wrap gap-1">
                 {hashtagPool.slice(0, 10).map(h => (
                   <button key={h.id}
                     onClick={() => setFormData(f => ({ ...f, caption: f.caption + (f.caption ? ' ' : '') + '#' + h.hashtag }))}
@@ -371,9 +490,26 @@ export default function CalendarPostModal({ open, onClose, post, onSave, isLoadi
                 ))}
               </div>
             )}
+
+            {/* Recurring toggle */}
+            <div className="px-6 pb-3 border-t border-gray-100 pt-3">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <Repeat className="w-4 h-4 text-gray-400" />
+                  <span className="text-sm font-medium text-gray-700">Recurring Post</span>
+                </div>
+                <Switch
+                  checked={formData.is_recurring}
+                  onCheckedChange={(v) => setFormData(f => ({ ...f, is_recurring: v }))}
+                />
+              </div>
+              {formData.is_recurring && (
+                <RecurringSchedulePanel formData={formData} setFormData={setFormData} />
+              )}
+            </div>
           </div>}
 
-          {/* RIGHT: Preview */}
+          {/* RIGHT: Preview + Scheduling */}
           {(activeTab === 'compose' || !post) && showPreview && (
             <div className="flex-1 flex flex-col bg-gray-50 overflow-y-auto">
               {/* Platform preview tabs */}
@@ -391,7 +527,7 @@ export default function CalendarPostModal({ open, onClose, post, onSave, isLoadi
                   </button>
                 ))}
               </div>
-              <div className="p-6 flex-1">
+              <div className="p-4 flex-1">
                 <PlatformPreviewPanel
                   platform={previewPlatform}
                   caption={formData.caption}
@@ -400,9 +536,29 @@ export default function CalendarPostModal({ open, onClose, post, onSave, isLoadi
                 />
               </div>
 
-              {/* Schedule settings inside preview panel */}
-              <div className="border-t border-gray-200 bg-white px-5 py-4 space-y-3">
-                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Schedule</p>
+              {/* Scheduling panel */}
+              <div className="border-t border-gray-200 bg-white px-5 py-4 space-y-4">
+                <div className="flex items-center justify-between">
+                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide flex items-center gap-1.5">
+                    <Clock className="w-3.5 h-3.5" /> Schedule
+                  </p>
+                  <button
+                    onClick={() => setShowBestTimes(v => !v)}
+                    className="flex items-center gap-1 text-xs text-amber-600 hover:text-amber-700 font-medium"
+                  >
+                    <Zap className="w-3.5 h-3.5" />
+                    Best Times
+                    <ChevronRight className={`w-3 h-3 transition-transform ${showBestTimes ? 'rotate-90' : ''}`} />
+                  </button>
+                </div>
+
+                {showBestTimes && (
+                  <BestTimeSuggestions
+                    platforms={formData.platforms}
+                    onApply={applyBestTime}
+                  />
+                )}
+
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="text-xs text-gray-500 mb-1 block">Date</label>
@@ -417,42 +573,68 @@ export default function CalendarPostModal({ open, onClose, post, onSave, isLoadi
                       className="w-full text-sm border border-gray-200 rounded-lg px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-violet-400" />
                   </div>
                 </div>
+
+                {/* Workflow status badge */}
+                <div className="flex items-center gap-2 pt-1">
+                  <Info className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
+                  <p className="text-xs text-gray-500">
+                    {isAdmin
+                      ? 'As an admin/approver, you can schedule directly or require approval.'
+                      : 'Posts go to "Pending Review" for approval before publishing.'}
+                  </p>
+                </div>
               </div>
             </div>
-          )} {/* end preview panel */}
+          )}
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-between px-6 py-4 border-t border-gray-100 bg-white">
+        <div className="flex items-center justify-between px-6 py-3.5 border-t border-gray-100 bg-white">
           <div className="flex items-center gap-3">
-            <label className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer select-none">
-              <input type="checkbox" className="rounded" onChange={() => {}} />
-              Create Another
-            </label>
             <button
               onClick={() => handleSubmit('draft')}
               disabled={isLoading || !formData.caption}
-              className="text-sm text-gray-500 hover:text-gray-800 font-medium disabled:opacity-40 transition-colors"
+              className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-800 font-medium disabled:opacity-40 transition-colors border border-gray-200 rounded-xl px-3 py-2 hover:bg-gray-50"
             >
-              {isLoading ? <Loader2 className="w-4 h-4 animate-spin inline mr-1" /> : null}
+              {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileText className="w-4 h-4" />}
               Save Draft
             </button>
           </div>
           <div className="flex items-center gap-2">
-            <div className="flex items-center border border-gray-200 rounded-xl overflow-hidden">
-              <button className="flex items-center gap-2 px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 transition-colors">
-                <Calendar className="w-4 h-4" />
-                Next Available
-                <ChevronDown className="w-3.5 h-3.5" />
-              </button>
-            </div>
+            {/* Submit for review (editors) */}
+            {!isAdmin && !isViewer && (
+              <Button
+                variant="outline"
+                onClick={() => handleSubmit('pending_review')}
+                disabled={isLoading || !formData.caption || formData.platforms.length === 0}
+                className="flex items-center gap-1.5 text-sm rounded-xl"
+              >
+                <Send className="w-4 h-4" />
+                Submit for Review
+              </Button>
+            )}
+
+            {/* Schedule / Approve (admins) */}
+            {isAdmin && (
+              <Button
+                variant="outline"
+                onClick={() => handleSubmit('pending_approval')}
+                disabled={isLoading || !formData.caption || formData.platforms.length === 0}
+                className="flex items-center gap-1.5 text-sm rounded-xl border-violet-300 text-violet-700 hover:bg-violet-50"
+              >
+                <GitBranch className="w-4 h-4" />
+                Send for Approval
+              </Button>
+            )}
+
             <Button
-              onClick={() => handleSubmit('pending_approval')}
+              onClick={() => handleSubmit(isAdmin ? 'approved' : 'pending_review')}
               disabled={isLoading || isViewer || !formData.caption || formData.platforms.length === 0}
-              className="bg-gray-800 hover:bg-black text-white rounded-xl px-5 py-2 text-sm font-semibold disabled:opacity-40 transition-colors"
+              className="bg-gray-800 hover:bg-black text-white rounded-xl px-5 py-2 text-sm font-semibold disabled:opacity-40 transition-colors flex items-center gap-2"
             >
-              {isLoading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-              Schedule Post
+              {isLoading && <Loader2 className="w-4 h-4 animate-spin" />}
+              <Calendar className="w-4 h-4" />
+              {isAdmin ? 'Schedule & Approve' : 'Schedule Post'}
             </Button>
           </div>
         </div>
