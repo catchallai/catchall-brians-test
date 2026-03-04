@@ -422,7 +422,7 @@ export default function CalendarPostModal({ open, onClose, post, onSave, isLoadi
                 </div>
               </div>
             </div>
-          )}
+          )} {/* end preview panel */}
         </div>
 
         {/* Footer */}
