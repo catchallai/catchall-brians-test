@@ -33,12 +33,17 @@ const statusBadges = {
   published: { label: "Published", class: "bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-300" },
 };
 
-export default function SocialCalendarView({ posts = [], onAddPost, onEditPost, currentMonth, onMonthChange, viewType = 'month' }) {
+export default function SocialCalendarView({ posts = [], onAddPost, onEditPost, onDeletePost, currentMonth, onMonthChange, viewType = 'month' }) {
   const [draggedPost, setDraggedPost] = useState(null);
   const queryClient = useQueryClient();
 
   const updatePostMutation = useMutation({
     mutationFn: ({ id, data }) => base44.entities.CalendarPost.update(id, data),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['calendar-posts'] }),
+  });
+
+  const deletePostMutation = useMutation({
+    mutationFn: (id) => base44.entities.CalendarPost.delete(id),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['calendar-posts'] }),
   });
 
