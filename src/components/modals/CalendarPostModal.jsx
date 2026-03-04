@@ -369,7 +369,12 @@ export default function CalendarPostModal({ open, onClose, post, onSave, isLoadi
           {/* Approval tab */}
           {activeTab === 'approval' && post && (
             <div className="flex-1 overflow-y-auto p-6">
-              <PostApprovalPanel post={post} onUpdate={() => {}} />
+              <PostApprovalPanel post={post} onUpdate={(updatedPost) => {
+                // Merge approval changes back into formData so the modal reflects them
+                if (updatedPost) {
+                  setFormData(f => ({ ...f, ...updatedPost }));
+                }
+              }} />
             </div>
           )}
 
