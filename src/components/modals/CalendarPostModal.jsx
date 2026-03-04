@@ -371,9 +371,7 @@ export default function CalendarPostModal({ open, onClose, post, onSave, isLoadi
                 ))}
               </div>
             )}
-          </div>
-
-          )} {/* end compose tab */}
+          </div>}
 
           {/* RIGHT: Preview */}
           {(activeTab === 'compose' || !post) && showPreview && (
