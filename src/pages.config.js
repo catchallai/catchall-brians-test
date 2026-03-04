@@ -148,6 +148,7 @@ import SocialLeads from './pages/SocialLeads';
 import SocialListening from './pages/SocialListening';
 import SocialMedia from './pages/SocialMedia';
 import SocialPerformance from './pages/SocialPerformance';
+import SocialTags from './pages/SocialTags';
 import SpaceDetail from './pages/SpaceDetail';
 import SpaceTemplates from './pages/SpaceTemplates';
 import Spaces from './pages/Spaces';
@@ -165,7 +166,7 @@ import WebDashboard from './pages/WebDashboard';
 import WikiPageEditor from './pages/WikiPageEditor';
 import WorkflowBuilder from './pages/WorkflowBuilder';
 import WorkflowEngine from './pages/WorkflowEngine';
-import SocialTags from './pages/SocialTags';
+import AllChannels from './pages/AllChannels';
 import __Layout from './Layout.jsx';
 
 
@@ -271,6 +272,7 @@ export const PAGES = {
     "SocialListening": SocialListening,
     "SocialMedia": SocialMedia,
     "SocialPerformance": SocialPerformance,
+    "SocialTags": SocialTags,
     "SpaceDetail": SpaceDetail,
     "SpaceTemplates": SpaceTemplates,
     "Spaces": Spaces,
@@ -288,7 +290,7 @@ export const PAGES = {
     "WikiPageEditor": WikiPageEditor,
     "WorkflowBuilder": WorkflowBuilder,
     "WorkflowEngine": WorkflowEngine,
-    "SocialTags": SocialTags,
+    "AllChannels": AllChannels,
 }
 
 export const pagesConfig = {
