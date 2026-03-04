@@ -131,6 +131,7 @@ const navigation = [
   { name: 'Social Calendar', icon: CalendarDays, page: 'SocialCalendar' },
   { name: 'Social Analytics', icon: Share2, page: 'SocialMedia' },
   { name: 'Social Performance', icon: TrendingUp, page: 'SocialPerformance' },
+  { name: 'All Channels', icon: Share2, page: 'AllChannels' },
   { name: 'Social Accounts', icon: Key, page: 'SocialAccounts' },
   { name: 'Social Tags', icon: Target, page: 'SocialTags' },
   { name: 'Social Listening', icon: Radio, page: 'SocialListening' },
