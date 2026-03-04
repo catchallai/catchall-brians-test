@@ -132,6 +132,7 @@ const navigation = [
   { name: 'Social Analytics', icon: Share2, page: 'SocialMedia' },
   { name: 'Social Performance', icon: TrendingUp, page: 'SocialPerformance' },
   { name: 'Social Accounts', icon: Key, page: 'SocialAccounts' },
+  { name: 'Social Tags', icon: Target, page: 'SocialTags' },
   { name: 'Social Listening', icon: Radio, page: 'SocialListening' },
   { name: 'Social Leads', icon: UserCircle, page: 'SocialLeads' },
   { name: 'Social Competitors', icon: Users, page: 'CompetitorAnalysis' },
