@@ -295,7 +295,9 @@ export default function CalendarPostModal({ open, onClose, post, onSave, isLoadi
   };
 
   const handleSubmit = (status) => {
-    onSave({ ...formData, status });
+    // If admin requires approval, override to pending_approval
+    const finalStatus = (isAdmin && requireApproval && status === 'approved') ? 'pending_approval' : status;
+    onSave({ ...formData, status: finalStatus });
     if (status === 'draft') setSaved(true);
   };
 
