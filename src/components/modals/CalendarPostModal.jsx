@@ -227,6 +227,7 @@ export default function CalendarPostModal({ open, onClose, post, onSave, isLoadi
   const [activeTab, setActiveTab] = useState('compose');
   const [saved, setSaved] = useState(false);
   const [showBestTimes, setShowBestTimes] = useState(false);
+  const [requireApproval, setRequireApproval] = useState(false);
   const fileInputRef = useRef();
   const videoInputRef = useRef();
 
