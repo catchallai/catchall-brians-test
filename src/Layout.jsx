@@ -58,6 +58,7 @@ import {
                           Briefcase,
                           MessageSquare,
                           Key,
+                          ShieldCheck,
                         } from "lucide-react";
 import ErrorBoundary from '@/components/ui/ErrorBoundary';
 import KeyboardShortcutsDialog, { useKeyboardShortcuts } from '@/components/ui/KeyboardShortcuts';
