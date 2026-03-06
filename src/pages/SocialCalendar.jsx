@@ -107,16 +107,29 @@ export default function SocialCalendar() {
           </div>
 
           {/* Controls */}
-          <div className="flex items-center justify-between gap-4 flex-wrap">
-            {/* View Toggle */}
-            <ToggleGroup type="single" value={viewType} onValueChange={setViewType} className="border border-gray-200 dark:border-slate-700 rounded-lg p-1">
-              <ToggleGroupItem value="month" className="data-[state=on]:bg-violet-600 data-[state=on]:text-white">
-                Month
-              </ToggleGroupItem>
-              <ToggleGroupItem value="week" className="data-[state=on]:bg-violet-600 data-[state=on]:text-white">
-                Week
-              </ToggleGroupItem>
-            </ToggleGroup>
+           <div className="flex items-center justify-between gap-4 flex-wrap">
+             {/* View Toggle */}
+             <div className="flex items-center gap-2">
+               <ToggleGroup type="single" value={calendarMode} onValueChange={setCalendarMode} className="border border-gray-200 dark:border-slate-700 rounded-lg p-1">
+                 <ToggleGroupItem value="calendar" className="data-[state=on]:bg-violet-600 data-[state=on]:text-white">
+                   <Calendar className="w-4 h-4 mr-1" /> Calendar
+                 </ToggleGroupItem>
+                 <ToggleGroupItem value="grid" className="data-[state=on]:bg-violet-600 data-[state=on]:text-white">
+                   <LayoutGrid className="w-4 h-4 mr-1" /> 9-Grid
+                 </ToggleGroupItem>
+               </ToggleGroup>
+
+               {calendarMode === 'calendar' && (
+                 <ToggleGroup type="single" value={viewType} onValueChange={setViewType} className="border border-gray-200 dark:border-slate-700 rounded-lg p-1">
+                   <ToggleGroupItem value="month" className="data-[state=on]:bg-violet-600 data-[state=on]:text-white">
+                     Month
+                   </ToggleGroupItem>
+                   <ToggleGroupItem value="week" className="data-[state=on]:bg-violet-600 data-[state=on]:text-white">
+                     Week
+                   </ToggleGroupItem>
+                 </ToggleGroup>
+               )}
+             </div>
 
             {/* Filters */}
             <CalendarFilters filters={filters} onFiltersChange={setFilters} />
