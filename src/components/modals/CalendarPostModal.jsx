@@ -519,16 +519,16 @@ export default function CalendarPostModal({ open, onClose, post, onSave, isLoadi
 
           {/* RIGHT: Preview + Scheduling */}
           {(activeTab === 'compose' || !post) && showPreview && (
-            <div className="flex-1 flex flex-col bg-gray-50 overflow-y-auto">
+            <div className="flex-1 flex flex-col bg-gray-50 dark:bg-gray-950 overflow-y-auto">
               {/* Platform preview tabs */}
-              <div className="flex border-b border-gray-200 bg-white">
+              <div className="flex border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
                 {PLATFORMS.map(pl => (
                   <button key={pl.id}
                     onClick={() => setPreviewPlatform(pl.id)}
                     className={`px-3 py-2 text-xs font-medium border-b-2 transition-colors ${
                       previewPlatform === pl.id
-                        ? 'border-blue-500 text-blue-600'
-                        : 'border-transparent text-gray-400 hover:text-gray-600'
+                        ? 'border-blue-500 text-blue-600 dark:text-blue-400'
+                        : 'border-transparent text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'
                     }`}
                   >
                     {pl.id === 'Twitter' ? 'Twitter / X' : pl.id}
@@ -545,9 +545,9 @@ export default function CalendarPostModal({ open, onClose, post, onSave, isLoadi
               </div>
 
               {/* Scheduling panel */}
-              <div className="border-t border-gray-200 bg-white px-5 py-4 space-y-4">
+              <div className="border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 px-5 py-4 space-y-4">
                 <div className="flex items-center justify-between">
-                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide flex items-center gap-1.5">
+                  <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide flex items-center gap-1.5">
                     <Clock className="w-3.5 h-3.5" /> Schedule
                   </p>
                   <button
