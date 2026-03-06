@@ -133,11 +133,17 @@ export default function PostApprovalPanel({ post, onUpdate }) {
       approved_by: currentUser?.email,
       approved_by_name: currentUser?.full_name || currentUser?.email,
       approved_date: new Date().toISOString().split('T')[0],
+      media_approved: true, // media is transferred to Approved Media Database
     }));
 
   const handleReject = () => {
     if (!note.trim()) return alert('Please provide a reason for rejection.');
-    updateMutation.mutate(addWorkflowEvent('rejected', { status: 'rejected', rejected_reason: note }));
+    // Media is NOT deleted — stays in version history, not transferred to Approved Media Database
+    updateMutation.mutate(addWorkflowEvent('rejected', {
+      status: 'rejected',
+      rejected_reason: note,
+      media_approved: false,
+    }));
   };
 
   const teamMembers = allUsers.filter(u =>
