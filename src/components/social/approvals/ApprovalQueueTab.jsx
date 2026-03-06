@@ -251,14 +251,46 @@ export default function ApprovalQueueTab({ posts, currentUser, selectedPost, onS
               </div>
             </div>
 
-            {/* Approval Panel */}
+            {/* Sub-tab navigation */}
+            <div className="flex gap-1 bg-gray-100 dark:bg-slate-800 rounded-xl p-1">
+              {[
+                { key: 'approval', label: 'Approval', icon: ShieldCheck },
+                { key: 'comments', label: 'Comments', icon: MessageSquare },
+                { key: 'activity', label: 'Activity', icon: Bell },
+                { key: 'workflow', label: 'Workflow', icon: FileText },
+              ].map(({ key, label, icon: Icon }) => (
+                <button
+                  key={key}
+                  onClick={() => setRightPanel(key)}
+                  className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 text-xs font-medium rounded-lg transition-all ${
+                    rightPanel === key
+                      ? 'bg-white dark:bg-slate-900 text-violet-700 dark:text-violet-400 shadow-sm'
+                      : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
+                  }`}
+                >
+                  <Icon className="w-3.5 h-3.5" />
+                  {label}
+                </button>
+              ))}
+            </div>
+
+            {/* Panel content */}
             <div className="bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-gray-800 p-5 shadow-sm">
-              <PostApprovalPanel
-                post={selectedPost}
-                onUpdate={() => {
-                  queryClient.invalidateQueries({ queryKey: ['calendar-posts-all'] });
-                }}
-              />
+              {rightPanel === 'approval' && (
+                <PostApprovalPanel
+                  post={selectedPost}
+                  onUpdate={() => queryClient.invalidateQueries({ queryKey: ['calendar-posts-all'] })}
+                />
+              )}
+              {rightPanel === 'comments' && (
+                <PostCommentThread post={selectedPost} currentUser={currentUser} />
+              )}
+              {rightPanel === 'activity' && (
+                <PostActivityFeed post={selectedPost} />
+              )}
+              {rightPanel === 'workflow' && (
+                <WorkflowStageBuilder />
+              )}
             </div>
           </div>
         )}
