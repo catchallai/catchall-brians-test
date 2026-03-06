@@ -13,7 +13,7 @@ function SortableGridItem({ id, post, position, onAddPost, onEditPost }) {
     isDragging,
     listeners,
     attributes,
-  } = useSortable({ id, disabled: !post });
+  } = useSortable({ id, disabled: !post || position === 0 }); // Can't drag from position 0
 
   const style = {
     transform: CSS.Transform.toString(transform),
