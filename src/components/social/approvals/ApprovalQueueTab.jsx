@@ -251,6 +251,14 @@ export default function ApprovalQueueTab({ posts, currentUser, selectedPost, onS
               </div>
             </div>
 
+            {/* Rejected media notice */}
+            {selectedPost.status === 'rejected' && (selectedPost.image_url || selectedPost.video_url) && (
+              <div className="flex items-center gap-2 px-4 py-2 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-700">
+                <ImageOff className="w-4 h-4 shrink-0" />
+                Media retained for version history — <strong>not</strong> transferred to the Approved Media Database.
+              </div>
+            )}
+
             {/* Sub-tab navigation */}
             <div className="flex gap-1 bg-gray-100 dark:bg-slate-800 rounded-xl p-1">
               {[
