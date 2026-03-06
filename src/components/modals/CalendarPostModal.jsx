@@ -184,7 +184,7 @@ function RecurringSchedulePanel({ formData, setFormData }) {
               className={`w-9 h-9 rounded-full text-xs font-medium transition-all ${
                 (formData.recurrence_days || []).includes(idx)
                   ? 'bg-violet-600 text-white'
-                  : 'bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'
+                  : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
               }`}
             >
               {day}
