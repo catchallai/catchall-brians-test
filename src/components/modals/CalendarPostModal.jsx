@@ -527,8 +527,8 @@ export default function CalendarPostModal({ open, onClose, post, onSave, isLoadi
                     onClick={() => setPreviewPlatform(pl.id)}
                     className={`px-3 py-2 text-xs font-medium border-b-2 transition-colors ${
                       previewPlatform === pl.id
-                        ? 'border-blue-500 text-blue-600 dark:text-blue-400'
-                        : 'border-transparent text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'
+                        ? 'border-blue-500 text-blue-600'
+                        : 'border-transparent text-gray-400 hover:text-gray-600'
                     }`}
                   >
                     {pl.id === 'Twitter' ? 'Twitter / X' : pl.id}
