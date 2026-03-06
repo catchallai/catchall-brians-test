@@ -62,6 +62,7 @@ export default function ApprovalQueueTab({ posts, currentUser, selectedPost, onS
   const [filterPriority, setFilterPriority] = useState('all');
   const [photoSwipeIdx, setPhotoSwipeIdx] = useState(0);
   const [note, setNote] = useState('');
+  const [rightPanel, setRightPanel] = useState('approval'); // 'approval' | 'comments' | 'activity' | 'workflow'
 
   const queuePosts = posts.filter(p =>
     ['pending_review', 'pending_approval', 'changes_requested', 'draft'].includes(p.status)
