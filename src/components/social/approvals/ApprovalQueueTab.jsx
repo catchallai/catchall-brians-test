@@ -10,7 +10,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   CheckCircle2, XCircle, Clock, Eye, Send, RotateCcw, AlertTriangle,
   ThumbsUp, Loader2, Search, Image, Video, FileText, ChevronLeft,
-  ChevronRight, Timer, Bell, Paperclip, MessageSquare, Calendar, ShieldCheck
+  ChevronRight, Timer, Bell, Paperclip, MessageSquare, Calendar, ShieldCheck, ImageOff
 } from "lucide-react";
 import { formatDistanceToNow, format, differenceInSeconds, isPast, parseISO } from 'date-fns';
 import PostApprovalPanel from '@/components/social/PostApprovalPanel';
