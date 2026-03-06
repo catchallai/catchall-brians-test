@@ -519,9 +519,9 @@ export default function CalendarPostModal({ open, onClose, post, onSave, isLoadi
 
           {/* RIGHT: Preview + Scheduling */}
           {(activeTab === 'compose' || !post) && showPreview && (
-            <div className="flex-1 flex flex-col bg-gray-50 dark:bg-gray-950 overflow-y-auto">
+            <div className="flex-1 flex flex-col bg-gray-50 overflow-y-auto">
               {/* Platform preview tabs */}
-              <div className="flex border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
+              <div className="flex border-b border-gray-200 bg-white">
                 {PLATFORMS.map(pl => (
                   <button key={pl.id}
                     onClick={() => setPreviewPlatform(pl.id)}
