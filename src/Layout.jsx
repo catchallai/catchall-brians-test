@@ -491,13 +491,13 @@ function SidebarContent({ currentPage, onNavigate, isEnabled, user, onAddFavorit
                                   e.dataTransfer.effectAllowed = 'copy';
                                 }}
                                 title={isCollapsed ? item.name : ''}
-                                className={`flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium transition-all duration-200 cursor-grab active:cursor-grabbing ${
+                                className={`group flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium transition-all duration-200 cursor-grab active:cursor-grabbing ${
                                   isActive
-                                    ? 'bg-violet-50 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300'
-                                    : 'text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white'
+                                    ? `${itemSectionColor.bg} ${itemSectionColor.text}`
+                                    : 'text-gray-900 dark:text-gray-100 hover:' + itemSectionColor.bg.split(' ')[0] + ' dark:hover:' + (itemSectionColor.bg.split(' ')[1] || 'bg-gray-800')
                                 } ${isCollapsed ? 'justify-center' : ''}`}
                               >
-                                <item.icon className={`w-5 h-5 ${isActive ? 'text-violet-600 dark:text-violet-400' : 'text-gray-400 dark:text-gray-500'}`} />
+                                <item.icon className={`w-5 h-5 transition-colors ${isActive ? itemSectionColor.text : 'text-gray-400 dark:text-gray-500 group-hover:' + itemSectionColor.text.split(' ')[0]}`} />
                                 {!isCollapsed && item.name}
                               </Link>
                             );
