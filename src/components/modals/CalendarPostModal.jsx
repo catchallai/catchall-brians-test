@@ -456,20 +456,20 @@ export default function CalendarPostModal({ open, onClose, post, onSave, isLoadi
             </div>
 
             {/* Toolbar */}
-            <div className="flex items-center justify-between px-6 py-2.5 border-t border-gray-100 mt-1">
+            <div className="flex items-center justify-between px-6 py-2.5 border-t border-gray-100 dark:border-gray-800 mt-1">
               <div className="flex items-center gap-1">
                 <button onClick={() => fileInputRef.current?.click()}
-                  className="flex items-center gap-1 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg px-2 py-1.5 text-sm transition-colors">
+                  className="flex items-center gap-1 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg px-2 py-1.5 text-sm transition-colors">
                   <Plus className="w-4 h-4" />
                   <ChevronDown className="w-3 h-3" />
                 </button>
-                <button className="p-1.5 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors">
+                <button className="p-1.5 text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors">
                   <Smile className="w-5 h-5" />
                 </button>
-                <button className="p-1.5 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors">
+                <button className="p-1.5 text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors">
                   <Hash className="w-5 h-5" />
                 </button>
-                <button className="p-1.5 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors">
+                <button className="p-1.5 text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors">
                   <Link2 className="w-5 h-5" />
                 </button>
               </div>
