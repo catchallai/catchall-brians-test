@@ -171,6 +171,9 @@ export default function Dashboard() {
   const lastMonthPipelineValue = lastMonthDeals.filter(d => !['won', 'lost'].includes(d.stage)).reduce((sum, d) => sum + (d.value || 0), 0);
   const pipelineChange = lastMonthPipelineValue > 0 ? (((thisMonthPipelineValue - lastMonthPipelineValue) / lastMonthPipelineValue) * 100).toFixed(0) : 0;
 
+  // Stable navigation handler (avoids full-page reload for better INP)
+  const navigate = (page) => window.location.href = createPageUrl(page);
+
   // Get time-based greeting
   const getGreeting = () => {
     const hour = new Date().getHours();
