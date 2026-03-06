@@ -199,7 +199,7 @@ export default function GlobalSearch() {
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-gray-500" />
         <Input
           ref={inputRef}
-          placeholder="Search everything... (⌘K)"
+          placeholder="Search... (⌘K)"
           value={query}
           onChange={(e) => { setQuery(e.target.value); setIsOpen(true); }}
           onFocus={() => setIsOpen(true)}
