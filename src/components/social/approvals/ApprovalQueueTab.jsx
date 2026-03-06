@@ -14,6 +14,9 @@ import {
 } from "lucide-react";
 import { formatDistanceToNow, format, differenceInSeconds, isPast, parseISO } from 'date-fns';
 import PostApprovalPanel from '@/components/social/PostApprovalPanel';
+import PostCommentThread from '@/components/social/approvals/PostCommentThread';
+import PostActivityFeed from '@/components/social/approvals/PostActivityFeed';
+import WorkflowStageBuilder from '@/components/social/approvals/WorkflowStageBuilder';
 
 const PRIORITY_COLORS = {
   low: 'bg-gray-100 text-gray-500',
