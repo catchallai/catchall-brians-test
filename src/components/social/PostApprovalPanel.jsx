@@ -42,6 +42,34 @@ export default function PostApprovalPanel({ post, onUpdate }) {
   const [note, setNote] = useState('');
   const [showHistory, setShowHistory] = useState(false);
 
+  // Build per-stage who-did-what from workflow_history
+  const stageActors = React.useMemo(() => {
+    const map = {};
+    const history = post.workflow_history || [];
+    history.forEach(e => {
+      if (e.action === 'submitted_for_review' || e.action === 'resubmitted') {
+        map['pending_review'] = map['pending_review'] || [];
+        map['pending_review'].push({ name: e.by_name || e.by_email, action: 'Submitted', time: e.timestamp });
+      } else if (e.action === 'submitted_for_approval') {
+        map['pending_approval'] = map['pending_approval'] || [];
+        map['pending_approval'].push({ name: e.by_name || e.by_email, action: 'Reviewed', time: e.timestamp });
+      } else if (e.action === 'approved') {
+        map['approved'] = map['approved'] || [];
+        map['approved'].push({ name: e.by_name || e.by_email, action: 'Approved ✓', time: e.timestamp });
+      } else if (e.action === 'rejected') {
+        map['rejected'] = map['rejected'] || [];
+        map['rejected'].push({ name: e.by_name || e.by_email, action: 'Rejected', time: e.timestamp, note: e.note });
+      } else if (e.action === 'changes_requested') {
+        map['changes_requested'] = map['changes_requested'] || [];
+        map['changes_requested'].push({ name: e.by_name || e.by_email, action: 'Changes Requested', time: e.timestamp, note: e.note });
+      } else if (e.action === 'assigned') {
+        map['assigned'] = map['assigned'] || [];
+        map['assigned'].push({ name: e.by_name || e.by_email, action: 'Assigned reviewer', time: e.timestamp });
+      }
+    });
+    return map;
+  }, [post.workflow_history]);
+
   const { data: currentUser } = useQuery({
     queryKey: ['current-user'],
     queryFn: () => base44.auth.me(),
