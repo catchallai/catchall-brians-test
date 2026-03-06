@@ -569,43 +569,43 @@ export default function CalendarPostModal({ open, onClose, post, onSave, isLoadi
 
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="text-xs text-gray-500 mb-1 block">Date</label>
+                    <label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">Date</label>
                     <input type="date" value={formData.scheduled_date}
                       onChange={(e) => setFormData(f => ({ ...f, scheduled_date: e.target.value }))}
-                      className="w-full text-sm border border-gray-200 rounded-lg px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-violet-400" />
+                      className="w-full text-sm border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-lg px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-violet-400" />
                   </div>
                   <div>
-                    <label className="text-xs text-gray-500 mb-1 block">Time</label>
+                    <label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">Time</label>
                     <input type="time" value={formData.scheduled_time}
                       onChange={(e) => setFormData(f => ({ ...f, scheduled_time: e.target.value }))}
-                      className="w-full text-sm border border-gray-200 rounded-lg px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-violet-400" />
+                      className="w-full text-sm border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-lg px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-violet-400" />
                   </div>
                 </div>
 
                 {/* Approval toggle */}
-                <div className="border border-gray-200 rounded-xl overflow-hidden">
+                <div className="border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden">
                   <button
                     onClick={() => setRequireApproval(v => !v)}
                     className={`w-full flex items-center justify-between px-4 py-3 text-sm transition-colors ${
                       requireApproval
-                        ? 'bg-violet-50 border-b border-violet-100'
-                        : 'hover:bg-gray-50'
+                        ? 'bg-violet-50 dark:bg-violet-900/20 border-b border-violet-100 dark:border-violet-800'
+                        : 'hover:bg-gray-50 dark:hover:bg-gray-800'
                     }`}
                   >
                     <div className="flex items-center gap-2">
                       <ShieldCheck className={`w-4 h-4 ${requireApproval ? 'text-violet-600' : 'text-gray-400'}`} />
-                      <span className={`font-medium ${requireApproval ? 'text-violet-700' : 'text-gray-700'}`}>
+                      <span className={`font-medium ${requireApproval ? 'text-violet-700 dark:text-violet-400' : 'text-gray-700 dark:text-gray-300'}`}>
                         Requires Approval
                       </span>
                     </div>
                     <div className={`w-9 h-5 rounded-full flex items-center transition-all px-0.5 ${
-                      requireApproval ? 'bg-violet-600 justify-end' : 'bg-gray-200 justify-start'
+                      requireApproval ? 'bg-violet-600 justify-end' : 'bg-gray-200 dark:bg-gray-700 justify-start'
                     }`}>
                       <div className="w-4 h-4 bg-white rounded-full shadow" />
                     </div>
                   </button>
                   {requireApproval && (
-                    <div className="px-4 py-2.5 bg-violet-50 text-xs text-violet-700">
+                    <div className="px-4 py-2.5 bg-violet-50 dark:bg-violet-900/20 text-xs text-violet-700 dark:text-violet-400">
                       This post will be sent for team approval before going live.
                     </div>
                   )}
