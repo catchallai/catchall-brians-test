@@ -107,16 +107,22 @@ export default function NineGridEditor({ posts = [], onPostsChange, onEditPost, 
     useSensor(PointerSensor, { activationConstraint: { distance: 4 } })
   );
 
-  // Sort posts by scheduled_date ascending, fill into slots left-to-right
-  const sortedPosts = [...posts].sort((a, b) => {
-    if (!a.scheduled_date) return 1;
-    if (!b.scheduled_date) return -1;
-    return new Date(a.scheduled_date) - new Date(b.scheduled_date);
-  });
-
+  // Map posts to their existing positions in the grid (1-8, top-left always empty)
+  // Don't auto-sort by date
   const baseSlots = Array(9).fill(null);
-  sortedPosts.slice(0, 9).forEach((post, i) => {
-    baseSlots[i] = post;
+  posts.slice(0, 8).forEach((post, i) => {
+    // If post has a gridPosition, use it; otherwise assign sequentially starting from position 1
+    if (post.gridPosition !== undefined && post.gridPosition >= 1 && post.gridPosition <= 8) {
+      baseSlots[post.gridPosition] = post;
+    } else {
+      // Find first available slot starting from position 1
+      for (let j = 1; j < 9; j++) {
+        if (!baseSlots[j]) {
+          baseSlots[j] = post;
+          break;
+        }
+      }
+    }
   });
 
   // Use local optimistic slots while dragging, otherwise use computed slots
