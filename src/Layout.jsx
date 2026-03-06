@@ -148,6 +148,7 @@ const navigation = [
   { name: 'Contact Forms', icon: FileText, page: 'ContactForms' },
   { name: 'divider', label: 'Team Collaboration', collapsible: true },
   { name: 'Team Hub', icon: Users, page: 'TeamCollaboration' },
+  { name: 'Social Approvals', icon: ShieldCheck, page: 'SocialApprovals' },
   { name: 'Inbox', icon: MessageSquare, page: 'Inbox' },
   { name: 'Projects Dashboard', icon: BarChart3, page: 'ProjectsDashboard' },
   { name: 'Projects', icon: Briefcase, page: 'Projects' },

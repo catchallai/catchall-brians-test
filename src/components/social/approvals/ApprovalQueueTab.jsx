@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useQueryClient, useMutation } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Badge } from "@/components/ui/badge";
@@ -251,8 +251,7 @@ export default function ApprovalQueueTab({ posts, currentUser, selectedPost, onS
             <div className="bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-gray-800 p-5 shadow-sm">
               <PostApprovalPanel
                 post={selectedPost}
-                onUpdate={(updated) => {
-                  // refresh selected post data from query cache
+                onUpdate={() => {
                   queryClient.invalidateQueries({ queryKey: ['calendar-posts-all'] });
                 }}
               />
