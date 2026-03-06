@@ -330,20 +330,6 @@ function SidebarContent({ currentPage, onNavigate, isEnabled, user, onAddFavorit
   // Get user's favorite links (max 3)
   const favoriteLinks = (user?.favorite_links || []).slice(0, 3);
 
-  // Pre-compute section color for each nav item index
-  const navItemSectionColors = React.useMemo(() => {
-    const colors = {};
-    let currentColor = null;
-    cleanedNavigation.forEach((item, idx) => {
-      if (item.name === 'divider') {
-        currentColor = SECTION_COLORS[item.label] || null;
-      } else {
-        colors[idx] = currentColor;
-      }
-    });
-    return colors;
-  }, [cleanedNavigation]);
-
   return (
     <div className="flex flex-col h-full">
       {/* Logo */}
@@ -366,11 +352,8 @@ function SidebarContent({ currentPage, onNavigate, isEnabled, user, onAddFavorit
       {/* Navigation */}
       <ScrollArea className="flex-1 px-4 py-4">
         <nav className={`space-y-0.5 ${isCollapsed ? 'flex flex-col items-center' : ''}`}>
-          {(() => {
-            let currentSectionColor = null;
-            return cleanedNavigation.map((item, idx) => {
+          {cleanedNavigation.map((item, idx) => {
                             if (item.name === 'divider') {
-                              currentSectionColor = SECTION_COLORS[item.label] || null;
                               const isSectionCollapsed = collapsedSections[item.label];
                               const isCollapsible = item.collapsible;
                               const sectionColor = SECTION_COLORS[item.label] || { bg: '', text: 'text-gray-400 dark:text-gray-500', border: 'border-l-gray-400' };
@@ -491,7 +474,6 @@ function SidebarContent({ currentPage, onNavigate, isEnabled, user, onAddFavorit
                                               }
 
                             const isActive = currentPage === item.page;
-                            const sectionText = currentSectionColor?.text || '';
 
                             return (
                               <Link
@@ -507,15 +489,14 @@ function SidebarContent({ currentPage, onNavigate, isEnabled, user, onAddFavorit
                                 className={`flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium transition-all duration-200 cursor-grab active:cursor-grabbing ${
                                   isActive
                                     ? 'bg-violet-50 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300'
-                                    : `${sectionText || 'text-gray-600 dark:text-gray-300'} hover:bg-gray-50 dark:hover:bg-gray-800 hover:opacity-80`
+                                    : 'text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white'
                                 } ${isCollapsed ? 'justify-center' : ''}`}
                               >
-                                <item.icon className={`w-5 h-5 ${isActive ? 'text-violet-600 dark:text-violet-400' : 'opacity-70'}`} />
+                                <item.icon className={`w-5 h-5 ${isActive ? 'text-violet-600 dark:text-violet-400' : 'text-gray-400 dark:text-gray-500'}`} />
                                 {!isCollapsed && item.name}
                               </Link>
                             );
-                          });
-          })()}
+                          })}
         </nav>
       </ScrollArea>
     </div>
