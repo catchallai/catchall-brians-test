@@ -10,6 +10,7 @@ import CalendarPostDetail from '@/components/social/calendar/CalendarPostDetail'
 import CalendarFilters from '@/components/social/calendar/CalendarFilters';
 import AutoScheduleAssistant from '@/components/social/calendar/AutoScheduleAssistant';
 import DraftFromAssetsModal from '@/components/social/calendar/DraftFromAssetsModal';
+import NineGridEditor from '@/components/social/NineGridEditor';
 
 export default function SocialCalendar() {
   const [currentDate, setCurrentDate] = useState(new Date());
