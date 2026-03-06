@@ -500,11 +500,11 @@ export default function CalendarPostModal({ open, onClose, post, onSave, isLoadi
             )}
 
             {/* Recurring toggle */}
-            <div className="px-6 pb-3 border-t border-gray-100 pt-3">
+            <div className="px-6 pb-3 border-t border-gray-100 dark:border-gray-800 pt-3">
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2">
                   <Repeat className="w-4 h-4 text-gray-400" />
-                  <span className="text-sm font-medium text-gray-700">Recurring Post</span>
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Recurring Post</span>
                 </div>
                 <Switch
                   checked={formData.is_recurring}
