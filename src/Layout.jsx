@@ -330,6 +330,20 @@ function SidebarContent({ currentPage, onNavigate, isEnabled, user, onAddFavorit
   // Get user's favorite links (max 3)
   const favoriteLinks = (user?.favorite_links || []).slice(0, 3);
 
+  // Pre-compute section color for each nav item index
+  const navItemSectionColors = React.useMemo(() => {
+    const colors = {};
+    let currentColor = null;
+    cleanedNavigation.forEach((item, idx) => {
+      if (item.name === 'divider') {
+        currentColor = SECTION_COLORS[item.label] || null;
+      } else {
+        colors[idx] = currentColor;
+      }
+    });
+    return colors;
+  }, [cleanedNavigation]);
+
   return (
     <div className="flex flex-col h-full">
       {/* Logo */}
