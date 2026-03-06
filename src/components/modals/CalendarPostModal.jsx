@@ -569,16 +569,16 @@ export default function CalendarPostModal({ open, onClose, post, onSave, isLoadi
 
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">Date</label>
+                    <label className="text-xs text-gray-500 mb-1 block">Date</label>
                     <input type="date" value={formData.scheduled_date}
                       onChange={(e) => setFormData(f => ({ ...f, scheduled_date: e.target.value }))}
-                      className="w-full text-sm border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-lg px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-violet-400" />
+                      className="w-full text-sm border border-gray-200 rounded-lg px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-violet-400" />
                   </div>
                   <div>
-                    <label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">Time</label>
+                    <label className="text-xs text-gray-500 mb-1 block">Time</label>
                     <input type="time" value={formData.scheduled_time}
                       onChange={(e) => setFormData(f => ({ ...f, scheduled_time: e.target.value }))}
-                      className="w-full text-sm border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-lg px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-violet-400" />
+                      className="w-full text-sm border border-gray-200 rounded-lg px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-violet-400" />
                   </div>
                 </div>
 
