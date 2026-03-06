@@ -545,9 +545,9 @@ export default function CalendarPostModal({ open, onClose, post, onSave, isLoadi
               </div>
 
               {/* Scheduling panel */}
-              <div className="border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 px-5 py-4 space-y-4">
+              <div className="border-t border-gray-200 bg-white px-5 py-4 space-y-4">
                 <div className="flex items-center justify-between">
-                  <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide flex items-center gap-1.5">
+                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide flex items-center gap-1.5">
                     <Clock className="w-3.5 h-3.5" /> Schedule
                   </p>
                   <button
