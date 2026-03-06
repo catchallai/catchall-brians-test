@@ -136,9 +136,9 @@ function BestTimeSuggestions({ platforms, onApply }) {
           <button
             key={i}
             onClick={() => onApply(getNextOccurrence(s.day, s.time), s.time)}
-            className="text-xs border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 rounded-lg px-2 py-2 hover:border-violet-400 hover:bg-violet-50 dark:hover:bg-violet-900/20 transition-colors text-center group"
+            className="text-xs border border-gray-200 rounded-lg px-2 py-2 hover:border-violet-400 hover:bg-violet-50 transition-colors text-center group"
           >
-            <div className="font-semibold text-gray-700 dark:text-gray-300 group-hover:text-violet-700 dark:group-hover:text-violet-400">{s.label}</div>
+            <div className="font-semibold text-gray-700 group-hover:text-violet-700">{s.label}</div>
             <div className="text-gray-400 group-hover:text-violet-500 mt-0.5">Apply →</div>
           </button>
         ))}
