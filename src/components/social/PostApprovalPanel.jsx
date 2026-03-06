@@ -10,9 +10,10 @@ import { Input } from "@/components/ui/input";
 import {
   CheckCircle2, XCircle, Clock, Send, UserPlus, AlertCircle,
   ThumbsUp, RotateCcw, Loader2, ChevronDown, ChevronUp, FileText,
-  Eye, ShieldCheck, Megaphone, Circle
+  Eye, ShieldCheck, Megaphone, Circle, ImageOff
 } from "lucide-react";
 import { formatDistanceToNow, format } from 'date-fns';
+import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip-primitives";
 
 const WORKFLOW_STAGES = [
   { key: 'draft',            label: 'Draft',            icon: FileText,    description: 'Post is being created' },
