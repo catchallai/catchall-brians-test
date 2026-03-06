@@ -58,42 +58,42 @@ function PlatformPreviewPanel({ platform, caption, imageUrl, videoUrl }) {
 
   return (
     <div className="flex flex-col h-full">
-      <p className="text-sm font-semibold text-gray-700 mb-4 flex items-center gap-2">
+      <p className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-4 flex items-center gap-2">
         {p.label} Preview
         <span className="text-xs font-normal text-gray-400 cursor-help">ⓘ</span>
       </p>
 
       {!caption && !imageUrl && !videoUrl ? (
-        <div className="flex-1 flex flex-col items-center justify-center text-center gap-4 text-gray-300">
+        <div className="flex-1 flex flex-col items-center justify-center text-center gap-4 text-gray-300 dark:text-gray-600">
           <div className="relative w-48">
-            <div className="bg-gray-100 rounded-lg p-4 space-y-2">
+            <div className="bg-gray-100 dark:bg-gray-800 rounded-lg p-4 space-y-2">
               <div className="flex items-center gap-2">
-                <div className="w-6 h-6 rounded-full bg-gray-200" />
-                <div className="flex-1 h-2 bg-gray-200 rounded" />
+                <div className="w-6 h-6 rounded-full bg-gray-200 dark:bg-gray-700" />
+                <div className="flex-1 h-2 bg-gray-200 dark:bg-gray-700 rounded" />
               </div>
-              <div className="h-2 bg-gray-200 rounded w-3/4" />
-              <div className="h-2 bg-gray-200 rounded w-1/2" />
-              <div className="bg-gray-200 rounded h-24 mt-2" />
+              <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded w-3/4" />
+              <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded w-1/2" />
+              <div className="bg-gray-200 dark:bg-gray-700 rounded h-24 mt-2" />
             </div>
           </div>
           <p className="text-sm text-gray-400 mt-2">See your post's preview here</p>
         </div>
       ) : (
-        <div className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm">
-          <div className="flex items-center gap-2 px-3 py-2.5 border-b border-gray-100">
+        <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden shadow-sm">
+          <div className="flex items-center gap-2 px-3 py-2.5 border-b border-gray-100 dark:border-gray-700">
             <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold ${p.color}`}>
               {p.letter}
             </div>
             <div>
-              <p className="text-xs font-semibold text-gray-800">Your Account</p>
+              <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">Your Account</p>
               <p className="text-xs text-gray-400">Just now</p>
             </div>
           </div>
           {imageUrl && <img src={imageUrl} alt="Preview" className="w-full object-cover max-h-48" />}
           {videoUrl && !imageUrl && <video src={videoUrl} className="w-full max-h-48 object-cover" muted />}
           <div className="p-3">
-            <p className="text-sm text-gray-700 whitespace-pre-wrap line-clamp-6">
-              {truncated || <span className="text-gray-300 italic">Your caption will appear here…</span>}
+            <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap line-clamp-6">
+              {truncated || <span className="text-gray-300 dark:text-gray-600 italic">Your caption will appear here…</span>}
             </p>
             {caption.length > 0 && (
               <p className={`text-xs mt-2 ${overLimit ? 'text-red-500 font-medium' : 'text-gray-400'}`}>
