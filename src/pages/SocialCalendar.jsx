@@ -145,7 +145,7 @@ export default function SocialCalendar() {
       {/* Main Content */}
       <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 py-6 space-y-6">
         {/* AI Assistant */}
-        {activeBriefs.length > 0 && (
+        {activeBriefs.length > 0 && calendarMode === 'calendar' && (
           <AutoScheduleAssistant 
             campaignBriefId={activeBriefs[0].id}
             onSuccess={(count) => {
@@ -154,29 +154,43 @@ export default function SocialCalendar() {
           />
         )}
 
-        {/* Calendar */}
-        <CalendarView
-          currentDate={currentDate}
-          onPrevMonth={() => handleNavMonth(-1)}
-          onNextMonth={() => handleNavMonth(1)}
-          viewType={viewType}
-          posts={posts}
-          onPostDrop={handlePostDrop}
-          onSelectPost={handleSelectPost}
-          selectedPost={selectedPost}
-          filters={filters}
-        />
+        {calendarMode === 'calendar' ? (
+          <>
+            {/* Calendar View */}
+            <CalendarView
+              currentDate={currentDate}
+              onPrevMonth={() => handleNavMonth(-1)}
+              onNextMonth={() => handleNavMonth(1)}
+              viewType={viewType}
+              posts={posts}
+              onPostDrop={handlePostDrop}
+              onSelectPost={handleSelectPost}
+              selectedPost={selectedPost}
+              filters={filters}
+            />
 
-        {/* Empty State */}
-        {posts.length === 0 && (
-          <div className="text-center py-12">
-            <LayoutGrid className="w-12 h-12 text-gray-300 dark:text-gray-600 mx-auto mb-3" />
-            <p className="text-gray-500 dark:text-gray-400 mb-4">No posts scheduled yet</p>
-            <Button onClick={() => setShowDraftModal(true)} className="bg-violet-600 hover:bg-violet-700 text-white">
-              <Plus className="w-4 h-4 mr-2" />
-              Create Your First Post
-            </Button>
-          </div>
+            {/* Empty State */}
+            {posts.length === 0 && (
+              <div className="text-center py-12">
+                <LayoutGrid className="w-12 h-12 text-gray-300 dark:text-gray-600 mx-auto mb-3" />
+                <p className="text-gray-500 dark:text-gray-400 mb-4">No posts scheduled yet</p>
+                <Button onClick={() => setShowDraftModal(true)} className="bg-violet-600 hover:bg-violet-700 text-white">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Create Your First Post
+                </Button>
+              </div>
+            )}
+          </>
+        ) : (
+          <>
+            {/* 9-Grid View */}
+            <NineGridEditor
+              posts={posts}
+              currentDate={currentDate}
+              onPostSelect={handleSelectPost}
+              onPostsUpdate={() => qc.invalidateQueries({ queryKey: ['calendar-posts'] })}
+            />
+          </>
         )}
       </div>
 
