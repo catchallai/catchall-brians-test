@@ -310,7 +310,7 @@ export default function Dashboard() {
 
         {/* Metrics Grid - Row 2 */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-          <Card className="bg-white dark:bg-gray-800 border-0 shadow-sm hover:shadow-md transition-shadow cursor-pointer" onClick={() => window.location.href = createPageUrl('SEODashboard')}>
+          <Card className="bg-white dark:bg-gray-800 border-0 shadow-sm hover:shadow-md transition-shadow cursor-pointer" onClick={() => navigate('SEODashboard')}>
             <CardContent className="p-4 sm:p-6">
               <div className="flex items-center justify-between mb-3">
                 <div className="w-10 h-10 rounded-lg bg-violet-50 dark:bg-violet-900/20 flex items-center justify-center">
@@ -337,7 +337,7 @@ export default function Dashboard() {
             </CardContent>
           </Card>
 
-          <Card className="bg-white dark:bg-gray-800 border-0 shadow-sm hover:shadow-md transition-shadow cursor-pointer" onClick={() => navigate('SocialCalendar')}>
+          <Card className="bg-white dark:bg-gray-800 border-0 shadow-sm hover:shadow-md transition-shadow cursor-pointer" onClick={() => window.location.href = createPageUrl('SocialCalendar')}>
             <CardContent className="p-4 sm:p-6">
               <div className="flex items-center justify-between mb-3">
                 <div className="w-10 h-10 rounded-lg bg-amber-50 dark:bg-amber-900/20 flex items-center justify-center">
@@ -350,7 +350,7 @@ export default function Dashboard() {
             </CardContent>
           </Card>
 
-          <Card className="bg-white dark:bg-gray-800 border-0 shadow-sm hover:shadow-md transition-shadow cursor-pointer" onClick={() => navigate('Campaigns')}>
+          <Card className="bg-white dark:bg-gray-800 border-0 shadow-sm hover:shadow-md transition-shadow cursor-pointer" onClick={() => window.location.href = createPageUrl('Campaigns')}>
             <CardContent className="p-4 sm:p-6">
               <div className="flex items-center justify-between mb-3">
                 <div className="w-10 h-10 rounded-lg bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center">
