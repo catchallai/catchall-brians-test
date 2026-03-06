@@ -480,6 +480,7 @@ function SidebarContent({ currentPage, onNavigate, isEnabled, user, onAddFavorit
                                               }
 
                             const isActive = currentPage === item.page;
+                            const sc = itemSectionColor;
 
                             return (
                               <Link
@@ -494,11 +495,11 @@ function SidebarContent({ currentPage, onNavigate, isEnabled, user, onAddFavorit
                                 title={isCollapsed ? item.name : ''}
                                 className={`group flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium transition-all duration-200 cursor-grab active:cursor-grabbing ${
                                   isActive
-                                    ? `${itemSectionColor.bg} ${itemSectionColor.text}`
-                                    : 'text-gray-900 dark:text-gray-100 hover:' + itemSectionColor.bg.split(' ')[0] + ' dark:hover:' + (itemSectionColor.bg.split(' ')[1] || 'bg-gray-800')
+                                    ? `${sc.bg} ${sc.text}`
+                                    : `text-gray-900 dark:text-gray-100 ${sc.hoverBg} ${sc.hoverText}`
                                 } ${isCollapsed ? 'justify-center' : ''}`}
                               >
-                                <item.icon className={`w-5 h-5 transition-colors ${isActive ? itemSectionColor.text : 'text-gray-400 dark:text-gray-500 group-hover:' + itemSectionColor.text.split(' ')[0]}`} />
+                                <item.icon className={`w-5 h-5 transition-colors ${isActive ? sc.text : `text-gray-400 dark:text-gray-500 ${sc.hoverIcon}`}`} />
                                 {!isCollapsed && item.name}
                               </Link>
                             );
