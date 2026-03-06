@@ -10,16 +10,13 @@ import {
   MessageSquare, Calendar, Mail, Radio, Globe, Zap, ArrowRight
 } from "lucide-react";
 
-import DashboardHeader from '@/components/dashboard/DashboardHeader';
-import MetricCard from '@/components/dashboard/MetricCard';
-import PipelineCard from '@/components/dashboard/PipelineCard';
-import SEOHealthCard from '@/components/dashboard/SEOHealthCard';
-import SocialSentimentCard from '@/components/dashboard/SocialSentimentCard';
-import ContentCalendarCard from '@/components/dashboard/ContentCalendarCard';
-import RecentActivityFeed from '@/components/dashboard/RecentActivityFeed';
-import AlertsSummary from '@/components/dashboard/AlertsSummary';
+const PipelineCard = React.lazy(() => import('@/components/dashboard/PipelineCard'));
+const SEOHealthCard = React.lazy(() => import('@/components/dashboard/SEOHealthCard'));
+const SocialSentimentCard = React.lazy(() => import('@/components/dashboard/SocialSentimentCard'));
+const ContentCalendarCard = React.lazy(() => import('@/components/dashboard/ContentCalendarCard'));
+const RecentActivityFeed = React.lazy(() => import('@/components/dashboard/RecentActivityFeed'));
+const AlertsSummary = React.lazy(() => import('@/components/dashboard/AlertsSummary'));
 import QuickActions from '@/components/dashboard/QuickActions';
-import FavoriteLinksManager from '@/components/dashboard/FavoriteLinksManager';
 
 export default function Dashboard() {
   // CRM Data
