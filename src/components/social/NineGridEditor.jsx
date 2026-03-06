@@ -138,18 +138,30 @@ export default function NineGridEditor({ posts = [], onPostsChange, onEditPost, 
     if (over && active.id !== over.id) {
       const oldIndex = parseInt(active.id);
       const newIndex = parseInt(over.id);
+      
+      // Don't allow dragging to position 0 (top-left is reserved for "Add Post")
+      if (newIndex === 0) {
+        setActiveId(null);
+        setLocalSlots(null);
+        return;
+      }
+
       const newSlots = [...gridSlots];
       [newSlots[oldIndex], newSlots[newIndex]] = [newSlots[newIndex], newSlots[oldIndex]];
       
-      // Update scheduled dates based on new position
-      const today = new Date();
+      // Update scheduled date and gridPosition based on new slot position
       const updatedSlots = newSlots.map((post, idx) => {
         if (!post) return null;
-        const newDate = new Date(today);
-        newDate.setDate(newDate.getDate() + idx);
+        // Calculate new date based on grid position
+        // Position 1-8 maps to days 0-7 from a base date
+        const base = baseScheduleDate ? new Date(baseScheduleDate) : new Date();
+        const newDate = new Date(base);
+        newDate.setDate(newDate.getDate() + (idx - 1)); // offset by 1 since position 0 is empty
+        
         return {
           ...post,
           scheduled_date: newDate.toISOString().split('T')[0],
+          gridPosition: idx, // store grid position
         };
       });
       
