@@ -386,7 +386,8 @@ function SidebarContent({ currentPage, onNavigate, isEnabled, user, onAddFavorit
                             // Find the section this item belongs to
                             const prevDividerIdx = cleanedNavigation.slice(0, idx).reverse().findIndex(i => i.name === 'divider');
                             const sectionItem = prevDividerIdx !== -1 ? cleanedNavigation[idx - prevDividerIdx - 1] : null;
-                            const itemSectionColor = sectionItem ? (SECTION_COLORS[sectionItem.label] || { text: 'text-gray-600 dark:text-gray-300', bg: 'bg-gray-50 dark:bg-gray-800' }) : { text: 'text-gray-600 dark:text-gray-300', bg: 'bg-gray-50 dark:bg-gray-800' };
+                            const defaultSC = { bg: 'bg-gray-50 dark:bg-gray-800', text: 'text-gray-600 dark:text-gray-400', border: 'border-l-gray-400', hoverBg: 'hover:bg-gray-50 dark:hover:bg-gray-800', hoverText: 'hover:text-gray-700 dark:hover:text-gray-200', hoverIcon: 'group-hover:text-gray-500 dark:group-hover:text-gray-300' };
+                            const itemSectionColor = sectionItem ? (SECTION_COLORS[sectionItem.label] || defaultSC) : defaultSC;
 
                             // Check if item should be hidden due to collapsed section
                             const sectionIdx = prevDividerIdx;
