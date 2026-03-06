@@ -10,12 +10,10 @@ import CalendarPostDetail from '@/components/social/calendar/CalendarPostDetail'
 import CalendarFilters from '@/components/social/calendar/CalendarFilters';
 import AutoScheduleAssistant from '@/components/social/calendar/AutoScheduleAssistant';
 import DraftFromAssetsModal from '@/components/social/calendar/DraftFromAssetsModal';
-import NineGridEditor from '@/components/social/NineGridEditor';
 
 export default function SocialCalendar() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [viewType, setViewType] = useState('month'); // 'month' | 'week'
-  const [calendarMode, setCalendarMode] = useState('calendar'); // 'calendar' | 'grid'
   const [selectedPost, setSelectedPost] = useState(null);
   const [showPostDetail, setShowPostDetail] = useState(false);
   const [showDraftModal, setShowDraftModal] = useState(false);
@@ -107,29 +105,16 @@ export default function SocialCalendar() {
           </div>
 
           {/* Controls */}
-           <div className="flex items-center justify-between gap-4 flex-wrap">
-             {/* View Toggle */}
-             <div className="flex items-center gap-2">
-               <ToggleGroup type="single" value={calendarMode} onValueChange={setCalendarMode} className="border border-gray-200 dark:border-slate-700 rounded-lg p-1">
-                 <ToggleGroupItem value="calendar" className="data-[state=on]:bg-violet-600 data-[state=on]:text-white">
-                   <Calendar className="w-4 h-4 mr-1" /> Calendar
-                 </ToggleGroupItem>
-                 <ToggleGroupItem value="grid" className="data-[state=on]:bg-violet-600 data-[state=on]:text-white">
-                   <LayoutGrid className="w-4 h-4 mr-1" /> 9-Grid
-                 </ToggleGroupItem>
-               </ToggleGroup>
-
-               {calendarMode === 'calendar' && (
-                 <ToggleGroup type="single" value={viewType} onValueChange={setViewType} className="border border-gray-200 dark:border-slate-700 rounded-lg p-1">
-                   <ToggleGroupItem value="month" className="data-[state=on]:bg-violet-600 data-[state=on]:text-white">
-                     Month
-                   </ToggleGroupItem>
-                   <ToggleGroupItem value="week" className="data-[state=on]:bg-violet-600 data-[state=on]:text-white">
-                     Week
-                   </ToggleGroupItem>
-                 </ToggleGroup>
-               )}
-             </div>
+          <div className="flex items-center justify-between gap-4 flex-wrap">
+            {/* View Toggle */}
+            <ToggleGroup type="single" value={viewType} onValueChange={setViewType} className="border border-gray-200 dark:border-slate-700 rounded-lg p-1">
+              <ToggleGroupItem value="month" className="data-[state=on]:bg-violet-600 data-[state=on]:text-white">
+                Month
+              </ToggleGroupItem>
+              <ToggleGroupItem value="week" className="data-[state=on]:bg-violet-600 data-[state=on]:text-white">
+                Week
+              </ToggleGroupItem>
+            </ToggleGroup>
 
             {/* Filters */}
             <CalendarFilters filters={filters} onFiltersChange={setFilters} />
@@ -145,7 +130,7 @@ export default function SocialCalendar() {
       {/* Main Content */}
       <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 py-6 space-y-6">
         {/* AI Assistant */}
-        {activeBriefs.length > 0 && calendarMode === 'calendar' && (
+        {activeBriefs.length > 0 && (
           <AutoScheduleAssistant 
             campaignBriefId={activeBriefs[0].id}
             onSuccess={(count) => {
@@ -154,51 +139,29 @@ export default function SocialCalendar() {
           />
         )}
 
-        {calendarMode === 'calendar' ? (
-          <>
-            {/* Calendar View */}
-            <CalendarView
-              currentDate={currentDate}
-              onPrevMonth={() => handleNavMonth(-1)}
-              onNextMonth={() => handleNavMonth(1)}
-              viewType={viewType}
-              posts={posts}
-              onPostDrop={handlePostDrop}
-              onSelectPost={handleSelectPost}
-              selectedPost={selectedPost}
-              filters={filters}
-            />
+        {/* Calendar */}
+        <CalendarView
+          currentDate={currentDate}
+          onPrevMonth={() => handleNavMonth(-1)}
+          onNextMonth={() => handleNavMonth(1)}
+          viewType={viewType}
+          posts={posts}
+          onPostDrop={handlePostDrop}
+          onSelectPost={handleSelectPost}
+          selectedPost={selectedPost}
+          filters={filters}
+        />
 
-            {/* Empty State */}
-            {posts.length === 0 && (
-              <div className="text-center py-12">
-                <LayoutGrid className="w-12 h-12 text-gray-300 dark:text-gray-600 mx-auto mb-3" />
-                <p className="text-gray-500 dark:text-gray-400 mb-4">No posts scheduled yet</p>
-                <Button onClick={() => setShowDraftModal(true)} className="bg-violet-600 hover:bg-violet-700 text-white">
-                  <Plus className="w-4 h-4 mr-2" />
-                  Create Your First Post
-                </Button>
-              </div>
-            )}
-          </>
-        ) : (
-          <>
-            {/* 9-Grid View */}
-            <NineGridEditor
-              posts={posts}
-              onPostsChange={(updatedPosts) => {
-                updatedPosts.forEach(post => {
-                  updatePostMutation.mutate({
-                    postId: post.id,
-                    data: { scheduled_date: post.scheduled_date, gridPosition: post.gridPosition }
-                  });
-                });
-              }}
-              onEditPost={handleSelectPost}
-              onAddPost={() => setShowDraftModal(true)}
-              baseScheduleDate={currentDate}
-            />
-          </>
+        {/* Empty State */}
+        {posts.length === 0 && (
+          <div className="text-center py-12">
+            <LayoutGrid className="w-12 h-12 text-gray-300 dark:text-gray-600 mx-auto mb-3" />
+            <p className="text-gray-500 dark:text-gray-400 mb-4">No posts scheduled yet</p>
+            <Button onClick={() => setShowDraftModal(true)} className="bg-violet-600 hover:bg-violet-700 text-white">
+              <Plus className="w-4 h-4 mr-2" />
+              Create Your First Post
+            </Button>
+          </div>
         )}
       </div>
 

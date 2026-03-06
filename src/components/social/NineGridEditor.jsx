@@ -13,7 +13,7 @@ function SortableGridItem({ id, post, position, onAddPost, onEditPost }) {
     isDragging,
     listeners,
     attributes,
-  } = useSortable({ id, disabled: !post || position === 0 }); // Can't drag from position 0
+  } = useSortable({ id, disabled: !post });
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -107,22 +107,16 @@ export default function NineGridEditor({ posts = [], onPostsChange, onEditPost, 
     useSensor(PointerSensor, { activationConstraint: { distance: 4 } })
   );
 
-  // Map posts to their existing positions in the grid (1-8, top-left always empty)
-  // Don't auto-sort by date
+  // Sort posts by scheduled_date ascending, fill into slots left-to-right
+  const sortedPosts = [...posts].sort((a, b) => {
+    if (!a.scheduled_date) return 1;
+    if (!b.scheduled_date) return -1;
+    return new Date(a.scheduled_date) - new Date(b.scheduled_date);
+  });
+
   const baseSlots = Array(9).fill(null);
-  posts.slice(0, 8).forEach((post, i) => {
-    // If post has a gridPosition, use it; otherwise assign sequentially starting from position 1
-    if (post.gridPosition !== undefined && post.gridPosition >= 1 && post.gridPosition <= 8) {
-      baseSlots[post.gridPosition] = post;
-    } else {
-      // Find first available slot starting from position 1
-      for (let j = 1; j < 9; j++) {
-        if (!baseSlots[j]) {
-          baseSlots[j] = post;
-          break;
-        }
-      }
-    }
+  sortedPosts.slice(0, 9).forEach((post, i) => {
+    baseSlots[i] = post;
   });
 
   // Use local optimistic slots while dragging, otherwise use computed slots
@@ -138,30 +132,18 @@ export default function NineGridEditor({ posts = [], onPostsChange, onEditPost, 
     if (over && active.id !== over.id) {
       const oldIndex = parseInt(active.id);
       const newIndex = parseInt(over.id);
-      
-      // Don't allow dragging to position 0 (top-left is reserved for "Add Post")
-      if (newIndex === 0) {
-        setActiveId(null);
-        setLocalSlots(null);
-        return;
-      }
-
       const newSlots = [...gridSlots];
       [newSlots[oldIndex], newSlots[newIndex]] = [newSlots[newIndex], newSlots[oldIndex]];
       
-      // Update scheduled date and gridPosition based on new slot position
+      // Update scheduled dates based on new position
+      const today = new Date();
       const updatedSlots = newSlots.map((post, idx) => {
         if (!post) return null;
-        // Calculate new date based on grid position
-        // Position 1-8 maps to days 0-7 from a base date
-        const base = baseScheduleDate ? new Date(baseScheduleDate) : new Date();
-        const newDate = new Date(base);
-        newDate.setDate(newDate.getDate() + (idx - 1)); // offset by 1 since position 0 is empty
-        
+        const newDate = new Date(today);
+        newDate.setDate(newDate.getDate() + idx);
         return {
           ...post,
           scheduled_date: newDate.toISOString().split('T')[0],
-          gridPosition: idx, // store grid position
         };
       });
       
@@ -196,7 +178,7 @@ export default function NineGridEditor({ posts = [], onPostsChange, onEditPost, 
           <div>
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white">9-Grid Layout</h3>
             <p className="text-sm text-gray-500 dark:text-gray-400">
-              Top-left reserved for adding · Drag to reorder and auto-update dates · Click post to edit
+              Posts auto-sort by date · Click empty to create · Click post to edit · Double-click to preview
             </p>
           </div>
         </div>

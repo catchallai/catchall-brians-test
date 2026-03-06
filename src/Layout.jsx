@@ -137,6 +137,7 @@ const navigation = [
   { name: 'Social Tags', icon: Target, page: 'SocialTags' },
   { name: 'Social Listening', icon: Radio, page: 'SocialListening' },
   { name: 'Social Leads', icon: UserCircle, page: 'SocialLeads' },
+  { name: 'Social Competitors', icon: Users, page: 'CompetitorAnalysis' },
   { name: 'Hashtag Manager', icon: Target, page: 'HashtagManager' },
   { name: 'divider', label: 'Web', collapsible: true },
   { name: 'Web Dashboard', icon: BarChart3, page: 'WebDashboard' },
