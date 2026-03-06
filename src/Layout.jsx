@@ -352,8 +352,11 @@ function SidebarContent({ currentPage, onNavigate, isEnabled, user, onAddFavorit
       {/* Navigation */}
       <ScrollArea className="flex-1 px-4 py-4">
         <nav className={`space-y-0.5 ${isCollapsed ? 'flex flex-col items-center' : ''}`}>
-          {cleanedNavigation.map((item, idx) => {
+          {(() => {
+            let currentSectionColor = null;
+            return cleanedNavigation.map((item, idx) => {
                             if (item.name === 'divider') {
+                              currentSectionColor = SECTION_COLORS[item.label] || null;
                               const isSectionCollapsed = collapsedSections[item.label];
                               const isCollapsible = item.collapsible;
                               const sectionColor = SECTION_COLORS[item.label] || { bg: '', text: 'text-gray-400 dark:text-gray-500', border: 'border-l-gray-400' };
