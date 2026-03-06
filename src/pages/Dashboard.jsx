@@ -365,38 +365,44 @@ export default function Dashboard() {
         </div>
 
         {/* Main Dashboard Cards */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <PipelineCard deals={deals} />
-          <SEOHealthCard 
-            websites={websites} 
-            keywords={keywords} 
-            backlinks={backlinks} 
-          />
-          <SocialSentimentCard 
-            mentions={mentions} 
-            alerts={alerts} 
-          />
-        </div>
+        <React.Suspense fallback={<div className="grid grid-cols-1 lg:grid-cols-3 gap-6">{[0,1,2].map(i => <Skeleton key={i} className="h-64 rounded-2xl" />)}</div>}>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <PipelineCard deals={deals} />
+            <SEOHealthCard 
+              websites={websites} 
+              keywords={keywords} 
+              backlinks={backlinks} 
+            />
+            <SocialSentimentCard 
+              mentions={mentions} 
+              alerts={alerts} 
+            />
+          </div>
+        </React.Suspense>
 
         {/* Content & Activity Row */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <ContentCalendarCard 
-            posts={calendarPosts} 
-            brands={brands} 
-          />
-          <AlertsSummary 
-            alerts={alerts} 
-            keywords={listeningKeywords} 
-            mentions={mentions} 
-          />
-        </div>
+        <React.Suspense fallback={<div className="grid grid-cols-1 lg:grid-cols-2 gap-6"><Skeleton className="h-64 rounded-2xl" /><Skeleton className="h-64 rounded-2xl" /></div>}>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <ContentCalendarCard 
+              posts={calendarPosts} 
+              brands={brands} 
+            />
+            <AlertsSummary 
+              alerts={alerts} 
+              keywords={listeningKeywords} 
+              mentions={mentions} 
+            />
+          </div>
+        </React.Suspense>
 
         {/* Recent Activity */}
-        <RecentActivityFeed 
-          contacts={contacts} 
-          deals={deals} 
-          mentions={mentions} 
-        />
+        <React.Suspense fallback={<Skeleton className="h-48 rounded-2xl" />}>
+          <RecentActivityFeed 
+            contacts={contacts} 
+            deals={deals} 
+            mentions={mentions} 
+          />
+        </React.Suspense>
       </div>
     </div>
   );
