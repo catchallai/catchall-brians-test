@@ -127,7 +127,7 @@ function BestTimeSuggestions({ platforms, onApply }) {
 
   return (
     <div className="space-y-2">
-      <div className="flex items-center gap-1.5 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
+      <div className="flex items-center gap-1.5 text-xs text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg px-3 py-2">
         <Zap className="w-3.5 h-3.5 text-amber-500 flex-shrink-0" />
         <span>Best times for <strong>{primaryPlatform}</strong> based on typical audience activity:</span>
       </div>
