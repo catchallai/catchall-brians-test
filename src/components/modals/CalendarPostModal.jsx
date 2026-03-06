@@ -313,17 +313,17 @@ export default function CalendarPostModal({ open, onClose, post, onSave, isLoadi
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="p-0 max-w-5xl w-full max-h-[92vh] overflow-hidden rounded-2xl" style={{ gap: 0 }}>
+      <DialogContent className="p-0 max-w-5xl w-full max-h-[92vh] overflow-hidden rounded-2xl bg-white dark:bg-gray-900" style={{ gap: 0 }}>
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-gray-800">
           <div className="flex items-center gap-3">
-            <h2 className="text-lg font-bold text-gray-900">{post ? 'Edit Post' : 'Create Post'}</h2>
-            <button className="flex items-center gap-1 text-xs text-gray-500 border border-gray-200 rounded-full px-2.5 py-1 hover:bg-gray-50 transition-colors">
+            <h2 className="text-lg font-bold text-gray-900 dark:text-white">{post ? 'Edit Post' : 'Create Post'}</h2>
+            <button className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400 border border-gray-200 dark:border-gray-700 rounded-full px-2.5 py-1 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
               🏷 Tags <ChevronDown className="w-3 h-3" />
             </button>
           </div>
           <div className="flex items-center gap-2">
-            <Button variant="ghost" size="sm" className="gap-1.5 text-gray-600 text-sm" onClick={() => {}}>
+            <Button variant="ghost" size="sm" className="gap-1.5 text-gray-600 dark:text-gray-400 text-sm" onClick={() => {}}>
               <Sparkles className="w-4 h-4" /> AI Assistant
             </Button>
             <Button
@@ -334,10 +334,10 @@ export default function CalendarPostModal({ open, onClose, post, onSave, isLoadi
             >
               👁 Preview
             </Button>
-            <button className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors text-gray-400">
+            <button className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors text-gray-400">
               <Maximize2 className="w-4 h-4" />
             </button>
-            <button onClick={onClose} className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors text-gray-400">
+            <button onClick={onClose} className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors text-gray-400">
               <X className="w-4 h-4" />
             </button>
           </div>
@@ -345,7 +345,7 @@ export default function CalendarPostModal({ open, onClose, post, onSave, isLoadi
 
         {/* Tabs (only for existing posts) */}
         {post && (
-          <div className="flex border-b border-gray-100 px-6 bg-white">
+          <div className="flex border-b border-gray-100 dark:border-gray-800 px-6 bg-white dark:bg-gray-900">
             {[
               { id: 'compose',  label: 'Compose',  icon: ImageIcon },
               { id: 'approval', label: 'Approval Workflow', icon: GitBranch },
@@ -354,8 +354,8 @@ export default function CalendarPostModal({ open, onClose, post, onSave, isLoadi
               <button key={tab.id} onClick={() => setActiveTab(tab.id)}
                 className={`flex items-center gap-1.5 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
                   activeTab === tab.id
-                    ? 'border-violet-500 text-violet-600'
-                    : 'border-transparent text-gray-400 hover:text-gray-600'
+                    ? 'border-violet-500 text-violet-600 dark:text-violet-400'
+                    : 'border-transparent text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'
                 }`}>
                 <tab.icon className="w-4 h-4" />
                 {tab.label}
