@@ -294,7 +294,7 @@ export default function Dashboard() {
             </CardContent>
           </Card>
 
-          <Card className="bg-white dark:bg-gray-800 border-0 shadow-sm hover:shadow-md transition-shadow cursor-pointer" onClick={() => window.location.href = createPageUrl('Keywords')}>
+          <Card className="bg-white dark:bg-gray-800 border-0 shadow-sm hover:shadow-md transition-shadow cursor-pointer" onClick={() => navigate('Keywords')}>
             <CardContent className="p-4 sm:p-6">
               <div className="flex items-center justify-between mb-3">
                 <div className="w-10 h-10 rounded-lg bg-green-50 dark:bg-green-900/20 flex items-center justify-center">
