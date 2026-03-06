@@ -173,6 +173,7 @@ export default function PostApprovalPanel({ post, onUpdate }) {
             )}
           </div>
         ) : (
+          <TooltipProvider>
           <div className="relative">
             {/* connector line */}
             <div className="absolute top-5 left-5 right-5 h-0.5 bg-gray-100 z-0" />
@@ -182,38 +183,65 @@ export default function PostApprovalPanel({ post, onUpdate }) {
                 const isDone = currentStageIdx > idx;
                 const isCurrent = currentStageIdx === idx;
                 const isChangesOnReview = isChangesRequested && idx === 1;
+                const actors = stageActors[stage.key] || [];
 
                 return (
-                  <div key={stage.key} className="flex flex-col items-center gap-2 flex-1">
-                    <div className={`w-10 h-10 rounded-full flex items-center justify-center border-2 transition-all ${
-                      isDone
-                        ? 'bg-green-500 border-green-500 text-white'
-                        : isCurrent || isChangesOnReview
-                        ? isChangesOnReview
-                          ? 'bg-orange-100 border-orange-400 text-orange-600'
-                          : 'bg-violet-600 border-violet-600 text-white shadow-lg shadow-violet-200'
-                        : 'bg-white border-gray-200 text-gray-300'
-                    }`}>
-                      {isDone ? (
-                        <CheckCircle2 className="w-5 h-5" />
-                      ) : (
-                        <StageIcon className="w-4 h-4" />
+                  <Tooltip key={stage.key}>
+                    <TooltipTrigger asChild>
+                      <div className="flex flex-col items-center gap-2 flex-1 cursor-default">
+                        <div className={`w-10 h-10 rounded-full flex items-center justify-center border-2 transition-all ${
+                          isDone
+                            ? 'bg-green-500 border-green-500 text-white'
+                            : isCurrent || isChangesOnReview
+                            ? isChangesOnReview
+                              ? 'bg-orange-100 border-orange-400 text-orange-600'
+                              : 'bg-violet-600 border-violet-600 text-white shadow-lg shadow-violet-200'
+                            : 'bg-white border-gray-200 text-gray-300'
+                        }`}>
+                          {isDone ? (
+                            <CheckCircle2 className="w-5 h-5" />
+                          ) : (
+                            <StageIcon className="w-4 h-4" />
+                          )}
+                        </div>
+                        <div className="text-center">
+                          <p className={`text-xs font-semibold ${
+                            isDone ? 'text-green-600'
+                            : isCurrent || isChangesOnReview ? isChangesOnReview ? 'text-orange-600' : 'text-violet-700'
+                            : 'text-gray-400'
+                          }`}>
+                            {isChangesOnReview ? 'Changes Needed' : stage.label}
+                          </p>
+                        </div>
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom" className="max-w-[200px] p-3 space-y-2">
+                      <p className="text-xs font-bold text-gray-700">{stage.label}</p>
+                      <p className="text-xs text-gray-500">{stage.description}</p>
+                      {actors.length > 0 && (
+                        <div className="border-t border-gray-100 pt-2 space-y-1.5">
+                          {actors.map((a, i) => (
+                            <div key={i} className="text-xs">
+                              <span className="font-semibold text-gray-700">{a.name}</span>
+                              <span className="text-gray-400"> · {a.action}</span>
+                              <div className="text-gray-400 text-[10px]">
+                                {formatDistanceToNow(new Date(a.time), { addSuffix: true })}
+                              </div>
+                              {a.note && <p className="text-gray-500 italic text-[10px]">"{a.note}"</p>}
+                            </div>
+                          ))}
+                        </div>
                       )}
-                    </div>
-                    <div className="text-center">
-                      <p className={`text-xs font-semibold ${
-                        isDone ? 'text-green-600'
-                        : isCurrent || isChangesOnReview ? isChangesOnReview ? 'text-orange-600' : 'text-violet-700'
-                        : 'text-gray-400'
-                      }`}>
-                        {isChangesOnReview ? 'Changes Needed' : stage.label}
-                      </p>
-                    </div>
-                  </div>
+                      {actors.length === 0 && (
+                        <p className="text-xs text-gray-400 italic">No activity yet</p>
+                      )}
+                    </TooltipContent>
+                  </Tooltip>
                 );
               })}
             </div>
           </div>
+        </TooltipProvider>
         )}
 
         {/* Current stage description */}
