@@ -196,7 +196,7 @@ export default function NineGridEditor({ posts = [], onPostsChange, onEditPost, 
           <div>
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white">9-Grid Layout</h3>
             <p className="text-sm text-gray-500 dark:text-gray-400">
-              Posts auto-sort by date · Click empty to create · Click post to edit · Double-click to preview
+              Top-left reserved for adding · Drag to reorder and auto-update dates · Click post to edit
             </p>
           </div>
         </div>
