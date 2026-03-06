@@ -15,6 +15,7 @@ import NineGridEditor from '@/components/social/NineGridEditor';
 export default function SocialCalendar() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [viewType, setViewType] = useState('month'); // 'month' | 'week'
+  const [calendarMode, setCalendarMode] = useState('calendar'); // 'calendar' | 'grid'
   const [selectedPost, setSelectedPost] = useState(null);
   const [showPostDetail, setShowPostDetail] = useState(false);
   const [showDraftModal, setShowDraftModal] = useState(false);
