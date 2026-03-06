@@ -19,17 +19,11 @@ const AlertsSummary = React.lazy(() => import('@/components/dashboard/AlertsSumm
 import QuickActions from '@/components/dashboard/QuickActions';
 
 export default function Dashboard() {
-  // User (priority — needed for greeting)
-  const { data: user, isLoading: loadingUser } = useQuery({
-    queryKey: ['current-user'],
-    queryFn: () => base44.auth.me(),
-  });
-
   // CRM Data
   const { data: contacts = [], isLoading: loadingContacts } = useQuery({
     queryKey: ['contacts'],
     queryFn: () => base44.entities.Contact.list('-created_date', 1000),
-    staleTime: 5 * 60 * 1000,
+    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
   });
 
   const { data: companies = [] } = useQuery({
@@ -44,78 +38,74 @@ export default function Dashboard() {
     staleTime: 5 * 60 * 1000,
   });
 
-  // SEO Data (deferred — not critical for initial paint)
+  // SEO Data
   const { data: websites = [] } = useQuery({
     queryKey: ['websites'],
     queryFn: () => base44.entities.Website.list('-created_date', 50),
-    staleTime: 10 * 60 * 1000,
-    refetchOnMount: false,
+    staleTime: 10 * 60 * 1000, // Cache for 10 minutes
   });
 
   const { data: keywords = [] } = useQuery({
     queryKey: ['keywords'],
     queryFn: () => base44.entities.Keyword.list('-created_date', 200),
     staleTime: 10 * 60 * 1000,
-    refetchOnMount: false,
   });
 
   const { data: backlinks = [] } = useQuery({
     queryKey: ['backlinks'],
     queryFn: () => base44.entities.Backlink.list('-created_date', 200),
     staleTime: 10 * 60 * 1000,
-    refetchOnMount: false,
   });
 
-  // Social Data (deferred)
+  // Social Data
   const { data: mentions = [] } = useQuery({
     queryKey: ['dashboard-mentions'],
     queryFn: () => base44.entities.ListeningMention.list('-created_date', 100),
     staleTime: 5 * 60 * 1000,
-    refetchOnMount: false,
   });
 
   const { data: alerts = [] } = useQuery({
     queryKey: ['dashboard-alerts'],
     queryFn: () => base44.entities.ListeningAlert.filter({ is_dismissed: false }, '-created_date', 20),
     staleTime: 2 * 60 * 1000,
-    refetchOnMount: false,
   });
 
   const { data: listeningKeywords = [] } = useQuery({
     queryKey: ['listening-keywords'],
     queryFn: () => base44.entities.SocialListening.list('-created_date', 50),
     staleTime: 10 * 60 * 1000,
-    refetchOnMount: false,
   });
 
-  // Content Data (deferred)
+  // Content Data
   const { data: calendarPosts = [] } = useQuery({
     queryKey: ['dashboard-posts'],
     queryFn: () => base44.entities.CalendarPost.list('-scheduled_date', 50),
     staleTime: 5 * 60 * 1000,
-    refetchOnMount: false,
   });
 
   const { data: brands = [] } = useQuery({
     queryKey: ['brands'],
     queryFn: () => base44.entities.Brand.list('-created_date', 50),
     staleTime: 10 * 60 * 1000,
-    refetchOnMount: false,
   });
 
-  // Marketing Data (deferred)
+  // Marketing Data
   const { data: campaigns = [] } = useQuery({
     queryKey: ['campaigns'],
     queryFn: () => base44.entities.Campaign.list('-created_date', 50),
     staleTime: 10 * 60 * 1000,
-    refetchOnMount: false,
   });
 
   const { data: emailCampaigns = [] } = useQuery({
     queryKey: ['email-campaigns'],
     queryFn: () => base44.entities.EmailCampaign.list('-created_date', 50),
     staleTime: 10 * 60 * 1000,
-    refetchOnMount: false,
+  });
+
+  // User
+  const { data: user, isLoading: loadingUser } = useQuery({
+    queryKey: ['current-user'],
+    queryFn: () => base44.auth.me(),
   });
 
   // Get favorite links from user data
@@ -320,7 +310,7 @@ export default function Dashboard() {
 
         {/* Metrics Grid - Row 2 */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-          <Card className="bg-white dark:bg-gray-800 border-0 shadow-sm hover:shadow-md transition-shadow cursor-pointer" onClick={() => window.location.href = createPageUrl('SEODashboard')}>
+          <Card className="bg-white dark:bg-gray-800 border-0 shadow-sm hover:shadow-md transition-shadow cursor-pointer" onClick={() => navigate('SEODashboard')}>
             <CardContent className="p-4 sm:p-6">
               <div className="flex items-center justify-between mb-3">
                 <div className="w-10 h-10 rounded-lg bg-violet-50 dark:bg-violet-900/20 flex items-center justify-center">
@@ -360,7 +350,7 @@ export default function Dashboard() {
             </CardContent>
           </Card>
 
-          <Card className="bg-white dark:bg-gray-800 border-0 shadow-sm hover:shadow-md transition-shadow cursor-pointer" onClick={() => navigate('Campaigns')}>
+          <Card className="bg-white dark:bg-gray-800 border-0 shadow-sm hover:shadow-md transition-shadow cursor-pointer" onClick={() => window.location.href = createPageUrl('Campaigns')}>
             <CardContent className="p-4 sm:p-6">
               <div className="flex items-center justify-between mb-3">
                 <div className="w-10 h-10 rounded-lg bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center">
