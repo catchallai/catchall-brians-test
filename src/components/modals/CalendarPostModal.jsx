@@ -386,7 +386,7 @@ export default function CalendarPostModal({ open, onClose, post, onSave, isLoadi
           )}
 
           {/* LEFT: Composer */}
-          {(activeTab === 'compose' || !post) && <div className={`flex flex-col overflow-y-auto ${showPreview ? 'w-[58%]' : 'w-full'} border-r border-gray-100`}>
+          {(activeTab === 'compose' || !post) && <div className={`flex flex-col overflow-y-auto ${showPreview ? 'w-[58%]' : 'w-full'} border-r border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900`}>
             {/* Platform Avatars */}
             <div className="flex items-center gap-3 px-6 pt-5 pb-4">
               {PLATFORMS.map(pl => (
@@ -409,7 +409,7 @@ export default function CalendarPostModal({ open, onClose, post, onSave, isLoadi
                 value={formData.caption}
                 onChange={(e) => setFormData(f => ({ ...f, caption: e.target.value }))}
                 placeholder="What would you like to share?"
-                className="border-0 shadow-none focus-visible:ring-0 resize-none text-[15px] text-gray-800 p-0 min-h-[120px] leading-relaxed"
+                className="border-0 shadow-none focus-visible:ring-0 resize-none text-[15px] text-gray-800 dark:text-gray-200 bg-transparent p-0 min-h-[120px] leading-relaxed"
               />
             </div>
 
