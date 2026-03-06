@@ -616,12 +616,12 @@ export default function CalendarPostModal({ open, onClose, post, onSave, isLoadi
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-between px-6 py-3.5 border-t border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900">
+        <div className="flex items-center justify-between px-6 py-3.5 border-t border-gray-100 bg-white">
           <div className="flex items-center gap-3">
             <button
               onClick={() => handleSubmit('draft')}
               disabled={isLoading || !formData.caption}
-              className="flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-100 font-medium disabled:opacity-40 transition-colors border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2 hover:bg-gray-50 dark:hover:bg-gray-800"
+              className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-800 font-medium disabled:opacity-40 transition-colors border border-gray-200 rounded-xl px-3 py-2 hover:bg-gray-50"
             >
               {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileText className="w-4 h-4" />}
               Save Draft
