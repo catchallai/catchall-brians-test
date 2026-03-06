@@ -186,9 +186,17 @@ export default function SocialCalendar() {
             {/* 9-Grid View */}
             <NineGridEditor
               posts={posts}
-              currentDate={currentDate}
-              onPostSelect={handleSelectPost}
-              onPostsUpdate={() => qc.invalidateQueries({ queryKey: ['calendar-posts'] })}
+              onPostsChange={(updatedPosts) => {
+                updatedPosts.forEach(post => {
+                  updatePostMutation.mutate({
+                    postId: post.id,
+                    data: { scheduled_date: post.scheduled_date, gridPosition: post.gridPosition }
+                  });
+                });
+              }}
+              onEditPost={handleSelectPost}
+              onAddPost={() => setShowDraftModal(true)}
+              baseScheduleDate={currentDate}
             />
           </>
         )}
