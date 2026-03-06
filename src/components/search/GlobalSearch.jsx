@@ -203,7 +203,7 @@ export default function GlobalSearch() {
           value={query}
           onChange={(e) => { setQuery(e.target.value); setIsOpen(true); }}
           onFocus={() => setIsOpen(true)}
-          className="pl-9 pr-9 bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 focus:bg-white dark:focus:bg-gray-700 h-9 dark:text-white dark:placeholder:text-gray-400"
+          className="pl-9 pr-9 bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 focus:bg-white dark:focus:bg-gray-700 h-9 dark:text-white dark:placeholder:text-gray-400 placeholder:text-xs"
         />
         {query && (
           <button 
