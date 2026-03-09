@@ -111,7 +111,7 @@ export default function BrandOverview({ brands = [], posts = [] }) {
                   >
                     {brand.name[0]?.toUpperCase()}
                   </div>
-                  <p className="font-medium text-gray-900 text-sm">{brand.name}</p>
+                  <p className="font-medium text-gray-900 dark:text-white text-sm">{brand.name}</p>
                   <p className="text-xs text-gray-500">{getPostCountForBrand(brand.id)} posts</p>
                 </div>
               ))}
