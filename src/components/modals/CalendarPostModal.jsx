@@ -127,7 +127,7 @@ function BestTimeSuggestions({ platforms, onApply }) {
 
   return (
     <div className="space-y-2">
-      <div className="flex items-center gap-1.5 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
+      <div className="flex items-center gap-1.5 text-xs text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg px-3 py-2">
         <Zap className="w-3.5 h-3.5 text-amber-500 flex-shrink-0" />
         <span>Best times for <strong>{primaryPlatform}</strong> based on typical audience activity:</span>
       </div>
@@ -136,9 +136,9 @@ function BestTimeSuggestions({ platforms, onApply }) {
           <button
             key={i}
             onClick={() => onApply(getNextOccurrence(s.day, s.time), s.time)}
-            className="text-xs border border-gray-200 rounded-lg px-2 py-2 hover:border-violet-400 hover:bg-violet-50 transition-colors text-center group"
+            className="text-xs border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 rounded-lg px-2 py-2 hover:border-violet-400 hover:bg-violet-50 dark:hover:bg-violet-900/20 transition-colors text-center group"
           >
-            <div className="font-semibold text-gray-700 group-hover:text-violet-700">{s.label}</div>
+            <div className="font-semibold text-gray-700 dark:text-gray-300 group-hover:text-violet-700 dark:group-hover:text-violet-400">{s.label}</div>
             <div className="text-gray-400 group-hover:text-violet-500 mt-0.5">Apply →</div>
           </button>
         ))}
@@ -184,7 +184,7 @@ function RecurringSchedulePanel({ formData, setFormData }) {
               className={`w-9 h-9 rounded-full text-xs font-medium transition-all ${
                 (formData.recurrence_days || []).includes(idx)
                   ? 'bg-violet-600 text-white'
-                  : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+                  : 'bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'
               }`}
             >
               {day}
@@ -519,16 +519,16 @@ export default function CalendarPostModal({ open, onClose, post, onSave, isLoadi
 
           {/* RIGHT: Preview + Scheduling */}
           {(activeTab === 'compose' || !post) && showPreview && (
-            <div className="flex-1 flex flex-col bg-gray-50 overflow-y-auto">
+            <div className="flex-1 flex flex-col bg-gray-50 dark:bg-gray-950 overflow-y-auto">
               {/* Platform preview tabs */}
-              <div className="flex border-b border-gray-200 bg-white">
+              <div className="flex border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
                 {PLATFORMS.map(pl => (
                   <button key={pl.id}
                     onClick={() => setPreviewPlatform(pl.id)}
                     className={`px-3 py-2 text-xs font-medium border-b-2 transition-colors ${
                       previewPlatform === pl.id
-                        ? 'border-blue-500 text-blue-600'
-                        : 'border-transparent text-gray-400 hover:text-gray-600'
+                        ? 'border-blue-500 text-blue-600 dark:text-blue-400'
+                        : 'border-transparent text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'
                     }`}
                   >
                     {pl.id === 'Twitter' ? 'Twitter / X' : pl.id}
@@ -545,9 +545,9 @@ export default function CalendarPostModal({ open, onClose, post, onSave, isLoadi
               </div>
 
               {/* Scheduling panel */}
-              <div className="border-t border-gray-200 bg-white px-5 py-4 space-y-4">
+              <div className="border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 px-5 py-4 space-y-4">
                 <div className="flex items-center justify-between">
-                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide flex items-center gap-1.5">
+                  <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide flex items-center gap-1.5">
                     <Clock className="w-3.5 h-3.5" /> Schedule
                   </p>
                   <button
@@ -569,43 +569,43 @@ export default function CalendarPostModal({ open, onClose, post, onSave, isLoadi
 
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="text-xs text-gray-500 mb-1 block">Date</label>
+                    <label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">Date</label>
                     <input type="date" value={formData.scheduled_date}
                       onChange={(e) => setFormData(f => ({ ...f, scheduled_date: e.target.value }))}
-                      className="w-full text-sm border border-gray-200 rounded-lg px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-violet-400" />
+                      className="w-full text-sm border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-lg px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-violet-400" />
                   </div>
                   <div>
-                    <label className="text-xs text-gray-500 mb-1 block">Time</label>
+                    <label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">Time</label>
                     <input type="time" value={formData.scheduled_time}
                       onChange={(e) => setFormData(f => ({ ...f, scheduled_time: e.target.value }))}
-                      className="w-full text-sm border border-gray-200 rounded-lg px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-violet-400" />
+                      className="w-full text-sm border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-lg px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-violet-400" />
                   </div>
                 </div>
 
                 {/* Approval toggle */}
-                <div className="border border-gray-200 rounded-xl overflow-hidden">
+                <div className="border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden">
                   <button
                     onClick={() => setRequireApproval(v => !v)}
                     className={`w-full flex items-center justify-between px-4 py-3 text-sm transition-colors ${
                       requireApproval
-                        ? 'bg-violet-50 border-b border-violet-100'
-                        : 'hover:bg-gray-50'
+                        ? 'bg-violet-50 dark:bg-violet-900/20 border-b border-violet-100 dark:border-violet-800'
+                        : 'hover:bg-gray-50 dark:hover:bg-gray-800'
                     }`}
                   >
                     <div className="flex items-center gap-2">
                       <ShieldCheck className={`w-4 h-4 ${requireApproval ? 'text-violet-600' : 'text-gray-400'}`} />
-                      <span className={`font-medium ${requireApproval ? 'text-violet-700' : 'text-gray-700'}`}>
+                      <span className={`font-medium ${requireApproval ? 'text-violet-700 dark:text-violet-400' : 'text-gray-700 dark:text-gray-300'}`}>
                         Requires Approval
                       </span>
                     </div>
                     <div className={`w-9 h-5 rounded-full flex items-center transition-all px-0.5 ${
-                      requireApproval ? 'bg-violet-600 justify-end' : 'bg-gray-200 justify-start'
+                      requireApproval ? 'bg-violet-600 justify-end' : 'bg-gray-200 dark:bg-gray-700 justify-start'
                     }`}>
                       <div className="w-4 h-4 bg-white rounded-full shadow" />
                     </div>
                   </button>
                   {requireApproval && (
-                    <div className="px-4 py-2.5 bg-violet-50 text-xs text-violet-700">
+                    <div className="px-4 py-2.5 bg-violet-50 dark:bg-violet-900/20 text-xs text-violet-700 dark:text-violet-400">
                       This post will be sent for team approval before going live.
                     </div>
                   )}
@@ -616,12 +616,12 @@ export default function CalendarPostModal({ open, onClose, post, onSave, isLoadi
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-between px-6 py-3.5 border-t border-gray-100 bg-white">
+        <div className="flex items-center justify-between px-6 py-3.5 border-t border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900">
           <div className="flex items-center gap-3">
             <button
               onClick={() => handleSubmit('draft')}
               disabled={isLoading || !formData.caption}
-              className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-800 font-medium disabled:opacity-40 transition-colors border border-gray-200 rounded-xl px-3 py-2 hover:bg-gray-50"
+              className="flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-100 font-medium disabled:opacity-40 transition-colors border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2 hover:bg-gray-50 dark:hover:bg-gray-800"
             >
               {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileText className="w-4 h-4" />}
               Save Draft
