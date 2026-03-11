@@ -66,13 +66,6 @@ const getAppParams = () => {
   };
 };
 
-console.log("App Params:", getAppParams().token);
-console.log("Access Token from Env:", accessToken);
-console.log("GetAppParam:", getAppParamValue("access_token", {
-      defaultValue: accessToken,
-      removeFromUrl: true,
-    }))
-
 export const appParams = {
   ...getAppParams(),
 };
