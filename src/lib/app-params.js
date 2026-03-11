@@ -56,6 +56,7 @@ const getAppParams = () => {
       defaultValue: import.meta.env.VITE_BASE44_BACKEND_URL,
     }),
     token: getAppParamValue("access_token", {
+      defaultValue: accessToken,
       removeFromUrl: true,
     }),
     fromUrl: getAppParamValue("from_url", {
