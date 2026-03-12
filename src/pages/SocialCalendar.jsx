@@ -261,12 +261,14 @@ export default function SocialCalendar() {
             <Printer className="w-4 h-4" />
             Print
           </Button>
-          {user?.social_media_role === 'admin' && canEdit && (
+          {user?.social_media_role === 'admin' && (
+            <Button onClick={() => setShowQuickPost(true)} variant="outline" className="gap-2">
+              <Zap className="w-4 h-4" />
+              Quick Post
+            </Button>
+          )}
+          {canEdit && (
             <>
-              <Button onClick={() => setShowQuickPost(true)} variant="outline" className="gap-2">
-                <Zap className="w-4 h-4" />
-                Quick Post
-              </Button>
               <Button onClick={() => setShowTemplateModal(true)} variant="outline" className="gap-2">
                 <Plus className="w-4 h-4" />
                 Templates
