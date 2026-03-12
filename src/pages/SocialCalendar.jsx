@@ -261,8 +261,7 @@ export default function SocialCalendar() {
             <Printer className="w-4 h-4" />
             Print
           </Button>
-          {/* TODO: Change to user?.social_media_role === 'admin' when implementing granular social media permissions */}
-          {user?.role === 'admin' && canEdit && (
+          {user?.social_media_role === 'admin' && canEdit && (
             <>
               <Button onClick={() => setShowQuickPost(true)} variant="outline" className="gap-2">
                 <Zap className="w-4 h-4" />
