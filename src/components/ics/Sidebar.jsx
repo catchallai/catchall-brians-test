@@ -115,7 +115,16 @@ export default function Sidebar({
           {darkMode ? <Sun size={20} /> : <Moon size={20} />}
         </button>
         {notificationButton}
-
+        <button
+          onClick={onSettingsClick}
+          className={`p-2.5 rounded-xl transition-all ${
+            darkMode
+              ? 'text-slate-400 hover:text-white hover:bg-slate-800'
+              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200'
+          }`}
+        >
+          <Settings size={20} />
+        </button>
         <button
           onClick={onAccountClick}
           className={`p-2.5 rounded-xl transition-all ${
