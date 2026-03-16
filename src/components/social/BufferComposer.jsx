@@ -236,6 +236,7 @@ export default function BufferComposer({ hashtagPool = [], onSuccess }) {
           <Textarea
             value={form.caption}
             onChange={(e) => setForm(f => ({ ...f, caption: e.target.value }))}
+            onBlur={(e) => setForm(f => ({ ...f, caption: formatCaptionWithHashtags(e.target.value) }))}
             placeholder="What do you want to share?"
             rows={5}
             className={`resize-none ${overLimit ? 'border-red-400 focus-visible:ring-red-400' : ''}`}
