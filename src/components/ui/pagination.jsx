@@ -109,7 +109,7 @@ function PaginationControls({
   currentPage = 1,
   totalPages = 1,
   totalItems = 0,
-  itemsPerPage = 0,
+  itemsPerPage = 10,
   onPageChange,
   className,
 }) {
@@ -117,8 +117,21 @@ function PaginationControls({
     return null
   }
 
-  const startItem = totalItems === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1
-  const endItem = totalItems === 0 ? 0 : Math.min(currentPage * itemsPerPage, totalItems)
+  let startItem = 0
+  let endItem = 0
+
+  if (totalItems > 0) {
+    if (itemsPerPage > 0) {
+      startItem = (currentPage - 1) * itemsPerPage + 1
+      endItem = Math.min(currentPage * itemsPerPage, totalItems)
+    } else {
+      // Fallback when itemsPerPage is not a positive number:
+      // treat all items as being on a single page.
+      startItem = 1
+      endItem = totalItems
+    }
+  }
+
   const pages = getPageNumbers(currentPage, totalPages)
 
   const handlePageChange = (page) => {
