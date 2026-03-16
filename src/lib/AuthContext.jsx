@@ -19,30 +19,6 @@ const getSafeReturnUrl = () => {
   }
 
   const currentUrl = new URL(window.location.href);
-  const nestedFromUrl = currentUrl.searchParams.get('from_url');
-
-  if (currentUrl.pathname === '/login') {
-    if (nestedFromUrl) {
-      try {
-        const parsedNestedUrl = new URL(nestedFromUrl, currentUrl.origin);
-        const isSameOrigin = parsedNestedUrl.origin === currentUrl.origin;
-        const isHttpProtocol =
-          parsedNestedUrl.protocol === 'http:' || parsedNestedUrl.protocol === 'https:';
-        if (
-          isSameOrigin &&
-          isHttpProtocol &&
-          parsedNestedUrl.pathname !== '/login'
-        ) {
-          return parsedNestedUrl.toString();
-        }
-      } catch (error) {
-        console.warn('Ignoring invalid nested from_url value', error);
-      }
-    }
-
-    return currentUrl.origin + '/';
-  }
-
   return currentUrl.toString();
 };
 
