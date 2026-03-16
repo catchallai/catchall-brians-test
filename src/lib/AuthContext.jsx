@@ -5,6 +5,40 @@ import { createAxiosClient } from '@base44/sdk/dist/utils/axios-client';
 
 const AuthContext = createContext();
 
+const isLoginPath = () => {
+  if (typeof window === 'undefined') {
+    return false;
+  }
+
+  return window.location.pathname === '/login';
+};
+
+const getSafeReturnUrl = () => {
+  if (typeof window === 'undefined') {
+    return '/';
+  }
+
+  const currentUrl = new URL(window.location.href);
+  const nestedFromUrl = currentUrl.searchParams.get('from_url');
+
+  if (currentUrl.pathname === '/login') {
+    if (nestedFromUrl) {
+      try {
+        const parsedNestedUrl = new URL(nestedFromUrl, currentUrl.origin);
+        if (parsedNestedUrl.pathname !== '/login') {
+          return parsedNestedUrl.toString();
+        }
+      } catch (error) {
+        console.warn('Ignoring invalid nested from_url value', error);
+      }
+    }
+
+    return currentUrl.origin + '/';
+  }
+
+  return currentUrl.toString();
+};
+
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -18,6 +52,14 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const checkAppState = async () => {
+    if (isLoginPath()) {
+      setAuthError(null);
+      setIsAuthenticated(false);
+      setIsLoadingAuth(false);
+      setIsLoadingPublicSettings(false);
+      return;
+    }
+
     try {
       setIsLoadingPublicSettings(true);
       setAuthError(null);
@@ -124,8 +166,12 @@ export const AuthProvider = ({ children }) => {
   };
 
   const navigateToLogin = () => {
+    if (isLoginPath()) {
+      return;
+    }
+
     // Use the SDK's redirectToLogin method
-    base44.auth.redirectToLogin(window.location.href);
+    base44.auth.redirectToLogin(getSafeReturnUrl());
   };
 
   return (

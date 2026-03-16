@@ -89,6 +89,102 @@ const PaginationEllipsis = ({
 )
 PaginationEllipsis.displayName = "PaginationEllipsis"
 
+function getPageNumbers(currentPage, totalPages) {
+  if (totalPages <= 7) {
+    return Array.from({ length: totalPages }, (_, index) => index + 1)
+  }
+
+  if (currentPage <= 4) {
+    return [1, 2, 3, 4, 5, "ellipsis", totalPages]
+  }
+
+  if (currentPage >= totalPages - 3) {
+    return [1, "ellipsis", totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages]
+  }
+
+  return [1, "ellipsis-start", currentPage - 1, currentPage, currentPage + 1, "ellipsis-end", totalPages]
+}
+
+function PaginationControls({
+  currentPage = 1,
+  totalPages = 1,
+  totalItems = 0,
+  itemsPerPage = 0,
+  onPageChange,
+  className,
+}) {
+  if (totalPages <= 1) {
+    return null
+  }
+
+  const startItem = totalItems === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1
+  const endItem = totalItems === 0 ? 0 : Math.min(currentPage * itemsPerPage, totalItems)
+  const pages = getPageNumbers(currentPage, totalPages)
+
+  const handlePageChange = (page) => {
+    if (page === currentPage || page < 1 || page > totalPages) {
+      return
+    }
+
+    onPageChange?.(page)
+  }
+
+  return (
+    <div className={cn("flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between", className)}>
+      <p className="text-sm text-muted-foreground">
+        Showing {startItem}-{endItem} of {totalItems}
+      </p>
+
+      <Pagination>
+        <PaginationContent>
+          <PaginationItem>
+            <PaginationPrevious
+              href="#"
+              onClick={(event) => {
+                event.preventDefault()
+                handlePageChange(currentPage - 1)
+              }}
+              className={currentPage === 1 ? "pointer-events-none opacity-50" : ""}
+            />
+          </PaginationItem>
+
+          {pages.map((page, index) => (
+            <PaginationItem key={`${page}-${index}`}>
+              {typeof page === "number" ? (
+                <PaginationLink
+                  href="#"
+                  isActive={page === currentPage}
+                  onClick={(event) => {
+                    event.preventDefault()
+                    handlePageChange(page)
+                  }}
+                >
+                  {page}
+                </PaginationLink>
+              ) : (
+                <PaginationEllipsis />
+              )}
+            </PaginationItem>
+          ))}
+
+          <PaginationItem>
+            <PaginationNext
+              href="#"
+              onClick={(event) => {
+                event.preventDefault()
+                handlePageChange(currentPage + 1)
+              }}
+              className={currentPage === totalPages ? "pointer-events-none opacity-50" : ""}
+            />
+          </PaginationItem>
+        </PaginationContent>
+      </Pagination>
+    </div>
+  )
+}
+
+PaginationControls.displayName = "PaginationControls"
+
 export {
   Pagination,
   PaginationContent,
@@ -98,3 +194,5 @@ export {
   PaginationNext,
   PaginationEllipsis,
 }
+
+export default PaginationControls
