@@ -146,7 +146,10 @@ export default function BufferComposer({ hashtagPool = [], onSuccess }) {
   const addHashtag = (tag) => {
     const clean = tag.replace(/^#/, '').trim();
     if (clean && !form.hashtags.includes(clean)) {
-      setForm(f => ({ ...f, hashtags: [...f.hashtags, clean], caption: f.caption + (f.caption ? ' ' : '') + '#' + clean }));
+      setForm(f => {
+        const newCaption = formatCaptionWithHashtags(f.caption + (f.caption ? ' ' : '') + '#' + clean);
+        return { ...f, hashtags: [...f.hashtags, clean], caption: newCaption };
+      });
     }
     setHashtagInput('');
   };
