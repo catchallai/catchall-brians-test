@@ -56,7 +56,7 @@ export default function SocialCalendar() {
   const queryClient = useQueryClient();
 
   const startDate = format(startOfMonth(currentMonth), 'yyyy-MM-dd');
-  const endDate = format(endOfMonth(addMonths(currentMonth, 1)), 'yyyy-MM-dd');
+  const endDate = format(endOfMonth(currentMonth), 'yyyy-MM-dd');
 
   const { data: posts = [], isLoading } = useQuery({
     queryKey: ['calendar-posts', startDate, endDate],
@@ -70,7 +70,7 @@ export default function SocialCalendar() {
 
   const filteredPosts = posts.filter(p => {
     const postDate = new Date(p.scheduled_date);
-    return postDate >= startOfMonth(currentMonth) && postDate <= endOfMonth(addMonths(currentMonth, 1));
+    return postDate >= startOfMonth(currentMonth) && postDate <= endOfMonth(currentMonth);
   }).sort((a, b) => (a.order || 0) - (b.order || 0));
 
   const createMutation = useMutation({
@@ -182,7 +182,7 @@ export default function SocialCalendar() {
 
   const isViewer = user?.social_media_role === 'viewer';
   const canEdit = !isViewer;
-  const dateRange = `${format(startOfMonth(currentMonth), 'MMM d, yyyy')} - ${format(endOfMonth(addMonths(currentMonth, 1)), 'MMM d, yyyy')}`;
+  const dateRange = `${format(startOfMonth(currentMonth), 'MMM d, yyyy')} - ${format(endOfMonth(currentMonth), 'MMM d, yyyy')}`;
 
   if (isLoading) {
     return (
