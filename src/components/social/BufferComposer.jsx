@@ -13,6 +13,23 @@ import {
   Hash, Send, CheckCircle2, Globe
 } from "lucide-react";
 
+// Extracts hashtags and formats caption so hashtags always appear on a separate line
+function formatCaptionWithHashtags(text) {
+  if (!text) return text;
+  const hashtagRegex = /#[\w]+/g;
+  const hashtags = text.match(hashtagRegex);
+  if (!hashtags || hashtags.length === 0) return text;
+
+  // Remove all hashtags from the caption text
+  let cleanCaption = text.replace(hashtagRegex, '').replace(/\s{2,}/g, ' ').trim();
+  const hashtagBlock = hashtags.join(' ');
+
+  // If caption is empty after stripping hashtags, just return hashtags
+  if (!cleanCaption) return hashtagBlock;
+
+  return `${cleanCaption}\n\n${hashtagBlock}`;
+}
+
 const PLATFORMS = [
   { id: 'Twitter', label: 'X (Twitter)', icon: Twitter, color: 'bg-black text-white', limit: 280 },
   { id: 'LinkedIn', label: 'LinkedIn', icon: Linkedin, color: 'bg-blue-700 text-white', limit: 3000 },
