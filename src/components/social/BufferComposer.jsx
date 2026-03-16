@@ -155,7 +155,8 @@ export default function BufferComposer({ hashtagPool = [], onSuccess }) {
   };
 
   const handleSubmit = (status = 'draft') => {
-    createMutation.mutate({ ...form, status });
+    const formattedCaption = formatCaptionWithHashtags(form.caption);
+    createMutation.mutate({ ...form, caption: formattedCaption, status });
   };
 
   const activePlatformLimit = PLATFORMS.find(p => p.id === previewPlatform)?.limit || 280;
