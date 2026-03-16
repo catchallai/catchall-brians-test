@@ -53,6 +53,10 @@ export const AuthProvider = ({ children }) => {
 
   const checkAppState = async () => {
     if (isLoginPath()) {
+      // When on the login page, clear all auth-derived state so we don't
+      // expose stale user/app data while isAuthenticated is false.
+      setUser(null);
+      setAppPublicSettings(null);
       setAuthError(null);
       setIsAuthenticated(false);
       setIsLoadingAuth(false);
