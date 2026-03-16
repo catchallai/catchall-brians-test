@@ -25,7 +25,14 @@ const getSafeReturnUrl = () => {
     if (nestedFromUrl) {
       try {
         const parsedNestedUrl = new URL(nestedFromUrl, currentUrl.origin);
-        if (parsedNestedUrl.pathname !== '/login') {
+        const isSameOrigin = parsedNestedUrl.origin === currentUrl.origin;
+        const isHttpProtocol =
+          parsedNestedUrl.protocol === 'http:' || parsedNestedUrl.protocol === 'https:';
+        if (
+          isSameOrigin &&
+          isHttpProtocol &&
+          parsedNestedUrl.pathname !== '/login'
+        ) {
           return parsedNestedUrl.toString();
         }
       } catch (error) {
