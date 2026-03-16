@@ -5,6 +5,23 @@ import { createAxiosClient } from '@base44/sdk/dist/utils/axios-client';
 
 const AuthContext = createContext();
 
+const isLoginPath = () => {
+  if (typeof window === 'undefined') {
+    return false;
+  }
+
+  return window.location.pathname === '/login';
+};
+
+const getSafeReturnUrl = () => {
+  if (typeof window === 'undefined') {
+    return '/';
+  }
+
+  const currentUrl = new URL(window.location.href);
+  return currentUrl.toString();
+};
+
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -18,6 +35,18 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const checkAppState = async () => {
+    if (isLoginPath()) {
+      // When on the login page, clear all auth-derived state so we don't
+      // expose stale user/app data while isAuthenticated is false.
+      setUser(null);
+      setAppPublicSettings(null);
+      setAuthError(null);
+      setIsAuthenticated(false);
+      setIsLoadingAuth(false);
+      setIsLoadingPublicSettings(false);
+      return;
+    }
+
     try {
       setIsLoadingPublicSettings(true);
       setAuthError(null);
@@ -124,8 +153,12 @@ export const AuthProvider = ({ children }) => {
   };
 
   const navigateToLogin = () => {
+    if (isLoginPath()) {
+      return;
+    }
+
     // Use the SDK's redirectToLogin method
-    base44.auth.redirectToLogin(window.location.href);
+    base44.auth.redirectToLogin(getSafeReturnUrl());
   };
 
   return (
