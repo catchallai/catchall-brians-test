@@ -182,7 +182,7 @@ export default function SocialCalendar() {
 
   const isViewer = user?.social_media_role === 'viewer';
   const canEdit = !isViewer;
-  const dateRange = `${format(startOfMonth(currentMonth), 'MMM d, yyyy')} - ${format(endOfMonth(addMonths(currentMonth, 1)), 'MMM d, yyyy')}`;
+  const dateRange = `${format(startOfMonth(currentMonth), 'MMM d, yyyy')} - ${format(startOfMonth(addMonths(currentMonth, 1)), 'MMM d, yyyy')}`;
 
   if (isLoading) {
     return (
