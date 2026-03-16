@@ -13,23 +13,6 @@ import {
   Hash, Send, CheckCircle2, Globe
 } from "lucide-react";
 
-// Extracts hashtags and formats caption so hashtags always appear on a separate line
-function formatCaptionWithHashtags(text) {
-  if (!text) return text;
-  const hashtagRegex = /#[\w]+/g;
-  const hashtags = text.match(hashtagRegex);
-  if (!hashtags || hashtags.length === 0) return text;
-
-  // Remove all hashtags from the caption text
-  let cleanCaption = text.replace(hashtagRegex, '').replace(/\s{2,}/g, ' ').trim();
-  const hashtagBlock = hashtags.join(' ');
-
-  // If caption is empty after stripping hashtags, just return hashtags
-  if (!cleanCaption) return hashtagBlock;
-
-  return `${cleanCaption}\n\n${hashtagBlock}`;
-}
-
 const PLATFORMS = [
   { id: 'Twitter', label: 'X (Twitter)', icon: Twitter, color: 'bg-black text-white', limit: 280 },
   { id: 'LinkedIn', label: 'LinkedIn', icon: Linkedin, color: 'bg-blue-700 text-white', limit: 3000 },
@@ -146,17 +129,13 @@ export default function BufferComposer({ hashtagPool = [], onSuccess }) {
   const addHashtag = (tag) => {
     const clean = tag.replace(/^#/, '').trim();
     if (clean && !form.hashtags.includes(clean)) {
-      setForm(f => {
-        const newCaption = formatCaptionWithHashtags(f.caption + (f.caption ? ' ' : '') + '#' + clean);
-        return { ...f, hashtags: [...f.hashtags, clean], caption: newCaption };
-      });
+      setForm(f => ({ ...f, hashtags: [...f.hashtags, clean], caption: f.caption + (f.caption ? ' ' : '') + '#' + clean }));
     }
     setHashtagInput('');
   };
 
   const handleSubmit = (status = 'draft') => {
-    const formattedCaption = formatCaptionWithHashtags(form.caption);
-    createMutation.mutate({ ...form, caption: formattedCaption, status });
+    createMutation.mutate({ ...form, status });
   };
 
   const activePlatformLimit = PLATFORMS.find(p => p.id === previewPlatform)?.limit || 280;
@@ -240,7 +219,6 @@ export default function BufferComposer({ hashtagPool = [], onSuccess }) {
           <Textarea
             value={form.caption}
             onChange={(e) => setForm(f => ({ ...f, caption: e.target.value }))}
-            onBlur={(e) => setForm(f => ({ ...f, caption: formatCaptionWithHashtags(e.target.value) }))}
             placeholder="What do you want to share?"
             rows={5}
             className={`resize-none ${overLimit ? 'border-red-400 focus-visible:ring-red-400' : ''}`}
