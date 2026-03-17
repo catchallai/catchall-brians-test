@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/Tooltip";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { UserCircle, MapPin, Clock, Eye, MousePointer, ChevronRight, Building2, Briefcase, Sparkles, TrendingUp, Info, Target, Zap, Star } from "lucide-react";
 
 // AI Lead Scoring Engine - analyzes behavioral patterns for conversion prediction

@@ -13,7 +13,7 @@ import {
   Eye, ShieldCheck, Megaphone, Circle, ImageOff
 } from "lucide-react";
 import { formatDistanceToNow, format } from 'date-fns';
-import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/Tooltip";
+import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 
 const WORKFLOW_STAGES = [
   { key: 'draft',            label: 'Draft',            icon: FileText,    description: 'Post is being created' },

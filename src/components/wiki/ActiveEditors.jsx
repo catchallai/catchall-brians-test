@@ -6,7 +6,7 @@ import {
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "@/components/ui/Tooltip";
+} from "@/components/ui/tooltip";
 
 export default function ActiveEditors({ editors = [] }) {
   const activeEditors = editors.filter(e => e.is_editing);
