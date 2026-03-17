@@ -406,9 +406,11 @@ export default function SocialCalendarView({ posts = [], onAddPost, onEditPost, 
           onAddPost={onAddPost}
           onEditPost={onEditPost}
           deletePostMutation={deletePostMutation}
+          updatePostMutation={updatePostMutation}
           draggedPost={draggedPost}
-          handleDragStart={handleDragStart}
+          setDraggedPost={setDraggedPost}
           platformColors={platformColors}
+          platformBorderColors={platformBorderColors}
           statusColors={statusColors}
           statusBadges={statusBadges}
         />
