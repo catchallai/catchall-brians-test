@@ -5,7 +5,7 @@ import {
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "@/components/custom-ui/Tooltip";
+} from "@/components/ui/tooltip";
 
 export default function HelpTooltip({ content, side = "top" }) {
   return (
