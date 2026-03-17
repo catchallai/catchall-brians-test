@@ -19,6 +19,16 @@ const platformColors = {
   tiktok: "bg-black",
 };
 
+// Solid left-border colors per platform (for suggestion #8)
+const platformBorderColors = {
+  twitter: "border-l-gray-800",
+  linkedin: "border-l-blue-600",
+  facebook: "border-l-blue-500",
+  instagram: "border-l-pink-500",
+  youtube: "border-l-red-600",
+  tiktok: "border-l-black",
+};
+
 const statusColors = {
   draft: "border-gray-300 bg-gray-50 dark:bg-gray-800 dark:border-gray-600",
   pending_approval: "border-amber-300 bg-amber-50 dark:bg-amber-900/20 dark:border-amber-600",
