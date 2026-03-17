@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { format } from 'date-fns';
-import Pagination from '@/components/ui/Pagination';
+import Pagination from '@/components/ui-custom/Pagination';
 
 export default function TicketsModule() {
   const [searchTerm, setSearchTerm] = useState('');
