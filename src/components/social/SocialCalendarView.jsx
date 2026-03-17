@@ -33,6 +33,129 @@ const statusBadges = {
   published: { label: "Published", class: "bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-300" },
 };
 
+const HOURS = Array.from({ length: 24 }, (_, i) => i);
+
+function formatHour(h) {
+  if (h === 0) return '12 AM';
+  if (h === 12) return '12 PM';
+  return h < 12 ? `${h} AM` : `${h - 12} PM`;
+}
+
+function getPostHour(post) {
+  if (!post.scheduled_time) return null;
+  const match = post.scheduled_time.match(/^(\d{1,2}):(\d{2})/);
+  if (match) return parseInt(match[1]);
+  return null;
+}
+
+function DayView({ day, posts, onAddPost, onEditPost, deletePostMutation, draggedPost, handleDragStart, platformColors, statusColors, statusBadges }) {
+  const isToday = isSameDay(day, new Date());
+  const nowHour = new Date().getHours();
+
+  // Group posts by hour
+  const postsByHour = {};
+  const untimedPosts = [];
+  posts.forEach(post => {
+    const h = getPostHour(post);
+    if (h !== null) {
+      if (!postsByHour[h]) postsByHour[h] = [];
+      postsByHour[h].push(post);
+    } else {
+      untimedPosts.push(post);
+    }
+  });
+
+  const handleHourClick = (hour) => {
+    const timeStr = `${String(hour).padStart(2, '0')}:00`;
+    onAddPost && onAddPost({ scheduled_date: format(day, 'yyyy-MM-dd'), scheduled_time: timeStr });
+  };
+
+  return (
+    <div className="overflow-y-auto max-h-[700px]">
+      {/* All-day / untimed posts */}
+      <div className="flex border-b border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-800/50 min-h-[40px]">
+        <div className="w-20 flex-shrink-0 px-3 py-2 text-xs text-gray-400 dark:text-gray-500 font-medium border-r border-gray-200 dark:border-gray-600">
+          all-day
+        </div>
+        <div className="flex-1 px-3 py-2 flex flex-wrap gap-2">
+          {untimedPosts.map(post => {
+            const statusInfo = statusBadges[post.status] || statusBadges.draft;
+            return (
+              <div
+                key={post.id}
+                draggable
+                onDragStart={(e) => handleDragStart(e, post)}
+                onClick={() => onEditPost(post)}
+                className={`text-xs px-2 py-1 rounded-md cursor-pointer border flex items-center gap-1.5 group/post ${statusColors[post.status] || statusColors.draft} ${draggedPost?.id === post.id ? 'opacity-50' : ''}`}
+              >
+                {post.platforms?.[0] && <div className={`w-2 h-2 rounded-full ${platformColors[post.platforms[0]] || 'bg-gray-400'}`} />}
+                <span className="text-gray-800 dark:text-gray-200 font-medium">{post.title || post.caption?.slice(0, 20) || 'Untitled'}</span>
+                <Badge className={`text-xs px-1 ${statusInfo.class}`}>{statusInfo.label}</Badge>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Hourly rows */}
+      {HOURS.map(hour => {
+        const hourPosts = postsByHour[hour] || [];
+        const isCurrentHour = isToday && hour === nowHour;
+        return (
+          <div
+            key={hour}
+            className={`flex border-b border-gray-100 dark:border-gray-700 min-h-[60px] group/hour cursor-pointer hover:bg-violet-50/40 dark:hover:bg-violet-900/10 transition-colors ${isCurrentHour ? 'bg-violet-50 dark:bg-violet-900/20' : 'bg-white dark:bg-gray-800'}`}
+            onClick={() => handleHourClick(hour)}
+          >
+            <div className={`w-20 flex-shrink-0 px-3 pt-2 text-xs font-medium border-r border-gray-100 dark:border-gray-700 ${isCurrentHour ? 'text-violet-600 dark:text-violet-400 font-bold' : 'text-gray-400 dark:text-gray-500'}`}>
+              {formatHour(hour)}
+            </div>
+            <div className="flex-1 px-3 py-2 flex flex-col gap-1.5" onClick={e => e.stopPropagation()}>
+              {hourPosts.map(post => {
+                const statusInfo = statusBadges[post.status] || statusBadges.draft;
+                return (
+                  <div
+                    key={post.id}
+                    draggable
+                    onDragStart={(e) => handleDragStart(e, post)}
+                    className={`text-sm p-2 rounded-lg cursor-move border-2 transition-all hover:shadow-md group/post ${statusColors[post.status] || statusColors.draft} ${draggedPost?.id === post.id ? 'opacity-50' : ''}`}
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2 min-w-0 flex-1 cursor-pointer" onClick={() => onEditPost(post)}>
+                        {post.platforms?.[0] && <div className={`w-3 h-3 rounded-full flex-shrink-0 ${platformColors[post.platforms[0]] || 'bg-gray-400'}`} />}
+                        <span className="truncate text-gray-800 dark:text-gray-200 font-semibold">
+                          {post.title || post.caption?.slice(0, 30) || 'Untitled'}
+                        </span>
+                        {post.scheduled_time && <span className="text-xs text-gray-400 dark:text-gray-500 flex-shrink-0">{post.scheduled_time}</span>}
+                      </div>
+                      <div className="flex items-center gap-1 flex-shrink-0">
+                        <Badge className={`text-xs px-1.5 py-0.5 ${statusInfo.class}`}>{statusInfo.label}</Badge>
+                        <button
+                          onClick={(e) => { e.stopPropagation(); if (confirm('Delete this post?')) deletePostMutation.mutate(post.id); }}
+                          className="opacity-0 group-hover/post:opacity-100 transition-opacity p-0.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded"
+                        >
+                          <Trash2 className="w-3 h-3" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+              {hourPosts.length === 0 && (
+                <div className="opacity-0 group-hover/hour:opacity-100 transition-opacity">
+                  <button onClick={() => handleHourClick(hour)} className="text-xs text-violet-500 dark:text-violet-400 flex items-center gap-1 hover:text-violet-700">
+                    <Plus className="w-3 h-3" /> Add post at {formatHour(hour)}
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 export default function SocialCalendarView({ posts = [], onAddPost, onEditPost, onDeletePost, currentMonth, onMonthChange, viewType = 'month' }) {
   const [draggedPost, setDraggedPost] = useState(null);
   const queryClient = useQueryClient();
