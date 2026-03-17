@@ -155,106 +155,100 @@ export default function SocialCalendarView({ posts = [], onAddPost, onEditPost, 
       )}
 
       {/* Calendar Grid */}
-      <div className={`grid ${viewType === 'day' ? 'grid-cols-1' : viewType === 'week' ? 'grid-cols-7' : 'grid-cols-7'}`}>
-        {days.map((day, idx) => {
-          const dayPosts = getPostsForDay(day);
-          const isCurrentMonth = isSameMonth(day, currentMonth);
-          const isToday = isSameDay(day, new Date());
-          const hasMultiple = dayPosts.length > 2;
+      {viewType === 'day' ? (
+        <DayView
+          day={days[0]}
+          posts={getPostsForDay(days[0])}
+          onAddPost={onAddPost}
+          onEditPost={onEditPost}
+          deletePostMutation={deletePostMutation}
+          draggedPost={draggedPost}
+          handleDragStart={handleDragStart}
+          platformColors={platformColors}
+          statusColors={statusColors}
+          statusBadges={statusBadges}
+        />
+      ) : (
+        <div className={`grid ${viewType === 'week' ? 'grid-cols-7' : 'grid-cols-7'}`}>
+          {days.map((day, idx) => {
+            const dayPosts = getPostsForDay(day);
+            const isCurrentMonth = isSameMonth(day, currentMonth);
+            const isToday = isSameDay(day, new Date());
+            const hasMultiple = dayPosts.length > 2;
 
-          return (
-            <div
-              key={idx}
-              className={`${viewType === 'day' ? 'min-h-[600px]' : 'min-h-[140px]'} p-3 border-b border-r border-gray-200 dark:border-gray-600 transition-colors ${
-                isCurrentMonth 
-                  ? 'bg-white dark:bg-gray-800' 
-                  : 'bg-gray-100 dark:bg-gray-900/50'
-              } ${isToday ? 'bg-violet-50 dark:bg-violet-900/20 ring-2 ring-inset ring-violet-400' : ''} ${
-                idx % 7 === 6 ? 'border-r-0' : ''
-              } hover:bg-gray-50 dark:hover:bg-gray-700/50`}
-              onDragOver={handleDragOver}
-              onDrop={(e) => handleDrop(e, day)}
-            >
-              {/* Day Number */}
-              <div className={`text-base font-bold mb-3 flex items-center justify-between ${
-                isCurrentMonth 
-                  ? (isToday ? 'text-violet-600 dark:text-violet-400' : 'text-gray-900 dark:text-gray-100') 
-                  : 'text-gray-400 dark:text-gray-500'
-              }`}>
-                <span className={`${isToday ? 'bg-violet-600 dark:bg-violet-500 text-white w-8 h-8 rounded-full flex items-center justify-center text-sm' : ''}`}>
-                  {format(day, 'd')}
-                </span>
-                {dayPosts.length > 0 && (
-                  <Badge className="text-xs h-6 px-2 bg-violet-100 text-violet-700 dark:bg-violet-900/50 dark:text-violet-300 font-semibold">
-                    {dayPosts.length}
-                  </Badge>
-                )}
-              </div>
-
-              {/* Posts */}
-              <div className="space-y-1.5">
-                {(viewType === 'day' ? dayPosts : dayPosts.slice(0, 2)).map((post) => {
-                  const statusInfo = statusBadges[post.status] || statusBadges.draft;
-                  return (
-                    <div
-                      key={post.id}
-                      draggable
-                      onDragStart={(e) => handleDragStart(e, post)}
-                      className={`text-sm p-2 rounded-lg cursor-move border-2 transition-all hover:shadow-md group/post ${
-                        statusColors[post.status] || statusColors.draft
-                      } ${draggedPost?.id === post.id ? 'opacity-50' : ''}`}
-                    >
-                      <div className="flex items-center justify-between gap-2 mb-1">
-                        <div
-                          className="flex items-center gap-2 min-w-0 flex-1 cursor-pointer"
-                          onClick={() => onEditPost(post)}
-                        >
-                          {post.platforms?.[0] && (
-                            <div className={`w-3 h-3 rounded-full flex-shrink-0 ${platformColors[post.platforms[0]] || 'bg-gray-400'}`} />
-                          )}
-                          <span className="truncate text-gray-800 dark:text-gray-200 font-semibold">
-                            {post.title || post.caption?.slice(0, 18) || 'Untitled'}
-                            {(post.caption?.length > 18 && !post.title) ? '...' : ''}
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-1 flex-shrink-0">
-                          <Badge className={`text-xs px-1.5 py-0.5 ${statusInfo.class}`}>
-                            {statusInfo.label}
-                          </Badge>
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              if (confirm('Delete this post?')) {
-                                deletePostMutation.mutate(post.id);
-                              }
-                            }}
-                            className="opacity-0 group-hover/post:opacity-100 transition-opacity p-0.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded"
-                          >
-                            <Trash2 className="w-3 h-3" />
-                          </button>
+            return (
+              <div
+                key={idx}
+                className={`min-h-[140px] p-3 border-b border-r border-gray-200 dark:border-gray-600 transition-colors ${
+                  isCurrentMonth 
+                    ? 'bg-white dark:bg-gray-800' 
+                    : 'bg-gray-100 dark:bg-gray-900/50'
+                } ${isToday ? 'bg-violet-50 dark:bg-violet-900/20 ring-2 ring-inset ring-violet-400' : ''} ${
+                  idx % 7 === 6 ? 'border-r-0' : ''
+                } hover:bg-gray-50 dark:hover:bg-gray-700/50`}
+                onDragOver={handleDragOver}
+                onDrop={(e) => handleDrop(e, day)}
+              >
+                <div className={`text-base font-bold mb-3 flex items-center justify-between ${
+                  isCurrentMonth 
+                    ? (isToday ? 'text-violet-600 dark:text-violet-400' : 'text-gray-900 dark:text-gray-100') 
+                    : 'text-gray-400 dark:text-gray-500'
+                }`}>
+                  <span className={`${isToday ? 'bg-violet-600 dark:bg-violet-500 text-white w-8 h-8 rounded-full flex items-center justify-center text-sm' : ''}`}>
+                    {format(day, 'd')}
+                  </span>
+                  {dayPosts.length > 0 && (
+                    <Badge className="text-xs h-6 px-2 bg-violet-100 text-violet-700 dark:bg-violet-900/50 dark:text-violet-300 font-semibold">
+                      {dayPosts.length}
+                    </Badge>
+                  )}
+                </div>
+                <div className="space-y-1.5">
+                  {dayPosts.slice(0, 2).map((post) => {
+                    const statusInfo = statusBadges[post.status] || statusBadges.draft;
+                    return (
+                      <div
+                        key={post.id}
+                        draggable
+                        onDragStart={(e) => handleDragStart(e, post)}
+                        className={`text-sm p-2 rounded-lg cursor-move border-2 transition-all hover:shadow-md group/post ${
+                          statusColors[post.status] || statusColors.draft
+                        } ${draggedPost?.id === post.id ? 'opacity-50' : ''}`}
+                      >
+                        <div className="flex items-center justify-between gap-2 mb-1">
+                          <div className="flex items-center gap-2 min-w-0 flex-1 cursor-pointer" onClick={() => onEditPost(post)}>
+                            {post.platforms?.[0] && (
+                              <div className={`w-3 h-3 rounded-full flex-shrink-0 ${platformColors[post.platforms[0]] || 'bg-gray-400'}`} />
+                            )}
+                            <span className="truncate text-gray-800 dark:text-gray-200 font-semibold">
+                              {post.title || post.caption?.slice(0, 18) || 'Untitled'}
+                              {(post.caption?.length > 18 && !post.title) ? '...' : ''}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-1 flex-shrink-0">
+                            <Badge className={`text-xs px-1.5 py-0.5 ${statusInfo.class}`}>{statusInfo.label}</Badge>
+                            <button
+                              onClick={(e) => { e.stopPropagation(); if (confirm('Delete this post?')) deletePostMutation.mutate(post.id); }}
+                              className="opacity-0 group-hover/post:opacity-100 transition-opacity p-0.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded"
+                            >
+                              <Trash2 className="w-3 h-3" />
+                            </button>
+                          </div>
                         </div>
                       </div>
-                      {viewType === 'day' && post.scheduled_time && (
-                        <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                          {post.scheduled_time}
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
-                {hasMultiple && viewType !== 'day' && (
-                  <button 
-                    onClick={() => onEditPost(dayPosts[0])}
-                    className="text-sm text-violet-600 dark:text-violet-400 hover:underline w-full text-left font-semibold"
-                  >
-                    +{dayPosts.length - 2} more
-                  </button>
-                )}
+                    );
+                  })}
+                  {hasMultiple && (
+                    <button onClick={() => onEditPost(dayPosts[0])} className="text-sm text-violet-600 dark:text-violet-400 hover:underline w-full text-left font-semibold">
+                      +{dayPosts.length - 2} more
+                    </button>
+                  )}
+                </div>
               </div>
-            </div>
-          );
-        })}
-      </div>
+            );
+          })}
+        </div>
+      )}
 
       {/* Legend */}
       <div className="flex items-center justify-between p-4 border-t border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
