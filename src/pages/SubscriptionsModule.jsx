@@ -9,7 +9,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { format } from 'date-fns';
-import Pagination from '@/components/ui/Pagination';
+import Pagination from '@/components/ui-custom/Pagination';
 
 export default function SubscriptionsModule() {
   const [searchTerm, setSearchTerm] = useState('');
