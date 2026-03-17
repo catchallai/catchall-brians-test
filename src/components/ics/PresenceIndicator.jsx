@@ -5,7 +5,7 @@ import {
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "@/components/ui/tooltip-primitives";
+} from "@/components/ui/Tooltip";
 
 const statusColors = {
   online: 'bg-green-500',
