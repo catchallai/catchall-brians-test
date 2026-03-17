@@ -17,7 +17,7 @@ import ContactDetailPanel from '@/components/crm/ContactDetailPanel';
 import ContactsSidebar from '@/components/crm/ContactsSidebar';
 import ContactsViewTabs from '@/components/crm/ContactsViewTabs';
 import EmptyState from '@/components/ui/EmptyState';
-import Pagination from '@/components/custom-ui/Pagination';
+import Pagination from '@/components/ui-custom/Pagination';
 import BulkActions from '@/components/ui/BulkActions';
 import ImportDialog from '@/components/ui/ImportDialog';
 import ConfirmDialog from '@/components/ui/ConfirmDialog';
