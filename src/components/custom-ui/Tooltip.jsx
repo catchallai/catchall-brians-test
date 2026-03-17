@@ -1,28 +1,49 @@
-"use client"
+import React from 'react';
+import {
+  Tooltip as ShadcnTooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
-import * as React from "react"
-import * as TooltipPrimitive from "@radix-ui/react-tooltip"
+export default function Tooltip({ children, content, side = "top", delayDuration = 300 }) {
+  return (
+    <TooltipProvider delayDuration={delayDuration}>
+      <ShadcnTooltip>
+        <TooltipTrigger asChild>
+          {children}
+        </TooltipTrigger>
+        <TooltipContent side={side} className="max-w-xs">
+          {content}
+        </TooltipContent>
+      </ShadcnTooltip>
+    </TooltipProvider>
+  );
+}
 
-import { cn } from "@/lib/utils"
-
-const TooltipProvider = TooltipPrimitive.Provider
-
-const Tooltip = TooltipPrimitive.Root
-
-const TooltipTrigger = TooltipPrimitive.Trigger
-
-const TooltipContent = React.forwardRef(({ className, sideOffset = 4, ...props }, ref) => (
-  <TooltipPrimitive.Portal>
-    <TooltipPrimitive.Content
-      ref={ref}
-      sideOffset={sideOffset}
-      className={cn(
-        "z-50 overflow-hidden rounded-md bg-primary px-3 py-1.5 text-xs text-primary-foreground animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2",
-        className
-      )}
-      {...props} />
-  </TooltipPrimitive.Portal>
-))
-TooltipContent.displayName = TooltipPrimitive.Content.displayName
-
-export { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider }
+// Sync with GitHub
+// Feature tooltip for onboarding
+export function FeatureTooltip({ children, title, description, step, totalSteps, onDismiss, show }) {
+  if (!show) return children;
+  
+  return (
+    <div className="relative">
+      {children}
+      <div className="absolute z-50 top-full left-0 mt-2 w-72 p-4 glass-card rounded-xl shadow-xl">
+        <div className="flex items-start justify-between mb-2">
+          <h4 className="font-semibold text-gray-900 dark:text-white">{title}</h4>
+          {step && totalSteps && (
+            <span className="text-xs text-gray-500">{step}/{totalSteps}</span>
+          )}
+        </div>
+        <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">{description}</p>
+        <button 
+          onClick={onDismiss}
+          className="text-xs text-violet-600 hover:text-violet-700 font-medium"
+        >
+          Got it
+        </button>
+      </div>
+    </div>
+  );
+}
