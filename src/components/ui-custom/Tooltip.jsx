@@ -6,7 +6,10 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
-export default function Tooltip({ children, content, side = "top", delayDuration = 300 }) {
+export default function Tooltip({ children, content, side = "top", delayDuration = 300, disableHover = false }) {
+  if (disableHover) {
+    return children;
+  }
   return (
     <TooltipProvider delayDuration={delayDuration}>
       <ShadcnTooltip>
@@ -21,7 +24,6 @@ export default function Tooltip({ children, content, side = "top", delayDuration
   );
 }
 
-// Sync with GitHub
 // Feature tooltip for onboarding
 export function FeatureTooltip({ children, title, description, step, totalSteps, onDismiss, show }) {
   if (!show) return children;
