@@ -10,6 +10,10 @@ Deno.serve(async (req) => {
     if (!copyId || !templateId || !scheduledDate) {
       return Response.json({ error: 'Missing required fields' }, { status: 400 });
     }
+    const scheduledAt = new Date(scheduledDate + 'T' + (scheduledTime || '10:00') + ':00');
+    if (isNaN(scheduledAt.getTime()) || scheduledAt <= new Date()) {
+      return Response.json({ error: 'Scheduled time must be in the future' }, { status: 422 });
+    }
 
     // Fetch approved copy and template
     const copies = await base44.entities.ApprovedCopy.filter({ id: copyId });

@@ -9,14 +9,20 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Loader2, Copy, Image as ImageIcon, AlertCircle } from "lucide-react";
 
+const todayLocal = () => {
+  const d = new Date();
+  return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().split('T')[0];
+};
+
 const PLATFORMS = ['Instagram', 'Twitter', 'LinkedIn', 'Facebook', 'TikTok'];
 
 export default function DraftFromAssetsModal({ open, onOpenChange, onSuccess, campaignBriefId }) {
   const [selectedCopy, setSelectedCopy] = useState(null);
   const [selectedTemplate, setSelectedTemplate] = useState(null);
   const [selectedPlatforms, setSelectedPlatforms] = useState(['Instagram']);
-  const [scheduledDate, setScheduledDate] = useState(new Date().toISOString().split('T')[0]);
+  const [scheduledDate, setScheduledDate] = useState(todayLocal());
   const [scheduledTime, setScheduledTime] = useState('10:00');
+  const [scheduleError, setScheduleError] = useState('');
   const qc = useQueryClient();
 
   const { data: approvedCopy = [] } = useQuery({
@@ -131,7 +137,7 @@ export default function DraftFromAssetsModal({ open, onOpenChange, onSuccess, ca
           <div className="grid grid-cols-2 gap-2">
             <div>
               <p className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Scheduled Date</p>
-              <Input type="date" value={scheduledDate} onChange={e => setScheduledDate(e.target.value)} />
+              <Input type="date" value={scheduledDate} min={todayLocal()} onChange={e => { setScheduleError(''); setScheduledDate(e.target.value); }} />
             </div>
             <div>
               <p className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Scheduled Time</p>
@@ -157,6 +163,14 @@ export default function DraftFromAssetsModal({ open, onOpenChange, onSuccess, ca
             </div>
           </div>
 
+          {/* Schedule error */}
+          {scheduleError && (
+            <div className="flex gap-2 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-2.5">
+              <AlertCircle className="w-4 h-4 text-red-600 flex-shrink-0 mt-0.5" />
+              <p className="text-xs text-red-600 dark:text-red-400">{scheduleError}</p>
+            </div>
+          )}
+
           {/* Error */}
           {createMutation.error && (
             <div className="flex gap-2 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-2.5">
@@ -168,7 +182,15 @@ export default function DraftFromAssetsModal({ open, onOpenChange, onSuccess, ca
 
         <DialogFooter>
           <Button variant="outline" onClick={() => { onOpenChange(false); reset(); }}>Cancel</Button>
-          <Button onClick={() => createMutation.mutate()} 
+          <Button onClick={() => {
+            const scheduledAt = new Date(`${scheduledDate}T${scheduledTime}`);
+            if (isNaN(scheduledAt.getTime()) || scheduledAt <= new Date()) {
+              setScheduleError('Scheduled time must be in the future.');
+              return;
+            }
+            setScheduleError('');
+            createMutation.mutate();
+          }}
             disabled={!selectedCopy || !selectedTemplate || createMutation.isPending}
             className="bg-violet-600 hover:bg-violet-700">
             {createMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}

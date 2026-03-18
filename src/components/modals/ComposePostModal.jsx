@@ -15,6 +15,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Loader2, Sparkles, Calendar, Send, X, AlertCircle } from "lucide-react";
 import AIPostAssistant from "@/components/social/AIPostAssistant";
 
+const toLocalISOString = (d = new Date()) => {
+  const offset = d.getTimezoneOffset();
+  return new Date(d.getTime() - offset * 60000).toISOString().slice(0, 16);
+};
+
 const PLATFORMS = [
   { id: 'twitter', label: 'X (Twitter)', icon: '𝕏', maxChars: 280, color: 'bg-gray-900 text-white' },
   { id: 'linkedin', label: 'LinkedIn', icon: 'in', maxChars: 3000, color: 'bg-blue-600 text-white' },
@@ -39,6 +44,7 @@ export default function ComposePostModal({
   const [hashtags, setHashtags] = useState([]);
   const [hashtagInput, setHashtagInput] = useState('');
   const [scheduledTime, setScheduledTime] = useState('');
+  const [scheduleError, setScheduleError] = useState('');
   const [activeTab, setActiveTab] = useState('compose');
 
   useEffect(() => {
@@ -106,6 +112,11 @@ export default function ComposePostModal({
   };
 
   const handleSchedule = () => {
+    if (scheduledTime && new Date(scheduledTime) <= new Date()) {
+      setScheduleError('Scheduled time must be in the future.');
+      return;
+    }
+    setScheduleError('');
     const posts = selectedAccounts.map(accountId => {
       const account = accounts.find(a => a.id === accountId);
       const content = platformContent[account.platform] || masterContent;
@@ -310,11 +321,12 @@ export default function ComposePostModal({
                 type="datetime-local"
                 value={scheduledTime}
                 onChange={(e) => setScheduledTime(e.target.value)}
-                min={new Date().toISOString().slice(0, 16)}
+                min={toLocalISOString()}
               />
               <p className="text-xs text-gray-400">
                 Leave empty to save as draft
               </p>
+              {scheduleError && <p className="text-xs text-red-500">{scheduleError}</p>}
             </div>
 
             {/* Summary */}

@@ -10,6 +10,7 @@ export default function BusinessReviewScheduler({ contacts = [] }) {
   const [date, setDate] = useState('');
   const [time, setTime] = useState('');
   const [duration, setDuration] = useState(60);
+  const [scheduleError, setScheduleError] = useState('');
 
   const scheduleMutation = useMutation({
     mutationFn: (data) => base44.functions.invoke('scheduleBusinessReview', data),
@@ -23,7 +24,13 @@ export default function BusinessReviewScheduler({ contacts = [] }) {
   const handleSchedule = () => {
     if (!selected || !date || !time) return;
 
-    const dateTime = new Date(`${date}T${time}:00`).toISOString();
+    const scheduledAt = new Date(`${date}T${time}:00`);
+    if (scheduledAt <= new Date()) {
+      setScheduleError('Scheduled time must be in the future.');
+      return;
+    }
+    setScheduleError('');
+    const dateTime = scheduledAt.toISOString();
 
     scheduleMutation.mutate({
       contact_id: selected.id,
@@ -70,7 +77,8 @@ export default function BusinessReviewScheduler({ contacts = [] }) {
                 <input
                   type="date"
                   value={date}
-                  onChange={(e) => setDate(e.target.value)}
+                  min={new Date().toLocaleDateString('en-CA')}
+                  onChange={(e) => { setScheduleError(''); setDate(e.target.value); }}
                   className="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800"
                 />
               </div>
@@ -98,6 +106,7 @@ export default function BusinessReviewScheduler({ contacts = [] }) {
               </select>
             </div>
 
+            {scheduleError && <p className="text-xs text-red-500">{scheduleError}</p>}
             <Button
               onClick={handleSchedule}
               disabled={scheduleMutation.isPending || !date || !time}

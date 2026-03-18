@@ -15,6 +15,12 @@ import { useQuery } from '@tanstack/react-query';
 import PostComments from '../social/PostComments';
 import PostApprovalPanel from '../social/PostApprovalPanel';
 
+const toLocalISOString = (d = new Date()) => {
+  const offset = d.getTimezoneOffset();
+  return new Date(d.getTime() - offset * 60000).toISOString().slice(0, 16);
+};
+const todayLocal = () => toLocalISOString().split('T')[0];
+
 const PLATFORMS = [
   { id: 'Facebook',  color: 'bg-blue-600',  letter: 'f',  label: 'Facebook',    limit: 63206 },
   { id: 'Instagram', color: 'bg-gradient-to-br from-pink-500 to-purple-600', letter: 'IG', label: 'Instagram', limit: 2200 },
@@ -208,7 +214,7 @@ function RecurringSchedulePanel({ formData, setFormData }) {
 
 const DEFAULT_FORM = {
   title: '', caption: '', image_url: '', video_url: '',
-  media_type: 'none', scheduled_date: new Date().toISOString().split('T')[0],
+  media_type: 'none', scheduled_date: todayLocal(),
   scheduled_time: '09:00', platforms: [], hashtags: [], status: 'draft',
   order: 0, is_recurring: false, recurrence_type: 'weekly',
   recurrence_end_date: '', recurrence_days: [], auto_post: false,
@@ -227,6 +233,7 @@ export default function CalendarPostModal({ open, onClose, post, onSave, isLoadi
   const [activeTab, setActiveTab] = useState('compose');
   const [saved, setSaved] = useState(false);
   const [showBestTimes, setShowBestTimes] = useState(false);
+  const [scheduleError, setScheduleError] = useState('');
   const [requireApproval, setRequireApproval] = useState(false);
   const fileInputRef = useRef();
   const videoInputRef = useRef();
@@ -241,7 +248,7 @@ export default function CalendarPostModal({ open, onClose, post, onSave, isLoadi
           title: post.title || '', caption: post.caption || '',
           image_url: post.image_url || '', video_url: post.video_url || '',
           media_type: post.media_type || 'none',
-          scheduled_date: post.scheduled_date || new Date().toISOString().split('T')[0],
+          scheduled_date: post.scheduled_date || todayLocal(),
           scheduled_time: post.scheduled_time || '09:00',
           platforms: post.platforms || [], hashtags: post.hashtags || [],
           status: post.status || 'draft', order: post.order || 0,
@@ -253,7 +260,7 @@ export default function CalendarPostModal({ open, onClose, post, onSave, isLoadi
         });
         if (post.platforms?.[0]) setPreviewPlatform(post.platforms[0]);
       } else {
-        setFormData({ ...DEFAULT_FORM, scheduled_date: new Date().toISOString().split('T')[0] });
+        setFormData({ ...DEFAULT_FORM, scheduled_date: todayLocal() });
       }
     }
   }, [post, open]);
@@ -295,9 +302,17 @@ export default function CalendarPostModal({ open, onClose, post, onSave, isLoadi
   };
 
   const handleSubmit = (status) => {
+    if (status !== 'draft') {
+      const scheduledAt = new Date(`${formData.scheduled_date}T${formData.scheduled_time}`);
+      if (isNaN(scheduledAt.getTime()) || scheduledAt <= new Date()) {
+        setScheduleError('Scheduled time must be in the future.');
+        return;
+      }
+    }
+    setScheduleError('');
     // If admin requires approval, override to pending_approval
     const finalStatus = (isAdmin && requireApproval && status === 'approved') ? 'pending_approval' : status;
-    onSave({ ...formData, status: finalStatus });
+    onSave({ ...formData, status: finalStatus, timezone: Intl.DateTimeFormat().resolvedOptions().timeZone });
     if (status === 'draft') setSaved(true);
   };
 
@@ -571,16 +586,18 @@ export default function CalendarPostModal({ open, onClose, post, onSave, isLoadi
                   <div>
                     <label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">Date</label>
                     <input type="date" value={formData.scheduled_date}
-                      onChange={(e) => setFormData(f => ({ ...f, scheduled_date: e.target.value }))}
+                      min={todayLocal()}
+                      onChange={(e) => { setScheduleError(''); setFormData(f => ({ ...f, scheduled_date: e.target.value })); }}
                       className="w-full text-sm border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-lg px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-violet-400" />
                   </div>
                   <div>
                     <label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">Time</label>
                     <input type="time" value={formData.scheduled_time}
-                      onChange={(e) => setFormData(f => ({ ...f, scheduled_time: e.target.value }))}
+                      onChange={(e) => { setScheduleError(''); setFormData(f => ({ ...f, scheduled_time: e.target.value })); }}
                       className="w-full text-sm border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-lg px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-violet-400" />
                   </div>
                 </div>
+                {scheduleError && <p className="text-xs text-red-500 mt-1">{scheduleError}</p>}
 
                 {/* Approval toggle */}
                 <div className="border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden">

@@ -8,6 +8,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Loader2, Sparkles, X } from "lucide-react";
 
+const toLocalISOString = (d = new Date()) => {
+  const offset = d.getTimezoneOffset();
+  return new Date(d.getTime() - offset * 60000).toISOString().slice(0, 16);
+};
+
 const PLATFORMS = [
   { id: 'twitter', label: 'X (Twitter)', icon: '𝕏', maxLength: 280 },
   { id: 'linkedin', label: 'LinkedIn', icon: 'in', maxLength: 3000 },
@@ -32,7 +37,9 @@ export default function SchedulePostModal({
     scheduled_time: '',
     hashtags: [],
     status: 'scheduled',
+    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
   });
+  const [scheduleError, setScheduleError] = useState('');
   const [newHashtag, setNewHashtag] = useState('');
 
   useEffect(() => {
@@ -52,15 +59,21 @@ export default function SchedulePostModal({
         platform: 'twitter',
         social_account_id: accounts?.[0]?.id || '',
         content: '',
-        scheduled_time: now.toISOString().slice(0, 16),
+        scheduled_time: toLocalISOString(now),
         hashtags: [],
         status: 'scheduled',
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
       });
     }
   }, [post, open, accounts]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    if (new Date(formData.scheduled_time) <= new Date()) {
+      setScheduleError('Scheduled time must be in the future.');
+      return;
+    }
+    setScheduleError('');
     onSave({
       ...formData,
       scheduled_time: new Date(formData.scheduled_time).toISOString(),
@@ -199,9 +212,11 @@ export default function SchedulePostModal({
             <Input
               type="datetime-local"
               value={formData.scheduled_time}
-              onChange={(e) => setFormData({ ...formData, scheduled_time: e.target.value })}
+              min={toLocalISOString()}
+              onChange={(e) => { setScheduleError(''); setFormData({ ...formData, scheduled_time: e.target.value }); }}
               required
             />
+            {scheduleError && <p className="text-xs text-red-500">{scheduleError}</p>}
           </div>
 
           <div className="flex justify-end gap-3 pt-4">

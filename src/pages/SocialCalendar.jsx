@@ -20,7 +20,7 @@ import {
   PenSquare
 } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { format, startOfMonth, endOfMonth, addMonths, subMonths } from 'date-fns';
+import { format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, addMonths, subMonths } from 'date-fns';
 import CalendarPostCard from '@/components/social/CalendarPostCard';
 import CalendarPostModal from '@/components/modals/CalendarPostModal';
 import SocialCalendarView from '@/components/social/SocialCalendarView';
@@ -50,6 +50,8 @@ export default function SocialCalendar() {
   const [showApprovalSection, setShowApprovalSection] = useState(false);
   const [viewMode, setViewMode] = useState('composer');
   const [calendarViewType, setCalendarViewType] = useState('month');
+  const [platformFilter, setPlatformFilter] = useState('all');
+  const [statusFilter, setStatusFilter] = useState('all');
   const [nineGridPosts, setNineGridPosts] = useState(Array(9).fill(null));
   const [galleryPosts, setGalleryPosts] = useState([]);
   const printRef = useRef();
@@ -70,7 +72,13 @@ export default function SocialCalendar() {
 
   const filteredPosts = posts.filter(p => {
     const postDate = new Date(p.scheduled_date);
-    return postDate >= startOfMonth(currentMonth) && postDate <= endOfMonth(currentMonth);
+    // Expand window to cover week/day navigation that goes beyond the current month boundary
+    const windowStart = startOfWeek(startOfMonth(currentMonth));
+    const windowEnd = endOfWeek(endOfMonth(currentMonth));
+    const inRange = postDate >= windowStart && postDate <= windowEnd;
+    const matchesPlatform = platformFilter === 'all' || p.platforms?.includes(platformFilter);
+    const matchesStatus = statusFilter === 'all' || p.status === statusFilter;
+    return inRange && matchesPlatform && matchesStatus;
   }).sort((a, b) => (a.order || 0) - (b.order || 0));
 
   const createMutation = useMutation({
@@ -366,6 +374,37 @@ export default function SocialCalendar() {
                 </Button>
               </div>
             </div>
+            {/* Platform & status filter chips */}
+            <div className="flex gap-2 flex-wrap items-center mb-3">
+              <span className="text-xs text-gray-500 dark:text-gray-400 font-medium">Platform:</span>
+              {['all', 'Facebook', 'Instagram', 'LinkedIn', 'Twitter', 'YouTube', 'TikTok'].map(p => (
+                <button
+                  key={p}
+                  onClick={() => setPlatformFilter(p)}
+                  className={`text-xs px-3 py-1 rounded-full border transition-colors ${
+                    platformFilter === p
+                      ? 'bg-violet-600 text-white border-violet-600'
+                      : 'text-gray-600 dark:text-gray-300 border-gray-300 dark:border-gray-600 hover:border-violet-400 dark:hover:border-violet-500'
+                  }`}
+                >
+                  {p === 'all' ? 'All' : p}
+                </button>
+              ))}
+              <span className="text-xs text-gray-500 dark:text-gray-400 font-medium ml-2">Status:</span>
+              {['all', 'draft', 'scheduled', 'pending_approval', 'approved', 'published'].map(s => (
+                <button
+                  key={s}
+                  onClick={() => setStatusFilter(s)}
+                  className={`text-xs px-3 py-1 rounded-full border transition-colors capitalize ${
+                    statusFilter === s
+                      ? 'bg-violet-600 text-white border-violet-600'
+                      : 'text-gray-600 dark:text-gray-300 border-gray-300 dark:border-gray-600 hover:border-violet-400 dark:hover:border-violet-500'
+                  }`}
+                >
+                  {s === 'all' ? 'All' : s.replace(/_/g, ' ')}
+                </button>
+              ))}
+            </div>
             <SocialCalendarView
               posts={filteredPosts}
               currentMonth={currentMonth}
@@ -373,6 +412,7 @@ export default function SocialCalendar() {
               onAddPost={() => setShowModal(true)}
               onEditPost={handleEdit}
               viewType={calendarViewType}
+              onViewTypeChange={setCalendarViewType}
             />
           </>
         )}

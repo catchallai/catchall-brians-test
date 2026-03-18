@@ -14,7 +14,8 @@ import Papa from 'papaparse';
 export default function BulkScheduleModal({ open, onClose }) {
   const [csvData, setCsvData] = useState([]);
   const [manualPosts, setManualPosts] = useState('');
-  const [startDate, setStartDate] = useState(new Date().toISOString().split('T')[0]);
+  const [startDate, setStartDate] = useState(new Date().toLocaleDateString('en-CA'));
+  const [scheduleError, setScheduleError] = useState('');
   const [intervalHours, setIntervalHours] = useState(24);
   const [uploadStatus, setUploadStatus] = useState([]);
   const queryClient = useQueryClient();
@@ -56,6 +57,13 @@ export default function BulkScheduleModal({ open, onClose }) {
   };
 
   const handleBulkSchedule = () => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    if (new Date(startDate) < today) {
+      setScheduleError('Start date must be today or in the future.');
+      return;
+    }
+    setScheduleError('');
     let posts = [];
     
     if (csvData.length > 0) {
@@ -145,8 +153,10 @@ export default function BulkScheduleModal({ open, onClose }) {
             <Input
               type="date"
               value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
+              min={new Date().toLocaleDateString('en-CA')}
+              onChange={(e) => { setScheduleError(''); setStartDate(e.target.value); }}
             />
+            {scheduleError && <p className="text-xs text-red-500 mt-1">{scheduleError}</p>}
           </div>
           <div>
             <Label>Interval (hours)</Label>
