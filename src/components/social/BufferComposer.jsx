@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { appendHashtagToCaption } from '@/utils';
 import { base44 } from '@/api/base44Client';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from "@/components/ui/button";
@@ -129,7 +130,7 @@ export default function BufferComposer({ hashtagPool = [], onSuccess }) {
   const addHashtag = (tag) => {
     const clean = tag.replace(/^#/, '').trim();
     if (clean && !form.hashtags.includes(clean)) {
-      setForm(f => ({ ...f, hashtags: [...f.hashtags, clean], caption: f.caption + (f.caption ? '\n\n' : '') + '#' + clean }));
+      setForm(f => ({ ...f, hashtags: [...f.hashtags, clean], caption: appendHashtagToCaption(f.caption, clean) }));
     }
     setHashtagInput('');
   };
