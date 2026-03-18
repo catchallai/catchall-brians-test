@@ -635,8 +635,15 @@ export default function CalendarPostModal({ open, onClose, post, onSave, isLoadi
                 Submit for Review
               </Button>
             )}
+            {/* TODO: Only use pending_approval or pending_review, not both. This will streamline the workflow and reduce confusion.  */}
             <Button
-              onClick={() => handleSubmit(requireApproval ? 'pending_approval' : 'approved')}
+              onClick={() =>
+                 handleSubmit(
+                   isAdmin
+                     ? (requireApproval ? 'pending_approval' : 'approved')
+                     : 'pending_review'
+                 )
+               }
               disabled={isLoading || isViewer || !formData.caption || formData.platforms.length === 0}
               className="bg-gray-800 hover:bg-black text-white rounded-xl px-5 py-2 text-sm font-semibold disabled:opacity-40 transition-colors flex items-center gap-2"
             >
