@@ -31,6 +31,7 @@ const platformBorderColors = {
 
 const statusColors = {
   draft: "border-gray-300 bg-gray-50 dark:bg-gray-800 dark:border-gray-600",
+  scheduled: "border-blue-300 bg-blue-50 dark:bg-blue-900/20 dark:border-blue-600",
   pending_approval: "border-amber-300 bg-amber-50 dark:bg-amber-900/20 dark:border-amber-600",
   approved: "border-emerald-300 bg-emerald-50 dark:bg-emerald-900/20 dark:border-emerald-600",
   published: "border-violet-300 bg-violet-50 dark:bg-violet-900/20 dark:border-violet-600",
@@ -38,6 +39,7 @@ const statusColors = {
 
 const statusBadges = {
   draft: { label: "Draft", class: "bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300" },
+  scheduled: { label: "Scheduled", class: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300" },
   pending_approval: { label: "Pending", class: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300" },
   approved: { label: "Approved", class: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300" },
   published: { label: "Published", class: "bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-300" },
@@ -734,7 +736,7 @@ export default function SocialCalendarView({ posts = [], onAddPost, onEditPost, 
                         <div className="flex items-center justify-between gap-2 mb-1">
                           <div className="flex items-center gap-2 min-w-0 flex-1 cursor-pointer" onClick={() => onEditPost(post)}>
                             {post.platforms?.[0] && (
-                              <div className={`w-3 h-3 rounded-full flex-shrink-0 ${platformColors[post.platforms[0]] || 'bg-gray-400'}`} />
+                              <div className={`w-3 h-3 rounded-full flex-shrink-0 ${platformColors[String(post.platforms[0]).toLowerCase()] || 'bg-gray-400'}`} />
                             )}
                             <span className="truncate text-gray-800 dark:text-gray-200 font-semibold">
                               {post.title || post.caption?.slice(0, 18) || 'Untitled'}

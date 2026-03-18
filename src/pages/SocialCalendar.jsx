@@ -39,6 +39,11 @@ import OptimalTimeAnalyzer from '@/components/social/OptimalTimeAnalyzer';
 import QuickPostModal from '@/components/social/QuickPostModal';
 import BufferComposer from '@/components/social/BufferComposer';
 
+const CALENDAR_PLATFORMS = ['all', 'Facebook', 'Instagram', 'LinkedIn', 'Twitter', 'YouTube', 'TikTok'];
+
+// TODO: Replace with a shared Enum once a single source of truth for statuses is established
+const CALENDAR_STATUSES = ['all', 'draft', 'scheduled', 'pending_approval', 'approved', 'published'];
+
 export default function SocialCalendar() {
   const [showModal, setShowModal] = useState(false);
   const [showBulkModal, setShowBulkModal] = useState(false);
@@ -377,7 +382,7 @@ export default function SocialCalendar() {
             {/* Platform & status filter chips */}
             <div className="flex gap-2 flex-wrap items-center mb-3">
               <span className="text-xs text-gray-500 dark:text-gray-400 font-medium">Platform:</span>
-              {['all', 'Facebook', 'Instagram', 'LinkedIn', 'Twitter', 'YouTube', 'TikTok'].map(p => (
+              {CALENDAR_PLATFORMS.map(p => (
                 <button
                   key={p}
                   onClick={() => setPlatformFilter(p)}
@@ -391,7 +396,7 @@ export default function SocialCalendar() {
                 </button>
               ))}
               <span className="text-xs text-gray-500 dark:text-gray-400 font-medium ml-2">Status:</span>
-              {['all', 'draft', 'scheduled', 'pending_approval', 'approved', 'published'].map(s => (
+              {CALENDAR_STATUSES.map(s => (
                 <button
                   key={s}
                   onClick={() => setStatusFilter(s)}

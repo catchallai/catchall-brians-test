@@ -7,11 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Loader2, Sparkles, X } from "lucide-react";
-
-const toLocalISOString = (d = new Date()) => {
-  const offset = d.getTimezoneOffset();
-  return new Date(d.getTime() - offset * 60000).toISOString().slice(0, 16);
-};
+import { toLocalISOString } from '@/utils/date';
 
 const PLATFORMS = [
   { id: 'twitter', label: 'X (Twitter)', icon: '𝕏', maxLength: 280 },

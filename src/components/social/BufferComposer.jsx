@@ -12,6 +12,7 @@ import {
   Twitter, Linkedin, Facebook, Instagram, Youtube,
   Hash, Send, CheckCircle2, Globe
 } from "lucide-react";
+import { todayLocal } from '@/utils/date';
 
 const PLATFORMS = [
   { id: 'Twitter', label: 'X (Twitter)', icon: Twitter, color: 'bg-black text-white', limit: 280 },
@@ -20,11 +21,6 @@ const PLATFORMS = [
   { id: 'Instagram', label: 'Instagram', icon: Instagram, color: 'bg-pink-600 text-white', limit: 2200 },
   { id: 'YouTube', label: 'YouTube', icon: Youtube, color: 'bg-red-600 text-white', limit: 5000 },
 ];
-
-const todayLocal = () => {
-  const d = new Date();
-  return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().split('T')[0];
-};
 
 const DEFAULT_FORM = {
   title: '',

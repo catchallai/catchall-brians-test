@@ -8,11 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Loader2, Copy, Image as ImageIcon, AlertCircle } from "lucide-react";
-
-const todayLocal = () => {
-  const d = new Date();
-  return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().split('T')[0];
-};
+import { todayLocal } from '@/utils/date';
 
 const PLATFORMS = ['Instagram', 'Twitter', 'LinkedIn', 'Facebook', 'TikTok'];
 
@@ -39,11 +35,15 @@ export default function DraftFromAssetsModal({ open, onOpenChange, onSuccess, ca
 
   const createMutation = useMutation({
     mutationFn: async () => {
+      // Compute an absolute ISO timestamp in the user's local timezone so the server
+      // can validate future-date without needing to guess the user's UTC offset.
+      const scheduledAt = new Date(`${scheduledDate}T${scheduledTime || '10:00'}:00`).toISOString();
       const res = await base44.functions.invoke('createDraftFromApproved', {
         copyId: selectedCopy?.id,
         templateId: selectedTemplate?.id,
         scheduledDate,
         scheduledTime,
+        scheduledAt,
         platforms: selectedPlatforms,
         campaignBriefId,
       });
