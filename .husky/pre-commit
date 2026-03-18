@@ -15,7 +15,7 @@ for arg in "$@"; do
 done
 
 # Early exit if only .husky/pre-commit is staged
-ONLY_HUSKY_STAGED=$(git diff --cached --name-only --diff-filter=ACM | grep -v '^\.husky/pre-commit$' || true)
+ONLY_HUSKY_STAGED=$(git diff --cached --name-only --diff-filter=ACM | grep -v '^$' | grep -v '.husky/pre-commit')
 if [ -z "$ONLY_HUSKY_STAGED" ]; then
   echo "Only .husky/pre-commit is staged. Skipping checks."
   exit 0
@@ -28,8 +28,8 @@ NC='\033[0m' # No Color
 echo "Running Before Takeoff Checklist ✈️"
 
 # Get staged files
-STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.(js|jsx|ts|tsx|css|md|json)$' || true)
-ESLINT_FILES=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.(js|jsx|ts|tsx)$' || true)
+STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.(js|jsx|ts|tsx|css|md|json)$')
+ESLINT_FILES=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.(js|jsx|ts|tsx)$')
 
 echo "Staged files for Prettier: $STAGED_FILES"
 echo "Staged files for ESLint: $ESLINT_FILES"
@@ -58,17 +58,43 @@ fi
 # Step 2: ESLint
 if [ -n "$ESLINT_FILES" ]; then
   echo "Step 2: Running ESLint check on staged files..."
-  npx eslint $ESLINT_FILES --max-warnings=0 2>eslint_output.log
-  if [ $? -eq 0 ]; then
+
+  # Temporarily disable exit-on-error
+  set +e
+  ESLINT_OUTPUT=$(npx eslint $ESLINT_FILES --max-warnings=0 2>&1)
+  ESLINT_EXIT_CODE=$?
+  set -e
+
+  if [ $ESLINT_EXIT_CODE -eq 0 ]; then
     echo "${GREEN}ESLint check passed ✅${NC}"
   else
     echo "${RED}ESLint check failed ❌${NC}"
-    if grep -q 'no-unused-vars' eslint_output.log; then
-      echo "Tip: To ignore unused variables, prefix them with an underscore (e.g., _myVar)."
+
+    echo ""
+    echo "🔍 ESLint output:"
+    echo "----------------------------------------"
+    echo "$ESLINT_OUTPUT"
+    echo "----------------------------------------"
+
+    echo ""
+    echo "💡 Why this failed:"
+    echo "- ESLint is run with --max-warnings=0"
+    echo "- That means ANY warning will fail the commit"
+
+    if echo "$ESLINT_OUTPUT" | grep -q 'no-unused-vars'; then
+      echo "👉 Tip: Prefix unused variables with an underscore (e.g., _myVar)"
     fi
-    cat eslint_output.log
-    rm -f eslint_output.log
-    echo "To bypass checks, use: git commit --skip-checklist -m 'your message'"
+
+    if echo "$ESLINT_OUTPUT" | grep -q 'File ignored because no matching configuration was supplied'; then
+      echo "👉 Tip: ESLint is not configured for this file."
+      echo "   - Check your eslint.config.js or .eslintrc"
+      echo "   - Make sure this file type/path is included"
+    fi
+
+    echo ""
+    echo "To bypass checks, use:"
+    echo "git commit --skip-checklist -m 'your message'"
+
     exit 1
   fi
 else
