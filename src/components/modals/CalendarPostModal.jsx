@@ -237,6 +237,7 @@ export default function CalendarPostModal({ open, onClose, post, onSave, isLoadi
       setActiveTab('compose');
       setSaved(false);
       setShowBestTimes(false);
+      setRequireApproval(true);
       if (post) {
         setFormData({
           title: post.title || '', caption: post.caption || '',
