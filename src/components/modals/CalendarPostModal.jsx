@@ -487,7 +487,7 @@ export default function CalendarPostModal({ open, onClose, post, onSave, isLoadi
               <div className="px-6 pb-2 flex flex-wrap gap-1">
                 {hashtagPool.slice(0, 10).map(h => (
                   <button key={h.id}
-                    onClick={() => setFormData(f => ({ ...f, caption: f.caption + (f.caption ? ' ' : '') + '#' + h.hashtag }))}
+                    onClick={() => setFormData(f => ({ ...f, caption: f.caption + (f.caption ? '\n\n' : '') + '#' + h.hashtag }))}
                     className="text-xs text-violet-600 bg-violet-50 hover:bg-violet-100 border border-violet-200 rounded-full px-2 py-0.5 transition-colors">
                     #{h.hashtag}
                   </button>
