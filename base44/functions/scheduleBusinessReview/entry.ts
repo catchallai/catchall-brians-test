@@ -5,6 +5,14 @@ Deno.serve(async (req) => {
     const base44 = createClientFromRequest(req);
     const { contact_id, contact_name, contact_email, title, scheduled_date, duration_minutes = 60 } = await req.json();
 
+    if (!scheduled_date) {
+      return Response.json({ error: 'scheduled_date is required' }, { status: 422 });
+    }
+    const scheduledAt = new Date(scheduled_date);
+    if (isNaN(scheduledAt.getTime()) || scheduledAt <= new Date()) {
+      return Response.json({ error: 'Scheduled time must be in the future' }, { status: 422 });
+    }
+
     const accessToken = await base44.asServiceRole.connectors.getAccessToken('googlecalendar');
 
     const startTime = new Date(scheduled_date);

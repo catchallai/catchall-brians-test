@@ -6,10 +6,17 @@ Deno.serve(async (req) => {
     const user = await base44.auth.me();
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
-    const { copyId, templateId, scheduledDate, scheduledTime, platforms, campaignBriefId } = await req.json();
+    const { copyId, templateId, scheduledDate, scheduledTime, scheduledAt: scheduledAtISO, platforms, campaignBriefId } = await req.json();
     if (!copyId || !templateId || !scheduledDate) {
       return Response.json({ error: 'Missing required fields' }, { status: 400 });
     }
+    // Prefer an absolute ISO timestamp from the client (which carries the user's local timezone)
+    // over constructing one server-side to avoid false rejections in non-UTC timezones.
+    const scheduledAt = scheduledAtISO
+      ? new Date(scheduledAtISO)
+      : new Date(`${scheduledDate}T${scheduledTime || '10:00'}:00Z`);
+    if (isNaN(scheduledAt.getTime()) || scheduledAt <= new Date()) {
+      return Response.json({ error: 'Scheduled time must be in the future' }, { status: 422 });
 
     // Fetch approved copy and template
     const copies = await base44.entities.ApprovedCopy.filter({ id: copyId });

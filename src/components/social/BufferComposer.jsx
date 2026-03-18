@@ -12,6 +12,7 @@ import {
   Twitter, Linkedin, Facebook, Instagram, Youtube,
   Hash, Send, CheckCircle2, Globe
 } from "lucide-react";
+import { todayLocal } from '@/utils/date';
 
 const PLATFORMS = [
   { id: 'Twitter', label: 'X (Twitter)', icon: Twitter, color: 'bg-black text-white', limit: 280 },
@@ -27,7 +28,7 @@ const DEFAULT_FORM = {
   image_url: '',
   video_url: '',
   media_type: 'none',
-  scheduled_date: new Date().toISOString().split('T')[0],
+  scheduled_date: todayLocal(),
   scheduled_time: '09:00',
   platforms: [],
   hashtags: [],
@@ -88,6 +89,7 @@ export default function BufferComposer({ hashtagPool = [], onSuccess }) {
   const [hashtagInput, setHashtagInput] = useState('');
   const [previewPlatform, setPreviewPlatform] = useState('Twitter');
   const [saved, setSaved] = useState(false);
+  const [scheduleError, setScheduleError] = useState('');
 
   const createMutation = useMutation({
     mutationFn: (data) => base44.entities.CalendarPost.create(data),
@@ -135,6 +137,14 @@ export default function BufferComposer({ hashtagPool = [], onSuccess }) {
   };
 
   const handleSubmit = (status = 'draft') => {
+    if (status !== 'draft') {
+      const scheduledAt = new Date(`${form.scheduled_date}T${form.scheduled_time}`);
+      if (isNaN(scheduledAt.getTime()) || scheduledAt <= new Date()) {
+        setScheduleError('Scheduled time must be in the future.');
+        return;
+      }
+    }
+    setScheduleError('');
     createMutation.mutate({ ...form, status });
   };
 
@@ -271,7 +281,8 @@ export default function BufferComposer({ hashtagPool = [], onSuccess }) {
               <Calendar className="w-3 h-3" /> Date
             </Label>
             <Input type="date" value={form.scheduled_date}
-              onChange={(e) => setForm(f => ({ ...f, scheduled_date: e.target.value }))} />
+              min={todayLocal()}
+              onChange={(e) => { setScheduleError(''); setForm(f => ({ ...f, scheduled_date: e.target.value })); }} />
           </div>
           <div className="space-y-1.5">
             <Label className="text-xs font-semibold text-gray-500 uppercase tracking-wide flex items-center gap-1">
@@ -290,6 +301,8 @@ export default function BufferComposer({ hashtagPool = [], onSuccess }) {
             </div>
           </div>
         </div>
+
+        {scheduleError && <p className="text-xs text-red-500">{scheduleError}</p>}
 
         {/* Actions */}
         <div className="flex gap-3 pt-2">
