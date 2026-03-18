@@ -59,19 +59,23 @@ export default function BulkScheduleModal({ open, onClose }) {
   const handleBulkSchedule = () => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    if (new Date(startDate) < today) {
+
+    // Parse startDate (YYYY-MM-DD) as a local date at midnight to avoid UTC interpretation issues
+    const startDateLocal = new Date(`${startDate}T00:00:00`);
+
+    if (startDateLocal < today) {
       setScheduleError('Start date must be today or in the future.');
       return;
     }
     setScheduleError('');
     let posts = [];
-    
+
     if (csvData.length > 0) {
       posts = csvData.map((row, index) => ({
         caption: row.caption || row.content || '',
         image_url: row.image_url || row.image || '',
         platforms: row.platforms ? row.platforms.split(',').map(p => p.trim()) : ['Instagram', 'Facebook'],
-        scheduled_date: new Date(new Date(startDate).getTime() + (index * intervalHours * 60 * 60 * 1000)).toISOString().split('T')[0],
+        scheduled_date: new Date(startDateLocal.getTime() + index * intervalHours * 60 * 60 * 1000).toISOString().split('T')[0],
         status: 'scheduled',
         auto_post: row.auto_post === 'true' || row.auto_post === '1',
       }));
@@ -80,7 +84,7 @@ export default function BulkScheduleModal({ open, onClose }) {
       posts = lines.map((caption, index) => ({
         caption: caption.trim(),
         platforms: ['Instagram', 'Facebook'],
-        scheduled_date: new Date(new Date(startDate).getTime() + (index * intervalHours * 60 * 60 * 1000)).toISOString().split('T')[0],
+        scheduled_date: new Date(startDateLocal.getTime() + index * intervalHours * 60 * 60 * 1000).toISOString().split('T')[0],
         status: 'scheduled',
         auto_post: false,
       }));
