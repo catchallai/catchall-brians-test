@@ -51,6 +51,7 @@ export default function SchedulePostModal({
         scheduled_time: post.scheduled_time ? post.scheduled_time.slice(0, 16) : '',
         hashtags: post.hashtags || [],
         status: post.status || 'scheduled',
+        timezone: post.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone,
       });
     } else {
       const now = new Date();
