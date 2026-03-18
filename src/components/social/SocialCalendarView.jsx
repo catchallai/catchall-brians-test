@@ -791,7 +791,7 @@ export default function SocialCalendarView({ posts = [], onAddPost, onEditPost, 
           <div className="flex items-center gap-2 mb-3 flex-wrap">
             {hoveredPost.platforms?.map(p => (
               <span key={p} className="flex items-center gap-1 text-xs text-gray-600 dark:text-gray-400">
-                <div className={`w-2.5 h-2.5 rounded-full ${platformColors[p] || 'bg-gray-400'}`} />
+                <div className={`w-2.5 h-2.5 rounded-full ${platformColors[String(p).toLowerCase()] || 'bg-gray-400'}`} />
                 {p}
               </span>
             ))}
