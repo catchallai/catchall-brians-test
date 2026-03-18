@@ -8,12 +8,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import {
   Loader2, X, Image as ImageIcon, Smile, Hash, Link2, Plus, ChevronDown,
   Sparkles, Maximize2, Calendar, CheckCircle2, MessageSquare, GitBranch,
-  Clock, Repeat, Zap, Send, FileText, ChevronRight, Info, ShieldCheck
+  Clock, Repeat, Zap, Send, FileText, ChevronRight, ShieldCheck
 } from "lucide-react";
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import PostComments from '../social/PostComments';
 import PostApprovalPanel from '../social/PostApprovalPanel';
+import Tooltip from '@/components/ui-custom/Tooltip';
 
 const PLATFORMS = [
   { id: 'Facebook',  color: 'bg-blue-600',  letter: 'f',  label: 'Facebook',    limit: 63206 },
@@ -227,7 +228,7 @@ export default function CalendarPostModal({ open, onClose, post, onSave, isLoadi
   const [activeTab, setActiveTab] = useState('compose');
   const [saved, setSaved] = useState(false);
   const [showBestTimes, setShowBestTimes] = useState(false);
-  const [requireApproval, setRequireApproval] = useState(false);
+  const [requireApproval, setRequireApproval] = useState(true);
   const fileInputRef = useRef();
   const videoInputRef = useRef();
 
@@ -236,6 +237,7 @@ export default function CalendarPostModal({ open, onClose, post, onSave, isLoadi
       setActiveTab('compose');
       setSaved(false);
       setShowBestTimes(false);
+      setRequireApproval(true);
       if (post) {
         setFormData({
           title: post.title || '', caption: post.caption || '',
@@ -475,14 +477,8 @@ export default function CalendarPostModal({ open, onClose, post, onSave, isLoadi
               </div>
               <div className="flex items-center gap-3">
                 <span className={`text-sm font-medium ${overLimit ? 'text-red-500' : 'text-gray-400'}`}>
-                  {activePlatform.limit - formData.caption.length}
+                  {formData.caption.length}/{activePlatform.limit} 
                 </span>
-                <button
-                  onClick={() => {}}
-                  className="flex items-center gap-1.5 text-sm font-semibold text-blue-600 hover:text-blue-700 border border-blue-200 hover:border-blue-400 rounded-full px-3 py-1 transition-colors"
-                >
-                  <Plus className="w-3.5 h-3.5" /> Start Thread
-                </button>
               </div>
             </div>
 
@@ -583,33 +579,33 @@ export default function CalendarPostModal({ open, onClose, post, onSave, isLoadi
                 </div>
 
                 {/* Approval toggle */}
-                <div className="border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden">
-                  <button
-                    onClick={() => setRequireApproval(v => !v)}
-                    className={`w-full flex items-center justify-between px-4 py-3 text-sm transition-colors ${
-                      requireApproval
-                        ? 'bg-violet-50 dark:bg-violet-900/20 border-b border-violet-100 dark:border-violet-800'
-                        : 'hover:bg-gray-50 dark:hover:bg-gray-800'
-                    }`}
+                <Tooltip content="You do not have permission to change this setting. Please contact an admin for assistance." disableHover={isAdmin}>
+                  <div
+                    className="border rounded-xl overflow-hidden px-4 py-3 text-sm select-none cursor-default transition-colors bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700"
                   >
-                    <div className="flex items-center gap-2">
-                      <ShieldCheck className={`w-4 h-4 ${requireApproval ? 'text-violet-600' : 'text-gray-400'}`} />
-                      <span className={`font-medium ${requireApproval ? 'text-violet-700 dark:text-violet-400' : 'text-gray-700 dark:text-gray-300'}`}>
-                        Requires Approval
-                      </span>
+                    <div className="flex items-center justify-between w-full">
+                      <div className="flex items-center gap-2">
+                        <ShieldCheck className={`w-4 h-4 ${requireApproval ? 'text-emerald-600' : 'text-amber-600'}`} />
+                        <span className={`font-medium ${requireApproval ? 'text-emerald-700 dark:text-emerald-400' : 'text-amber-600 dark:text-amber-400'}`}>
+                          Requires Approval
+                        </span>
+                      </div>
+                      <Switch
+                        checked={requireApproval}
+                        onCheckedChange={setRequireApproval}
+                        disabled={!isAdmin}
+                        aria-label="Requires Approval"
+                      />
                     </div>
-                    <div className={`w-9 h-5 rounded-full flex items-center transition-all px-0.5 ${
-                      requireApproval ? 'bg-violet-600 justify-end' : 'bg-gray-200 dark:bg-gray-700 justify-start'
-                    }`}>
-                      <div className="w-4 h-4 bg-white rounded-full shadow" />
+                    <div
+                      className={`mt-2 px-0 py-2.5 text-xs rounded ${requireApproval ? 'text-emerald-700 dark:text-emerald-400' : 'text-amber-600 dark:text-amber-400'}`}
+                    >
+                      {requireApproval
+                        ? 'This post will be sent for team approval before going live.'
+                        : 'This post will be scheduled without requiring approval.'}
                     </div>
-                  </button>
-                  {requireApproval && (
-                    <div className="px-4 py-2.5 bg-violet-50 dark:bg-violet-900/20 text-xs text-violet-700 dark:text-violet-400">
-                      This post will be sent for team approval before going live.
-                    </div>
-                  )}
-                </div>
+                  </div>
+                </Tooltip>
               </div>
             </div>
           )}
@@ -640,28 +636,21 @@ export default function CalendarPostModal({ open, onClose, post, onSave, isLoadi
                 Submit for Review
               </Button>
             )}
-
-            {/* Schedule / Approve (admins) */}
-            {isAdmin && (
-              <Button
-                variant="outline"
-                onClick={() => handleSubmit('pending_approval')}
-                disabled={isLoading || !formData.caption || formData.platforms.length === 0}
-                className="flex items-center gap-1.5 text-sm rounded-xl border-violet-300 text-violet-700 hover:bg-violet-50"
-              >
-                <GitBranch className="w-4 h-4" />
-                Send for Approval
-              </Button>
-            )}
-
+            {/* TODO: Only use pending_approval or pending_review, not both. This will streamline the workflow and reduce confusion.  */}
             <Button
-              onClick={() => handleSubmit(isAdmin ? 'approved' : 'pending_review')}
+              onClick={() =>
+                 handleSubmit(
+                   isAdmin
+                     ? (requireApproval ? 'pending_approval' : 'approved')
+                     : 'pending_review'
+                 )
+               }
               disabled={isLoading || isViewer || !formData.caption || formData.platforms.length === 0}
               className="bg-gray-800 hover:bg-black text-white rounded-xl px-5 py-2 text-sm font-semibold disabled:opacity-40 transition-colors flex items-center gap-2"
             >
               {isLoading && <Loader2 className="w-4 h-4 animate-spin" />}
-              <Calendar className="w-4 h-4" />
-              {isAdmin ? 'Schedule & Approve' : 'Schedule Post'}
+              {requireApproval ? <Send className="w-4 h-4" /> : <Calendar className="w-4 h-4" />}
+              {requireApproval ? 'Send for Approval' : 'Schedule Post'}
             </Button>
           </div>
         </div>
