@@ -129,9 +129,37 @@ export default function BufferComposer({ hashtagPool = [], onSuccess }) {
 
   const addHashtag = (tag) => {
     const clean = tag.replace(/^#/, '').trim();
-    if (clean && !form.hashtags.includes(clean)) {
-      setForm(f => ({ ...f, hashtags: [...f.hashtags, clean], caption: appendHashtagToCaption(f.caption, clean) }));
-    }
+
+    setForm(f => {
+      // No hashtag text: no change
+      if (!clean) {
+        return f;
+      }
+
+      // Already present: avoid duplicates even under rapid successive calls
+      if (f.hashtags.includes(clean)) {
+        return f;
+      }
+
+      const newHashtags = [...f.hashtags, clean];
+      let newCaption;
+
+      if (f.hashtags.length === 0) {
+        // First hashtag: preserve existing behavior (likely adds "\n\n" before hashtags)
+        newCaption = appendHashtagToCaption(f.caption, clean);
+      } else {
+        // Subsequent hashtags: avoid inserting extra blank lines
+        const separator = f.caption.endsWith(' ') || f.caption === '' ? '' : ' ';
+        newCaption = `${f.caption}${separator}#${clean}`;
+      }
+
+      return {
+        ...f,
+        hashtags: newHashtags,
+        caption: newCaption,
+      };
+    });
+
     setHashtagInput('');
   };
 
