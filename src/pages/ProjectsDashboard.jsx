@@ -1,38 +1,65 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
-import { 
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-  PieChart, Pie, Cell, LineChart, Line, Legend, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+  LineChart,
+  Line,
+  Legend,
+  RadarChart,
+  PolarGrid,
+  PolarAngleAxis,
+  PolarRadiusAxis,
+  Radar,
 } from 'recharts';
-import { 
-  TrendingUp, AlertCircle, CheckCircle, Clock, DollarSign,
-  Users, Target, Calendar, ArrowRight, Sparkles, Brain, TrendingDown, Lightbulb
+import {
+  TrendingUp,
+  AlertCircle,
+  CheckCircle,
+  Clock,
+  DollarSign,
+  Users,
+  Target,
+  Calendar,
+  ArrowRight,
+  Sparkles,
+  Brain,
+  TrendingDown,
+  Lightbulb,
 } from 'lucide-react';
 
 const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
 
 // Calculate Project Health Score (0-100)
 const calculateHealthScore = (project, tasks) => {
-  const projectTasks = tasks.filter(t => t.project_id === project.id);
+  const projectTasks = tasks.filter((t) => t.project_id === project.id);
   if (projectTasks.length === 0) return 50;
 
   let score = 100;
 
   // Completion rate (40 points)
-  const completedTasks = projectTasks.filter(t => t.status === 'done').length;
+  const completedTasks = projectTasks.filter((t) => t.status === 'done').length;
   const completionRate = completedTasks / projectTasks.length;
   score = completionRate * 40;
 
   // Blocked tasks penalty (20 points)
-  const blockedTasks = projectTasks.filter(t => t.status === 'blocked').length;
+  const blockedTasks = projectTasks.filter((t) => t.status === 'blocked').length;
   const blockedPenalty = (blockedTasks / projectTasks.length) * 20;
-  score += (20 - blockedPenalty);
+  score += 20 - blockedPenalty;
 
   // Budget health (20 points)
   if (project.budget && project.budget > 0) {
@@ -75,22 +102,22 @@ export default function ProjectsDashboard() {
   const [loadingInsights, setLoadingInsights] = useState(false);
   const { data: projects = [], isLoading: projectsLoading } = useQuery({
     queryKey: ['projects'],
-    queryFn: () => base44.entities.Project.list('-created_date', 100)
+    queryFn: () => base44.entities.Project.list('-created_date', 100),
   });
 
   const { data: tasks = [], isLoading: tasksLoading } = useQuery({
     queryKey: ['all-tasks'],
-    queryFn: () => base44.entities.Task.list('-created_date', 1000)
+    queryFn: () => base44.entities.Task.list('-created_date', 1000),
   });
 
   const { data: timeLogs = [] } = useQuery({
     queryKey: ['time-logs'],
-    queryFn: () => base44.entities.TimeLog.list('-date', 500)
+    queryFn: () => base44.entities.TimeLog.list('-date', 500),
   });
 
   const { data: users = [] } = useQuery({
     queryKey: ['users'],
-    queryFn: () => base44.entities.User.list()
+    queryFn: () => base44.entities.User.list(),
   });
 
   // Generate AI Insights
@@ -103,12 +130,12 @@ export default function ProjectsDashboard() {
   const generateAIInsights = async () => {
     setLoadingInsights(true);
     try {
-      const projectSummary = projects.map(p => {
-        const projectTasks = tasks.filter(t => t.project_id === p.id);
-        const completedCount = projectTasks.filter(t => t.status === 'done').length;
-        const blockedCount = projectTasks.filter(t => t.status === 'blocked').length;
+      const projectSummary = projects.map((p) => {
+        const projectTasks = tasks.filter((t) => t.project_id === p.id);
+        const completedCount = projectTasks.filter((t) => t.status === 'done').length;
+        const blockedCount = projectTasks.filter((t) => t.status === 'blocked').length;
         const healthScore = calculateHealthScore(p, tasks);
-        
+
         return {
           name: p.name,
           status: p.status,
@@ -118,7 +145,7 @@ export default function ProjectsDashboard() {
           health: healthScore,
           budget: p.budget,
           spent: p.budget_spent,
-          endDate: p.end_date
+          endDate: p.end_date,
         };
       });
 
@@ -135,30 +162,30 @@ Provide a JSON response with:
 
 Keep insights concise, actionable, and data-driven.`,
         response_json_schema: {
-          type: "object",
+          type: 'object',
           properties: {
-            trends: { type: "array", items: { type: "string" } },
-            predictions: { 
-              type: "array", 
-              items: { 
-                type: "object",
+            trends: { type: 'array', items: { type: 'string' } },
+            predictions: {
+              type: 'array',
+              items: {
+                type: 'object',
                 properties: {
-                  project: { type: "string" },
-                  risk: { type: "string" },
-                  reasoning: { type: "string" }
-                }
-              }
+                  project: { type: 'string' },
+                  risk: { type: 'string' },
+                  reasoning: { type: 'string' },
+                },
+              },
             },
-            recommendations: { type: "array", items: { type: "string" } },
+            recommendations: { type: 'array', items: { type: 'string' } },
             velocity: {
-              type: "object",
+              type: 'object',
               properties: {
-                level: { type: "string" },
-                reasoning: { type: "string" }
-              }
-            }
-          }
-        }
+                level: { type: 'string' },
+                reasoning: { type: 'string' },
+              },
+            },
+          },
+        },
       });
 
       setAiInsights(response);
@@ -171,19 +198,20 @@ Keep insights concise, actionable, and data-driven.`,
 
   const analytics = useMemo(() => {
     const totalProjects = projects.length;
-    const activeProjects = projects.filter(p => p.status === 'active').length;
-    const completedProjects = projects.filter(p => p.status === 'completed').length;
-    const onHoldProjects = projects.filter(p => p.status === 'on_hold').length;
+    const activeProjects = projects.filter((p) => p.status === 'active').length;
+    const completedProjects = projects.filter((p) => p.status === 'completed').length;
+    const onHoldProjects = projects.filter((p) => p.status === 'on_hold').length;
 
     const totalTasks = tasks.length;
-    const completedTasks = tasks.filter(t => t.status === 'done').length;
-    const inProgressTasks = tasks.filter(t => t.status === 'in_progress').length;
-    const blockedTasks = tasks.filter(t => t.status === 'blocked').length;
-    const overallCompletionRate = totalTasks > 0 ? (completedTasks / totalTasks * 100).toFixed(1) : 0;
+    const completedTasks = tasks.filter((t) => t.status === 'done').length;
+    const inProgressTasks = tasks.filter((t) => t.status === 'in_progress').length;
+    const blockedTasks = tasks.filter((t) => t.status === 'blocked').length;
+    const overallCompletionRate =
+      totalTasks > 0 ? ((completedTasks / totalTasks) * 100).toFixed(1) : 0;
 
     const totalBudget = projects.reduce((sum, p) => sum + (p.budget || 0), 0);
     const totalSpent = projects.reduce((sum, p) => sum + (p.budget_spent || 0), 0);
-    const budgetUtilization = totalBudget > 0 ? (totalSpent / totalBudget * 100).toFixed(1) : 0;
+    const budgetUtilization = totalBudget > 0 ? ((totalSpent / totalBudget) * 100).toFixed(1) : 0;
 
     const totalHours = timeLogs.reduce((sum, log) => sum + (log.hours || 0), 0);
 
@@ -192,72 +220,90 @@ Keep insights concise, actionable, and data-driven.`,
       { name: 'Active', value: activeProjects, color: '#3b82f6' },
       { name: 'Completed', value: completedProjects, color: '#10b981' },
       { name: 'On Hold', value: onHoldProjects, color: '#f59e0b' },
-      { name: 'Planning', value: projects.filter(p => p.status === 'planning').length, color: '#8b5cf6' }
-    ].filter(item => item.value > 0);
+      {
+        name: 'Planning',
+        value: projects.filter((p) => p.status === 'planning').length,
+        color: '#8b5cf6',
+      },
+    ].filter((item) => item.value > 0);
 
     // Task status breakdown
     const taskStatusBreakdown = [
       { name: 'Done', value: completedTasks, color: '#10b981' },
       { name: 'In Progress', value: inProgressTasks, color: '#3b82f6' },
-      { name: 'Todo', value: tasks.filter(t => t.status === 'todo').length, color: '#94a3b8' },
-      { name: 'Blocked', value: blockedTasks, color: '#ef4444' }
-    ].filter(item => item.value > 0);
+      { name: 'Todo', value: tasks.filter((t) => t.status === 'todo').length, color: '#94a3b8' },
+      { name: 'Blocked', value: blockedTasks, color: '#ef4444' },
+    ].filter((item) => item.value > 0);
 
     // Project health - projects with completion rate
-    const projectHealth = projects.map(project => {
-      const projectTasks = tasks.filter(t => t.project_id === project.id);
-      const projectCompleted = projectTasks.filter(t => t.status === 'done').length;
-      const completionRate = projectTasks.length > 0 ? (projectCompleted / projectTasks.length * 100) : 0;
-      
-      return {
-        name: project.name,
-        completion: completionRate,
-        tasks: projectTasks.length,
-        status: project.status
-      };
-    }).sort((a, b) => b.completion - a.completion).slice(0, 10);
+    const projectHealth = projects
+      .map((project) => {
+        const projectTasks = tasks.filter((t) => t.project_id === project.id);
+        const projectCompleted = projectTasks.filter((t) => t.status === 'done').length;
+        const completionRate =
+          projectTasks.length > 0 ? (projectCompleted / projectTasks.length) * 100 : 0;
+
+        return {
+          name: project.name,
+          completion: completionRate,
+          tasks: projectTasks.length,
+          status: project.status,
+        };
+      })
+      .sort((a, b) => b.completion - a.completion)
+      .slice(0, 10);
 
     // Team workload
-    const teamWorkload = users.map(user => {
-      const userTasks = tasks.filter(t => t.assigned_to === user.email);
-      const activeTasks = userTasks.filter(t => t.status !== 'done').length;
-      const completedTasks = userTasks.filter(t => t.status === 'done').length;
-      
-      return {
-        name: user.full_name || user.email.split('@')[0],
-        active: activeTasks,
-        completed: completedTasks,
-        total: userTasks.length
-      };
-    }).filter(u => u.total > 0).sort((a, b) => b.total - a.total).slice(0, 8);
+    const teamWorkload = users
+      .map((user) => {
+        const userTasks = tasks.filter((t) => t.assigned_to === user.email);
+        const activeTasks = userTasks.filter((t) => t.status !== 'done').length;
+        const completedTasks = userTasks.filter((t) => t.status === 'done').length;
+
+        return {
+          name: user.full_name || user.email.split('@')[0],
+          active: activeTasks,
+          completed: completedTasks,
+          total: userTasks.length,
+        };
+      })
+      .filter((u) => u.total > 0)
+      .sort((a, b) => b.total - a.total)
+      .slice(0, 8);
 
     // At-risk projects (low completion rate or blocked tasks)
-    const atRiskProjects = projects.filter(project => {
-      if (project.status === 'completed') return false;
-      const projectTasks = tasks.filter(t => t.project_id === project.id);
-      const projectBlocked = projectTasks.filter(t => t.status === 'blocked').length;
-      const projectCompleted = projectTasks.filter(t => t.status === 'done').length;
-      const completionRate = projectTasks.length > 0 ? (projectCompleted / projectTasks.length * 100) : 0;
-      
-      return projectBlocked > 0 || (projectTasks.length > 0 && completionRate < 30);
-    }).slice(0, 5);
+    const atRiskProjects = projects
+      .filter((project) => {
+        if (project.status === 'completed') return false;
+        const projectTasks = tasks.filter((t) => t.project_id === project.id);
+        const projectBlocked = projectTasks.filter((t) => t.status === 'blocked').length;
+        const projectCompleted = projectTasks.filter((t) => t.status === 'done').length;
+        const completionRate =
+          projectTasks.length > 0 ? (projectCompleted / projectTasks.length) * 100 : 0;
+
+        return projectBlocked > 0 || (projectTasks.length > 0 && completionRate < 30);
+      })
+      .slice(0, 5);
 
     // Project health scores
     const projectHealthScores = projects
-      .filter(p => p.status !== 'completed')
-      .map(project => ({
+      .filter((p) => p.status !== 'completed')
+      .map((project) => ({
         id: project.id,
         name: project.name,
         score: calculateHealthScore(project, tasks),
         status: project.status,
-        tasks: tasks.filter(t => t.project_id === project.id).length
+        tasks: tasks.filter((t) => t.project_id === project.id).length,
       }))
       .sort((a, b) => a.score - b.score);
 
     // Average health score
-    const avgHealthScore = projectHealthScores.length > 0
-      ? Math.round(projectHealthScores.reduce((sum, p) => sum + p.score, 0) / projectHealthScores.length)
-      : 0;
+    const avgHealthScore =
+      projectHealthScores.length > 0
+        ? Math.round(
+            projectHealthScores.reduce((sum, p) => sum + p.score, 0) / projectHealthScores.length
+          )
+        : 0;
 
     return {
       totalProjects,
@@ -277,7 +323,7 @@ Keep insights concise, actionable, and data-driven.`,
       atRiskProjects,
       blockedTasks,
       projectHealthScores,
-      avgHealthScore
+      avgHealthScore,
     };
   }, [projects, tasks, timeLogs, users]);
 
@@ -360,7 +406,8 @@ Keep insights concise, actionable, and data-driven.`,
                   {analytics.budgetUtilization}%
                 </p>
                 <p className="text-xs text-gray-500 mt-1">
-                  ${(analytics.totalSpent / 1000).toFixed(0)}k / ${(analytics.totalBudget / 1000).toFixed(0)}k
+                  ${(analytics.totalSpent / 1000).toFixed(0)}k / $
+                  {(analytics.totalBudget / 1000).toFixed(0)}k
                 </p>
               </div>
               <div className="w-12 h-12 bg-yellow-100 dark:bg-yellow-900 rounded-lg flex items-center justify-center">
@@ -423,9 +470,13 @@ Keep insights concise, actionable, and data-driven.`,
               <div className="space-y-3">
                 {aiInsights.predictions?.map((pred, idx) => (
                   <div key={idx} className="p-3 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
-                    <p className="font-semibold text-sm text-gray-900 dark:text-white">{pred.project}</p>
+                    <p className="font-semibold text-sm text-gray-900 dark:text-white">
+                      {pred.project}
+                    </p>
                     <p className="text-xs text-orange-700 dark:text-orange-400 mt-1">{pred.risk}</p>
-                    <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">{pred.reasoning}</p>
+                    <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                      {pred.reasoning}
+                    </p>
                   </div>
                 ))}
               </div>
@@ -503,31 +554,37 @@ Keep insights concise, actionable, and data-driven.`,
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
-            {analytics.projectHealthScores.slice(0, 8).map(project => {
+            {analytics.projectHealthScores.slice(0, 8).map((project) => {
               const healthColor = getHealthColor(project.score);
               return (
                 <div key={project.id} className="flex items-center gap-3">
                   <div className="flex-1">
                     <div className="flex items-center justify-between mb-1">
-                      <Link 
+                      <Link
                         to={createPageUrl('ProjectDetail') + `?id=${project.id}`}
                         className="text-sm font-medium text-gray-900 dark:text-white hover:text-blue-600"
                       >
                         {project.name}
                       </Link>
                       <div className="flex items-center gap-2">
-                        <Badge variant="outline" className="text-xs">{project.status}</Badge>
+                        <Badge variant="outline" className="text-xs">
+                          {project.status}
+                        </Badge>
                         <span className={`text-sm font-bold ${healthColor.text}`}>
                           {project.score}
                         </span>
                       </div>
                     </div>
                     <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                      <div 
+                      <div
                         className={`h-2 rounded-full transition-all ${
-                          project.score >= 80 ? 'bg-green-500' :
-                          project.score >= 60 ? 'bg-yellow-500' :
-                          project.score >= 40 ? 'bg-orange-500' : 'bg-red-500'
+                          project.score >= 80
+                            ? 'bg-green-500'
+                            : project.score >= 60
+                              ? 'bg-yellow-500'
+                              : project.score >= 40
+                                ? 'bg-orange-500'
+                                : 'bg-red-500'
                         }`}
                         style={{ width: `${project.score}%` }}
                       />
@@ -608,12 +665,7 @@ Keep insights concise, actionable, and data-driven.`,
               <BarChart data={analytics.projectHealth} layout="vertical">
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis type="number" domain={[0, 100]} />
-                <YAxis 
-                  type="category" 
-                  dataKey="name" 
-                  width={100}
-                  tick={{ fontSize: 12 }}
-                />
+                <YAxis type="category" dataKey="name" width={100} tick={{ fontSize: 12 }} />
                 <Tooltip />
                 <Bar dataKey="completion" fill="#3b82f6" radius={[0, 4, 4, 0]} />
               </BarChart>
@@ -653,23 +705,31 @@ Keep insights concise, actionable, and data-driven.`,
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {analytics.atRiskProjects.map(project => {
-                const projectTasks = tasks.filter(t => t.project_id === project.id);
-                const blockedCount = projectTasks.filter(t => t.status === 'blocked').length;
-                const completedCount = projectTasks.filter(t => t.status === 'done').length;
-                const completionRate = projectTasks.length > 0 ? (completedCount / projectTasks.length * 100).toFixed(0) : 0;
-                
+              {analytics.atRiskProjects.map((project) => {
+                const projectTasks = tasks.filter((t) => t.project_id === project.id);
+                const blockedCount = projectTasks.filter((t) => t.status === 'blocked').length;
+                const completedCount = projectTasks.filter((t) => t.status === 'done').length;
+                const completionRate =
+                  projectTasks.length > 0
+                    ? ((completedCount / projectTasks.length) * 100).toFixed(0)
+                    : 0;
+
                 return (
-                  <div key={project.id} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                  <div
+                    key={project.id}
+                    className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-lg"
+                  >
                     <div className="flex-1">
-                      <Link 
+                      <Link
                         to={createPageUrl('ProjectDetail') + `?id=${project.id}`}
                         className="font-medium text-gray-900 dark:text-white hover:text-blue-600"
                       >
                         {project.name}
                       </Link>
                       <div className="flex items-center gap-2 mt-1">
-                        <Badge variant="outline" className="text-xs">{project.status}</Badge>
+                        <Badge variant="outline" className="text-xs">
+                          {project.status}
+                        </Badge>
                         {blockedCount > 0 && (
                           <span className="text-xs text-red-600">{blockedCount} blocked</span>
                         )}
@@ -677,9 +737,7 @@ Keep insights concise, actionable, and data-driven.`,
                       </div>
                     </div>
                     <Button variant="outline" size="sm" asChild>
-                      <Link to={createPageUrl('ProjectDetail') + `?id=${project.id}`}>
-                        View
-                      </Link>
+                      <Link to={createPageUrl('ProjectDetail') + `?id=${project.id}`}>View</Link>
                     </Button>
                   </div>
                 );

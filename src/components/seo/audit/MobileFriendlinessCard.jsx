@@ -1,16 +1,31 @@
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
-import { 
-  Smartphone, CheckCircle, XCircle, AlertTriangle, 
-  Maximize2, Type, MousePointer, Zap, Eye
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
+import {
+  Smartphone,
+  CheckCircle,
+  XCircle,
+  AlertTriangle,
+  Maximize2,
+  Type,
+  MousePointer,
+  Zap,
+  Eye,
 } from 'lucide-react';
 
 const statusStyles = {
-  pass: { icon: CheckCircle, color: 'text-emerald-500', bg: 'bg-emerald-100 dark:bg-emerald-900/30' },
+  pass: {
+    icon: CheckCircle,
+    color: 'text-emerald-500',
+    bg: 'bg-emerald-100 dark:bg-emerald-900/30',
+  },
   fail: { icon: XCircle, color: 'text-red-500', bg: 'bg-red-100 dark:bg-red-900/30' },
-  warning: { icon: AlertTriangle, color: 'text-amber-500', bg: 'bg-amber-100 dark:bg-amber-900/30' },
+  warning: {
+    icon: AlertTriangle,
+    color: 'text-amber-500',
+    bg: 'bg-amber-100 dark:bg-amber-900/30',
+  },
 };
 
 export default function MobileFriendlinessCard({ data }) {
@@ -21,14 +36,19 @@ export default function MobileFriendlinessCard({ data }) {
     fontSizes: { status: 'pass', message: 'Text is readable without zooming', smallText: 0 },
     tapTargets: { status: 'warning', message: '3 tap targets are too close together', issues: 3 },
     contentWidth: { status: 'pass', message: 'Content fits within viewport' },
-    mobileSpeed: { 
-      status: 'warning', 
+    mobileSpeed: {
+      status: 'warning',
       score: 72,
       lcp: 3.2,
       fid: 120,
       cls: 0.15,
     },
-    responsiveImages: { status: 'pass', message: 'Images are properly sized', optimized: 45, total: 48 },
+    responsiveImages: {
+      status: 'pass',
+      message: 'Images are properly sized',
+      optimized: 45,
+      total: 48,
+    },
     touchFriendly: { status: 'pass', message: 'Forms and inputs are mobile-friendly' },
   };
 
@@ -46,7 +66,10 @@ export default function MobileFriendlinessCard({ data }) {
       icon: Type,
       status: mobileData.fontSizes.status,
       message: mobileData.fontSizes.message,
-      detail: mobileData.fontSizes.smallText > 0 ? `${mobileData.fontSizes.smallText} elements too small` : null,
+      detail:
+        mobileData.fontSizes.smallText > 0
+          ? `${mobileData.fontSizes.smallText} elements too small`
+          : null,
     },
     {
       id: 'tap',
@@ -54,7 +77,8 @@ export default function MobileFriendlinessCard({ data }) {
       icon: MousePointer,
       status: mobileData.tapTargets.status,
       message: mobileData.tapTargets.message,
-      detail: mobileData.tapTargets.issues > 0 ? `${mobileData.tapTargets.issues} issues found` : null,
+      detail:
+        mobileData.tapTargets.issues > 0 ? `${mobileData.tapTargets.issues} issues found` : null,
     },
     {
       id: 'content',
@@ -120,14 +144,22 @@ export default function MobileFriendlinessCard({ data }) {
           </div>
           <div className="flex-1">
             <h3 className="font-medium text-gray-900 dark:text-white mb-1">
-              {mobileData.overallScore >= 90 ? 'Excellent Mobile Experience' :
-               mobileData.overallScore >= 70 ? 'Good Mobile Experience' : 'Needs Improvement'}
+              {mobileData.overallScore >= 90
+                ? 'Excellent Mobile Experience'
+                : mobileData.overallScore >= 70
+                  ? 'Good Mobile Experience'
+                  : 'Needs Improvement'}
             </h3>
             <p className="text-sm text-gray-500 dark:text-gray-400">
-              Your site is {mobileData.overallScore >= 70 ? 'mobile-friendly' : 'not optimized for mobile devices'}.
-              {mobileData.overallScore < 90 && ' Some improvements can enhance user experience.'}
+              Your site is{' '}
+              {mobileData.overallScore >= 70
+                ? 'mobile-friendly'
+                : 'not optimized for mobile devices'}
+              .{mobileData.overallScore < 90 && ' Some improvements can enhance user experience.'}
             </p>
-            <Badge className={`mt-2 ${statusStyles[mobileData.status].bg} ${statusStyles[mobileData.status].color.replace('text-', 'text-')}`}>
+            <Badge
+              className={`mt-2 ${statusStyles[mobileData.status].bg} ${statusStyles[mobileData.status].color.replace('text-', 'text-')}`}
+            >
               {mobileData.status === 'pass' ? 'Mobile-Friendly' : 'Issues Found'}
             </Badge>
           </div>
@@ -147,15 +179,21 @@ export default function MobileFriendlinessCard({ data }) {
           <Progress value={mobileData.mobileSpeed.score} className="h-2 mb-3" />
           <div className="grid grid-cols-3 gap-2 text-center">
             <div className="p-2 bg-white dark:bg-gray-800 rounded-lg">
-              <p className="text-sm font-medium text-gray-900 dark:text-white">{mobileData.mobileSpeed.lcp}s</p>
+              <p className="text-sm font-medium text-gray-900 dark:text-white">
+                {mobileData.mobileSpeed.lcp}s
+              </p>
               <p className="text-xs text-gray-500">LCP</p>
             </div>
             <div className="p-2 bg-white dark:bg-gray-800 rounded-lg">
-              <p className="text-sm font-medium text-gray-900 dark:text-white">{mobileData.mobileSpeed.fid}ms</p>
+              <p className="text-sm font-medium text-gray-900 dark:text-white">
+                {mobileData.mobileSpeed.fid}ms
+              </p>
               <p className="text-xs text-gray-500">FID</p>
             </div>
             <div className="p-2 bg-white dark:bg-gray-800 rounded-lg">
-              <p className="text-sm font-medium text-gray-900 dark:text-white">{mobileData.mobileSpeed.cls}</p>
+              <p className="text-sm font-medium text-gray-900 dark:text-white">
+                {mobileData.mobileSpeed.cls}
+              </p>
               <p className="text-xs text-gray-500">CLS</p>
             </div>
           </div>
@@ -166,13 +204,18 @@ export default function MobileFriendlinessCard({ data }) {
           {checks.map((check) => {
             const StatusIcon = statusStyles[check.status].icon;
             return (
-              <div key={check.id} className="flex items-start gap-3 p-3 bg-gray-50 dark:bg-gray-900 rounded-lg">
+              <div
+                key={check.id}
+                className="flex items-start gap-3 p-3 bg-gray-50 dark:bg-gray-900 rounded-lg"
+              >
                 <div className={`p-1.5 rounded-lg ${statusStyles[check.status].bg}`}>
                   <check.icon className={`w-4 h-4 ${statusStyles[check.status].color}`} />
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <span className="font-medium text-gray-900 dark:text-white text-sm">{check.label}</span>
+                    <span className="font-medium text-gray-900 dark:text-white text-sm">
+                      {check.label}
+                    </span>
                     <StatusIcon className={`w-4 h-4 ${statusStyles[check.status].color}`} />
                   </div>
                   <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{check.message}</p>

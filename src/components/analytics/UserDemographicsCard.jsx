@@ -1,6 +1,6 @@
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, Briefcase, Building2, DollarSign } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Users, Briefcase, Building2, DollarSign } from 'lucide-react';
 
 export default function UserDemographicsCard() {
   // SyberJet audience demographics - luxury aviation target market
@@ -30,7 +30,7 @@ export default function UserDemographicsCard() {
       { range: '$10M - $50M', percentage: 28 },
       { range: '$5M - $10M', percentage: 32 },
       { range: '$1M - $5M', percentage: 25 },
-    ]
+    ],
   };
 
   return (
@@ -53,10 +53,12 @@ export default function UserDemographicsCard() {
               <div key={industry.name}>
                 <div className="flex justify-between text-sm mb-1">
                   <span className="text-gray-600 dark:text-gray-400">{industry.name}</span>
-                  <span className="font-medium text-gray-700 dark:text-gray-300">{industry.percentage}%</span>
+                  <span className="font-medium text-gray-700 dark:text-gray-300">
+                    {industry.percentage}%
+                  </span>
                 </div>
                 <div className="h-1.5 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
-                  <div 
+                  <div
                     className="h-full rounded-full transition-all"
                     style={{ width: `${industry.percentage}%`, backgroundColor: industry.color }}
                   />
@@ -70,12 +72,19 @@ export default function UserDemographicsCard() {
         <div>
           <div className="flex items-center gap-2 mb-3">
             <Building2 className="w-4 h-4 text-gray-400" />
-            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Company Size</span>
+            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+              Company Size
+            </span>
           </div>
           <div className="grid grid-cols-2 gap-2">
             {demographics.companySize.map((size) => (
-              <div key={size.name} className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3 text-center">
-                <p className="text-lg font-bold text-gray-900 dark:text-white">{size.percentage}%</p>
+              <div
+                key={size.name}
+                className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3 text-center"
+              >
+                <p className="text-lg font-bold text-gray-900 dark:text-white">
+                  {size.percentage}%
+                </p>
                 <p className="text-xs text-gray-500">{size.name}</p>
               </div>
             ))}
@@ -86,16 +95,18 @@ export default function UserDemographicsCard() {
         <div>
           <div className="flex items-center gap-2 mb-3">
             <Users className="w-4 h-4 text-gray-400" />
-            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Seniority Level</span>
+            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+              Seniority Level
+            </span>
           </div>
           <div className="flex gap-1 h-8 rounded-lg overflow-hidden">
             {demographics.seniority.map((level, idx) => (
-              <div 
+              <div
                 key={level.name}
                 className="flex items-center justify-center transition-all hover:opacity-80"
-                style={{ 
+                style={{
                   width: `${level.percentage}%`,
-                  backgroundColor: ['#8b5cf6', '#06b6d4', '#10b981', '#9ca3af'][idx]
+                  backgroundColor: ['#8b5cf6', '#06b6d4', '#10b981', '#9ca3af'][idx],
                 }}
                 title={`${level.name}: ${level.percentage}%`}
               >
@@ -106,7 +117,7 @@ export default function UserDemographicsCard() {
           <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2">
             {demographics.seniority.map((level, idx) => (
               <div key={level.name} className="flex items-center gap-1.5 text-xs text-gray-500">
-                <div 
+                <div
                   className="w-2 h-2 rounded-full"
                   style={{ backgroundColor: ['#8b5cf6', '#06b6d4', '#10b981', '#9ca3af'][idx] }}
                 />
@@ -120,19 +131,23 @@ export default function UserDemographicsCard() {
         <div>
           <div className="flex items-center gap-2 mb-3">
             <DollarSign className="w-4 h-4 text-gray-400" />
-            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Est. Net Worth (Audience)</span>
+            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+              Est. Net Worth (Audience)
+            </span>
           </div>
           <div className="space-y-2">
             {demographics.estimatedNetWorth.map((tier) => (
               <div key={tier.range} className="flex items-center gap-3">
                 <span className="text-sm text-gray-600 dark:text-gray-400 w-24">{tier.range}</span>
                 <div className="flex-1 h-2 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
-                  <div 
+                  <div
                     className="h-full bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full"
                     style={{ width: `${tier.percentage}%` }}
                   />
                 </div>
-                <span className="text-sm font-medium text-gray-700 dark:text-gray-300 w-10 text-right">{tier.percentage}%</span>
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-300 w-10 text-right">
+                  {tier.percentage}%
+                </span>
               </div>
             ))}
           </div>

@@ -1,8 +1,14 @@
 import React, { useState, useMemo } from 'react';
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Search, X } from "lucide-react";
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Search, X } from 'lucide-react';
 
 export default function DealSearchFilter({ deals = [], onFilter }) {
   const [search, setSearch] = useState('');
@@ -11,7 +17,7 @@ export default function DealSearchFilter({ deals = [], onFilter }) {
   const [maxValue, setMaxValue] = useState('');
 
   const filtered = useMemo(() => {
-    return deals.filter(deal => {
+    return deals.filter((deal) => {
       const matchesSearch = !search || deal.title.toLowerCase().includes(search.toLowerCase());
       const matchesStage = stage === 'all' || deal.stage === stage;
       const min = minValue ? parseInt(minValue) : 0;

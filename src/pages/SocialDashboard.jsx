@@ -1,13 +1,11 @@
 import React from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
-import { Card, CardContent } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Card, CardContent } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
-import {
-  Share2, CalendarDays, Radio, UserCircle, Users, Target, ArrowRight
-} from "lucide-react";
+import { Share2, CalendarDays, Radio, UserCircle, Users, Target, ArrowRight } from 'lucide-react';
 
 export default function SocialDashboard() {
   const { data: user } = useQuery({
@@ -35,16 +33,28 @@ export default function SocialDashboard() {
 
   const stats = {
     accounts: socialAccounts.length,
-    scheduledPosts: scheduledPosts.filter(p => p.status === 'scheduled').length,
+    scheduledPosts: scheduledPosts.filter((p) => p.status === 'scheduled').length,
     leads: socialLeads.length,
     engagement: socialAccounts.reduce((sum, a) => sum + (a.engagement_rate || 0), 0),
   };
 
   const quickLinks = [
     { name: 'Social Analytics', icon: Share2, page: 'SocialMedia', color: 'violet' },
-    { name: 'Social Calendar', icon: CalendarDays, page: 'SocialCalendar', count: stats.scheduledPosts, color: 'blue' },
+    {
+      name: 'Social Calendar',
+      icon: CalendarDays,
+      page: 'SocialCalendar',
+      count: stats.scheduledPosts,
+      color: 'blue',
+    },
     { name: 'Social Listening', icon: Radio, page: 'SocialListening', color: 'emerald' },
-    { name: 'Social Leads', icon: UserCircle, page: 'SocialLeads', count: stats.leads, color: 'amber' },
+    {
+      name: 'Social Leads',
+      icon: UserCircle,
+      page: 'SocialLeads',
+      count: stats.leads,
+      color: 'amber',
+    },
     { name: 'Competitors', icon: Users, page: 'CompetitorAnalysis', color: 'cyan' },
     { name: 'Hashtag Manager', icon: Target, page: 'HashtagManager', color: 'pink' },
   ];
@@ -65,7 +75,9 @@ export default function SocialDashboard() {
   return (
     <div className="p-6 space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-wider text-gray-400 dark:text-gray-500 uppercase">Social</h1>
+        <h1 className="text-3xl font-bold tracking-wider text-gray-400 dark:text-gray-500 uppercase">
+          Social
+        </h1>
         <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
           Social media management overview
         </p>
@@ -76,7 +88,9 @@ export default function SocialDashboard() {
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Connected Accounts</p>
+                <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                  Connected Accounts
+                </p>
                 <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.accounts}</p>
               </div>
               <Share2 className="w-8 h-8 text-violet-500" />
@@ -88,8 +102,12 @@ export default function SocialDashboard() {
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Scheduled Posts</p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.scheduledPosts}</p>
+                <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                  Scheduled Posts
+                </p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                  {stats.scheduledPosts}
+                </p>
               </div>
               <CalendarDays className="w-8 h-8 text-blue-500" />
             </div>
@@ -112,7 +130,9 @@ export default function SocialDashboard() {
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Avg. Engagement</p>
+                <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                  Avg. Engagement
+                </p>
                 <p className="text-2xl font-bold text-gray-900 dark:text-white">
                   {stats.accounts > 0 ? (stats.engagement / stats.accounts).toFixed(1) : 0}%
                 </p>
@@ -134,11 +154,15 @@ export default function SocialDashboard() {
                   <CardContent className="pt-6">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <div className={`w-12 h-12 rounded-xl bg-${link.color}-100 dark:bg-${link.color}-900/40 flex items-center justify-center`}>
+                        <div
+                          className={`w-12 h-12 rounded-xl bg-${link.color}-100 dark:bg-${link.color}-900/40 flex items-center justify-center`}
+                        >
                           <Icon className={`w-6 h-6 text-${link.color}-600`} />
                         </div>
                         <div>
-                          <h3 className="font-semibold text-gray-900 dark:text-white">{link.name}</h3>
+                          <h3 className="font-semibold text-gray-900 dark:text-white">
+                            {link.name}
+                          </h3>
                           {link.count !== undefined && (
                             <p className="text-sm text-gray-500">{link.count} items</p>
                           )}

@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Mail, Code, Eye, Copy, CheckCircle } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Mail, Code, Eye, Copy, CheckCircle } from 'lucide-react';
 
 export default function CampaignPreview({ open, onClose, template, sampleContact }) {
   const [showHtml, setShowHtml] = useState(false);
@@ -14,7 +14,7 @@ export default function CampaignPreview({ open, onClose, template, sampleContact
   const renderWithVariables = (text, contact) => {
     if (!text) return '';
     let result = text;
-    
+
     const variables = {
       first_name: contact?.first_name || '[First Name]',
       last_name: contact?.last_name || '[Last Name]',
@@ -136,7 +136,7 @@ export default function CampaignPreview({ open, onClose, template, sampleContact
                 <span className="text-xs text-gray-500 ml-2">Email Body Preview</span>
               </div>
               <div className="p-6 min-h-[400px]">
-                <div 
+                <div
                   className="prose prose-sm max-w-none dark:prose-invert"
                   dangerouslySetInnerHTML={{ __html: previewBody }}
                 />
@@ -146,7 +146,10 @@ export default function CampaignPreview({ open, onClose, template, sampleContact
 
           <div className="flex items-center gap-2 text-xs text-gray-500">
             <Badge variant="outline">Preview Mode</Badge>
-            <span>Using sample data: {sampleContact?.first_name || 'John'} {sampleContact?.last_name || 'Doe'}</span>
+            <span>
+              Using sample data: {sampleContact?.first_name || 'John'}{' '}
+              {sampleContact?.last_name || 'Doe'}
+            </span>
           </div>
         </div>
       </DialogContent>

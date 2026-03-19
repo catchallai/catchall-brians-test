@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Network } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Network } from 'lucide-react';
 
 export default function NetworkGraph({ companies }) {
   const { nodes, edges } = useMemo(() => {
@@ -13,48 +13,54 @@ export default function NetworkGraph({ companies }) {
       if (!nodeMap.has(company.company_name)) {
         nodeMap.set(company.company_name, {
           id: company.company_name,
-          x: 250 + Math.cos(idx * 2 * Math.PI / companies.length) * 200,
-          y: 250 + Math.sin(idx * 2 * Math.PI / companies.length) * 200,
+          x: 250 + Math.cos((idx * 2 * Math.PI) / companies.length) * 200,
+          y: 250 + Math.sin((idx * 2 * Math.PI) / companies.length) * 200,
           ticker: company.ticker_symbol,
           employees: company.employee_count,
           partnerships: company.partnerships?.length || 0,
-          competitors: company.competitors || []
+          competitors: company.competitors || [],
         });
       }
     });
 
     // Create edges for partnerships
-    companies.forEach(company => {
-      company.partnerships?.forEach(partnership => {
-        const targetNode = Array.from(nodeMap.values()).find(n => 
-          n.id.toLowerCase().includes(partnership.partner.toLowerCase()) ||
-          partnership.partner.toLowerCase().includes(n.id.toLowerCase())
+    companies.forEach((company) => {
+      company.partnerships?.forEach((partnership) => {
+        const targetNode = Array.from(nodeMap.values()).find(
+          (n) =>
+            n.id.toLowerCase().includes(partnership.partner.toLowerCase()) ||
+            partnership.partner.toLowerCase().includes(n.id.toLowerCase())
         );
-        
+
         if (targetNode) {
           edgeList.push({
             source: company.company_name,
             target: targetNode.id,
-            type: 'partnership'
+            type: 'partnership',
           });
         }
       });
 
       // Create edges for competitors (lighter)
-      company.competitors?.forEach(competitor => {
-        const targetNode = Array.from(nodeMap.values()).find(n => 
-          n.id.toLowerCase().includes(competitor.toLowerCase()) ||
-          competitor.toLowerCase().includes(n.id.toLowerCase())
+      company.competitors?.forEach((competitor) => {
+        const targetNode = Array.from(nodeMap.values()).find(
+          (n) =>
+            n.id.toLowerCase().includes(competitor.toLowerCase()) ||
+            competitor.toLowerCase().includes(n.id.toLowerCase())
         );
-        
-        if (targetNode && !edgeList.some(e => 
-          (e.source === company.company_name && e.target === targetNode.id) ||
-          (e.target === company.company_name && e.source === targetNode.id)
-        )) {
+
+        if (
+          targetNode &&
+          !edgeList.some(
+            (e) =>
+              (e.source === company.company_name && e.target === targetNode.id) ||
+              (e.target === company.company_name && e.source === targetNode.id)
+          )
+        ) {
           edgeList.push({
             source: company.company_name,
             target: targetNode.id,
-            type: 'competitor'
+            type: 'competitor',
           });
         }
       });
@@ -93,10 +99,10 @@ export default function NetworkGraph({ companies }) {
             {/* Edges */}
             <g className="edges">
               {edges.map((edge, idx) => {
-                const source = nodes.find(n => n.id === edge.source);
-                const target = nodes.find(n => n.id === edge.target);
+                const source = nodes.find((n) => n.id === edge.source);
+                const target = nodes.find((n) => n.id === edge.target);
                 if (!source || !target) return null;
-                
+
                 return (
                   <line
                     key={idx}
@@ -161,27 +167,27 @@ export default function NetworkGraph({ companies }) {
               <div className="w-8 h-0.5 bg-slate-400 border-dashed border-t border-slate-400"></div>
               <span className="text-gray-700">Competitor</span>
             </div>
-            <div className="text-gray-500 mt-2">
-              Node size = Employee count
-            </div>
+            <div className="text-gray-500 mt-2">Node size = Employee count</div>
           </div>
         </div>
 
         {/* Network Stats */}
         <div className="grid grid-cols-3 gap-4 mt-4">
           <div className="text-center p-3 bg-violet-50 dark:bg-violet-900/20 rounded-lg">
-            <p className="text-2xl font-bold text-violet-700 dark:text-violet-300">{nodes.length}</p>
+            <p className="text-2xl font-bold text-violet-700 dark:text-violet-300">
+              {nodes.length}
+            </p>
             <p className="text-xs text-gray-600 dark:text-gray-400">Companies</p>
           </div>
           <div className="text-center p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
             <p className="text-2xl font-bold text-blue-700 dark:text-blue-300">
-              {edges.filter(e => e.type === 'partnership').length}
+              {edges.filter((e) => e.type === 'partnership').length}
             </p>
             <p className="text-xs text-gray-600 dark:text-gray-400">Partnerships</p>
           </div>
           <div className="text-center p-3 bg-slate-50 dark:bg-slate-900/20 rounded-lg">
             <p className="text-2xl font-bold text-slate-700 dark:text-slate-300">
-              {edges.filter(e => e.type === 'competitor').length}
+              {edges.filter((e) => e.type === 'competitor').length}
             </p>
             <p className="text-xs text-gray-600 dark:text-gray-400">Competitive Links</p>
           </div>

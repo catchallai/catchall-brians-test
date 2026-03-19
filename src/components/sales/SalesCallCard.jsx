@@ -1,23 +1,29 @@
 import React from 'react';
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { 
-  PhoneOutgoing, PhoneIncoming, PhoneMissed, Clock, 
-  ThumbsUp, ThumbsDown, Minus, Pencil
-} from "lucide-react";
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import {
+  PhoneOutgoing,
+  PhoneIncoming,
+  PhoneMissed,
+  Clock,
+  ThumbsUp,
+  ThumbsDown,
+  Minus,
+  Pencil,
+} from 'lucide-react';
 import { format } from 'date-fns';
 
 const callTypeIcons = {
   outbound: PhoneOutgoing,
   inbound: PhoneIncoming,
-  missed: PhoneMissed
+  missed: PhoneMissed,
 };
 
 const callTypeColors = {
   outbound: 'text-blue-500',
   inbound: 'text-emerald-500',
-  missed: 'text-red-500'
+  missed: 'text-red-500',
 };
 
 const statusColors = {
@@ -25,19 +31,19 @@ const statusColors = {
   no_answer: 'bg-amber-100 text-amber-700',
   voicemail: 'bg-blue-100 text-blue-700',
   busy: 'bg-red-100 text-red-700',
-  scheduled: 'bg-violet-100 text-violet-700'
+  scheduled: 'bg-violet-100 text-violet-700',
 };
 
 const sentimentIcons = {
   positive: ThumbsUp,
   neutral: Minus,
-  negative: ThumbsDown
+  negative: ThumbsDown,
 };
 
 const sentimentColors = {
   positive: 'text-emerald-500',
   neutral: 'text-gray-500',
-  negative: 'text-red-500'
+  negative: 'text-red-500',
 };
 
 export default function SalesCallCard({ call, contactName, dealName, onEdit }) {
@@ -69,9 +75,7 @@ export default function SalesCallCard({ call, contactName, dealName, onEdit }) {
           )}
         </div>
 
-        {call.notes && (
-          <p className="text-sm text-gray-600 mb-3 line-clamp-2">{call.notes}</p>
-        )}
+        {call.notes && <p className="text-sm text-gray-600 mb-3 line-clamp-2">{call.notes}</p>}
 
         <div className="flex items-center justify-between text-xs text-gray-500">
           <div className="flex items-center gap-1">

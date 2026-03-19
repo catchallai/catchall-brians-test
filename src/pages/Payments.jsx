@@ -1,14 +1,31 @@
 import React, { useState, useMemo } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Plus, Search, DollarSign, TrendingUp, Filter, X, Download, Settings, FileText, CreditCard } from "lucide-react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Skeleton } from '@/components/ui/skeleton';
+import {
+  Plus,
+  Search,
+  DollarSign,
+  TrendingUp,
+  Filter,
+  X,
+  Download,
+  Settings,
+  FileText,
+  CreditCard,
+} from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import EmptyState from '@/components/ui/EmptyState';
 import PaymentModal from '@/components/modals/PaymentModal';
 import InvoiceModal from '@/components/modals/InvoiceModal';
@@ -33,7 +50,11 @@ export default function Payments() {
     queryKey: ['payments', user?.current_business_id],
     queryFn: async () => {
       if (!user?.current_business_id) return [];
-      return await base44.entities.Payment.filter({ business_id: user.current_business_id }, '-created_date', 200);
+      return await base44.entities.Payment.filter(
+        { business_id: user.current_business_id },
+        '-created_date',
+        200
+      );
     },
     enabled: !!user?.current_business_id,
   });
@@ -42,7 +63,11 @@ export default function Payments() {
     queryKey: ['invoices', user?.current_business_id],
     queryFn: async () => {
       if (!user?.current_business_id) return [];
-      return await base44.entities.Invoice.filter({ business_id: user.current_business_id }, '-created_date', 200);
+      return await base44.entities.Invoice.filter(
+        { business_id: user.current_business_id },
+        '-created_date',
+        200
+      );
     },
     enabled: !!user?.current_business_id,
   });
@@ -101,33 +126,35 @@ export default function Payments() {
   };
 
   const filteredPayments = useMemo(() => {
-    return payments.filter(payment => {
-      const matchesSearch = !searchTerm || 
+    return payments.filter((payment) => {
+      const matchesSearch =
+        !searchTerm ||
         payment.transaction_id?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         payment.paid_by?.toLowerCase().includes(searchTerm.toLowerCase());
-      
+
       const matchesStatus = statusFilter === 'all' || payment.status === statusFilter;
       return matchesSearch && matchesStatus;
     });
   }, [payments, searchTerm, statusFilter]);
 
   const filteredInvoices = useMemo(() => {
-    return invoices.filter(invoice => {
-      const matchesSearch = !searchTerm || 
+    return invoices.filter((invoice) => {
+      const matchesSearch =
+        !searchTerm ||
         invoice.invoice_number?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         invoice.title?.toLowerCase().includes(searchTerm.toLowerCase());
-      
+
       const matchesStatus = statusFilter === 'all' || invoice.status === statusFilter;
       return matchesSearch && matchesStatus;
     });
   }, [invoices, searchTerm, statusFilter]);
 
   const totalRevenue = payments
-    .filter(p => p.status === 'completed')
+    .filter((p) => p.status === 'completed')
     .reduce((sum, p) => sum + (p.amount || 0), 0);
 
   const pendingPayments = payments
-    .filter(p => p.status === 'pending')
+    .filter((p) => p.status === 'pending')
     .reduce((sum, p) => sum + (p.amount || 0), 0);
 
   const paymentMethodColors = {
@@ -156,14 +183,29 @@ export default function Payments() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Payment Gateway</h1>
-          <p className="text-gray-500 mt-1">Manage payments, invoices, and gateway configurations</p>
+          <p className="text-gray-500 mt-1">
+            Manage payments, invoices, and gateway configurations
+          </p>
         </div>
         <div className="flex gap-2">
-          <Button onClick={() => { setEditingInvoice(null); setShowInvoiceModal(true); }} variant="outline" className="gap-2">
+          <Button
+            onClick={() => {
+              setEditingInvoice(null);
+              setShowInvoiceModal(true);
+            }}
+            variant="outline"
+            className="gap-2"
+          >
             <FileText className="w-4 h-4" />
             New Invoice
           </Button>
-          <Button onClick={() => { setEditingPayment(null); setShowPaymentModal(true); }} className="gap-2 bg-violet-600 hover:bg-violet-700">
+          <Button
+            onClick={() => {
+              setEditingPayment(null);
+              setShowPaymentModal(true);
+            }}
+            className="gap-2 bg-violet-600 hover:bg-violet-700"
+          >
             <Plus className="w-4 h-4" />
             Record Payment
           </Button>
@@ -177,7 +219,11 @@ export default function Payments() {
             <div>
               <p className="text-sm text-gray-500 mb-1">Total Revenue</p>
               <p className="text-3xl font-bold text-gray-900 dark:text-white">
-                ${totalRevenue.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
+                $
+                {totalRevenue.toLocaleString('en-US', {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                })}
               </p>
             </div>
             <div className="p-3 bg-green-100 dark:bg-green-900/30 rounded-lg">
@@ -191,7 +237,11 @@ export default function Payments() {
             <div>
               <p className="text-sm text-gray-500 mb-1">Pending Payments</p>
               <p className="text-3xl font-bold text-gray-900 dark:text-white">
-                ${pendingPayments.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
+                $
+                {pendingPayments.toLocaleString('en-US', {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                })}
               </p>
             </div>
             <div className="p-3 bg-yellow-100 dark:bg-yellow-900/30 rounded-lg">
@@ -246,7 +296,7 @@ export default function Payments() {
                 />
               </div>
               <Button
-                variant={showFilters ? "default" : "outline"}
+                variant={showFilters ? 'default' : 'outline'}
                 onClick={() => setShowFilters(!showFilters)}
                 className="gap-2"
               >
@@ -259,11 +309,7 @@ export default function Payments() {
               <Card className="p-4 space-y-4">
                 <div className="flex items-center justify-between">
                   <h3 className="font-semibold">Filter Options</h3>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setStatusFilter('all')}
-                  >
+                  <Button variant="ghost" size="sm" onClick={() => setStatusFilter('all')}>
                     <X className="w-4 h-4 mr-1" />
                     Clear
                   </Button>
@@ -297,7 +343,10 @@ export default function Payments() {
               title="No payments yet"
               description="Record your first payment transaction."
               actionLabel="Record Payment"
-              onAction={() => { setEditingPayment(null); setShowPaymentModal(true); }}
+              onAction={() => {
+                setEditingPayment(null);
+                setShowPaymentModal(true);
+              }}
             />
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -306,13 +355,11 @@ export default function Payments() {
                   <div className="flex items-start justify-between mb-3">
                     <div>
                       <h3 className="font-semibold text-gray-900 dark:text-white">
-                        ${payment.amount.toLocaleString('en-US', {minimumFractionDigits: 2})}
+                        ${payment.amount.toLocaleString('en-US', { minimumFractionDigits: 2 })}
                       </h3>
                       <p className="text-sm text-gray-500">{payment.paid_by || 'N/A'}</p>
                     </div>
-                    <Badge className={statusColors[payment.status]}>
-                      {payment.status}
-                    </Badge>
+                    <Badge className={statusColors[payment.status]}>{payment.status}</Badge>
                   </div>
 
                   <Badge className={paymentMethodColors[payment.payment_method]}>
@@ -358,7 +405,10 @@ export default function Payments() {
               title="No invoices yet"
               description="Create your first invoice to get started."
               actionLabel="New Invoice"
-              onAction={() => { setEditingInvoice(null); setShowInvoiceModal(true); }}
+              onAction={() => {
+                setEditingInvoice(null);
+                setShowInvoiceModal(true);
+              }}
             />
           ) : (
             <div className="space-y-3">
@@ -381,10 +431,12 @@ export default function Payments() {
                     </div>
                     <div className="text-right">
                       <p className="text-lg font-bold text-gray-900 dark:text-white">
-                        ${invoice.total_amount.toLocaleString('en-US', {minimumFractionDigits: 2})}
+                        $
+                        {invoice.total_amount.toLocaleString('en-US', { minimumFractionDigits: 2 })}
                       </p>
                       <p className="text-xs text-gray-500">
-                        Paid: ${invoice.amount_paid.toLocaleString('en-US', {minimumFractionDigits: 2})}
+                        Paid: $
+                        {invoice.amount_paid.toLocaleString('en-US', { minimumFractionDigits: 2 })}
                       </p>
                     </div>
                   </div>
@@ -401,11 +453,7 @@ export default function Payments() {
                     >
                       Edit
                     </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="gap-2"
-                    >
+                    <Button variant="outline" size="sm" className="gap-2">
                       <Download className="w-4 h-4" />
                       PDF
                     </Button>
@@ -425,7 +473,10 @@ export default function Payments() {
       {/* Modals */}
       <PaymentModal
         open={showPaymentModal}
-        onClose={() => { setShowPaymentModal(false); setEditingPayment(null); }}
+        onClose={() => {
+          setShowPaymentModal(false);
+          setEditingPayment(null);
+        }}
         payment={editingPayment}
         contacts={contacts}
         invoices={invoices}
@@ -435,7 +486,10 @@ export default function Payments() {
 
       <InvoiceModal
         open={showInvoiceModal}
-        onClose={() => { setShowInvoiceModal(false); setEditingInvoice(null); }}
+        onClose={() => {
+          setShowInvoiceModal(false);
+          setEditingInvoice(null);
+        }}
         invoice={editingInvoice}
         contacts={contacts}
         onSave={handleInvoiceSave}

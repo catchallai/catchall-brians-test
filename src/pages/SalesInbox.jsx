@@ -1,18 +1,29 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { 
-  Mail, Search, Flag, Reply, CheckCircle, Circle, 
-  User, Clock, Paperclip, Star, Archive, Trash2,
-  ListTodo, MoreVertical
-} from "lucide-react";
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import {
+  Mail,
+  Search,
+  Flag,
+  Reply,
+  CheckCircle,
+  Circle,
+  User,
+  Clock,
+  Paperclip,
+  Star,
+  Archive,
+  Trash2,
+  ListTodo,
+  MoreVertical,
+} from 'lucide-react';
 import { format } from 'date-fns';
 import { useToast } from '@/components/ui/toast-provider';
 import {
@@ -20,9 +31,15 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Textarea } from "@/components/ui/textarea";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+} from '@/components/ui/dropdown-menu';
+import { Textarea } from '@/components/ui/textarea';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog';
 import TaskModal from '@/components/modals/TaskModal';
 
 export default function SalesInbox() {
@@ -46,7 +63,11 @@ export default function SalesInbox() {
       if (filterStatus === 'all') {
         return await base44.entities.SalesEmail.list('-received_date', 200);
       }
-      return await base44.entities.SalesEmail.filter({ status: filterStatus }, '-received_date', 200);
+      return await base44.entities.SalesEmail.filter(
+        { status: filterStatus },
+        '-received_date',
+        200
+      );
     },
   });
 
@@ -64,7 +85,7 @@ export default function SalesInbox() {
 
   const sendReplyMutation = useMutation({
     mutationFn: async ({ emailId, content }) => {
-      const email = emails.find(e => e.id === emailId);
+      const email = emails.find((e) => e.id === emailId);
       await base44.integrations.Core.SendEmail({
         to: email.from_email,
         subject: `Re: ${email.subject}`,
@@ -72,7 +93,7 @@ export default function SalesInbox() {
       });
       await base44.entities.SalesEmail.update(emailId, {
         is_replied: true,
-        status: 'closed'
+        status: 'closed',
       });
     },
     onSuccess: () => {
@@ -89,7 +110,7 @@ export default function SalesInbox() {
     if (!email.is_read) {
       updateEmailMutation.mutate({
         id: email.id,
-        data: { is_read: true }
+        data: { is_read: true },
       });
     }
   };
@@ -97,7 +118,7 @@ export default function SalesInbox() {
   const handleFlag = (email) => {
     updateEmailMutation.mutate({
       id: email.id,
-      data: { is_flagged: !email.is_flagged }
+      data: { is_flagged: !email.is_flagged },
     });
   };
 
@@ -109,7 +130,7 @@ export default function SalesInbox() {
     if (!replyContent.trim()) return;
     sendReplyMutation.mutate({
       emailId: selectedEmail.id,
-      content: replyContent
+      content: replyContent,
     });
   };
 
@@ -122,17 +143,18 @@ export default function SalesInbox() {
     setShowTaskModal(false);
   };
 
-  const filteredEmails = emails.filter(email => {
-    const matchesSearch = !searchTerm || 
+  const filteredEmails = emails.filter((email) => {
+    const matchesSearch =
+      !searchTerm ||
       email.from_email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       email.from_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       email.subject?.toLowerCase().includes(searchTerm.toLowerCase());
     return matchesSearch;
   });
 
-  const unreadCount = emails.filter(e => !e.is_read).length;
-  const flaggedCount = emails.filter(e => e.is_flagged).length;
-  const newCount = emails.filter(e => e.status === 'new').length;
+  const unreadCount = emails.filter((e) => !e.is_read).length;
+  const flaggedCount = emails.filter((e) => e.is_flagged).length;
+  const newCount = emails.filter((e) => e.status === 'new').length;
 
   if (isLoading) {
     return (
@@ -254,15 +276,21 @@ export default function SalesInbox() {
                       </Avatar>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-start justify-between gap-2">
-                          <p className={`text-sm truncate ${!email.is_read ? 'font-semibold' : 'font-medium'} text-gray-900 dark:text-white`}>
+                          <p
+                            className={`text-sm truncate ${!email.is_read ? 'font-semibold' : 'font-medium'} text-gray-900 dark:text-white`}
+                          >
                             {email.from_name || email.from_email}
                           </p>
                           <div className="flex items-center gap-1 flex-shrink-0">
-                            {email.is_flagged && <Flag className="w-3 h-3 text-amber-500 fill-amber-500" />}
+                            {email.is_flagged && (
+                              <Flag className="w-3 h-3 text-amber-500 fill-amber-500" />
+                            )}
                             {email.is_replied && <Reply className="w-3 h-3 text-green-500" />}
                           </div>
                         </div>
-                        <p className={`text-sm truncate ${!email.is_read ? 'font-medium' : ''} text-gray-700 dark:text-gray-300`}>
+                        <p
+                          className={`text-sm truncate ${!email.is_read ? 'font-medium' : ''} text-gray-700 dark:text-gray-300`}
+                        >
                           {email.subject}
                         </p>
                         <p className="text-xs text-gray-500 truncate mt-1">
@@ -270,7 +298,10 @@ export default function SalesInbox() {
                         </p>
                         <div className="flex items-center gap-2 mt-2">
                           <span className="text-xs text-gray-400">
-                            {format(new Date(email.received_date || email.created_date), 'MMM d, h:mm a')}
+                            {format(
+                              new Date(email.received_date || email.created_date),
+                              'MMM d, h:mm a'
+                            )}
                           </span>
                           {email.attachments?.length > 0 && (
                             <Paperclip className="w-3 h-3 text-gray-400" />
@@ -297,7 +328,9 @@ export default function SalesInbox() {
                       <div className="flex items-center gap-2">
                         <Avatar className="w-8 h-8">
                           <AvatarFallback className="bg-violet-100 dark:bg-violet-900 text-violet-600 dark:text-violet-300">
-                            {selectedEmail.from_name?.[0] || selectedEmail.from_email?.[0]?.toUpperCase() || '?'}
+                            {selectedEmail.from_name?.[0] ||
+                              selectedEmail.from_email?.[0]?.toUpperCase() ||
+                              '?'}
                           </AvatarFallback>
                         </Avatar>
                         <div>
@@ -308,7 +341,12 @@ export default function SalesInbox() {
                         </div>
                       </div>
                       <span>•</span>
-                      <span>{format(new Date(selectedEmail.received_date || selectedEmail.created_date), 'MMM d, yyyy h:mm a')}</span>
+                      <span>
+                        {format(
+                          new Date(selectedEmail.received_date || selectedEmail.created_date),
+                          'MMM d, yyyy h:mm a'
+                        )}
+                      </span>
                     </div>
                   </div>
 
@@ -323,7 +361,14 @@ export default function SalesInbox() {
                         <Flag className="w-4 h-4 mr-2" />
                         {selectedEmail.is_flagged ? 'Unflag' : 'Flag'}
                       </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => updateEmailMutation.mutate({ id: selectedEmail.id, data: { status: 'closed' } })}>
+                      <DropdownMenuItem
+                        onClick={() =>
+                          updateEmailMutation.mutate({
+                            id: selectedEmail.id,
+                            data: { status: 'closed' },
+                          })
+                        }
+                      >
                         <Archive className="w-4 h-4 mr-2" />
                         Archive
                       </DropdownMenuItem>
@@ -363,12 +408,19 @@ export default function SalesInbox() {
                 {/* Attachments */}
                 {selectedEmail.attachments?.length > 0 && (
                   <div className="mt-4">
-                    <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Attachments</h4>
+                    <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Attachments
+                    </h4>
                     <div className="space-y-2">
                       {selectedEmail.attachments.map((attachment, idx) => (
-                        <div key={idx} className="flex items-center gap-2 p-2 bg-gray-50 dark:bg-gray-800 rounded">
+                        <div
+                          key={idx}
+                          className="flex items-center gap-2 p-2 bg-gray-50 dark:bg-gray-800 rounded"
+                        >
                           <Paperclip className="w-4 h-4 text-gray-400" />
-                          <span className="text-sm text-gray-700 dark:text-gray-300">{attachment.filename}</span>
+                          <span className="text-sm text-gray-700 dark:text-gray-300">
+                            {attachment.filename}
+                          </span>
                         </div>
                       ))}
                     </div>
@@ -393,7 +445,9 @@ export default function SalesInbox() {
       <Dialog open={showReplyModal} onOpenChange={setShowReplyModal}>
         <DialogContent className="sm:max-w-2xl">
           <DialogHeader>
-            <DialogTitle>Reply to {selectedEmail?.from_name || selectedEmail?.from_email}</DialogTitle>
+            <DialogTitle>
+              Reply to {selectedEmail?.from_name || selectedEmail?.from_email}
+            </DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div>
@@ -410,7 +464,7 @@ export default function SalesInbox() {
             <Button variant="outline" onClick={() => setShowReplyModal(false)}>
               Cancel
             </Button>
-            <Button 
+            <Button
               onClick={handleSendReply}
               disabled={!replyContent.trim() || sendReplyMutation.isPending}
               className="bg-violet-600 hover:bg-violet-700"

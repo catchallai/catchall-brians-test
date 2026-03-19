@@ -10,7 +10,7 @@ Deno.serve(async (req) => {
     }
 
     const { proposalId } = await req.json();
-    
+
     const proposal = await base44.entities.Proposal.filter({ id: proposalId });
     if (!proposal.length) {
       return Response.json({ error: 'Proposal not found' }, { status: 404 });
@@ -26,7 +26,7 @@ Deno.serve(async (req) => {
 
     // Generate PDF first
     const pdfResponse = await base44.functions.invoke('generateProposalPdf', { proposalId });
-    
+
     // Create a download link (in production, you'd upload this to storage)
     const proposalLink = `${Deno.env.get('BASE_URL') || 'https://app.base44.com'}/proposals/${proposalId}`;
 
@@ -51,13 +51,13 @@ ${user.full_name}
 SyberJet Aircraft Corporation
 
 ---
-This is an automated email from SyberJet's CRM system.`
+This is an automated email from SyberJet's CRM system.`,
     });
 
     // Update proposal status
     await base44.entities.Proposal.update(proposalId, {
       status: 'sent',
-      sent_date: new Date().toISOString()
+      sent_date: new Date().toISOString(),
     });
 
     return Response.json({ success: true, message: 'Proposal sent successfully' });

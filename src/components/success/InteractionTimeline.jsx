@@ -1,11 +1,20 @@
 import React from 'react';
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { 
-  MessageSquare, Phone, Video, Mail, AlertTriangle, 
-  ThumbsUp, ThumbsDown, Minus, Calendar, Pencil, TrendingUp 
-} from "lucide-react";
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import {
+  MessageSquare,
+  Phone,
+  Video,
+  Mail,
+  AlertTriangle,
+  ThumbsUp,
+  ThumbsDown,
+  Minus,
+  Calendar,
+  Pencil,
+  TrendingUp,
+} from 'lucide-react';
 
 const typeIcons = {
   check_in: MessageSquare,
@@ -15,24 +24,24 @@ const typeIcons = {
   escalation: AlertTriangle,
   feedback: MessageSquare,
   renewal: Calendar,
-  expansion: TrendingUp
+  expansion: TrendingUp,
 };
 
 const sentimentConfig = {
   positive: { icon: ThumbsUp, bg: 'bg-emerald-100', text: 'text-emerald-700' },
   neutral: { icon: Minus, bg: 'bg-gray-100', text: 'text-gray-700' },
-  negative: { icon: ThumbsDown, bg: 'bg-red-100', text: 'text-red-700' }
+  negative: { icon: ThumbsDown, bg: 'bg-red-100', text: 'text-red-700' },
 };
 
 export default function InteractionTimeline({ interactions, contacts, onEdit }) {
-  const sortedInteractions = [...interactions].sort((a, b) => 
-    new Date(b.interaction_date) - new Date(a.interaction_date)
+  const sortedInteractions = [...interactions].sort(
+    (a, b) => new Date(b.interaction_date) - new Date(a.interaction_date)
   );
 
   return (
     <div className="space-y-3">
-      {sortedInteractions.map(interaction => {
-        const contact = contacts.find(c => c.id === interaction.contact_id);
+      {sortedInteractions.map((interaction) => {
+        const contact = contacts.find((c) => c.id === interaction.contact_id);
         const TypeIcon = typeIcons[interaction.interaction_type] || MessageSquare;
         const sentiment = sentimentConfig[interaction.sentiment] || sentimentConfig.neutral;
         const SentimentIcon = sentiment.icon;
@@ -59,17 +68,13 @@ export default function InteractionTimeline({ interactions, contacts, onEdit }) 
                       </Badge>
                     </div>
                     <p className="text-xs text-gray-500">
-                      {new Date(interaction.interaction_date).toLocaleString()} 
+                      {new Date(interaction.interaction_date).toLocaleString()}
                       {interaction.duration_minutes && ` • ${interaction.duration_minutes} min`}
                       {interaction.csm_name && ` • ${interaction.csm_name}`}
                     </p>
                   </div>
                 </div>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => onEdit(interaction)}
-                >
+                <Button variant="ghost" size="sm" onClick={() => onEdit(interaction)}>
                   <Pencil className="w-4 h-4" />
                 </Button>
               </div>

@@ -1,25 +1,31 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { 
-  Plus, 
-  Search, 
-  Globe, 
-  Loader2, 
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
+  Plus,
+  Search,
+  Globe,
+  Loader2,
   ExternalLink,
   Bookmark,
   BookmarkCheck,
   Trash2,
   X,
-  RefreshCw
-} from "lucide-react";
+  RefreshCw,
+} from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 
 const contentTypes = {
@@ -29,7 +35,7 @@ const contentTypes = {
   forum: { label: 'Forum', color: 'bg-amber-100 text-amber-700' },
   social: { label: 'Social', color: 'bg-pink-100 text-pink-700' },
   website: { label: 'Website', color: 'bg-gray-100 text-gray-700' },
-  other: { label: 'Other', color: 'bg-gray-100 text-gray-700' }
+  other: { label: 'Other', color: 'bg-gray-100 text-gray-700' },
 };
 
 export default function WebCrawler() {
@@ -70,10 +76,10 @@ export default function WebCrawler() {
 
   const crawlWeb = async () => {
     if (keywords.length === 0) return;
-    
+
     setCrawling(true);
-    
-    for (const keyword of keywords.filter(k => k.is_active)) {
+
+    for (const keyword of keywords.filter((k) => k.is_active)) {
       const searchResults = await base44.integrations.Core.InvokeLLM({
         prompt: `Search the entire web for "${keyword.keyword}". Find recent and relevant web pages, articles, blog posts, news, forum discussions, and any other content mentioning this keyword.
         
@@ -94,31 +100,31 @@ export default function WebCrawler() {
         - Approximate date if available`,
         add_context_from_internet: true,
         response_json_schema: {
-          type: "object",
+          type: 'object',
           properties: {
             results: {
-              type: "array",
+              type: 'array',
               items: {
-                type: "object",
+                type: 'object',
                 properties: {
-                  title: { type: "string" },
-                  url: { type: "string" },
-                  snippet: { type: "string" },
-                  source_domain: { type: "string" },
-                  content_type: { type: "string" },
-                  publish_date: { type: "string" }
-                }
-              }
-            }
-          }
-        }
+                  title: { type: 'string' },
+                  url: { type: 'string' },
+                  snippet: { type: 'string' },
+                  source_domain: { type: 'string' },
+                  content_type: { type: 'string' },
+                  publish_date: { type: 'string' },
+                },
+              },
+            },
+          },
+        },
       });
 
       let newCount = 0;
       if (searchResults.results?.length > 0) {
         for (const result of searchResults.results) {
-          const exists = results.some(r => r.url === result.url);
-          
+          const exists = results.some((r) => r.url === result.url);
+
           if (!exists && result.title && result.url) {
             await base44.entities.WebCrawlResult.create({
               keyword_id: keyword.id,
@@ -126,9 +132,18 @@ export default function WebCrawler() {
               url: result.url,
               snippet: result.snippet,
               source_domain: result.source_domain || new URL(result.url).hostname,
-              content_type: ['article', 'blog', 'news', 'forum', 'social', 'website', 'other'].includes(result.content_type) 
-                ? result.content_type : 'website',
-              publish_date: result.publish_date
+              content_type: [
+                'article',
+                'blog',
+                'news',
+                'forum',
+                'social',
+                'website',
+                'other',
+              ].includes(result.content_type)
+                ? result.content_type
+                : 'website',
+              publish_date: result.publish_date,
             });
             newCount++;
           }
@@ -137,7 +152,7 @@ export default function WebCrawler() {
 
       await base44.entities.CrawlKeyword.update(keyword.id, {
         last_crawled: new Date().toISOString(),
-        results_count: (keyword.results_count || 0) + newCount
+        results_count: (keyword.results_count || 0) + newCount,
       });
     }
 
@@ -146,8 +161,9 @@ export default function WebCrawler() {
     setCrawling(false);
   };
 
-  const filteredResults = results.filter(r => {
-    const matchesSearch = !searchTerm || 
+  const filteredResults = results.filter((r) => {
+    const matchesSearch =
+      !searchTerm ||
       r.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       r.snippet?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       r.source_domain?.toLowerCase().includes(searchTerm.toLowerCase());
@@ -156,7 +172,7 @@ export default function WebCrawler() {
     return matchesSearch && matchesKeyword && matchesType;
   });
 
-  const getKeywordName = (id) => keywords.find(k => k.id === id)?.keyword || '';
+  const getKeywordName = (id) => keywords.find((k) => k.id === id)?.keyword || '';
 
   const isLoading = loadingKeywords || loadingResults;
 
@@ -165,7 +181,9 @@ export default function WebCrawler() {
       <div className="p-6 lg:p-8 space-y-6 min-h-screen">
         <Skeleton className="h-10 w-64" />
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {[...Array(3)].map((_, i) => <Skeleton key={i} className="h-24" />)}
+          {[...Array(3)].map((_, i) => (
+            <Skeleton key={i} className="h-24" />
+          ))}
         </div>
       </div>
     );
@@ -179,8 +197,8 @@ export default function WebCrawler() {
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Web Crawler</h1>
           <p className="text-gray-500 mt-1">Search the entire web for your keywords</p>
         </div>
-        <Button 
-          onClick={crawlWeb} 
+        <Button
+          onClick={crawlWeb}
           className="gap-2 bg-violet-600 hover:bg-violet-700"
           disabled={crawling || keywords.length === 0}
         >
@@ -228,7 +246,7 @@ export default function WebCrawler() {
                 <BookmarkCheck className="w-5 h-5" />
               </div>
               <div>
-                <p className="text-2xl font-bold">{results.filter(r => r.is_saved).length}</p>
+                <p className="text-2xl font-bold">{results.filter((r) => r.is_saved).length}</p>
                 <p className="text-sm text-gray-500">Saved</p>
               </div>
             </div>
@@ -241,7 +259,9 @@ export default function WebCrawler() {
                 <Globe className="w-5 h-5" />
               </div>
               <div>
-                <p className="text-2xl font-bold">{new Set(results.map(r => r.source_domain)).size}</p>
+                <p className="text-2xl font-bold">
+                  {new Set(results.map((r) => r.source_domain)).size}
+                </p>
                 <p className="text-sm text-gray-500">Unique Sources</p>
               </div>
             </div>
@@ -273,8 +293,10 @@ export default function WebCrawler() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Keywords</SelectItem>
-                {keywords.map(k => (
-                  <SelectItem key={k.id} value={k.id}>{k.keyword}</SelectItem>
+                {keywords.map((k) => (
+                  <SelectItem key={k.id} value={k.id}>
+                    {k.keyword}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -285,7 +307,9 @@ export default function WebCrawler() {
               <SelectContent>
                 <SelectItem value="all">All Types</SelectItem>
                 {Object.entries(contentTypes).map(([key, { label }]) => (
-                  <SelectItem key={key} value={key}>{label}</SelectItem>
+                  <SelectItem key={key} value={key}>
+                    {label}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -297,8 +321,8 @@ export default function WebCrawler() {
                 <Globe className="w-12 h-12 mx-auto text-gray-300 mb-4" />
                 <h3 className="text-lg font-medium text-gray-900 mb-2">No results found</h3>
                 <p className="text-gray-500 mb-4">
-                  {keywords.length === 0 
-                    ? "Add keywords to search for first."
+                  {keywords.length === 0
+                    ? 'Add keywords to search for first.'
                     : "Click 'Crawl Web' to search the internet for your keywords."}
                 </p>
               </CardContent>
@@ -308,18 +332,31 @@ export default function WebCrawler() {
               {filteredResults.map((result) => {
                 const typeConfig = contentTypes[result.content_type] || contentTypes.other;
                 return (
-                  <Card key={result.id} className="border-0 shadow-sm hover:shadow-md transition-all">
+                  <Card
+                    key={result.id}
+                    className="border-0 shadow-sm hover:shadow-md transition-all"
+                  >
                     <CardContent className="p-4">
                       <div className="flex items-start justify-between gap-4">
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-1 flex-wrap">
-                            <Badge className={`text-xs ${typeConfig.color}`}>{typeConfig.label}</Badge>
+                            <Badge className={`text-xs ${typeConfig.color}`}>
+                              {typeConfig.label}
+                            </Badge>
                             <span className="text-xs text-gray-400">{result.source_domain}</span>
-                            <Badge variant="outline" className="text-xs bg-violet-50 text-violet-700">
+                            <Badge
+                              variant="outline"
+                              className="text-xs bg-violet-50 text-violet-700"
+                            >
                               {getKeywordName(result.keyword_id)}
                             </Badge>
                           </div>
-                          <a href={result.url} target="_blank" rel="noopener noreferrer" className="hover:underline">
+                          <a
+                            href={result.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="hover:underline"
+                          >
                             <h3 className="font-semibold text-gray-900 mb-1">{result.title}</h3>
                           </a>
                           {result.snippet && (
@@ -332,14 +369,16 @@ export default function WebCrawler() {
                               <ExternalLink className="w-4 h-4" />
                             </Button>
                           </a>
-                          <Button 
-                            variant="ghost" 
+                          <Button
+                            variant="ghost"
                             size="icon"
                             className="h-8 w-8"
-                            onClick={() => updateResultMutation.mutate({ 
-                              id: result.id, 
-                              data: { is_saved: !result.is_saved } 
-                            })}
+                            onClick={() =>
+                              updateResultMutation.mutate({
+                                id: result.id,
+                                data: { is_saved: !result.is_saved },
+                              })
+                            }
                           >
                             {result.is_saved ? (
                               <BookmarkCheck className="w-4 h-4 text-violet-600" />
@@ -371,7 +410,7 @@ export default function WebCrawler() {
               }}
               className="max-w-md"
             />
-            <Button 
+            <Button
               onClick={() => createKeywordMutation.mutate({ keyword: newKeyword.trim() })}
               disabled={!newKeyword.trim() || createKeywordMutation.isPending}
             >
@@ -379,7 +418,7 @@ export default function WebCrawler() {
               Add
             </Button>
           </div>
-          
+
           {keywords.length === 0 ? (
             <Card className="glass-card rounded-2xl">
               <CardContent className="py-12 text-center">
@@ -399,12 +438,17 @@ export default function WebCrawler() {
                         <div className="flex items-center gap-3 mt-2 text-xs text-gray-500">
                           <span>{keyword.results_count || 0} results</span>
                           {keyword.last_crawled && (
-                            <span>Crawled {formatDistanceToNow(new Date(keyword.last_crawled), { addSuffix: true })}</span>
+                            <span>
+                              Crawled{' '}
+                              {formatDistanceToNow(new Date(keyword.last_crawled), {
+                                addSuffix: true,
+                              })}
+                            </span>
                           )}
                         </div>
                       </div>
-                      <Button 
-                        variant="ghost" 
+                      <Button
+                        variant="ghost"
                         size="icon"
                         className="text-red-500 hover:text-red-700"
                         onClick={() => deleteKeywordMutation.mutate(keyword.id)}

@@ -30,7 +30,8 @@ export default function NotificationManager({ user }) {
   // Fetch notifications for current user
   const { data: fetchedNotifications = [] } = useQuery({
     queryKey: ['notifications', user?.email],
-    queryFn: () => base44.entities.Notification.filter({ user_email: user?.email }, '-created_date', 50),
+    queryFn: () =>
+      base44.entities.Notification.filter({ user_email: user?.email }, '-created_date', 50),
     refetchInterval: 5000,
     enabled: !!user?.email,
   });
@@ -42,7 +43,7 @@ export default function NotificationManager({ user }) {
     const unsubscribe = base44.entities.Notification.subscribe((event) => {
       if (event.type === 'create' && event.data?.user_email === user.email) {
         const notification = event.data;
-        
+
         // Check if this is a mention notification and user has mentions enabled
         const isMention = notification.type === 'mention';
         if (isMention && !user?.mentions_enabled) return;
@@ -57,7 +58,7 @@ export default function NotificationManager({ user }) {
           playNotificationSound();
         }
 
-        setNotifications(prev => [notification, ...prev.slice(0, 9)]);
+        setNotifications((prev) => [notification, ...prev.slice(0, 9)]);
       }
     });
 
@@ -95,7 +96,7 @@ export default function NotificationManager({ user }) {
     await base44.entities.Notification.update(notificationId, { is_read: true });
   };
 
-  const unreadCount = fetchedNotifications.filter(n => !n.is_read).length;
+  const unreadCount = fetchedNotifications.filter((n) => !n.is_read).length;
 
   return (
     <div className="space-y-2 max-h-96 overflow-y-auto">
@@ -135,9 +136,7 @@ export default function NotificationManager({ user }) {
                     </span>
                   )}
                 </div>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                  {notification.body}
-                </p>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{notification.body}</p>
                 <div className="flex items-center gap-2 mt-2">
                   <p className="text-xs text-gray-500">
                     {notification.actor_name && `By ${notification.actor_name}`}

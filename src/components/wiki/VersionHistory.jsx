@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Clock, RotateCcw, FileText, GitCompare, AlertCircle } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Clock, RotateCcw, FileText, GitCompare, AlertCircle } from 'lucide-react';
 import { format } from 'date-fns';
 import DiffMatchPatch from 'diff-match-patch';
 import {
@@ -18,7 +18,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+} from '@/components/ui/alert-dialog';
 
 export default function VersionHistory({ open, onClose, pageId, onRevert }) {
   const [selectedVersion, setSelectedVersion] = useState(null);
@@ -32,7 +32,7 @@ export default function VersionHistory({ open, onClose, pageId, onRevert }) {
     queryFn: async () => {
       const allVersions = await base44.entities.WikiPageVersion.list();
       return allVersions
-        .filter(v => v.page_id === pageId)
+        .filter((v) => v.page_id === pageId)
         .sort((a, b) => b.version_number - a.version_number);
     },
     enabled: !!pageId && open,
@@ -54,15 +54,33 @@ export default function VersionHistory({ open, onClose, pageId, onRevert }) {
     const dmp = new DiffMatchPatch();
     const diff = dmp.diff_main(oldText, newText);
     dmp.diff_cleanupSemantic(diff);
-    
+
     return diff.map((part, index) => {
       const [operation, text] = part;
       if (operation === 0) {
-        return <span key={index} className="text-gray-700 dark:text-gray-300">{text}</span>;
+        return (
+          <span key={index} className="text-gray-700 dark:text-gray-300">
+            {text}
+          </span>
+        );
       } else if (operation === 1) {
-        return <span key={index} className="bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300">{text}</span>;
+        return (
+          <span
+            key={index}
+            className="bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300"
+          >
+            {text}
+          </span>
+        );
       } else {
-        return <span key={index} className="bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300 line-through">{text}</span>;
+        return (
+          <span
+            key={index}
+            className="bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300 line-through"
+          >
+            {text}
+          </span>
+        );
       }
     });
   };
@@ -99,7 +117,9 @@ export default function VersionHistory({ open, onClose, pageId, onRevert }) {
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <div className="flex items-center gap-3 mb-2">
-                          <Badge variant="outline" className="font-mono">v{version.version_number}</Badge>
+                          <Badge variant="outline" className="font-mono">
+                            v{version.version_number}
+                          </Badge>
                           {idx === 0 && <Badge className="bg-green-500">Current</Badge>}
                           <span className="text-sm text-gray-500">
                             {format(new Date(version.created_date), 'MMM d, yyyy h:mm a')}
@@ -114,7 +134,9 @@ export default function VersionHistory({ open, onClose, pageId, onRevert }) {
                         {version.change_summary && (
                           <div className="flex items-start gap-2 mt-2 p-2 bg-blue-50 dark:bg-blue-900/20 rounded text-sm">
                             <AlertCircle className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
-                            <p className="text-blue-900 dark:text-blue-300">{version.change_summary}</p>
+                            <p className="text-blue-900 dark:text-blue-300">
+                              {version.change_summary}
+                            </p>
                           </div>
                         )}
                       </div>
@@ -122,7 +144,9 @@ export default function VersionHistory({ open, onClose, pageId, onRevert }) {
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => setSelectedVersion(selectedVersion?.id === version.id ? null : version)}
+                          onClick={() =>
+                            setSelectedVersion(selectedVersion?.id === version.id ? null : version)
+                          }
                         >
                           <FileText className="w-4 h-4 mr-1" />
                           {selectedVersion?.id === version.id ? 'Hide' : 'Preview'}
@@ -143,7 +167,7 @@ export default function VersionHistory({ open, onClose, pageId, onRevert }) {
                     {/* Version Preview */}
                     {selectedVersion?.id === version.id && (
                       <Card className="p-4 mt-4 bg-gray-50 dark:bg-gray-800 max-h-96 overflow-y-auto">
-                        <div 
+                        <div
                           className="prose dark:prose-invert max-w-none prose-sm"
                           dangerouslySetInnerHTML={{ __html: version.content }}
                         />
@@ -162,12 +186,12 @@ export default function VersionHistory({ open, onClose, pageId, onRevert }) {
                     className="w-full p-2 border rounded-lg bg-white dark:bg-gray-800"
                     value={compareFrom?.id || ''}
                     onChange={(e) => {
-                      const version = versions.find(v => v.id === e.target.value);
+                      const version = versions.find((v) => v.id === e.target.value);
                       setCompareFrom(version);
                     }}
                   >
                     <option value="">Select version...</option>
-                    {versions.map(v => (
+                    {versions.map((v) => (
                       <option key={v.id} value={v.id}>
                         v{v.version_number} - {format(new Date(v.created_date), 'MMM d, h:mm a')}
                       </option>
@@ -180,12 +204,12 @@ export default function VersionHistory({ open, onClose, pageId, onRevert }) {
                     className="w-full p-2 border rounded-lg bg-white dark:bg-gray-800"
                     value={compareTo?.id || ''}
                     onChange={(e) => {
-                      const version = versions.find(v => v.id === e.target.value);
+                      const version = versions.find((v) => v.id === e.target.value);
                       setCompareTo(version);
                     }}
                   >
                     <option value="">Select version...</option>
-                    {versions.map(v => (
+                    {versions.map((v) => (
                       <option key={v.id} value={v.id}>
                         v{v.version_number} - {format(new Date(v.created_date), 'MMM d, h:mm a')}
                       </option>
@@ -263,7 +287,9 @@ export default function VersionHistory({ open, onClose, pageId, onRevert }) {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={() => revertVersion && revertMutation.mutate(revertVersion)}>
+            <AlertDialogAction
+              onClick={() => revertVersion && revertMutation.mutate(revertVersion)}
+            >
               Revert to This Version
             </AlertDialogAction>
           </AlertDialogFooter>

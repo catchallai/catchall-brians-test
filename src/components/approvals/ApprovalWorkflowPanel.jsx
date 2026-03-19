@@ -1,24 +1,59 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { Badge } from "@/components/ui/badge";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
+import { Badge } from '@/components/ui/badge';
 import {
-  CheckCircle2, XCircle, Clock, RotateCcw, Send, ChevronRight,
-  User, Loader2, AlertTriangle, ShieldCheck, MessageSquare
-} from "lucide-react";
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
+  CheckCircle2,
+  XCircle,
+  Clock,
+  RotateCcw,
+  Send,
+  ChevronRight,
+  User,
+  Loader2,
+  AlertTriangle,
+  ShieldCheck,
+  MessageSquare,
+} from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 
 const STAGE_CONFIG = {
-  draft:                  { label: 'Draft',            color: 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300', icon: Clock },
-  pending_review:         { label: 'Content Review',   color: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-400', icon: Clock },
-  changes_requested:      { label: 'Changes Needed',   color: 'bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-400', icon: RotateCcw },
-  pending_brand_approval: { label: 'Brand Approval',   color: 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-400', icon: ShieldCheck },
-  approved:               { label: 'Approved',         color: 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400', icon: CheckCircle2 },
-  archived:               { label: 'Archived',         color: 'bg-gray-100 text-gray-500', icon: Clock },
-  rejected:               { label: 'Rejected',         color: 'bg-red-100 text-red-700', icon: XCircle },
+  draft: {
+    label: 'Draft',
+    color: 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300',
+    icon: Clock,
+  },
+  pending_review: {
+    label: 'Content Review',
+    color: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-400',
+    icon: Clock,
+  },
+  changes_requested: {
+    label: 'Changes Needed',
+    color: 'bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-400',
+    icon: RotateCcw,
+  },
+  pending_brand_approval: {
+    label: 'Brand Approval',
+    color: 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-400',
+    icon: ShieldCheck,
+  },
+  approved: {
+    label: 'Approved',
+    color: 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400',
+    icon: CheckCircle2,
+  },
+  archived: { label: 'Archived', color: 'bg-gray-100 text-gray-500', icon: Clock },
+  rejected: { label: 'Rejected', color: 'bg-red-100 text-red-700', icon: XCircle },
 };
 
 const WORKFLOW_STEPS = ['draft', 'pending_review', 'pending_brand_approval', 'approved'];
@@ -64,39 +99,49 @@ export default function ApprovalWorkflowPanel({ item, entityName, queryKey, curr
   };
 
   const handleSubmitForReview = () =>
-    mutation.mutate(addEvent('submitted_for_review', {
-      status: 'pending_review',
-      submitted_by: currentUser?.email,
-      submitted_by_name: currentUser?.full_name,
-    }));
+    mutation.mutate(
+      addEvent('submitted_for_review', {
+        status: 'pending_review',
+        submitted_by: currentUser?.email,
+        submitted_by_name: currentUser?.full_name,
+      })
+    );
 
   const handleRequestChanges = () =>
-    mutation.mutate(addEvent('changes_requested', {
-      status: 'changes_requested',
-      rejection_reason: note,
-    }));
+    mutation.mutate(
+      addEvent('changes_requested', {
+        status: 'changes_requested',
+        rejection_reason: note,
+      })
+    );
 
   const handleApproveContent = () =>
-    mutation.mutate(addEvent('content_approved', {
-      status: 'pending_brand_approval',
-    }));
+    mutation.mutate(
+      addEvent('content_approved', {
+        status: 'pending_brand_approval',
+      })
+    );
 
   const handleBrandApprove = () =>
-    mutation.mutate(addEvent('brand_approved', {
-      status: 'approved',
-      approved_date: new Date().toISOString(),
-      brand_approver_email: currentUser?.email,
-      brand_approver_name: currentUser?.full_name,
-    }));
+    mutation.mutate(
+      addEvent('brand_approved', {
+        status: 'approved',
+        approved_date: new Date().toISOString(),
+        brand_approver_email: currentUser?.email,
+        brand_approver_name: currentUser?.full_name,
+      })
+    );
 
   const handleReject = () =>
-    mutation.mutate(addEvent('rejected', {
-      status: 'changes_requested',
-      rejection_reason: note,
-    }));
+    mutation.mutate(
+      addEvent('rejected', {
+        status: 'changes_requested',
+        rejection_reason: note,
+      })
+    );
 
   const handleAssignReviewer = (email) => {
-    const user = allUsers.find(u => u.email === email);
+    const user = allUsers.find((u) => u.email === email);
     mutation.mutate({
       assigned_reviewer_email: email,
       assigned_reviewer_name: user?.full_name || email,
@@ -125,7 +170,9 @@ export default function ApprovalWorkflowPanel({ item, entityName, queryKey, curr
           );
         })()}
         {item.approved_date && (
-          <span className="text-xs text-gray-400">Approved {formatDistanceToNow(new Date(item.approved_date), { addSuffix: true })}</span>
+          <span className="text-xs text-gray-400">
+            Approved {formatDistanceToNow(new Date(item.approved_date), { addSuffix: true })}
+          </span>
         )}
       </div>
 
@@ -137,11 +184,15 @@ export default function ApprovalWorkflowPanel({ item, entityName, queryKey, curr
           const current = stepIndex === i;
           return (
             <React.Fragment key={step}>
-              <div className={`flex items-center gap-1.5 px-2 py-1 rounded-md text-xs font-medium transition-all ${
-                done ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' :
-                current ? 'bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-400 ring-1 ring-violet-300' :
-                'bg-gray-50 text-gray-400 dark:bg-gray-800 dark:text-gray-600'
-              }`}>
+              <div
+                className={`flex items-center gap-1.5 px-2 py-1 rounded-md text-xs font-medium transition-all ${
+                  done
+                    ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+                    : current
+                      ? 'bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-400 ring-1 ring-violet-300'
+                      : 'bg-gray-50 text-gray-400 dark:bg-gray-800 dark:text-gray-600'
+                }`}
+              >
                 {done ? <CheckCircle2 className="w-3 h-3" /> : <Clock className="w-3 h-3" />}
                 {cfg.label}
               </div>
@@ -156,14 +207,18 @@ export default function ApprovalWorkflowPanel({ item, entityName, queryKey, curr
       {/* Assign Reviewer (admin) */}
       {isAdmin && item.status !== 'approved' && (
         <div className="space-y-1">
-          <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Assign Content Reviewer</p>
+          <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+            Assign Content Reviewer
+          </p>
           <Select value={item.assigned_reviewer_email || ''} onValueChange={handleAssignReviewer}>
             <SelectTrigger className="h-8 text-sm">
               <SelectValue placeholder="Select reviewer..." />
             </SelectTrigger>
             <SelectContent>
-              {allUsers.map(u => (
-                <SelectItem key={u.id} value={u.email}>{u.full_name || u.email}</SelectItem>
+              {allUsers.map((u) => (
+                <SelectItem key={u.id} value={u.email}>
+                  {u.full_name || u.email}
+                </SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -178,10 +233,12 @@ export default function ApprovalWorkflowPanel({ item, entityName, queryKey, curr
       {/* Note Input */}
       {item.status !== 'approved' && (
         <div className="space-y-1">
-          <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Note / Feedback</p>
+          <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+            Note / Feedback
+          </p>
           <Textarea
             value={note}
-            onChange={e => setNote(e.target.value)}
+            onChange={(e) => setNote(e.target.value)}
             placeholder="Add a note or feedback..."
             className="text-sm min-h-[70px] resize-none"
           />
@@ -194,12 +251,20 @@ export default function ApprovalWorkflowPanel({ item, entityName, queryKey, curr
 
         {/* Submitter actions */}
         {item.status === 'draft' && isSubmitter && (
-          <Button size="sm" onClick={handleSubmitForReview} className="bg-violet-600 hover:bg-violet-700 text-white gap-1.5">
+          <Button
+            size="sm"
+            onClick={handleSubmitForReview}
+            className="bg-violet-600 hover:bg-violet-700 text-white gap-1.5"
+          >
             <Send className="w-3.5 h-3.5" /> Submit for Review
           </Button>
         )}
         {item.status === 'changes_requested' && isSubmitter && (
-          <Button size="sm" onClick={handleSubmitForReview} className="bg-orange-500 hover:bg-orange-600 text-white gap-1.5">
+          <Button
+            size="sm"
+            onClick={handleSubmitForReview}
+            className="bg-orange-500 hover:bg-orange-600 text-white gap-1.5"
+          >
             <RotateCcw className="w-3.5 h-3.5" /> Resubmit
           </Button>
         )}
@@ -207,10 +272,19 @@ export default function ApprovalWorkflowPanel({ item, entityName, queryKey, curr
         {/* Content reviewer actions */}
         {item.status === 'pending_review' && isReviewer && (
           <>
-            <Button size="sm" onClick={handleApproveContent} className="bg-blue-600 hover:bg-blue-700 text-white gap-1.5">
+            <Button
+              size="sm"
+              onClick={handleApproveContent}
+              className="bg-blue-600 hover:bg-blue-700 text-white gap-1.5"
+            >
               <CheckCircle2 className="w-3.5 h-3.5" /> Approve Content
             </Button>
-            <Button size="sm" variant="outline" onClick={handleRequestChanges} className="text-orange-600 border-orange-200 gap-1.5">
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={handleRequestChanges}
+              className="text-orange-600 border-orange-200 gap-1.5"
+            >
               <RotateCcw className="w-3.5 h-3.5" /> Request Changes
             </Button>
           </>
@@ -219,10 +293,19 @@ export default function ApprovalWorkflowPanel({ item, entityName, queryKey, curr
         {/* Brand approver actions */}
         {item.status === 'pending_brand_approval' && isBrandApprover && (
           <>
-            <Button size="sm" onClick={handleBrandApprove} className="bg-green-600 hover:bg-green-700 text-white gap-1.5">
+            <Button
+              size="sm"
+              onClick={handleBrandApprove}
+              className="bg-green-600 hover:bg-green-700 text-white gap-1.5"
+            >
               <ShieldCheck className="w-3.5 h-3.5" /> Brand Approve
             </Button>
-            <Button size="sm" variant="outline" onClick={handleReject} className="text-red-600 border-red-200 gap-1.5">
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={handleReject}
+              className="text-red-600 border-red-200 gap-1.5"
+            >
               <XCircle className="w-3.5 h-3.5" /> Reject
             </Button>
           </>
@@ -244,12 +327,16 @@ export default function ApprovalWorkflowPanel({ item, entityName, queryKey, curr
                   </span>
                 </div>
                 <div className="flex-1 min-w-0">
-                  <span className="font-medium text-gray-700 dark:text-gray-300">{ev.by_name || ev.by_email}</span>
+                  <span className="font-medium text-gray-700 dark:text-gray-300">
+                    {ev.by_name || ev.by_email}
+                  </span>
                   <span className="text-gray-400 mx-1">·</span>
                   <span className="text-gray-500">{ev.action?.replace(/_/g, ' ')}</span>
                   {ev.note && <p className="text-gray-400 mt-0.5 italic">"{ev.note}"</p>}
                   <p className="text-gray-300 dark:text-gray-600 mt-0.5">
-                    {ev.timestamp ? formatDistanceToNow(new Date(ev.timestamp), { addSuffix: true }) : ''}
+                    {ev.timestamp
+                      ? formatDistanceToNow(new Date(ev.timestamp), { addSuffix: true })
+                      : ''}
                   </p>
                 </div>
               </div>

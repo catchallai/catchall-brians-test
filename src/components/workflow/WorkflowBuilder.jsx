@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, Trash2, Save, Loader2 } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Plus, Trash2, Save, Loader2 } from 'lucide-react';
 import WorkflowNodeEditor from './WorkflowNodeEditor';
 
 const TRIGGER_TYPES = [
@@ -13,7 +13,7 @@ const TRIGGER_TYPES = [
   { value: 'lifecycle_stage', label: 'Lifecycle Stage' },
   { value: 'renewal_date', label: 'Renewal Date' },
   { value: 'no_engagement', label: 'No Engagement' },
-  { value: 'support_spike', label: 'Support Spike' }
+  { value: 'support_spike', label: 'Support Spike' },
 ];
 
 const NODE_TYPES = [
@@ -21,22 +21,24 @@ const NODE_TYPES = [
   { value: 'create_task', label: '✓ Create Task' },
   { value: 'send_message', label: '💬 Send Message' },
   { value: 'create_alert', label: '⚠️ Create Alert' },
-  { value: 'wait', label: '⏱️ Wait' }
+  { value: 'wait', label: '⏱️ Wait' },
 ];
 
 export default function WorkflowBuilder({ workflow = null, onSave = null }) {
   const [name, setName] = useState(workflow?.name || '');
   const [description, setDescription] = useState(workflow?.description || '');
   const [triggerType, setTriggerType] = useState(workflow?.trigger_type || 'health_score');
-  const [triggerCondition, setTriggerCondition] = useState(workflow?.trigger_condition || {
-    metric: 'health_score',
-    operator: 'less_than',
-    value: 50
-  });
+  const [triggerCondition, setTriggerCondition] = useState(
+    workflow?.trigger_condition || {
+      metric: 'health_score',
+      operator: 'less_than',
+      value: 50,
+    }
+  );
   const [nodes, setNodes] = useState(workflow?.workflow_nodes || []);
   const [executionFreq, setExecutionFreq] = useState(workflow?.execution_frequency || 'once');
   const [editingNode, setEditingNode] = useState(null);
-  
+
   const queryClient = useQueryClient();
 
   const saveMutation = useMutation({
@@ -47,7 +49,7 @@ export default function WorkflowBuilder({ workflow = null, onSave = null }) {
         trigger_type: triggerType,
         trigger_condition: triggerCondition,
         workflow_nodes: nodes,
-        execution_frequency: executionFreq
+        execution_frequency: executionFreq,
       };
 
       if (workflow?.id) {
@@ -55,10 +57,10 @@ export default function WorkflowBuilder({ workflow = null, onSave = null }) {
       } else {
         await base44.entities.ProactiveEngagementWorkflow.create(data);
       }
-      
+
       queryClient.invalidateQueries({ queryKey: ['workflows'] });
       return true;
-    }
+    },
   });
 
   const addNode = () => {
@@ -67,19 +69,19 @@ export default function WorkflowBuilder({ workflow = null, onSave = null }) {
       order: nodes.length,
       node_type: 'send_email',
       config: {},
-      conditions: []
+      conditions: [],
     };
     setNodes([...nodes, newNode]);
     setEditingNode(newNode.id);
   };
 
   const updateNode = (nodeId, updatedNode) => {
-    setNodes(nodes.map(n => n.id === nodeId ? updatedNode : n));
+    setNodes(nodes.map((n) => (n.id === nodeId ? updatedNode : n)));
     setEditingNode(null);
   };
 
   const removeNode = (nodeId) => {
-    setNodes(nodes.filter(n => n.id !== nodeId));
+    setNodes(nodes.filter((n) => n.id !== nodeId));
   };
 
   const handleSave = () => {
@@ -98,7 +100,9 @@ export default function WorkflowBuilder({ workflow = null, onSave = null }) {
         </CardHeader>
         <CardContent className="space-y-4">
           <div>
-            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Workflow Name</label>
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+              Workflow Name
+            </label>
             <Input
               value={name}
               onChange={(e) => setName(e.target.value)}
@@ -108,7 +112,9 @@ export default function WorkflowBuilder({ workflow = null, onSave = null }) {
           </div>
 
           <div>
-            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Description</label>
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+              Description
+            </label>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
@@ -120,20 +126,26 @@ export default function WorkflowBuilder({ workflow = null, onSave = null }) {
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Trigger Type</label>
+              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                Trigger Type
+              </label>
               <select
                 value={triggerType}
                 onChange={(e) => setTriggerType(e.target.value)}
                 className="w-full mt-1 p-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm"
               >
-                {TRIGGER_TYPES.map(t => (
-                  <option key={t.value} value={t.value}>{t.label}</option>
+                {TRIGGER_TYPES.map((t) => (
+                  <option key={t.value} value={t.value}>
+                    {t.label}
+                  </option>
                 ))}
               </select>
             </div>
 
             <div>
-              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Execution Frequency</label>
+              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                Execution Frequency
+              </label>
               <select
                 value={executionFreq}
                 onChange={(e) => setExecutionFreq(e.target.value)}
@@ -148,18 +160,24 @@ export default function WorkflowBuilder({ workflow = null, onSave = null }) {
           </div>
 
           <div className="p-3 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800">
-            <div className="text-xs font-medium text-blue-900 dark:text-blue-200 mb-2">Trigger Condition</div>
+            <div className="text-xs font-medium text-blue-900 dark:text-blue-200 mb-2">
+              Trigger Condition
+            </div>
             <div className="grid grid-cols-3 gap-2">
               <input
                 type="text"
                 placeholder="Metric"
                 value={triggerCondition.metric}
-                onChange={(e) => setTriggerCondition({...triggerCondition, metric: e.target.value})}
+                onChange={(e) =>
+                  setTriggerCondition({ ...triggerCondition, metric: e.target.value })
+                }
                 className="px-2 py-1 rounded text-xs border border-blue-300 dark:border-blue-700 bg-white dark:bg-gray-800"
               />
               <select
                 value={triggerCondition.operator}
-                onChange={(e) => setTriggerCondition({...triggerCondition, operator: e.target.value})}
+                onChange={(e) =>
+                  setTriggerCondition({ ...triggerCondition, operator: e.target.value })
+                }
                 className="px-2 py-1 rounded text-xs border border-blue-300 dark:border-blue-700 bg-white dark:bg-gray-800"
               >
                 <option value="less_than">&lt;</option>
@@ -170,7 +188,9 @@ export default function WorkflowBuilder({ workflow = null, onSave = null }) {
                 type="text"
                 placeholder="Value"
                 value={triggerCondition.value}
-                onChange={(e) => setTriggerCondition({...triggerCondition, value: e.target.value})}
+                onChange={(e) =>
+                  setTriggerCondition({ ...triggerCondition, value: e.target.value })
+                }
                 className="px-2 py-1 rounded text-xs border border-blue-300 dark:border-blue-700 bg-white dark:bg-gray-800"
               />
             </div>
@@ -187,20 +207,35 @@ export default function WorkflowBuilder({ workflow = null, onSave = null }) {
         </CardHeader>
         <CardContent className="space-y-3">
           {nodes.length === 0 ? (
-            <p className="text-sm text-gray-500 text-center py-6">No actions added yet. Click "Add Action" to start.</p>
+            <p className="text-sm text-gray-500 text-center py-6">
+              No actions added yet. Click "Add Action" to start.
+            </p>
           ) : (
             <div className="space-y-2">
               {nodes.map((node, idx) => (
-                <div key={node.id} className="p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50">
+                <div
+                  key={node.id}
+                  className="p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50"
+                >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3 flex-1">
-                      <span className="text-xs font-semibold text-gray-400 bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded">{idx + 1}</span>
+                      <span className="text-xs font-semibold text-gray-400 bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded">
+                        {idx + 1}
+                      </span>
                       <div>
                         <p className="text-sm font-medium text-gray-900 dark:text-white">
-                          {NODE_TYPES.find(t => t.value === node.node_type)?.label}
+                          {NODE_TYPES.find((t) => t.value === node.node_type)?.label}
                         </p>
-                        {node.config?.subject && <p className="text-xs text-gray-600 dark:text-gray-400">{node.config.subject}</p>}
-                        {node.config?.title && <p className="text-xs text-gray-600 dark:text-gray-400">{node.config.title}</p>}
+                        {node.config?.subject && (
+                          <p className="text-xs text-gray-600 dark:text-gray-400">
+                            {node.config.subject}
+                          </p>
+                        )}
+                        {node.config?.title && (
+                          <p className="text-xs text-gray-600 dark:text-gray-400">
+                            {node.config.title}
+                          </p>
+                        )}
                       </div>
                     </div>
                     <div className="flex gap-2">
@@ -231,7 +266,7 @@ export default function WorkflowBuilder({ workflow = null, onSave = null }) {
 
       {editingNode && (
         <WorkflowNodeEditor
-          node={nodes.find(n => n.id === editingNode)}
+          node={nodes.find((n) => n.id === editingNode)}
           onSave={(updated) => updateNode(editingNode, updated)}
           onClose={() => setEditingNode(null)}
         />
@@ -244,9 +279,13 @@ export default function WorkflowBuilder({ workflow = null, onSave = null }) {
         className="w-full gap-2"
       >
         {saveMutation.isPending ? (
-          <><Loader2 className="w-4 h-4 animate-spin" /> Saving...</>
+          <>
+            <Loader2 className="w-4 h-4 animate-spin" /> Saving...
+          </>
         ) : (
-          <><Save className="w-4 h-4" /> Save Workflow</>
+          <>
+            <Save className="w-4 h-4" /> Save Workflow
+          </>
         )}
       </Button>
     </div>

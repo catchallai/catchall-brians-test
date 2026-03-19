@@ -1,23 +1,26 @@
 import React from 'react';
-import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Calendar, Clock, Sparkles, Trash2, Edit } from "lucide-react";
-import { format } from "date-fns";
+import { Card } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Calendar, Clock, Sparkles, Trash2, Edit } from 'lucide-react';
+import { format } from 'date-fns';
 
 const platformConfig = {
-  twitter: { color: "bg-gray-900 text-white", icon: "𝕏" },
-  linkedin: { color: "bg-blue-600 text-white", icon: "in" },
-  facebook: { color: "bg-blue-500 text-white", icon: "f" },
-  instagram: { color: "bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400 text-white", icon: "IG" },
-  youtube: { color: "bg-red-600 text-white", icon: "▶" },
+  twitter: { color: 'bg-gray-900 text-white', icon: '𝕏' },
+  linkedin: { color: 'bg-blue-600 text-white', icon: 'in' },
+  facebook: { color: 'bg-blue-500 text-white', icon: 'f' },
+  instagram: {
+    color: 'bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400 text-white',
+    icon: 'IG',
+  },
+  youtube: { color: 'bg-red-600 text-white', icon: '▶' },
 };
 
 const statusColors = {
-  draft: "bg-gray-100 text-gray-700",
-  scheduled: "bg-blue-100 text-blue-700",
-  posted: "bg-emerald-100 text-emerald-700",
-  failed: "bg-red-100 text-red-700",
+  draft: 'bg-gray-100 text-gray-700',
+  scheduled: 'bg-blue-100 text-blue-700',
+  posted: 'bg-emerald-100 text-emerald-700',
+  failed: 'bg-red-100 text-red-700',
 };
 
 export default function ScheduledPostCard({ post, onEdit, onDelete }) {
@@ -27,13 +30,13 @@ export default function ScheduledPostCard({ post, onEdit, onDelete }) {
     <Card className="p-4 border-0 shadow-sm">
       <div className="flex items-start justify-between mb-3">
         <div className="flex items-center gap-2">
-          <div className={`w-8 h-8 rounded-lg ${config.color} flex items-center justify-center text-sm font-bold`}>
+          <div
+            className={`w-8 h-8 rounded-lg ${config.color} flex items-center justify-center text-sm font-bold`}
+          >
             {config.icon}
           </div>
           <div>
-            <Badge className={`${statusColors[post.status]} text-xs border-0`}>
-              {post.status}
-            </Badge>
+            <Badge className={`${statusColors[post.status]} text-xs border-0`}>{post.status}</Badge>
             {post.ai_optimized && (
               <Badge className="bg-violet-100 text-violet-700 text-xs border-0 ml-1">
                 <Sparkles className="w-3 h-3 mr-1" />
@@ -57,7 +60,9 @@ export default function ScheduledPostCard({ post, onEdit, onDelete }) {
       {post.hashtags?.length > 0 && (
         <div className="flex gap-1 flex-wrap mb-3">
           {post.hashtags.map((tag, i) => (
-            <span key={i} className="text-xs text-blue-600">#{tag}</span>
+            <span key={i} className="text-xs text-blue-600">
+              #{tag}
+            </span>
           ))}
         </div>
       )}

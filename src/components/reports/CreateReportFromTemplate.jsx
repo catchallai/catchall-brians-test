@@ -1,13 +1,19 @@
 import React, { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Badge } from "@/components/ui/badge";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, Calendar, Users, Mail } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Badge } from '@/components/ui/badge';
+import { Checkbox } from '@/components/ui/checkbox';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Loader2, Calendar, Users, Mail } from 'lucide-react';
 
 const METRIC_LABELS = {
   // SEO
@@ -70,10 +76,17 @@ const METRIC_LABELS = {
   // Summary
   traffic_summary: 'Traffic Summary',
   new_leads: 'New Leads',
-  alerts: 'Alerts & Notifications'
+  alerts: 'Alerts & Notifications',
 };
 
-export default function CreateReportFromTemplate({ open, onClose, template, websites = [], onSave, isLoading }) {
+export default function CreateReportFromTemplate({
+  open,
+  onClose,
+  template,
+  websites = [],
+  onSave,
+  isLoading,
+}) {
   const [formData, setFormData] = useState({
     name: template?.name ? `${template.name} - ${new Date().toLocaleDateString()}` : '',
     website_id: '',
@@ -83,23 +96,23 @@ export default function CreateReportFromTemplate({ open, onClose, template, webs
     include_traffic: true,
     include_rankings: true,
     include_backlinks: true,
-    include_trends: true
+    include_trends: true,
   });
 
   const handleMetricToggle = (metric) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       selectedMetrics: prev.selectedMetrics.includes(metric)
-        ? prev.selectedMetrics.filter(m => m !== metric)
-        : [...prev.selectedMetrics, metric]
+        ? prev.selectedMetrics.filter((m) => m !== metric)
+        : [...prev.selectedMetrics, metric],
     }));
   };
 
   const handleSubmit = () => {
     const recipients = formData.recipients
       .split(',')
-      .map(e => e.trim())
-      .filter(e => e.includes('@'));
+      .map((e) => e.trim())
+      .filter((e) => e.includes('@'));
 
     onSave({
       name: formData.name,
@@ -112,9 +125,10 @@ export default function CreateReportFromTemplate({ open, onClose, template, webs
       include_rankings: formData.include_rankings,
       include_backlinks: formData.include_backlinks,
       include_trends: formData.include_trends,
-      next_run: formData.schedule !== 'manual' 
-        ? new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
-        : null
+      next_run:
+        formData.schedule !== 'manual'
+          ? new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+          : null,
     });
   };
 
@@ -127,7 +141,9 @@ export default function CreateReportFromTemplate({ open, onClose, template, webs
       <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-3">
-            <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${template.iconBg}`}>
+            <div
+              className={`w-10 h-10 rounded-lg flex items-center justify-center ${template.iconBg}`}
+            >
               <Icon className="w-5 h-5" />
             </div>
             <div>
@@ -151,13 +167,18 @@ export default function CreateReportFromTemplate({ open, onClose, template, webs
           {/* Website Selection */}
           <div>
             <Label>Website</Label>
-            <Select value={formData.website_id} onValueChange={(v) => setFormData({ ...formData, website_id: v })}>
+            <Select
+              value={formData.website_id}
+              onValueChange={(v) => setFormData({ ...formData, website_id: v })}
+            >
               <SelectTrigger>
                 <SelectValue placeholder="Select a website" />
               </SelectTrigger>
               <SelectContent>
-                {websites.map(w => (
-                  <SelectItem key={w.id} value={w.id}>{w.name} - {w.url}</SelectItem>
+                {websites.map((w) => (
+                  <SelectItem key={w.id} value={w.id}>
+                    {w.name} - {w.url}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -168,7 +189,7 @@ export default function CreateReportFromTemplate({ open, onClose, template, webs
             <div>
               <Label className="mb-2 block">Included Metrics</Label>
               <div className="grid grid-cols-2 gap-2">
-                {template.metrics.map(metric => (
+                {template.metrics.map((metric) => (
                   <div key={metric} className="flex items-center gap-2">
                     <Checkbox
                       id={metric}
@@ -190,7 +211,10 @@ export default function CreateReportFromTemplate({ open, onClose, template, webs
               <Calendar className="w-4 h-4" />
               Schedule
             </Label>
-            <Select value={formData.schedule} onValueChange={(v) => setFormData({ ...formData, schedule: v })}>
+            <Select
+              value={formData.schedule}
+              onValueChange={(v) => setFormData({ ...formData, schedule: v })}
+            >
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
@@ -219,9 +243,11 @@ export default function CreateReportFromTemplate({ open, onClose, template, webs
 
           {/* Actions */}
           <div className="flex justify-end gap-2 pt-4 border-t">
-            <Button variant="outline" onClick={onClose}>Cancel</Button>
-            <Button 
-              onClick={handleSubmit} 
+            <Button variant="outline" onClick={onClose}>
+              Cancel
+            </Button>
+            <Button
+              onClick={handleSubmit}
               disabled={!formData.name || !formData.website_id || isLoading}
               className="bg-blue-600 hover:bg-blue-700"
             >

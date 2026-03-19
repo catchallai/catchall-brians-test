@@ -1,15 +1,22 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { 
-  Users, MessageSquare, Radio, Activity, AlertTriangle, 
-  CheckCircle, Search, RefreshCw, Clock
-} from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import {
+  Users,
+  MessageSquare,
+  Radio,
+  Activity,
+  AlertTriangle,
+  CheckCircle,
+  Search,
+  RefreshCw,
+  Clock,
+} from 'lucide-react';
 
 export default function ICSAdminPortal({ user, darkMode }) {
   const [searchUser, setSearchUser] = useState('');
@@ -37,35 +44,36 @@ export default function ICSAdminPortal({ user, darkMode }) {
   });
 
   // Calculate stats
-  const onlineUsers = presences.filter(p => p.status === 'online').length;
-  const awayUsers = presences.filter(p => p.status === 'away').length;
-  const inCallUsers = presences.filter(p => p.in_call).length;
+  const onlineUsers = presences.filter((p) => p.status === 'online').length;
+  const awayUsers = presences.filter((p) => p.status === 'away').length;
+  const inCallUsers = presences.filter((p) => p.in_call).length;
   const totalMessages = messages.length;
-  const todayMessages = messages.filter(m => {
+  const todayMessages = messages.filter((m) => {
     const date = new Date(m.created_date);
     const today = new Date();
     return date.toDateString() === today.toDateString();
   }).length;
   const activeChannels = channels.length;
-  const unreadNotifications = notifications.filter(n => !n.is_read).length;
+  const unreadNotifications = notifications.filter((n) => !n.is_read).length;
 
   // Filter users
-  const filteredUsers = presences.filter(p => 
-    !searchUser || 
-    p.user_name?.toLowerCase().includes(searchUser.toLowerCase()) ||
-    p.user_email?.toLowerCase().includes(searchUser.toLowerCase())
+  const filteredUsers = presences.filter(
+    (p) =>
+      !searchUser ||
+      p.user_name?.toLowerCase().includes(searchUser.toLowerCase()) ||
+      p.user_email?.toLowerCase().includes(searchUser.toLowerCase())
   );
 
   // Get channel stats
   const getChannelStats = (channelId) => {
-    return messages.filter(m => m.channel_id === channelId).length;
+    return messages.filter((m) => m.channel_id === channelId).length;
   };
 
   // Get user stats
   const getUserStats = (userEmail) => {
     return {
-      messages: messages.filter(m => m.sender_email === userEmail).length,
-      notifications: notifications.filter(n => n.user_email === userEmail).length,
+      messages: messages.filter((m) => m.sender_email === userEmail).length,
+      notifications: notifications.filter((n) => n.user_email === userEmail).length,
     };
   };
 
@@ -80,10 +88,12 @@ export default function ICSAdminPortal({ user, darkMode }) {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h2 className={`text-2xl font-bold ${textClass}`}>ICS Admin Dashboard</h2>
-          <p className={`text-sm ${secondaryTextClass} mt-1`}>Monitor system health and user activity</p>
+          <p className={`text-sm ${secondaryTextClass} mt-1`}>
+            Monitor system health and user activity
+          </p>
         </div>
-        <Button 
-          size="icon" 
+        <Button
+          size="icon"
           variant="outline"
           onClick={() => queryClient.invalidateQueries({ queryKey: ['ics'] })}
         >
@@ -146,7 +156,9 @@ export default function ICSAdminPortal({ user, darkMode }) {
 
       {/* Tabs */}
       <Tabs defaultValue="users" className="w-full">
-        <TabsList className={`grid w-full grid-cols-3 ${darkMode ? 'bg-slate-900' : 'bg-gray-100'}`}>
+        <TabsList
+          className={`grid w-full grid-cols-3 ${darkMode ? 'bg-slate-900' : 'bg-gray-100'}`}
+        >
           <TabsTrigger value="users">Users ({presences.length})</TabsTrigger>
           <TabsTrigger value="channels">Channels ({activeChannels})</TabsTrigger>
           <TabsTrigger value="messages">Messages ({totalMessages})</TabsTrigger>
@@ -182,7 +194,9 @@ export default function ICSAdminPortal({ user, darkMode }) {
                       <div className="flex items-center justify-between">
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2">
-                            <p className={`font-medium ${textClass} truncate`}>{presence.user_name}</p>
+                            <p className={`font-medium ${textClass} truncate`}>
+                              {presence.user_name}
+                            </p>
                             <Badge className={`${statusColor[presence.status]} text-xs`}>
                               {presence.status}
                             </Badge>
@@ -192,7 +206,9 @@ export default function ICSAdminPortal({ user, darkMode }) {
                               </Badge>
                             )}
                           </div>
-                          <p className={`text-xs ${secondaryTextClass} truncate`}>{presence.user_email}</p>
+                          <p className={`text-xs ${secondaryTextClass} truncate`}>
+                            {presence.user_email}
+                          </p>
                           <div className={`flex gap-4 text-xs ${secondaryTextClass} mt-1`}>
                             <span>{stats.messages} msgs</span>
                             <span>{stats.notifications} notes</span>
@@ -223,7 +239,9 @@ export default function ICSAdminPortal({ user, darkMode }) {
                           <div className="flex items-center gap-2">
                             <p className={`font-medium ${textClass}`}>#{channel.name}</p>
                             {channel.is_private && (
-                              <Badge variant="secondary" className="text-xs">Private</Badge>
+                              <Badge variant="secondary" className="text-xs">
+                                Private
+                              </Badge>
                             )}
                           </div>
                           <p className={`text-xs ${secondaryTextClass}`}>{messageCount} messages</p>
@@ -247,8 +265,12 @@ export default function ICSAdminPortal({ user, darkMode }) {
                 <Card key={msg.id} className={`${cardBgClass} border-0`}>
                   <CardContent className="p-3">
                     <p className={`text-sm font-medium ${textClass}`}>{msg.sender_name}</p>
-                    <p className={`text-xs ${secondaryTextClass} line-clamp-2 mt-1`}>{msg.content}</p>
-                    <p className={`text-xs ${secondaryTextClass} mt-1`}>{new Date(msg.created_date).toLocaleTimeString()}</p>
+                    <p className={`text-xs ${secondaryTextClass} line-clamp-2 mt-1`}>
+                      {msg.content}
+                    </p>
+                    <p className={`text-xs ${secondaryTextClass} mt-1`}>
+                      {new Date(msg.created_date).toLocaleTimeString()}
+                    </p>
                   </CardContent>
                 </Card>
               ))

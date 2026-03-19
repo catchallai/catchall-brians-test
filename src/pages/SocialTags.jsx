@@ -1,15 +1,24 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { Tag, Plus, Pencil, Trash2, X, Check } from "lucide-react";
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Tag, Plus, Pencil, Trash2, X, Check } from 'lucide-react';
 
 const TAG_COLORS = [
-  '#6366f1', '#8b5cf6', '#ec4899', '#ef4444',
-  '#f97316', '#eab308', '#22c55e', '#14b8a6',
-  '#06b6d4', '#3b82f6', '#64748b', '#000000',
+  '#6366f1',
+  '#8b5cf6',
+  '#ec4899',
+  '#ef4444',
+  '#f97316',
+  '#eab308',
+  '#22c55e',
+  '#14b8a6',
+  '#06b6d4',
+  '#3b82f6',
+  '#64748b',
+  '#000000',
 ];
 
 function TagFormModal({ open, onClose, tag }) {
@@ -28,9 +37,7 @@ function TagFormModal({ open, onClose, tag }) {
 
   const saveMutation = useMutation({
     mutationFn: (data) =>
-      tag
-        ? base44.entities.SocialTag.update(tag.id, data)
-        : base44.entities.SocialTag.create(data),
+      tag ? base44.entities.SocialTag.update(tag.id, data) : base44.entities.SocialTag.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['social-tags'] });
       onClose();
@@ -47,7 +54,10 @@ function TagFormModal({ open, onClose, tag }) {
       <DialogContent className="p-0 max-w-sm rounded-2xl overflow-hidden" style={{ gap: 0 }}>
         <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
           <h2 className="text-base font-bold text-gray-900">{tag ? 'Edit Tag' : 'New Tag'}</h2>
-          <button onClick={onClose} className="p-1 hover:bg-gray-100 rounded-lg text-gray-400 transition-colors">
+          <button
+            onClick={onClose}
+            className="p-1 hover:bg-gray-100 rounded-lg text-gray-400 transition-colors"
+          >
             <X className="w-4 h-4" />
           </button>
         </div>
@@ -92,7 +102,9 @@ function TagFormModal({ open, onClose, tag }) {
           </div>
 
           <div>
-            <label className="text-xs font-medium text-gray-600 mb-1.5 block">Description (optional)</label>
+            <label className="text-xs font-medium text-gray-600 mb-1.5 block">
+              Description (optional)
+            </label>
             <Input
               placeholder="What is this tag for?"
               value={description}
@@ -102,7 +114,9 @@ function TagFormModal({ open, onClose, tag }) {
         </div>
 
         <div className="flex gap-2 px-5 pb-5">
-          <Button variant="outline" className="flex-1" onClick={onClose}>Cancel</Button>
+          <Button variant="outline" className="flex-1" onClick={onClose}>
+            Cancel
+          </Button>
           <Button
             className="flex-1"
             onClick={handleSave}
@@ -131,21 +145,34 @@ export default function SocialTags() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['social-tags'] }),
   });
 
-  const openNew = () => { setEditingTag(null); setShowModal(true); };
-  const openEdit = (tag) => { setEditingTag(tag); setShowModal(true); };
-  const closeModal = () => { setShowModal(false); setEditingTag(null); };
+  const openNew = () => {
+    setEditingTag(null);
+    setShowModal(true);
+  };
+  const openEdit = (tag) => {
+    setEditingTag(tag);
+    setShowModal(true);
+  };
+  const closeModal = () => {
+    setShowModal(false);
+    setEditingTag(null);
+  };
 
   return (
     <div className="p-6 lg:p-8 min-h-screen bg-gray-50 dark:bg-gray-900">
       <div className="max-w-2xl mx-auto space-y-6">
-
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Tags</h1>
-            <p className="text-sm text-gray-500 mt-1">Tags are visible to everyone in your organization.</p>
+            <p className="text-sm text-gray-500 mt-1">
+              Tags are visible to everyone in your organization.
+            </p>
           </div>
-          <Button onClick={openNew} className="gap-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl px-4">
+          <Button
+            onClick={openNew}
+            className="gap-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl px-4"
+          >
             <Plus className="w-4 h-4" />
             New Tag
           </Button>
@@ -155,7 +182,10 @@ export default function SocialTags() {
         {isLoading ? (
           <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 divide-y divide-gray-100">
             {[...Array(3)].map((_, i) => (
-              <div key={i} className="h-16 animate-pulse bg-gray-50 dark:bg-gray-700 rounded-xl m-2" />
+              <div
+                key={i}
+                className="h-16 animate-pulse bg-gray-50 dark:bg-gray-700 rounded-xl m-2"
+              />
             ))}
           </div>
         ) : tags.length === 0 ? (
@@ -166,10 +196,14 @@ export default function SocialTags() {
             <div>
               <p className="text-lg font-semibold text-gray-800 dark:text-gray-200">No tags yet</p>
               <p className="text-sm text-gray-500 mt-1 max-w-xs">
-                Create tags to organize and categorize your social media content. Tags help you track campaigns and analyze performance across your posts.
+                Create tags to organize and categorize your social media content. Tags help you
+                track campaigns and analyze performance across your posts.
               </p>
             </div>
-            <Button onClick={openNew} className="gap-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl mt-2">
+            <Button
+              onClick={openNew}
+              className="gap-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl mt-2"
+            >
               <Plus className="w-4 h-4" />
               New Tag
             </Button>
@@ -198,7 +232,9 @@ export default function SocialTags() {
                     <Pencil className="w-3.5 h-3.5" />
                   </button>
                   <button
-                    onClick={() => { if (confirm(`Delete tag "${tag.name}"?`)) deleteMutation.mutate(tag.id); }}
+                    onClick={() => {
+                      if (confirm(`Delete tag "${tag.name}"?`)) deleteMutation.mutate(tag.id);
+                    }}
                     className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
                   >
                     <Trash2 className="w-3.5 h-3.5" />

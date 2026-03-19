@@ -14,7 +14,7 @@ Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
     const user = await base44.auth.me();
-    
+
     if (!user || user.role !== 'admin') {
       return Response.json({ error: 'Admin access required' }, { status: 403 });
     }
@@ -39,7 +39,10 @@ Deno.serve(async (req) => {
       }
 
       if (entity === 'ListeningMention') {
-        const records = await base44.asServiceRole.entities.ListeningMention.list('post_date', 5000);
+        const records = await base44.asServiceRole.entities.ListeningMention.list(
+          'post_date',
+          5000
+        );
         for (const record of records) {
           if (new Date(record.post_date) < cutoffDate) {
             await base44.asServiceRole.entities.ListeningMention.delete(record.id);
@@ -63,14 +66,14 @@ Deno.serve(async (req) => {
         type: 'system',
         title: 'Data Cleanup Complete',
         message: `Cleaned up ${results.deleted} old ${entity} records older than ${retentionDays} days.`,
-        priority: 'low'
+        priority: 'low',
       });
 
-      return Response.json({ 
-        success: true, 
+      return Response.json({
+        success: true,
         entity,
         retentionDays,
-        ...results 
+        ...results,
       });
     }
 
@@ -82,7 +85,7 @@ Deno.serve(async (req) => {
 
         try {
           let records = [];
-          
+
           if (entityName === 'Notification') {
             records = await base44.asServiceRole.entities.Notification.list('created_date', 5000);
             for (const record of records) {
@@ -92,7 +95,7 @@ Deno.serve(async (req) => {
               }
             }
           }
-          
+
           if (entityName === 'APIUsage') {
             records = await base44.asServiceRole.entities.APIUsage.list('date', 5000);
             for (const record of records) {
@@ -102,7 +105,6 @@ Deno.serve(async (req) => {
               }
             }
           }
-          
         } catch (err) {
           results.errors.push({ entity: entityName, error: err.message });
         }
@@ -112,7 +114,7 @@ Deno.serve(async (req) => {
         type: 'system',
         title: 'Full Data Cleanup Complete',
         message: `Cleaned up ${results.deleted} old records across all entities.`,
-        priority: 'medium'
+        priority: 'medium',
       });
 
       return Response.json({ success: true, ...results });
@@ -121,8 +123,11 @@ Deno.serve(async (req) => {
     if (action === 'getStats') {
       // Get data statistics
       const stats = {};
-      
-      const notifications = await base44.asServiceRole.entities.Notification.list('-created_date', 1);
+
+      const notifications = await base44.asServiceRole.entities.Notification.list(
+        '-created_date',
+        1
+      );
       stats.Notification = { count: notifications.length };
 
       const apiUsage = await base44.asServiceRole.entities.APIUsage.list('-date', 1);
@@ -132,7 +137,6 @@ Deno.serve(async (req) => {
     }
 
     return Response.json({ error: 'Invalid action' }, { status: 400 });
-
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
   }

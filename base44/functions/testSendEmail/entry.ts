@@ -32,11 +32,11 @@ Deno.serve(async (req) => {
 
     // Get a sample contact for variable substitution
     const contacts = await base44.entities.Contact.list(null, 1);
-    const sampleContact = contacts[0] || { 
-      first_name: 'John', 
-      last_name: 'Doe', 
+    const sampleContact = contacts[0] || {
+      first_name: 'John',
+      last_name: 'Doe',
       email: to,
-      company_name: user.full_name 
+      company_name: user.full_name,
     };
 
     // Replace template variables
@@ -65,7 +65,7 @@ Deno.serve(async (req) => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${resendApiKey}`,
+        Authorization: `Bearer ${resendApiKey}`,
       },
       body: JSON.stringify({
         from: 'test@resend.dev', // Use Resend sandbox for testing
@@ -82,10 +82,10 @@ Deno.serve(async (req) => {
     }
 
     const result = await emailResponse.json();
-    return Response.json({ 
-      success: true, 
+    return Response.json({
+      success: true,
       messageId: result.id,
-      message: `Test email sent successfully to ${to}` 
+      message: `Test email sent successfully to ${to}`,
     });
   } catch (error) {
     console.error('Error sending test email:', error);

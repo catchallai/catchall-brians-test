@@ -1,12 +1,31 @@
 import React, { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
-export default function OpportunityModal({ open, onClose, opportunity, onSave, isLoading, contacts }) {
+export default function OpportunityModal({
+  open,
+  onClose,
+  opportunity,
+  onSave,
+  isLoading,
+  contacts,
+}) {
   const [formData, setFormData] = useState({
     title: '',
     contact_id: '',
@@ -47,7 +66,7 @@ export default function OpportunityModal({ open, onClose, opportunity, onSave, i
   };
 
   const handleContactChange = (contactId) => {
-    const contact = contacts?.find(c => c.id === contactId);
+    const contact = contacts?.find((c) => c.id === contactId);
     if (contact) {
       setFormData({
         ...formData,
@@ -83,7 +102,7 @@ export default function OpportunityModal({ open, onClose, opportunity, onSave, i
                   <SelectValue placeholder="Select contact" />
                 </SelectTrigger>
                 <SelectContent>
-                  {contacts?.map(contact => (
+                  {contacts?.map((contact) => (
                     <SelectItem key={contact.id} value={contact.id}>
                       {contact.first_name} {contact.last_name} - {contact.email}
                     </SelectItem>
@@ -119,7 +138,10 @@ export default function OpportunityModal({ open, onClose, opportunity, onSave, i
 
             <div>
               <Label>Stage</Label>
-              <Select value={formData.stage} onValueChange={(value) => setFormData({ ...formData, stage: value })}>
+              <Select
+                value={formData.stage}
+                onValueChange={(value) => setFormData({ ...formData, stage: value })}
+              >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -138,7 +160,10 @@ export default function OpportunityModal({ open, onClose, opportunity, onSave, i
 
             <div>
               <Label>Priority</Label>
-              <Select value={formData.priority} onValueChange={(value) => setFormData({ ...formData, priority: value })}>
+              <Select
+                value={formData.priority}
+                onValueChange={(value) => setFormData({ ...formData, priority: value })}
+              >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -165,7 +190,9 @@ export default function OpportunityModal({ open, onClose, opportunity, onSave, i
                 type="number"
                 step="0.01"
                 value={formData.value}
-                onChange={(e) => setFormData({ ...formData, value: parseFloat(e.target.value) || 0 })}
+                onChange={(e) =>
+                  setFormData({ ...formData, value: parseFloat(e.target.value) || 0 })
+                }
               />
             </div>
 

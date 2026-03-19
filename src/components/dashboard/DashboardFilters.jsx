@@ -1,18 +1,18 @@
 import React from 'react';
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Calendar as CalendarIcon, Filter, X, Download } from "lucide-react";
+} from '@/components/ui/select';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Calendar as CalendarIcon, Filter, X, Download } from 'lucide-react';
 
 export default function DashboardFilters({ filters, onFiltersChange, onExport, onClear }) {
   const handleDateChange = (type, date) => {
@@ -70,9 +70,14 @@ export default function DashboardFilters({ filters, onFiltersChange, onExport, o
                 <Label className="text-xs">From Date</Label>
                 <Popover>
                   <PopoverTrigger asChild>
-                    <Button variant="outline" className="w-full justify-start text-left h-9 font-normal">
+                    <Button
+                      variant="outline"
+                      className="w-full justify-start text-left h-9 font-normal"
+                    >
                       <CalendarIcon className="mr-2 h-3 w-3" />
-                      {filters.startDate ? new Date(filters.startDate).toLocaleDateString() : 'Pick date'}
+                      {filters.startDate
+                        ? new Date(filters.startDate).toLocaleDateString()
+                        : 'Pick date'}
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0">
@@ -89,9 +94,14 @@ export default function DashboardFilters({ filters, onFiltersChange, onExport, o
                 <Label className="text-xs">To Date</Label>
                 <Popover>
                   <PopoverTrigger asChild>
-                    <Button variant="outline" className="w-full justify-start text-left h-9 font-normal">
+                    <Button
+                      variant="outline"
+                      className="w-full justify-start text-left h-9 font-normal"
+                    >
                       <CalendarIcon className="mr-2 h-3 w-3" />
-                      {filters.endDate ? new Date(filters.endDate).toLocaleDateString() : 'Pick date'}
+                      {filters.endDate
+                        ? new Date(filters.endDate).toLocaleDateString()
+                        : 'Pick date'}
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0">

@@ -1,7 +1,7 @@
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { ArrowRight, MapPin, Flag } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { ArrowRight, MapPin, Flag } from 'lucide-react';
 
 export default function UserJourneyFlow({ journeys = [] }) {
   if (!journeys.length) {
@@ -16,8 +16,8 @@ export default function UserJourneyFlow({ journeys = [] }) {
 
   // Find most common paths
   const pathCounts = {};
-  journeys.forEach(j => {
-    const pathKey = j.journey_path?.map(p => p.page_url).join(' → ') || '';
+  journeys.forEach((j) => {
+    const pathKey = j.journey_path?.map((p) => p.page_url).join(' → ') || '';
     pathCounts[pathKey] = (pathCounts[pathKey] || 0) + 1;
   });
 
@@ -27,7 +27,7 @@ export default function UserJourneyFlow({ journeys = [] }) {
 
   const avgPages = journeys.reduce((sum, j) => sum + (j.pages_visited || 0), 0) / journeys.length;
   const avgTime = journeys.reduce((sum, j) => sum + (j.total_time || 0), 0) / journeys.length;
-  const conversionRate = (journeys.filter(j => j.converted).length / journeys.length * 100);
+  const conversionRate = (journeys.filter((j) => j.converted).length / journeys.length) * 100;
 
   return (
     <div className="space-y-4">
@@ -65,7 +65,7 @@ export default function UserJourneyFlow({ journeys = [] }) {
                   <Badge variant="outline">{count} users</Badge>
                   <span className="text-xs text-gray-500">Path #{idx + 1}</span>
                 </div>
-                
+
                 <div className="flex items-center gap-2 overflow-x-auto pb-2">
                   <MapPin className="w-4 h-4 text-emerald-600 flex-shrink-0" />
                   {pages.map((page, pIdx) => (

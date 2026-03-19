@@ -1,12 +1,12 @@
 import React from 'react';
-import { Badge } from "@/components/ui/badge";
-import { AlertCircle, CheckCircle, Clock } from "lucide-react";
+import { Badge } from '@/components/ui/badge';
+import { AlertCircle, CheckCircle, Clock } from 'lucide-react';
 
 export default function FreshnessIndicator({ page }) {
   if (!page || !page.updated_date) return null;
 
   const daysSinceUpdate = (new Date() - new Date(page.updated_date)) / (1000 * 60 * 60 * 24);
-  
+
   let status = 'fresh';
   let label = 'Up to date';
   let icon = CheckCircle;

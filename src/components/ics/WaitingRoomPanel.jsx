@@ -1,16 +1,11 @@
 import React, { useState } from 'react';
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { UserPlus, Clock, Check, X } from "lucide-react";
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { UserPlus, Clock, Check, X } from 'lucide-react';
 import { format } from 'date-fns';
 
-export default function WaitingRoomPanel({
-  waitingUsers,
-  onAdmitUser,
-  onRejectUser,
-  onAdmitAll,
-}) {
+export default function WaitingRoomPanel({ waitingUsers, onAdmitUser, onRejectUser, onAdmitAll }) {
   const [expandedUser, setExpandedUser] = useState(null);
 
   if (!waitingUsers || waitingUsers.length === 0) {
@@ -24,11 +19,7 @@ export default function WaitingRoomPanel({
           <UserPlus className="w-5 h-5" />
           Waiting Room ({waitingUsers.length})
         </h3>
-        <Button
-          size="sm"
-          onClick={onAdmitAll}
-          className="bg-green-600 hover:bg-green-700"
-        >
+        <Button size="sm" onClick={onAdmitAll} className="bg-green-600 hover:bg-green-700">
           Admit All
         </Button>
       </div>
@@ -63,11 +54,7 @@ export default function WaitingRoomPanel({
               >
                 <Check className="w-4 h-4" />
               </Button>
-              <Button
-                size="sm"
-                variant="destructive"
-                onClick={() => onRejectUser(user.email)}
-              >
+              <Button size="sm" variant="destructive" onClick={() => onRejectUser(user.email)}>
                 <X className="w-4 h-4" />
               </Button>
             </div>

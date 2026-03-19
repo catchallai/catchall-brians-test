@@ -1,29 +1,35 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
-import { 
-  Plus, Hash, Trash2, TrendingUp, Copy, Check, Search,
-  Folder, FolderPlus, X, MoreVertical, Star, StarOff
-} from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
+import {
+  Plus,
+  Hash,
+  Trash2,
+  TrendingUp,
+  Copy,
+  Check,
+  Search,
+  Folder,
+  FolderPlus,
+  X,
+  MoreVertical,
+  Star,
+  StarOff,
+} from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+} from '@/components/ui/dropdown-menu';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 
 export default function HashtagManager() {
   const [newHashtag, setNewHashtag] = useState('');
@@ -62,27 +68,27 @@ export default function HashtagManager() {
   const handleAddHashtag = () => {
     if (!newHashtag.trim()) return;
     const cleanTag = newHashtag.replace('#', '').trim();
-    if (hashtags.some(h => h.hashtag.toLowerCase() === cleanTag.toLowerCase())) {
+    if (hashtags.some((h) => h.hashtag.toLowerCase() === cleanTag.toLowerCase())) {
       return; // Already exists
     }
-    addMutation.mutate({ 
+    addMutation.mutate({
       hashtag: cleanTag,
       category: selectedCategory === 'all' ? null : selectedCategory,
-      usage_count: 0
+      usage_count: 0,
     });
   };
 
   const handleBulkAdd = () => {
     const tags = bulkInput
       .split(/[\n,]/)
-      .map(t => t.replace('#', '').trim())
-      .filter(t => t && !hashtags.some(h => h.hashtag.toLowerCase() === t.toLowerCase()));
-    
-    tags.forEach(tag => {
-      addMutation.mutate({ 
-        hashtag: tag, 
+      .map((t) => t.replace('#', '').trim())
+      .filter((t) => t && !hashtags.some((h) => h.hashtag.toLowerCase() === t.toLowerCase()));
+
+    tags.forEach((tag) => {
+      addMutation.mutate({
+        hashtag: tag,
         category: selectedCategory === 'all' ? null : selectedCategory,
-        usage_count: 0 
+        usage_count: 0,
       });
     });
     setBulkInput('');
@@ -90,9 +96,9 @@ export default function HashtagManager() {
   };
 
   const toggleFavorite = (hashtag) => {
-    updateMutation.mutate({ 
-      id: hashtag.id, 
-      data: { is_favorite: !hashtag.is_favorite } 
+    updateMutation.mutate({
+      id: hashtag.id,
+      data: { is_favorite: !hashtag.is_favorite },
     });
   };
 
@@ -101,18 +107,20 @@ export default function HashtagManager() {
   };
 
   const copyAllHashtags = () => {
-    const allTags = filteredHashtags.map(h => `#${h.hashtag}`).join(' ');
+    const allTags = filteredHashtags.map((h) => `#${h.hashtag}`).join(' ');
     navigator.clipboard.writeText(allTags);
     setCopiedAll(true);
     setTimeout(() => setCopiedAll(false), 2000);
   };
 
   // Get unique categories
-  const categories = [...new Set(hashtags.map(h => h.category).filter(Boolean))];
+  const categories = [...new Set(hashtags.map((h) => h.category).filter(Boolean))];
 
-  const filteredHashtags = hashtags.filter(h => {
-    const matchesSearch = !searchQuery || h.hashtag.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCategory = selectedCategory === 'all' || 
+  const filteredHashtags = hashtags.filter((h) => {
+    const matchesSearch =
+      !searchQuery || h.hashtag.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesCategory =
+      selectedCategory === 'all' ||
       (selectedCategory === 'favorites' && h.is_favorite) ||
       (selectedCategory === 'uncategorized' && !h.category) ||
       h.category === selectedCategory;
@@ -153,11 +161,7 @@ export default function HashtagManager() {
             <Plus className="w-4 h-4" />
             Bulk Add
           </Button>
-          <Button 
-            variant="outline" 
-            onClick={copyAllHashtags}
-            className="gap-2"
-          >
+          <Button variant="outline" onClick={copyAllHashtags} className="gap-2">
             {copiedAll ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
             {copiedAll ? 'Copied!' : 'Copy All'}
           </Button>
@@ -170,9 +174,9 @@ export default function HashtagManager() {
           <CardHeader className="pb-3">
             <CardTitle className="text-base font-semibold flex items-center justify-between">
               Categories
-              <Button 
-                variant="ghost" 
-                size="icon" 
+              <Button
+                variant="ghost"
+                size="icon"
                 className="h-8 w-8"
                 onClick={() => setShowCategoryModal(true)}
               >
@@ -184,8 +188,8 @@ export default function HashtagManager() {
             <button
               onClick={() => setSelectedCategory('all')}
               className={`w-full flex items-center justify-between p-2.5 rounded-lg text-sm transition-colors ${
-                selectedCategory === 'all' 
-                  ? 'bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-300' 
+                selectedCategory === 'all'
+                  ? 'bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-300'
                   : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300'
               }`}
             >
@@ -193,14 +197,16 @@ export default function HashtagManager() {
                 <Hash className="w-4 h-4" />
                 All Hashtags
               </span>
-              <Badge variant="secondary" className="text-xs">{hashtags.length}</Badge>
+              <Badge variant="secondary" className="text-xs">
+                {hashtags.length}
+              </Badge>
             </button>
-            
+
             <button
               onClick={() => setSelectedCategory('favorites')}
               className={`w-full flex items-center justify-between p-2.5 rounded-lg text-sm transition-colors ${
-                selectedCategory === 'favorites' 
-                  ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300' 
+                selectedCategory === 'favorites'
+                  ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300'
                   : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300'
               }`}
             >
@@ -209,19 +215,19 @@ export default function HashtagManager() {
                 Favorites
               </span>
               <Badge variant="secondary" className="text-xs">
-                {hashtags.filter(h => h.is_favorite).length}
+                {hashtags.filter((h) => h.is_favorite).length}
               </Badge>
             </button>
 
             <div className="border-t my-3" />
 
-            {categories.map(cat => (
+            {categories.map((cat) => (
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
                 className={`w-full flex items-center justify-between p-2.5 rounded-lg text-sm transition-colors capitalize ${
-                  selectedCategory === cat 
-                    ? 'bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-300' 
+                  selectedCategory === cat
+                    ? 'bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-300'
                     : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300'
                 }`}
               >
@@ -230,7 +236,7 @@ export default function HashtagManager() {
                   {cat}
                 </span>
                 <Badge variant="secondary" className="text-xs">
-                  {hashtags.filter(h => h.category === cat).length}
+                  {hashtags.filter((h) => h.category === cat).length}
                 </Badge>
               </button>
             ))}
@@ -238,8 +244,8 @@ export default function HashtagManager() {
             <button
               onClick={() => setSelectedCategory('uncategorized')}
               className={`w-full flex items-center justify-between p-2.5 rounded-lg text-sm transition-colors ${
-                selectedCategory === 'uncategorized' 
-                  ? 'bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300' 
+                selectedCategory === 'uncategorized'
+                  ? 'bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300'
                   : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400'
               }`}
             >
@@ -248,7 +254,7 @@ export default function HashtagManager() {
                 Uncategorized
               </span>
               <Badge variant="secondary" className="text-xs">
-                {hashtags.filter(h => !h.category).length}
+                {hashtags.filter((h) => !h.category).length}
               </Badge>
             </button>
           </CardContent>
@@ -277,7 +283,7 @@ export default function HashtagManager() {
                     className="w-48"
                     onKeyDown={(e) => e.key === 'Enter' && handleAddHashtag()}
                   />
-                  <Button 
+                  <Button
                     onClick={handleAddHashtag}
                     disabled={!newHashtag.trim() || addMutation.isPending}
                     className="gap-2 bg-violet-600 hover:bg-violet-700"
@@ -300,7 +306,9 @@ export default function HashtagManager() {
             </Card>
             <Card className="border-0 shadow-sm rounded-xl">
               <CardContent className="p-4 text-center">
-                <p className="text-2xl font-bold text-amber-600">{hashtags.filter(h => h.is_favorite).length}</p>
+                <p className="text-2xl font-bold text-amber-600">
+                  {hashtags.filter((h) => h.is_favorite).length}
+                </p>
                 <p className="text-xs text-gray-500">Favorites</p>
               </CardContent>
             </Card>
@@ -325,10 +333,13 @@ export default function HashtagManager() {
             <CardHeader className="pb-2">
               <CardTitle className="text-base font-semibold flex items-center justify-between">
                 <span>
-                  {selectedCategory === 'all' ? 'All Hashtags' : 
-                   selectedCategory === 'favorites' ? 'Favorite Hashtags' :
-                   selectedCategory === 'uncategorized' ? 'Uncategorized' :
-                   `${selectedCategory} Hashtags`}
+                  {selectedCategory === 'all'
+                    ? 'All Hashtags'
+                    : selectedCategory === 'favorites'
+                      ? 'Favorite Hashtags'
+                      : selectedCategory === 'uncategorized'
+                        ? 'Uncategorized'
+                        : `${selectedCategory} Hashtags`}
                 </span>
                 <Badge variant="secondary">{filteredHashtags.length} hashtags</Badge>
               </CardTitle>
@@ -342,12 +353,12 @@ export default function HashtagManager() {
                 </div>
               ) : (
                 <div className="flex flex-wrap gap-2">
-                  {filteredHashtags.map(hashtag => (
+                  {filteredHashtags.map((hashtag) => (
                     <div
                       key={hashtag.id}
                       className={`group relative flex items-center gap-2 px-3 py-2 rounded-full border transition-all hover:shadow-md ${
-                        hashtag.category && categoryColors[hashtag.category] 
-                          ? categoryColors[hashtag.category] 
+                        hashtag.category && categoryColors[hashtag.category]
+                          ? categoryColors[hashtag.category]
                           : 'bg-gray-100 text-gray-700 border-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700'
                       }`}
                     >
@@ -361,15 +372,15 @@ export default function HashtagManager() {
                           <StarOff className="w-3.5 h-3.5 text-gray-400" />
                         )}
                       </button>
-                      
+
                       <span className="font-medium text-sm">#{hashtag.hashtag}</span>
-                      
+
                       {hashtag.usage_count > 0 && (
                         <Badge variant="secondary" className="text-xs px-1.5 py-0">
                           {hashtag.usage_count}
                         </Badge>
                       )}
-                      
+
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <button className="opacity-0 group-hover:opacity-100 transition-opacity">
@@ -381,7 +392,7 @@ export default function HashtagManager() {
                             <Copy className="w-4 h-4 mr-2" />
                             Copy
                           </DropdownMenuItem>
-                          <DropdownMenuItem 
+                          <DropdownMenuItem
                             onClick={() => deleteMutation.mutate(hashtag.id)}
                             className="text-red-600"
                           >
@@ -416,7 +427,9 @@ export default function HashtagManager() {
               />
             </div>
             <div className="flex justify-end gap-3">
-              <Button variant="outline" onClick={() => setShowBulkModal(false)}>Cancel</Button>
+              <Button variant="outline" onClick={() => setShowBulkModal(false)}>
+                Cancel
+              </Button>
               <Button onClick={handleBulkAdd} className="bg-violet-600 hover:bg-violet-700">
                 Add Hashtags
               </Button>
@@ -441,16 +454,19 @@ export default function HashtagManager() {
               />
             </div>
             <p className="text-sm text-gray-500">
-              Categories help organize your hashtags. You can assign hashtags to categories when editing them.
+              Categories help organize your hashtags. You can assign hashtags to categories when
+              editing them.
             </p>
             <div className="flex justify-end gap-3">
-              <Button variant="outline" onClick={() => setShowCategoryModal(false)}>Cancel</Button>
-              <Button 
+              <Button variant="outline" onClick={() => setShowCategoryModal(false)}>
+                Cancel
+              </Button>
+              <Button
                 onClick={() => {
                   // Categories are implicit - just close and user can assign to hashtags
                   setShowCategoryModal(false);
                   setNewCategory({ name: '', color: 'violet' });
-                }} 
+                }}
                 className="bg-violet-600 hover:bg-violet-700"
               >
                 Save Category

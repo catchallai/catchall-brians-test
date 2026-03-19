@@ -1,9 +1,18 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Calendar, Loader2, TrendingUp, TrendingDown, History, Sparkles } from "lucide-react";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Calendar, Loader2, TrendingUp, TrendingDown, History, Sparkles } from 'lucide-react';
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from 'recharts';
 
 export default function HistoricalAnalysisCard({ account, onAnalyzeHistory, isAnalyzing }) {
   const [historicalData, setHistoricalData] = useState(null);
@@ -22,12 +31,16 @@ export default function HistoricalAnalysisCard({ account, onAnalyzeHistory, isAn
           <p className="text-sm text-gray-500 mb-4">
             Analyze 5+ years of data to uncover long-term trends and patterns
           </p>
-          <Button 
+          <Button
             onClick={handleAnalyze}
             disabled={isAnalyzing}
             className="bg-violet-600 hover:bg-violet-700"
           >
-            {isAnalyzing ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Sparkles className="w-4 h-4 mr-2" />}
+            {isAnalyzing ? (
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+            ) : (
+              <Sparkles className="w-4 h-4 mr-2" />
+            )}
             {isAnalyzing ? 'Analyzing 5 Years...' : 'Analyze History'}
           </Button>
         </CardContent>
@@ -55,7 +68,8 @@ export default function HistoricalAnalysisCard({ account, onAnalyzeHistory, isAn
           <div className="text-center p-3 bg-violet-50 dark:bg-violet-900/20 rounded-lg">
             <p className="text-sm text-gray-500 mb-1">Follower Growth</p>
             <p className="text-2xl font-bold text-gray-900 dark:text-white">
-              {historicalData.follower_growth_rate > 0 ? '+' : ''}{historicalData.follower_growth_rate}%
+              {historicalData.follower_growth_rate > 0 ? '+' : ''}
+              {historicalData.follower_growth_rate}%
             </p>
             <p className="text-xs text-gray-500">Since {historicalData.start_year}</p>
           </div>
@@ -63,9 +77,15 @@ export default function HistoricalAnalysisCard({ account, onAnalyzeHistory, isAn
             <p className="text-sm text-gray-500 mb-1">Engagement Trend</p>
             <p className="text-2xl font-bold flex items-center justify-center gap-1">
               {historicalData.engagement_trend === 'up' ? (
-                <><TrendingUp className="w-5 h-5 text-emerald-600" /><span className="text-emerald-600">Up</span></>
+                <>
+                  <TrendingUp className="w-5 h-5 text-emerald-600" />
+                  <span className="text-emerald-600">Up</span>
+                </>
               ) : historicalData.engagement_trend === 'down' ? (
-                <><TrendingDown className="w-5 h-5 text-red-600" /><span className="text-red-600">Down</span></>
+                <>
+                  <TrendingDown className="w-5 h-5 text-red-600" />
+                  <span className="text-red-600">Down</span>
+                </>
               ) : (
                 <span className="text-gray-600">Stable</span>
               )}
@@ -82,7 +102,9 @@ export default function HistoricalAnalysisCard({ account, onAnalyzeHistory, isAn
 
         {/* Historical Chart */}
         <div>
-          <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Growth Over Time</h4>
+          <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+            Growth Over Time
+          </h4>
           <ResponsiveContainer width="100%" height={200}>
             <LineChart data={historicalData.timeline || []}>
               <CartesianGrid strokeDasharray="3 3" />
@@ -99,14 +121,23 @@ export default function HistoricalAnalysisCard({ account, onAnalyzeHistory, isAn
         {/* Key Milestones */}
         {historicalData.milestones && historicalData.milestones.length > 0 && (
           <div>
-            <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Key Milestones</h4>
+            <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+              Key Milestones
+            </h4>
             <div className="space-y-2">
               {historicalData.milestones.map((milestone, idx) => (
-                <div key={idx} className="flex items-start gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                <div
+                  key={idx}
+                  className="flex items-start gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg"
+                >
                   <Calendar className="w-4 h-4 text-violet-600 mt-0.5" />
                   <div className="flex-1">
-                    <p className="text-sm font-medium text-gray-900 dark:text-white">{milestone.event}</p>
-                    <p className="text-xs text-gray-500">{milestone.date} • {milestone.impact}</p>
+                    <p className="text-sm font-medium text-gray-900 dark:text-white">
+                      {milestone.event}
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      {milestone.date} • {milestone.impact}
+                    </p>
                   </div>
                 </div>
               ))}

@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import {
   Building2,
   Plus,
@@ -17,10 +17,10 @@ import {
   Mail,
   Phone,
   MapPin,
-} from "lucide-react";
+} from 'lucide-react';
 import BusinessModal from '@/components/business/BusinessModal';
 import EmptyState from '@/components/ui/EmptyState';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 export default function BusinessManagement() {
   const [showModal, setShowModal] = useState(false);
@@ -87,12 +87,8 @@ export default function BusinessManagement() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-            Business Management
-          </h1>
-          <p className="text-gray-500 mt-1">
-            Manage your businesses and assign users
-          </p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Business Management</h1>
+          <p className="text-gray-500 mt-1">Manage your businesses and assign users</p>
         </div>
         <Button
           onClick={() => {
@@ -138,10 +134,7 @@ export default function BusinessManagement() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {filteredBusinesses.map((business) => (
-                <Card
-                  key={business.id}
-                  className="hover:shadow-lg transition-shadow"
-                >
+                <Card key={business.id} className="hover:shadow-lg transition-shadow">
                   <CardHeader className="pb-3">
                     <div className="flex items-start justify-between">
                       <div className="flex items-center gap-3">
@@ -151,9 +144,7 @@ export default function BusinessManagement() {
                           </AvatarFallback>
                         </Avatar>
                         <div>
-                          <CardTitle className="text-lg">
-                            {business.name}
-                          </CardTitle>
+                          <CardTitle className="text-lg">{business.name}</CardTitle>
                           {business.industry && (
                             <Badge variant="outline" className="text-xs mt-1">
                               {business.industry}
@@ -162,11 +153,7 @@ export default function BusinessManagement() {
                         </div>
                       </div>
                       <div className="flex gap-1">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleEdit(business)}
-                        >
+                        <Button variant="ghost" size="icon" onClick={() => handleEdit(business)}>
                           <Edit2 className="w-4 h-4" />
                         </Button>
                         <Button
@@ -249,9 +236,7 @@ export default function BusinessManagement() {
                         <Button
                           key={business.id}
                           variant={
-                            user.assigned_businesses?.includes(business.id)
-                              ? 'default'
-                              : 'outline'
+                            user.assigned_businesses?.includes(business.id) ? 'default' : 'outline'
                           }
                           size="sm"
                           onClick={() => toggleUserBusiness(user, business.id)}
@@ -268,11 +253,7 @@ export default function BusinessManagement() {
         </TabsContent>
       </Tabs>
 
-      <BusinessModal
-        open={showModal}
-        onClose={handleCloseModal}
-        business={editingBusiness}
-      />
+      <BusinessModal open={showModal} onClose={handleCloseModal} business={editingBusiness} />
     </div>
   );
 }

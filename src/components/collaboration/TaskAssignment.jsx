@@ -1,13 +1,25 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Badge } from "@/components/ui/badge";
-import { Plus, Trash2, CheckCircle, AlertCircle, Clock } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog';
+import { Badge } from '@/components/ui/badge';
+import { Plus, Trash2, CheckCircle, AlertCircle, Clock } from 'lucide-react';
 
 export default function TaskAssignment({ entityType, entityId }) {
   const [showModal, setShowModal] = useState(false);
@@ -29,10 +41,13 @@ export default function TaskAssignment({ entityType, entityId }) {
     queryKey: ['tasks', entityType, entityId],
     queryFn: async () => {
       if (!entityId) return [];
-      return await base44.entities.Task.filter({
-        entity_type: entityType,
-        entity_id: entityId
-      }, '-due_date');
+      return await base44.entities.Task.filter(
+        {
+          entity_type: entityType,
+          entity_id: entityId,
+        },
+        '-due_date'
+      );
     },
     enabled: !!entityId,
   });
@@ -43,13 +58,14 @@ export default function TaskAssignment({ entityType, entityId }) {
   });
 
   const createTaskMutation = useMutation({
-    mutationFn: (data) => base44.entities.Task.create({
-      ...data,
-      entity_type: entityType,
-      entity_id: entityId,
-      business_id: user?.current_business_id,
-      assigned_by: user?.email,
-    }),
+    mutationFn: (data) =>
+      base44.entities.Task.create({
+        ...data,
+        entity_type: entityType,
+        entity_id: entityId,
+        business_id: user?.current_business_id,
+        assigned_by: user?.email,
+      }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tasks', entityType, entityId] });
       setShowModal(false);
@@ -64,10 +80,11 @@ export default function TaskAssignment({ entityType, entityId }) {
   });
 
   const updateTaskMutation = useMutation({
-    mutationFn: ({ id, status }) => base44.entities.Task.update(id, { 
-      status,
-      completed_at: status === 'completed' ? new Date().toISOString() : null 
-    }),
+    mutationFn: ({ id, status }) =>
+      base44.entities.Task.update(id, {
+        status,
+        completed_at: status === 'completed' ? new Date().toISOString() : null,
+      }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tasks', entityType, entityId] });
     },
@@ -139,11 +156,15 @@ export default function TaskAssignment({ entityType, entityId }) {
             >
               <div className="flex items-start justify-between gap-3 mb-2">
                 <div className="flex-1 min-w-0">
-                  <p className={`font-medium ${task.status === 'completed' ? 'line-through text-gray-500' : 'text-gray-900 dark:text-white'}`}>
+                  <p
+                    className={`font-medium ${task.status === 'completed' ? 'line-through text-gray-500' : 'text-gray-900 dark:text-white'}`}
+                  >
                     {task.title}
                   </p>
                   {task.description && (
-                    <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">{task.description}</p>
+                    <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                      {task.description}
+                    </p>
                   )}
                 </div>
                 <Button
@@ -221,7 +242,10 @@ export default function TaskAssignment({ entityType, entityId }) {
 
             <div>
               <label className="text-sm font-medium">Assign To *</label>
-              <Select value={formData.assigned_to} onValueChange={(v) => setFormData({ ...formData, assigned_to: v })}>
+              <Select
+                value={formData.assigned_to}
+                onValueChange={(v) => setFormData({ ...formData, assigned_to: v })}
+              >
                 <SelectTrigger className="mt-1">
                   <SelectValue placeholder="Select team member" />
                 </SelectTrigger>
@@ -238,7 +262,10 @@ export default function TaskAssignment({ entityType, entityId }) {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="text-sm font-medium">Priority</label>
-                <Select value={formData.priority} onValueChange={(v) => setFormData({ ...formData, priority: v })}>
+                <Select
+                  value={formData.priority}
+                  onValueChange={(v) => setFormData({ ...formData, priority: v })}
+                >
                   <SelectTrigger className="mt-1">
                     <SelectValue />
                   </SelectTrigger>
@@ -263,8 +290,13 @@ export default function TaskAssignment({ entityType, entityId }) {
           </div>
 
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowModal(false)}>Cancel</Button>
-            <Button onClick={handleSaveTask} disabled={!formData.title.trim() || !formData.assigned_to}>
+            <Button variant="outline" onClick={() => setShowModal(false)}>
+              Cancel
+            </Button>
+            <Button
+              onClick={handleSaveTask}
+              disabled={!formData.title.trim() || !formData.assigned_to}
+            >
               Create Task
             </Button>
           </DialogFooter>

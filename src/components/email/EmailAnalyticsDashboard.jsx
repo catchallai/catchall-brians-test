@@ -1,10 +1,24 @@
 import React, { useState, useMemo } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
-import { ArrowUpRight, ArrowDownRight } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import {
+  LineChart,
+  Line,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+} from 'recharts';
+import { ArrowUpRight, ArrowDownRight } from 'lucide-react';
 
 export default function EmailAnalyticsDashboard({ businessId }) {
   const [timeRange, setTimeRange] = useState('all'); // all, 7d, 30d, 90d
@@ -31,7 +45,7 @@ export default function EmailAnalyticsDashboard({ businessId }) {
   const filteredCampaigns = useMemo(() => {
     const now = new Date();
     const filterDate = new Date();
-    
+
     switch (timeRange) {
       case '7d':
         filterDate.setDate(filterDate.getDate() - 7);
@@ -45,8 +59,8 @@ export default function EmailAnalyticsDashboard({ businessId }) {
       default:
         return emailCampaigns;
     }
-    
-    return emailCampaigns.filter(c => new Date(c.created_date) >= filterDate);
+
+    return emailCampaigns.filter((c) => new Date(c.created_date) >= filterDate);
   }, [emailCampaigns, timeRange]);
 
   // Calculate key metrics
@@ -77,12 +91,12 @@ export default function EmailAnalyticsDashboard({ businessId }) {
   // Trend data (by week)
   const trendData = useMemo(() => {
     const weeks = {};
-    filteredCampaigns.forEach(campaign => {
+    filteredCampaigns.forEach((campaign) => {
       const date = new Date(campaign.created_date);
       const weekStart = new Date(date);
       weekStart.setDate(weekStart.getDate() - weekStart.getDay());
       const weekKey = weekStart.toISOString().split('T')[0];
-      
+
       if (!weeks[weekKey]) {
         weeks[weekKey] = { week: weekKey, sent: 0, opened: 0, clicked: 0, bounced: 0 };
       }
@@ -91,23 +105,34 @@ export default function EmailAnalyticsDashboard({ businessId }) {
       weeks[weekKey].clicked += campaign.total_clicked || 0;
       weeks[weekKey].bounced += campaign.total_bounced || 0;
     });
-    
+
     return Object.values(weeks).sort((a, b) => new Date(a.week) - new Date(b.week));
   }, [filteredCampaigns]);
 
   // Campaign performance table
   const campaignPerformance = useMemo(() => {
-    return filteredCampaigns.map(campaign => ({
-      id: campaign.id,
-      name: campaign.name,
-      sent: campaign.total_sent || 0,
-      opened: campaign.total_opened || 0,
-      clicked: campaign.total_clicked || 0,
-      bounced: campaign.total_bounced || 0,
-      openRate: campaign.total_sent > 0 ? ((campaign.total_opened / campaign.total_sent) * 100).toFixed(1) : 0,
-      clickRate: campaign.total_sent > 0 ? ((campaign.total_clicked / campaign.total_sent) * 100).toFixed(1) : 0,
-      bounceRate: campaign.total_sent > 0 ? ((campaign.total_bounced / campaign.total_sent) * 100).toFixed(1) : 0,
-    })).sort((a, b) => b.sent - a.sent);
+    return filteredCampaigns
+      .map((campaign) => ({
+        id: campaign.id,
+        name: campaign.name,
+        sent: campaign.total_sent || 0,
+        opened: campaign.total_opened || 0,
+        clicked: campaign.total_clicked || 0,
+        bounced: campaign.total_bounced || 0,
+        openRate:
+          campaign.total_sent > 0
+            ? ((campaign.total_opened / campaign.total_sent) * 100).toFixed(1)
+            : 0,
+        clickRate:
+          campaign.total_sent > 0
+            ? ((campaign.total_clicked / campaign.total_sent) * 100).toFixed(1)
+            : 0,
+        bounceRate:
+          campaign.total_sent > 0
+            ? ((campaign.total_bounced / campaign.total_sent) * 100).toFixed(1)
+            : 0,
+      }))
+      .sort((a, b) => b.sent - a.sent);
   }, [filteredCampaigns]);
 
   // Status distribution
@@ -120,7 +145,7 @@ export default function EmailAnalyticsDashboard({ businessId }) {
     <div className="space-y-6">
       {/* Time Range Selector */}
       <div className="flex gap-2">
-        {['all', '7d', '30d', '90d'].map(range => (
+        {['all', '7d', '30d', '90d'].map((range) => (
           <button
             key={range}
             onClick={() => setTimeRange(range)}
@@ -218,14 +243,23 @@ export default function EmailAnalyticsDashboard({ businessId }) {
                   </thead>
                   <tbody>
                     {campaignPerformance.map((campaign) => (
-                      <tr key={campaign.id} className="border-b hover:bg-gray-50 dark:hover:bg-gray-800">
+                      <tr
+                        key={campaign.id}
+                        className="border-b hover:bg-gray-50 dark:hover:bg-gray-800"
+                      >
                         <td className="py-3 px-4">{campaign.name}</td>
                         <td className="text-right py-3 px-4">{campaign.sent}</td>
                         <td className="text-right py-3 px-4">{campaign.opened}</td>
-                        <td className="text-right py-3 px-4 text-emerald-600 font-medium">{campaign.openRate}%</td>
+                        <td className="text-right py-3 px-4 text-emerald-600 font-medium">
+                          {campaign.openRate}%
+                        </td>
                         <td className="text-right py-3 px-4">{campaign.clicked}</td>
-                        <td className="text-right py-3 px-4 text-blue-600 font-medium">{campaign.clickRate}%</td>
-                        <td className="text-right py-3 px-4 text-red-600 font-medium">{campaign.bounceRate}%</td>
+                        <td className="text-right py-3 px-4 text-blue-600 font-medium">
+                          {campaign.clickRate}%
+                        </td>
+                        <td className="text-right py-3 px-4 text-red-600 font-medium">
+                          {campaign.bounceRate}%
+                        </td>
                       </tr>
                     ))}
                   </tbody>
@@ -291,7 +325,9 @@ export default function EmailAnalyticsDashboard({ businessId }) {
           </div>
           <div>
             <p className="text-sm text-gray-600 dark:text-gray-400">Campaigns</p>
-            <p className="text-2xl font-bold text-gray-900 dark:text-white">{metrics.campaignsCount}</p>
+            <p className="text-2xl font-bold text-gray-900 dark:text-white">
+              {metrics.campaignsCount}
+            </p>
           </div>
         </CardContent>
       </Card>
@@ -307,7 +343,8 @@ function MetricCard({ title, value, unit, icon }) {
           <div>
             <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">{title}</p>
             <p className="text-3xl font-bold text-gray-900 dark:text-white">
-              {value}{unit}
+              {value}
+              {unit}
             </p>
           </div>
           <div className="text-violet-600">{icon}</div>

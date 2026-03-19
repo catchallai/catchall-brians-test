@@ -1,29 +1,29 @@
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
-import { Badge } from "@/components/ui/badge";
-import { Users, AlertTriangle, TrendingUp } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
+import { Badge } from '@/components/ui/badge';
+import { Users, AlertTriangle, TrendingUp } from 'lucide-react';
 
 export default function ResourcePlanner({ tasks = [], timeLogs = [] }) {
-  const teamMembers = [...new Set(tasks.map(t => t.assigned_to).filter(Boolean))];
+  const teamMembers = [...new Set(tasks.map((t) => t.assigned_to).filter(Boolean))];
 
   const getMemberStats = (email) => {
-    const memberTasks = tasks.filter(t => t.assigned_to === email);
+    const memberTasks = tasks.filter((t) => t.assigned_to === email);
     const totalHours = memberTasks.reduce((sum, t) => sum + (t.estimated_hours || 0), 0);
-    const completedTasks = memberTasks.filter(t => t.status === 'done').length;
-    const memberLogs = timeLogs.filter(l => l.user_email === email);
+    const completedTasks = memberTasks.filter((t) => t.status === 'done').length;
+    const memberLogs = timeLogs.filter((l) => l.user_email === email);
     const loggedHours = memberLogs.reduce((sum, l) => sum + (l.hours || 0), 0);
-    
+
     const capacity = 40; // weekly capacity
     const utilization = (totalHours / capacity) * 100;
-    
+
     return {
       totalTasks: memberTasks.length,
       completedTasks,
       totalHours,
       loggedHours,
       utilization: Math.min(100, utilization),
-      isOverloaded: utilization > 100
+      isOverloaded: utilization > 100,
     };
   };
 
@@ -46,14 +46,16 @@ export default function ResourcePlanner({ tasks = [], timeLogs = [] }) {
                 <div className="flex items-center justify-between">
                   <span className="font-medium">{email.split('@')[0]}</span>
                   <div className="flex items-center gap-2">
-                    {stats.isOverloaded && (
-                      <AlertTriangle className="w-4 h-4 text-red-500" />
-                    )}
-                    <Badge className={
-                      stats.isOverloaded ? 'bg-red-100 text-red-800' :
-                      stats.utilization > 80 ? 'bg-yellow-100 text-yellow-800' :
-                      'bg-emerald-100 text-emerald-800'
-                    }>
+                    {stats.isOverloaded && <AlertTriangle className="w-4 h-4 text-red-500" />}
+                    <Badge
+                      className={
+                        stats.isOverloaded
+                          ? 'bg-red-100 text-red-800'
+                          : stats.utilization > 80
+                            ? 'bg-yellow-100 text-yellow-800'
+                            : 'bg-emerald-100 text-emerald-800'
+                      }
+                    >
                       {stats.utilization.toFixed(0)}%
                     </Badge>
                   </div>

@@ -9,7 +9,12 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { to, subject, html, from = 'CatchAll <noreply@catchall.syberjet.com>' } = await req.json();
+    const {
+      to,
+      subject,
+      html,
+      from = 'CatchAll <noreply@catchall.syberjet.com>',
+    } = await req.json();
 
     const resendApiKey = Deno.env.get('RESEND_API_KEY');
     if (!resendApiKey) {
@@ -19,7 +24,7 @@ Deno.serve(async (req) => {
     const response = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${resendApiKey}`,
+        Authorization: `Bearer ${resendApiKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
@@ -33,16 +38,19 @@ Deno.serve(async (req) => {
     const data = await response.json();
 
     if (!response.ok) {
-      return Response.json({ 
-        error: 'Failed to send email', 
-        details: data 
-      }, { status: response.status });
+      return Response.json(
+        {
+          error: 'Failed to send email',
+          details: data,
+        },
+        { status: response.status }
+      );
     }
 
-    return Response.json({ 
-      success: true, 
+    return Response.json({
+      success: true,
       emailId: data.id,
-      message: 'Email sent successfully' 
+      message: 'Email sent successfully',
     });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });

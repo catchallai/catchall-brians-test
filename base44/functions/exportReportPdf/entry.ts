@@ -55,7 +55,7 @@ Deno.serve(async (req) => {
       doc.setTextColor(17, 24, 39);
       doc.text('Summary', 20, y);
       y += 8;
-      
+
       doc.setFontSize(10);
       doc.setTextColor(75, 85, 99);
       const summaryLines = doc.splitTextToSize(reportData.summary, 170);
@@ -73,12 +73,15 @@ Deno.serve(async (req) => {
 
     // Traffic Insights
     if (reportData.traffic_insights) {
-      if (y > 250) { doc.addPage(); y = 20; }
+      if (y > 250) {
+        doc.addPage();
+        y = 20;
+      }
       doc.setFontSize(14);
       doc.setTextColor(17, 24, 39);
       doc.text('Traffic Insights', 20, y);
       y += 8;
-      
+
       doc.setFontSize(10);
       doc.setTextColor(75, 85, 99);
       const lines = doc.splitTextToSize(reportData.traffic_insights, 170);
@@ -88,12 +91,15 @@ Deno.serve(async (req) => {
 
     // Keyword Performance
     if (reportData.keyword_performance) {
-      if (y > 250) { doc.addPage(); y = 20; }
+      if (y > 250) {
+        doc.addPage();
+        y = 20;
+      }
       doc.setFontSize(14);
       doc.setTextColor(17, 24, 39);
       doc.text('Keyword Performance', 20, y);
       y += 8;
-      
+
       doc.setFontSize(10);
       doc.setTextColor(75, 85, 99);
       const lines = doc.splitTextToSize(reportData.keyword_performance, 170);
@@ -103,12 +109,15 @@ Deno.serve(async (req) => {
 
     // Backlink Summary
     if (reportData.backlink_summary) {
-      if (y > 250) { doc.addPage(); y = 20; }
+      if (y > 250) {
+        doc.addPage();
+        y = 20;
+      }
       doc.setFontSize(14);
       doc.setTextColor(17, 24, 39);
       doc.text('Backlink Summary', 20, y);
       y += 8;
-      
+
       doc.setFontSize(10);
       doc.setTextColor(75, 85, 99);
       const lines = doc.splitTextToSize(reportData.backlink_summary, 170);
@@ -118,12 +127,15 @@ Deno.serve(async (req) => {
 
     // Technical Health
     if (reportData.technical_health) {
-      if (y > 250) { doc.addPage(); y = 20; }
+      if (y > 250) {
+        doc.addPage();
+        y = 20;
+      }
       doc.setFontSize(14);
       doc.setTextColor(17, 24, 39);
       doc.text('Technical Health', 20, y);
       y += 8;
-      
+
       doc.setFontSize(10);
       doc.setTextColor(75, 85, 99);
       const lines = doc.splitTextToSize(reportData.technical_health, 170);
@@ -133,16 +145,22 @@ Deno.serve(async (req) => {
 
     // Recommendations
     if (reportData.recommendations?.length > 0) {
-      if (y > 230) { doc.addPage(); y = 20; }
+      if (y > 230) {
+        doc.addPage();
+        y = 20;
+      }
       doc.setFontSize(14);
       doc.setTextColor(17, 24, 39);
       doc.text('Recommendations', 20, y);
       y += 8;
-      
+
       doc.setFontSize(10);
       doc.setTextColor(75, 85, 99);
       reportData.recommendations.forEach((rec, idx) => {
-        if (y > 270) { doc.addPage(); y = 20; }
+        if (y > 270) {
+          doc.addPage();
+          y = 20;
+        }
         const lines = doc.splitTextToSize(`${idx + 1}. ${rec}`, 165);
         doc.text(lines, 25, y);
         y += lines.length * 5 + 3;
@@ -174,7 +192,7 @@ Deno.serve(async (req) => {
             ${reportData.summary ? `<h3>Summary</h3><p>${reportData.summary}</p>` : ''}
             ${reportData.score ? `<p><strong>Overall Score:</strong> ${reportData.score}/100</p>` : ''}
             <p>View the full report in your CatchAll dashboard.</p>
-          `
+          `,
         });
       }
     }
@@ -184,10 +202,9 @@ Deno.serve(async (req) => {
       status: 200,
       headers: {
         'Content-Type': 'application/pdf',
-        'Content-Disposition': `attachment; filename="${report.name || 'report'}.pdf"`
-      }
+        'Content-Disposition': `attachment; filename="${report.name || 'report'}.pdf"`,
+      },
     });
-
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
   }

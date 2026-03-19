@@ -20,25 +20,25 @@ For each mention: mention_text, source, source_url, author, sentiment (positive/
 Include at least 10 mentions.`,
       add_context_from_internet: true,
       response_json_schema: {
-        type: "object",
+        type: 'object',
         properties: {
           mentions: {
-            type: "array",
+            type: 'array',
             items: {
-              type: "object",
+              type: 'object',
               properties: {
-                mention_text: { type: "string" },
-                source: { type: "string" },
-                source_url: { type: "string" },
-                author: { type: "string" },
-                sentiment: { type: "string" },
-                reach: { type: "number" },
-                mentions_competitor: { type: "boolean" }
-              }
-            }
-          }
-        }
-      }
+                mention_text: { type: 'string' },
+                source: { type: 'string' },
+                source_url: { type: 'string' },
+                author: { type: 'string' },
+                sentiment: { type: 'string' },
+                reach: { type: 'number' },
+                mentions_competitor: { type: 'boolean' },
+              },
+            },
+          },
+        },
+      },
     });
 
     // Save mentions
@@ -55,10 +55,10 @@ Include at least 10 mentions.`,
         sentiment: mention.sentiment,
         reach: mention.reach,
         mentions_competitor: mention.mentions_competitor,
-        is_alert: mention.sentiment === 'negative' || mention.mentions_competitor
+        is_alert: mention.sentiment === 'negative' || mention.mentions_competitor,
       });
       createdMentions.push(created);
-      
+
       if (mention.sentiment === 'negative') {
         negativeMentions.push(created);
       }
@@ -68,7 +68,7 @@ Include at least 10 mentions.`,
       success: true,
       total_mentions: createdMentions.length,
       negative_mentions: negativeMentions.length,
-      data: createdMentions
+      data: createdMentions,
     });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });

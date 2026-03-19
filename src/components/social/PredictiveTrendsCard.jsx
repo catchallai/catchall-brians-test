@@ -1,9 +1,18 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Loader2, TrendingUp, Sparkles, Calendar, Target, AlertTriangle, Zap } from "lucide-react";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Loader2, TrendingUp, Sparkles, Calendar, Target, AlertTriangle, Zap } from 'lucide-react';
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  ReferenceLine,
+} from 'recharts';
 import { base44 } from '@/api/base44Client';
 import { format, addDays } from 'date-fns';
 
@@ -14,21 +23,21 @@ export default function PredictiveTrendsCard({ socialAccounts = [], posts = [] }
   const analyzeTrends = async () => {
     setIsAnalyzing(true);
     try {
-      const accountSummary = socialAccounts.map(a => ({
+      const accountSummary = socialAccounts.map((a) => ({
         platform: a.platform,
         followers: a.followers,
         engagement_rate: a.engagement_rate,
-        recent_growth: a.follower_growth_rate
+        recent_growth: a.follower_growth_rate,
       }));
 
-      const postPerformance = posts.slice(0, 20).map(p => ({
+      const postPerformance = posts.slice(0, 20).map((p) => ({
         platform: p.platform,
         type: p.post_type,
         likes: p.likes,
         comments: p.comments,
         shares: p.shares,
         engagement_rate: p.engagement_rate,
-        posted: p.post_date
+        posted: p.post_date,
       }));
 
       const result = await base44.integrations.Core.InvokeLLM({
@@ -48,80 +57,80 @@ Provide predictions for the next 14 days including:
 
 Be specific with numbers and actionable recommendations.`,
         response_json_schema: {
-          type: "object",
+          type: 'object',
           properties: {
             engagement_forecast: {
-              type: "array",
+              type: 'array',
               items: {
-                type: "object",
+                type: 'object',
                 properties: {
-                  day: { type: "number" },
-                  predicted_engagement: { type: "number" },
-                  confidence: { type: "number" },
-                  notes: { type: "string" }
-                }
-              }
+                  day: { type: 'number' },
+                  predicted_engagement: { type: 'number' },
+                  confidence: { type: 'number' },
+                  notes: { type: 'string' },
+                },
+              },
             },
             optimal_times: {
-              type: "array",
+              type: 'array',
               items: {
-                type: "object",
+                type: 'object',
                 properties: {
-                  platform: { type: "string" },
-                  best_days: { type: "array", items: { type: "string" } },
-                  best_hours: { type: "array", items: { type: "string" } },
-                  reason: { type: "string" }
-                }
-              }
+                  platform: { type: 'string' },
+                  best_days: { type: 'array', items: { type: 'string' } },
+                  best_hours: { type: 'array', items: { type: 'string' } },
+                  reason: { type: 'string' },
+                },
+              },
             },
             content_predictions: {
-              type: "array",
+              type: 'array',
               items: {
-                type: "object",
+                type: 'object',
                 properties: {
-                  content_type: { type: "string" },
-                  predicted_performance: { type: "string" },
-                  recommendation: { type: "string" }
-                }
-              }
+                  content_type: { type: 'string' },
+                  predicted_performance: { type: 'string' },
+                  recommendation: { type: 'string' },
+                },
+              },
             },
             trending_topics: {
-              type: "array",
+              type: 'array',
               items: {
-                type: "object",
+                type: 'object',
                 properties: {
-                  topic: { type: "string" },
-                  relevance_score: { type: "number" },
-                  peak_window: { type: "string" },
-                  suggested_angle: { type: "string" }
-                }
-              }
+                  topic: { type: 'string' },
+                  relevance_score: { type: 'number' },
+                  peak_window: { type: 'string' },
+                  suggested_angle: { type: 'string' },
+                },
+              },
             },
             risk_factors: {
-              type: "array",
+              type: 'array',
               items: {
-                type: "object",
+                type: 'object',
                 properties: {
-                  risk: { type: "string" },
-                  probability: { type: "string" },
-                  mitigation: { type: "string" }
-                }
-              }
+                  risk: { type: 'string' },
+                  probability: { type: 'string' },
+                  mitigation: { type: 'string' },
+                },
+              },
             },
             growth_opportunities: {
-              type: "array",
+              type: 'array',
               items: {
-                type: "object",
+                type: 'object',
                 properties: {
-                  opportunity: { type: "string" },
-                  potential_impact: { type: "string" },
-                  action_required: { type: "string" }
-                }
-              }
+                  opportunity: { type: 'string' },
+                  potential_impact: { type: 'string' },
+                  action_required: { type: 'string' },
+                },
+              },
             },
-            summary: { type: "string" }
-          }
-        }
+            summary: { type: 'string' },
+          },
+        },
       });
 
       setPredictions(result);
@@ -132,11 +141,12 @@ Be specific with numbers and actionable recommendations.`,
     }
   };
 
-  const chartData = predictions?.engagement_forecast?.map((d, idx) => ({
-    date: format(addDays(new Date(), d.day), 'MMM dd'),
-    engagement: d.predicted_engagement,
-    confidence: d.confidence
-  })) || [];
+  const chartData =
+    predictions?.engagement_forecast?.map((d, idx) => ({
+      date: format(addDays(new Date(), d.day), 'MMM dd'),
+      engagement: d.predicted_engagement,
+      confidence: d.confidence,
+    })) || [];
 
   return (
     <Card className="glass-card rounded-2xl">
@@ -146,13 +156,12 @@ Be specific with numbers and actionable recommendations.`,
             <Sparkles className="w-4 h-4 text-violet-500" />
             AI Predictive Trend Analysis
           </CardTitle>
-          <Button 
-            onClick={analyzeTrends} 
-            disabled={isAnalyzing}
-            size="sm"
-            className="gap-2"
-          >
-            {isAnalyzing ? <Loader2 className="w-4 h-4 animate-spin" /> : <TrendingUp className="w-4 h-4" />}
+          <Button onClick={analyzeTrends} disabled={isAnalyzing} size="sm" className="gap-2">
+            {isAnalyzing ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <TrendingUp className="w-4 h-4" />
+            )}
             {isAnalyzing ? 'Analyzing...' : 'Analyze Trends'}
           </Button>
         </div>
@@ -174,7 +183,9 @@ Be specific with numbers and actionable recommendations.`,
             {/* Engagement Forecast Chart */}
             {chartData.length > 0 && (
               <div>
-                <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">14-Day Engagement Forecast</h4>
+                <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+                  14-Day Engagement Forecast
+                </h4>
                 <div className="h-48">
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={chartData}>
@@ -182,7 +193,13 @@ Be specific with numbers and actionable recommendations.`,
                       <XAxis dataKey="date" fontSize={10} stroke="#9ca3af" />
                       <YAxis fontSize={10} stroke="#9ca3af" />
                       <Tooltip />
-                      <Line type="monotone" dataKey="engagement" stroke="#8b5cf6" strokeWidth={2} dot={{ fill: '#8b5cf6' }} />
+                      <Line
+                        type="monotone"
+                        dataKey="engagement"
+                        stroke="#8b5cf6"
+                        strokeWidth={2}
+                        dot={{ fill: '#8b5cf6' }}
+                      />
                     </LineChart>
                   </ResponsiveContainer>
                 </div>
@@ -199,10 +216,14 @@ Be specific with numbers and actionable recommendations.`,
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   {predictions.optimal_times.map((time, idx) => (
                     <div key={idx} className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
-                      <p className="font-medium text-gray-900 dark:text-white capitalize">{time.platform}</p>
+                      <p className="font-medium text-gray-900 dark:text-white capitalize">
+                        {time.platform}
+                      </p>
                       <div className="flex flex-wrap gap-1 mt-2">
-                        {time.best_days?.map(day => (
-                          <Badge key={day} variant="outline" className="text-xs">{day}</Badge>
+                        {time.best_days?.map((day) => (
+                          <Badge key={day} variant="outline" className="text-xs">
+                            {day}
+                          </Badge>
                         ))}
                       </div>
                       <p className="text-xs text-gray-500 mt-2">{time.best_hours?.join(', ')}</p>
@@ -222,13 +243,18 @@ Be specific with numbers and actionable recommendations.`,
                 </h4>
                 <div className="space-y-2">
                   {predictions.trending_topics.map((topic, idx) => (
-                    <div key={idx} className="flex items-start justify-between bg-emerald-50 dark:bg-emerald-900/20 rounded-lg p-3">
+                    <div
+                      key={idx}
+                      className="flex items-start justify-between bg-emerald-50 dark:bg-emerald-900/20 rounded-lg p-3"
+                    >
                       <div>
                         <p className="font-medium text-gray-900 dark:text-white">{topic.topic}</p>
                         <p className="text-xs text-gray-500 mt-1">{topic.suggested_angle}</p>
                       </div>
                       <div className="text-right">
-                        <Badge className="bg-emerald-100 text-emerald-700">{topic.relevance_score}% relevant</Badge>
+                        <Badge className="bg-emerald-100 text-emerald-700">
+                          {topic.relevance_score}% relevant
+                        </Badge>
                         <p className="text-xs text-gray-500 mt-1">{topic.peak_window}</p>
                       </div>
                     </div>
@@ -251,7 +277,9 @@ Be specific with numbers and actionable recommendations.`,
                         <p className="font-medium text-gray-900 dark:text-white">{risk.risk}</p>
                         <Badge className="bg-amber-100 text-amber-700">{risk.probability}</Badge>
                       </div>
-                      <p className="text-xs text-gray-600 dark:text-gray-400">Mitigation: {risk.mitigation}</p>
+                      <p className="text-xs text-gray-600 dark:text-gray-400">
+                        Mitigation: {risk.mitigation}
+                      </p>
                     </div>
                   ))}
                 </div>

@@ -10,7 +10,7 @@ import {
   Shield,
   User,
 } from 'lucide-react';
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 
 export default function Sidebar({
   activeView,
@@ -140,7 +140,10 @@ export default function Sidebar({
         <div className="mt-2 cursor-pointer" onClick={onAccountClick}>
           <Avatar className="w-8 h-8 hover:opacity-80 transition-opacity">
             <AvatarFallback className="bg-gradient-to-br from-violet-600 to-violet-700 text-white text-xs font-bold">
-              {user?.full_name?.split(' ').map(n => n[0]).join('') || 'U'}
+              {user?.full_name
+                ?.split(' ')
+                .map((n) => n[0])
+                .join('') || 'U'}
             </AvatarFallback>
           </Avatar>
         </div>

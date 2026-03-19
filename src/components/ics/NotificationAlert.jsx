@@ -1,17 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { base44 } from '@/api/base44Client';
-import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Card } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { AlertCircle, MessageSquare, AtSign, X } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 
-export default function NotificationAlert({ 
-  channelId, 
-  user,
-  onNotificationClick,
-  onDismiss
-}) {
+export default function NotificationAlert({ channelId, user, onNotificationClick, onDismiss }) {
   const [recentNotifications, setRecentNotifications] = useState([]);
 
   useEffect(() => {
@@ -37,7 +32,7 @@ export default function NotificationAlert({
   const dismissNotification = async (notifId) => {
     try {
       await base44.entities.Notification.update(notifId, { is_read: true });
-      setRecentNotifications(prev => prev.filter(n => n.id !== notifId));
+      setRecentNotifications((prev) => prev.filter((n) => n.id !== notifId));
     } catch (err) {
       console.error('Failed to dismiss notification:', err);
     }
@@ -47,10 +42,12 @@ export default function NotificationAlert({
 
   return (
     <div className="fixed bottom-6 right-6 space-y-3 max-w-sm z-50">
-      {recentNotifications.map(notif => {
+      {recentNotifications.map((notif) => {
         const Icon = notif.type === 'mention' ? AtSign : MessageSquare;
-        const bgColor = notif.type === 'mention' ? 'bg-amber-50 border-amber-200' : 'bg-blue-50 border-blue-200';
-        const badgeColor = notif.type === 'mention' ? 'bg-amber-100 text-amber-800' : 'bg-blue-100 text-blue-800';
+        const bgColor =
+          notif.type === 'mention' ? 'bg-amber-50 border-amber-200' : 'bg-blue-50 border-blue-200';
+        const badgeColor =
+          notif.type === 'mention' ? 'bg-amber-100 text-amber-800' : 'bg-blue-100 text-blue-800';
 
         return (
           <Card key={notif.id} className={`p-4 border shadow-lg ${bgColor}`}>

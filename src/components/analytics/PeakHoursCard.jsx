@@ -1,19 +1,21 @@
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Clock } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Clock } from 'lucide-react';
 
 export default function PeakHoursCard({ data }) {
   // Generate heatmap data for 7 days x 24 hours
   const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
   const hours = Array.from({ length: 24 }, (_, i) => i);
-  
-  const heatmapData = data || days.map(day => ({
-    day,
-    hours: hours.map(hour => ({
-      hour,
-      value: Math.floor(Math.random() * 100),
-    }))
-  }));
+
+  const heatmapData =
+    data ||
+    days.map((day) => ({
+      day,
+      hours: hours.map((hour) => ({
+        hour,
+        value: Math.floor(Math.random() * 100),
+      })),
+    }));
 
   const getColor = (value) => {
     if (value < 20) return 'bg-gray-100 dark:bg-gray-700';
@@ -30,8 +32,8 @@ export default function PeakHoursCard({ data }) {
 
   // Find peak hour
   let peakHour = { day: '', hour: 0, value: 0 };
-  heatmapData.forEach(dayData => {
-    dayData.hours.forEach(hourData => {
+  heatmapData.forEach((dayData) => {
+    dayData.hours.forEach((hourData) => {
       if (hourData.value > peakHour.value) {
         peakHour = { day: dayData.day, hour: hourData.hour, value: hourData.value };
       }
@@ -47,7 +49,10 @@ export default function PeakHoursCard({ data }) {
             Peak Hours Heatmap
           </CardTitle>
           <div className="text-xs text-gray-500 dark:text-gray-400">
-            Peak: <span className="font-medium text-violet-600">{peakHour.day} {peakHour.hour}:00</span>
+            Peak:{' '}
+            <span className="font-medium text-violet-600">
+              {peakHour.day} {peakHour.hour}:00
+            </span>
           </div>
         </div>
       </CardHeader>
@@ -57,18 +62,20 @@ export default function PeakHoursCard({ data }) {
             {/* Hour labels */}
             <div className="flex mb-1">
               <div className="w-10" />
-              {[0, 3, 6, 9, 12, 15, 18, 21].map(h => (
+              {[0, 3, 6, 9, 12, 15, 18, 21].map((h) => (
                 <div key={h} className="flex-1 text-xs text-gray-400 text-center">
                   {h.toString().padStart(2, '0')}
                 </div>
               ))}
             </div>
-            
+
             {/* Heatmap grid */}
             <div className="space-y-1">
               {heatmapData.map((dayData) => (
                 <div key={dayData.day} className="flex items-center gap-1">
-                  <span className="w-10 text-xs text-gray-500 dark:text-gray-400">{dayData.day}</span>
+                  <span className="w-10 text-xs text-gray-500 dark:text-gray-400">
+                    {dayData.day}
+                  </span>
                   <div className="flex-1 flex gap-0.5">
                     {dayData.hours.map((hourData) => (
                       <div
@@ -81,12 +88,18 @@ export default function PeakHoursCard({ data }) {
                 </div>
               ))}
             </div>
-            
+
             {/* Legend */}
             <div className="flex items-center justify-end gap-2 mt-3">
               <span className="text-xs text-gray-400">Low</span>
               <div className="flex gap-0.5">
-                {['bg-gray-100 dark:bg-gray-700', 'bg-violet-100', 'bg-violet-300', 'bg-violet-500', 'bg-violet-700'].map((color, i) => (
+                {[
+                  'bg-gray-100 dark:bg-gray-700',
+                  'bg-violet-100',
+                  'bg-violet-300',
+                  'bg-violet-500',
+                  'bg-violet-700',
+                ].map((color, i) => (
                   <div key={i} className={`w-4 h-3 rounded-sm ${color}`} />
                 ))}
               </div>

@@ -1,25 +1,30 @@
 import React from 'react';
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { TrendingUp, TrendingDown } from "lucide-react";
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { TrendingUp, TrendingDown } from 'lucide-react';
 
 export default function WinLossAnalysis({ deals = [] }) {
-  const closedDeals = deals.filter(d => ['closed_won', 'closed_lost'].includes(d.stage));
-  const wonDeals = deals.filter(d => d.stage === 'closed_won');
-  const lostDeals = deals.filter(d => d.stage === 'closed_lost');
+  const closedDeals = deals.filter((d) => ['closed_won', 'closed_lost'].includes(d.stage));
+  const wonDeals = deals.filter((d) => d.stage === 'closed_won');
+  const lostDeals = deals.filter((d) => d.stage === 'closed_lost');
 
-  const winRate = closedDeals.length > 0 ? (wonDeals.length / closedDeals.length * 100) : 0;
-  const avgDealValue = wonDeals.length > 0 ? wonDeals.reduce((sum, d) => sum + (d.value || 0), 0) / wonDeals.length : 0;
+  const winRate = closedDeals.length > 0 ? (wonDeals.length / closedDeals.length) * 100 : 0;
+  const avgDealValue =
+    wonDeals.length > 0
+      ? wonDeals.reduce((sum, d) => sum + (d.value || 0), 0) / wonDeals.length
+      : 0;
   const totalWonValue = wonDeals.reduce((sum, d) => sum + (d.value || 0), 0);
   const totalLostValue = lostDeals.reduce((sum, d) => sum + (d.value || 0), 0);
 
   const getLostReasons = () => {
     const reasons = {};
-    lostDeals.forEach(d => {
+    lostDeals.forEach((d) => {
       const reason = d.lost_reason || 'No reason provided';
       reasons[reason] = (reasons[reason] || 0) + 1;
     });
-    return Object.entries(reasons).sort((a, b) => b[1] - a[1]).slice(0, 3);
+    return Object.entries(reasons)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 3);
   };
 
   return (

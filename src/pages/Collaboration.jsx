@@ -1,16 +1,27 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
 import {
-  Users, FolderKanban, MessageSquare, GitBranch, Plus,
-  Loader2, Sparkles, CheckCircle, Clock, AlertTriangle, LayoutGrid, List, Columns
-} from "lucide-react";
+  Users,
+  FolderKanban,
+  MessageSquare,
+  GitBranch,
+  Plus,
+  Loader2,
+  Sparkles,
+  CheckCircle,
+  Clock,
+  AlertTriangle,
+  LayoutGrid,
+  List,
+  Columns,
+} from 'lucide-react';
 import ProjectModal from '@/components/collaboration/ProjectModal';
 import KanbanBoard from '@/components/collaboration/KanbanBoard';
 import TableView from '@/components/collaboration/TableView';
@@ -43,30 +54,31 @@ export default function Collaboration() {
   });
 
   const createProjectMutation = useMutation({
-    mutationFn: (data) => base44.entities.SEOProject.create({
-      ...data,
-      owner: user?.email,
-      team_members: [user?.email]
-    }),
+    mutationFn: (data) =>
+      base44.entities.SEOProject.create({
+        ...data,
+        owner: user?.email,
+        team_members: [user?.email],
+      }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['seo-projects'] });
       setShowProjectModal(false);
-    }
+    },
   });
 
-  const projectTasks = selectedProject 
-    ? tasks.filter(t => t.project_id === selectedProject.id)
+  const projectTasks = selectedProject
+    ? tasks.filter((t) => t.project_id === selectedProject.id)
     : [];
 
   const projectComments = selectedProject
-    ? comments.filter(c => c.project_id === selectedProject.id)
+    ? comments.filter((c) => c.project_id === selectedProject.id)
     : [];
 
   const stats = {
     totalProjects: projects.length,
-    activeTasks: tasks.filter(t => t.status !== 'done').length,
-    myTasks: tasks.filter(t => t.assignee === user?.email && t.status !== 'done').length,
-    pendingReview: tasks.filter(t => t.status === 'review').length
+    activeTasks: tasks.filter((t) => t.status !== 'done').length,
+    myTasks: tasks.filter((t) => t.assignee === user?.email && t.status !== 'done').length,
+    pendingReview: tasks.filter((t) => t.status === 'review').length,
   };
 
   if (isLoading) {
@@ -74,7 +86,9 @@ export default function Collaboration() {
       <div className="p-6 lg:p-8 space-y-6 min-h-screen">
         <Skeleton className="h-12 w-64" />
         <div className="grid grid-cols-4 gap-4">
-          {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-24" />)}
+          {[...Array(4)].map((_, i) => (
+            <Skeleton key={i} className="h-24" />
+          ))}
         </div>
       </div>
     );
@@ -91,7 +105,10 @@ export default function Collaboration() {
           </h1>
           <p className="text-gray-500 mt-1">Work together on SEO projects with AI assistance</p>
         </div>
-        <Button onClick={() => setShowProjectModal(true)} className="gap-2 bg-violet-600 hover:bg-violet-700">
+        <Button
+          onClick={() => setShowProjectModal(true)}
+          className="gap-2 bg-violet-600 hover:bg-violet-700"
+        >
           <Plus className="w-4 h-4" />
           New Project
         </Button>
@@ -164,7 +181,7 @@ export default function Collaboration() {
               {projects.length === 0 ? (
                 <p className="text-sm text-gray-500 text-center py-4">No projects yet</p>
               ) : (
-                projects.map(project => (
+                projects.map((project) => (
                   <button
                     key={project.id}
                     onClick={() => setSelectedProject(project)}
@@ -176,9 +193,11 @@ export default function Collaboration() {
                   >
                     <p className="font-medium text-gray-900 truncate">{project.name}</p>
                     <div className="flex items-center gap-2 mt-1">
-                      <Badge variant="outline" className="text-xs">{project.status}</Badge>
+                      <Badge variant="outline" className="text-xs">
+                        {project.status}
+                      </Badge>
                       <span className="text-xs text-gray-500">
-                        {tasks.filter(t => t.project_id === project.id).length} tasks
+                        {tasks.filter((t) => t.project_id === project.id).length} tasks
                       </span>
                     </div>
                   </button>
@@ -194,8 +213,12 @@ export default function Collaboration() {
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <h2 className="text-2xl font-bold text-gray-900 dark:text-white">{selectedProject.name}</h2>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">{selectedProject.description}</p>
+                  <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+                    {selectedProject.name}
+                  </h2>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    {selectedProject.description}
+                  </p>
                 </div>
                 <div className="flex items-center gap-2">
                   <Button
@@ -229,27 +252,15 @@ export default function Collaboration() {
               </div>
 
               {viewMode === 'kanban' && (
-                <KanbanBoard 
-                  project={selectedProject} 
-                  tasks={projectTasks}
-                  user={user}
-                />
+                <KanbanBoard project={selectedProject} tasks={projectTasks} user={user} />
               )}
 
               {viewMode === 'table' && (
-                <TableView 
-                  project={selectedProject} 
-                  tasks={projectTasks}
-                  user={user}
-                />
+                <TableView project={selectedProject} tasks={projectTasks} user={user} />
               )}
 
               {viewMode === 'timeline' && (
-                <TimelineView 
-                  project={selectedProject} 
-                  tasks={projectTasks}
-                  user={user}
-                />
+                <TimelineView project={selectedProject} tasks={projectTasks} user={user} />
               )}
             </div>
           ) : (

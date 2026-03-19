@@ -1,26 +1,26 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
+} from '@/components/ui/dialog';
 import { Plus, Edit2, Trash2, Zap } from 'lucide-react';
-import { Input } from "@/components/ui/input";
+import { Input } from '@/components/ui/input';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from '@/components/ui/select';
 
 const DEFAULT_RULES = [
   {
@@ -73,24 +73,28 @@ export default function DealProgressionRules({ deals, salesCalls, onApplyRules }
     const applicableDeals = [];
 
     for (const deal of deals) {
-      for (const rule of rules.filter(r => r.enabled)) {
+      for (const rule of rules.filter((r) => r.enabled)) {
         let shouldApply = false;
 
         // Evaluate conditions
         if (rule.condition.type === 'value_threshold') {
           shouldApply = (deal.value || 0) >= rule.condition.value && deal.stage !== 'qualified';
         } else if (rule.condition.type === 'call_count') {
-          const dealCalls = salesCalls.filter(c => c.deal_id === deal.id && c.call_status === 'completed');
+          const dealCalls = salesCalls.filter(
+            (c) => c.deal_id === deal.id && c.call_status === 'completed'
+          );
           shouldApply = dealCalls.length >= rule.condition.count && deal.stage === 'qualified';
         } else if (rule.condition.type === 'stage_duration') {
           const daysSinceStageChange = Math.floor(
             (Date.now() - new Date(deal.updated_date || deal.created_date)) / (1000 * 60 * 60 * 24)
           );
-          shouldApply = deal.stage === rule.condition.stage && daysSinceStageChange >= rule.condition.days;
+          shouldApply =
+            deal.stage === rule.condition.stage && daysSinceStageChange >= rule.condition.days;
         } else if (rule.condition.type === 'inactivity') {
           const recentCalls = salesCalls.filter(
-            c => c.deal_id === deal.id && 
-            (Date.now() - new Date(c.call_date)) / (1000 * 60 * 60 * 24) <= rule.condition.days
+            (c) =>
+              c.deal_id === deal.id &&
+              (Date.now() - new Date(c.call_date)) / (1000 * 60 * 60 * 24) <= rule.condition.days
           );
           shouldApply = deal.stage === rule.condition.stage && recentCalls.length === 0;
         }
@@ -106,7 +110,7 @@ export default function DealProgressionRules({ deals, salesCalls, onApplyRules }
 
   const handleApplyRules = async () => {
     const applicableDeal = await evaluateRules();
-    
+
     // Apply actions
     for (const { deal, rule, action } of applicableDeal) {
       if (action.type === 'move_stage') {
@@ -122,18 +126,16 @@ export default function DealProgressionRules({ deals, salesCalls, onApplyRules }
   };
 
   const toggleRule = (ruleId) => {
-    setRules(rules.map(r => 
-      r.id === ruleId ? { ...r, enabled: !r.enabled } : r
-    ));
+    setRules(rules.map((r) => (r.id === ruleId ? { ...r, enabled: !r.enabled } : r)));
   };
 
   const deleteRule = (ruleId) => {
-    setRules(rules.filter(r => r.id !== ruleId));
+    setRules(rules.filter((r) => r.id !== ruleId));
   };
 
   const saveRule = () => {
     if (editingRule) {
-      setRules(rules.map(r => r.id === editingRule.id ? { ...editingRule, ...newRule } : r));
+      setRules(rules.map((r) => (r.id === editingRule.id ? { ...editingRule, ...newRule } : r)));
     } else {
       setRules([...rules, { ...newRule, id: `rule-${Date.now()}` }]);
     }
@@ -172,24 +174,32 @@ export default function DealProgressionRules({ deals, salesCalls, onApplyRules }
         </p>
 
         <div className="space-y-3">
-          {rules.map(rule => (
-            <div key={rule.id} className="flex items-start justify-between p-3 bg-slate-50 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700">
+          {rules.map((rule) => (
+            <div
+              key={rule.id}
+              className="flex items-start justify-between p-3 bg-slate-50 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700"
+            >
               <div className="flex-1 space-y-1">
                 <div className="flex items-center gap-2">
                   <p className="font-medium text-sm text-gray-900 dark:text-white">{rule.name}</p>
-                  {rule.enabled && <Badge className="text-xs bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200">Active</Badge>}
+                  {rule.enabled && (
+                    <Badge className="text-xs bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200">
+                      Active
+                    </Badge>
+                  )}
                 </div>
                 <p className="text-xs text-gray-600 dark:text-gray-400">{rule.description}</p>
               </div>
               <div className="flex items-center gap-2">
-                <Switch
-                  checked={rule.enabled}
-                  onCheckedChange={() => toggleRule(rule.id)}
-                />
+                <Switch checked={rule.enabled} onCheckedChange={() => toggleRule(rule.id)} />
                 <Button
                   variant="ghost"
                   size="icon"
-                  onClick={() => { setEditingRule(rule); setNewRule(rule); setShowRuleForm(true); }}
+                  onClick={() => {
+                    setEditingRule(rule);
+                    setNewRule(rule);
+                    setShowRuleForm(true);
+                  }}
                 >
                   <Edit2 className="w-4 h-4" />
                 </Button>
@@ -219,7 +229,9 @@ export default function DealProgressionRules({ deals, salesCalls, onApplyRules }
             </DialogHeader>
             <div className="space-y-4">
               <div>
-                <Label htmlFor="rule-name" className="text-sm">Rule Name</Label>
+                <Label htmlFor="rule-name" className="text-sm">
+                  Rule Name
+                </Label>
                 <Input
                   id="rule-name"
                   value={newRule.name}
@@ -228,7 +240,9 @@ export default function DealProgressionRules({ deals, salesCalls, onApplyRules }
                 />
               </div>
               <div>
-                <Label htmlFor="rule-desc" className="text-sm">Description</Label>
+                <Label htmlFor="rule-desc" className="text-sm">
+                  Description
+                </Label>
                 <Input
                   id="rule-desc"
                   value={newRule.description}
@@ -238,7 +252,10 @@ export default function DealProgressionRules({ deals, salesCalls, onApplyRules }
               </div>
               <div>
                 <Label className="text-sm">Condition Type</Label>
-                <Select value={newRule.condition.type} onValueChange={(type) => setNewRule({ ...newRule, condition: { type } })}>
+                <Select
+                  value={newRule.condition.type}
+                  onValueChange={(type) => setNewRule({ ...newRule, condition: { type } })}
+                >
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
@@ -251,7 +268,9 @@ export default function DealProgressionRules({ deals, salesCalls, onApplyRules }
                 </Select>
               </div>
               <div className="flex gap-2 justify-end">
-                <Button variant="outline" onClick={() => setShowRuleForm(false)}>Cancel</Button>
+                <Button variant="outline" onClick={() => setShowRuleForm(false)}>
+                  Cancel
+                </Button>
                 <Button onClick={saveRule}>Save Rule</Button>
               </div>
             </div>

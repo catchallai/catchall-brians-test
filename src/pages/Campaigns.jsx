@@ -1,11 +1,17 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Plus, Search, Megaphone } from "lucide-react";
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Plus, Search, Megaphone } from 'lucide-react';
 import CampaignCard from '@/components/campaigns/CampaignCard';
 import CampaignModal from '@/components/modals/CampaignModal';
 import EmptyState from '@/components/ui/EmptyState';
@@ -74,27 +80,27 @@ export default function Campaigns() {
   };
 
   const getCampaignMetrics = (campaign) => {
-    const linkedContacts = contacts.filter(c => campaign.contact_ids?.includes(c.id));
-    const linkedDeals = deals.filter(d => campaign.deal_ids?.includes(d.id));
-    const wonDeals = linkedDeals.filter(d => d.stage === 'won');
+    const linkedContacts = contacts.filter((c) => campaign.contact_ids?.includes(c.id));
+    const linkedDeals = deals.filter((d) => campaign.deal_ids?.includes(d.id));
+    const wonDeals = linkedDeals.filter((d) => d.stage === 'won');
     const revenue = wonDeals.reduce((sum, d) => sum + (d.value || 0), 0);
-    
+
     return {
       leadsCount: linkedContacts.length,
       dealsCount: linkedDeals.length,
-      revenue
+      revenue,
     };
   };
 
-  const filteredCampaigns = campaigns.filter(campaign => {
-    const matchesSearch = !searchTerm || 
-      campaign.name.toLowerCase().includes(searchTerm.toLowerCase());
+  const filteredCampaigns = campaigns.filter((campaign) => {
+    const matchesSearch =
+      !searchTerm || campaign.name.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesType = typeFilter === 'all' || campaign.type === typeFilter;
     const matchesStatus = statusFilter === 'all' || campaign.status === statusFilter;
     return matchesSearch && matchesType && matchesStatus;
   });
 
-  const activeCampaigns = campaigns.filter(c => c.status === 'active').length;
+  const activeCampaigns = campaigns.filter((c) => c.status === 'active').length;
   const totalBudget = campaigns.reduce((sum, c) => sum + (c.budget || 0), 0);
   const totalSpent = campaigns.reduce((sum, c) => sum + (c.spent || 0), 0);
 
@@ -105,10 +111,17 @@ export default function Campaigns() {
         <div>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Campaigns</h1>
           <p className="text-gray-500 mt-1">
-            {campaigns.length} campaigns • {activeCampaigns} active • ${totalSpent.toLocaleString()} spent
+            {campaigns.length} campaigns • {activeCampaigns} active • ${totalSpent.toLocaleString()}{' '}
+            spent
           </p>
         </div>
-        <Button onClick={() => { setEditingCampaign(null); setShowModal(true); }} className="gap-2 bg-violet-600 hover:bg-violet-700">
+        <Button
+          onClick={() => {
+            setEditingCampaign(null);
+            setShowModal(true);
+          }}
+          className="gap-2 bg-violet-600 hover:bg-violet-700"
+        >
           <Plus className="w-4 h-4" />
           New Campaign
         </Button>
@@ -168,7 +181,10 @@ export default function Campaigns() {
           title="No campaigns yet"
           description="Create marketing campaigns to track performance and link them to contacts, deals, and SEO efforts."
           actionLabel="Create Campaign"
-          onAction={() => { setEditingCampaign(null); setShowModal(true); }}
+          onAction={() => {
+            setEditingCampaign(null);
+            setShowModal(true);
+          }}
         />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -191,7 +207,10 @@ export default function Campaigns() {
       {/* Modal */}
       <CampaignModal
         open={showModal}
-        onClose={() => { setShowModal(false); setEditingCampaign(null); }}
+        onClose={() => {
+          setShowModal(false);
+          setEditingCampaign(null);
+        }}
         campaign={editingCampaign}
         contacts={contacts}
         deals={deals}

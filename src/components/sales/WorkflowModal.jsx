@@ -1,32 +1,40 @@
 import React, { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
-import { Badge } from "@/components/ui/badge";
-import { Plus, X } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
+import { Badge } from '@/components/ui/badge';
+import { Plus, X } from 'lucide-react';
 
 export default function WorkflowModal({ open, onClose, workflow, onSave }) {
-  const [formData, setFormData] = useState(workflow || {
-    name: '',
-    trigger_type: 'followup_completed',
-    actions: [{ type: 'update_stage', config: {} }],
-    is_active: true
-  });
+  const [formData, setFormData] = useState(
+    workflow || {
+      name: '',
+      trigger_type: 'followup_completed',
+      actions: [{ type: 'update_stage', config: {} }],
+      is_active: true,
+    }
+  );
 
   const addAction = () => {
     setFormData({
       ...formData,
-      actions: [...formData.actions, { type: 'update_stage', config: {} }]
+      actions: [...formData.actions, { type: 'update_stage', config: {} }],
     });
   };
 
   const removeAction = (index) => {
     setFormData({
       ...formData,
-      actions: formData.actions.filter((_, i) => i !== index)
+      actions: formData.actions.filter((_, i) => i !== index),
     });
   };
 

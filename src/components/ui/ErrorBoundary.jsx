@@ -1,6 +1,6 @@
 import React from 'react';
-import { Button } from "@/components/ui/button";
-import { AlertTriangle, RefreshCw } from "lucide-react";
+import { Button } from '@/components/ui/button';
+import { AlertTriangle, RefreshCw } from 'lucide-react';
 
 class ErrorBoundary extends React.Component {
   constructor(props) {
@@ -29,10 +29,7 @@ class ErrorBoundary extends React.Component {
           <p className="text-gray-500 dark:text-gray-400 mb-6 max-w-md">
             An unexpected error occurred. Please try refreshing the page.
           </p>
-          <Button 
-            onClick={() => window.location.reload()} 
-            className="gap-2"
-          >
+          <Button onClick={() => window.location.reload()} className="gap-2">
             <RefreshCw className="w-4 h-4" />
             Refresh Page
           </Button>

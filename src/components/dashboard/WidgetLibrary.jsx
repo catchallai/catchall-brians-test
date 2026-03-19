@@ -1,7 +1,17 @@
 import React from 'react';
 import {
-  BarChart3, TrendingUp, Users, DollarSign, Target, Calendar,
-  PieChart, LineChart, Activity, FileText, Mail, Share2
+  BarChart3,
+  TrendingUp,
+  Users,
+  DollarSign,
+  Target,
+  Calendar,
+  PieChart,
+  LineChart,
+  Activity,
+  FileText,
+  Mail,
+  Share2,
 } from 'lucide-react';
 
 export const WIDGET_TYPES = {
@@ -32,13 +42,13 @@ export const WIDGET_TYPES = {
   },
   ACTIVITIES_TODAY: {
     id: 'activities_today',
-    name: 'Today\'s Activities',
+    name: "Today's Activities",
     category: 'CRM',
     icon: Calendar,
     description: 'Activities scheduled for today',
     dataSource: 'activities',
   },
-  
+
   // Sales Widgets
   REVENUE_CHART: {
     id: 'revenue_chart',
@@ -64,7 +74,7 @@ export const WIDGET_TYPES = {
     description: 'Closed won deals',
     dataSource: 'deals',
   },
-  
+
   // SEO Widgets
   KEYWORD_RANKINGS: {
     id: 'keyword_rankings',
@@ -90,7 +100,7 @@ export const WIDGET_TYPES = {
     description: 'Average SEO score',
     dataSource: 'websites',
   },
-  
+
   // Social Widgets
   SOCIAL_ENGAGEMENT: {
     id: 'social_engagement',
@@ -108,7 +118,7 @@ export const WIDGET_TYPES = {
     description: 'Upcoming social posts',
     dataSource: 'scheduledPosts',
   },
-  
+
   // Marketing Widgets
   CAMPAIGN_PERFORMANCE: {
     id: 'campaign_performance',
@@ -129,9 +139,9 @@ export const WIDGET_TYPES = {
 };
 
 export const getWidgetsByCategory = (category) => {
-  return Object.values(WIDGET_TYPES).filter(w => w.category === category);
+  return Object.values(WIDGET_TYPES).filter((w) => w.category === category);
 };
 
 export const getAllCategories = () => {
-  return [...new Set(Object.values(WIDGET_TYPES).map(w => w.category))];
+  return [...new Set(Object.values(WIDGET_TYPES).map((w) => w.category))];
 };

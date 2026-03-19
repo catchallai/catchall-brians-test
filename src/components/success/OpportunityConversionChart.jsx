@@ -1,34 +1,34 @@
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
-import { Target } from "lucide-react";
+import { Target } from 'lucide-react';
 
 const COLORS = {
   identified: '#8b5cf6',
   contacted: '#3b82f6',
   qualified: '#f59e0b',
   closed_won: '#10b981',
-  closed_lost: '#ef4444'
+  closed_lost: '#ef4444',
 };
 
 export default function OpportunityConversionChart({ opportunities }) {
   const chartData = React.useMemo(() => {
     const statusCounts = {};
-    
-    opportunities.forEach(opp => {
+
+    opportunities.forEach((opp) => {
       const status = opp.status || 'identified';
       statusCounts[status] = (statusCounts[status] || 0) + 1;
     });
 
     return Object.entries(statusCounts).map(([status, count]) => ({
-      name: status.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase()),
+      name: status.replace('_', ' ').replace(/\b\w/g, (l) => l.toUpperCase()),
       value: count,
-      color: COLORS[status]
+      color: COLORS[status],
     }));
   }, [opportunities]);
 
   const totalOpps = opportunities.length;
-  const closedWon = opportunities.filter(o => o.status === 'closed_won').length;
+  const closedWon = opportunities.filter((o) => o.status === 'closed_won').length;
   const conversionRate = totalOpps > 0 ? Math.round((closedWon / totalOpps) * 100) : 0;
 
   return (
@@ -44,7 +44,9 @@ export default function OpportunityConversionChart({ opportunities }) {
           <div className="text-center">
             <p className="text-4xl font-bold text-violet-600">{conversionRate}%</p>
             <p className="text-sm text-gray-500">Conversion Rate</p>
-            <p className="text-xs text-gray-400">{closedWon} / {totalOpps} opportunities</p>
+            <p className="text-xs text-gray-400">
+              {closedWon} / {totalOpps} opportunities
+            </p>
           </div>
         </div>
         <ResponsiveContainer width="100%" height={250}>

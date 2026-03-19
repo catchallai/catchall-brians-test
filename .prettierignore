@@ -1,0 +1,24 @@
+node_modules
+dist
+build
+coverage
+
+# Log files
+*.log
+
+# Environment files
+.env
+.env.local
+
+# Vite-specific files
+.vite
+
+# Generated files
+*.generated.*
+
+# Other build artifacts
+.next
+out
+
+# Editor/IDE settings
+.vscode

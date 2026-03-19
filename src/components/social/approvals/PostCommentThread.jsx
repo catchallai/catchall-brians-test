@@ -1,10 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
-import { Send, AtSign, Smile, Loader2, MessageSquare, Reply } from "lucide-react";
+import { Button } from '@/components/ui/button';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
+import { Send, AtSign, Smile, Loader2, MessageSquare, Reply } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 
 // Simple @mention detection: finds @word patterns
@@ -14,7 +14,8 @@ function parseMentions(text) {
   let lastIdx = 0;
   let match;
   while ((match = regex.exec(text)) !== null) {
-    if (match.index > lastIdx) parts.push({ type: 'text', value: text.slice(lastIdx, match.index) });
+    if (match.index > lastIdx)
+      parts.push({ type: 'text', value: text.slice(lastIdx, match.index) });
     parts.push({ type: 'mention', value: match[0] });
     lastIdx = match.index + match[0].length;
   }
@@ -37,17 +38,25 @@ function CommentBubble({ comment, currentUser, onReply }) {
         {comment.reply_to_name && (
           <div className="flex items-center gap-1 text-xs text-gray-400">
             <Reply className="w-3 h-3" />
-            Replying to <span className="font-medium text-violet-500">@{comment.reply_to_name}</span>
+            Replying to{' '}
+            <span className="font-medium text-violet-500">@{comment.reply_to_name}</span>
           </div>
         )}
-        <div className={`rounded-2xl px-3 py-2 text-sm ${
-          isMine
-            ? 'bg-violet-600 text-white rounded-tr-sm'
-            : 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white rounded-tl-sm'
-        }`}>
+        <div
+          className={`rounded-2xl px-3 py-2 text-sm ${
+            isMine
+              ? 'bg-violet-600 text-white rounded-tr-sm'
+              : 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white rounded-tl-sm'
+          }`}
+        >
           {parts.map((p, i) =>
             p.type === 'mention' ? (
-              <span key={i} className={`font-semibold ${isMine ? 'text-violet-200' : 'text-violet-600'}`}>{p.value}</span>
+              <span
+                key={i}
+                className={`font-semibold ${isMine ? 'text-violet-200' : 'text-violet-600'}`}
+              >
+                {p.value}
+              </span>
             ) : (
               <span key={i}>{p.value}</span>
             )
@@ -55,7 +64,8 @@ function CommentBubble({ comment, currentUser, onReply }) {
         </div>
         <div className="flex items-center gap-2 px-1">
           <span className="text-[10px] text-gray-400">
-            {comment.by_name} · {formatDistanceToNow(new Date(comment.timestamp), { addSuffix: true })}
+            {comment.by_name} ·{' '}
+            {formatDistanceToNow(new Date(comment.timestamp), { addSuffix: true })}
           </span>
           {!isMine && (
             <button
@@ -85,7 +95,7 @@ export default function PostCommentThread({ post, currentUser }) {
     queryFn: () => base44.entities.User.list(),
   });
 
-  const comments = post.workflow_history?.filter(e => e.action === 'comment') || [];
+  const comments = post.workflow_history?.filter((e) => e.action === 'comment') || [];
 
   const mutation = useMutation({
     mutationFn: (newComment) =>
@@ -126,16 +136,20 @@ export default function PostCommentThread({ post, currentUser }) {
 
   const insertMention = (user) => {
     const atIdx = text.lastIndexOf('@');
-    const newText = text.slice(0, atIdx) + `@${user.full_name?.split(' ')[0] || user.email.split('@')[0]} `;
+    const newText =
+      text.slice(0, atIdx) + `@${user.full_name?.split(' ')[0] || user.email.split('@')[0]} `;
     setText(newText);
     setShowMentions(false);
     inputRef.current?.focus();
   };
 
-  const filteredUsers = allUsers.filter(u =>
-    u.full_name?.toLowerCase().includes(mentionQuery.toLowerCase()) ||
-    u.email?.toLowerCase().includes(mentionQuery.toLowerCase())
-  ).slice(0, 5);
+  const filteredUsers = allUsers
+    .filter(
+      (u) =>
+        u.full_name?.toLowerCase().includes(mentionQuery.toLowerCase()) ||
+        u.email?.toLowerCase().includes(mentionQuery.toLowerCase())
+    )
+    .slice(0, 5);
 
   const handleSubmit = () => {
     if (!text.trim()) return;
@@ -155,7 +169,9 @@ export default function PostCommentThread({ post, currentUser }) {
       <div className="flex items-center gap-2 mb-3">
         <MessageSquare className="w-4 h-4 text-violet-500" />
         <h3 className="text-sm font-semibold text-gray-800 dark:text-white">Comments</h3>
-        <Badge variant="outline" className="text-xs">{comments.length}</Badge>
+        <Badge variant="outline" className="text-xs">
+          {comments.length}
+        </Badge>
       </div>
 
       {/* Comment list */}
@@ -174,8 +190,12 @@ export default function PostCommentThread({ post, currentUser }) {
       {/* Reply indicator */}
       {replyTo && (
         <div className="flex items-center justify-between bg-violet-50 dark:bg-violet-900/20 rounded-lg px-3 py-1.5 mt-2 text-xs">
-          <span className="text-violet-700">Replying to <strong>{replyTo.by_name}</strong></span>
-          <button onClick={() => setReplyTo(null)} className="text-gray-400 hover:text-red-500">✕</button>
+          <span className="text-violet-700">
+            Replying to <strong>{replyTo.by_name}</strong>
+          </span>
+          <button onClick={() => setReplyTo(null)} className="text-gray-400 hover:text-red-500">
+            ✕
+          </button>
         </div>
       )}
 
@@ -183,14 +203,16 @@ export default function PostCommentThread({ post, currentUser }) {
       <div className="relative mt-3">
         {showMentions && filteredUsers.length > 0 && (
           <div className="absolute bottom-full mb-1 left-0 right-0 bg-white dark:bg-slate-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-lg z-10 overflow-hidden">
-            {filteredUsers.map(u => (
+            {filteredUsers.map((u) => (
               <button
                 key={u.id}
                 onClick={() => insertMention(u)}
                 className="w-full flex items-center gap-2 px-3 py-2 hover:bg-violet-50 dark:hover:bg-violet-900/30 text-left text-sm"
               >
                 <Avatar className="w-6 h-6">
-                  <AvatarFallback className="text-[10px] bg-violet-100 text-violet-600">{u.full_name?.[0]}</AvatarFallback>
+                  <AvatarFallback className="text-[10px] bg-violet-100 text-violet-600">
+                    {u.full_name?.[0]}
+                  </AvatarFallback>
                 </Avatar>
                 <div>
                   <p className="font-medium text-gray-900 dark:text-white">{u.full_name}</p>
@@ -206,7 +228,12 @@ export default function PostCommentThread({ post, currentUser }) {
               ref={inputRef}
               value={text}
               onChange={handleInput}
-              onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSubmit(); } }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  handleSubmit();
+                }
+              }}
               placeholder="Add a comment… use @ to mention someone"
               rows={2}
               className="w-full resize-none text-sm px-3 py-2 pr-8 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-violet-500 text-gray-900 dark:text-white"
@@ -219,7 +246,11 @@ export default function PostCommentThread({ post, currentUser }) {
             disabled={!text.trim() || mutation.isPending}
             className="bg-violet-600 hover:bg-violet-700 rounded-xl h-10 w-10 shrink-0"
           >
-            {mutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+            {mutation.isPending ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <Send className="w-4 h-4" />
+            )}
           </Button>
         </div>
       </div>

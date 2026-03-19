@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
-import { HelpCircle, X, ExternalLink } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { HelpCircle, X, ExternalLink } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 
-export default function FeatureTooltip({ 
-  title, 
-  description, 
+export default function FeatureTooltip({
+  title,
+  description,
   learnMoreLink,
-  position = "bottom-right" 
+  position = 'bottom-right',
 }) {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -31,16 +31,21 @@ export default function FeatureTooltip({
       {isOpen && (
         <>
           <div className="fixed inset-0 z-40" onClick={() => setIsOpen(false)} />
-          <div className={`absolute z-50 w-72 bg-white rounded-xl shadow-xl border p-4 ${positionClasses[position]}`}>
+          <div
+            className={`absolute z-50 w-72 bg-white rounded-xl shadow-xl border p-4 ${positionClasses[position]}`}
+          >
             <div className="flex items-start justify-between mb-2">
               <h4 className="font-semibold text-gray-900">{title}</h4>
-              <button onClick={() => setIsOpen(false)} className="text-gray-400 hover:text-gray-600">
+              <button
+                onClick={() => setIsOpen(false)}
+                className="text-gray-400 hover:text-gray-600"
+              >
                 <X className="w-4 h-4" />
               </button>
             </div>
             <p className="text-sm text-gray-600 mb-3">{description}</p>
             {learnMoreLink && (
-              <Link 
+              <Link
                 to={createPageUrl('HelpCenter') + `?article=${learnMoreLink}`}
                 className="text-sm text-violet-600 hover:text-violet-700 flex items-center gap-1"
                 onClick={() => setIsOpen(false)}

@@ -1,19 +1,41 @@
 import React from 'react';
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Input } from "@/components/ui/input";
-import { X } from "lucide-react";
+import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Input } from '@/components/ui/input';
+import { X } from 'lucide-react';
 
 const REPORT_TYPES = [
-  { id: 'campaign_performance', label: 'Campaign Performance', description: 'Leads, deals & revenue by campaign' },
-  { id: 'contacts_by_source', label: 'Contacts by Source', description: 'Contact acquisition breakdown' },
+  {
+    id: 'campaign_performance',
+    label: 'Campaign Performance',
+    description: 'Leads, deals & revenue by campaign',
+  },
+  {
+    id: 'contacts_by_source',
+    label: 'Contacts by Source',
+    description: 'Contact acquisition breakdown',
+  },
   { id: 'deals_pipeline', label: 'Deals Pipeline', description: 'Deal stages and values' },
   { id: 'keyword_rankings', label: 'Keyword Rankings', description: 'SEO keyword performance' },
-  { id: 'backlink_profile', label: 'Backlink Profile', description: 'Backlink acquisition and quality' },
-  { id: 'revenue_attribution', label: 'Revenue Attribution', description: 'Revenue by campaign/keyword' },
+  {
+    id: 'backlink_profile',
+    label: 'Backlink Profile',
+    description: 'Backlink acquisition and quality',
+  },
+  {
+    id: 'revenue_attribution',
+    label: 'Revenue Attribution',
+    description: 'Revenue by campaign/keyword',
+  },
 ];
 
 const FIELD_OPTIONS = {
@@ -77,14 +99,14 @@ const FIELD_OPTIONS = {
 
 export default function ReportBuilder({ config, onChange, onGenerate }) {
   const handleTypeChange = (type) => {
-    const fields = FIELD_OPTIONS[type]?.slice(0, 5).map(f => f.id) || [];
+    const fields = FIELD_OPTIONS[type]?.slice(0, 5).map((f) => f.id) || [];
     onChange({ ...config, reportType: type, selectedFields: fields });
   };
 
   const toggleField = (fieldId) => {
     const fields = config.selectedFields || [];
     const newFields = fields.includes(fieldId)
-      ? fields.filter(f => f !== fieldId)
+      ? fields.filter((f) => f !== fieldId)
       : [...fields, fieldId];
     onChange({ ...config, selectedFields: newFields });
   };
@@ -94,7 +116,7 @@ export default function ReportBuilder({ config, onChange, onGenerate }) {
   return (
     <Card className="border-0 shadow-sm p-6">
       <h3 className="font-semibold text-gray-900 mb-4">Report Configuration</h3>
-      
+
       <div className="space-y-6">
         {/* Report Type */}
         <div className="space-y-2">
@@ -104,7 +126,7 @@ export default function ReportBuilder({ config, onChange, onGenerate }) {
               <SelectValue placeholder="Select report type" />
             </SelectTrigger>
             <SelectContent>
-              {REPORT_TYPES.map(type => (
+              {REPORT_TYPES.map((type) => (
                 <SelectItem key={type.id} value={type.id}>
                   <div>
                     <span className="font-medium">{type.label}</span>
@@ -121,7 +143,7 @@ export default function ReportBuilder({ config, onChange, onGenerate }) {
           <div className="space-y-2">
             <Label>Select Fields</Label>
             <div className="grid grid-cols-2 gap-2 p-3 border rounded-lg bg-gray-50">
-              {availableFields.map(field => (
+              {availableFields.map((field) => (
                 <div key={field.id} className="flex items-center gap-2">
                   <Checkbox
                     id={field.id}
@@ -158,8 +180,8 @@ export default function ReportBuilder({ config, onChange, onGenerate }) {
         </div>
 
         {/* Generate Button */}
-        <Button 
-          onClick={onGenerate} 
+        <Button
+          onClick={onGenerate}
           disabled={!config.reportType || !config.selectedFields?.length}
           className="w-full bg-violet-600 hover:bg-violet-700"
         >

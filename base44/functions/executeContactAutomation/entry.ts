@@ -7,7 +7,7 @@ Deno.serve(async (req) => {
 
     // Handle entity automation payload
     let contact_id, old_status, new_status;
-    
+
     if (payload.event && payload.event.entity_name === 'Contact') {
       contact_id = payload.event.entity_id;
       new_status = payload.data?.status;

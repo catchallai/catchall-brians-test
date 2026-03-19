@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Button } from "@/components/ui/button";
-import { Calendar, Plus } from "lucide-react";
+import { Button } from '@/components/ui/button';
+import { Calendar, Plus } from 'lucide-react';
 import ReservationModal from '@/components/sales/ReservationModal';
 import ReservationCard from '@/components/sales/ReservationCard';
 import EmptyState from '@/components/ui/EmptyState';
@@ -31,13 +31,15 @@ export default function Reservations() {
 
   const createReservationMutation = useMutation({
     mutationFn: async (data) => {
-      const wasConfirmed = editingReservation?.status !== 'confirmed' && data.status === 'confirmed';
-      const wasCompleted = editingReservation?.status !== 'completed' && data.status === 'completed';
-      
+      const wasConfirmed =
+        editingReservation?.status !== 'confirmed' && data.status === 'confirmed';
+      const wasCompleted =
+        editingReservation?.status !== 'completed' && data.status === 'completed';
+
       const reservation = editingReservation
         ? await base44.entities.SalesReservation.update(editingReservation.id, data)
         : await base44.entities.SalesReservation.create(data);
-      
+
       return reservation;
     },
     onSuccess: () => {
@@ -48,12 +50,12 @@ export default function Reservations() {
   });
 
   const getContactName = (contactId) => {
-    const contact = contacts.find(c => c.id === contactId);
+    const contact = contacts.find((c) => c.id === contactId);
     return contact ? `${contact.first_name} ${contact.last_name}` : 'Unknown';
   };
 
   const getDealName = (dealId) => {
-    const deal = deals.find(d => d.id === dealId);
+    const deal = deals.find((d) => d.id === dealId);
     return deal ? deal.title : null;
   };
 
@@ -62,11 +64,18 @@ export default function Reservations() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Sales Reservations</h1>
-          <p className="text-sm sm:text-base text-gray-500 mt-1">Track product holds, demos, and scheduled meetings</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
+            Sales Reservations
+          </h1>
+          <p className="text-sm sm:text-base text-gray-500 mt-1">
+            Track product holds, demos, and scheduled meetings
+          </p>
         </div>
-        <Button 
-          onClick={() => { setEditingReservation(null); setShowReservationModal(true); }}
+        <Button
+          onClick={() => {
+            setEditingReservation(null);
+            setShowReservationModal(true);
+          }}
           className="gap-2 bg-violet-600 hover:bg-violet-700 w-full sm:w-auto"
         >
           <Plus className="w-4 h-4" />
@@ -93,15 +102,20 @@ export default function Reservations() {
         />
       ) : (
         <div>
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">All Reservations</h2>
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+            All Reservations
+          </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {reservations.map(reservation => (
+            {reservations.map((reservation) => (
               <ReservationCard
                 key={reservation.id}
                 reservation={reservation}
                 contactName={getContactName(reservation.contact_id)}
                 dealName={getDealName(reservation.deal_id)}
-                onEdit={() => { setEditingReservation(reservation); setShowReservationModal(true); }}
+                onEdit={() => {
+                  setEditingReservation(reservation);
+                  setShowReservationModal(true);
+                }}
               />
             ))}
           </div>
@@ -111,7 +125,10 @@ export default function Reservations() {
       {/* Modal */}
       <ReservationModal
         open={showReservationModal}
-        onClose={() => { setShowReservationModal(false); setEditingReservation(null); }}
+        onClose={() => {
+          setShowReservationModal(false);
+          setEditingReservation(null);
+        }}
         reservation={editingReservation}
         contacts={contacts}
         deals={deals}

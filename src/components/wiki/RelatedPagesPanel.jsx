@@ -1,8 +1,8 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { FileText, Link2 } from "lucide-react";
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { FileText, Link2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 
@@ -12,7 +12,7 @@ export default function RelatedPagesPanel({ currentPage }) {
     queryFn: async () => {
       if (!currentPage) return [];
       const pages = await base44.entities.WikiPage.list();
-      return pages.filter(p => p.space_id === currentPage.space_id && p.id !== currentPage.id);
+      return pages.filter((p) => p.space_id === currentPage.space_id && p.id !== currentPage.id);
     },
     enabled: !!currentPage,
   });
@@ -21,7 +21,7 @@ export default function RelatedPagesPanel({ currentPage }) {
   const relatedPages = React.useMemo(() => {
     if (!currentPage || !allPages.length) return [];
 
-    const scored = allPages.map(page => {
+    const scored = allPages.map((page) => {
       let score = 0;
 
       // Same folder
@@ -32,7 +32,7 @@ export default function RelatedPagesPanel({ currentPage }) {
       // Shared tags
       const currentTags = currentPage.tags || [];
       const pageTags = page.tags || [];
-      const sharedTags = currentTags.filter(t => pageTags.includes(t));
+      const sharedTags = currentTags.filter((t) => pageTags.includes(t));
       score += sharedTags.length * 2;
 
       // Linked pages
@@ -55,10 +55,10 @@ export default function RelatedPagesPanel({ currentPage }) {
     });
 
     return scored
-      .filter(item => item.score > 0)
+      .filter((item) => item.score > 0)
       .sort((a, b) => b.score - a.score)
       .slice(0, 5)
-      .map(item => item.page);
+      .map((item) => item.page);
   }, [currentPage, allPages]);
 
   if (!currentPage || relatedPages.length === 0) return null;
@@ -73,7 +73,7 @@ export default function RelatedPagesPanel({ currentPage }) {
       </CardHeader>
       <CardContent>
         <div className="space-y-2">
-          {relatedPages.map(page => (
+          {relatedPages.map((page) => (
             <Link
               key={page.id}
               to={`${createPageUrl('WikiPageEditor')}?spaceId=${page.space_id}&pageId=${page.id}`}
@@ -85,9 +85,7 @@ export default function RelatedPagesPanel({ currentPage }) {
                   {page.title}
                 </p>
                 {page.ai_summary && (
-                  <p className="text-xs text-gray-500 line-clamp-2 mt-0.5">
-                    {page.ai_summary}
-                  </p>
+                  <p className="text-xs text-gray-500 line-clamp-2 mt-0.5">{page.ai_summary}</p>
                 )}
               </div>
             </Link>

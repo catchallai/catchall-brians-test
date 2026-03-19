@@ -14,15 +14,13 @@ export default function ArchivedList({ channels, darkMode, onSelectChannel }) {
   const filteredChannels = useMemo(() => {
     if (!searchTerm.trim()) return channels;
     const term = searchTerm.toLowerCase();
-    return channels.filter(c =>
-      c.name?.toLowerCase().includes(term) ||
-      c.description?.toLowerCase().includes(term)
+    return channels.filter(
+      (c) => c.name?.toLowerCase().includes(term) || c.description?.toLowerCase().includes(term)
     );
   }, [channels, searchTerm]);
 
   const unarchiveMutation = useMutation({
-    mutationFn: (channelId) => 
-      base44.entities.Channel.update(channelId, { is_archived: false }),
+    mutationFn: (channelId) => base44.entities.Channel.update(channelId, { is_archived: false }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['channels'] });
       queryClient.invalidateQueries({ queryKey: ['archived-channels'] });
@@ -30,7 +28,9 @@ export default function ArchivedList({ channels, darkMode, onSelectChannel }) {
   });
 
   return (
-    <div className={`w-96 border-r ${darkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-gray-200'} flex flex-col`}>
+    <div
+      className={`w-96 border-r ${darkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-gray-200'} flex flex-col`}
+    >
       {/* Header */}
       <div className="p-4 border-b" style={{ borderColor: darkMode ? '#1e293b' : '#f0f0f0' }}>
         <div className="flex items-center gap-2 mb-4">
@@ -40,7 +40,9 @@ export default function ArchivedList({ channels, darkMode, onSelectChannel }) {
           </h2>
         </div>
         <div className="relative">
-          <Search className={`absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 ${darkMode ? 'text-gray-500' : 'text-gray-400'}`} />
+          <Search
+            className={`absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}
+          />
           <Input
             placeholder="Search archived..."
             value={searchTerm}
@@ -55,19 +57,19 @@ export default function ArchivedList({ channels, darkMode, onSelectChannel }) {
         <div className="p-2 space-y-1">
           {filteredChannels.length === 0 ? (
             <div className={`p-6 text-center`}>
-              <Archive className={`w-12 h-12 mx-auto mb-3 ${darkMode ? 'text-gray-600' : 'text-gray-300'}`} />
+              <Archive
+                className={`w-12 h-12 mx-auto mb-3 ${darkMode ? 'text-gray-600' : 'text-gray-300'}`}
+              />
               <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                 No archived channels
               </p>
             </div>
           ) : (
-            filteredChannels.map(channel => (
+            filteredChannels.map((channel) => (
               <div
                 key={channel.id}
                 className={`p-3 rounded-lg group transition-colors ${
-                  darkMode
-                    ? 'hover:bg-slate-800'
-                    : 'hover:bg-gray-50'
+                  darkMode ? 'hover:bg-slate-800' : 'hover:bg-gray-50'
                 }`}
               >
                 <div className="flex items-center gap-3">
@@ -83,13 +85,20 @@ export default function ArchivedList({ channels, darkMode, onSelectChannel }) {
                     </AvatarFallback>
                   </Avatar>
 
-                  <div className="flex-1 min-w-0 cursor-pointer" onClick={() => onSelectChannel(channel)}>
-                    <div className={`font-medium text-sm ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                  <div
+                    className="flex-1 min-w-0 cursor-pointer"
+                    onClick={() => onSelectChannel(channel)}
+                  >
+                    <div
+                      className={`font-medium text-sm ${darkMode ? 'text-white' : 'text-gray-900'}`}
+                    >
                       {channel.type === 'private' && <span className="mr-1">#</span>}
                       {channel.name}
                     </div>
                     {channel.description && (
-                      <p className={`text-xs truncate ${darkMode ? 'text-gray-500' : 'text-gray-500'}`}>
+                      <p
+                        className={`text-xs truncate ${darkMode ? 'text-gray-500' : 'text-gray-500'}`}
+                      >
                         {channel.description}
                       </p>
                     )}
@@ -112,7 +121,9 @@ export default function ArchivedList({ channels, darkMode, onSelectChannel }) {
       </ScrollArea>
 
       {/* Count */}
-      <div className={`p-3 text-center text-xs border-t ${darkMode ? 'border-slate-800 text-gray-400' : 'border-gray-200 text-gray-500'}`}>
+      <div
+        className={`p-3 text-center text-xs border-t ${darkMode ? 'border-slate-800 text-gray-400' : 'border-gray-200 text-gray-500'}`}
+      >
         {filteredChannels.length} archived
       </div>
     </div>

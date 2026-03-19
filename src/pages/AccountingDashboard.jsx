@@ -1,10 +1,33 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { DollarSign, TrendingUp, TrendingDown, PieChart, BarChart3, Calendar, FileText, Receipt } from "lucide-react";
-import { LineChart, Line, BarChart, Bar, PieChart as RePieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import {
+  DollarSign,
+  TrendingUp,
+  TrendingDown,
+  PieChart,
+  BarChart3,
+  Calendar,
+  FileText,
+  Receipt,
+} from 'lucide-react';
+import {
+  LineChart,
+  Line,
+  BarChart,
+  Bar,
+  PieChart as RePieChart,
+  Pie,
+  Cell,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from 'recharts';
 
 export default function AccountingDashboard() {
   const [dateRange, setDateRange] = useState('month');
@@ -72,7 +95,9 @@ export default function AccountingDashboard() {
               <p className="text-sm text-gray-500">Total Revenue</p>
               <TrendingUp className="w-4 h-4 text-emerald-600" />
             </div>
-            <p className="text-2xl font-bold text-gray-900 dark:text-white">${totalRevenue.toLocaleString()}</p>
+            <p className="text-2xl font-bold text-gray-900 dark:text-white">
+              ${totalRevenue.toLocaleString()}
+            </p>
             <p className="text-xs text-emerald-600 mt-1">+12.5% from last period</p>
           </CardContent>
         </Card>
@@ -83,7 +108,9 @@ export default function AccountingDashboard() {
               <p className="text-sm text-gray-500">Total Expenses</p>
               <TrendingDown className="w-4 h-4 text-red-600" />
             </div>
-            <p className="text-2xl font-bold text-gray-900 dark:text-white">${totalExpenses.toLocaleString()}</p>
+            <p className="text-2xl font-bold text-gray-900 dark:text-white">
+              ${totalExpenses.toLocaleString()}
+            </p>
             <p className="text-xs text-red-600 mt-1">+8.3% from last period</p>
           </CardContent>
         </Card>
@@ -94,7 +121,9 @@ export default function AccountingDashboard() {
               <p className="text-sm text-gray-500">Net Profit</p>
               <DollarSign className="w-4 h-4 text-blue-600" />
             </div>
-            <p className="text-2xl font-bold text-gray-900 dark:text-white">${totalProfit.toLocaleString()}</p>
+            <p className="text-2xl font-bold text-gray-900 dark:text-white">
+              ${totalProfit.toLocaleString()}
+            </p>
             <p className="text-xs text-emerald-600 mt-1">+18.2% from last period</p>
           </CardContent>
         </Card>
@@ -189,19 +218,47 @@ export default function AccountingDashboard() {
         <CardContent>
           <div className="space-y-3">
             {[
-              { date: '2025-01-08', description: 'Client Payment - ABC Corp', amount: 15000, type: 'income' },
+              {
+                date: '2025-01-08',
+                description: 'Client Payment - ABC Corp',
+                amount: 15000,
+                type: 'income',
+              },
               { date: '2025-01-07', description: 'Office Rent', amount: -3500, type: 'expense' },
-              { date: '2025-01-06', description: 'Software Subscription', amount: -299, type: 'expense' },
-              { date: '2025-01-05', description: 'Client Payment - XYZ Ltd', amount: 8500, type: 'income' },
-              { date: '2025-01-04', description: 'Marketing Campaign', amount: -2100, type: 'expense' },
+              {
+                date: '2025-01-06',
+                description: 'Software Subscription',
+                amount: -299,
+                type: 'expense',
+              },
+              {
+                date: '2025-01-05',
+                description: 'Client Payment - XYZ Ltd',
+                amount: 8500,
+                type: 'income',
+              },
+              {
+                date: '2025-01-04',
+                description: 'Marketing Campaign',
+                amount: -2100,
+                type: 'expense',
+              },
             ].map((transaction, idx) => (
-              <div key={idx} className="flex items-center justify-between p-3 border border-gray-200 dark:border-gray-700 rounded-lg">
+              <div
+                key={idx}
+                className="flex items-center justify-between p-3 border border-gray-200 dark:border-gray-700 rounded-lg"
+              >
                 <div className="flex-1">
-                  <p className="font-medium text-gray-900 dark:text-white">{transaction.description}</p>
+                  <p className="font-medium text-gray-900 dark:text-white">
+                    {transaction.description}
+                  </p>
                   <p className="text-sm text-gray-500">{transaction.date}</p>
                 </div>
-                <Badge className={`${transaction.type === 'income' ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'} border`}>
-                  {transaction.type === 'income' ? '+' : ''}{transaction.amount < 0 ? transaction.amount : `+${transaction.amount}`}
+                <Badge
+                  className={`${transaction.type === 'income' ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'} border`}
+                >
+                  {transaction.type === 'income' ? '+' : ''}
+                  {transaction.amount < 0 ? transaction.amount : `+${transaction.amount}`}
                 </Badge>
               </div>
             ))}

@@ -1,18 +1,22 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Mail, Clock, CheckCircle2, AlertCircle, ExternalLink } from "lucide-react";
-import { format } from "date-fns";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Mail, Clock, CheckCircle2, AlertCircle, ExternalLink } from 'lucide-react';
+import { format } from 'date-fns';
 
 export default function EmailTrackingPanel({ contactId }) {
   const { data: emailLogs = [], isLoading } = useQuery({
     queryKey: ['email-logs', contactId],
     queryFn: async () => {
       if (!contactId) return [];
-      const logs = await base44.entities.EmailLog.filter({ contact_id: contactId }, '-created_date', 100);
+      const logs = await base44.entities.EmailLog.filter(
+        { contact_id: contactId },
+        '-created_date',
+        100
+      );
       return logs;
     },
     enabled: !!contactId,
@@ -86,10 +90,11 @@ export default function EmailTrackingPanel({ contactId }) {
         ) : (
           <div className="space-y-3">
             {emailLogs.map((log) => (
-              <div key={log.id} className="flex items-start gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
-                <div className="mt-1">
-                  {getStatusIcon(log.status)}
-                </div>
+              <div
+                key={log.id}
+                className="flex items-start gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700"
+              >
+                <div className="mt-1">{getStatusIcon(log.status)}</div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex-1">
@@ -106,7 +111,8 @@ export default function EmailTrackingPanel({ contactId }) {
                           {log.status}
                         </Badge>
                         <span className="text-xs text-gray-500">
-                          {log.created_date && format(new Date(log.created_date), 'MMM d, yyyy HH:mm')}
+                          {log.created_date &&
+                            format(new Date(log.created_date), 'MMM d, yyyy HH:mm')}
                         </span>
                       </div>
                     </div>
@@ -114,9 +120,7 @@ export default function EmailTrackingPanel({ contactId }) {
 
                   {/* Status Timeline */}
                   <div className="mt-2 text-xs text-gray-500 space-y-1">
-                    {log.sent_at && (
-                      <div>Sent: {format(new Date(log.sent_at), 'MMM d HH:mm')}</div>
-                    )}
+                    {log.sent_at && <div>Sent: {format(new Date(log.sent_at), 'MMM d HH:mm')}</div>}
                     {log.opened_at && (
                       <div className="text-violet-600 dark:text-violet-400">
                         Opened: {format(new Date(log.opened_at), 'MMM d HH:mm')}

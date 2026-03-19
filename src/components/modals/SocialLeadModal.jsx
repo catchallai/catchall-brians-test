@@ -1,11 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, UserPlus } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Loader2, UserPlus } from 'lucide-react';
 
 const PLATFORMS = [
   { id: 'twitter', label: 'X (Twitter)' },
@@ -24,16 +30,16 @@ const INTERACTION_TYPES = [
   { id: 'follow', label: 'Follow' },
 ];
 
-export default function SocialLeadModal({ 
-  open, 
-  onClose, 
-  lead, 
-  contacts, 
-  companies, 
-  deals, 
-  onSave, 
+export default function SocialLeadModal({
+  open,
+  onClose,
+  lead,
+  contacts,
+  companies,
+  deals,
+  onSave,
   onConvertToContact,
-  isLoading 
+  isLoading,
 }) {
   const [formData, setFormData] = useState({
     platform: 'twitter',
@@ -104,8 +110,10 @@ export default function SocialLeadModal({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {PLATFORMS.map(p => (
-                    <SelectItem key={p.id} value={p.id}>{p.label}</SelectItem>
+                  {PLATFORMS.map((p) => (
+                    <SelectItem key={p.id} value={p.id}>
+                      {p.label}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -143,8 +151,10 @@ export default function SocialLeadModal({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {INTERACTION_TYPES.map(t => (
-                    <SelectItem key={t.id} value={t.id}>{t.label}</SelectItem>
+                  {INTERACTION_TYPES.map((t) => (
+                    <SelectItem key={t.id} value={t.id}>
+                      {t.label}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -214,7 +224,9 @@ export default function SocialLeadModal({
                   <SelectContent>
                     <SelectItem value={null}>None</SelectItem>
                     {companies?.map((c) => (
-                      <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                      <SelectItem key={c.id} value={c.id}>
+                        {c.name}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -232,7 +244,9 @@ export default function SocialLeadModal({
                 <SelectContent>
                   <SelectItem value={null}>None</SelectItem>
                   {deals?.map((d) => (
-                    <SelectItem key={d.id} value={d.id}>{d.title}</SelectItem>
+                    <SelectItem key={d.id} value={d.id}>
+                      {d.title}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -251,9 +265,9 @@ export default function SocialLeadModal({
 
           <div className="flex justify-between pt-4">
             {lead && !formData.contact_id && onConvertToContact && (
-              <Button 
-                type="button" 
-                variant="outline" 
+              <Button
+                type="button"
+                variant="outline"
                 onClick={() => onConvertToContact(lead)}
                 className="gap-2"
               >
@@ -262,7 +276,9 @@ export default function SocialLeadModal({
               </Button>
             )}
             <div className="flex gap-3 ml-auto">
-              <Button type="button" variant="outline" onClick={onClose}>Cancel</Button>
+              <Button type="button" variant="outline" onClick={onClose}>
+                Cancel
+              </Button>
               <Button type="submit" disabled={isLoading}>
                 {isLoading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
                 {lead ? 'Update Lead' : 'Add Lead'}

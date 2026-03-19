@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Copy, Plus, FileText } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Copy, Plus, FileText } from 'lucide-react';
 
 const DEFAULT_TEMPLATES = [
   {
@@ -27,7 +27,7 @@ Timeline
 [Project timeline and milestones]
 
 Terms & Conditions
-[Payment terms and conditions]`
+[Payment terms and conditions]`,
   },
   {
     id: 'service',
@@ -51,7 +51,7 @@ Setup Fee: $[Amount]
 Service Level Agreement
 - Response Time: [Time]
 - Uptime Guarantee: [Percentage]
-- Support Hours: [Hours]`
+- Support Hours: [Hours]`,
   },
   {
     id: 'quick',
@@ -71,8 +71,8 @@ Total: $[Total Amount]
 
 Valid Until: [Date]
 
-Thank you for considering our proposal!`
-  }
+Thank you for considering our proposal!`,
+  },
 ];
 
 export default function ProposalTemplateLibrary({ onSelectTemplate }) {
@@ -87,8 +87,11 @@ export default function ProposalTemplateLibrary({ onSelectTemplate }) {
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {templates.map(template => (
-          <Card key={template.id} className="glass-card hover:shadow-lg transition-shadow cursor-pointer">
+        {templates.map((template) => (
+          <Card
+            key={template.id}
+            className="glass-card hover:shadow-lg transition-shadow cursor-pointer"
+          >
             <CardHeader>
               <div className="flex items-start justify-between">
                 <div className="flex-1">
@@ -102,11 +105,7 @@ export default function ProposalTemplateLibrary({ onSelectTemplate }) {
               <Badge variant="outline" className="mb-3">
                 {template.category}
               </Badge>
-              <Button 
-                size="sm" 
-                className="w-full gap-2"
-                onClick={() => handleSelect(template)}
-              >
+              <Button size="sm" className="w-full gap-2" onClick={() => handleSelect(template)}>
                 <Copy className="w-4 h-4" />
                 Use Template
               </Button>

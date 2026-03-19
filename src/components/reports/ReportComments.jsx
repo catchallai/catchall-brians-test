@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { Badge } from "@/components/ui/badge";
-import { MessageSquare, Send, Trash2, Reply } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
+import { Badge } from '@/components/ui/badge';
+import { MessageSquare, Send, Trash2, Reply } from 'lucide-react';
 import { format } from 'date-fns';
 
 export default function ReportComments({ report }) {
@@ -20,7 +20,8 @@ export default function ReportComments({ report }) {
 
   const { data: comments = [] } = useQuery({
     queryKey: ['report-comments', report?.id],
-    queryFn: () => base44.entities.ReportComment.filter({ report_id: report.id }, '-created_date', 100),
+    queryFn: () =>
+      base44.entities.ReportComment.filter({ report_id: report.id }, '-created_date', 100),
     enabled: !!report?.id,
   });
 
@@ -33,11 +34,11 @@ export default function ReportComments({ report }) {
   const addCommentMutation = useMutation({
     mutationFn: async (data) => {
       await base44.entities.ReportComment.create(data);
-      
+
       // Create notifications for mentioned users and report owner
-      const notifyEmails = new Set([report.created_by, ...shares.map(s => s.shared_with_email)]);
+      const notifyEmails = new Set([report.created_by, ...shares.map((s) => s.shared_with_email)]);
       notifyEmails.delete(user.email); // Don't notify yourself
-      
+
       for (const email of notifyEmails) {
         await base44.entities.Notification.create({
           user_email: email,
@@ -45,7 +46,7 @@ export default function ReportComments({ report }) {
           title: 'New Comment on Report',
           message: `${user.full_name} commented on "${report.name}"`,
           link: `/reports/${report.id}`,
-          data: { report_id: report.id, comment: data.comment_text.substring(0, 100) }
+          data: { report_id: report.id, comment: data.comment_text.substring(0, 100) },
         });
       }
 
@@ -54,7 +55,7 @@ export default function ReportComments({ report }) {
         report_id: report.id,
         action: 'comment_added',
         user_email: user.email,
-        details: { timestamp: new Date().toISOString() }
+        details: { timestamp: new Date().toISOString() },
       });
     },
     onSuccess: () => {
@@ -73,18 +74,18 @@ export default function ReportComments({ report }) {
 
   const handleAddComment = () => {
     if (!commentText.trim()) return;
-    
+
     addCommentMutation.mutate({
       report_id: report.id,
       comment_text: commentText,
       author_email: user.email,
       author_name: user.full_name,
-      parent_comment_id: replyingTo?.id || null
+      parent_comment_id: replyingTo?.id || null,
     });
   };
 
-  const topLevelComments = comments.filter(c => !c.parent_comment_id);
-  const getReplies = (commentId) => comments.filter(c => c.parent_comment_id === commentId);
+  const topLevelComments = comments.filter((c) => !c.parent_comment_id);
+  const getReplies = (commentId) => comments.filter((c) => c.parent_comment_id === commentId);
 
   const CommentItem = ({ comment, isReply }) => (
     <div className={`${isReply ? 'ml-12 mt-3' : ''}`}>
@@ -100,15 +101,15 @@ export default function ReportComments({ report }) {
               {comment.author_name || comment.author_email}
             </span>
             {comment.author_email === report.created_by && (
-              <Badge variant="secondary" className="text-xs">Owner</Badge>
+              <Badge variant="secondary" className="text-xs">
+                Owner
+              </Badge>
             )}
             <span className="text-xs text-gray-500 dark:text-gray-400">
               {format(new Date(comment.created_date), 'MMM d, h:mm a')}
             </span>
           </div>
-          <p className="text-sm text-gray-700 dark:text-gray-300 mb-2">
-            {comment.comment_text}
-          </p>
+          <p className="text-sm text-gray-700 dark:text-gray-300 mb-2">{comment.comment_text}</p>
           <div className="flex items-center gap-2">
             {!isReply && (
               <Button
@@ -135,9 +136,10 @@ export default function ReportComments({ report }) {
           </div>
 
           {/* Replies */}
-          {!isReply && getReplies(comment.id).map(reply => (
-            <CommentItem key={reply.id} comment={reply} isReply />
-          ))}
+          {!isReply &&
+            getReplies(comment.id).map((reply) => (
+              <CommentItem key={reply.id} comment={reply} isReply />
+            ))}
         </div>
       </div>
     </div>
@@ -192,7 +194,7 @@ export default function ReportComments({ report }) {
 
         {/* Comments List */}
         <div className="space-y-4 max-h-96 overflow-y-auto">
-          {topLevelComments.map(comment => (
+          {topLevelComments.map((comment) => (
             <CommentItem key={comment.id} comment={comment} />
           ))}
 

@@ -1,11 +1,18 @@
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { 
-  TrendingUp, TrendingDown, Minus, AlertTriangle, AlertCircle, 
-  CheckCircle, FileText, Calendar, ChevronRight 
-} from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import {
+  TrendingUp,
+  TrendingDown,
+  Minus,
+  AlertTriangle,
+  AlertCircle,
+  CheckCircle,
+  FileText,
+  Calendar,
+  ChevronRight,
+} from 'lucide-react';
 import { format } from 'date-fns';
 
 const severityConfig = {
@@ -23,10 +30,11 @@ const trendIcons = {
 
 export default function CompetitorReportCard({ report, competitorName, onClick }) {
   const alertCount = report.alerts?.length || 0;
-  const criticalAlerts = report.alerts?.filter(a => a.severity === 'critical' || a.severity === 'high').length || 0;
+  const criticalAlerts =
+    report.alerts?.filter((a) => a.severity === 'critical' || a.severity === 'high').length || 0;
 
   return (
-    <Card 
+    <Card
       className="border-0 shadow-sm hover:shadow-md transition-all cursor-pointer"
       onClick={onClick}
     >
@@ -60,19 +68,27 @@ export default function CompetitorReportCard({ report, competitorName, onClick }
           <div className="grid grid-cols-3 gap-2">
             <div className="text-center p-2 bg-gray-50 rounded-lg">
               <p className="text-xs text-gray-500">Followers</p>
-              <p className={`text-sm font-semibold ${report.metrics.follower_change >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
-                {report.metrics.follower_change >= 0 ? '+' : ''}{report.metrics.follower_change_percent?.toFixed(1)}%
+              <p
+                className={`text-sm font-semibold ${report.metrics.follower_change >= 0 ? 'text-emerald-600' : 'text-red-600'}`}
+              >
+                {report.metrics.follower_change >= 0 ? '+' : ''}
+                {report.metrics.follower_change_percent?.toFixed(1)}%
               </p>
             </div>
             <div className="text-center p-2 bg-gray-50 rounded-lg">
               <p className="text-xs text-gray-500">Engagement</p>
-              <p className={`text-sm font-semibold ${report.metrics.engagement_change >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
-                {report.metrics.engagement_change >= 0 ? '+' : ''}{report.metrics.engagement_change?.toFixed(1)}%
+              <p
+                className={`text-sm font-semibold ${report.metrics.engagement_change >= 0 ? 'text-emerald-600' : 'text-red-600'}`}
+              >
+                {report.metrics.engagement_change >= 0 ? '+' : ''}
+                {report.metrics.engagement_change?.toFixed(1)}%
               </p>
             </div>
             <div className="text-center p-2 bg-gray-50 rounded-lg">
               <p className="text-xs text-gray-500">Posts</p>
-              <p className="text-sm font-semibold text-gray-900">{report.metrics.posts_count || 0}</p>
+              <p className="text-sm font-semibold text-gray-900">
+                {report.metrics.posts_count || 0}
+              </p>
             </div>
           </div>
         )}
@@ -82,17 +98,17 @@ export default function CompetitorReportCard({ report, competitorName, onClick }
           <div className="flex items-center gap-2">
             <span className="text-xs text-gray-500">Sentiment:</span>
             <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden flex">
-              <div 
-                className="bg-emerald-400 h-full" 
-                style={{ width: `${report.sentiment_analysis.positive_percent || 0}%` }} 
+              <div
+                className="bg-emerald-400 h-full"
+                style={{ width: `${report.sentiment_analysis.positive_percent || 0}%` }}
               />
-              <div 
-                className="bg-gray-300 h-full" 
-                style={{ width: `${report.sentiment_analysis.neutral_percent || 0}%` }} 
+              <div
+                className="bg-gray-300 h-full"
+                style={{ width: `${report.sentiment_analysis.neutral_percent || 0}%` }}
               />
-              <div 
-                className="bg-red-400 h-full" 
-                style={{ width: `${report.sentiment_analysis.negative_percent || 0}%` }} 
+              <div
+                className="bg-red-400 h-full"
+                style={{ width: `${report.sentiment_analysis.negative_percent || 0}%` }}
               />
             </div>
           </div>

@@ -1,13 +1,11 @@
 import React from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
-import { Card, CardContent } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Card, CardContent } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
-import {
-  Search, Globe, FileSearch, Target, Link2, MapPin, ArrowRight
-} from "lucide-react";
+import { Search, Globe, FileSearch, Target, Link2, MapPin, ArrowRight } from 'lucide-react';
 
 export default function SEODashboardPage() {
   const { data: user } = useQuery({
@@ -36,8 +34,8 @@ export default function SEODashboardPage() {
   const stats = {
     websites: websites.length,
     keywords: keywords.length,
-    topRankings: keywords.filter(k => k.current_position <= 10).length,
-    backlinks: backlinks.filter(b => b.status === 'active').length,
+    topRankings: keywords.filter((k) => k.current_position <= 10).length,
+    backlinks: backlinks.filter((b) => b.status === 'active').length,
   };
 
   const quickLinks = [
@@ -65,7 +63,9 @@ export default function SEODashboardPage() {
   return (
     <div className="p-6 space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-wider text-gray-400 dark:text-gray-500 uppercase">SEO</h1>
+        <h1 className="text-3xl font-bold tracking-wider text-gray-400 dark:text-gray-500 uppercase">
+          SEO
+        </h1>
         <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
           Search engine optimization overview
         </p>
@@ -76,7 +76,9 @@ export default function SEODashboardPage() {
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Websites Tracked</p>
+                <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                  Websites Tracked
+                </p>
                 <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.websites}</p>
               </div>
               <Globe className="w-8 h-8 text-violet-500" />
@@ -90,7 +92,9 @@ export default function SEODashboardPage() {
               <div>
                 <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Keywords</p>
                 <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.keywords}</p>
-                <p className="text-xs text-green-600 dark:text-green-400 mt-1">{stats.topRankings} in top 10</p>
+                <p className="text-xs text-green-600 dark:text-green-400 mt-1">
+                  {stats.topRankings} in top 10
+                </p>
               </div>
               <Target className="w-8 h-8 text-amber-500" />
             </div>
@@ -101,8 +105,12 @@ export default function SEODashboardPage() {
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Active Backlinks</p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.backlinks}</p>
+                <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                  Active Backlinks
+                </p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                  {stats.backlinks}
+                </p>
               </div>
               <Link2 className="w-8 h-8 text-cyan-500" />
             </div>
@@ -113,10 +121,15 @@ export default function SEODashboardPage() {
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Avg. Position</p>
+                <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                  Avg. Position
+                </p>
                 <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                  {keywords.length > 0 
-                    ? (keywords.reduce((sum, k) => sum + (k.current_position || 0), 0) / keywords.length).toFixed(1)
+                  {keywords.length > 0
+                    ? (
+                        keywords.reduce((sum, k) => sum + (k.current_position || 0), 0) /
+                        keywords.length
+                      ).toFixed(1)
                     : '0'}
                 </p>
               </div>
@@ -137,11 +150,15 @@ export default function SEODashboardPage() {
                   <CardContent className="pt-6">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <div className={`w-12 h-12 rounded-xl bg-${link.color}-100 dark:bg-${link.color}-900/40 flex items-center justify-center`}>
+                        <div
+                          className={`w-12 h-12 rounded-xl bg-${link.color}-100 dark:bg-${link.color}-900/40 flex items-center justify-center`}
+                        >
                           <Icon className={`w-6 h-6 text-${link.color}-600`} />
                         </div>
                         <div>
-                          <h3 className="font-semibold text-gray-900 dark:text-white">{link.name}</h3>
+                          <h3 className="font-semibold text-gray-900 dark:text-white">
+                            {link.name}
+                          </h3>
                           {link.count !== undefined && (
                             <p className="text-sm text-gray-500">{link.count} items</p>
                           )}

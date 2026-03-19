@@ -14,7 +14,13 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { FileText, Trash2 } from 'lucide-react';
 
 export default function DataRoomModal({ open, onClose, onSave, dataRoom }) {
@@ -29,7 +35,7 @@ export default function DataRoomModal({ open, onClose, onSave, dataRoom }) {
     expires_at: '',
     allow_downloads: true,
     watermark_text: '',
-    notes: ''
+    notes: '',
   });
 
   const { data: user } = useQuery({
@@ -39,20 +45,15 @@ export default function DataRoomModal({ open, onClose, onSave, dataRoom }) {
 
   const { data: documents = [] } = useQuery({
     queryKey: ['tracked-documents'],
-    queryFn: () => base44.entities.TrackedDocument.filter(
-      { business_id: user?.business_id },
-      '-created_date'
-    ),
+    queryFn: () =>
+      base44.entities.TrackedDocument.filter({ business_id: user?.business_id }, '-created_date'),
     enabled: !!user,
   });
 
   const { data: contacts = [] } = useQuery({
     queryKey: ['contacts'],
-    queryFn: () => base44.entities.Contact.filter(
-      { business_id: user?.business_id },
-      '-created_date',
-      100
-    ),
+    queryFn: () =>
+      base44.entities.Contact.filter({ business_id: user?.business_id }, '-created_date', 100),
     enabled: !!user,
   });
 
@@ -69,50 +70,51 @@ export default function DataRoomModal({ open, onClose, onSave, dataRoom }) {
         expires_at: dataRoom.expires_at ? dataRoom.expires_at.split('T')[0] : '',
         allow_downloads: dataRoom.allow_downloads !== false,
         watermark_text: dataRoom.watermark_text || '',
-        notes: dataRoom.notes || ''
+        notes: dataRoom.notes || '',
       });
     } else {
       const defaultExpiry = new Date();
       defaultExpiry.setDate(defaultExpiry.getDate() + 30);
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
-        expires_at: defaultExpiry.toISOString().split('T')[0]
+        expires_at: defaultExpiry.toISOString().split('T')[0],
       }));
     }
   }, [dataRoom]);
 
   const handleContactChange = (contactId) => {
-    const contact = contacts.find(c => c.id === contactId);
+    const contact = contacts.find((c) => c.id === contactId);
     if (contact) {
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
         contact_id: contactId,
         recipient_name: `${contact.first_name} ${contact.last_name}`,
-        recipient_email: contact.email
+        recipient_email: contact.email,
       }));
     }
   };
 
   const handleDocumentToggle = (docId) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       document_ids: prev.document_ids.includes(docId)
-        ? prev.document_ids.filter(id => id !== docId)
-        : [...prev.document_ids, docId]
+        ? prev.document_ids.filter((id) => id !== docId)
+        : [...prev.document_ids, docId],
     }));
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    
-    const trackingCode = dataRoom?.tracking_code || `dr_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+
+    const trackingCode =
+      dataRoom?.tracking_code || `dr_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     const shareLink = `${window.location.origin}?page=PublicDataRoom&token=${trackingCode}`;
-    
+
     onSave({
       ...formData,
       tracking_code: trackingCode,
       share_link: shareLink,
-      expires_at: formData.expires_at ? new Date(formData.expires_at).toISOString() : null
+      expires_at: formData.expires_at ? new Date(formData.expires_at).toISOString() : null,
     });
   };
 
@@ -120,9 +122,7 @@ export default function DataRoomModal({ open, onClose, onSave, dataRoom }) {
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>
-            {dataRoom ? 'Edit Data Room' : 'Create Data Room'}
-          </DialogTitle>
+          <DialogTitle>{dataRoom ? 'Edit Data Room' : 'Create Data Room'}</DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -130,7 +130,7 @@ export default function DataRoomModal({ open, onClose, onSave, dataRoom }) {
             <Label>Name *</Label>
             <Input
               value={formData.name}
-              onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+              onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))}
               required
             />
           </div>
@@ -139,7 +139,7 @@ export default function DataRoomModal({ open, onClose, onSave, dataRoom }) {
             <Label>Description</Label>
             <Textarea
               value={formData.description}
-              onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+              onChange={(e) => setFormData((prev) => ({ ...prev, description: e.target.value }))}
               rows={3}
             />
           </div>
@@ -152,7 +152,7 @@ export default function DataRoomModal({ open, onClose, onSave, dataRoom }) {
                   <SelectValue placeholder="Choose contact..." />
                 </SelectTrigger>
                 <SelectContent>
-                  {contacts.map(contact => (
+                  {contacts.map((contact) => (
                     <SelectItem key={contact.id} value={contact.id}>
                       {contact.first_name} {contact.last_name}
                     </SelectItem>
@@ -165,7 +165,9 @@ export default function DataRoomModal({ open, onClose, onSave, dataRoom }) {
               <Label>Recipient Name *</Label>
               <Input
                 value={formData.recipient_name}
-                onChange={(e) => setFormData(prev => ({ ...prev, recipient_name: e.target.value }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, recipient_name: e.target.value }))
+                }
                 required
               />
             </div>
@@ -176,7 +178,9 @@ export default function DataRoomModal({ open, onClose, onSave, dataRoom }) {
             <Input
               type="email"
               value={formData.recipient_email}
-              onChange={(e) => setFormData(prev => ({ ...prev, recipient_email: e.target.value }))}
+              onChange={(e) =>
+                setFormData((prev) => ({ ...prev, recipient_email: e.target.value }))
+              }
               required
             />
           </div>
@@ -187,7 +191,7 @@ export default function DataRoomModal({ open, onClose, onSave, dataRoom }) {
               {documents.length === 0 ? (
                 <p className="text-sm text-gray-500">No documents available</p>
               ) : (
-                documents.map(doc => (
+                documents.map((doc) => (
                   <div key={doc.id} className="flex items-center gap-2">
                     <Checkbox
                       checked={formData.document_ids.includes(doc.id)}
@@ -207,7 +211,9 @@ export default function DataRoomModal({ open, onClose, onSave, dataRoom }) {
               <Input
                 type="password"
                 value={formData.access_password}
-                onChange={(e) => setFormData(prev => ({ ...prev, access_password: e.target.value }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, access_password: e.target.value }))
+                }
                 placeholder="Leave empty for no password"
               />
             </div>
@@ -217,7 +223,7 @@ export default function DataRoomModal({ open, onClose, onSave, dataRoom }) {
               <Input
                 type="date"
                 value={formData.expires_at}
-                onChange={(e) => setFormData(prev => ({ ...prev, expires_at: e.target.value }))}
+                onChange={(e) => setFormData((prev) => ({ ...prev, expires_at: e.target.value }))}
                 required
               />
             </div>
@@ -227,7 +233,7 @@ export default function DataRoomModal({ open, onClose, onSave, dataRoom }) {
             <Label>Watermark Text (optional)</Label>
             <Input
               value={formData.watermark_text}
-              onChange={(e) => setFormData(prev => ({ ...prev, watermark_text: e.target.value }))}
+              onChange={(e) => setFormData((prev) => ({ ...prev, watermark_text: e.target.value }))}
               placeholder="e.g., Confidential - For recipient_name"
             />
           </div>
@@ -235,7 +241,9 @@ export default function DataRoomModal({ open, onClose, onSave, dataRoom }) {
           <div className="flex items-center gap-2">
             <Checkbox
               checked={formData.allow_downloads}
-              onCheckedChange={(checked) => setFormData(prev => ({ ...prev, allow_downloads: checked }))}
+              onCheckedChange={(checked) =>
+                setFormData((prev) => ({ ...prev, allow_downloads: checked }))
+              }
             />
             <Label>Allow downloads</Label>
           </div>
@@ -244,7 +252,7 @@ export default function DataRoomModal({ open, onClose, onSave, dataRoom }) {
             <Label>Internal Notes</Label>
             <Textarea
               value={formData.notes}
-              onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
+              onChange={(e) => setFormData((prev) => ({ ...prev, notes: e.target.value }))}
               rows={2}
             />
           </div>
@@ -253,9 +261,7 @@ export default function DataRoomModal({ open, onClose, onSave, dataRoom }) {
             <Button type="button" variant="outline" onClick={onClose}>
               Cancel
             </Button>
-            <Button type="submit">
-              {dataRoom ? 'Update' : 'Create'} Data Room
-            </Button>
+            <Button type="submit">{dataRoom ? 'Update' : 'Create'} Data Room</Button>
           </DialogFooter>
         </form>
       </DialogContent>

@@ -1,15 +1,25 @@
 import React from 'react';
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
+import {
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  Legend,
+} from 'recharts';
 import { format, eachDayOfInterval, eachWeekOfInterval, differenceInDays } from 'date-fns';
 
 export default function TrafficTrendsChart({ dateRange, websites = [] }) {
   const days = differenceInDays(dateRange.to, dateRange.from);
-  
+
   // Generate mock data based on date range
   const generateData = () => {
-    const intervals = days > 60 
-      ? eachWeekOfInterval({ start: dateRange.from, end: dateRange.to })
-      : eachDayOfInterval({ start: dateRange.from, end: dateRange.to });
+    const intervals =
+      days > 60
+        ? eachWeekOfInterval({ start: dateRange.from, end: dateRange.to })
+        : eachDayOfInterval({ start: dateRange.from, end: dateRange.to });
 
     return intervals.map((date, idx) => {
       const baseVisitors = 1200 + Math.sin(idx * 0.3) * 400;
@@ -61,49 +71,53 @@ export default function TrafficTrendsChart({ dateRange, websites = [] }) {
           <AreaChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
             <defs>
               <linearGradient id="colorVisitors" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3}/>
-                <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
+                <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
+                <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
               </linearGradient>
               <linearGradient id="colorPageviews" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.3}/>
-                <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0}/>
+                <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.3} />
+                <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0} />
               </linearGradient>
             </defs>
-            <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" className="dark:stroke-gray-700" />
-            <XAxis 
-              dataKey="date" 
-              tick={{ fontSize: 11 }} 
+            <CartesianGrid
+              strokeDasharray="3 3"
+              stroke="#e5e7eb"
+              className="dark:stroke-gray-700"
+            />
+            <XAxis
+              dataKey="date"
+              tick={{ fontSize: 11 }}
               tickLine={false}
               axisLine={false}
               className="dark:fill-gray-400"
             />
-            <YAxis 
-              tick={{ fontSize: 11 }} 
+            <YAxis
+              tick={{ fontSize: 11 }}
               tickLine={false}
               axisLine={false}
               className="dark:fill-gray-400"
             />
-            <Tooltip 
-              contentStyle={{ 
-                backgroundColor: 'rgba(255,255,255,0.95)', 
-                border: 'none', 
+            <Tooltip
+              contentStyle={{
+                backgroundColor: 'rgba(255,255,255,0.95)',
+                border: 'none',
                 borderRadius: '8px',
-                boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+                boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
               }}
             />
             <Legend />
-            <Area 
-              type="monotone" 
-              dataKey="visitors" 
-              stroke="#3b82f6" 
+            <Area
+              type="monotone"
+              dataKey="visitors"
+              stroke="#3b82f6"
               fill="url(#colorVisitors)"
               strokeWidth={2}
               name="Visitors"
             />
-            <Area 
-              type="monotone" 
-              dataKey="pageviews" 
-              stroke="#8b5cf6" 
+            <Area
+              type="monotone"
+              dataKey="pageviews"
+              stroke="#8b5cf6"
               fill="url(#colorPageviews)"
               strokeWidth={2}
               name="Pageviews"

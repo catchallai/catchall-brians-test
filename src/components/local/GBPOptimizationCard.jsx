@@ -1,12 +1,21 @@
 import React from 'react';
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
 import {
-  Building2, Star, MapPin, Phone, Clock, Image, FileText,
-  CheckCircle, AlertCircle, Settings, TrendingUp
-} from "lucide-react";
+  Building2,
+  Star,
+  MapPin,
+  Phone,
+  Clock,
+  Image,
+  FileText,
+  CheckCircle,
+  AlertCircle,
+  Settings,
+  TrendingUp,
+} from 'lucide-react';
 
 export default function GBPOptimizationCard({ profile, onEdit }) {
   const score = profile.optimization_score || 0;
@@ -33,7 +42,9 @@ export default function GBPOptimizationCard({ profile, onEdit }) {
               <Building2 className="w-6 h-6 text-violet-600" />
             </div>
             <div>
-              <h3 className="font-semibold text-gray-900 dark:text-white">{profile.business_name}</h3>
+              <h3 className="font-semibold text-gray-900 dark:text-white">
+                {profile.business_name}
+              </h3>
               <p className="text-sm text-gray-500">{profile.category}</p>
             </div>
           </div>
@@ -43,11 +54,15 @@ export default function GBPOptimizationCard({ profile, onEdit }) {
         </div>
 
         <div className="flex items-center gap-4 mb-4">
-          <div className={`w-16 h-16 rounded-full ${getScoreBg(score)} flex items-center justify-center`}>
+          <div
+            className={`w-16 h-16 rounded-full ${getScoreBg(score)} flex items-center justify-center`}
+          >
             <span className={`text-2xl font-bold ${getScoreColor(score)}`}>{score}%</span>
           </div>
           <div className="flex-1">
-            <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Optimization Score</p>
+            <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Optimization Score
+            </p>
             <Progress value={score} className="h-2" />
           </div>
         </div>
@@ -55,19 +70,27 @@ export default function GBPOptimizationCard({ profile, onEdit }) {
         <div className="grid grid-cols-2 gap-3 mb-4 text-sm">
           <div className="flex items-center gap-2">
             <Star className="w-4 h-4 text-amber-500" />
-            <span className="text-gray-600 dark:text-gray-400">{profile.rating || 0} ({profile.review_count || 0} reviews)</span>
+            <span className="text-gray-600 dark:text-gray-400">
+              {profile.rating || 0} ({profile.review_count || 0} reviews)
+            </span>
           </div>
           <div className="flex items-center gap-2">
             <MapPin className="w-4 h-4 text-gray-400" />
-            <span className="text-gray-600 dark:text-gray-400 truncate">{profile.city}, {profile.state}</span>
+            <span className="text-gray-600 dark:text-gray-400 truncate">
+              {profile.city}, {profile.state}
+            </span>
           </div>
           <div className="flex items-center gap-2">
             <Image className="w-4 h-4 text-gray-400" />
-            <span className="text-gray-600 dark:text-gray-400">{profile.photos_count || 0} photos</span>
+            <span className="text-gray-600 dark:text-gray-400">
+              {profile.photos_count || 0} photos
+            </span>
           </div>
           <div className="flex items-center gap-2">
             <FileText className="w-4 h-4 text-gray-400" />
-            <span className="text-gray-600 dark:text-gray-400">{profile.posts_count || 0} posts</span>
+            <span className="text-gray-600 dark:text-gray-400">
+              {profile.posts_count || 0} posts
+            </span>
           </div>
         </div>
 
@@ -76,13 +99,19 @@ export default function GBPOptimizationCard({ profile, onEdit }) {
             <p className="text-xs font-medium text-gray-500 mb-2">Issues to Fix:</p>
             <div className="flex flex-wrap gap-1">
               {issues.slice(0, 3).map((issue, i) => (
-                <Badge key={i} variant="outline" className="text-xs bg-red-50 text-red-700 border-red-200">
+                <Badge
+                  key={i}
+                  variant="outline"
+                  className="text-xs bg-red-50 text-red-700 border-red-200"
+                >
                   <AlertCircle className="w-3 h-3 mr-1" />
                   {issue}
                 </Badge>
               ))}
               {issues.length > 3 && (
-                <Badge variant="outline" className="text-xs">+{issues.length - 3} more</Badge>
+                <Badge variant="outline" className="text-xs">
+                  +{issues.length - 3} more
+                </Badge>
               )}
             </div>
           </div>

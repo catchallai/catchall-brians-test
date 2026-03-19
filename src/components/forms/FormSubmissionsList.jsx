@@ -1,21 +1,31 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { 
-  Search, Eye, CheckCircle, XCircle, Trash2, User, Mail, 
-  Phone, MessageSquare, Calendar, ExternalLink
-} from "lucide-react";
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import {
+  Search,
+  Eye,
+  CheckCircle,
+  XCircle,
+  Trash2,
+  User,
+  Mail,
+  Phone,
+  MessageSquare,
+  Calendar,
+  ExternalLink,
+} from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 
 const statusConfig = {
@@ -41,11 +51,12 @@ export default function FormSubmissionsList({ submissions, forms }) {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['form-submissions'] }),
   });
 
-  const getFormName = (formId) => forms.find(f => f.id === formId)?.name || 'Unknown Form';
+  const getFormName = (formId) => forms.find((f) => f.id === formId)?.name || 'Unknown Form';
 
-  const filteredSubmissions = submissions.filter(s => {
-    const matchesSearch = !searchQuery || 
-      Object.values(s.data || {}).some(v => 
+  const filteredSubmissions = submissions.filter((s) => {
+    const matchesSearch =
+      !searchQuery ||
+      Object.values(s.data || {}).some((v) =>
         String(v).toLowerCase().includes(searchQuery.toLowerCase())
       );
     const matchesStatus = statusFilter === 'all' || s.status === statusFilter;
@@ -73,7 +84,9 @@ export default function FormSubmissionsList({ submissions, forms }) {
           <SelectContent>
             <SelectItem value="all">All Forms</SelectItem>
             {forms.map((form) => (
-              <SelectItem key={form.id} value={form.id}>{form.name}</SelectItem>
+              <SelectItem key={form.id} value={form.id}>
+                {form.name}
+              </SelectItem>
             ))}
           </SelectContent>
         </Select>
@@ -101,7 +114,10 @@ export default function FormSubmissionsList({ submissions, forms }) {
           {filteredSubmissions.map((submission) => {
             const status = statusConfig[submission.status] || statusConfig.new;
             return (
-              <Card key={submission.id} className="border-0 shadow-sm bg-white dark:bg-gray-800 hover:shadow-md transition-all">
+              <Card
+                key={submission.id}
+                className="border-0 shadow-sm bg-white dark:bg-gray-800 hover:shadow-md transition-all"
+              >
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4">
@@ -118,7 +134,9 @@ export default function FormSubmissionsList({ submissions, forms }) {
                         <div className="flex items-center gap-3 text-sm text-gray-500 dark:text-gray-400">
                           <span className="flex items-center gap-1">
                             <Calendar className="w-3 h-3" />
-                            {formatDistanceToNow(new Date(submission.created_date), { addSuffix: true })}
+                            {formatDistanceToNow(new Date(submission.created_date), {
+                              addSuffix: true,
+                            })}
                           </span>
                           <span>•</span>
                           <span>{getFormName(submission.form_id)}</span>
@@ -126,25 +144,30 @@ export default function FormSubmissionsList({ submissions, forms }) {
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Button 
-                        variant="ghost" 
+                      <Button
+                        variant="ghost"
                         size="icon"
                         onClick={() => setViewingSubmission(submission)}
                       >
                         <Eye className="w-4 h-4" />
                       </Button>
                       {submission.status === 'new' && (
-                        <Button 
-                          variant="ghost" 
+                        <Button
+                          variant="ghost"
                           size="icon"
                           className="text-emerald-500"
-                          onClick={() => updateMutation.mutate({ id: submission.id, data: { status: 'reviewed' } })}
+                          onClick={() =>
+                            updateMutation.mutate({
+                              id: submission.id,
+                              data: { status: 'reviewed' },
+                            })
+                          }
                         >
                           <CheckCircle className="w-4 h-4" />
                         </Button>
                       )}
-                      <Button 
-                        variant="ghost" 
+                      <Button
+                        variant="ghost"
                         size="icon"
                         className="text-red-500"
                         onClick={() => deleteMutation.mutate(submission.id)}
@@ -188,7 +211,12 @@ export default function FormSubmissionsList({ submissions, forms }) {
               {viewingSubmission.source_url && (
                 <div className="flex items-center gap-2 text-sm text-gray-500">
                   <ExternalLink className="w-4 h-4" />
-                  <a href={viewingSubmission.source_url} target="_blank" rel="noopener noreferrer" className="hover:underline">
+                  <a
+                    href={viewingSubmission.source_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:underline"
+                  >
                     {viewingSubmission.source_url}
                   </a>
                 </div>
@@ -196,10 +224,13 @@ export default function FormSubmissionsList({ submissions, forms }) {
 
               <div className="flex gap-2 pt-4 border-t">
                 {viewingSubmission.status !== 'reviewed' && (
-                  <Button 
+                  <Button
                     className="gap-2"
                     onClick={() => {
-                      updateMutation.mutate({ id: viewingSubmission.id, data: { status: 'reviewed' } });
+                      updateMutation.mutate({
+                        id: viewingSubmission.id,
+                        data: { status: 'reviewed' },
+                      });
                       setViewingSubmission(null);
                     }}
                   >
@@ -207,8 +238,8 @@ export default function FormSubmissionsList({ submissions, forms }) {
                     Mark as Reviewed
                   </Button>
                 )}
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   className="gap-2 text-red-500"
                   onClick={() => {
                     updateMutation.mutate({ id: viewingSubmission.id, data: { status: 'spam' } });

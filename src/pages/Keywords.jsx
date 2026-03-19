@@ -1,12 +1,18 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Plus, Search, Target, Trash2, Download, RefreshCw, Loader2 } from "lucide-react";
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Plus, Search, Target, Trash2, Download, RefreshCw, Loader2 } from 'lucide-react';
 import KeywordRankCard from '@/components/seo/KeywordRankCard';
 import KeywordModal from '@/components/modals/KeywordModal';
 import EmptyState from '@/components/ui/EmptyState';
@@ -33,7 +39,11 @@ export default function Keywords() {
     queryKey: ['keywords', user?.current_business_id],
     queryFn: async () => {
       if (!user?.current_business_id) return [];
-      return await base44.entities.Keyword.filter({ business_id: user.current_business_id }, '-created_date', 500);
+      return await base44.entities.Keyword.filter(
+        { business_id: user.current_business_id },
+        '-created_date',
+        500
+      );
     },
     enabled: !!user?.current_business_id,
   });
@@ -42,7 +52,11 @@ export default function Keywords() {
     queryKey: ['websites', user?.current_business_id],
     queryFn: async () => {
       if (!user?.current_business_id) return [];
-      return await base44.entities.Website.filter({ business_id: user.current_business_id }, '-created_date', 50);
+      return await base44.entities.Website.filter(
+        { business_id: user.current_business_id },
+        '-created_date',
+        50
+      );
     },
     enabled: !!user?.current_business_id,
   });
@@ -92,15 +106,15 @@ export default function Keywords() {
 
   const handleExportCSV = () => {
     const headers = ['Keyword', 'Position', 'Search Volume', 'Difficulty', 'CPC', 'Target URL'];
-    const rows = filteredKeywords.map(k => [
+    const rows = filteredKeywords.map((k) => [
       k.keyword,
       k.current_position || '',
       k.search_volume || '',
       k.difficulty || '',
       k.cpc || '',
-      k.target_url || ''
+      k.target_url || '',
     ]);
-    const csv = [headers, ...rows].map(r => r.join(',')).join('\n');
+    const csv = [headers, ...rows].map((r) => r.join(',')).join('\n');
     const blob = new Blob([csv], { type: 'text/csv' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -114,14 +128,12 @@ export default function Keywords() {
     if (selectedIds.length === filteredKeywords.length) {
       setSelectedIds([]);
     } else {
-      setSelectedIds(filteredKeywords.map(k => k.id));
+      setSelectedIds(filteredKeywords.map((k) => k.id));
     }
   };
 
   const toggleSelect = (id) => {
-    setSelectedIds(prev => 
-      prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
-    );
+    setSelectedIds((prev) => (prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]));
   };
 
   const handleSave = (data) => {
@@ -137,22 +149,25 @@ export default function Keywords() {
     setShowModal(true);
   };
 
-  const filteredKeywords = keywords.filter(keyword => {
-    const matchesSearch = !searchTerm || 
-      keyword.keyword.toLowerCase().includes(searchTerm.toLowerCase());
+  const filteredKeywords = keywords.filter((keyword) => {
+    const matchesSearch =
+      !searchTerm || keyword.keyword.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesWebsite = websiteFilter === 'all' || keyword.website_id === websiteFilter;
-    const matchesPosition = positionFilter === 'all' || 
+    const matchesPosition =
+      positionFilter === 'all' ||
       (positionFilter === 'top3' && keyword.current_position && keyword.current_position <= 3) ||
       (positionFilter === 'top10' && keyword.current_position && keyword.current_position <= 10) ||
       (positionFilter === 'top20' && keyword.current_position && keyword.current_position <= 20) ||
-      (positionFilter === 'below20' && (!keyword.current_position || keyword.current_position > 20));
+      (positionFilter === 'below20' &&
+        (!keyword.current_position || keyword.current_position > 20));
     return matchesSearch && matchesWebsite && matchesPosition;
   });
 
-  const top10Count = keywords.filter(k => k.current_position && k.current_position <= 10).length;
-  const avgVolume = keywords.length > 0 
-    ? Math.round(keywords.reduce((sum, k) => sum + (k.search_volume || 0), 0) / keywords.length)
-    : 0;
+  const top10Count = keywords.filter((k) => k.current_position && k.current_position <= 10).length;
+  const avgVolume =
+    keywords.length > 0
+      ? Math.round(keywords.reduce((sum, k) => sum + (k.search_volume || 0), 0) / keywords.length)
+      : 0;
 
   return (
     <div className="p-6 lg:p-8 space-y-6 bg-gray-50 dark:bg-gray-900 min-h-screen">
@@ -161,34 +176,49 @@ export default function Keywords() {
         <div>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Keywords</h1>
           <p className="text-gray-500 dark:text-gray-400 mt-1">
-            {keywords.length} tracked • {top10Count} in top 10 • Avg volume: {avgVolume.toLocaleString()}
+            {keywords.length} tracked • {top10Count} in top 10 • Avg volume:{' '}
+            {avgVolume.toLocaleString()}
           </p>
         </div>
         <div className="flex gap-2">
           {selectedIds.length > 0 && (
-            <Button 
-              variant="destructive" 
+            <Button
+              variant="destructive"
               onClick={handleBulkDelete}
               disabled={bulkDeleteMutation.isPending}
               className="gap-2"
             >
-              {bulkDeleteMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
+              {bulkDeleteMutation.isPending ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <Trash2 className="w-4 h-4" />
+              )}
               Delete ({selectedIds.length})
             </Button>
           )}
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             onClick={() => setShowLiveData(!showLiveData)}
             className="gap-2 dark:bg-gray-800 dark:border-gray-700"
           >
             <RefreshCw className="w-4 h-4" />
             {showLiveData ? 'Hide' : 'Live Data'}
           </Button>
-          <Button variant="outline" onClick={handleExportCSV} className="gap-2 dark:bg-gray-800 dark:border-gray-700">
+          <Button
+            variant="outline"
+            onClick={handleExportCSV}
+            className="gap-2 dark:bg-gray-800 dark:border-gray-700"
+          >
             <Download className="w-4 h-4" />
             Export
           </Button>
-          <Button onClick={() => { setEditingKeyword(null); setShowModal(true); }} className="gap-2 bg-violet-600 hover:bg-violet-700">
+          <Button
+            onClick={() => {
+              setEditingKeyword(null);
+              setShowModal(true);
+            }}
+            className="gap-2 bg-violet-600 hover:bg-violet-700"
+          >
             <Plus className="w-4 h-4" />
             Add Keyword
           </Button>
@@ -197,18 +227,23 @@ export default function Keywords() {
 
       {/* Live Data Integration */}
       {showLiveData && websites.length > 0 && (
-        <LiveDataIntegration 
-          website={websites.find(w => websiteFilter === 'all' ? true : w.id === websiteFilter) || websites[0]}
+        <LiveDataIntegration
+          website={
+            websites.find((w) => (websiteFilter === 'all' ? true : w.id === websiteFilter)) ||
+            websites[0]
+          }
           onDataFetched={async ({ source, data }) => {
             if (source === 'gsc' && data.keywords) {
               let synced = 0;
               for (const kw of data.keywords.slice(0, 50)) {
-                const existing = keywords.find(k => k.keyword?.toLowerCase() === kw.keyword?.toLowerCase());
+                const existing = keywords.find(
+                  (k) => k.keyword?.toLowerCase() === kw.keyword?.toLowerCase()
+                );
                 if (existing) {
                   await base44.entities.Keyword.update(existing.id, {
                     current_position: Math.round(kw.position),
                     previous_position: existing.current_position,
-                    search_volume: kw.impressions
+                    search_volume: kw.impressions,
                   });
                   synced++;
                 }
@@ -216,24 +251,28 @@ export default function Keywords() {
               queryClient.invalidateQueries({ queryKey: ['keywords'] });
               toast.success(`Synced ${synced} keywords from Google Search Console`);
             }
-            
+
             if ((source === 'semrush' || source === 'ahrefs') && data.keywords) {
               let synced = 0;
               for (const kw of data.keywords) {
-                const existing = keywords.find(k => k.keyword?.toLowerCase() === kw.keyword?.toLowerCase());
+                const existing = keywords.find(
+                  (k) => k.keyword?.toLowerCase() === kw.keyword?.toLowerCase()
+                );
                 if (existing) {
                   await base44.entities.Keyword.update(existing.id, {
                     current_position: kw.position,
                     previous_position: existing.current_position,
                     search_volume: kw.search_volume,
                     difficulty: source === 'semrush' ? kw.difficulty : kw.keyword_difficulty,
-                    cpc: kw.cpc
+                    cpc: kw.cpc,
                   });
                   synced++;
                 }
               }
               queryClient.invalidateQueries({ queryKey: ['keywords'] });
-              toast.success(`Synced ${synced} keywords from ${source === 'semrush' ? 'Semrush' : 'Ahrefs'}`);
+              toast.success(
+                `Synced ${synced} keywords from ${source === 'semrush' ? 'Semrush' : 'Ahrefs'}`
+              );
             }
           }}
         />
@@ -257,7 +296,9 @@ export default function Keywords() {
           <SelectContent>
             <SelectItem value="all">All Websites</SelectItem>
             {websites.map((website) => (
-              <SelectItem key={website.id} value={website.id}>{website.name}</SelectItem>
+              <SelectItem key={website.id} value={website.id}>
+                {website.name}
+              </SelectItem>
             ))}
           </SelectContent>
         </Select>
@@ -278,7 +319,7 @@ export default function Keywords() {
       {/* Bulk Select */}
       {filteredKeywords.length > 0 && (
         <div className="flex items-center gap-3">
-          <Checkbox 
+          <Checkbox
             checked={selectedIds.length === filteredKeywords.length && filteredKeywords.length > 0}
             onCheckedChange={toggleSelectAll}
           />
@@ -301,14 +342,17 @@ export default function Keywords() {
           title="No keywords tracked"
           description="Start tracking keywords to monitor your search engine rankings."
           actionLabel="Add Keyword"
-          onAction={() => { setEditingKeyword(null); setShowModal(true); }}
+          onAction={() => {
+            setEditingKeyword(null);
+            setShowModal(true);
+          }}
         />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredKeywords.map((keyword) => (
             <div key={keyword.id} className="relative group">
               <div className="absolute top-3 left-3 z-10">
-                <Checkbox 
+                <Checkbox
                   checked={selectedIds.includes(keyword.id)}
                   onCheckedChange={() => toggleSelect(keyword.id)}
                   className="bg-white dark:bg-gray-800"
@@ -325,7 +369,10 @@ export default function Keywords() {
       {/* Modal */}
       <KeywordModal
         open={showModal}
-        onClose={() => { setShowModal(false); setEditingKeyword(null); }}
+        onClose={() => {
+          setShowModal(false);
+          setEditingKeyword(null);
+        }}
         keyword={editingKeyword}
         websites={websites}
         onSave={handleSave}

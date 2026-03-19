@@ -15,10 +15,18 @@ Deno.serve(async (req) => {
     }
 
     // Get all companies without business_id
-    const companiesWithoutBiz = await base44.asServiceRole.entities.Company.filter({ business_id: null }, '-created_date', 500);
-    
+    const companiesWithoutBiz = await base44.asServiceRole.entities.Company.filter(
+      { business_id: null },
+      '-created_date',
+      500
+    );
+
     // Get all contacts without business_id
-    const contactsWithoutBiz = await base44.asServiceRole.entities.Contact.filter({ business_id: null }, '-created_date', 1000);
+    const contactsWithoutBiz = await base44.asServiceRole.entities.Contact.filter(
+      { business_id: null },
+      '-created_date',
+      1000
+    );
 
     let companiesUpdated = 0;
     let contactsUpdated = 0;
@@ -35,11 +43,11 @@ Deno.serve(async (req) => {
       contactsUpdated++;
     }
 
-    return Response.json({ 
-      success: true, 
-      companiesUpdated, 
+    return Response.json({
+      success: true,
+      companiesUpdated,
       contactsUpdated,
-      message: `Updated ${companiesUpdated} companies and ${contactsUpdated} contacts` 
+      message: `Updated ${companiesUpdated} companies and ${contactsUpdated} contacts`,
     });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });

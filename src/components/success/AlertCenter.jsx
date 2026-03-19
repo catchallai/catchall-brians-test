@@ -1,9 +1,9 @@
 import React from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { AlertTriangle, AlertCircle, Info } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { AlertTriangle, AlertCircle, Info } from 'lucide-react';
 
 export default function AlertCenter() {
   const { data: alerts = [] } = useQuery({
@@ -19,17 +19,17 @@ export default function AlertCenter() {
   const severityColor = {
     info: 'bg-blue-100 text-blue-800',
     warning: 'bg-yellow-100 text-yellow-800',
-    critical: 'bg-red-100 text-red-800'
+    critical: 'bg-red-100 text-red-800',
   };
 
   const severityIcon = {
     info: <Info className="w-5 h-5 text-blue-500" />,
     warning: <AlertCircle className="w-5 h-5 text-yellow-500" />,
-    critical: <AlertTriangle className="w-5 h-5 text-red-500" />
+    critical: <AlertTriangle className="w-5 h-5 text-red-500" />,
   };
 
-  const critical = alerts.filter(a => a.severity === 'critical').length;
-  const warning = alerts.filter(a => a.severity === 'warning').length;
+  const critical = alerts.filter((a) => a.severity === 'critical').length;
+  const warning = alerts.filter((a) => a.severity === 'warning').length;
 
   return (
     <div className="space-y-4">
@@ -55,14 +55,20 @@ export default function AlertCenter() {
       </div>
 
       <div className="space-y-2 max-h-96 overflow-y-auto">
-        {alerts.slice(0, 20).map(alert => {
-          const contact = contacts.find(c => c.id === alert.contact_id);
-          
+        {alerts.slice(0, 20).map((alert) => {
+          const contact = contacts.find((c) => c.id === alert.contact_id);
+
           return (
-            <Card key={alert.id} className={`glass-card border-l-4 ${
-              alert.severity === 'critical' ? 'border-l-red-500' :
-              alert.severity === 'warning' ? 'border-l-yellow-500' : 'border-l-blue-500'
-            }`}>
+            <Card
+              key={alert.id}
+              className={`glass-card border-l-4 ${
+                alert.severity === 'critical'
+                  ? 'border-l-red-500'
+                  : alert.severity === 'warning'
+                    ? 'border-l-yellow-500'
+                    : 'border-l-blue-500'
+              }`}
+            >
               <CardContent className="p-4">
                 <div className="flex items-start gap-3">
                   {severityIcon[alert.severity]}

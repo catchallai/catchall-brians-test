@@ -36,16 +36,35 @@ Deno.serve(async (req) => {
           hq_city: row['HQ City']?.trim(),
           tier: row.Tier?.trim(),
           loi_summary: row['LOI / MOU / Prior Conditional Orders (Summary)']?.trim(),
-          loi_source_urls: row['LOI/MOU Source URLs']?.trim()?.split(';').filter(Boolean).map(u => u.trim()),
+          loi_source_urls: row['LOI/MOU Source URLs']
+            ?.trim()
+            ?.split(';')
+            .filter(Boolean)
+            .map((u) => u.trim()),
           notes_angle: row['Notes / Angle']?.trim(),
-          contact_sources_urls: row['Contact Sources (URLs)']?.trim()?.split(';').filter(Boolean).map(u => u.trim()),
-          general_emails: row['General Email(s)']?.trim()?.split(';').filter(Boolean).map(e => e.trim()),
-          general_phones: row['General Phone(s)']?.trim()?.split(';').filter(Boolean).map(p => p.trim()),
+          contact_sources_urls: row['Contact Sources (URLs)']
+            ?.trim()
+            ?.split(';')
+            .filter(Boolean)
+            .map((u) => u.trim()),
+          general_emails: row['General Email(s)']
+            ?.trim()
+            ?.split(';')
+            .filter(Boolean)
+            .map((e) => e.trim()),
+          general_phones: row['General Phone(s)']
+            ?.trim()
+            ?.split(';')
+            .filter(Boolean)
+            .map((p) => p.trim()),
         };
 
         // Filter out empty values
-        Object.keys(companyData).forEach(key => {
-          if (!companyData[key] || (Array.isArray(companyData[key]) && companyData[key].length === 0)) {
+        Object.keys(companyData).forEach((key) => {
+          if (
+            !companyData[key] ||
+            (Array.isArray(companyData[key]) && companyData[key].length === 0)
+          ) {
             delete companyData[key];
           }
         });

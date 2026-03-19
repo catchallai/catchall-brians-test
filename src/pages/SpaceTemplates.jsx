@@ -3,15 +3,21 @@ import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Switch } from "@/components/ui/switch";
-import { ArrowLeft, Plus, FileText, Trash2, Edit, Star, Lock } from "lucide-react";
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Switch } from '@/components/ui/switch';
+import { ArrowLeft, Plus, FileText, Trash2, Edit, Star, Lock } from 'lucide-react';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 
@@ -179,7 +185,7 @@ export default function SpaceTemplates() {
 
   const { data: space } = useQuery({
     queryKey: ['space', spaceId],
-    queryFn: () => base44.entities.Space.filter({ id: spaceId }).then(r => r[0]),
+    queryFn: () => base44.entities.Space.filter({ id: spaceId }).then((r) => r[0]),
     enabled: !!spaceId,
   });
 
@@ -187,7 +193,7 @@ export default function SpaceTemplates() {
     queryKey: ['wiki-templates', spaceId],
     queryFn: async () => {
       const pages = await base44.entities.WikiPage.list();
-      return pages.filter(p => p.space_id === spaceId && p.template);
+      return pages.filter((p) => p.space_id === spaceId && p.template);
     },
     enabled: !!spaceId,
   });
@@ -232,7 +238,7 @@ export default function SpaceTemplates() {
     },
   });
 
-  const filteredTemplates = allTemplates.filter(t => 
+  const filteredTemplates = allTemplates.filter((t) =>
     t.title.toLowerCase().includes(search.toLowerCase())
   );
 
@@ -260,9 +266,7 @@ export default function SpaceTemplates() {
         </Button>
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-              Templates
-            </h1>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Templates</h1>
             <p className="text-gray-600 dark:text-gray-400 mt-1">
               Manage templates for {space?.name}
             </p>
@@ -292,7 +296,7 @@ export default function SpaceTemplates() {
             </div>
             <Switch
               checked={space?.require_template || false}
-              onCheckedChange={(checked) => 
+              onCheckedChange={(checked) =>
                 updateSpaceSettingsMutation.mutate({ require_template: checked })
               }
             />
@@ -304,12 +308,12 @@ export default function SpaceTemplates() {
               <select
                 className="w-full mt-2 p-2 border rounded-lg bg-white dark:bg-gray-800"
                 value={space?.default_template_id || ''}
-                onChange={(e) => 
+                onChange={(e) =>
                   updateSpaceSettingsMutation.mutate({ default_template_id: e.target.value })
                 }
               >
                 <option value="">Select default template...</option>
-                {allTemplates.map(t => (
+                {allTemplates.map((t) => (
                   <option key={t.id} value={t.id}>
                     {t.title}
                   </option>
@@ -345,9 +349,7 @@ export default function SpaceTemplates() {
                       Default
                     </Badge>
                   )}
-                  {template.builtin && (
-                    <Badge variant="outline">Built-in</Badge>
-                  )}
+                  {template.builtin && <Badge variant="outline">Built-in</Badge>}
                 </div>
               </div>
               <CardTitle className="text-lg mt-3">{template.title}</CardTitle>
@@ -394,9 +396,7 @@ export default function SpaceTemplates() {
       <Dialog open={showCreateModal} onOpenChange={setShowCreateModal}>
         <DialogContent className="max-w-4xl max-h-[85vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>
-              {editingTemplate ? 'Edit Template' : 'Create New Template'}
-            </DialogTitle>
+            <DialogTitle>{editingTemplate ? 'Edit Template' : 'Create New Template'}</DialogTitle>
           </DialogHeader>
 
           <div className="space-y-4">
@@ -413,10 +413,13 @@ export default function SpaceTemplates() {
               <Label>Tags (comma-separated)</Label>
               <Input
                 value={newTemplate.tags?.join(', ') || ''}
-                onChange={(e) => 
-                  setNewTemplate({ 
-                    ...newTemplate, 
-                    tags: e.target.value.split(',').map(t => t.trim()).filter(Boolean) 
+                onChange={(e) =>
+                  setNewTemplate({
+                    ...newTemplate,
+                    tags: e.target.value
+                      .split(',')
+                      .map((t) => t.trim())
+                      .filter(Boolean),
                   })
                 }
                 placeholder="e.g., product, requirements, documentation"
@@ -435,11 +438,14 @@ export default function SpaceTemplates() {
           </div>
 
           <DialogFooter>
-            <Button variant="outline" onClick={() => {
-              setShowCreateModal(false);
-              setEditingTemplate(null);
-              setNewTemplate({ title: '', content: '', tags: [] });
-            }}>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setShowCreateModal(false);
+                setEditingTemplate(null);
+                setNewTemplate({ title: '', content: '', tags: [] });
+              }}
+            >
               Cancel
             </Button>
             <Button onClick={() => createTemplateMutation.mutate(newTemplate)}>

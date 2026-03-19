@@ -1,13 +1,18 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Button } from "@/components/ui/button";
-import { Plus, ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from '@/components/ui/button';
+import { Plus, ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Skeleton } from '@/components/ui/skeleton';
 import EmptyState from '@/components/ui/EmptyState';
 import ContactsSidebar from '@/components/crm/ContactsSidebar';
-import { Target } from "lucide-react";
+import { Target } from 'lucide-react';
 
 export default function DealsModule() {
   const [currentPage, setCurrentPage] = useState(1);
@@ -32,12 +37,23 @@ export default function DealsModule() {
   const formatDate = (dateString) => {
     if (!dateString) return '-';
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit', timeZoneName: 'short' });
+    return date.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      timeZoneName: 'short',
+    });
   };
 
   const formatCurrency = (amount) => {
     if (!amount) return '-';
-    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 }).format(amount);
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 0,
+    }).format(amount);
   };
 
   return (
@@ -48,7 +64,9 @@ export default function DealsModule() {
         <div className="border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-slate-900 p-4 sm:p-6">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Deals</h1>
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
+                Deals
+              </h1>
               <p className="text-sm text-gray-500 mt-1">Manage your sales pipeline</p>
             </div>
             <Button className="gap-2 bg-violet-600 hover:bg-violet-700" size="sm">
@@ -69,7 +87,9 @@ export default function DealsModule() {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent>
-                <DropdownMenuItem onClick={() => setFilters({ ...filters, owner: null })}>All owners</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setFilters({ ...filters, owner: null })}>
+                  All owners
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
 
@@ -81,7 +101,9 @@ export default function DealsModule() {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent>
-                <DropdownMenuItem onClick={() => setFilters({ ...filters, createDate: null })}>Any time</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setFilters({ ...filters, createDate: null })}>
+                  Any time
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
 
@@ -93,7 +115,11 @@ export default function DealsModule() {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent>
-                <DropdownMenuItem onClick={() => setFilters({ ...filters, lastActivityDate: null })}>Any time</DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => setFilters({ ...filters, lastActivityDate: null })}
+                >
+                  Any time
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
 
@@ -105,7 +131,9 @@ export default function DealsModule() {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent>
-                <DropdownMenuItem onClick={() => setFilters({ ...filters, closeDate: null })}>Any time</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setFilters({ ...filters, closeDate: null })}>
+                  Any time
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
 
@@ -181,9 +209,15 @@ export default function DealsModule() {
               </thead>
               <tbody className="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-slate-900">
                 {paginatedDeals.map((deal) => (
-                  <tr key={deal.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/30 transition-colors">
+                  <tr
+                    key={deal.id}
+                    className="hover:bg-gray-50 dark:hover:bg-gray-800/30 transition-colors"
+                  >
                     <td className="px-6 py-4">
-                      <a href="#" className="text-violet-600 dark:text-violet-400 hover:underline font-medium">
+                      <a
+                        href="#"
+                        className="text-violet-600 dark:text-violet-400 hover:underline font-medium"
+                      >
                         {deal.title}
                       </a>
                     </td>
@@ -214,20 +248,18 @@ export default function DealsModule() {
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                   disabled={currentPage === 1}
                   className="h-8"
                 >
                   <ChevronLeft className="w-4 h-4" />
                   Prev
                 </Button>
-                <span className="text-sm text-gray-600 dark:text-gray-400 px-2">
-                  {currentPage}
-                </span>
+                <span className="text-sm text-gray-600 dark:text-gray-400 px-2">{currentPage}</span>
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                  onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
                   disabled={currentPage === totalPages}
                   className="h-8"
                 >
@@ -243,10 +275,38 @@ export default function DealsModule() {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={() => { setPageSize(10); setCurrentPage(1); }}>10 per page</DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => { setPageSize(25); setCurrentPage(1); }}>25 per page</DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => { setPageSize(50); setCurrentPage(1); }}>50 per page</DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => { setPageSize(100); setCurrentPage(1); }}>100 per page</DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => {
+                      setPageSize(10);
+                      setCurrentPage(1);
+                    }}
+                  >
+                    10 per page
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => {
+                      setPageSize(25);
+                      setCurrentPage(1);
+                    }}
+                  >
+                    25 per page
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => {
+                      setPageSize(50);
+                      setCurrentPage(1);
+                    }}
+                  >
+                    50 per page
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => {
+                      setPageSize(100);
+                      setCurrentPage(1);
+                    }}
+                  >
+                    100 per page
+                  </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>

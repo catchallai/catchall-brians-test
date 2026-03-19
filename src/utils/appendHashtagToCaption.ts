@@ -27,7 +27,7 @@
 export function appendHashtagToCaption(
   caption: string,
   hashtag: string,
-  existingHashtags: string[] = [],
+  existingHashtags: string[] = []
 ): { caption: string; hashtags: string[] } | null {
   const clean = hashtag.replace(/^#/, '').trim();
   if (!clean) return null;

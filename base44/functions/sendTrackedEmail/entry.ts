@@ -14,22 +14,26 @@ Deno.serve(async (req) => {
     const { to, subject, html, contact_id, deal_id, sequence_enrollment_id } = body;
 
     if (!to || !subject || !html) {
-      return Response.json({ error: 'Missing required fields: to, subject, html' }, { status: 400 });
+      return Response.json(
+        { error: 'Missing required fields: to, subject, html' },
+        { status: 400 }
+      );
     }
 
     // Generate unique tracking ID
     const trackingId = crypto.randomUUID();
 
     // Get function URL for tracking pixel
-    const functionUrl = Deno.env.get('DENO_DEPLOYMENT_ID') 
-      ? `https://${Deno.env.get('DENO_REGION')}.deno.dev` 
+    const functionUrl = Deno.env.get('DENO_DEPLOYMENT_ID')
+      ? `https://${Deno.env.get('DENO_REGION')}.deno.dev`
       : 'http://localhost:8000';
-    
+
     const trackingPixelUrl = `${functionUrl}/trackEmailOpen?id=${trackingId}`;
     const clickTrackUrl = `${functionUrl}/trackEmailClick?id=${trackingId}`;
 
     // Inject tracking pixel at end of HTML
-    const trackedHtml = html + `<img src="${trackingPixelUrl}" width="1" height="1" alt="" style="display:block" />`;
+    const trackedHtml =
+      html + `<img src="${trackingPixelUrl}" width="1" height="1" alt="" style="display:block" />`;
 
     // Replace links with tracked links
     const finalHtml = trackedHtml.replace(
@@ -46,15 +50,15 @@ Deno.serve(async (req) => {
     const resendResponse = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${resendApiKey}`,
-        'Content-Type': 'application/json'
+        Authorization: `Bearer ${resendApiKey}`,
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify({
         from: body.from || `noreply@${new URL(req.url).hostname}`,
         to,
         subject,
-        html: finalHtml
-      })
+        html: finalHtml,
+      }),
     });
 
     if (!resendResponse.ok) {
@@ -77,16 +81,15 @@ Deno.serve(async (req) => {
       opened_count: 0,
       clicked: false,
       replied: false,
-      bounced: false
+      bounced: false,
     });
 
     return Response.json({
       success: true,
       tracking_id: trackingId,
       tracking_record_id: trackingRecord.id,
-      resend_id: resendData.id
+      resend_id: resendData.id,
     });
-
   } catch (error) {
     console.error('Send tracked email error:', error);
     return Response.json({ error: error.message }, { status: 500 });

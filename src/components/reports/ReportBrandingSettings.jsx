@@ -1,15 +1,21 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
-import { Badge } from "@/components/ui/badge";
-import { Upload, Palette, Type, Eye, Save, Trash2, Plus } from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
+import { Badge } from '@/components/ui/badge';
+import { Upload, Palette, Type, Eye, Save, Trash2, Plus } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 const FONT_OPTIONS = ['Inter', 'Roboto', 'Open Sans', 'Lato', 'Montserrat', 'Poppins', 'Raleway'];
 
@@ -63,7 +69,7 @@ export default function ReportBrandingSettings({ open, onClose }) {
 
   const handleSave = () => {
     if (!selectedProfile) return;
-    
+
     if (selectedProfile.id) {
       updateMutation.mutate({ id: selectedProfile.id, data: selectedProfile });
     } else {
@@ -95,14 +101,16 @@ export default function ReportBrandingSettings({ open, onClose }) {
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="font-semibold text-gray-900 dark:text-white">Profiles</h3>
-              <Button 
-                size="sm" 
-                onClick={() => setSelectedProfile({ 
-                  name: 'New Profile',
-                  primary_color: '#7c3aed',
-                  secondary_color: '#06b6d4',
-                  font_family: 'Inter'
-                })}
+              <Button
+                size="sm"
+                onClick={() =>
+                  setSelectedProfile({
+                    name: 'New Profile',
+                    primary_color: '#7c3aed',
+                    secondary_color: '#06b6d4',
+                    font_family: 'Inter',
+                  })
+                }
               >
                 <Plus className="w-4 h-4 mr-1" />
                 New
@@ -110,12 +118,12 @@ export default function ReportBrandingSettings({ open, onClose }) {
             </div>
 
             <div className="space-y-2">
-              {profiles.map(profile => (
+              {profiles.map((profile) => (
                 <Card
                   key={profile.id}
                   className={`cursor-pointer transition-all ${
-                    selectedProfile?.id === profile.id 
-                      ? 'ring-2 ring-violet-500' 
+                    selectedProfile?.id === profile.id
+                      ? 'ring-2 ring-violet-500'
                       : 'hover:bg-gray-50 dark:hover:bg-gray-800'
                   }`}
                   onClick={() => setSelectedProfile(profile)}
@@ -123,14 +131,18 @@ export default function ReportBrandingSettings({ open, onClose }) {
                   <CardContent className="p-4">
                     <div className="flex items-center justify-between">
                       <div>
-                        <h4 className="font-medium text-gray-900 dark:text-white">{profile.name}</h4>
+                        <h4 className="font-medium text-gray-900 dark:text-white">
+                          {profile.name}
+                        </h4>
                         {profile.is_default && (
-                          <Badge variant="secondary" className="mt-1">Default</Badge>
+                          <Badge variant="secondary" className="mt-1">
+                            Default
+                          </Badge>
                         )}
                       </div>
                       <div className="flex items-center gap-2">
-                        <div 
-                          className="w-6 h-6 rounded-full border-2" 
+                        <div
+                          className="w-6 h-6 rounded-full border-2"
                           style={{ backgroundColor: profile.primary_color }}
                         />
                       </div>
@@ -149,7 +161,9 @@ export default function ReportBrandingSettings({ open, onClose }) {
                   <Label>Profile Name</Label>
                   <Input
                     value={selectedProfile.name}
-                    onChange={(e) => setSelectedProfile({ ...selectedProfile, name: e.target.value })}
+                    onChange={(e) =>
+                      setSelectedProfile({ ...selectedProfile, name: e.target.value })
+                    }
                     placeholder="e.g., Client Reports, Internal Reports"
                   />
                 </div>
@@ -158,7 +172,9 @@ export default function ReportBrandingSettings({ open, onClose }) {
                   <Label>Company Name</Label>
                   <Input
                     value={selectedProfile.company_name || ''}
-                    onChange={(e) => setSelectedProfile({ ...selectedProfile, company_name: e.target.value })}
+                    onChange={(e) =>
+                      setSelectedProfile({ ...selectedProfile, company_name: e.target.value })
+                    }
                     placeholder="Your Company Name"
                   />
                 </div>
@@ -170,9 +186,9 @@ export default function ReportBrandingSettings({ open, onClose }) {
                   </Label>
                   <div className="flex items-center gap-4 mt-2">
                     {selectedProfile.logo_url && (
-                      <img 
-                        src={selectedProfile.logo_url} 
-                        alt="Logo" 
+                      <img
+                        src={selectedProfile.logo_url}
+                        alt="Logo"
                         className="h-16 object-contain bg-gray-100 dark:bg-gray-800 rounded p-2"
                       />
                     )}
@@ -203,12 +219,16 @@ export default function ReportBrandingSettings({ open, onClose }) {
                       <Input
                         type="color"
                         value={selectedProfile.primary_color}
-                        onChange={(e) => setSelectedProfile({ ...selectedProfile, primary_color: e.target.value })}
+                        onChange={(e) =>
+                          setSelectedProfile({ ...selectedProfile, primary_color: e.target.value })
+                        }
                         className="w-20 h-10 p-1"
                       />
                       <Input
                         value={selectedProfile.primary_color}
-                        onChange={(e) => setSelectedProfile({ ...selectedProfile, primary_color: e.target.value })}
+                        onChange={(e) =>
+                          setSelectedProfile({ ...selectedProfile, primary_color: e.target.value })
+                        }
                         placeholder="#7c3aed"
                       />
                     </div>
@@ -223,12 +243,22 @@ export default function ReportBrandingSettings({ open, onClose }) {
                       <Input
                         type="color"
                         value={selectedProfile.secondary_color}
-                        onChange={(e) => setSelectedProfile({ ...selectedProfile, secondary_color: e.target.value })}
+                        onChange={(e) =>
+                          setSelectedProfile({
+                            ...selectedProfile,
+                            secondary_color: e.target.value,
+                          })
+                        }
                         className="w-20 h-10 p-1"
                       />
                       <Input
                         value={selectedProfile.secondary_color}
-                        onChange={(e) => setSelectedProfile({ ...selectedProfile, secondary_color: e.target.value })}
+                        onChange={(e) =>
+                          setSelectedProfile({
+                            ...selectedProfile,
+                            secondary_color: e.target.value,
+                          })
+                        }
                         placeholder="#06b6d4"
                       />
                     </div>
@@ -240,16 +270,20 @@ export default function ReportBrandingSettings({ open, onClose }) {
                     <Type className="w-4 h-4" />
                     Font Family
                   </Label>
-                  <Select 
-                    value={selectedProfile.font_family} 
-                    onValueChange={(value) => setSelectedProfile({ ...selectedProfile, font_family: value })}
+                  <Select
+                    value={selectedProfile.font_family}
+                    onValueChange={(value) =>
+                      setSelectedProfile({ ...selectedProfile, font_family: value })
+                    }
                   >
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      {FONT_OPTIONS.map(font => (
-                        <SelectItem key={font} value={font}>{font}</SelectItem>
+                      {FONT_OPTIONS.map((font) => (
+                        <SelectItem key={font} value={font}>
+                          {font}
+                        </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -259,7 +293,9 @@ export default function ReportBrandingSettings({ open, onClose }) {
                   <Label>Footer Text</Label>
                   <Textarea
                     value={selectedProfile.footer_text || ''}
-                    onChange={(e) => setSelectedProfile({ ...selectedProfile, footer_text: e.target.value })}
+                    onChange={(e) =>
+                      setSelectedProfile({ ...selectedProfile, footer_text: e.target.value })
+                    }
                     placeholder="Custom footer text for reports..."
                     rows={3}
                   />
@@ -275,17 +311,17 @@ export default function ReportBrandingSettings({ open, onClose }) {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div 
+                  <div
                     className="p-6 rounded-lg border-2"
-                    style={{ 
+                    style={{
                       fontFamily: selectedProfile.font_family,
-                      borderColor: selectedProfile.primary_color 
+                      borderColor: selectedProfile.primary_color,
                     }}
                   >
                     {selectedProfile.logo_url && (
                       <img src={selectedProfile.logo_url} alt="Logo" className="h-12 mb-4" />
                     )}
-                    <h2 
+                    <h2
                       className="text-2xl font-bold mb-2"
                       style={{ color: selectedProfile.primary_color }}
                     >
@@ -294,7 +330,7 @@ export default function ReportBrandingSettings({ open, onClose }) {
                     <p className="text-gray-600 dark:text-gray-400 mb-4">
                       This is how your reports will look with this branding.
                     </p>
-                    <div 
+                    <div
                       className="inline-block px-4 py-2 rounded text-white"
                       style={{ backgroundColor: selectedProfile.secondary_color }}
                     >
@@ -315,7 +351,7 @@ export default function ReportBrandingSettings({ open, onClose }) {
                   {selectedProfile.id && (
                     <>
                       {!selectedProfile.is_default && (
-                        <Button 
+                        <Button
                           variant="outline"
                           onClick={() => handleSetDefault(selectedProfile.id)}
                         >
@@ -333,7 +369,10 @@ export default function ReportBrandingSettings({ open, onClose }) {
                     </>
                   )}
                 </div>
-                <Button onClick={handleSave} disabled={createMutation.isPending || updateMutation.isPending}>
+                <Button
+                  onClick={handleSave}
+                  disabled={createMutation.isPending || updateMutation.isPending}
+                >
                   <Save className="w-4 h-4 mr-1" />
                   Save Profile
                 </Button>

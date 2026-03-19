@@ -1,13 +1,26 @@
 import React, { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2 } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Loader2 } from 'lucide-react';
 
-export default function CommunicationModal({ open, onClose, communication, contacts, onSave, isLoading }) {
+export default function CommunicationModal({
+  open,
+  onClose,
+  communication,
+  contacts,
+  onSave,
+  isLoading,
+}) {
   const [formData, setFormData] = useState({
     contact_id: '',
     contact_email: '',
@@ -59,7 +72,7 @@ export default function CommunicationModal({ open, onClose, communication, conta
     onSave(formData);
   };
 
-  const selectedContact = contacts?.find(c => c.id === formData.contact_id);
+  const selectedContact = contacts?.find((c) => c.id === formData.contact_id);
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
@@ -109,7 +122,7 @@ export default function CommunicationModal({ open, onClose, communication, conta
             <Select
               value={formData.contact_id}
               onValueChange={(value) => {
-                const contact = contacts?.find(c => c.id === value);
+                const contact = contacts?.find((c) => c.id === value);
                 setFormData({
                   ...formData,
                   contact_id: value,

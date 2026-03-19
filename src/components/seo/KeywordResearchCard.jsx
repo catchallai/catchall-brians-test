@@ -1,20 +1,27 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { 
-  Search, Loader2, TrendingUp, Target, ArrowRight, 
-  Plus, Sparkles, BarChart2, Zap
-} from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import {
+  Search,
+  Loader2,
+  TrendingUp,
+  Target,
+  ArrowRight,
+  Plus,
+  Sparkles,
+  BarChart2,
+  Zap,
+} from 'lucide-react';
 
 const difficultyColors = {
   easy: 'bg-emerald-100 text-emerald-700',
   medium: 'bg-amber-100 text-amber-700',
-  hard: 'bg-red-100 text-red-700'
+  hard: 'bg-red-100 text-red-700',
 };
 
 export default function KeywordResearchCard({ onAddKeyword }) {
@@ -24,9 +31,9 @@ export default function KeywordResearchCard({ onAddKeyword }) {
 
   const researchKeywords = async () => {
     if (!seedKeyword.trim()) return;
-    
+
     setIsResearching(true);
-    
+
     const analysis = await base44.integrations.Core.InvokeLLM({
       prompt: `Perform comprehensive keyword research for: "${seedKeyword}"
       
@@ -62,62 +69,62 @@ export default function KeywordResearchCard({ onAddKeyword }) {
          - Related trending topics`,
       add_context_from_internet: true,
       response_json_schema: {
-        type: "object",
+        type: 'object',
         properties: {
           primary_keyword: {
-            type: "object",
+            type: 'object',
             properties: {
-              keyword: { type: "string" },
-              search_volume: { type: "number" },
-              difficulty: { type: "number" },
-              cpc: { type: "number" },
-              intent: { type: "string" },
-              competition: { type: "string" }
-            }
+              keyword: { type: 'string' },
+              search_volume: { type: 'number' },
+              difficulty: { type: 'number' },
+              cpc: { type: 'number' },
+              intent: { type: 'string' },
+              competition: { type: 'string' },
+            },
           },
           related_keywords: {
-            type: "array",
+            type: 'array',
             items: {
-              type: "object",
+              type: 'object',
               properties: {
-                keyword: { type: "string" },
-                search_volume: { type: "number" },
-                difficulty: { type: "number" },
-                cpc: { type: "number" },
-                relevance: { type: "number" },
-                type: { type: "string" }
-              }
-            }
+                keyword: { type: 'string' },
+                search_volume: { type: 'number' },
+                difficulty: { type: 'number' },
+                cpc: { type: 'number' },
+                relevance: { type: 'number' },
+                type: { type: 'string' },
+              },
+            },
           },
           content_opportunities: {
-            type: "array",
+            type: 'array',
             items: {
-              type: "object",
+              type: 'object',
               properties: {
-                title: { type: "string" },
-                content_type: { type: "string" },
-                target_keywords: { type: "array", items: { type: "string" } }
-              }
-            }
+                title: { type: 'string' },
+                content_type: { type: 'string' },
+                target_keywords: { type: 'array', items: { type: 'string' } },
+              },
+            },
           },
           serp_features: {
-            type: "object",
+            type: 'object',
             properties: {
-              featured_snippet: { type: "boolean" },
-              people_also_ask: { type: "array", items: { type: "string" } },
-              features_present: { type: "array", items: { type: "string" } }
-            }
+              featured_snippet: { type: 'boolean' },
+              people_also_ask: { type: 'array', items: { type: 'string' } },
+              features_present: { type: 'array', items: { type: 'string' } },
+            },
           },
           trending: {
-            type: "object",
+            type: 'object',
             properties: {
-              direction: { type: "string" },
-              seasonality: { type: "string" },
-              related_trends: { type: "array", items: { type: "string" } }
-            }
-          }
-        }
-      }
+              direction: { type: 'string' },
+              seasonality: { type: 'string' },
+              related_trends: { type: 'array', items: { type: 'string' } },
+            },
+          },
+        },
+      },
     });
 
     setResults(analysis);
@@ -131,8 +138,8 @@ export default function KeywordResearchCard({ onAddKeyword }) {
   };
 
   const formatVolume = (vol) => {
-    if (vol >= 1000000) return `${(vol/1000000).toFixed(1)}M`;
-    if (vol >= 1000) return `${(vol/1000).toFixed(1)}K`;
+    if (vol >= 1000000) return `${(vol / 1000000).toFixed(1)}M`;
+    if (vol >= 1000) return `${(vol / 1000).toFixed(1)}K`;
     return vol;
   };
 
@@ -174,7 +181,9 @@ export default function KeywordResearchCard({ onAddKeyword }) {
               <Loader2 className="w-5 h-5 animate-spin text-violet-600" />
               <div>
                 <p className="font-medium text-violet-900">Researching keywords...</p>
-                <p className="text-sm text-violet-600">Analyzing search volume, difficulty, and opportunities</p>
+                <p className="text-sm text-violet-600">
+                  Analyzing search volume, difficulty, and opportunities
+                </p>
               </div>
             </div>
           </div>
@@ -187,11 +196,15 @@ export default function KeywordResearchCard({ onAddKeyword }) {
               <div className="p-4 bg-gradient-to-br from-violet-50 to-purple-50 rounded-xl">
                 <div className="flex items-start justify-between">
                   <div>
-                    <h3 className="font-bold text-lg text-gray-900">{results.primary_keyword.keyword}</h3>
-                    <Badge variant="outline" className="mt-1">{results.primary_keyword.intent} intent</Badge>
+                    <h3 className="font-bold text-lg text-gray-900">
+                      {results.primary_keyword.keyword}
+                    </h3>
+                    <Badge variant="outline" className="mt-1">
+                      {results.primary_keyword.intent} intent
+                    </Badge>
                   </div>
-                  <Button 
-                    size="sm" 
+                  <Button
+                    size="sm"
                     variant="outline"
                     onClick={() => onAddKeyword?.(results.primary_keyword)}
                     className="gap-1"
@@ -203,22 +216,32 @@ export default function KeywordResearchCard({ onAddKeyword }) {
                 <div className="grid grid-cols-4 gap-4 mt-4">
                   <div>
                     <p className="text-xs text-gray-500">Search Volume</p>
-                    <p className="text-xl font-bold text-gray-900">{formatVolume(results.primary_keyword.search_volume)}</p>
+                    <p className="text-xl font-bold text-gray-900">
+                      {formatVolume(results.primary_keyword.search_volume)}
+                    </p>
                   </div>
                   <div>
                     <p className="text-xs text-gray-500">Difficulty</p>
                     <div className="flex items-center gap-2">
                       <Progress value={results.primary_keyword.difficulty} className="h-2 flex-1" />
-                      <span className="text-sm font-medium">{results.primary_keyword.difficulty}</span>
+                      <span className="text-sm font-medium">
+                        {results.primary_keyword.difficulty}
+                      </span>
                     </div>
                   </div>
                   <div>
                     <p className="text-xs text-gray-500">CPC</p>
-                    <p className="text-xl font-bold text-gray-900">${results.primary_keyword.cpc?.toFixed(2)}</p>
+                    <p className="text-xl font-bold text-gray-900">
+                      ${results.primary_keyword.cpc?.toFixed(2)}
+                    </p>
                   </div>
                   <div>
                     <p className="text-xs text-gray-500">Competition</p>
-                    <Badge className={difficultyColors[getDifficultyLevel(results.primary_keyword.difficulty)]}>
+                    <Badge
+                      className={
+                        difficultyColors[getDifficultyLevel(results.primary_keyword.difficulty)]
+                      }
+                    >
                       {results.primary_keyword.competition}
                     </Badge>
                   </div>
@@ -236,14 +259,16 @@ export default function KeywordResearchCard({ onAddKeyword }) {
                 <ScrollArea className="h-64">
                   <div className="space-y-2">
                     {results.related_keywords.map((kw, idx) => (
-                      <div 
+                      <div
                         key={idx}
                         className="p-3 bg-gray-50 rounded-lg flex items-center justify-between hover:bg-gray-100 transition-colors"
                       >
                         <div className="flex-1">
                           <div className="flex items-center gap-2">
                             <span className="font-medium text-gray-900">{kw.keyword}</span>
-                            <Badge variant="outline" className="text-xs">{kw.type}</Badge>
+                            <Badge variant="outline" className="text-xs">
+                              {kw.type}
+                            </Badge>
                           </div>
                           <div className="flex items-center gap-4 mt-1 text-sm text-gray-500">
                             <span className="flex items-center gap-1">
@@ -261,9 +286,9 @@ export default function KeywordResearchCard({ onAddKeyword }) {
                           <Badge className={difficultyColors[getDifficultyLevel(kw.difficulty)]}>
                             {getDifficultyLevel(kw.difficulty)}
                           </Badge>
-                          <Button 
-                            size="icon" 
-                            variant="ghost" 
+                          <Button
+                            size="icon"
+                            variant="ghost"
                             className="h-8 w-8"
                             onClick={() => onAddKeyword?.(kw)}
                           >
@@ -294,7 +319,9 @@ export default function KeywordResearchCard({ onAddKeyword }) {
                       {opp.target_keywords?.length > 0 && (
                         <div className="flex flex-wrap gap-1 mt-2">
                           {opp.target_keywords.map((tk, i) => (
-                            <Badge key={i} variant="outline" className="text-xs">{tk}</Badge>
+                            <Badge key={i} variant="outline" className="text-xs">
+                              {tk}
+                            </Badge>
                           ))}
                         </div>
                       )}
@@ -329,7 +356,13 @@ export default function KeywordResearchCard({ onAddKeyword }) {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <p className="text-xs text-gray-500">Trend Direction</p>
-                    <Badge className={results.trending.direction === 'up' ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-700'}>
+                    <Badge
+                      className={
+                        results.trending.direction === 'up'
+                          ? 'bg-emerald-100 text-emerald-700'
+                          : 'bg-gray-100 text-gray-700'
+                      }
+                    >
                       {results.trending.direction}
                     </Badge>
                   </div>
@@ -343,7 +376,9 @@ export default function KeywordResearchCard({ onAddKeyword }) {
                     <p className="text-xs text-gray-500 mb-1">Related Trends</p>
                     <div className="flex flex-wrap gap-1">
                       {results.trending.related_trends.map((t, i) => (
-                        <Badge key={i} variant="outline" className="text-xs">{t}</Badge>
+                        <Badge key={i} variant="outline" className="text-xs">
+                          {t}
+                        </Badge>
                       ))}
                     </div>
                   </div>

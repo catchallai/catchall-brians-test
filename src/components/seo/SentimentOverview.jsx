@@ -1,19 +1,19 @@
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { MessageSquare } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { MessageSquare } from 'lucide-react';
 
 export default function SentimentOverview({ mentions }) {
   if (!mentions || mentions.length === 0) return null;
 
-  const negative = mentions.filter(m => m.sentiment === 'negative').length;
-  const neutral = mentions.filter(m => m.sentiment === 'neutral').length;
-  const positive = mentions.filter(m => m.sentiment === 'positive').length;
+  const negative = mentions.filter((m) => m.sentiment === 'negative').length;
+  const neutral = mentions.filter((m) => m.sentiment === 'neutral').length;
+  const positive = mentions.filter((m) => m.sentiment === 'positive').length;
   const total = mentions.length;
-  
+
   const negativePercent = Math.round((negative / total) * 100);
   const neutralPercent = Math.round((neutral / total) * 100);
   const positivePercent = Math.round((positive / total) * 100);
-  
+
   let level = 'Healthy';
   let levelColor = 'text-emerald-500';
   if (negativePercent > 30) {
@@ -24,7 +24,7 @@ export default function SentimentOverview({ mentions }) {
     levelColor = 'text-amber-500';
   }
 
-  const platforms = [...new Set(mentions.map(m => m.platform))].length;
+  const platforms = [...new Set(mentions.map((m) => m.platform))].length;
 
   return (
     <Card className="border-0 shadow-sm">

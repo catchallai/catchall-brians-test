@@ -21,7 +21,9 @@ Deno.serve(async (req) => {
     }
 
     // Get opportunity details
-    const opportunity = await base44.asServiceRole.entities.Opportunity.filter({ id: opportunity_id });
+    const opportunity = await base44.asServiceRole.entities.Opportunity.filter({
+      id: opportunity_id,
+    });
     if (!opportunity || opportunity.length === 0) {
       return Response.json({ error: 'Opportunity not found' }, { status: 404 });
     }

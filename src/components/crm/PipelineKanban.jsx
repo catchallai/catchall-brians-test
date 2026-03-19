@@ -1,23 +1,63 @@
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Edit2, Trash2, DollarSign } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Edit2, Trash2, DollarSign } from 'lucide-react';
 
 const STAGES = [
-  { id: 'new_lead', label: 'New Lead', color: 'bg-blue-100 dark:bg-blue-900', badge: 'bg-blue-500' },
-  { id: 'email_list', label: 'Email List', color: 'bg-purple-100 dark:bg-purple-900', badge: 'bg-purple-500' },
-  { id: 'media_inquiry', label: 'Media Inquiry', color: 'bg-indigo-100 dark:bg-indigo-900', badge: 'bg-indigo-500' },
-  { id: 'reservation_request', label: 'Reservation Req', color: 'bg-cyan-100 dark:bg-cyan-900', badge: 'bg-cyan-500' },
-  { id: 'contacted', label: 'Contacted', color: 'bg-yellow-100 dark:bg-yellow-900', badge: 'bg-yellow-500' },
-  { id: 'no_response', label: 'No Response', color: 'bg-orange-100 dark:bg-orange-900', badge: 'bg-orange-500' },
-  { id: 'closed', label: 'Closed', color: 'bg-emerald-100 dark:bg-emerald-900', badge: 'bg-emerald-500' },
-  { id: 'not_interested', label: 'Not Interested', color: 'bg-red-100 dark:bg-red-900', badge: 'bg-red-500' },
+  {
+    id: 'new_lead',
+    label: 'New Lead',
+    color: 'bg-blue-100 dark:bg-blue-900',
+    badge: 'bg-blue-500',
+  },
+  {
+    id: 'email_list',
+    label: 'Email List',
+    color: 'bg-purple-100 dark:bg-purple-900',
+    badge: 'bg-purple-500',
+  },
+  {
+    id: 'media_inquiry',
+    label: 'Media Inquiry',
+    color: 'bg-indigo-100 dark:bg-indigo-900',
+    badge: 'bg-indigo-500',
+  },
+  {
+    id: 'reservation_request',
+    label: 'Reservation Req',
+    color: 'bg-cyan-100 dark:bg-cyan-900',
+    badge: 'bg-cyan-500',
+  },
+  {
+    id: 'contacted',
+    label: 'Contacted',
+    color: 'bg-yellow-100 dark:bg-yellow-900',
+    badge: 'bg-yellow-500',
+  },
+  {
+    id: 'no_response',
+    label: 'No Response',
+    color: 'bg-orange-100 dark:bg-orange-900',
+    badge: 'bg-orange-500',
+  },
+  {
+    id: 'closed',
+    label: 'Closed',
+    color: 'bg-emerald-100 dark:bg-emerald-900',
+    badge: 'bg-emerald-500',
+  },
+  {
+    id: 'not_interested',
+    label: 'Not Interested',
+    color: 'bg-red-100 dark:bg-red-900',
+    badge: 'bg-red-500',
+  },
 ];
 
 export default function PipelineKanban({ opportunities, onEdit, onDelete }) {
   const opportunitiesByStage = STAGES.reduce((acc, stage) => {
-    acc[stage.id] = opportunities.filter(opp => opp.stage === stage.id);
+    acc[stage.id] = opportunities.filter((opp) => opp.stage === stage.id);
     return acc;
   }, {});
 
@@ -28,7 +68,7 @@ export default function PipelineKanban({ opportunities, onEdit, onDelete }) {
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-4 overflow-x-auto pb-4">
-      {STAGES.map(stage => (
+      {STAGES.map((stage) => (
         <div key={stage.id} className={`rounded-2xl p-4 min-h-96 ${stage.color}`}>
           {/* Stage Header */}
           <div className="mb-4">
@@ -51,8 +91,11 @@ export default function PipelineKanban({ opportunities, onEdit, onDelete }) {
                 No opportunities
               </div>
             ) : (
-              opportunitiesByStage[stage.id].map(opp => (
-                <Card key={opp.id} className="glass-card rounded-xl shadow-sm hover:shadow-md transition-shadow">
+              opportunitiesByStage[stage.id].map((opp) => (
+                <Card
+                  key={opp.id}
+                  className="glass-card rounded-xl shadow-sm hover:shadow-md transition-shadow"
+                >
                   <CardContent className="p-4">
                     <div className="space-y-3">
                       {/* Title */}

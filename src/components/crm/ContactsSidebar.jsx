@@ -2,19 +2,19 @@ import React from 'react';
 import { ChevronDown } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
-import { 
-  DropdownMenu, 
-  DropdownMenuTrigger, 
-  DropdownMenuContent, 
-  DropdownMenuItem 
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
 
 const NAVIGATION_ITEMS = [
-        { label: 'Calls', page: 'CallsModule' },
-        { label: 'Contacts', page: 'Contacts' },
-        { label: 'Companies', page: 'CompaniesModule' },
-        { label: 'Deals', page: 'DealsModule' },
+  { label: 'Calls', page: 'CallsModule' },
+  { label: 'Contacts', page: 'Contacts' },
+  { label: 'Companies', page: 'CompaniesModule' },
+  { label: 'Deals', page: 'DealsModule' },
   { label: 'Emails', page: 'EmailsModule' },
   { label: 'Invoices', page: 'InvoicesModule' },
   { label: 'Marketing Events', page: 'MarketingEventsModule' },
@@ -28,17 +28,14 @@ const NAVIGATION_ITEMS = [
 ];
 
 export default function ContactsSidebar({ activeModule = 'Calls' }) {
-  const selectedItem = NAVIGATION_ITEMS.find(item => item.label === activeModule);
+  const selectedItem = NAVIGATION_ITEMS.find((item) => item.label === activeModule);
 
   return (
     <div className="w-64 border-r border-gray-200 dark:border-gray-800 bg-white dark:bg-slate-900 flex flex-col p-4">
       {/* Module Selector */}
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button 
-            variant="outline" 
-            className="w-full justify-between gap-2 mb-6"
-          >
+          <Button variant="outline" className="w-full justify-between gap-2 mb-6">
             <span className="font-medium">{selectedItem?.label || 'Calls'}</span>
             <ChevronDown className="w-4 h-4" />
           </Button>
@@ -47,7 +44,11 @@ export default function ContactsSidebar({ activeModule = 'Calls' }) {
           {NAVIGATION_ITEMS.map((item) => (
             <Link key={item.label} to={createPageUrl(item.page)}>
               <DropdownMenuItem
-                className={selectedItem?.label === item.label ? 'bg-violet-50 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300' : ''}
+                className={
+                  selectedItem?.label === item.label
+                    ? 'bg-violet-50 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300'
+                    : ''
+                }
               >
                 {item.label}
               </DropdownMenuItem>

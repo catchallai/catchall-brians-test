@@ -40,32 +40,29 @@ export default function ConversionFunnelChart({ dateRange }) {
       {/* Funnel Chart */}
       <div className="h-48">
         <ResponsiveContainer width="100%" height="100%">
-          <BarChart 
-            data={funnelData} 
+          <BarChart
+            data={funnelData}
             layout="vertical"
             margin={{ top: 5, right: 30, left: 80, bottom: 5 }}
           >
             <XAxis type="number" hide />
-            <YAxis 
-              dataKey="stage" 
-              type="category" 
+            <YAxis
+              dataKey="stage"
+              type="category"
               tick={{ fontSize: 11 }}
               tickLine={false}
               axisLine={false}
             />
-            <Tooltip 
-              contentStyle={{ 
-                backgroundColor: 'rgba(255,255,255,0.95)', 
-                border: 'none', 
+            <Tooltip
+              contentStyle={{
+                backgroundColor: 'rgba(255,255,255,0.95)',
+                border: 'none',
                 borderRadius: '8px',
-                boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+                boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
               }}
               formatter={(value) => [value.toLocaleString(), 'Count']}
             />
-            <Bar 
-              dataKey="value" 
-              radius={[0, 4, 4, 0]}
-            >
+            <Bar dataKey="value" radius={[0, 4, 4, 0]}>
               {funnelData.map((entry, index) => (
                 <Cell key={`cell-${index}`} fill={entry.color} />
               ))}
@@ -76,10 +73,15 @@ export default function ConversionFunnelChart({ dateRange }) {
 
       {/* Conversion Rates */}
       <div>
-        <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-2">Conversion Rates</p>
+        <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-2">
+          Conversion Rates
+        </p>
         <div className="grid grid-cols-2 gap-2">
           {conversionRates.slice(0, 4).map((item, idx) => (
-            <div key={idx} className="flex items-center justify-between text-xs p-1.5 bg-gray-50 dark:bg-gray-700 rounded">
+            <div
+              key={idx}
+              className="flex items-center justify-between text-xs p-1.5 bg-gray-50 dark:bg-gray-700 rounded"
+            >
               <span className="text-gray-600 dark:text-gray-300 truncate">{item.from}</span>
               <span className="font-medium text-violet-600 dark:text-violet-400">{item.rate}</span>
             </div>

@@ -1,8 +1,20 @@
 import React, { useRef, useEffect, useState } from 'react';
-import { Button } from "@/components/ui/button";
-import { Eraser, Paintbrush, Undo2, RotateCcw, Download, Type, Square, Circle, ArrowRight, Image as ImageIcon, History } from 'lucide-react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { Button } from '@/components/ui/button';
+import {
+  Eraser,
+  Paintbrush,
+  Undo2,
+  RotateCcw,
+  Download,
+  Type,
+  Square,
+  Circle,
+  ArrowRight,
+  Image as ImageIcon,
+  History,
+} from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 export default function WhiteboardCanvas({ isHost, onDataChange, versions = [], onRevert }) {
   const canvasRef = useRef(null);
@@ -73,7 +85,12 @@ export default function WhiteboardCanvas({ isHost, onDataChange, versions = [], 
       ctx.lineTo(currentPos.x, currentPos.y);
       ctx.stroke();
     } else if (mode === 'erase') {
-      ctx.clearRect(currentPos.x - lineWidth, currentPos.y - lineWidth, lineWidth * 2, lineWidth * 2);
+      ctx.clearRect(
+        currentPos.x - lineWidth,
+        currentPos.y - lineWidth,
+        lineWidth * 2,
+        lineWidth * 2
+      );
     } else if (['rect', 'circle', 'arrow'].includes(mode) && tempCanvas) {
       const img = new Image();
       img.src = tempCanvas;
@@ -115,9 +132,15 @@ export default function WhiteboardCanvas({ isHost, onDataChange, versions = [], 
 
     ctx.beginPath();
     ctx.moveTo(toX, toY);
-    ctx.lineTo(toX - headlen * Math.cos(angle - Math.PI / 6), toY - headlen * Math.sin(angle - Math.PI / 6));
+    ctx.lineTo(
+      toX - headlen * Math.cos(angle - Math.PI / 6),
+      toY - headlen * Math.sin(angle - Math.PI / 6)
+    );
     ctx.moveTo(toX, toY);
-    ctx.lineTo(toX - headlen * Math.cos(angle + Math.PI / 6), toY - headlen * Math.sin(angle + Math.PI / 6));
+    ctx.lineTo(
+      toX - headlen * Math.cos(angle + Math.PI / 6),
+      toY - headlen * Math.sin(angle + Math.PI / 6)
+    );
     ctx.stroke();
   };
 
@@ -289,14 +312,11 @@ export default function WhiteboardCanvas({ isHost, onDataChange, versions = [], 
                 title="Line width"
               />
               <label className="cursor-pointer">
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={addImage}
-                  className="hidden"
-                />
+                <input type="file" accept="image/*" onChange={addImage} className="hidden" />
                 <Button size="sm" variant="outline" className="gap-1" asChild>
-                  <span><ImageIcon className="w-4 h-4" /></span>
+                  <span>
+                    <ImageIcon className="w-4 h-4" />
+                  </span>
                 </Button>
               </label>
               <Button
@@ -316,27 +336,15 @@ export default function WhiteboardCanvas({ isHost, onDataChange, versions = [], 
               >
                 <History className="w-4 h-4" />
               </Button>
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={clearCanvas}
-                className="gap-1"
-              >
+              <Button size="sm" variant="outline" onClick={clearCanvas} className="gap-1">
                 <RotateCcw className="w-4 h-4" />
               </Button>
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={downloadWhiteboard}
-                className="gap-1"
-              >
+              <Button size="sm" variant="outline" onClick={downloadWhiteboard} className="gap-1">
                 <Download className="w-4 h-4" />
               </Button>
             </>
           )}
-          {!isHost && (
-            <p className="text-xs text-gray-500">View-only mode</p>
-          )}
+          {!isHost && <p className="text-xs text-gray-500">View-only mode</p>}
         </div>
       </div>
 
@@ -370,13 +378,17 @@ export default function WhiteboardCanvas({ isHost, onDataChange, versions = [], 
                       <p className="text-sm font-medium">Version {version.version_number}</p>
                       <p className="text-xs text-gray-500">{version.created_by}</p>
                       {version.timestamp && (
-                        <p className="text-xs text-gray-400">{new Date(version.timestamp).toLocaleString()}</p>
+                        <p className="text-xs text-gray-400">
+                          {new Date(version.timestamp).toLocaleString()}
+                        </p>
                       )}
                       {version.description && (
                         <p className="text-xs text-gray-600 mt-1">{version.description}</p>
                       )}
                     </div>
-                    <Button size="sm" variant="outline">Restore</Button>
+                    <Button size="sm" variant="outline">
+                      Restore
+                    </Button>
                   </div>
                 ))
               )}

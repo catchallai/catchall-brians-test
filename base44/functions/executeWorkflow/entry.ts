@@ -5,7 +5,9 @@ Deno.serve(async (req) => {
     const base44 = createClientFromRequest(req);
     const { workflow_id, contact_id } = await req.json();
 
-    const workflow = await base44.asServiceRole.entities.ProactiveEngagementWorkflow.filter({ id: workflow_id });
+    const workflow = await base44.asServiceRole.entities.ProactiveEngagementWorkflow.filter({
+      id: workflow_id,
+    });
     if (!workflow.length) {
       return Response.json({ error: 'Workflow not found' }, { status: 404 });
     }
@@ -27,7 +29,7 @@ Deno.serve(async (req) => {
       status: 'running',
       trigger_metric: wf.trigger_type,
       started_at: new Date().toISOString(),
-      executed_nodes: []
+      executed_nodes: [],
     });
 
     const executedNodes = [];
@@ -45,7 +47,7 @@ Deno.serve(async (req) => {
               node_id: node.id,
               node_type: node.node_type,
               status: 'skipped',
-              result: { reason: 'Conditions not met' }
+              result: { reason: 'Conditions not met' },
             });
             continue;
           }
@@ -70,7 +72,7 @@ Deno.serve(async (req) => {
           node_id: node.id,
           node_type: node.node_type,
           status: 'completed',
-          result
+          result,
         });
       } catch (error) {
         failed = true;
@@ -79,7 +81,7 @@ Deno.serve(async (req) => {
           node_id: node.id,
           node_type: node.node_type,
           status: 'failed',
-          error: error.message
+          error: error.message,
         });
         break; // Stop on first failure
       }
@@ -90,20 +92,20 @@ Deno.serve(async (req) => {
       status: failed ? 'failed' : 'completed',
       executed_nodes: executedNodes,
       completed_at: new Date().toISOString(),
-      error_message: errorMessage
+      error_message: errorMessage,
     });
 
     // Update workflow stats
     await base44.asServiceRole.entities.ProactiveEngagementWorkflow.update(workflow_id, {
       total_executions: (wf.total_executions || 0) + 1,
-      last_executed: new Date().toISOString()
+      last_executed: new Date().toISOString(),
     });
 
     return Response.json({
       success: !failed,
       execution_id: executionLog.id,
       executed_nodes: executedNodes,
-      error: failed ? errorMessage : null
+      error: failed ? errorMessage : null,
     });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
@@ -111,7 +113,7 @@ Deno.serve(async (req) => {
 });
 
 function evaluateConditions(conditions, contactData) {
-  return conditions.every(cond => {
+  return conditions.every((cond) => {
     const value = contactData[cond.field];
     switch (cond.operator) {
       case 'equals':
@@ -130,7 +132,7 @@ function evaluateConditions(conditions, contactData) {
 
 async function executeEmailNode(node, contact, base44) {
   const { template, subject, body, csm_email } = node.config;
-  
+
   const emailBody = body
     .replace('{{first_name}}', contact.first_name)
     .replace('{{company}}', contact.company_name || 'Valued Customer');
@@ -139,7 +141,7 @@ async function executeEmailNode(node, contact, base44) {
     to: contact.email,
     subject,
     body: emailBody,
-    from_name: csm_email ? 'Customer Success Team' : undefined
+    from_name: csm_email ? 'Customer Success Team' : undefined,
   });
 
   return { email_sent: true, recipient: contact.email };
@@ -156,7 +158,7 @@ async function executeTaskNode(node, contact, base44) {
     priority,
     status: 'open',
     task_type: 'other',
-    due_date: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+    due_date: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
   });
 
   return { task_created: true, task_id: task.id };
@@ -164,10 +166,10 @@ async function executeTaskNode(node, contact, base44) {
 
 async function executeMessageNode(node, contact) {
   const { message } = node.config;
-  return { 
-    message_queued: true, 
+  return {
+    message_queued: true,
     recipient: contact.email,
-    message_text: message.substring(0, 100)
+    message_text: message.substring(0, 100),
   };
 }
 
@@ -180,7 +182,7 @@ async function executeAlertNode(node, contact, base44) {
     severity,
     title: `Workflow Alert: ${alert_type}`,
     message,
-    is_active: true
+    is_active: true,
   });
 
   return { alert_created: true, alert_id: alert.id };

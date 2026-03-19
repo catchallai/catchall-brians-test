@@ -1,8 +1,8 @@
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
-import { TrendingUp, Zap, Target, Clock } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
+import { TrendingUp, Zap, Target, Clock } from 'lucide-react';
 
 export default function TrendAnalysisCard({ insights }) {
   if (!insights) return null;
@@ -54,20 +54,28 @@ export default function TrendAnalysisCard({ insights }) {
                   <span className="font-medium text-gray-900">{prediction.content_type}</span>
                   <div className="flex items-center gap-1">
                     <Target className="w-3 h-3 text-violet-500" />
-                    <span className={`text-sm font-bold ${
-                      prediction.viral_score >= 80 ? 'text-emerald-600' :
-                      prediction.viral_score >= 60 ? 'text-amber-600' : 'text-gray-600'
-                    }`}>
+                    <span
+                      className={`text-sm font-bold ${
+                        prediction.viral_score >= 80
+                          ? 'text-emerald-600'
+                          : prediction.viral_score >= 60
+                            ? 'text-amber-600'
+                            : 'text-gray-600'
+                      }`}
+                    >
                       {prediction.viral_score}%
                     </span>
                   </div>
                 </div>
                 <p className="text-xs text-gray-500">{prediction.reasoning}</p>
                 <div className="mt-2 h-2 bg-gray-100 rounded-full overflow-hidden">
-                  <div 
+                  <div
                     className={`h-full rounded-full ${
-                      prediction.viral_score >= 80 ? 'bg-emerald-500' :
-                      prediction.viral_score >= 60 ? 'bg-amber-500' : 'bg-gray-400'
+                      prediction.viral_score >= 80
+                        ? 'bg-emerald-500'
+                        : prediction.viral_score >= 60
+                          ? 'bg-amber-500'
+                          : 'bg-gray-400'
                     }`}
                     style={{ width: `${prediction.viral_score}%` }}
                   />

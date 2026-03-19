@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { Button } from "@/components/ui/button";
+import { Button } from '@/components/ui/button';
 import { Paperclip, X, Upload } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 
@@ -33,7 +33,7 @@ export default function FileUploader({ onFilesSelected, maxFiles = 5 }) {
         };
 
         uploadedData.push(fileData);
-        setUploadedFiles(prev => [...prev, fileData]);
+        setUploadedFiles((prev) => [...prev, fileData]);
       }
 
       onFilesSelected(uploadedData);
@@ -49,7 +49,7 @@ export default function FileUploader({ onFilesSelected, maxFiles = 5 }) {
   };
 
   const removeFile = (index) => {
-    setUploadedFiles(prev => {
+    setUploadedFiles((prev) => {
       const updated = [...prev];
       updated.splice(index, 1);
       return updated;
@@ -78,7 +78,9 @@ export default function FileUploader({ onFilesSelected, maxFiles = 5 }) {
         type="button"
         onClick={handleClick}
         disabled={isUploading || uploadedFiles.length >= maxFiles}
-        title={uploadedFiles.length >= maxFiles ? `Maximum ${maxFiles} files reached` : 'Attach file'}
+        title={
+          uploadedFiles.length >= maxFiles ? `Maximum ${maxFiles} files reached` : 'Attach file'
+        }
         className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded transition-colors"
       >
         {isUploading ? (

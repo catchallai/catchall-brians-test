@@ -1,19 +1,33 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Textarea } from "@/components/ui/textarea";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Textarea } from '@/components/ui/textarea';
 import {
-  Sparkles, Target, TrendingUp, Calendar, FileText, Lightbulb,
-  Loader2, Search, BarChart2, Zap, ArrowRight, Plus, CheckCircle,
-  BookOpen, Newspaper, Users, Clock
-} from "lucide-react";
+  Sparkles,
+  Target,
+  TrendingUp,
+  Calendar,
+  FileText,
+  Lightbulb,
+  Loader2,
+  Search,
+  BarChart2,
+  Zap,
+  ArrowRight,
+  Plus,
+  CheckCircle,
+  BookOpen,
+  Newspaper,
+  Users,
+  Clock,
+} from 'lucide-react';
 import ContentGapAnalyzer from '@/components/content/ContentGapAnalyzer';
 import TopicGenerator from '@/components/content/TopicGenerator';
 import ContentCalendarPlanner from '@/components/content/ContentCalendarPlanner';
@@ -50,7 +64,9 @@ export default function ContentStrategy() {
           <Sparkles className="w-8 h-8 text-violet-500" />
           Content Strategy Assistant
         </h1>
-        <p className="text-gray-500 mt-1">AI-powered content planning, gap analysis, and topic generation</p>
+        <p className="text-gray-500 mt-1">
+          AI-powered content planning, gap analysis, and topic generation
+        </p>
       </div>
 
       {/* Quick Stats */}
@@ -131,16 +147,16 @@ export default function ContentStrategy() {
         </TabsList>
 
         <TabsContent value="gaps">
-          <ContentGapAnalyzer 
-            websites={websites} 
-            keywords={keywords} 
+          <ContentGapAnalyzer
+            websites={websites}
+            keywords={keywords}
             competitors={competitors}
             onSelectTopic={setSelectedTopic}
           />
         </TabsContent>
 
         <TabsContent value="topics">
-          <TopicGenerator 
+          <TopicGenerator
             keywords={keywords}
             competitors={competitors}
             contentInsights={contentInsights}
@@ -149,17 +165,11 @@ export default function ContentStrategy() {
         </TabsContent>
 
         <TabsContent value="calendar">
-          <ContentCalendarPlanner 
-            keywords={keywords}
-            selectedTopic={selectedTopic}
-          />
+          <ContentCalendarPlanner keywords={keywords} selectedTopic={selectedTopic} />
         </TabsContent>
 
         <TabsContent value="outline">
-          <ContentOutlineGenerator 
-            keywords={keywords}
-            selectedTopic={selectedTopic}
-          />
+          <ContentOutlineGenerator keywords={keywords} selectedTopic={selectedTopic} />
         </TabsContent>
       </Tabs>
     </div>

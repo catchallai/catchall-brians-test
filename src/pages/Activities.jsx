@@ -1,12 +1,18 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Plus, Search, Calendar, List } from "lucide-react";
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Plus, Search, Calendar, List } from 'lucide-react';
 import ActivityItem from '@/components/crm/ActivityItem';
 import ActivityModal from '@/components/modals/ActivityModal';
 import ActivityCalendarView from '@/components/crm/ActivityCalendarView';
@@ -30,7 +36,11 @@ export default function Activities() {
     queryKey: ['activities', user?.current_business_id],
     queryFn: async () => {
       if (!user?.current_business_id) return [];
-      return await base44.entities.Activity.filter({ business_id: user.current_business_id }, '-created_date', 200);
+      return await base44.entities.Activity.filter(
+        { business_id: user.current_business_id },
+        '-created_date',
+        200
+      );
     },
     enabled: !!user?.current_business_id,
   });
@@ -49,7 +59,11 @@ export default function Activities() {
     queryKey: ['contacts', user?.current_business_id],
     queryFn: async () => {
       if (!user?.current_business_id) return [];
-      return await base44.entities.Contact.filter({ business_id: user.current_business_id }, '-created_date', 500);
+      return await base44.entities.Contact.filter(
+        { business_id: user.current_business_id },
+        '-created_date',
+        500
+      );
     },
     enabled: !!user?.current_business_id,
   });
@@ -60,7 +74,11 @@ export default function Activities() {
     queryKey: ['deals', user?.current_business_id],
     queryFn: async () => {
       if (!user?.current_business_id) return [];
-      return await base44.entities.Deal.filter({ business_id: user.current_business_id }, '-created_date', 200);
+      return await base44.entities.Deal.filter(
+        { business_id: user.current_business_id },
+        '-created_date',
+        200
+      );
     },
     enabled: !!user?.current_business_id,
   });
@@ -99,7 +117,10 @@ export default function Activities() {
   };
 
   const handleToggleComplete = (activity) => {
-    updateMutation.mutate({ id: activity.id, data: { ...activity, completed: !activity.completed } });
+    updateMutation.mutate({
+      id: activity.id,
+      data: { ...activity, completed: !activity.completed },
+    });
   };
 
   const handleEdit = (activity) => {
@@ -107,18 +128,19 @@ export default function Activities() {
     setShowModal(true);
   };
 
-  const filteredActivities = activities.filter(activity => {
-    const matchesSearch = !searchTerm || 
-      activity.title.toLowerCase().includes(searchTerm.toLowerCase());
+  const filteredActivities = activities.filter((activity) => {
+    const matchesSearch =
+      !searchTerm || activity.title.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesType = typeFilter === 'all' || activity.type === typeFilter;
-    const matchesCompleted = completedFilter === 'all' || 
+    const matchesCompleted =
+      completedFilter === 'all' ||
       (completedFilter === 'pending' && !activity.completed) ||
       (completedFilter === 'completed' && activity.completed);
     return matchesSearch && matchesType && matchesCompleted;
   });
 
-  const pendingCount = activities.filter(a => !a.completed).length;
-  const completedCount = activities.filter(a => a.completed).length;
+  const pendingCount = activities.filter((a) => !a.completed).length;
+  const completedCount = activities.filter((a) => a.completed).length;
 
   return (
     <div className="p-6 lg:p-8 space-y-6 min-h-screen">
@@ -126,9 +148,17 @@ export default function Activities() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Activities</h1>
-          <p className="text-gray-500 mt-1">{pendingCount} pending • {completedCount} completed</p>
+          <p className="text-gray-500 mt-1">
+            {pendingCount} pending • {completedCount} completed
+          </p>
         </div>
-        <Button onClick={() => { setEditingActivity(null); setShowModal(true); }} className="gap-2 bg-violet-600 hover:bg-violet-700">
+        <Button
+          onClick={() => {
+            setEditingActivity(null);
+            setShowModal(true);
+          }}
+          className="gap-2 bg-violet-600 hover:bg-violet-700"
+        >
           <Plus className="w-4 h-4" />
           Add Activity
         </Button>
@@ -198,7 +228,10 @@ export default function Activities() {
           title="No activities yet"
           description="Keep track of calls, emails, meetings, and tasks here."
           actionLabel="Add Activity"
-          onAction={() => { setEditingActivity(null); setShowModal(true); }}
+          onAction={() => {
+            setEditingActivity(null);
+            setShowModal(true);
+          }}
         />
       ) : viewMode === 'calendar' ? (
         <ActivityCalendarView
@@ -213,10 +246,7 @@ export default function Activities() {
         <div className="space-y-3">
           {filteredActivities.map((activity) => (
             <div key={activity.id} onClick={() => handleEdit(activity)} className="cursor-pointer">
-              <ActivityItem
-                activity={activity}
-                onToggleComplete={handleToggleComplete}
-              />
+              <ActivityItem activity={activity} onToggleComplete={handleToggleComplete} />
             </div>
           ))}
         </div>
@@ -225,7 +255,10 @@ export default function Activities() {
       {/* Modal */}
       <ActivityModal
         open={showModal}
-        onClose={() => { setShowModal(false); setEditingActivity(null); }}
+        onClose={() => {
+          setShowModal(false);
+          setEditingActivity(null);
+        }}
         activity={editingActivity}
         contacts={contacts}
         deals={deals}

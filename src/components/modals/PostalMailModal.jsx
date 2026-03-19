@@ -1,11 +1,23 @@
 import React, { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 export default function PostalMailModal({ open, onClose, onSave, mail, isLoading }) {
   const [formData, setFormData] = useState({
@@ -22,7 +34,7 @@ export default function PostalMailModal({ open, onClose, onSave, mail, isLoading
       city: '',
       state: '',
       postal_code: '',
-      country: 'USA'
+      country: 'USA',
     },
     sender_name: '',
     sender_address: {
@@ -30,14 +42,14 @@ export default function PostalMailModal({ open, onClose, onSave, mail, isLoading
       city: '',
       state: '',
       postal_code: '',
-      country: 'USA'
+      country: 'USA',
     },
     content: '',
     sent_date: '',
     tracking_number: '',
     carrier: '',
     cost: 0,
-    notes: ''
+    notes: '',
   });
 
   useEffect(() => {
@@ -58,7 +70,7 @@ export default function PostalMailModal({ open, onClose, onSave, mail, isLoading
           city: '',
           state: '',
           postal_code: '',
-          country: 'USA'
+          country: 'USA',
         },
         sender_name: '',
         sender_address: {
@@ -66,29 +78,29 @@ export default function PostalMailModal({ open, onClose, onSave, mail, isLoading
           city: '',
           state: '',
           postal_code: '',
-          country: 'USA'
+          country: 'USA',
         },
         content: '',
         sent_date: '',
         tracking_number: '',
         carrier: '',
         cost: 0,
-        notes: ''
+        notes: '',
       });
     }
   }, [mail, open]);
 
   const handleChange = (field, value) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   const handleAddressChange = (addressType, field, value) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       [addressType]: {
         ...prev[addressType],
-        [field]: value
-      }
+        [field]: value,
+      },
     }));
   };
 
@@ -125,7 +137,10 @@ export default function PostalMailModal({ open, onClose, onSave, mail, isLoading
               <div className="grid grid-cols-3 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="mail_type">Type *</Label>
-                  <Select value={formData.mail_type} onValueChange={(value) => handleChange('mail_type', value)}>
+                  <Select
+                    value={formData.mail_type}
+                    onValueChange={(value) => handleChange('mail_type', value)}
+                  >
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -144,7 +159,10 @@ export default function PostalMailModal({ open, onClose, onSave, mail, isLoading
 
                 <div className="space-y-2">
                   <Label htmlFor="direction">Direction</Label>
-                  <Select value={formData.direction} onValueChange={(value) => handleChange('direction', value)}>
+                  <Select
+                    value={formData.direction}
+                    onValueChange={(value) => handleChange('direction', value)}
+                  >
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -157,7 +175,10 @@ export default function PostalMailModal({ open, onClose, onSave, mail, isLoading
 
                 <div className="space-y-2">
                   <Label htmlFor="status">Status</Label>
-                  <Select value={formData.status} onValueChange={(value) => handleChange('status', value)}>
+                  <Select
+                    value={formData.status}
+                    onValueChange={(value) => handleChange('status', value)}
+                  >
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -204,23 +225,31 @@ export default function PostalMailModal({ open, onClose, onSave, mail, isLoading
                 <Input
                   placeholder="Address line 1"
                   value={formData.recipient_address?.address_line1 || ''}
-                  onChange={(e) => handleAddressChange('recipient_address', 'address_line1', e.target.value)}
+                  onChange={(e) =>
+                    handleAddressChange('recipient_address', 'address_line1', e.target.value)
+                  }
                 />
                 <div className="grid grid-cols-3 gap-2">
                   <Input
                     placeholder="City"
                     value={formData.recipient_address?.city || ''}
-                    onChange={(e) => handleAddressChange('recipient_address', 'city', e.target.value)}
+                    onChange={(e) =>
+                      handleAddressChange('recipient_address', 'city', e.target.value)
+                    }
                   />
                   <Input
                     placeholder="State"
                     value={formData.recipient_address?.state || ''}
-                    onChange={(e) => handleAddressChange('recipient_address', 'state', e.target.value)}
+                    onChange={(e) =>
+                      handleAddressChange('recipient_address', 'state', e.target.value)
+                    }
                   />
                   <Input
                     placeholder="ZIP"
                     value={formData.recipient_address?.postal_code || ''}
-                    onChange={(e) => handleAddressChange('recipient_address', 'postal_code', e.target.value)}
+                    onChange={(e) =>
+                      handleAddressChange('recipient_address', 'postal_code', e.target.value)
+                    }
                   />
                 </div>
               </div>
@@ -235,7 +264,9 @@ export default function PostalMailModal({ open, onClose, onSave, mail, isLoading
                 <Input
                   placeholder="Address line 1"
                   value={formData.sender_address?.address_line1 || ''}
-                  onChange={(e) => handleAddressChange('sender_address', 'address_line1', e.target.value)}
+                  onChange={(e) =>
+                    handleAddressChange('sender_address', 'address_line1', e.target.value)
+                  }
                 />
                 <div className="grid grid-cols-3 gap-2">
                   <Input
@@ -251,7 +282,9 @@ export default function PostalMailModal({ open, onClose, onSave, mail, isLoading
                   <Input
                     placeholder="ZIP"
                     value={formData.sender_address?.postal_code || ''}
-                    onChange={(e) => handleAddressChange('sender_address', 'postal_code', e.target.value)}
+                    onChange={(e) =>
+                      handleAddressChange('sender_address', 'postal_code', e.target.value)
+                    }
                   />
                 </div>
               </div>

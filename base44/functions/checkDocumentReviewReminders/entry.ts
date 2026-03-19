@@ -13,7 +13,7 @@ Deno.serve(async (req) => {
     today.setHours(0, 0, 0, 0);
 
     const documents = await base44.asServiceRole.entities.TrackedDocument.list();
-    
+
     let remindersSent = 0;
     const notifications = [];
 
@@ -30,11 +30,11 @@ Deno.serve(async (req) => {
           message: `"${doc.name}" is scheduled for review today.`,
           type: 'document_review',
           document_id: doc.id,
-          created_at: new Date().toISOString()
+          created_at: new Date().toISOString(),
         };
 
         await base44.asServiceRole.entities.Notification.create(notification);
-        
+
         // Send email if configured
         try {
           await base44.asServiceRole.integrations.Core.SendEmail({
@@ -46,14 +46,14 @@ Deno.serve(async (req) => {
               <p><strong>Description:</strong> ${doc.description || 'N/A'}</p>
               <p><strong>Review Date:</strong> ${new Date(doc.review_date).toLocaleDateString()}</p>
               <p>Please log in to DocuTrace to review this document.</p>
-            `
+            `,
           });
         } catch (err) {
           console.error('Failed to send email:', err);
         }
 
         await base44.asServiceRole.entities.TrackedDocument.update(doc.id, {
-          review_reminder_sent: true
+          review_reminder_sent: true,
         });
 
         remindersSent++;
@@ -64,13 +64,16 @@ Deno.serve(async (req) => {
     return Response.json({
       success: true,
       remindersSent,
-      notifications
+      notifications,
     });
   } catch (error) {
     console.error('Review reminder check failed:', error);
-    return Response.json({ 
-      error: error.message,
-      success: false 
-    }, { status: 500 });
+    return Response.json(
+      {
+        error: error.message,
+        success: false,
+      },
+      { status: 500 }
+    );
   }
 });

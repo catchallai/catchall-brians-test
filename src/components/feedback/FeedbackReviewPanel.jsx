@@ -1,14 +1,20 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { ChevronDown, Check, Archive } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { ChevronDown, Check, Archive } from 'lucide-react';
 
 const CATEGORY_OPTIONS = [
-  'product_quality', 'feature_gap', 'pricing', 'support',
-  'onboarding', 'performance', 'usability', 'other'
+  'product_quality',
+  'feature_gap',
+  'pricing',
+  'support',
+  'onboarding',
+  'performance',
+  'usability',
+  'other',
 ];
 
 export default function FeedbackReviewPanel() {
@@ -18,16 +24,15 @@ export default function FeedbackReviewPanel() {
 
   const { data: feedback = [] } = useQuery({
     queryKey: ['feedback'],
-    queryFn: () => base44.entities.CustomerFeedback.list('-created_date', 100)
+    queryFn: () => base44.entities.CustomerFeedback.list('-created_date', 100),
   });
 
   const updateMutation = useMutation({
-    mutationFn: (data) =>
-      base44.entities.CustomerFeedback.update(data.id, data.updates),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['feedback'] })
+    mutationFn: (data) => base44.entities.CustomerFeedback.update(data.id, data.updates),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['feedback'] }),
   });
 
-  const filteredFeedback = feedback.filter(f => {
+  const filteredFeedback = feedback.filter((f) => {
     if (filterSentiment === 'all') return true;
     if (filterSentiment === 'negative') return f.sentiment === 'negative';
     if (filterSentiment === 'unreviewed') return f.status === 'new';
@@ -37,7 +42,7 @@ export default function FeedbackReviewPanel() {
   const sentimentColor = {
     positive: 'bg-green-100 text-green-800',
     neutral: 'bg-gray-100 text-gray-800',
-    negative: 'bg-red-100 text-red-800'
+    negative: 'bg-red-100 text-red-800',
   };
 
   const npsColor = (score) => {
@@ -89,14 +94,12 @@ export default function FeedbackReviewPanel() {
                 >
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
-                      <p className="font-medium text-sm text-gray-900 dark:text-white">{fb.contact_name}</p>
-                      <Badge className={sentimentColor[fb.sentiment]}>
-                        {fb.sentiment}
-                      </Badge>
+                      <p className="font-medium text-sm text-gray-900 dark:text-white">
+                        {fb.contact_name}
+                      </p>
+                      <Badge className={sentimentColor[fb.sentiment]}>{fb.sentiment}</Badge>
                       {fb.nps_score !== null && (
-                        <Badge className={npsColor(fb.nps_score)}>
-                          NPS: {fb.nps_score}
-                        </Badge>
+                        <Badge className={npsColor(fb.nps_score)}>NPS: {fb.nps_score}</Badge>
                       )}
                       <Badge variant="outline" className="text-xs">
                         {fb.status}
@@ -116,32 +119,38 @@ export default function FeedbackReviewPanel() {
                     <p className="text-sm text-gray-700 dark:text-gray-300">{fb.message}</p>
 
                     <div>
-                      <label className="text-xs font-medium text-gray-700 dark:text-gray-300">Category</label>
+                      <label className="text-xs font-medium text-gray-700 dark:text-gray-300">
+                        Category
+                      </label>
                       <select
                         value={fb.category || ''}
                         onChange={(e) =>
                           updateMutation.mutate({
                             id: fb.id,
-                            updates: { category: e.target.value }
+                            updates: { category: e.target.value },
                           })
                         }
                         className="w-full mt-1 p-2 rounded text-xs border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800"
                       >
                         <option value="">Select category...</option>
-                        {CATEGORY_OPTIONS.map(cat => (
-                          <option key={cat} value={cat}>{cat}</option>
+                        {CATEGORY_OPTIONS.map((cat) => (
+                          <option key={cat} value={cat}>
+                            {cat}
+                          </option>
                         ))}
                       </select>
                     </div>
 
                     <div>
-                      <label className="text-xs font-medium text-gray-700 dark:text-gray-300">Internal Notes</label>
+                      <label className="text-xs font-medium text-gray-700 dark:text-gray-300">
+                        Internal Notes
+                      </label>
                       <textarea
                         value={fb.internal_notes || ''}
                         onChange={(e) =>
                           updateMutation.mutate({
                             id: fb.id,
-                            updates: { internal_notes: e.target.value }
+                            updates: { internal_notes: e.target.value },
                           })
                         }
                         placeholder="Add notes..."
@@ -157,8 +166,8 @@ export default function FeedbackReviewPanel() {
                             updates: {
                               status: 'reviewed',
                               reviewed_by: 'current-user',
-                              reviewed_at: new Date().toISOString()
-                            }
+                              reviewed_at: new Date().toISOString(),
+                            },
                           })
                         }
                         size="sm"
@@ -171,7 +180,7 @@ export default function FeedbackReviewPanel() {
                         onClick={() =>
                           updateMutation.mutate({
                             id: fb.id,
-                            updates: { status: 'archived' }
+                            updates: { status: 'archived' },
                           })
                         }
                         size="sm"

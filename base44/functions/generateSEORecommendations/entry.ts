@@ -12,8 +12,8 @@ Deno.serve(async (req) => {
     const keywords = await base44.asServiceRole.entities.Keyword.filter({ website_id });
     const backlinks = await base44.asServiceRole.entities.Backlink.filter({ website_id });
 
-    const failures = seoChecks.filter(c => c.status === 'fail');
-    const warnings = seoChecks.filter(c => c.status === 'warning');
+    const failures = seoChecks.filter((c) => c.status === 'fail');
+    const warnings = seoChecks.filter((c) => c.status === 'warning');
 
     const analysis = await base44.integrations.Core.InvokeLLM({
       prompt: `Generate weekly SEO action items for ${website[0].url}:
@@ -24,7 +24,10 @@ Backlinks: ${backlinks.length}
 Technical Issues: ${failures.length}
 Warnings: ${warnings.length}
 
-Top Issues: ${failures.slice(0, 5).map(f => f.check_name).join(', ')}
+Top Issues: ${failures
+        .slice(0, 5)
+        .map((f) => f.check_name)
+        .join(', ')}
 
 Prioritize by:
 1. Traffic impact (estimated % improvement)
@@ -33,25 +36,25 @@ Prioritize by:
 
 For each action: title, description, category, priority, estimated_impact, estimated_effort, why_important`,
       response_json_schema: {
-        type: "object",
+        type: 'object',
         properties: {
           actions: {
-            type: "array",
+            type: 'array',
             items: {
-              type: "object",
+              type: 'object',
               properties: {
-                title: { type: "string" },
-                description: { type: "string" },
-                category: { type: "string" },
-                priority: { type: "string" },
-                estimated_impact: { type: "string" },
-                estimated_effort: { type: "string" },
-                why_important: { type: "string" }
-              }
-            }
-          }
-        }
-      }
+                title: { type: 'string' },
+                description: { type: 'string' },
+                category: { type: 'string' },
+                priority: { type: 'string' },
+                estimated_impact: { type: 'string' },
+                estimated_effort: { type: 'string' },
+                why_important: { type: 'string' },
+              },
+            },
+          },
+        },
+      },
     });
 
     // Delete old action items
@@ -70,7 +73,7 @@ For each action: title, description, category, priority, estimated_impact, estim
         category: action.category,
         priority: action.priority,
         estimated_impact: action.estimated_impact,
-        estimated_effort: action.estimated_effort
+        estimated_effort: action.estimated_effort,
       });
       createdActions.push(created);
     }
@@ -78,7 +81,7 @@ For each action: title, description, category, priority, estimated_impact, estim
     return Response.json({
       success: true,
       actions_generated: createdActions.length,
-      data: createdActions
+      data: createdActions,
     });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });

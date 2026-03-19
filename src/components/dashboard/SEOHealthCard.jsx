@@ -1,7 +1,7 @@
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Search, TrendingUp, TrendingDown, Link2, Globe, Target } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Search, TrendingUp, TrendingDown, Link2, Globe, Target } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 
@@ -14,23 +14,38 @@ export default function SEOHealthCard({ websites, keywords, backlinks }) {
     return Math.round(score);
   };
 
-  const avgSEOScore = websites.length > 0 
-    ? Math.round(websites.reduce((sum, w) => sum + normalizeScore(w.seo_score), 0) / websites.length)
-    : 0;
+  const avgSEOScore =
+    websites.length > 0
+      ? Math.round(
+          websites.reduce((sum, w) => sum + normalizeScore(w.seo_score), 0) / websites.length
+        )
+      : 0;
 
-  const top10Keywords = keywords.filter(k => k.current_position && k.current_position <= 10).length;
-  const top3Keywords = keywords.filter(k => k.current_position && k.current_position <= 3).length;
-  
+  const top10Keywords = keywords.filter(
+    (k) => k.current_position && k.current_position <= 10
+  ).length;
+  const top3Keywords = keywords.filter((k) => k.current_position && k.current_position <= 3).length;
+
   const totalBacklinks = backlinks.length;
-  const activeBacklinks = backlinks.filter(b => b.status === 'active').length;
+  const activeBacklinks = backlinks.filter((b) => b.status === 'active').length;
 
-  const scoreColor = avgSEOScore >= 80 ? 'text-emerald-500' : 
-                     avgSEOScore >= 60 ? 'text-yellow-500' : 
-                     avgSEOScore >= 40 ? 'text-orange-500' : 'text-red-500';
+  const scoreColor =
+    avgSEOScore >= 80
+      ? 'text-emerald-500'
+      : avgSEOScore >= 60
+        ? 'text-yellow-500'
+        : avgSEOScore >= 40
+          ? 'text-orange-500'
+          : 'text-red-500';
 
-  const scoreRingColor = avgSEOScore >= 80 ? '#10b981' : 
-                         avgSEOScore >= 60 ? '#eab308' : 
-                         avgSEOScore >= 40 ? '#f97316' : '#ef4444';
+  const scoreRingColor =
+    avgSEOScore >= 80
+      ? '#10b981'
+      : avgSEOScore >= 60
+        ? '#eab308'
+        : avgSEOScore >= 40
+          ? '#f97316'
+          : '#ef4444';
 
   return (
     <Card className="border-0 shadow-sm">
@@ -91,20 +106,24 @@ export default function SEOHealthCard({ websites, keywords, backlinks }) {
           <div className="p-3 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl">
             <div className="flex items-center gap-2">
               <Target className="w-4 h-4 text-emerald-500" />
-              <span className="text-xl font-bold text-emerald-600 dark:text-emerald-400">{top3Keywords}</span>
+              <span className="text-xl font-bold text-emerald-600 dark:text-emerald-400">
+                {top3Keywords}
+              </span>
             </div>
             <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Top 3 Rankings</p>
           </div>
           <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-xl">
             <div className="flex items-center gap-2">
               <TrendingUp className="w-4 h-4 text-blue-500" />
-              <span className="text-xl font-bold text-blue-600 dark:text-blue-400">{top10Keywords}</span>
+              <span className="text-xl font-bold text-blue-600 dark:text-blue-400">
+                {top10Keywords}
+              </span>
             </div>
             <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Top 10 Rankings</p>
           </div>
         </div>
 
-        <Link 
+        <Link
           to={createPageUrl('SEODashboard')}
           className="block text-center text-sm text-violet-600 dark:text-violet-400 hover:underline py-2"
         >

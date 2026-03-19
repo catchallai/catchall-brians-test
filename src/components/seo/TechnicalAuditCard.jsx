@@ -1,15 +1,26 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
-import { 
-  FileSearch, Loader2, CheckCircle, XCircle, AlertTriangle, 
-  Link2, Smartphone, Clock, FileText, Bot, ChevronDown, ChevronUp,
-  ExternalLink, Wrench
-} from "lucide-react";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
+import {
+  FileSearch,
+  Loader2,
+  CheckCircle,
+  XCircle,
+  AlertTriangle,
+  Link2,
+  Smartphone,
+  Clock,
+  FileText,
+  Bot,
+  ChevronDown,
+  ChevronUp,
+  ExternalLink,
+  Wrench,
+} from 'lucide-react';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 
 const issueCategories = {
   broken_links: { icon: Link2, label: 'Broken Links', color: 'text-red-500' },
@@ -18,14 +29,14 @@ const issueCategories = {
   sitemap: { icon: FileText, label: 'Sitemap', color: 'text-purple-500' },
   robots: { icon: Bot, label: 'Robots.txt', color: 'text-gray-500' },
   meta: { icon: FileSearch, label: 'Meta Tags', color: 'text-emerald-500' },
-  security: { icon: Wrench, label: 'Security', color: 'text-pink-500' }
+  security: { icon: Wrench, label: 'Security', color: 'text-pink-500' },
 };
 
 const severityConfig = {
   critical: { color: 'bg-red-100 text-red-700', label: 'Critical' },
   warning: { color: 'bg-amber-100 text-amber-700', label: 'Warning' },
   info: { color: 'bg-blue-100 text-blue-700', label: 'Info' },
-  passed: { color: 'bg-emerald-100 text-emerald-700', label: 'Passed' }
+  passed: { color: 'bg-emerald-100 text-emerald-700', label: 'Passed' },
 };
 
 export default function TechnicalAuditCard({ website, onAuditComplete, onAuditSaved }) {
@@ -34,15 +45,15 @@ export default function TechnicalAuditCard({ website, onAuditComplete, onAuditSa
   const [expandedCategories, setExpandedCategories] = useState({});
 
   const toggleCategory = (category) => {
-    setExpandedCategories(prev => ({
+    setExpandedCategories((prev) => ({
       ...prev,
-      [category]: !prev[category]
+      [category]: !prev[category],
     }));
   };
 
   const runAudit = async () => {
     setIsAuditing(true);
-    
+
     const results = await base44.integrations.Core.InvokeLLM({
       prompt: `Perform a comprehensive technical SEO audit for this website: ${website.url}
       Website name: ${website.name}
@@ -66,187 +77,187 @@ export default function TechnicalAuditCard({ website, onAuditComplete, onAuditSa
       Also provide an overall technical SEO score (0-100).`,
       add_context_from_internet: true,
       response_json_schema: {
-        type: "object",
+        type: 'object',
         properties: {
-          overall_score: { type: "number" },
-          summary: { type: "string" },
+          overall_score: { type: 'number' },
+          summary: { type: 'string' },
           categories: {
-            type: "object",
+            type: 'object',
             properties: {
               broken_links: {
-                type: "object",
+                type: 'object',
                 properties: {
-                  status: { type: "string" },
-                  score: { type: "number" },
+                  status: { type: 'string' },
+                  score: { type: 'number' },
                   issues: {
-                    type: "array",
+                    type: 'array',
                     items: {
-                      type: "object",
+                      type: 'object',
                       properties: {
-                        issue: { type: "string" },
-                        impact: { type: "string" },
-                        recommendation: { type: "string" },
-                        severity: { type: "string" }
-                      }
-                    }
-                  }
-                }
+                        issue: { type: 'string' },
+                        impact: { type: 'string' },
+                        recommendation: { type: 'string' },
+                        severity: { type: 'string' },
+                      },
+                    },
+                  },
+                },
               },
               page_speed: {
-                type: "object",
+                type: 'object',
                 properties: {
-                  status: { type: "string" },
-                  score: { type: "number" },
+                  status: { type: 'string' },
+                  score: { type: 'number' },
                   metrics: {
-                    type: "object",
+                    type: 'object',
                     properties: {
-                      estimated_load_time: { type: "string" },
-                      first_contentful_paint: { type: "string" },
-                      largest_contentful_paint: { type: "string" }
-                    }
+                      estimated_load_time: { type: 'string' },
+                      first_contentful_paint: { type: 'string' },
+                      largest_contentful_paint: { type: 'string' },
+                    },
                   },
                   issues: {
-                    type: "array",
+                    type: 'array',
                     items: {
-                      type: "object",
+                      type: 'object',
                       properties: {
-                        issue: { type: "string" },
-                        impact: { type: "string" },
-                        recommendation: { type: "string" },
-                        severity: { type: "string" }
-                      }
-                    }
-                  }
-                }
+                        issue: { type: 'string' },
+                        impact: { type: 'string' },
+                        recommendation: { type: 'string' },
+                        severity: { type: 'string' },
+                      },
+                    },
+                  },
+                },
               },
               mobile: {
-                type: "object",
+                type: 'object',
                 properties: {
-                  status: { type: "string" },
-                  score: { type: "number" },
+                  status: { type: 'string' },
+                  score: { type: 'number' },
                   issues: {
-                    type: "array",
+                    type: 'array',
                     items: {
-                      type: "object",
+                      type: 'object',
                       properties: {
-                        issue: { type: "string" },
-                        impact: { type: "string" },
-                        recommendation: { type: "string" },
-                        severity: { type: "string" }
-                      }
-                    }
-                  }
-                }
+                        issue: { type: 'string' },
+                        impact: { type: 'string' },
+                        recommendation: { type: 'string' },
+                        severity: { type: 'string' },
+                      },
+                    },
+                  },
+                },
               },
               sitemap: {
-                type: "object",
+                type: 'object',
                 properties: {
-                  status: { type: "string" },
-                  score: { type: "number" },
-                  sitemap_url: { type: "string" },
+                  status: { type: 'string' },
+                  score: { type: 'number' },
+                  sitemap_url: { type: 'string' },
                   issues: {
-                    type: "array",
+                    type: 'array',
                     items: {
-                      type: "object",
+                      type: 'object',
                       properties: {
-                        issue: { type: "string" },
-                        impact: { type: "string" },
-                        recommendation: { type: "string" },
-                        severity: { type: "string" }
-                      }
-                    }
-                  }
-                }
+                        issue: { type: 'string' },
+                        impact: { type: 'string' },
+                        recommendation: { type: 'string' },
+                        severity: { type: 'string' },
+                      },
+                    },
+                  },
+                },
               },
               robots: {
-                type: "object",
+                type: 'object',
                 properties: {
-                  status: { type: "string" },
-                  score: { type: "number" },
+                  status: { type: 'string' },
+                  score: { type: 'number' },
                   issues: {
-                    type: "array",
+                    type: 'array',
                     items: {
-                      type: "object",
+                      type: 'object',
                       properties: {
-                        issue: { type: "string" },
-                        impact: { type: "string" },
-                        recommendation: { type: "string" },
-                        severity: { type: "string" }
-                      }
-                    }
-                  }
-                }
+                        issue: { type: 'string' },
+                        impact: { type: 'string' },
+                        recommendation: { type: 'string' },
+                        severity: { type: 'string' },
+                      },
+                    },
+                  },
+                },
               },
               meta: {
-                type: "object",
+                type: 'object',
                 properties: {
-                  status: { type: "string" },
-                  score: { type: "number" },
+                  status: { type: 'string' },
+                  score: { type: 'number' },
                   issues: {
-                    type: "array",
+                    type: 'array',
                     items: {
-                      type: "object",
+                      type: 'object',
                       properties: {
-                        issue: { type: "string" },
-                        impact: { type: "string" },
-                        recommendation: { type: "string" },
-                        severity: { type: "string" }
-                      }
-                    }
-                  }
-                }
+                        issue: { type: 'string' },
+                        impact: { type: 'string' },
+                        recommendation: { type: 'string' },
+                        severity: { type: 'string' },
+                      },
+                    },
+                  },
+                },
               },
               security: {
-                type: "object",
+                type: 'object',
                 properties: {
-                  status: { type: "string" },
-                  score: { type: "number" },
+                  status: { type: 'string' },
+                  score: { type: 'number' },
                   issues: {
-                    type: "array",
+                    type: 'array',
                     items: {
-                      type: "object",
+                      type: 'object',
                       properties: {
-                        issue: { type: "string" },
-                        impact: { type: "string" },
-                        recommendation: { type: "string" },
-                        severity: { type: "string" }
-                      }
-                    }
-                  }
-                }
-              }
-            }
+                        issue: { type: 'string' },
+                        impact: { type: 'string' },
+                        recommendation: { type: 'string' },
+                        severity: { type: 'string' },
+                      },
+                    },
+                  },
+                },
+              },
+            },
           },
           priority_fixes: {
-            type: "array",
+            type: 'array',
             items: {
-              type: "object",
+              type: 'object',
               properties: {
-                category: { type: "string" },
-                issue: { type: "string" },
-                recommendation: { type: "string" },
-                estimated_impact: { type: "string" }
-              }
-            }
-          }
-        }
-      }
+                category: { type: 'string' },
+                issue: { type: 'string' },
+                recommendation: { type: 'string' },
+                estimated_impact: { type: 'string' },
+              },
+            },
+          },
+        },
+      },
     });
 
     setAuditResults(results);
     setIsAuditing(false);
-    
+
     // Save audit results to database
     await base44.entities.Website.update(website.id, {
       technical_audit_data: results,
       technical_audit_score: results.overall_score,
-      last_audit_date: new Date().toISOString()
+      last_audit_date: new Date().toISOString(),
     });
-    
+
     if (onAuditSaved) {
       onAuditSaved();
     }
-    
+
     if (onAuditComplete) {
       onAuditComplete(results);
     }
@@ -259,17 +270,19 @@ export default function TechnicalAuditCard({ website, onAuditComplete, onAuditSa
   };
 
   const getStatusIcon = (status) => {
-    if (status === 'passed' || status === 'good') return <CheckCircle className="w-4 h-4 text-emerald-500" />;
-    if (status === 'warning' || status === 'needs_improvement') return <AlertTriangle className="w-4 h-4 text-amber-500" />;
+    if (status === 'passed' || status === 'good')
+      return <CheckCircle className="w-4 h-4 text-emerald-500" />;
+    if (status === 'warning' || status === 'needs_improvement')
+      return <AlertTriangle className="w-4 h-4 text-amber-500" />;
     return <XCircle className="w-4 h-4 text-red-500" />;
   };
 
   const countIssues = (severity) => {
     if (!auditResults?.categories) return 0;
     let count = 0;
-    Object.values(auditResults.categories).forEach(cat => {
+    Object.values(auditResults.categories).forEach((cat) => {
       if (cat.issues) {
-        count += cat.issues.filter(i => i.severity === severity).length;
+        count += cat.issues.filter((i) => i.severity === severity).length;
       }
     });
     return count;
@@ -283,8 +296,8 @@ export default function TechnicalAuditCard({ website, onAuditComplete, onAuditSa
             <FileSearch className="w-5 h-5 text-violet-500" />
             <CardTitle className="text-base">Technical SEO Audit</CardTitle>
           </div>
-          <Button 
-            onClick={runAudit} 
+          <Button
+            onClick={runAudit}
             disabled={isAuditing}
             size="sm"
             className="gap-2 bg-violet-600 hover:bg-violet-700"
@@ -331,10 +344,7 @@ export default function TechnicalAuditCard({ website, onAuditComplete, onAuditSa
               </div>
               <div className="flex-1">
                 <p className="font-medium text-gray-900">Technical SEO Score</p>
-                <Progress 
-                  value={auditResults.overall_score} 
-                  className="h-2 mt-1"
-                />
+                <Progress value={auditResults.overall_score} className="h-2 mt-1" />
               </div>
             </div>
 
@@ -348,9 +358,7 @@ export default function TechnicalAuditCard({ website, onAuditComplete, onAuditSa
                 <AlertTriangle className="w-3 h-3" />
                 {countIssues('warning')} Warnings
               </Badge>
-              <Badge className="bg-blue-100 text-blue-700 gap-1">
-                {countIssues('info')} Info
-              </Badge>
+              <Badge className="bg-blue-100 text-blue-700 gap-1">{countIssues('info')} Info</Badge>
             </div>
 
             {/* Summary */}
@@ -387,7 +395,11 @@ export default function TechnicalAuditCard({ website, onAuditComplete, onAuditSa
                           <span className={`font-semibold ${getScoreColor(category.score)}`}>
                             {category.score}/100
                           </span>
-                          {isExpanded ? <ChevronUp className="w-4 h-4 text-gray-400" /> : <ChevronDown className="w-4 h-4 text-gray-400" />}
+                          {isExpanded ? (
+                            <ChevronUp className="w-4 h-4 text-gray-400" />
+                          ) : (
+                            <ChevronDown className="w-4 h-4 text-gray-400" />
+                          )}
                         </div>
                       </div>
                     </CollapsibleTrigger>
@@ -397,7 +409,9 @@ export default function TechnicalAuditCard({ website, onAuditComplete, onAuditSa
                           <div className="p-2 bg-gray-50 rounded text-sm grid grid-cols-3 gap-2">
                             {Object.entries(category.metrics).map(([k, v]) => (
                               <div key={k}>
-                                <span className="text-gray-500 text-xs">{k.replace(/_/g, ' ')}</span>
+                                <span className="text-gray-500 text-xs">
+                                  {k.replace(/_/g, ' ')}
+                                </span>
                                 <p className="font-medium">{v}</p>
                               </div>
                             ))}
@@ -407,7 +421,9 @@ export default function TechnicalAuditCard({ website, onAuditComplete, onAuditSa
                           <div key={idx} className="p-3 bg-white border rounded-lg">
                             <div className="flex items-start justify-between gap-2">
                               <p className="font-medium text-gray-900 text-sm">{issue.issue}</p>
-                              <Badge className={severityConfig[issue.severity]?.color || 'bg-gray-100'}>
+                              <Badge
+                                className={severityConfig[issue.severity]?.color || 'bg-gray-100'}
+                              >
                                 {issue.severity}
                               </Badge>
                             </div>
@@ -442,8 +458,12 @@ export default function TechnicalAuditCard({ website, onAuditComplete, onAuditSa
                   {auditResults.priority_fixes.slice(0, 5).map((fix, idx) => (
                     <div key={idx} className="p-3 bg-amber-50 border border-amber-200 rounded-lg">
                       <div className="flex items-center gap-2 mb-1">
-                        <span className="text-xs font-medium text-amber-700 uppercase">{fix.category}</span>
-                        <Badge variant="outline" className="text-xs">{fix.estimated_impact}</Badge>
+                        <span className="text-xs font-medium text-amber-700 uppercase">
+                          {fix.category}
+                        </span>
+                        <Badge variant="outline" className="text-xs">
+                          {fix.estimated_impact}
+                        </Badge>
                       </div>
                       <p className="text-sm font-medium text-gray-900">{fix.issue}</p>
                       <p className="text-sm text-gray-600 mt-1">{fix.recommendation}</p>

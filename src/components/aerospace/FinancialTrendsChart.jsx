@@ -1,28 +1,40 @@
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { TrendingUp } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  LineChart,
+  Line,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from 'recharts';
+import { TrendingUp } from 'lucide-react';
 
 export default function FinancialTrendsChart({ companies }) {
   // Prepare data for revenue comparison
   const revenueData = companies
-    .filter(c => c.annual_revenue)
+    .filter((c) => c.annual_revenue)
     .slice(0, 8)
-    .map(c => ({
+    .map((c) => ({
       name: c.company_name.split(' ')[0], // Short name
       revenue: parseFloat(c.annual_revenue.replace(/[^0-9.]/g, '')) || 0,
-      marketCap: parseFloat(c.market_cap?.replace(/[^0-9.]/g, '')) || 0
+      marketCap: parseFloat(c.market_cap?.replace(/[^0-9.]/g, '')) || 0,
     }));
 
   // Growth metrics data
   const growthData = companies
-    .filter(c => c.growth_metrics)
+    .filter((c) => c.growth_metrics)
     .slice(0, 6)
-    .map(c => ({
+    .map((c) => ({
       name: c.company_name.split(' ')[0],
       revenue3yr: parseFloat(c.growth_metrics?.revenue_growth_3yr?.replace(/[^0-9.-]/g, '')) || 0,
       revenue5yr: parseFloat(c.growth_metrics?.revenue_growth_5yr?.replace(/[^0-9.-]/g, '')) || 0,
-      employeeGrowth: parseFloat(c.growth_metrics?.employee_growth_rate?.replace(/[^0-9.-]/g, '')) || 0
+      employeeGrowth:
+        parseFloat(c.growth_metrics?.employee_growth_rate?.replace(/[^0-9.-]/g, '')) || 0,
     }));
 
   return (
@@ -41,11 +53,11 @@ export default function FinancialTrendsChart({ companies }) {
               <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
               <XAxis dataKey="name" stroke="#6b7280" fontSize={12} />
               <YAxis stroke="#6b7280" fontSize={12} />
-              <Tooltip 
-                contentStyle={{ 
-                  backgroundColor: 'rgba(255, 255, 255, 0.95)', 
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: 'rgba(255, 255, 255, 0.95)',
                   border: '1px solid #e5e7eb',
-                  borderRadius: '8px'
+                  borderRadius: '8px',
                 }}
               />
               <Legend />
@@ -69,18 +81,40 @@ export default function FinancialTrendsChart({ companies }) {
             <LineChart data={growthData}>
               <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
               <XAxis dataKey="name" stroke="#6b7280" fontSize={12} />
-              <YAxis stroke="#6b7280" fontSize={12} label={{ value: '%', angle: -90, position: 'insideLeft' }} />
-              <Tooltip 
-                contentStyle={{ 
-                  backgroundColor: 'rgba(255, 255, 255, 0.95)', 
+              <YAxis
+                stroke="#6b7280"
+                fontSize={12}
+                label={{ value: '%', angle: -90, position: 'insideLeft' }}
+              />
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: 'rgba(255, 255, 255, 0.95)',
                   border: '1px solid #e5e7eb',
-                  borderRadius: '8px'
+                  borderRadius: '8px',
                 }}
               />
               <Legend />
-              <Line type="monotone" dataKey="revenue3yr" stroke="#10b981" strokeWidth={2} name="3Y Revenue Growth %" />
-              <Line type="monotone" dataKey="revenue5yr" stroke="#3b82f6" strokeWidth={2} name="5Y Revenue Growth %" />
-              <Line type="monotone" dataKey="employeeGrowth" stroke="#f59e0b" strokeWidth={2} name="Employee Growth %" />
+              <Line
+                type="monotone"
+                dataKey="revenue3yr"
+                stroke="#10b981"
+                strokeWidth={2}
+                name="3Y Revenue Growth %"
+              />
+              <Line
+                type="monotone"
+                dataKey="revenue5yr"
+                stroke="#3b82f6"
+                strokeWidth={2}
+                name="5Y Revenue Growth %"
+              />
+              <Line
+                type="monotone"
+                dataKey="employeeGrowth"
+                stroke="#f59e0b"
+                strokeWidth={2}
+                name="Employee Growth %"
+              />
             </LineChart>
           </ResponsiveContainer>
         </CardContent>

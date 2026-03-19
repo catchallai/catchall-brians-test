@@ -77,7 +77,6 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-white text-gray-900 font-sans">
-
       {/* Nav */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur border-b border-gray-100">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
@@ -90,8 +89,18 @@ export default function Home() {
             <span className="font-bold text-lg text-gray-900">CatchAll</span>
           </div>
           <div className="flex items-center gap-6">
-            <a href="#features" className="text-sm text-gray-500 hover:text-gray-900 transition-colors hidden md:block">Features</a>
-            <a href="#inquiry" className="text-sm text-gray-500 hover:text-gray-900 transition-colors hidden md:block">Contact</a>
+            <a
+              href="#features"
+              className="text-sm text-gray-500 hover:text-gray-900 transition-colors hidden md:block"
+            >
+              Features
+            </a>
+            <a
+              href="#inquiry"
+              className="text-sm text-gray-500 hover:text-gray-900 transition-colors hidden md:block"
+            >
+              Contact
+            </a>
             <button
               onClick={handleLogin}
               className="text-sm font-medium bg-violet-600 hover:bg-violet-700 text-white px-4 py-2 rounded-lg transition-colors"
@@ -109,11 +118,13 @@ export default function Home() {
             All-in-one business suite
           </span>
           <h1 className="text-5xl md:text-6xl font-bold text-gray-900 leading-tight mb-6">
-            Everything your business<br />
+            Everything your business
+            <br />
             needs, <span className="text-violet-600">in one place.</span>
           </h1>
           <p className="text-lg text-gray-500 leading-relaxed mb-10 max-w-xl mx-auto">
-            CatchAll brings together CRM, social media, SEO, team collaboration, and marketing — so nothing falls through the cracks.
+            CatchAll brings together CRM, social media, SEO, team collaboration, and marketing — so
+            nothing falls through the cracks.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <button
@@ -137,12 +148,20 @@ export default function Home() {
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-14">
             <h2 className="text-3xl font-bold text-gray-900 mb-3">One platform, every tool</h2>
-            <p className="text-gray-500 max-w-md mx-auto">Stop juggling a dozen tools. CatchAll is built for modern business teams that need to move fast.</p>
+            <p className="text-gray-500 max-w-md mx-auto">
+              Stop juggling a dozen tools. CatchAll is built for modern business teams that need to
+              move fast.
+            </p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {FEATURES.map((f) => (
-              <div key={f.title} className="bg-white rounded-2xl p-6 border border-gray-100 hover:shadow-sm transition-shadow">
-                <div className={`inline-flex items-center justify-center w-11 h-11 rounded-xl ${f.bg} mb-4`}>
+              <div
+                key={f.title}
+                className="bg-white rounded-2xl p-6 border border-gray-100 hover:shadow-sm transition-shadow"
+              >
+                <div
+                  className={`inline-flex items-center justify-center w-11 h-11 rounded-xl ${f.bg} mb-4`}
+                >
                   <f.icon className={`w-5 h-5 ${f.color}`} />
                 </div>
                 <h3 className="font-semibold text-gray-900 mb-2">{f.title}</h3>
@@ -167,20 +186,29 @@ export default function Home() {
         <div className="max-w-xl mx-auto">
           <div className="text-center mb-10">
             <h2 className="text-3xl font-bold text-gray-900 mb-3">Get in touch</h2>
-            <p className="text-gray-500 text-sm">Interested in CatchAll for your team? Send us a message and we'll be in touch shortly.</p>
+            <p className="text-gray-500 text-sm">
+              Interested in CatchAll for your team? Send us a message and we'll be in touch shortly.
+            </p>
           </div>
 
           {submitted ? (
             <div className="bg-white rounded-2xl p-10 border border-gray-100 text-center">
               <div className="text-4xl mb-4">✅</div>
               <h3 className="font-semibold text-gray-900 mb-2">Message received</h3>
-              <p className="text-sm text-gray-500">Thanks for reaching out. We'll get back to you within 1–2 business days.</p>
+              <p className="text-sm text-gray-500">
+                Thanks for reaching out. We'll get back to you within 1–2 business days.
+              </p>
             </div>
           ) : (
-            <form onSubmit={handleSubmit} className="bg-white rounded-2xl p-8 border border-gray-100 space-y-4">
+            <form
+              onSubmit={handleSubmit}
+              className="bg-white rounded-2xl p-8 border border-gray-100 space-y-4"
+            >
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-medium text-gray-700 mb-1.5">Full Name *</label>
+                  <label className="block text-xs font-medium text-gray-700 mb-1.5">
+                    Full Name *
+                  </label>
                   <input
                     name="name"
                     required
@@ -247,9 +275,10 @@ export default function Home() {
           />
           <span className="font-semibold text-sm text-gray-700">CatchAll</span>
         </div>
-        <p className="text-xs text-gray-400">© {new Date().getFullYear()} CatchAll. All rights reserved.</p>
+        <p className="text-xs text-gray-400">
+          © {new Date().getFullYear()} CatchAll. All rights reserved.
+        </p>
       </footer>
-
     </div>
   );
 }

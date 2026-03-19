@@ -1,9 +1,15 @@
 import React, { useState } from 'react';
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
-import { CheckSquare, Trash2, UserPlus, Calendar } from "lucide-react";
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Checkbox } from '@/components/ui/checkbox';
+import { CheckSquare, Trash2, UserPlus, Calendar } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
@@ -15,28 +21,24 @@ export default function BulkTaskOperations({ tasks = [], selectedTasks = [], onS
 
   const bulkUpdateMutation = useMutation({
     mutationFn: async (updates) => {
-      const promises = selectedTasks.map(taskId => 
-        base44.entities.Task.update(taskId, updates)
-      );
+      const promises = selectedTasks.map((taskId) => base44.entities.Task.update(taskId, updates));
       return Promise.all(promises);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tasks'] });
       onSelectionChange([]);
-    }
+    },
   });
 
   const bulkDeleteMutation = useMutation({
     mutationFn: async () => {
-      const promises = selectedTasks.map(taskId => 
-        base44.entities.Task.delete(taskId)
-      );
+      const promises = selectedTasks.map((taskId) => base44.entities.Task.delete(taskId));
       return Promise.all(promises);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tasks'] });
       onSelectionChange([]);
-    }
+    },
   });
 
   if (selectedTasks.length === 0) return null;
@@ -50,10 +52,13 @@ export default function BulkTaskOperations({ tasks = [], selectedTasks = [], onS
             <span className="font-medium">{selectedTasks.length} selected</span>
           </div>
 
-          <Select value={bulkStatus} onValueChange={(value) => {
-            setBulkStatus(value);
-            bulkUpdateMutation.mutate({ status: value });
-          }}>
+          <Select
+            value={bulkStatus}
+            onValueChange={(value) => {
+              setBulkStatus(value);
+              bulkUpdateMutation.mutate({ status: value });
+            }}
+          >
             <SelectTrigger className="w-40">
               <SelectValue placeholder="Set status..." />
             </SelectTrigger>
@@ -92,11 +97,7 @@ export default function BulkTaskOperations({ tasks = [], selectedTasks = [], onS
             Delete
           </Button>
 
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => onSelectionChange([])}
-          >
+          <Button variant="ghost" size="sm" onClick={() => onSelectionChange([])}>
             Clear
           </Button>
         </div>

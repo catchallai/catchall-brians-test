@@ -1,14 +1,14 @@
 import React from 'react';
-import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
+import { Button } from '@/components/ui/button';
+import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
 
-export default function Pagination({ 
-  currentPage, 
-  totalPages, 
+export default function Pagination({
+  currentPage,
+  totalPages,
   onPageChange,
   totalItems,
   itemsPerPage,
-  showItemCount = true 
+  showItemCount = true,
 }) {
   const startItem = (currentPage - 1) * itemsPerPage + 1;
   const endItem = Math.min(currentPage * itemsPerPage, totalItems);
@@ -18,11 +18,11 @@ export default function Pagination({
     const maxVisible = 5;
     let start = Math.max(1, currentPage - Math.floor(maxVisible / 2));
     let end = Math.min(totalPages, start + maxVisible - 1);
-    
+
     if (end - start + 1 < maxVisible) {
       start = Math.max(1, end - maxVisible + 1);
     }
-    
+
     for (let i = start; i <= end; i++) {
       pages.push(i);
     }
@@ -57,11 +57,11 @@ export default function Pagination({
         >
           <ChevronLeft className="w-4 h-4" />
         </Button>
-        
-        {getVisiblePages().map(page => (
+
+        {getVisiblePages().map((page) => (
           <Button
             key={page}
-            variant={page === currentPage ? "default" : "outline"}
+            variant={page === currentPage ? 'default' : 'outline'}
             size="icon"
             className="h-8 w-8"
             onClick={() => onPageChange(page)}
@@ -69,7 +69,7 @@ export default function Pagination({
             {page}
           </Button>
         ))}
-        
+
         <Button
           variant="outline"
           size="icon"

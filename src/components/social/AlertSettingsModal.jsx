@@ -1,41 +1,36 @@
 import React, { useState, useEffect } from 'react';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
-import { Slider } from "@/components/ui/slider";
-import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Brain, Zap, AlertTriangle, TrendingUp, Users, Target, Info } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
+import { Slider } from '@/components/ui/slider';
+import { Card } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Brain, Zap, AlertTriangle, TrendingUp, Users, Target, Info } from 'lucide-react';
 
 const sensitivityDescriptions = {
-  low: "Only critical anomalies and major brand risks will trigger alerts",
-  medium: "Balanced detection for significant changes and moderate risks",
-  high: "Sensitive detection for early warning on emerging trends and issues"
+  low: 'Only critical anomalies and major brand risks will trigger alerts',
+  medium: 'Balanced detection for significant changes and moderate risks',
+  high: 'Sensitive detection for early warning on emerging trends and issues',
 };
 
 const sensitivityThresholds = {
   low: { spike: 3.0, sentiment: 40, impact: 80 },
   medium: { spike: 2.0, sentiment: 25, impact: 60 },
-  high: { spike: 1.5, sentiment: 15, impact: 40 }
+  high: { spike: 1.5, sentiment: 15, impact: 40 },
 };
 
 export default function AlertSettingsModal({ open, onClose, keyword, onSave, isLoading }) {
   const [settings, setSettings] = useState({
     ai_alerts_enabled: true,
-    alert_sensitivity: 'medium'
+    alert_sensitivity: 'medium',
   });
 
   useEffect(() => {
     if (keyword) {
       setSettings({
         ai_alerts_enabled: keyword.ai_alerts_enabled !== false,
-        alert_sensitivity: keyword.alert_sensitivity || 'medium'
+        alert_sensitivity: keyword.alert_sensitivity || 'medium',
       });
     }
   }, [keyword]);
@@ -44,12 +39,12 @@ export default function AlertSettingsModal({ open, onClose, keyword, onSave, isL
     onSave({ ...keyword, ...settings });
   };
 
-  const sensitivityValue = settings.alert_sensitivity === 'low' ? 0 : 
-                           settings.alert_sensitivity === 'medium' ? 50 : 100;
+  const sensitivityValue =
+    settings.alert_sensitivity === 'low' ? 0 : settings.alert_sensitivity === 'medium' ? 50 : 100;
 
   const handleSliderChange = (value) => {
     const sensitivity = value[0] < 33 ? 'low' : value[0] < 66 ? 'medium' : 'high';
-    setSettings(prev => ({ ...prev, alert_sensitivity: sensitivity }));
+    setSettings((prev) => ({ ...prev, alert_sensitivity: sensitivity }));
   };
 
   const thresholds = sensitivityThresholds[settings.alert_sensitivity];
@@ -76,9 +71,11 @@ export default function AlertSettingsModal({ open, onClose, keyword, onSave, isL
                 <p className="text-sm text-gray-500">Automatically detect unusual patterns</p>
               </div>
             </div>
-            <Switch 
+            <Switch
               checked={settings.ai_alerts_enabled}
-              onCheckedChange={(checked) => setSettings(prev => ({ ...prev, ai_alerts_enabled: checked }))}
+              onCheckedChange={(checked) =>
+                setSettings((prev) => ({ ...prev, ai_alerts_enabled: checked }))
+              }
             />
           </div>
 
@@ -88,12 +85,17 @@ export default function AlertSettingsModal({ open, onClose, keyword, onSave, isL
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <Label className="text-sm font-medium">Detection Sensitivity</Label>
-                  <Badge className={
-                    settings.alert_sensitivity === 'low' ? 'bg-blue-100 text-blue-700' :
-                    settings.alert_sensitivity === 'medium' ? 'bg-yellow-100 text-yellow-700' :
-                    'bg-red-100 text-red-700'
-                  }>
-                    {settings.alert_sensitivity.charAt(0).toUpperCase() + settings.alert_sensitivity.slice(1)}
+                  <Badge
+                    className={
+                      settings.alert_sensitivity === 'low'
+                        ? 'bg-blue-100 text-blue-700'
+                        : settings.alert_sensitivity === 'medium'
+                          ? 'bg-yellow-100 text-yellow-700'
+                          : 'bg-red-100 text-red-700'
+                    }
+                  >
+                    {settings.alert_sensitivity.charAt(0).toUpperCase() +
+                      settings.alert_sensitivity.slice(1)}
                   </Badge>
                 </div>
                 <Slider
@@ -141,18 +143,14 @@ export default function AlertSettingsModal({ open, onClose, keyword, onSave, isL
                       <Users className="w-4 h-4 text-purple-500" />
                       <span className="text-sm font-medium text-gray-900">Influencer Activity</span>
                     </div>
-                    <p className="text-xs text-gray-500">
-                      High-reach accounts mentioning you
-                    </p>
+                    <p className="text-xs text-gray-500">High-reach accounts mentioning you</p>
                   </Card>
                   <Card className="p-3 border-0 bg-orange-50">
                     <div className="flex items-center gap-2 mb-1">
                       <Target className="w-4 h-4 text-orange-500" />
                       <span className="text-sm font-medium text-gray-900">Brand Risk</span>
                     </div>
-                    <p className="text-xs text-gray-500">
-                      Impact score above {thresholds.impact}
-                    </p>
+                    <p className="text-xs text-gray-500">Impact score above {thresholds.impact}</p>
                   </Card>
                 </div>
               </div>
@@ -164,7 +162,7 @@ export default function AlertSettingsModal({ open, onClose, keyword, onSave, isL
                   <div>
                     <p className="font-medium text-gray-900 text-sm">Smart Prioritization</p>
                     <p className="text-xs text-gray-600 mt-1">
-                      Alerts are automatically ranked by potential brand impact, considering 
+                      Alerts are automatically ranked by potential brand impact, considering
                       follower reach, engagement velocity, sentiment severity, and content virality.
                     </p>
                   </div>
@@ -175,8 +173,14 @@ export default function AlertSettingsModal({ open, onClose, keyword, onSave, isL
         </div>
 
         <div className="flex justify-end gap-3">
-          <Button variant="outline" onClick={onClose}>Cancel</Button>
-          <Button onClick={handleSave} disabled={isLoading} className="bg-violet-600 hover:bg-violet-700">
+          <Button variant="outline" onClick={onClose}>
+            Cancel
+          </Button>
+          <Button
+            onClick={handleSave}
+            disabled={isLoading}
+            className="bg-violet-600 hover:bg-violet-700"
+          >
             Save Settings
           </Button>
         </div>

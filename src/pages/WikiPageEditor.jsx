@@ -2,9 +2,22 @@ import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { ArrowLeft, Save, Sparkles, Clock, FileText, MessageSquare, Eye, Star, Link2, Copy, Calendar as CalendarIcon, Upload } from "lucide-react";
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import {
+  ArrowLeft,
+  Save,
+  Sparkles,
+  Clock,
+  FileText,
+  MessageSquare,
+  Eye,
+  Star,
+  Link2,
+  Copy,
+  Calendar as CalendarIcon,
+  Upload,
+} from 'lucide-react';
 import PageExportMenu from '@/components/wiki/PageExportMenu';
 import RelatedPagesPanel from '@/components/wiki/RelatedPagesPanel';
 import PageWatchersPanel from '@/components/wiki/PageWatchersPanel';
@@ -18,13 +31,19 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
   DropdownMenuSeparator,
-} from "@/components/ui/dropdown-menu";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Card } from "@/components/ui/card";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Textarea } from "@/components/ui/textarea";
+} from '@/components/ui/dropdown-menu';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Card } from '@/components/ui/card';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Textarea } from '@/components/ui/textarea';
 import VersionHistory from '@/components/wiki/VersionHistory';
 import TemplateSelector from '@/components/wiki/TemplateSelector';
 import CommentsPanel from '@/components/wiki/CommentsPanel';
@@ -32,14 +51,14 @@ import ActiveEditors from '@/components/wiki/ActiveEditors';
 
 const modules = {
   toolbar: [
-    [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+    [{ header: [1, 2, 3, 4, 5, 6, false] }],
     ['bold', 'italic', 'underline', 'strike'],
-    [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-    [{ 'indent': '-1'}, { 'indent': '+1' }],
-    [{ 'color': [] }, { 'background': [] }],
-    [{ 'align': [] }],
+    [{ list: 'ordered' }, { list: 'bullet' }],
+    [{ indent: '-1' }, { indent: '+1' }],
+    [{ color: [] }, { background: [] }],
+    [{ align: [] }],
     ['link', 'image', 'code-block'],
-    ['clean']
+    ['clean'],
   ],
 };
 
@@ -76,7 +95,7 @@ export default function WikiPageEditor() {
     queryFn: async () => {
       if (!spaceId) return null;
       const spaces = await base44.entities.Space.list();
-      return spaces.find(s => s.id === spaceId) || null;
+      return spaces.find((s) => s.id === spaceId) || null;
     },
     enabled: !!spaceId,
   });
@@ -86,7 +105,7 @@ export default function WikiPageEditor() {
     queryFn: async () => {
       if (!pageId) return null;
       const pages = await base44.entities.WikiPage.list();
-      return pages.find(p => p.id === pageId) || null;
+      return pages.find((p) => p.id === pageId) || null;
     },
     enabled: !!pageId,
   });
@@ -96,7 +115,7 @@ export default function WikiPageEditor() {
     queryFn: async () => {
       if (!spaceId) return [];
       const pages = await base44.entities.WikiPage.list();
-      return pages.filter(p => p.space_id === spaceId && p.id !== pageId);
+      return pages.filter((p) => p.space_id === spaceId && p.id !== pageId);
     },
     enabled: !!spaceId,
   });
@@ -106,7 +125,7 @@ export default function WikiPageEditor() {
     queryFn: async () => {
       if (!spaceId) return [];
       const pages = await base44.entities.WikiPage.list();
-      return pages.filter(p => p.space_id === spaceId && p.template === true);
+      return pages.filter((p) => p.space_id === spaceId && p.template === true);
     },
     enabled: !!spaceId,
   });
@@ -116,10 +135,8 @@ export default function WikiPageEditor() {
     queryFn: async () => {
       const allPresence = await base44.entities.WikiPagePresence.list();
       const oneMinuteAgo = new Date(Date.now() - 60000).toISOString();
-      return allPresence.filter(p => 
-        p.page_id === pageId && 
-        p.last_seen > oneMinuteAgo && 
-        p.user_email !== user?.email
+      return allPresence.filter(
+        (p) => p.page_id === pageId && p.last_seen > oneMinuteAgo && p.user_email !== user?.email
       );
     },
     enabled: !!pageId && !!user,
@@ -184,21 +201,21 @@ export default function WikiPageEditor() {
     queryFn: async () => {
       if (!user) return [];
       const allBookmarks = await base44.entities.WikiPageBookmark.list();
-      return allBookmarks.filter(b => b.user_email === user.email);
+      return allBookmarks.filter((b) => b.user_email === user.email);
     },
     enabled: !!user && !!pageId,
   });
 
-  const isBookmarked = bookmarks.some(b => b.page_id === pageId);
+  const isBookmarked = bookmarks.some((b) => b.page_id === pageId);
 
   const toggleBookmark = async () => {
-    const bookmark = bookmarks.find(b => b.page_id === pageId);
+    const bookmark = bookmarks.find((b) => b.page_id === pageId);
     if (bookmark) {
       await base44.entities.WikiPageBookmark.delete(bookmark.id);
     } else {
       await base44.entities.WikiPageBookmark.create({
         page_id: pageId,
-        user_email: user.email
+        user_email: user.email,
       });
     }
     queryClient.invalidateQueries({ queryKey: ['user-bookmarks'] });
@@ -222,7 +239,7 @@ export default function WikiPageEditor() {
   const saveMutation = useMutation({
     mutationFn: async (data) => {
       const currentVersion = page?.version_number || 0;
-      
+
       if (pageId) {
         // Save version history
         await base44.entities.WikiPageVersion.create({
@@ -326,14 +343,16 @@ export default function WikiPageEditor() {
       <div className="fixed top-0 left-0 right-0 h-16 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 z-50 lg:left-64">
         <div className="h-full px-6 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <Button 
-              variant="ghost" 
+            <Button
+              variant="ghost"
               size="icon"
               onClick={() => navigate(`${createPageUrl('SpaceDetail')}?id=${spaceId}`)}
             >
               <ArrowLeft className="w-5 h-5" />
             </Button>
-            <div className={`w-8 h-8 rounded ${colorClasses[space.color]} flex items-center justify-center text-lg`}>
+            <div
+              className={`w-8 h-8 rounded ${colorClasses[space.color]} flex items-center justify-center text-lg`}
+            >
               {space.icon}
             </div>
             <span className="text-sm text-gray-500">{space.name}</span>
@@ -341,7 +360,7 @@ export default function WikiPageEditor() {
 
           <div className="flex items-center gap-2">
             {pageId && page && <FreshnessIndicator page={page} />}
-            
+
             <Select value={status} onValueChange={setStatus}>
               <SelectTrigger className="w-40">
                 <SelectValue />
@@ -354,28 +373,22 @@ export default function WikiPageEditor() {
                 )}
               </SelectContent>
             </Select>
-            
+
             {pageId && (
               <>
-                <Button 
-                  variant="outline"
-                  onClick={toggleBookmark}
-                  className="gap-2"
-                >
-                  <Star className={`w-4 h-4 ${isBookmarked ? 'fill-yellow-500 text-yellow-500' : ''}`} />
+                <Button variant="outline" onClick={toggleBookmark} className="gap-2">
+                  <Star
+                    className={`w-4 h-4 ${isBookmarked ? 'fill-yellow-500 text-yellow-500' : ''}`}
+                  />
                 </Button>
 
-                <Button 
-                  variant="outline"
-                  onClick={duplicatePage}
-                  className="gap-2"
-                >
+                <Button variant="outline" onClick={duplicatePage} className="gap-2">
                   <Copy className="w-4 h-4" />
                 </Button>
 
                 <PageExportMenu page={page} />
 
-                <Button 
+                <Button
                   variant="outline"
                   onClick={() => setShowVersionHistory(true)}
                   className="gap-2"
@@ -411,7 +424,9 @@ export default function WikiPageEditor() {
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <div className="px-2 py-2 flex items-center justify-between">
-                  <Label htmlFor="template-toggle" className="text-sm cursor-pointer">Mark as Template</Label>
+                  <Label htmlFor="template-toggle" className="text-sm cursor-pointer">
+                    Mark as Template
+                  </Label>
                   <Switch
                     id="template-toggle"
                     checked={isTemplate}
@@ -426,7 +441,7 @@ export default function WikiPageEditor() {
               </DropdownMenuContent>
             </DropdownMenu>
 
-            <Button 
+            <Button
               onClick={handleSave}
               disabled={saveMutation.isPending || !title}
               className="gap-2"
@@ -440,7 +455,9 @@ export default function WikiPageEditor() {
 
       {/* Editor Content */}
       <div className="pt-16 lg:pl-64 flex">
-        <div className={`flex-1 p-8 space-y-6 ${showSidebar && pageId ? 'max-w-4xl' : 'max-w-5xl mx-auto'}`}>
+        <div
+          className={`flex-1 p-8 space-y-6 ${showSidebar && pageId ? 'max-w-4xl' : 'max-w-5xl mx-auto'}`}
+        >
           {/* Parent Page Selection */}
           {allPages.length > 0 && (
             <Select value={parentPageId} onValueChange={setParentPageId}>
@@ -449,8 +466,10 @@ export default function WikiPageEditor() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value={null}>No parent page (root level)</SelectItem>
-                {allPages.map(p => (
-                  <SelectItem key={p.id} value={p.id}>{p.title}</SelectItem>
+                {allPages.map((p) => (
+                  <SelectItem key={p.id} value={p.id}>
+                    {p.title}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -508,9 +527,7 @@ export default function WikiPageEditor() {
                   <p className="text-sm font-medium text-violet-900 dark:text-violet-300 mb-1">
                     AI Summary
                   </p>
-                  <p className="text-sm text-violet-700 dark:text-violet-400">
-                    {aiSummary}
-                  </p>
+                  <p className="text-sm text-violet-700 dark:text-violet-400">{aiSummary}</p>
                 </div>
               </div>
             </Card>

@@ -1,14 +1,20 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Plus, UserPlus, Gift, Trophy, Copy, Check, Loader2 } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Plus, UserPlus, Gift, Trophy, Copy, Check, Loader2 } from 'lucide-react';
 import { useToast } from '@/components/ui/toast-provider';
 
 const STATUS_COLORS = {
@@ -40,7 +46,7 @@ export default function ReferralPanel({ referrals, contacts }) {
     },
   });
 
-  const getContact = (id) => contacts.find(c => c.id === id);
+  const getContact = (id) => contacts.find((c) => c.id === id);
 
   const copyCode = (code) => {
     navigator.clipboard.writeText(code);
@@ -50,7 +56,9 @@ export default function ReferralPanel({ referrals, contacts }) {
 
   // Stats
   const totalReferrals = referrals.length;
-  const converted = referrals.filter(r => r.status === 'converted' || r.status === 'rewarded').length;
+  const converted = referrals.filter(
+    (r) => r.status === 'converted' || r.status === 'rewarded'
+  ).length;
   const conversionRate = totalReferrals > 0 ? ((converted / totalReferrals) * 100).toFixed(0) : 0;
   const totalValue = referrals.reduce((sum, r) => {
     if (r.status === 'converted' || r.status === 'rewarded') {
@@ -129,12 +137,17 @@ export default function ReferralPanel({ referrals, contacts }) {
               <div className="space-y-3">
                 {topReferrers.map(({ contact, count }, idx) => (
                   <div key={idx} className="flex items-center gap-3">
-                    <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
-                      idx === 0 ? 'bg-amber-100 text-amber-700' :
-                      idx === 1 ? 'bg-gray-100 text-gray-700' :
-                      idx === 2 ? 'bg-orange-100 text-orange-700' :
-                      'bg-gray-50 text-gray-500'
-                    }`}>
+                    <div
+                      className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
+                        idx === 0
+                          ? 'bg-amber-100 text-amber-700'
+                          : idx === 1
+                            ? 'bg-gray-100 text-gray-700'
+                            : idx === 2
+                              ? 'bg-orange-100 text-orange-700'
+                              : 'bg-gray-50 text-gray-500'
+                      }`}
+                    >
                       {idx + 1}
                     </div>
                     <div className="flex-1">
@@ -164,7 +177,10 @@ export default function ReferralPanel({ referrals, contacts }) {
                 {referrals.slice(0, 5).map((ref) => {
                   const referrer = getContact(ref.referrer_contact_id);
                   return (
-                    <div key={ref.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                    <div
+                      key={ref.id}
+                      className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg"
+                    >
                       <div>
                         <p className="font-medium text-gray-900 dark:text-white">
                           {referrer ? `${referrer.first_name} ${referrer.last_name}` : 'Unknown'}
@@ -208,15 +224,19 @@ export default function ReferralPanel({ referrals, contacts }) {
               <Label>Referrer (Customer)</Label>
               <Select
                 value={formData.referrer_contact_id}
-                onValueChange={(v) => setFormData(prev => ({ ...prev, referrer_contact_id: v }))}
+                onValueChange={(v) => setFormData((prev) => ({ ...prev, referrer_contact_id: v }))}
               >
-                <SelectTrigger><SelectValue placeholder="Select customer" /></SelectTrigger>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select customer" />
+                </SelectTrigger>
                 <SelectContent>
-                  {contacts.filter(c => c.status === 'customer').map((contact) => (
-                    <SelectItem key={contact.id} value={contact.id}>
-                      {contact.first_name} {contact.last_name}
-                    </SelectItem>
-                  ))}
+                  {contacts
+                    .filter((c) => c.status === 'customer')
+                    .map((contact) => (
+                      <SelectItem key={contact.id} value={contact.id}>
+                        {contact.first_name} {contact.last_name}
+                      </SelectItem>
+                    ))}
                 </SelectContent>
               </Select>
             </div>
@@ -225,9 +245,11 @@ export default function ReferralPanel({ referrals, contacts }) {
                 <Label>Reward Type</Label>
                 <Select
                   value={formData.reward_type}
-                  onValueChange={(v) => setFormData(prev => ({ ...prev, reward_type: v }))}
+                  onValueChange={(v) => setFormData((prev) => ({ ...prev, reward_type: v }))}
                 >
-                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="discount">Discount %</SelectItem>
                     <SelectItem value="credit">Account Credit</SelectItem>
@@ -240,13 +262,17 @@ export default function ReferralPanel({ referrals, contacts }) {
                 <Input
                   type="number"
                   value={formData.reward_value}
-                  onChange={(e) => setFormData(prev => ({ ...prev, reward_value: parseInt(e.target.value) }))}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, reward_value: parseInt(e.target.value) }))
+                  }
                 />
               </div>
             </div>
             <div className="flex gap-3 pt-4">
-              <Button variant="outline" onClick={() => setShowModal(false)} className="flex-1">Cancel</Button>
-              <Button 
+              <Button variant="outline" onClick={() => setShowModal(false)} className="flex-1">
+                Cancel
+              </Button>
+              <Button
                 onClick={() => createMutation.mutate(formData)}
                 disabled={createMutation.isPending || !formData.referrer_contact_id}
                 className="flex-1"

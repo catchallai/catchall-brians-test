@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation } from '@tanstack/react-query';
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { AlertCircle, CheckCircle2, FileSignature, XCircle } from "lucide-react";
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { AlertCircle, CheckCircle2, FileSignature, XCircle } from 'lucide-react';
 import { useToast } from '@/components/ui/toast-provider';
 
 export default function PublicLegalDocumentSigner() {
@@ -16,20 +16,24 @@ export default function PublicLegalDocumentSigner() {
   const [declining, setDeclining] = useState(false);
   const { toast } = useToast();
 
-  const { data: document, isLoading, error } = useQuery({
+  const {
+    data: document,
+    isLoading,
+    error,
+  } = useQuery({
     queryKey: ['legal-document', token],
     queryFn: async () => {
       if (!token) return null;
       const docs = await base44.entities.LegalDocument.filter({ tracking_code: token });
       const doc = docs?.[0];
-      
+
       if (doc && ['sent', 'viewed'].includes(doc.status)) {
         // Mark as viewed if not already
         if (doc.status === 'sent') {
           await base44.entities.LegalDocument.update(doc.id, {
             status: 'viewed',
             viewed_date: new Date().toISOString(),
-            view_count: (doc.view_count || 0) + 1
+            view_count: (doc.view_count || 0) + 1,
           });
           return { ...doc, status: 'viewed', view_count: (doc.view_count || 0) + 1 };
         }
@@ -37,7 +41,7 @@ export default function PublicLegalDocumentSigner() {
       }
       return doc;
     },
-    enabled: !!token
+    enabled: !!token,
   });
 
   const signMutation = useMutation({
@@ -46,23 +50,23 @@ export default function PublicLegalDocumentSigner() {
         status: 'signed',
         signed_date: new Date().toISOString(),
         signature_url: signature,
-        ip_address: 'tracked'
+        ip_address: 'tracked',
       });
     },
     onSuccess: () => {
       toast.success('Document signed successfully!');
-    }
+    },
   });
 
   const declineMutation = useMutation({
     mutationFn: async () => {
       await base44.entities.LegalDocument.update(document.id, {
-        status: 'declined'
+        status: 'declined',
       });
     },
     onSuccess: () => {
       toast.success('Document declined');
-    }
+    },
   });
 
   const handleSign = (e) => {
@@ -100,7 +104,9 @@ export default function PublicLegalDocumentSigner() {
           <CardContent className="pt-6 text-center space-y-4">
             <AlertCircle className="w-12 h-12 text-red-500 mx-auto" />
             <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Document Not Found</h1>
-            <p className="text-gray-600 dark:text-gray-400">This document is no longer available or the link has expired.</p>
+            <p className="text-gray-600 dark:text-gray-400">
+              This document is no longer available or the link has expired.
+            </p>
           </CardContent>
         </Card>
       </div>
@@ -117,7 +123,9 @@ export default function PublicLegalDocumentSigner() {
           <CardContent className="pt-6 text-center space-y-4">
             <AlertCircle className="w-12 h-12 text-orange-500 mx-auto" />
             <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Document Expired</h1>
-            <p className="text-gray-600 dark:text-gray-400">This document expired on {new Date(document.expires_date).toLocaleDateString()}.</p>
+            <p className="text-gray-600 dark:text-gray-400">
+              This document expired on {new Date(document.expires_date).toLocaleDateString()}.
+            </p>
           </CardContent>
         </Card>
       </div>
@@ -131,7 +139,9 @@ export default function PublicLegalDocumentSigner() {
           <CardContent className="pt-6 text-center space-y-4">
             <CheckCircle2 className="w-12 h-12 text-green-500 mx-auto" />
             <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Already Signed</h1>
-            <p className="text-gray-600 dark:text-gray-400">This document was signed on {new Date(document.signed_date).toLocaleString()}.</p>
+            <p className="text-gray-600 dark:text-gray-400">
+              This document was signed on {new Date(document.signed_date).toLocaleString()}.
+            </p>
           </CardContent>
         </Card>
       </div>
@@ -172,11 +182,7 @@ export default function PublicLegalDocumentSigner() {
                 Are you sure you want to decline signing "{document.title}"?
               </p>
               <div className="flex gap-3">
-                <Button
-                  variant="outline"
-                  onClick={() => setDeclining(false)}
-                  className="flex-1"
-                >
+                <Button variant="outline" onClick={() => setDeclining(false)} className="flex-1">
                   Cancel
                 </Button>
                 <Button
@@ -248,14 +254,16 @@ export default function PublicLegalDocumentSigner() {
 
               <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 border border-blue-200 dark:border-blue-800">
                 <p className="text-sm text-blue-700 dark:text-blue-300">
-                  <strong>Legal Notice:</strong> By signing this document, you agree to be legally bound by its terms and conditions.
-                  Your signature will be recorded with a timestamp and IP address.
+                  <strong>Legal Notice:</strong> By signing this document, you agree to be legally
+                  bound by its terms and conditions. Your signature will be recorded with a
+                  timestamp and IP address.
                 </p>
               </div>
 
               {document.expires_date && (
                 <p className="text-sm text-gray-600 dark:text-gray-400">
-                  This document expires on <strong>{new Date(document.expires_date).toLocaleDateString()}</strong>
+                  This document expires on{' '}
+                  <strong>{new Date(document.expires_date).toLocaleDateString()}</strong>
                 </p>
               )}
 

@@ -1,8 +1,8 @@
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { TrendingUp, TrendingDown, Shield, AlertTriangle, Sparkles, Loader2 } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { TrendingUp, TrendingDown, Shield, AlertTriangle, Sparkles, Loader2 } from 'lucide-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 
@@ -38,39 +38,39 @@ R&D Focus: ${(company.rd_focus || []).join(', ')}
 Provide a detailed SWOT analysis with 4-6 points for each category.`,
         add_context_from_internet: true,
         response_json_schema: {
-          type: "object",
+          type: 'object',
           properties: {
             strengths: {
-              type: "array",
-              items: { type: "string" }
+              type: 'array',
+              items: { type: 'string' },
             },
             weaknesses: {
-              type: "array",
-              items: { type: "string" }
+              type: 'array',
+              items: { type: 'string' },
             },
             opportunities: {
-              type: "array",
-              items: { type: "string" }
+              type: 'array',
+              items: { type: 'string' },
             },
             threats: {
-              type: "array",
-              items: { type: "string" }
+              type: 'array',
+              items: { type: 'string' },
             },
-            summary: { type: "string" }
-          }
-        }
+            summary: { type: 'string' },
+          },
+        },
       });
 
       await base44.entities.AerospaceCompany.update(company.id, {
         swot_analysis: response,
-        last_enriched: new Date().toISOString()
+        last_enriched: new Date().toISOString(),
       });
 
       return response;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['aerospace-companies'] });
-    }
+    },
   });
 
   const swot = company.swot_analysis || {};
@@ -90,9 +90,13 @@ Provide a detailed SWOT analysis with 4-6 points for each category.`,
             className="gap-2"
           >
             {generateSWOTMutation.isPending ? (
-              <><Loader2 className="w-4 h-4 animate-spin" /> Generating...</>
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" /> Generating...
+              </>
             ) : (
-              <><Sparkles className="w-4 h-4" /> {swot.strengths ? 'Regenerate' : 'Generate'}</>
+              <>
+                <Sparkles className="w-4 h-4" /> {swot.strengths ? 'Regenerate' : 'Generate'}
+              </>
             )}
           </Button>
         </div>
@@ -121,7 +125,10 @@ Provide a detailed SWOT analysis with 4-6 points for each category.`,
                 </div>
                 <ul className="space-y-2">
                   {(swot.strengths || []).map((item, i) => (
-                    <li key={i} className="text-sm text-gray-700 dark:text-gray-300 flex items-start gap-2">
+                    <li
+                      key={i}
+                      className="text-sm text-gray-700 dark:text-gray-300 flex items-start gap-2"
+                    >
                       <span className="text-green-600 mt-0.5">•</span>
                       {item}
                     </li>
@@ -137,7 +144,10 @@ Provide a detailed SWOT analysis with 4-6 points for each category.`,
                 </div>
                 <ul className="space-y-2">
                   {(swot.weaknesses || []).map((item, i) => (
-                    <li key={i} className="text-sm text-gray-700 dark:text-gray-300 flex items-start gap-2">
+                    <li
+                      key={i}
+                      className="text-sm text-gray-700 dark:text-gray-300 flex items-start gap-2"
+                    >
                       <span className="text-amber-600 mt-0.5">•</span>
                       {item}
                     </li>
@@ -153,7 +163,10 @@ Provide a detailed SWOT analysis with 4-6 points for each category.`,
                 </div>
                 <ul className="space-y-2">
                   {(swot.opportunities || []).map((item, i) => (
-                    <li key={i} className="text-sm text-gray-700 dark:text-gray-300 flex items-start gap-2">
+                    <li
+                      key={i}
+                      className="text-sm text-gray-700 dark:text-gray-300 flex items-start gap-2"
+                    >
                       <span className="text-blue-600 mt-0.5">•</span>
                       {item}
                     </li>
@@ -169,7 +182,10 @@ Provide a detailed SWOT analysis with 4-6 points for each category.`,
                 </div>
                 <ul className="space-y-2">
                   {(swot.threats || []).map((item, i) => (
-                    <li key={i} className="text-sm text-gray-700 dark:text-gray-300 flex items-start gap-2">
+                    <li
+                      key={i}
+                      className="text-sm text-gray-700 dark:text-gray-300 flex items-start gap-2"
+                    >
                       <span className="text-red-600 mt-0.5">•</span>
                       {item}
                     </li>

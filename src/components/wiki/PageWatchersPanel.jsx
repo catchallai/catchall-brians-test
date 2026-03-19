@@ -1,12 +1,12 @@
 import React from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
-import { Eye, EyeOff, Bell, MessageSquare } from "lucide-react";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
+import { Button } from '@/components/ui/button';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
+import { Eye, EyeOff, Bell, MessageSquare } from 'lucide-react';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
 
 export default function PageWatchersPanel({ pageId, user }) {
   const queryClient = useQueryClient();
@@ -15,7 +15,7 @@ export default function PageWatchersPanel({ pageId, user }) {
     queryKey: ['page-watchers', pageId],
     queryFn: async () => {
       const allWatchers = await base44.entities.WikiPageWatcher.list();
-      return allWatchers.filter(w => w.page_id === pageId);
+      return allWatchers.filter((w) => w.page_id === pageId);
     },
     enabled: !!pageId,
   });
@@ -24,7 +24,7 @@ export default function PageWatchersPanel({ pageId, user }) {
     queryKey: ['user-watching', pageId, user?.email],
     queryFn: async () => {
       const allWatchers = await base44.entities.WikiPageWatcher.list();
-      return allWatchers.find(w => w.page_id === pageId && w.user_email === user?.email);
+      return allWatchers.find((w) => w.page_id === pageId && w.user_email === user?.email);
     },
     enabled: !!pageId && !!user,
   });
@@ -37,7 +37,7 @@ export default function PageWatchersPanel({ pageId, user }) {
         return await base44.entities.WikiPageWatcher.create({
           page_id: pageId,
           user_email: user.email,
-          ...watchData
+          ...watchData,
         });
       }
     },
@@ -45,7 +45,9 @@ export default function PageWatchersPanel({ pageId, user }) {
       queryClient.invalidateQueries({ queryKey: ['page-watchers', pageId] });
       queryClient.invalidateQueries({ queryKey: ['user-watching', pageId] });
       // Update watcher count on page
-      base44.entities.WikiPage.update(pageId, { watchers_count: watchers.length + (currentUserWatcher ? 0 : 1) });
+      base44.entities.WikiPage.update(pageId, {
+        watchers_count: watchers.length + (currentUserWatcher ? 0 : 1),
+      });
     },
   });
 
@@ -67,7 +69,7 @@ export default function PageWatchersPanel({ pageId, user }) {
     } else {
       watchMutation.mutate({
         notify_on_edit: true,
-        notify_on_comment: true
+        notify_on_comment: true,
       });
     }
   };
@@ -84,7 +86,7 @@ export default function PageWatchersPanel({ pageId, user }) {
           </span>
         </div>
         <Button
-          variant={isWatching ? "default" : "outline"}
+          variant={isWatching ? 'default' : 'outline'}
           size="sm"
           onClick={toggleWatch}
           className="gap-2"
@@ -105,7 +107,9 @@ export default function PageWatchersPanel({ pageId, user }) {
 
       {isWatching && (
         <div className="space-y-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-          <p className="text-xs text-gray-600 dark:text-gray-400 font-medium">Notification Settings</p>
+          <p className="text-xs text-gray-600 dark:text-gray-400 font-medium">
+            Notification Settings
+          </p>
           <div className="flex items-center justify-between">
             <Label htmlFor="notify-edit" className="text-sm cursor-pointer flex items-center gap-2">
               <Bell className="w-3 h-3" />
@@ -118,7 +122,10 @@ export default function PageWatchersPanel({ pageId, user }) {
             />
           </div>
           <div className="flex items-center justify-between">
-            <Label htmlFor="notify-comment" className="text-sm cursor-pointer flex items-center gap-2">
+            <Label
+              htmlFor="notify-comment"
+              className="text-sm cursor-pointer flex items-center gap-2"
+            >
               <MessageSquare className="w-3 h-3" />
               On new comments
             </Label>
@@ -133,7 +140,7 @@ export default function PageWatchersPanel({ pageId, user }) {
 
       {watchers.length > 0 && (
         <div className="space-y-2">
-          {watchers.slice(0, 5).map(watcher => (
+          {watchers.slice(0, 5).map((watcher) => (
             <div key={watcher.id} className="flex items-center gap-2">
               <Avatar className="w-6 h-6">
                 <AvatarFallback className="text-xs bg-violet-100 dark:bg-violet-900 text-violet-600">

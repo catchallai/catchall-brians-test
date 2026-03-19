@@ -2,16 +2,26 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Progress } from "@/components/ui/progress";
-import { Badge } from "@/components/ui/badge";
-import { 
-  Plus, Zap, Target, Sparkles, RefreshCw, Loader2, 
-  TrendingUp, Users, CheckCircle, AlertCircle, GitBranch, Play
-} from "lucide-react";
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Progress } from '@/components/ui/progress';
+import { Badge } from '@/components/ui/badge';
+import {
+  Plus,
+  Zap,
+  Target,
+  Sparkles,
+  RefreshCw,
+  Loader2,
+  TrendingUp,
+  Users,
+  CheckCircle,
+  AlertCircle,
+  GitBranch,
+  Play,
+} from 'lucide-react';
 import AutomationRuleCard from '@/components/automation/AutomationRuleCard';
 import LeadScoreCard from '@/components/automation/LeadScoreCard';
 import AutomationRuleModal from '@/components/modals/AutomationRuleModal';
@@ -52,7 +62,11 @@ export default function Automation() {
     queryKey: ['contacts', user?.current_business_id],
     queryFn: async () => {
       if (!user?.current_business_id) return [];
-      return await base44.entities.Contact.filter({ business_id: user.current_business_id }, '-created_date', 500);
+      return await base44.entities.Contact.filter(
+        { business_id: user.current_business_id },
+        '-created_date',
+        500
+      );
     },
     enabled: !!user?.current_business_id,
   });
@@ -61,7 +75,11 @@ export default function Automation() {
     queryKey: ['companies', user?.current_business_id],
     queryFn: async () => {
       if (!user?.current_business_id) return [];
-      return await base44.entities.Company.filter({ business_id: user.current_business_id }, '-created_date', 200);
+      return await base44.entities.Company.filter(
+        { business_id: user.current_business_id },
+        '-created_date',
+        200
+      );
     },
     enabled: !!user?.current_business_id,
   });
@@ -112,18 +130,18 @@ export default function Automation() {
   // Recalculate Lead Scores
   const recalculateScoresMutation = useMutation({
     mutationFn: async () => {
-      const activeRules = leadScoreRules.filter(r => r.is_active);
-      
+      const activeRules = leadScoreRules.filter((r) => r.is_active);
+
       for (const contact of contacts) {
         let score = 0;
-        const company = companies.find(c => c.id === contact.company_id);
-        
+        const company = companies.find((c) => c.id === contact.company_id);
+
         for (const rule of activeRules) {
           let value = contact[rule.condition_field];
           if (rule.condition_field === 'company_size' && company) {
             value = company.size;
           }
-          
+
           let matches = false;
           switch (rule.condition_operator) {
             case 'equals':
@@ -133,7 +151,9 @@ export default function Automation() {
               matches = String(value).toLowerCase() !== String(rule.condition_value).toLowerCase();
               break;
             case 'contains':
-              matches = String(value).toLowerCase().includes(String(rule.condition_value).toLowerCase());
+              matches = String(value)
+                .toLowerCase()
+                .includes(String(rule.condition_value).toLowerCase());
               break;
             case 'greater_than':
               matches = Number(value) > Number(rule.condition_value);
@@ -145,17 +165,17 @@ export default function Automation() {
               matches = !!value;
               break;
           }
-          
+
           if (matches) {
             score += rule.score_points;
           }
         }
-        
+
         if (contact.lead_score !== score) {
           await base44.entities.Contact.update(contact.id, { lead_score: Math.max(0, score) });
         }
       }
-      
+
       return { updated: contacts.length };
     },
     onSuccess: () => {
@@ -167,7 +187,7 @@ export default function Automation() {
   const enrichContactMutation = useMutation({
     mutationFn: async (contact) => {
       setEnrichingContact(contact.id);
-      
+
       const result = await base44.integrations.Core.InvokeLLM({
         prompt: `Based on the following contact information, provide enriched data:
           Name: ${contact.first_name} ${contact.last_name}
@@ -176,27 +196,27 @@ export default function Automation() {
           
           Please provide realistic business data that might be inferred from this information.`,
         response_json_schema: {
-          type: "object",
+          type: 'object',
           properties: {
-            likely_industry: { type: "string" },
-            estimated_seniority: { type: "string" },
-            suggested_tags: { type: "array", items: { type: "string" } },
-            linkedin_search_query: { type: "string" },
-          }
-        }
+            likely_industry: { type: 'string' },
+            estimated_seniority: { type: 'string' },
+            suggested_tags: { type: 'array', items: { type: 'string' } },
+            linkedin_search_query: { type: 'string' },
+          },
+        },
       });
-      
+
       const tags = [...(contact.tags || []), ...(result.suggested_tags || [])].slice(0, 5);
-      
+
       await base44.entities.Contact.update(contact.id, {
         tags,
         enriched: true,
         enriched_date: new Date().toISOString(),
-        notes: contact.notes 
+        notes: contact.notes
           ? `${contact.notes}\n\n[Enriched] Industry: ${result.likely_industry}, Seniority: ${result.estimated_seniority}`
-          : `[Enriched] Industry: ${result.likely_industry}, Seniority: ${result.estimated_seniority}`
+          : `[Enriched] Industry: ${result.likely_industry}, Seniority: ${result.estimated_seniority}`,
       });
-      
+
       return result;
     },
     onSuccess: () => {
@@ -205,7 +225,7 @@ export default function Automation() {
     },
     onError: () => {
       setEnrichingContact(null);
-    }
+    },
   });
 
   const handleSaveRule = (data) => {
@@ -242,12 +262,13 @@ export default function Automation() {
     queryClient.invalidateQueries({ queryKey: ['lead-score-rules'] });
   };
 
-  const activeRules = automationRules.filter(r => r.is_active).length;
+  const activeRules = automationRules.filter((r) => r.is_active).length;
   const totalRuns = automationRules.reduce((sum, r) => sum + (r.run_count || 0), 0);
-  const avgLeadScore = contacts.length > 0 
-    ? Math.round(contacts.reduce((sum, c) => sum + (c.lead_score || 0), 0) / contacts.length)
-    : 0;
-  const enrichedContacts = contacts.filter(c => c.enriched).length;
+  const avgLeadScore =
+    contacts.length > 0
+      ? Math.round(contacts.reduce((sum, c) => sum + (c.lead_score || 0), 0) / contacts.length)
+      : 0;
+  const enrichedContacts = contacts.filter((c) => c.enriched).length;
 
   const isLoading = loadingRules || loadingScoreRules;
 
@@ -302,7 +323,7 @@ export default function Automation() {
 
         <TabsContent value="visual-workflows" className="space-y-4">
           <div className="flex justify-end">
-            <Button 
+            <Button
               onClick={() => navigate(createPageUrl('WorkflowBuilder'))}
               className="gap-2 bg-violet-600 hover:bg-violet-700"
             >
@@ -344,8 +365,11 @@ export default function Automation() {
                             <h3 className="font-semibold text-gray-900 dark:text-white">
                               {workflow.name}
                             </h3>
-                            <Badge variant={workflow.is_active ? "default" : "secondary"} className="text-xs">
-                              {workflow.is_active ? "Active" : "Draft"}
+                            <Badge
+                              variant={workflow.is_active ? 'default' : 'secondary'}
+                              className="text-xs"
+                            >
+                              {workflow.is_active ? 'Active' : 'Draft'}
                             </Badge>
                           </div>
                           <p className="text-sm text-gray-500 mb-2">
@@ -373,8 +397,11 @@ export default function Automation() {
 
         <TabsContent value="rules" className="space-y-4">
           <div className="flex justify-end">
-            <Button 
-              onClick={() => { setEditingRule(null); setShowRuleModal(true); }} 
+            <Button
+              onClick={() => {
+                setEditingRule(null);
+                setShowRuleModal(true);
+              }}
               className="gap-2 bg-violet-600 hover:bg-violet-700"
             >
               <Plus className="w-4 h-4" />
@@ -394,7 +421,10 @@ export default function Automation() {
               title="No automation rules"
               description="Create workflows to automate tasks based on triggers."
               actionLabel="Create Rule"
-              onAction={() => { setEditingRule(null); setShowRuleModal(true); }}
+              onAction={() => {
+                setEditingRule(null);
+                setShowRuleModal(true);
+              }}
             />
           ) : (
             <div className="space-y-3">
@@ -404,7 +434,10 @@ export default function Automation() {
                   rule={rule}
                   onToggle={handleToggleRule}
                   onDelete={handleDeleteRule}
-                  onClick={() => { setEditingRule(rule); setShowRuleModal(true); }}
+                  onClick={() => {
+                    setEditingRule(rule);
+                    setShowRuleModal(true);
+                  }}
                 />
               ))}
             </div>
@@ -413,7 +446,7 @@ export default function Automation() {
 
         <TabsContent value="scoring" className="space-y-4">
           <div className="flex justify-between">
-            <Button 
+            <Button
               variant="outline"
               onClick={() => recalculateScoresMutation.mutate()}
               disabled={recalculateScoresMutation.isPending}
@@ -426,8 +459,11 @@ export default function Automation() {
               )}
               Recalculate All Scores
             </Button>
-            <Button 
-              onClick={() => { setEditingScoreRule(null); setShowScoreModal(true); }} 
+            <Button
+              onClick={() => {
+                setEditingScoreRule(null);
+                setShowScoreModal(true);
+              }}
               className="gap-2 bg-violet-600 hover:bg-violet-700"
             >
               <Plus className="w-4 h-4" />
@@ -447,7 +483,10 @@ export default function Automation() {
               title="No scoring rules"
               description="Create rules to automatically score leads based on attributes."
               actionLabel="Create Rule"
-              onAction={() => { setEditingScoreRule(null); setShowScoreModal(true); }}
+              onAction={() => {
+                setEditingScoreRule(null);
+                setShowScoreModal(true);
+              }}
             />
           ) : (
             <div className="space-y-3">
@@ -457,7 +496,10 @@ export default function Automation() {
                   rule={rule}
                   onToggle={handleToggleScoreRule}
                   onDelete={handleDeleteScoreRule}
-                  onClick={() => { setEditingScoreRule(rule); setShowScoreModal(true); }}
+                  onClick={() => {
+                    setEditingScoreRule(rule);
+                    setShowScoreModal(true);
+                  }}
                 />
               ))}
             </div>
@@ -478,35 +520,45 @@ export default function Automation() {
             <div className="mb-4">
               <div className="flex justify-between text-sm text-gray-500 mb-2">
                 <span>Enrichment Progress</span>
-                <span>{enrichedContacts} / {contacts.length} contacts</span>
+                <span>
+                  {enrichedContacts} / {contacts.length} contacts
+                </span>
               </div>
               <Progress value={(enrichedContacts / contacts.length) * 100 || 0} className="h-2" />
             </div>
 
             <div className="space-y-2 max-h-96 overflow-y-auto">
-              {contacts.filter(c => !c.enriched).slice(0, 20).map((contact) => (
-                <div key={contact.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                  <div>
-                    <p className="font-medium text-gray-900">{contact.first_name} {contact.last_name}</p>
-                    <p className="text-sm text-gray-500">{contact.email}</p>
-                  </div>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => enrichContactMutation.mutate(contact)}
-                    disabled={enrichingContact === contact.id}
-                    className="gap-1"
+              {contacts
+                .filter((c) => !c.enriched)
+                .slice(0, 20)
+                .map((contact) => (
+                  <div
+                    key={contact.id}
+                    className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
                   >
-                    {enrichingContact === contact.id ? (
-                      <Loader2 className="w-3 h-3 animate-spin" />
-                    ) : (
-                      <Sparkles className="w-3 h-3" />
-                    )}
-                    Enrich
-                  </Button>
-                </div>
-              ))}
-              {contacts.filter(c => !c.enriched).length === 0 && (
+                    <div>
+                      <p className="font-medium text-gray-900">
+                        {contact.first_name} {contact.last_name}
+                      </p>
+                      <p className="text-sm text-gray-500">{contact.email}</p>
+                    </div>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => enrichContactMutation.mutate(contact)}
+                      disabled={enrichingContact === contact.id}
+                      className="gap-1"
+                    >
+                      {enrichingContact === contact.id ? (
+                        <Loader2 className="w-3 h-3 animate-spin" />
+                      ) : (
+                        <Sparkles className="w-3 h-3" />
+                      )}
+                      Enrich
+                    </Button>
+                  </div>
+                ))}
+              {contacts.filter((c) => !c.enriched).length === 0 && (
                 <div className="text-center py-8 text-gray-400">
                   <CheckCircle className="w-12 h-12 mx-auto mb-2 text-emerald-400" />
                   <p>All contacts have been enriched!</p>
@@ -520,7 +572,10 @@ export default function Automation() {
       {/* Modals */}
       <AutomationRuleModal
         open={showRuleModal}
-        onClose={() => { setShowRuleModal(false); setEditingRule(null); }}
+        onClose={() => {
+          setShowRuleModal(false);
+          setEditingRule(null);
+        }}
         rule={editingRule}
         templates={templates}
         onSave={handleSaveRule}
@@ -529,7 +584,10 @@ export default function Automation() {
 
       <LeadScoreRuleModal
         open={showScoreModal}
-        onClose={() => { setShowScoreModal(false); setEditingScoreRule(null); }}
+        onClose={() => {
+          setShowScoreModal(false);
+          setEditingScoreRule(null);
+        }}
         rule={editingScoreRule}
         onSave={handleSaveScoreRule}
         isLoading={createScoreRuleMutation.isPending || updateScoreRuleMutation.isPending}

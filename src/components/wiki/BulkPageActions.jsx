@@ -1,12 +1,12 @@
 import React from 'react';
-import { Button } from "@/components/ui/button";
+import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { MoreVertical, Folder, Archive, Trash2, Copy } from "lucide-react";
+} from '@/components/ui/dropdown-menu';
+import { MoreVertical, Folder, Archive, Trash2, Copy } from 'lucide-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { useToast } from '@/components/ui/toast-provider';
@@ -17,9 +17,7 @@ export default function BulkPageActions({ selectedPages, onClearSelection, folde
 
   const bulkUpdateMutation = useMutation({
     mutationFn: async ({ pageIds, data }) => {
-      return Promise.all(
-        pageIds.map(id => base44.entities.WikiPage.update(id, data))
-      );
+      return Promise.all(pageIds.map((id) => base44.entities.WikiPage.update(id, data)));
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['space-pages'] });
@@ -30,9 +28,7 @@ export default function BulkPageActions({ selectedPages, onClearSelection, folde
 
   const bulkDeleteMutation = useMutation({
     mutationFn: async (pageIds) => {
-      return Promise.all(
-        pageIds.map(id => base44.entities.WikiPage.delete(id))
-      );
+      return Promise.all(pageIds.map((id) => base44.entities.WikiPage.delete(id)));
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['space-pages'] });
@@ -43,21 +39,21 @@ export default function BulkPageActions({ selectedPages, onClearSelection, folde
 
   const moveToFolder = (folderId) => {
     bulkUpdateMutation.mutate({
-      pageIds: selectedPages.map(p => p.id),
-      data: { folder_id: folderId }
+      pageIds: selectedPages.map((p) => p.id),
+      data: { folder_id: folderId },
     });
   };
 
   const archivePages = () => {
     bulkUpdateMutation.mutate({
-      pageIds: selectedPages.map(p => p.id),
-      data: { status: 'archived' }
+      pageIds: selectedPages.map((p) => p.id),
+      data: { status: 'archived' },
     });
   };
 
   const deletePages = () => {
     if (confirm(`Delete ${selectedPages.length} pages? This cannot be undone.`)) {
-      bulkDeleteMutation.mutate(selectedPages.map(p => p.id));
+      bulkDeleteMutation.mutate(selectedPages.map((p) => p.id));
     }
   };
 
@@ -84,7 +80,7 @@ export default function BulkPageActions({ selectedPages, onClearSelection, folde
         <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
           {selectedPages.length} selected
         </span>
-        
+
         <div className="flex gap-2">
           {folders.length > 0 && (
             <DropdownMenu>
@@ -95,7 +91,7 @@ export default function BulkPageActions({ selectedPages, onClearSelection, folde
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent>
-                {folders.map(folder => (
+                {folders.map((folder) => (
                   <DropdownMenuItem key={folder.id} onClick={() => moveToFolder(folder.id)}>
                     <Folder className="w-4 h-4 mr-2" />
                     {folder.name}
@@ -115,7 +111,12 @@ export default function BulkPageActions({ selectedPages, onClearSelection, folde
             Archive
           </Button>
 
-          <Button variant="outline" size="sm" onClick={deletePages} className="gap-2 text-red-600 hover:text-red-700">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={deletePages}
+            className="gap-2 text-red-600 hover:text-red-700"
+          >
             <Trash2 className="w-4 h-4" />
             Delete
           </Button>

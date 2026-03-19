@@ -1,11 +1,11 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { FileText, Clock, Star, TrendingUp } from "lucide-react";
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { FileText, Clock, Star, TrendingUp } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
-import { Badge } from "@/components/ui/badge";
+import { Badge } from '@/components/ui/badge';
 
 export default function RecentPagesWidget({ spaceId, limit = 5 }) {
   const { data: user } = useQuery({
@@ -17,9 +17,9 @@ export default function RecentPagesWidget({ spaceId, limit = 5 }) {
     queryKey: ['recent-pages', user?.email, spaceId],
     queryFn: async () => {
       const allPages = await base44.entities.WikiPage.list('-last_viewed_at', limit * 2);
-      let filtered = allPages.filter(p => !p.template);
+      let filtered = allPages.filter((p) => !p.template);
       if (spaceId) {
-        filtered = filtered.filter(p => p.space_id === spaceId);
+        filtered = filtered.filter((p) => p.space_id === spaceId);
       }
       return filtered.slice(0, limit);
     },
@@ -30,9 +30,9 @@ export default function RecentPagesWidget({ spaceId, limit = 5 }) {
     queryKey: ['most-viewed-pages', spaceId],
     queryFn: async () => {
       const allPages = await base44.entities.WikiPage.list();
-      let filtered = allPages.filter(p => !p.template && p.view_count > 0);
+      let filtered = allPages.filter((p) => !p.template && p.view_count > 0);
       if (spaceId) {
-        filtered = filtered.filter(p => p.space_id === spaceId);
+        filtered = filtered.filter((p) => p.space_id === spaceId);
       }
       return filtered.sort((a, b) => (b.view_count || 0) - (a.view_count || 0)).slice(0, limit);
     },
@@ -43,12 +43,12 @@ export default function RecentPagesWidget({ spaceId, limit = 5 }) {
     queryFn: async () => {
       if (!user) return [];
       const allBookmarks = await base44.entities.WikiPageBookmark.list();
-      return allBookmarks.filter(b => b.user_email === user.email);
+      return allBookmarks.filter((b) => b.user_email === user.email);
     },
     enabled: !!user,
   });
 
-  const bookmarkedPageIds = bookmarks.map(b => b.page_id);
+  const bookmarkedPageIds = bookmarks.map((b) => b.page_id);
 
   const formatRelativeTime = (dateStr) => {
     if (!dateStr) return '';
@@ -57,7 +57,7 @@ export default function RecentPagesWidget({ spaceId, limit = 5 }) {
     const diff = now - date;
     const hours = Math.floor(diff / (1000 * 60 * 60));
     const days = Math.floor(hours / 24);
-    
+
     if (days > 7) return date.toLocaleDateString();
     if (days > 0) return `${days}d ago`;
     if (hours > 0) return `${hours}h ago`;
@@ -79,7 +79,7 @@ export default function RecentPagesWidget({ spaceId, limit = 5 }) {
             {recentPages.length === 0 ? (
               <p className="text-sm text-gray-500 py-4">No recent pages</p>
             ) : (
-              recentPages.map(page => (
+              recentPages.map((page) => (
                 <Link
                   key={page.id}
                   to={`${createPageUrl('WikiPageEditor')}?spaceId=${page.space_id}&pageId=${page.id}`}
@@ -117,7 +117,7 @@ export default function RecentPagesWidget({ spaceId, limit = 5 }) {
             {mostViewed.length === 0 ? (
               <p className="text-sm text-gray-500 py-4">No viewed pages yet</p>
             ) : (
-              mostViewed.map(page => (
+              mostViewed.map((page) => (
                 <Link
                   key={page.id}
                   to={`${createPageUrl('WikiPageEditor')}?spaceId=${page.space_id}&pageId=${page.id}`}

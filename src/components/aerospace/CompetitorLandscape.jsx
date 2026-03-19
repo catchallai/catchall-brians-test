@@ -1,8 +1,8 @@
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Users, Sparkles, Loader2, TrendingUp, Building2 } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Users, Sparkles, Loader2, TrendingUp, Building2 } from 'lucide-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 
@@ -11,9 +11,10 @@ export default function CompetitorLandscape({ company, allCompanies }) {
 
   const analyzeLandscapeMutation = useMutation({
     mutationFn: async () => {
-      const competitors = allCompanies.filter(c => 
-        (company.competitors || []).includes(c.company_name) || 
-        (c.competitors || []).includes(company.company_name)
+      const competitors = allCompanies.filter(
+        (c) =>
+          (company.competitors || []).includes(c.company_name) ||
+          (c.competitors || []).includes(company.company_name)
       );
 
       const response = await base44.integrations.Core.InvokeLLM({
@@ -30,10 +31,14 @@ Company Details:
 Listed Competitors: ${(company.competitors || []).join(', ')}
 
 Known Competitors Data:
-${competitors.map(c => `
+${competitors
+  .map(
+    (c) => `
 - ${c.company_name}: ${c.company_type}, Revenue: ${c.annual_revenue}, Employees: ${c.employee_count}
   Products: ${(c.key_products || []).slice(0, 3).join(', ')}
-`).join('\n')}
+`
+  )
+  .join('\n')}
 
 Provide:
 1. Market positioning analysis
@@ -43,42 +48,42 @@ Provide:
 5. Strategic recommendations`,
         add_context_from_internet: true,
         response_json_schema: {
-          type: "object",
+          type: 'object',
           properties: {
-            market_position: { type: "string" },
+            market_position: { type: 'string' },
             competitive_advantages: {
-              type: "array",
-              items: { type: "string" }
+              type: 'array',
+              items: { type: 'string' },
             },
             competitor_strengths: {
-              type: "array",
+              type: 'array',
               items: {
-                type: "object",
+                type: 'object',
                 properties: {
-                  competitor: { type: "string" },
-                  strength: { type: "string" }
-                }
-              }
+                  competitor: { type: 'string' },
+                  strength: { type: 'string' },
+                },
+              },
             },
-            market_share_estimate: { type: "string" },
+            market_share_estimate: { type: 'string' },
             recommendations: {
-              type: "array",
-              items: { type: "string" }
-            }
-          }
-        }
+              type: 'array',
+              items: { type: 'string' },
+            },
+          },
+        },
       });
 
       await base44.entities.AerospaceCompany.update(company.id, {
         competitive_landscape: response,
-        last_enriched: new Date().toISOString()
+        last_enriched: new Date().toISOString(),
       });
 
       return response;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['aerospace-companies'] });
-    }
+    },
   });
 
   const landscape = company.competitive_landscape || {};
@@ -98,9 +103,13 @@ Provide:
             className="gap-2"
           >
             {analyzeLandscapeMutation.isPending ? (
-              <><Loader2 className="w-4 h-4 animate-spin" /> Analyzing...</>
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" /> Analyzing...
+              </>
             ) : (
-              <><Sparkles className="w-4 h-4" /> {landscape.market_position ? 'Refresh' : 'Analyze'}</>
+              <>
+                <Sparkles className="w-4 h-4" /> {landscape.market_position ? 'Refresh' : 'Analyze'}
+              </>
             )}
           </Button>
         </div>
@@ -118,9 +127,13 @@ Provide:
             <div className="bg-indigo-50 dark:bg-indigo-900/20 p-4 rounded-lg border border-indigo-200 dark:border-indigo-800">
               <div className="flex items-center gap-2 mb-2">
                 <Building2 className="w-4 h-4 text-indigo-600" />
-                <h4 className="font-semibold text-indigo-800 dark:text-indigo-300">Market Position</h4>
+                <h4 className="font-semibold text-indigo-800 dark:text-indigo-300">
+                  Market Position
+                </h4>
               </div>
-              <p className="text-sm text-gray-700 dark:text-gray-300">{landscape.market_position}</p>
+              <p className="text-sm text-gray-700 dark:text-gray-300">
+                {landscape.market_position}
+              </p>
               {landscape.market_share_estimate && (
                 <div className="mt-2">
                   <Badge className="bg-indigo-600 text-white">
@@ -139,7 +152,10 @@ Provide:
                 </div>
                 <ul className="space-y-1">
                   {landscape.competitive_advantages.map((adv, i) => (
-                    <li key={i} className="text-sm text-gray-700 dark:text-gray-300 flex items-start gap-2">
+                    <li
+                      key={i}
+                      className="text-sm text-gray-700 dark:text-gray-300 flex items-start gap-2"
+                    >
                       <span className="text-green-600 mt-0.5">✓</span>
                       {adv}
                     </li>
@@ -155,7 +171,9 @@ Provide:
                 <div className="space-y-2">
                   {landscape.competitor_strengths.map((item, i) => (
                     <div key={i} className="bg-gray-50 dark:bg-gray-800 p-2 rounded text-sm">
-                      <span className="font-medium text-gray-900 dark:text-white">{item.competitor}:</span>
+                      <span className="font-medium text-gray-900 dark:text-white">
+                        {item.competitor}:
+                      </span>
                       <span className="text-gray-600 dark:text-gray-400 ml-2">{item.strength}</span>
                     </div>
                   ))}
@@ -166,10 +184,15 @@ Provide:
             {/* Strategic Recommendations */}
             {landscape.recommendations?.length > 0 && (
               <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
-                <h4 className="font-semibold mb-2 text-blue-800 dark:text-blue-300">Strategic Recommendations</h4>
+                <h4 className="font-semibold mb-2 text-blue-800 dark:text-blue-300">
+                  Strategic Recommendations
+                </h4>
                 <ul className="space-y-1">
                   {landscape.recommendations.map((rec, i) => (
-                    <li key={i} className="text-sm text-gray-700 dark:text-gray-300 flex items-start gap-2">
+                    <li
+                      key={i}
+                      className="text-sm text-gray-700 dark:text-gray-300 flex items-start gap-2"
+                    >
                       <span className="text-blue-600 mt-0.5">→</span>
                       {rec}
                     </li>

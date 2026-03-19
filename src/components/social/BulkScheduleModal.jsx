@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Badge } from "@/components/ui/badge";
-import { Upload, FileSpreadsheet, Loader2, CheckCircle, XCircle } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Badge } from '@/components/ui/badge';
+import { Upload, FileSpreadsheet, Loader2, CheckCircle, XCircle } from 'lucide-react';
 import Papa from 'papaparse';
 
 export default function BulkScheduleModal({ open, onClose }) {
@@ -37,7 +37,7 @@ export default function BulkScheduleModal({ open, onClose }) {
       setUploadStatus(results);
       queryClient.invalidateQueries({ queryKey: ['calendar-posts'] });
       setTimeout(() => {
-        if (results.every(r => r.success)) {
+        if (results.every((r) => r.success)) {
           onClose();
         }
       }, 2000);
@@ -50,7 +50,7 @@ export default function BulkScheduleModal({ open, onClose }) {
       Papa.parse(file, {
         header: true,
         complete: (results) => {
-          setCsvData(results.data.filter(row => row.caption || row.content));
+          setCsvData(results.data.filter((row) => row.caption || row.content));
         },
       });
     }
@@ -74,17 +74,23 @@ export default function BulkScheduleModal({ open, onClose }) {
       posts = csvData.map((row, index) => ({
         caption: row.caption || row.content || '',
         image_url: row.image_url || row.image || '',
-        platforms: row.platforms ? row.platforms.split(',').map(p => p.trim()) : ['Instagram', 'Facebook'],
-        scheduled_date: new Date(startDateLocal.getTime() + index * intervalHours * 60 * 60 * 1000).toISOString().split('T')[0],
+        platforms: row.platforms
+          ? row.platforms.split(',').map((p) => p.trim())
+          : ['Instagram', 'Facebook'],
+        scheduled_date: new Date(startDateLocal.getTime() + index * intervalHours * 60 * 60 * 1000)
+          .toISOString()
+          .split('T')[0],
         status: 'scheduled',
         auto_post: row.auto_post === 'true' || row.auto_post === '1',
       }));
     } else if (manualPosts.trim()) {
-      const lines = manualPosts.split('\n').filter(line => line.trim());
+      const lines = manualPosts.split('\n').filter((line) => line.trim());
       posts = lines.map((caption, index) => ({
         caption: caption.trim(),
         platforms: ['Instagram', 'Facebook'],
-        scheduled_date: new Date(startDateLocal.getTime() + index * intervalHours * 60 * 60 * 1000).toISOString().split('T')[0],
+        scheduled_date: new Date(startDateLocal.getTime() + index * intervalHours * 60 * 60 * 1000)
+          .toISOString()
+          .split('T')[0],
         status: 'scheduled',
         auto_post: false,
       }));
@@ -118,7 +124,7 @@ export default function BulkScheduleModal({ open, onClose }) {
                 className="min-h-[200px] font-mono text-sm"
               />
               <p className="text-xs text-gray-500 mt-1">
-                {manualPosts.split('\n').filter(l => l.trim()).length} posts
+                {manualPosts.split('\n').filter((l) => l.trim()).length} posts
               </p>
             </div>
           </TabsContent>
@@ -137,7 +143,12 @@ export default function BulkScheduleModal({ open, onClose }) {
                 id="csv-upload"
               />
               <label htmlFor="csv-upload">
-                <Button type="button" variant="outline" className="gap-2" onClick={() => document.getElementById('csv-upload').click()}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="gap-2"
+                  onClick={() => document.getElementById('csv-upload').click()}
+                >
                   <Upload className="w-4 h-4" />
                   Choose CSV File
                 </Button>
@@ -158,7 +169,10 @@ export default function BulkScheduleModal({ open, onClose }) {
               type="date"
               value={startDate}
               min={new Date().toLocaleDateString('en-CA')}
-              onChange={(e) => { setScheduleError(''); setStartDate(e.target.value); }}
+              onChange={(e) => {
+                setScheduleError('');
+                setStartDate(e.target.value);
+              }}
             />
             {scheduleError && <p className="text-xs text-red-500 mt-1">{scheduleError}</p>}
           </div>
@@ -190,7 +204,9 @@ export default function BulkScheduleModal({ open, onClose }) {
         )}
 
         <div className="flex gap-3 justify-end mt-6">
-          <Button variant="outline" onClick={onClose}>Cancel</Button>
+          <Button variant="outline" onClick={onClose}>
+            Cancel
+          </Button>
           <Button
             onClick={handleBulkSchedule}
             disabled={bulkCreateMutation.isPending || (csvData.length === 0 && !manualPosts.trim())}
@@ -201,7 +217,8 @@ export default function BulkScheduleModal({ open, onClose }) {
             ) : (
               <Upload className="w-4 h-4" />
             )}
-            Schedule {csvData.length || manualPosts.split('\n').filter(l => l.trim()).length} Posts
+            Schedule {csvData.length || manualPosts.split('\n').filter((l) => l.trim()).length}{' '}
+            Posts
           </Button>
         </div>
       </DialogContent>

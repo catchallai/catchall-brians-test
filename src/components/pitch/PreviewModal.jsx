@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight, X } from "lucide-react";
+import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { ChevronLeft, ChevronRight, X } from 'lucide-react';
 
 export default function PreviewModal({ open, onClose, slides, branding, deckTitle, companyName }) {
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -37,15 +37,15 @@ export default function PreviewModal({ open, onClose, slides, branding, deckTitl
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="max-w-[95vw] max-h-[95vh] w-full h-full p-0">
-        <div 
+        <div
           className="relative w-full h-full flex flex-col"
-          style={{ 
+          style={{
             backgroundColor: branding?.background_color || '#ffffff',
-            fontFamily: branding?.font_body || 'Inter'
+            fontFamily: branding?.font_body || 'Inter',
           }}
         >
           {/* Header */}
-          <div 
+          <div
             className="w-full h-16 flex items-center justify-between px-6"
             style={{ backgroundColor: branding?.primary_color || '#7c3aed' }}
           >
@@ -53,7 +53,7 @@ export default function PreviewModal({ open, onClose, slides, branding, deckTitl
               {branding?.logo_url && (
                 <img src={branding.logo_url} alt="Logo" className="h-10 object-contain" />
               )}
-              <span 
+              <span
                 className="text-white font-bold text-lg"
                 style={{ fontFamily: branding?.font_heading || 'Inter' }}
               >
@@ -79,11 +79,11 @@ export default function PreviewModal({ open, onClose, slides, branding, deckTitl
           <div className="flex-1 flex items-center justify-center p-12 overflow-auto">
             <div className="w-full max-w-5xl">
               {/* Title */}
-              <h1 
+              <h1
                 className="text-5xl font-bold mb-8"
-                style={{ 
+                style={{
                   color: branding?.primary_color || '#7c3aed',
-                  fontFamily: branding?.font_heading || 'Inter'
+                  fontFamily: branding?.font_heading || 'Inter',
                 }}
               >
                 {slide.title}
@@ -92,7 +92,10 @@ export default function PreviewModal({ open, onClose, slides, branding, deckTitl
               {/* Content based on slide type */}
               {slide.type === 'cover' && (
                 <div className="text-center py-12">
-                  <h2 className="text-6xl font-bold mb-6" style={{ color: branding?.primary_color }}>
+                  <h2
+                    className="text-6xl font-bold mb-6"
+                    style={{ color: branding?.primary_color }}
+                  >
                     {slide.content?.company || companyName}
                   </h2>
                   <p className="text-3xl" style={{ color: branding?.secondary_color }}>
@@ -105,7 +108,7 @@ export default function PreviewModal({ open, onClose, slides, branding, deckTitl
                 <ul className="space-y-4 text-2xl">
                   {slide.content.points.map((point, i) => (
                     <li key={i} className="flex items-start gap-4">
-                      <span 
+                      <span
                         className="w-3 h-3 rounded-full mt-2 shrink-0"
                         style={{ backgroundColor: branding?.primary_color }}
                       />
@@ -130,16 +133,40 @@ export default function PreviewModal({ open, onClose, slides, branding, deckTitl
               {/* Market Data */}
               {slide.type === 'market' && slide.content?.tam && (
                 <div className="grid grid-cols-3 gap-8 mt-8">
-                  <div className="text-center p-6 rounded-xl" style={{ backgroundColor: branding?.primary_color + '20' }}>
-                    <div className="text-sm font-medium mb-2" style={{ color: branding?.primary_color }}>TAM</div>
+                  <div
+                    className="text-center p-6 rounded-xl"
+                    style={{ backgroundColor: branding?.primary_color + '20' }}
+                  >
+                    <div
+                      className="text-sm font-medium mb-2"
+                      style={{ color: branding?.primary_color }}
+                    >
+                      TAM
+                    </div>
                     <div className="text-3xl font-bold">{slide.content.tam}</div>
                   </div>
-                  <div className="text-center p-6 rounded-xl" style={{ backgroundColor: branding?.primary_color + '20' }}>
-                    <div className="text-sm font-medium mb-2" style={{ color: branding?.primary_color }}>SAM</div>
+                  <div
+                    className="text-center p-6 rounded-xl"
+                    style={{ backgroundColor: branding?.primary_color + '20' }}
+                  >
+                    <div
+                      className="text-sm font-medium mb-2"
+                      style={{ color: branding?.primary_color }}
+                    >
+                      SAM
+                    </div>
                     <div className="text-3xl font-bold">{slide.content.sam || 'N/A'}</div>
                   </div>
-                  <div className="text-center p-6 rounded-xl" style={{ backgroundColor: branding?.primary_color + '20' }}>
-                    <div className="text-sm font-medium mb-2" style={{ color: branding?.primary_color }}>SOM</div>
+                  <div
+                    className="text-center p-6 rounded-xl"
+                    style={{ backgroundColor: branding?.primary_color + '20' }}
+                  >
+                    <div
+                      className="text-sm font-medium mb-2"
+                      style={{ color: branding?.primary_color }}
+                    >
+                      SOM
+                    </div>
                     <div className="text-3xl font-bold">{slide.content.som || 'N/A'}</div>
                   </div>
                 </div>
@@ -201,7 +228,7 @@ export default function PreviewModal({ open, onClose, slides, branding, deckTitl
           </div>
 
           {/* Footer */}
-          <div 
+          <div
             className="w-full h-12 flex items-center justify-center text-sm"
             style={{ backgroundColor: '#f3f4f6', color: '#6b7280' }}
           >

@@ -1,9 +1,9 @@
 import React from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Badge } from "@/components/ui/badge";
-import { Card } from "@/components/ui/card";
-import { Heart, MessageSquare, Share2, Calendar, ExternalLink } from "lucide-react";
-import { format } from "date-fns";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Badge } from '@/components/ui/badge';
+import { Card } from '@/components/ui/card';
+import { Heart, MessageSquare, Share2, Calendar, ExternalLink } from 'lucide-react';
+import { format } from 'date-fns';
 import PostScreenshot from './PostScreenshot';
 
 const sentimentConfig = {
@@ -13,11 +13,15 @@ const sentimentConfig = {
 };
 
 const platformConfig = {
-  twitter: { color: "bg-gray-900 text-white", icon: "𝕏", name: "X (Twitter)" },
-  linkedin: { color: "bg-blue-600 text-white", icon: "in", name: "LinkedIn" },
-  facebook: { color: "bg-blue-500 text-white", icon: "f", name: "Facebook" },
-  instagram: { color: "bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400 text-white", icon: "IG", name: "Instagram" },
-  youtube: { color: "bg-red-600 text-white", icon: "▶", name: "YouTube" },
+  twitter: { color: 'bg-gray-900 text-white', icon: '𝕏', name: 'X (Twitter)' },
+  linkedin: { color: 'bg-blue-600 text-white', icon: 'in', name: 'LinkedIn' },
+  facebook: { color: 'bg-blue-500 text-white', icon: 'f', name: 'Facebook' },
+  instagram: {
+    color: 'bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400 text-white',
+    icon: 'IG',
+    name: 'Instagram',
+  },
+  youtube: { color: 'bg-red-600 text-white', icon: '▶', name: 'YouTube' },
 };
 
 export default function PostDetailModal({ open, onClose, post, accountName }) {
@@ -32,20 +36,18 @@ export default function PostDetailModal({ open, onClose, post, accountName }) {
       <DialogContent className="sm:max-w-xl">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <span className={`w-8 h-8 rounded-lg ${platform.color} flex items-center justify-center text-sm font-bold`}>
+            <span
+              className={`w-8 h-8 rounded-lg ${platform.color} flex items-center justify-center text-sm font-bold`}
+            >
               {platform.icon}
             </span>
             Post from @{accountName}
           </DialogTitle>
         </DialogHeader>
-        
+
         <div className="space-y-4 mt-2">
           {/* Post Preview Screenshot */}
-          <PostScreenshot 
-            post={post}
-            accountName={accountName}
-            platform={post.platform}
-          />
+          <PostScreenshot post={post} accountName={accountName} platform={post.platform} />
 
           {/* Meta info */}
           <div className="flex items-center gap-2 flex-wrap">
@@ -63,9 +65,7 @@ export default function PostDetailModal({ open, onClose, post, accountName }) {
 
           {/* Full content */}
           <Card className="p-4 bg-gray-50 border-0">
-            <p className="text-gray-800 whitespace-pre-wrap leading-relaxed">
-              {post.content}
-            </p>
+            <p className="text-gray-800 whitespace-pre-wrap leading-relaxed">{post.content}</p>
           </Card>
 
           {/* Topics/Hashtags */}
@@ -88,30 +88,38 @@ export default function PostDetailModal({ open, onClose, post, accountName }) {
             <div className="grid grid-cols-4 gap-3">
               <Card className="p-3 text-center border-0 bg-pink-50">
                 <Heart className="w-5 h-5 text-pink-500 mx-auto mb-1" />
-                <p className="text-lg font-bold text-gray-900">{(post.likes || 0).toLocaleString()}</p>
+                <p className="text-lg font-bold text-gray-900">
+                  {(post.likes || 0).toLocaleString()}
+                </p>
                 <p className="text-xs text-gray-500">Likes</p>
               </Card>
               <Card className="p-3 text-center border-0 bg-blue-50">
                 <MessageSquare className="w-5 h-5 text-blue-500 mx-auto mb-1" />
-                <p className="text-lg font-bold text-gray-900">{(post.comments || 0).toLocaleString()}</p>
+                <p className="text-lg font-bold text-gray-900">
+                  {(post.comments || 0).toLocaleString()}
+                </p>
                 <p className="text-xs text-gray-500">Comments</p>
               </Card>
               <Card className="p-3 text-center border-0 bg-green-50">
                 <Share2 className="w-5 h-5 text-green-500 mx-auto mb-1" />
-                <p className="text-lg font-bold text-gray-900">{(post.shares || 0).toLocaleString()}</p>
+                <p className="text-lg font-bold text-gray-900">
+                  {(post.shares || 0).toLocaleString()}
+                </p>
                 <p className="text-xs text-gray-500">Shares</p>
               </Card>
               <Card className="p-3 text-center border-0 bg-violet-50">
-                <p className="text-lg font-bold text-violet-600">{totalEngagement.toLocaleString()}</p>
+                <p className="text-lg font-bold text-violet-600">
+                  {totalEngagement.toLocaleString()}
+                </p>
                 <p className="text-xs text-gray-500">Total</p>
               </Card>
             </div>
           </div>
 
           {/* View on Platform Button */}
-          <a 
-            href={post.post_url || getPlatformSearchUrl(post.platform, post.content, accountName)} 
-            target="_blank" 
+          <a
+            href={post.post_url || getPlatformSearchUrl(post.platform, post.content, accountName)}
+            target="_blank"
             rel="noopener noreferrer"
             className="flex items-center justify-center gap-2 w-full py-2.5 px-4 rounded-lg bg-violet-600 hover:bg-violet-700 text-white font-medium transition-colors"
           >
@@ -127,18 +135,24 @@ export default function PostDetailModal({ open, onClose, post, accountName }) {
 function getPlatformSearchUrl(platform, content, accountName) {
   const query = encodeURIComponent(content?.slice(0, 50) || accountName || '');
   const handle = accountName || '';
-  
+
   switch (platform) {
     case 'twitter':
       return handle ? `https://x.com/${handle}` : `https://x.com/search?q=${query}`;
     case 'linkedin':
-      return handle ? `https://linkedin.com/in/${handle}` : `https://linkedin.com/search/results/content/?keywords=${query}`;
+      return handle
+        ? `https://linkedin.com/in/${handle}`
+        : `https://linkedin.com/search/results/content/?keywords=${query}`;
     case 'facebook':
       return `https://facebook.com/search/posts/?q=${query}`;
     case 'instagram':
-      return handle ? `https://instagram.com/${handle}` : `https://instagram.com/explore/tags/${query.replace(/\s+/g, '')}`;
+      return handle
+        ? `https://instagram.com/${handle}`
+        : `https://instagram.com/explore/tags/${query.replace(/\s+/g, '')}`;
     case 'youtube':
-      return handle ? `https://youtube.com/@${handle}` : `https://youtube.com/results?search_query=${query}`;
+      return handle
+        ? `https://youtube.com/@${handle}`
+        : `https://youtube.com/results?search_query=${query}`;
     default:
       return `https://google.com/search?q=${query}`;
   }

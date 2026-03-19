@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { LogIn, LogOut, AlertCircle } from "lucide-react";
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { LogIn, LogOut, AlertCircle } from 'lucide-react';
 import { useToast } from '@/components/ui/toast-provider';
 
 export default function CheckoutSystem({ equipment }) {
@@ -17,11 +17,11 @@ export default function CheckoutSystem({ equipment }) {
   const [checkoutData, setCheckoutData] = useState({
     checked_out_to: '',
     expected_return_date: '',
-    notes: ''
+    notes: '',
   });
   const [checkinData, setCheckinData] = useState({
     condition_at_return: 'Good',
-    notes: ''
+    notes: '',
   });
   const queryClient = useQueryClient();
   const toast = useToast();
@@ -36,10 +36,10 @@ export default function CheckoutSystem({ equipment }) {
     queryFn: async () => {
       const checkouts = await base44.entities.EquipmentCheckout.filter({
         equipment_id: equipment.id,
-        status: 'checked_out'
+        status: 'checked_out',
       });
       return checkouts[0] || null;
-    }
+    },
   });
 
   const checkoutMutation = useMutation({
@@ -50,12 +50,12 @@ export default function CheckoutSystem({ equipment }) {
         checked_out_by: user?.email,
         checkout_date: new Date().toISOString(),
         condition_at_checkout: equipment.condition,
-        status: 'checked_out'
+        status: 'checked_out',
       });
-      
+
       await base44.entities.Equipment.update(equipment.id, {
         checkout_status: 'checked_out',
-        current_holder: data.checked_out_to
+        current_holder: data.checked_out_to,
       });
     },
     onSuccess: () => {
@@ -63,7 +63,7 @@ export default function CheckoutSystem({ equipment }) {
       queryClient.invalidateQueries({ queryKey: ['equipment'] });
       setShowCheckoutModal(false);
       toast.success('Equipment checked out');
-    }
+    },
   });
 
   const checkinMutation = useMutation({
@@ -72,13 +72,13 @@ export default function CheckoutSystem({ equipment }) {
         actual_return_date: new Date().toISOString(),
         condition_at_return: data.condition_at_return,
         notes: data.notes,
-        status: 'returned'
+        status: 'returned',
       });
-      
+
       await base44.entities.Equipment.update(equipment.id, {
         checkout_status: 'available',
         current_holder: null,
-        condition: data.condition_at_return
+        condition: data.condition_at_return,
       });
     },
     onSuccess: () => {
@@ -86,25 +86,42 @@ export default function CheckoutSystem({ equipment }) {
       queryClient.invalidateQueries({ queryKey: ['equipment'] });
       setShowCheckinModal(false);
       toast.success('Equipment checked in');
-    }
+    },
   });
 
-  const isOverdue = activeCheckout && activeCheckout.expected_return_date && 
+  const isOverdue =
+    activeCheckout &&
+    activeCheckout.expected_return_date &&
     new Date(activeCheckout.expected_return_date) < new Date();
 
   return (
     <>
-      <Card className={`border-l-4 ${activeCheckout ? (isOverdue ? 'border-l-red-500' : 'border-l-yellow-500') : 'border-l-green-500'}`}>
+      <Card
+        className={`border-l-4 ${activeCheckout ? (isOverdue ? 'border-l-red-500' : 'border-l-yellow-500') : 'border-l-green-500'}`}
+      >
         <CardContent className="p-4">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Status</p>
-              <Badge className={activeCheckout ? (isOverdue ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800') : 'bg-green-100 text-green-800'}>
+              <Badge
+                className={
+                  activeCheckout
+                    ? isOverdue
+                      ? 'bg-red-100 text-red-800'
+                      : 'bg-yellow-100 text-yellow-800'
+                    : 'bg-green-100 text-green-800'
+                }
+              >
                 {activeCheckout ? (isOverdue ? 'Overdue' : 'Checked Out') : 'Available'}
               </Badge>
             </div>
             {activeCheckout ? (
-              <Button onClick={() => setShowCheckinModal(true)} variant="outline" size="sm" className="gap-2">
+              <Button
+                onClick={() => setShowCheckinModal(true)}
+                variant="outline"
+                size="sm"
+                className="gap-2"
+              >
                 <LogIn className="w-4 h-4" />
                 Check In
               </Button>
@@ -115,14 +132,15 @@ export default function CheckoutSystem({ equipment }) {
               </Button>
             )}
           </div>
-          
+
           {activeCheckout && (
             <div className="mt-3 pt-3 border-t text-sm">
               <p className="text-gray-600">
                 <span className="font-medium">Checked out to:</span> {activeCheckout.checked_out_to}
               </p>
               <p className="text-gray-600">
-                <span className="font-medium">Expected return:</span> {new Date(activeCheckout.expected_return_date).toLocaleDateString()}
+                <span className="font-medium">Expected return:</span>{' '}
+                {new Date(activeCheckout.expected_return_date).toLocaleDateString()}
               </p>
               {isOverdue && (
                 <div className="flex items-center gap-1 text-red-600 mt-2">
@@ -146,7 +164,9 @@ export default function CheckoutSystem({ equipment }) {
               <Label>Check Out To (Email)</Label>
               <Input
                 value={checkoutData.checked_out_to}
-                onChange={(e) => setCheckoutData({...checkoutData, checked_out_to: e.target.value})}
+                onChange={(e) =>
+                  setCheckoutData({ ...checkoutData, checked_out_to: e.target.value })
+                }
                 placeholder="user@example.com"
                 type="email"
               />
@@ -156,20 +176,24 @@ export default function CheckoutSystem({ equipment }) {
               <Input
                 type="date"
                 value={checkoutData.expected_return_date}
-                onChange={(e) => setCheckoutData({...checkoutData, expected_return_date: e.target.value})}
+                onChange={(e) =>
+                  setCheckoutData({ ...checkoutData, expected_return_date: e.target.value })
+                }
               />
             </div>
             <div>
               <Label>Notes</Label>
               <Textarea
                 value={checkoutData.notes}
-                onChange={(e) => setCheckoutData({...checkoutData, notes: e.target.value})}
+                onChange={(e) => setCheckoutData({ ...checkoutData, notes: e.target.value })}
                 placeholder="Purpose, special instructions..."
                 rows={3}
               />
             </div>
             <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => setShowCheckoutModal(false)}>Cancel</Button>
+              <Button variant="outline" onClick={() => setShowCheckoutModal(false)}>
+                Cancel
+              </Button>
               <Button onClick={() => checkoutMutation.mutate(checkoutData)}>Check Out</Button>
             </div>
           </div>
@@ -188,7 +212,9 @@ export default function CheckoutSystem({ equipment }) {
               <select
                 className="w-full border rounded-lg px-3 py-2"
                 value={checkinData.condition_at_return}
-                onChange={(e) => setCheckinData({...checkinData, condition_at_return: e.target.value})}
+                onChange={(e) =>
+                  setCheckinData({ ...checkinData, condition_at_return: e.target.value })
+                }
               >
                 <option value="Excellent">Excellent</option>
                 <option value="Good">Good</option>
@@ -201,13 +227,15 @@ export default function CheckoutSystem({ equipment }) {
               <Label>Notes</Label>
               <Textarea
                 value={checkinData.notes}
-                onChange={(e) => setCheckinData({...checkinData, notes: e.target.value})}
+                onChange={(e) => setCheckinData({ ...checkinData, notes: e.target.value })}
                 placeholder="Any damage, issues, or observations..."
                 rows={3}
               />
             </div>
             <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => setShowCheckinModal(false)}>Cancel</Button>
+              <Button variant="outline" onClick={() => setShowCheckinModal(false)}>
+                Cancel
+              </Button>
               <Button onClick={() => checkinMutation.mutate(checkinData)}>Check In</Button>
             </div>
           </div>

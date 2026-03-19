@@ -5,21 +5,29 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Upload, FileText, CheckCircle, AlertCircle, Loader2, Download, Sparkles } from "lucide-react";
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import {
+  Upload,
+  FileText,
+  CheckCircle,
+  AlertCircle,
+  Loader2,
+  Download,
+  Sparkles,
+} from 'lucide-react';
 import { parseCSV } from '@/components/utils/exportData';
 
-export default function ImportDialog({ 
-  open, 
-  onClose, 
-  onImport, 
+export default function ImportDialog({
+  open,
+  onClose,
+  onImport,
   entityName,
   requiredFields = [],
   optionalFields = [],
   sampleData = [],
-  onImportComplete
+  onImportComplete,
 }) {
   const [file, setFile] = useState(null);
   const [parsedData, setParsedData] = useState(null);
@@ -30,18 +38,18 @@ export default function ImportDialog({
   const handleFileChange = async (e) => {
     const selectedFile = e.target.files?.[0];
     if (!selectedFile) return;
-    
+
     setFile(selectedFile);
     setErrors([]);
     setParsedData({ headers: [], data: [], count: 0, isAIProcessing: true });
-    
+
     try {
       // CSV files - parse directly
       if (selectedFile.name.endsWith('.csv')) {
         const text = await selectedFile.text();
         const { headers, data } = parseCSV(text);
         setParsedData({ headers, data, count: data.length });
-      } 
+      }
       // All other files - use AI
       else {
         await handleAIExtraction(selectedFile);
@@ -57,48 +65,48 @@ export default function ImportDialog({
       // Upload file first
       const { base44 } = await import('@/api/base44Client');
       const uploadResponse = await base44.integrations.Core.UploadFile({ file });
-      
+
       // Build schema from required and optional fields
       const schema = {
-        type: "array",
+        type: 'array',
         items: {
-          type: "object",
-          properties: {}
-        }
+          type: 'object',
+          properties: {},
+        },
       };
-      
-      [...requiredFields, ...optionalFields].forEach(field => {
-        schema.items.properties[field] = { type: "string" };
+
+      [...requiredFields, ...optionalFields].forEach((field) => {
+        schema.items.properties[field] = { type: 'string' };
       });
-      
+
       // Extract data using AI
       setParsedData({ headers: [], data: [], count: 0, isAIProcessing: true });
       const extractResponse = await base44.integrations.Core.ExtractDataFromUploadedFile({
         file_url: uploadResponse.file_url,
-        json_schema: schema
+        json_schema: schema,
       });
-      
+
       if (extractResponse.status === 'error') {
         setErrors([extractResponse.details || 'AI extraction failed']);
         setParsedData(null);
         return;
       }
-      
-      const extractedData = Array.isArray(extractResponse.output) 
-        ? extractResponse.output 
+
+      const extractedData = Array.isArray(extractResponse.output)
+        ? extractResponse.output
         : [extractResponse.output];
-      
+
       if (extractedData.length === 0) {
         setErrors(['No data found in the file']);
         setParsedData(null);
         return;
       }
-      
+
       setParsedData({
         headers: [...requiredFields, ...optionalFields],
         data: extractedData,
         count: extractedData.length,
-        aiExtracted: true
+        aiExtracted: true,
       });
     } catch (error) {
       setErrors([error.message || 'AI extraction failed']);
@@ -131,10 +139,10 @@ export default function ImportDialog({
 
   const downloadTemplate = () => {
     const headers = [...requiredFields, ...optionalFields].join(',');
-    const sampleRows = sampleData.map(row => 
-      [...requiredFields, ...optionalFields].map(f => row[f] || '').join(',')
-    ).join('\n');
-    
+    const sampleRows = sampleData
+      .map((row) => [...requiredFields, ...optionalFields].map((f) => row[f] || '').join(','))
+      .join('\n');
+
     const content = `${headers}\n${sampleRows}`;
     const blob = new Blob([content], { type: 'text/csv' });
     const url = URL.createObjectURL(blob);
@@ -146,12 +154,18 @@ export default function ImportDialog({
   };
 
   return (
-    <Dialog open={open} onOpenChange={() => { onClose(); resetState(); }}>
+    <Dialog
+      open={open}
+      onOpenChange={() => {
+        onClose();
+        resetState();
+      }}
+    >
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>Import {entityName}</DialogTitle>
         </DialogHeader>
-        
+
         <div className="space-y-4">
           {/* AI Info */}
           <div className="p-4 bg-gradient-to-r from-violet-50 to-purple-50 dark:from-violet-900/20 dark:to-purple-900/20 rounded-lg border border-violet-200 dark:border-violet-800">
@@ -162,7 +176,8 @@ export default function ImportDialog({
                   AI-Powered Import
                 </p>
                 <p className="text-xs text-violet-700 dark:text-violet-300">
-                  Upload any file type (PDF, Excel, Word, images, etc.) and our AI will automatically extract and structure your contact data.
+                  Upload any file type (PDF, Excel, Word, images, etc.) and our AI will
+                  automatically extract and structure your contact data.
                 </p>
               </div>
             </div>
@@ -182,10 +197,14 @@ export default function ImportDialog({
           {/* Suggested Fields */}
           {requiredFields.length > 0 && (
             <div>
-              <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Suggested fields (AI will extract available data):</p>
+              <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Suggested fields (AI will extract available data):
+              </p>
               <div className="flex flex-wrap gap-1">
-                {requiredFields.map(field => (
-                  <Badge key={field} variant="outline" className="text-xs">{field}</Badge>
+                {requiredFields.map((field) => (
+                  <Badge key={field} variant="outline" className="text-xs">
+                    {field}
+                  </Badge>
                 ))}
               </div>
             </div>
@@ -196,12 +215,7 @@ export default function ImportDialog({
             className="border-2 border-dashed rounded-xl p-8 text-center cursor-pointer hover:border-violet-400 transition-colors"
             onClick={() => fileInputRef.current?.click()}
           >
-            <input
-              ref={fileInputRef}
-              type="file"
-              onChange={handleFileChange}
-              className="hidden"
-            />
+            <input ref={fileInputRef} type="file" onChange={handleFileChange} className="hidden" />
             {file ? (
               <div className="flex items-center justify-center gap-3">
                 {parsedData?.isAIProcessing ? (
@@ -240,7 +254,10 @@ export default function ImportDialog({
           {errors.length > 0 && (
             <div className="p-3 bg-red-50 dark:bg-red-900/20 rounded-lg">
               {errors.map((error, i) => (
-                <p key={i} className="text-sm text-red-600 dark:text-red-400 flex items-center gap-2">
+                <p
+                  key={i}
+                  className="text-sm text-red-600 dark:text-red-400 flex items-center gap-2"
+                >
                   <AlertCircle className="w-4 h-4" />
                   {error}
                 </p>
@@ -260,11 +277,16 @@ export default function ImportDialog({
         </div>
 
         <DialogFooter>
-          <Button variant="outline" onClick={() => { onClose(); resetState(); }}>Cancel</Button>
-          <Button 
-            onClick={handleImport} 
-            disabled={!parsedData || errors.length > 0 || isImporting}
+          <Button
+            variant="outline"
+            onClick={() => {
+              onClose();
+              resetState();
+            }}
           >
+            Cancel
+          </Button>
+          <Button onClick={handleImport} disabled={!parsedData || errors.length > 0 || isImporting}>
             {isImporting && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
             Import {parsedData?.count || 0} Records
           </Button>

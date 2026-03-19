@@ -16,7 +16,7 @@ Deno.serve(async (req) => {
     }
 
     // Build search query
-    const searchQuery = website 
+    const searchQuery = website
       ? `Find detailed information about ${company_name} (${website}): company description, industry, headquarters location, company size, annual revenue, contact information including phone numbers and email addresses.`
       : `Find detailed information about ${company_name}: company description, industry, headquarters location, website, company size, annual revenue, contact information including phone numbers and email addresses.`;
 
@@ -25,32 +25,32 @@ Deno.serve(async (req) => {
       prompt: searchQuery,
       add_context_from_internet: true,
       response_json_schema: {
-        type: "object",
+        type: 'object',
         properties: {
-          description: { type: "string" },
-          industry: { type: "string" },
-          website: { type: "string" },
-          hq_city: { type: "string" },
-          country: { type: "string" },
-          address: { type: "string" },
-          size: { type: "string" },
-          annual_revenue: { type: "number" },
-          phone: { type: "string" },
+          description: { type: 'string' },
+          industry: { type: 'string' },
+          website: { type: 'string' },
+          hq_city: { type: 'string' },
+          country: { type: 'string' },
+          address: { type: 'string' },
+          size: { type: 'string' },
+          annual_revenue: { type: 'number' },
+          phone: { type: 'string' },
           general_emails: {
-            type: "array",
-            items: { type: "string" }
+            type: 'array',
+            items: { type: 'string' },
           },
           general_phones: {
-            type: "array",
-            items: { type: "string" }
-          }
-        }
-      }
+            type: 'array',
+            items: { type: 'string' },
+          },
+        },
+      },
     });
 
     // Update company with enriched data
     const updateData = {};
-    
+
     if (enrichedData.description) updateData.description = enrichedData.description;
     if (enrichedData.industry) updateData.industry = enrichedData.industry;
     if (enrichedData.website && !website) updateData.website = enrichedData.website;
@@ -72,17 +72,19 @@ Deno.serve(async (req) => {
       await base44.asServiceRole.entities.Company.update(company_id, updateData);
     }
 
-    return Response.json({ 
-      success: true, 
+    return Response.json({
+      success: true,
       enriched_fields: Object.keys(updateData),
-      data: updateData
+      data: updateData,
     });
-
   } catch (error) {
     console.error('Error enriching company:', error);
-    return Response.json({ 
-      error: error.message,
-      success: false 
-    }, { status: 500 });
+    return Response.json(
+      {
+        error: error.message,
+        success: false,
+      },
+      { status: 500 }
+    );
   }
 });

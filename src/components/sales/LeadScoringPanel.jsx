@@ -1,9 +1,18 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
-import { Sparkles, Loader2, TrendingUp, Mail, Phone, Linkedin, Globe, MessageSquare } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
+import {
+  Sparkles,
+  Loader2,
+  TrendingUp,
+  Mail,
+  Phone,
+  Linkedin,
+  Globe,
+  MessageSquare,
+} from 'lucide-react';
 
 const scoreColors = (score) => {
   if (score >= 80) return { bg: 'bg-emerald-100', text: 'text-emerald-700', bar: 'bg-emerald-500' };
@@ -17,23 +26,26 @@ const sourceIcons = {
   email: Mail,
   call: Phone,
   website: Globe,
-  engagement: MessageSquare
+  engagement: MessageSquare,
 };
 
 export default function LeadScoringPanel({ contacts, leadScores, onScore, isScoring }) {
   const [expandedId, setExpandedId] = useState(null);
 
-  const contactsWithScores = contacts.map(contact => {
-    const score = leadScores.find(s => s.contact_id === contact.id);
-    return { ...contact, score };
-  }).sort((a, b) => (b.score?.total_score || 0) - (a.score?.total_score || 0));
+  const contactsWithScores = contacts
+    .map((contact) => {
+      const score = leadScores.find((s) => s.contact_id === contact.id);
+      return { ...contact, score };
+    })
+    .sort((a, b) => (b.score?.total_score || 0) - (a.score?.total_score || 0));
 
-  const avgScore = leadScores.length > 0 
-    ? Math.round(leadScores.reduce((sum, s) => sum + (s.total_score || 0), 0) / leadScores.length)
-    : 0;
+  const avgScore =
+    leadScores.length > 0
+      ? Math.round(leadScores.reduce((sum, s) => sum + (s.total_score || 0), 0) / leadScores.length)
+      : 0;
 
-  const hotLeads = leadScores.filter(s => s.total_score >= 80).length;
-  const warmLeads = leadScores.filter(s => s.total_score >= 60 && s.total_score < 80).length;
+  const hotLeads = leadScores.filter((s) => s.total_score >= 80).length;
+  const warmLeads = leadScores.filter((s) => s.total_score >= 60 && s.total_score < 80).length;
 
   return (
     <Card className="glass-card">
@@ -49,9 +61,13 @@ export default function LeadScoringPanel({ contacts, leadScores, onScore, isScor
           className="gap-2 bg-violet-600 hover:bg-violet-700"
         >
           {isScoring ? (
-            <><Loader2 className="w-4 h-4 animate-spin" /> Scoring...</>
+            <>
+              <Loader2 className="w-4 h-4 animate-spin" /> Scoring...
+            </>
           ) : (
-            <><Sparkles className="w-4 h-4" /> Score All Leads</>
+            <>
+              <Sparkles className="w-4 h-4" /> Score All Leads
+            </>
           )}
         </Button>
       </CardHeader>
@@ -78,7 +94,7 @@ export default function LeadScoringPanel({ contacts, leadScores, onScore, isScor
           </div>
         ) : (
           <div className="space-y-3">
-            {contactsWithScores.slice(0, 10).map(contact => {
+            {contactsWithScores.slice(0, 10).map((contact) => {
               const score = contact.score;
               const colors = scoreColors(score?.total_score || 0);
               const isExpanded = expandedId === contact.id;
@@ -87,8 +103,12 @@ export default function LeadScoringPanel({ contacts, leadScores, onScore, isScor
                 <div key={contact.id} className="border rounded-lg p-3">
                   <div className="flex items-start justify-between mb-2">
                     <div className="flex-1">
-                      <p className="font-medium text-sm">{contact.first_name} {contact.last_name}</p>
-                      <p className="text-xs text-gray-600">{contact.company || 'No company'} • {contact.status}</p>
+                      <p className="font-medium text-sm">
+                        {contact.first_name} {contact.last_name}
+                      </p>
+                      <p className="text-xs text-gray-600">
+                        {contact.company || 'No company'} • {contact.status}
+                      </p>
                     </div>
                     <div className="flex items-center gap-2">
                       {score && (
@@ -109,22 +129,28 @@ export default function LeadScoringPanel({ contacts, leadScores, onScore, isScor
                   {score && (
                     <>
                       <Progress value={score.total_score} className="h-2 mb-2" />
-                      
+
                       {isExpanded && (
                         <div className="mt-3 space-y-3 border-t pt-3">
                           {/* Score Breakdown */}
                           <div className="grid grid-cols-2 gap-2 text-xs">
                             <div className="p-2 bg-blue-50 rounded">
                               <p className="text-gray-600 mb-1">Demographic</p>
-                              <p className="font-semibold text-blue-700">{score.demographic_score}/100</p>
+                              <p className="font-semibold text-blue-700">
+                                {score.demographic_score}/100
+                              </p>
                             </div>
                             <div className="p-2 bg-emerald-50 rounded">
                               <p className="text-gray-600 mb-1">Behavioral</p>
-                              <p className="font-semibold text-emerald-700">{score.behavioral_score}/100</p>
+                              <p className="font-semibold text-emerald-700">
+                                {score.behavioral_score}/100
+                              </p>
                             </div>
                             <div className="p-2 bg-violet-50 rounded">
                               <p className="text-gray-600 mb-1">Engagement</p>
-                              <p className="font-semibold text-violet-700">{score.engagement_score}/100</p>
+                              <p className="font-semibold text-violet-700">
+                                {score.engagement_score}/100
+                              </p>
                             </div>
                             <div className="p-2 bg-amber-50 rounded">
                               <p className="text-gray-600 mb-1">Grade</p>
@@ -141,8 +167,12 @@ export default function LeadScoringPanel({ contacts, leadScores, onScore, isScor
                                 return (
                                   <div key={key} className="flex items-center gap-2 text-xs">
                                     <IconComponent className="w-3 h-3 text-gray-500" />
-                                    <span className="text-gray-600 capitalize">{key.replace(/_/g, ' ')}:</span>
-                                    <span className="font-medium">{typeof value === 'number' ? `+${value}` : value}</span>
+                                    <span className="text-gray-600 capitalize">
+                                      {key.replace(/_/g, ' ')}:
+                                    </span>
+                                    <span className="font-medium">
+                                      {typeof value === 'number' ? `+${value}` : value}
+                                    </span>
                                   </div>
                                 );
                               })}
@@ -152,7 +182,9 @@ export default function LeadScoringPanel({ contacts, leadScores, onScore, isScor
                           {/* AI Reasoning */}
                           {score.reasoning && (
                             <div className="p-2 bg-violet-50 rounded">
-                              <p className="text-xs font-medium text-violet-700 mb-1">Why this score?</p>
+                              <p className="text-xs font-medium text-violet-700 mb-1">
+                                Why this score?
+                              </p>
                               <p className="text-xs text-gray-700">{score.reasoning}</p>
                             </div>
                           )}
@@ -160,7 +192,9 @@ export default function LeadScoringPanel({ contacts, leadScores, onScore, isScor
                           {/* Recommended Actions */}
                           {score.recommended_actions?.length > 0 && (
                             <div className="p-2 bg-blue-50 rounded">
-                              <p className="text-xs font-medium text-blue-700 mb-1">Recommended Actions:</p>
+                              <p className="text-xs font-medium text-blue-700 mb-1">
+                                Recommended Actions:
+                              </p>
                               <ul className="text-xs text-gray-700 space-y-1">
                                 {score.recommended_actions.map((action, i) => (
                                   <li key={i}>• {action}</li>

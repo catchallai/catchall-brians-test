@@ -1,15 +1,27 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { 
-  Calendar, Loader2, Sparkles, Clock, Target, 
-  CheckCircle, ArrowRight, FileText
-} from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
+  Calendar,
+  Loader2,
+  Sparkles,
+  Clock,
+  Target,
+  CheckCircle,
+  ArrowRight,
+  FileText,
+} from 'lucide-react';
 
 export default function ContentCalendarPlanner({ keywords, selectedTopic }) {
   const [isPlanning, setIsPlanning] = useState(false);
@@ -21,7 +33,10 @@ export default function ContentCalendarPlanner({ keywords, selectedTopic }) {
   const generateCalendar = async () => {
     setIsPlanning(true);
 
-    const keywordList = keywords.slice(0, 20).map(k => k.keyword).join(', ');
+    const keywordList = keywords
+      .slice(0, 20)
+      .map((k) => k.keyword)
+      .join(', ');
 
     const result = await base44.integrations.Core.InvokeLLM({
       prompt: `Create an optimized content calendar for the next ${duration}.
@@ -53,39 +68,39 @@ export default function ContentCalendarPlanner({ keywords, selectedTopic }) {
       - Important dates/events to leverage`,
       add_context_from_internet: true,
       response_json_schema: {
-        type: "object",
+        type: 'object',
         properties: {
-          strategy_summary: { type: "string" },
-          key_themes: { type: "array", items: { type: "string" } },
+          strategy_summary: { type: 'string' },
+          key_themes: { type: 'array', items: { type: 'string' } },
           important_dates: {
-            type: "array",
+            type: 'array',
             items: {
-              type: "object",
+              type: 'object',
               properties: {
-                date: { type: "string" },
-                event: { type: "string" },
-                content_opportunity: { type: "string" }
-              }
-            }
+                date: { type: 'string' },
+                event: { type: 'string' },
+                content_opportunity: { type: 'string' },
+              },
+            },
           },
           content_pieces: {
-            type: "array",
+            type: 'array',
             items: {
-              type: "object",
+              type: 'object',
               properties: {
-                publish_date: { type: "string" },
-                title: { type: "string" },
-                content_type: { type: "string" },
-                keyword: { type: "string" },
-                funnel_stage: { type: "string" },
-                hours_to_create: { type: "number" },
-                priority: { type: "string" },
-                related_content: { type: "array", items: { type: "string" } }
-              }
-            }
-          }
-        }
-      }
+                publish_date: { type: 'string' },
+                title: { type: 'string' },
+                content_type: { type: 'string' },
+                keyword: { type: 'string' },
+                funnel_stage: { type: 'string' },
+                hours_to_create: { type: 'number' },
+                priority: { type: 'string' },
+                related_content: { type: 'array', items: { type: 'string' } },
+              },
+            },
+          },
+        },
+      },
     });
 
     setCalendar(result);
@@ -95,18 +110,18 @@ export default function ContentCalendarPlanner({ keywords, selectedTopic }) {
   const funnelColors = {
     awareness: 'bg-blue-100 text-blue-700',
     consideration: 'bg-amber-100 text-amber-700',
-    decision: 'bg-emerald-100 text-emerald-700'
+    decision: 'bg-emerald-100 text-emerald-700',
   };
 
   const priorityColors = {
     high: 'bg-red-100 text-red-700',
     medium: 'bg-amber-100 text-amber-700',
-    low: 'bg-gray-100 text-gray-700'
+    low: 'bg-gray-100 text-gray-700',
   };
 
   const groupByWeek = (items) => {
     const weeks = {};
-    items?.forEach(item => {
+    items?.forEach((item) => {
       const date = new Date(item.publish_date);
       const weekStart = new Date(date);
       weekStart.setDate(date.getDate() - date.getDay());
@@ -193,7 +208,9 @@ export default function ContentCalendarPlanner({ keywords, selectedTopic }) {
                   <p className="text-xs text-gray-500 mb-1">Key Themes:</p>
                   <div className="flex flex-wrap gap-1">
                     {calendar.key_themes.map((theme, idx) => (
-                      <Badge key={idx} className="bg-violet-100 text-violet-700">{theme}</Badge>
+                      <Badge key={idx} className="bg-violet-100 text-violet-700">
+                        {theme}
+                      </Badge>
                     ))}
                   </div>
                 </div>
@@ -224,48 +241,73 @@ export default function ContentCalendarPlanner({ keywords, selectedTopic }) {
               <h4 className="font-semibold text-gray-900 mb-3">Content Schedule</h4>
               <ScrollArea className="h-96">
                 <div className="space-y-6">
-                  {Object.entries(groupByWeek(calendar.content_pieces)).map(([weekStart, items]) => (
-                    <div key={weekStart}>
-                      <div className="flex items-center gap-2 mb-2">
-                        <div className="h-px flex-1 bg-gray-200" />
-                        <span className="text-sm font-medium text-gray-500">
-                          Week of {new Date(weekStart).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                        </span>
-                        <div className="h-px flex-1 bg-gray-200" />
-                      </div>
-                      <div className="space-y-2">
-                        {items.map((item, idx) => (
-                          <div key={idx} className="p-4 bg-white border border-gray-100 rounded-lg hover:shadow-md transition-all">
-                            <div className="flex items-start justify-between">
-                              <div className="flex-1">
-                                <div className="flex items-center gap-2 text-sm text-gray-500 mb-1">
-                                  <Clock className="w-3 h-3" />
-                                  {new Date(item.publish_date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
-                                </div>
-                                <h5 className="font-medium text-gray-900">{item.title}</h5>
-                                <div className="flex items-center gap-2 mt-2 flex-wrap">
-                                  <Badge variant="outline">{item.content_type}</Badge>
-                                  <Badge className={funnelColors[item.funnel_stage?.toLowerCase()] || funnelColors.awareness}>
-                                    {item.funnel_stage}
-                                  </Badge>
-                                  <Badge className={priorityColors[item.priority?.toLowerCase()] || priorityColors.medium}>
-                                    {item.priority}
-                                  </Badge>
-                                  <span className="text-xs text-gray-500">{item.hours_to_create}h</span>
-                                </div>
-                                {item.keyword && (
-                                  <div className="mt-2 text-xs text-gray-500">
-                                    <Target className="w-3 h-3 inline mr-1" />
-                                    {item.keyword}
+                  {Object.entries(groupByWeek(calendar.content_pieces)).map(
+                    ([weekStart, items]) => (
+                      <div key={weekStart}>
+                        <div className="flex items-center gap-2 mb-2">
+                          <div className="h-px flex-1 bg-gray-200" />
+                          <span className="text-sm font-medium text-gray-500">
+                            Week of{' '}
+                            {new Date(weekStart).toLocaleDateString('en-US', {
+                              month: 'short',
+                              day: 'numeric',
+                            })}
+                          </span>
+                          <div className="h-px flex-1 bg-gray-200" />
+                        </div>
+                        <div className="space-y-2">
+                          {items.map((item, idx) => (
+                            <div
+                              key={idx}
+                              className="p-4 bg-white border border-gray-100 rounded-lg hover:shadow-md transition-all"
+                            >
+                              <div className="flex items-start justify-between">
+                                <div className="flex-1">
+                                  <div className="flex items-center gap-2 text-sm text-gray-500 mb-1">
+                                    <Clock className="w-3 h-3" />
+                                    {new Date(item.publish_date).toLocaleDateString('en-US', {
+                                      weekday: 'short',
+                                      month: 'short',
+                                      day: 'numeric',
+                                    })}
                                   </div>
-                                )}
+                                  <h5 className="font-medium text-gray-900">{item.title}</h5>
+                                  <div className="flex items-center gap-2 mt-2 flex-wrap">
+                                    <Badge variant="outline">{item.content_type}</Badge>
+                                    <Badge
+                                      className={
+                                        funnelColors[item.funnel_stage?.toLowerCase()] ||
+                                        funnelColors.awareness
+                                      }
+                                    >
+                                      {item.funnel_stage}
+                                    </Badge>
+                                    <Badge
+                                      className={
+                                        priorityColors[item.priority?.toLowerCase()] ||
+                                        priorityColors.medium
+                                      }
+                                    >
+                                      {item.priority}
+                                    </Badge>
+                                    <span className="text-xs text-gray-500">
+                                      {item.hours_to_create}h
+                                    </span>
+                                  </div>
+                                  {item.keyword && (
+                                    <div className="mt-2 text-xs text-gray-500">
+                                      <Target className="w-3 h-3 inline mr-1" />
+                                      {item.keyword}
+                                    </div>
+                                  )}
+                                </div>
                               </div>
                             </div>
-                          </div>
-                        ))}
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    )
+                  )}
                 </div>
               </ScrollArea>
             </div>
@@ -273,18 +315,22 @@ export default function ContentCalendarPlanner({ keywords, selectedTopic }) {
             {/* Total Stats */}
             <div className="grid grid-cols-3 gap-4">
               <div className="p-3 bg-gray-50 rounded-lg text-center">
-                <p className="text-2xl font-bold text-gray-900">{calendar.content_pieces?.length || 0}</p>
+                <p className="text-2xl font-bold text-gray-900">
+                  {calendar.content_pieces?.length || 0}
+                </p>
                 <p className="text-sm text-gray-500">Total Pieces</p>
               </div>
               <div className="p-3 bg-gray-50 rounded-lg text-center">
                 <p className="text-2xl font-bold text-gray-900">
-                  {calendar.content_pieces?.reduce((sum, p) => sum + (p.hours_to_create || 0), 0) || 0}h
+                  {calendar.content_pieces?.reduce((sum, p) => sum + (p.hours_to_create || 0), 0) ||
+                    0}
+                  h
                 </p>
                 <p className="text-sm text-gray-500">Total Effort</p>
               </div>
               <div className="p-3 bg-gray-50 rounded-lg text-center">
                 <p className="text-2xl font-bold text-gray-900">
-                  {calendar.content_pieces?.filter(p => p.priority === 'high').length || 0}
+                  {calendar.content_pieces?.filter((p) => p.priority === 'high').length || 0}
                 </p>
                 <p className="text-sm text-gray-500">High Priority</p>
               </div>

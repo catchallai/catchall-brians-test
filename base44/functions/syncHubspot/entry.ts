@@ -4,22 +4,22 @@ Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
     const user = await base44.auth.me();
-    
+
     if (!user) {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const { syncType, direction } = await req.json();
-    
+
     // Get HubSpot access token
     const hubspotToken = await base44.asServiceRole.connectors.getAccessToken('hubspot');
-    
+
     const results = {
       contactsCreated: 0,
       contactsUpdated: 0,
       companiesCreated: 0,
       companiesUpdated: 0,
-      errors: []
+      errors: [],
     };
 
     // Sync Contacts
@@ -27,7 +27,7 @@ Deno.serve(async (req) => {
       if (direction === 'to_hubspot' || direction === 'bidirectional') {
         // Push Catchall contacts to HubSpot
         const contacts = await base44.asServiceRole.entities.Contact.list();
-        
+
         for (const contact of contacts) {
           try {
             const hsContact = {
@@ -39,8 +39,8 @@ Deno.serve(async (req) => {
                 jobtitle: contact.job_title,
                 company: contact.company_name,
                 website: contact.website,
-                hs_lead_status: contact.status
-              }
+                hs_lead_status: contact.status,
+              },
             };
 
             // Search for existing contact by email
@@ -49,18 +49,22 @@ Deno.serve(async (req) => {
               {
                 method: 'POST',
                 headers: {
-                  'Authorization': `Bearer ${hubspotToken}`,
-                  'Content-Type': 'application/json'
+                  Authorization: `Bearer ${hubspotToken}`,
+                  'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                  filterGroups: [{
-                    filters: [{
-                      propertyName: 'email',
-                      operator: 'EQ',
-                      value: contact.email
-                    }]
-                  }]
-                })
+                  filterGroups: [
+                    {
+                      filters: [
+                        {
+                          propertyName: 'email',
+                          operator: 'EQ',
+                          value: contact.email,
+                        },
+                      ],
+                    },
+                  ],
+                }),
               }
             );
 
@@ -69,31 +73,25 @@ Deno.serve(async (req) => {
             if (searchData.results && searchData.results.length > 0) {
               // Update existing contact
               const hsContactId = searchData.results[0].id;
-              await fetch(
-                `https://api.hubapi.com/crm/v3/objects/contacts/${hsContactId}`,
-                {
-                  method: 'PATCH',
-                  headers: {
-                    'Authorization': `Bearer ${hubspotToken}`,
-                    'Content-Type': 'application/json'
-                  },
-                  body: JSON.stringify(hsContact)
-                }
-              );
+              await fetch(`https://api.hubapi.com/crm/v3/objects/contacts/${hsContactId}`, {
+                method: 'PATCH',
+                headers: {
+                  Authorization: `Bearer ${hubspotToken}`,
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(hsContact),
+              });
               results.contactsUpdated++;
             } else {
               // Create new contact
-              await fetch(
-                `https://api.hubapi.com/crm/v3/objects/contacts`,
-                {
-                  method: 'POST',
-                  headers: {
-                    'Authorization': `Bearer ${hubspotToken}`,
-                    'Content-Type': 'application/json'
-                  },
-                  body: JSON.stringify(hsContact)
-                }
-              );
+              await fetch(`https://api.hubapi.com/crm/v3/objects/contacts`, {
+                method: 'POST',
+                headers: {
+                  Authorization: `Bearer ${hubspotToken}`,
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(hsContact),
+              });
               results.contactsCreated++;
             }
           } catch (error) {
@@ -108,15 +106,15 @@ Deno.serve(async (req) => {
         let hasMore = true;
 
         while (hasMore) {
-          const url = after 
+          const url = after
             ? `https://api.hubapi.com/crm/v3/objects/contacts?limit=100&after=${after}`
             : `https://api.hubapi.com/crm/v3/objects/contacts?limit=100`;
 
           const response = await fetch(url, {
             headers: {
-              'Authorization': `Bearer ${hubspotToken}`,
-              'Content-Type': 'application/json'
-            }
+              Authorization: `Bearer ${hubspotToken}`,
+              'Content-Type': 'application/json',
+            },
           });
 
           const data = await response.json();
@@ -124,10 +122,10 @@ Deno.serve(async (req) => {
           for (const hsContact of data.results || []) {
             try {
               const props = hsContact.properties;
-              
+
               // Check if contact exists in Catchall
               const existingContacts = await base44.asServiceRole.entities.Contact.filter({
-                email: props.email
+                email: props.email,
               });
 
               const contactData = {
@@ -138,7 +136,7 @@ Deno.serve(async (req) => {
                 job_title: props.jobtitle || '',
                 company_name: props.company || '',
                 website: props.website || '',
-                status: props.hs_lead_status || 'lead'
+                status: props.hs_lead_status || 'lead',
               };
 
               if (existingContacts.length > 0) {
@@ -167,7 +165,7 @@ Deno.serve(async (req) => {
       if (direction === 'to_hubspot' || direction === 'bidirectional') {
         // Push Catchall companies to HubSpot
         const companies = await base44.asServiceRole.entities.Company.list();
-        
+
         for (const company of companies) {
           try {
             const hsCompany = {
@@ -180,8 +178,8 @@ Deno.serve(async (req) => {
                 phone: company.phone,
                 description: company.description,
                 numberofemployees: company.size,
-                annualrevenue: company.annual_revenue
-              }
+                annualrevenue: company.annual_revenue,
+              },
             };
 
             // Search for existing company by domain
@@ -190,18 +188,22 @@ Deno.serve(async (req) => {
               {
                 method: 'POST',
                 headers: {
-                  'Authorization': `Bearer ${hubspotToken}`,
-                  'Content-Type': 'application/json'
+                  Authorization: `Bearer ${hubspotToken}`,
+                  'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                  filterGroups: [{
-                    filters: [{
-                      propertyName: 'domain',
-                      operator: 'EQ',
-                      value: company.website
-                    }]
-                  }]
-                })
+                  filterGroups: [
+                    {
+                      filters: [
+                        {
+                          propertyName: 'domain',
+                          operator: 'EQ',
+                          value: company.website,
+                        },
+                      ],
+                    },
+                  ],
+                }),
               }
             );
 
@@ -210,31 +212,25 @@ Deno.serve(async (req) => {
             if (searchData.results && searchData.results.length > 0) {
               // Update existing company
               const hsCompanyId = searchData.results[0].id;
-              await fetch(
-                `https://api.hubapi.com/crm/v3/objects/companies/${hsCompanyId}`,
-                {
-                  method: 'PATCH',
-                  headers: {
-                    'Authorization': `Bearer ${hubspotToken}`,
-                    'Content-Type': 'application/json'
-                  },
-                  body: JSON.stringify(hsCompany)
-                }
-              );
+              await fetch(`https://api.hubapi.com/crm/v3/objects/companies/${hsCompanyId}`, {
+                method: 'PATCH',
+                headers: {
+                  Authorization: `Bearer ${hubspotToken}`,
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(hsCompany),
+              });
               results.companiesUpdated++;
             } else {
               // Create new company
-              await fetch(
-                `https://api.hubapi.com/crm/v3/objects/companies`,
-                {
-                  method: 'POST',
-                  headers: {
-                    'Authorization': `Bearer ${hubspotToken}`,
-                    'Content-Type': 'application/json'
-                  },
-                  body: JSON.stringify(hsCompany)
-                }
-              );
+              await fetch(`https://api.hubapi.com/crm/v3/objects/companies`, {
+                method: 'POST',
+                headers: {
+                  Authorization: `Bearer ${hubspotToken}`,
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(hsCompany),
+              });
               results.companiesCreated++;
             }
           } catch (error) {
@@ -249,15 +245,15 @@ Deno.serve(async (req) => {
         let hasMore = true;
 
         while (hasMore) {
-          const url = after 
+          const url = after
             ? `https://api.hubapi.com/crm/v3/objects/companies?limit=100&after=${after}`
             : `https://api.hubapi.com/crm/v3/objects/companies?limit=100`;
 
           const response = await fetch(url, {
             headers: {
-              'Authorization': `Bearer ${hubspotToken}`,
-              'Content-Type': 'application/json'
-            }
+              Authorization: `Bearer ${hubspotToken}`,
+              'Content-Type': 'application/json',
+            },
           });
 
           const data = await response.json();
@@ -265,10 +261,10 @@ Deno.serve(async (req) => {
           for (const hsCompany of data.results || []) {
             try {
               const props = hsCompany.properties;
-              
+
               // Check if company exists in Catchall
               const existingCompanies = await base44.asServiceRole.entities.Company.filter({
-                website: props.domain
+                website: props.domain,
               });
 
               const companyData = {
@@ -280,7 +276,7 @@ Deno.serve(async (req) => {
                 phone: props.phone,
                 description: props.description,
                 size: props.numberofemployees,
-                annual_revenue: parseFloat(props.annualrevenue) || null
+                annual_revenue: parseFloat(props.annualrevenue) || null,
               };
 
               if (existingCompanies.length > 0) {
@@ -306,14 +302,16 @@ Deno.serve(async (req) => {
 
     return Response.json({
       success: true,
-      results
+      results,
     });
-
   } catch (error) {
     console.error('HubSpot sync error:', error);
-    return Response.json({ 
-      success: false,
-      error: error.message 
-    }, { status: 500 });
+    return Response.json(
+      {
+        success: false,
+        error: error.message,
+      },
+      { status: 500 }
+    );
   }
 });

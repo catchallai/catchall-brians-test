@@ -1,12 +1,24 @@
 import React, { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Switch } from "@/components/ui/switch";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Switch } from '@/components/ui/switch';
 
 export default function ProductModal({ open, onClose, onSave, product, isLoading }) {
   const [formData, setFormData] = useState({
@@ -24,7 +36,7 @@ export default function ProductModal({ open, onClose, onSave, product, isLoading
     low_stock_threshold: 10,
     category: '',
     is_active: true,
-    image_url: ''
+    image_url: '',
   });
 
   useEffect(() => {
@@ -46,13 +58,13 @@ export default function ProductModal({ open, onClose, onSave, product, isLoading
         low_stock_threshold: 10,
         category: '',
         is_active: true,
-        image_url: ''
+        image_url: '',
       });
     }
   }, [product, open]);
 
   const handleChange = (field, value) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   const handleSubmit = (e) => {
@@ -119,7 +131,10 @@ export default function ProductModal({ open, onClose, onSave, product, isLoading
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="product_type">Product Type</Label>
-                  <Select value={formData.product_type} onValueChange={(value) => handleChange('product_type', value)}>
+                  <Select
+                    value={formData.product_type}
+                    onValueChange={(value) => handleChange('product_type', value)}
+                  >
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -179,7 +194,10 @@ export default function ProductModal({ open, onClose, onSave, product, isLoading
 
                 <div className="space-y-2">
                   <Label htmlFor="currency">Currency</Label>
-                  <Select value={formData.currency} onValueChange={(value) => handleChange('currency', value)}>
+                  <Select
+                    value={formData.currency}
+                    onValueChange={(value) => handleChange('currency', value)}
+                  >
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -195,7 +213,10 @@ export default function ProductModal({ open, onClose, onSave, product, isLoading
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="pricing_model">Pricing Model</Label>
-                  <Select value={formData.pricing_model} onValueChange={(value) => handleChange('pricing_model', value)}>
+                  <Select
+                    value={formData.pricing_model}
+                    onValueChange={(value) => handleChange('pricing_model', value)}
+                  >
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -211,7 +232,10 @@ export default function ProductModal({ open, onClose, onSave, product, isLoading
                 {formData.pricing_model === 'recurring' && (
                   <div className="space-y-2">
                     <Label htmlFor="billing_frequency">Billing Frequency</Label>
-                    <Select value={formData.billing_frequency} onValueChange={(value) => handleChange('billing_frequency', value)}>
+                    <Select
+                      value={formData.billing_frequency}
+                      onValueChange={(value) => handleChange('billing_frequency', value)}
+                    >
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
@@ -229,7 +253,7 @@ export default function ProductModal({ open, onClose, onSave, product, isLoading
                 <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
                   <div className="text-sm font-medium text-blue-900 dark:text-blue-100">Margin</div>
                   <div className="text-2xl font-bold text-blue-700 dark:text-blue-300">
-                    {((formData.price - formData.cost) / formData.price * 100).toFixed(1)}%
+                    {(((formData.price - formData.cost) / formData.price) * 100).toFixed(1)}%
                   </div>
                   <div className="text-xs text-blue-600 dark:text-blue-400">
                     ${(formData.price - formData.cost).toFixed(2)} profit per unit
@@ -256,7 +280,9 @@ export default function ProductModal({ open, onClose, onSave, product, isLoading
                         id="quantity_in_stock"
                         type="number"
                         value={formData.quantity_in_stock}
-                        onChange={(e) => handleChange('quantity_in_stock', parseInt(e.target.value) || 0)}
+                        onChange={(e) =>
+                          handleChange('quantity_in_stock', parseInt(e.target.value) || 0)
+                        }
                       />
                     </div>
 
@@ -266,14 +292,18 @@ export default function ProductModal({ open, onClose, onSave, product, isLoading
                         id="low_stock_threshold"
                         type="number"
                         value={formData.low_stock_threshold}
-                        onChange={(e) => handleChange('low_stock_threshold', parseInt(e.target.value) || 0)}
+                        onChange={(e) =>
+                          handleChange('low_stock_threshold', parseInt(e.target.value) || 0)
+                        }
                       />
                     </div>
                   </div>
 
                   {formData.quantity_in_stock <= formData.low_stock_threshold && (
                     <div className="bg-yellow-50 dark:bg-yellow-900/20 p-4 rounded-lg border border-yellow-200 dark:border-yellow-800">
-                      <div className="text-sm font-medium text-yellow-900 dark:text-yellow-100">⚠️ Low Stock Warning</div>
+                      <div className="text-sm font-medium text-yellow-900 dark:text-yellow-100">
+                        ⚠️ Low Stock Warning
+                      </div>
                       <div className="text-xs text-yellow-700 dark:text-yellow-300 mt-1">
                         Current stock is at or below the threshold. Consider reordering.
                       </div>

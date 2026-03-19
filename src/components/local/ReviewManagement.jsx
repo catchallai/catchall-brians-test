@@ -1,15 +1,29 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Textarea } from '@/components/ui/textarea';
 import {
-  Star, MessageSquare, Sparkles, Send, ThumbsUp, ThumbsDown,
-  Clock, CheckCircle, Loader2, AlertCircle
-} from "lucide-react";
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
+  Star,
+  MessageSquare,
+  Sparkles,
+  Send,
+  ThumbsUp,
+  ThumbsDown,
+  Clock,
+  CheckCircle,
+  Loader2,
+  AlertCircle,
+} from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 
 const sentimentConfig = {
@@ -53,15 +67,15 @@ The response should:
 - Invite them back
 - Keep it under 100 words`,
         response_json_schema: {
-          type: "object",
+          type: 'object',
           properties: {
-            response: { type: "string" }
-          }
-        }
+            response: { type: 'string' },
+          },
+        },
       });
 
       await base44.entities.Review.update(review.id, {
-        ai_suggested_response: result.response
+        ai_suggested_response: result.response,
       });
       setResponseText(result.response);
       setRespondingTo(review.id);
@@ -78,20 +92,20 @@ The response should:
       data: {
         response: responseText,
         response_date: new Date().toISOString().split('T')[0],
-        status: 'responded'
-      }
+        status: 'responded',
+      },
     });
     setRespondingTo(null);
     setResponseText('');
   };
 
-  const filteredReviews = reviews.filter(r => {
+  const filteredReviews = reviews.filter((r) => {
     const matchesStatus = filterStatus === 'all' || r.status === filterStatus;
     const matchesPlatform = filterPlatform === 'all' || r.platform === filterPlatform;
     return matchesStatus && matchesPlatform;
   });
 
-  const getProfile = (id) => profiles.find(p => p.id === id);
+  const getProfile = (id) => profiles.find((p) => p.id === id);
 
   return (
     <div className="space-y-4">
@@ -141,23 +155,31 @@ The response should:
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
-                        <span className="font-medium text-gray-600">{review.author_name?.[0] || '?'}</span>
+                        <span className="font-medium text-gray-600">
+                          {review.author_name?.[0] || '?'}
+                        </span>
                       </div>
                       <div>
-                        <p className="font-medium text-gray-900 dark:text-white">{review.author_name}</p>
+                        <p className="font-medium text-gray-900 dark:text-white">
+                          {review.author_name}
+                        </p>
                         <div className="flex items-center gap-2 text-sm text-gray-500">
-                          <Badge className={platformColors[review.platform]}>{review.platform}</Badge>
+                          <Badge className={platformColors[review.platform]}>
+                            {review.platform}
+                          </Badge>
                           <span>•</span>
-                          <span>{formatDistanceToNow(new Date(review.review_date), { addSuffix: true })}</span>
+                          <span>
+                            {formatDistanceToNow(new Date(review.review_date), { addSuffix: true })}
+                          </span>
                         </div>
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
                       <div className="flex items-center">
                         {[...Array(5)].map((_, i) => (
-                          <Star 
-                            key={i} 
-                            className={`w-4 h-4 ${i < review.rating ? 'text-amber-400 fill-amber-400' : 'text-gray-300'}`} 
+                          <Star
+                            key={i}
+                            className={`w-4 h-4 ${i < review.rating ? 'text-amber-400 fill-amber-400' : 'text-gray-300'}`}
                           />
                         ))}
                       </div>
@@ -173,7 +195,9 @@ The response should:
                   {review.keywords?.length > 0 && (
                     <div className="flex flex-wrap gap-1 mb-3">
                       {review.keywords.map((kw, i) => (
-                        <Badge key={i} variant="outline" className="text-xs">{kw}</Badge>
+                        <Badge key={i} variant="outline" className="text-xs">
+                          {kw}
+                        </Badge>
                       ))}
                     </div>
                   )}
@@ -194,10 +218,21 @@ The response should:
                         rows={3}
                       />
                       <div className="flex justify-end gap-2">
-                        <Button variant="outline" size="sm" onClick={() => { setRespondingTo(null); setResponseText(''); }}>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            setRespondingTo(null);
+                            setResponseText('');
+                          }}
+                        >
                           Cancel
                         </Button>
-                        <Button size="sm" onClick={() => submitResponse(review.id)} className="gap-1">
+                        <Button
+                          size="sm"
+                          onClick={() => submitResponse(review.id)}
+                          className="gap-1"
+                        >
                           <Send className="w-3 h-3" />
                           Send Response
                         </Button>
@@ -235,7 +270,9 @@ The response should:
                         variant="ghost"
                         size="sm"
                         className="text-red-500"
-                        onClick={() => updateMutation.mutate({ id: review.id, data: { status: 'flagged' } })}
+                        onClick={() =>
+                          updateMutation.mutate({ id: review.id, data: { status: 'flagged' } })
+                        }
                       >
                         <AlertCircle className="w-4 h-4" />
                       </Button>

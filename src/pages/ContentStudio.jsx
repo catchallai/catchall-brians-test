@@ -3,18 +3,37 @@ import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/components/ui/toast-provider';
 import { checkRateLimit } from '@/components/utils/validation';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Progress } from "@/components/ui/progress";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Progress } from '@/components/ui/progress';
+import { Skeleton } from '@/components/ui/skeleton';
 import {
-  Lightbulb, FileText, Wand2, Sparkles, Target, TrendingUp,
-  Plus, Search, Filter, Zap, BookOpen, PenTool, CheckCircle,
-  Clock, ArrowRight, Star, Loader2, Users, Share2, Shield, Download, History
-} from "lucide-react";
+  Lightbulb,
+  FileText,
+  Wand2,
+  Sparkles,
+  Target,
+  TrendingUp,
+  Plus,
+  Search,
+  Filter,
+  Zap,
+  BookOpen,
+  PenTool,
+  CheckCircle,
+  Clock,
+  ArrowRight,
+  Star,
+  Loader2,
+  Users,
+  Share2,
+  Shield,
+  Download,
+  History,
+} from 'lucide-react';
 import ContentIdeaCard from '@/components/content/ContentIdeaCard';
 import ContentBriefModal from '@/components/content/ContentBriefModal';
 import ArticleGeneratorModal from '@/components/content/ArticleGeneratorModal';
@@ -87,7 +106,7 @@ export default function ContentStudio() {
       if (!rateCheck.allowed) {
         throw new Error(`Rate limit exceeded. Please wait ${rateCheck.remainingTime} seconds.`);
       }
-      
+
       setIsGeneratingIdeas(true);
       const result = await base44.integrations.Core.InvokeLLM({
         prompt: `Generate 5 low-hanging fruit content ideas for SEO. These should be topics with:
@@ -106,25 +125,25 @@ For each idea provide:
 - content_type: One of blog, guide, listicle, how-to, comparison, review`,
         add_context_from_internet: true,
         response_json_schema: {
-          type: "object",
+          type: 'object',
           properties: {
             ideas: {
-              type: "array",
+              type: 'array',
               items: {
-                type: "object",
+                type: 'object',
                 properties: {
-                  title: { type: "string" },
-                  description: { type: "string" },
-                  target_keyword: { type: "string" },
-                  keyword_difficulty: { type: "number" },
-                  search_volume: { type: "number" },
-                  opportunity_score: { type: "number" },
-                  content_type: { type: "string" }
-                }
-              }
-            }
-          }
-        }
+                  title: { type: 'string' },
+                  description: { type: 'string' },
+                  target_keyword: { type: 'string' },
+                  keyword_difficulty: { type: 'number' },
+                  search_volume: { type: 'number' },
+                  opportunity_score: { type: 'number' },
+                  content_type: { type: 'string' },
+                },
+              },
+            },
+          },
+        },
       });
 
       for (const idea of result.ideas || []) {
@@ -145,18 +164,20 @@ For each idea provide:
   const boostsUsed = articles.reduce((sum, a) => sum + (a.boosts_used || 0), 0);
   const boostsRemaining = 5 - boostsUsed;
 
-  const filteredIdeas = ideas.filter(i => 
-    !searchQuery || i.title?.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredIdeas = ideas.filter(
+    (i) => !searchQuery || i.title?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const lowHangingIdeas = ideas.filter(i => (i.opportunity_score || 0) >= 70);
+  const lowHangingIdeas = ideas.filter((i) => (i.opportunity_score || 0) >= 70);
 
   if (isLoading) {
     return (
       <div className="p-4 sm:p-6 lg:p-8 space-y-6 min-h-screen">
         <Skeleton className="h-10 w-64" />
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-28" />)}
+          {[...Array(4)].map((_, i) => (
+            <Skeleton key={i} className="h-28" />
+          ))}
         </div>
       </div>
     );
@@ -167,21 +188,33 @@ For each idea provide:
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Content Studio</h1>
-          <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400 mt-1">AI-powered content ideation and generation</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
+            Content Studio
+          </h1>
+          <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400 mt-1">
+            AI-powered content ideation and generation
+          </p>
         </div>
         <div className="flex gap-2 w-full sm:w-auto">
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             onClick={() => generateIdeasMutation.mutate()}
             disabled={isGeneratingIdeas}
             className="gap-2 flex-1 sm:flex-none"
             size="sm"
           >
-            {isGeneratingIdeas ? <Loader2 className="w-4 h-4 animate-spin" /> : <Lightbulb className="w-4 h-4" />}
+            {isGeneratingIdeas ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <Lightbulb className="w-4 h-4" />
+            )}
             <span className="hidden sm:inline">Generate</span> Ideas
           </Button>
-          <Button onClick={() => setShowArticleModal(true)} className="gap-2 bg-violet-600 hover:bg-violet-700 flex-1 sm:flex-none" size="sm">
+          <Button
+            onClick={() => setShowArticleModal(true)}
+            className="gap-2 bg-violet-600 hover:bg-violet-700 flex-1 sm:flex-none"
+            size="sm"
+          >
             <Wand2 className="w-4 h-4" />
             <span className="hidden sm:inline">Generate</span> Article
           </Button>
@@ -233,14 +266,22 @@ For each idea provide:
 
       <Tabs defaultValue="ideas">
         <TabsList className="flex-wrap h-auto gap-1 p-1 w-full overflow-x-auto">
-          <TabsTrigger value="ideas" className="text-xs sm:text-sm">Ideas</TabsTrigger>
+          <TabsTrigger value="ideas" className="text-xs sm:text-sm">
+            Ideas
+          </TabsTrigger>
           <TabsTrigger value="crm" className="gap-1 text-xs sm:text-sm">
             <Users className="w-3 h-3 sm:w-4 sm:h-4" />
             CRM
           </TabsTrigger>
-          <TabsTrigger value="briefs" className="text-xs sm:text-sm">Briefs</TabsTrigger>
-          <TabsTrigger value="articles" className="text-xs sm:text-sm">Articles</TabsTrigger>
-          <TabsTrigger value="voice" className="text-xs sm:text-sm">Voice</TabsTrigger>
+          <TabsTrigger value="briefs" className="text-xs sm:text-sm">
+            Briefs
+          </TabsTrigger>
+          <TabsTrigger value="articles" className="text-xs sm:text-sm">
+            Articles
+          </TabsTrigger>
+          <TabsTrigger value="voice" className="text-xs sm:text-sm">
+            Voice
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="ideas" className="mt-4 space-y-4">
@@ -271,10 +312,13 @@ For each idea provide:
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                   {lowHangingIdeas.slice(0, 3).map((idea) => (
-                    <ContentIdeaCard 
-                      key={idea.id} 
+                    <ContentIdeaCard
+                      key={idea.id}
                       idea={idea}
-                      onCreateBrief={() => { setSelectedIdea(idea); setShowBriefModal(true); }}
+                      onCreateBrief={() => {
+                        setSelectedIdea(idea);
+                        setShowBriefModal(true);
+                      }}
                       isHighlight
                     />
                   ))}
@@ -285,10 +329,13 @@ For each idea provide:
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {filteredIdeas.map((idea) => (
-              <ContentIdeaCard 
-                key={idea.id} 
+              <ContentIdeaCard
+                key={idea.id}
                 idea={idea}
-                onCreateBrief={() => { setSelectedIdea(idea); setShowBriefModal(true); }}
+                onCreateBrief={() => {
+                  setSelectedIdea(idea);
+                  setShowBriefModal(true);
+                }}
               />
             ))}
           </div>
@@ -297,10 +344,22 @@ For each idea provide:
             <Card className="glass-card rounded-2xl">
               <CardContent className="py-12 text-center">
                 <Lightbulb className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-                <h3 className="font-semibold text-gray-900 dark:text-white mb-2">No Content Ideas Yet</h3>
-                <p className="text-gray-500 mb-4">Generate AI-powered content ideas to get started</p>
-                <Button onClick={() => generateIdeasMutation.mutate()} disabled={isGeneratingIdeas} className="gap-2">
-                  {isGeneratingIdeas ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+                <h3 className="font-semibold text-gray-900 dark:text-white mb-2">
+                  No Content Ideas Yet
+                </h3>
+                <p className="text-gray-500 mb-4">
+                  Generate AI-powered content ideas to get started
+                </p>
+                <Button
+                  onClick={() => generateIdeasMutation.mutate()}
+                  disabled={isGeneratingIdeas}
+                  className="gap-2"
+                >
+                  {isGeneratingIdeas ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Sparkles className="w-4 h-4" />
+                  )}
                   Generate Ideas
                 </Button>
               </CardContent>
@@ -309,11 +368,7 @@ For each idea provide:
         </TabsContent>
 
         <TabsContent value="crm" className="mt-4">
-          <CRMContentGenerator 
-            contacts={contacts}
-            companies={companies}
-            deals={deals}
-          />
+          <CRMContentGenerator contacts={contacts} companies={companies} deals={deals} />
         </TabsContent>
 
         <TabsContent value="briefs" className="mt-4">
@@ -322,8 +377,12 @@ For each idea provide:
               <Card className="glass-card rounded-2xl">
                 <CardContent className="py-12 text-center">
                   <FileText className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-                  <h3 className="font-semibold text-gray-900 dark:text-white mb-2">No Content Briefs</h3>
-                  <p className="text-gray-500">Create briefs from content ideas to guide your writing</p>
+                  <h3 className="font-semibold text-gray-900 dark:text-white mb-2">
+                    No Content Briefs
+                  </h3>
+                  <p className="text-gray-500">
+                    Create briefs from content ideas to guide your writing
+                  </p>
                 </CardContent>
               </Card>
             ) : (
@@ -357,8 +416,12 @@ For each idea provide:
               <Card className="glass-card rounded-2xl">
                 <CardContent className="py-12 text-center">
                   <BookOpen className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-                  <h3 className="font-semibold text-gray-900 dark:text-white mb-2">No Articles Generated</h3>
-                  <p className="text-gray-500 mb-4">Generate unlimited SEO-optimized articles with AI</p>
+                  <h3 className="font-semibold text-gray-900 dark:text-white mb-2">
+                    No Articles Generated
+                  </h3>
+                  <p className="text-gray-500 mb-4">
+                    Generate unlimited SEO-optimized articles with AI
+                  </p>
                   <Button onClick={() => setShowArticleModal(true)} className="gap-2">
                     <Wand2 className="w-4 h-4" />
                     Generate Article
@@ -371,7 +434,9 @@ For each idea provide:
                   <CardContent className="p-4">
                     <div className="flex items-center justify-between">
                       <div className="flex-1">
-                        <h3 className="font-medium text-gray-900 dark:text-white">{article.title}</h3>
+                        <h3 className="font-medium text-gray-900 dark:text-white">
+                          {article.title}
+                        </h3>
                         <div className="flex items-center gap-4 mt-2">
                           <div className="flex items-center gap-1 text-sm">
                             <span className="text-gray-500">SEO Score:</span>
@@ -381,7 +446,13 @@ For each idea provide:
                           <span className="text-sm text-gray-500">{article.word_count} words</span>
                           <Badge variant="outline">{article.status}</Badge>
                           {article.plagiarism_score && (
-                            <Badge className={article.plagiarism_score >= 90 ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}>
+                            <Badge
+                              className={
+                                article.plagiarism_score >= 90
+                                  ? 'bg-green-100 text-green-800'
+                                  : 'bg-yellow-100 text-yellow-800'
+                              }
+                            >
                               <Shield className="w-3 h-3 mr-1" />
                               {article.plagiarism_score}%
                             </Badge>
@@ -389,28 +460,39 @@ For each idea provide:
                         </div>
                       </div>
                       <div className="flex gap-2">
-                        <Button variant="outline" size="sm">View</Button>
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
+                        <Button variant="outline" size="sm">
+                          View
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
                           className="gap-1"
-                          onClick={() => { setVersionArticleId(article.id); setShowVersionHistory(true); }}
+                          onClick={() => {
+                            setVersionArticleId(article.id);
+                            setShowVersionHistory(true);
+                          }}
                         >
                           <History className="w-4 h-4" />
                         </Button>
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
+                        <Button
+                          variant="outline"
+                          size="sm"
                           className="gap-1"
-                          onClick={() => { setExportingArticle(article); setShowExportModal(true); }}
+                          onClick={() => {
+                            setExportingArticle(article);
+                            setShowExportModal(true);
+                          }}
                         >
                           <Download className="w-4 h-4" />
                         </Button>
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
+                        <Button
+                          variant="outline"
+                          size="sm"
                           className="gap-1"
-                          onClick={() => { setSharingArticle(article); setShowShareModal(true); }}
+                          onClick={() => {
+                            setSharingArticle(article);
+                            setShowShareModal(true);
+                          }}
                         >
                           <Share2 className="w-4 h-4" />
                         </Button>
@@ -436,7 +518,10 @@ For each idea provide:
 
       <ContentBriefModal
         open={showBriefModal}
-        onClose={() => { setShowBriefModal(false); setSelectedIdea(null); }}
+        onClose={() => {
+          setShowBriefModal(false);
+          setSelectedIdea(null);
+        }}
         idea={selectedIdea}
       />
 
@@ -449,14 +534,20 @@ For each idea provide:
 
       <ShareToSocialModal
         open={showShareModal}
-        onClose={() => { setShowShareModal(false); setSharingArticle(null); }}
+        onClose={() => {
+          setShowShareModal(false);
+          setSharingArticle(null);
+        }}
         article={sharingArticle}
       />
 
       <ContentVersionHistory
         articleId={versionArticleId}
         open={showVersionHistory}
-        onClose={() => { setShowVersionHistory(false); setVersionArticleId(null); }}
+        onClose={() => {
+          setShowVersionHistory(false);
+          setVersionArticleId(null);
+        }}
         onRestore={(version) => {
           toast.success('Version restored - feature coming soon');
           setShowVersionHistory(false);
@@ -466,7 +557,10 @@ For each idea provide:
       <ContentExporter
         article={exportingArticle}
         open={showExportModal}
-        onClose={() => { setShowExportModal(false); setExportingArticle(null); }}
+        onClose={() => {
+          setShowExportModal(false);
+          setExportingArticle(null);
+        }}
       />
     </div>
   );

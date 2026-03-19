@@ -12,10 +12,7 @@ export default function EnhancedTooltip({ active, payload, label, formatter }) {
         {payload.map((entry, index) => (
           <div key={index} className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-2">
-              <div 
-                className="w-3 h-3 rounded-full" 
-                style={{ backgroundColor: entry.color }}
-              />
+              <div className="w-3 h-3 rounded-full" style={{ backgroundColor: entry.color }} />
               <span className="text-xs text-gray-600 dark:text-gray-400">{entry.name}</span>
             </div>
             <span className="text-sm font-semibold text-gray-900 dark:text-white">

@@ -1,21 +1,26 @@
 import React, { useState } from 'react';
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Loader2, Sparkles, Copy, Check } from "lucide-react";
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { Loader2, Sparkles, Copy, Check } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 
-export default function AIPostAssistant({ imageUrl, currentCaption, onCaptionSuggested, onHashtagSuggested }) {
+export default function AIPostAssistant({
+  imageUrl,
+  currentCaption,
+  onCaptionSuggested,
+  onHashtagSuggested,
+}) {
   const [isLoading, setIsLoading] = useState(false);
   const [suggestions, setSuggestions] = useState(null);
   const [copiedIndex, setCopiedIndex] = useState(null);
 
   const generateSuggestions = async () => {
     if (!imageUrl && !currentCaption) return;
-    
+
     setIsLoading(true);
     try {
       const fileUrls = imageUrl ? [imageUrl] : [];
-      
+
       const result = await base44.integrations.Core.InvokeLLM({
         prompt: `Analyze this image and the current caption: "${currentCaption || 'No caption'}"
         
@@ -31,29 +36,29 @@ export default function AIPostAssistant({ imageUrl, currentCaption, onCaptionSug
           "keywords": ["keyword1", "keyword2", ...]
         }`,
         response_json_schema: {
-          type: "object",
+          type: 'object',
           properties: {
             captions: {
-              type: "array",
+              type: 'array',
               items: {
-                type: "object",
+                type: 'object',
                 properties: {
-                  text: { type: "string" },
-                  style: { type: "string" }
-                }
-              }
+                  text: { type: 'string' },
+                  style: { type: 'string' },
+                },
+              },
             },
             hashtags: {
-              type: "array",
-              items: { type: "string" }
+              type: 'array',
+              items: { type: 'string' },
             },
             keywords: {
-              type: "array",
-              items: { type: "string" }
-            }
-          }
+              type: 'array',
+              items: { type: 'string' },
+            },
+          },
         },
-        file_urls: fileUrls
+        file_urls: fileUrls,
       });
 
       setSuggestions(result);
@@ -97,12 +102,19 @@ export default function AIPostAssistant({ imageUrl, currentCaption, onCaptionSug
           <div className="space-y-4">
             {/* Captions */}
             <div>
-              <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Caption Ideas</h4>
+              <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                Caption Ideas
+              </h4>
               <div className="space-y-2">
                 {suggestions.captions.map((caption, idx) => (
-                  <div key={idx} className="bg-white dark:bg-gray-800 p-3 rounded-lg flex items-start justify-between gap-2">
+                  <div
+                    key={idx}
+                    className="bg-white dark:bg-gray-800 p-3 rounded-lg flex items-start justify-between gap-2"
+                  >
                     <div className="flex-1">
-                      <p className="text-xs text-gray-500 dark:text-gray-400 mb-1 capitalize">{caption.style}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mb-1 capitalize">
+                        {caption.style}
+                      </p>
                       <p className="text-sm text-gray-900 dark:text-white">{caption.text}</p>
                     </div>
                     <Button
@@ -126,7 +138,9 @@ export default function AIPostAssistant({ imageUrl, currentCaption, onCaptionSug
 
             {/* Hashtags */}
             <div>
-              <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Suggested Hashtags</h4>
+              <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                Suggested Hashtags
+              </h4>
               <div className="flex flex-wrap gap-2">
                 {suggestions.hashtags.slice(0, 6).map((tag, idx) => (
                   <Button
@@ -149,7 +163,9 @@ export default function AIPostAssistant({ imageUrl, currentCaption, onCaptionSug
 
             {/* Keywords */}
             <div>
-              <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Keywords for Organization</h4>
+              <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                Keywords for Organization
+              </h4>
               <div className="flex flex-wrap gap-1">
                 {suggestions.keywords.map((keyword, idx) => (
                   <span

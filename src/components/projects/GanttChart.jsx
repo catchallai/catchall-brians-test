@@ -1,6 +1,6 @@
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 
 export default function GanttChart({ tasks = [] }) {
   // Calculate date range
@@ -20,12 +20,12 @@ export default function GanttChart({ tasks = [] }) {
 
   const getTaskPosition = (task) => {
     if (!task.due_date) return { left: 0, width: 0 };
-    
+
     const taskDate = new Date(task.due_date);
     const daysFromStart = Math.ceil((taskDate - startDate) / (1000 * 60 * 60 * 24));
-    const left = (daysFromStart / daysDiff * 100);
+    const left = (daysFromStart / daysDiff) * 100;
     const width = 5; // Fixed width for now
-    
+
     return { left: Math.max(0, Math.min(95, left)), width };
   };
 
@@ -63,9 +63,7 @@ export default function GanttChart({ tasks = [] }) {
                       className="absolute h-6 bg-violet-500 rounded flex items-center justify-center"
                       style={{ left: `${pos.left}%`, width: `${pos.width}%` }}
                     >
-                      <Badge className="text-xs bg-white/20">
-                        {task.status}
-                      </Badge>
+                      <Badge className="text-xs bg-white/20">{task.status}</Badge>
                     </div>
                   )}
                 </div>

@@ -1,7 +1,21 @@
 import React, { useMemo } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
-import { TrendingUp, Target, Zap } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  LineChart,
+  Line,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+} from 'recharts';
+import { TrendingUp, Target, Zap } from 'lucide-react';
 
 const STAGE_ORDER = ['lead', 'qualified', 'proposal', 'negotiation', 'won', 'lost'];
 
@@ -15,11 +29,14 @@ export default function DealForecasting({ deals }) {
   const forecastData = useMemo(() => {
     // Calculate forecast by stage
     const byStage = {};
-    STAGE_ORDER.forEach(stage => {
-      const stageDeals = deals.filter(d => d.stage === stage);
+    STAGE_ORDER.forEach((stage) => {
+      const stageDeals = deals.filter((d) => d.stage === stage);
       const totalValue = stageDeals.reduce((sum, d) => sum + (d.value || 0), 0);
-      const weightedValue = stageDeals.reduce((sum, d) => sum + ((d.value || 0) * ((d.probability || 50) / 100)), 0);
-      
+      const weightedValue = stageDeals.reduce(
+        (sum, d) => sum + (d.value || 0) * ((d.probability || 50) / 100),
+        0
+      );
+
       byStage[stage] = {
         stage: stage.charAt(0).toUpperCase() + stage.slice(1),
         total: totalValue,
@@ -29,8 +46,8 @@ export default function DealForecasting({ deals }) {
     });
 
     // Calculate win rate by stage
-    const wonCount = deals.filter(d => d.stage === 'won').length;
-    const lostCount = deals.filter(d => d.stage === 'lost').length;
+    const wonCount = deals.filter((d) => d.stage === 'won').length;
+    const lostCount = deals.filter((d) => d.stage === 'lost').length;
     const totalComplete = wonCount + lostCount;
     const winRate = totalComplete > 0 ? (wonCount / totalComplete) * 100 : 0;
 
@@ -39,11 +56,12 @@ export default function DealForecasting({ deals }) {
     for (let i = 0; i < STAGE_ORDER.length - 1; i++) {
       const currentStage = STAGE_ORDER[i];
       const nextStage = STAGE_ORDER[i + 1];
-      
-      const currentCount = deals.filter(d => d.stage === currentStage).length;
-      const nextCount = deals.filter(d => d.stage === nextStage).length;
-      
-      conversionRates[`${currentStage}->${nextStage}`] = currentCount > 0 ? ((nextCount / currentCount) * 100) : 0;
+
+      const currentCount = deals.filter((d) => d.stage === currentStage).length;
+      const nextCount = deals.filter((d) => d.stage === nextStage).length;
+
+      conversionRates[`${currentStage}->${nextStage}`] =
+        currentCount > 0 ? (nextCount / currentCount) * 100 : 0;
     }
 
     return {
@@ -65,9 +83,13 @@ export default function DealForecasting({ deals }) {
   }, [forecastData]);
 
   const pieData = [
-    { name: 'Won', value: deals.filter(d => d.stage === 'won').length, fill: '#10b981' },
-    { name: 'Lost', value: deals.filter(d => d.stage === 'lost').length, fill: '#ef4444' },
-    { name: 'In Progress', value: deals.filter(d => d.stage !== 'won' && d.stage !== 'lost').length, fill: '#8b5cf6' },
+    { name: 'Won', value: deals.filter((d) => d.stage === 'won').length, fill: '#10b981' },
+    { name: 'Lost', value: deals.filter((d) => d.stage === 'lost').length, fill: '#ef4444' },
+    {
+      name: 'In Progress',
+      value: deals.filter((d) => d.stage !== 'won' && d.stage !== 'lost').length,
+      fill: '#8b5cf6',
+    },
   ];
 
   return (
@@ -145,9 +167,14 @@ export default function DealForecasting({ deals }) {
                 <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
                 <XAxis dataKey="stage" angle={-45} textAnchor="end" height={80} />
                 <YAxis />
-                <Tooltip 
+                <Tooltip
                   formatter={(value) => formatCurrency(value)}
-                  contentStyle={{ backgroundColor: '#1f2937', border: 'none', borderRadius: '8px', color: '#fff' }}
+                  contentStyle={{
+                    backgroundColor: '#1f2937',
+                    border: 'none',
+                    borderRadius: '8px',
+                    color: '#fff',
+                  }}
                 />
                 <Legend />
                 <Bar dataKey="total" fill="#8b5cf6" name="Total Value" />
@@ -196,7 +223,9 @@ export default function DealForecasting({ deals }) {
             {Object.entries(forecastData.conversionRates).map(([transition, rate]) => (
               <div key={transition} className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
                 <p className="text-xs text-gray-600 dark:text-gray-400 mb-2">{transition}</p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-white">{rate.toFixed(0)}%</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                  {rate.toFixed(0)}%
+                </p>
               </div>
             ))}
           </div>

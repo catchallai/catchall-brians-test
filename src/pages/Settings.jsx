@@ -1,21 +1,40 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/components/ui/toast-provider';
 import { useTheme } from '@/components/theme/ThemeProvider';
 import {
-  User, Bell, Shield, Palette, Globe, Database, 
-  Save, Loader2, Check, Mail, Clock, Zap, ToggleRight, RefreshCw, Lock
-} from "lucide-react";
+  User,
+  Bell,
+  Shield,
+  Palette,
+  Globe,
+  Database,
+  Save,
+  Loader2,
+  Check,
+  Mail,
+  Clock,
+  Zap,
+  ToggleRight,
+  RefreshCw,
+  Lock,
+} from 'lucide-react';
 import FeatureManager from '@/components/settings/FeatureManager';
 import AutoSyncSettings from '@/components/settings/AutoSyncSettings';
 import RolePermissionsManager from '@/components/settings/RolePermissionsManager';
@@ -25,32 +44,32 @@ import AIToggleSettings from '@/components/settings/AIToggleSettings';
 import HubSpotSync from '@/components/settings/HubSpotSync';
 
 export default function Settings() {
-   const [saving, setSaving] = useState(false);
-   const [activeTab, setActiveTab] = useState('profile');
-   const queryClient = useQueryClient();
-   const toast = useToast();
-   const { theme, setTheme } = useTheme();
+  const [saving, setSaving] = useState(false);
+  const [activeTab, setActiveTab] = useState('profile');
+  const queryClient = useQueryClient();
+  const toast = useToast();
+  const { theme, setTheme } = useTheme();
 
-   const { data: user, isLoading } = useQuery({
-     queryKey: ['current-user'],
-     queryFn: () => base44.auth.me(),
-   });
+  const { data: user, isLoading } = useQuery({
+    queryKey: ['current-user'],
+    queryFn: () => base44.auth.me(),
+  });
 
-   const { data: socialAccounts = [] } = useQuery({
-     queryKey: ['social-accounts'],
-     queryFn: () => base44.entities.SocialAccount.list('-created_date', 50),
-   });
+  const { data: socialAccounts = [] } = useQuery({
+    queryKey: ['social-accounts'],
+    queryFn: () => base44.entities.SocialAccount.list('-created_date', 50),
+  });
 
-   const [profile, setProfile] = useState({
-     full_name: '',
-     email: '',
-     timezone: 'America/New_York',
-     language: 'en',
-     job_title: '',
-     company: '',
-     phone: '',
-     bio: '',
-   });
+  const [profile, setProfile] = useState({
+    full_name: '',
+    email: '',
+    timezone: 'America/New_York',
+    language: 'en',
+    job_title: '',
+    company: '',
+    phone: '',
+    bio: '',
+  });
 
   const [notifications, setNotifications] = useState({
     email_deals: true,
@@ -129,7 +148,9 @@ export default function Settings() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Settings</h1>
-          <p className="text-gray-500 dark:text-gray-400 mt-1">Manage your account and preferences</p>
+          <p className="text-gray-500 dark:text-gray-400 mt-1">
+            Manage your account and preferences
+          </p>
         </div>
         <Button onClick={handleSave} disabled={saving} className="gap-2">
           {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
@@ -138,11 +159,11 @@ export default function Settings() {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-         <TabsList className="glass-card flex-wrap h-auto gap-1">
-           <TabsTrigger value="profile" className="gap-2">
-             <User className="w-4 h-4" />
-             Profile
-           </TabsTrigger>
+        <TabsList className="glass-card flex-wrap h-auto gap-1">
+          <TabsTrigger value="profile" className="gap-2">
+            <User className="w-4 h-4" />
+            Profile
+          </TabsTrigger>
           <TabsTrigger value="notifications" className="gap-2">
             <Bell className="w-4 h-4" />
             Notifications
@@ -172,18 +193,18 @@ export default function Settings() {
             RBAC
           </TabsTrigger>
           <TabsTrigger value="users" className="gap-2">
-             <User className="w-4 h-4" />
-             Team Users
-           </TabsTrigger>
-           <TabsTrigger value="data" className="gap-2">
-               <Database className="w-4 h-4" />
-               Data Management
-             </TabsTrigger>
-             <TabsTrigger value="ai" className="gap-2">
-               <Zap className="w-4 h-4" />
-               AI Settings
-             </TabsTrigger>
-            </TabsList>
+            <User className="w-4 h-4" />
+            Team Users
+          </TabsTrigger>
+          <TabsTrigger value="data" className="gap-2">
+            <Database className="w-4 h-4" />
+            Data Management
+          </TabsTrigger>
+          <TabsTrigger value="ai" className="gap-2">
+            <Zap className="w-4 h-4" />
+            AI Settings
+          </TabsTrigger>
+        </TabsList>
 
         {/* Profile Tab */}
         <TabsContent value="profile">
@@ -243,7 +264,10 @@ export default function Settings() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>Timezone</Label>
-                  <Select value={profile.timezone} onValueChange={(v) => setProfile({ ...profile, timezone: v })}>
+                  <Select
+                    value={profile.timezone}
+                    onValueChange={(v) => setProfile({ ...profile, timezone: v })}
+                  >
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -260,7 +284,10 @@ export default function Settings() {
                 </div>
                 <div className="space-y-2">
                   <Label>Language</Label>
-                  <Select value={profile.language} onValueChange={(v) => setProfile({ ...profile, language: v })}>
+                  <Select
+                    value={profile.language}
+                    onValueChange={(v) => setProfile({ ...profile, language: v })}
+                  >
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -295,10 +322,26 @@ export default function Settings() {
             <CardContent className="space-y-6">
               <div className="space-y-4">
                 {[
-                  { key: 'email_deals', label: 'Deal Updates', desc: 'Get notified when deals change stage' },
-                  { key: 'email_keywords', label: 'Keyword Alerts', desc: 'Ranking changes for tracked keywords' },
-                  { key: 'email_mentions', label: 'Social Mentions', desc: 'New mentions of your brand' },
-                  { key: 'email_reports', label: 'Scheduled Reports', desc: 'Receive automated SEO reports' },
+                  {
+                    key: 'email_deals',
+                    label: 'Deal Updates',
+                    desc: 'Get notified when deals change stage',
+                  },
+                  {
+                    key: 'email_keywords',
+                    label: 'Keyword Alerts',
+                    desc: 'Ranking changes for tracked keywords',
+                  },
+                  {
+                    key: 'email_mentions',
+                    label: 'Social Mentions',
+                    desc: 'New mentions of your brand',
+                  },
+                  {
+                    key: 'email_reports',
+                    label: 'Scheduled Reports',
+                    desc: 'Receive automated SEO reports',
+                  },
                 ].map((item) => (
                   <div key={item.key} className="flex items-center justify-between">
                     <div>
@@ -316,12 +359,16 @@ export default function Settings() {
               <div className="pt-4 border-t">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="font-medium text-gray-900 dark:text-white">Email Digest Frequency</p>
+                    <p className="font-medium text-gray-900 dark:text-white">
+                      Email Digest Frequency
+                    </p>
                     <p className="text-sm text-gray-500">How often to receive summary emails</p>
                   </div>
-                  <Select 
-                    value={notifications.digest_frequency} 
-                    onValueChange={(v) => setNotifications({ ...notifications, digest_frequency: v })}
+                  <Select
+                    value={notifications.digest_frequency}
+                    onValueChange={(v) =>
+                      setNotifications({ ...notifications, digest_frequency: v })
+                    }
                   >
                     <SelectTrigger className="w-32">
                       <SelectValue />
@@ -357,16 +404,20 @@ export default function Settings() {
                       key={t}
                       onClick={() => setTheme(t)}
                       className={`p-4 rounded-xl border-2 transition-all ${
-                        theme === t 
-                          ? 'border-violet-500 bg-violet-50 dark:bg-violet-900/20' 
+                        theme === t
+                          ? 'border-violet-500 bg-violet-50 dark:bg-violet-900/20'
                           : 'border-gray-200 dark:border-gray-700 hover:border-gray-300'
                       }`}
                     >
-                      <div className={`w-8 h-8 rounded-lg mx-auto mb-2 ${
-                        t === 'light' ? 'bg-white border' : 
-                        t === 'dark' ? 'bg-gray-800' : 
-                        'bg-gradient-to-r from-white to-gray-800'
-                      }`} />
+                      <div
+                        className={`w-8 h-8 rounded-lg mx-auto mb-2 ${
+                          t === 'light'
+                            ? 'bg-white border'
+                            : t === 'dark'
+                              ? 'bg-gray-800'
+                              : 'bg-gradient-to-r from-white to-gray-800'
+                        }`}
+                      />
                       <p className="text-sm font-medium capitalize">{t}</p>
                     </button>
                   ))}
@@ -402,9 +453,11 @@ export default function Settings() {
                   <p className="font-medium text-gray-900 dark:text-white">Items Per Page</p>
                   <p className="text-sm text-gray-500">Number of items to show in lists</p>
                 </div>
-                <Select 
-                  value={String(preferences.items_per_page)} 
-                  onValueChange={(v) => setPreferences({ ...preferences, items_per_page: Number(v) })}
+                <Select
+                  value={String(preferences.items_per_page)}
+                  onValueChange={(v) =>
+                    setPreferences({ ...preferences, items_per_page: Number(v) })
+                  }
                 >
                   <SelectTrigger className="w-24">
                     <SelectValue />
@@ -434,8 +487,8 @@ export default function Settings() {
                   <p className="font-medium text-gray-900 dark:text-white">Default Dashboard</p>
                   <p className="text-sm text-gray-500">Which dashboard to show on login</p>
                 </div>
-                <Select 
-                  value={preferences.default_dashboard} 
+                <Select
+                  value={preferences.default_dashboard}
                   onValueChange={(v) => setPreferences({ ...preferences, default_dashboard: v })}
                 >
                   <SelectTrigger className="w-32">
@@ -485,7 +538,9 @@ export default function Settings() {
           ) : (
             <Card className="glass-card rounded-2xl">
               <CardContent className="pt-6">
-                <p className="text-gray-600 dark:text-gray-400">Admin access required for data management.</p>
+                <p className="text-gray-600 dark:text-gray-400">
+                  Admin access required for data management.
+                </p>
               </CardContent>
             </Card>
           )}
@@ -498,12 +553,14 @@ export default function Settings() {
           ) : (
             <Card className="glass-card rounded-2xl">
               <CardContent className="pt-6">
-                <p className="text-gray-600 dark:text-gray-400">Admin access required to manage AI settings.</p>
+                <p className="text-gray-600 dark:text-gray-400">
+                  Admin access required to manage AI settings.
+                </p>
               </CardContent>
             </Card>
           )}
         </TabsContent>
-        </Tabs>
+      </Tabs>
     </div>
   );
 }

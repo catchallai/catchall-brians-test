@@ -1,17 +1,34 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
 import {
-  Plus, Search, Users, UserPlus, Target, CheckCircle, XCircle,
-  MessageSquare, TrendingUp, Sparkles, Loader2, Radio, RefreshCw
-} from "lucide-react";
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
+  Plus,
+  Search,
+  Users,
+  UserPlus,
+  Target,
+  CheckCircle,
+  XCircle,
+  MessageSquare,
+  TrendingUp,
+  Sparkles,
+  Loader2,
+  Radio,
+  RefreshCw,
+} from 'lucide-react';
 import SocialLeadCard from '@/components/social/SocialLeadCard';
 import SocialLeadModal from '@/components/modals/SocialLeadModal';
 import ContactModal from '@/components/modals/ContactModal';
@@ -57,9 +74,10 @@ export default function SocialLeads() {
   const [isScanning, setIsScanning] = useState(false);
 
   const createLeadMutation = useMutation({
-    mutationFn: (data) => editingLead 
-      ? base44.entities.SocialLead.update(editingLead.id, data)
-      : base44.entities.SocialLead.create(data),
+    mutationFn: (data) =>
+      editingLead
+        ? base44.entities.SocialLead.update(editingLead.id, data)
+        : base44.entities.SocialLead.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['social-leads'] });
       setShowLeadModal(false);
@@ -74,7 +92,7 @@ export default function SocialLeads() {
       if (convertingLead) {
         await base44.entities.SocialLead.update(convertingLead.id, {
           contact_id: contact.id,
-          status: 'converted'
+          status: 'converted',
         });
       }
       return contact;
@@ -99,15 +117,19 @@ export default function SocialLeads() {
   const scanForLeadsMutation = useMutation({
     mutationFn: async () => {
       setIsScanning(true);
-      
+
       // Get mentions not yet converted to leads
       const existingLeadMentionIds = socialLeads
-        .filter(l => l.mention_id)
-        .map(l => l.mention_id);
-      
-      const unprocessedMentions = mentions.filter(m => 
-        !existingLeadMentionIds.includes(m.id) &&
-        (m.sentiment === 'positive' || m.is_influencer || m.influence_score >= 50 || m.author_followers >= 1000)
+        .filter((l) => l.mention_id)
+        .map((l) => l.mention_id);
+
+      const unprocessedMentions = mentions.filter(
+        (m) =>
+          !existingLeadMentionIds.includes(m.id) &&
+          (m.sentiment === 'positive' ||
+            m.is_influencer ||
+            m.influence_score >= 50 ||
+            m.author_followers >= 1000)
       );
 
       if (unprocessedMentions.length === 0) {
@@ -124,34 +146,39 @@ For each mention, determine:
 3. Whether this is a qualified lead worth pursuing
 
 Mentions to analyze:
-${unprocessedMentions.slice(0, 20).map((m, i) => `
+${unprocessedMentions
+  .slice(0, 20)
+  .map(
+    (m, i) => `
 ${i + 1}. Platform: ${m.platform}
    Author: @${m.author} (${m.author_followers || 0} followers)
    Content: "${m.content}"
    Sentiment: ${m.sentiment}
    Engagement: ${(m.likes || 0) + (m.comments || 0) + (m.shares || 0)} total
-`).join('\n')}
+`
+  )
+  .join('\n')}
 
 Return analysis for leads with score >= 40 only.`,
         response_json_schema: {
-          type: "object",
+          type: 'object',
           properties: {
             leads: {
-              type: "array",
+              type: 'array',
               items: {
-                type: "object",
+                type: 'object',
                 properties: {
-                  mention_index: { type: "number" },
-                  lead_score: { type: "number" },
-                  intent_signals: { type: "array", items: { type: "string" } },
-                  interaction_type: { type: "string" },
-                  recommended_action: { type: "string" },
-                  qualification_reason: { type: "string" }
-                }
-              }
-            }
-          }
-        }
+                  mention_index: { type: 'number' },
+                  lead_score: { type: 'number' },
+                  intent_signals: { type: 'array', items: { type: 'string' } },
+                  interaction_type: { type: 'string' },
+                  recommended_action: { type: 'string' },
+                  qualification_reason: { type: 'string' },
+                },
+              },
+            },
+          },
+        },
       });
 
       // Create leads for qualified mentions
@@ -173,8 +200,8 @@ Return analysis for leads with score >= 40 only.`,
             ai_analysis: {
               recommended_action: lead.recommended_action,
               qualification_reason: lead.qualification_reason,
-              scanned_at: new Date().toISOString()
-            }
+              scanned_at: new Date().toISOString(),
+            },
           });
           createdCount++;
         }
@@ -187,7 +214,7 @@ Return analysis for leads with score >= 40 only.`,
           title: `${createdCount} new leads discovered`,
           message: `AI scan found ${createdCount} potential leads from social media mentions.`,
           priority: createdCount >= 5 ? 'high' : 'medium',
-          link: 'SocialLeads'
+          link: 'SocialLeads',
         });
       }
 
@@ -206,12 +233,13 @@ Return analysis for leads with score >= 40 only.`,
     setShowContactModal(true);
   };
 
-  const getContact = (id) => contacts.find(c => c.id === id);
-  const getCompany = (id) => companies.find(c => c.id === id);
-  const getDeal = (id) => deals.find(d => d.id === id);
+  const getContact = (id) => contacts.find((c) => c.id === id);
+  const getCompany = (id) => companies.find((c) => c.id === id);
+  const getDeal = (id) => deals.find((d) => d.id === id);
 
-  const filteredLeads = socialLeads.filter(lead => {
-    const matchesSearch = !searchQuery || 
+  const filteredLeads = socialLeads.filter((lead) => {
+    const matchesSearch =
+      !searchQuery ||
       lead.social_handle?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       lead.interaction_content?.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesStatus = statusFilter === 'all' || lead.status === statusFilter;
@@ -221,14 +249,14 @@ Return analysis for leads with score >= 40 only.`,
 
   const stats = {
     total: socialLeads.length,
-    new: socialLeads.filter(l => l.status === 'new').length,
-    qualified: socialLeads.filter(l => l.status === 'qualified').length,
-    converted: socialLeads.filter(l => l.status === 'converted').length,
-    aiDiscovered: socialLeads.filter(l => l.source === 'ai_scan').length,
+    new: socialLeads.filter((l) => l.status === 'new').length,
+    qualified: socialLeads.filter((l) => l.status === 'qualified').length,
+    converted: socialLeads.filter((l) => l.status === 'converted').length,
+    aiDiscovered: socialLeads.filter((l) => l.source === 'ai_scan').length,
   };
 
   // Get linked mention for a lead
-  const getMention = (mentionId) => mentions.find(m => m.id === mentionId);
+  const getMention = (mentionId) => mentions.find((m) => m.id === mentionId);
 
   return (
     <div className="p-6 lg:p-8 space-y-6 min-h-screen">
@@ -236,11 +264,13 @@ Return analysis for leads with score >= 40 only.`,
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Social Leads</h1>
-          <p className="text-gray-500 mt-1">Capture and manage leads from social media interactions</p>
+          <p className="text-gray-500 mt-1">
+            Capture and manage leads from social media interactions
+          </p>
         </div>
         <div className="flex gap-2">
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             onClick={() => scanForLeadsMutation.mutate()}
             disabled={isScanning}
             className="gap-2"
@@ -252,7 +282,13 @@ Return analysis for leads with score >= 40 only.`,
             )}
             {isScanning ? 'Scanning...' : 'AI Scan for Leads'}
           </Button>
-          <Button onClick={() => { setEditingLead(null); setShowLeadModal(true); }} className="gap-2 bg-violet-600 hover:bg-violet-700">
+          <Button
+            onClick={() => {
+              setEditingLead(null);
+              setShowLeadModal(true);
+            }}
+            className="gap-2 bg-violet-600 hover:bg-violet-700"
+          >
             <Plus className="w-4 h-4" />
             Add Lead
           </Button>
@@ -350,7 +386,10 @@ Return analysis for leads with score >= 40 only.`,
           title="No social leads"
           description="Capture leads from social media interactions to grow your pipeline."
           actionLabel="Add Lead"
-          onAction={() => { setEditingLead(null); setShowLeadModal(true); }}
+          onAction={() => {
+            setEditingLead(null);
+            setShowLeadModal(true);
+          }}
         />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -362,7 +401,10 @@ Return analysis for leads with score >= 40 only.`,
               company={getCompany(lead.company_id)}
               deal={getDeal(lead.deal_id)}
               mention={getMention(lead.mention_id)}
-              onClick={() => { setEditingLead(lead); setShowLeadModal(true); }}
+              onClick={() => {
+                setEditingLead(lead);
+                setShowLeadModal(true);
+              }}
             />
           ))}
         </div>
@@ -371,7 +413,10 @@ Return analysis for leads with score >= 40 only.`,
       {/* Social Lead Modal */}
       <SocialLeadModal
         open={showLeadModal}
-        onClose={() => { setShowLeadModal(false); setEditingLead(null); }}
+        onClose={() => {
+          setShowLeadModal(false);
+          setEditingLead(null);
+        }}
         lead={editingLead}
         contacts={contacts}
         companies={companies}
@@ -384,12 +429,19 @@ Return analysis for leads with score >= 40 only.`,
       {/* Contact Modal for conversion */}
       <ContactModal
         open={showContactModal}
-        onClose={() => { setShowContactModal(false); setConvertingLead(null); }}
-        contact={convertingLead ? {
-          first_name: convertingLead.social_handle,
-          source: convertingLead.platform,
-          notes: `Converted from social lead. Original interaction: ${convertingLead.interaction_content || 'N/A'}`
-        } : null}
+        onClose={() => {
+          setShowContactModal(false);
+          setConvertingLead(null);
+        }}
+        contact={
+          convertingLead
+            ? {
+                first_name: convertingLead.social_handle,
+                source: convertingLead.platform,
+                notes: `Converted from social lead. Original interaction: ${convertingLead.interaction_content || 'N/A'}`,
+              }
+            : null
+        }
         companies={companies}
         onSave={(data) => createContactMutation.mutate(data)}
         isLoading={createContactMutation.isPending}

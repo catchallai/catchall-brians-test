@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Loader2 } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Loader2 } from 'lucide-react';
 
 const TEMPLATES = {
   nda: {
@@ -34,7 +34,7 @@ By signing below, the Receiving Party acknowledges and agrees to the terms of th
 
 Signature: _____________________
 Date: _____________________
-Name: [RECIPIENT_NAME]`
+Name: [RECIPIENT_NAME]`,
   },
   media_release: {
     title: 'Media Release Form',
@@ -64,7 +64,7 @@ I release [YOUR_COMPANY_NAME] from any claims related to the use of these materi
 Signature: _____________________
 Date: _____________________
 Name: [RECIPIENT_NAME]
-Email: [RECIPIENT_EMAIL]`
+Email: [RECIPIENT_EMAIL]`,
   },
   contractor_agreement: {
     title: 'Contractor Agreement',
@@ -90,7 +90,7 @@ This agreement begins on [START_DATE] and continues until [END_DATE] or completi
 
 Signature: _____________________
 Date: _____________________
-Contractor: [RECIPIENT_NAME]`
+Contractor: [RECIPIENT_NAME]`,
   },
   location_release: {
     title: 'Location Release Form',
@@ -115,7 +115,7 @@ I understand and agree that:
 
 Property Owner Signature: _____________________
 Date: _____________________
-Name: [RECIPIENT_NAME]`
+Name: [RECIPIENT_NAME]`,
   },
   talent_release: {
     title: 'Talent Release Form',
@@ -141,15 +141,22 @@ Date: _____________________
 Name: [RECIPIENT_NAME]
 Date of Birth: _____________________
 Email: [RECIPIENT_EMAIL]
-Phone: [PHONE]`
+Phone: [PHONE]`,
   },
   custom: {
     title: 'Custom Document',
-    content: '[Enter your custom document content here]'
-  }
+    content: '[Enter your custom document content here]',
+  },
 };
 
-export default function LegalDocumentModal({ open, onClose, document, contacts, onSave, isLoading }) {
+export default function LegalDocumentModal({
+  open,
+  onClose,
+  document,
+  contacts,
+  onSave,
+  isLoading,
+}) {
   const [formData, setFormData] = useState({
     document_type: 'nda',
     title: '',
@@ -160,7 +167,7 @@ export default function LegalDocumentModal({ open, onClose, document, contacts, 
     contact_id: '',
     company_name: '',
     expires_date: '',
-    notes: ''
+    notes: '',
   });
 
   useEffect(() => {
@@ -175,7 +182,7 @@ export default function LegalDocumentModal({ open, onClose, document, contacts, 
         contact_id: document.contact_id || '',
         company_name: document.company_name || '',
         expires_date: document.expires_date || '',
-        notes: document.notes || ''
+        notes: document.notes || '',
       });
     } else if (open) {
       const template = TEMPLATES[formData.document_type];
@@ -189,30 +196,30 @@ export default function LegalDocumentModal({ open, onClose, document, contacts, 
         contact_id: '',
         company_name: '',
         expires_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-        notes: ''
+        notes: '',
       });
     }
   }, [document, open]);
 
   const handleTypeChange = (type) => {
     const template = TEMPLATES[type];
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       document_type: type,
       title: template.title,
-      content: template.content
+      content: template.content,
     }));
   };
 
   const handleContactChange = (contactId) => {
-    const contact = contacts.find(c => c.id === contactId);
+    const contact = contacts.find((c) => c.id === contactId);
     if (contact) {
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
         contact_id: contactId,
         recipient_name: `${contact.first_name} ${contact.last_name}`,
         recipient_email: contact.email,
-        company_name: contact.company_name || ''
+        company_name: contact.company_name || '',
       }));
     }
   };
@@ -256,7 +263,7 @@ export default function LegalDocumentModal({ open, onClose, document, contacts, 
                 className="w-full px-3 py-2 border rounded-lg text-sm bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700"
               >
                 <option value="">-- Select Contact --</option>
-                {contacts.map(contact => (
+                {contacts.map((contact) => (
                   <option key={contact.id} value={contact.id}>
                     {contact.first_name} {contact.last_name} - {contact.email}
                   </option>

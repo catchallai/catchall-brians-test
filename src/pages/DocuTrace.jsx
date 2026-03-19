@@ -1,18 +1,48 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Badge } from "@/components/ui/badge";
-import { 
-  FileText, Upload, Eye, Download, Link2, Copy, Clock, 
-  Calendar, BarChart3, Activity, Loader2, Plus, AlertCircle,
-  MapPin, Monitor, CheckCircle, Sparkles, User, History, Edit
-} from "lucide-react";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Badge } from '@/components/ui/badge';
+import {
+  FileText,
+  Upload,
+  Eye,
+  Download,
+  Link2,
+  Copy,
+  Clock,
+  Calendar,
+  BarChart3,
+  Activity,
+  Loader2,
+  Plus,
+  AlertCircle,
+  MapPin,
+  Monitor,
+  CheckCircle,
+  Sparkles,
+  User,
+  History,
+  Edit,
+} from 'lucide-react';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import EmptyState from '@/components/ui/EmptyState';
 import AlertsManager from '@/components/docutrace/AlertsManager';
 import DocumentVersionHistory from '@/components/docutrace/DocumentVersionHistory';
@@ -30,7 +60,7 @@ export default function DocuTrace() {
     contact_id: '',
     deal_id: '',
     expires_at: '',
-    review_date: ''
+    review_date: '',
   });
   const [copiedCode, setCopiedCode] = useState(null);
   const queryClient = useQueryClient();
@@ -44,7 +74,11 @@ export default function DocuTrace() {
     queryKey: ['tracked-documents', user?.current_business_id],
     queryFn: async () => {
       if (!user?.current_business_id) return [];
-      return await base44.entities.TrackedDocument.filter({ business_id: user.current_business_id }, '-created_date', 100);
+      return await base44.entities.TrackedDocument.filter(
+        { business_id: user.current_business_id },
+        '-created_date',
+        100
+      );
     },
     enabled: !!user?.current_business_id,
   });
@@ -53,7 +87,11 @@ export default function DocuTrace() {
     queryKey: ['contacts', user?.current_business_id],
     queryFn: async () => {
       if (!user?.current_business_id) return [];
-      return await base44.entities.Contact.filter({ business_id: user.current_business_id }, 'first_name', 100);
+      return await base44.entities.Contact.filter(
+        { business_id: user.current_business_id },
+        'first_name',
+        100
+      );
     },
     enabled: !!user?.current_business_id,
   });
@@ -62,7 +100,11 @@ export default function DocuTrace() {
     queryKey: ['deals', user?.current_business_id],
     queryFn: async () => {
       if (!user?.current_business_id) return [];
-      return await base44.entities.Deal.filter({ business_id: user.current_business_id }, 'title', 100);
+      return await base44.entities.Deal.filter(
+        { business_id: user.current_business_id },
+        'title',
+        100
+      );
     },
     enabled: !!user?.current_business_id,
   });
@@ -71,7 +113,7 @@ export default function DocuTrace() {
     mutationFn: async () => {
       // Upload file
       const { file_url } = await base44.integrations.Core.UploadFile({ file: uploadFile });
-      
+
       // Check if we're updating an existing document
       if (editingDoc) {
         // Create new version
@@ -81,22 +123,24 @@ export default function DocuTrace() {
           file_url,
           uploaded_at: new Date().toISOString(),
           uploaded_by: user?.email || 'User',
-          changes_description: docForm.changes_description || `Updated to version ${newVersionNumber}`
+          changes_description:
+            docForm.changes_description || `Updated to version ${newVersionNumber}`,
         };
 
         return base44.entities.TrackedDocument.update(editingDoc.id, {
           ...docForm,
           file_url,
-          versions: [...(editingDoc.versions || []), newVersion]
+          versions: [...(editingDoc.versions || []), newVersion],
         });
       }
-      
+
       // Generate unique tracking code
-      const trackingCode = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-      
+      const trackingCode =
+        Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+
       // Create share link
       const shareLink = `${window.location.origin}/api/functions/trackDocumentAccess?code=${trackingCode}&action=view`;
-      
+
       // AI-powered document analysis
       const aiAnalysis = await base44.integrations.Core.InvokeLLM({
         prompt: `Analyze this document: "${docForm.name}" - ${docForm.description || 'No description provided'}
@@ -105,14 +149,14 @@ Provide:
 1. A concise 2-3 sentence summary of what this document likely contains
 2. 5-8 relevant keywords or topics`,
         response_json_schema: {
-          type: "object",
+          type: 'object',
           properties: {
-            summary: { type: "string" },
-            keywords: { type: "array", items: { type: "string" } }
-          }
-        }
+            summary: { type: 'string' },
+            keywords: { type: 'array', items: { type: 'string' } },
+          },
+        },
       });
-      
+
       // Create document record
       return base44.entities.TrackedDocument.create({
         ...docForm,
@@ -123,13 +167,15 @@ Provide:
         status: 'active',
         ai_summary: aiAnalysis.summary,
         keywords: aiAnalysis.keywords,
-        versions: [{
-          version_number: 1,
-          file_url,
-          uploaded_at: new Date().toISOString(),
-          uploaded_by: user?.email || 'User',
-          changes_description: 'Initial version'
-        }]
+        versions: [
+          {
+            version_number: 1,
+            file_url,
+            uploaded_at: new Date().toISOString(),
+            uploaded_by: user?.email || 'User',
+            changes_description: 'Initial version',
+          },
+        ],
       });
     },
     onSuccess: () => {
@@ -144,9 +190,9 @@ Provide:
         deal_id: '',
         expires_at: '',
         review_date: '',
-        changes_description: ''
+        changes_description: '',
       });
-    }
+    },
   });
 
   const copyToClipboard = (text, code) => {
@@ -157,9 +203,12 @@ Provide:
 
   const getStatusColor = (status) => {
     switch (status) {
-      case 'active': return 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300';
-      case 'expired': return 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300';
-      default: return 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300';
+      case 'active':
+        return 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300';
+      case 'expired':
+        return 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300';
+      default:
+        return 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300';
     }
   };
 
@@ -237,7 +286,7 @@ Provide:
                 <div>
                   <p className="text-sm text-gray-500">Active Documents</p>
                   <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                    {documents.filter(d => d.status === 'active').length}
+                    {documents.filter((d) => d.status === 'active').length}
                   </p>
                 </div>
                 <Activity className="w-8 h-8 text-amber-500" />
@@ -267,14 +316,15 @@ Provide:
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {documents.map((doc) => (
-              <Card key={doc.id} className="bg-white/80 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all">
+              <Card
+                key={doc.id}
+                className="bg-white/80 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all"
+              >
                 <CardHeader className="pb-3">
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <CardTitle className="text-lg mb-2">{doc.name}</CardTitle>
-                      <Badge className={getStatusColor(doc.status)}>
-                        {doc.status}
-                      </Badge>
+                      <Badge className={getStatusColor(doc.status)}>{doc.status}</Badge>
                     </div>
                     <FileText className="w-8 h-8 text-blue-500" />
                   </div>
@@ -382,9 +432,13 @@ Provide:
                       onClick={() => copyToClipboard(doc.share_link, doc.tracking_code)}
                     >
                       {copiedCode === doc.tracking_code ? (
-                        <><CheckCircle className="w-3 h-3" /> Copied</>
+                        <>
+                          <CheckCircle className="w-3 h-3" /> Copied
+                        </>
                       ) : (
-                        <><Link2 className="w-3 h-3" /> Copy Link</>
+                        <>
+                          <Link2 className="w-3 h-3" /> Copy Link
+                        </>
                       )}
                     </Button>
                     <Button
@@ -399,18 +453,14 @@ Provide:
                           deal_id: doc.deal_id || '',
                           expires_at: doc.expires_at || '',
                           review_date: doc.review_date || '',
-                          changes_description: ''
+                          changes_description: '',
                         });
                         setShowUpload(true);
                       }}
                     >
                       <Edit className="w-3 h-3" />
                     </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => setSelectedDoc(doc)}
-                    >
+                    <Button size="sm" variant="outline" onClick={() => setSelectedDoc(doc)}>
                       <BarChart3 className="w-3 h-3" />
                     </Button>
                   </div>
@@ -421,20 +471,22 @@ Provide:
         )}
 
         {/* Upload Dialog */}
-        <Dialog open={showUpload} onOpenChange={() => {
-          setShowUpload(false);
-          setEditingDoc(null);
-        }}>
+        <Dialog
+          open={showUpload}
+          onOpenChange={() => {
+            setShowUpload(false);
+            setEditingDoc(null);
+          }}
+        >
           <DialogContent className="sm:max-w-[500px]">
             <DialogHeader>
               <DialogTitle>
                 {editingDoc ? 'Update Document Version' : 'Upload Tracked Document'}
               </DialogTitle>
               <DialogDescription>
-                {editingDoc 
+                {editingDoc
                   ? 'Upload a new version of this document'
-                  : 'Upload a PDF document and track when it\'s viewed or downloaded'
-                }
+                  : "Upload a PDF document and track when it's viewed or downloaded"}
               </DialogDescription>
             </DialogHeader>
 
@@ -452,7 +504,7 @@ Provide:
                 <label className="text-sm font-medium mb-2 block">Document Name</label>
                 <Input
                   value={docForm.name}
-                  onChange={(e) => setDocForm({...docForm, name: e.target.value})}
+                  onChange={(e) => setDocForm({ ...docForm, name: e.target.value })}
                   placeholder="Q4 Sales Proposal"
                 />
               </div>
@@ -461,7 +513,7 @@ Provide:
                 <label className="text-sm font-medium mb-2 block">Description (Optional)</label>
                 <Textarea
                   value={docForm.description}
-                  onChange={(e) => setDocForm({...docForm, description: e.target.value})}
+                  onChange={(e) => setDocForm({ ...docForm, description: e.target.value })}
                   placeholder="Brief description of the document"
                 />
               </div>
@@ -469,12 +521,15 @@ Provide:
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="text-sm font-medium mb-2 block">Contact (Optional)</label>
-                  <Select value={docForm.contact_id} onValueChange={(val) => setDocForm({...docForm, contact_id: val})}>
+                  <Select
+                    value={docForm.contact_id}
+                    onValueChange={(val) => setDocForm({ ...docForm, contact_id: val })}
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Select contact" />
                     </SelectTrigger>
                     <SelectContent>
-                      {contacts.map(c => (
+                      {contacts.map((c) => (
                         <SelectItem key={c.id} value={c.id}>
                           {c.first_name} {c.last_name}
                         </SelectItem>
@@ -485,12 +540,15 @@ Provide:
 
                 <div>
                   <label className="text-sm font-medium mb-2 block">Deal (Optional)</label>
-                  <Select value={docForm.deal_id} onValueChange={(val) => setDocForm({...docForm, deal_id: val})}>
+                  <Select
+                    value={docForm.deal_id}
+                    onValueChange={(val) => setDocForm({ ...docForm, deal_id: val })}
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Select deal" />
                     </SelectTrigger>
                     <SelectContent>
-                      {deals.map(d => (
+                      {deals.map((d) => (
                         <SelectItem key={d.id} value={d.id}>
                           {d.title}
                         </SelectItem>
@@ -505,7 +563,7 @@ Provide:
                 <Input
                   type="datetime-local"
                   value={docForm.expires_at}
-                  onChange={(e) => setDocForm({...docForm, expires_at: e.target.value})}
+                  onChange={(e) => setDocForm({ ...docForm, expires_at: e.target.value })}
                 />
               </div>
 
@@ -514,17 +572,21 @@ Provide:
                 <Input
                   type="date"
                   value={docForm.review_date}
-                  onChange={(e) => setDocForm({...docForm, review_date: e.target.value})}
+                  onChange={(e) => setDocForm({ ...docForm, review_date: e.target.value })}
                 />
                 <p className="text-xs text-gray-500 mt-1">Set a reminder to review this document</p>
               </div>
 
               {editingDoc && (
                 <div>
-                  <label className="text-sm font-medium mb-2 block">Version Changes (Optional)</label>
+                  <label className="text-sm font-medium mb-2 block">
+                    Version Changes (Optional)
+                  </label>
                   <Textarea
                     value={docForm.changes_description}
-                    onChange={(e) => setDocForm({...docForm, changes_description: e.target.value})}
+                    onChange={(e) =>
+                      setDocForm({ ...docForm, changes_description: e.target.value })
+                    }
                     placeholder="What changed in this version?"
                   />
                 </div>
@@ -532,10 +594,13 @@ Provide:
             </div>
 
             <DialogFooter>
-              <Button variant="outline" onClick={() => {
-                setShowUpload(false);
-                setEditingDoc(null);
-              }}>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setShowUpload(false);
+                  setEditingDoc(null);
+                }}
+              >
                 Cancel
               </Button>
               <Button
@@ -544,9 +609,15 @@ Provide:
                 className="gap-2"
               >
                 {uploadMutation.isPending ? (
-                  <><Loader2 className="w-4 h-4 animate-spin" /> {editingDoc ? 'Updating...' : 'Uploading...'}</>
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />{' '}
+                    {editingDoc ? 'Updating...' : 'Uploading...'}
+                  </>
                 ) : (
-                  <><Upload className="w-4 h-4" /> {editingDoc ? 'Upload New Version' : 'Upload & Track'}</>
+                  <>
+                    <Upload className="w-4 h-4" />{' '}
+                    {editingDoc ? 'Upload New Version' : 'Upload & Track'}
+                  </>
                 )}
               </Button>
             </DialogFooter>
@@ -591,16 +662,16 @@ Provide:
                     Tracking Link
                   </label>
                   <div className="flex gap-2">
-                    <Input
-                      value={selectedDoc.share_link}
-                      readOnly
-                      className="flex-1 text-xs"
-                    />
+                    <Input value={selectedDoc.share_link} readOnly className="flex-1 text-xs" />
                     <Button
                       size="sm"
                       onClick={() => copyToClipboard(selectedDoc.share_link, 'analytics')}
                     >
-                      {copiedCode === 'analytics' ? <CheckCircle className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                      {copiedCode === 'analytics' ? (
+                        <CheckCircle className="w-4 h-4" />
+                      ) : (
+                        <Copy className="w-4 h-4" />
+                      )}
                     </Button>
                   </div>
                 </div>
@@ -623,25 +694,34 @@ Provide:
                       </Button>
                     </div>
                     <div className="space-y-2 mb-6">
-                      {selectedDoc.versions.slice().reverse().slice(0, 3).map((version, idx) => (
-                        <div key={idx} className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg text-sm">
-                          <div className="flex items-center justify-between mb-1">
-                            <Badge className="bg-blue-600 text-white">v{version.version_number}</Badge>
-                            <span className="text-xs text-gray-500">
-                              {format(new Date(version.uploaded_at), 'MMM d, h:mm a')}
-                            </span>
-                          </div>
-                          <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">
-                            {version.changes_description}
-                          </p>
-                          {version.uploaded_by && (
-                            <div className="flex items-center gap-1 text-xs text-gray-500">
-                              <User className="w-3 h-3" />
-                              {version.uploaded_by}
+                      {selectedDoc.versions
+                        .slice()
+                        .reverse()
+                        .slice(0, 3)
+                        .map((version, idx) => (
+                          <div
+                            key={idx}
+                            className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg text-sm"
+                          >
+                            <div className="flex items-center justify-between mb-1">
+                              <Badge className="bg-blue-600 text-white">
+                                v{version.version_number}
+                              </Badge>
+                              <span className="text-xs text-gray-500">
+                                {format(new Date(version.uploaded_at), 'MMM d, h:mm a')}
+                              </span>
                             </div>
-                          )}
-                        </div>
-                      ))}
+                            <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">
+                              {version.changes_description}
+                            </p>
+                            {version.uploaded_by && (
+                              <div className="flex items-center gap-1 text-xs text-gray-500">
+                                <User className="w-3 h-3" />
+                                {version.uploaded_by}
+                              </div>
+                            )}
+                          </div>
+                        ))}
                     </div>
                   </div>
                 )}
@@ -652,15 +732,26 @@ Provide:
                     <Activity className="w-4 h-4" />
                     Access History
                   </h4>
-                  {(!selectedDoc.access_logs || selectedDoc.access_logs.length === 0) ? (
+                  {!selectedDoc.access_logs || selectedDoc.access_logs.length === 0 ? (
                     <p className="text-sm text-gray-500 text-center py-4">No access activity yet</p>
                   ) : (
                     <div className="space-y-2 max-h-[300px] overflow-y-auto">
                       {selectedDoc.access_logs.map((log, idx) => (
-                        <div key={idx} className="bg-white dark:bg-gray-800 p-3 rounded-lg border text-sm">
+                        <div
+                          key={idx}
+                          className="bg-white dark:bg-gray-800 p-3 rounded-lg border text-sm"
+                        >
                           <div className="flex items-center justify-between mb-2">
-                            <Badge className={log.action === 'download' ? 'bg-violet-600' : 'bg-green-600'}>
-                              {log.action === 'download' ? <Download className="w-3 h-3 mr-1" /> : <Eye className="w-3 h-3 mr-1" />}
+                            <Badge
+                              className={
+                                log.action === 'download' ? 'bg-violet-600' : 'bg-green-600'
+                              }
+                            >
+                              {log.action === 'download' ? (
+                                <Download className="w-3 h-3 mr-1" />
+                              ) : (
+                                <Eye className="w-3 h-3 mr-1" />
+                              )}
                               {log.action}
                             </Badge>
                             <span className="text-xs text-gray-500">

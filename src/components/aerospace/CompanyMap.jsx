@@ -1,8 +1,8 @@
 import React from 'react';
 import { MapContainer, TileLayer, Marker, Popup, Circle } from 'react-leaflet';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { MapPin, Globe } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { MapPin, Globe } from 'lucide-react';
 import 'leaflet/dist/leaflet.css';
 
 // Fix for default marker icons in react-leaflet
@@ -17,19 +17,19 @@ if (typeof window !== 'undefined') {
 
 // Location coordinates for major aerospace hubs
 const locationCoords = {
-  'Seattle': [47.6062, -122.3321],
+  Seattle: [47.6062, -122.3321],
   'Los Angeles': [34.0522, -118.2437],
-  'Texas': [31.9686, -99.9018],
-  'Virginia': [37.4316, -78.6569],
-  'Maryland': [39.0458, -76.6413],
-  'Florida': [27.9944, -81.7603],
-  'California': [36.7783, -119.4179],
-  'Washington': [47.7511, -120.7401],
-  'New York': [40.7128, -74.0060],
-  'Arizona': [34.0489, -111.0937],
-  'Colorado': [39.5501, -105.7821],
-  'Alabama': [32.3182, -86.9023],
-  'Connecticut': [41.6032, -73.0877]
+  Texas: [31.9686, -99.9018],
+  Virginia: [37.4316, -78.6569],
+  Maryland: [39.0458, -76.6413],
+  Florida: [27.9944, -81.7603],
+  California: [36.7783, -119.4179],
+  Washington: [47.7511, -120.7401],
+  'New York': [40.7128, -74.006],
+  Arizona: [34.0489, -111.0937],
+  Colorado: [39.5501, -105.7821],
+  Alabama: [32.3182, -86.9023],
+  Connecticut: [41.6032, -73.0877],
 };
 
 const getCoordinates = (location) => {
@@ -42,11 +42,11 @@ const getCoordinates = (location) => {
 
 export default function CompanyMap({ companies }) {
   const companiesWithLocations = companies
-    .map(c => ({
+    .map((c) => ({
       ...c,
-      coords: getCoordinates(c.headquarters)
+      coords: getCoordinates(c.headquarters),
     }))
-    .filter(c => c.coords);
+    .filter((c) => c.coords);
 
   if (companiesWithLocations.length === 0) {
     return (
@@ -74,9 +74,9 @@ export default function CompanyMap({ companies }) {
       </CardHeader>
       <CardContent>
         <div className="h-[500px] rounded-lg overflow-hidden border border-gray-200">
-          <MapContainer 
-            center={[39.8283, -98.5795]} 
-            zoom={4} 
+          <MapContainer
+            center={[39.8283, -98.5795]}
+            zoom={4}
             style={{ height: '100%', width: '100%' }}
           >
             <TileLayer
@@ -106,7 +106,7 @@ export default function CompanyMap({ companies }) {
                     pathOptions={{
                       color: '#3b82f6',
                       fillColor: '#3b82f6',
-                      fillOpacity: 0.1
+                      fillOpacity: 0.1,
                     }}
                   />
                 )}
@@ -114,7 +114,7 @@ export default function CompanyMap({ companies }) {
             ))}
           </MapContainer>
         </div>
-        
+
         {/* Expansion Markets Legend */}
         <div className="mt-4">
           <h4 className="text-sm font-semibold mb-2 flex items-center gap-2">
@@ -123,7 +123,7 @@ export default function CompanyMap({ companies }) {
           </h4>
           <div className="space-y-2">
             {companiesWithLocations
-              .filter(c => c.growth_metrics?.expansion_markets?.length > 0)
+              .filter((c) => c.growth_metrics?.expansion_markets?.length > 0)
               .map((company, idx) => (
                 <div key={idx} className="text-xs">
                   <span className="font-medium">{company.company_name}:</span>{' '}

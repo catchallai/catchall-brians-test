@@ -1,12 +1,28 @@
 import React, { useState } from 'react';
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
 import {
-  Plus, Trash2, ChevronDown, ChevronUp, GripVertical, Settings,
-  CheckCircle2, Eye, ShieldCheck, Users, ArrowRight, Save
-} from "lucide-react";
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
+  Plus,
+  Trash2,
+  ChevronDown,
+  ChevronUp,
+  GripVertical,
+  Settings,
+  CheckCircle2,
+  Eye,
+  ShieldCheck,
+  Users,
+  ArrowRight,
+  Save,
+} from 'lucide-react';
 
 const DEFAULT_WORKFLOWS = [
   {
@@ -16,7 +32,7 @@ const DEFAULT_WORKFLOWS = [
       { id: '1', name: 'Draft', role: 'editor', action: 'submit' },
       { id: '2', name: 'Review', role: 'reviewer', action: 'approve_or_reject' },
       { id: '3', name: 'Approved', role: null, action: null },
-    ]
+    ],
   },
   {
     id: 'full',
@@ -27,7 +43,7 @@ const DEFAULT_WORKFLOWS = [
       { id: '3', name: 'Brand Approval', role: 'approver', action: 'approve_or_reject' },
       { id: '4', name: 'Final Sign-Off', role: 'admin', action: 'approve_or_reject' },
       { id: '5', name: 'Approved', role: null, action: null },
-    ]
+    ],
   },
 ];
 
@@ -47,30 +63,47 @@ function StageRow({ stage, idx, onUpdate, onRemove, canRemove }) {
       </div>
       <Input
         value={stage.name}
-        onChange={e => onUpdate({ ...stage, name: e.target.value })}
+        onChange={(e) => onUpdate({ ...stage, name: e.target.value })}
         className="h-8 text-sm flex-1"
         placeholder="Stage name"
       />
-      <Select value={stage.role || 'none'} onValueChange={v => onUpdate({ ...stage, role: v === 'none' ? null : v })}>
+      <Select
+        value={stage.role || 'none'}
+        onValueChange={(v) => onUpdate({ ...stage, role: v === 'none' ? null : v })}
+      >
         <SelectTrigger className="h-8 w-28 text-xs">
           <SelectValue placeholder="Role" />
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="none">No role</SelectItem>
-          {ROLES.map(r => <SelectItem key={r} value={r}>{r}</SelectItem>)}
+          {ROLES.map((r) => (
+            <SelectItem key={r} value={r}>
+              {r}
+            </SelectItem>
+          ))}
         </SelectContent>
       </Select>
-      <Select value={stage.action || 'none'} onValueChange={v => onUpdate({ ...stage, action: v === 'none' ? null : v })}>
+      <Select
+        value={stage.action || 'none'}
+        onValueChange={(v) => onUpdate({ ...stage, action: v === 'none' ? null : v })}
+      >
         <SelectTrigger className="h-8 w-36 text-xs">
           <SelectValue placeholder="Action" />
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="none">No action</SelectItem>
-          {ACTIONS.map(a => <SelectItem key={a.value} value={a.value}>{a.label}</SelectItem>)}
+          {ACTIONS.map((a) => (
+            <SelectItem key={a.value} value={a.value}>
+              {a.label}
+            </SelectItem>
+          ))}
         </SelectContent>
       </Select>
       {canRemove && (
-        <button onClick={onRemove} className="text-gray-300 hover:text-red-500 transition-colors shrink-0">
+        <button
+          onClick={onRemove}
+          className="text-gray-300 hover:text-red-500 transition-colors shrink-0"
+        >
           <Trash2 className="w-4 h-4" />
         </button>
       )}
@@ -97,19 +130,24 @@ export default function WorkflowStageBuilder({ onSave, onClose }) {
         { id: '1', name: 'Draft', role: 'editor', action: 'submit' },
         { id: '2', name: 'Review', role: 'approver', action: 'approve_or_reject' },
         { id: '3', name: 'Approved', role: null, action: null },
-      ]
+      ],
     };
     setEditingWorkflow(wf);
     setIsEditing(true);
   };
 
   const addStage = () => {
-    const newStage = { id: Date.now().toString(), name: 'New Stage', role: 'approver', action: 'approve_or_reject' };
-    setEditingWorkflow(prev => ({ ...prev, stages: [...prev.stages, newStage] }));
+    const newStage = {
+      id: Date.now().toString(),
+      name: 'New Stage',
+      role: 'approver',
+      action: 'approve_or_reject',
+    };
+    setEditingWorkflow((prev) => ({ ...prev, stages: [...prev.stages, newStage] }));
   };
 
   const updateStage = (idx, updated) => {
-    setEditingWorkflow(prev => {
+    setEditingWorkflow((prev) => {
       const stages = [...prev.stages];
       stages[idx] = updated;
       return { ...prev, stages };
@@ -117,13 +155,15 @@ export default function WorkflowStageBuilder({ onSave, onClose }) {
   };
 
   const removeStage = (idx) => {
-    setEditingWorkflow(prev => ({ ...prev, stages: prev.stages.filter((_, i) => i !== idx) }));
+    setEditingWorkflow((prev) => ({ ...prev, stages: prev.stages.filter((_, i) => i !== idx) }));
   };
 
   const saveWorkflow = () => {
-    setWorkflows(prev => {
-      const exists = prev.find(w => w.id === editingWorkflow.id);
-      return exists ? prev.map(w => w.id === editingWorkflow.id ? editingWorkflow : w) : [...prev, editingWorkflow];
+    setWorkflows((prev) => {
+      const exists = prev.find((w) => w.id === editingWorkflow.id);
+      return exists
+        ? prev.map((w) => (w.id === editingWorkflow.id ? editingWorkflow : w))
+        : [...prev, editingWorkflow];
     });
     setActiveWorkflow(editingWorkflow);
     setIsEditing(false);
@@ -135,12 +175,18 @@ export default function WorkflowStageBuilder({ onSave, onClose }) {
         <div className="flex items-center justify-between">
           <Input
             value={editingWorkflow.name}
-            onChange={e => setEditingWorkflow(prev => ({ ...prev, name: e.target.value }))}
+            onChange={(e) => setEditingWorkflow((prev) => ({ ...prev, name: e.target.value }))}
             className="text-base font-semibold h-9 w-48"
           />
           <div className="flex gap-2">
-            <Button size="sm" variant="outline" onClick={() => setIsEditing(false)}>Cancel</Button>
-            <Button size="sm" onClick={saveWorkflow} className="gap-1 bg-violet-600 hover:bg-violet-700">
+            <Button size="sm" variant="outline" onClick={() => setIsEditing(false)}>
+              Cancel
+            </Button>
+            <Button
+              size="sm"
+              onClick={saveWorkflow}
+              className="gap-1 bg-violet-600 hover:bg-violet-700"
+            >
               <Save className="w-3.5 h-3.5" /> Save
             </Button>
           </div>
@@ -159,12 +205,18 @@ export default function WorkflowStageBuilder({ onSave, onClose }) {
           ))}
         </div>
 
-        <Button size="sm" variant="outline" onClick={addStage} className="gap-1.5 w-full border-dashed">
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={addStage}
+          className="gap-1.5 w-full border-dashed"
+        >
           <Plus className="w-4 h-4" /> Add Stage
         </Button>
 
         <p className="text-xs text-gray-400 text-center">
-          Drag to reorder stages (coming soon). Each stage defines who acts and what action is required.
+          Drag to reorder stages (coming soon). Each stage defines who acts and what action is
+          required.
         </p>
       </div>
     );
@@ -183,7 +235,7 @@ export default function WorkflowStageBuilder({ onSave, onClose }) {
       </div>
 
       <div className="space-y-3">
-        {workflows.map(wf => (
+        {workflows.map((wf) => (
           <div
             key={wf.id}
             className={`rounded-xl border p-4 cursor-pointer transition-all ${
@@ -200,7 +252,10 @@ export default function WorkflowStageBuilder({ onSave, onClose }) {
                   <Badge className="bg-violet-100 text-violet-700 text-xs">Active</Badge>
                 )}
                 <button
-                  onClick={e => { e.stopPropagation(); startEdit(wf); }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    startEdit(wf);
+                  }}
                   className="text-xs text-gray-400 hover:text-violet-600 font-medium"
                 >
                   Edit
@@ -213,7 +268,9 @@ export default function WorkflowStageBuilder({ onSave, onClose }) {
                   <span className="text-xs bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 px-2 py-0.5 rounded-lg text-gray-600 dark:text-gray-400">
                     {stage.name}
                   </span>
-                  {i < wf.stages.length - 1 && <ArrowRight className="w-3 h-3 text-gray-300 shrink-0" />}
+                  {i < wf.stages.length - 1 && (
+                    <ArrowRight className="w-3 h-3 text-gray-300 shrink-0" />
+                  )}
                 </React.Fragment>
               ))}
             </div>
@@ -222,7 +279,10 @@ export default function WorkflowStageBuilder({ onSave, onClose }) {
       </div>
 
       {onSave && (
-        <Button onClick={() => onSave(activeWorkflow)} className="w-full bg-violet-600 hover:bg-violet-700 gap-2">
+        <Button
+          onClick={() => onSave(activeWorkflow)}
+          className="w-full bg-violet-600 hover:bg-violet-700 gap-2"
+        >
           <CheckCircle2 className="w-4 h-4" />
           Apply "{activeWorkflow.name}" to New Posts
         </Button>

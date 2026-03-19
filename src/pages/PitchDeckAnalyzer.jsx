@@ -1,10 +1,21 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
-import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Progress } from '@/components/ui/progress';
+import { Badge } from '@/components/ui/badge';
 import { base44 } from '@/api/base44Client';
-import { FileSearch, Upload, Loader2, CheckCircle2, AlertTriangle, XCircle, TrendingUp, Target, Users, Lightbulb } from "lucide-react";
+import {
+  FileSearch,
+  Upload,
+  Loader2,
+  CheckCircle2,
+  AlertTriangle,
+  XCircle,
+  TrendingUp,
+  Target,
+  Users,
+  Lightbulb,
+} from 'lucide-react';
 
 export default function PitchDeckAnalyzer() {
   const [file, setFile] = useState(null);
@@ -58,28 +69,28 @@ Also provide:
         prompt,
         file_urls: [file_url],
         response_json_schema: {
-          type: "object",
+          type: 'object',
           properties: {
-            overall_score: { type: "number" },
-            investor_readiness: { type: "string" },
+            overall_score: { type: 'number' },
+            investor_readiness: { type: 'string' },
             categories: {
-              type: "array",
+              type: 'array',
               items: {
-                type: "object",
+                type: 'object',
                 properties: {
-                  name: { type: "string" },
-                  score: { type: "number" },
-                  strengths: { type: "array", items: { type: "string" } },
-                  weaknesses: { type: "array", items: { type: "string" } },
-                  recommendations: { type: "array", items: { type: "string" } }
-                }
-              }
+                  name: { type: 'string' },
+                  score: { type: 'number' },
+                  strengths: { type: 'array', items: { type: 'string' } },
+                  weaknesses: { type: 'array', items: { type: 'string' } },
+                  recommendations: { type: 'array', items: { type: 'string' } },
+                },
+              },
             },
-            top_strengths: { type: "array", items: { type: "string" } },
-            areas_for_improvement: { type: "array", items: { type: "string" } },
-            next_steps: { type: "array", items: { type: "string" } }
-          }
-        }
+            top_strengths: { type: 'array', items: { type: 'string' } },
+            areas_for_improvement: { type: 'array', items: { type: 'string' } },
+            next_steps: { type: 'array', items: { type: 'string' } },
+          },
+        },
       });
 
       setAnalysis(response);
@@ -116,7 +127,9 @@ Also provide:
             <FileSearch className="w-8 h-8 text-blue-600" />
             Pitch Deck Analyzer
           </h1>
-          <p className="text-gray-500 dark:text-gray-400 mt-1">AI-powered analysis and feedback for your pitch deck</p>
+          <p className="text-gray-500 dark:text-gray-400 mt-1">
+            AI-powered analysis and feedback for your pitch deck
+          </p>
         </div>
       </div>
 
@@ -217,7 +230,8 @@ Also provide:
                 <div className="text-center">
                   <p className="text-sm text-gray-500 mb-2">Overall Score</p>
                   <p className={`text-5xl font-bold ${getScoreColor(analysis.overall_score)}`}>
-                    {analysis.overall_score}<span className="text-2xl">/10</span>
+                    {analysis.overall_score}
+                    <span className="text-2xl">/10</span>
                   </p>
                   <Progress value={analysis.overall_score * 10} className="mt-4" />
                 </div>
@@ -228,7 +242,9 @@ Also provide:
               <CardContent className="pt-6">
                 <div className="text-center">
                   <p className="text-sm text-gray-500 mb-2">Investor Readiness</p>
-                  <Badge className={`${getReadinessColor(analysis.investor_readiness)} px-4 py-2 text-base font-semibold border`}>
+                  <Badge
+                    className={`${getReadinessColor(analysis.investor_readiness)} px-4 py-2 text-base font-semibold border`}
+                  >
                     <span className="flex items-center gap-2">
                       {getReadinessIcon(analysis.investor_readiness)}
                       {analysis.investor_readiness}
@@ -296,21 +312,30 @@ Also provide:
             </CardHeader>
             <CardContent className="space-y-6">
               {analysis.categories?.map((category, idx) => (
-                <div key={idx} className="border-b border-gray-200 dark:border-gray-700 last:border-0 pb-6 last:pb-0">
+                <div
+                  key={idx}
+                  className="border-b border-gray-200 dark:border-gray-700 last:border-0 pb-6 last:pb-0"
+                >
                   <div className="flex items-center justify-between mb-3">
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{category.name}</h3>
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                      {category.name}
+                    </h3>
                     <span className={`text-2xl font-bold ${getScoreColor(category.score)}`}>
                       {category.score}/10
                     </span>
                   </div>
                   <Progress value={category.score * 10} className="mb-4" />
-                  
+
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                     <div>
-                      <p className="font-medium text-emerald-700 dark:text-emerald-400 mb-2">Strengths</p>
+                      <p className="font-medium text-emerald-700 dark:text-emerald-400 mb-2">
+                        Strengths
+                      </p>
                       <ul className="space-y-1">
                         {category.strengths?.map((strength, i) => (
-                          <li key={i} className="text-gray-600 dark:text-gray-400">• {strength}</li>
+                          <li key={i} className="text-gray-600 dark:text-gray-400">
+                            • {strength}
+                          </li>
                         ))}
                       </ul>
                     </div>
@@ -318,15 +343,21 @@ Also provide:
                       <p className="font-medium text-red-700 dark:text-red-400 mb-2">Weaknesses</p>
                       <ul className="space-y-1">
                         {category.weaknesses?.map((weakness, i) => (
-                          <li key={i} className="text-gray-600 dark:text-gray-400">• {weakness}</li>
+                          <li key={i} className="text-gray-600 dark:text-gray-400">
+                            • {weakness}
+                          </li>
                         ))}
                       </ul>
                     </div>
                     <div>
-                      <p className="font-medium text-blue-700 dark:text-blue-400 mb-2">Recommendations</p>
+                      <p className="font-medium text-blue-700 dark:text-blue-400 mb-2">
+                        Recommendations
+                      </p>
                       <ul className="space-y-1">
                         {category.recommendations?.map((rec, i) => (
-                          <li key={i} className="text-gray-600 dark:text-gray-400">• {rec}</li>
+                          <li key={i} className="text-gray-600 dark:text-gray-400">
+                            • {rec}
+                          </li>
                         ))}
                       </ul>
                     </div>

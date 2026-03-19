@@ -1,11 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, RefreshCw, Building2, Trash2 } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Loader2, RefreshCw, Building2, Trash2 } from 'lucide-react';
 
 export default function CompanyModal({ open, onClose, company, onSave, onDelete, isLoading }) {
   const [formData, setFormData] = useState({
@@ -61,18 +67,18 @@ export default function CompanyModal({ open, onClose, company, onSave, onDelete,
 
   const syncCompanyLogo = async () => {
     if (!formData.website) return;
-    
+
     setSyncingLogo(true);
     try {
       // Extract domain from URL
       const domain = formData.website.replace(/^https?:\/\//, '').replace(/\/.*$/, '');
-      
+
       // Try multiple logo services
       const logoUrls = [
         `https://logo.clearbit.com/${domain}`,
         `https://www.google.com/s2/favicons?domain=${domain}&sz=128`,
       ];
-      
+
       // Test if Clearbit logo exists
       const img = new Image();
       img.onload = () => {
@@ -121,9 +127,9 @@ export default function CompanyModal({ open, onClose, company, onSave, onDelete,
             <div className="flex items-center gap-3">
               <div className="w-16 h-16 rounded-lg border-2 border-gray-200 dark:border-gray-700 flex items-center justify-center overflow-hidden bg-gray-50 dark:bg-gray-800">
                 {formData.logo_url && !logoFailed ? (
-                  <img 
-                    src={formData.logo_url} 
-                    alt="Company logo" 
+                  <img
+                    src={formData.logo_url}
+                    alt="Company logo"
                     className="w-full h-full object-cover"
                     onError={() => setLogoFailed(true)}
                   />
@@ -158,7 +164,9 @@ export default function CompanyModal({ open, onClose, company, onSave, onDelete,
                 )}
               </Button>
             </div>
-            <p className="text-xs text-gray-500">Add website first, then click sync to auto-fetch company logo</p>
+            <p className="text-xs text-gray-500">
+              Add website first, then click sync to auto-fetch company logo
+            </p>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
@@ -294,9 +302,9 @@ export default function CompanyModal({ open, onClose, company, onSave, onDelete,
 
           <div className="flex justify-between gap-3 pt-4">
             {company && onDelete && (
-              <Button 
-                type="button" 
-                variant="outline" 
+              <Button
+                type="button"
+                variant="outline"
                 onClick={() => onDelete(company.id)}
                 className="text-red-600 hover:text-red-700 border-red-200 hover:border-red-300"
                 disabled={isLoading}

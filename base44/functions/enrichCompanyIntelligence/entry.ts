@@ -4,7 +4,7 @@ Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
     const user = await base44.auth.me();
-    
+
     if (!user) {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -39,49 +39,49 @@ Be concise and factual. If information is not available, return empty arrays.`;
       prompt: prompt,
       add_context_from_internet: true,
       response_json_schema: {
-        type: "object",
+        type: 'object',
         properties: {
           industry_trends: {
-            type: "array",
-            items: { type: "string" }
+            type: 'array',
+            items: { type: 'string' },
           },
           recent_news: {
-            type: "array",
+            type: 'array',
             items: {
-              type: "object",
+              type: 'object',
               properties: {
-                title: { type: "string" },
-                summary: { type: "string" },
-                date: { type: "string" },
-                url: { type: "string" }
-              }
-            }
+                title: { type: 'string' },
+                summary: { type: 'string' },
+                date: { type: 'string' },
+                url: { type: 'string' },
+              },
+            },
           },
           funding_rounds: {
-            type: "array",
+            type: 'array',
             items: {
-              type: "object",
+              type: 'object',
               properties: {
-                round_type: { type: "string" },
-                amount: { type: "number" },
-                date: { type: "string" },
+                round_type: { type: 'string' },
+                amount: { type: 'number' },
+                date: { type: 'string' },
                 investors: {
-                  type: "array",
-                  items: { type: "string" }
-                }
-              }
-            }
+                  type: 'array',
+                  items: { type: 'string' },
+                },
+              },
+            },
           },
           key_competitors: {
-            type: "array",
-            items: { type: "string" }
+            type: 'array',
+            items: { type: 'string' },
           },
           related_companies: {
-            type: "array",
-            items: { type: "string" }
-          }
-        }
-      }
+            type: 'array',
+            items: { type: 'string' },
+          },
+        },
+      },
     });
 
     // Find or create related companies
@@ -90,17 +90,17 @@ Be concise and factual. If information is not available, return empty arrays.`;
       for (const relatedName of result.related_companies.slice(0, 5)) {
         try {
           // Check if company already exists
-          const existing = await base44.asServiceRole.entities.Company.filter({ 
-            name: relatedName 
+          const existing = await base44.asServiceRole.entities.Company.filter({
+            name: relatedName,
           });
-          
+
           if (existing.length > 0) {
             relatedCompanyIds.push(existing[0].id);
           } else {
             // Create placeholder company
             const newCompany = await base44.asServiceRole.entities.Company.create({
               name: relatedName,
-              description: `Related to ${company_name}`
+              description: `Related to ${company_name}`,
             });
             relatedCompanyIds.push(newCompany.id);
           }
@@ -118,22 +118,24 @@ Be concise and factual. If information is not available, return empty arrays.`;
       key_competitors: result.key_competitors || [],
       related_company_ids: relatedCompanyIds,
       ai_enriched: true,
-      ai_enriched_date: new Date().toISOString()
+      ai_enriched_date: new Date().toISOString(),
     });
 
-    return Response.json({ 
+    return Response.json({
       success: true,
       data: {
         ...result,
-        related_company_ids: relatedCompanyIds
-      }
+        related_company_ids: relatedCompanyIds,
+      },
     });
-
   } catch (error) {
     console.error('Error enriching company:', error);
-    return Response.json({ 
-      error: 'Failed to enrich company data',
-      details: error.message 
-    }, { status: 500 });
+    return Response.json(
+      {
+        error: 'Failed to enrich company data',
+        details: error.message,
+      },
+      { status: 500 }
+    );
   }
 });

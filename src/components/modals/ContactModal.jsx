@@ -1,17 +1,31 @@
 import React, { useState, useEffect } from 'react';
 import { validateForm, sanitizeObject } from '@/components/utils/validation';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Badge } from "@/components/ui/badge";
-import { Loader2, X, CheckSquare } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Badge } from '@/components/ui/badge';
+import { Loader2, X, CheckSquare } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 
-export default function ContactModal({ open, onClose, contact, companies, onSave, isLoading, allowMultipleCompanies = false }) {
+export default function ContactModal({
+  open,
+  onClose,
+  contact,
+  companies,
+  onSave,
+  isLoading,
+  allowMultipleCompanies = false,
+}) {
   const [showTaskSection, setShowTaskSection] = useState(false);
   const [taskTitle, setTaskTitle] = useState('');
   const [taskDescription, setTaskDescription] = useState('');
@@ -149,18 +163,18 @@ export default function ContactModal({ open, onClose, contact, companies, onSave
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    
+
     const validation = validateForm(formData, {
       first_name: { required: true, message: 'First name is required' },
       email: { required: true, email: true },
       phone: { phone: true },
     });
-    
+
     if (!validation.isValid) {
       setErrors(validation.errors);
       return;
     }
-    
+
     setErrors({});
     const sanitizedData = sanitizeObject(formData);
     onSave(sanitizedData);
@@ -169,14 +183,14 @@ export default function ContactModal({ open, onClose, contact, companies, onSave
   const addArrayItem = (field, value) => {
     setFormData({
       ...formData,
-      [field]: [...(formData[field] || []), value]
+      [field]: [...(formData[field] || []), value],
     });
   };
 
   const removeArrayItem = (field, index) => {
     setFormData({
       ...formData,
-      [field]: formData[field].filter((_, i) => i !== index)
+      [field]: formData[field].filter((_, i) => i !== index),
     });
   };
 
@@ -206,15 +220,15 @@ export default function ContactModal({ open, onClose, contact, companies, onSave
           <DialogTitle>{contact ? 'Edit Contact' : 'Add New Contact'}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit}>
-        <Tabs defaultValue="basic" className="w-full mt-4">
-          <TabsList className="grid w-full grid-cols-4 mb-4">
-            <TabsTrigger value="basic">Basic</TabsTrigger>
-            <TabsTrigger value="company">Company</TabsTrigger>
-            <TabsTrigger value="roles">Roles</TabsTrigger>
-            <TabsTrigger value="additional">Additional</TabsTrigger>
-          </TabsList>
+          <Tabs defaultValue="basic" className="w-full mt-4">
+            <TabsList className="grid w-full grid-cols-4 mb-4">
+              <TabsTrigger value="basic">Basic</TabsTrigger>
+              <TabsTrigger value="company">Company</TabsTrigger>
+              <TabsTrigger value="roles">Roles</TabsTrigger>
+              <TabsTrigger value="additional">Additional</TabsTrigger>
+            </TabsList>
 
-          <TabsContent value="basic" className="space-y-4">
+            <TabsContent value="basic" className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="first_name">First Name *</Label>
@@ -350,8 +364,27 @@ export default function ContactModal({ open, onClose, contact, companies, onSave
               <div className="space-y-2">
                 <Label>Category (Select Multiple)</Label>
                 <div className="grid grid-cols-1 gap-2 p-3 border rounded-lg max-h-48 overflow-y-auto">
-                  {['US Fractional Charter', 'US Part 135 Operations', 'US Regional Membership', 'Leading France', 'US Regional Airlines', 'US Seaplane Ops', 'US Membership', 'US Charter Marketplace', 'US Fractional Jet Card', 'US Public Charter', 'Intl BizAv Operators', 'Intl Regional Charter', 'Intl Seaplane Charter', 'Corporate Flight Depts', 'LOI & MOU History'].map((cat) => (
-                    <label key={cat} className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 p-2 rounded">
+                  {[
+                    'US Fractional Charter',
+                    'US Part 135 Operations',
+                    'US Regional Membership',
+                    'Leading France',
+                    'US Regional Airlines',
+                    'US Seaplane Ops',
+                    'US Membership',
+                    'US Charter Marketplace',
+                    'US Fractional Jet Card',
+                    'US Public Charter',
+                    'Intl BizAv Operators',
+                    'Intl Regional Charter',
+                    'Intl Seaplane Charter',
+                    'Corporate Flight Depts',
+                    'LOI & MOU History',
+                  ].map((cat) => (
+                    <label
+                      key={cat}
+                      className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 p-2 rounded"
+                    >
                       <input
                         type="checkbox"
                         checked={(formData.category || []).includes(cat)}
@@ -360,7 +393,10 @@ export default function ContactModal({ open, onClose, contact, companies, onSave
                           if (e.target.checked) {
                             setFormData({ ...formData, category: [...current, cat] });
                           } else {
-                            setFormData({ ...formData, category: current.filter(c => c !== cat) });
+                            setFormData({
+                              ...formData,
+                              category: current.filter((c) => c !== cat),
+                            });
                           }
                         }}
                         className="rounded"
@@ -424,7 +460,12 @@ export default function ContactModal({ open, onClose, contact, companies, onSave
                     {formData.general_emails?.map((email, idx) => (
                       <div key={idx} className="flex gap-2 items-center">
                         <Input value={email} disabled />
-                        <Button type="button" variant="ghost" size="icon" onClick={() => removeArrayItem('general_emails', idx)}>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => removeArrayItem('general_emails', idx)}
+                        >
                           <X className="w-4 h-4" />
                         </Button>
                       </div>
@@ -443,13 +484,18 @@ export default function ContactModal({ open, onClose, contact, companies, onSave
                           }
                         }}
                       />
-                      <Button type="button" onClick={(e) => {
-                        const input = document.getElementById('new_email');
-                        if (input?.value) {
-                          addArrayItem('general_emails', input.value);
-                          input.value = '';
-                        }
-                      }}>Add</Button>
+                      <Button
+                        type="button"
+                        onClick={(e) => {
+                          const input = document.getElementById('new_email');
+                          if (input?.value) {
+                            addArrayItem('general_emails', input.value);
+                            input.value = '';
+                          }
+                        }}
+                      >
+                        Add
+                      </Button>
                     </div>
                   </div>
                 </div>
@@ -460,7 +506,12 @@ export default function ContactModal({ open, onClose, contact, companies, onSave
                     {formData.general_phones?.map((phone, idx) => (
                       <div key={idx} className="flex gap-2 items-center">
                         <Input value={phone} disabled />
-                        <Button type="button" variant="ghost" size="icon" onClick={() => removeArrayItem('general_phones', idx)}>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => removeArrayItem('general_phones', idx)}
+                        >
                           <X className="w-4 h-4" />
                         </Button>
                       </div>
@@ -479,13 +530,18 @@ export default function ContactModal({ open, onClose, contact, companies, onSave
                           }
                         }}
                       />
-                      <Button type="button" onClick={(e) => {
-                        const input = document.getElementById('new_phone');
-                        if (input?.value) {
-                          addArrayItem('general_phones', input.value);
-                          input.value = '';
-                        }
-                      }}>Add</Button>
+                      <Button
+                        type="button"
+                        onClick={(e) => {
+                          const input = document.getElementById('new_phone');
+                          if (input?.value) {
+                            addArrayItem('general_phones', input.value);
+                            input.value = '';
+                          }
+                        }}
+                      >
+                        Add
+                      </Button>
                     </div>
                   </div>
                 </div>
@@ -497,7 +553,12 @@ export default function ContactModal({ open, onClose, contact, companies, onSave
                   {formData.contact_sources_urls?.map((url, idx) => (
                     <div key={idx} className="flex gap-2 items-center">
                       <Input value={url} disabled />
-                      <Button type="button" variant="ghost" size="icon" onClick={() => removeArrayItem('contact_sources_urls', idx)}>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => removeArrayItem('contact_sources_urls', idx)}
+                      >
                         <X className="w-4 h-4" />
                       </Button>
                     </div>
@@ -516,13 +577,18 @@ export default function ContactModal({ open, onClose, contact, companies, onSave
                         }
                       }}
                     />
-                    <Button type="button" onClick={(e) => {
-                      const input = document.getElementById('new_source_url');
-                      if (input?.value) {
-                        addArrayItem('contact_sources_urls', input.value);
-                        input.value = '';
-                      }
-                    }}>Add</Button>
+                    <Button
+                      type="button"
+                      onClick={(e) => {
+                        const input = document.getElementById('new_source_url');
+                        if (input?.value) {
+                          addArrayItem('contact_sources_urls', input.value);
+                          input.value = '';
+                        }
+                      }}
+                    >
+                      Add
+                    </Button>
                   </div>
                 </div>
               </div>
@@ -647,7 +713,12 @@ export default function ContactModal({ open, onClose, contact, companies, onSave
                   {formData.loi_source_urls?.map((url, idx) => (
                     <div key={idx} className="flex gap-2 items-center">
                       <Input value={url} disabled />
-                      <Button type="button" variant="ghost" size="icon" onClick={() => removeArrayItem('loi_source_urls', idx)}>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => removeArrayItem('loi_source_urls', idx)}
+                      >
                         <X className="w-4 h-4" />
                       </Button>
                     </div>
@@ -666,13 +737,18 @@ export default function ContactModal({ open, onClose, contact, companies, onSave
                         }
                       }}
                     />
-                    <Button type="button" onClick={(e) => {
-                      const input = document.getElementById('new_loi_url');
-                      if (input?.value) {
-                        addArrayItem('loi_source_urls', input.value);
-                        input.value = '';
-                      }
-                    }}>Add</Button>
+                    <Button
+                      type="button"
+                      onClick={(e) => {
+                        const input = document.getElementById('new_loi_url');
+                        if (input?.value) {
+                          addArrayItem('loi_source_urls', input.value);
+                          input.value = '';
+                        }
+                      }}
+                    >
+                      Add
+                    </Button>
                   </div>
                 </div>
               </div>
@@ -692,7 +768,10 @@ export default function ContactModal({ open, onClose, contact, companies, onSave
                   <Label>Link to Additional Companies</Label>
                   <div className="grid grid-cols-2 gap-2">
                     {companies?.map((company) => (
-                      <label key={company.id} className="flex items-center gap-2 cursor-pointer p-2 hover:bg-gray-50 dark:hover:bg-gray-800 rounded">
+                      <label
+                        key={company.id}
+                        className="flex items-center gap-2 cursor-pointer p-2 hover:bg-gray-50 dark:hover:bg-gray-800 rounded"
+                      >
                         <input
                           type="checkbox"
                           checked={formData.company_ids?.includes(company.id) || false}
@@ -700,12 +779,14 @@ export default function ContactModal({ open, onClose, contact, companies, onSave
                             if (e.target.checked) {
                               setFormData({
                                 ...formData,
-                                company_ids: [...(formData.company_ids || []), company.id]
+                                company_ids: [...(formData.company_ids || []), company.id],
                               });
                             } else {
                               setFormData({
                                 ...formData,
-                                company_ids: (formData.company_ids || []).filter(id => id !== company.id)
+                                company_ids: (formData.company_ids || []).filter(
+                                  (id) => id !== company.id
+                                ),
                               });
                             }
                           }}
@@ -717,65 +798,65 @@ export default function ContactModal({ open, onClose, contact, companies, onSave
                   </div>
                 </div>
               )}
-              </TabsContent>
-              </Tabs>
+            </TabsContent>
+          </Tabs>
 
-              {/* Follow-up Task Section */}
-              <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
-                <button
+          {/* Follow-up Task Section */}
+          <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+            <button
+              type="button"
+              onClick={() => setShowTaskSection(!showTaskSection)}
+              className="flex items-center gap-2 text-sm font-medium text-blue-700 dark:text-blue-400 mb-3"
+            >
+              <CheckSquare className="w-4 h-4" />
+              {showTaskSection ? 'Hide' : 'Add'} Follow-up Task
+            </button>
+            {showTaskSection && (
+              <div className="space-y-3">
+                <div className="space-y-1">
+                  <Label className="text-xs">Task Title</Label>
+                  <Input
+                    placeholder="e.g., Follow up on proposal"
+                    value={taskTitle}
+                    onChange={(e) => setTaskTitle(e.target.value)}
+                    disabled={creatingTask}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs">Notes</Label>
+                  <Textarea
+                    placeholder="Additional details..."
+                    value={taskDescription}
+                    onChange={(e) => setTaskDescription(e.target.value)}
+                    rows={2}
+                    disabled={creatingTask}
+                  />
+                </div>
+                <Button
                   type="button"
-                  onClick={() => setShowTaskSection(!showTaskSection)}
-                  className="flex items-center gap-2 text-sm font-medium text-blue-700 dark:text-blue-400 mb-3"
+                  size="sm"
+                  onClick={handleCreateTask}
+                  disabled={!taskTitle.trim() || creatingTask}
+                  className="w-full gap-2"
                 >
-                  <CheckSquare className="w-4 h-4" />
-                  {showTaskSection ? 'Hide' : 'Add'} Follow-up Task
-                </button>
-                {showTaskSection && (
-                  <div className="space-y-3">
-                    <div className="space-y-1">
-                      <Label className="text-xs">Task Title</Label>
-                      <Input
-                        placeholder="e.g., Follow up on proposal"
-                        value={taskTitle}
-                        onChange={(e) => setTaskTitle(e.target.value)}
-                        disabled={creatingTask}
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <Label className="text-xs">Notes</Label>
-                      <Textarea
-                        placeholder="Additional details..."
-                        value={taskDescription}
-                        onChange={(e) => setTaskDescription(e.target.value)}
-                        rows={2}
-                        disabled={creatingTask}
-                      />
-                    </div>
-                    <Button
-                      type="button"
-                      size="sm"
-                      onClick={handleCreateTask}
-                      disabled={!taskTitle.trim() || creatingTask}
-                      className="w-full gap-2"
-                    >
-                      {creatingTask && <Loader2 className="w-3 h-3 animate-spin" />}
-                      Create Task
-                    </Button>
-                  </div>
-                )}
+                  {creatingTask && <Loader2 className="w-3 h-3 animate-spin" />}
+                  Create Task
+                </Button>
               </div>
+            )}
+          </div>
 
-              <div className="flex justify-end gap-3 pt-4 border-t mt-4">
-              <Button type="button" variant="outline" onClick={onClose}>
+          <div className="flex justify-end gap-3 pt-4 border-t mt-4">
+            <Button type="button" variant="outline" onClick={onClose}>
               Cancel
-              </Button>
-              <Button type="submit" disabled={isLoading}>
+            </Button>
+            <Button type="submit" disabled={isLoading}>
               {isLoading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
               {contact ? 'Update Contact' : 'Add Contact'}
-              </Button>
-              </div>
-              </form>
-              </DialogContent>
+            </Button>
+          </div>
+        </form>
+      </DialogContent>
     </Dialog>
   );
 }

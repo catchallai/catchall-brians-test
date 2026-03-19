@@ -1,18 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Loader2, Sparkles, Send, Calendar } from "lucide-react";
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Loader2, Sparkles, Send, Calendar } from 'lucide-react';
 
 export default function ComposeOutreachModal({ open, onClose, journalist, journalists }) {
   const [selectedJournalist, setSelectedJournalist] = useState('');
@@ -38,7 +39,7 @@ export default function ComposeOutreachModal({ open, onClose, journalist, journa
   });
 
   const generateEmail = async () => {
-    const j = journalists.find(jr => jr.id === selectedJournalist);
+    const j = journalists.find((jr) => jr.id === selectedJournalist);
     if (!j) return;
 
     setIsGenerating(true);
@@ -56,12 +57,12 @@ Create a compelling, concise pitch email that:
 - Includes a clear call to action
 - Is under 200 words`,
         response_json_schema: {
-          type: "object",
+          type: 'object',
           properties: {
-            subject: { type: "string" },
-            email_content: { type: "string" }
-          }
-        }
+            subject: { type: 'string' },
+            email_content: { type: 'string' },
+          },
+        },
       });
       setSubject(result.subject || '');
       setEmailContent(result.email_content || '');
@@ -108,7 +109,9 @@ Create a compelling, concise pitch email that:
               </SelectTrigger>
               <SelectContent>
                 {journalists.map((j) => (
-                  <SelectItem key={j.id} value={j.id}>{j.name} - {j.outlet}</SelectItem>
+                  <SelectItem key={j.id} value={j.id}>
+                    {j.name} - {j.outlet}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -120,7 +123,11 @@ Create a compelling, concise pitch email that:
             disabled={isGenerating || !selectedJournalist}
             className="w-full gap-2"
           >
-            {isGenerating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+            {isGenerating ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <Sparkles className="w-4 h-4" />
+            )}
             AI Generate Email
           </Button>
 
@@ -163,7 +170,9 @@ Create a compelling, concise pitch email that:
           </div>
 
           <div className="flex justify-end gap-3 pt-4 border-t">
-            <Button variant="outline" onClick={handleClose}>Cancel</Button>
+            <Button variant="outline" onClick={handleClose}>
+              Cancel
+            </Button>
             <Button
               variant="outline"
               onClick={() => handleSave('draft')}

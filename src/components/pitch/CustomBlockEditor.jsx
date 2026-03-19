@@ -1,12 +1,24 @@
 import React, { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Card } from "@/components/ui/card";
-import { Save, Image, Upload } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Card } from '@/components/ui/card';
+import { Save, Image, Upload } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 
 export default function CustomBlockEditor({ open, onClose, onSave }) {
@@ -43,10 +55,10 @@ export default function CustomBlockEditor({ open, onClose, onSave }) {
       styling: {
         background: 'transparent',
         padding: '1rem',
-        border: 'none'
+        border: 'none',
       },
       is_public: false,
-      usage_count: 0
+      usage_count: 0,
     };
 
     await onSave(blockData);
@@ -72,7 +84,7 @@ export default function CustomBlockEditor({ open, onClose, onSave }) {
       stats: { stats: [] },
       timeline: { events: [] },
       comparison: { left_title: '', right_title: '', items: [] },
-      custom: {}
+      custom: {},
     };
     return defaults[type] || {};
   };
@@ -203,7 +215,10 @@ export default function CustomBlockEditor({ open, onClose, onSave }) {
                 style={{ gridTemplateColumns: `repeat(${layout.columns}, 1fr)` }}
               >
                 {Array.from({ length: layout.columns }).map((_, i) => (
-                  <div key={i} className="bg-gray-100 dark:bg-gray-700 h-20 rounded flex items-center justify-center text-xs text-gray-500">
+                  <div
+                    key={i}
+                    className="bg-gray-100 dark:bg-gray-700 h-20 rounded flex items-center justify-center text-xs text-gray-500"
+                  >
                     Column {i + 1}
                   </div>
                 ))}

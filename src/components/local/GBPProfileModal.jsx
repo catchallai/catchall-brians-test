@@ -1,18 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Switch } from "@/components/ui/switch";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Loader2, Sparkles, Building2 } from "lucide-react";
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Switch } from '@/components/ui/switch';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Loader2, Sparkles, Building2 } from 'lucide-react';
 
 export default function GBPProfileModal({ open, onClose, profile }) {
   const [formData, setFormData] = useState({
@@ -78,18 +73,18 @@ Location: ${formData.city}, ${formData.state}
 
 Provide an optimization score and list of issues to fix.`,
         response_json_schema: {
-          type: "object",
+          type: 'object',
           properties: {
-            optimization_score: { type: "number" },
-            issues: { type: "array", items: { type: "string" } }
-          }
-        }
+            optimization_score: { type: 'number' },
+            issues: { type: 'array', items: { type: 'string' } },
+          },
+        },
       });
 
       const updateData = {
         ...formData,
         optimization_score: result.optimization_score,
-        optimization_issues: result.issues
+        optimization_issues: result.issues,
       };
 
       if (profile) {
@@ -187,14 +182,20 @@ Provide an optimization score and list of issues to fix.`,
           </div>
 
           <div className="flex justify-end gap-3 pt-4 border-t">
-            <Button variant="outline" onClick={onClose}>Cancel</Button>
+            <Button variant="outline" onClick={onClose}>
+              Cancel
+            </Button>
             <Button
               variant="outline"
               onClick={analyzeProfile}
               disabled={isAnalyzing || !formData.business_name}
               className="gap-2"
             >
-              {isAnalyzing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+              {isAnalyzing ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <Sparkles className="w-4 h-4" />
+              )}
               Save & Analyze
             </Button>
             <Button

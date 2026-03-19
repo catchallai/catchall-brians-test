@@ -1,17 +1,17 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Plus, MoreVertical, Calendar, User } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Plus, MoreVertical, Calendar, User } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from '@/components/ui/dropdown-menu';
 import TaskModal from './TaskModal';
 
 const columns = [
@@ -35,11 +35,12 @@ export default function KanbanBoard({ project, tasks, user }) {
   const queryClient = useQueryClient();
 
   const createTaskMutation = useMutation({
-    mutationFn: (data) => base44.entities.ProjectTask.create({
-      ...data,
-      project_id: project.id,
-      created_by: user?.email,
-    }),
+    mutationFn: (data) =>
+      base44.entities.ProjectTask.create({
+        ...data,
+        project_id: project.id,
+        created_by: user?.email,
+      }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['project-tasks'] });
       setShowTaskModal(false);
@@ -75,14 +76,14 @@ export default function KanbanBoard({ project, tasks, user }) {
     if (draggedTask && draggedTask.status !== columnId) {
       updateTaskMutation.mutate({
         id: draggedTask.id,
-        data: { ...draggedTask, status: columnId }
+        data: { ...draggedTask, status: columnId },
       });
     }
     setDraggedTask(null);
   };
 
   const getTasksByColumn = (columnId) => {
-    return tasks.filter(t => t.status === columnId);
+    return tasks.filter((t) => t.status === columnId);
   };
 
   return (
@@ -90,7 +91,7 @@ export default function KanbanBoard({ project, tasks, user }) {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {columns.map((column) => {
           const columnTasks = getTasksByColumn(column.id);
-          
+
           return (
             <div
               key={column.id}
@@ -101,7 +102,9 @@ export default function KanbanBoard({ project, tasks, user }) {
               <div className={`${column.color} rounded-t-xl p-3 flex items-center justify-between`}>
                 <div className="flex items-center gap-2">
                   <h3 className="font-semibold text-gray-900 dark:text-white">{column.label}</h3>
-                  <Badge variant="secondary" className="text-xs">{columnTasks.length}</Badge>
+                  <Badge variant="secondary" className="text-xs">
+                    {columnTasks.length}
+                  </Badge>
                 </div>
                 <Button
                   size="sm"
@@ -114,7 +117,7 @@ export default function KanbanBoard({ project, tasks, user }) {
                   <Plus className="w-4 h-4" />
                 </Button>
               </div>
-              
+
               <div className="flex-1 bg-gray-50/50 dark:bg-gray-900/50 rounded-b-xl p-2 space-y-2">
                 {columnTasks.map((task) => (
                   <Card
@@ -135,10 +138,12 @@ export default function KanbanBoard({ project, tasks, user }) {
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => {
-                              setSelectedTask(task);
-                              setShowTaskModal(true);
-                            }}>
+                            <DropdownMenuItem
+                              onClick={() => {
+                                setSelectedTask(task);
+                                setShowTaskModal(true);
+                              }}
+                            >
                               Edit
                             </DropdownMenuItem>
                             <DropdownMenuItem
@@ -158,7 +163,9 @@ export default function KanbanBoard({ project, tasks, user }) {
                       )}
 
                       <div className="flex items-center justify-between pt-2">
-                        <Badge className={`text-xs ${priorityColors[task.priority] || priorityColors.medium}`}>
+                        <Badge
+                          className={`text-xs ${priorityColors[task.priority] || priorityColors.medium}`}
+                        >
                           {task.priority || 'medium'}
                         </Badge>
 

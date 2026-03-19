@@ -1,12 +1,24 @@
 import React, { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, Trash2 } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Plus, Trash2 } from 'lucide-react';
 
 export default function MarketingEventModal({ open, onClose, onSave, event, isLoading }) {
   const [formData, setFormData] = useState({
@@ -33,7 +45,7 @@ export default function MarketingEventModal({ open, onClose, onSave, event, isLo
     cost: 0,
     currency: 'USD',
     tags: [],
-    notes: ''
+    notes: '',
   });
 
   useEffect(() => {
@@ -64,33 +76,33 @@ export default function MarketingEventModal({ open, onClose, onSave, event, isLo
         cost: 0,
         currency: 'USD',
         tags: [],
-        notes: ''
+        notes: '',
       });
     }
   }, [event, open]);
 
   const handleChange = (field, value) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   const addSpeaker = () => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      speakers: [...(prev.speakers || []), { name: '', title: '', bio: '' }]
+      speakers: [...(prev.speakers || []), { name: '', title: '', bio: '' }],
     }));
   };
 
   const removeSpeaker = (index) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      speakers: prev.speakers.filter((_, i) => i !== index)
+      speakers: prev.speakers.filter((_, i) => i !== index),
     }));
   };
 
   const handleSpeakerChange = (index, field, value) => {
     const newSpeakers = [...(formData.speakers || [])];
     newSpeakers[index][field] = value;
-    setFormData(prev => ({ ...prev, speakers: newSpeakers }));
+    setFormData((prev) => ({ ...prev, speakers: newSpeakers }));
   };
 
   const handleSubmit = (e) => {
@@ -98,7 +110,7 @@ export default function MarketingEventModal({ open, onClose, onSave, event, isLo
     const submitData = {
       ...formData,
       capacity: formData.capacity ? parseInt(formData.capacity) : null,
-      cost: parseFloat(formData.cost) || 0
+      cost: parseFloat(formData.cost) || 0,
     };
     onSave(submitData);
   };
@@ -131,7 +143,10 @@ export default function MarketingEventModal({ open, onClose, onSave, event, isLo
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="event_type">Event Type *</Label>
-                  <Select value={formData.event_type} onValueChange={(value) => handleChange('event_type', value)}>
+                  <Select
+                    value={formData.event_type}
+                    onValueChange={(value) => handleChange('event_type', value)}
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Select type" />
                     </SelectTrigger>
@@ -151,7 +166,10 @@ export default function MarketingEventModal({ open, onClose, onSave, event, isLo
 
                 <div className="space-y-2">
                   <Label htmlFor="format">Format</Label>
-                  <Select value={formData.format} onValueChange={(value) => handleChange('format', value)}>
+                  <Select
+                    value={formData.format}
+                    onValueChange={(value) => handleChange('format', value)}
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Select format" />
                     </SelectTrigger>
@@ -167,7 +185,10 @@ export default function MarketingEventModal({ open, onClose, onSave, event, isLo
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="status">Status</Label>
-                  <Select value={formData.status} onValueChange={(value) => handleChange('status', value)}>
+                  <Select
+                    value={formData.status}
+                    onValueChange={(value) => handleChange('status', value)}
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Select status" />
                     </SelectTrigger>
@@ -242,12 +263,23 @@ export default function MarketingEventModal({ open, onClose, onSave, event, isLo
                         onChange={(e) => handleSpeakerChange(index, 'title', e.target.value)}
                       />
                     </div>
-                    <Button type="button" variant="ghost" size="icon" onClick={() => removeSpeaker(index)}>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => removeSpeaker(index)}
+                    >
                       <Trash2 className="w-4 h-4 text-red-500" />
                     </Button>
                   </div>
                 ))}
-                <Button type="button" variant="outline" size="sm" onClick={addSpeaker} className="gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={addSpeaker}
+                  className="gap-2"
+                >
                   <Plus className="w-4 h-4" />
                   Add Speaker
                 </Button>
@@ -348,7 +380,10 @@ export default function MarketingEventModal({ open, onClose, onSave, event, isLo
 
                 <div className="space-y-2">
                   <Label htmlFor="currency">Currency</Label>
-                  <Select value={formData.currency} onValueChange={(value) => handleChange('currency', value)}>
+                  <Select
+                    value={formData.currency}
+                    onValueChange={(value) => handleChange('currency', value)}
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Currency" />
                     </SelectTrigger>

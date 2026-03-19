@@ -1,46 +1,53 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { 
-  Sparkles, Mail, Phone, CheckCircle, Calendar, 
-  Clock, AlertTriangle, Loader2, Send
-} from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import {
+  Sparkles,
+  Mail,
+  Phone,
+  CheckCircle,
+  Calendar,
+  Clock,
+  AlertTriangle,
+  Loader2,
+  Send,
+} from 'lucide-react';
 import { format, isPast, isToday, isTomorrow, addDays } from 'date-fns';
 
 const followUpTypeIcons = {
   email: Mail,
   call: Phone,
   task: CheckCircle,
-  meeting: Calendar
+  meeting: Calendar,
 };
 
 const priorityColors = {
   low: 'bg-blue-100 text-blue-700',
   medium: 'bg-amber-100 text-amber-700',
   high: 'bg-red-100 text-red-700',
-  urgent: 'bg-red-600 text-white'
+  urgent: 'bg-red-600 text-white',
 };
 
 const statusColors = {
   pending: 'bg-gray-100 text-gray-700',
   completed: 'bg-emerald-100 text-emerald-700',
   cancelled: 'bg-gray-400 text-white',
-  overdue: 'bg-red-100 text-red-700'
+  overdue: 'bg-red-100 text-red-700',
 };
 
-export default function FollowUpPanel({ 
-  followUps, 
-  contacts, 
-  onGenerate, 
-  onComplete, 
+export default function FollowUpPanel({
+  followUps,
+  contacts,
+  onGenerate,
+  onComplete,
   onSend,
-  isGenerating 
+  isGenerating,
 }) {
   const [expandedId, setExpandedId] = useState(null);
 
   const getContactName = (contactId) => {
-    const contact = contacts.find(c => c.id === contactId);
+    const contact = contacts.find((c) => c.id === contactId);
     return contact ? `${contact.first_name} ${contact.last_name}` : 'Unknown';
   };
 
@@ -53,8 +60,8 @@ export default function FollowUpPanel({
     return format(d, 'MMM d');
   };
 
-  const pendingFollowUps = followUps.filter(f => f.status === 'pending');
-  const overdueFollowUps = pendingFollowUps.filter(f => isPast(new Date(f.scheduled_date)));
+  const pendingFollowUps = followUps.filter((f) => f.status === 'pending');
+  const overdueFollowUps = pendingFollowUps.filter((f) => isPast(new Date(f.scheduled_date)));
 
   return (
     <div className="space-y-4">
@@ -68,9 +75,13 @@ export default function FollowUpPanel({
             className="gap-2 bg-violet-600 hover:bg-violet-700"
           >
             {isGenerating ? (
-              <><Loader2 className="w-4 h-4 animate-spin" /> Generating...</>
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" /> Generating...
+              </>
             ) : (
-              <><Sparkles className="w-4 h-4" /> AI Suggest Follow-Ups</>
+              <>
+                <Sparkles className="w-4 h-4" /> AI Suggest Follow-Ups
+              </>
             )}
           </Button>
         </CardHeader>
@@ -86,7 +97,7 @@ export default function FollowUpPanel({
             </div>
             <div className="p-3 bg-emerald-50 rounded-lg text-center">
               <p className="text-2xl font-bold text-emerald-600">
-                {followUps.filter(f => f.status === 'completed').length}
+                {followUps.filter((f) => f.status === 'completed').length}
               </p>
               <p className="text-xs text-gray-600">Completed</p>
             </div>
@@ -100,14 +111,15 @@ export default function FollowUpPanel({
             </div>
           ) : (
             <div className="space-y-3">
-              {followUps.map(followUp => {
+              {followUps.map((followUp) => {
                 const TypeIcon = followUpTypeIcons[followUp.follow_up_type];
                 const isExpanded = expandedId === followUp.id;
-                const isOverdue = followUp.status === 'pending' && isPast(new Date(followUp.scheduled_date));
+                const isOverdue =
+                  followUp.status === 'pending' && isPast(new Date(followUp.scheduled_date));
 
                 return (
-                  <div 
-                    key={followUp.id} 
+                  <div
+                    key={followUp.id}
                     className={`border rounded-lg p-3 transition-all ${
                       isOverdue ? 'border-red-200 bg-red-50' : 'border-gray-200'
                     }`}
@@ -116,7 +128,9 @@ export default function FollowUpPanel({
                       <div className="flex items-start gap-2 flex-1">
                         <TypeIcon className="w-5 h-5 text-violet-500 mt-0.5" />
                         <div className="flex-1">
-                          <p className="font-medium text-sm">{getContactName(followUp.contact_id)}</p>
+                          <p className="font-medium text-sm">
+                            {getContactName(followUp.contact_id)}
+                          </p>
                           <p className="text-xs text-gray-600">{followUp.action_description}</p>
                         </div>
                       </div>
@@ -150,9 +164,13 @@ export default function FollowUpPanel({
                           <div className="p-3 bg-violet-50 rounded-lg">
                             <div className="flex items-center gap-2 mb-2">
                               <Sparkles className="w-4 h-4 text-violet-600" />
-                              <p className="text-xs font-medium text-violet-700">AI-Generated Message</p>
+                              <p className="text-xs font-medium text-violet-700">
+                                AI-Generated Message
+                              </p>
                             </div>
-                            <p className="text-sm text-gray-700 whitespace-pre-wrap">{followUp.ai_suggested_message}</p>
+                            <p className="text-sm text-gray-700 whitespace-pre-wrap">
+                              {followUp.ai_suggested_message}
+                            </p>
                           </div>
                         )}
 
@@ -171,16 +189,17 @@ export default function FollowUpPanel({
 
                         {followUp.status === 'pending' && (
                           <div className="flex gap-2">
-                            {followUp.follow_up_type === 'email' && followUp.ai_suggested_message && (
-                              <Button
-                                size="sm"
-                                onClick={() => onSend(followUp)}
-                                className="gap-1 bg-emerald-600 hover:bg-emerald-700"
-                              >
-                                <Send className="w-3 h-3" />
-                                Send Email
-                              </Button>
-                            )}
+                            {followUp.follow_up_type === 'email' &&
+                              followUp.ai_suggested_message && (
+                                <Button
+                                  size="sm"
+                                  onClick={() => onSend(followUp)}
+                                  className="gap-1 bg-emerald-600 hover:bg-emerald-700"
+                                >
+                                  <Send className="w-3 h-3" />
+                                  Send Email
+                                </Button>
+                              )}
                             <Button
                               size="sm"
                               variant="outline"

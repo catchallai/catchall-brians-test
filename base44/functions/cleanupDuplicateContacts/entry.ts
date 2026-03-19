@@ -11,7 +11,7 @@ Deno.serve(async (req) => {
 
     // Get all contacts
     const allContacts = await base44.asServiceRole.entities.Contact.list('-created_date', 1000);
-    
+
     // Track emails and IDs to delete
     const emailMap = {};
     const toDelete = [];
@@ -22,7 +22,7 @@ Deno.serve(async (req) => {
       // Ensure all records have business_id
       if (!contact.business_id && user?.current_business_id) {
         await base44.asServiceRole.entities.Contact.update(contact.id, {
-          business_id: user.current_business_id
+          business_id: user.current_business_id,
         });
         updated++;
       }
@@ -47,7 +47,7 @@ Deno.serve(async (req) => {
       success: true,
       duplicatesRemoved: toDelete.length,
       recordsUpdated: updated,
-      totalRecords: allContacts.length
+      totalRecords: allContacts.length,
     });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });

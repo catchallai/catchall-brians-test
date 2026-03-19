@@ -1,10 +1,10 @@
 import React from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Calendar, CheckCircle2, XCircle, AlertCircle } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Calendar, CheckCircle2, XCircle, AlertCircle } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 
 export default function GoogleCalendarConnect() {
@@ -17,18 +17,19 @@ export default function GoogleCalendarConnect() {
   });
 
   const disconnectMutation = useMutation({
-    mutationFn: () => base44.auth.updateMe({
-      google_calendar_connected: false,
-      google_calendar_email: null,
-      google_access_token: null,
-      google_refresh_token: null,
-      google_token_expiry: null,
-    }),
+    mutationFn: () =>
+      base44.auth.updateMe({
+        google_calendar_connected: false,
+        google_calendar_email: null,
+        google_access_token: null,
+        google_refresh_token: null,
+        google_token_expiry: null,
+      }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['current-user'] });
       toast({
-        title: "Disconnected",
-        description: "Google Calendar has been disconnected",
+        title: 'Disconnected',
+        description: 'Google Calendar has been disconnected',
       });
     },
   });
@@ -41,9 +42,9 @@ export default function GoogleCalendarConnect() {
       }
     } catch (error) {
       toast({
-        title: "Error",
-        description: "Failed to start authorization",
-        variant: "destructive",
+        title: 'Error',
+        description: 'Failed to start authorization',
+        variant: 'destructive',
       });
     }
   };
@@ -58,7 +59,8 @@ export default function GoogleCalendarConnect() {
               Google Calendar Integration
             </CardTitle>
             <CardDescription className="mt-2">
-              Connect your Google Calendar to automatically sync meetings and receive calendar invites
+              Connect your Google Calendar to automatically sync meetings and receive calendar
+              invites
             </CardDescription>
           </div>
           {user?.google_calendar_connected && (
@@ -83,7 +85,8 @@ export default function GoogleCalendarConnect() {
                     {user.google_calendar_email}
                   </p>
                   <p className="text-xs text-green-600 dark:text-green-400 mt-2">
-                    Your meetings will automatically sync with Google Calendar and attendees will receive calendar invites.
+                    Your meetings will automatically sync with Google Calendar and attendees will
+                    receive calendar invites.
                   </p>
                 </div>
               </div>
@@ -118,10 +121,7 @@ export default function GoogleCalendarConnect() {
               </div>
             </div>
 
-            <Button
-              onClick={handleConnect}
-              className="w-full bg-blue-600 hover:bg-blue-700"
-            >
+            <Button onClick={handleConnect} className="w-full bg-blue-600 hover:bg-blue-700">
               <Calendar className="w-4 h-4 mr-2" />
               Connect Google Calendar
             </Button>

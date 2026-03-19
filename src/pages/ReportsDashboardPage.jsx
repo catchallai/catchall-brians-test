@@ -1,13 +1,21 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { 
-  FileBarChart, AlertTriangle, Clock, CheckCircle2, XCircle, 
-  TrendingUp, Calendar, Mail, FileText, Plus
-} from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import {
+  FileBarChart,
+  AlertTriangle,
+  Clock,
+  CheckCircle2,
+  XCircle,
+  TrendingUp,
+  Calendar,
+  Mail,
+  FileText,
+  Plus,
+} from 'lucide-react';
 import ReportsDashboard from '@/components/reports/ReportsDashboard';
 import ScheduledReports from '@/components/reports/ScheduledReports';
 import { Link } from 'react-router-dom';
@@ -41,42 +49,56 @@ export default function ReportsDashboardPage() {
 
   const { data: takedownRequests = [] } = useQuery({
     queryKey: ['takedown-requests'],
-    queryFn: () => base44.entities.TakedownRequest.list('-created_date', 20)
+    queryFn: () => base44.entities.TakedownRequest.list('-created_date', 20),
   });
 
   const getStatusColor = (status) => {
-    switch(status) {
-      case 'sent': return 'bg-blue-100 text-blue-700';
-      case 'acknowledged': return 'bg-amber-100 text-amber-700';
-      case 'resolved': return 'bg-emerald-100 text-emerald-700';
-      case 'rejected': return 'bg-red-100 text-red-700';
-      default: return 'bg-gray-100 text-gray-700';
+    switch (status) {
+      case 'sent':
+        return 'bg-blue-100 text-blue-700';
+      case 'acknowledged':
+        return 'bg-amber-100 text-amber-700';
+      case 'resolved':
+        return 'bg-emerald-100 text-emerald-700';
+      case 'rejected':
+        return 'bg-red-100 text-red-700';
+      default:
+        return 'bg-gray-100 text-gray-700';
     }
   };
 
   const getStatusIcon = (status) => {
-    switch(status) {
-      case 'sent': return <Clock className="w-4 h-4" />;
-      case 'acknowledged': return <FileText className="w-4 h-4" />;
-      case 'resolved': return <CheckCircle2 className="w-4 h-4" />;
-      case 'rejected': return <XCircle className="w-4 h-4" />;
-      default: return <FileText className="w-4 h-4" />;
+    switch (status) {
+      case 'sent':
+        return <Clock className="w-4 h-4" />;
+      case 'acknowledged':
+        return <FileText className="w-4 h-4" />;
+      case 'resolved':
+        return <CheckCircle2 className="w-4 h-4" />;
+      case 'rejected':
+        return <XCircle className="w-4 h-4" />;
+      default:
+        return <FileText className="w-4 h-4" />;
     }
   };
 
   const recentReports = reports.slice(0, 5);
-  const successfulReports = reports.filter(r => r.last_run && !r.error).length;
-  const scheduledReports = reports.filter(r => r.schedule !== 'manual').length;
+  const successfulReports = reports.filter((r) => r.last_run && !r.error).length;
+  const scheduledReports = reports.filter((r) => r.schedule !== 'manual').length;
 
-  const pendingTakedowns = takedownRequests.filter(r => r.status === 'sent' || r.status === 'draft').length;
-  const resolvedTakedowns = takedownRequests.filter(r => r.status === 'resolved').length;
+  const pendingTakedowns = takedownRequests.filter(
+    (r) => r.status === 'sent' || r.status === 'draft'
+  ).length;
+  const resolvedTakedowns = takedownRequests.filter((r) => r.status === 'resolved').length;
 
   return (
     <div className="p-6 lg:p-8 space-y-6 min-h-screen">
       {/* Header */}
       <div>
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Reports Dashboard</h1>
-        <p className="text-gray-500 dark:text-gray-400 mt-1">Overview of all your reports and takedown requests</p>
+        <p className="text-gray-500 dark:text-gray-400 mt-1">
+          Overview of all your reports and takedown requests
+        </p>
       </div>
 
       {/* Stats */}
@@ -86,7 +108,9 @@ export default function ReportsDashboardPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-500 dark:text-gray-400">Total Reports</p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">{reports.length}</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">
+                  {reports.length}
+                </p>
               </div>
               <div className="w-12 h-12 bg-violet-100 dark:bg-violet-900/30 rounded-lg flex items-center justify-center">
                 <FileBarChart className="w-6 h-6 text-violet-600 dark:text-violet-400" />
@@ -100,7 +124,9 @@ export default function ReportsDashboardPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-500 dark:text-gray-400">Successful Runs</p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">{successfulReports}</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">
+                  {successfulReports}
+                </p>
               </div>
               <div className="w-12 h-12 bg-emerald-100 dark:bg-emerald-900/30 rounded-lg flex items-center justify-center">
                 <CheckCircle2 className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
@@ -114,7 +140,9 @@ export default function ReportsDashboardPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-500 dark:text-gray-400">Scheduled</p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">{scheduledReports}</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">
+                  {scheduledReports}
+                </p>
               </div>
               <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
                 <Calendar className="w-6 h-6 text-blue-600 dark:text-blue-400" />
@@ -128,7 +156,9 @@ export default function ReportsDashboardPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-500 dark:text-gray-400">Pending Takedowns</p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">{pendingTakedowns}</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">
+                  {pendingTakedowns}
+                </p>
               </div>
               <div className="w-12 h-12 bg-red-100 dark:bg-red-900/30 rounded-lg flex items-center justify-center">
                 <AlertTriangle className="w-6 h-6 text-red-600 dark:text-red-400" />
@@ -145,7 +175,9 @@ export default function ReportsDashboardPage() {
             <div className="flex items-center justify-between">
               <CardTitle>Recent Reports</CardTitle>
               <Link to={createPageUrl('Reports')}>
-                <Button variant="outline" size="sm">View All</Button>
+                <Button variant="outline" size="sm">
+                  View All
+                </Button>
               </Link>
             </div>
           </CardHeader>
@@ -154,12 +186,17 @@ export default function ReportsDashboardPage() {
               <p className="text-sm text-gray-500 text-center py-8">No reports yet</p>
             ) : (
               <div className="space-y-3">
-                {recentReports.map(report => (
-                  <div key={report.id} className="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800">
+                {recentReports.map((report) => (
+                  <div
+                    key={report.id}
+                    className="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800"
+                  >
                     <div className="flex-1">
                       <p className="font-medium text-sm">{report.name}</p>
                       <p className="text-xs text-gray-500 mt-1">
-                        {report.last_run ? `Last run: ${new Date(report.last_run).toLocaleDateString()}` : 'Never run'}
+                        {report.last_run
+                          ? `Last run: ${new Date(report.last_run).toLocaleDateString()}`
+                          : 'Never run'}
                       </p>
                     </div>
                     {report.last_run && !report.error && (
@@ -210,8 +247,11 @@ export default function ReportsDashboardPage() {
             </div>
           ) : (
             <div className="space-y-3">
-              {takedownRequests.slice(0, 10).map(request => (
-                <div key={request.id} className="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800">
+              {takedownRequests.slice(0, 10).map((request) => (
+                <div
+                  key={request.id}
+                  className="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800"
+                >
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
                       <Badge className={getStatusColor(request.status)}>
@@ -224,7 +264,8 @@ export default function ReportsDashboardPage() {
                       {request.infringing_url}
                     </p>
                     <p className="text-xs text-gray-500 mt-1">
-                      Platform: {request.platform} • {new Date(request.created_date).toLocaleDateString()}
+                      Platform: {request.platform} •{' '}
+                      {new Date(request.created_date).toLocaleDateString()}
                     </p>
                   </div>
                 </div>
@@ -242,7 +283,7 @@ export default function ReportsDashboardPage() {
       </Card>
 
       {/* Analytics Dashboard */}
-      <ReportsDashboard 
+      <ReportsDashboard
         websites={websites}
         keywords={keywords}
         mentions={mentions}

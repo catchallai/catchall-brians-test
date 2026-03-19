@@ -1,6 +1,6 @@
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Chrome, Apple, Monitor } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Chrome, Apple, Monitor } from 'lucide-react';
 
 export default function BrowserOSCard({ data }) {
   // SyberJet browser/OS data - premium audience with higher macOS/Safari usage
@@ -38,18 +38,22 @@ export default function BrowserOSCard({ data }) {
             <div className="space-y-2">
               {browsers.map((browser) => (
                 <div key={browser.name} className="flex items-center gap-2">
-                  <div 
+                  <div
                     className="w-2 h-2 rounded-full"
                     style={{ backgroundColor: browser.color }}
                   />
-                  <span className="text-sm text-gray-600 dark:text-gray-400 flex-1">{browser.name}</span>
+                  <span className="text-sm text-gray-600 dark:text-gray-400 flex-1">
+                    {browser.name}
+                  </span>
                   <div className="w-16 h-1.5 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
-                    <div 
+                    <div
                       className="h-full rounded-full"
                       style={{ width: `${browser.percentage}%`, backgroundColor: browser.color }}
                     />
                   </div>
-                  <span className="text-xs font-medium text-gray-500 w-8 text-right">{browser.percentage}%</span>
+                  <span className="text-xs font-medium text-gray-500 w-8 text-right">
+                    {browser.percentage}%
+                  </span>
                 </div>
               ))}
             </div>
@@ -63,18 +67,19 @@ export default function BrowserOSCard({ data }) {
             <div className="space-y-2">
               {os.map((system) => (
                 <div key={system.name} className="flex items-center gap-2">
-                  <div 
-                    className="w-2 h-2 rounded-full"
-                    style={{ backgroundColor: system.color }}
-                  />
-                  <span className="text-sm text-gray-600 dark:text-gray-400 flex-1">{system.name}</span>
+                  <div className="w-2 h-2 rounded-full" style={{ backgroundColor: system.color }} />
+                  <span className="text-sm text-gray-600 dark:text-gray-400 flex-1">
+                    {system.name}
+                  </span>
                   <div className="w-16 h-1.5 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
-                    <div 
+                    <div
                       className="h-full rounded-full"
                       style={{ width: `${system.percentage}%`, backgroundColor: system.color }}
                     />
                   </div>
-                  <span className="text-xs font-medium text-gray-500 w-8 text-right">{system.percentage}%</span>
+                  <span className="text-xs font-medium text-gray-500 w-8 text-right">
+                    {system.percentage}%
+                  </span>
                 </div>
               ))}
             </div>

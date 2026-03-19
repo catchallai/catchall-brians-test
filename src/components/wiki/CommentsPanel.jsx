@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Textarea } from "@/components/ui/textarea";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { MessageSquare, Send, Check, X } from "lucide-react";
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { Textarea } from '@/components/ui/textarea';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { MessageSquare, Send, Check, X } from 'lucide-react';
 import { format } from 'date-fns';
 
 export default function CommentsPanel({ pageId, spaceId, user }) {
@@ -23,7 +23,7 @@ export default function CommentsPanel({ pageId, spaceId, user }) {
   // Real-time subscription
   useEffect(() => {
     if (!pageId) return;
-    
+
     const unsubscribe = base44.entities.WikiPageComment.subscribe((event) => {
       if (event.data?.page_id === pageId) {
         queryClient.invalidateQueries({ queryKey: ['wiki-comments', pageId] });
@@ -62,16 +62,16 @@ export default function CommentsPanel({ pageId, spaceId, user }) {
     });
   };
 
-  const rootComments = comments.filter(c => !c.parent_comment_id && !c.resolved);
-  const resolvedComments = comments.filter(c => !c.parent_comment_id && c.resolved);
+  const rootComments = comments.filter((c) => !c.parent_comment_id && !c.resolved);
+  const resolvedComments = comments.filter((c) => !c.parent_comment_id && c.resolved);
 
   const getReplies = (commentId) => {
-    return comments.filter(c => c.parent_comment_id === commentId);
+    return comments.filter((c) => c.parent_comment_id === commentId);
   };
 
   const CommentItem = ({ comment, isReply = false }) => {
     const replies = getReplies(comment.id);
-    
+
     return (
       <div className={`${isReply ? 'ml-8 mt-2' : 'mb-4'}`}>
         <div className="flex gap-3">
@@ -93,18 +93,18 @@ export default function CommentsPanel({ pageId, spaceId, user }) {
               {comment.content}
             </p>
             <div className="flex gap-2 mt-2">
-              <Button 
-                variant="ghost" 
-                size="sm" 
+              <Button
+                variant="ghost"
+                size="sm"
                 className="text-xs h-7"
                 onClick={() => setReplyTo(comment)}
               >
                 Reply
               </Button>
               {!isReply && (
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
+                <Button
+                  variant="ghost"
+                  size="sm"
                   className="text-xs h-7"
                   onClick={() => resolveCommentMutation.mutate({ id: comment.id, resolved: true })}
                 >
@@ -113,7 +113,7 @@ export default function CommentsPanel({ pageId, spaceId, user }) {
                 </Button>
               )}
             </div>
-            {replies.map(reply => (
+            {replies.map((reply) => (
               <CommentItem key={reply.id} comment={reply} isReply />
             ))}
           </div>
@@ -139,17 +139,19 @@ export default function CommentsPanel({ pageId, spaceId, user }) {
           </div>
         ) : (
           <div>
-            {rootComments.map(comment => (
+            {rootComments.map((comment) => (
               <CommentItem key={comment.id} comment={comment} />
             ))}
-            
+
             {resolvedComments.length > 0 && (
               <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
                 <div className="flex items-center gap-2 mb-4">
                   <Check className="w-4 h-4 text-green-600" />
-                  <span className="text-sm font-medium text-gray-600">Resolved ({resolvedComments.length})</span>
+                  <span className="text-sm font-medium text-gray-600">
+                    Resolved ({resolvedComments.length})
+                  </span>
                 </div>
-                {resolvedComments.map(comment => (
+                {resolvedComments.map((comment) => (
                   <div key={comment.id} className="opacity-60">
                     <CommentItem comment={comment} />
                   </div>
@@ -181,7 +183,7 @@ export default function CommentsPanel({ pageId, spaceId, user }) {
               }
             }}
           />
-          <Button 
+          <Button
             onClick={handleSubmit}
             disabled={!newComment.trim() || createCommentMutation.isPending}
             size="icon"

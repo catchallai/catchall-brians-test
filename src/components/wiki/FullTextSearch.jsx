@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { Input } from "@/components/ui/input";
-import { Card } from "@/components/ui/card";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Search, FileText, Star } from "lucide-react";
+import { Input } from '@/components/ui/input';
+import { Card } from '@/components/ui/card';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Search, FileText, Star } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
-import { Badge } from "@/components/ui/badge";
+import { Badge } from '@/components/ui/badge';
 
 export default function FullTextSearch({ spaceId, onPageSelect }) {
   const [query, setQuery] = useState('');
@@ -22,33 +22,33 @@ export default function FullTextSearch({ spaceId, onPageSelect }) {
     queryKey: ['search-pages', query, spaceId],
     queryFn: async () => {
       if (query.length < 2) return [];
-      
+
       const allPages = await base44.entities.WikiPage.list();
       const lowerQuery = query.toLowerCase();
-      
-      let filtered = allPages.filter(p => !p.template);
+
+      let filtered = allPages.filter((p) => !p.template);
       if (spaceId) {
-        filtered = filtered.filter(p => p.space_id === spaceId);
+        filtered = filtered.filter((p) => p.space_id === spaceId);
       }
 
       // Search in title, content, tags
       return filtered
-        .map(page => {
+        .map((page) => {
           let score = 0;
-          
+
           // Title match (highest priority)
           if (page.title.toLowerCase().includes(lowerQuery)) {
             score += 10;
           }
-          
+
           // Content match
           const plainContent = page.content?.replace(/<[^>]*>/g, '') || '';
           if (plainContent.toLowerCase().includes(lowerQuery)) {
             score += 5;
           }
-          
+
           // Tags match
-          if (page.tags?.some(tag => tag.toLowerCase().includes(lowerQuery))) {
+          if (page.tags?.some((tag) => tag.toLowerCase().includes(lowerQuery))) {
             score += 7;
           }
 
@@ -59,13 +59,16 @@ export default function FullTextSearch({ spaceId, onPageSelect }) {
 
           // Extract snippet
           const contentIndex = plainContent.toLowerCase().indexOf(lowerQuery);
-          const snippet = contentIndex >= 0 
-            ? '...' + plainContent.substring(Math.max(0, contentIndex - 40), contentIndex + 100) + '...'
-            : page.ai_summary || plainContent.substring(0, 120) + '...';
+          const snippet =
+            contentIndex >= 0
+              ? '...' +
+                plainContent.substring(Math.max(0, contentIndex - 40), contentIndex + 100) +
+                '...'
+              : page.ai_summary || plainContent.substring(0, 120) + '...';
 
           return { page, score, snippet };
         })
-        .filter(item => item.score > 0)
+        .filter((item) => item.score > 0)
         .sort((a, b) => b.score - a.score)
         .slice(0, 10);
     },
@@ -77,12 +80,12 @@ export default function FullTextSearch({ spaceId, onPageSelect }) {
     queryFn: async () => {
       if (!user) return [];
       const allBookmarks = await base44.entities.WikiPageBookmark.list();
-      return allBookmarks.filter(b => b.user_email === user.email);
+      return allBookmarks.filter((b) => b.user_email === user.email);
     },
     enabled: !!user,
   });
 
-  const bookmarkedPageIds = bookmarks.map(b => b.page_id);
+  const bookmarkedPageIds = bookmarks.map((b) => b.page_id);
 
   return (
     <div className="relative">
@@ -106,9 +109,7 @@ export default function FullTextSearch({ spaceId, onPageSelect }) {
           <ScrollArea className="max-h-96">
             <div className="p-2 space-y-1">
               {results.length === 0 ? (
-                <div className="text-center py-8 text-gray-500">
-                  No results found for "{query}"
-                </div>
+                <div className="text-center py-8 text-gray-500">No results found for "{query}"</div>
               ) : (
                 results.map(({ page, snippet }) => (
                   <Link
@@ -131,9 +132,7 @@ export default function FullTextSearch({ spaceId, onPageSelect }) {
                             <Star className="w-3 h-3 text-yellow-500 fill-yellow-500" />
                           )}
                         </div>
-                        <p className="text-xs text-gray-500 line-clamp-2 mt-1">
-                          {snippet}
-                        </p>
+                        <p className="text-xs text-gray-500 line-clamp-2 mt-1">{snippet}</p>
                         <div className="flex items-center gap-2 mt-2">
                           {page.view_count > 0 && (
                             <Badge variant="secondary" className="text-xs">

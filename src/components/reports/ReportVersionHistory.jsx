@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
-import { History, RotateCcw, Eye, Calendar, User } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent } from '@/components/ui/card';
+import { History, RotateCcw, Eye, Calendar, User } from 'lucide-react';
 import { format } from 'date-fns';
 
 export default function ReportVersionHistory({ report, open, onClose, onRevert }) {
@@ -15,7 +15,8 @@ export default function ReportVersionHistory({ report, open, onClose, onRevert }
 
   const { data: versions = [] } = useQuery({
     queryKey: ['report-versions', report?.id],
-    queryFn: () => base44.entities.ReportVersion.filter({ report_id: report.id }, '-version_number', 50),
+    queryFn: () =>
+      base44.entities.ReportVersion.filter({ report_id: report.id }, '-version_number', 50),
     enabled: !!report?.id,
   });
 
@@ -34,8 +35,8 @@ export default function ReportVersionHistory({ report, open, onClose, onRevert }
         user_email: (await base44.auth.me()).email,
         details: {
           reverted_to_version: version.version_number,
-          timestamp: new Date().toISOString()
-        }
+          timestamp: new Date().toISOString(),
+        },
       });
 
       return version;
@@ -49,7 +50,11 @@ export default function ReportVersionHistory({ report, open, onClose, onRevert }
   });
 
   const handleRevert = (version) => {
-    if (confirm(`Revert to version ${version.version_number}? This will create a new version with the old data.`)) {
+    if (
+      confirm(
+        `Revert to version ${version.version_number}? This will create a new version with the old data.`
+      )
+    ) {
       revertMutation.mutate(version);
     }
   };
@@ -74,11 +79,11 @@ export default function ReportVersionHistory({ report, open, onClose, onRevert }
           ) : (
             <div className="space-y-3">
               {versions.map((version, idx) => (
-                <Card 
+                <Card
                   key={version.id}
                   className={`transition-all ${
-                    selectedVersion?.id === version.id 
-                      ? 'ring-2 ring-violet-500' 
+                    selectedVersion?.id === version.id
+                      ? 'ring-2 ring-violet-500'
                       : 'hover:bg-gray-50 dark:hover:bg-gray-800'
                   }`}
                 >
@@ -89,9 +94,7 @@ export default function ReportVersionHistory({ report, open, onClose, onRevert }
                           <Badge variant={idx === 0 ? 'default' : 'outline'}>
                             Version {version.version_number}
                           </Badge>
-                          {idx === 0 && (
-                            <Badge variant="secondary">Current</Badge>
-                          )}
+                          {idx === 0 && <Badge variant="secondary">Current</Badge>}
                           <span className="flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400">
                             <Calendar className="w-3 h-3" />
                             {format(new Date(version.created_date), 'MMM d, yyyy h:mm a')}
@@ -109,9 +112,7 @@ export default function ReportVersionHistory({ report, open, onClose, onRevert }
                             <User className="w-3 h-3" />
                             {version.generated_by || version.created_by}
                           </span>
-                          {version.metrics && (
-                            <span>{version.metrics.length} metrics</span>
-                          )}
+                          {version.metrics && <span>{version.metrics.length} metrics</span>}
                         </div>
                       </div>
 
@@ -141,22 +142,32 @@ export default function ReportVersionHistory({ report, open, onClose, onRevert }
                     {selectedVersion?.id === version.id && version.report_data && (
                       <div className="mt-4 pt-4 border-t dark:border-gray-700">
                         <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4 space-y-2">
-                          <h4 className="font-medium text-sm text-gray-900 dark:text-white mb-2">Report Data</h4>
+                          <h4 className="font-medium text-sm text-gray-900 dark:text-white mb-2">
+                            Report Data
+                          </h4>
                           {version.report_data.summary && (
                             <div>
-                              <span className="text-xs font-medium text-gray-600 dark:text-gray-400">Summary:</span>
-                              <p className="text-sm text-gray-800 dark:text-gray-200">{version.report_data.summary}</p>
+                              <span className="text-xs font-medium text-gray-600 dark:text-gray-400">
+                                Summary:
+                              </span>
+                              <p className="text-sm text-gray-800 dark:text-gray-200">
+                                {version.report_data.summary}
+                              </p>
                             </div>
                           )}
                           {version.report_data.score && (
                             <div>
-                              <span className="text-xs font-medium text-gray-600 dark:text-gray-400">Score:</span>
+                              <span className="text-xs font-medium text-gray-600 dark:text-gray-400">
+                                Score:
+                              </span>
                               <Badge variant="secondary">{version.report_data.score}/100</Badge>
                             </div>
                           )}
                           {version.report_data.recommendations && (
                             <div>
-                              <span className="text-xs font-medium text-gray-600 dark:text-gray-400">Recommendations:</span>
+                              <span className="text-xs font-medium text-gray-600 dark:text-gray-400">
+                                Recommendations:
+                              </span>
                               <ul className="list-disc list-inside text-sm text-gray-800 dark:text-gray-200">
                                 {version.report_data.recommendations.slice(0, 3).map((rec, i) => (
                                   <li key={i}>{rec}</li>

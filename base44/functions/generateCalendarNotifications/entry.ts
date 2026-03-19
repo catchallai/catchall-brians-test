@@ -17,7 +17,7 @@ Deno.serve(async (req) => {
     // Get all posts scheduled for tomorrow
     const posts = await base44.asServiceRole.entities.CalendarPost.filter({
       scheduled_date: tomorrowStr,
-      status: { $ne: 'published' }
+      status: { $ne: 'published' },
     });
 
     // Get all users to notify
@@ -41,7 +41,7 @@ Deno.serve(async (req) => {
 
     // Get posts pending approval
     const pendingPosts = await base44.asServiceRole.entities.CalendarPost.filter({
-      status: 'pending_approval'
+      status: 'pending_approval',
     });
 
     // Notify admins/editors about pending approvals
@@ -63,10 +63,10 @@ Deno.serve(async (req) => {
       await base44.asServiceRole.entities.CalendarNotification.bulkCreate(notifications);
     }
 
-    return Response.json({ 
-      success: true, 
+    return Response.json({
+      success: true,
       notificationsCreated: notifications.length,
-      message: `Created ${notifications.length} notifications`
+      message: `Created ${notifications.length} notifications`,
     });
   } catch (error) {
     console.error('Error generating notifications:', error);

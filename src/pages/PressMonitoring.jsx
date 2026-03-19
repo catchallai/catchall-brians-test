@@ -1,20 +1,26 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { 
-  Plus, 
-  Search, 
-  Newspaper, 
-  Loader2, 
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import {
+  Plus,
+  Search,
+  Newspaper,
+  Loader2,
   ExternalLink,
   Bookmark,
   BookmarkCheck,
@@ -23,8 +29,8 @@ import {
   Globe,
   TrendingUp,
   TrendingDown,
-  Minus
-} from "lucide-react";
+  Minus,
+} from 'lucide-react';
 import { formatDistanceToNow, format } from 'date-fns';
 
 const publicationTypes = [
@@ -32,13 +38,13 @@ const publicationTypes = [
   { value: 'magazine', label: 'Magazine' },
   { value: 'blog', label: 'Blog' },
   { value: 'news_site', label: 'News Site' },
-  { value: 'trade_publication', label: 'Trade Publication' }
+  { value: 'trade_publication', label: 'Trade Publication' },
 ];
 
 const sentimentConfig = {
   positive: { icon: TrendingUp, color: 'text-emerald-600 bg-emerald-50' },
   neutral: { icon: Minus, color: 'text-gray-600 bg-gray-50' },
-  negative: { icon: TrendingDown, color: 'text-red-600 bg-red-50' }
+  negative: { icon: TrendingDown, color: 'text-red-600 bg-red-50' },
 };
 
 export default function PressMonitoring() {
@@ -102,11 +108,11 @@ export default function PressMonitoring() {
 
   const scanForMentions = async () => {
     if (sources.length === 0 || keywords.length === 0) return;
-    
+
     setScanning(true);
-    
-    for (const source of sources.filter(s => s.is_active)) {
-      for (const keyword of keywords.filter(k => k.is_active)) {
+
+    for (const source of sources.filter((s) => s.is_active)) {
+      for (const keyword of keywords.filter((k) => k.is_active)) {
         const analysis = await base44.integrations.Core.InvokeLLM({
           prompt: `Search for recent news articles from ${source.name} (${source.website_url || 'major publication'}) that mention "${keyword.keyword}".
           
@@ -123,35 +129,36 @@ export default function PressMonitoring() {
           Only include articles that genuinely exist and are relevant.`,
           add_context_from_internet: true,
           response_json_schema: {
-            type: "object",
+            type: 'object',
             properties: {
               articles: {
-                type: "array",
+                type: 'array',
                 items: {
-                  type: "object",
+                  type: 'object',
                   properties: {
-                    title: { type: "string" },
-                    excerpt: { type: "string" },
-                    article_url: { type: "string" },
-                    author: { type: "string" },
-                    publish_date: { type: "string" },
-                    sentiment: { type: "string" },
-                    relevance_score: { type: "number" }
-                  }
-                }
-              }
-            }
-          }
+                    title: { type: 'string' },
+                    excerpt: { type: 'string' },
+                    article_url: { type: 'string' },
+                    author: { type: 'string' },
+                    publish_date: { type: 'string' },
+                    sentiment: { type: 'string' },
+                    relevance_score: { type: 'number' },
+                  },
+                },
+              },
+            },
+          },
         });
 
         if (analysis.articles?.length > 0) {
           for (const article of analysis.articles) {
             // Check if article already exists
-            const exists = mentions.some(m => 
-              m.title?.toLowerCase() === article.title?.toLowerCase() ||
-              m.article_url === article.article_url
+            const exists = mentions.some(
+              (m) =>
+                m.title?.toLowerCase() === article.title?.toLowerCase() ||
+                m.article_url === article.article_url
             );
-            
+
             if (!exists && article.title) {
               await base44.entities.PressMention.create({
                 source_id: source.id,
@@ -161,8 +168,10 @@ export default function PressMonitoring() {
                 article_url: article.article_url,
                 author: article.author,
                 publish_date: article.publish_date,
-                sentiment: ['positive', 'neutral', 'negative'].includes(article.sentiment) ? article.sentiment : 'neutral',
-                relevance_score: article.relevance_score || 50
+                sentiment: ['positive', 'neutral', 'negative'].includes(article.sentiment)
+                  ? article.sentiment
+                  : 'neutral',
+                relevance_score: article.relevance_score || 50,
               });
             }
           }
@@ -174,8 +183,9 @@ export default function PressMonitoring() {
     setScanning(false);
   };
 
-  const filteredMentions = mentions.filter(m => {
-    const matchesSearch = !searchTerm || 
+  const filteredMentions = mentions.filter((m) => {
+    const matchesSearch =
+      !searchTerm ||
       m.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       m.excerpt?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesSource = filterSource === 'all' || m.source_id === filterSource;
@@ -183,8 +193,8 @@ export default function PressMonitoring() {
     return matchesSearch && matchesSource && matchesKeyword;
   });
 
-  const getSourceName = (id) => sources.find(s => s.id === id)?.name || 'Unknown';
-  const getKeywordName = (id) => keywords.find(k => k.id === id)?.keyword || '';
+  const getSourceName = (id) => sources.find((s) => s.id === id)?.name || 'Unknown';
+  const getKeywordName = (id) => keywords.find((k) => k.id === id)?.keyword || '';
 
   const isLoading = loadingSources || loadingKeywords || loadingMentions;
 
@@ -193,7 +203,9 @@ export default function PressMonitoring() {
       <div className="p-6 lg:p-8 space-y-6 min-h-screen">
         <Skeleton className="h-10 w-64" />
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {[...Array(3)].map((_, i) => <Skeleton key={i} className="h-24" />)}
+          {[...Array(3)].map((_, i) => (
+            <Skeleton key={i} className="h-24" />
+          ))}
         </div>
       </div>
     );
@@ -205,18 +217,16 @@ export default function PressMonitoring() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Press Monitoring</h1>
-          <p className="text-gray-500 mt-1">Track mentions in newspapers, magazines, and publications</p>
+          <p className="text-gray-500 mt-1">
+            Track mentions in newspapers, magazines, and publications
+          </p>
         </div>
-        <Button 
-          onClick={scanForMentions} 
+        <Button
+          onClick={scanForMentions}
           className="gap-2 bg-violet-600 hover:bg-violet-700"
           disabled={scanning || sources.length === 0 || keywords.length === 0}
         >
-          {scanning ? (
-            <Loader2 className="w-4 h-4 animate-spin" />
-          ) : (
-            <Search className="w-4 h-4" />
-          )}
+          {scanning ? <Loader2 className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
           {scanning ? 'Scanning...' : 'Scan for Mentions'}
         </Button>
       </div>
@@ -269,7 +279,7 @@ export default function PressMonitoring() {
                 <BookmarkCheck className="w-5 h-5" />
               </div>
               <div>
-                <p className="text-2xl font-bold">{mentions.filter(m => m.is_saved).length}</p>
+                <p className="text-2xl font-bold">{mentions.filter((m) => m.is_saved).length}</p>
                 <p className="text-sm text-gray-500">Saved</p>
               </div>
             </div>
@@ -303,8 +313,10 @@ export default function PressMonitoring() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Publications</SelectItem>
-                {sources.map(s => (
-                  <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
+                {sources.map((s) => (
+                  <SelectItem key={s.id} value={s.id}>
+                    {s.name}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -314,8 +326,10 @@ export default function PressMonitoring() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Keywords</SelectItem>
-                {keywords.map(k => (
-                  <SelectItem key={k.id} value={k.id}>{k.keyword}</SelectItem>
+                {keywords.map((k) => (
+                  <SelectItem key={k.id} value={k.id}>
+                    {k.keyword}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -328,11 +342,11 @@ export default function PressMonitoring() {
                 <Newspaper className="w-12 h-12 mx-auto text-gray-300 mb-4" />
                 <h3 className="text-lg font-medium text-gray-900 mb-2">No mentions found</h3>
                 <p className="text-gray-500 mb-4">
-                  {sources.length === 0 
-                    ? "Add publications to track first."
+                  {sources.length === 0
+                    ? 'Add publications to track first.'
                     : keywords.length === 0
-                    ? "Add keywords to search for."
-                    : "Click 'Scan for Mentions' to search publications for your keywords."}
+                      ? 'Add keywords to search for.'
+                      : "Click 'Scan for Mentions' to search publications for your keywords."}
                 </p>
               </CardContent>
             </Card>
@@ -342,30 +356,42 @@ export default function PressMonitoring() {
                 const sentiment = sentimentConfig[mention.sentiment] || sentimentConfig.neutral;
                 const SentimentIcon = sentiment.icon;
                 return (
-                  <Card key={mention.id} className="border-0 shadow-sm hover:shadow-md transition-all">
+                  <Card
+                    key={mention.id}
+                    className="border-0 shadow-sm hover:shadow-md transition-all"
+                  >
                     <CardContent className="p-4">
                       <div className="flex items-start justify-between gap-4">
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-1">
-                            <Badge variant="outline" className="text-xs">{getSourceName(mention.source_id)}</Badge>
+                            <Badge variant="outline" className="text-xs">
+                              {getSourceName(mention.source_id)}
+                            </Badge>
                             <Badge className={`text-xs ${sentiment.color}`}>
                               <SentimentIcon className="w-3 h-3 mr-1" />
                               {mention.sentiment}
                             </Badge>
                             {mention.relevance_score && (
-                              <Badge variant="outline" className="text-xs">{mention.relevance_score}% relevant</Badge>
+                              <Badge variant="outline" className="text-xs">
+                                {mention.relevance_score}% relevant
+                              </Badge>
                             )}
                           </div>
                           <h3 className="font-semibold text-gray-900 mb-1">{mention.title}</h3>
                           {mention.excerpt && (
-                            <p className="text-sm text-gray-600 mb-2 line-clamp-2">{mention.excerpt}</p>
+                            <p className="text-sm text-gray-600 mb-2 line-clamp-2">
+                              {mention.excerpt}
+                            </p>
                           )}
                           <div className="flex items-center gap-4 text-xs text-gray-500">
                             {mention.author && <span>By {mention.author}</span>}
                             {mention.publish_date && (
                               <span>{format(new Date(mention.publish_date), 'MMM d, yyyy')}</span>
                             )}
-                            <Badge variant="outline" className="text-xs bg-violet-50 text-violet-700">
+                            <Badge
+                              variant="outline"
+                              className="text-xs bg-violet-50 text-violet-700"
+                            >
                               {getKeywordName(mention.keyword_id)}
                             </Badge>
                           </div>
@@ -379,13 +405,15 @@ export default function PressMonitoring() {
                               </Button>
                             </a>
                           )}
-                          <Button 
-                            variant="ghost" 
+                          <Button
+                            variant="ghost"
                             size="sm"
-                            onClick={() => updateMentionMutation.mutate({ 
-                              id: mention.id, 
-                              data: { is_saved: !mention.is_saved } 
-                            })}
+                            onClick={() =>
+                              updateMentionMutation.mutate({
+                                id: mention.id,
+                                data: { is_saved: !mention.is_saved },
+                              })
+                            }
                           >
                             {mention.is_saved ? (
                               <BookmarkCheck className="w-4 h-4 text-violet-600" />
@@ -411,13 +439,15 @@ export default function PressMonitoring() {
               Add Publication
             </Button>
           </div>
-          
+
           {sources.length === 0 ? (
             <Card className="glass-card rounded-2xl">
               <CardContent className="py-12 text-center">
                 <Newspaper className="w-12 h-12 mx-auto text-gray-300 mb-4" />
                 <h3 className="text-lg font-medium text-gray-900 mb-2">No publications added</h3>
-                <p className="text-gray-500">Add newspapers, magazines, or news sites to monitor.</p>
+                <p className="text-gray-500">
+                  Add newspapers, magazines, or news sites to monitor.
+                </p>
               </CardContent>
             </Card>
           ) : (
@@ -428,13 +458,17 @@ export default function PressMonitoring() {
                     <div className="flex items-start justify-between">
                       <div>
                         <h3 className="font-semibold text-gray-900">{source.name}</h3>
-                        <Badge variant="outline" className="text-xs mt-1">{source.type?.replace('_', ' ')}</Badge>
+                        <Badge variant="outline" className="text-xs mt-1">
+                          {source.type?.replace('_', ' ')}
+                        </Badge>
                         {source.website_url && (
-                          <p className="text-xs text-gray-500 mt-1 truncate max-w-[200px]">{source.website_url}</p>
+                          <p className="text-xs text-gray-500 mt-1 truncate max-w-[200px]">
+                            {source.website_url}
+                          </p>
                         )}
                       </div>
-                      <Button 
-                        variant="ghost" 
+                      <Button
+                        variant="ghost"
                         size="icon"
                         className="text-red-500 hover:text-red-700"
                         onClick={() => deleteSourceMutation.mutate(source.id)}
@@ -457,25 +491,27 @@ export default function PressMonitoring() {
               Add Keyword
             </Button>
           </div>
-          
+
           {keywords.length === 0 ? (
             <Card className="glass-card rounded-2xl">
               <CardContent className="py-12 text-center">
                 <Search className="w-12 h-12 mx-auto text-gray-300 mb-4" />
                 <h3 className="text-lg font-medium text-gray-900 mb-2">No keywords added</h3>
-                <p className="text-gray-500">Add keywords or phrases to search for in publications.</p>
+                <p className="text-gray-500">
+                  Add keywords or phrases to search for in publications.
+                </p>
               </CardContent>
             </Card>
           ) : (
             <div className="flex flex-wrap gap-2">
               {keywords.map((keyword) => (
-                <Badge 
-                  key={keyword.id} 
+                <Badge
+                  key={keyword.id}
                   className="text-sm py-2 px-3 bg-violet-100 text-violet-700 hover:bg-violet-200 gap-2"
                 >
                   {keyword.keyword}
-                  <X 
-                    className="w-3 h-3 cursor-pointer hover:text-red-600" 
+                  <X
+                    className="w-3 h-3 cursor-pointer hover:text-red-600"
                     onClick={() => deleteKeywordMutation.mutate(keyword.id)}
                   />
                 </Badge>
@@ -502,13 +538,18 @@ export default function PressMonitoring() {
             </div>
             <div className="space-y-2">
               <Label>Type</Label>
-              <Select value={newSource.type} onValueChange={(v) => setNewSource({ ...newSource, type: v })}>
+              <Select
+                value={newSource.type}
+                onValueChange={(v) => setNewSource({ ...newSource, type: v })}
+              >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {publicationTypes.map(t => (
-                    <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>
+                  {publicationTypes.map((t) => (
+                    <SelectItem key={t.value} value={t.value}>
+                      {t.label}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -522,12 +563,16 @@ export default function PressMonitoring() {
               />
             </div>
             <div className="flex justify-end gap-3">
-              <Button variant="outline" onClick={() => setShowSourceModal(false)}>Cancel</Button>
-              <Button 
+              <Button variant="outline" onClick={() => setShowSourceModal(false)}>
+                Cancel
+              </Button>
+              <Button
                 onClick={() => createSourceMutation.mutate(newSource)}
                 disabled={!newSource.name || createSourceMutation.isPending}
               >
-                {createSourceMutation.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                {createSourceMutation.isPending && (
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                )}
                 Add Publication
               </Button>
             </div>
@@ -551,12 +596,16 @@ export default function PressMonitoring() {
               />
             </div>
             <div className="flex justify-end gap-3">
-              <Button variant="outline" onClick={() => setShowKeywordModal(false)}>Cancel</Button>
-              <Button 
+              <Button variant="outline" onClick={() => setShowKeywordModal(false)}>
+                Cancel
+              </Button>
+              <Button
                 onClick={() => createKeywordMutation.mutate({ keyword: newKeyword })}
                 disabled={!newKeyword || createKeywordMutation.isPending}
               >
-                {createKeywordMutation.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                {createKeywordMutation.isPending && (
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                )}
                 Add Keyword
               </Button>
             </div>

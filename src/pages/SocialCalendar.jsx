@@ -1,25 +1,33 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { 
-  Plus, 
-  Calendar, 
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import {
+  Plus,
+  Calendar,
   CheckCircle,
   LayoutGrid,
   CalendarDays,
   ChevronLeft,
   ChevronRight,
   Zap,
-  PenSquare
-} from "lucide-react";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, addMonths, subMonths } from 'date-fns';
+  PenSquare,
+} from 'lucide-react';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
+import {
+  format,
+  startOfMonth,
+  endOfMonth,
+  startOfWeek,
+  endOfWeek,
+  addMonths,
+  subMonths,
+} from 'date-fns';
 import CalendarPostCard from '@/components/social/CalendarPostCard';
 import CalendarPostModal from '@/components/modals/CalendarPostModal';
 import SocialCalendarView from '@/components/social/SocialCalendarView';
@@ -38,10 +46,25 @@ import OptimalTimeAnalyzer from '@/components/social/OptimalTimeAnalyzer';
 import QuickPostModal from '@/components/social/QuickPostModal';
 import BufferComposer from '@/components/social/BufferComposer';
 
-const CALENDAR_PLATFORMS = ['all', 'Facebook', 'Instagram', 'LinkedIn', 'Twitter', 'YouTube', 'TikTok'];
+const CALENDAR_PLATFORMS = [
+  'all',
+  'Facebook',
+  'Instagram',
+  'LinkedIn',
+  'Twitter',
+  'YouTube',
+  'TikTok',
+];
 
 // TODO: Replace with a shared Enum once a single source of truth for statuses is established
-const CALENDAR_STATUSES = ['all', 'draft', 'scheduled', 'pending_approval', 'approved', 'published'];
+const CALENDAR_STATUSES = [
+  'all',
+  'draft',
+  'scheduled',
+  'pending_approval',
+  'approved',
+  'published',
+];
 
 export default function SocialCalendar() {
   const [showModal, setShowModal] = useState(false);
@@ -73,16 +96,18 @@ export default function SocialCalendar() {
     queryFn: () => base44.entities.HashtagPool.list('-usage_count', 50),
   });
 
-  const filteredPosts = posts.filter(p => {
-    const postDate = new Date(p.scheduled_date);
-    // Expand window to cover week/day navigation that goes beyond the current month boundary
-    const windowStart = startOfWeek(startOfMonth(currentMonth));
-    const windowEnd = endOfWeek(endOfMonth(currentMonth));
-    const inRange = postDate >= windowStart && postDate <= windowEnd;
-    const matchesPlatform = platformFilter === 'all' || p.platforms?.includes(platformFilter);
-    const matchesStatus = statusFilter === 'all' || p.status === statusFilter;
-    return inRange && matchesPlatform && matchesStatus;
-  }).sort((a, b) => (a.order || 0) - (b.order || 0));
+  const filteredPosts = posts
+    .filter((p) => {
+      const postDate = new Date(p.scheduled_date);
+      // Expand window to cover week/day navigation that goes beyond the current month boundary
+      const windowStart = startOfWeek(startOfMonth(currentMonth));
+      const windowEnd = endOfWeek(endOfMonth(currentMonth));
+      const inRange = postDate >= windowStart && postDate <= windowEnd;
+      const matchesPlatform = platformFilter === 'all' || p.platforms?.includes(platformFilter);
+      const matchesStatus = statusFilter === 'all' || p.status === statusFilter;
+      return inRange && matchesPlatform && matchesStatus;
+    })
+    .sort((a, b) => (a.order || 0) - (b.order || 0));
 
   const createMutation = useMutation({
     mutationFn: (data) => base44.entities.CalendarPost.create(data),
@@ -108,7 +133,8 @@ export default function SocialCalendar() {
   });
 
   const addHashtagMutation = useMutation({
-    mutationFn: (hashtag) => base44.entities.HashtagPool.create({ hashtag: hashtag.replace('#', '') }),
+    mutationFn: (hashtag) =>
+      base44.entities.HashtagPool.create({ hashtag: hashtag.replace('#', '') }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['hashtag-pool'] });
       setNewHashtag('');
@@ -145,7 +171,7 @@ export default function SocialCalendar() {
       platforms: template.platforms || [],
       hashtags: template.hashtags || [],
       media_type: template.media_type || 'none',
-      status: 'draft'
+      status: 'draft',
     });
     setShowTemplateModal(false);
     setShowModal(true);
@@ -153,7 +179,7 @@ export default function SocialCalendar() {
 
   const handleEdit = (post) => {
     // Always get the freshest version of the post from the fetched list
-    const freshPost = posts.find(p => p.id === post.id) || post;
+    const freshPost = posts.find((p) => p.id === post.id) || post;
     setSelectedPost(freshPost);
     setShowModal(true);
   };
@@ -170,11 +196,13 @@ export default function SocialCalendar() {
       return;
     }
     const today = new Date().toISOString().split('T')[0];
-    for (const post of filteredPosts.filter(p => p.status !== 'approved' && p.status !== 'published')) {
+    for (const post of filteredPosts.filter(
+      (p) => p.status !== 'approved' && p.status !== 'published'
+    )) {
       await base44.entities.CalendarPost.update(post.id, {
         status: 'approved',
         approved_by: approverName,
-        approved_date: today
+        approved_date: today,
       });
     }
     queryClient.invalidateQueries({ queryKey: ['calendar-posts'] });
@@ -196,7 +224,9 @@ export default function SocialCalendar() {
       <div className="p-6 lg:p-8 space-y-6 min-h-screen">
         <Skeleton className="h-10 w-64" />
         <div className="grid grid-cols-3 gap-4">
-          {[...Array(9)].map((_, i) => <Skeleton key={i} className="aspect-square rounded-xl" />)}
+          {[...Array(9)].map((_, i) => (
+            <Skeleton key={i} className="aspect-square rounded-xl" />
+          ))}
         </div>
       </div>
     );
@@ -218,7 +248,7 @@ export default function SocialCalendar() {
           )}
           {/* View Toggle */}
           <div className="flex bg-gray-200 dark:bg-gray-700 rounded-lg p-1">
-            <Button 
+            <Button
               variant="ghost"
               size="sm"
               onClick={() => setViewMode('composer')}
@@ -227,7 +257,7 @@ export default function SocialCalendar() {
               <PenSquare className="w-4 h-4" />
               Compose
             </Button>
-            <Button 
+            <Button
               variant="ghost"
               size="sm"
               onClick={() => setViewMode('nine-grid')}
@@ -236,7 +266,7 @@ export default function SocialCalendar() {
               <LayoutGrid className="w-4 h-4" />
               9-Grid
             </Button>
-            <Button 
+            <Button
               variant="ghost"
               size="sm"
               onClick={() => setViewMode('calendar')}
@@ -245,7 +275,7 @@ export default function SocialCalendar() {
               <CalendarDays className="w-4 h-4" />
               Calendar
             </Button>
-            <Button 
+            <Button
               variant="ghost"
               size="sm"
               onClick={() => setViewMode('platform-grid')}
@@ -254,7 +284,7 @@ export default function SocialCalendar() {
               <LayoutGrid className="w-4 h-4" />
               Platforms
             </Button>
-            <Button 
+            <Button
               variant="ghost"
               size="sm"
               onClick={() => setViewMode('grid')}
@@ -272,7 +302,11 @@ export default function SocialCalendar() {
           )}
           {canEdit && (
             <>
-              <Button onClick={() => setShowTemplateModal(true)} variant="outline" className="gap-2">
+              <Button
+                onClick={() => setShowTemplateModal(true)}
+                variant="outline"
+                className="gap-2"
+              >
                 <Plus className="w-4 h-4" />
                 Templates
               </Button>
@@ -280,7 +314,10 @@ export default function SocialCalendar() {
                 <Plus className="w-4 h-4" />
                 Bulk Schedule
               </Button>
-              <Button onClick={() => setShowModal(true)} className="gap-2 bg-violet-600 hover:bg-violet-700">
+              <Button
+                onClick={() => setShowModal(true)}
+                className="gap-2 bg-violet-600 hover:bg-violet-700"
+              >
                 <Plus className="w-4 h-4" />
                 Add Post
               </Button>
@@ -303,9 +340,9 @@ export default function SocialCalendar() {
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
-                <img 
-                  src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6925162397800755912704a9/3da4d00f2_catchall.jpg" 
-                  alt="CatchAll" 
+                <img
+                  src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6925162397800755912704a9/3da4d00f2_catchall.jpg"
+                  alt="CatchAll"
                   className="h-8 object-contain"
                 />
                 <div className="border-l pl-4">
@@ -314,10 +351,18 @@ export default function SocialCalendar() {
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <Button variant="ghost" size="icon" onClick={() => setCurrentMonth(subMonths(currentMonth, 1))}>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setCurrentMonth(subMonths(currentMonth, 1))}
+                >
                   <ChevronLeft className="w-4 h-4" />
                 </Button>
-                <Button variant="ghost" size="icon" onClick={() => setCurrentMonth(addMonths(currentMonth, 1))}>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setCurrentMonth(addMonths(currentMonth, 1))}
+                >
                   <ChevronRight className="w-4 h-4" />
                 </Button>
               </div>
@@ -329,10 +374,7 @@ export default function SocialCalendar() {
         {viewMode === 'composer' && (
           <Card className="glass-card rounded-2xl">
             <CardContent className="p-6">
-              <BufferComposer
-                hashtagPool={hashtagPool}
-                onSuccess={() => {}}
-              />
+              <BufferComposer hashtagPool={hashtagPool} onSuccess={() => {}} />
             </CardContent>
           </Card>
         )}
@@ -342,7 +384,7 @@ export default function SocialCalendar() {
           <>
             <div className="flex justify-end mb-4">
               <div className="flex bg-gray-200 dark:bg-gray-700 rounded-lg p-1">
-                <Button 
+                <Button
                   variant="ghost"
                   size="sm"
                   onClick={() => setCalendarViewType('day')}
@@ -350,7 +392,7 @@ export default function SocialCalendar() {
                 >
                   Day
                 </Button>
-                <Button 
+                <Button
                   variant="ghost"
                   size="sm"
                   onClick={() => setCalendarViewType('week')}
@@ -358,7 +400,7 @@ export default function SocialCalendar() {
                 >
                   Week
                 </Button>
-                <Button 
+                <Button
                   variant="ghost"
                   size="sm"
                   onClick={() => setCalendarViewType('month')}
@@ -370,8 +412,10 @@ export default function SocialCalendar() {
             </div>
             {/* Platform & status filter chips */}
             <div className="flex gap-2 flex-wrap items-center mb-3">
-              <span className="text-xs text-gray-500 dark:text-gray-400 font-medium">Platform:</span>
-              {CALENDAR_PLATFORMS.map(p => (
+              <span className="text-xs text-gray-500 dark:text-gray-400 font-medium">
+                Platform:
+              </span>
+              {CALENDAR_PLATFORMS.map((p) => (
                 <button
                   key={p}
                   onClick={() => setPlatformFilter(p)}
@@ -384,8 +428,10 @@ export default function SocialCalendar() {
                   {p === 'all' ? 'All' : p}
                 </button>
               ))}
-              <span className="text-xs text-gray-500 dark:text-gray-400 font-medium ml-2">Status:</span>
-              {CALENDAR_STATUSES.map(s => (
+              <span className="text-xs text-gray-500 dark:text-gray-400 font-medium ml-2">
+                Status:
+              </span>
+              {CALENDAR_STATUSES.map((s) => (
                 <button
                   key={s}
                   onClick={() => setStatusFilter(s)}
@@ -412,68 +458,57 @@ export default function SocialCalendar() {
         )}
 
         {/* 9-Grid View */}
-         {viewMode === 'nine-grid' && (
-           <>
-             <NineGridEditor
-               posts={filteredPosts}
-               onPostsChange={(updatedPosts) => {
-                 // Update order in DB based on new grid positions
-                 updatedPosts.forEach((post, idx) => {
-                   if (post && post.id) {
-                     updateMutation.mutate({ id: post.id, data: { order: idx } });
-                   }
-                 });
-               }}
-               onEditPost={(post, isPreview) => {
-                 setSelectedPost(post);
-                 setShowModal(true);
-               }}
-               onAddPost={(position, suggestedDate) => {
-                 setSelectedPost(suggestedDate ? { scheduled_date: suggestedDate } : null);
-                 setShowModal(true);
-               }}
-             />
-             <PostGallery
-               posts={galleryPosts}
-               onPostsChange={setGalleryPosts}
-             />
-           </>
-         )}
+        {viewMode === 'nine-grid' && (
+          <>
+            <NineGridEditor
+              posts={filteredPosts}
+              onPostsChange={(updatedPosts) => {
+                // Update order in DB based on new grid positions
+                updatedPosts.forEach((post, idx) => {
+                  if (post && post.id) {
+                    updateMutation.mutate({ id: post.id, data: { order: idx } });
+                  }
+                });
+              }}
+              onEditPost={(post, isPreview) => {
+                setSelectedPost(post);
+                setShowModal(true);
+              }}
+              onAddPost={(position, suggestedDate) => {
+                setSelectedPost(suggestedDate ? { scheduled_date: suggestedDate } : null);
+                setShowModal(true);
+              }}
+            />
+            <PostGallery posts={galleryPosts} onPostsChange={setGalleryPosts} />
+          </>
+        )}
 
         {/* Platform Grid View */}
         {viewMode === 'platform-grid' && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
-            <PlatformPreviewCard 
-              platform="Facebook" 
-              posts={filteredPosts} 
+            <PlatformPreviewCard
+              platform="Facebook"
+              posts={filteredPosts}
               onEditPost={handleEdit}
             />
-            <PlatformPreviewCard 
-              platform="Instagram" 
-              posts={filteredPosts} 
+            <PlatformPreviewCard
+              platform="Instagram"
+              posts={filteredPosts}
               onEditPost={handleEdit}
             />
-            <PlatformPreviewCard 
-              platform="LinkedIn" 
-              posts={filteredPosts} 
+            <PlatformPreviewCard
+              platform="LinkedIn"
+              posts={filteredPosts}
               onEditPost={handleEdit}
             />
-            <PlatformPreviewCard 
-              platform="Twitter" 
-              posts={filteredPosts} 
-              onEditPost={handleEdit}
-            />
-            <PlatformPreviewCard 
-              platform="YouTube" 
-              posts={filteredPosts} 
-              onEditPost={handleEdit}
-            />
+            <PlatformPreviewCard platform="Twitter" posts={filteredPosts} onEditPost={handleEdit} />
+            <PlatformPreviewCard platform="YouTube" posts={filteredPosts} onEditPost={handleEdit} />
           </div>
         )}
 
         {/* Grid View */}
-        {viewMode === 'grid' && (
-          filteredPosts.length === 0 ? (
+        {viewMode === 'grid' &&
+          (filteredPosts.length === 0 ? (
             <Card className="glass-card rounded-2xl">
               <CardContent className="py-16 text-center">
                 <Calendar className="w-12 h-12 mx-auto mb-4 text-gray-300" />
@@ -489,8 +524,8 @@ export default function SocialCalendar() {
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
               {filteredPosts.map((post) => (
                 <div key={post.id} className="flex flex-col">
-                  <CalendarPostCard 
-                    post={post} 
+                  <CalendarPostCard
+                    post={post}
                     onEdit={handleEdit}
                     onDelete={handleDelete}
                     compact
@@ -502,8 +537,7 @@ export default function SocialCalendar() {
                 </div>
               ))}
             </div>
-          )
-        )}
+          ))}
 
         {/* Enhanced Features Grid */}
         <div className="grid lg:grid-cols-2 gap-6 mt-6">
@@ -528,7 +562,9 @@ export default function SocialCalendar() {
           <CardContent className="p-6">
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
               <div className="flex-1 w-full sm:w-auto">
-                <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">Sign Off Approved By</label>
+                <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                  Sign Off Approved By
+                </label>
                 <div className="border-b-2 border-emerald-400 mt-2 pb-2">
                   {showApprovalSection ? (
                     <Input
@@ -539,17 +575,22 @@ export default function SocialCalendar() {
                     />
                   ) : (
                     <span className="text-lg text-gray-700 dark:text-gray-300 font-medium">
-                      {filteredPosts.find(p => p.approved_by)?.approved_by || '—'}
+                      {filteredPosts.find((p) => p.approved_by)?.approved_by || '—'}
                     </span>
                   )}
                 </div>
               </div>
               <div className="flex-1 w-full sm:w-auto">
-                <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">Sign Off Date</label>
+                <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                  Sign Off Date
+                </label>
                 <div className="border-b-2 border-emerald-400 mt-2 pb-2">
                   <span className="text-lg text-gray-700 dark:text-gray-300 font-medium">
-                    {filteredPosts.find(p => p.approved_date)?.approved_date 
-                      ? format(new Date(filteredPosts.find(p => p.approved_date).approved_date), 'MMM d, yyyy')
+                    {filteredPosts.find((p) => p.approved_date)?.approved_date
+                      ? format(
+                          new Date(filteredPosts.find((p) => p.approved_date).approved_date),
+                          'MMM d, yyyy'
+                        )
                       : '—'}
                   </span>
                 </div>
@@ -557,21 +598,26 @@ export default function SocialCalendar() {
               <div className="w-full sm:w-auto">
                 {showApprovalSection ? (
                   <div className="flex gap-3">
-                    <Button 
-                      size="lg" 
-                      onClick={handleApproveAll} 
+                    <Button
+                      size="lg"
+                      onClick={handleApproveAll}
                       className="gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-3 h-auto text-base font-semibold shadow-lg"
                     >
                       <CheckCircle className="w-5 h-5" />
                       Approve All Posts
                     </Button>
-                    <Button size="lg" variant="outline" onClick={() => setShowApprovalSection(false)} className="px-4">
+                    <Button
+                      size="lg"
+                      variant="outline"
+                      onClick={() => setShowApprovalSection(false)}
+                      className="px-4"
+                    >
                       Cancel
                     </Button>
                   </div>
                 ) : (
-                  <Button 
-                    size="lg" 
+                  <Button
+                    size="lg"
                     onClick={() => setShowApprovalSection(true)}
                     className="gap-2 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white px-8 py-4 h-auto text-lg font-bold shadow-lg hover:shadow-xl transition-all"
                   >
@@ -586,31 +632,27 @@ export default function SocialCalendar() {
       </div>
 
       {/* Modals */}
-      <QuickPostModal
-        open={showQuickPost}
-        onClose={() => setShowQuickPost(false)}
-      />
+      <QuickPostModal open={showQuickPost} onClose={() => setShowQuickPost(false)} />
 
       <CalendarPostModal
         open={showModal}
-        onClose={() => { setShowModal(false); setSelectedPost(null); }}
+        onClose={() => {
+          setShowModal(false);
+          setSelectedPost(null);
+        }}
         post={selectedPost}
         onSave={handleSave}
         isLoading={createMutation.isPending || updateMutation.isPending}
         hashtagPool={hashtagPool}
       />
 
-      <BulkScheduleModal
-        open={showBulkModal}
-        onClose={() => setShowBulkModal(false)}
-      />
+      <BulkScheduleModal open={showBulkModal} onClose={() => setShowBulkModal(false)} />
 
       <Dialog open={showTemplateModal} onOpenChange={setShowTemplateModal}>
         <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
           <PostTemplateManager onUseTemplate={handleUseTemplate} />
         </DialogContent>
       </Dialog>
-
     </div>
   );
 }

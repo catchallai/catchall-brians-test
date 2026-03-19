@@ -1,35 +1,39 @@
 import React from 'react';
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Plus, Edit2, Trash2, Calendar } from "lucide-react";
-import { format } from "date-fns";
+import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Plus, Edit2, Trash2, Calendar } from 'lucide-react';
+import { format } from 'date-fns';
 
 const platformConfig = {
   twitter: { name: 'Twitter', color: 'bg-gray-900', icon: '𝕏' },
   linkedin: { name: 'LinkedIn', color: 'bg-blue-600', icon: '💼' },
   facebook: { name: 'Facebook', color: 'bg-blue-500', icon: '👍' },
-  instagram: { name: 'Instagram', color: 'bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400', icon: '📷' },
+  instagram: {
+    name: 'Instagram',
+    color: 'bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400',
+    icon: '📷',
+  },
   youtube: { name: 'YouTube', color: 'bg-red-600', icon: '▶️' },
-  tiktok: { name: 'TikTok', color: 'bg-black', icon: '🎵' }
+  tiktok: { name: 'TikTok', color: 'bg-black', icon: '🎵' },
 };
 
 export default function PlatformGridView({ posts = [], onAddPost, onEditPost, onDeletePost }) {
   // Expand posts to individual platform posts
-  const platformPosts = posts.flatMap(post => {
+  const platformPosts = posts.flatMap((post) => {
     if (!post.platforms || post.platforms.length === 0) {
       return [{ ...post, platform: 'none', originalPost: post }];
     }
-    return post.platforms.map(platform => ({
+    return post.platforms.map((platform) => ({
       ...post,
       platform,
-      originalPost: post
+      originalPost: post,
     }));
   });
 
   // Group by platform
   const groupedByPlatform = {};
-  platformPosts.forEach(post => {
+  platformPosts.forEach((post) => {
     const platform = post.platform || 'none';
     if (!groupedByPlatform[platform]) {
       groupedByPlatform[platform] = [];
@@ -40,25 +44,30 @@ export default function PlatformGridView({ posts = [], onAddPost, onEditPost, on
   return (
     <div className="space-y-6">
       {Object.entries(groupedByPlatform).map(([platform, platformPostsList]) => {
-        const config = platformConfig[platform] || { name: 'No Platform', color: 'bg-gray-400', icon: '📝' };
-        
+        const config = platformConfig[platform] || {
+          name: 'No Platform',
+          color: 'bg-gray-400',
+          icon: '📝',
+        };
+
         return (
           <Card key={platform} className="p-6 border-2">
             {/* Platform Header */}
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
-                <div className={`w-12 h-12 rounded-xl ${config.color} flex items-center justify-center text-2xl text-white shadow-lg`}>
+                <div
+                  className={`w-12 h-12 rounded-xl ${config.color} flex items-center justify-center text-2xl text-white shadow-lg`}
+                >
                   {config.icon}
                 </div>
                 <div>
                   <h3 className="text-xl font-bold text-gray-900 dark:text-white">{config.name}</h3>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">{platformPostsList.length} posts scheduled</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    {platformPostsList.length} posts scheduled
+                  </p>
                 </div>
               </div>
-              <Button 
-                onClick={onAddPost}
-                className="gap-2"
-              >
+              <Button onClick={onAddPost} className="gap-2">
                 <Plus className="w-4 h-4" />
                 Add {config.name} Post
               </Button>
@@ -67,7 +76,7 @@ export default function PlatformGridView({ posts = [], onAddPost, onEditPost, on
             {/* Posts Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
               {platformPostsList.map((post) => (
-                <Card 
+                <Card
                   key={`${post.id}-${post.platform}`}
                   className="group relative overflow-hidden hover:shadow-xl transition-all duration-300 cursor-pointer border-2"
                   onClick={() => onEditPost(post.originalPost, post.platform)}
@@ -75,8 +84,8 @@ export default function PlatformGridView({ posts = [], onAddPost, onEditPost, on
                   {/* Media Preview */}
                   {post.image_url && (
                     <div className="aspect-square bg-gray-100 dark:bg-gray-800 overflow-hidden">
-                      <img 
-                        src={post.image_url} 
+                      <img
+                        src={post.image_url}
                         alt={post.title}
                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                       />
@@ -88,7 +97,9 @@ export default function PlatformGridView({ posts = [], onAddPost, onEditPost, on
                     </div>
                   )}
                   {!post.image_url && !post.video_url && (
-                    <div className={`aspect-square ${config.color} flex items-center justify-center text-white text-6xl opacity-20`}>
+                    <div
+                      className={`aspect-square ${config.color} flex items-center justify-center text-white text-6xl opacity-20`}
+                    >
                       {config.icon}
                     </div>
                   )}
@@ -99,11 +110,15 @@ export default function PlatformGridView({ posts = [], onAddPost, onEditPost, on
                       <h4 className="font-semibold text-gray-900 dark:text-white line-clamp-1">
                         {post.title || 'Untitled Post'}
                       </h4>
-                      <Badge className={`${
-                        post.status === 'published' ? 'bg-emerald-100 text-emerald-700' :
-                        post.status === 'approved' ? 'bg-blue-100 text-blue-700' :
-                        'bg-gray-100 text-gray-700'
-                      }`}>
+                      <Badge
+                        className={`${
+                          post.status === 'published'
+                            ? 'bg-emerald-100 text-emerald-700'
+                            : post.status === 'approved'
+                              ? 'bg-blue-100 text-blue-700'
+                              : 'bg-gray-100 text-gray-700'
+                        }`}
+                      >
                         {post.status}
                       </Badge>
                     </div>
@@ -170,11 +185,7 @@ export default function PlatformGridView({ posts = [], onAddPost, onEditPost, on
             {platformPostsList.length === 0 && (
               <div className="text-center py-12 text-gray-400 dark:text-gray-500">
                 <p className="text-lg mb-2">No posts scheduled for {config.name}</p>
-                <Button 
-                  variant="outline"
-                  onClick={onAddPost}
-                  className="gap-2 mt-4"
-                >
+                <Button variant="outline" onClick={onAddPost} className="gap-2 mt-4">
                   <Plus className="w-4 h-4" />
                   Create First Post
                 </Button>

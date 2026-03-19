@@ -16,8 +16,8 @@ Deno.serve(async (req) => {
       metadata: {
         task_id,
         entity_type,
-        assigned_by
-      }
+        assigned_by,
+      },
     });
 
     // Create task assignment record
@@ -27,7 +27,7 @@ Deno.serve(async (req) => {
       assigned_to,
       assigned_by,
       is_read: false,
-      due_date: due_date || null
+      due_date: due_date || null,
     });
 
     // Send email notification
@@ -40,7 +40,7 @@ Deno.serve(async (req) => {
           <p><strong>${assigned_by}</strong> has assigned you a ${entity_type}:</p>
           <p><strong>${title}</strong></p>
           <p>Check your inbox for details.</p>
-        `
+        `,
       });
     } catch (emailError) {
       console.log('Email notification failed:', emailError.message);

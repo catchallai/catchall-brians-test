@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Trash2, GripVertical, Sparkles, Image as ImageIcon, Video, Link } from "lucide-react";
+import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Trash2, GripVertical, Sparkles, Image as ImageIcon, Video, Link } from 'lucide-react';
 import MediaEmbedModal from './MediaEmbedModal';
 
 export default function SlideEditor({ slide, branding, onChange, onDelete, onAIEnhance }) {
@@ -11,17 +11,17 @@ export default function SlideEditor({ slide, branding, onChange, onDelete, onAIE
   const updateContent = (field, value) => {
     onChange({
       ...slide,
-      content: { ...slide.content, [field]: value }
+      content: { ...slide.content, [field]: value },
     });
   };
 
   const handleMediaEmbed = (media) => {
     onChange({
       ...slide,
-      content: { 
-        ...slide.content, 
-        media: media 
-      }
+      content: {
+        ...slide.content,
+        media: media,
+      },
     });
   };
 
@@ -32,9 +32,12 @@ export default function SlideEditor({ slide, branding, onChange, onDelete, onAIE
         <GripVertical className="w-4 h-4 text-gray-400" />
       </div>
 
-      <div className="pl-8 pr-4 py-4" style={{
-        borderLeft: `4px solid ${branding?.primary_color || '#7c3aed'}`
-      }}>
+      <div
+        className="pl-8 pr-4 py-4"
+        style={{
+          borderLeft: `4px solid ${branding?.primary_color || '#7c3aed'}`,
+        }}
+      >
         {/* Header */}
         <div className="flex items-start justify-between gap-4 mb-4">
           <div className="flex-1">
@@ -43,9 +46,9 @@ export default function SlideEditor({ slide, branding, onChange, onDelete, onAIE
               onChange={(e) => onChange({ ...slide, title: e.target.value })}
               placeholder="Slide title..."
               className="text-lg font-semibold border-0 px-0 focus-visible:ring-0"
-              style={{ 
+              style={{
                 fontFamily: branding?.font_heading || 'Inter',
-                color: branding?.primary_color || '#7c3aed'
+                color: branding?.primary_color || '#7c3aed',
               }}
             />
           </div>
@@ -212,7 +215,7 @@ export default function SlideEditor({ slide, branding, onChange, onDelete, onAIE
 
         {/* Media Actions */}
         <div className="mt-3 pt-3 border-t flex gap-2">
-          <button 
+          <button
             onClick={() => setShowMediaModal(true)}
             className="text-xs text-gray-500 hover:text-violet-600 flex items-center gap-1"
           >

@@ -1,15 +1,21 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Plus, RefreshCw, Users, Play, Pause, Loader2, UserX, Target } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Plus, RefreshCw, Users, Play, Pause, Loader2, UserX, Target } from 'lucide-react';
 import { useToast } from '@/components/ui/toast-provider';
 import { differenceInDays } from 'date-fns';
 
@@ -57,20 +63,23 @@ export default function ReEngagementPanel({ contacts, deals }) {
 
   // Calculate segment sizes
   const now = new Date();
-  const inactiveContacts = contacts.filter(c => {
+  const inactiveContacts = contacts.filter((c) => {
     const lastActivity = new Date(c.updated_date || c.created_date);
     return differenceInDays(now, lastActivity) > 30;
   }).length;
 
-  const churnedCustomers = contacts.filter(c => c.status === 'churned').length;
-  
-  const staleDeals = deals.filter(d => {
+  const churnedCustomers = contacts.filter((c) => c.status === 'churned').length;
+
+  const staleDeals = deals.filter((d) => {
     const lastUpdate = new Date(d.updated_date || d.created_date);
-    return differenceInDays(now, lastUpdate) > 14 && 
-           d.stage !== 'closed_won' && d.stage !== 'closed_lost';
+    return (
+      differenceInDays(now, lastUpdate) > 14 &&
+      d.stage !== 'closed_won' &&
+      d.stage !== 'closed_lost'
+    );
   }).length;
 
-  const coldLeads = contacts.filter(c => {
+  const coldLeads = contacts.filter((c) => {
     const created = new Date(c.created_date);
     return c.status === 'lead' && differenceInDays(now, created) > 60;
   }).length;
@@ -79,7 +88,9 @@ export default function ReEngagementPanel({ contacts, deals }) {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Re-engagement Campaigns</h2>
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+            Re-engagement Campaigns
+          </h2>
           <p className="text-sm text-gray-500">Win back inactive contacts and churned customers</p>
         </div>
         <Button onClick={() => setShowModal(true)} className="gap-2">
@@ -126,7 +137,9 @@ export default function ReEngagementPanel({ contacts, deals }) {
           <Card className="glass-card rounded-2xl">
             <CardContent className="py-12 text-center">
               <RefreshCw className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-              <h3 className="font-semibold text-gray-900 dark:text-white mb-2">No Re-engagement Campaigns</h3>
+              <h3 className="font-semibold text-gray-900 dark:text-white mb-2">
+                No Re-engagement Campaigns
+              </h3>
               <p className="text-gray-500 mb-4">Create campaigns to win back inactive users</p>
               <Button onClick={() => setShowModal(true)} className="gap-2">
                 <Plus className="w-4 h-4" />
@@ -141,40 +154,55 @@ export default function ReEngagementPanel({ contacts, deals }) {
                 <div className="flex items-center justify-between">
                   <div>
                     <div className="flex items-center gap-3 mb-2">
-                      <h3 className="font-semibold text-gray-900 dark:text-white">{campaign.name}</h3>
-                      <Badge className={
-                        campaign.status === 'active' ? 'bg-emerald-100 text-emerald-700' :
-                        campaign.status === 'paused' ? 'bg-amber-100 text-amber-700' :
-                        'bg-gray-100 text-gray-700'
-                      }>
+                      <h3 className="font-semibold text-gray-900 dark:text-white">
+                        {campaign.name}
+                      </h3>
+                      <Badge
+                        className={
+                          campaign.status === 'active'
+                            ? 'bg-emerald-100 text-emerald-700'
+                            : campaign.status === 'paused'
+                              ? 'bg-amber-100 text-amber-700'
+                              : 'bg-gray-100 text-gray-700'
+                        }
+                      >
                         {campaign.status}
                       </Badge>
                     </div>
                     <p className="text-sm text-gray-500 mb-2">
-                      Target: {TARGET_LABELS[campaign.target_type]} ({campaign.inactivity_days}+ days inactive)
+                      Target: {TARGET_LABELS[campaign.target_type]} ({campaign.inactivity_days}+
+                      days inactive)
                     </p>
                     <div className="flex gap-4 text-sm">
                       <span>{campaign.sent_count || 0} sent</span>
-                      <span className="text-emerald-600">{campaign.reengaged_count || 0} re-engaged</span>
+                      <span className="text-emerald-600">
+                        {campaign.reengaged_count || 0} re-engaged
+                      </span>
                       {campaign.offer_type !== 'none' && (
-                        <Badge variant="outline">{campaign.offer_type}: {campaign.offer_value}</Badge>
+                        <Badge variant="outline">
+                          {campaign.offer_type}: {campaign.offer_value}
+                        </Badge>
                       )}
                     </div>
                   </div>
                   <div className="flex gap-2">
                     {campaign.status === 'active' ? (
-                      <Button 
-                        variant="outline" 
+                      <Button
+                        variant="outline"
                         size="sm"
-                        onClick={() => updateStatusMutation.mutate({ id: campaign.id, status: 'paused' })}
+                        onClick={() =>
+                          updateStatusMutation.mutate({ id: campaign.id, status: 'paused' })
+                        }
                       >
                         <Pause className="w-4 h-4" />
                       </Button>
                     ) : (
-                      <Button 
-                        variant="outline" 
+                      <Button
+                        variant="outline"
                         size="sm"
-                        onClick={() => updateStatusMutation.mutate({ id: campaign.id, status: 'active' })}
+                        onClick={() =>
+                          updateStatusMutation.mutate({ id: campaign.id, status: 'active' })
+                        }
                       >
                         <Play className="w-4 h-4" />
                       </Button>
@@ -198,7 +226,7 @@ export default function ReEngagementPanel({ contacts, deals }) {
               <Label>Campaign Name</Label>
               <Input
                 value={formData.name}
-                onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))}
                 placeholder="e.g., Win Back Churned Q4"
               />
             </div>
@@ -208,12 +236,16 @@ export default function ReEngagementPanel({ contacts, deals }) {
                 <Label>Target Segment</Label>
                 <Select
                   value={formData.target_type}
-                  onValueChange={(v) => setFormData(prev => ({ ...prev, target_type: v }))}
+                  onValueChange={(v) => setFormData((prev) => ({ ...prev, target_type: v }))}
                 >
-                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
                   <SelectContent>
                     {Object.entries(TARGET_LABELS).map(([key, label]) => (
-                      <SelectItem key={key} value={key}>{label}</SelectItem>
+                      <SelectItem key={key} value={key}>
+                        {label}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -223,7 +255,9 @@ export default function ReEngagementPanel({ contacts, deals }) {
                 <Input
                   type="number"
                   value={formData.inactivity_days}
-                  onChange={(e) => setFormData(prev => ({ ...prev, inactivity_days: parseInt(e.target.value) }))}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, inactivity_days: parseInt(e.target.value) }))
+                  }
                 />
               </div>
             </div>
@@ -232,7 +266,9 @@ export default function ReEngagementPanel({ contacts, deals }) {
               <Label>Email Subject</Label>
               <Input
                 value={formData.email_subject}
-                onChange={(e) => setFormData(prev => ({ ...prev, email_subject: e.target.value }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, email_subject: e.target.value }))
+                }
                 placeholder="We miss you!"
               />
             </div>
@@ -241,7 +277,7 @@ export default function ReEngagementPanel({ contacts, deals }) {
               <Label>Email Body</Label>
               <Textarea
                 value={formData.email_body}
-                onChange={(e) => setFormData(prev => ({ ...prev, email_body: e.target.value }))}
+                onChange={(e) => setFormData((prev) => ({ ...prev, email_body: e.target.value }))}
                 rows={4}
                 placeholder="Write your re-engagement message..."
               />
@@ -252,9 +288,11 @@ export default function ReEngagementPanel({ contacts, deals }) {
                 <Label>Offer Type</Label>
                 <Select
                   value={formData.offer_type}
-                  onValueChange={(v) => setFormData(prev => ({ ...prev, offer_type: v }))}
+                  onValueChange={(v) => setFormData((prev) => ({ ...prev, offer_type: v }))}
                 >
-                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="none">No Offer</SelectItem>
                     <SelectItem value="discount">Discount</SelectItem>
@@ -269,7 +307,9 @@ export default function ReEngagementPanel({ contacts, deals }) {
                   <Label>Offer Value</Label>
                   <Input
                     value={formData.offer_value}
-                    onChange={(e) => setFormData(prev => ({ ...prev, offer_value: e.target.value }))}
+                    onChange={(e) =>
+                      setFormData((prev) => ({ ...prev, offer_value: e.target.value }))
+                    }
                     placeholder="e.g., 20% off"
                   />
                 </div>
@@ -277,8 +317,10 @@ export default function ReEngagementPanel({ contacts, deals }) {
             </div>
 
             <div className="flex gap-3 pt-4">
-              <Button variant="outline" onClick={() => setShowModal(false)} className="flex-1">Cancel</Button>
-              <Button 
+              <Button variant="outline" onClick={() => setShowModal(false)} className="flex-1">
+                Cancel
+              </Button>
+              <Button
                 onClick={() => createMutation.mutate(formData)}
                 disabled={createMutation.isPending || !formData.name}
                 className="flex-1"

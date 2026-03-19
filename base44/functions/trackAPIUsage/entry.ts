@@ -19,7 +19,7 @@ Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
     const user = await base44.auth.me();
-    
+
     if (!user) {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -30,36 +30,36 @@ Deno.serve(async (req) => {
 
     if (action === 'check') {
       // Check if user can make the call
-      const todayUsage = await base44.asServiceRole.entities.APIUsage.filter({ 
-        date: today, 
-        endpoint 
+      const todayUsage = await base44.asServiceRole.entities.APIUsage.filter({
+        date: today,
+        endpoint,
       });
 
       const totalToday = todayUsage.reduce((sum, u) => sum + (u.calls_count || 0), 0);
       const limit = RATE_LIMITS[endpoint]?.daily || 1000;
 
       if (totalToday >= limit) {
-        return Response.json({ 
-          allowed: false, 
+        return Response.json({
+          allowed: false,
           reason: 'Daily limit exceeded',
           usage: totalToday,
-          limit 
+          limit,
         });
       }
 
-      return Response.json({ 
-        allowed: true, 
+      return Response.json({
+        allowed: true,
         usage: totalToday,
         limit,
-        remaining: limit - totalToday
+        remaining: limit - totalToday,
       });
     }
 
     if (action === 'track') {
       // Track the API call
-      const existingUsage = await base44.asServiceRole.entities.APIUsage.filter({ 
-        date: today, 
-        endpoint 
+      const existingUsage = await base44.asServiceRole.entities.APIUsage.filter({
+        date: today,
+        endpoint,
       });
 
       const cost = COST_PER_CALL[endpoint] || 0.001;
@@ -67,14 +67,14 @@ Deno.serve(async (req) => {
       if (existingUsage.length > 0) {
         await base44.asServiceRole.entities.APIUsage.update(existingUsage[0].id, {
           calls_count: (existingUsage[0].calls_count || 0) + 1,
-          cost_estimate: (existingUsage[0].cost_estimate || 0) + cost
+          cost_estimate: (existingUsage[0].cost_estimate || 0) + cost,
         });
       } else {
         await base44.asServiceRole.entities.APIUsage.create({
           date: today,
           endpoint,
           calls_count: 1,
-          cost_estimate: cost
+          cost_estimate: cost,
         });
       }
 
@@ -102,7 +102,6 @@ Deno.serve(async (req) => {
     }
 
     return Response.json({ error: 'Invalid action' }, { status: 400 });
-
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
   }

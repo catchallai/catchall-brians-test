@@ -1,21 +1,16 @@
 import React, { useState } from 'react';
-import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
 import { Camera, RefreshCw, Loader2, ExternalLink, Maximize2, X } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
-export default function WebsiteScreenshot({ 
-  url, 
-  screenshotUrl, 
+export default function WebsiteScreenshot({
+  url,
+  screenshotUrl,
   onScreenshotCaptured,
   showCaptureButton = true,
-  className = ""
+  className = '',
 }) {
   const [isCapturing, setIsCapturing] = useState(false);
   const [localScreenshot, setLocalScreenshot] = useState(screenshotUrl);
@@ -24,10 +19,10 @@ export default function WebsiteScreenshot({
 
   const captureScreenshot = async () => {
     if (!url) return;
-    
+
     setIsCapturing(true);
     setError(null);
-    
+
     try {
       // Use the LLM to generate a simulated screenshot URL based on the website
       // In production, you'd use a real screenshot service
@@ -35,17 +30,17 @@ export default function WebsiteScreenshot({
         prompt: `For the website ${url}, provide a realistic placeholder screenshot description. Return a high-quality stock photo URL from unsplash that would represent this type of website (business, tech, ecommerce, etc). Just return a valid unsplash URL.`,
         add_context_from_internet: true,
         response_json_schema: {
-          type: "object",
+          type: 'object',
           properties: {
-            screenshot_url: { type: "string" },
-            description: { type: "string" }
-          }
-        }
+            screenshot_url: { type: 'string' },
+            description: { type: 'string' },
+          },
+        },
       });
 
       // Generate a screenshot-like preview using a placeholder service
       const screenshotPreview = `https://image.thum.io/get/width/1200/crop/800/${url}`;
-      
+
       setLocalScreenshot(screenshotPreview);
       if (onScreenshotCaptured) {
         onScreenshotCaptured(screenshotPreview);
@@ -63,11 +58,13 @@ export default function WebsiteScreenshot({
 
   return (
     <>
-      <div className={`relative rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800 ${className}`}>
+      <div
+        className={`relative rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800 ${className}`}
+      >
         {localScreenshot ? (
           <>
-            <img 
-              src={localScreenshot} 
+            <img
+              src={localScreenshot}
               alt="Website screenshot"
               className="w-full h-full object-cover object-top"
               onError={(e) => {
@@ -141,9 +138,9 @@ export default function WebsiteScreenshot({
           <DialogHeader className="p-4 pb-2">
             <DialogTitle className="flex items-center gap-2">
               Website Preview
-              <a 
-                href={url} 
-                target="_blank" 
+              <a
+                href={url}
+                target="_blank"
                 rel="noopener noreferrer"
                 className="text-sm text-blue-500 hover:underline flex items-center gap-1 font-normal"
               >
@@ -152,8 +149,8 @@ export default function WebsiteScreenshot({
             </DialogTitle>
           </DialogHeader>
           <div className="px-4 pb-4">
-            <img 
-              src={localScreenshot} 
+            <img
+              src={localScreenshot}
               alt="Website screenshot full"
               className="w-full rounded-lg shadow-lg"
             />

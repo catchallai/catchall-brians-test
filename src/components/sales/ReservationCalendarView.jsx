@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 export default function ReservationCalendarView({ reservations = [] }) {
   const [currentDate, setCurrentDate] = React.useState(new Date());
@@ -12,18 +12,18 @@ export default function ReservationCalendarView({ reservations = [] }) {
   const monthName = currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
   const days = [];
   const firstDay = firstDayOfMonth(currentDate);
-  
+
   for (let i = 0; i < firstDay; i++) {
     days.push(null);
   }
-  
+
   for (let i = 1; i <= daysInMonth(currentDate); i++) {
     days.push(new Date(currentDate.getFullYear(), currentDate.getMonth(), i));
   }
 
   const getReservationsForDate = (date) => {
     if (!date) return [];
-    return reservations.filter(r => {
+    return reservations.filter((r) => {
       const resDate = new Date(r.reservation_date);
       return resDate.toDateString() === date.toDateString();
     });
@@ -59,8 +59,11 @@ export default function ReservationCalendarView({ reservations = [] }) {
         </div>
 
         <div className="grid grid-cols-7 gap-2 mb-2">
-          {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-            <div key={day} className="text-center text-xs font-semibold text-gray-600 dark:text-gray-400 py-2">
+          {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
+            <div
+              key={day}
+              className="text-center text-xs font-semibold text-gray-600 dark:text-gray-400 py-2"
+            >
               {day}
             </div>
           ))}
@@ -78,25 +81,27 @@ export default function ReservationCalendarView({ reservations = [] }) {
                   !date
                     ? 'bg-gray-50 dark:bg-gray-800 border-transparent'
                     : isToday
-                    ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800'
-                    : 'bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700'
+                      ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800'
+                      : 'bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700'
                 }`}
               >
                 {date && (
                   <>
-                    <p className={`text-xs font-semibold mb-1 ${isToday ? 'text-blue-600' : 'text-gray-600 dark:text-gray-400'}`}>
+                    <p
+                      className={`text-xs font-semibold mb-1 ${isToday ? 'text-blue-600' : 'text-gray-600 dark:text-gray-400'}`}
+                    >
                       {date.getDate()}
                     </p>
                     <div className="space-y-0.5">
-                      {resForDay.slice(0, 2).map(res => (
+                      {resForDay.slice(0, 2).map((res) => (
                         <div
                           key={res.id}
                           className={`text-xs p-1 rounded truncate text-white ${
                             res.status === 'confirmed'
                               ? 'bg-green-500'
                               : res.status === 'pending'
-                              ? 'bg-yellow-500'
-                              : 'bg-red-500'
+                                ? 'bg-yellow-500'
+                                : 'bg-red-500'
                           }`}
                           title={res.title}
                         >

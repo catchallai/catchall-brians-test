@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Loader2, Zap } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Loader2, Zap } from 'lucide-react';
 
 import HeatmapViewer from '@/components/web/HeatmapViewer';
 import ConversionFunnelChart from '@/components/web/ConversionFunnelChart';
@@ -20,42 +20,41 @@ export default function WebAnalyticsAdvanced() {
 
   const { data: heatmaps = [] } = useQuery({
     queryKey: ['heatmaps', selectedPage],
-    queryFn: () => selectedPage 
-      ? base44.entities.Heatmap.filter({ page_url: selectedPage })
-      : [],
-    enabled: !!selectedPage
+    queryFn: () => (selectedPage ? base44.entities.Heatmap.filter({ page_url: selectedPage }) : []),
+    enabled: !!selectedPage,
   });
 
   const { data: funnels = [] } = useQuery({
     queryKey: ['conversion-funnels'],
-    queryFn: () => base44.entities.ConversionFunnel.list('-date', 20)
+    queryFn: () => base44.entities.ConversionFunnel.list('-date', 20),
   });
 
   const { data: performances = [] } = useQuery({
     queryKey: ['page-performance', selectedPage],
-    queryFn: () => selectedPage
-      ? base44.entities.PagePerformance.filter({ page_url: selectedPage }, '-timestamp', 50)
-      : base44.entities.PagePerformance.list('-timestamp', 50)
+    queryFn: () =>
+      selectedPage
+        ? base44.entities.PagePerformance.filter({ page_url: selectedPage }, '-timestamp', 50)
+        : base44.entities.PagePerformance.list('-timestamp', 50),
   });
 
   const { data: journeys = [] } = useQuery({
     queryKey: ['user-journeys'],
-    queryFn: () => base44.entities.UserJourney.list('-created_date', 100)
+    queryFn: () => base44.entities.UserJourney.list('-created_date', 100),
   });
 
   const { data: cohorts = [] } = useQuery({
     queryKey: ['user-cohorts'],
-    queryFn: () => base44.entities.UserCohort.list('-acquisition_period', 20)
+    queryFn: () => base44.entities.UserCohort.list('-acquisition_period', 20),
   });
 
   const { data: predictiveScores = [] } = useQuery({
     queryKey: ['predictive-scores'],
-    queryFn: () => base44.entities.PredictiveScore.list('-calculated_at', 50)
+    queryFn: () => base44.entities.PredictiveScore.list('-calculated_at', 50),
   });
 
   const { data: sessions = [] } = useQuery({
     queryKey: ['visitor-sessions'],
-    queryFn: () => base44.entities.VisitorSession.list('-created_date', 10)
+    queryFn: () => base44.entities.VisitorSession.list('-created_date', 10),
   });
 
   const analyzeFunnelMutation = useMutation({
@@ -66,65 +65,69 @@ export default function WebAnalyticsAdvanced() {
           { step_name: 'Landing Page', page_url: '/', order: 1 },
           { step_name: 'Product Page', page_url: '/products', order: 2 },
           { step_name: 'Checkout', page_url: '/checkout', order: 3 },
-          { step_name: 'Complete', page_url: '/success', order: 4 }
-        ]
+          { step_name: 'Complete', page_url: '/success', order: 4 },
+        ],
       });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['conversion-funnels'] });
-    }
+    },
   });
 
   const analyzePerformanceMutation = useMutation({
     mutationFn: async () => {
       await base44.functions.invoke('analyzePagePerformance', {
-        page_url: selectedPage || '/'
+        page_url: selectedPage || '/',
       });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['page-performance'] });
-    }
+    },
   });
 
   const generatePredictionsMutation = useMutation({
     mutationFn: async () => {
       const recentSession = sessions[0];
       if (!recentSession) return;
-      
+
       await base44.functions.invoke('generatePredictiveScores', {
-        visitor_session_id: recentSession.id
+        visitor_session_id: recentSession.id,
       });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['predictive-scores'] });
-    }
+    },
   });
 
   const generateCohortMutation = useMutation({
     mutationFn: async () => {
       await base44.functions.invoke('generateCohortAnalysis', {
         period: '2026-01',
-        acquisition_source: 'google'
+        acquisition_source: 'google',
       });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['user-cohorts'] });
-    }
+    },
   });
 
   const totalSessions = journeys.length;
-  const avgConversionRate = funnels.length > 0 
-    ? funnels.reduce((sum, f) => sum + (f.conversion_rate || 0), 0) / funnels.length 
-    : 0;
-  const avgPerformanceScore = performances.length > 0
-    ? performances.reduce((sum, p) => sum + (p.performance_score || 0), 0) / performances.length
-    : 0;
+  const avgConversionRate =
+    funnels.length > 0
+      ? funnels.reduce((sum, f) => sum + (f.conversion_rate || 0), 0) / funnels.length
+      : 0;
+  const avgPerformanceScore =
+    performances.length > 0
+      ? performances.reduce((sum, p) => sum + (p.performance_score || 0), 0) / performances.length
+      : 0;
 
   return (
     <div className="p-6 lg:p-8 space-y-6 min-h-screen">
       <div>
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Advanced Web Analytics</h1>
-        <p className="text-gray-500 mt-1">Deep insights into user behavior, performance, and conversions</p>
+        <p className="text-gray-500 mt-1">
+          Deep insights into user behavior, performance, and conversions
+        </p>
       </div>
 
       {/* Key Metrics */}
@@ -144,7 +147,9 @@ export default function WebAnalyticsAdvanced() {
         <Card className="glass-card">
           <CardContent className="pt-6">
             <p className="text-sm text-gray-500">Performance Score</p>
-            <p className="text-3xl font-bold text-blue-600">{Math.round(avgPerformanceScore)}/100</p>
+            <p className="text-3xl font-bold text-blue-600">
+              {Math.round(avgPerformanceScore)}/100
+            </p>
           </CardContent>
         </Card>
         <Card className="glass-card">
@@ -175,13 +180,17 @@ export default function WebAnalyticsAdvanced() {
               className="gap-2"
             >
               {analyzeFunnelMutation.isPending ? (
-                <><Loader2 className="w-4 h-4 animate-spin" /> Analyzing...</>
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" /> Analyzing...
+                </>
               ) : (
-                <><Zap className="w-4 h-4" /> Analyze Funnel</>
+                <>
+                  <Zap className="w-4 h-4" /> Analyze Funnel
+                </>
               )}
             </Button>
           </div>
-          
+
           {funnels.length > 0 ? (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               {funnels.slice(0, 4).map((funnel) => (
@@ -233,9 +242,13 @@ export default function WebAnalyticsAdvanced() {
               className="gap-2"
             >
               {analyzePerformanceMutation.isPending ? (
-                <><Loader2 className="w-4 h-4 animate-spin" /> Testing...</>
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" /> Testing...
+                </>
               ) : (
-                <><Zap className="w-4 h-4" /> Run Test</>
+                <>
+                  <Zap className="w-4 h-4" /> Run Test
+                </>
               )}
             </Button>
           </div>
@@ -258,9 +271,13 @@ export default function WebAnalyticsAdvanced() {
               className="gap-2"
             >
               {generateCohortMutation.isPending ? (
-                <><Loader2 className="w-4 h-4 animate-spin" /> Analyzing...</>
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" /> Analyzing...
+                </>
               ) : (
-                <><Zap className="w-4 h-4" /> Generate Cohort</>
+                <>
+                  <Zap className="w-4 h-4" /> Generate Cohort
+                </>
               )}
             </Button>
           </div>
@@ -278,9 +295,13 @@ export default function WebAnalyticsAdvanced() {
               className="gap-2"
             >
               {generatePredictionsMutation.isPending ? (
-                <><Loader2 className="w-4 h-4 animate-spin" /> Analyzing...</>
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" /> Analyzing...
+                </>
               ) : (
-                <><Zap className="w-4 h-4" /> Generate Predictions</>
+                <>
+                  <Zap className="w-4 h-4" /> Generate Predictions
+                </>
               )}
             </Button>
           </div>

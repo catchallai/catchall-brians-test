@@ -1,14 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { 
-  Search, 
-  X, 
-  User, 
-  Building2, 
-  Target, 
-  Hash, 
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+import {
+  Search,
+  X,
+  User,
+  Building2,
+  Target,
+  Hash,
   MessageSquare,
   Loader2,
   Calendar,
@@ -16,24 +16,84 @@ import {
   Rocket,
   Users,
   FileText,
-  Mail
-} from "lucide-react";
+  Mail,
+} from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 
 const entityConfig = {
-  contacts: { icon: User, color: 'bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300', label: 'Contact', page: 'Contacts' },
-  companies: { icon: Building2, color: 'bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300', label: 'Company', page: 'Companies' },
-  deals: { icon: Target, color: 'bg-violet-100 dark:bg-violet-900/40 text-violet-700 dark:text-violet-300', label: 'Deal', page: 'Deals' },
-  opportunities: { icon: Target, color: 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300', label: 'Opportunity', page: 'Opportunities' },
-  activities: { icon: Calendar, color: 'bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300', label: 'Activity', page: 'Activities' },
-  legalDocuments: { icon: FileSignature, color: 'bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300', label: 'Legal Doc', page: 'LegalDocuments' },
-  aerospaceCompanies: { icon: Rocket, color: 'bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300', label: 'Aerospace', page: 'AerospaceScanner' },
-  competitors: { icon: Users, color: 'bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300', label: 'Competitor', page: 'CompetitorAnalysis' },
-  proposals: { icon: FileText, color: 'bg-cyan-100 dark:bg-cyan-900/40 text-cyan-700 dark:text-cyan-300', label: 'Proposal', page: 'Proposals' },
-  keywords: { icon: Hash, color: 'bg-teal-100 dark:bg-teal-900/40 text-teal-700 dark:text-teal-300', label: 'Keyword', page: 'Keywords' },
-  mentions: { icon: MessageSquare, color: 'bg-pink-100 dark:bg-pink-900/40 text-pink-700 dark:text-pink-300', label: 'Mention', page: 'SocialListening' },
-  journalists: { icon: Mail, color: 'bg-orange-100 dark:bg-orange-900/40 text-orange-700 dark:text-orange-300', label: 'Journalist', page: 'MediaOutreach' },
+  contacts: {
+    icon: User,
+    color: 'bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300',
+    label: 'Contact',
+    page: 'Contacts',
+  },
+  companies: {
+    icon: Building2,
+    color: 'bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300',
+    label: 'Company',
+    page: 'Companies',
+  },
+  deals: {
+    icon: Target,
+    color: 'bg-violet-100 dark:bg-violet-900/40 text-violet-700 dark:text-violet-300',
+    label: 'Deal',
+    page: 'Deals',
+  },
+  opportunities: {
+    icon: Target,
+    color: 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300',
+    label: 'Opportunity',
+    page: 'Opportunities',
+  },
+  activities: {
+    icon: Calendar,
+    color: 'bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300',
+    label: 'Activity',
+    page: 'Activities',
+  },
+  legalDocuments: {
+    icon: FileSignature,
+    color: 'bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300',
+    label: 'Legal Doc',
+    page: 'LegalDocuments',
+  },
+  aerospaceCompanies: {
+    icon: Rocket,
+    color: 'bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300',
+    label: 'Aerospace',
+    page: 'AerospaceScanner',
+  },
+  competitors: {
+    icon: Users,
+    color: 'bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300',
+    label: 'Competitor',
+    page: 'CompetitorAnalysis',
+  },
+  proposals: {
+    icon: FileText,
+    color: 'bg-cyan-100 dark:bg-cyan-900/40 text-cyan-700 dark:text-cyan-300',
+    label: 'Proposal',
+    page: 'Proposals',
+  },
+  keywords: {
+    icon: Hash,
+    color: 'bg-teal-100 dark:bg-teal-900/40 text-teal-700 dark:text-teal-300',
+    label: 'Keyword',
+    page: 'Keywords',
+  },
+  mentions: {
+    icon: MessageSquare,
+    color: 'bg-pink-100 dark:bg-pink-900/40 text-pink-700 dark:text-pink-300',
+    label: 'Mention',
+    page: 'SocialListening',
+  },
+  journalists: {
+    icon: Mail,
+    color: 'bg-orange-100 dark:bg-orange-900/40 text-orange-700 dark:text-orange-300',
+    label: 'Journalist',
+    page: 'MediaOutreach',
+  },
 };
 
 export default function GlobalSearch() {
@@ -80,7 +140,20 @@ export default function GlobalSearch() {
       setIsLoading(true);
       const searchQuery = query.toLowerCase();
 
-      const [contacts, companies, deals, opportunities, activities, legalDocuments, aerospaceCompanies, competitors, proposals, keywords, mentions, journalists] = await Promise.all([
+      const [
+        contacts,
+        companies,
+        deals,
+        opportunities,
+        activities,
+        legalDocuments,
+        aerospaceCompanies,
+        competitors,
+        proposals,
+        keywords,
+        mentions,
+        journalists,
+      ] = await Promise.all([
         base44.entities.Contact.list('-created_date', 100).catch(() => []),
         base44.entities.Company.list('-created_date', 100).catch(() => []),
         base44.entities.Deal.list('-created_date', 100).catch(() => []),
@@ -96,56 +169,84 @@ export default function GlobalSearch() {
       ]);
 
       const filteredResults = {
-        contacts: contacts.filter(c => 
-          c.first_name?.toLowerCase().includes(searchQuery) ||
-          c.last_name?.toLowerCase().includes(searchQuery) ||
-          c.email?.toLowerCase().includes(searchQuery) ||
-          c.company_name?.toLowerCase().includes(searchQuery)
-        ).slice(0, 5),
-        companies: companies.filter(c => 
-          c.name?.toLowerCase().includes(searchQuery) ||
-          c.industry?.toLowerCase().includes(searchQuery)
-        ).slice(0, 5),
-        deals: deals.filter(d => 
-          d.title?.toLowerCase().includes(searchQuery)
-        ).slice(0, 5),
-        opportunities: opportunities.filter(o => 
-          o.title?.toLowerCase().includes(searchQuery) ||
-          o.description?.toLowerCase().includes(searchQuery)
-        ).slice(0, 5),
-        activities: activities.filter(a => 
-          a.title?.toLowerCase().includes(searchQuery) ||
-          a.description?.toLowerCase().includes(searchQuery)
-        ).slice(0, 5),
-        legalDocuments: legalDocuments.filter(l => 
-          l.title?.toLowerCase().includes(searchQuery) ||
-          l.recipient_name?.toLowerCase().includes(searchQuery) ||
-          l.document_type?.toLowerCase().includes(searchQuery)
-        ).slice(0, 5),
-        aerospaceCompanies: aerospaceCompanies.filter(a => 
-          a.company_name?.toLowerCase().includes(searchQuery) ||
-          a.ceo?.toLowerCase().includes(searchQuery)
-        ).slice(0, 5),
-        competitors: competitors.filter(c => 
-          c.name?.toLowerCase().includes(searchQuery) ||
-          c.website?.toLowerCase().includes(searchQuery)
-        ).slice(0, 5),
-        proposals: proposals.filter(p => 
-          p.title?.toLowerCase().includes(searchQuery) ||
-          p.client_name?.toLowerCase().includes(searchQuery)
-        ).slice(0, 5),
-        keywords: keywords.filter(k => 
-          k.keyword?.toLowerCase().includes(searchQuery)
-        ).slice(0, 5),
-        mentions: mentions.filter(m => 
-          m.content?.toLowerCase().includes(searchQuery) ||
-          m.author?.toLowerCase().includes(searchQuery)
-        ).slice(0, 5),
-        journalists: journalists.filter(j => 
-          j.name?.toLowerCase().includes(searchQuery) ||
-          j.publication?.toLowerCase().includes(searchQuery) ||
-          j.email?.toLowerCase().includes(searchQuery)
-        ).slice(0, 5),
+        contacts: contacts
+          .filter(
+            (c) =>
+              c.first_name?.toLowerCase().includes(searchQuery) ||
+              c.last_name?.toLowerCase().includes(searchQuery) ||
+              c.email?.toLowerCase().includes(searchQuery) ||
+              c.company_name?.toLowerCase().includes(searchQuery)
+          )
+          .slice(0, 5),
+        companies: companies
+          .filter(
+            (c) =>
+              c.name?.toLowerCase().includes(searchQuery) ||
+              c.industry?.toLowerCase().includes(searchQuery)
+          )
+          .slice(0, 5),
+        deals: deals.filter((d) => d.title?.toLowerCase().includes(searchQuery)).slice(0, 5),
+        opportunities: opportunities
+          .filter(
+            (o) =>
+              o.title?.toLowerCase().includes(searchQuery) ||
+              o.description?.toLowerCase().includes(searchQuery)
+          )
+          .slice(0, 5),
+        activities: activities
+          .filter(
+            (a) =>
+              a.title?.toLowerCase().includes(searchQuery) ||
+              a.description?.toLowerCase().includes(searchQuery)
+          )
+          .slice(0, 5),
+        legalDocuments: legalDocuments
+          .filter(
+            (l) =>
+              l.title?.toLowerCase().includes(searchQuery) ||
+              l.recipient_name?.toLowerCase().includes(searchQuery) ||
+              l.document_type?.toLowerCase().includes(searchQuery)
+          )
+          .slice(0, 5),
+        aerospaceCompanies: aerospaceCompanies
+          .filter(
+            (a) =>
+              a.company_name?.toLowerCase().includes(searchQuery) ||
+              a.ceo?.toLowerCase().includes(searchQuery)
+          )
+          .slice(0, 5),
+        competitors: competitors
+          .filter(
+            (c) =>
+              c.name?.toLowerCase().includes(searchQuery) ||
+              c.website?.toLowerCase().includes(searchQuery)
+          )
+          .slice(0, 5),
+        proposals: proposals
+          .filter(
+            (p) =>
+              p.title?.toLowerCase().includes(searchQuery) ||
+              p.client_name?.toLowerCase().includes(searchQuery)
+          )
+          .slice(0, 5),
+        keywords: keywords
+          .filter((k) => k.keyword?.toLowerCase().includes(searchQuery))
+          .slice(0, 5),
+        mentions: mentions
+          .filter(
+            (m) =>
+              m.content?.toLowerCase().includes(searchQuery) ||
+              m.author?.toLowerCase().includes(searchQuery)
+          )
+          .slice(0, 5),
+        journalists: journalists
+          .filter(
+            (j) =>
+              j.name?.toLowerCase().includes(searchQuery) ||
+              j.publication?.toLowerCase().includes(searchQuery) ||
+              j.email?.toLowerCase().includes(searchQuery)
+          )
+          .slice(0, 5),
       };
 
       setResults(filteredResults);
@@ -159,37 +260,63 @@ export default function GlobalSearch() {
 
   const getDisplayName = (type, item) => {
     switch (type) {
-      case 'contacts': return `${item.first_name} ${item.last_name || ''}`;
-      case 'companies': return item.name;
-      case 'deals': return item.title;
-      case 'opportunities': return item.title;
-      case 'activities': return item.title;
-      case 'legalDocuments': return item.title;
-      case 'aerospaceCompanies': return item.company_name;
-      case 'competitors': return item.name;
-      case 'proposals': return item.title;
-      case 'keywords': return item.keyword;
-      case 'mentions': return item.content?.slice(0, 50) + '...';
-      case 'journalists': return item.name;
-      default: return '';
+      case 'contacts':
+        return `${item.first_name} ${item.last_name || ''}`;
+      case 'companies':
+        return item.name;
+      case 'deals':
+        return item.title;
+      case 'opportunities':
+        return item.title;
+      case 'activities':
+        return item.title;
+      case 'legalDocuments':
+        return item.title;
+      case 'aerospaceCompanies':
+        return item.company_name;
+      case 'competitors':
+        return item.name;
+      case 'proposals':
+        return item.title;
+      case 'keywords':
+        return item.keyword;
+      case 'mentions':
+        return item.content?.slice(0, 50) + '...';
+      case 'journalists':
+        return item.name;
+      default:
+        return '';
     }
   };
 
   const getSubtext = (type, item) => {
     switch (type) {
-      case 'contacts': return item.email || item.company_name;
-      case 'companies': return item.industry || item.website;
-      case 'deals': return `$${item.value?.toLocaleString() || 0} - ${item.stage}`;
-      case 'opportunities': return `${item.status} - ${item.priority || 'normal'} priority`;
-      case 'activities': return `${item.type} - ${item.due_date ? new Date(item.due_date).toLocaleDateString() : 'No date'}`;
-      case 'legalDocuments': return `${item.document_type} - ${item.status}`;
-      case 'aerospaceCompanies': return `${item.company_type || ''} - ${item.headquarters || ''}`;
-      case 'competitors': return item.website || item.tier;
-      case 'proposals': return `${item.status} - $${item.amount?.toLocaleString() || 0}`;
-      case 'keywords': return `Position: ${item.current_position || '-'}`;
-      case 'mentions': return `@${item.author} on ${item.platform}`;
-      case 'journalists': return `${item.publication || ''} - ${item.email || ''}`;
-      default: return '';
+      case 'contacts':
+        return item.email || item.company_name;
+      case 'companies':
+        return item.industry || item.website;
+      case 'deals':
+        return `$${item.value?.toLocaleString() || 0} - ${item.stage}`;
+      case 'opportunities':
+        return `${item.status} - ${item.priority || 'normal'} priority`;
+      case 'activities':
+        return `${item.type} - ${item.due_date ? new Date(item.due_date).toLocaleDateString() : 'No date'}`;
+      case 'legalDocuments':
+        return `${item.document_type} - ${item.status}`;
+      case 'aerospaceCompanies':
+        return `${item.company_type || ''} - ${item.headquarters || ''}`;
+      case 'competitors':
+        return item.website || item.tier;
+      case 'proposals':
+        return `${item.status} - $${item.amount?.toLocaleString() || 0}`;
+      case 'keywords':
+        return `Position: ${item.current_position || '-'}`;
+      case 'mentions':
+        return `@${item.author} on ${item.platform}`;
+      case 'journalists':
+        return `${item.publication || ''} - ${item.email || ''}`;
+      default:
+        return '';
     }
   };
 
@@ -201,13 +328,19 @@ export default function GlobalSearch() {
           ref={inputRef}
           placeholder="Search everything... (⌘K)"
           value={query}
-          onChange={(e) => { setQuery(e.target.value); setIsOpen(true); }}
+          onChange={(e) => {
+            setQuery(e.target.value);
+            setIsOpen(true);
+          }}
           onFocus={() => setIsOpen(true)}
           className="pl-9 pr-9 bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 focus:bg-white dark:focus:bg-gray-700 h-9 dark:text-white dark:placeholder:text-gray-400 placeholder:text-xs"
         />
         {query && (
-          <button 
-            onClick={() => { setQuery(''); setResults({}); }}
+          <button
+            onClick={() => {
+              setQuery('');
+              setResults({});
+            }}
             className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
           >
             <X className="w-4 h-4" />
@@ -232,7 +365,7 @@ export default function GlobalSearch() {
                 if (items.length === 0) return null;
                 const config = entityConfig[type];
                 const Icon = config.icon;
-                
+
                 return (
                   <div key={type}>
                     <div className="px-3 py-2 bg-gray-50 dark:bg-gray-900">
@@ -244,7 +377,10 @@ export default function GlobalSearch() {
                       <Link
                         key={item.id}
                         to={createPageUrl(config.page)}
-                        onClick={() => { setIsOpen(false); setQuery(''); }}
+                        onClick={() => {
+                          setIsOpen(false);
+                          setQuery('');
+                        }}
                         className="flex items-center gap-3 px-3 py-2.5 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                       >
                         <div className={`p-1.5 rounded-lg ${config.color}`}>
@@ -258,9 +394,7 @@ export default function GlobalSearch() {
                             {getSubtext(type, item)}
                           </p>
                         </div>
-                        <Badge className={`${config.color} text-xs`}>
-                          {config.label}
-                        </Badge>
+                        <Badge className={`${config.color} text-xs`}>{config.label}</Badge>
                       </Link>
                     ))}
                   </div>

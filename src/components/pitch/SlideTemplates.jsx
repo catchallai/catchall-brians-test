@@ -1,17 +1,40 @@
 import React from 'react';
-import { Card } from "@/components/ui/card";
-import { 
-  FileText, Target, Lightbulb, TrendingUp, Users, 
-  DollarSign, BarChart3, Trophy, Rocket, Mail 
-} from "lucide-react";
+import { Card } from '@/components/ui/card';
+import {
+  FileText,
+  Target,
+  Lightbulb,
+  TrendingUp,
+  Users,
+  DollarSign,
+  BarChart3,
+  Trophy,
+  Rocket,
+  Mail,
+} from 'lucide-react';
 
 const slideTemplates = [
-  { id: 'cover', icon: FileText, title: 'Cover', description: 'Title slide with company name and tagline' },
-  { id: 'problem', icon: Target, title: 'Problem', description: 'The pain point you\'re addressing' },
+  {
+    id: 'cover',
+    icon: FileText,
+    title: 'Cover',
+    description: 'Title slide with company name and tagline',
+  },
+  {
+    id: 'problem',
+    icon: Target,
+    title: 'Problem',
+    description: "The pain point you're addressing",
+  },
   { id: 'solution', icon: Lightbulb, title: 'Solution', description: 'How your product solves it' },
   { id: 'market', icon: TrendingUp, title: 'Market', description: 'TAM, SAM, SOM analysis' },
   { id: 'product', icon: Rocket, title: 'Product', description: 'Product demo or features' },
-  { id: 'business-model', icon: DollarSign, title: 'Business Model', description: 'Revenue streams and pricing' },
+  {
+    id: 'business-model',
+    icon: DollarSign,
+    title: 'Business Model',
+    description: 'Revenue streams and pricing',
+  },
   { id: 'traction', icon: BarChart3, title: 'Traction', description: 'Growth metrics and KPIs' },
   { id: 'competition', icon: Trophy, title: 'Competition', description: 'Competitive landscape' },
   { id: 'team', icon: Users, title: 'Team', description: 'Founders and key team members' },

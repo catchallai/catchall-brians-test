@@ -2,10 +2,25 @@ import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useSearchParams, Link, useNavigate } from 'react-router-dom';
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Plus, Search, FileText, ArrowLeft, ChevronRight, MoreVertical, Pencil, Trash2, List, BookOpen, GripVertical, Folder as FolderIcon, CheckSquare, Zap } from "lucide-react";
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import {
+  Plus,
+  Search,
+  FileText,
+  ArrowLeft,
+  ChevronRight,
+  MoreVertical,
+  Pencil,
+  Trash2,
+  List,
+  BookOpen,
+  GripVertical,
+  Folder as FolderIcon,
+  CheckSquare,
+  Zap,
+} from 'lucide-react';
 import FolderTree from '@/components/wiki/FolderTree';
 import BulkPageActions from '@/components/wiki/BulkPageActions';
 import QuickNavigationDialog from '@/components/wiki/QuickNavigationDialog';
@@ -17,10 +32,10 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from '@/components/ui/dropdown-menu';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import TableOfContents from '@/components/wiki/TableOfContents';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 export default function SpaceDetail() {
   const [searchParams] = useSearchParams();
@@ -49,7 +64,7 @@ export default function SpaceDetail() {
     queryFn: async () => {
       if (!spaceId) return null;
       const spaces = await base44.entities.Space.list();
-      return spaces.find(s => s.id === spaceId) || null;
+      return spaces.find((s) => s.id === spaceId) || null;
     },
     enabled: !!spaceId,
   });
@@ -59,7 +74,7 @@ export default function SpaceDetail() {
     queryFn: async () => {
       if (!spaceId) return [];
       const allPages = await base44.entities.WikiPage.list();
-      return allPages.filter(p => p.space_id === spaceId && !p.template);
+      return allPages.filter((p) => p.space_id === spaceId && !p.template);
     },
     enabled: !!spaceId,
   });
@@ -69,7 +84,7 @@ export default function SpaceDetail() {
     queryFn: async () => {
       if (!spaceId) return [];
       const allFolders = await base44.entities.WikiPageFolder.list();
-      return allFolders.filter(f => f.space_id === spaceId);
+      return allFolders.filter((f) => f.space_id === spaceId);
     },
     enabled: !!spaceId && space?.enable_folders,
   });
@@ -101,14 +116,14 @@ export default function SpaceDetail() {
 
     // Get pages from the destination parent
     const siblingPages = pages
-      .filter(p => (destParentId ? p.parent_page_id === destParentId : !p.parent_page_id))
+      .filter((p) => (destParentId ? p.parent_page_id === destParentId : !p.parent_page_id))
       .sort((a, b) => (a.order || 0) - (b.order || 0));
 
-    const draggedPage = pages.find(p => p.id === result.draggableId);
-    
+    const draggedPage = pages.find((p) => p.id === result.draggableId);
+
     // Remove from old position
-    const filteredPages = siblingPages.filter(p => p.id !== draggedPage.id);
-    
+    const filteredPages = siblingPages.filter((p) => p.id !== draggedPage.id);
+
     // Insert at new position
     filteredPages.splice(destination.index, 0, draggedPage);
 
@@ -140,14 +155,18 @@ export default function SpaceDetail() {
   };
 
   // Build page hierarchy
-  const rootPages = pages.filter(p => !p.parent_page_id).sort((a, b) => (a.order || 0) - (b.order || 0));
-  
+  const rootPages = pages
+    .filter((p) => !p.parent_page_id)
+    .sort((a, b) => (a.order || 0) - (b.order || 0));
+
   const getChildPages = (parentId) => {
-    return pages.filter(p => p.parent_page_id === parentId).sort((a, b) => (a.order || 0) - (b.order || 0));
+    return pages
+      .filter((p) => p.parent_page_id === parentId)
+      .sort((a, b) => (a.order || 0) - (b.order || 0));
   };
 
-  const filteredPages = searchTerm 
-    ? pages.filter(p => p.title.toLowerCase().includes(searchTerm.toLowerCase()))
+  const filteredPages = searchTerm
+    ? pages.filter((p) => p.title.toLowerCase().includes(searchTerm.toLowerCase()))
     : rootPages;
 
   const PageItem = ({ page, level = 0, index }) => {
@@ -158,30 +177,38 @@ export default function SpaceDetail() {
       <Draggable draggableId={page.id} index={index}>
         {(provided, snapshot) => (
           <div ref={provided.innerRef} {...provided.draggableProps}>
-            <Card 
+            <Card
               className={`p-3 glass-card hover:shadow-md transition-all group ${
                 snapshot.isDragging ? 'shadow-lg ring-2 ring-violet-500' : ''
-              }`} 
-              style={{ 
+              }`}
+              style={{
                 marginLeft: `${level * 24}px`,
-                ...provided.draggableProps.style 
+                ...provided.draggableProps.style,
               }}
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2 flex-1 min-w-0">
-                  <div {...provided.dragHandleProps} className="cursor-grab active:cursor-grabbing opacity-0 group-hover:opacity-100">
+                  <div
+                    {...provided.dragHandleProps}
+                    className="cursor-grab active:cursor-grabbing opacity-0 group-hover:opacity-100"
+                  >
                     <GripVertical className="w-4 h-4 text-gray-400" />
                   </div>
-                  <Link 
+                  <Link
                     to={`${createPageUrl('WikiPageEditor')}?spaceId=${spaceId}&pageId=${page.id}`}
                     className="flex items-center gap-3 flex-1 min-w-0"
                   >
                     {children.length > 0 && (
                       <button
-                        onClick={(e) => { e.preventDefault(); setExpanded(!expanded); }}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          setExpanded(!expanded);
+                        }}
                         className="p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded"
                       >
-                        <ChevronRight className={`w-4 h-4 transition-transform ${expanded ? 'rotate-90' : ''}`} />
+                        <ChevronRight
+                          className={`w-4 h-4 transition-transform ${expanded ? 'rotate-90' : ''}`}
+                        />
                       </button>
                     )}
                     <FileText className="w-4 h-4 text-gray-400 flex-shrink-0" />
@@ -201,12 +228,14 @@ export default function SpaceDetail() {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
                     <DropdownMenuItem asChild>
-                      <Link to={`${createPageUrl('WikiPageEditor')}?spaceId=${spaceId}&pageId=${page.id}`}>
+                      <Link
+                        to={`${createPageUrl('WikiPageEditor')}?spaceId=${spaceId}&pageId=${page.id}`}
+                      >
                         <Pencil className="w-4 h-4 mr-2" />
                         Edit
                       </Link>
                     </DropdownMenuItem>
-                    <DropdownMenuItem 
+                    <DropdownMenuItem
                       onClick={() => deleteMutation.mutate(page.id)}
                       className="text-red-600"
                     >
@@ -245,31 +274,23 @@ export default function SpaceDetail() {
               <ArrowLeft className="w-5 h-5" />
             </Button>
           </Link>
-          <div className={`w-12 h-12 rounded-lg ${colorClasses[space.color]} flex items-center justify-center text-2xl`}>
+          <div
+            className={`w-12 h-12 rounded-lg ${colorClasses[space.color]} flex items-center justify-center text-2xl`}
+          >
             {space.icon}
           </div>
           <div>
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{space.name}</h1>
-            {space.description && (
-              <p className="text-gray-500 mt-1">{space.description}</p>
-            )}
+            {space.description && <p className="text-gray-500 mt-1">{space.description}</p>}
           </div>
         </div>
         <div className="flex gap-2">
-          <Button
-            variant="outline"
-            onClick={() => setShowQuickNav(true)}
-            className="gap-2"
-          >
+          <Button variant="outline" onClick={() => setShowQuickNav(true)} className="gap-2">
             <Zap className="w-4 h-4" />
             Quick Nav
           </Button>
           {space?.enable_folders && (
-            <Button
-              variant="outline"
-              onClick={() => setShowFolderModal(true)}
-              className="gap-2"
-            >
+            <Button variant="outline" onClick={() => setShowFolderModal(true)} className="gap-2">
               <FolderIcon className="w-4 h-4" />
               New Folder
             </Button>
@@ -297,9 +318,7 @@ export default function SpaceDetail() {
       </div>
 
       {/* Search */}
-      {pages.length > 0 && (
-        <FullTextSearch spaceId={spaceId} />
-      )}
+      {pages.length > 0 && <FullTextSearch spaceId={spaceId} />}
 
       {/* Pages List */}
       {pages.length === 0 ? (
@@ -336,7 +355,11 @@ export default function SpaceDetail() {
                     queryClient.invalidateQueries({ queryKey: ['space-folders'] });
                   }
                 }}
-                onAddPage={(folderId) => navigate(`${createPageUrl('WikiPageEditor')}?spaceId=${spaceId}&folderId=${folderId}`)}
+                onAddPage={(folderId) =>
+                  navigate(
+                    `${createPageUrl('WikiPageEditor')}?spaceId=${spaceId}&folderId=${folderId}`
+                  )
+                }
                 currentPageId={null}
               />
             ) : (

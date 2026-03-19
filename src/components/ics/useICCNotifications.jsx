@@ -21,14 +21,15 @@ export function useICCNotifications(user, channels, messages) {
       if (event.type !== 'create') return;
 
       const msg = event.data;
-      const channel = channels?.find(c => c.id === msg.channel_id);
+      const channel = channels?.find((c) => c.id === msg.channel_id);
 
       if (!channel || msg.sender_email === user.email) return;
 
       // Check if message mentions the user
-      const isMention = msg.content?.includes(`@${user.full_name}`) || 
-                        msg.mentions?.includes(user.email) ||
-                        (msg.type === 'mention' && msg.mentioned_users?.includes(user.email));
+      const isMention =
+        msg.content?.includes(`@${user.full_name}`) ||
+        msg.mentions?.includes(user.email) ||
+        (msg.type === 'mention' && msg.mentioned_users?.includes(user.email));
 
       // Check if it's a direct message
       const isDM = channel.type === 'dm' && channel.members?.includes(user.email);
@@ -37,7 +38,9 @@ export function useICCNotifications(user, channels, messages) {
         // Create notification in database
         createNotification({
           type: isMention ? 'mention' : 'direct_message',
-          title: isMention ? `@${msg.sender_name} mentioned you` : `Message from ${msg.sender_name}`,
+          title: isMention
+            ? `@${msg.sender_name} mentioned you`
+            : `Message from ${msg.sender_name}`,
           body: msg.content?.substring(0, 100),
           channel_id: msg.channel_id,
           channel_name: channel.name,
@@ -55,16 +58,19 @@ export function useICCNotifications(user, channels, messages) {
 
         // Show desktop notification
         if (Notification.permission === 'granted') {
-          new Notification(isMention ? `@${msg.sender_name} mentioned you` : `Message from ${msg.sender_name}`, {
-            body: msg.content?.substring(0, 100),
-            icon: '🔔',
-            tag: `msg-${msg.id}`,
-            requireInteraction: isMention,
-          });
+          new Notification(
+            isMention ? `@${msg.sender_name} mentioned you` : `Message from ${msg.sender_name}`,
+            {
+              body: msg.content?.substring(0, 100),
+              icon: '🔔',
+              tag: `msg-${msg.id}`,
+              requireInteraction: isMention,
+            }
+          );
         }
 
         // Update unread count
-        setUnreadCounts(prev => ({
+        setUnreadCounts((prev) => ({
           ...prev,
           [msg.channel_id]: (prev[msg.channel_id] || 0) + 1,
         }));
@@ -74,18 +80,21 @@ export function useICCNotifications(user, channels, messages) {
     return unsubscribe;
   }, [user, channels, toast]);
 
-  const createNotification = useCallback(async (notificationData) => {
-    try {
-      await base44.entities.Notification.create({
-        ...notificationData,
-        user_email: user?.email,
-        is_read: false,
-        created_at: new Date().toISOString(),
-      });
-    } catch (err) {
-      console.error('Failed to create notification:', err);
-    }
-  }, [user?.email]);
+  const createNotification = useCallback(
+    async (notificationData) => {
+      try {
+        await base44.entities.Notification.create({
+          ...notificationData,
+          user_email: user?.email,
+          is_read: false,
+          created_at: new Date().toISOString(),
+        });
+      } catch (err) {
+        console.error('Failed to create notification:', err);
+      }
+    },
+    [user?.email]
+  );
 
   const markAsRead = useCallback(async (notificationId) => {
     try {
@@ -98,26 +107,29 @@ export function useICCNotifications(user, channels, messages) {
     }
   }, []);
 
-  const markChannelAsRead = useCallback(async (channelId) => {
-    try {
-      const notifications = await base44.entities.Notification.filter({
-        channel_id: channelId,
-        user_email: user?.email,
-        is_read: false,
-      });
+  const markChannelAsRead = useCallback(
+    async (channelId) => {
+      try {
+        const notifications = await base44.entities.Notification.filter({
+          channel_id: channelId,
+          user_email: user?.email,
+          is_read: false,
+        });
 
-      await Promise.all(
-        notifications.map(n => base44.entities.Notification.update(n.id, { is_read: true }))
-      );
+        await Promise.all(
+          notifications.map((n) => base44.entities.Notification.update(n.id, { is_read: true }))
+        );
 
-      setUnreadCounts(prev => ({
-        ...prev,
-        [channelId]: 0,
-      }));
-    } catch (err) {
-      console.error('Failed to mark channel as read:', err);
-    }
-  }, [user?.email]);
+        setUnreadCounts((prev) => ({
+          ...prev,
+          [channelId]: 0,
+        }));
+      } catch (err) {
+        console.error('Failed to mark channel as read:', err);
+      }
+    },
+    [user?.email]
+  );
 
   return {
     markAsRead,

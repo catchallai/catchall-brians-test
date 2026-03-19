@@ -1,10 +1,16 @@
 import React, { useMemo, useState } from 'react';
-import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight, ZoomIn, ZoomOut } from "lucide-react";
+import { Card } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { ChevronLeft, ChevronRight, ZoomIn, ZoomOut } from 'lucide-react';
 
-export default function ProjectTimeline({ projects, tasks, milestones, onProjectClick, onTaskClick }) {
+export default function ProjectTimeline({
+  projects,
+  tasks,
+  milestones,
+  onProjectClick,
+  onTaskClick,
+}) {
   const [zoomLevel, setZoomLevel] = useState(30); // pixels per day
   const [startDate, setStartDate] = useState(() => {
     const date = new Date();
@@ -15,9 +21,9 @@ export default function ProjectTimeline({ projects, tasks, milestones, onProject
   // Calculate timeline data
   const timelineData = useMemo(() => {
     const items = [];
-    
+
     // Add projects
-    projects.forEach(project => {
+    projects.forEach((project) => {
       if (project.start_date && project.end_date) {
         items.push({
           id: project.id,
@@ -28,18 +34,18 @@ export default function ProjectTimeline({ projects, tasks, milestones, onProject
           progress: project.progress || 0,
           status: project.status,
           priority: project.priority,
-          data: project
+          data: project,
         });
       }
     });
 
     // Add tasks
-    tasks.forEach(task => {
-      const project = projects.find(p => p.id === task.project_id);
+    tasks.forEach((task) => {
+      const project = projects.find((p) => p.id === task.project_id);
       if (task.due_date && project) {
         const start = task.created_date ? new Date(task.created_date) : new Date(task.due_date);
         const end = new Date(task.due_date);
-        
+
         items.push({
           id: task.id,
           type: 'task',
@@ -51,14 +57,14 @@ export default function ProjectTimeline({ projects, tasks, milestones, onProject
           priority: task.priority,
           projectId: project.id,
           projectName: project.name,
-          data: task
+          data: task,
         });
       }
     });
 
     // Add milestones
-    milestones.forEach(milestone => {
-      const project = projects.find(p => p.id === milestone.project_id);
+    milestones.forEach((milestone) => {
+      const project = projects.find((p) => p.id === milestone.project_id);
       if (milestone.due_date && project) {
         items.push({
           id: milestone.id,
@@ -69,7 +75,7 @@ export default function ProjectTimeline({ projects, tasks, milestones, onProject
           status: milestone.status,
           projectId: project.id,
           projectName: project.name,
-          data: milestone
+          data: milestone,
         });
       }
     });
@@ -81,15 +87,15 @@ export default function ProjectTimeline({ projects, tasks, milestones, onProject
   const visibleMonths = useMemo(() => {
     const months = [];
     const current = new Date(startDate);
-    
+
     for (let i = 0; i < 6; i++) {
       months.push({
         label: current.toLocaleDateString('en-US', { month: 'short', year: 'numeric' }),
-        date: new Date(current)
+        date: new Date(current),
       });
       current.setMonth(current.getMonth() + 1);
     }
-    
+
     return months;
   }, [startDate]);
 
@@ -113,7 +119,7 @@ export default function ProjectTimeline({ projects, tasks, milestones, onProject
     done: 'bg-emerald-500',
     cancelled: 'bg-red-500',
     blocked: 'bg-red-500',
-    todo: 'bg-gray-400'
+    todo: 'bg-gray-400',
   };
 
   const changeMonth = (delta) => {
@@ -123,7 +129,7 @@ export default function ProjectTimeline({ projects, tasks, milestones, onProject
   };
 
   const adjustZoom = (delta) => {
-    setZoomLevel(prev => Math.max(10, Math.min(60, prev + delta)));
+    setZoomLevel((prev) => Math.max(10, Math.min(60, prev + delta)));
   };
 
   return (
@@ -146,7 +152,7 @@ export default function ProjectTimeline({ projects, tasks, milestones, onProject
             <ZoomOut className="w-4 h-4" />
           </Button>
           <span className="text-sm text-gray-600 dark:text-gray-400 min-w-[80px] text-center">
-            Zoom: {Math.round(zoomLevel / 30 * 100)}%
+            Zoom: {Math.round((zoomLevel / 30) * 100)}%
           </span>
           <Button variant="outline" size="icon" onClick={() => adjustZoom(5)}>
             <ZoomIn className="w-4 h-4" />
@@ -207,9 +213,15 @@ export default function ProjectTimeline({ projects, tasks, milestones, onProject
                         <div
                           className="relative"
                           style={{ marginLeft: `${getPositionX(item.start)}px` }}
-                          onClick={() => item.type === 'task' ? onTaskClick(item.data) : onProjectClick(item.data)}
+                          onClick={() =>
+                            item.type === 'task'
+                              ? onTaskClick(item.data)
+                              : onProjectClick(item.data)
+                          }
                         >
-                          <div className={`w-4 h-4 rotate-45 ${statusColors[item.status]} border-2 border-white dark:border-gray-800 cursor-pointer hover:scale-125 transition-transform`} />
+                          <div
+                            className={`w-4 h-4 rotate-45 ${statusColors[item.status]} border-2 border-white dark:border-gray-800 cursor-pointer hover:scale-125 transition-transform`}
+                          />
                           <div className="absolute top-6 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity">
                             <Badge variant="secondary" className="text-xs whitespace-nowrap">
                               {item.name}
@@ -223,9 +235,13 @@ export default function ProjectTimeline({ projects, tasks, milestones, onProject
                           style={{
                             marginLeft: `${getPositionX(item.start)}px`,
                             width: `${getWidth(item.start, item.end)}px`,
-                            background: `linear-gradient(to right, ${statusColors[item.status]} 0%, ${statusColors[item.status]} ${item.progress}%, ${statusColors[item.status]}40 ${item.progress}%)`
+                            background: `linear-gradient(to right, ${statusColors[item.status]} 0%, ${statusColors[item.status]} ${item.progress}%, ${statusColors[item.status]}40 ${item.progress}%)`,
                           }}
-                          onClick={() => item.type === 'task' ? onTaskClick(item.data) : onProjectClick(item.data)}
+                          onClick={() =>
+                            item.type === 'task'
+                              ? onTaskClick(item.data)
+                              : onProjectClick(item.data)
+                          }
                         >
                           {/* Progress Text */}
                           <div className="absolute inset-0 flex items-center justify-center">
@@ -240,11 +256,10 @@ export default function ProjectTimeline({ projects, tasks, milestones, onProject
                               <div className="text-xs space-y-1">
                                 <p className="font-semibold">{item.name}</p>
                                 <p className="text-gray-500">
-                                  {item.start.toLocaleDateString()} - {item.end.toLocaleDateString()}
+                                  {item.start.toLocaleDateString()} -{' '}
+                                  {item.end.toLocaleDateString()}
                                 </p>
-                                <Badge className={statusColors[item.status]}>
-                                  {item.status}
-                                </Badge>
+                                <Badge className={statusColors[item.status]}>{item.status}</Badge>
                               </div>
                             </Card>
                           </div>

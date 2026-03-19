@@ -1,9 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import {
@@ -26,8 +26,8 @@ import {
   X as XIcon,
   Pencil,
   Link as LinkIcon,
-  Copy
-} from "lucide-react";
+  Copy,
+} from 'lucide-react';
 import { format } from 'date-fns';
 import {
   DropdownMenu,
@@ -36,7 +36,7 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator,
   DropdownMenuLabel,
-} from "@/components/ui/dropdown-menu";
+} from '@/components/ui/dropdown-menu';
 import { useWebRTC } from './useWebRTC';
 import WhiteboardCanvas from './WhiteboardCanvas';
 import { WhiteboardVersionManager } from './WhiteboardVersionManager';
@@ -126,7 +126,7 @@ export default function VideoCallInterface({
       const success = await startScreenShare();
       if (success) {
         setIsScreenSharing(true);
-        const updatedParticipants = activeCall.participants.map(p =>
+        const updatedParticipants = activeCall.participants.map((p) =>
           p.email === user?.email ? { ...p, is_screen_sharing: true } : p
         );
         updateCallMutation.mutate({
@@ -137,7 +137,7 @@ export default function VideoCallInterface({
     } else {
       await stopScreenShare();
       setIsScreenSharing(false);
-      const updatedParticipants = activeCall.participants.map(p =>
+      const updatedParticipants = activeCall.participants.map((p) =>
         p.email === user?.email ? { ...p, is_screen_sharing: false } : p
       );
       updateCallMutation.mutate({
@@ -148,21 +148,23 @@ export default function VideoCallInterface({
   };
 
   const allParticipants = [
-    { 
-      id: 'local', 
-      email: user?.email, 
-      name: user?.full_name, 
+    {
+      id: 'local',
+      email: user?.email,
+      name: user?.full_name,
       isLocal: true,
       status: user?.status || 'online',
       status_emoji: user?.status_emoji || '✨',
     },
-    ...(activeCall?.participants?.filter(p => p.email !== user?.email).map((p, idx) => ({
-      id: `remote-${idx}`,
-      ...p,
-      isLocal: false,
-      status: p.status || 'online',
-      status_emoji: p.status_emoji || '✨',
-    })) || []),
+    ...(activeCall?.participants
+      ?.filter((p) => p.email !== user?.email)
+      .map((p, idx) => ({
+        id: `remote-${idx}`,
+        ...p,
+        isLocal: false,
+        status: p.status || 'online',
+        status_emoji: p.status_emoji || '✨',
+      })) || []),
   ];
 
   const isHost = user?.email === activeCall?.host_email;
@@ -193,23 +195,31 @@ export default function VideoCallInterface({
   };
 
   const togglePinParticipant = (participantId) => {
-    setPinnedParticipants(prev =>
+    setPinnedParticipants((prev) =>
       prev.includes(participantId)
-        ? prev.filter(id => id !== participantId)
+        ? prev.filter((id) => id !== participantId)
         : [...prev, participantId]
     );
   };
 
-  const gridClass = allParticipants.length === 1 ? 'grid-cols-1'
-    : allParticipants.length === 2 ? 'grid-cols-2'
-    : allParticipants.length <= 4 ? 'grid-cols-2'
-    : allParticipants.length <= 9 ? 'grid-cols-3'
-    : 'grid-cols-4';
+  const gridClass =
+    allParticipants.length === 1
+      ? 'grid-cols-1'
+      : allParticipants.length === 2
+        ? 'grid-cols-2'
+        : allParticipants.length <= 4
+          ? 'grid-cols-2'
+          : allParticipants.length <= 9
+            ? 'grid-cols-3'
+            : 'grid-cols-4';
 
-  const mainParticipants = pinnedParticipants.length > 0
-    ? allParticipants.filter(p => pinnedParticipants.includes(p.id))
-    : [allParticipants[0]];
-  const otherParticipants = allParticipants.filter(p => !pinnedParticipants.includes(p.id) && p.id !== mainParticipants[0]?.id);
+  const mainParticipants =
+    pinnedParticipants.length > 0
+      ? allParticipants.filter((p) => pinnedParticipants.includes(p.id))
+      : [allParticipants[0]];
+  const otherParticipants = allParticipants.filter(
+    (p) => !pinnedParticipants.includes(p.id) && p.id !== mainParticipants[0]?.id
+  );
 
   return (
     <div className="bg-gray-900 p-4">
@@ -310,7 +320,7 @@ export default function VideoCallInterface({
               </h3>
               <Button
                 size="sm"
-                onClick={() => activeCall.waiting_room.forEach(u => onAdmitUser(u.email, u.name))}
+                onClick={() => activeCall.waiting_room.forEach((u) => onAdmitUser(u.email, u.name))}
                 className="bg-green-600 hover:bg-green-700"
               >
                 Admit All
@@ -318,7 +328,10 @@ export default function VideoCallInterface({
             </div>
             <div className="space-y-2">
               {activeCall.waiting_room.map((person, idx) => (
-                <div key={idx} className="flex items-center justify-between p-3 bg-white dark:bg-gray-800 rounded-lg">
+                <div
+                  key={idx}
+                  className="flex items-center justify-between p-3 bg-white dark:bg-gray-800 rounded-lg"
+                >
                   <div className="flex items-center gap-2">
                     <Avatar className="w-9 h-9">
                       <AvatarFallback className="bg-yellow-200 dark:bg-yellow-700 text-yellow-900 dark:text-yellow-100 text-sm">
@@ -326,7 +339,9 @@ export default function VideoCallInterface({
                       </AvatarFallback>
                     </Avatar>
                     <div>
-                      <p className="text-gray-900 dark:text-white text-sm font-medium">{person.name}</p>
+                      <p className="text-gray-900 dark:text-white text-sm font-medium">
+                        {person.name}
+                      </p>
                       {person.requested_at && (
                         <p className="text-gray-500 dark:text-gray-400 text-xs">
                           {format(new Date(person.requested_at), 'h:mm a')}
@@ -373,7 +388,7 @@ export default function VideoCallInterface({
                     activeCall.id,
                     data,
                     user?.email
-                  ).catch(err => console.error(err));
+                  ).catch((err) => console.error(err));
                 }
               }}
               onRevert={(version) => {
@@ -393,12 +408,14 @@ export default function VideoCallInterface({
                   <div
                     key={participant.id}
                     className={`aspect-video bg-gray-700 rounded-lg relative overflow-hidden group cursor-pointer border-2 ${
-                      pinnedParticipants.includes(participant.id) ? 'border-violet-500' : 'border-transparent'
+                      pinnedParticipants.includes(participant.id)
+                        ? 'border-violet-500'
+                        : 'border-transparent'
                     }`}
                     onClick={() => togglePinParticipant(participant.id)}
                   >
                     <video
-                      ref={el => videoRefs.current[participant.id] = el}
+                      ref={(el) => (videoRefs.current[participant.id] = el)}
                       autoPlay
                       playsInline
                       muted={participant.isLocal}
@@ -425,12 +442,17 @@ export default function VideoCallInterface({
                       {participant.isLocal && ' (You)'}
                     </div>
                     <div className="absolute top-2 left-2 flex items-center gap-1 bg-black/70 px-2 py-1 rounded text-xs text-white">
-                      <span className={`w-2 h-2 rounded-full ${
-                        participant.status === 'online' ? 'bg-green-500' :
-                        participant.status === 'away' ? 'bg-yellow-500' :
-                        participant.status === 'busy' ? 'bg-red-500' :
-                        'bg-gray-500'
-                      }`}></span>
+                      <span
+                        className={`w-2 h-2 rounded-full ${
+                          participant.status === 'online'
+                            ? 'bg-green-500'
+                            : participant.status === 'away'
+                              ? 'bg-yellow-500'
+                              : participant.status === 'busy'
+                                ? 'bg-red-500'
+                                : 'bg-gray-500'
+                        }`}
+                      ></span>
                       {participant.status}
                     </div>
                     {isHost && !participant.isLocal && (
@@ -459,9 +481,12 @@ export default function VideoCallInterface({
               <div className="mb-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mb-2">
                   {mainParticipants.map((participant) => (
-                    <div key={participant.id} className="aspect-video bg-gray-700 rounded-lg relative overflow-hidden border-2 border-violet-500">
+                    <div
+                      key={participant.id}
+                      className="aspect-video bg-gray-700 rounded-lg relative overflow-hidden border-2 border-violet-500"
+                    >
                       <video
-                        ref={el => videoRefs.current[participant.id] = el}
+                        ref={(el) => (videoRefs.current[participant.id] = el)}
                         autoPlay
                         playsInline
                         muted={participant.isLocal}
@@ -481,12 +506,14 @@ export default function VideoCallInterface({
                       <div
                         key={participant.id}
                         className={`w-32 h-20 bg-gray-700 rounded relative cursor-pointer flex-shrink-0 border-2 ${
-                          pinnedParticipants.includes(participant.id) ? 'border-violet-500' : 'border-transparent'
+                          pinnedParticipants.includes(participant.id)
+                            ? 'border-violet-500'
+                            : 'border-transparent'
                         }`}
                         onClick={() => togglePinParticipant(participant.id)}
                       >
                         <video
-                          ref={el => videoRefs.current[participant.id] = el}
+                          ref={(el) => (videoRefs.current[participant.id] = el)}
                           autoPlay
                           playsInline
                           muted={participant.isLocal}
@@ -508,7 +535,7 @@ export default function VideoCallInterface({
         {/* Controls */}
         <div className="flex justify-center gap-3">
           <Button
-            variant={isAudioEnabled ? "secondary" : "destructive"}
+            variant={isAudioEnabled ? 'secondary' : 'destructive'}
             size="lg"
             onClick={toggleAudio}
             title="Mute"
@@ -516,7 +543,7 @@ export default function VideoCallInterface({
             {isAudioEnabled ? <Mic className="w-5 h-5" /> : <MicOff className="w-5 h-5" />}
           </Button>
           <Button
-            variant={isVideoEnabled ? "secondary" : "destructive"}
+            variant={isVideoEnabled ? 'secondary' : 'destructive'}
             size="lg"
             onClick={toggleVideo}
             title="Turn off camera"
@@ -524,16 +551,20 @@ export default function VideoCallInterface({
             {isVideoEnabled ? <Video className="w-5 h-5" /> : <VideoOffIcon className="w-5 h-5" />}
           </Button>
           <Button
-            variant={isScreenSharing ? "default" : "secondary"}
+            variant={isScreenSharing ? 'default' : 'secondary'}
             size="lg"
             onClick={handleScreenShare}
             title="Share screen"
           >
-            {isScreenSharing ? <StopCircle className="w-5 h-5" /> : <ScreenShare className="w-5 h-5" />}
+            {isScreenSharing ? (
+              <StopCircle className="w-5 h-5" />
+            ) : (
+              <ScreenShare className="w-5 h-5" />
+            )}
           </Button>
           <div className="relative">
             <Button
-              variant={selectedBackground ? "default" : "secondary"}
+              variant={selectedBackground ? 'default' : 'secondary'}
               size="lg"
               onClick={() => setShowBackgroundSelector(!showBackgroundSelector)}
               title="Virtual background"
@@ -565,7 +596,7 @@ export default function VideoCallInterface({
             )}
           </div>
           <Button
-            variant={activeCall?.recording_status === 'recording' ? "destructive" : "secondary"}
+            variant={activeCall?.recording_status === 'recording' ? 'destructive' : 'secondary'}
             size="lg"
             onClick={onToggleRecording}
             title="Start recording"
@@ -578,7 +609,7 @@ export default function VideoCallInterface({
           </Button>
           {isHost && (
             <Button
-              variant={showWhiteboard ? "default" : "secondary"}
+              variant={showWhiteboard ? 'default' : 'secondary'}
               size="lg"
               onClick={() => setShowWhiteboard(!showWhiteboard)}
               title="Whiteboard"

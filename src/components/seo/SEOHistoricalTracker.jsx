@@ -1,13 +1,22 @@
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { TrendingUp, TrendingDown, Minus, Calendar } from "lucide-react";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { TrendingUp, TrendingDown, Minus, Calendar } from 'lucide-react';
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from 'recharts';
 
 export default function SEOHistoricalTracker({ keywords, keywordHistory }) {
   // Group history by keyword
   const keywordHistoryMap = {};
-  keywordHistory.forEach(h => {
+  keywordHistory.forEach((h) => {
     if (!keywordHistoryMap[h.keyword_id]) {
       keywordHistoryMap[h.keyword_id] = [];
     }
@@ -16,8 +25,8 @@ export default function SEOHistoricalTracker({ keywords, keywordHistory }) {
 
   // Get keywords with significant changes
   const keywordsWithHistory = keywords
-    .filter(k => keywordHistoryMap[k.id]?.length > 1)
-    .map(k => {
+    .filter((k) => keywordHistoryMap[k.id]?.length > 1)
+    .map((k) => {
       const history = keywordHistoryMap[k.id].sort((a, b) => new Date(a.date) - new Date(b.date));
       const oldestPosition = history[0].position;
       const latestPosition = history[history.length - 1].position;
@@ -32,7 +41,9 @@ export default function SEOHistoricalTracker({ keywords, keywordHistory }) {
       <Card className="border-0 shadow-sm">
         <CardContent className="p-8 text-center">
           <Calendar className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-          <p className="text-gray-500">No historical data yet. Analyze websites to build tracking history.</p>
+          <p className="text-gray-500">
+            No historical data yet. Analyze websites to build tracking history.
+          </p>
         </CardContent>
       </Card>
     );
@@ -47,7 +58,7 @@ export default function SEOHistoricalTracker({ keywords, keywordHistory }) {
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        {keywordsWithHistory.map(kw => (
+        {keywordsWithHistory.map((kw) => (
           <div key={kw.id} className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
             <div className="flex items-start justify-between mb-3">
               <div className="flex-1">
@@ -58,14 +69,12 @@ export default function SEOHistoricalTracker({ keywords, keywordHistory }) {
                   </Badge>
                   {kw.change > 0 && (
                     <Badge className="bg-emerald-100 text-emerald-700 border-emerald-300 text-xs">
-                      <TrendingUp className="w-3 h-3 mr-1" />
-                      +{Math.abs(kw.change)} positions
+                      <TrendingUp className="w-3 h-3 mr-1" />+{Math.abs(kw.change)} positions
                     </Badge>
                   )}
                   {kw.change < 0 && (
                     <Badge className="bg-red-100 text-red-700 border-red-300 text-xs">
-                      <TrendingDown className="w-3 h-3 mr-1" />
-                      -{Math.abs(kw.change)} positions
+                      <TrendingDown className="w-3 h-3 mr-1" />-{Math.abs(kw.change)} positions
                     </Badge>
                   )}
                   {kw.change === 0 && (

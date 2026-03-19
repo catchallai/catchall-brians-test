@@ -11,7 +11,7 @@ Deno.serve(async (req) => {
     }
 
     const { proposalId } = await req.json();
-    
+
     const proposal = await base44.entities.Proposal.filter({ id: proposalId });
     if (!proposal.length) {
       return Response.json({ error: 'Proposal not found' }, { status: 404 });
@@ -33,12 +33,12 @@ Deno.serve(async (req) => {
     // Header with SyberJet branding
     doc.setFillColor(...primaryBlue);
     doc.rect(0, 0, pageWidth, 40, 'F');
-    
+
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(24);
     doc.setFont('helvetica', 'bold');
     doc.text('SYBERJET', 20, 25);
-    
+
     doc.setFontSize(10);
     doc.setFont('helvetica', 'normal');
     doc.text('AIRCRAFT CORPORATION', 20, 32);
@@ -61,12 +61,12 @@ Deno.serve(async (req) => {
     // Client Information
     doc.setFillColor(...lightGray);
     doc.rect(20, 90, pageWidth - 40, 35, 'F');
-    
+
     doc.setTextColor(...primaryBlue);
     doc.setFontSize(12);
     doc.setFont('helvetica', 'bold');
     doc.text('CLIENT INFORMATION', 25, 100);
-    
+
     doc.setTextColor(...darkGray);
     doc.setFontSize(10);
     doc.setFont('helvetica', 'normal');
@@ -84,7 +84,7 @@ Deno.serve(async (req) => {
     yPos += 10;
     doc.setFillColor(...primaryBlue);
     doc.rect(20, yPos, pageWidth - 40, 8, 'F');
-    
+
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(10);
     doc.setFont('helvetica', 'bold');
@@ -112,11 +112,11 @@ Deno.serve(async (req) => {
         doc.setFontSize(10);
         doc.setTextColor(...darkGray);
       }
-      
+
       doc.text(item.quantity.toString(), pageWidth - 80, yPos);
       doc.text(`$${item.unit_price.toLocaleString()}`, pageWidth - 60, yPos);
       doc.text(`$${item.total.toLocaleString()}`, pageWidth - 35, yPos);
-      
+
       yPos += item.description ? 12 : 8;
     }
 
@@ -124,17 +124,14 @@ Deno.serve(async (req) => {
     yPos += 5;
     doc.setFillColor(...lightGray);
     doc.rect(pageWidth - 90, yPos, 70, 10, 'F');
-    
+
     doc.setFontSize(12);
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(...primaryBlue);
     doc.text('TOTAL:', pageWidth - 85, yPos + 7);
-    doc.text(
-      `$${(proposalData.total_value || 0).toLocaleString()}`,
-      pageWidth - 35,
-      yPos + 7,
-      { align: 'right' }
-    );
+    doc.text(`$${(proposalData.total_value || 0).toLocaleString()}`, pageWidth - 35, yPos + 7, {
+      align: 'right',
+    });
 
     // Terms and Notes
     yPos += 20;
@@ -143,12 +140,12 @@ Deno.serve(async (req) => {
         doc.addPage();
         yPos = 20;
       }
-      
+
       doc.setFontSize(12);
       doc.setFont('helvetica', 'bold');
       doc.setTextColor(...primaryBlue);
       doc.text('TERMS & CONDITIONS', 20, yPos);
-      
+
       yPos += 8;
       doc.setFontSize(9);
       doc.setFont('helvetica', 'normal');
@@ -161,11 +158,18 @@ Deno.serve(async (req) => {
     // Footer
     doc.setFillColor(...primaryBlue);
     doc.rect(0, pageHeight - 20, pageWidth, 20, 'F');
-    
+
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(8);
-    doc.text('SyberJet Aircraft Corporation | www.syberjet.com', pageWidth / 2, pageHeight - 12, { align: 'center' });
-    doc.text('This proposal is confidential and intended solely for the recipient.', pageWidth / 2, pageHeight - 7, { align: 'center' });
+    doc.text('SyberJet Aircraft Corporation | www.syberjet.com', pageWidth / 2, pageHeight - 12, {
+      align: 'center',
+    });
+    doc.text(
+      'This proposal is confidential and intended solely for the recipient.',
+      pageWidth / 2,
+      pageHeight - 7,
+      { align: 'center' }
+    );
 
     const pdfBytes = doc.output('arraybuffer');
 
@@ -173,8 +177,8 @@ Deno.serve(async (req) => {
       status: 200,
       headers: {
         'Content-Type': 'application/pdf',
-        'Content-Disposition': `inline; filename="${proposalData.title.replace(/\s+/g, '_')}.pdf"`
-      }
+        'Content-Disposition': `inline; filename="${proposalData.title.replace(/\s+/g, '_')}.pdf"`,
+      },
     });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });

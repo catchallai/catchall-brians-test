@@ -42,20 +42,20 @@ export function useWebRTC(roomId, user, participants) {
   const toggleAudio = useCallback(() => {
     if (localStreamRef.current) {
       const audioTracks = localStreamRef.current.getAudioTracks();
-      audioTracks.forEach(track => {
+      audioTracks.forEach((track) => {
         track.enabled = !track.enabled;
       });
-      setIsAudioEnabled(prev => !prev);
+      setIsAudioEnabled((prev) => !prev);
     }
   }, []);
 
   const toggleVideo = useCallback(() => {
     if (localStreamRef.current) {
       const videoTracks = localStreamRef.current.getVideoTracks();
-      videoTracks.forEach(track => {
+      videoTracks.forEach((track) => {
         track.enabled = !track.enabled;
       });
-      setIsVideoEnabled(prev => !prev);
+      setIsVideoEnabled((prev) => !prev);
     }
   }, []);
 
@@ -64,7 +64,7 @@ export function useWebRTC(roomId, user, participants) {
     if (localStreamRef.current) {
       const videoTracks = localStreamRef.current.getVideoTracks();
       const constraints = qualityConstraints[quality];
-      
+
       for (const track of videoTracks) {
         try {
           await track.applyConstraints(constraints);
@@ -86,11 +86,11 @@ export function useWebRTC(roomId, user, participants) {
       const screenTrack = screenStream.getVideoTracks()[0];
       const sender = Object.values(peerConnections.current)[0]
         ?.getSenders()
-        .find(s => s.track?.kind === 'video');
+        .find((s) => s.track?.kind === 'video');
 
       if (sender && localStreamRef.current) {
         await sender.replaceTrack(screenTrack);
-        
+
         // When screen sharing stops, revert to camera
         screenTrack.onended = async () => {
           const videoTrack = localStreamRef.current.getVideoTracks()[0];
@@ -111,7 +111,7 @@ export function useWebRTC(roomId, user, participants) {
     try {
       const sender = Object.values(peerConnections.current)[0]
         ?.getSenders()
-        .find(s => s.track?.kind === 'video');
+        .find((s) => s.track?.kind === 'video');
 
       if (sender && localStreamRef.current) {
         const videoTrack = localStreamRef.current.getVideoTracks()[0];
@@ -128,14 +128,14 @@ export function useWebRTC(roomId, user, participants) {
   }, []);
 
   const muteParticipant = useCallback((participantEmail) => {
-    setMutedParticipants(prev => ({
+    setMutedParticipants((prev) => ({
       ...prev,
       [participantEmail]: true,
     }));
   }, []);
 
   const unmuteParticipant = useCallback((participantEmail) => {
-    setMutedParticipants(prev => {
+    setMutedParticipants((prev) => {
       const updated = { ...prev };
       delete updated[participantEmail];
       return updated;
@@ -144,40 +144,40 @@ export function useWebRTC(roomId, user, participants) {
 
   const startRecording = useCallback(async () => {
     if (!localStream) return null;
-    
+
     try {
       const recordedChunks = [];
       const audioContext = new AudioContext();
       const source = audioContext.createMediaStreamSource(localStream);
       const destination = audioContext.createMediaStreamDestination();
-      
+
       source.connect(destination);
-      
+
       // Combine local and remote audio/video
       const canvas = document.createElement('canvas');
       canvas.width = 1280;
       canvas.height = 720;
       const ctx = canvas.getContext('2d');
-      
+
       const combinedStream = new MediaStream([
         ...destination.stream.getAudioTracks(),
         ...canvas.captureStream(30).getVideoTracks(),
       ]);
-      
+
       const recorder = new MediaRecorder(combinedStream, {
         mimeType: 'video/webm;codecs=vp9',
       });
-      
+
       recorder.ondataavailable = (event) => {
         if (event.data.size > 0) {
           recordedChunks.push(event.data);
         }
       };
-      
+
       recorder.start();
       setMediaRecorder(recorder);
       setRecordingChunks(recordedChunks);
-      
+
       return recorder;
     } catch (error) {
       console.error('Error starting recording:', error);
@@ -212,14 +212,14 @@ export function useWebRTC(roomId, user, participants) {
 
     // Add local stream tracks to peer connection
     if (localStreamRef.current) {
-      localStreamRef.current.getTracks().forEach(track => {
+      localStreamRef.current.getTracks().forEach((track) => {
         pc.addTrack(track, localStreamRef.current);
       });
     }
 
     // Handle incoming remote stream
     pc.ontrack = (event) => {
-      setRemoteStreams(prev => ({
+      setRemoteStreams((prev) => ({
         ...prev,
         [participantId]: event.streams[0],
       }));
@@ -237,7 +237,7 @@ export function useWebRTC(roomId, user, participants) {
       console.log('Connection state:', pc.connectionState);
       if (pc.connectionState === 'disconnected' || pc.connectionState === 'failed') {
         delete peerConnections.current[participantId];
-        setRemoteStreams(prev => {
+        setRemoteStreams((prev) => {
           const updated = { ...prev };
           delete updated[participantId];
           return updated;
@@ -252,11 +252,11 @@ export function useWebRTC(roomId, user, participants) {
   const cleanupConnections = useCallback(() => {
     // Stop all tracks
     if (localStreamRef.current) {
-      localStreamRef.current.getTracks().forEach(track => track.stop());
+      localStreamRef.current.getTracks().forEach((track) => track.stop());
     }
 
     // Close all peer connections
-    Object.values(peerConnections.current).forEach(pc => pc.close());
+    Object.values(peerConnections.current).forEach((pc) => pc.close());
     peerConnections.current = {};
     setRemoteStreams({});
     setLocalStream(null);

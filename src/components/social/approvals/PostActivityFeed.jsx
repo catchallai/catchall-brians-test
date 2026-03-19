@@ -1,26 +1,47 @@
 import React from 'react';
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
 import {
-  CheckCircle2, XCircle, RotateCcw, Send, ThumbsUp, Eye, UserPlus,
-  MessageSquare, Clock, Activity
-} from "lucide-react";
+  CheckCircle2,
+  XCircle,
+  RotateCcw,
+  Send,
+  ThumbsUp,
+  Eye,
+  UserPlus,
+  MessageSquare,
+  Clock,
+  Activity,
+} from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 
 const ACTION_CONFIG = {
-  comment:                  { icon: MessageSquare, color: 'bg-blue-100 text-blue-600',    label: 'commented' },
-  approved:                 { icon: CheckCircle2,  color: 'bg-green-100 text-green-600',  label: 'approved' },
-  rejected:                 { icon: XCircle,        color: 'bg-red-100 text-red-600',     label: 'rejected' },
-  changes_requested:        { icon: RotateCcw,      color: 'bg-orange-100 text-orange-600', label: 'requested changes' },
-  submitted_for_review:     { icon: Send,           color: 'bg-yellow-100 text-yellow-600', label: 'submitted for review' },
-  submitted_for_approval:   { icon: ThumbsUp,       color: 'bg-blue-100 text-blue-600',   label: 'sent to approver' },
-  assigned:                 { icon: UserPlus,       color: 'bg-violet-100 text-violet-600', label: 'assigned reviewer' },
-  viewed:                   { icon: Eye,            color: 'bg-gray-100 text-gray-500',   label: 'viewed' },
+  comment: { icon: MessageSquare, color: 'bg-blue-100 text-blue-600', label: 'commented' },
+  approved: { icon: CheckCircle2, color: 'bg-green-100 text-green-600', label: 'approved' },
+  rejected: { icon: XCircle, color: 'bg-red-100 text-red-600', label: 'rejected' },
+  changes_requested: {
+    icon: RotateCcw,
+    color: 'bg-orange-100 text-orange-600',
+    label: 'requested changes',
+  },
+  submitted_for_review: {
+    icon: Send,
+    color: 'bg-yellow-100 text-yellow-600',
+    label: 'submitted for review',
+  },
+  submitted_for_approval: {
+    icon: ThumbsUp,
+    color: 'bg-blue-100 text-blue-600',
+    label: 'sent to approver',
+  },
+  assigned: { icon: UserPlus, color: 'bg-violet-100 text-violet-600', label: 'assigned reviewer' },
+  viewed: { icon: Eye, color: 'bg-gray-100 text-gray-500', label: 'viewed' },
 };
 
 export default function PostActivityFeed({ post }) {
-  const events = [...(post.workflow_history || [])]
-    .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+  const events = [...(post.workflow_history || [])].sort(
+    (a, b) => new Date(b.timestamp) - new Date(a.timestamp)
+  );
 
   if (events.length === 0) {
     return (
@@ -36,17 +57,28 @@ export default function PostActivityFeed({ post }) {
       <div className="flex items-center gap-2 mb-3">
         <Activity className="w-4 h-4 text-violet-500" />
         <h3 className="text-sm font-semibold text-gray-800 dark:text-white">Activity Feed</h3>
-        <Badge variant="outline" className="text-xs">{events.length}</Badge>
+        <Badge variant="outline" className="text-xs">
+          {events.length}
+        </Badge>
       </div>
 
       <div className="max-h-72 overflow-y-auto space-y-2 pr-1">
         {events.map((event, i) => {
-          const cfg = ACTION_CONFIG[event.action] || { icon: Clock, color: 'bg-gray-100 text-gray-500', label: event.action?.replace(/_/g, ' ') };
+          const cfg = ACTION_CONFIG[event.action] || {
+            icon: Clock,
+            color: 'bg-gray-100 text-gray-500',
+            label: event.action?.replace(/_/g, ' '),
+          };
           const Icon = cfg.icon;
 
           return (
-            <div key={i} className="flex items-start gap-3 p-2.5 rounded-xl hover:bg-gray-50 dark:hover:bg-slate-800/50 transition-colors">
-              <div className={`w-7 h-7 rounded-full flex items-center justify-center shrink-0 ${cfg.color}`}>
+            <div
+              key={i}
+              className="flex items-start gap-3 p-2.5 rounded-xl hover:bg-gray-50 dark:hover:bg-slate-800/50 transition-colors"
+            >
+              <div
+                className={`w-7 h-7 rounded-full flex items-center justify-center shrink-0 ${cfg.color}`}
+              >
                 <Icon className="w-3.5 h-3.5" />
               </div>
               <div className="flex-1 min-w-0">

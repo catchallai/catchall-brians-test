@@ -1,13 +1,19 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Switch } from "@/components/ui/switch";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Calendar, Clock, Mail, Plus, Trash2 } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Switch } from '@/components/ui/switch';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Calendar, Clock, Mail, Plus, Trash2 } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 
@@ -18,42 +24,42 @@ export default function ScheduledReports({ reports = [] }) {
     frequency: 'weekly',
     day: 'monday',
     time: '09:00',
-    recipients: ''
+    recipients: '',
   });
   const queryClient = useQueryClient();
 
   const { data: scheduledReports = [] } = useQuery({
     queryKey: ['scheduled-reports'],
-    queryFn: () => base44.entities.ScheduledTask.filter({ task_type: 'report' })
+    queryFn: () => base44.entities.ScheduledTask.filter({ task_type: 'report' }),
   });
 
   const createScheduleMutation = useMutation({
-    mutationFn: (data) => base44.entities.ScheduledTask.create({
-      task_type: 'report',
-      task_config: data,
-      is_active: true,
-      frequency: data.frequency,
-      next_run: calculateNextRun(data)
-    }),
+    mutationFn: (data) =>
+      base44.entities.ScheduledTask.create({
+        task_type: 'report',
+        task_config: data,
+        is_active: true,
+        frequency: data.frequency,
+        next_run: calculateNextRun(data),
+      }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['scheduled-reports'] });
       setShowModal(false);
-    }
+    },
   });
 
   const toggleScheduleMutation = useMutation({
-    mutationFn: ({ id, is_active }) => 
-      base44.entities.ScheduledTask.update(id, { is_active }),
+    mutationFn: ({ id, is_active }) => base44.entities.ScheduledTask.update(id, { is_active }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['scheduled-reports'] });
-    }
+    },
   });
 
   const deleteScheduleMutation = useMutation({
     mutationFn: (id) => base44.entities.ScheduledTask.delete(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['scheduled-reports'] });
-    }
+    },
   });
 
   const calculateNextRun = (config) => {
@@ -61,7 +67,7 @@ export default function ScheduledReports({ reports = [] }) {
     const [hour, minute] = config.time.split(':');
     const next = new Date(now);
     next.setHours(parseInt(hour), parseInt(minute), 0, 0);
-    
+
     if (config.frequency === 'daily' && next <= now) {
       next.setDate(next.getDate() + 1);
     } else if (config.frequency === 'weekly') {
@@ -76,19 +82,19 @@ export default function ScheduledReports({ reports = [] }) {
       }
       next.setDate(1);
     }
-    
+
     return next.toISOString();
   };
 
   const handleCreateSchedule = () => {
-    const reportToSchedule = reports.find(r => r.id === selectedReport);
+    const reportToSchedule = reports.find((r) => r.id === selectedReport);
     if (!reportToSchedule) return;
 
     createScheduleMutation.mutate({
       report_id: selectedReport,
       report_name: reportToSchedule.name,
       ...schedule,
-      recipients: schedule.recipients.split(',').map(e => e.trim())
+      recipients: schedule.recipients.split(',').map((e) => e.trim()),
     });
   };
 
@@ -112,8 +118,11 @@ export default function ScheduledReports({ reports = [] }) {
             <p className="text-sm text-gray-500 text-center py-8">No scheduled reports yet</p>
           ) : (
             <div className="space-y-3">
-              {scheduledReports.map(schedule => (
-                <div key={schedule.id} className="flex items-center justify-between p-3 border rounded-lg">
+              {scheduledReports.map((schedule) => (
+                <div
+                  key={schedule.id}
+                  className="flex items-center justify-between p-3 border rounded-lg"
+                >
                   <div className="flex-1">
                     <p className="font-medium text-sm">{schedule.task_config?.report_name}</p>
                     <div className="flex items-center gap-3 mt-1 text-xs text-gray-500">
@@ -130,7 +139,7 @@ export default function ScheduledReports({ reports = [] }) {
                   <div className="flex items-center gap-2">
                     <Switch
                       checked={schedule.is_active}
-                      onCheckedChange={(checked) => 
+                      onCheckedChange={(checked) =>
                         toggleScheduleMutation.mutate({ id: schedule.id, is_active: checked })
                       }
                     />
@@ -162,7 +171,7 @@ export default function ScheduledReports({ reports = [] }) {
                   <SelectValue placeholder="Choose a report" />
                 </SelectTrigger>
                 <SelectContent>
-                  {reports.map(report => (
+                  {reports.map((report) => (
                     <SelectItem key={report.id} value={report.id}>
                       {report.name}
                     </SelectItem>
@@ -173,7 +182,10 @@ export default function ScheduledReports({ reports = [] }) {
 
             <div>
               <Label>Frequency</Label>
-              <Select value={schedule.frequency} onValueChange={(val) => setSchedule({...schedule, frequency: val})}>
+              <Select
+                value={schedule.frequency}
+                onValueChange={(val) => setSchedule({ ...schedule, frequency: val })}
+              >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -188,7 +200,10 @@ export default function ScheduledReports({ reports = [] }) {
             {schedule.frequency === 'weekly' && (
               <div>
                 <Label>Day of Week</Label>
-                <Select value={schedule.day} onValueChange={(val) => setSchedule({...schedule, day: val})}>
+                <Select
+                  value={schedule.day}
+                  onValueChange={(val) => setSchedule({ ...schedule, day: val })}
+                >
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
@@ -208,7 +223,7 @@ export default function ScheduledReports({ reports = [] }) {
               <Input
                 type="time"
                 value={schedule.time}
-                onChange={(e) => setSchedule({...schedule, time: e.target.value})}
+                onChange={(e) => setSchedule({ ...schedule, time: e.target.value })}
               />
             </div>
 
@@ -216,13 +231,15 @@ export default function ScheduledReports({ reports = [] }) {
               <Label>Recipients (comma-separated emails)</Label>
               <Input
                 value={schedule.recipients}
-                onChange={(e) => setSchedule({...schedule, recipients: e.target.value})}
+                onChange={(e) => setSchedule({ ...schedule, recipients: e.target.value })}
                 placeholder="email1@example.com, email2@example.com"
               />
             </div>
 
             <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => setShowModal(false)}>Cancel</Button>
+              <Button variant="outline" onClick={() => setShowModal(false)}>
+                Cancel
+              </Button>
               <Button onClick={handleCreateSchedule} disabled={!selectedReport}>
                 Schedule Report
               </Button>

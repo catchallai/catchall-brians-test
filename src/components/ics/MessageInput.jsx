@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Send, Plus, Paperclip, Image, Mic } from 'lucide-react';
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import FileUploader from './FileUploader';
 
 export default function MessageInput({ onSendMessage, onTyping, darkMode }) {
@@ -11,16 +11,16 @@ export default function MessageInput({ onSendMessage, onTyping, darkMode }) {
 
   const handleMessageChange = (e) => {
     setMessage(e.target.value);
-    
+
     // Notify typing
     if (onTyping) {
       onTyping(true);
-      
+
       // Clear previous timeout
       if (typingTimeoutRef.current) {
         clearTimeout(typingTimeoutRef.current);
       }
-      
+
       // Set new timeout to stop typing after 3 seconds of inactivity
       typingTimeoutRef.current = setTimeout(() => {
         onTyping(false);
@@ -39,7 +39,7 @@ export default function MessageInput({ onSendMessage, onTyping, darkMode }) {
 
     setMessage('');
     setAttachedFiles([]);
-    
+
     // Stop typing indicator
     if (onTyping) {
       onTyping(false);
@@ -51,28 +51,20 @@ export default function MessageInput({ onSendMessage, onTyping, darkMode }) {
       {attachedFiles.length > 0 && (
         <div
           className={`p-3 rounded-lg border ${
-            darkMode
-              ? 'bg-slate-800 border-slate-700'
-              : 'bg-slate-100 border-slate-200'
+            darkMode ? 'bg-slate-800 border-slate-700' : 'bg-slate-100 border-slate-200'
           }`}
         >
           <p
-            className={`text-xs font-medium mb-2 ${
-              darkMode ? 'text-slate-400' : 'text-slate-500'
-            }`}
+            className={`text-xs font-medium mb-2 ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}
           >
             {attachedFiles.length} file(s) attached
           </p>
           <div className="space-y-1">
             {attachedFiles.map((file, idx) => (
               <div key={idx} className="flex items-center justify-between text-xs">
-                <span className={darkMode ? 'text-slate-300' : 'text-slate-700'}>
-                  {file.name}
-                </span>
+                <span className={darkMode ? 'text-slate-300' : 'text-slate-700'}>{file.name}</span>
                 <button
-                  onClick={() =>
-                    setAttachedFiles(prev => prev.filter((_, i) => i !== idx))
-                  }
+                  onClick={() => setAttachedFiles((prev) => prev.filter((_, i) => i !== idx))}
                   className="text-red-500 hover:text-red-700"
                 >
                   ✕
@@ -90,10 +82,7 @@ export default function MessageInput({ onSendMessage, onTyping, darkMode }) {
           }`}
         >
           <Button type="button" variant="ghost" size="icon" className="h-auto p-2">
-            <Plus
-              size={20}
-              className={darkMode ? 'text-slate-400' : 'text-slate-500'}
-            />
+            <Plus size={20} className={darkMode ? 'text-slate-400' : 'text-slate-500'} />
           </Button>
 
           <Input
@@ -113,16 +102,10 @@ export default function MessageInput({ onSendMessage, onTyping, darkMode }) {
               <FileUploader onFilesSelected={setAttachedFiles} maxFiles={5} />
             </div>
             <Button type="button" variant="ghost" size="icon" className="h-auto p-2">
-              <Image
-                size={20}
-                className={darkMode ? 'text-slate-400' : 'text-slate-500'}
-              />
+              <Image size={20} className={darkMode ? 'text-slate-400' : 'text-slate-500'} />
             </Button>
             <Button type="button" variant="ghost" size="icon" className="h-auto p-2">
-              <Mic
-                size={20}
-                className={darkMode ? 'text-slate-400' : 'text-slate-500'}
-              />
+              <Mic size={20} className={darkMode ? 'text-slate-400' : 'text-slate-500'} />
             </Button>
             <Button
               type="submit"
@@ -136,18 +119,10 @@ export default function MessageInput({ onSendMessage, onTyping, darkMode }) {
         </div>
 
         <div className="flex items-center justify-between px-2">
-          <span
-            className={`text-xs ${
-              darkMode ? 'text-slate-600' : 'text-slate-400'
-            }`}
-          >
+          <span className={`text-xs ${darkMode ? 'text-slate-600' : 'text-slate-400'}`}>
             {attachedFiles.length > 0 ? '🔒 Encrypted' : '📝 Standard encryption'}
           </span>
-          <span
-            className={`text-xs ${
-              darkMode ? 'text-slate-600' : 'text-slate-400'
-            }`}
-          >
+          <span className={`text-xs ${darkMode ? 'text-slate-600' : 'text-slate-400'}`}>
             Press Enter to send
           </span>
         </div>

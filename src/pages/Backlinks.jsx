@@ -1,15 +1,39 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import { Plus, Search, Link2, Loader2, Download, ShieldX, FileDown, Radar, Globe, CheckCircle2, AlertCircle } from "lucide-react";
-import { Textarea } from "@/components/ui/textarea";
-import { Progress } from "@/components/ui/progress";
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Skeleton } from '@/components/ui/skeleton';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import {
+  Plus,
+  Search,
+  Link2,
+  Loader2,
+  Download,
+  ShieldX,
+  FileDown,
+  Radar,
+  Globe,
+  CheckCircle2,
+  AlertCircle,
+} from 'lucide-react';
+import { Textarea } from '@/components/ui/textarea';
+import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/components/ui/toast-provider';
 import BacklinkItem from '@/components/seo/BacklinkItem';
 import EmptyState from '@/components/ui/EmptyState';
@@ -55,7 +79,11 @@ export default function Backlinks() {
     queryKey: ['backlinks', user?.current_business_id],
     queryFn: async () => {
       if (!user?.current_business_id) return [];
-      return await base44.entities.Backlink.filter({ business_id: user.current_business_id }, '-created_date', 500);
+      return await base44.entities.Backlink.filter(
+        { business_id: user.current_business_id },
+        '-created_date',
+        500
+      );
     },
     enabled: !!user?.current_business_id,
   });
@@ -64,7 +92,11 @@ export default function Backlinks() {
     queryKey: ['websites', user?.current_business_id],
     queryFn: async () => {
       if (!user?.current_business_id) return [];
-      return await base44.entities.Website.filter({ business_id: user.current_business_id }, '-created_date', 50);
+      return await base44.entities.Website.filter(
+        { business_id: user.current_business_id },
+        '-created_date',
+        50
+      );
     },
     enabled: !!user?.current_business_id,
   });
@@ -73,7 +105,11 @@ export default function Backlinks() {
     queryKey: ['competitors', user?.current_business_id],
     queryFn: async () => {
       if (!user?.current_business_id) return [];
-      return await base44.entities.Competitor.filter({ business_id: user.current_business_id }, '-created_date', 20);
+      return await base44.entities.Competitor.filter(
+        { business_id: user.current_business_id },
+        '-created_date',
+        20
+      );
     },
     enabled: !!user?.current_business_id,
   });
@@ -97,11 +133,12 @@ export default function Backlinks() {
   });
 
   const disavowMutation = useMutation({
-    mutationFn: ({ id, reason }) => base44.entities.Backlink.update(id, {
-      status: 'disavowed',
-      disavow_reason: reason,
-      disavowed_date: new Date().toISOString().split('T')[0],
-    }),
+    mutationFn: ({ id, reason }) =>
+      base44.entities.Backlink.update(id, {
+        status: 'disavowed',
+        disavow_reason: reason,
+        disavowed_date: new Date().toISOString().split('T')[0],
+      }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['backlinks'] });
       setDisavowModal(false);
@@ -117,7 +154,7 @@ export default function Backlinks() {
       return;
     }
 
-    const website = websites.find(w => w.id === selectedWebsiteForScan);
+    const website = websites.find((w) => w.id === selectedWebsiteForScan);
     if (!website) return;
 
     setScanStatus('scanning');
@@ -127,7 +164,7 @@ export default function Backlinks() {
     try {
       // Simulate progress updates
       const progressInterval = setInterval(() => {
-        setScanProgress(prev => Math.min(prev + Math.random() * 15, 85));
+        setScanProgress((prev) => Math.min(prev + Math.random() * 15, 85));
       }, 500);
 
       const result = await base44.integrations.Core.InvokeLLM({
@@ -146,47 +183,49 @@ For each backlink, provide realistic data including the source domain, full sour
 
 Consider the website's likely industry based on the domain name and generate relevant backlinks.`,
         response_json_schema: {
-          type: "object",
+          type: 'object',
           properties: {
             backlinks: {
-              type: "array",
+              type: 'array',
               items: {
-                type: "object",
+                type: 'object',
                 properties: {
-                  source_domain: { type: "string" },
-                  source_url: { type: "string" },
-                  target_url: { type: "string" },
-                  anchor_text: { type: "string" },
-                  domain_authority: { type: "number" },
-                  link_type: { type: "string", enum: ["dofollow", "nofollow", "ugc", "sponsored"] },
-                  is_toxic: { type: "boolean" },
-                  context: { type: "string" }
-                }
-              }
+                  source_domain: { type: 'string' },
+                  source_url: { type: 'string' },
+                  target_url: { type: 'string' },
+                  anchor_text: { type: 'string' },
+                  domain_authority: { type: 'number' },
+                  link_type: { type: 'string', enum: ['dofollow', 'nofollow', 'ugc', 'sponsored'] },
+                  is_toxic: { type: 'boolean' },
+                  context: { type: 'string' },
+                },
+              },
             },
             summary: {
-              type: "object",
+              type: 'object',
               properties: {
-                total_found: { type: "number" },
-                dofollow_count: { type: "number" },
-                avg_domain_authority: { type: "number" },
-                toxic_count: { type: "number" }
-              }
-            }
-          }
+                total_found: { type: 'number' },
+                dofollow_count: { type: 'number' },
+                avg_domain_authority: { type: 'number' },
+                toxic_count: { type: 'number' },
+              },
+            },
+          },
         },
-        add_context_from_internet: true
+        add_context_from_internet: true,
       });
 
       clearInterval(progressInterval);
       setScanProgress(100);
 
       if (result.backlinks) {
-        setDiscoveredBacklinks(result.backlinks.map(bl => ({
-          ...bl,
-          website_id: selectedWebsiteForScan,
-          target_url: bl.target_url || `https://${website.domain}`,
-        })));
+        setDiscoveredBacklinks(
+          result.backlinks.map((bl) => ({
+            ...bl,
+            website_id: selectedWebsiteForScan,
+            target_url: bl.target_url || `https://${website.domain}`,
+          }))
+        );
         setScanStatus('complete');
         toast.success(`Found ${result.backlinks.length} backlinks!`);
       }
@@ -197,8 +236,8 @@ Consider the website's likely industry based on the domain name and generate rel
   };
 
   const importDiscoveredBacklinks = async () => {
-    const existingUrls = new Set(backlinks.map(b => b.source_url));
-    const newBacklinks = discoveredBacklinks.filter(bl => !existingUrls.has(bl.source_url));
+    const existingUrls = new Set(backlinks.map((b) => b.source_url));
+    const newBacklinks = discoveredBacklinks.filter((bl) => !existingUrls.has(bl.source_url));
 
     if (newBacklinks.length === 0) {
       toast.info('All discovered backlinks are already tracked');
@@ -206,18 +245,20 @@ Consider the website's likely industry based on the domain name and generate rel
     }
 
     try {
-      await base44.entities.Backlink.bulkCreate(newBacklinks.map(bl => ({
-        website_id: bl.website_id,
-        source_url: bl.source_url,
-        source_domain: bl.source_domain,
-        target_url: bl.target_url,
-        anchor_text: bl.anchor_text,
-        domain_authority: bl.domain_authority,
-        link_type: bl.link_type,
-        is_toxic: bl.is_toxic || false,
-        status: 'active',
-        first_seen: new Date().toISOString().split('T')[0],
-      })));
+      await base44.entities.Backlink.bulkCreate(
+        newBacklinks.map((bl) => ({
+          website_id: bl.website_id,
+          source_url: bl.source_url,
+          source_domain: bl.source_domain,
+          target_url: bl.target_url,
+          anchor_text: bl.anchor_text,
+          domain_authority: bl.domain_authority,
+          link_type: bl.link_type,
+          is_toxic: bl.is_toxic || false,
+          status: 'active',
+          first_seen: new Date().toISOString().split('T')[0],
+        }))
+      );
 
       queryClient.invalidateQueries({ queryKey: ['backlinks'] });
       toast.success(`Imported ${newBacklinks.length} new backlinks`);
@@ -242,12 +283,12 @@ Consider the website's likely industry based on the domain name and generate rel
   };
 
   const exportDisavowFile = () => {
-    const disavovedLinks = backlinks.filter(b => b.status === 'disavowed');
+    const disavovedLinks = backlinks.filter((b) => b.status === 'disavowed');
     if (disavovedLinks.length === 0) {
       toast.warning('No disavowed links to export');
       return;
     }
-    const content = disavovedLinks.map(b => `domain:${b.source_domain}`).join('\n');
+    const content = disavovedLinks.map((b) => `domain:${b.source_domain}`).join('\n');
     const blob = new Blob([content], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -279,22 +320,23 @@ Consider the website's likely industry based on the domain name and generate rel
       social: ['linkedin', 'twitter', 'facebook', 'instagram', 'youtube', 'pinterest', 'tiktok'],
       partner: ['partner', 'affiliate', 'sponsor', 'client', 'customer', 'testimonial'],
       edu: ['.edu', 'university', 'college', 'school', 'academy', 'institute', 'research'],
-      gov: ['.gov', 'government', 'federal', 'state.', 'city.', 'county.']
+      gov: ['.gov', 'government', 'federal', 'state.', 'city.', 'county.'],
     };
-    
+
     const url = (bl.source_url || '').toLowerCase();
     const domain = (bl.source_domain || '').toLowerCase();
-    
+
     for (const [catName, patterns] of Object.entries(CATEGORY_PATTERNS)) {
-      if (patterns.some(p => url.includes(p) || domain.includes(p))) {
+      if (patterns.some((p) => url.includes(p) || domain.includes(p))) {
         return catName;
       }
     }
     return 'other';
   };
 
-  const filteredBacklinks = backlinks.filter(backlink => {
-    const matchesSearch = !searchTerm || 
+  const filteredBacklinks = backlinks.filter((backlink) => {
+    const matchesSearch =
+      !searchTerm ||
       backlink.source_url?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       backlink.source_domain?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       backlink.anchor_text?.toLowerCase().includes(searchTerm.toLowerCase());
@@ -304,14 +346,25 @@ Consider the website's likely industry based on the domain name and generate rel
     return matchesSearch && matchesWebsite && matchesStatus && matchesCategory;
   });
 
-  const activeCount = backlinks.filter(b => b.status === 'active').length;
-  const dofollowCount = backlinks.filter(b => b.link_type === 'dofollow').length;
-  const disavowedCount = backlinks.filter(b => b.status === 'disavowed').length;
-  const toxicCount = backlinks.filter(b => b.is_toxic || (b.domain_authority && b.domain_authority < 10)).length;
+  const activeCount = backlinks.filter((b) => b.status === 'active').length;
+  const dofollowCount = backlinks.filter((b) => b.link_type === 'dofollow').length;
+  const disavowedCount = backlinks.filter((b) => b.status === 'disavowed').length;
+  const toxicCount = backlinks.filter(
+    (b) => b.is_toxic || (b.domain_authority && b.domain_authority < 10)
+  ).length;
 
   const handleExportCSV = () => {
-    const headers = ['Source URL', 'Source Domain', 'Target URL', 'Anchor Text', 'DA', 'Type', 'Status', 'First Seen'];
-    const rows = backlinks.map(b => [
+    const headers = [
+      'Source URL',
+      'Source Domain',
+      'Target URL',
+      'Anchor Text',
+      'DA',
+      'Type',
+      'Status',
+      'First Seen',
+    ];
+    const rows = backlinks.map((b) => [
       b.source_url || '',
       b.source_domain || '',
       b.target_url || '',
@@ -319,9 +372,9 @@ Consider the website's likely industry based on the domain name and generate rel
       b.domain_authority || '',
       b.link_type || '',
       b.status || '',
-      b.first_seen || ''
+      b.first_seen || '',
     ]);
-    const csv = [headers, ...rows].map(r => r.join(',')).join('\n');
+    const csv = [headers, ...rows].map((r) => r.join(',')).join('\n');
     const blob = new Blob([csv], { type: 'text/csv' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -340,29 +393,42 @@ Consider the website's likely industry based on the domain name and generate rel
           <p className="text-gray-500 dark:text-gray-400 mt-1">
             {backlinks.length} total • {activeCount} active • {dofollowCount} dofollow
             {toxicCount > 0 && <span className="text-red-500"> • {toxicCount} toxic</span>}
-            {disavowedCount > 0 && <span className="text-gray-400"> • {disavowedCount} disavowed</span>}
+            {disavowedCount > 0 && (
+              <span className="text-gray-400"> • {disavowedCount} disavowed</span>
+            )}
           </p>
         </div>
         <div className="flex gap-2 flex-wrap">
           {disavowedCount > 0 && (
-            <Button variant="outline" onClick={exportDisavowFile} className="gap-2 dark:bg-gray-800 dark:border-gray-700">
+            <Button
+              variant="outline"
+              onClick={exportDisavowFile}
+              className="gap-2 dark:bg-gray-800 dark:border-gray-700"
+            >
               <FileDown className="w-4 h-4" />
               Export Disavow
             </Button>
           )}
-          <Button variant="outline" onClick={handleExportCSV} className="gap-2 dark:bg-gray-800 dark:border-gray-700">
+          <Button
+            variant="outline"
+            onClick={handleExportCSV}
+            className="gap-2 dark:bg-gray-800 dark:border-gray-700"
+          >
             <Download className="w-4 h-4" />
             Export
           </Button>
-          <Button 
-            variant="outline" 
-            onClick={() => setFindBacklinksModal(true)} 
+          <Button
+            variant="outline"
+            onClick={() => setFindBacklinksModal(true)}
             className="gap-2 dark:bg-gray-800 dark:border-gray-700 border-violet-200 text-violet-600 hover:bg-violet-50 dark:border-violet-800 dark:text-violet-400 dark:hover:bg-violet-900/20"
           >
             <Radar className="w-4 h-4" />
             Find Backlinks
           </Button>
-          <Button onClick={() => setShowModal(true)} className="gap-2 bg-emerald-600 hover:bg-emerald-700">
+          <Button
+            onClick={() => setShowModal(true)}
+            className="gap-2 bg-emerald-600 hover:bg-emerald-700"
+          >
             <Plus className="w-4 h-4" />
             Add Backlink
           </Button>
@@ -370,9 +436,7 @@ Consider the website's likely industry based on the domain name and generate rel
       </div>
 
       {/* Analytics Dashboard */}
-      {showAnalytics && backlinks.length > 0 && (
-        <BacklinkAnalytics backlinks={backlinks} />
-      )}
+      {showAnalytics && backlinks.length > 0 && <BacklinkAnalytics backlinks={backlinks} />}
 
       {/* Filters */}
       <div className="flex flex-col sm:flex-row gap-4">
@@ -392,7 +456,9 @@ Consider the website's likely industry based on the domain name and generate rel
           <SelectContent>
             <SelectItem value="all">All Websites</SelectItem>
             {websites.map((website) => (
-              <SelectItem key={website.id} value={website.id}>{website.name}</SelectItem>
+              <SelectItem key={website.id} value={website.id}>
+                {website.name}
+              </SelectItem>
             ))}
           </SelectContent>
         </Select>
@@ -409,9 +475,9 @@ Consider the website's likely industry based on the domain name and generate rel
           </SelectContent>
         </Select>
         {categoryFilter && (
-          <Button 
-            variant="outline" 
-            size="sm" 
+          <Button
+            variant="outline"
+            size="sm"
             onClick={() => setCategoryFilter(null)}
             className="gap-1"
           >
@@ -453,12 +519,12 @@ Consider the website's likely industry based on the domain name and generate rel
           {/* Sidebar */}
           <div className="space-y-6">
             <TopAnchorsCard backlinks={backlinks} />
-            <BacklinkCategories 
-              backlinks={backlinks} 
-              onFilterCategory={(cat) => setCategoryFilter(cat === categoryFilter ? null : cat)} 
+            <BacklinkCategories
+              backlinks={backlinks}
+              onFilterCategory={(cat) => setCategoryFilter(cat === categoryFilter ? null : cat)}
             />
-            <LinkBuildingOpportunities 
-              backlinks={backlinks} 
+            <LinkBuildingOpportunities
+              backlinks={backlinks}
               competitors={competitors}
               websites={websites}
             />
@@ -484,7 +550,9 @@ Consider the website's likely industry based on the domain name and generate rel
                 </SelectTrigger>
                 <SelectContent>
                   {websites.map((website) => (
-                    <SelectItem key={website.id} value={website.id}>{website.name}</SelectItem>
+                    <SelectItem key={website.id} value={website.id}>
+                      {website.name}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -597,7 +665,8 @@ Consider the website's likely industry based on the domain name and generate rel
               You're about to disavow: <strong>{selectedBacklink?.source_domain}</strong>
             </p>
             <p className="text-xs text-gray-500">
-              Disavowed links will be added to your disavow file for submission to Google Search Console.
+              Disavowed links will be added to your disavow file for submission to Google Search
+              Console.
             </p>
             <div className="space-y-2">
               <Label>Reason (optional)</Label>
@@ -612,8 +681,8 @@ Consider the website's likely industry based on the domain name and generate rel
               <Button variant="outline" onClick={() => setDisavowModal(false)}>
                 Cancel
               </Button>
-              <Button 
-                onClick={confirmDisavow} 
+              <Button
+                onClick={confirmDisavow}
                 disabled={disavowMutation.isPending}
                 className="bg-red-600 hover:bg-red-700"
               >
@@ -626,16 +695,19 @@ Consider the website's likely industry based on the domain name and generate rel
       </Dialog>
 
       {/* Find Backlinks Modal */}
-      <Dialog open={findBacklinksModal} onOpenChange={(open) => {
-        if (!open) {
-          setFindBacklinksModal(false);
-          setScanStatus('idle');
-          setDiscoveredBacklinks([]);
-          setScanProgress(0);
-        } else {
-          setFindBacklinksModal(true);
-        }
-      }}>
+      <Dialog
+        open={findBacklinksModal}
+        onOpenChange={(open) => {
+          if (!open) {
+            setFindBacklinksModal(false);
+            setScanStatus('idle');
+            setDiscoveredBacklinks([]);
+            setScanProgress(0);
+          } else {
+            setFindBacklinksModal(true);
+          }
+        }}
+      >
         <DialogContent className="sm:max-w-2xl max-h-[85vh] overflow-hidden flex flex-col">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
@@ -646,7 +718,7 @@ Consider the website's likely industry based on the domain name and generate rel
               Discover all backlinks pointing to your website using AI-powered analysis.
             </DialogDescription>
           </DialogHeader>
-          
+
           <div className="space-y-4 mt-4 flex-1 overflow-y-auto">
             {scanStatus === 'idle' && (
               <>
@@ -691,14 +763,18 @@ Consider the website's likely industry based on the domain name and generate rel
                   <div className="w-16 h-16 rounded-full bg-violet-100 dark:bg-violet-900/30 flex items-center justify-center mb-4">
                     <Radar className="w-8 h-8 text-violet-600 animate-pulse" />
                   </div>
-                  <h3 className="font-semibold text-gray-900 dark:text-white">Scanning for Backlinks...</h3>
+                  <h3 className="font-semibold text-gray-900 dark:text-white">
+                    Scanning for Backlinks...
+                  </h3>
                   <p className="text-sm text-gray-500 mt-1">
                     Analyzing the web for links to your website
                   </p>
                 </div>
                 <div className="space-y-2">
                   <Progress value={scanProgress} className="h-2" />
-                  <p className="text-xs text-center text-gray-400">{Math.round(scanProgress)}% complete</p>
+                  <p className="text-xs text-center text-gray-400">
+                    {Math.round(scanProgress)}% complete
+                  </p>
                 </div>
               </div>
             )}
@@ -708,17 +784,28 @@ Consider the website's likely industry based on the domain name and generate rel
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2 text-emerald-600">
                     <CheckCircle2 className="w-5 h-5" />
-                    <span className="font-medium">Found {discoveredBacklinks.length} backlinks</span>
+                    <span className="font-medium">
+                      Found {discoveredBacklinks.length} backlinks
+                    </span>
                   </div>
-                  <Button size="sm" onClick={importDiscoveredBacklinks} className="bg-emerald-600 hover:bg-emerald-700">
+                  <Button
+                    size="sm"
+                    onClick={importDiscoveredBacklinks}
+                    className="bg-emerald-600 hover:bg-emerald-700"
+                  >
                     Import All
                   </Button>
                 </div>
-                
+
                 <div className="space-y-2 max-h-[300px] overflow-y-auto pr-2">
                   {discoveredBacklinks.map((bl, idx) => (
-                    <div key={idx} className="flex items-start gap-3 p-3 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700">
-                      <div className={`p-1.5 rounded-lg ${bl.is_toxic ? 'bg-red-100' : 'bg-emerald-100 dark:bg-emerald-900/30'}`}>
+                    <div
+                      key={idx}
+                      className="flex items-start gap-3 p-3 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700"
+                    >
+                      <div
+                        className={`p-1.5 rounded-lg ${bl.is_toxic ? 'bg-red-100' : 'bg-emerald-100 dark:bg-emerald-900/30'}`}
+                      >
                         {bl.is_toxic ? (
                           <AlertCircle className="w-4 h-4 text-red-600" />
                         ) : (
@@ -726,13 +813,24 @@ Consider the website's likely industry based on the domain name and generate rel
                         )}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="font-medium text-sm text-gray-900 dark:text-white truncate">{bl.source_domain}</p>
+                        <p className="font-medium text-sm text-gray-900 dark:text-white truncate">
+                          {bl.source_domain}
+                        </p>
                         <p className="text-xs text-gray-500 truncate">{bl.source_url}</p>
                         <div className="flex items-center gap-3 mt-1 text-xs text-gray-400">
-                          <span>DA: <span className="font-medium text-gray-600 dark:text-gray-300">{bl.domain_authority}</span></span>
-                          <span className={`px-1.5 py-0.5 rounded text-xs ${
-                            bl.link_type === 'dofollow' ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-600'
-                          }`}>
+                          <span>
+                            DA:{' '}
+                            <span className="font-medium text-gray-600 dark:text-gray-300">
+                              {bl.domain_authority}
+                            </span>
+                          </span>
+                          <span
+                            className={`px-1.5 py-0.5 rounded text-xs ${
+                              bl.link_type === 'dofollow'
+                                ? 'bg-emerald-100 text-emerald-700'
+                                : 'bg-gray-100 text-gray-600'
+                            }`}
+                          >
                             {bl.link_type}
                           </span>
                           {bl.anchor_text && <span>"{bl.anchor_text}"</span>}
@@ -750,9 +848,11 @@ Consider the website's likely industry based on the domain name and generate rel
                   <AlertCircle className="w-8 h-8 text-red-600" />
                 </div>
                 <h3 className="font-semibold text-gray-900 dark:text-white">Scan Failed</h3>
-                <p className="text-sm text-gray-500 mt-1">Unable to complete backlink discovery. Please try again.</p>
-                <Button 
-                  variant="outline" 
+                <p className="text-sm text-gray-500 mt-1">
+                  Unable to complete backlink discovery. Please try again.
+                </p>
+                <Button
+                  variant="outline"
                   className="mt-4"
                   onClick={() => {
                     setScanStatus('idle');
@@ -770,8 +870,8 @@ Consider the website's likely industry based on the domain name and generate rel
               <Button variant="outline" onClick={() => setFindBacklinksModal(false)}>
                 Cancel
               </Button>
-              <Button 
-                onClick={scanForBacklinks} 
+              <Button
+                onClick={scanForBacklinks}
                 disabled={!selectedWebsiteForScan}
                 className="bg-violet-600 hover:bg-violet-700 gap-2"
               >

@@ -1,17 +1,33 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Skeleton } from '@/components/ui/skeleton';
 import {
-  Users, Mail, Send, Calendar, TrendingUp, Globe, Search,
-  Plus, Filter, Sparkles, FileText, Eye, Clock, CheckCircle,
-  ExternalLink, Download, BarChart3, Loader2, Link2
-} from "lucide-react";
+  Users,
+  Mail,
+  Send,
+  Calendar,
+  TrendingUp,
+  Globe,
+  Search,
+  Plus,
+  Filter,
+  Sparkles,
+  FileText,
+  Eye,
+  Clock,
+  CheckCircle,
+  ExternalLink,
+  Download,
+  BarChart3,
+  Loader2,
+  Link2,
+} from 'lucide-react';
 import JournalistCard from '@/components/media/JournalistCard';
 import OutreachCampaignCard from '@/components/media/OutreachCampaignCard';
 import JournalistFinderModal from '@/components/media/JournalistFinderModal';
@@ -40,24 +56,29 @@ export default function MediaOutreach() {
     queryFn: () => base44.entities.PressMention.list('-publish_date', 100),
   });
 
-  const totalSent = outreach.filter(o => o.status !== 'draft').length;
-  const opened = outreach.filter(o => o.status === 'opened' || o.status === 'replied' || o.status === 'published').length;
-  const replied = outreach.filter(o => o.status === 'replied' || o.status === 'published').length;
-  const published = outreach.filter(o => o.status === 'published').length;
+  const totalSent = outreach.filter((o) => o.status !== 'draft').length;
+  const opened = outreach.filter(
+    (o) => o.status === 'opened' || o.status === 'replied' || o.status === 'published'
+  ).length;
+  const replied = outreach.filter((o) => o.status === 'replied' || o.status === 'published').length;
+  const published = outreach.filter((o) => o.status === 'published').length;
   const openRate = totalSent > 0 ? Math.round((opened / totalSent) * 100) : 0;
   const replyRate = totalSent > 0 ? Math.round((replied / totalSent) * 100) : 0;
 
-  const scheduledFollowUps = outreach.filter(o => o.follow_up_date && new Date(o.follow_up_date) > new Date()).length;
+  const scheduledFollowUps = outreach.filter(
+    (o) => o.follow_up_date && new Date(o.follow_up_date) > new Date()
+  ).length;
 
-  const filteredJournalists = journalists.filter(j =>
-    !searchQuery || 
-    j.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    j.outlet?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    j.beat?.some(b => b.toLowerCase().includes(searchQuery.toLowerCase()))
+  const filteredJournalists = journalists.filter(
+    (j) =>
+      !searchQuery ||
+      j.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      j.outlet?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      j.beat?.some((b) => b.toLowerCase().includes(searchQuery.toLowerCase()))
   );
 
-  const linkedMentions = pressMentions.filter(m => 
-    outreach.some(o => o.earned_mention_id === m.id)
+  const linkedMentions = pressMentions.filter((m) =>
+    outreach.some((o) => o.earned_mention_id === m.id)
   ).length;
 
   if (isLoading) {
@@ -65,7 +86,9 @@ export default function MediaOutreach() {
       <div className="p-6 lg:p-8 space-y-6 min-h-screen">
         <Skeleton className="h-10 w-64" />
         <div className="grid grid-cols-4 gap-4">
-          {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-28" />)}
+          {[...Array(4)].map((_, i) => (
+            <Skeleton key={i} className="h-28" />
+          ))}
         </div>
       </div>
     );
@@ -77,14 +100,19 @@ export default function MediaOutreach() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Media Outreach</h1>
-          <p className="text-gray-500 dark:text-gray-400 mt-1">Connect with journalists and manage PR campaigns</p>
+          <p className="text-gray-500 dark:text-gray-400 mt-1">
+            Connect with journalists and manage PR campaigns
+          </p>
         </div>
         <div className="flex gap-2">
           <Button variant="outline" onClick={() => setShowFinderModal(true)} className="gap-2">
             <Sparkles className="w-4 h-4" />
             Find Journalists
           </Button>
-          <Button onClick={() => setShowComposeModal(true)} className="gap-2 bg-violet-600 hover:bg-violet-700">
+          <Button
+            onClick={() => setShowComposeModal(true)}
+            className="gap-2 bg-violet-600 hover:bg-violet-700"
+          >
             <Mail className="w-4 h-4" />
             New Outreach
           </Button>
@@ -149,7 +177,9 @@ export default function MediaOutreach() {
           <TabsTrigger value="analytics">Email Analytics</TabsTrigger>
           <TabsTrigger value="followups" className="gap-1">
             Follow-ups
-            {scheduledFollowUps > 0 && <Badge className="bg-amber-500 text-white text-xs ml-1">{scheduledFollowUps}</Badge>}
+            {scheduledFollowUps > 0 && (
+              <Badge className="bg-amber-500 text-white text-xs ml-1">{scheduledFollowUps}</Badge>
+            )}
           </TabsTrigger>
         </TabsList>
 
@@ -178,8 +208,12 @@ export default function MediaOutreach() {
             <Card className="glass-card rounded-2xl">
               <CardContent className="py-12 text-center">
                 <Users className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-                <h3 className="font-semibold text-gray-900 dark:text-white mb-2">No Journalists in Database</h3>
-                <p className="text-gray-500 mb-4">Use AI to find relevant journalists for your industry</p>
+                <h3 className="font-semibold text-gray-900 dark:text-white mb-2">
+                  No Journalists in Database
+                </h3>
+                <p className="text-gray-500 mb-4">
+                  Use AI to find relevant journalists for your industry
+                </p>
                 <Button onClick={() => setShowFinderModal(true)} className="gap-2">
                   <Sparkles className="w-4 h-4" />
                   Find Journalists
@@ -189,10 +223,13 @@ export default function MediaOutreach() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {filteredJournalists.map((journalist) => (
-                <JournalistCard 
-                  key={journalist.id} 
+                <JournalistCard
+                  key={journalist.id}
                   journalist={journalist}
-                  onContact={() => { setSelectedJournalist(journalist); setShowComposeModal(true); }}
+                  onContact={() => {
+                    setSelectedJournalist(journalist);
+                    setShowComposeModal(true);
+                  }}
                 />
               ))}
             </div>
@@ -205,8 +242,12 @@ export default function MediaOutreach() {
               <Card className="glass-card rounded-2xl">
                 <CardContent className="py-12 text-center">
                   <Mail className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-                  <h3 className="font-semibold text-gray-900 dark:text-white mb-2">No Outreach Campaigns</h3>
-                  <p className="text-gray-500 mb-4">Start reaching out to journalists and media outlets</p>
+                  <h3 className="font-semibold text-gray-900 dark:text-white mb-2">
+                    No Outreach Campaigns
+                  </h3>
+                  <p className="text-gray-500 mb-4">
+                    Start reaching out to journalists and media outlets
+                  </p>
                   <Button onClick={() => setShowComposeModal(true)} className="gap-2">
                     <Plus className="w-4 h-4" />
                     New Outreach
@@ -215,11 +256,13 @@ export default function MediaOutreach() {
               </Card>
             ) : (
               outreach.map((campaign) => {
-                const journalist = journalists.find(j => j.id === campaign.journalist_id);
-                const linkedMention = pressMentions.find(m => m.id === campaign.earned_mention_id);
+                const journalist = journalists.find((j) => j.id === campaign.journalist_id);
+                const linkedMention = pressMentions.find(
+                  (m) => m.id === campaign.earned_mention_id
+                );
                 return (
-                  <OutreachCampaignCard 
-                    key={campaign.id} 
+                  <OutreachCampaignCard
+                    key={campaign.id}
                     campaign={campaign}
                     journalist={journalist}
                     linkedMention={linkedMention}
@@ -244,14 +287,20 @@ export default function MediaOutreach() {
                 <p className="text-center text-gray-500 py-8">No follow-ups scheduled</p>
               ) : (
                 <div className="space-y-3">
-                  {outreach.filter(o => o.follow_up_date && new Date(o.follow_up_date) > new Date())
+                  {outreach
+                    .filter((o) => o.follow_up_date && new Date(o.follow_up_date) > new Date())
                     .sort((a, b) => new Date(a.follow_up_date) - new Date(b.follow_up_date))
                     .map((campaign) => {
-                      const journalist = journalists.find(j => j.id === campaign.journalist_id);
+                      const journalist = journalists.find((j) => j.id === campaign.journalist_id);
                       return (
-                        <div key={campaign.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                        <div
+                          key={campaign.id}
+                          className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg"
+                        >
                           <div>
-                            <p className="font-medium text-gray-900 dark:text-white">{journalist?.name || 'Unknown'}</p>
+                            <p className="font-medium text-gray-900 dark:text-white">
+                              {journalist?.name || 'Unknown'}
+                            </p>
                             <p className="text-sm text-gray-500">{campaign.subject}</p>
                           </div>
                           <div className="flex items-center gap-3">
@@ -271,14 +320,14 @@ export default function MediaOutreach() {
         </TabsContent>
       </Tabs>
 
-      <JournalistFinderModal
-        open={showFinderModal}
-        onClose={() => setShowFinderModal(false)}
-      />
+      <JournalistFinderModal open={showFinderModal} onClose={() => setShowFinderModal(false)} />
 
       <ComposeOutreachModal
         open={showComposeModal}
-        onClose={() => { setShowComposeModal(false); setSelectedJournalist(null); }}
+        onClose={() => {
+          setShowComposeModal(false);
+          setSelectedJournalist(null);
+        }}
         journalist={selectedJournalist}
         journalists={journalists}
       />

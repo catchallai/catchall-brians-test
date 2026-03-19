@@ -1,18 +1,18 @@
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { TrendingUp, Target, DollarSign, Lightbulb, CheckCircle } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { TrendingUp, Target, DollarSign, Lightbulb, CheckCircle } from 'lucide-react';
 
 const oppTypeColors = {
   upsell: { bg: 'bg-blue-100', text: 'text-blue-700' },
   cross_sell: { bg: 'bg-violet-100', text: 'text-violet-700' },
   expansion: { bg: 'bg-emerald-100', text: 'text-emerald-700' },
-  renewal: { bg: 'bg-amber-100', text: 'text-amber-700' }
+  renewal: { bg: 'bg-amber-100', text: 'text-amber-700' },
 };
 
 export default function OpportunityPanel({ opportunities, contacts }) {
-  const identified = opportunities.filter(o => o.status === 'identified');
+  const identified = opportunities.filter((o) => o.status === 'identified');
   const totalValue = opportunities.reduce((sum, o) => sum + (o.estimated_value || 0), 0);
 
   return (
@@ -39,7 +39,7 @@ export default function OpportunityPanel({ opportunities, contacts }) {
           <CardContent className="p-4 text-center">
             <CheckCircle className="w-6 h-6 text-blue-500 mx-auto mb-2" />
             <p className="text-3xl font-bold text-blue-600">
-              {opportunities.filter(o => o.status === 'closed_won').length}
+              {opportunities.filter((o) => o.status === 'closed_won').length}
             </p>
             <p className="text-xs text-gray-500">Closed Won</p>
           </CardContent>
@@ -48,8 +48,8 @@ export default function OpportunityPanel({ opportunities, contacts }) {
 
       {/* Opportunities List */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {opportunities.map(opp => {
-          const contact = contacts.find(c => c.id === opp.contact_id);
+        {opportunities.map((opp) => {
+          const contact = contacts.find((c) => c.id === opp.contact_id);
           const colors = oppTypeColors[opp.opportunity_type] || oppTypeColors.upsell;
 
           return (
@@ -93,7 +93,9 @@ export default function OpportunityPanel({ opportunities, contacts }) {
 
                 {opp.signals?.length > 0 && (
                   <div className="mb-3">
-                    <p className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Buying Signals:</p>
+                    <p className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Buying Signals:
+                    </p>
                     <div className="flex gap-1 flex-wrap">
                       {opp.signals.map((signal, i) => (
                         <Badge key={i} variant="outline" className="text-xs">
@@ -109,7 +111,9 @@ export default function OpportunityPanel({ opportunities, contacts }) {
                     <p className="text-xs font-medium text-blue-700 dark:text-blue-300 mb-1">
                       Recommended Approach:
                     </p>
-                    <p className="text-xs text-gray-700 dark:text-gray-300">{opp.recommended_approach}</p>
+                    <p className="text-xs text-gray-700 dark:text-gray-300">
+                      {opp.recommended_approach}
+                    </p>
                   </div>
                 )}
 

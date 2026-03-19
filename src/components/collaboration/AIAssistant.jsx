@@ -1,14 +1,21 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { 
-  Sparkles, Loader2, Users, CheckCircle, AlertTriangle,
-  TrendingUp, Lightbulb, RefreshCw, MessageSquare
-} from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import {
+  Sparkles,
+  Loader2,
+  Users,
+  CheckCircle,
+  AlertTriangle,
+  TrendingUp,
+  Lightbulb,
+  RefreshCw,
+  MessageSquare,
+} from 'lucide-react';
 
 export default function AIAssistant({ project, tasks, comments, user }) {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -16,24 +23,29 @@ export default function AIAssistant({ project, tasks, comments, user }) {
   const queryClient = useQueryClient();
 
   const createCommentMutation = useMutation({
-    mutationFn: (content) => base44.entities.ProjectComment.create({
-      project_id: project.id,
-      content,
-      is_ai_generated: true
-    }),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['project-comments'] })
+    mutationFn: (content) =>
+      base44.entities.ProjectComment.create({
+        project_id: project.id,
+        content,
+        is_ai_generated: true,
+      }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['project-comments'] }),
   });
 
   const analyzeProject = async () => {
     setIsAnalyzing(true);
 
-    const taskSummary = tasks.map(t => 
-      `- ${t.title} (${t.status}, assigned to: ${t.assignee || 'unassigned'}, priority: ${t.priority})`
-    ).join('\n');
+    const taskSummary = tasks
+      .map(
+        (t) =>
+          `- ${t.title} (${t.status}, assigned to: ${t.assignee || 'unassigned'}, priority: ${t.priority})`
+      )
+      .join('\n');
 
-    const recentComments = comments.slice(0, 10).map(c => 
-      `- ${c.author_name || c.author}: ${c.content}`
-    ).join('\n');
+    const recentComments = comments
+      .slice(0, 10)
+      .map((c) => `- ${c.author_name || c.author}: ${c.content}`)
+      .join('\n');
 
     const result = await base44.integrations.Core.InvokeLLM({
       prompt: `Analyze this SEO project and provide actionable insights:
@@ -72,58 +84,58 @@ Provide:
    - Recommended next milestones
    - Timeline suggestions`,
       response_json_schema: {
-        type: "object",
+        type: 'object',
         properties: {
           health: {
-            type: "object",
+            type: 'object',
             properties: {
-              score: { type: "number" },
-              bottlenecks: { type: "array", items: { type: "string" } },
-              workload_assessment: { type: "string" }
-            }
+              score: { type: 'number' },
+              bottlenecks: { type: 'array', items: { type: 'string' } },
+              workload_assessment: { type: 'string' },
+            },
           },
           task_recommendations: {
-            type: "array",
+            type: 'array',
             items: {
-              type: "object",
+              type: 'object',
               properties: {
-                task: { type: "string" },
-                recommendation: { type: "string" },
-                suggested_assignee: { type: "string" },
-                priority_change: { type: "string" }
-              }
-            }
+                task: { type: 'string' },
+                recommendation: { type: 'string' },
+                suggested_assignee: { type: 'string' },
+                priority_change: { type: 'string' },
+              },
+            },
           },
           action_items: {
-            type: "array",
+            type: 'array',
             items: {
-              type: "object",
+              type: 'object',
               properties: {
-                action: { type: "string" },
-                owner: { type: "string" },
-                urgency: { type: "string" }
-              }
-            }
+                action: { type: 'string' },
+                owner: { type: 'string' },
+                urgency: { type: 'string' },
+              },
+            },
           },
           discussion_summary: {
-            type: "object",
+            type: 'object',
             properties: {
-              key_points: { type: "array", items: { type: "string" } },
-              unresolved: { type: "array", items: { type: "string" } }
-            }
+              key_points: { type: 'array', items: { type: 'string' } },
+              unresolved: { type: 'array', items: { type: 'string' } },
+            },
           },
           next_steps: {
-            type: "array",
+            type: 'array',
             items: {
-              type: "object",
+              type: 'object',
               properties: {
-                milestone: { type: "string" },
-                timeline: { type: "string" }
-              }
-            }
-          }
-        }
-      }
+                milestone: { type: 'string' },
+                timeline: { type: 'string' },
+              },
+            },
+          },
+        },
+      },
     });
 
     setAnalysis(result);
@@ -132,20 +144,20 @@ Provide:
 
   const postSummaryToComments = () => {
     if (!analysis) return;
-    
+
     let summary = `📊 **AI Project Analysis**\n\n`;
     summary += `**Health Score:** ${analysis.health?.score}/100\n\n`;
-    
+
     if (analysis.action_items?.length) {
       summary += `**Priority Actions:**\n`;
-      analysis.action_items.slice(0, 3).forEach(item => {
+      analysis.action_items.slice(0, 3).forEach((item) => {
         summary += `• ${item.action} (${item.owner})\n`;
       });
     }
-    
+
     if (analysis.next_steps?.length) {
       summary += `\n**Next Milestones:**\n`;
-      analysis.next_steps.slice(0, 2).forEach(step => {
+      analysis.next_steps.slice(0, 2).forEach((step) => {
         summary += `• ${step.milestone} - ${step.timeline}\n`;
       });
     }
@@ -156,7 +168,7 @@ Provide:
   const urgencyColors = {
     high: 'bg-red-100 text-red-700',
     medium: 'bg-amber-100 text-amber-700',
-    low: 'bg-blue-100 text-blue-700'
+    low: 'bg-blue-100 text-blue-700',
   };
 
   return (
@@ -167,7 +179,7 @@ Provide:
             <Sparkles className="w-5 h-5 text-violet-500" />
             AI Project Assistant
           </CardTitle>
-          <Button 
+          <Button
             onClick={analyzeProject}
             disabled={isAnalyzing}
             className="gap-2 bg-violet-600 hover:bg-violet-700"
@@ -202,7 +214,9 @@ Provide:
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm text-gray-600">Project Health</p>
-                    <p className="text-4xl font-bold text-violet-600">{analysis.health?.score}/100</p>
+                    <p className="text-4xl font-bold text-violet-600">
+                      {analysis.health?.score}/100
+                    </p>
                   </div>
                   <div className="w-16 h-16 rounded-full bg-white shadow flex items-center justify-center">
                     {analysis.health?.score >= 70 ? (
@@ -220,7 +234,9 @@ Provide:
                     <p className="text-xs font-medium text-gray-500 mb-1">Bottlenecks:</p>
                     <div className="flex flex-wrap gap-1">
                       {analysis.health.bottlenecks.map((b, i) => (
-                        <Badge key={i} variant="outline" className="text-xs">{b}</Badge>
+                        <Badge key={i} variant="outline" className="text-xs">
+                          {b}
+                        </Badge>
                       ))}
                     </div>
                   </div>
@@ -239,7 +255,11 @@ Provide:
                       <div key={idx} className="p-3 bg-white border border-gray-100 rounded-lg">
                         <div className="flex items-start justify-between">
                           <p className="font-medium text-gray-900">{item.action}</p>
-                          <Badge className={urgencyColors[item.urgency?.toLowerCase()] || urgencyColors.medium}>
+                          <Badge
+                            className={
+                              urgencyColors[item.urgency?.toLowerCase()] || urgencyColors.medium
+                            }
+                          >
                             {item.urgency}
                           </Badge>
                         </div>
@@ -266,7 +286,9 @@ Provide:
                         <p className="font-medium text-gray-900">{rec.task}</p>
                         <p className="text-sm text-gray-600 mt-1">{rec.recommendation}</p>
                         {rec.suggested_assignee && (
-                          <p className="text-xs text-blue-600 mt-1">Suggest: {rec.suggested_assignee}</p>
+                          <p className="text-xs text-blue-600 mt-1">
+                            Suggest: {rec.suggested_assignee}
+                          </p>
                         )}
                       </div>
                     ))}
@@ -286,7 +308,9 @@ Provide:
                       <p className="text-xs text-gray-500 mb-1">Key Points:</p>
                       <ul className="space-y-1">
                         {analysis.discussion_summary.key_points.map((point, i) => (
-                          <li key={i} className="text-sm text-gray-700">• {point}</li>
+                          <li key={i} className="text-sm text-gray-700">
+                            • {point}
+                          </li>
                         ))}
                       </ul>
                     </div>
@@ -296,7 +320,9 @@ Provide:
                       <p className="text-xs font-medium text-amber-700 mb-1">Needs Resolution:</p>
                       <ul className="space-y-1">
                         {analysis.discussion_summary.unresolved.map((item, i) => (
-                          <li key={i} className="text-sm text-amber-800">• {item}</li>
+                          <li key={i} className="text-sm text-amber-800">
+                            • {item}
+                          </li>
                         ))}
                       </ul>
                     </div>
@@ -310,7 +336,10 @@ Provide:
                   <h4 className="font-semibold text-gray-900 mb-3">Next Milestones</h4>
                   <div className="space-y-2">
                     {analysis.next_steps.map((step, idx) => (
-                      <div key={idx} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                      <div
+                        key={idx}
+                        className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                      >
                         <span className="font-medium text-gray-900">{step.milestone}</span>
                         <Badge variant="outline">{step.timeline}</Badge>
                       </div>
@@ -320,8 +349,8 @@ Provide:
               )}
 
               {/* Post to Comments */}
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 className="w-full gap-2"
                 onClick={postSummaryToComments}
                 disabled={createCommentMutation.isPending}

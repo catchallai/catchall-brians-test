@@ -4,18 +4,22 @@ import {
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "@/components/ui/tooltip";
+} from '@/components/ui/tooltip';
 
-export default function Tooltip({ children, content, side = "top", delayDuration = 300, disableHover = false }) {
+export default function Tooltip({
+  children,
+  content,
+  side = 'top',
+  delayDuration = 300,
+  disableHover = false,
+}) {
   if (disableHover) {
     return children;
   }
   return (
     <TooltipProvider delayDuration={delayDuration}>
       <ShadcnTooltip>
-        <TooltipTrigger asChild>
-          {children}
-        </TooltipTrigger>
+        <TooltipTrigger asChild>{children}</TooltipTrigger>
         <TooltipContent side={side} className="max-w-xs">
           {content}
         </TooltipContent>
@@ -25,9 +29,17 @@ export default function Tooltip({ children, content, side = "top", delayDuration
 }
 
 // Feature tooltip for onboarding
-export function FeatureTooltip({ children, title, description, step, totalSteps, onDismiss, show }) {
+export function FeatureTooltip({
+  children,
+  title,
+  description,
+  step,
+  totalSteps,
+  onDismiss,
+  show,
+}) {
   if (!show) return children;
-  
+
   return (
     <div className="relative">
       {children}
@@ -35,11 +47,13 @@ export function FeatureTooltip({ children, title, description, step, totalSteps,
         <div className="flex items-start justify-between mb-2">
           <h4 className="font-semibold text-gray-900 dark:text-white">{title}</h4>
           {step && totalSteps && (
-            <span className="text-xs text-gray-500">{step}/{totalSteps}</span>
+            <span className="text-xs text-gray-500">
+              {step}/{totalSteps}
+            </span>
           )}
         </div>
         <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">{description}</p>
-        <button 
+        <button
           onClick={onDismiss}
           className="text-xs text-violet-600 hover:text-violet-700 font-medium"
         >

@@ -2,9 +2,9 @@ import React from 'react';
 import { useParams } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
-import { Skeleton } from "@/components/ui/skeleton";
-import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
+import { Skeleton } from '@/components/ui/skeleton';
+import { Button } from '@/components/ui/button';
+import { ArrowLeft } from 'lucide-react';
 import { createPageUrl } from '@/utils';
 import SessionReplayTracker from '@/components/analytics/SessionReplayTracker';
 
@@ -12,7 +12,11 @@ export default function PublicLandingPage() {
   const urlParams = new URLSearchParams(window.location.search);
   const slug = urlParams.get('slug');
 
-  const { data: page, isLoading, error } = useQuery({
+  const {
+    data: page,
+    isLoading,
+    error,
+  } = useQuery({
     queryKey: ['landing-page', slug],
     queryFn: async () => {
       const pages = await base44.entities.LandingPage.filter({ slug });
@@ -95,13 +99,19 @@ function Section({ section }) {
       return (
         <div className="py-16 px-6">
           <div className="max-w-4xl mx-auto">
-            {content.title && <h2 className="text-3xl font-bold text-gray-900 mb-12 text-center">{content.title}</h2>}
+            {content.title && (
+              <h2 className="text-3xl font-bold text-gray-900 mb-12 text-center">
+                {content.title}
+              </h2>
+            )}
             {content.features && (
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 {content.features.map((feature, idx) => (
                   <div key={idx} className="space-y-3">
                     {feature.icon && <div className="text-4xl">{feature.icon}</div>}
-                    {feature.title && <h3 className="text-lg font-semibold text-gray-900">{feature.title}</h3>}
+                    {feature.title && (
+                      <h3 className="text-lg font-semibold text-gray-900">{feature.title}</h3>
+                    )}
                     {feature.description && <p className="text-gray-600">{feature.description}</p>}
                   </div>
                 ))}
@@ -115,8 +125,12 @@ function Section({ section }) {
       return (
         <div className="py-16 px-6">
           <div className="max-w-4xl mx-auto">
-            {content.title && <h2 className="text-3xl font-bold text-gray-900 mb-6">{content.title}</h2>}
-            {content.text && <div className="prose prose-lg max-w-none text-gray-700">{content.text}</div>}
+            {content.title && (
+              <h2 className="text-3xl font-bold text-gray-900 mb-6">{content.title}</h2>
+            )}
+            {content.text && (
+              <div className="prose prose-lg max-w-none text-gray-700">{content.text}</div>
+            )}
           </div>
         </div>
       );
@@ -125,7 +139,9 @@ function Section({ section }) {
       return (
         <div className="bg-violet-50 py-16 px-6">
           <div className="max-w-2xl mx-auto text-center space-y-6">
-            {content.heading && <h2 className="text-3xl font-bold text-gray-900">{content.heading}</h2>}
+            {content.heading && (
+              <h2 className="text-3xl font-bold text-gray-900">{content.heading}</h2>
+            )}
             {content.text && <p className="text-lg text-gray-600">{content.text}</p>}
             {content.button_text && (
               <Button className="bg-violet-600 hover:bg-violet-700 text-lg px-8 py-6">

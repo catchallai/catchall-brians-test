@@ -1,15 +1,22 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
-import { Switch } from "@/components/ui/switch";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Bell, Plus, Trash2, Edit, Mail, Play, X } from "lucide-react";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Badge } from '@/components/ui/badge';
+import { Switch } from '@/components/ui/switch';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Bell, Plus, Trash2, Edit, Mail, Play, X } from 'lucide-react';
+import { Checkbox } from '@/components/ui/checkbox';
 
 export default function AlertsManager({ initialFilters = null }) {
   const [showCreateDialog, setShowCreateDialog] = useState(false);
@@ -20,7 +27,7 @@ export default function AlertsManager({ initialFilters = null }) {
     criteria: initialFilters || {},
     trigger_events: [],
     notification_channels: ['in_app'],
-    monitored_companies: []
+    monitored_companies: [],
   });
   const [newKeyword, setNewKeyword] = useState('');
   const queryClient = useQueryClient();
@@ -69,7 +76,7 @@ export default function AlertsManager({ initialFilters = null }) {
       criteria: {},
       trigger_events: [],
       notification_channels: ['in_app'],
-      monitored_companies: []
+      monitored_companies: [],
     });
     setNewKeyword('');
   };
@@ -86,7 +93,7 @@ export default function AlertsManager({ initialFilters = null }) {
       criteria: alert.criteria || {},
       trigger_events: alert.trigger_events || [],
       notification_channels: alert.notification_channels || ['in_app'],
-      monitored_companies: alert.monitored_companies || []
+      monitored_companies: alert.monitored_companies || [],
     });
     setShowCreateDialog(true);
   };
@@ -94,54 +101,54 @@ export default function AlertsManager({ initialFilters = null }) {
   const handleUpdate = () => {
     updateAlertMutation.mutate({
       id: editingAlert.id,
-      data: alertForm
+      data: alertForm,
     });
   };
 
   const toggleEvent = (event) => {
-    setAlertForm(prev => ({
+    setAlertForm((prev) => ({
       ...prev,
       trigger_events: prev.trigger_events.includes(event)
-        ? prev.trigger_events.filter(e => e !== event)
-        : [...prev.trigger_events, event]
+        ? prev.trigger_events.filter((e) => e !== event)
+        : [...prev.trigger_events, event],
     }));
   };
 
   const toggleChannel = (channel) => {
-    setAlertForm(prev => ({
+    setAlertForm((prev) => ({
       ...prev,
       notification_channels: prev.notification_channels.includes(channel)
-        ? prev.notification_channels.filter(c => c !== channel)
-        : [...prev.notification_channels, channel]
+        ? prev.notification_channels.filter((c) => c !== channel)
+        : [...prev.notification_channels, channel],
     }));
   };
 
   const addKeyword = () => {
     if (!newKeyword.trim()) return;
     const keywords = alertForm.criteria.keywords || [];
-    setAlertForm(prev => ({
+    setAlertForm((prev) => ({
       ...prev,
       criteria: {
         ...prev.criteria,
-        keywords: [...keywords, newKeyword.trim()]
-      }
+        keywords: [...keywords, newKeyword.trim()],
+      },
     }));
     setNewKeyword('');
   };
 
   const removeKeyword = (keyword) => {
-    setAlertForm(prev => ({
+    setAlertForm((prev) => ({
       ...prev,
       criteria: {
         ...prev.criteria,
-        keywords: (prev.criteria.keywords || []).filter(k => k !== keyword)
-      }
+        keywords: (prev.criteria.keywords || []).filter((k) => k !== keyword),
+      },
     }));
   };
 
   React.useEffect(() => {
     if (initialFilters && Object.keys(initialFilters).length > 0) {
-      setAlertForm(prev => ({ ...prev, criteria: initialFilters }));
+      setAlertForm((prev) => ({ ...prev, criteria: initialFilters }));
       setShowCreateDialog(true);
     }
   }, [initialFilters]);
@@ -160,7 +167,7 @@ export default function AlertsManager({ initialFilters = null }) {
     funding_round: 'Funding Round',
     negative_pr: 'Negative PR/Incident',
     sentiment_change: 'Sentiment Change',
-    data_update: 'Company Data Updated'
+    data_update: 'Company Data Updated',
   };
 
   return (
@@ -170,13 +177,13 @@ export default function AlertsManager({ initialFilters = null }) {
           <CardTitle className="flex items-center gap-2">
             <Bell className="w-5 h-5 text-amber-500" />
             Active Alerts
-            <Badge>{alerts.filter(a => a.is_active).length}</Badge>
+            <Badge>{alerts.filter((a) => a.is_active).length}</Badge>
           </CardTitle>
           <div className="flex gap-2">
-            <Button 
-              onClick={() => checkAlertsMutation.mutate()} 
-              variant="outline" 
-              size="sm" 
+            <Button
+              onClick={() => checkAlertsMutation.mutate()}
+              variant="outline"
+              size="sm"
               className="gap-2"
               disabled={checkAlertsMutation.isPending}
             >
@@ -206,7 +213,9 @@ export default function AlertsManager({ initialFilters = null }) {
                     )}
                   </div>
                   {alert.description && (
-                    <p className="text-xs text-gray-600 dark:text-gray-400 mb-2">{alert.description}</p>
+                    <p className="text-xs text-gray-600 dark:text-gray-400 mb-2">
+                      {alert.description}
+                    </p>
                   )}
                   {alert.trigger_events?.length > 0 && (
                     <div className="flex flex-wrap gap-1">
@@ -220,20 +229,19 @@ export default function AlertsManager({ initialFilters = null }) {
                   {alert.trigger_count > 0 && (
                     <p className="text-xs text-gray-500 mt-1">
                       Triggered {alert.trigger_count} times
-                      {alert.last_triggered && ` • Last: ${new Date(alert.last_triggered).toLocaleDateString()}`}
+                      {alert.last_triggered &&
+                        ` • Last: ${new Date(alert.last_triggered).toLocaleDateString()}`}
                     </p>
                   )}
                 </div>
                 <div className="flex items-center gap-2">
                   <Switch
                     checked={alert.is_active}
-                    onCheckedChange={(checked) => toggleAlertMutation.mutate({ id: alert.id, is_active: checked })}
+                    onCheckedChange={(checked) =>
+                      toggleAlertMutation.mutate({ id: alert.id, is_active: checked })
+                    }
                   />
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleEdit(alert)}
-                  >
+                  <Button variant="ghost" size="sm" onClick={() => handleEdit(alert)}>
                     <Edit className="w-3 h-3" />
                   </Button>
                   <Button
@@ -251,13 +259,16 @@ export default function AlertsManager({ initialFilters = null }) {
       </CardContent>
 
       {/* Create/Edit Dialog */}
-      <Dialog open={showCreateDialog} onOpenChange={(open) => {
-        setShowCreateDialog(open);
-        if (!open) {
-          setEditingAlert(null);
-          resetForm();
-        }
-      }}>
+      <Dialog
+        open={showCreateDialog}
+        onOpenChange={(open) => {
+          setShowCreateDialog(open);
+          if (!open) {
+            setEditingAlert(null);
+            resetForm();
+          }
+        }}
+      >
         <DialogContent className="sm:max-w-[600px]">
           <DialogHeader>
             <DialogTitle>{editingAlert ? 'Edit Alert' : 'Create Alert'}</DialogTitle>
@@ -272,7 +283,7 @@ export default function AlertsManager({ initialFilters = null }) {
               <Input
                 placeholder="e.g., High Growth Companies"
                 value={alertForm.name}
-                onChange={(e) => setAlertForm(prev => ({ ...prev, name: e.target.value }))}
+                onChange={(e) => setAlertForm((prev) => ({ ...prev, name: e.target.value }))}
               />
             </div>
 
@@ -281,7 +292,7 @@ export default function AlertsManager({ initialFilters = null }) {
               <Input
                 placeholder="Brief description of this alert"
                 value={alertForm.description}
-                onChange={(e) => setAlertForm(prev => ({ ...prev, description: e.target.value }))}
+                onChange={(e) => setAlertForm((prev) => ({ ...prev, description: e.target.value }))}
               />
             </div>
 
@@ -365,13 +376,15 @@ export default function AlertsManager({ initialFilters = null }) {
                   type="number"
                   placeholder="20"
                   value={alertForm.criteria.sentiment_change_threshold || ''}
-                  onChange={(e) => setAlertForm(prev => ({
-                    ...prev,
-                    criteria: {
-                      ...prev.criteria,
-                      sentiment_change_threshold: parseInt(e.target.value) || 20
-                    }
-                  }))}
+                  onChange={(e) =>
+                    setAlertForm((prev) => ({
+                      ...prev,
+                      criteria: {
+                        ...prev.criteria,
+                        sentiment_change_threshold: parseInt(e.target.value) || 20,
+                      },
+                    }))
+                  }
                 />
                 <p className="text-xs text-gray-500 mt-1">
                   Alert when sentiment score changes by this amount
@@ -398,11 +411,14 @@ export default function AlertsManager({ initialFilters = null }) {
           </div>
 
           <DialogFooter>
-            <Button variant="outline" onClick={() => {
-              setShowCreateDialog(false);
-              setEditingAlert(null);
-              resetForm();
-            }}>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setShowCreateDialog(false);
+                setEditingAlert(null);
+                resetForm();
+              }}
+            >
               Cancel
             </Button>
             <Button onClick={editingAlert ? handleUpdate : handleCreate}>

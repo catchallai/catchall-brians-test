@@ -11,21 +11,27 @@ Deno.serve(async (req) => {
     const surveys = await base44.entities.SatisfactionSurvey.list('-created_date', 500);
     const onboardings = await base44.entities.CustomerOnboarding.list('-created_date', 500);
 
-    const targetContacts = contacts.filter(c => !contact_ids || contact_ids.includes(c.id));
+    const targetContacts = contacts.filter((c) => !contact_ids || contact_ids.includes(c.id));
 
     const predictions = await Promise.all(
       targetContacts.map(async (contact) => {
-        const health = healthScores.find(h => h.contact_id === contact.id);
-        const contactInteractions = interactions.filter(i => i.contact_id === contact.id);
-        const contactSurveys = surveys.filter(s => s.contact_id === contact.id && s.status === 'completed');
-        const onboarding = onboardings.find(o => o.contact_id === contact.id);
+        const health = healthScores.find((h) => h.contact_id === contact.id);
+        const contactInteractions = interactions.filter((i) => i.contact_id === contact.id);
+        const contactSurveys = surveys.filter(
+          (s) => s.contact_id === contact.id && s.status === 'completed'
+        );
+        const onboarding = onboardings.find((o) => o.contact_id === contact.id);
 
-        const recentInteractions = contactInteractions.filter(i => 
-          new Date(i.interaction_date) > new Date(Date.now() - 90 * 24 * 60 * 60 * 1000)
+        const recentInteractions = contactInteractions.filter(
+          (i) => new Date(i.interaction_date) > new Date(Date.now() - 90 * 24 * 60 * 60 * 1000)
         );
 
-        const negativeInteractions = recentInteractions.filter(i => i.sentiment === 'negative').length;
-        const supportIssues = recentInteractions.filter(i => i.interaction_type === 'support').length;
+        const negativeInteractions = recentInteractions.filter(
+          (i) => i.sentiment === 'negative'
+        ).length;
+        const supportIssues = recentInteractions.filter(
+          (i) => i.interaction_type === 'support'
+        ).length;
         const noEngagement = recentInteractions.length === 0;
 
         const analysis = await base44.integrations.Core.InvokeLLM({
@@ -50,10 +56,17 @@ Engagement (Last 90 days):
 
 Surveys:
 - Completed: ${contactSurveys.length}
-- Avg NPS: ${contactSurveys.filter(s => s.survey_type === 'nps' && s.score).length > 0 
-  ? (contactSurveys.filter(s => s.survey_type === 'nps').reduce((sum, s) => sum + (s.score || 0), 0) / contactSurveys.filter(s => s.survey_type === 'nps').length).toFixed(0)
-  : 'N/A'}
-- Detractors: ${contactSurveys.filter(s => s.nps_category === 'detractor').length}
+- Avg NPS: ${
+            contactSurveys.filter((s) => s.survey_type === 'nps' && s.score).length > 0
+              ? (
+                  contactSurveys
+                    .filter((s) => s.survey_type === 'nps')
+                    .reduce((sum, s) => sum + (s.score || 0), 0) /
+                  contactSurveys.filter((s) => s.survey_type === 'nps').length
+                ).toFixed(0)
+              : 'N/A'
+          }
+- Detractors: ${contactSurveys.filter((s) => s.nps_category === 'detractor').length}
 
 Onboarding:
 - Status: ${onboarding?.status || 'not_started'}
@@ -69,24 +82,24 @@ Analyze and provide:
 6. timeline_to_churn: Estimated days if no action taken
 7. recovery_potential: Can customer be saved? (0-100)`,
           response_json_schema: {
-            type: "object",
+            type: 'object',
             properties: {
-              churn_risk_score: { type: "number" },
-              risk_level: { type: "string" },
-              primary_risk_factors: { type: "array", items: { type: "string" } },
-              engagement_signals: { type: "array", items: { type: "string" } },
-              recommended_interventions: { type: "array", items: { type: "string" } },
-              timeline_to_churn: { type: "number" },
-              recovery_potential: { type: "number" }
-            }
-          }
+              churn_risk_score: { type: 'number' },
+              risk_level: { type: 'string' },
+              primary_risk_factors: { type: 'array', items: { type: 'string' } },
+              engagement_signals: { type: 'array', items: { type: 'string' } },
+              recommended_interventions: { type: 'array', items: { type: 'string' } },
+              timeline_to_churn: { type: 'number' },
+              recovery_potential: { type: 'number' },
+            },
+          },
         });
 
         return {
           contact_id: contact.id,
           contact_name: `${contact.first_name} ${contact.last_name}`,
           ...analysis,
-          calculated_at: new Date().toISOString()
+          calculated_at: new Date().toISOString(),
         };
       })
     );

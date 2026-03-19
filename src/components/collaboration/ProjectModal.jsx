@@ -1,28 +1,23 @@
 import React, { useState } from 'react';
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import { Loader2 } from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+import { Loader2 } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 export default function ProjectModal({ open, onClose, onSave, isLoading }) {
   const [formData, setFormData] = useState({
     name: '',
     description: '',
     due_date: '',
-    goals: ''
+    goals: '',
   });
 
   const handleSubmit = () => {
     onSave({
       ...formData,
-      goals: formData.goals.split('\n').filter(g => g.trim())
+      goals: formData.goals.split('\n').filter((g) => g.trim()),
     });
   };
 
@@ -66,11 +61,10 @@ export default function ProjectModal({ open, onClose, onSave, isLoading }) {
             />
           </div>
           <div className="flex justify-end gap-2">
-            <Button variant="outline" onClick={onClose}>Cancel</Button>
-            <Button 
-              onClick={handleSubmit}
-              disabled={!formData.name || isLoading}
-            >
+            <Button variant="outline" onClick={onClose}>
+              Cancel
+            </Button>
+            <Button onClick={handleSubmit} disabled={!formData.name || isLoading}>
               {isLoading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
               Create Project
             </Button>

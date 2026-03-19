@@ -1,11 +1,23 @@
 import React, { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Calendar, CheckSquare, Target } from 'lucide-react';
@@ -22,7 +34,7 @@ export default function QuickAddCalendarModal({ open, onClose }) {
     assigned_to: '',
     due_date: '',
     priority: 'medium',
-    status: 'not_started'
+    status: 'not_started',
   });
 
   // Milestone form state
@@ -31,19 +43,19 @@ export default function QuickAddCalendarModal({ open, onClose }) {
     description: '',
     project_id: '',
     due_date: '',
-    status: 'not_started'
+    status: 'not_started',
   });
 
   // Fetch projects
   const { data: projects = [] } = useQuery({
     queryKey: ['projects'],
-    queryFn: () => base44.entities.Project.list('-created_date', 100)
+    queryFn: () => base44.entities.Project.list('-created_date', 100),
   });
 
   // Fetch team members
   const { data: user } = useQuery({
     queryKey: ['current-user'],
-    queryFn: () => base44.auth.me()
+    queryFn: () => base44.auth.me(),
   });
 
   // Create task mutation
@@ -54,7 +66,7 @@ export default function QuickAddCalendarModal({ open, onClose }) {
       queryClient.invalidateQueries({ queryKey: ['my-tasks'] });
       resetForms();
       onClose();
-    }
+    },
   });
 
   // Create milestone mutation
@@ -64,7 +76,7 @@ export default function QuickAddCalendarModal({ open, onClose }) {
       queryClient.invalidateQueries({ queryKey: ['project-milestones'] });
       resetForms();
       onClose();
-    }
+    },
   });
 
   const resetForms = () => {
@@ -75,14 +87,14 @@ export default function QuickAddCalendarModal({ open, onClose }) {
       assigned_to: '',
       due_date: '',
       priority: 'medium',
-      status: 'not_started'
+      status: 'not_started',
     });
     setMilestoneData({
       name: '',
       description: '',
       project_id: '',
       due_date: '',
-      status: 'not_started'
+      status: 'not_started',
     });
   };
 
@@ -128,13 +140,18 @@ export default function QuickAddCalendarModal({ open, onClose }) {
 
             <div className="space-y-2">
               <Label>Project *</Label>
-              <Select value={taskData.project_id} onValueChange={(val) => setTaskData({ ...taskData, project_id: val })}>
+              <Select
+                value={taskData.project_id}
+                onValueChange={(val) => setTaskData({ ...taskData, project_id: val })}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Select project" />
                 </SelectTrigger>
                 <SelectContent>
-                  {projects.map(project => (
-                    <SelectItem key={project.id} value={project.id}>{project.name}</SelectItem>
+                  {projects.map((project) => (
+                    <SelectItem key={project.id} value={project.id}>
+                      {project.name}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -152,7 +169,10 @@ export default function QuickAddCalendarModal({ open, onClose }) {
 
               <div className="space-y-2">
                 <Label>Priority</Label>
-                <Select value={taskData.priority} onValueChange={(val) => setTaskData({ ...taskData, priority: val })}>
+                <Select
+                  value={taskData.priority}
+                  onValueChange={(val) => setTaskData({ ...taskData, priority: val })}
+                >
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
@@ -187,10 +207,17 @@ export default function QuickAddCalendarModal({ open, onClose }) {
             </div>
 
             <DialogFooter>
-              <Button variant="outline" onClick={onClose}>Cancel</Button>
-              <Button 
+              <Button variant="outline" onClick={onClose}>
+                Cancel
+              </Button>
+              <Button
                 onClick={handleCreateTask}
-                disabled={!taskData.title || !taskData.project_id || !taskData.due_date || createTaskMutation.isPending}
+                disabled={
+                  !taskData.title ||
+                  !taskData.project_id ||
+                  !taskData.due_date ||
+                  createTaskMutation.isPending
+                }
               >
                 {createTaskMutation.isPending ? 'Creating...' : 'Create Task'}
               </Button>
@@ -210,13 +237,18 @@ export default function QuickAddCalendarModal({ open, onClose }) {
 
             <div className="space-y-2">
               <Label>Project *</Label>
-              <Select value={milestoneData.project_id} onValueChange={(val) => setMilestoneData({ ...milestoneData, project_id: val })}>
+              <Select
+                value={milestoneData.project_id}
+                onValueChange={(val) => setMilestoneData({ ...milestoneData, project_id: val })}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Select project" />
                 </SelectTrigger>
                 <SelectContent>
-                  {projects.map(project => (
-                    <SelectItem key={project.id} value={project.id}>{project.name}</SelectItem>
+                  {projects.map((project) => (
+                    <SelectItem key={project.id} value={project.id}>
+                      {project.name}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -236,16 +268,25 @@ export default function QuickAddCalendarModal({ open, onClose }) {
               <Textarea
                 placeholder="Milestone description..."
                 value={milestoneData.description}
-                onChange={(e) => setMilestoneData({ ...milestoneData, description: e.target.value })}
+                onChange={(e) =>
+                  setMilestoneData({ ...milestoneData, description: e.target.value })
+                }
                 rows={3}
               />
             </div>
 
             <DialogFooter>
-              <Button variant="outline" onClick={onClose}>Cancel</Button>
-              <Button 
+              <Button variant="outline" onClick={onClose}>
+                Cancel
+              </Button>
+              <Button
                 onClick={handleCreateMilestone}
-                disabled={!milestoneData.name || !milestoneData.project_id || !milestoneData.due_date || createMilestoneMutation.isPending}
+                disabled={
+                  !milestoneData.name ||
+                  !milestoneData.project_id ||
+                  !milestoneData.due_date ||
+                  createMilestoneMutation.isPending
+                }
               >
                 {createMilestoneMutation.isPending ? 'Creating...' : 'Create Milestone'}
               </Button>

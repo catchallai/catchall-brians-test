@@ -1,12 +1,18 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Loader2, Sparkles, Copy, Check, RefreshCw, Send } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Loader2, Sparkles, Copy, Check, RefreshCw, Send } from 'lucide-react';
 
 const CONTENT_TYPES = [
   { id: 'social_post', label: 'Social Media Post', icon: '📱' },
@@ -22,13 +28,13 @@ const TONES = [
   { id: 'inspirational', label: 'Inspirational' },
 ];
 
-export default function ContentGeneratorCard({ 
-  insights, 
-  competitors, 
+export default function ContentGeneratorCard({
+  insights,
+  competitors,
   abTests,
   onGenerate,
   isGenerating,
-  onSchedulePost 
+  onSchedulePost,
 }) {
   const [contentType, setContentType] = useState('social_post');
   const [platform, setPlatform] = useState('twitter');
@@ -37,12 +43,15 @@ export default function ContentGeneratorCard({
   const [generatedContent, setGeneratedContent] = useState(null);
   const [copied, setCopied] = useState(false);
 
-  const trendingTopics = insights?.flatMap(i => i.trending_topics || []).slice(0, 10) || [];
-  const emergingTrends = insights?.flatMap(i => i.emerging_trends || []).slice(0, 5) || [];
-  const competitorStrengths = competitors?.flatMap(c => c.top_content || []).slice(0, 5) || [];
-  const winningVariants = abTests?.filter(t => t.status === 'completed' && t.winner)
-    .map(t => t.winner === 'a' ? t.variant_a?.content : t.variant_b?.content)
-    .filter(Boolean).slice(0, 3) || [];
+  const trendingTopics = insights?.flatMap((i) => i.trending_topics || []).slice(0, 10) || [];
+  const emergingTrends = insights?.flatMap((i) => i.emerging_trends || []).slice(0, 5) || [];
+  const competitorStrengths = competitors?.flatMap((c) => c.top_content || []).slice(0, 5) || [];
+  const winningVariants =
+    abTests
+      ?.filter((t) => t.status === 'completed' && t.winner)
+      .map((t) => (t.winner === 'a' ? t.variant_a?.content : t.variant_b?.content))
+      .filter(Boolean)
+      .slice(0, 3) || [];
 
   const handleGenerate = async () => {
     const result = await onGenerate({
@@ -51,7 +60,7 @@ export default function ContentGeneratorCard({
       tone,
       topic,
       trendingTopics,
-      emergingTrends: emergingTrends.map(t => t.topic || t),
+      emergingTrends: emergingTrends.map((t) => t.topic || t),
       competitorInsights: competitorStrengths,
       winningContent: winningVariants,
     });
@@ -61,9 +70,10 @@ export default function ContentGeneratorCard({
   };
 
   const handleCopy = () => {
-    const textToCopy = contentType === 'blog_outline' 
-      ? generatedContent?.outline?.join('\n') 
-      : generatedContent?.content;
+    const textToCopy =
+      contentType === 'blog_outline'
+        ? generatedContent?.outline?.join('\n')
+        : generatedContent?.content;
     navigator.clipboard.writeText(textToCopy || '');
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
@@ -93,10 +103,13 @@ export default function ContentGeneratorCard({
           <div>
             <Label className="text-xs text-gray-500">Quick topics from your insights:</Label>
             <div className="flex flex-wrap gap-1 mt-1">
-              {[...trendingTopics.slice(0, 5), ...emergingTrends.map(t => t.topic || t).slice(0, 3)].map((t, i) => (
-                <Badge 
-                  key={i} 
-                  variant="outline" 
+              {[
+                ...trendingTopics.slice(0, 5),
+                ...emergingTrends.map((t) => t.topic || t).slice(0, 3),
+              ].map((t, i) => (
+                <Badge
+                  key={i}
+                  variant="outline"
                   className="cursor-pointer hover:bg-violet-50 text-xs"
                   onClick={() => setTopic(t)}
                 >
@@ -116,7 +129,7 @@ export default function ContentGeneratorCard({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {CONTENT_TYPES.map(t => (
+                {CONTENT_TYPES.map((t) => (
                   <SelectItem key={t.id} value={t.id}>
                     <span className="mr-1">{t.icon}</span> {t.label}
                   </SelectItem>
@@ -124,7 +137,7 @@ export default function ContentGeneratorCard({
               </SelectContent>
             </Select>
           </div>
-          
+
           {contentType === 'social_post' && (
             <div className="space-y-1">
               <Label className="text-xs">Platform</Label>
@@ -141,7 +154,7 @@ export default function ContentGeneratorCard({
               </Select>
             </div>
           )}
-          
+
           <div className="space-y-1">
             <Label className="text-xs">Tone</Label>
             <Select value={tone} onValueChange={setTone}>
@@ -149,8 +162,10 @@ export default function ContentGeneratorCard({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {TONES.map(t => (
-                  <SelectItem key={t.id} value={t.id}>{t.label}</SelectItem>
+                {TONES.map((t) => (
+                  <SelectItem key={t.id} value={t.id}>
+                    {t.label}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -170,8 +185,8 @@ export default function ContentGeneratorCard({
         </div>
 
         {/* Generate Button */}
-        <Button 
-          onClick={handleGenerate} 
+        <Button
+          onClick={handleGenerate}
           disabled={isGenerating}
           className="w-full gap-2 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700"
         >
@@ -193,7 +208,13 @@ export default function ContentGeneratorCard({
                   {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
                   {copied ? 'Copied' : 'Copy'}
                 </Button>
-                <Button size="sm" variant="ghost" onClick={handleGenerate} disabled={isGenerating} className="h-7">
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={handleGenerate}
+                  disabled={isGenerating}
+                  className="h-7"
+                >
                   <RefreshCw className={`w-3 h-3 ${isGenerating ? 'animate-spin' : ''}`} />
                 </Button>
               </div>
@@ -201,11 +222,15 @@ export default function ContentGeneratorCard({
 
             {contentType === 'social_post' && (
               <>
-                <p className="text-sm text-gray-700 whitespace-pre-wrap">{generatedContent.content}</p>
+                <p className="text-sm text-gray-700 whitespace-pre-wrap">
+                  {generatedContent.content}
+                </p>
                 {generatedContent.hashtags?.length > 0 && (
                   <div className="flex flex-wrap gap-1">
                     {generatedContent.hashtags.map((tag, i) => (
-                      <span key={i} className="text-xs text-blue-600">#{tag}</span>
+                      <span key={i} className="text-xs text-blue-600">
+                        #{tag}
+                      </span>
                     ))}
                   </div>
                 )}
@@ -227,12 +252,16 @@ export default function ContentGeneratorCard({
                 </div>
                 <div>
                   <span className="text-xs font-medium text-gray-500">Body:</span>
-                  <p className="text-sm text-gray-700 whitespace-pre-wrap">{generatedContent.content}</p>
+                  <p className="text-sm text-gray-700 whitespace-pre-wrap">
+                    {generatedContent.content}
+                  </p>
                 </div>
                 {generatedContent.cta && (
                   <div>
                     <span className="text-xs font-medium text-gray-500">CTA:</span>
-                    <Badge className="ml-2 bg-violet-100 text-violet-700">{generatedContent.cta}</Badge>
+                    <Badge className="ml-2 bg-violet-100 text-violet-700">
+                      {generatedContent.cta}
+                    </Badge>
                   </div>
                 )}
               </div>
@@ -260,7 +289,9 @@ export default function ContentGeneratorCard({
                     <span className="text-xs font-medium text-gray-500">SEO Keywords:</span>
                     <div className="flex flex-wrap gap-1 mt-1">
                       {generatedContent.keywords.map((kw, i) => (
-                        <Badge key={i} variant="outline" className="text-xs">{kw}</Badge>
+                        <Badge key={i} variant="outline" className="text-xs">
+                          {kw}
+                        </Badge>
                       ))}
                     </div>
                   </div>

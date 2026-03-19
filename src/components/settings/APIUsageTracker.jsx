@@ -1,9 +1,9 @@
 import React from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
 import { Zap, TrendingUp, DollarSign, AlertTriangle } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { format, subDays, eachDayOfInterval } from 'date-fns';
@@ -17,12 +17,12 @@ export default function APIUsageTracker() {
   // Generate chart data for last 7 days
   const last7Days = eachDayOfInterval({
     start: subDays(new Date(), 6),
-    end: new Date()
+    end: new Date(),
   });
 
-  const chartData = last7Days.map(date => {
+  const chartData = last7Days.map((date) => {
     const dateStr = format(date, 'yyyy-MM-dd');
-    const dayUsage = usage.filter(u => u.date === dateStr);
+    const dayUsage = usage.filter((u) => u.date === dateStr);
     return {
       date: format(date, 'EEE'),
       calls: dayUsage.reduce((sum, u) => sum + (u.calls_count || 0), 0),
@@ -33,7 +33,7 @@ export default function APIUsageTracker() {
   const totalCalls = usage.reduce((sum, u) => sum + (u.calls_count || 0), 0);
   const totalCost = usage.reduce((sum, u) => sum + (u.cost_estimate || 0), 0);
   const dailyLimit = 1000; // Example limit
-  const todayUsage = usage.filter(u => u.date === format(new Date(), 'yyyy-MM-dd'));
+  const todayUsage = usage.filter((u) => u.date === format(new Date(), 'yyyy-MM-dd'));
   const todayCalls = todayUsage.reduce((sum, u) => sum + (u.calls_count || 0), 0);
   const usagePercent = Math.min((todayCalls / dailyLimit) * 100, 100);
 
@@ -49,8 +49,12 @@ export default function APIUsageTracker() {
         {/* Today's Usage */}
         <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Today's API Calls</span>
-            <span className="text-sm text-gray-500">{todayCalls} / {dailyLimit}</span>
+            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+              Today's API Calls
+            </span>
+            <span className="text-sm text-gray-500">
+              {todayCalls} / {dailyLimit}
+            </span>
           </div>
           <Progress value={usagePercent} className="h-2" />
           {usagePercent > 80 && (
@@ -88,12 +92,12 @@ export default function APIUsageTracker() {
               <BarChart data={chartData}>
                 <XAxis dataKey="date" tick={{ fontSize: 10 }} />
                 <YAxis hide />
-                <Tooltip 
-                  contentStyle={{ 
-                    backgroundColor: 'rgba(255,255,255,0.95)', 
-                    border: 'none', 
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: 'rgba(255,255,255,0.95)',
+                    border: 'none',
                     borderRadius: '8px',
-                    boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
                   }}
                 />
                 <Bar dataKey="calls" fill="#8b5cf6" radius={[4, 4, 0, 0]} />
@@ -107,7 +111,7 @@ export default function APIUsageTracker() {
           <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">By Endpoint</p>
           <div className="space-y-2">
             {['InvokeLLM', 'SendEmail', 'GenerateImage'].map((endpoint) => {
-              const endpointUsage = usage.filter(u => u.endpoint === endpoint);
+              const endpointUsage = usage.filter((u) => u.endpoint === endpoint);
               const calls = endpointUsage.reduce((sum, u) => sum + (u.calls_count || 0), 0);
               return (
                 <div key={endpoint} className="flex items-center justify-between text-sm">

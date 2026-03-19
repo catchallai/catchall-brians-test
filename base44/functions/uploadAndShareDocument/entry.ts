@@ -22,7 +22,9 @@ Deno.serve(async (req) => {
     const fileUrl = uploadResponse.file_url;
 
     // Generate a unique share token
-    const shareToken = crypto.getRandomValues(new Uint8Array(16)).reduce((a, b) => a + b.toString(16), '');
+    const shareToken = crypto
+      .getRandomValues(new Uint8Array(16))
+      .reduce((a, b) => a + b.toString(16), '');
 
     // Create TrackedDocument record
     const document = await base44.entities.TrackedDocument.create({
@@ -31,14 +33,14 @@ Deno.serve(async (req) => {
       tracking_code: shareToken,
       status: 'active',
       total_views: 0,
-      total_downloads: 0
+      total_downloads: 0,
     });
 
     return Response.json({
       success: true,
       documentId: document.id,
       trackingCode: shareToken,
-      fileUrl: fileUrl
+      fileUrl: fileUrl,
     });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });

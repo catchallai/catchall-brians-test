@@ -1,25 +1,31 @@
 import React, { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Checkbox } from "@/components/ui/checkbox";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Loader2 } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Checkbox } from '@/components/ui/checkbox';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Loader2 } from 'lucide-react';
 
-export default function CampaignModal({ 
-  open, 
-  onClose, 
-  campaign, 
-  contacts, 
-  deals, 
-  keywords, 
+export default function CampaignModal({
+  open,
+  onClose,
+  campaign,
+  contacts,
+  deals,
+  keywords,
   backlinks,
-  onSave, 
-  isLoading 
+  onSave,
+  isLoading,
 }) {
   const [formData, setFormData] = useState({
     name: '',
@@ -91,11 +97,11 @@ export default function CampaignModal({
   };
 
   const toggleArrayItem = (field, id) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [field]: prev[field].includes(id) 
-        ? prev[field].filter(i => i !== id)
-        : [...prev[field], id]
+      [field]: prev[field].includes(id)
+        ? prev[field].filter((i) => i !== id)
+        : [...prev[field], id],
     }));
   };
 
@@ -105,7 +111,7 @@ export default function CampaignModal({
         <DialogHeader>
           <DialogTitle>{campaign ? 'Edit Campaign' : 'Create New Campaign'}</DialogTitle>
         </DialogHeader>
-        
+
         <form onSubmit={handleSubmit} className="flex-1 overflow-hidden flex flex-col">
           <Tabs defaultValue="details" className="flex-1 overflow-hidden flex flex-col">
             <TabsList className="grid w-full grid-cols-3">
@@ -260,19 +266,24 @@ export default function CampaignModal({
                 <div className="space-y-3">
                   <Label>Link Contacts ({formData.contact_ids.length} selected)</Label>
                   <div className="border rounded-lg p-3 max-h-48 overflow-y-auto space-y-2">
-                    {contacts?.length > 0 ? contacts.map((contact) => (
-                      <div key={contact.id} className="flex items-center gap-2">
-                        <Checkbox
-                          id={`contact-${contact.id}`}
-                          checked={formData.contact_ids.includes(contact.id)}
-                          onCheckedChange={() => toggleArrayItem('contact_ids', contact.id)}
-                        />
-                        <label htmlFor={`contact-${contact.id}`} className="text-sm cursor-pointer">
-                          {contact.first_name} {contact.last_name} 
-                          <span className="text-gray-400 ml-1">({contact.email})</span>
-                        </label>
-                      </div>
-                    )) : (
+                    {contacts?.length > 0 ? (
+                      contacts.map((contact) => (
+                        <div key={contact.id} className="flex items-center gap-2">
+                          <Checkbox
+                            id={`contact-${contact.id}`}
+                            checked={formData.contact_ids.includes(contact.id)}
+                            onCheckedChange={() => toggleArrayItem('contact_ids', contact.id)}
+                          />
+                          <label
+                            htmlFor={`contact-${contact.id}`}
+                            className="text-sm cursor-pointer"
+                          >
+                            {contact.first_name} {contact.last_name}
+                            <span className="text-gray-400 ml-1">({contact.email})</span>
+                          </label>
+                        </div>
+                      ))
+                    ) : (
                       <p className="text-sm text-gray-400">No contacts available</p>
                     )}
                   </div>
@@ -281,19 +292,23 @@ export default function CampaignModal({
                 <div className="space-y-3">
                   <Label>Link Deals ({formData.deal_ids.length} selected)</Label>
                   <div className="border rounded-lg p-3 max-h-48 overflow-y-auto space-y-2">
-                    {deals?.length > 0 ? deals.map((deal) => (
-                      <div key={deal.id} className="flex items-center gap-2">
-                        <Checkbox
-                          id={`deal-${deal.id}`}
-                          checked={formData.deal_ids.includes(deal.id)}
-                          onCheckedChange={() => toggleArrayItem('deal_ids', deal.id)}
-                        />
-                        <label htmlFor={`deal-${deal.id}`} className="text-sm cursor-pointer">
-                          {deal.title} 
-                          <span className="text-emerald-600 ml-1">${deal.value?.toLocaleString()}</span>
-                        </label>
-                      </div>
-                    )) : (
+                    {deals?.length > 0 ? (
+                      deals.map((deal) => (
+                        <div key={deal.id} className="flex items-center gap-2">
+                          <Checkbox
+                            id={`deal-${deal.id}`}
+                            checked={formData.deal_ids.includes(deal.id)}
+                            onCheckedChange={() => toggleArrayItem('deal_ids', deal.id)}
+                          />
+                          <label htmlFor={`deal-${deal.id}`} className="text-sm cursor-pointer">
+                            {deal.title}
+                            <span className="text-emerald-600 ml-1">
+                              ${deal.value?.toLocaleString()}
+                            </span>
+                          </label>
+                        </div>
+                      ))
+                    ) : (
                       <p className="text-sm text-gray-400">No deals available</p>
                     )}
                   </div>
@@ -304,21 +319,28 @@ export default function CampaignModal({
                 <div className="space-y-3">
                   <Label>Link Keywords ({formData.keyword_ids.length} selected)</Label>
                   <div className="border rounded-lg p-3 max-h-48 overflow-y-auto space-y-2">
-                    {keywords?.length > 0 ? keywords.map((keyword) => (
-                      <div key={keyword.id} className="flex items-center gap-2">
-                        <Checkbox
-                          id={`keyword-${keyword.id}`}
-                          checked={formData.keyword_ids.includes(keyword.id)}
-                          onCheckedChange={() => toggleArrayItem('keyword_ids', keyword.id)}
-                        />
-                        <label htmlFor={`keyword-${keyword.id}`} className="text-sm cursor-pointer">
-                          {keyword.keyword}
-                          {keyword.current_position && (
-                            <span className="text-gray-400 ml-1">(Position: {keyword.current_position})</span>
-                          )}
-                        </label>
-                      </div>
-                    )) : (
+                    {keywords?.length > 0 ? (
+                      keywords.map((keyword) => (
+                        <div key={keyword.id} className="flex items-center gap-2">
+                          <Checkbox
+                            id={`keyword-${keyword.id}`}
+                            checked={formData.keyword_ids.includes(keyword.id)}
+                            onCheckedChange={() => toggleArrayItem('keyword_ids', keyword.id)}
+                          />
+                          <label
+                            htmlFor={`keyword-${keyword.id}`}
+                            className="text-sm cursor-pointer"
+                          >
+                            {keyword.keyword}
+                            {keyword.current_position && (
+                              <span className="text-gray-400 ml-1">
+                                (Position: {keyword.current_position})
+                              </span>
+                            )}
+                          </label>
+                        </div>
+                      ))
+                    ) : (
                       <p className="text-sm text-gray-400">No keywords available</p>
                     )}
                   </div>
@@ -327,19 +349,26 @@ export default function CampaignModal({
                 <div className="space-y-3">
                   <Label>Link Backlinks ({formData.backlink_ids.length} selected)</Label>
                   <div className="border rounded-lg p-3 max-h-48 overflow-y-auto space-y-2">
-                    {backlinks?.length > 0 ? backlinks.map((backlink) => (
-                      <div key={backlink.id} className="flex items-center gap-2">
-                        <Checkbox
-                          id={`backlink-${backlink.id}`}
-                          checked={formData.backlink_ids.includes(backlink.id)}
-                          onCheckedChange={() => toggleArrayItem('backlink_ids', backlink.id)}
-                        />
-                        <label htmlFor={`backlink-${backlink.id}`} className="text-sm cursor-pointer truncate">
-                          {backlink.source_domain}
-                          <span className="text-gray-400 ml-1">(DA: {backlink.domain_authority || '-'})</span>
-                        </label>
-                      </div>
-                    )) : (
+                    {backlinks?.length > 0 ? (
+                      backlinks.map((backlink) => (
+                        <div key={backlink.id} className="flex items-center gap-2">
+                          <Checkbox
+                            id={`backlink-${backlink.id}`}
+                            checked={formData.backlink_ids.includes(backlink.id)}
+                            onCheckedChange={() => toggleArrayItem('backlink_ids', backlink.id)}
+                          />
+                          <label
+                            htmlFor={`backlink-${backlink.id}`}
+                            className="text-sm cursor-pointer truncate"
+                          >
+                            {backlink.source_domain}
+                            <span className="text-gray-400 ml-1">
+                              (DA: {backlink.domain_authority || '-'})
+                            </span>
+                          </label>
+                        </div>
+                      ))
+                    ) : (
                       <p className="text-sm text-gray-400">No backlinks available</p>
                     )}
                   </div>

@@ -1,16 +1,32 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Switch } from "@/components/ui/switch";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Plus, Settings, CheckCircle, AlertCircle, CreditCard, Zap, Shield, DollarSign, TrendingUp } from "lucide-react";
-import { useToast } from "@/components/ui/toast-provider";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Switch } from '@/components/ui/switch';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import {
+  Plus,
+  Settings,
+  CheckCircle,
+  AlertCircle,
+  CreditCard,
+  Zap,
+  Shield,
+  DollarSign,
+  TrendingUp,
+} from 'lucide-react';
+import { useToast } from '@/components/ui/toast-provider';
 
 const GATEWAY_PROVIDERS = [
   {
@@ -100,7 +116,7 @@ export default function PaymentGatewayAdmin() {
   const handleToggleGateway = async (gateway) => {
     updateMutation.mutate({
       id: gateway.id,
-      data: { is_enabled: !gateway.is_enabled }
+      data: { is_enabled: !gateway.is_enabled },
     });
   };
 
@@ -114,14 +130,14 @@ export default function PaymentGatewayAdmin() {
     // Set this as default
     updateMutation.mutate({
       id: gateway.id,
-      data: { is_default: true }
+      data: { is_default: true },
     });
   };
 
   const handleConfigureGateway = (providerId) => {
-    const provider = GATEWAY_PROVIDERS.find(p => p.id === providerId);
-    const existingGateway = gateways.find(g => g.gateway_name === providerId);
-    
+    const provider = GATEWAY_PROVIDERS.find((p) => p.id === providerId);
+    const existingGateway = gateways.find((g) => g.gateway_name === providerId);
+
     if (existingGateway) {
       setEditingGateway(existingGateway);
       setFormData(existingGateway);
@@ -146,8 +162,8 @@ export default function PaymentGatewayAdmin() {
     }
   };
 
-  const configuredGatewayIds = gateways.map(g => g.gateway_name);
-  const enabledGateways = gateways.filter(g => g.is_enabled);
+  const configuredGatewayIds = gateways.map((g) => g.gateway_name);
+  const enabledGateways = gateways.filter((g) => g.is_enabled);
   const totalTransactions = 0; // Would come from Payment entity
   const totalRevenue = 0; // Would come from Payment entity
 
@@ -233,10 +249,10 @@ export default function PaymentGatewayAdmin() {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {GATEWAY_PROVIDERS.map(provider => {
+            {GATEWAY_PROVIDERS.map((provider) => {
               const Icon = provider.icon;
               const configured = configuredGatewayIds.includes(provider.id);
-              const gateway = gateways.find(g => g.gateway_name === provider.id);
+              const gateway = gateways.find((g) => g.gateway_name === provider.id);
 
               return (
                 <Card key={provider.id} className="relative overflow-hidden">
@@ -247,12 +263,18 @@ export default function PaymentGatewayAdmin() {
                           <Icon className={`w-6 h-6 ${provider.color}`} />
                         </div>
                         <div>
-                          <h3 className="font-semibold text-gray-900 dark:text-white">{provider.name}</h3>
+                          <h3 className="font-semibold text-gray-900 dark:text-white">
+                            {provider.name}
+                          </h3>
                           {configured && gateway?.is_enabled && (
-                            <Badge className="bg-green-100 text-green-800 text-xs mt-1">Active</Badge>
+                            <Badge className="bg-green-100 text-green-800 text-xs mt-1">
+                              Active
+                            </Badge>
                           )}
                           {configured && !gateway?.is_enabled && (
-                            <Badge variant="outline" className="text-xs mt-1">Configured</Badge>
+                            <Badge variant="outline" className="text-xs mt-1">
+                              Configured
+                            </Badge>
                           )}
                         </div>
                       </div>
@@ -266,7 +288,7 @@ export default function PaymentGatewayAdmin() {
                     </p>
 
                     <div className="flex flex-wrap gap-1 mb-4">
-                      {provider.methods.slice(0, 3).map(method => (
+                      {provider.methods.slice(0, 3).map((method) => (
                         <Badge key={method} variant="outline" className="text-xs">
                           {method.replace('_', ' ')}
                         </Badge>
@@ -281,7 +303,9 @@ export default function PaymentGatewayAdmin() {
                     {configured ? (
                       <div className="space-y-2">
                         <div className="flex items-center justify-between">
-                          <span className="text-sm text-gray-600 dark:text-gray-400">Enable Gateway</span>
+                          <span className="text-sm text-gray-600 dark:text-gray-400">
+                            Enable Gateway
+                          </span>
                           <Switch
                             checked={gateway?.is_enabled}
                             onCheckedChange={() => handleToggleGateway(gateway)}
@@ -353,7 +377,9 @@ export default function PaymentGatewayAdmin() {
                 <Label>Mode</Label>
                 <Select
                   value={formData.test_mode ? 'test' : 'live'}
-                  onValueChange={(value) => setFormData({ ...formData, test_mode: value === 'test' })}
+                  onValueChange={(value) =>
+                    setFormData({ ...formData, test_mode: value === 'test' })
+                  }
                 >
                   <SelectTrigger>
                     <SelectValue />
@@ -413,10 +439,12 @@ export default function PaymentGatewayAdmin() {
                   type="number"
                   step="0.01"
                   value={formData.fees?.percentage || ''}
-                  onChange={(e) => setFormData({
-                    ...formData,
-                    fees: { ...formData.fees, percentage: parseFloat(e.target.value) }
-                  })}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      fees: { ...formData.fees, percentage: parseFloat(e.target.value) },
+                    })
+                  }
                   placeholder="2.9"
                 />
               </div>
@@ -427,10 +455,12 @@ export default function PaymentGatewayAdmin() {
                   type="number"
                   step="0.01"
                   value={formData.fees?.fixed_amount || ''}
-                  onChange={(e) => setFormData({
-                    ...formData,
-                    fees: { ...formData.fees, fixed_amount: parseFloat(e.target.value) }
-                  })}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      fees: { ...formData.fees, fixed_amount: parseFloat(e.target.value) },
+                    })
+                  }
                   placeholder="0.30"
                 />
               </div>
@@ -441,7 +471,9 @@ export default function PaymentGatewayAdmin() {
                 <AlertCircle className="w-5 h-5 text-blue-600 mt-0.5" />
                 <div className="text-sm text-blue-800 dark:text-blue-300">
                   <p className="font-semibold mb-1">Security Notice</p>
-                  <p>API keys and secrets are encrypted before storage. Never share your credentials.</p>
+                  <p>
+                    API keys and secrets are encrypted before storage. Never share your credentials.
+                  </p>
                 </div>
               </div>
             </div>

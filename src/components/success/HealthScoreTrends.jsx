@@ -1,8 +1,19 @@
 import React, { useMemo, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, BarChart, Bar } from 'recharts';
-import { TrendingUp } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+} from 'recharts';
+import { TrendingUp } from 'lucide-react';
 
 export default function HealthScoreTrends({ healthScores, contacts }) {
   const [view, setView] = useState('segment');
@@ -16,38 +27,49 @@ export default function HealthScoreTrends({ healthScores, contacts }) {
       last30Days.push(date.toISOString().split('T')[0]);
     }
 
-    return last30Days.map(date => {
-      const dayScores = healthScores.filter(h => {
+    return last30Days.map((date) => {
+      const dayScores = healthScores.filter((h) => {
         const scoreDate = new Date(h.last_calculated || h.created_date).toISOString().split('T')[0];
         return scoreDate <= date;
       });
 
       const segments = {
-        enterprise: dayScores.filter(s => {
-          const contact = contacts.find(c => c.id === s.contact_id);
+        enterprise: dayScores.filter((s) => {
+          const contact = contacts.find((c) => c.id === s.contact_id);
           return contact?.segment === 'enterprise';
         }),
-        smb: dayScores.filter(s => {
-          const contact = contacts.find(c => c.id === s.contact_id);
+        smb: dayScores.filter((s) => {
+          const contact = contacts.find((c) => c.id === s.contact_id);
           return contact?.segment === 'smb';
         }),
-        startup: dayScores.filter(s => {
-          const contact = contacts.find(c => c.id === s.contact_id);
+        startup: dayScores.filter((s) => {
+          const contact = contacts.find((c) => c.id === s.contact_id);
           return contact?.segment === 'startup';
-        })
+        }),
       };
 
       return {
         date: new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-        enterprise: segments.enterprise.length > 0
-          ? Math.round(segments.enterprise.reduce((sum, s) => sum + s.health_score, 0) / segments.enterprise.length)
-          : 0,
-        smb: segments.smb.length > 0
-          ? Math.round(segments.smb.reduce((sum, s) => sum + s.health_score, 0) / segments.smb.length)
-          : 0,
-        startup: segments.startup.length > 0
-          ? Math.round(segments.startup.reduce((sum, s) => sum + s.health_score, 0) / segments.startup.length)
-          : 0
+        enterprise:
+          segments.enterprise.length > 0
+            ? Math.round(
+                segments.enterprise.reduce((sum, s) => sum + s.health_score, 0) /
+                  segments.enterprise.length
+              )
+            : 0,
+        smb:
+          segments.smb.length > 0
+            ? Math.round(
+                segments.smb.reduce((sum, s) => sum + s.health_score, 0) / segments.smb.length
+              )
+            : 0,
+        startup:
+          segments.startup.length > 0
+            ? Math.round(
+                segments.startup.reduce((sum, s) => sum + s.health_score, 0) /
+                  segments.startup.length
+              )
+            : 0,
       };
     });
   }, [healthScores, contacts]);
@@ -55,15 +77,15 @@ export default function HealthScoreTrends({ healthScores, contacts }) {
   // Process data by CSM
   const csmPerformance = useMemo(() => {
     const csmMap = {};
-    
-    healthScores.forEach(h => {
-      const contact = contacts.find(c => c.id === h.contact_id);
+
+    healthScores.forEach((h) => {
+      const contact = contacts.find((c) => c.id === h.contact_id);
       if (contact?.assigned_csm) {
         if (!csmMap[contact.assigned_csm]) {
           csmMap[contact.assigned_csm] = {
             name: contact.assigned_csm,
             scores: [],
-            totalCustomers: 0
+            totalCustomers: 0,
           };
         }
         csmMap[contact.assigned_csm].scores.push(h.health_score);
@@ -71,14 +93,16 @@ export default function HealthScoreTrends({ healthScores, contacts }) {
       }
     });
 
-    return Object.values(csmMap).map(csm => ({
-      name: csm.name,
-      avgScore: Math.round(csm.scores.reduce((sum, s) => sum + s, 0) / csm.scores.length),
-      customers: csm.totalCustomers,
-      healthy: csm.scores.filter(s => s >= 75).length,
-      atRisk: csm.scores.filter(s => s >= 50 && s < 75).length,
-      critical: csm.scores.filter(s => s < 50).length
-    })).sort((a, b) => b.avgScore - a.avgScore);
+    return Object.values(csmMap)
+      .map((csm) => ({
+        name: csm.name,
+        avgScore: Math.round(csm.scores.reduce((sum, s) => sum + s, 0) / csm.scores.length),
+        customers: csm.totalCustomers,
+        healthy: csm.scores.filter((s) => s >= 75).length,
+        atRisk: csm.scores.filter((s) => s >= 50 && s < 75).length,
+        critical: csm.scores.filter((s) => s < 50).length,
+      }))
+      .sort((a, b) => b.avgScore - a.avgScore);
   }, [healthScores, contacts]);
 
   return (
@@ -101,44 +125,36 @@ export default function HealthScoreTrends({ healthScores, contacts }) {
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={segmentTrends}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                  <XAxis 
-                    dataKey="date" 
-                    stroke="#6b7280"
-                    tick={{ fontSize: 12 }}
-                  />
-                  <YAxis 
-                    stroke="#6b7280"
-                    tick={{ fontSize: 12 }}
-                    domain={[0, 100]}
-                  />
-                  <Tooltip 
-                    contentStyle={{ 
+                  <XAxis dataKey="date" stroke="#6b7280" tick={{ fontSize: 12 }} />
+                  <YAxis stroke="#6b7280" tick={{ fontSize: 12 }} domain={[0, 100]} />
+                  <Tooltip
+                    contentStyle={{
                       backgroundColor: 'rgba(255, 255, 255, 0.95)',
                       border: '1px solid #e5e7eb',
-                      borderRadius: '8px'
+                      borderRadius: '8px',
                     }}
                   />
                   <Legend />
-                  <Line 
-                    type="monotone" 
-                    dataKey="enterprise" 
-                    stroke="#8b5cf6" 
+                  <Line
+                    type="monotone"
+                    dataKey="enterprise"
+                    stroke="#8b5cf6"
                     strokeWidth={2}
                     name="Enterprise"
                     dot={false}
                   />
-                  <Line 
-                    type="monotone" 
-                    dataKey="smb" 
-                    stroke="#3b82f6" 
+                  <Line
+                    type="monotone"
+                    dataKey="smb"
+                    stroke="#3b82f6"
                     strokeWidth={2}
                     name="SMB"
                     dot={false}
                   />
-                  <Line 
-                    type="monotone" 
-                    dataKey="startup" 
-                    stroke="#10b981" 
+                  <Line
+                    type="monotone"
+                    dataKey="startup"
+                    stroke="#10b981"
                     strokeWidth={2}
                     name="Startup"
                     dot={false}
@@ -155,14 +171,19 @@ export default function HealthScoreTrends({ healthScores, contacts }) {
                   <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
                   <XAxis type="number" domain={[0, 100]} stroke="#6b7280" />
                   <YAxis dataKey="name" type="category" stroke="#6b7280" width={100} />
-                  <Tooltip 
-                    contentStyle={{ 
+                  <Tooltip
+                    contentStyle={{
                       backgroundColor: 'rgba(255, 255, 255, 0.95)',
                       border: '1px solid #e5e7eb',
-                      borderRadius: '8px'
+                      borderRadius: '8px',
                     }}
                   />
-                  <Bar dataKey="avgScore" fill="#8b5cf6" name="Avg Health Score" radius={[0, 8, 8, 0]} />
+                  <Bar
+                    dataKey="avgScore"
+                    fill="#8b5cf6"
+                    name="Avg Health Score"
+                    radius={[0, 8, 8, 0]}
+                  />
                 </BarChart>
               </ResponsiveContainer>
             </div>

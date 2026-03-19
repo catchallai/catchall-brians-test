@@ -1,16 +1,38 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
 import {
-  Plus, Search, Loader2, TrendingUp, MessageSquare, ThumbsUp, ThumbsDown,
-  Minus, BarChart3, Radio, Filter, Bell, Users, Globe, Sparkles, MessagesSquare, Brain, Settings2
-} from "lucide-react";
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
+  Plus,
+  Search,
+  Loader2,
+  TrendingUp,
+  MessageSquare,
+  ThumbsUp,
+  ThumbsDown,
+  Minus,
+  BarChart3,
+  Radio,
+  Filter,
+  Bell,
+  Users,
+  Globe,
+  Sparkles,
+  MessagesSquare,
+  Brain,
+  Settings2,
+} from 'lucide-react';
 import ListeningKeywordCard from '@/components/social/ListeningKeywordCard';
 import ListeningMentionCard from '@/components/social/ListeningMentionCard';
 import ListeningTrendsCard from '@/components/social/ListeningTrendsCard';
@@ -23,12 +45,7 @@ import AddListeningModal from '@/components/modals/AddListeningModal';
 import ForumMentionCard from '@/components/social/ForumMentionCard';
 import EmptyState from '@/components/ui/EmptyState';
 import AlertSettingsModal from '@/components/social/AlertSettingsModal';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 const platformLabels = {
   twitter: 'X (Twitter)',
@@ -88,15 +105,16 @@ export default function SocialListening() {
   });
 
   const toggleKeywordMutation = useMutation({
-    mutationFn: (keyword) => base44.entities.SocialListening.update(keyword.id, { 
-      is_active: !keyword.is_active 
-    }),
+    mutationFn: (keyword) =>
+      base44.entities.SocialListening.update(keyword.id, {
+        is_active: !keyword.is_active,
+      }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['social-listening'] }),
   });
 
   const deleteKeywordMutation = useMutation({
     mutationFn: async (id) => {
-      const keywordMentions = mentions.filter(m => m.listening_id === id);
+      const keywordMentions = mentions.filter((m) => m.listening_id === id);
       for (const mention of keywordMentions) {
         await base44.entities.ListeningMention.delete(mention.id);
       }
@@ -119,7 +137,8 @@ export default function SocialListening() {
   });
 
   const updateMentionStatusMutation = useMutation({
-    mutationFn: ({ id, status }) => base44.entities.ListeningMention.update(id, { response_status: status }),
+    mutationFn: ({ id, status }) =>
+      base44.entities.ListeningMention.update(id, { response_status: status }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['listening-mentions'] }),
   });
 
@@ -141,17 +160,17 @@ Create a response that:
 4. Is professional but friendly
 5. Does not use hashtags unless necessary`,
         response_json_schema: {
-          type: "object",
+          type: 'object',
           properties: {
-            response: { type: "string" }
-          }
-        }
+            response: { type: 'string' },
+          },
+        },
       });
-      
+
       await base44.entities.ListeningMention.update(mention.id, {
-        suggested_response: result.response
+        suggested_response: result.response,
       });
-      
+
       return result.response;
     },
     onSuccess: () => {
@@ -164,12 +183,16 @@ Create a response that:
   const scanKeywordMutation = useMutation({
     mutationFn: async (keyword) => {
       setScanningId(keyword.id);
-      
-      const platformsToScan = keyword.platforms?.join(', ') || 'Twitter, LinkedIn';
-      const searchTerm = keyword.type === 'hashtag' ? `#${keyword.keyword}` : 
-                         keyword.type === 'mention' ? `@${keyword.keyword}` : keyword.keyword;
 
-      const previousMentionCount = mentions.filter(m => m.listening_id === keyword.id).length;
+      const platformsToScan = keyword.platforms?.join(', ') || 'Twitter, LinkedIn';
+      const searchTerm =
+        keyword.type === 'hashtag'
+          ? `#${keyword.keyword}`
+          : keyword.type === 'mention'
+            ? `@${keyword.keyword}`
+            : keyword.keyword;
+
+      const previousMentionCount = mentions.filter((m) => m.listening_id === keyword.id).length;
 
       const analysis = await base44.integrations.Core.InvokeLLM({
         prompt: `Search for social media posts about "${searchTerm}" on ${platformsToScan}.
@@ -180,51 +203,55 @@ Find 10 posts from 2022-2025. For each post provide:
 Also provide: trending_score (0-100), sentiment_breakdown counts, has_spike, negative_shift`,
         add_context_from_internet: true,
         response_json_schema: {
-          type: "object",
+          type: 'object',
           properties: {
-            trending_score: { type: "number" },
+            trending_score: { type: 'number' },
             sentiment_breakdown: {
-              type: "object",
+              type: 'object',
               properties: {
-                positive: { type: "number" },
-                neutral: { type: "number" },
-                negative: { type: "number" }
-              }
+                positive: { type: 'number' },
+                neutral: { type: 'number' },
+                negative: { type: 'number' },
+              },
             },
-            has_spike: { type: "boolean" },
-            negative_shift: { type: "boolean" },
+            has_spike: { type: 'boolean' },
+            negative_shift: { type: 'boolean' },
             mentions: {
-              type: "array",
+              type: 'array',
               items: {
-                type: "object",
+                type: 'object',
                 properties: {
-                  platform: { type: "string" },
-                  content: { type: "string" },
-                  post_date: { type: "string" },
-                  author: { type: "string" },
-                  author_followers: { type: "number" },
-                  likes: { type: "number" },
-                  comments: { type: "number" },
-                  shares: { type: "number" },
-                  views: { type: "number" },
-                  sentiment: { type: "string" },
-                  influence_score: { type: "number" },
-                  is_influencer: { type: "boolean" },
-                  country: { type: "string" },
-                  hashtags: { type: "array", items: { type: "string" } },
-                  topics: { type: "array", items: { type: "string" } }
-                }
-              }
-            }
-          }
-        }
+                  platform: { type: 'string' },
+                  content: { type: 'string' },
+                  post_date: { type: 'string' },
+                  author: { type: 'string' },
+                  author_followers: { type: 'number' },
+                  likes: { type: 'number' },
+                  comments: { type: 'number' },
+                  shares: { type: 'number' },
+                  views: { type: 'number' },
+                  sentiment: { type: 'string' },
+                  influence_score: { type: 'number' },
+                  is_influencer: { type: 'boolean' },
+                  country: { type: 'string' },
+                  hashtags: { type: 'array', items: { type: 'string' } },
+                  topics: { type: 'array', items: { type: 'string' } },
+                },
+              },
+            },
+          },
+        },
       });
 
       // Update keyword with new stats
       await base44.entities.SocialListening.update(keyword.id, {
         last_scanned: new Date().toISOString(),
         trending_score: analysis.trending_score || 0,
-        sentiment_breakdown: analysis.sentiment_breakdown || { positive: 0, neutral: 0, negative: 0 },
+        sentiment_breakdown: analysis.sentiment_breakdown || {
+          positive: 0,
+          neutral: 0,
+          negative: 0,
+        },
         total_mentions: (keyword.total_mentions || 0) + (analysis.mentions?.length || 0),
       });
 
@@ -242,7 +269,9 @@ Also provide: trending_score (0-100), sentiment_breakdown counts, has_spike, neg
             post_url: mention.post_url || '',
             post_id: mention.post_id || '',
             post_type: mention.post_type || 'text',
-            post_date: mention.post_date ? new Date(mention.post_date).toISOString() : new Date().toISOString(),
+            post_date: mention.post_date
+              ? new Date(mention.post_date).toISOString()
+              : new Date().toISOString(),
             author: mention.author,
             author_display_name: mention.author_display_name || '',
             author_followers: mention.author_followers || 0,
@@ -274,14 +303,23 @@ Also provide: trending_score (0-100), sentiment_breakdown counts, has_spike, neg
           });
 
           // Influencer Detection
-          if (mention.is_influencer || mention.author_followers > 10000 || mention.influence_score >= 70) {
+          if (
+            mention.is_influencer ||
+            mention.author_followers > 10000 ||
+            mention.influence_score >= 70
+          ) {
             const alertKey = `influencer-${mention.author}`;
             if (!seenAlerts.has(alertKey)) {
               seenAlerts.add(alertKey);
               alertsToCreate.push({
                 listening_id: keyword.id,
                 type: 'influencer',
-                severity: mention.author_followers > 100000 ? 'critical' : mention.influence_score >= 85 ? 'high' : 'medium',
+                severity:
+                  mention.author_followers > 100000
+                    ? 'critical'
+                    : mention.influence_score >= 85
+                      ? 'high'
+                      : 'medium',
                 title: `Influencer mention: @${mention.author}`,
                 description: `${mention.author} (${(mention.author_followers || 0).toLocaleString()} followers) mentioned "${searchTerm}": "${mention.content?.slice(0, 100)}..."`,
                 mention_id: savedMention.id,
@@ -290,7 +328,8 @@ Also provide: trending_score (0-100), sentiment_breakdown counts, has_spike, neg
           }
 
           // Viral Post Detection
-          const totalEngagement = (mention.likes || 0) + (mention.comments || 0) + (mention.shares || 0);
+          const totalEngagement =
+            (mention.likes || 0) + (mention.comments || 0) + (mention.shares || 0);
           if (totalEngagement > 1000) {
             const alertKey = `viral-${mention.author}-${totalEngagement}`;
             if (!seenAlerts.has(alertKey)) {
@@ -298,7 +337,8 @@ Also provide: trending_score (0-100), sentiment_breakdown counts, has_spike, neg
               alertsToCreate.push({
                 listening_id: keyword.id,
                 type: 'viral',
-                severity: totalEngagement > 10000 ? 'critical' : totalEngagement > 5000 ? 'high' : 'medium',
+                severity:
+                  totalEngagement > 10000 ? 'critical' : totalEngagement > 5000 ? 'high' : 'medium',
                 title: `Potentially viral post detected`,
                 description: `A post about "${searchTerm}" by @${mention.author} is gaining traction with ${totalEngagement.toLocaleString()} total engagements.`,
                 mention_id: savedMention.id,
@@ -307,9 +347,19 @@ Also provide: trending_score (0-100), sentiment_breakdown counts, has_spike, neg
           }
 
           // Competitor Mention Detection
-          const competitorKeywords = ['competitor', 'vs', 'versus', 'alternative', 'better than', 'switch from', 'moved to', 'compared to', 'instead of'];
+          const competitorKeywords = [
+            'competitor',
+            'vs',
+            'versus',
+            'alternative',
+            'better than',
+            'switch from',
+            'moved to',
+            'compared to',
+            'instead of',
+          ];
           const contentLower = (mention.content || '').toLowerCase();
-          if (competitorKeywords.some(kw => contentLower.includes(kw))) {
+          if (competitorKeywords.some((kw) => contentLower.includes(kw))) {
             const alertKey = `competitor-${savedMention.id}`;
             if (!seenAlerts.has(alertKey)) {
               seenAlerts.add(alertKey);
@@ -376,17 +426,21 @@ Also provide: trending_score (0-100), sentiment_breakdown counts, has_spike, neg
     const thresholds = {
       low: { spike: 3.0, sentiment: 40, impact: 80 },
       medium: { spike: 2.0, sentiment: 25, impact: 60 },
-      high: { spike: 1.5, sentiment: 15, impact: 40 }
+      high: { spike: 1.5, sentiment: 15, impact: 40 },
     }[sensitivity];
 
-    const searchTerm = keyword.type === 'hashtag' ? `#${keyword.keyword}` : 
-                       keyword.type === 'mention' ? `@${keyword.keyword}` : keyword.keyword;
+    const searchTerm =
+      keyword.type === 'hashtag'
+        ? `#${keyword.keyword}`
+        : keyword.type === 'mention'
+          ? `@${keyword.keyword}`
+          : keyword.keyword;
 
     // Get baseline metrics
     const baseline = keyword.baseline_metrics || {
       avg_mentions: 5,
       avg_negative_ratio: 0.2,
-      avg_engagement: 100
+      avg_engagement: 100,
     };
 
     // Analyze with AI for deeper anomalies
@@ -407,7 +461,13 @@ Historical baseline (approximate):
 - Average engagement: ${baseline.avg_engagement}
 
 Recent mentions content:
-${analysis.mentions?.slice(0, 10).map(m => `- ${m.sentiment}: "${m.content?.slice(0, 100)}..." by @${m.author} (${m.author_followers} followers)`).join('\n')}
+${analysis.mentions
+  ?.slice(0, 10)
+  .map(
+    (m) =>
+      `- ${m.sentiment}: "${m.content?.slice(0, 100)}..." by @${m.author} (${m.author_followers} followers)`
+  )
+  .join('\n')}
 
 Detection sensitivity: ${sensitivity.toUpperCase()}
 Thresholds: Spike ${thresholds.spike}x, Sentiment shift ${thresholds.sentiment}%, Impact ${thresholds.impact}+
@@ -426,34 +486,34 @@ For each anomaly found, provide:
 - Clear title and description
 - Recommended action`,
       response_json_schema: {
-        type: "object",
+        type: 'object',
         properties: {
-          anomalies_detected: { type: "boolean" },
+          anomalies_detected: { type: 'boolean' },
           anomalies: {
-            type: "array",
+            type: 'array',
             items: {
-              type: "object",
+              type: 'object',
               properties: {
-                type: { type: "string" },
-                severity: { type: "string" },
-                impact_score: { type: "number" },
-                title: { type: "string" },
-                description: { type: "string" },
-                recommended_action: { type: "string" },
-                related_mention_index: { type: "number" }
-              }
-            }
+                type: { type: 'string' },
+                severity: { type: 'string' },
+                impact_score: { type: 'number' },
+                title: { type: 'string' },
+                description: { type: 'string' },
+                recommended_action: { type: 'string' },
+                related_mention_index: { type: 'number' },
+              },
+            },
           },
           updated_baseline: {
-            type: "object",
+            type: 'object',
             properties: {
-              avg_mentions: { type: "number" },
-              avg_negative_ratio: { type: "number" },
-              avg_engagement: { type: "number" }
-            }
-          }
-        }
-      }
+              avg_mentions: { type: 'number' },
+              avg_negative_ratio: { type: 'number' },
+              avg_engagement: { type: 'number' },
+            },
+          },
+        },
+      },
     });
 
     // Create AI-detected alerts
@@ -462,8 +522,10 @@ For each anomaly found, provide:
         // Skip if below threshold
         if (anomaly.impact_score < thresholds.impact && anomaly.severity === 'low') continue;
 
-        const relatedMention = anomaly.related_mention_index !== undefined && analysis.mentions?.[anomaly.related_mention_index];
-        
+        const relatedMention =
+          anomaly.related_mention_index !== undefined &&
+          analysis.mentions?.[anomaly.related_mention_index];
+
         await base44.entities.ListeningAlert.create({
           listening_id: keyword.id,
           type: anomaly.type || 'anomaly',
@@ -476,8 +538,8 @@ For each anomaly found, provide:
           anomaly_data: {
             sensitivity,
             thresholds,
-            detected_at: new Date().toISOString()
-          }
+            detected_at: new Date().toISOString(),
+          },
         });
       }
     }
@@ -485,17 +547,18 @@ For each anomaly found, provide:
     // Update baseline metrics
     if (aiAnalysis.updated_baseline) {
       await base44.entities.SocialListening.update(keyword.id, {
-        baseline_metrics: aiAnalysis.updated_baseline
+        baseline_metrics: aiAnalysis.updated_baseline,
       });
     }
   };
 
   // Update alert settings mutation
   const updateAlertSettingsMutation = useMutation({
-    mutationFn: (data) => base44.entities.SocialListening.update(data.id, {
-      ai_alerts_enabled: data.ai_alerts_enabled,
-      alert_sensitivity: data.alert_sensitivity
-    }),
+    mutationFn: (data) =>
+      base44.entities.SocialListening.update(data.id, {
+        ai_alerts_enabled: data.ai_alerts_enabled,
+        alert_sensitivity: data.alert_sensitivity,
+      }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['social-listening'] });
       setShowAlertSettings(false);
@@ -507,9 +570,13 @@ For each anomaly found, provide:
   const deepScanMutation = useMutation({
     mutationFn: async (keyword) => {
       setDeepScanningId(keyword.id);
-      
-      const searchTerm = keyword.type === 'hashtag' ? `#${keyword.keyword}` : 
-                         keyword.type === 'mention' ? `@${keyword.keyword}` : keyword.keyword;
+
+      const searchTerm =
+        keyword.type === 'hashtag'
+          ? `#${keyword.keyword}`
+          : keyword.type === 'mention'
+            ? `@${keyword.keyword}`
+            : keyword.keyword;
 
       const analysis = await base44.integrations.Core.InvokeLLM({
         prompt: `Search the internet comprehensively for ALL discussions, forums, group chats, and community posts about "${searchTerm}" from 2009 to 2025 (going back at least 16 years).
@@ -542,31 +609,31 @@ Find 20 historical discussions/posts spanning from 2009 to 2025 and for each pro
 Prioritize finding older historical discussions from 2009-2015 as well as recent ones.`,
         add_context_from_internet: true,
         response_json_schema: {
-          type: "object",
+          type: 'object',
           properties: {
-            total_found: { type: "number" },
+            total_found: { type: 'number' },
             mentions: {
-              type: "array",
+              type: 'array',
               items: {
-                type: "object",
+                type: 'object',
                 properties: {
-                  source_type: { type: "string" },
-                  source_name: { type: "string" },
-                  source_url: { type: "string" },
-                  thread_title: { type: "string" },
-                  content: { type: "string" },
-                  author: { type: "string" },
-                  post_date: { type: "string" },
-                  replies_count: { type: "number" },
-                  views_count: { type: "number" },
-                  upvotes: { type: "number" },
-                  sentiment: { type: "string" },
-                  topics: { type: "array", items: { type: "string" } }
-                }
-              }
-            }
-          }
-        }
+                  source_type: { type: 'string' },
+                  source_name: { type: 'string' },
+                  source_url: { type: 'string' },
+                  thread_title: { type: 'string' },
+                  content: { type: 'string' },
+                  author: { type: 'string' },
+                  post_date: { type: 'string' },
+                  replies_count: { type: 'number' },
+                  views_count: { type: 'number' },
+                  upvotes: { type: 'number' },
+                  sentiment: { type: 'string' },
+                  topics: { type: 'array', items: { type: 'string' } },
+                },
+              },
+            },
+          },
+        },
       });
 
       // Save forum mentions
@@ -580,7 +647,9 @@ Prioritize finding older historical discussions from 2009-2015 as well as recent
             thread_title: mention.thread_title,
             content: mention.content,
             author: mention.author,
-            post_date: mention.post_date ? new Date(mention.post_date).toISOString() : new Date().toISOString(),
+            post_date: mention.post_date
+              ? new Date(mention.post_date).toISOString()
+              : new Date().toISOString(),
             replies_count: mention.replies_count || 0,
             views_count: mention.views_count || 0,
             upvotes: mention.upvotes || 0,
@@ -610,7 +679,7 @@ Prioritize finding older historical discussions from 2009-2015 as well as recent
   });
 
   // Filter mentions
-  const filteredMentions = mentions.filter(m => {
+  const filteredMentions = mentions.filter((m) => {
     if (selectedKeyword && m.listening_id !== selectedKeyword.id) return false;
     if (platformFilter !== 'all' && m.platform !== platformFilter) return false;
     if (sentimentFilter !== 'all' && m.sentiment !== sentimentFilter) return false;
@@ -618,24 +687,26 @@ Prioritize finding older historical discussions from 2009-2015 as well as recent
   });
 
   // Get mentions needing response (negative or from influencers)
-  const mentionsNeedingResponse = mentions.filter(m => 
-    m.response_status !== 'responded' && 
-    m.response_status !== 'ignored' &&
-    (m.sentiment === 'negative' || m.is_influencer || m.influence_score >= 70)
+  const mentionsNeedingResponse = mentions.filter(
+    (m) =>
+      m.response_status !== 'responded' &&
+      m.response_status !== 'ignored' &&
+      (m.sentiment === 'negative' || m.is_influencer || m.influence_score >= 70)
   );
 
   // Stats
   const totalMentions = mentions.length;
-  const activeTracks = keywords.filter(k => k.is_active).length;
-  const avgTrendScore = keywords.length > 0 
-    ? Math.round(keywords.reduce((sum, k) => sum + (k.trending_score || 0), 0) / keywords.length)
-    : 0;
+  const activeTracks = keywords.filter((k) => k.is_active).length;
+  const avgTrendScore =
+    keywords.length > 0
+      ? Math.round(keywords.reduce((sum, k) => sum + (k.trending_score || 0), 0) / keywords.length)
+      : 0;
   const sentimentCounts = {
-    positive: mentions.filter(m => m.sentiment === 'positive').length,
-    neutral: mentions.filter(m => m.sentiment === 'neutral').length,
-    negative: mentions.filter(m => m.sentiment === 'negative').length,
+    positive: mentions.filter((m) => m.sentiment === 'positive').length,
+    neutral: mentions.filter((m) => m.sentiment === 'neutral').length,
+    negative: mentions.filter((m) => m.sentiment === 'negative').length,
   };
-  const unreadAlerts = alerts.filter(a => !a.is_read && !a.is_dismissed).length;
+  const unreadAlerts = alerts.filter((a) => !a.is_read && !a.is_dismissed).length;
   const totalForumMentions = forumMentions.length;
 
   return (
@@ -644,9 +715,14 @@ Prioritize finding older historical discussions from 2009-2015 as well as recent
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Social Listening</h1>
-          <p className="text-sm sm:text-base text-gray-500 mt-1">Track keywords, hashtags, and mentions across social media</p>
+          <p className="text-sm sm:text-base text-gray-500 mt-1">
+            Track keywords, hashtags, and mentions across social media
+          </p>
         </div>
-        <Button onClick={() => setShowAddModal(true)} className="gap-2 bg-violet-600 hover:bg-violet-700 w-full sm:w-auto">
+        <Button
+          onClick={() => setShowAddModal(true)}
+          className="gap-2 bg-violet-600 hover:bg-violet-700 w-full sm:w-auto"
+        >
           <Plus className="w-4 h-4" />
           Add Keyword
         </Button>
@@ -677,8 +753,14 @@ Prioritize finding older historical discussions from 2009-2015 as well as recent
         </Card>
         <Card className="border-0 shadow-sm">
           <CardContent className="p-4 text-center">
-            <Bell className={`w-6 h-6 mx-auto mb-2 ${unreadAlerts > 0 ? 'text-red-500' : 'text-gray-400'}`} />
-            <p className={`text-2xl font-bold ${unreadAlerts > 0 ? 'text-red-600' : 'text-gray-900'}`}>{unreadAlerts}</p>
+            <Bell
+              className={`w-6 h-6 mx-auto mb-2 ${unreadAlerts > 0 ? 'text-red-500' : 'text-gray-400'}`}
+            />
+            <p
+              className={`text-2xl font-bold ${unreadAlerts > 0 ? 'text-red-600' : 'text-gray-900'}`}
+            >
+              {unreadAlerts}
+            </p>
             <p className="text-sm text-gray-500">Alerts</p>
           </CardContent>
         </Card>
@@ -704,8 +786,12 @@ Prioritize finding older historical discussions from 2009-2015 as well as recent
       {/* Tabs */}
       <Tabs defaultValue="keywords" className="space-y-4">
         <TabsList className="flex-wrap h-auto gap-1 p-1 w-full overflow-x-auto">
-          <TabsTrigger value="keywords" className="text-xs sm:text-sm">Keywords</TabsTrigger>
-          <TabsTrigger value="mentions" className="text-xs sm:text-sm">Mentions ({totalMentions})</TabsTrigger>
+          <TabsTrigger value="keywords" className="text-xs sm:text-sm">
+            Keywords
+          </TabsTrigger>
+          <TabsTrigger value="mentions" className="text-xs sm:text-sm">
+            Mentions ({totalMentions})
+          </TabsTrigger>
           <TabsTrigger value="alerts" className="relative text-xs sm:text-sm">
             Alerts
             {unreadAlerts > 0 && (
@@ -714,10 +800,18 @@ Prioritize finding older historical discussions from 2009-2015 as well as recent
               </Badge>
             )}
           </TabsTrigger>
-          <TabsTrigger value="influencers" className="text-xs sm:text-sm">Influencers</TabsTrigger>
-          <TabsTrigger value="responses" className="text-xs sm:text-sm hidden sm:flex">Responses</TabsTrigger>
-          <TabsTrigger value="forums" className="text-xs sm:text-sm hidden md:flex">Forums</TabsTrigger>
-          <TabsTrigger value="trends" className="text-xs sm:text-sm">Trends</TabsTrigger>
+          <TabsTrigger value="influencers" className="text-xs sm:text-sm">
+            Influencers
+          </TabsTrigger>
+          <TabsTrigger value="responses" className="text-xs sm:text-sm hidden sm:flex">
+            Responses
+          </TabsTrigger>
+          <TabsTrigger value="forums" className="text-xs sm:text-sm hidden md:flex">
+            Forums
+          </TabsTrigger>
+          <TabsTrigger value="trends" className="text-xs sm:text-sm">
+            Trends
+          </TabsTrigger>
         </TabsList>
 
         {/* Keywords Tab */}
@@ -738,50 +832,70 @@ Prioritize finding older historical discussions from 2009-2015 as well as recent
             />
           ) : (
             <>
-            {selectedKeyword && (
-              <div className="mb-4">
-                <div className="flex items-center gap-2 mb-3">
-                  <Badge className="bg-violet-100 text-violet-700 border-0">
-                    Showing mentions for: {selectedKeyword.type === 'hashtag' ? '#' : selectedKeyword.type === 'mention' ? '@' : ''}{selectedKeyword.keyword}
-                  </Badge>
-                  <Button variant="ghost" size="sm" onClick={() => setSelectedKeyword(null)} className="text-xs h-6">
-                    Clear
-                  </Button>
+              {selectedKeyword && (
+                <div className="mb-4">
+                  <div className="flex items-center gap-2 mb-3">
+                    <Badge className="bg-violet-100 text-violet-700 border-0">
+                      Showing mentions for:{' '}
+                      {selectedKeyword.type === 'hashtag'
+                        ? '#'
+                        : selectedKeyword.type === 'mention'
+                          ? '@'
+                          : ''}
+                      {selectedKeyword.keyword}
+                    </Badge>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setSelectedKeyword(null)}
+                      className="text-xs h-6"
+                    >
+                      Clear
+                    </Button>
+                  </div>
+                  {/* Show mentions for selected keyword */}
+                  <div className="space-y-3 max-h-[400px] overflow-y-auto mb-4">
+                    {mentions.filter((m) => m.listening_id === selectedKeyword.id).length === 0 ? (
+                      <Card className="p-6 text-center border-0 shadow-sm">
+                        <MessageSquare className="w-8 h-8 text-gray-300 mx-auto mb-2" />
+                        <p className="text-gray-500 text-sm">
+                          No mentions found. Click "Scan" to search for mentions.
+                        </p>
+                      </Card>
+                    ) : (
+                      mentions
+                        .filter((m) => m.listening_id === selectedKeyword.id)
+                        .map((mention) => (
+                          <ListeningMentionCard
+                            key={mention.id}
+                            mention={mention}
+                            onClick={() => setSelectedMention(mention)}
+                          />
+                        ))
+                    )}
+                  </div>
                 </div>
-                {/* Show mentions for selected keyword */}
-                <div className="space-y-3 max-h-[400px] overflow-y-auto mb-4">
-                  {mentions.filter(m => m.listening_id === selectedKeyword.id).length === 0 ? (
-                    <Card className="p-6 text-center border-0 shadow-sm">
-                      <MessageSquare className="w-8 h-8 text-gray-300 mx-auto mb-2" />
-                      <p className="text-gray-500 text-sm">No mentions found. Click "Scan" to search for mentions.</p>
-                    </Card>
-                  ) : (
-                    mentions.filter(m => m.listening_id === selectedKeyword.id).map((mention) => (
-                      <ListeningMentionCard 
-                        key={mention.id} 
-                        mention={mention}
-                        onClick={() => setSelectedMention(mention)}
-                      />
-                    ))
-                  )}
-                </div>
+              )}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {keywords.map((keyword) => (
+                  <ListeningKeywordCard
+                    key={keyword.id}
+                    keyword={keyword}
+                    onClick={() =>
+                      setSelectedKeyword(selectedKeyword?.id === keyword.id ? null : keyword)
+                    }
+                    onToggle={(kw) => toggleKeywordMutation.mutate(kw)}
+                    onScan={(kw) => scanKeywordMutation.mutate(kw)}
+                    onDelete={(id) => deleteKeywordMutation.mutate(id)}
+                    onEdit={(kw) => {
+                      setEditingKeyword(kw);
+                      setShowAddModal(true);
+                    }}
+                    isScanning={scanningId === keyword.id}
+                    isSelected={selectedKeyword?.id === keyword.id}
+                  />
+                ))}
               </div>
-            )}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {keywords.map((keyword) => (
-                <ListeningKeywordCard
-                  key={keyword.id}
-                  keyword={keyword}
-                  onClick={() => setSelectedKeyword(selectedKeyword?.id === keyword.id ? null : keyword)}
-                  onToggle={(kw) => toggleKeywordMutation.mutate(kw)}
-                  onScan={(kw) => scanKeywordMutation.mutate(kw)}
-                  onDelete={(id) => deleteKeywordMutation.mutate(id)}
-                  onEdit={(kw) => { setEditingKeyword(kw); setShowAddModal(true); }}
-                  isScanning={scanningId === keyword.id}
-                  isSelected={selectedKeyword?.id === keyword.id}
-                />
-              ))}
-            </div>
             </>
           )}
         </TabsContent>
@@ -792,15 +906,21 @@ Prioritize finding older historical discussions from 2009-2015 as well as recent
           <div className="flex flex-wrap gap-3 items-center">
             <div className="flex items-center gap-2">
               <Filter className="w-4 h-4 text-gray-500" />
-              <Select value={selectedKeyword?.id || 'all'} onValueChange={(v) => setSelectedKeyword(v === 'all' ? null : keywords.find(k => k.id === v))}>
+              <Select
+                value={selectedKeyword?.id || 'all'}
+                onValueChange={(v) =>
+                  setSelectedKeyword(v === 'all' ? null : keywords.find((k) => k.id === v))
+                }
+              >
                 <SelectTrigger className="w-40">
                   <SelectValue placeholder="All Keywords" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Keywords</SelectItem>
-                  {keywords.map(k => (
+                  {keywords.map((k) => (
                     <SelectItem key={k.id} value={k.id}>
-                      {k.type === 'hashtag' ? '#' : k.type === 'mention' ? '@' : ''}{k.keyword}
+                      {k.type === 'hashtag' ? '#' : k.type === 'mention' ? '@' : ''}
+                      {k.keyword}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -813,7 +933,9 @@ Prioritize finding older historical discussions from 2009-2015 as well as recent
               <SelectContent>
                 <SelectItem value="all">All Platforms</SelectItem>
                 {Object.entries(platformLabels).map(([id, label]) => (
-                  <SelectItem key={id} value={id}>{label}</SelectItem>
+                  <SelectItem key={id} value={id}>
+                    {label}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -829,10 +951,14 @@ Prioritize finding older historical discussions from 2009-2015 as well as recent
               </SelectContent>
             </Select>
             {(selectedKeyword || platformFilter !== 'all' || sentimentFilter !== 'all') && (
-              <Button 
-                variant="ghost" 
+              <Button
+                variant="ghost"
                 size="sm"
-                onClick={() => { setSelectedKeyword(null); setPlatformFilter('all'); setSentimentFilter('all'); }}
+                onClick={() => {
+                  setSelectedKeyword(null);
+                  setPlatformFilter('all');
+                  setSentimentFilter('all');
+                }}
               >
                 Clear Filters
               </Button>
@@ -849,15 +975,17 @@ Prioritize finding older historical discussions from 2009-2015 as well as recent
             <EmptyState
               icon={MessageSquare}
               title="No mentions found"
-              description={keywords.length === 0 
-                ? "Add keywords to start tracking social mentions."
-                : "Scan your tracked keywords to find social media mentions."}
+              description={
+                keywords.length === 0
+                  ? 'Add keywords to start tracking social mentions.'
+                  : 'Scan your tracked keywords to find social media mentions.'
+              }
             />
           ) : (
             <div className="space-y-3">
               {filteredMentions.map((mention) => (
-                <ListeningMentionCard 
-                  key={mention.id} 
+                <ListeningMentionCard
+                  key={mention.id}
                   mention={mention}
                   onClick={() => setSelectedMention(mention)}
                 />
@@ -870,8 +998,8 @@ Prioritize finding older historical discussions from 2009-2015 as well as recent
         <TabsContent value="alerts" className="space-y-4">
           {/* AI Settings Button */}
           <div className="flex justify-end">
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               className="gap-2"
               onClick={() => {
                 setAlertSettingsKeyword(keywords[0] || null);
@@ -888,7 +1016,7 @@ Prioritize finding older historical discussions from 2009-2015 as well as recent
             onMarkRead={(id) => markAlertReadMutation.mutate(id)}
             onDismiss={(id) => dismissAlertMutation.mutate(id)}
             onViewMention={(mentionId) => {
-              const mention = mentions.find(m => m.id === mentionId);
+              const mention = mentions.find((m) => m.id === mentionId);
               if (mention) setSelectedMention(mention);
             }}
           />
@@ -896,10 +1024,7 @@ Prioritize finding older historical discussions from 2009-2015 as well as recent
 
         {/* Influencers Tab */}
         <TabsContent value="influencers" className="space-y-4">
-          <InfluencersPanel
-            mentions={mentions}
-            onViewMention={(m) => setSelectedMention(m)}
-          />
+          <InfluencersPanel mentions={mentions} onViewMention={(m) => setSelectedMention(m)} />
         </TabsContent>
 
         {/* Responses Tab */}
@@ -917,7 +1042,9 @@ Prioritize finding older historical discussions from 2009-2015 as well as recent
                   key={mention.id}
                   mention={mention}
                   onGenerateResponse={(m) => generateResponseMutation.mutateAsync(m)}
-                  onUpdateStatus={(id, status) => updateMentionStatusMutation.mutate({ id, status })}
+                  onUpdateStatus={(id, status) =>
+                    updateMentionStatusMutation.mutate({ id, status })
+                  }
                   isGenerating={generatingResponseFor === mention.id}
                 />
               ))}
@@ -931,21 +1058,26 @@ Prioritize finding older historical discussions from 2009-2015 as well as recent
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="font-semibold text-gray-900">Deep Scan for Forums & Communities</h3>
-                <p className="text-sm text-gray-500">Search Reddit, forums, Discord, Quora, and more going back to 2009</p>
+                <p className="text-sm text-gray-500">
+                  Search Reddit, forums, Discord, Quora, and more going back to 2009
+                </p>
               </div>
               <div className="flex gap-2">
                 {keywords.length > 0 && (
-                  <Select 
-                    value={selectedKeyword?.id || ''} 
-                    onValueChange={(v) => setSelectedKeyword(keywords.find(k => k.id === v) || null)}
+                  <Select
+                    value={selectedKeyword?.id || ''}
+                    onValueChange={(v) =>
+                      setSelectedKeyword(keywords.find((k) => k.id === v) || null)
+                    }
                   >
                     <SelectTrigger className="w-48">
                       <SelectValue placeholder="Select keyword to scan" />
                     </SelectTrigger>
                     <SelectContent>
-                      {keywords.map(k => (
+                      {keywords.map((k) => (
                         <SelectItem key={k.id} value={k.id}>
-                          {k.type === 'hashtag' ? '#' : k.type === 'mention' ? '@' : ''}{k.keyword}
+                          {k.type === 'hashtag' ? '#' : k.type === 'mention' ? '@' : ''}
+                          {k.keyword}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -976,11 +1108,11 @@ Prioritize finding older historical discussions from 2009-2015 as well as recent
           ) : (
             <div className="space-y-3">
               {forumMentions
-                .filter(m => !selectedKeyword || m.listening_id === selectedKeyword.id)
+                .filter((m) => !selectedKeyword || m.listening_id === selectedKeyword.id)
                 .sort((a, b) => new Date(b.post_date) - new Date(a.post_date))
                 .map((mention) => (
-                  <ForumMentionCard 
-                    key={mention.id} 
+                  <ForumMentionCard
+                    key={mention.id}
                     mention={mention}
                     onClick={() => setSelectedMention({ ...mention, isForumMention: true })}
                   />
@@ -995,7 +1127,7 @@ Prioritize finding older historical discussions from 2009-2015 as well as recent
             <SentimentTrendsChart mentions={mentions} />
             <GeographicInsights mentions={mentions} />
             <ListeningTrendsCard keywords={keywords} mentions={mentions} />
-            
+
             {/* Platform Distribution */}
             <Card className="border-0 shadow-sm">
               <CardHeader className="pb-2">
@@ -1010,7 +1142,7 @@ Prioritize finding older historical discussions from 2009-2015 as well as recent
                 ) : (
                   <div className="space-y-3">
                     {Object.entries(platformLabels).map(([platform, label]) => {
-                      const count = mentions.filter(m => m.platform === platform).length;
+                      const count = mentions.filter((m) => m.platform === platform).length;
                       const percentage = totalMentions > 0 ? (count / totalMentions) * 100 : 0;
                       return (
                         <div key={platform}>
@@ -1019,7 +1151,7 @@ Prioritize finding older historical discussions from 2009-2015 as well as recent
                             <span className="font-medium">{count}</span>
                           </div>
                           <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-                            <div 
+                            <div
                               className="h-full bg-violet-500 rounded-full transition-all"
                               style={{ width: `${percentage}%` }}
                             />
@@ -1038,7 +1170,10 @@ Prioritize finding older historical discussions from 2009-2015 as well as recent
       {/* Add/Edit Modal */}
       <AddListeningModal
         open={showAddModal}
-        onClose={() => { setShowAddModal(false); setEditingKeyword(null); }}
+        onClose={() => {
+          setShowAddModal(false);
+          setEditingKeyword(null);
+        }}
         onSave={(data) => createKeywordMutation.mutate(data)}
         isLoading={createKeywordMutation.isPending}
         editingKeyword={editingKeyword}
@@ -1047,7 +1182,10 @@ Prioritize finding older historical discussions from 2009-2015 as well as recent
       {/* AI Alert Settings Modal */}
       <AlertSettingsModal
         open={showAlertSettings}
-        onClose={() => { setShowAlertSettings(false); setAlertSettingsKeyword(null); }}
+        onClose={() => {
+          setShowAlertSettings(false);
+          setAlertSettingsKeyword(null);
+        }}
         keyword={alertSettingsKeyword}
         onSave={(data) => updateAlertSettingsMutation.mutate(data)}
         isLoading={updateAlertSettingsMutation.isPending}
@@ -1062,31 +1200,43 @@ Prioritize finding older historical discussions from 2009-2015 as well as recent
           {selectedMention && (
             <div className="space-y-4">
               <div className="flex items-center gap-2">
-                <Badge className={
-                  selectedMention.platform === 'twitter' ? 'bg-gray-900 text-white' :
-                  selectedMention.platform === 'linkedin' ? 'bg-blue-600 text-white' :
-                  selectedMention.platform === 'facebook' ? 'bg-blue-500 text-white' :
-                  selectedMention.platform === 'instagram' ? 'bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400 text-white' :
-                  'bg-red-600 text-white'
-                }>
+                <Badge
+                  className={
+                    selectedMention.platform === 'twitter'
+                      ? 'bg-gray-900 text-white'
+                      : selectedMention.platform === 'linkedin'
+                        ? 'bg-blue-600 text-white'
+                        : selectedMention.platform === 'facebook'
+                          ? 'bg-blue-500 text-white'
+                          : selectedMention.platform === 'instagram'
+                            ? 'bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400 text-white'
+                            : 'bg-red-600 text-white'
+                  }
+                >
                   {platformLabels[selectedMention.platform]}
                 </Badge>
-                <Badge className={
-                  selectedMention.sentiment === 'positive' ? 'bg-emerald-100 text-emerald-700' :
-                  selectedMention.sentiment === 'negative' ? 'bg-red-100 text-red-700' :
-                  'bg-gray-100 text-gray-700'
-                }>
+                <Badge
+                  className={
+                    selectedMention.sentiment === 'positive'
+                      ? 'bg-emerald-100 text-emerald-700'
+                      : selectedMention.sentiment === 'negative'
+                        ? 'bg-red-100 text-red-700'
+                        : 'bg-gray-100 text-gray-700'
+                  }
+                >
                   {selectedMention.sentiment}
                 </Badge>
                 {selectedMention.is_influencer && (
                   <Badge className="bg-purple-100 text-purple-700">Influencer</Badge>
                 )}
               </div>
-              
+
               <div>
                 <p className="text-sm text-gray-500">Author</p>
                 <p className="font-medium">@{selectedMention.author}</p>
-                <p className="text-sm text-gray-500">{(selectedMention.author_followers || 0).toLocaleString()} followers</p>
+                <p className="text-sm text-gray-500">
+                  {(selectedMention.author_followers || 0).toLocaleString()} followers
+                </p>
               </div>
 
               <div>
@@ -1112,7 +1262,10 @@ Prioritize finding older historical discussions from 2009-2015 as well as recent
               {selectedMention.location && (
                 <div className="flex items-center gap-2">
                   <Globe className="w-4 h-4 text-gray-400" />
-                  <span className="text-sm">{selectedMention.location} {selectedMention.country && `(${selectedMention.country})`}</span>
+                  <span className="text-sm">
+                    {selectedMention.location}{' '}
+                    {selectedMention.country && `(${selectedMention.country})`}
+                  </span>
                 </div>
               )}
 
@@ -1120,7 +1273,7 @@ Prioritize finding older historical discussions from 2009-2015 as well as recent
                 <span className="text-sm text-gray-500">Influence Score</span>
                 <div className="flex items-center gap-2">
                   <div className="w-24 h-2 bg-gray-200 rounded-full overflow-hidden">
-                    <div 
+                    <div
                       className="h-full bg-violet-500 rounded-full"
                       style={{ width: `${selectedMention.influence_score || 0}%` }}
                     />

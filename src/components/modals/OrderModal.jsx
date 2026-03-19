@@ -1,12 +1,24 @@
 import React, { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, Trash2 } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Plus, Trash2 } from 'lucide-react';
 
 export default function OrderModal({ open, onClose, onSave, order, isLoading }) {
   const [formData, setFormData] = useState({
@@ -28,7 +40,7 @@ export default function OrderModal({ open, onClose, onSave, order, isLoading }) 
     payment_status: 'pending',
     tracking_number: '',
     carrier: '',
-    notes: ''
+    notes: '',
   });
 
   useEffect(() => {
@@ -54,50 +66,58 @@ export default function OrderModal({ open, onClose, onSave, order, isLoading }) 
         payment_status: 'pending',
         tracking_number: '',
         carrier: '',
-        notes: ''
+        notes: '',
       });
     }
   }, [order, open]);
 
   const handleChange = (field, value) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   const addLineItem = () => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      line_items: [...(prev.line_items || []), { product_name: '', quantity: 1, unit_price: 0, total: 0, sku: '' }]
+      line_items: [
+        ...(prev.line_items || []),
+        { product_name: '', quantity: 1, unit_price: 0, total: 0, sku: '' },
+      ],
     }));
   };
 
   const removeLineItem = (index) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      line_items: prev.line_items.filter((_, i) => i !== index)
+      line_items: prev.line_items.filter((_, i) => i !== index),
     }));
   };
 
   const handleLineItemChange = (index, field, value) => {
     const newLineItems = [...(formData.line_items || [])];
     newLineItems[index][field] = value;
-    
+
     if (field === 'quantity' || field === 'unit_price') {
       const quantity = field === 'quantity' ? parseFloat(value) || 0 : newLineItems[index].quantity;
-      const unitPrice = field === 'unit_price' ? parseFloat(value) || 0 : newLineItems[index].unit_price;
+      const unitPrice =
+        field === 'unit_price' ? parseFloat(value) || 0 : newLineItems[index].unit_price;
       newLineItems[index].total = quantity * unitPrice;
     }
-    
-    setFormData(prev => ({ ...prev, line_items: newLineItems }));
+
+    setFormData((prev) => ({ ...prev, line_items: newLineItems }));
     calculateTotals(newLineItems);
   };
 
   const calculateTotals = (lineItems) => {
     const subtotal = lineItems.reduce((sum, item) => sum + (item.total || 0), 0);
-    const total = subtotal + (formData.tax_amount || 0) + (formData.shipping_amount || 0) - (formData.discount_amount || 0);
-    setFormData(prev => ({
+    const total =
+      subtotal +
+      (formData.tax_amount || 0) +
+      (formData.shipping_amount || 0) -
+      (formData.discount_amount || 0);
+    setFormData((prev) => ({
       ...prev,
       subtotal,
-      total_amount: total
+      total_amount: total,
     }));
   };
 
@@ -144,7 +164,10 @@ export default function OrderModal({ open, onClose, onSave, order, isLoading }) 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="status">Status</Label>
-                  <Select value={formData.status} onValueChange={(value) => handleChange('status', value)}>
+                  <Select
+                    value={formData.status}
+                    onValueChange={(value) => handleChange('status', value)}
+                  >
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -160,7 +183,10 @@ export default function OrderModal({ open, onClose, onSave, order, isLoading }) 
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="payment_status">Payment Status</Label>
-                  <Select value={formData.payment_status} onValueChange={(value) => handleChange('payment_status', value)}>
+                  <Select
+                    value={formData.payment_status}
+                    onValueChange={(value) => handleChange('payment_status', value)}
+                  >
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -235,12 +261,23 @@ export default function OrderModal({ open, onClose, onSave, order, isLoading }) 
                       className="bg-gray-50"
                     />
                   </div>
-                  <Button type="button" variant="ghost" size="icon" onClick={() => removeLineItem(index)}>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => removeLineItem(index)}
+                  >
                     <Trash2 className="w-4 h-4 text-red-500" />
                   </Button>
                 </div>
               ))}
-              <Button type="button" variant="outline" size="sm" onClick={addLineItem} className="gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={addLineItem}
+                className="gap-2"
+              >
                 <Plus className="w-4 h-4" />
                 Add Line Item
               </Button>

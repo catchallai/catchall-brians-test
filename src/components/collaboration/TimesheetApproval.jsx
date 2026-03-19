@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Textarea } from "@/components/ui/textarea";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Textarea } from '@/components/ui/textarea';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { CheckCircle, XCircle, Clock, DollarSign, Calendar } from "lucide-react";
+import { CheckCircle, XCircle, Clock, DollarSign, Calendar } from 'lucide-react';
 import { format } from 'date-fns';
 
 export default function TimesheetApproval() {
@@ -16,12 +16,12 @@ export default function TimesheetApproval() {
 
   const { data: user } = useQuery({
     queryKey: ['current-user'],
-    queryFn: () => base44.auth.me()
+    queryFn: () => base44.auth.me(),
   });
 
   const { data: timesheets = [] } = useQuery({
     queryKey: ['contractor-timesheets'],
-    queryFn: () => base44.entities.ContractorTimesheet.list('-submitted_date', 50)
+    queryFn: () => base44.entities.ContractorTimesheet.list('-submitted_date', 50),
   });
 
   const approveMutation = useMutation({
@@ -29,7 +29,7 @@ export default function TimesheetApproval() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['contractor-timesheets'] });
       setSelectedTimesheet(null);
-    }
+    },
   });
 
   const handleApprove = (timesheet) => {
@@ -38,8 +38,8 @@ export default function TimesheetApproval() {
       data: {
         status: 'approved',
         approved_by: user?.email,
-        approved_date: new Date().toISOString()
-      }
+        approved_date: new Date().toISOString(),
+      },
     });
   };
 
@@ -54,19 +54,19 @@ export default function TimesheetApproval() {
         status: 'rejected',
         approved_by: user?.email,
         approved_date: new Date().toISOString(),
-        rejection_reason: rejectionReason
-      }
+        rejection_reason: rejectionReason,
+      },
     });
   };
 
-  const pendingTimesheets = timesheets.filter(t => t.status === 'pending');
-  const recentTimesheets = timesheets.filter(t => t.status !== 'pending').slice(0, 10);
+  const pendingTimesheets = timesheets.filter((t) => t.status === 'pending');
+  const recentTimesheets = timesheets.filter((t) => t.status !== 'pending').slice(0, 10);
 
   const statusColors = {
     pending: 'bg-yellow-100 text-yellow-800',
     approved: 'bg-green-100 text-green-800',
     rejected: 'bg-red-100 text-red-800',
-    paid: 'bg-blue-100 text-blue-800'
+    paid: 'bg-blue-100 text-blue-800',
   };
 
   return (
@@ -91,7 +91,10 @@ export default function TimesheetApproval() {
           ) : (
             <div className="space-y-3">
               {pendingTimesheets.map((timesheet) => (
-                <div key={timesheet.id} className="p-4 rounded-lg border hover:bg-gray-50 dark:hover:bg-gray-800">
+                <div
+                  key={timesheet.id}
+                  className="p-4 rounded-lg border hover:bg-gray-50 dark:hover:bg-gray-800"
+                >
                   <div className="flex items-start justify-between mb-3">
                     <div>
                       <h4 className="font-semibold text-gray-900 dark:text-white">
@@ -101,16 +104,15 @@ export default function TimesheetApproval() {
                         {timesheet.project_name}
                       </p>
                     </div>
-                    <Badge className={statusColors[timesheet.status]}>
-                      {timesheet.status}
-                    </Badge>
+                    <Badge className={statusColors[timesheet.status]}>{timesheet.status}</Badge>
                   </div>
 
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm mb-3">
                     <div>
                       <div className="text-gray-500 text-xs">Period</div>
                       <div className="font-medium">
-                        {format(new Date(timesheet.period_start), 'MMM d')} - {format(new Date(timesheet.period_end), 'MMM d')}
+                        {format(new Date(timesheet.period_start), 'MMM d')} -{' '}
+                        {format(new Date(timesheet.period_end), 'MMM d')}
                       </div>
                     </div>
                     <div>
@@ -124,7 +126,7 @@ export default function TimesheetApproval() {
                     <div>
                       <div className="text-gray-500 text-xs">Total</div>
                       <div className="font-semibold text-green-600">
-                        ${timesheet.total_amount || (timesheet.hours_logged * timesheet.hourly_rate)}
+                        ${timesheet.total_amount || timesheet.hours_logged * timesheet.hourly_rate}
                       </div>
                     </div>
                   </div>
@@ -136,8 +138,8 @@ export default function TimesheetApproval() {
                   )}
 
                   <div className="flex gap-2">
-                    <Button 
-                      size="sm" 
+                    <Button
+                      size="sm"
                       onClick={() => handleApprove(timesheet)}
                       className="bg-green-600 hover:bg-green-700"
                       disabled={approveMutation.isPending}
@@ -145,8 +147,8 @@ export default function TimesheetApproval() {
                       <CheckCircle className="w-4 h-4 mr-1" />
                       Approve
                     </Button>
-                    <Button 
-                      size="sm" 
+                    <Button
+                      size="sm"
                       variant="outline"
                       onClick={() => setSelectedTimesheet(timesheet)}
                       disabled={approveMutation.isPending}
@@ -170,16 +172,18 @@ export default function TimesheetApproval() {
         <CardContent>
           <div className="space-y-2">
             {recentTimesheets.map((timesheet) => (
-              <div key={timesheet.id} className="p-3 rounded-lg border flex items-center justify-between">
+              <div
+                key={timesheet.id}
+                className="p-3 rounded-lg border flex items-center justify-between"
+              >
                 <div className="flex-1">
                   <div className="font-medium text-sm">{timesheet.contractor_name}</div>
                   <div className="text-xs text-gray-500">
-                    {timesheet.project_name} • {timesheet.hours_logged}h • ${timesheet.total_amount || (timesheet.hours_logged * timesheet.hourly_rate)}
+                    {timesheet.project_name} • {timesheet.hours_logged}h • $
+                    {timesheet.total_amount || timesheet.hours_logged * timesheet.hourly_rate}
                   </div>
                 </div>
-                <Badge className={statusColors[timesheet.status]}>
-                  {timesheet.status}
-                </Badge>
+                <Badge className={statusColors[timesheet.status]}>{timesheet.status}</Badge>
               </div>
             ))}
           </div>
@@ -209,7 +213,7 @@ export default function TimesheetApproval() {
               <Button variant="outline" onClick={() => setSelectedTimesheet(null)}>
                 Cancel
               </Button>
-              <Button 
+              <Button
                 onClick={() => handleReject(selectedTimesheet)}
                 className="bg-red-600 hover:bg-red-700"
               >

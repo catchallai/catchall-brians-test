@@ -1,9 +1,9 @@
 import React from 'react';
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
-import { Plus, Trash2 } from "lucide-react";
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
+import { Plus, Trash2 } from 'lucide-react';
 
 export default function SectionEditor({ type, content, onChange }) {
   const updateContent = (key, value) => {
@@ -72,7 +72,12 @@ export default function SectionEditor({ type, content, onChange }) {
           <div key={idx} className="border rounded p-3 space-y-2">
             <div className="flex justify-between items-center mb-2">
               <Label>Feature {idx + 1}</Label>
-              <Button variant="ghost" size="sm" onClick={() => removeArrayItem(idx)} className="text-red-600">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => removeArrayItem(idx)}
+                className="text-red-600"
+              >
                 <Trash2 className="w-3 h-3" />
               </Button>
             </div>
@@ -103,7 +108,12 @@ export default function SectionEditor({ type, content, onChange }) {
           <div key={idx} className="border rounded p-3 space-y-2">
             <div className="flex justify-between items-center mb-2">
               <Label>Testimonial {idx + 1}</Label>
-              <Button variant="ghost" size="sm" onClick={() => removeArrayItem(idx)} className="text-red-600">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => removeArrayItem(idx)}
+                className="text-red-600"
+              >
                 <Trash2 className="w-3 h-3" />
               </Button>
             </div>

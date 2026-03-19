@@ -1,24 +1,30 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Share2, UserPlus, Trash2, Eye, Edit, MessageSquare, Copy, Check } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Badge } from '@/components/ui/badge';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Share2, UserPlus, Trash2, Eye, Edit, MessageSquare, Copy, Check } from 'lucide-react';
 
 const PERMISSION_ICONS = {
   view: Eye,
   edit: Edit,
-  comment: MessageSquare
+  comment: MessageSquare,
 };
 
 const PERMISSION_LABELS = {
   view: 'Can View',
   edit: 'Can Edit',
-  comment: 'Can Comment'
+  comment: 'Can Comment',
 };
 
 export default function ReportShareModal({ report, open, onClose }) {
@@ -41,7 +47,7 @@ export default function ReportShareModal({ report, open, onClose }) {
   const shareMutation = useMutation({
     mutationFn: async (data) => {
       await base44.entities.ReportShare.create(data);
-      
+
       // Create notification
       await base44.entities.Notification.create({
         user_email: data.shared_with_email,
@@ -49,7 +55,7 @@ export default function ReportShareModal({ report, open, onClose }) {
         title: 'Report Shared With You',
         message: `${user.full_name} shared "${report.name}" with ${PERMISSION_LABELS[data.permission]} permission`,
         link: `/reports/${report.id}`,
-        data: { report_id: report.id, permission: data.permission }
+        data: { report_id: report.id, permission: data.permission },
       });
 
       // Audit log
@@ -60,8 +66,8 @@ export default function ReportShareModal({ report, open, onClose }) {
         details: {
           shared_with: data.shared_with_email,
           permission: data.permission,
-          timestamp: new Date().toISOString()
-        }
+          timestamp: new Date().toISOString(),
+        },
       });
     },
     onSuccess: () => {
@@ -74,13 +80,13 @@ export default function ReportShareModal({ report, open, onClose }) {
   const removeMutation = useMutation({
     mutationFn: async (shareId) => {
       await base44.entities.ReportShare.update(shareId, { is_active: false });
-      
+
       // Audit log
       await base44.entities.ReportAuditLog.create({
         report_id: report.id,
         action: 'unshared',
         user_email: user.email,
-        details: { timestamp: new Date().toISOString() }
+        details: { timestamp: new Date().toISOString() },
       });
     },
     onSuccess: () => {
@@ -99,12 +105,12 @@ export default function ReportShareModal({ report, open, onClose }) {
 
   const handleShare = () => {
     if (!email.trim()) return;
-    
+
     shareMutation.mutate({
       report_id: report.id,
       shared_with_email: email,
       permission,
-      shared_by: user.email
+      shared_by: user.email,
     });
   };
 
@@ -199,7 +205,10 @@ export default function ReportShareModal({ report, open, onClose }) {
               {shares.map((share) => {
                 const PermIcon = PERMISSION_ICONS[share.permission];
                 return (
-                  <div key={share.id} className="flex items-center justify-between p-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg">
+                  <div
+                    key={share.id}
+                    className="flex items-center justify-between p-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg"
+                  >
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
                         <span className="text-sm font-medium text-gray-600 dark:text-gray-300">
@@ -218,10 +227,12 @@ export default function ReportShareModal({ report, open, onClose }) {
                     <div className="flex items-center gap-2">
                       <Select
                         value={share.permission}
-                        onValueChange={(value) => updatePermissionMutation.mutate({ 
-                          shareId: share.id, 
-                          newPermission: value 
-                        })}
+                        onValueChange={(value) =>
+                          updatePermissionMutation.mutate({
+                            shareId: share.id,
+                            newPermission: value,
+                          })
+                        }
                       >
                         <SelectTrigger className="w-36">
                           <div className="flex items-center gap-2">

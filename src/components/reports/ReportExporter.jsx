@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Download, FileText, Table, Mail, Loader2 } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Download, FileText, Table, Mail, Loader2 } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 
 export default function ReportExporter({ report, open, onClose }) {
@@ -13,7 +13,7 @@ export default function ReportExporter({ report, open, onClose }) {
     includeCharts: true,
     includeData: true,
     includeSummary: true,
-    includeRecommendations: true
+    includeRecommendations: true,
   });
 
   const handleExport = async () => {
@@ -23,9 +23,9 @@ export default function ReportExporter({ report, open, onClose }) {
         // Use backend function to generate PDF
         const response = await base44.functions.invoke('exportReportPdf', {
           report,
-          options
+          options,
         });
-        
+
         // Download the PDF
         const blob = new Blob([response.data], { type: 'application/pdf' });
         const url = window.URL.createObjectURL(blob);
@@ -44,7 +44,7 @@ export default function ReportExporter({ report, open, onClose }) {
             }
           });
         }
-        
+
         const blob = new Blob([csv], { type: 'text/csv' });
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -53,7 +53,7 @@ export default function ReportExporter({ report, open, onClose }) {
         a.click();
         window.URL.revokeObjectURL(url);
       }
-      
+
       onClose();
     } catch (error) {
       console.error('Export failed:', error);
@@ -75,9 +75,9 @@ export default function ReportExporter({ report, open, onClose }) {
           <p>Generated: ${new Date().toLocaleDateString()}</p>
           <hr />
           ${report.report_data?.summary || 'No summary available'}
-        `
+        `,
       });
-      
+
       alert('Report emailed successfully!');
       onClose();
     } catch (error) {
@@ -123,28 +123,30 @@ export default function ReportExporter({ report, open, onClose }) {
               <div className="flex items-center gap-2">
                 <Checkbox
                   checked={options.includeSummary}
-                  onCheckedChange={(checked) => setOptions({...options, includeSummary: checked})}
+                  onCheckedChange={(checked) => setOptions({ ...options, includeSummary: checked })}
                 />
                 <label className="text-sm">Executive Summary</label>
               </div>
               <div className="flex items-center gap-2">
                 <Checkbox
                   checked={options.includeCharts}
-                  onCheckedChange={(checked) => setOptions({...options, includeCharts: checked})}
+                  onCheckedChange={(checked) => setOptions({ ...options, includeCharts: checked })}
                 />
                 <label className="text-sm">Charts & Visualizations</label>
               </div>
               <div className="flex items-center gap-2">
                 <Checkbox
                   checked={options.includeData}
-                  onCheckedChange={(checked) => setOptions({...options, includeData: checked})}
+                  onCheckedChange={(checked) => setOptions({ ...options, includeData: checked })}
                 />
                 <label className="text-sm">Raw Data Tables</label>
               </div>
               <div className="flex items-center gap-2">
                 <Checkbox
                   checked={options.includeRecommendations}
-                  onCheckedChange={(checked) => setOptions({...options, includeRecommendations: checked})}
+                  onCheckedChange={(checked) =>
+                    setOptions({ ...options, includeRecommendations: checked })
+                  }
                 />
                 <label className="text-sm">Recommendations</label>
               </div>
@@ -152,11 +154,7 @@ export default function ReportExporter({ report, open, onClose }) {
           </div>
 
           <div className="flex gap-2 pt-4">
-            <Button
-              onClick={handleExport}
-              disabled={exporting}
-              className="flex-1 gap-2"
-            >
+            <Button onClick={handleExport} disabled={exporting} className="flex-1 gap-2">
               {exporting ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
               ) : (

@@ -1,14 +1,29 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Calendar } from "@/components/ui/calendar";
-import { 
-  CalendarIcon, TrendingUp, Users, Target, Link2, Share2, Eye, 
-  BarChart2, PieChart, Radar, Grid3X3
-} from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Calendar } from '@/components/ui/calendar';
+import {
+  CalendarIcon,
+  TrendingUp,
+  Users,
+  Target,
+  Link2,
+  Share2,
+  Eye,
+  BarChart2,
+  PieChart,
+  Radar,
+  Grid3X3,
+} from 'lucide-react';
 import { format, subDays, subMonths } from 'date-fns';
 import TrafficTrendsChart from './charts/TrafficTrendsChart';
 import KeywordRankingsChart from './charts/KeywordRankingsChart';
@@ -23,36 +38,120 @@ import RadarComparisonChart from '@/components/charts/RadarComparisonChart';
 import InteractiveAreaChart from '@/components/charts/InteractiveAreaChart';
 
 const AVAILABLE_WIDGETS = [
-  { id: 'traffic', name: 'Website Traffic', icon: Eye, component: TrafficTrendsChart, description: 'Traffic trends over time' },
-  { id: 'keywords', name: 'Keyword Rankings', icon: Target, component: KeywordRankingsChart, description: 'Keyword position tracking' },
-  { id: 'social', name: 'Social Engagement', icon: Share2, component: SocialEngagementChart, description: 'Social media metrics' },
-  { id: 'backlinks', name: 'Backlinks Growth', icon: Link2, component: BacklinksGrowthChart, description: 'Backlink acquisition' },
-  { id: 'conversions', name: 'Conversion Funnel', icon: TrendingUp, component: ConversionFunnelChart, description: 'Conversion analysis' },
-  { id: 'pages', name: 'Top Pages', icon: Users, component: TopPagesChart, description: 'Best performing pages' },
-  { id: 'scatter', name: 'Traffic vs Rankings', icon: BarChart2, component: 'scatter', description: 'Scatter plot analysis' },
-  { id: 'heatmap', name: 'Activity Heatmap', icon: Grid3X3, component: 'heatmap', description: 'Activity by day/hour' },
-  { id: 'radar', name: 'SEO Comparison', icon: Radar, component: 'radar', description: 'Multi-metric comparison' },
+  {
+    id: 'traffic',
+    name: 'Website Traffic',
+    icon: Eye,
+    component: TrafficTrendsChart,
+    description: 'Traffic trends over time',
+  },
+  {
+    id: 'keywords',
+    name: 'Keyword Rankings',
+    icon: Target,
+    component: KeywordRankingsChart,
+    description: 'Keyword position tracking',
+  },
+  {
+    id: 'social',
+    name: 'Social Engagement',
+    icon: Share2,
+    component: SocialEngagementChart,
+    description: 'Social media metrics',
+  },
+  {
+    id: 'backlinks',
+    name: 'Backlinks Growth',
+    icon: Link2,
+    component: BacklinksGrowthChart,
+    description: 'Backlink acquisition',
+  },
+  {
+    id: 'conversions',
+    name: 'Conversion Funnel',
+    icon: TrendingUp,
+    component: ConversionFunnelChart,
+    description: 'Conversion analysis',
+  },
+  {
+    id: 'pages',
+    name: 'Top Pages',
+    icon: Users,
+    component: TopPagesChart,
+    description: 'Best performing pages',
+  },
+  {
+    id: 'scatter',
+    name: 'Traffic vs Rankings',
+    icon: BarChart2,
+    component: 'scatter',
+    description: 'Scatter plot analysis',
+  },
+  {
+    id: 'heatmap',
+    name: 'Activity Heatmap',
+    icon: Grid3X3,
+    component: 'heatmap',
+    description: 'Activity by day/hour',
+  },
+  {
+    id: 'radar',
+    name: 'SEO Comparison',
+    icon: Radar,
+    component: 'radar',
+    description: 'Multi-metric comparison',
+  },
 ];
 
 const DATE_RANGES = [
-  { label: 'Last 7 days', value: '7d', getRange: () => ({ from: subDays(new Date(), 7), to: new Date() }) },
-  { label: 'Last 30 days', value: '30d', getRange: () => ({ from: subDays(new Date(), 30), to: new Date() }) },
-  { label: 'Last 3 months', value: '3m', getRange: () => ({ from: subMonths(new Date(), 3), to: new Date() }) },
-  { label: 'Last 6 months', value: '6m', getRange: () => ({ from: subMonths(new Date(), 6), to: new Date() }) },
-  { label: 'Last year', value: '1y', getRange: () => ({ from: subMonths(new Date(), 12), to: new Date() }) },
+  {
+    label: 'Last 7 days',
+    value: '7d',
+    getRange: () => ({ from: subDays(new Date(), 7), to: new Date() }),
+  },
+  {
+    label: 'Last 30 days',
+    value: '30d',
+    getRange: () => ({ from: subDays(new Date(), 30), to: new Date() }),
+  },
+  {
+    label: 'Last 3 months',
+    value: '3m',
+    getRange: () => ({ from: subMonths(new Date(), 3), to: new Date() }),
+  },
+  {
+    label: 'Last 6 months',
+    value: '6m',
+    getRange: () => ({ from: subMonths(new Date(), 6), to: new Date() }),
+  },
+  {
+    label: 'Last year',
+    value: '1y',
+    getRange: () => ({ from: subMonths(new Date(), 12), to: new Date() }),
+  },
   { label: 'Custom', value: 'custom', getRange: () => null },
 ];
 
-export default function ReportsDashboard({ websites = [], keywords = [], mentions = [], backlinks = [] }) {
+export default function ReportsDashboard({
+  websites = [],
+  keywords = [],
+  mentions = [],
+  backlinks = [],
+}) {
   const [dateRange, setDateRange] = useState('30d');
   const [customRange, setCustomRange] = useState({ from: subDays(new Date(), 30), to: new Date() });
   const [reportType, setReportType] = useState('all');
-  const [activeWidgets, setActiveWidgets] = useState(['traffic', 'keywords', 'social', 'backlinks']);
+  const [activeWidgets, setActiveWidgets] = useState([
+    'traffic',
+    'keywords',
+    'social',
+    'backlinks',
+  ]);
   const [widgetSizes, setWidgetSizes] = useState({});
 
   const getDateRange = () => {
     if (dateRange === 'custom') return customRange;
-    const range = DATE_RANGES.find(r => r.value === dateRange);
+    const range = DATE_RANGES.find((r) => r.value === dateRange);
     return range?.getRange() || { from: subDays(new Date(), 30), to: new Date() };
   };
 
@@ -63,17 +162,17 @@ export default function ReportsDashboard({ websites = [], keywords = [], mention
   };
 
   const handleWidgetRemove = (widgetId) => {
-    setActiveWidgets(prev => prev.filter(id => id !== widgetId));
+    setActiveWidgets((prev) => prev.filter((id) => id !== widgetId));
   };
 
   const handleWidgetAdd = (widgetId) => {
     if (!activeWidgets.includes(widgetId)) {
-      setActiveWidgets(prev => [...prev, widgetId]);
+      setActiveWidgets((prev) => [...prev, widgetId]);
     }
   };
 
   const handleWidgetResize = (widgetId, size) => {
-    setWidgetSizes(prev => ({ ...prev, [widgetId]: size }));
+    setWidgetSizes((prev) => ({ ...prev, [widgetId]: size }));
   };
 
   // Generate sample data for new chart types
@@ -82,14 +181,14 @@ export default function ReportsDashboard({ websites = [], keywords = [], mention
     y: k.current_position || Math.random() * 50,
     z: k.difficulty || Math.random() * 100,
     name: k.keyword,
-    category: k.difficulty > 50 ? 'High Competition' : 'Low Competition'
+    category: k.difficulty > 50 ? 'High Competition' : 'Low Competition',
   }));
 
   const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
   const hours = ['9am', '12pm', '3pm', '6pm', '9pm'];
   const heatmapData = [];
-  days.forEach(day => {
-    hours.forEach(hour => {
+  days.forEach((day) => {
+    hours.forEach((hour) => {
       heatmapData.push({ y: day, x: hour, value: Math.floor(Math.random() * 500) });
     });
   });
@@ -110,12 +209,12 @@ export default function ReportsDashboard({ websites = [], keywords = [], mention
       keywords,
       mentions,
       backlinks,
-      reportType
+      reportType,
     };
 
     if (widget.component === 'scatter') {
       return (
-        <ScatterPlotChart 
+        <ScatterPlotChart
           data={scatterData}
           xKey="x"
           yKey="y"
@@ -129,7 +228,7 @@ export default function ReportsDashboard({ websites = [], keywords = [], mention
 
     if (widget.component === 'heatmap') {
       return (
-        <HeatmapChart 
+        <HeatmapChart
           data={heatmapData}
           xLabels={hours}
           yLabels={days}
@@ -141,7 +240,7 @@ export default function ReportsDashboard({ websites = [], keywords = [], mention
 
     if (widget.component === 'radar') {
       return (
-        <RadarComparisonChart 
+        <RadarComparisonChart
           data={radarData}
           dataKeys={['current', 'previous']}
           nameKey="subject"
@@ -168,7 +267,7 @@ export default function ReportsDashboard({ websites = [], keywords = [], mention
                   <SelectValue placeholder="Date range" />
                 </SelectTrigger>
                 <SelectContent>
-                  {DATE_RANGES.map(range => (
+                  {DATE_RANGES.map((range) => (
                     <SelectItem key={range.value} value={range.value}>
                       {range.label}
                     </SelectItem>
@@ -183,7 +282,8 @@ export default function ReportsDashboard({ websites = [], keywords = [], mention
                     <Button variant="outline" className="dark:bg-gray-700 dark:border-gray-600">
                       {customRange.from && customRange.to ? (
                         <>
-                          {format(customRange.from, 'MMM d')} - {format(customRange.to, 'MMM d, yyyy')}
+                          {format(customRange.from, 'MMM d')} -{' '}
+                          {format(customRange.to, 'MMM d, yyyy')}
                         </>
                       ) : (
                         'Select dates'
@@ -222,7 +322,6 @@ export default function ReportsDashboard({ websites = [], keywords = [], mention
                 </Badge>
               </div>
             </div>
-
           </div>
         </CardContent>
       </Card>

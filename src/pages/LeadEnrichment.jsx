@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Users, Plus } from "lucide-react";
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Users, Plus } from 'lucide-react';
 import LeadEnrichmentModal from '@/components/sales/LeadEnrichmentModal';
 import EnrichedLeadsTable from '@/components/sales/EnrichedLeadsTable';
 import EmptyState from '@/components/ui/EmptyState';
@@ -50,53 +50,53 @@ Extract:
 Also provide an enrichment_score (0-100) based on how much data was found.`,
         add_context_from_internet: true,
         response_json_schema: {
-          type: "object",
+          type: 'object',
           properties: {
-            full_name: { type: "string" },
-            first_name: { type: "string" },
-            last_name: { type: "string" },
-            email: { type: "string" },
-            phone: { type: "string" },
-            job_title: { type: "string" },
-            company: { type: "string" },
-            company_website: { type: "string" },
-            location: { type: "string" },
-            industry: { type: "string" },
-            headline: { type: "string" },
-            summary: { type: "string" },
+            full_name: { type: 'string' },
+            first_name: { type: 'string' },
+            last_name: { type: 'string' },
+            email: { type: 'string' },
+            phone: { type: 'string' },
+            job_title: { type: 'string' },
+            company: { type: 'string' },
+            company_website: { type: 'string' },
+            location: { type: 'string' },
+            industry: { type: 'string' },
+            headline: { type: 'string' },
+            summary: { type: 'string' },
             experience: {
-              type: "array",
+              type: 'array',
               items: {
-                type: "object",
+                type: 'object',
                 properties: {
-                  title: { type: "string" },
-                  company: { type: "string" },
-                  duration: { type: "string" },
-                  description: { type: "string" }
-                }
-              }
+                  title: { type: 'string' },
+                  company: { type: 'string' },
+                  duration: { type: 'string' },
+                  description: { type: 'string' },
+                },
+              },
             },
             education: {
-              type: "array",
+              type: 'array',
               items: {
-                type: "object",
+                type: 'object',
                 properties: {
-                  school: { type: "string" },
-                  degree: { type: "string" },
-                  field: { type: "string" }
-                }
-              }
+                  school: { type: 'string' },
+                  degree: { type: 'string' },
+                  field: { type: 'string' },
+                },
+              },
             },
-            skills: { type: "array", items: { type: "string" } },
-            connections: { type: "number" },
-            enrichment_score: { type: "number" }
-          }
-        }
+            skills: { type: 'array', items: { type: 'string' } },
+            connections: { type: 'number' },
+            enrichment_score: { type: 'number' },
+          },
+        },
       });
 
       const enrichedLead = await base44.entities.LeadEnrichment.create({
         linkedin_url: linkedinUrl,
-        ...analysis
+        ...analysis,
       });
 
       return enrichedLead;
@@ -117,11 +117,11 @@ Also provide an enrichment_score (0-100) based on how much data was found.`,
         job_title: lead.job_title,
         status: 'lead',
         source: 'LinkedIn Enrichment',
-        notes: `Enriched from LinkedIn: ${lead.linkedin_url}\n\nSummary: ${lead.summary || 'N/A'}`
+        notes: `Enriched from LinkedIn: ${lead.linkedin_url}\n\nSummary: ${lead.summary || 'N/A'}`,
       });
 
       await base44.entities.LeadEnrichment.update(lead.id, {
-        contact_id: contact.id
+        contact_id: contact.id,
       });
 
       return contact;
@@ -137,10 +137,14 @@ Also provide an enrichment_score (0-100) based on how much data was found.`,
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Lead Enrichment</h1>
-          <p className="text-sm sm:text-base text-gray-500 mt-1">Enrich LinkedIn profiles with AI-powered data extraction</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
+            Lead Enrichment
+          </h1>
+          <p className="text-sm sm:text-base text-gray-500 mt-1">
+            Enrich LinkedIn profiles with AI-powered data extraction
+          </p>
         </div>
-        <Button 
+        <Button
           onClick={() => setShowEnrichmentModal(true)}
           className="gap-2 bg-blue-600 hover:bg-blue-700 w-full sm:w-auto"
         >
@@ -183,15 +187,13 @@ Also provide an enrichment_score (0-100) based on how much data was found.`,
       ) : (
         <div className="space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {enrichedLeads.filter(l => l.enrichment_score >= minScore).map(lead => (
-              <div 
-                key={lead.id}
-                className="cursor-pointer" 
-                onClick={() => setSelectedLead(lead)}
-              >
-                <EnrichmentQualityDisplay lead={lead} />
-              </div>
-            ))}
+            {enrichedLeads
+              .filter((l) => l.enrichment_score >= minScore)
+              .map((lead) => (
+                <div key={lead.id} className="cursor-pointer" onClick={() => setSelectedLead(lead)}>
+                  <EnrichmentQualityDisplay lead={lead} />
+                </div>
+              ))}
           </div>
 
           {selectedLead && (
@@ -204,7 +206,7 @@ Also provide an enrichment_score (0-100) based on how much data was found.`,
                     </h3>
                     <p className="text-sm text-gray-500 mt-1">{selectedLead.headline}</p>
                   </div>
-                  <Button 
+                  <Button
                     onClick={() => createContactFromLeadMutation.mutate(selectedLead)}
                     disabled={createContactFromLeadMutation.isPending}
                   >
@@ -215,37 +217,49 @@ Also provide an enrichment_score (0-100) based on how much data was found.`,
                   {selectedLead.email && (
                     <div>
                       <p className="text-xs text-gray-500">Email</p>
-                      <p className="font-medium text-gray-900 dark:text-white">{selectedLead.email}</p>
+                      <p className="font-medium text-gray-900 dark:text-white">
+                        {selectedLead.email}
+                      </p>
                     </div>
                   )}
                   {selectedLead.phone && (
                     <div>
                       <p className="text-xs text-gray-500">Phone</p>
-                      <p className="font-medium text-gray-900 dark:text-white">{selectedLead.phone}</p>
+                      <p className="font-medium text-gray-900 dark:text-white">
+                        {selectedLead.phone}
+                      </p>
                     </div>
                   )}
                   {selectedLead.company && (
                     <div>
                       <p className="text-xs text-gray-500">Company</p>
-                      <p className="font-medium text-gray-900 dark:text-white">{selectedLead.company}</p>
+                      <p className="font-medium text-gray-900 dark:text-white">
+                        {selectedLead.company}
+                      </p>
                     </div>
                   )}
                   {selectedLead.job_title && (
                     <div>
                       <p className="text-xs text-gray-500">Title</p>
-                      <p className="font-medium text-gray-900 dark:text-white">{selectedLead.job_title}</p>
+                      <p className="font-medium text-gray-900 dark:text-white">
+                        {selectedLead.job_title}
+                      </p>
                     </div>
                   )}
                   {selectedLead.location && (
                     <div>
                       <p className="text-xs text-gray-500">Location</p>
-                      <p className="font-medium text-gray-900 dark:text-white">{selectedLead.location}</p>
+                      <p className="font-medium text-gray-900 dark:text-white">
+                        {selectedLead.location}
+                      </p>
                     </div>
                   )}
                   {selectedLead.connections && (
                     <div>
                       <p className="text-xs text-gray-500">Connections</p>
-                      <p className="font-medium text-gray-900 dark:text-white">{selectedLead.connections}</p>
+                      <p className="font-medium text-gray-900 dark:text-white">
+                        {selectedLead.connections}
+                      </p>
                     </div>
                   )}
                 </div>
@@ -254,9 +268,11 @@ Also provide an enrichment_score (0-100) based on how much data was found.`,
           )}
 
           <div>
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">All Enriched Leads</h3>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+              All Enriched Leads
+            </h3>
             <EnrichedLeadsTable
-              leads={enrichedLeads.filter(l => l.enrichment_score >= minScore)}
+              leads={enrichedLeads.filter((l) => l.enrichment_score >= minScore)}
               onCreateContact={(lead) => createContactFromLeadMutation.mutate(lead)}
             />
           </div>

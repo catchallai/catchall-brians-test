@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
-import { Skeleton } from "@/components/ui/skeleton";
-import { Button } from "@/components/ui/button";
-import { Download, Eye, AlertCircle } from "lucide-react";
+import { Skeleton } from '@/components/ui/skeleton';
+import { Button } from '@/components/ui/button';
+import { Download, Eye, AlertCircle } from 'lucide-react';
 import SessionReplayTracker from '@/components/analytics/SessionReplayTracker';
 
 export default function PublicDocumentViewer() {
@@ -11,37 +11,41 @@ export default function PublicDocumentViewer() {
   const token = urlParams.get('token');
   const [downloadStarted, setDownloadStarted] = useState(false);
 
-  const { data: document, isLoading, error } = useQuery({
+  const {
+    data: document,
+    isLoading,
+    error,
+  } = useQuery({
     queryKey: ['tracked-document', token],
     queryFn: async () => {
       if (!token) return null;
       const docs = await base44.entities.TrackedDocument.filter({ tracking_code: token });
       const doc = docs?.[0];
-      
+
       if (doc && doc.status === 'active') {
         // Log view
         const views = (doc.total_views || 0) + 1;
         await base44.entities.TrackedDocument.update(doc.id, {
           total_views: views,
-          last_viewed_at: new Date().toISOString()
+          last_viewed_at: new Date().toISOString(),
         });
         return { ...doc, total_views: views };
       }
       return null;
     },
-    enabled: !!token
+    enabled: !!token,
   });
 
   const handleDownload = async () => {
     if (!document) return;
-    
+
     try {
       setDownloadStarted(true);
-      
+
       // Log download
       const downloads = (document.total_downloads || 0) + 1;
       await base44.entities.TrackedDocument.update(document.id, {
-        total_downloads: downloads
+        total_downloads: downloads,
       });
 
       // Trigger download
@@ -75,7 +79,9 @@ export default function PublicDocumentViewer() {
         <div className="bg-white rounded-xl shadow-lg p-8 max-w-md w-full text-center space-y-4">
           <AlertCircle className="w-12 h-12 text-red-500 mx-auto" />
           <h1 className="text-2xl font-bold text-gray-900">Document Not Found</h1>
-          <p className="text-gray-600">This document is no longer available or the link has expired.</p>
+          <p className="text-gray-600">
+            This document is no longer available or the link has expired.
+          </p>
         </div>
       </div>
     );
@@ -143,7 +149,8 @@ export default function PublicDocumentViewer() {
             {/* Document Info */}
             <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
               <p className="text-xs text-blue-700">
-                <strong>Note:</strong> This link is secure and tracks document access. Your download activity may be logged.
+                <strong>Note:</strong> This link is secure and tracks document access. Your download
+                activity may be logged.
               </p>
             </div>
           </div>

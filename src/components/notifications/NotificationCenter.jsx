@@ -1,21 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Button } from "@/components/ui/button";
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
+} from '@/components/ui/dialog';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from '@/components/ui/select';
 import { Bell, Trash2, CheckCircle2, Circle, Filter, Settings, Volume2, Moon } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -59,12 +59,24 @@ export default function NotificationCenter({ user }) {
           const endTime = prefs[0].dnd_end_time || '08:00';
           const [startHour, startMin] = startTime.split(':').map(Number);
           const [endHour, endMin] = endTime.split(':').map(Number);
-          
-          const startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), startHour, startMin);
-          const endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), endHour, endMin);
-          
+
+          const startDate = new Date(
+            now.getFullYear(),
+            now.getMonth(),
+            now.getDate(),
+            startHour,
+            startMin
+          );
+          const endDate = new Date(
+            now.getFullYear(),
+            now.getMonth(),
+            now.getDate(),
+            endHour,
+            endMin
+          );
+
           if (startDate > endDate) endDate.setDate(endDate.getDate() + 1);
-          
+
           setDndActive(now >= startDate && now <= endDate);
         }
       } catch (err) {
@@ -101,9 +113,9 @@ export default function NotificationCenter({ user }) {
 
   const markAllAsReadMutation = useMutation({
     mutationFn: async () => {
-      const unreadNotifs = notifications.filter(n => !n.is_read);
+      const unreadNotifs = notifications.filter((n) => !n.is_read);
       await Promise.all(
-        unreadNotifs.map(n =>
+        unreadNotifs.map((n) =>
           base44.entities.Notification.update(n.id, {
             is_read: true,
             read_at: new Date().toISOString(),
@@ -117,18 +129,15 @@ export default function NotificationCenter({ user }) {
   });
 
   const deleteNotificationMutation = useMutation({
-    mutationFn: (notificationId) =>
-      base44.entities.Notification.delete(notificationId),
+    mutationFn: (notificationId) => base44.entities.Notification.delete(notificationId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['notifications'] });
     },
   });
 
-  const unreadCount = notifications.filter(n => !n.is_read).length;
+  const unreadCount = notifications.filter((n) => !n.is_read).length;
   const filteredNotifications =
-    filterType === 'all'
-      ? notifications
-      : notifications.filter(n => n.type === filterType);
+    filterType === 'all' ? notifications : notifications.filter((n) => n.type === filterType);
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -141,7 +150,10 @@ export default function NotificationCenter({ user }) {
             </span>
           )}
           {dndActive && (
-            <span className="absolute bottom-0 right-0 w-3 h-3 bg-amber-500 rounded-full border border-white dark:border-gray-900" title="Do Not Disturb active" />
+            <span
+              className="absolute bottom-0 right-0 w-3 h-3 bg-amber-500 rounded-full border border-white dark:border-gray-900"
+              title="Do Not Disturb active"
+            />
           )}
         </Button>
       </DialogTrigger>
@@ -202,7 +214,7 @@ export default function NotificationCenter({ user }) {
                 <p>No notifications</p>
               </div>
             ) : (
-              filteredNotifications.map(notification => (
+              filteredNotifications.map((notification) => (
                 <div
                   key={notification.id}
                   className={`p-4 rounded-lg border-l-4 transition-all ${
@@ -214,7 +226,9 @@ export default function NotificationCenter({ user }) {
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
-                        <span className={`text-xs font-semibold px-2 py-1 rounded ${typeColors[notification.type]}`}>
+                        <span
+                          className={`text-xs font-semibold px-2 py-1 rounded ${typeColors[notification.type]}`}
+                        >
                           {notification.type.replace('_', ' ')}
                         </span>
                         {notification.actor_name && (
@@ -223,9 +237,7 @@ export default function NotificationCenter({ user }) {
                           </span>
                         )}
                       </div>
-                      <h3 className="font-semibold text-sm break-words">
-                        {notification.title}
-                      </h3>
+                      <h3 className="font-semibold text-sm break-words">{notification.title}</h3>
                       {notification.body && (
                         <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
                           {notification.body}

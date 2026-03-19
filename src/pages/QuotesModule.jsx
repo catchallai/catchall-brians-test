@@ -1,14 +1,20 @@
 import React, { useState } from 'react';
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Plus, Search, ChevronDown, Calendar, DollarSign, Edit, FileSignature } from "lucide-react";
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Plus, Search, ChevronDown, Calendar, DollarSign, Edit, FileSignature } from 'lucide-react';
 import ContactsSidebar from '@/components/crm/ContactsSidebar';
 import QuoteModal from '@/components/modals/QuoteModal';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { format, isAfter, addDays } from 'date-fns';
 import Pagination from '@/components/ui-custom/Pagination';
 import {
@@ -16,7 +22,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from '@/components/ui/dropdown-menu';
 
 export default function QuotesModule() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -68,12 +74,13 @@ export default function QuotesModule() {
   };
 
   const getFilteredQuotes = () => {
-    return quotes.filter(quote => {
-      const matchesSearch = quote.quote_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           quote.quote_number?.toLowerCase().includes(searchTerm.toLowerCase());
+    return quotes.filter((quote) => {
+      const matchesSearch =
+        quote.quote_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        quote.quote_number?.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesStatus = statusFilter === 'all' || quote.status === statusFilter;
       const matchesSigning = signingFilter === 'all' || quote.signing_status === signingFilter;
-      
+
       let matchesTab = true;
       if (activeTab === 'expiring_soon') {
         matchesTab = isExpiringSoon(quote.valid_until);
@@ -89,7 +96,10 @@ export default function QuotesModule() {
 
   const filteredQuotes = getFilteredQuotes();
   const totalPages = Math.ceil(filteredQuotes.length / itemsPerPage);
-  const paginatedQuotes = filteredQuotes.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+  const paginatedQuotes = filteredQuotes.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
 
   const getStatusColor = (status) => {
     const colors = {
@@ -98,7 +108,7 @@ export default function QuotesModule() {
       pending_approval: 'bg-orange-100 text-orange-800',
       approved: 'bg-green-100 text-green-800',
       rejected: 'bg-red-100 text-red-800',
-      expired: 'bg-gray-100 text-gray-800'
+      expired: 'bg-gray-100 text-gray-800',
     };
     return colors[status] || colors.draft;
   };
@@ -108,16 +118,18 @@ export default function QuotesModule() {
       not_sent: 'bg-gray-100 text-gray-800',
       sent: 'bg-blue-100 text-blue-800',
       signed: 'bg-green-100 text-green-800',
-      declined: 'bg-red-100 text-red-800'
+      declined: 'bg-red-100 text-red-800',
     };
     return colors[status] || colors.not_sent;
   };
 
   const getTabCount = (tab) => {
     if (tab === 'all') return quotes.length;
-    if (tab === 'expiring_soon') return quotes.filter(q => isExpiringSoon(q.valid_until)).length;
-    if (tab === 'pending_acceptance') return quotes.filter(q => q.status === 'pending_acceptance').length;
-    if (tab === 'pending_approval') return quotes.filter(q => q.status === 'pending_approval').length;
+    if (tab === 'expiring_soon') return quotes.filter((q) => isExpiringSoon(q.valid_until)).length;
+    if (tab === 'pending_acceptance')
+      return quotes.filter((q) => q.status === 'pending_acceptance').length;
+    if (tab === 'pending_approval')
+      return quotes.filter((q) => q.status === 'pending_approval').length;
     return 0;
   };
 
@@ -128,12 +140,17 @@ export default function QuotesModule() {
         <div className="border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-slate-900 p-4 sm:p-6">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Quotes</h1>
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
+                Quotes
+              </h1>
             </div>
-            <Button 
-              className="gap-2 bg-violet-600 hover:bg-violet-700" 
+            <Button
+              className="gap-2 bg-violet-600 hover:bg-violet-700"
               size="sm"
-              onClick={() => { setEditingQuote(null); setShowModal(true); }}
+              onClick={() => {
+                setEditingQuote(null);
+                setShowModal(true);
+              }}
             >
               <Plus className="w-4 h-4" />
               Create quote
@@ -144,25 +161,25 @@ export default function QuotesModule() {
         <div className="border-b border-gray-200 dark:border-gray-800">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="px-6">
             <TabsList className="bg-transparent border-0 h-auto p-0 gap-6">
-              <TabsTrigger 
-                value="all" 
+              <TabsTrigger
+                value="all"
                 className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-violet-600 rounded-none px-0 pb-3"
               >
                 All quotes {getTabCount('all')}
               </TabsTrigger>
-              <TabsTrigger 
+              <TabsTrigger
                 value="expiring_soon"
                 className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-violet-600 rounded-none px-0 pb-3"
               >
                 Expiring soon {getTabCount('expiring_soon')}
               </TabsTrigger>
-              <TabsTrigger 
+              <TabsTrigger
                 value="pending_acceptance"
                 className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-violet-600 rounded-none px-0 pb-3"
               >
                 Pending acceptance {getTabCount('pending_acceptance')}
               </TabsTrigger>
-              <TabsTrigger 
+              <TabsTrigger
                 value="pending_approval"
                 className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-violet-600 rounded-none px-0 pb-3"
               >
@@ -175,11 +192,11 @@ export default function QuotesModule() {
         <div className="border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-slate-800/50 p-4 flex flex-wrap gap-3 items-center">
           <div className="relative flex-1 min-w-64">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-            <Input 
-              placeholder="Search" 
-              value={searchTerm} 
-              onChange={(e) => setSearchTerm(e.target.value)} 
-              className="pl-10" 
+            <Input
+              placeholder="Search"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10"
             />
           </div>
 
@@ -192,9 +209,15 @@ export default function QuotesModule() {
             <DropdownMenuContent>
               <DropdownMenuItem onClick={() => setStatusFilter('all')}>All</DropdownMenuItem>
               <DropdownMenuItem onClick={() => setStatusFilter('draft')}>Draft</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setStatusFilter('pending_acceptance')}>Pending Acceptance</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setStatusFilter('pending_approval')}>Pending Approval</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setStatusFilter('approved')}>Approved</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setStatusFilter('pending_acceptance')}>
+                Pending Acceptance
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setStatusFilter('pending_approval')}>
+                Pending Approval
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setStatusFilter('approved')}>
+                Approved
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
 
@@ -206,7 +229,9 @@ export default function QuotesModule() {
             </DropdownMenuTrigger>
             <DropdownMenuContent>
               <DropdownMenuItem onClick={() => setSigningFilter('all')}>All</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setSigningFilter('not_sent')}>Not Sent</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setSigningFilter('not_sent')}>
+                Not Sent
+              </DropdownMenuItem>
               <DropdownMenuItem onClick={() => setSigningFilter('sent')}>Sent</DropdownMenuItem>
               <DropdownMenuItem onClick={() => setSigningFilter('signed')}>Signed</DropdownMenuItem>
             </DropdownMenuContent>
@@ -224,12 +249,22 @@ export default function QuotesModule() {
                   <circle cx="100" cy="100" r="40" fill="#C7D2FE" />
                   <circle cx="100" cy="100" r="20" fill="#6366F1" />
                   <circle cx="100" cy="100" r="8" fill="white" />
-                  
-                  <path d="M140 60 L120 80 L130 80 L130 120 L150 120 L150 80 L160 80 Z" 
-                        fill="#10B981" 
-                        transform="rotate(-15 145 90)"/>
-                  
-                  <line x1="140" y1="60" x2="120" y2="80" stroke="#059669" strokeWidth="3" strokeLinecap="round"/>
+
+                  <path
+                    d="M140 60 L120 80 L130 80 L130 120 L150 120 L150 80 L160 80 Z"
+                    fill="#10B981"
+                    transform="rotate(-15 145 90)"
+                  />
+
+                  <line
+                    x1="140"
+                    y1="60"
+                    x2="120"
+                    y2="80"
+                    stroke="#059669"
+                    strokeWidth="3"
+                    strokeLinecap="round"
+                  />
                 </svg>
               </div>
               <h3 className="text-2xl font-semibold text-gray-900 dark:text-white mb-2">
@@ -238,8 +273,11 @@ export default function QuotesModule() {
               <p className="text-gray-600 dark:text-gray-400 mb-6">
                 Quotes are the best way to turn your prospects into customers.
               </p>
-              <Button 
-                onClick={() => { setEditingQuote(null); setShowModal(true); }}
+              <Button
+                onClick={() => {
+                  setEditingQuote(null);
+                  setShowModal(true);
+                }}
                 className="gap-2 bg-violet-600 hover:bg-violet-700"
               >
                 <Plus className="w-4 h-4" />
@@ -250,8 +288,8 @@ export default function QuotesModule() {
             <>
               <div className="space-y-3">
                 {paginatedQuotes.map((quote) => (
-                  <div 
-                    key={quote.id} 
+                  <div
+                    key={quote.id}
                     className="bg-white dark:bg-slate-800 rounded-lg border border-gray-200 dark:border-gray-700 p-5 hover:shadow-md transition-shadow"
                   >
                     <div className="flex items-start justify-between">
@@ -268,7 +306,9 @@ export default function QuotesModule() {
                             {quote.signing_status?.replace('_', ' ')}
                           </Badge>
                           {isExpiringSoon(quote.valid_until) && (
-                            <Badge className="bg-orange-100 text-orange-800">⚠️ Expiring Soon</Badge>
+                            <Badge className="bg-orange-100 text-orange-800">
+                              ⚠️ Expiring Soon
+                            </Badge>
                           )}
                         </div>
                         <div className="flex gap-4 text-sm text-gray-500 mb-2">
@@ -296,10 +336,13 @@ export default function QuotesModule() {
                             ${quote.total_amount?.toFixed(2) || '0.00'}
                           </div>
                         </div>
-                        <Button 
-                          size="sm" 
+                        <Button
+                          size="sm"
                           variant="outline"
-                          onClick={() => { setEditingQuote(quote); setShowModal(true); }}
+                          onClick={() => {
+                            setEditingQuote(quote);
+                            setShowModal(true);
+                          }}
                         >
                           <Edit className="w-4 h-4" />
                         </Button>
@@ -327,7 +370,10 @@ export default function QuotesModule() {
 
       <QuoteModal
         open={showModal}
-        onClose={() => { setShowModal(false); setEditingQuote(null); }}
+        onClose={() => {
+          setShowModal(false);
+          setEditingQuote(null);
+        }}
         onSave={handleSave}
         quote={editingQuote}
         isLoading={createMutation.isPending || updateMutation.isPending}

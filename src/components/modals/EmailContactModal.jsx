@@ -7,15 +7,21 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Label } from "@/components/ui/label";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Mail, Send, Loader } from "lucide-react";
-import { useToast } from "@/components/ui/toast-provider";
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Label } from '@/components/ui/label';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Mail, Send, Loader } from 'lucide-react';
+import { useToast } from '@/components/ui/toast-provider';
 
 export default function EmailContactModal({ open, onClose, contact, businessId }) {
   const [subject, setSubject] = useState('');
@@ -34,7 +40,11 @@ export default function EmailContactModal({ open, onClose, contact, businessId }
     queryKey: ['email-templates', businessId],
     queryFn: async () => {
       if (!businessId) return [];
-      return await base44.entities.EmailTemplate.filter({ business_id: businessId }, '-created_date', 50);
+      return await base44.entities.EmailTemplate.filter(
+        { business_id: businessId },
+        '-created_date',
+        50
+      );
     },
     enabled: !!businessId && open,
   });
@@ -42,7 +52,7 @@ export default function EmailContactModal({ open, onClose, contact, businessId }
   // Extract unique sender emails from templates
   const senderEmails = React.useMemo(() => {
     const emails = new Set();
-    templates.forEach(t => {
+    templates.forEach((t) => {
       if (t.sender_email) emails.add(t.sender_email);
     });
     if (user?.email) emails.add(user.email);
@@ -80,7 +90,7 @@ export default function EmailContactModal({ open, onClose, contact, businessId }
   });
 
   const handleTemplateSelect = (templateId) => {
-    const template = templates.find(t => t.id === templateId);
+    const template = templates.find((t) => t.id === templateId);
     if (template) {
       setSelectedTemplate(templateId);
       setSubject(template.subject);
@@ -126,7 +136,9 @@ export default function EmailContactModal({ open, onClose, contact, businessId }
           {/* Template Selection */}
           {templates.length > 0 && (
             <div>
-              <Label htmlFor="template" className="text-sm font-medium">Email Template</Label>
+              <Label htmlFor="template" className="text-sm font-medium">
+                Email Template
+              </Label>
               <Select value={selectedTemplate} onValueChange={handleTemplateSelect}>
                 <SelectTrigger id="template" className="mt-1">
                   <SelectValue placeholder="Select a template (optional)" />
@@ -136,7 +148,7 @@ export default function EmailContactModal({ open, onClose, contact, businessId }
                   {templatesLoading ? (
                     <div className="p-2 text-xs text-gray-500">Loading templates...</div>
                   ) : (
-                    templates.map(template => (
+                    templates.map((template) => (
                       <SelectItem key={template.id} value={template.id}>
                         {template.name}
                       </SelectItem>
@@ -149,7 +161,9 @@ export default function EmailContactModal({ open, onClose, contact, businessId }
 
           {/* From Email */}
           <div>
-            <Label htmlFor="sender" className="text-sm font-medium">From</Label>
+            <Label htmlFor="sender" className="text-sm font-medium">
+              From
+            </Label>
             {senderEmails.length > 1 ? (
               <Select value={senderEmail} onValueChange={setSenderEmail}>
                 <SelectTrigger id="sender" className="mt-1">
@@ -172,7 +186,9 @@ export default function EmailContactModal({ open, onClose, contact, businessId }
 
           {/* Subject */}
           <div>
-            <Label htmlFor="subject" className="text-sm font-medium">Subject</Label>
+            <Label htmlFor="subject" className="text-sm font-medium">
+              Subject
+            </Label>
             <Input
               id="subject"
               placeholder="Email subject"
@@ -184,7 +200,9 @@ export default function EmailContactModal({ open, onClose, contact, businessId }
 
           {/* Message */}
           <div>
-            <Label htmlFor="message" className="text-sm font-medium">Message</Label>
+            <Label htmlFor="message" className="text-sm font-medium">
+              Message
+            </Label>
             <Textarea
               id="message"
               placeholder="Write your message here..."
@@ -196,8 +214,10 @@ export default function EmailContactModal({ open, onClose, contact, businessId }
         </div>
 
         <DialogFooter>
-          <Button variant="outline" onClick={handleClose}>Cancel</Button>
-          <Button 
+          <Button variant="outline" onClick={handleClose}>
+            Cancel
+          </Button>
+          <Button
             onClick={handleSend}
             disabled={sendEmailMutation.isPending || !subject.trim() || !message.trim()}
             className="gap-2 bg-violet-600 hover:bg-violet-700"

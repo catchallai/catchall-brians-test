@@ -8,19 +8,19 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { Loader2 } from "lucide-react";
+} from '@/components/ui/alert-dialog';
+import { Loader2 } from 'lucide-react';
 
-export default function ConfirmDialog({ 
-  open, 
-  onClose, 
-  onConfirm, 
-  title = "Are you sure?", 
-  description = "This action cannot be undone.",
-  confirmLabel = "Confirm",
-  cancelLabel = "Cancel",
-  variant = "destructive",
-  isLoading = false
+export default function ConfirmDialog({
+  open,
+  onClose,
+  onConfirm,
+  title = 'Are you sure?',
+  description = 'This action cannot be undone.',
+  confirmLabel = 'Confirm',
+  cancelLabel = 'Cancel',
+  variant = 'destructive',
+  isLoading = false,
 }) {
   return (
     <AlertDialog open={open} onOpenChange={onClose}>
@@ -37,7 +37,7 @@ export default function ConfirmDialog({
               onConfirm();
             }}
             disabled={isLoading}
-            className={variant === "destructive" ? "bg-red-600 hover:bg-red-700" : ""}
+            className={variant === 'destructive' ? 'bg-red-600 hover:bg-red-700' : ''}
           >
             {isLoading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
             {confirmLabel}

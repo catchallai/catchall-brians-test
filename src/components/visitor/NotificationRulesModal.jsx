@@ -1,15 +1,27 @@
 import React, { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent } from '@/components/ui/card';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { Bell, Plus, Trash2, Zap, TrendingUp, Eye, Target, User, Sparkles } from "lucide-react";
+import { Bell, Plus, Trash2, Zap, TrendingUp, Eye, Target, User, Sparkles } from 'lucide-react';
 
 export default function NotificationRulesModal({ open, onClose }) {
   const [showAddRule, setShowAddRule] = useState(false);
@@ -19,7 +31,7 @@ export default function NotificationRulesModal({ open, onClose }) {
     trigger_type: 'hot_lead_detected',
     conditions: {},
     notification_channels: ['in_app'],
-    is_active: true
+    is_active: true,
   });
 
   const queryClient = useQueryClient();
@@ -40,7 +52,7 @@ export default function NotificationRulesModal({ open, onClose }) {
         trigger_type: 'hot_lead_detected',
         conditions: {},
         notification_channels: ['in_app'],
-        is_active: true
+        is_active: true,
       });
     },
   });
@@ -53,7 +65,8 @@ export default function NotificationRulesModal({ open, onClose }) {
   });
 
   const toggleRuleMutation = useMutation({
-    mutationFn: ({ id, is_active }) => base44.entities.VisitorNotificationRule.update(id, { is_active }),
+    mutationFn: ({ id, is_active }) =>
+      base44.entities.VisitorNotificationRule.update(id, { is_active }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['visitor-notification-rules'] });
     },
@@ -61,13 +74,20 @@ export default function NotificationRulesModal({ open, onClose }) {
 
   const getTriggerIcon = (type) => {
     switch (type) {
-      case 'hot_lead_detected': return <Sparkles className="w-4 h-4 text-red-500" />;
-      case 'score_threshold': return <Target className="w-4 h-4 text-blue-500" />;
-      case 'score_increase': return <TrendingUp className="w-4 h-4 text-green-500" />;
-      case 'high_engagement': return <Eye className="w-4 h-4 text-purple-500" />;
-      case 'return_visitor': return <User className="w-4 h-4 text-amber-500" />;
-      case 'high_intent_page': return <Zap className="w-4 h-4 text-indigo-500" />;
-      default: return <Bell className="w-4 h-4" />;
+      case 'hot_lead_detected':
+        return <Sparkles className="w-4 h-4 text-red-500" />;
+      case 'score_threshold':
+        return <Target className="w-4 h-4 text-blue-500" />;
+      case 'score_increase':
+        return <TrendingUp className="w-4 h-4 text-green-500" />;
+      case 'high_engagement':
+        return <Eye className="w-4 h-4 text-purple-500" />;
+      case 'return_visitor':
+        return <User className="w-4 h-4 text-amber-500" />;
+      case 'high_intent_page':
+        return <Zap className="w-4 h-4 text-indigo-500" />;
+      default:
+        return <Bell className="w-4 h-4" />;
     }
   };
 
@@ -107,7 +127,9 @@ export default function NotificationRulesModal({ open, onClose }) {
                           </div>
                           <div className="flex-1">
                             <div className="flex items-center gap-2 mb-1">
-                              <h4 className="font-medium text-gray-900 dark:text-white">{rule.name}</h4>
+                              <h4 className="font-medium text-gray-900 dark:text-white">
+                                {rule.name}
+                              </h4>
                               <Badge variant="outline" className="text-xs">
                                 {rule.trigger_type.replace(/_/g, ' ')}
                               </Badge>
@@ -118,7 +140,9 @@ export default function NotificationRulesModal({ open, onClose }) {
                             <div className="flex items-center gap-3 text-xs text-gray-400">
                               <span>Triggered {rule.trigger_count || 0} times</span>
                               {rule.notification_channels?.includes('email') && (
-                                <Badge variant="outline" className="text-xs">Email</Badge>
+                                <Badge variant="outline" className="text-xs">
+                                  Email
+                                </Badge>
                               )}
                             </div>
                           </div>
@@ -126,7 +150,7 @@ export default function NotificationRulesModal({ open, onClose }) {
                         <div className="flex items-center gap-2">
                           <Switch
                             checked={rule.is_active}
-                            onCheckedChange={(checked) => 
+                            onCheckedChange={(checked) =>
                               toggleRuleMutation.mutate({ id: rule.id, is_active: checked })
                             }
                           />
@@ -172,9 +196,11 @@ export default function NotificationRulesModal({ open, onClose }) {
 
               <div>
                 <Label>Trigger Type</Label>
-                <Select 
-                  value={newRule.trigger_type} 
-                  onValueChange={(value) => setNewRule({ ...newRule, trigger_type: value, conditions: {} })}
+                <Select
+                  value={newRule.trigger_type}
+                  onValueChange={(value) =>
+                    setNewRule({ ...newRule, trigger_type: value, conditions: {} })
+                  }
                 >
                   <SelectTrigger>
                     <SelectValue />
@@ -198,10 +224,12 @@ export default function NotificationRulesModal({ open, onClose }) {
                     type="number"
                     placeholder="e.g., 85"
                     value={newRule.conditions.min_score || ''}
-                    onChange={(e) => setNewRule({
-                      ...newRule,
-                      conditions: { ...newRule.conditions, min_score: parseInt(e.target.value) }
-                    })}
+                    onChange={(e) =>
+                      setNewRule({
+                        ...newRule,
+                        conditions: { ...newRule.conditions, min_score: parseInt(e.target.value) },
+                      })
+                    }
                   />
                 </div>
               )}
@@ -213,10 +241,15 @@ export default function NotificationRulesModal({ open, onClose }) {
                     type="number"
                     placeholder="e.g., 20"
                     value={newRule.conditions.score_increase || ''}
-                    onChange={(e) => setNewRule({
-                      ...newRule,
-                      conditions: { ...newRule.conditions, score_increase: parseInt(e.target.value) }
-                    })}
+                    onChange={(e) =>
+                      setNewRule({
+                        ...newRule,
+                        conditions: {
+                          ...newRule.conditions,
+                          score_increase: parseInt(e.target.value),
+                        },
+                      })
+                    }
                   />
                 </div>
               )}
@@ -229,10 +262,15 @@ export default function NotificationRulesModal({ open, onClose }) {
                       type="number"
                       placeholder="e.g., 8"
                       value={newRule.conditions.min_pages || ''}
-                      onChange={(e) => setNewRule({
-                        ...newRule,
-                        conditions: { ...newRule.conditions, min_pages: parseInt(e.target.value) }
-                      })}
+                      onChange={(e) =>
+                        setNewRule({
+                          ...newRule,
+                          conditions: {
+                            ...newRule.conditions,
+                            min_pages: parseInt(e.target.value),
+                          },
+                        })
+                      }
                     />
                   </div>
                   <div>
@@ -241,10 +279,15 @@ export default function NotificationRulesModal({ open, onClose }) {
                       type="number"
                       placeholder="e.g., 10"
                       value={newRule.conditions.min_time_minutes || ''}
-                      onChange={(e) => setNewRule({
-                        ...newRule,
-                        conditions: { ...newRule.conditions, min_time_minutes: parseInt(e.target.value) }
-                      })}
+                      onChange={(e) =>
+                        setNewRule({
+                          ...newRule,
+                          conditions: {
+                            ...newRule.conditions,
+                            min_time_minutes: parseInt(e.target.value),
+                          },
+                        })
+                      }
                     />
                   </div>
                 </div>
@@ -254,11 +297,13 @@ export default function NotificationRulesModal({ open, onClose }) {
                 <Label>Notification Channels</Label>
                 <div className="flex gap-2 mt-2">
                   <Button
-                    variant={newRule.notification_channels.includes('in_app') ? 'default' : 'outline'}
+                    variant={
+                      newRule.notification_channels.includes('in_app') ? 'default' : 'outline'
+                    }
                     size="sm"
                     onClick={() => {
                       const channels = newRule.notification_channels.includes('in_app')
-                        ? newRule.notification_channels.filter(c => c !== 'in_app')
+                        ? newRule.notification_channels.filter((c) => c !== 'in_app')
                         : [...newRule.notification_channels, 'in_app'];
                       setNewRule({ ...newRule, notification_channels: channels });
                     }}
@@ -266,11 +311,13 @@ export default function NotificationRulesModal({ open, onClose }) {
                     In-App
                   </Button>
                   <Button
-                    variant={newRule.notification_channels.includes('email') ? 'default' : 'outline'}
+                    variant={
+                      newRule.notification_channels.includes('email') ? 'default' : 'outline'
+                    }
                     size="sm"
                     onClick={() => {
                       const channels = newRule.notification_channels.includes('email')
-                        ? newRule.notification_channels.filter(c => c !== 'email')
+                        ? newRule.notification_channels.filter((c) => c !== 'email')
                         : [...newRule.notification_channels, 'email'];
                       setNewRule({ ...newRule, notification_channels: channels });
                     }}
@@ -284,8 +331,8 @@ export default function NotificationRulesModal({ open, onClose }) {
                 <Button variant="outline" onClick={() => setShowAddRule(false)} className="flex-1">
                   Cancel
                 </Button>
-                <Button 
-                  onClick={handleCreateRule} 
+                <Button
+                  onClick={handleCreateRule}
                   disabled={!newRule.name || createRuleMutation.isPending}
                   className="flex-1"
                 >

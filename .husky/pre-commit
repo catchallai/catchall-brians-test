@@ -20,7 +20,7 @@ NC='\033[0m' # No Color
 echo "Running Before Takeoff Checklist ✈️"
 
 # Get staged files
-STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.(js|jsx|ts|tsx|css|md|json)$')
+STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.(js|jsx|ts|tsx|css|md|json)$' | grep -vE '(^|/)\\.prettierignore$|(^|/)(node_modules|dist|build)(/|$)|(^|/)\\.env(\..*)?$|(^|/)\\.vscode(/|$)|.*\.log$|.*\.generated\..*|.*\.min\..*')
 ESLINT_FILES=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.(js|jsx|ts|tsx)$')
 
 echo "Staged files for Prettier: $STAGED_FILES"

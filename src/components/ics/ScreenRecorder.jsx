@@ -15,20 +15,20 @@ export class ScreenRecorder {
       const audioContext = new AudioContext();
       const audioDestination = audioContext.createMediaStreamDestination();
       const audioTracks = screenStream.getAudioTracks();
-      
-      audioTracks.forEach(track => {
+
+      audioTracks.forEach((track) => {
         const source = audioContext.createMediaStreamSource(new MediaStream([track]));
         source.connect(audioDestination);
       });
 
       const canvasStream = canvas.captureStream(30);
       const combinedStream = new MediaStream();
-      
-      canvasStream.getVideoTracks().forEach(track => {
+
+      canvasStream.getVideoTracks().forEach((track) => {
         combinedStream.addTrack(track);
       });
 
-      audioDestination.stream.getAudioTracks().forEach(track => {
+      audioDestination.stream.getAudioTracks().forEach((track) => {
         combinedStream.addTrack(track);
       });
 

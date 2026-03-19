@@ -1,13 +1,26 @@
 import React, { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Textarea } from "@/components/ui/textarea";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { 
-  MapPin, Phone, Star, Globe, Clock, CheckCircle, AlertTriangle, XCircle,
-  ExternalLink, Send, Loader2, Building2, Image, MessageSquare, FileText
-} from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Textarea } from '@/components/ui/textarea';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import {
+  MapPin,
+  Phone,
+  Star,
+  Globe,
+  Clock,
+  CheckCircle,
+  AlertTriangle,
+  XCircle,
+  ExternalLink,
+  Send,
+  Loader2,
+  Building2,
+  Image,
+  MessageSquare,
+  FileText,
+} from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 
 const platformNames = {
@@ -19,14 +32,18 @@ const platformNames = {
   yellowpages: 'Yellow Pages',
   tripadvisor: 'TripAdvisor',
   foursquare: 'Foursquare',
-  other: 'Other'
+  other: 'Other',
 };
 
 const statusConfig = {
   verified: { icon: CheckCircle, color: 'bg-emerald-100 text-emerald-700', label: 'Verified' },
   pending: { icon: Clock, color: 'bg-amber-100 text-amber-700', label: 'Pending' },
-  needs_attention: { icon: AlertTriangle, color: 'bg-red-100 text-red-700', label: 'Needs Attention' },
-  not_found: { icon: XCircle, color: 'bg-gray-100 text-gray-700', label: 'Not Found' }
+  needs_attention: {
+    icon: AlertTriangle,
+    color: 'bg-red-100 text-red-700',
+    label: 'Needs Attention',
+  },
+  not_found: { icon: XCircle, color: 'bg-gray-100 text-gray-700', label: 'Not Found' },
 };
 
 export default function ListingDetailModal({ open, onClose, listing, onUpdate }) {
@@ -41,7 +58,7 @@ export default function ListingDetailModal({ open, onClose, listing, onUpdate })
 
   const handleSubmitFix = async () => {
     setSubmitting(true);
-    
+
     // Generate fix request using AI
     const fixRequest = await base44.integrations.Core.InvokeLLM({
       prompt: `Generate a professional fix request email/message for the following listing issues:
@@ -49,23 +66,23 @@ export default function ListingDetailModal({ open, onClose, listing, onUpdate })
 Business: ${listing.business_name}
 Platform: ${platformNames[listing.platform]}
 Current Issues:
-${listing.issues?.map(i => `- ${i}`).join('\n') || 'None specified'}
+${listing.issues?.map((i) => `- ${i}`).join('\n') || 'None specified'}
 
 Suggested Corrections:
-${listing.suggested_corrections?.map(c => `- ${c}`).join('\n') || 'None specified'}
+${listing.suggested_corrections?.map((c) => `- ${c}`).join('\n') || 'None specified'}
 
 Additional Notes from User: ${fixNotes || 'None'}
 
 Generate a clear, professional message that can be sent to the platform or used as documentation for fixing the listing.`,
       response_json_schema: {
-        type: "object",
+        type: 'object',
         properties: {
-          subject: { type: "string" },
-          message: { type: "string" },
-          priority: { type: "string" },
-          estimated_fix_time: { type: "string" }
-        }
-      }
+          subject: { type: 'string' },
+          message: { type: 'string' },
+          priority: { type: 'string' },
+          estimated_fix_time: { type: 'string' },
+        },
+      },
     });
 
     // Update listing with fix request
@@ -74,7 +91,7 @@ Generate a clear, professional message that can be sent to the platform or used 
       fix_request_date: new Date().toISOString(),
       fix_request_notes: fixNotes,
       fix_request_message: fixRequest.message,
-      status: 'pending'
+      status: 'pending',
     });
 
     setSubmitting(false);
@@ -107,7 +124,13 @@ Generate a clear, professional message that can be sent to the platform or used 
                   {status.label}
                 </Badge>
                 {listing.severity && listing.severity !== 'ok' && (
-                  <Badge className={listing.severity === 'critical' ? 'bg-red-500 text-white' : 'bg-amber-500 text-white'}>
+                  <Badge
+                    className={
+                      listing.severity === 'critical'
+                        ? 'bg-red-500 text-white'
+                        : 'bg-amber-500 text-white'
+                    }
+                  >
                     {listing.severity}
                   </Badge>
                 )}
@@ -170,7 +193,7 @@ Generate a clear, professional message that can be sent to the platform or used 
                   )}
                 </div>
                 <p className="text-sm text-gray-500">
-                  {listing.nap_consistent 
+                  {listing.nap_consistent
                     ? 'Name, Address, and Phone match across platforms'
                     : 'Discrepancies found in Name, Address, or Phone information'}
                 </p>
@@ -238,8 +261,8 @@ Generate a clear, professional message that can be sent to the platform or used 
                   <div className="p-4 bg-blue-50 rounded-lg">
                     <h4 className="font-medium text-blue-900 mb-2">Submit Fix Request</h4>
                     <p className="text-sm text-blue-700">
-                      Submit a fix request to address the issues found on this listing. 
-                      We'll generate a professional request based on the detected issues.
+                      Submit a fix request to address the issues found on this listing. We'll
+                      generate a professional request based on the detected issues.
                     </p>
                   </div>
 
@@ -255,8 +278,8 @@ Generate a clear, professional message that can be sent to the platform or used 
                     />
                   </div>
 
-                  <Button 
-                    onClick={handleSubmitFix} 
+                  <Button
+                    onClick={handleSubmitFix}
                     disabled={submitting}
                     className="w-full gap-2 bg-violet-600 hover:bg-violet-700"
                   >

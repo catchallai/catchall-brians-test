@@ -1,10 +1,10 @@
 import React from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Switch } from "@/components/ui/switch";
-import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Switch } from '@/components/ui/switch';
+import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
 import { AlertCircle, Zap } from 'lucide-react';
 import { useToast } from '@/components/ui/toast-provider';
 
@@ -72,7 +72,8 @@ export default function AIToggleSettings() {
             <div>
               <p className="font-medium text-yellow-900 dark:text-yellow-200">Resource Control</p>
               <p className="text-sm text-yellow-800 dark:text-yellow-300 mt-1">
-                Disabling AI functions reduces resource usage during development. AI-powered features will be unavailable when turned off.
+                Disabling AI functions reduces resource usage during development. AI-powered
+                features will be unavailable when turned off.
               </p>
             </div>
           </div>
@@ -95,7 +96,8 @@ export default function AIToggleSettings() {
         {aiSettings && (
           <div className="pt-4 border-t space-y-2 text-sm text-gray-600 dark:text-gray-400">
             <p>
-              <span className="font-medium text-gray-900 dark:text-white">Last toggled by:</span> {aiSettings.last_toggled_by}
+              <span className="font-medium text-gray-900 dark:text-white">Last toggled by:</span>{' '}
+              {aiSettings.last_toggled_by}
             </p>
             <p>
               <span className="font-medium text-gray-900 dark:text-white">Last toggled:</span>{' '}

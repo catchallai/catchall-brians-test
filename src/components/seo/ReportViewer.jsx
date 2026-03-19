@@ -1,14 +1,23 @@
 import React from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
-import { Download, TrendingUp, TrendingDown, Minus, Globe, Search, Link2, Activity } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent } from '@/components/ui/card';
+import {
+  Download,
+  TrendingUp,
+  TrendingDown,
+  Minus,
+  Globe,
+  Search,
+  Link2,
+  Activity,
+} from 'lucide-react';
 import moment from 'moment';
 
 export default function ReportViewer({ open, onClose, report, website, onExport }) {
   if (!report?.report_data) return null;
-  
+
   const data = report.report_data;
 
   const getTrendIcon = (change) => {
@@ -64,7 +73,9 @@ export default function ReportViewer({ open, onClose, report, website, onExport 
               <Card className="border-0 bg-gray-50">
                 <CardContent className="p-3 text-center">
                   <Activity className="w-5 h-5 mx-auto text-blue-500 mb-1" />
-                  <p className="text-2xl font-bold">{data.organic_traffic?.toLocaleString() || '-'}</p>
+                  <p className="text-2xl font-bold">
+                    {data.organic_traffic?.toLocaleString() || '-'}
+                  </p>
                   <p className="text-xs text-gray-500">Monthly Traffic</p>
                   <div className="flex items-center justify-center gap-1 mt-1">
                     {getTrendIcon(data.traffic_change)}
@@ -100,17 +111,24 @@ export default function ReportViewer({ open, onClose, report, website, onExport 
               <h3 className="font-semibold text-gray-900 mb-3">Top Ranking Keywords</h3>
               <div className="space-y-2">
                 {data.top_keywords.map((kw, idx) => (
-                  <div key={idx} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                  <div
+                    key={idx}
+                    className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                  >
                     <div>
                       <p className="font-medium text-gray-900">{kw.keyword}</p>
-                      <p className="text-xs text-gray-500">{kw.search_volume?.toLocaleString()} monthly searches</p>
+                      <p className="text-xs text-gray-500">
+                        {kw.search_volume?.toLocaleString()} monthly searches
+                      </p>
                     </div>
                     <div className="flex items-center gap-3">
                       <Badge variant="outline">Position {kw.position}</Badge>
                       {kw.change !== 0 && (
                         <div className="flex items-center gap-1">
                           {getTrendIcon(-kw.change)}
-                          <span className={`text-sm ${kw.change < 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+                          <span
+                            className={`text-sm ${kw.change < 0 ? 'text-emerald-600' : 'text-red-600'}`}
+                          >
                             {kw.change < 0 ? `↑${Math.abs(kw.change)}` : `↓${kw.change}`}
                           </span>
                         </div>

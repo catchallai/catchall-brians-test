@@ -1,29 +1,33 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
-import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
+import { Card } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
 
-export default function CustomFieldsSection({
-  entityType,
-  entityId,
-  businessId,
-  onValuesChange,
-}) {
+export default function CustomFieldsSection({ entityType, entityId, businessId, onValuesChange }) {
   const [fieldValues, setFieldValues] = useState({});
 
   const { data: fields = [] } = useQuery({
     queryKey: ['custom-fields', entityType, businessId],
     queryFn: async () => {
       if (!businessId) return [];
-      return await base44.entities.CustomField.filter({
-        entity_type: entityType,
-        business_id: businessId,
-        is_active: true
-      }, 'sort_order');
+      return await base44.entities.CustomField.filter(
+        {
+          entity_type: entityType,
+          business_id: businessId,
+          is_active: true,
+        },
+        'sort_order'
+      );
     },
     enabled: !!businessId,
   });
@@ -34,7 +38,7 @@ export default function CustomFieldsSection({
       if (!entityId) return [];
       return await base44.entities.CustomFieldValue.filter({
         entity_id: entityId,
-        entity_type: entityType
+        entity_type: entityType,
       });
     },
     enabled: !!entityId,
@@ -42,7 +46,7 @@ export default function CustomFieldsSection({
 
   useEffect(() => {
     const values = {};
-    customValues.forEach(cv => {
+    customValues.forEach((cv) => {
       values[cv.custom_field_id] = cv.value;
     });
     setFieldValues(values);
@@ -59,7 +63,7 @@ export default function CustomFieldsSection({
   return (
     <Card className="p-6">
       <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Custom Fields</h3>
-      
+
       <div className="space-y-4">
         {fields.map((field) => {
           const value = fieldValues[field.id] || '';
@@ -155,7 +159,9 @@ export default function CustomFieldsSection({
                 <label className="flex items-center gap-2 cursor-pointer mt-2">
                   <Checkbox
                     checked={value === 'true'}
-                    onCheckedChange={(checked) => handleFieldChange(field.id, checked ? 'true' : 'false')}
+                    onCheckedChange={(checked) =>
+                      handleFieldChange(field.id, checked ? 'true' : 'false')
+                    }
                   />
                   <span className="text-sm">{field.label}</span>
                 </label>

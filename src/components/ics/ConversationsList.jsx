@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { Search, Plus, Hash, Lock, Shield } from 'lucide-react';
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import PresenceIndicator from './PresenceIndicator';
 
 export default function ConversationsList({
@@ -18,15 +18,14 @@ export default function ConversationsList({
   const [searchTerm, setSearchTerm] = useState('');
   const [activeTab, setActiveTab] = useState('all');
 
-  const filteredChannels = channels.filter(c =>
+  const filteredChannels = channels.filter((c) =>
     c.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const ConversationItem = ({ channel }) => {
     const isSelected = selectedChannelId === channel.id;
-    const channelPresence = channel.members
-      ?.map(email => allPresence[email])
-      .filter(Boolean) || [];
+    const channelPresence =
+      channel.members?.map((email) => allPresence[email]).filter(Boolean) || [];
     const typingUsers = typingByChannel[channel.id] || [];
 
     return (
@@ -57,9 +56,7 @@ export default function ConversationsList({
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-1.5">
               <span
-                className={`font-medium truncate ${
-                  darkMode ? 'text-white' : 'text-slate-900'
-                }`}
+                className={`font-medium truncate ${darkMode ? 'text-white' : 'text-slate-900'}`}
               >
                 {channel.name}
               </span>
@@ -79,19 +76,22 @@ export default function ConversationsList({
 
           <p
             className={`text-sm truncate mt-1 ${
-              typingUsers.length > 0 
-                ? 'text-violet-400 font-medium' 
-                : darkMode ? 'text-slate-400' : 'text-slate-500'
+              typingUsers.length > 0
+                ? 'text-violet-400 font-medium'
+                : darkMode
+                  ? 'text-slate-400'
+                  : 'text-slate-500'
             }`}
           >
-            {typingUsers.length > 0 
+            {typingUsers.length > 0
               ? `${typingUsers.slice(0, 2).join(', ')}${typingUsers.length > 2 ? '...' : ''} typing`
-              : channel.description || 'No messages yet'
-            }
+              : channel.description || 'No messages yet'}
           </p>
 
           {channel.members && (
-            <span className={`text-xs mt-1 inline-block ${darkMode ? 'text-slate-600' : 'text-slate-400'}`}>
+            <span
+              className={`text-xs mt-1 inline-block ${darkMode ? 'text-slate-600' : 'text-slate-400'}`}
+            >
               {channelPresence.length} online
             </span>
           )}
@@ -109,9 +109,7 @@ export default function ConversationsList({
       {/* Header */}
       <div className={`p-4 border-b ${darkMode ? 'border-slate-800/50' : 'border-slate-200'}`}>
         <div className="flex items-center justify-between mb-4">
-          <h1
-            className={`text-xl font-bold ${darkMode ? 'text-white' : 'text-slate-900'}`}
-          >
+          <h1 className={`text-xl font-bold ${darkMode ? 'text-white' : 'text-slate-900'}`}>
             Messages
           </h1>
           <Button
@@ -145,7 +143,7 @@ export default function ConversationsList({
 
         {/* Tabs */}
         <div className="flex gap-1 mt-3">
-          {['all', 'direct', 'groups', 'unread'].map(tab => (
+          {['all', 'direct', 'groups', 'unread'].map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -167,17 +165,13 @@ export default function ConversationsList({
       <ScrollArea className="flex-1">
         {filteredChannels.length > 0 ? (
           <div>
-            {filteredChannels.map(channel => (
+            {filteredChannels.map((channel) => (
               <ConversationItem key={channel.id} channel={channel} />
             ))}
           </div>
         ) : (
           <div className="p-4 text-center">
-            <p
-              className={`text-sm ${
-                darkMode ? 'text-slate-500' : 'text-slate-400'
-              }`}
-            >
+            <p className={`text-sm ${darkMode ? 'text-slate-500' : 'text-slate-400'}`}>
               No channels found
             </p>
           </div>
@@ -191,9 +185,7 @@ export default function ConversationsList({
         } flex items-center justify-center gap-2`}
       >
         <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
-        <span
-          className={`text-xs ${darkMode ? 'text-slate-500' : 'text-slate-400'}`}
-        >
+        <span className={`text-xs ${darkMode ? 'text-slate-500' : 'text-slate-400'}`}>
           Connected • Encrypted
         </span>
       </div>

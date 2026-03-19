@@ -1,26 +1,23 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { 
-  Folder,
-  FolderPlus,
-  Image,
-  Video,
-  Film,
-  HardDrive,
-  Trash2
-} from "lucide-react";
+import { Folder, FolderPlus, Image, Video, Film, HardDrive, Trash2 } from 'lucide-react';
 import FolderContentModal from './FolderContentModal';
 
 const FOLDER_TYPES = [
   { type: 'RAW', icon: Image, color: 'bg-blue-500', description: 'Raw photo files' },
-  { type: 'Unedited Videos', icon: Film, color: 'bg-purple-500', description: 'Unedited video footage' },
+  {
+    type: 'Unedited Videos',
+    icon: Film,
+    color: 'bg-purple-500',
+    description: 'Unedited video footage',
+  },
   { type: 'Edited Photos', icon: Image, color: 'bg-green-500', description: 'Final edited photos' },
-  { type: 'Edited Videos', icon: Video, color: 'bg-red-500', description: 'Final edited videos' }
+  { type: 'Edited Videos', icon: Video, color: 'bg-red-500', description: 'Final edited videos' },
 ];
 
 export default function MediaFolderManager() {
@@ -31,7 +28,7 @@ export default function MediaFolderManager() {
 
   const { data: folders = [] } = useQuery({
     queryKey: ['media-folders'],
-    queryFn: () => base44.entities.MediaFolder.list('-created_date', 100)
+    queryFn: () => base44.entities.MediaFolder.list('-created_date', 100),
   });
 
   const createMutation = useMutation({
@@ -40,21 +37,21 @@ export default function MediaFolderManager() {
       queryClient.invalidateQueries({ queryKey: ['media-folders'] });
       setShowCreateModal(false);
       setCustomFolderName('');
-    }
+    },
   });
 
   const deleteMutation = useMutation({
     mutationFn: (id) => base44.entities.MediaFolder.delete(id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['media-folders'] })
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['media-folders'] }),
   });
 
   const createDefaultFolder = (folderType) => {
-    const folderConfig = FOLDER_TYPES.find(f => f.type === folderType);
+    const folderConfig = FOLDER_TYPES.find((f) => f.type === folderType);
     createMutation.mutate({
       name: folderType,
       folder_type: folderType,
       color: folderConfig?.color || 'bg-gray-500',
-      description: folderConfig?.description || ''
+      description: folderConfig?.description || '',
     });
   };
 
@@ -63,7 +60,7 @@ export default function MediaFolderManager() {
     createMutation.mutate({
       name: customFolderName,
       folder_type: 'Custom',
-      color: 'bg-violet-500'
+      color: 'bg-violet-500',
     });
   };
 
@@ -77,12 +74,12 @@ export default function MediaFolderManager() {
     return `${gb.toFixed(1)} GB`;
   };
 
-  const groupedFolders = FOLDER_TYPES.map(type => ({
+  const groupedFolders = FOLDER_TYPES.map((type) => ({
     ...type,
-    folders: folders.filter(f => f.folder_type === type.type)
+    folders: folders.filter((f) => f.folder_type === type.type),
   }));
 
-  const customFolders = folders.filter(f => f.folder_type === 'Custom');
+  const customFolders = folders.filter((f) => f.folder_type === 'Custom');
 
   return (
     <Card className="glass-card rounded-2xl">
@@ -107,8 +104,8 @@ export default function MediaFolderManager() {
                 </div>
               </div>
               {typeFolders.length === 0 && (
-                <Button 
-                  size="sm" 
+                <Button
+                  size="sm"
                   variant="outline"
                   onClick={() => createDefaultFolder(type)}
                   disabled={createMutation.isPending}
@@ -121,9 +118,9 @@ export default function MediaFolderManager() {
 
             {typeFolders.length > 0 && (
               <div className="pl-10 space-y-2">
-                {typeFolders.map(folder => (
-                  <div 
-                    key={folder.id} 
+                {typeFolders.map((folder) => (
+                  <div
+                    key={folder.id}
                     className="flex items-center justify-between p-2 rounded-lg border hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer"
                     onClick={() => setSelectedFolder(folder)}
                   >
@@ -135,8 +132,8 @@ export default function MediaFolderManager() {
                         {folder.file_count || 0} files • {formatSize(folder.total_size)}
                       </div>
                     </div>
-                    <Button 
-                      size="sm" 
+                    <Button
+                      size="sm"
                       variant="ghost"
                       onClick={(e) => {
                         e.stopPropagation();
@@ -159,14 +156,16 @@ export default function MediaFolderManager() {
           <div className="space-y-2">
             <h3 className="font-semibold text-gray-900 dark:text-white">Custom Folders</h3>
             <div className="space-y-2">
-              {customFolders.map(folder => (
-                <div 
-                  key={folder.id} 
+              {customFolders.map((folder) => (
+                <div
+                  key={folder.id}
                   className="flex items-center justify-between p-2 rounded-lg border hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer"
                   onClick={() => setSelectedFolder(folder)}
                 >
                   <div className="flex items-center gap-2">
-                    <div className={`${folder.color || 'bg-violet-500'} w-8 h-8 rounded-lg flex items-center justify-center`}>
+                    <div
+                      className={`${folder.color || 'bg-violet-500'} w-8 h-8 rounded-lg flex items-center justify-center`}
+                    >
                       <Folder className="w-4 h-4 text-white" />
                     </div>
                     <div>
@@ -178,8 +177,8 @@ export default function MediaFolderManager() {
                       </div>
                     </div>
                   </div>
-                  <Button 
-                    size="sm" 
+                  <Button
+                    size="sm"
                     variant="ghost"
                     onClick={(e) => {
                       e.stopPropagation();
@@ -207,7 +206,7 @@ export default function MediaFolderManager() {
                 if (e.key === 'Enter') createCustomFolder();
               }}
             />
-            <Button 
+            <Button
               onClick={createCustomFolder}
               disabled={!customFolderName.trim() || createMutation.isPending}
             >

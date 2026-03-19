@@ -1,8 +1,8 @@
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { ExternalLink, Mail, Phone, Briefcase, User } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { ExternalLink, Mail, Phone, Briefcase, User } from 'lucide-react';
 
 export default function EnrichedLeadsTable({ leads, onCreateContact }) {
   return (
@@ -14,12 +14,17 @@ export default function EnrichedLeadsTable({ leads, onCreateContact }) {
         {leads.length === 0 ? (
           <div className="text-center py-8">
             <p className="text-gray-500 text-sm">No enriched leads yet</p>
-            <p className="text-gray-400 text-xs">Start enriching LinkedIn profiles to build your database</p>
+            <p className="text-gray-400 text-xs">
+              Start enriching LinkedIn profiles to build your database
+            </p>
           </div>
         ) : (
           <div className="space-y-3">
-            {leads.map(lead => (
-              <div key={lead.id} className="border rounded-lg p-4 hover:bg-gray-50 transition-colors">
+            {leads.map((lead) => (
+              <div
+                key={lead.id}
+                className="border rounded-lg p-4 hover:bg-gray-50 transition-colors"
+              >
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">
@@ -33,9 +38,9 @@ export default function EnrichedLeadsTable({ leads, onCreateContact }) {
                     <p className="text-sm text-gray-600">{lead.job_title}</p>
                     <p className="text-xs text-gray-500">{lead.company}</p>
                   </div>
-                  <a 
-                    href={lead.linkedin_url} 
-                    target="_blank" 
+                  <a
+                    href={lead.linkedin_url}
+                    target="_blank"
                     rel="noopener noreferrer"
                     className="text-violet-600 hover:text-violet-700"
                   >
@@ -65,11 +70,7 @@ export default function EnrichedLeadsTable({ leads, onCreateContact }) {
                 </div>
 
                 {!lead.contact_id && (
-                  <Button
-                    size="sm"
-                    onClick={() => onCreateContact(lead)}
-                    className="w-full gap-2"
-                  >
+                  <Button size="sm" onClick={() => onCreateContact(lead)} className="w-full gap-2">
                     <User className="w-3 h-3" />
                     Create Contact
                   </Button>

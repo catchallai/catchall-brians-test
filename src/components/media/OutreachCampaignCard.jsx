@@ -1,7 +1,7 @@
 import React from 'react';
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Mail, Eye, MessageSquare, CheckCircle, Clock, Link2 } from "lucide-react";
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Mail, Eye, MessageSquare, CheckCircle, Clock, Link2 } from 'lucide-react';
 import { format } from 'date-fns';
 
 const statusConfig = {
@@ -29,7 +29,9 @@ export default function OutreachCampaignCard({ campaign, journalist, linkedMenti
                 {campaign.status}
               </Badge>
               {campaign.ai_generated && (
-                <Badge variant="outline" className="text-xs">AI</Badge>
+                <Badge variant="outline" className="text-xs">
+                  AI
+                </Badge>
               )}
             </div>
             <p className="text-sm text-gray-500">

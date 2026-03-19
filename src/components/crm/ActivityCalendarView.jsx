@@ -1,20 +1,20 @@
 import React, { useState } from 'react';
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { ChevronLeft, ChevronRight, Calendar as CalendarIcon } from "lucide-react";
-import { 
-  startOfMonth, 
-  endOfMonth, 
-  eachDayOfInterval, 
-  format, 
-  isSameMonth, 
-  isSameDay, 
-  addMonths, 
+import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { ChevronLeft, ChevronRight, Calendar as CalendarIcon } from 'lucide-react';
+import {
+  startOfMonth,
+  endOfMonth,
+  eachDayOfInterval,
+  format,
+  isSameMonth,
+  isSameDay,
+  addMonths,
   subMonths,
   startOfWeek,
-  endOfWeek
-} from "date-fns";
+  endOfWeek,
+} from 'date-fns';
 
 export default function ActivityCalendarView({ activities, onActivityClick, onDateClick }) {
   const [currentMonth, setCurrentMonth] = useState(new Date());
@@ -27,7 +27,7 @@ export default function ActivityCalendarView({ activities, onActivityClick, onDa
   const days = eachDayOfInterval({ start: calendarStart, end: calendarEnd });
 
   const getActivitiesForDay = (day) => {
-    return activities.filter(activity => {
+    return activities.filter((activity) => {
       if (!activity.due_date) return false;
       return isSameDay(new Date(activity.due_date), day);
     });
@@ -55,11 +55,7 @@ export default function ActivityCalendarView({ activities, onActivityClick, onDa
           >
             <ChevronLeft className="w-4 h-4" />
           </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setCurrentMonth(new Date())}
-          >
+          <Button variant="outline" size="sm" onClick={() => setCurrentMonth(new Date())}>
             Today
           </Button>
           <Button
@@ -77,8 +73,11 @@ export default function ActivityCalendarView({ activities, onActivityClick, onDa
         <div className="p-4">
           {/* Weekday Headers */}
           <div className="grid grid-cols-7 gap-2 mb-2">
-            {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-              <div key={day} className="text-center text-xs font-semibold text-gray-500 dark:text-gray-400 py-2">
+            {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
+              <div
+                key={day}
+                className="text-center text-xs font-semibold text-gray-500 dark:text-gray-400 py-2"
+              >
                 {day}
               </div>
             ))}
@@ -95,15 +94,19 @@ export default function ActivityCalendarView({ activities, onActivityClick, onDa
                 <div
                   key={idx}
                   className={`min-h-24 p-2 rounded-lg border transition-all cursor-pointer ${
-                    isCurrentMonth 
-                      ? 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 hover:border-violet-300 dark:hover:border-violet-600' 
+                    isCurrentMonth
+                      ? 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 hover:border-violet-300 dark:hover:border-violet-600'
                       : 'bg-gray-50 dark:bg-gray-900 border-gray-100 dark:border-gray-800 opacity-50'
                   } ${isToday ? 'ring-2 ring-violet-500' : ''}`}
                   onClick={() => onDateClick?.(day)}
                 >
-                  <div className={`text-sm font-medium mb-1 ${
-                    isToday ? 'text-violet-600 dark:text-violet-400' : 'text-gray-700 dark:text-gray-300'
-                  }`}>
+                  <div
+                    className={`text-sm font-medium mb-1 ${
+                      isToday
+                        ? 'text-violet-600 dark:text-violet-400'
+                        : 'text-gray-700 dark:text-gray-300'
+                    }`}
+                  >
                     {format(day, 'd')}
                   </div>
                   <div className="space-y-1">

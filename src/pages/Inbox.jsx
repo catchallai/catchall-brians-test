@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Inbox as InboxIcon, CheckCircle, Clock, AlertCircle, Trash2 } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Inbox as InboxIcon, CheckCircle, Clock, AlertCircle, Trash2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 
@@ -15,16 +15,19 @@ export default function Inbox() {
 
   const { data: user } = useQuery({
     queryKey: ['current-user'],
-    queryFn: () => base44.auth.me()
+    queryFn: () => base44.auth.me(),
   });
 
   const { data: assignments = [] } = useQuery({
     queryKey: ['task-assignments', user?.email],
     queryFn: async () => {
       if (!user?.email) return [];
-      return await base44.entities.TaskAssignment.filter({ assigned_to: user.email }, '-created_date');
+      return await base44.entities.TaskAssignment.filter(
+        { assigned_to: user.email },
+        '-created_date'
+      );
     },
-    enabled: !!user?.email
+    enabled: !!user?.email,
   });
 
   const { data: tasks = [] } = useQuery({
@@ -33,7 +36,7 @@ export default function Inbox() {
       if (!user?.email) return [];
       return await base44.entities.Task.filter({ assigned_to: user.email });
     },
-    enabled: !!user?.email
+    enabled: !!user?.email,
   });
 
   const { data: issues = [] } = useQuery({
@@ -42,27 +45,30 @@ export default function Inbox() {
       if (!user?.email) return [];
       return await base44.entities.Issue.filter({ assigned_to: user.email });
     },
-    enabled: !!user?.email
+    enabled: !!user?.email,
   });
 
   const markReadMutation = useMutation({
-    mutationFn: (assignmentId) => base44.entities.TaskAssignment.update(assignmentId, { is_read: true }),
+    mutationFn: (assignmentId) =>
+      base44.entities.TaskAssignment.update(assignmentId, { is_read: true }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['task-assignments'] });
-    }
+    },
   });
 
   const deleteAssignmentMutation = useMutation({
     mutationFn: (assignmentId) => base44.entities.TaskAssignment.delete(assignmentId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['task-assignments'] });
-    }
+    },
   });
 
-  const unreadCount = assignments.filter(a => !a.is_read).length;
-  const overdueCount = tasks.filter(t => t.due_date && new Date(t.due_date) < new Date() && t.status !== 'done').length;
+  const unreadCount = assignments.filter((a) => !a.is_read).length;
+  const overdueCount = tasks.filter(
+    (t) => t.due_date && new Date(t.due_date) < new Date() && t.status !== 'done'
+  ).length;
 
-  const filteredAssignments = assignments.filter(a => {
+  const filteredAssignments = assignments.filter((a) => {
     if (filter === 'unread') return !a.is_read;
     if (filter === 'read') return a.is_read;
     return true;
@@ -70,20 +76,24 @@ export default function Inbox() {
 
   const getEntityDetails = (assignment) => {
     if (assignment.entity_type === 'task') {
-      return tasks.find(t => t.id === assignment.task_id);
+      return tasks.find((t) => t.id === assignment.task_id);
     }
     if (assignment.entity_type === 'issue') {
-      return issues.find(i => i.id === assignment.task_id);
+      return issues.find((i) => i.id === assignment.task_id);
     }
     return null;
   };
 
   const getPriorityColor = (priority) => {
     switch (priority) {
-      case 'critical': return 'bg-red-100 text-red-800';
-      case 'high': return 'bg-orange-100 text-orange-800';
-      case 'medium': return 'bg-yellow-100 text-yellow-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'critical':
+        return 'bg-red-100 text-red-800';
+      case 'high':
+        return 'bg-orange-100 text-orange-800';
+      case 'medium':
+        return 'bg-yellow-100 text-yellow-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
     }
   };
 
@@ -209,7 +219,8 @@ export default function Inbox() {
                           {entity?.title || 'Assignment'}
                         </h3>
                         <p className="text-sm text-gray-500 mt-1">
-                          Assigned by {assignment.assigned_by?.split('@')[0]} • {new Date(assignment.created_date).toLocaleDateString()}
+                          Assigned by {assignment.assigned_by?.split('@')[0]} •{' '}
+                          {new Date(assignment.created_date).toLocaleDateString()}
                         </p>
                         {entity?.due_date && (
                           <p className="text-sm text-gray-500 mt-1">
@@ -256,9 +267,7 @@ export default function Inbox() {
                     <div>
                       <div className="flex items-center gap-2 mb-2">
                         <Badge variant="outline">{task.status}</Badge>
-                        <Badge className={getPriorityColor(task.priority)}>
-                          {task.priority}
-                        </Badge>
+                        <Badge className={getPriorityColor(task.priority)}>{task.priority}</Badge>
                       </div>
                       <h3 className="font-semibold text-gray-900 dark:text-white">{task.title}</h3>
                       {task.due_date && (
@@ -268,7 +277,9 @@ export default function Inbox() {
                       )}
                     </div>
                     <Link to={`${createPageUrl('ProjectDetail')}?id=${task.project_id}`}>
-                      <Button variant="outline" size="sm">View</Button>
+                      <Button variant="outline" size="sm">
+                        View
+                      </Button>
                     </Link>
                   </div>
                 </CardContent>
@@ -290,9 +301,7 @@ export default function Inbox() {
                     <div>
                       <div className="flex items-center gap-2 mb-2">
                         <Badge variant="outline">{issue.issue_type}</Badge>
-                        <Badge className={getPriorityColor(issue.priority)}>
-                          {issue.priority}
-                        </Badge>
+                        <Badge className={getPriorityColor(issue.priority)}>{issue.priority}</Badge>
                       </div>
                       <h3 className="font-semibold text-gray-900 dark:text-white">{issue.title}</h3>
                       {issue.due_date && (

@@ -4,7 +4,7 @@ Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
     const user = await base44.auth.me();
-    
+
     if (!user) {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -21,25 +21,27 @@ Deno.serve(async (req) => {
       prompt: prompt,
       add_context_from_internet: true,
       response_json_schema: {
-        type: "object",
+        type: 'object',
         properties: {
           website: {
-            type: "string"
-          }
-        }
-      }
+            type: 'string',
+          },
+        },
+      },
     });
 
-    return Response.json({ 
+    return Response.json({
       success: true,
-      website: result.website
+      website: result.website,
     });
-
   } catch (error) {
     console.error('Error finding company website:', error);
-    return Response.json({ 
-      error: 'Failed to find company website',
-      details: error.message 
-    }, { status: 500 });
+    return Response.json(
+      {
+        error: 'Failed to find company website',
+        details: error.message,
+      },
+      { status: 500 }
+    );
   }
 });

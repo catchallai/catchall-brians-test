@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
-import { Zap, Loader2, CheckCircle, Image as ImageIcon } from "lucide-react";
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
+import { Zap, Loader2, CheckCircle, Image as ImageIcon } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 
 export default function ImageOptimizer({ asset, onOptimized }) {
@@ -16,15 +16,15 @@ export default function ImageOptimizer({ asset, onOptimized }) {
       // Simulate optimization - in production, you'd use an image optimization service
       const optimizedVersions = {
         thumbnail: asset.file_url, // Would be optimized 150x150
-        small: asset.file_url,     // Would be optimized 480x480
-        medium: asset.file_url,    // Would be optimized 1024x1024
-        large: asset.file_url,     // Would be optimized 1920x1920
-        webp: asset.file_url       // Would be converted to WebP
+        small: asset.file_url, // Would be optimized 480x480
+        medium: asset.file_url, // Would be optimized 1024x1024
+        large: asset.file_url, // Would be optimized 1920x1920
+        webp: asset.file_url, // Would be converted to WebP
       };
 
       await base44.entities.MediaAsset.update(asset.id, {
         optimized_versions: optimizedVersions,
-        cdn_url: asset.file_url // In production, this would be a CDN URL
+        cdn_url: asset.file_url, // In production, this would be a CDN URL
       });
 
       setOptimized(true);
@@ -52,13 +52,12 @@ export default function ImageOptimizer({ asset, onOptimized }) {
               Optimized
             </Badge>
           ) : (
-            <Button
-              onClick={handleOptimize}
-              disabled={optimizing}
-              size="sm"
-              className="gap-2"
-            >
-              {optimizing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Zap className="w-4 h-4" />}
+            <Button onClick={handleOptimize} disabled={optimizing} size="sm" className="gap-2">
+              {optimizing ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <Zap className="w-4 h-4" />
+              )}
               Optimize
             </Button>
           )}

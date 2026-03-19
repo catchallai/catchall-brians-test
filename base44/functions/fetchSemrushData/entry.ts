@@ -4,7 +4,7 @@ Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
     const user = await base44.auth.me();
-    
+
     if (!user) {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -31,19 +31,20 @@ Deno.serve(async (req) => {
 
     // Fetch keyword positions
     const keywordData = [];
-    
+
     if (keywords && keywords.length > 0) {
-      for (const keyword of keywords.slice(0, 10)) { // Limit to 10 keywords per call
+      for (const keyword of keywords.slice(0, 10)) {
+        // Limit to 10 keywords per call
         try {
           const kwResponse = await fetch(
             `https://api.semrush.com/?type=phrase_all&key=${apiKey}&export_columns=Ph,Po,Nq,Cp,Co,Nr,Td&phrase=${encodeURIComponent(keyword)}&database=us&display_limit=1`
           );
-          
+
           if (kwResponse.ok) {
             const kwText = await kwResponse.text();
             const [kwHeader, ...kwRows] = kwText.trim().split('\n');
             const kwData = kwRows[0]?.split('\t') || [];
-            
+
             if (kwData.length > 0) {
               keywordData.push({
                 keyword: kwData[0] || keyword,
@@ -52,7 +53,7 @@ Deno.serve(async (req) => {
                 cpc: parseFloat(kwData[3]) || 0,
                 competition: parseFloat(kwData[4]) || 0,
                 results: parseInt(kwData[5]) || 0,
-                difficulty: parseFloat(kwData[6]) || 0
+                difficulty: parseFloat(kwData[6]) || 0,
               });
             }
           }
@@ -72,14 +73,14 @@ Deno.serve(async (req) => {
       const backlinksText = await backlinksResponse.text();
       const [blHeader, ...blRows] = backlinksText.trim().split('\n');
       const blData = blRows[0]?.split('\t') || [];
-      
+
       backlinksData = {
         authority_score: parseInt(blData[0]) || 0,
         total_backlinks: parseInt(blData[1]) || 0,
         referring_domains: parseInt(blData[2]) || 0,
         referring_ips: parseInt(blData[4]) || 0,
         dofollow: parseInt(blData[6]) || 0,
-        nofollow: parseInt(blData[7]) || 0
+        nofollow: parseInt(blData[7]) || 0,
       };
     }
 
@@ -90,12 +91,11 @@ Deno.serve(async (req) => {
         organic_cost: parseInt(domainData[2]) || 0,
         adwords_keywords: parseInt(domainData[3]) || 0,
         adwords_traffic: parseInt(domainData[4]) || 0,
-        adwords_cost: parseInt(domainData[5]) || 0
+        adwords_cost: parseInt(domainData[5]) || 0,
       },
       keywords: keywordData,
-      backlinks: backlinksData
+      backlinks: backlinksData,
     });
-
   } catch (error) {
     console.error('Semrush fetch error:', error);
     return Response.json({ error: error.message }, { status: 500 });

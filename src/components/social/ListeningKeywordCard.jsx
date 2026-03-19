@@ -1,43 +1,44 @@
 import React from 'react';
-import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
-import { Hash, AtSign, Search, TrendingUp, Loader2, Trash2, Pencil } from "lucide-react";
+import { Card } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Switch } from '@/components/ui/switch';
+import { Hash, AtSign, Search, TrendingUp, Loader2, Trash2, Pencil } from 'lucide-react';
 
 const typeConfig = {
-  keyword: { icon: Search, color: "bg-blue-100 text-blue-700" },
-  hashtag: { icon: Hash, color: "bg-violet-100 text-violet-700" },
-  mention: { icon: AtSign, color: "bg-pink-100 text-pink-700" },
+  keyword: { icon: Search, color: 'bg-blue-100 text-blue-700' },
+  hashtag: { icon: Hash, color: 'bg-violet-100 text-violet-700' },
+  mention: { icon: AtSign, color: 'bg-pink-100 text-pink-700' },
 };
 
 const platformColors = {
-  twitter: "bg-gray-900 text-white",
-  linkedin: "bg-blue-600 text-white",
-  facebook: "bg-blue-500 text-white",
-  instagram: "bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400 text-white",
-  youtube: "bg-red-600 text-white",
+  twitter: 'bg-gray-900 text-white',
+  linkedin: 'bg-blue-600 text-white',
+  facebook: 'bg-blue-500 text-white',
+  instagram: 'bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400 text-white',
+  youtube: 'bg-red-600 text-white',
 };
 
-export default function ListeningKeywordCard({ 
-  keyword, 
-  onClick, 
-  onToggle, 
-  onScan, 
+export default function ListeningKeywordCard({
+  keyword,
+  onClick,
+  onToggle,
+  onScan,
   onDelete,
   onEdit,
   isScanning,
-  isSelected
+  isSelected,
 }) {
   const config = typeConfig[keyword.type] || typeConfig.keyword;
   const Icon = config.icon;
 
-  const sentimentTotal = (keyword.sentiment_breakdown?.positive || 0) + 
-    (keyword.sentiment_breakdown?.neutral || 0) + 
+  const sentimentTotal =
+    (keyword.sentiment_breakdown?.positive || 0) +
+    (keyword.sentiment_breakdown?.neutral || 0) +
     (keyword.sentiment_breakdown?.negative || 0);
 
   return (
-    <Card 
+    <Card
       className={`p-4 border-0 shadow-sm hover:shadow-md transition-all cursor-pointer ${isSelected ? 'ring-2 ring-violet-500 bg-violet-50/50' : ''}`}
       onClick={onClick}
     >
@@ -52,22 +53,21 @@ export default function ListeningKeywordCard({
               {keyword.keyword}
             </h4>
             <div className="flex gap-1 mt-1">
-              {keyword.platforms?.slice(0, 3).map(p => (
+              {keyword.platforms?.slice(0, 3).map((p) => (
                 <Badge key={p} className={`${platformColors[p]} text-xs border-0`}>
                   {p}
                 </Badge>
               ))}
               {keyword.platforms?.length > 3 && (
-                <Badge variant="outline" className="text-xs">+{keyword.platforms.length - 3}</Badge>
+                <Badge variant="outline" className="text-xs">
+                  +{keyword.platforms.length - 3}
+                </Badge>
               )}
             </div>
           </div>
         </div>
-        <div className="flex items-center gap-2" onClick={e => e.stopPropagation()}>
-          <Switch 
-            checked={keyword.is_active} 
-            onCheckedChange={() => onToggle(keyword)}
-          />
+        <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+          <Switch checked={keyword.is_active} onCheckedChange={() => onToggle(keyword)} />
         </div>
       </div>
 
@@ -83,17 +83,23 @@ export default function ListeningKeywordCard({
         <div className="text-center p-2 bg-gray-50 rounded-lg">
           {sentimentTotal > 0 ? (
             <div className="flex h-2 rounded-full overflow-hidden mb-1">
-              <div 
-                className="bg-emerald-500" 
-                style={{ width: `${(keyword.sentiment_breakdown?.positive / sentimentTotal) * 100}%` }} 
+              <div
+                className="bg-emerald-500"
+                style={{
+                  width: `${(keyword.sentiment_breakdown?.positive / sentimentTotal) * 100}%`,
+                }}
               />
-              <div 
-                className="bg-gray-400" 
-                style={{ width: `${(keyword.sentiment_breakdown?.neutral / sentimentTotal) * 100}%` }} 
+              <div
+                className="bg-gray-400"
+                style={{
+                  width: `${(keyword.sentiment_breakdown?.neutral / sentimentTotal) * 100}%`,
+                }}
               />
-              <div 
-                className="bg-red-500" 
-                style={{ width: `${(keyword.sentiment_breakdown?.negative / sentimentTotal) * 100}%` }} 
+              <div
+                className="bg-red-500"
+                style={{
+                  width: `${(keyword.sentiment_breakdown?.negative / sentimentTotal) * 100}%`,
+                }}
               />
             </div>
           ) : (
@@ -103,9 +109,9 @@ export default function ListeningKeywordCard({
         </div>
       </div>
 
-      <div className="flex items-center justify-between" onClick={e => e.stopPropagation()}>
+      <div className="flex items-center justify-between" onClick={(e) => e.stopPropagation()}>
         <p className="text-xs text-gray-400">
-          {keyword.last_scanned 
+          {keyword.last_scanned
             ? `Last scan: ${new Date(keyword.last_scanned).toLocaleDateString()}`
             : 'Not scanned yet'}
         </p>

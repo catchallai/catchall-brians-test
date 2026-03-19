@@ -1,25 +1,41 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Badge } from "@/components/ui/badge";
-import { Switch } from "@/components/ui/switch";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { Badge } from '@/components/ui/badge';
+import { Switch } from '@/components/ui/switch';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/components/ui/toast-provider';
-import { 
-  User, Mail, Shield, Bell, Palette, Activity, 
-  Camera, Save, Key, Crown, Calendar, TrendingUp, 
-  Upload, Smile, Clock, Volume2, VolumeX, Moon, Sun
-} from "lucide-react";
+import {
+  User,
+  Mail,
+  Shield,
+  Bell,
+  Palette,
+  Activity,
+  Camera,
+  Save,
+  Key,
+  Crown,
+  Calendar,
+  TrendingUp,
+  Upload,
+  Smile,
+  Clock,
+  Volume2,
+  VolumeX,
+  Moon,
+  Sun,
+} from 'lucide-react';
 
 export default function UserProfile() {
   const queryClient = useQueryClient();
   const toast = useToast();
-  
+
   const { data: user } = useQuery({
     queryKey: ['current-user'],
     queryFn: () => base44.auth.me(),
@@ -129,7 +145,11 @@ export default function UserProfile() {
   }, [user]);
 
   const stats = [
-    { label: 'Member Since', value: user?.created_date ? new Date(user.created_date).toLocaleDateString() : 'N/A', icon: Calendar },
+    {
+      label: 'Member Since',
+      value: user?.created_date ? new Date(user.created_date).toLocaleDateString() : 'N/A',
+      icon: Calendar,
+    },
     { label: 'Role', value: user?.role || 'User', icon: Crown },
     { label: 'Login Count', value: '247', icon: Activity },
     { label: 'Activity Score', value: '89%', icon: TrendingUp },
@@ -142,7 +162,11 @@ export default function UserProfile() {
         <div className="relative">
           <Avatar className="w-24 h-24 border-4 border-white dark:border-gray-800 shadow-lg">
             {user?.avatar_url ? (
-              <img src={user.avatar_url} alt={user.full_name} className="w-full h-full object-cover" />
+              <img
+                src={user.avatar_url}
+                alt={user.full_name}
+                className="w-full h-full object-cover"
+              />
             ) : (
               <AvatarFallback className="bg-gradient-to-br from-violet-500 to-purple-600 text-white text-3xl font-bold">
                 {user?.full_name?.[0] || user?.email?.[0]?.toUpperCase() || 'U'}
@@ -155,7 +179,9 @@ export default function UserProfile() {
           </label>
         </div>
         <div className="flex-1">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{user?.full_name || 'User'}</h1>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+            {user?.full_name || 'User'}
+          </h1>
           <p className="text-gray-500 dark:text-gray-400">{user?.email}</p>
           <div className="flex gap-2 mt-2">
             <Badge className="bg-violet-100 text-violet-700 border-violet-300">
@@ -204,15 +230,15 @@ export default function UserProfile() {
             <CardContent className="space-y-4">
               <div className="space-y-2">
                 <Label>Full Name</Label>
-                <Input 
+                <Input
                   value={profileData.full_name}
-                  onChange={(e) => setProfileData({...profileData, full_name: e.target.value})}
+                  onChange={(e) => setProfileData({ ...profileData, full_name: e.target.value })}
                   placeholder="Enter your full name"
                 />
               </div>
               <div className="space-y-2">
                 <Label>Email Address</Label>
-                <Input 
+                <Input
                   value={profileData.email}
                   type="email"
                   disabled
@@ -222,22 +248,22 @@ export default function UserProfile() {
               </div>
               <div className="space-y-2">
                 <Label>Bio</Label>
-                <Input 
+                <Input
                   value={profileData.bio}
-                  onChange={(e) => setProfileData({...profileData, bio: e.target.value})}
+                  onChange={(e) => setProfileData({ ...profileData, bio: e.target.value })}
                   placeholder="Tell us about yourself"
                 />
               </div>
               <div className="space-y-2">
                 <Label>Location</Label>
-                <Input 
+                <Input
                   value={profileData.location}
-                  onChange={(e) => setProfileData({...profileData, location: e.target.value})}
+                  onChange={(e) => setProfileData({ ...profileData, location: e.target.value })}
                   placeholder="City, Country"
                 />
               </div>
               <div className="flex justify-end">
-                <Button 
+                <Button
                   onClick={handleSaveProfile}
                   disabled={updateProfileMutation.isPending}
                   className="bg-violet-600 hover:bg-violet-700"
@@ -259,27 +285,27 @@ export default function UserProfile() {
             <CardContent className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                    <Label>Phone Number</Label>
-                    <Input 
-                      value={profileData.phone}
-                      onChange={(e) => setProfileData({...profileData, phone: e.target.value})}
-                      placeholder="+1 (555) 000-0000"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Company</Label>
-                    <Input 
-                      value={profileData.company}
-                      onChange={(e) => setProfileData({...profileData, company: e.target.value})}
-                      placeholder="Your company name"
-                    />
-                  </div>
+                  <Label>Phone Number</Label>
+                  <Input
+                    value={profileData.phone}
+                    onChange={(e) => setProfileData({ ...profileData, phone: e.target.value })}
+                    placeholder="+1 (555) 000-0000"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Company</Label>
+                  <Input
+                    value={profileData.company}
+                    onChange={(e) => setProfileData({ ...profileData, company: e.target.value })}
+                    placeholder="Your company name"
+                  />
+                </div>
               </div>
               <div className="space-y-2">
                 <Label>Website</Label>
-                <Input 
+                <Input
                   value={profileData.website}
-                  onChange={(e) => setProfileData({...profileData, website: e.target.value})}
+                  onChange={(e) => setProfileData({ ...profileData, website: e.target.value })}
                   placeholder="https://yourwebsite.com"
                 />
               </div>
@@ -324,7 +350,9 @@ export default function UserProfile() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="font-medium text-gray-900 dark:text-white">Enable 2FA</p>
-                  <p className="text-sm text-gray-500">Add an extra layer of security to your account</p>
+                  <p className="text-sm text-gray-500">
+                    Add an extra layer of security to your account
+                  </p>
                 </div>
                 <Switch checked={user?.two_factor_enabled || false} />
               </div>
@@ -337,18 +365,37 @@ export default function UserProfile() {
             </CardHeader>
             <CardContent className="space-y-3">
               {[
-                { device: 'Chrome on Windows', location: 'New York, US', active: true, lastActive: 'Now' },
-                { device: 'Safari on iPhone', location: 'New York, US', active: false, lastActive: '2 hours ago' },
+                {
+                  device: 'Chrome on Windows',
+                  location: 'New York, US',
+                  active: true,
+                  lastActive: 'Now',
+                },
+                {
+                  device: 'Safari on iPhone',
+                  location: 'New York, US',
+                  active: false,
+                  lastActive: '2 hours ago',
+                },
               ].map((session, idx) => (
-                <div key={idx} className="flex items-center justify-between p-3 border border-gray-200 dark:border-gray-700 rounded-lg">
+                <div
+                  key={idx}
+                  className="flex items-center justify-between p-3 border border-gray-200 dark:border-gray-700 rounded-lg"
+                >
                   <div>
                     <p className="font-medium text-gray-900 dark:text-white">{session.device}</p>
-                    <p className="text-sm text-gray-500">{session.location} • {session.lastActive}</p>
+                    <p className="text-sm text-gray-500">
+                      {session.location} • {session.lastActive}
+                    </p>
                   </div>
                   {session.active ? (
-                    <Badge className="bg-emerald-100 text-emerald-700 border-emerald-300">Active</Badge>
+                    <Badge className="bg-emerald-100 text-emerald-700 border-emerald-300">
+                      Active
+                    </Badge>
                   ) : (
-                    <Button variant="outline" size="sm">Revoke</Button>
+                    <Button variant="outline" size="sm">
+                      Revoke
+                    </Button>
                   )}
                 </div>
               ))}
@@ -371,9 +418,11 @@ export default function UserProfile() {
                   <p className="font-medium text-gray-900 dark:text-white">Messages</p>
                   <p className="text-sm text-gray-500">Notify me of new messages</p>
                 </div>
-                <Switch 
+                <Switch
                   checked={notificationPrefs.messages_enabled}
-                  onCheckedChange={(checked) => setNotificationPrefs({...notificationPrefs, messages_enabled: checked})}
+                  onCheckedChange={(checked) =>
+                    setNotificationPrefs({ ...notificationPrefs, messages_enabled: checked })
+                  }
                 />
               </div>
               <div className="flex items-center justify-between">
@@ -381,9 +430,11 @@ export default function UserProfile() {
                   <p className="font-medium text-gray-900 dark:text-white">Mentions</p>
                   <p className="text-sm text-gray-500">Alert me when someone mentions me</p>
                 </div>
-                <Switch 
+                <Switch
                   checked={notificationPrefs.mentions_enabled}
-                  onCheckedChange={(checked) => setNotificationPrefs({...notificationPrefs, mentions_enabled: checked})}
+                  onCheckedChange={(checked) =>
+                    setNotificationPrefs({ ...notificationPrefs, mentions_enabled: checked })
+                  }
                 />
               </div>
               <div className="flex items-center justify-between">
@@ -391,9 +442,11 @@ export default function UserProfile() {
                   <p className="font-medium text-gray-900 dark:text-white">Updates</p>
                   <p className="text-sm text-gray-500">Important system and security updates</p>
                 </div>
-                <Switch 
+                <Switch
                   checked={notificationPrefs.updates_enabled}
-                  onCheckedChange={(checked) => setNotificationPrefs({...notificationPrefs, updates_enabled: checked})}
+                  onCheckedChange={(checked) =>
+                    setNotificationPrefs({ ...notificationPrefs, updates_enabled: checked })
+                  }
                 />
               </div>
             </CardContent>
@@ -412,19 +465,28 @@ export default function UserProfile() {
                   </p>
                   <p className="text-sm text-gray-500">Play sound for new notifications</p>
                 </div>
-                <Switch 
+                <Switch
                   checked={notificationPrefs.sound_enabled}
-                  onCheckedChange={(checked) => setNotificationPrefs({...notificationPrefs, sound_enabled: checked})}
+                  onCheckedChange={(checked) =>
+                    setNotificationPrefs({ ...notificationPrefs, sound_enabled: checked })
+                  }
                 />
               </div>
               <div className="flex items-center justify-between">
                 <div>
                   <p className="font-medium text-gray-900 dark:text-white">Desktop Notifications</p>
-                  <p className="text-sm text-gray-500">Show browser notifications even when app is closed</p>
+                  <p className="text-sm text-gray-500">
+                    Show browser notifications even when app is closed
+                  </p>
                 </div>
-                <Switch 
+                <Switch
                   checked={notificationPrefs.desktop_notifications_enabled}
-                  onCheckedChange={(checked) => setNotificationPrefs({...notificationPrefs, desktop_notifications_enabled: checked})}
+                  onCheckedChange={(checked) =>
+                    setNotificationPrefs({
+                      ...notificationPrefs,
+                      desktop_notifications_enabled: checked,
+                    })
+                  }
                 />
               </div>
             </CardContent>
@@ -443,33 +505,42 @@ export default function UserProfile() {
                   <p className="font-medium text-gray-900 dark:text-white">Enable DND Schedule</p>
                   <p className="text-sm text-gray-500">Mute notifications during specific hours</p>
                 </div>
-                <Switch 
+                <Switch
                   checked={notificationPrefs.do_not_disturb_enabled}
-                  onCheckedChange={(checked) => setNotificationPrefs({...notificationPrefs, do_not_disturb_enabled: checked})}
+                  onCheckedChange={(checked) =>
+                    setNotificationPrefs({ ...notificationPrefs, do_not_disturb_enabled: checked })
+                  }
                 />
               </div>
               {notificationPrefs.do_not_disturb_enabled && (
                 <div className="grid grid-cols-2 gap-4 pt-4 border-t border-gray-200 dark:border-gray-700">
                   <div className="space-y-2">
                     <Label>Start Time</Label>
-                    <Input 
-                      type="time" 
+                    <Input
+                      type="time"
                       value={notificationPrefs.dnd_start_time}
-                      onChange={(e) => setNotificationPrefs({...notificationPrefs, dnd_start_time: e.target.value})}
+                      onChange={(e) =>
+                        setNotificationPrefs({
+                          ...notificationPrefs,
+                          dnd_start_time: e.target.value,
+                        })
+                      }
                     />
                   </div>
                   <div className="space-y-2">
                     <Label>End Time</Label>
-                    <Input 
-                      type="time" 
+                    <Input
+                      type="time"
                       value={notificationPrefs.dnd_end_time}
-                      onChange={(e) => setNotificationPrefs({...notificationPrefs, dnd_end_time: e.target.value})}
+                      onChange={(e) =>
+                        setNotificationPrefs({ ...notificationPrefs, dnd_end_time: e.target.value })
+                      }
                     />
                   </div>
                 </div>
               )}
               <div className="flex justify-end pt-4">
-                <Button 
+                <Button
                   onClick={handleSaveNotificationPrefs}
                   className="bg-violet-600 hover:bg-violet-700"
                 >
@@ -493,9 +564,9 @@ export default function UserProfile() {
             <CardContent className="space-y-4">
               <div className="space-y-2">
                 <Label>Status</Label>
-                <select 
+                <select
                   value={preferences.status}
-                  onChange={(e) => setPreferences({...preferences, status: e.target.value})}
+                  onChange={(e) => setPreferences({ ...preferences, status: e.target.value })}
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
                 >
                   <option value="online">🟢 Online</option>
@@ -507,18 +578,22 @@ export default function UserProfile() {
               <div className="space-y-2">
                 <Label>Status Emoji</Label>
                 <div className="flex gap-2">
-                  <Input 
+                  <Input
                     value={preferences.status_emoji}
-                    onChange={(e) => setPreferences({...preferences, status_emoji: e.target.value})}
+                    onChange={(e) =>
+                      setPreferences({ ...preferences, status_emoji: e.target.value })
+                    }
                     maxLength={2}
                     placeholder="✨"
                     className="w-20"
                   />
-                  <p className="text-sm text-gray-500 flex items-center">Current: {preferences.status_emoji}</p>
+                  <p className="text-sm text-gray-500 flex items-center">
+                    Current: {preferences.status_emoji}
+                  </p>
                 </div>
               </div>
               <div className="flex justify-end">
-                <Button 
+                <Button
                   onClick={handleSavePreferences}
                   className="bg-violet-600 hover:bg-violet-700"
                 >
@@ -540,9 +615,9 @@ export default function UserProfile() {
               <div className="space-y-2">
                 <Label>Theme (Persists across sessions)</Label>
                 <div className="grid grid-cols-3 gap-3">
-                  <button 
+                  <button
                     onClick={() => {
-                      setPreferences({...preferences, theme: 'light'});
+                      setPreferences({ ...preferences, theme: 'light' });
                       localStorage.setItem('theme', 'light');
                     }}
                     className={`p-4 border-2 rounded-lg bg-white dark:bg-gray-800 transition-colors ${preferences.theme === 'light' ? 'border-violet-500' : 'border-gray-300 dark:border-gray-600'} hover:border-violet-600`}
@@ -550,9 +625,9 @@ export default function UserProfile() {
                     <Sun className="w-6 h-6 mx-auto mb-2 text-yellow-500" />
                     <p className="text-sm font-medium">Light</p>
                   </button>
-                  <button 
+                  <button
                     onClick={() => {
-                      setPreferences({...preferences, theme: 'dark'});
+                      setPreferences({ ...preferences, theme: 'dark' });
                       localStorage.setItem('theme', 'dark');
                     }}
                     className={`p-4 border-2 rounded-lg bg-white dark:bg-gray-800 transition-colors ${preferences.theme === 'dark' ? 'border-violet-500' : 'border-gray-300 dark:border-gray-600'} hover:border-violet-600`}
@@ -560,9 +635,9 @@ export default function UserProfile() {
                     <Moon className="w-6 h-6 mx-auto mb-2 text-blue-400" />
                     <p className="text-sm font-medium">Dark</p>
                   </button>
-                  <button 
+                  <button
                     onClick={() => {
-                      setPreferences({...preferences, theme: 'auto'});
+                      setPreferences({ ...preferences, theme: 'auto' });
                       localStorage.setItem('theme', 'auto');
                     }}
                     className={`p-4 border-2 rounded-lg bg-white dark:bg-gray-800 transition-colors ${preferences.theme === 'auto' ? 'border-violet-500' : 'border-gray-300 dark:border-gray-600'} hover:border-violet-600`}
@@ -632,9 +707,14 @@ export default function UserProfile() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="font-medium text-gray-900 dark:text-white">Delete Account</p>
-                  <p className="text-sm text-gray-500">Permanently delete your account and all data</p>
+                  <p className="text-sm text-gray-500">
+                    Permanently delete your account and all data
+                  </p>
                 </div>
-                <Button variant="outline" className="text-red-600 hover:text-red-700 border-red-300">
+                <Button
+                  variant="outline"
+                  className="text-red-600 hover:text-red-700 border-red-300"
+                >
                   Delete
                 </Button>
               </div>

@@ -1,13 +1,19 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
-import { Calendar, Clock, Mail, AlertCircle } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Badge } from '@/components/ui/badge';
+import { Calendar, Clock, Mail, AlertCircle } from 'lucide-react';
 
 const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 const WEEK_OPTIONS = ['first', 'second', 'third', 'fourth', 'last'];
@@ -31,9 +37,9 @@ export default function EnhancedScheduleModal({ report, open, onClose }) {
         report_id: report.id,
         start_date: new Date().toISOString().split('T')[0],
       };
-      
+
       await base44.entities.ReportSchedule.create(scheduleData);
-      
+
       // Create audit log
       await base44.entities.ReportAuditLog.create({
         report_id: report.id,
@@ -41,8 +47,8 @@ export default function EnhancedScheduleModal({ report, open, onClose }) {
         user_email: (await base44.auth.me()).email,
         details: {
           schedule: scheduleData,
-          timestamp: new Date().toISOString()
-        }
+          timestamp: new Date().toISOString(),
+        },
       });
     },
     onSuccess: () => {
@@ -55,7 +61,7 @@ export default function EnhancedScheduleModal({ report, open, onClose }) {
     if (recipientEmail && !schedule.recipients.includes(recipientEmail)) {
       setSchedule({
         ...schedule,
-        recipients: [...schedule.recipients, recipientEmail]
+        recipients: [...schedule.recipients, recipientEmail],
       });
       setRecipientEmail('');
     }
@@ -64,19 +70,19 @@ export default function EnhancedScheduleModal({ report, open, onClose }) {
   const handleRemoveRecipient = (email) => {
     setSchedule({
       ...schedule,
-      recipients: schedule.recipients.filter(r => r !== email)
+      recipients: schedule.recipients.filter((r) => r !== email),
     });
   };
 
   const toggleDay = (dayIndex) => {
     const days = schedule.recurrence_pattern.days_of_week || [];
     const newDays = days.includes(dayIndex)
-      ? days.filter(d => d !== dayIndex)
+      ? days.filter((d) => d !== dayIndex)
       : [...days, dayIndex];
-    
+
     setSchedule({
       ...schedule,
-      recurrence_pattern: { ...schedule.recurrence_pattern, days_of_week: newDays }
+      recurrence_pattern: { ...schedule.recurrence_pattern, days_of_week: newDays },
     });
   };
 
@@ -99,8 +105,8 @@ export default function EnhancedScheduleModal({ report, open, onClose }) {
           {/* Recurrence Type */}
           <div>
             <Label>Recurrence</Label>
-            <Select 
-              value={schedule.recurrence_type} 
+            <Select
+              value={schedule.recurrence_type}
               onValueChange={(value) => setSchedule({ ...schedule, recurrence_type: value })}
             >
               <SelectTrigger>
@@ -123,7 +129,11 @@ export default function EnhancedScheduleModal({ report, open, onClose }) {
                 {DAYS.map((day, idx) => (
                   <Badge
                     key={idx}
-                    variant={(schedule.recurrence_pattern.days_of_week || []).includes(idx) ? 'default' : 'outline'}
+                    variant={
+                      (schedule.recurrence_pattern.days_of_week || []).includes(idx)
+                        ? 'default'
+                        : 'outline'
+                    }
                     className="cursor-pointer"
                     onClick={() => toggleDay(idx)}
                   >
@@ -139,41 +149,49 @@ export default function EnhancedScheduleModal({ report, open, onClose }) {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label>Week of Month</Label>
-                <Select 
-                  value={schedule.recurrence_pattern.week_of_month} 
-                  onValueChange={(value) => setSchedule({
-                    ...schedule,
-                    recurrence_pattern: { ...schedule.recurrence_pattern, week_of_month: value }
-                  })}
+                <Select
+                  value={schedule.recurrence_pattern.week_of_month}
+                  onValueChange={(value) =>
+                    setSchedule({
+                      ...schedule,
+                      recurrence_pattern: { ...schedule.recurrence_pattern, week_of_month: value },
+                    })
+                  }
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Select week" />
                   </SelectTrigger>
                   <SelectContent>
-                    {WEEK_OPTIONS.map(week => (
-                      <SelectItem key={week} value={week}>{week} week</SelectItem>
+                    {WEEK_OPTIONS.map((week) => (
+                      <SelectItem key={week} value={week}>
+                        {week} week
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
               <div>
                 <Label>Day of Week</Label>
-                <Select 
-                  value={(schedule.recurrence_pattern.days_of_week?.[0] || 1).toString()} 
-                  onValueChange={(value) => setSchedule({
-                    ...schedule,
-                    recurrence_pattern: { 
-                      ...schedule.recurrence_pattern, 
-                      days_of_week: [parseInt(value)] 
-                    }
-                  })}
+                <Select
+                  value={(schedule.recurrence_pattern.days_of_week?.[0] || 1).toString()}
+                  onValueChange={(value) =>
+                    setSchedule({
+                      ...schedule,
+                      recurrence_pattern: {
+                        ...schedule.recurrence_pattern,
+                        days_of_week: [parseInt(value)],
+                      },
+                    })
+                  }
                 >
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
                     {DAYS.map((day, idx) => (
-                      <SelectItem key={idx} value={idx.toString()}>{day}</SelectItem>
+                      <SelectItem key={idx} value={idx.toString()}>
+                        {day}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -198,7 +216,11 @@ export default function EnhancedScheduleModal({ report, open, onClose }) {
                   {DAYS.map((day, idx) => (
                     <Badge
                       key={idx}
-                      variant={(schedule.recurrence_pattern.days_of_week || []).includes(idx) ? 'default' : 'outline'}
+                      variant={
+                        (schedule.recurrence_pattern.days_of_week || []).includes(idx)
+                          ? 'default'
+                          : 'outline'
+                      }
                       className="cursor-pointer"
                       onClick={() => toggleDay(idx)}
                     >
@@ -225,8 +247,8 @@ export default function EnhancedScheduleModal({ report, open, onClose }) {
             </div>
             <div>
               <Label>Timezone</Label>
-              <Select 
-                value={schedule.timezone} 
+              <Select
+                value={schedule.timezone}
                 onValueChange={(value) => setSchedule({ ...schedule, timezone: value })}
               >
                 <SelectTrigger>
@@ -278,8 +300,8 @@ export default function EnhancedScheduleModal({ report, open, onClose }) {
             {schedule.recipients.length > 0 && (
               <div className="flex flex-wrap gap-2 mt-3">
                 {schedule.recipients.map((email, idx) => (
-                  <Badge 
-                    key={idx} 
+                  <Badge
+                    key={idx}
                     variant="secondary"
                     className="cursor-pointer"
                     onClick={() => handleRemoveRecipient(email)}
@@ -293,9 +315,11 @@ export default function EnhancedScheduleModal({ report, open, onClose }) {
 
           {/* Actions */}
           <div className="flex justify-end gap-2 pt-4 border-t dark:border-gray-700">
-            <Button variant="outline" onClick={onClose}>Cancel</Button>
-            <Button 
-              onClick={handleSave} 
+            <Button variant="outline" onClick={onClose}>
+              Cancel
+            </Button>
+            <Button
+              onClick={handleSave}
               disabled={createScheduleMutation.isPending || schedule.recipients.length === 0}
             >
               Create Schedule

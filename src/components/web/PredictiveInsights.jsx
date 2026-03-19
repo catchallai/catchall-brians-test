@@ -1,7 +1,7 @@
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { TrendingUp, AlertCircle, Target } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { TrendingUp, AlertCircle, Target } from 'lucide-react';
 
 export default function PredictiveInsights({ scores = [] }) {
   if (!scores.length) {
@@ -14,9 +14,10 @@ export default function PredictiveInsights({ scores = [] }) {
     );
   }
 
-  const highValueLeads = scores.filter(s => s.conversion_probability > 70);
-  const atRiskUsers = scores.filter(s => s.churn_risk > 60);
-  const avgConversionProb = scores.reduce((sum, s) => sum + (s.conversion_probability || 0), 0) / scores.length;
+  const highValueLeads = scores.filter((s) => s.conversion_probability > 70);
+  const atRiskUsers = scores.filter((s) => s.churn_risk > 60);
+  const avgConversionProb =
+    scores.reduce((sum, s) => sum + (s.conversion_probability || 0), 0) / scores.length;
 
   return (
     <div className="space-y-4">
@@ -63,11 +64,15 @@ export default function PredictiveInsights({ scores = [] }) {
             <div key={idx} className="p-4 rounded-lg border border-gray-200 dark:border-gray-700">
               <div className="flex items-start justify-between mb-2">
                 <div>
-                  <Badge className={
-                    score.conversion_probability > 70 ? 'bg-emerald-100 text-emerald-800' :
-                    score.conversion_probability > 40 ? 'bg-yellow-100 text-yellow-800' :
-                    'bg-gray-100 text-gray-800'
-                  }>
+                  <Badge
+                    className={
+                      score.conversion_probability > 70
+                        ? 'bg-emerald-100 text-emerald-800'
+                        : score.conversion_probability > 40
+                          ? 'bg-yellow-100 text-yellow-800'
+                          : 'bg-gray-100 text-gray-800'
+                    }
+                  >
                     {score.conversion_probability}% likely to convert
                   </Badge>
                   {score.churn_risk > 60 && (
@@ -76,11 +81,11 @@ export default function PredictiveInsights({ scores = [] }) {
                 </div>
                 <span className="text-xs text-gray-500">Score: {score.engagement_score}</span>
               </div>
-              
+
               <p className="font-medium text-gray-900 dark:text-white mb-2">
                 {score.next_best_action}
               </p>
-              
+
               {score.factors && score.factors.length > 0 && (
                 <div className="flex flex-wrap gap-1">
                   {score.factors.map((factor, fIdx) => (

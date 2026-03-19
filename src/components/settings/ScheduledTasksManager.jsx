@@ -1,29 +1,49 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { 
-  Clock, Play, Pause, Trash2, Plus, Mail, Users, Target, Link2, Archive,
-  Loader2, CheckCircle, XCircle
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import {
+  Clock,
+  Play,
+  Pause,
+  Trash2,
+  Plus,
+  Mail,
+  Users,
+  Target,
+  Link2,
+  Archive,
+  Loader2,
+  CheckCircle,
+  XCircle,
 } from 'lucide-react';
 import { format, addDays, addWeeks, addMonths } from 'date-fns';
 
 const taskTypes = {
   report_email: { icon: Mail, label: 'Email Report', color: 'bg-blue-100 text-blue-600' },
-  competitor_scan: { icon: Users, label: 'Competitor Scan', color: 'bg-violet-100 text-violet-600' },
-  keyword_refresh: { icon: Target, label: 'Keyword Refresh', color: 'bg-emerald-100 text-emerald-600' },
+  competitor_scan: {
+    icon: Users,
+    label: 'Competitor Scan',
+    color: 'bg-violet-100 text-violet-600',
+  },
+  keyword_refresh: {
+    icon: Target,
+    label: 'Keyword Refresh',
+    color: 'bg-emerald-100 text-emerald-600',
+  },
   backlink_check: { icon: Link2, label: 'Backlink Check', color: 'bg-amber-100 text-amber-600' },
   data_cleanup: { icon: Archive, label: 'Data Cleanup', color: 'bg-gray-100 text-gray-600' },
 };
@@ -44,9 +64,10 @@ export default function ScheduledTasksManager() {
   });
 
   const createMutation = useMutation({
-    mutationFn: (data) => editingTask 
-      ? base44.entities.ScheduledTask.update(editingTask.id, data)
-      : base44.entities.ScheduledTask.create(data),
+    mutationFn: (data) =>
+      editingTask
+        ? base44.entities.ScheduledTask.update(editingTask.id, data)
+        : base44.entities.ScheduledTask.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['scheduled-tasks'] });
       setShowModal(false);
@@ -55,7 +76,8 @@ export default function ScheduledTasksManager() {
   });
 
   const toggleMutation = useMutation({
-    mutationFn: (task) => base44.entities.ScheduledTask.update(task.id, { is_active: !task.is_active }),
+    mutationFn: (task) =>
+      base44.entities.ScheduledTask.update(task.id, { is_active: !task.is_active }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['scheduled-tasks'] }),
   });
 
@@ -69,7 +91,7 @@ export default function ScheduledTasksManager() {
       // Trigger task execution
       await base44.entities.ScheduledTask.update(task.id, {
         last_run: new Date().toISOString(),
-        last_result: 'Running...'
+        last_result: 'Running...',
       });
       // In production, this would call a backend function
       return task;
@@ -84,7 +106,14 @@ export default function ScheduledTasksManager() {
           <Clock className="w-5 h-5 text-violet-600" />
           Scheduled Tasks
         </CardTitle>
-        <Button size="sm" onClick={() => { setEditingTask(null); setShowModal(true); }} className="gap-1">
+        <Button
+          size="sm"
+          onClick={() => {
+            setEditingTask(null);
+            setShowModal(true);
+          }}
+          className="gap-1"
+        >
           <Plus className="w-4 h-4" />
           Add Task
         </Button>
@@ -105,7 +134,7 @@ export default function ScheduledTasksManager() {
               const typeConfig = taskTypes[task.type] || taskTypes.data_cleanup;
               const Icon = typeConfig.icon;
               return (
-                <div 
+                <div
                   key={task.id}
                   className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg"
                 >
@@ -116,7 +145,9 @@ export default function ScheduledTasksManager() {
                     <div>
                       <p className="font-medium text-gray-900 dark:text-white">{task.name}</p>
                       <div className="flex items-center gap-2 mt-0.5">
-                        <Badge variant="outline" className="text-xs capitalize">{task.schedule}</Badge>
+                        <Badge variant="outline" className="text-xs capitalize">
+                          {task.schedule}
+                        </Badge>
                         {task.next_run && (
                           <span className="text-xs text-gray-500">
                             Next: {format(new Date(task.next_run), 'MMM d, h:mm a')}
@@ -127,12 +158,20 @@ export default function ScheduledTasksManager() {
                   </div>
                   <div className="flex items-center gap-2">
                     {task.last_result && (
-                      <Badge className={task.last_result.includes('success') ? 'bg-emerald-100 text-emerald-600' : 'bg-gray-100 text-gray-600'}>
-                        {task.last_result.includes('success') ? <CheckCircle className="w-3 h-3 mr-1" /> : null}
+                      <Badge
+                        className={
+                          task.last_result.includes('success')
+                            ? 'bg-emerald-100 text-emerald-600'
+                            : 'bg-gray-100 text-gray-600'
+                        }
+                      >
+                        {task.last_result.includes('success') ? (
+                          <CheckCircle className="w-3 h-3 mr-1" />
+                        ) : null}
                         {task.last_result.slice(0, 20)}
                       </Badge>
                     )}
-                    <Switch 
+                    <Switch
                       checked={task.is_active}
                       onCheckedChange={() => toggleMutation.mutate(task)}
                     />
@@ -161,9 +200,12 @@ export default function ScheduledTasksManager() {
       </CardContent>
 
       {/* Add/Edit Modal */}
-      <TaskModal 
+      <TaskModal
         open={showModal}
-        onClose={() => { setShowModal(false); setEditingTask(null); }}
+        onClose={() => {
+          setShowModal(false);
+          setEditingTask(null);
+        }}
         task={editingTask}
         reports={reports}
         onSave={(data) => createMutation.mutate(data)}
@@ -205,15 +247,18 @@ function TaskModal({ open, onClose, task, reports, onSave, isLoading }) {
         <div className="space-y-4">
           <div>
             <Label>Task Name</Label>
-            <Input 
+            <Input
               value={formData.name}
-              onChange={(e) => setFormData({...formData, name: e.target.value})}
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               placeholder="Weekly SEO Report"
             />
           </div>
           <div>
             <Label>Task Type</Label>
-            <Select value={formData.type} onValueChange={(v) => setFormData({...formData, type: v})}>
+            <Select
+              value={formData.type}
+              onValueChange={(v) => setFormData({ ...formData, type: v })}
+            >
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
@@ -231,7 +276,10 @@ function TaskModal({ open, onClose, task, reports, onSave, isLoading }) {
           </div>
           <div>
             <Label>Schedule</Label>
-            <Select value={formData.schedule} onValueChange={(v) => setFormData({...formData, schedule: v})}>
+            <Select
+              value={formData.schedule}
+              onValueChange={(v) => setFormData({ ...formData, schedule: v })}
+            >
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
@@ -246,16 +294,20 @@ function TaskModal({ open, onClose, task, reports, onSave, isLoading }) {
           {formData.type === 'report_email' && (
             <div>
               <Label>Report to Send</Label>
-              <Select 
-                value={formData.config.report_id || ''} 
-                onValueChange={(v) => setFormData({...formData, config: {...formData.config, report_id: v}})}
+              <Select
+                value={formData.config.report_id || ''}
+                onValueChange={(v) =>
+                  setFormData({ ...formData, config: { ...formData.config, report_id: v } })
+                }
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select report" />
                 </SelectTrigger>
                 <SelectContent>
                   {reports.map((report) => (
-                    <SelectItem key={report.id} value={report.id}>{report.name}</SelectItem>
+                    <SelectItem key={report.id} value={report.id}>
+                      {report.name}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -263,7 +315,9 @@ function TaskModal({ open, onClose, task, reports, onSave, isLoading }) {
           )}
 
           <div className="flex justify-end gap-3 pt-4">
-            <Button variant="outline" onClick={onClose}>Cancel</Button>
+            <Button variant="outline" onClick={onClose}>
+              Cancel
+            </Button>
             <Button onClick={handleSave} disabled={isLoading || !formData.name}>
               {isLoading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
               {task ? 'Update' : 'Create'} Task

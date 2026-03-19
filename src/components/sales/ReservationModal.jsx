@@ -1,13 +1,27 @@
 import React, { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2 } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Loader2 } from 'lucide-react';
 
-export default function ReservationModal({ open, onClose, reservation, contacts, deals, onSave, isLoading }) {
+export default function ReservationModal({
+  open,
+  onClose,
+  reservation,
+  contacts,
+  deals,
+  onSave,
+  isLoading,
+}) {
   const [formData, setFormData] = useState({
     contact_id: '',
     deal_id: '',
@@ -22,7 +36,7 @@ export default function ReservationModal({ open, onClose, reservation, contacts,
     product_service: '',
     payment_status: 'unpaid',
     deposit_amount: '',
-    notes: ''
+    notes: '',
   });
 
   useEffect(() => {
@@ -33,15 +47,19 @@ export default function ReservationModal({ open, onClose, reservation, contacts,
         reservation_type: reservation.reservation_type || 'product',
         title: reservation.title || '',
         description: reservation.description || '',
-        reservation_date: reservation.reservation_date ? new Date(reservation.reservation_date).toISOString().slice(0, 16) : '',
-        expiry_date: reservation.expiry_date ? new Date(reservation.expiry_date).toISOString().slice(0, 16) : '',
+        reservation_date: reservation.reservation_date
+          ? new Date(reservation.reservation_date).toISOString().slice(0, 16)
+          : '',
+        expiry_date: reservation.expiry_date
+          ? new Date(reservation.expiry_date).toISOString().slice(0, 16)
+          : '',
         status: reservation.status || 'pending',
         value: reservation.value || '',
         quantity: reservation.quantity || '1',
         product_service: reservation.product_service || '',
         payment_status: reservation.payment_status || 'unpaid',
         deposit_amount: reservation.deposit_amount || '',
-        notes: reservation.notes || ''
+        notes: reservation.notes || '',
       });
     }
   }, [reservation]);
@@ -52,7 +70,7 @@ export default function ReservationModal({ open, onClose, reservation, contacts,
       ...formData,
       value: formData.value ? parseFloat(formData.value) : undefined,
       quantity: formData.quantity ? parseInt(formData.quantity) : 1,
-      deposit_amount: formData.deposit_amount ? parseFloat(formData.deposit_amount) : undefined
+      deposit_amount: formData.deposit_amount ? parseFloat(formData.deposit_amount) : undefined,
     });
   };
 
@@ -74,7 +92,7 @@ export default function ReservationModal({ open, onClose, reservation, contacts,
                   <SelectValue placeholder="Select contact" />
                 </SelectTrigger>
                 <SelectContent>
-                  {contacts.map(c => (
+                  {contacts.map((c) => (
                     <SelectItem key={c.id} value={c.id}>
                       {c.first_name} {c.last_name}
                     </SelectItem>
@@ -93,7 +111,7 @@ export default function ReservationModal({ open, onClose, reservation, contacts,
                   <SelectValue placeholder="Select deal" />
                 </SelectTrigger>
                 <SelectContent>
-                  {deals.map(d => (
+                  {deals.map((d) => (
                     <SelectItem key={d.id} value={d.id}>
                       {d.title}
                     </SelectItem>
@@ -253,9 +271,11 @@ export default function ReservationModal({ open, onClose, reservation, contacts,
           </div>
 
           <div className="flex justify-end gap-3 pt-4">
-            <Button type="button" variant="outline" onClick={onClose}>Cancel</Button>
-            <Button 
-              type="submit" 
+            <Button type="button" variant="outline" onClick={onClose}>
+              Cancel
+            </Button>
+            <Button
+              type="submit"
               disabled={!formData.contact_id || !formData.title || isLoading}
               className="bg-violet-600 hover:bg-violet-700"
             >

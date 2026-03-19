@@ -1,12 +1,18 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Users, Shield, Eye, Edit } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Users, Shield, Eye, Edit } from 'lucide-react';
 
 const roleIcons = {
   admin: Shield,
@@ -15,10 +21,10 @@ const roleIcons = {
 };
 
 const roleColors = {
-  admin:    'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300',
+  admin: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300',
   approver: 'bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-300',
-  editor:   'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300',
-  viewer:   'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300',
+  editor: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300',
+  viewer: 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300',
 };
 
 export default function TeamManager() {
@@ -35,7 +41,7 @@ export default function TeamManager() {
   });
 
   const updateRoleMutation = useMutation({
-    mutationFn: ({ userId, role }) => 
+    mutationFn: ({ userId, role }) =>
       base44.entities.User.update(userId, { social_media_role: role }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['all-users'] });
@@ -81,7 +87,10 @@ export default function TeamManager() {
 
                 <div className="flex items-center gap-2">
                   {user.role === 'admin' && (
-                    <Badge variant="outline" className="bg-yellow-50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-300 border-yellow-300 dark:border-yellow-700">
+                    <Badge
+                      variant="outline"
+                      className="bg-yellow-50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-300 border-yellow-300 dark:border-yellow-700"
+                    >
                       App Admin
                     </Badge>
                   )}
@@ -95,16 +104,24 @@ export default function TeamManager() {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="admin">
-                        <div className="flex items-center gap-2"><Shield className="w-4 h-4" /> Admin</div>
+                        <div className="flex items-center gap-2">
+                          <Shield className="w-4 h-4" /> Admin
+                        </div>
                       </SelectItem>
                       <SelectItem value="approver">
-                        <div className="flex items-center gap-2"><Shield className="w-4 h-4 text-violet-500" /> Approver</div>
+                        <div className="flex items-center gap-2">
+                          <Shield className="w-4 h-4 text-violet-500" /> Approver
+                        </div>
                       </SelectItem>
                       <SelectItem value="editor">
-                        <div className="flex items-center gap-2"><Edit className="w-4 h-4" /> Editor</div>
+                        <div className="flex items-center gap-2">
+                          <Edit className="w-4 h-4" /> Editor
+                        </div>
                       </SelectItem>
                       <SelectItem value="viewer">
-                        <div className="flex items-center gap-2"><Eye className="w-4 h-4" /> Viewer</div>
+                        <div className="flex items-center gap-2">
+                          <Eye className="w-4 h-4" /> Viewer
+                        </div>
                       </SelectItem>
                     </SelectContent>
                   </Select>
@@ -115,12 +132,24 @@ export default function TeamManager() {
         </div>
 
         <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
-          <h4 className="font-medium text-sm text-blue-900 dark:text-blue-300 mb-2">Role Permissions</h4>
+          <h4 className="font-medium text-sm text-blue-900 dark:text-blue-300 mb-2">
+            Role Permissions
+          </h4>
           <ul className="text-xs text-blue-700 dark:text-blue-400 space-y-1">
-            <li><strong>Admin:</strong> Full access — create, edit, delete, assign, approve, manage team</li>
-            <li><strong>Approver:</strong> Review submissions, approve or reject posts, request changes</li>
-            <li><strong>Editor:</strong> Create &amp; edit posts, submit for review, leave comments</li>
-            <li><strong>Viewer:</strong> View-only — can see posts and comments but cannot edit</li>
+            <li>
+              <strong>Admin:</strong> Full access — create, edit, delete, assign, approve, manage
+              team
+            </li>
+            <li>
+              <strong>Approver:</strong> Review submissions, approve or reject posts, request
+              changes
+            </li>
+            <li>
+              <strong>Editor:</strong> Create &amp; edit posts, submit for review, leave comments
+            </li>
+            <li>
+              <strong>Viewer:</strong> View-only — can see posts and comments but cannot edit
+            </li>
           </ul>
         </div>
       </CardContent>

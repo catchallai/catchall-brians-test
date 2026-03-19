@@ -1,6 +1,6 @@
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, UserPlus, UserCheck } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Users, UserPlus, UserCheck } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 
 export default function VisitorTypeCard({ data }) {
@@ -42,14 +42,18 @@ export default function VisitorTypeCard({ data }) {
             <div className="flex items-center justify-between p-3 bg-violet-50 dark:bg-violet-900/20 rounded-xl">
               <div className="flex items-center gap-2">
                 <UserPlus className="w-4 h-4 text-violet-600" />
-                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">New Visitors</span>
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  New Visitors
+                </span>
               </div>
               <span className="text-lg font-bold text-violet-600">{visitorData[0].value}%</span>
             </div>
             <div className="flex items-center justify-between p-3 bg-cyan-50 dark:bg-cyan-900/20 rounded-xl">
               <div className="flex items-center gap-2">
                 <UserCheck className="w-4 h-4 text-cyan-600" />
-                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Returning</span>
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Returning
+                </span>
               </div>
               <span className="text-lg font-bold text-cyan-600">{visitorData[1].value}%</span>
             </div>

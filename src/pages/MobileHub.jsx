@@ -3,22 +3,55 @@ import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import {
-  Bell, Search, Plus, TrendingUp, TrendingDown, Users, Target, MessageSquare,
-  Calendar, BarChart3, Send, Image, Twitter, Linkedin, Facebook, Instagram,
-  Phone, Mail, Building2, DollarSign, Clock, CheckCircle, AlertTriangle,
-  ChevronRight, Home, Radio, FileText, Settings, Loader2, RefreshCw,
-  Smartphone, Zap, Eye, Heart, Share2, MessageCircle, Edit, UserPlus
-} from "lucide-react";
+  Bell,
+  Search,
+  Plus,
+  TrendingUp,
+  TrendingDown,
+  Users,
+  Target,
+  MessageSquare,
+  Calendar,
+  BarChart3,
+  Send,
+  Image,
+  Twitter,
+  Linkedin,
+  Facebook,
+  Instagram,
+  Phone,
+  Mail,
+  Building2,
+  DollarSign,
+  Clock,
+  CheckCircle,
+  AlertTriangle,
+  ChevronRight,
+  Home,
+  Radio,
+  FileText,
+  Settings,
+  Loader2,
+  RefreshCw,
+  Smartphone,
+  Zap,
+  Eye,
+  Heart,
+  Share2,
+  MessageCircle,
+  Edit,
+  UserPlus,
+} from 'lucide-react';
 import QuickContactSheet from '@/components/mobile/QuickContactSheet';
 import QuickDealSheet from '@/components/mobile/QuickDealSheet';
 
@@ -63,7 +96,8 @@ export default function MobileHub() {
 
   const { data: scheduledPosts = [] } = useQuery({
     queryKey: ['scheduled-posts-mobile'],
-    queryFn: () => base44.entities.ScheduledPost.filter({ status: 'scheduled' }, '-scheduled_time', 10),
+    queryFn: () =>
+      base44.entities.ScheduledPost.filter({ status: 'scheduled' }, '-scheduled_time', 10),
   });
 
   const { data: socialAccounts = [] } = useQuery({
@@ -99,7 +133,7 @@ export default function MobileHub() {
 
   const sendReplyMutation = useMutation({
     mutationFn: async ({ emailId, content }) => {
-      const email = emails.find(e => e.id === emailId);
+      const email = emails.find((e) => e.id === emailId);
       await base44.integrations.Core.SendEmail({
         to: email.from_email,
         subject: `Re: ${email.subject}`,
@@ -108,7 +142,7 @@ export default function MobileHub() {
       await base44.entities.SalesEmail.update(emailId, {
         is_replied: true,
         is_read: true,
-        status: 'closed'
+        status: 'closed',
       });
     },
     onSuccess: () => {
@@ -120,7 +154,7 @@ export default function MobileHub() {
 
   // Quick stats
   const totalDealsValue = deals.reduce((sum, d) => sum + (d.value || 0), 0);
-  const newContactsToday = contacts.filter(c => {
+  const newContactsToday = contacts.filter((c) => {
     const today = new Date().toDateString();
     return new Date(c.created_date).toDateString() === today;
   }).length;
@@ -134,11 +168,16 @@ export default function MobileHub() {
 
   const getPlatformColor = (platform) => {
     switch (platform) {
-      case 'twitter': return 'bg-gray-900';
-      case 'linkedin': return 'bg-blue-600';
-      case 'facebook': return 'bg-blue-500';
-      case 'instagram': return 'bg-gradient-to-br from-purple-600 to-orange-400';
-      default: return 'bg-gray-500';
+      case 'twitter':
+        return 'bg-gray-900';
+      case 'linkedin':
+        return 'bg-blue-600';
+      case 'facebook':
+        return 'bg-blue-500';
+      case 'instagram':
+        return 'bg-gradient-to-br from-purple-600 to-orange-400';
+      default:
+        return 'bg-gray-500';
     }
   };
 
@@ -161,7 +200,12 @@ export default function MobileHub() {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon" className="relative" onClick={() => setActiveTab('alerts')}>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="relative"
+              onClick={() => setActiveTab('alerts')}
+            >
               <Bell className="w-5 h-5" />
               {notifications.length > 0 && (
                 <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
@@ -169,8 +213,8 @@ export default function MobileHub() {
                 </span>
               )}
             </Button>
-            <Button 
-              size="icon" 
+            <Button
+              size="icon"
               className="bg-violet-600 hover:bg-violet-700"
               onClick={() => setShowComposer(true)}
             >
@@ -215,18 +259,24 @@ export default function MobileHub() {
               <CardContent className="p-4">
                 <h3 className="font-semibold text-gray-900 dark:text-white mb-3">Quick Actions</h3>
                 <div className="grid grid-cols-4 gap-2">
-                  <button 
+                  <button
                     onClick={() => setShowComposer(true)}
                     className="flex flex-col items-center gap-1 p-3 rounded-xl bg-violet-50 dark:bg-violet-900/20"
                   >
                     <Send className="w-5 h-5 text-violet-600" />
                     <span className="text-xs text-gray-600 dark:text-gray-400">Post</span>
                   </button>
-                  <Link to={createPageUrl('Contacts')} className="flex flex-col items-center gap-1 p-3 rounded-xl bg-blue-50 dark:bg-blue-900/20">
+                  <Link
+                    to={createPageUrl('Contacts')}
+                    className="flex flex-col items-center gap-1 p-3 rounded-xl bg-blue-50 dark:bg-blue-900/20"
+                  >
                     <Users className="w-5 h-5 text-blue-600" />
                     <span className="text-xs text-gray-600 dark:text-gray-400">Contacts</span>
                   </Link>
-                  <button onClick={() => setActiveTab('inbox')} className="flex flex-col items-center gap-1 p-3 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 relative">
+                  <button
+                    onClick={() => setActiveTab('inbox')}
+                    className="flex flex-col items-center gap-1 p-3 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 relative"
+                  >
                     <Mail className="w-5 h-5 text-emerald-600" />
                     {emails.length > 0 && (
                       <Badge className="absolute -top-1 -right-1 w-5 h-5 p-0 flex items-center justify-center bg-red-500 text-white text-[10px]">
@@ -235,7 +285,10 @@ export default function MobileHub() {
                     )}
                     <span className="text-xs text-gray-600 dark:text-gray-400">Inbox</span>
                   </button>
-                  <Link to={createPageUrl('TrafficAnalytics')} className="flex flex-col items-center gap-1 p-3 rounded-xl bg-amber-50 dark:bg-amber-900/20">
+                  <Link
+                    to={createPageUrl('TrafficAnalytics')}
+                    className="flex flex-col items-center gap-1 p-3 rounded-xl bg-amber-50 dark:bg-amber-900/20"
+                  >
                     <BarChart3 className="w-5 h-5 text-amber-600" />
                     <span className="text-xs text-gray-600 dark:text-gray-400">Stats</span>
                   </Link>
@@ -248,14 +301,21 @@ export default function MobileHub() {
               <CardContent className="p-4">
                 <div className="flex items-center justify-between mb-3">
                   <h3 className="font-semibold text-gray-900 dark:text-white">Recent Mentions</h3>
-                  <Link to={createPageUrl('SocialListening')} className="text-xs text-violet-600">View All</Link>
+                  <Link to={createPageUrl('SocialListening')} className="text-xs text-violet-600">
+                    View All
+                  </Link>
                 </div>
                 <div className="space-y-3">
                   {mentions.slice(0, 3).map((mention) => {
                     const PlatformIcon = platformIcons[mention.platform] || MessageSquare;
                     return (
-                      <div key={mention.id} className="flex gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-xl">
-                        <div className={`w-8 h-8 rounded-lg ${getPlatformColor(mention.platform)} flex items-center justify-center shrink-0`}>
+                      <div
+                        key={mention.id}
+                        className="flex gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-xl"
+                      >
+                        <div
+                          className={`w-8 h-8 rounded-lg ${getPlatformColor(mention.platform)} flex items-center justify-center shrink-0`}
+                        >
                           <PlatformIcon className="w-4 h-4 text-white" />
                         </div>
                         <div className="flex-1 min-w-0">
@@ -270,11 +330,13 @@ export default function MobileHub() {
                             <span className="text-xs text-gray-400 flex items-center gap-1">
                               <MessageCircle className="w-3 h-3" /> {mention.comments || 0}
                             </span>
-                            <Badge 
+                            <Badge
                               className={`text-xs ${
-                                mention.sentiment === 'positive' ? 'bg-emerald-100 text-emerald-700' :
-                                mention.sentiment === 'negative' ? 'bg-red-100 text-red-700' :
-                                'bg-gray-100 text-gray-700'
+                                mention.sentiment === 'positive'
+                                  ? 'bg-emerald-100 text-emerald-700'
+                                  : mention.sentiment === 'negative'
+                                    ? 'bg-red-100 text-red-700'
+                                    : 'bg-gray-100 text-gray-700'
                               }`}
                             >
                               {mention.sentiment || 'neutral'}
@@ -296,23 +358,33 @@ export default function MobileHub() {
               <CardContent className="p-4">
                 <div className="flex items-center justify-between mb-3">
                   <h3 className="font-semibold text-gray-900 dark:text-white">Scheduled Posts</h3>
-                  <Link to={createPageUrl('SocialCalendar')} className="text-xs text-violet-600">View All</Link>
+                  <Link to={createPageUrl('SocialCalendar')} className="text-xs text-violet-600">
+                    View All
+                  </Link>
                 </div>
                 <div className="space-y-2">
                   {scheduledPosts.slice(0, 3).map((post) => (
-                    <div key={post.id} className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-xl">
+                    <div
+                      key={post.id}
+                      className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-xl"
+                    >
                       <div className="flex -space-x-1">
                         {post.platforms?.slice(0, 2).map((platform) => {
                           const Icon = platformIcons[platform] || MessageSquare;
                           return (
-                            <div key={platform} className={`w-6 h-6 rounded-full ${getPlatformColor(platform)} flex items-center justify-center ring-2 ring-white dark:ring-gray-800`}>
+                            <div
+                              key={platform}
+                              className={`w-6 h-6 rounded-full ${getPlatformColor(platform)} flex items-center justify-center ring-2 ring-white dark:ring-gray-800`}
+                            >
                               <Icon className="w-3 h-3 text-white" />
                             </div>
                           );
                         })}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm text-gray-900 dark:text-white truncate">{post.content}</p>
+                        <p className="text-sm text-gray-900 dark:text-white truncate">
+                          {post.content}
+                        </p>
                         <p className="text-xs text-gray-500 flex items-center gap-1">
                           <Clock className="w-3 h-3" />
                           {new Date(post.scheduled_time).toLocaleDateString()}
@@ -335,7 +407,9 @@ export default function MobileHub() {
                 <CardContent className="p-4 text-center">
                   <Users className="w-8 h-8 mx-auto text-violet-600 mb-2" />
                   <p className="text-sm font-medium">Contacts</p>
-                  <p className="text-2xl font-bold text-gray-900 dark:text-white">{contacts.length}</p>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                    {contacts.length}
+                  </p>
                 </CardContent>
               </Card>
               <Card className="flex-1">
@@ -348,7 +422,7 @@ export default function MobileHub() {
             </div>
 
             <div className="flex gap-2">
-              <Button 
+              <Button
                 className="flex-1 gap-2 bg-violet-600 hover:bg-violet-700"
                 onClick={() => {
                   setSelectedContact(null);
@@ -358,7 +432,7 @@ export default function MobileHub() {
                 <UserPlus className="w-4 h-4" />
                 New Contact
               </Button>
-              <Button 
+              <Button
                 className="flex-1 gap-2 bg-emerald-600 hover:bg-emerald-700"
                 onClick={() => {
                   setSelectedDeal(null);
@@ -375,17 +449,20 @@ export default function MobileHub() {
               <CardContent className="p-4">
                 <div className="flex items-center justify-between mb-3">
                   <h3 className="font-semibold text-gray-900 dark:text-white">Recent Contacts</h3>
-                  <Link to={createPageUrl('Contacts')} className="text-xs text-violet-600">View All</Link>
+                  <Link to={createPageUrl('Contacts')} className="text-xs text-violet-600">
+                    View All
+                  </Link>
                 </div>
                 <div className="space-y-2">
                   {contacts.slice(0, 5).map((contact) => (
-                    <div 
-                      key={contact.id} 
+                    <div
+                      key={contact.id}
                       className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-xl"
                     >
                       <Avatar className="w-10 h-10">
                         <AvatarFallback className="bg-violet-100 text-violet-600">
-                          {contact.first_name?.[0]}{contact.last_name?.[0]}
+                          {contact.first_name?.[0]}
+                          {contact.last_name?.[0]}
                         </AvatarFallback>
                       </Avatar>
                       <div className="flex-1 min-w-0">
@@ -407,9 +484,9 @@ export default function MobileHub() {
                             <Mail className="w-4 h-4" />
                           </Button>
                         </a>
-                        <Button 
-                          variant="ghost" 
-                          size="icon" 
+                        <Button
+                          variant="ghost"
+                          size="icon"
                           className="w-8 h-8"
                           onClick={() => {
                             setSelectedContact(contact);
@@ -430,12 +507,14 @@ export default function MobileHub() {
               <CardContent className="p-4">
                 <div className="flex items-center justify-between mb-3">
                   <h3 className="font-semibold text-gray-900 dark:text-white">Active Deals</h3>
-                  <Link to={createPageUrl('Deals')} className="text-xs text-violet-600">View All</Link>
+                  <Link to={createPageUrl('Deals')} className="text-xs text-violet-600">
+                    View All
+                  </Link>
                 </div>
                 <div className="space-y-2">
                   {deals.slice(0, 5).map((deal) => (
-                    <div 
-                      key={deal.id} 
+                    <div
+                      key={deal.id}
                       className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-xl"
                     >
                       <div className="flex-1 min-w-0">
@@ -446,11 +525,13 @@ export default function MobileHub() {
                       </div>
                       <div className="flex items-center gap-2">
                         <div className="text-right">
-                          <p className="font-semibold text-emerald-600">${(deal.value || 0).toLocaleString()}</p>
+                          <p className="font-semibold text-emerald-600">
+                            ${(deal.value || 0).toLocaleString()}
+                          </p>
                         </div>
-                        <Button 
-                          variant="ghost" 
-                          size="icon" 
+                        <Button
+                          variant="ghost"
+                          size="icon"
                           className="w-8 h-8"
                           onClick={() => {
                             setSelectedDeal(deal);
@@ -471,18 +552,29 @@ export default function MobileHub() {
             {/* Connected Accounts */}
             <Card>
               <CardContent className="p-4">
-                <h3 className="font-semibold text-gray-900 dark:text-white mb-3">Connected Accounts</h3>
+                <h3 className="font-semibold text-gray-900 dark:text-white mb-3">
+                  Connected Accounts
+                </h3>
                 <div className="space-y-2">
                   {socialAccounts.map((account) => {
                     const PlatformIcon = platformIcons[account.platform] || MessageSquare;
                     return (
-                      <div key={account.id} className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-xl">
-                        <div className={`w-10 h-10 rounded-lg ${getPlatformColor(account.platform)} flex items-center justify-center`}>
+                      <div
+                        key={account.id}
+                        className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-xl"
+                      >
+                        <div
+                          className={`w-10 h-10 rounded-lg ${getPlatformColor(account.platform)} flex items-center justify-center`}
+                        >
                           <PlatformIcon className="w-5 h-5 text-white" />
                         </div>
                         <div className="flex-1">
-                          <p className="font-medium text-gray-900 dark:text-white text-sm">@{account.account_name}</p>
-                          <p className="text-xs text-gray-500">{account.followers?.toLocaleString() || 0} followers</p>
+                          <p className="font-medium text-gray-900 dark:text-white text-sm">
+                            @{account.account_name}
+                          </p>
+                          <p className="text-xs text-gray-500">
+                            {account.followers?.toLocaleString() || 0} followers
+                          </p>
                         </div>
                         <Badge className="bg-emerald-100 text-emerald-700">Active</Badge>
                       </div>
@@ -493,7 +585,9 @@ export default function MobileHub() {
                       <Share2 className="w-12 h-12 mx-auto text-gray-300 mb-2" />
                       <p className="text-sm text-gray-500">No accounts connected</p>
                       <Link to={createPageUrl('SocialMedia')}>
-                        <Button size="sm" className="mt-2">Connect Account</Button>
+                        <Button size="sm" className="mt-2">
+                          Connect Account
+                        </Button>
                       </Link>
                     </div>
                   )}
@@ -502,7 +596,7 @@ export default function MobileHub() {
             </Card>
 
             {/* Quick Compose Button */}
-            <Button 
+            <Button
               className="w-full gap-2 bg-violet-600 hover:bg-violet-700"
               onClick={() => setShowComposer(true)}
             >
@@ -546,16 +640,20 @@ export default function MobileHub() {
                 </div>
                 <div className="space-y-2">
                   {notifications.map((notification) => (
-                    <div 
-                      key={notification.id} 
+                    <div
+                      key={notification.id}
                       className="flex gap-3 p-3 bg-violet-50 dark:bg-violet-900/20 rounded-xl cursor-pointer"
                       onClick={() => markNotificationRead.mutate(notification.id)}
                     >
-                      <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${
-                        notification.type === 'alert' ? 'bg-red-100' :
-                        notification.type === 'success' ? 'bg-emerald-100' :
-                        'bg-blue-100'
-                      }`}>
+                      <div
+                        className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${
+                          notification.type === 'alert'
+                            ? 'bg-red-100'
+                            : notification.type === 'success'
+                              ? 'bg-emerald-100'
+                              : 'bg-blue-100'
+                        }`}
+                      >
                         {notification.type === 'alert' ? (
                           <AlertTriangle className="w-5 h-5 text-red-600" />
                         ) : notification.type === 'success' ? (
@@ -565,7 +663,9 @@ export default function MobileHub() {
                         )}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="font-medium text-gray-900 dark:text-white text-sm">{notification.title}</p>
+                        <p className="font-medium text-gray-900 dark:text-white text-sm">
+                          {notification.title}
+                        </p>
                         <p className="text-xs text-gray-500 line-clamp-2">{notification.message}</p>
                         <p className="text-xs text-gray-400 mt-1">
                           {new Date(notification.created_date).toLocaleTimeString()}
@@ -594,8 +694,8 @@ export default function MobileHub() {
                 </div>
                 <div className="space-y-2">
                   {emails.map((email) => (
-                    <div 
-                      key={email.id} 
+                    <div
+                      key={email.id}
                       onClick={() => {
                         setSelectedEmail(email);
                         setShowEmailDetail(true);
@@ -614,11 +714,18 @@ export default function MobileHub() {
                             {email.from_name || email.from_email}
                           </p>
                           <span className="text-xs text-gray-400 flex-shrink-0">
-                            {new Date(email.received_date || email.created_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                            {new Date(email.received_date || email.created_date).toLocaleDateString(
+                              'en-US',
+                              { month: 'short', day: 'numeric' }
+                            )}
                           </span>
                         </div>
-                        <p className="text-sm font-medium text-gray-700 dark:text-gray-300 truncate">{email.subject}</p>
-                        <p className="text-xs text-gray-500 line-clamp-2">{email.body?.substring(0, 80)}...</p>
+                        <p className="text-sm font-medium text-gray-700 dark:text-gray-300 truncate">
+                          {email.subject}
+                        </p>
+                        <p className="text-xs text-gray-500 line-clamp-2">
+                          {email.body?.substring(0, 80)}...
+                        </p>
                       </div>
                     </div>
                   ))}
@@ -633,7 +740,9 @@ export default function MobileHub() {
             </Card>
 
             <Link to={createPageUrl('SalesInbox')}>
-              <Button className="w-full" variant="outline">View All Emails</Button>
+              <Button className="w-full" variant="outline">
+                View All Emails
+              </Button>
             </Link>
           </TabsContent>
 
@@ -699,21 +808,30 @@ export default function MobileHub() {
               <CardContent className="p-4">
                 <h3 className="font-semibold text-gray-900 dark:text-white mb-3">Analytics</h3>
                 <div className="space-y-2">
-                  <Link to={createPageUrl('TrafficAnalytics')} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-xl">
+                  <Link
+                    to={createPageUrl('TrafficAnalytics')}
+                    className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-xl"
+                  >
                     <div className="flex items-center gap-3">
                       <BarChart3 className="w-5 h-5 text-violet-600" />
                       <span className="font-medium text-sm">Traffic Analytics</span>
                     </div>
                     <ChevronRight className="w-4 h-4 text-gray-400" />
                   </Link>
-                  <Link to={createPageUrl('SEODashboard')} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-xl">
+                  <Link
+                    to={createPageUrl('SEODashboard')}
+                    className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-xl"
+                  >
                     <div className="flex items-center gap-3">
                       <Search className="w-5 h-5 text-blue-600" />
                       <span className="font-medium text-sm">SEO Dashboard</span>
                     </div>
                     <ChevronRight className="w-4 h-4 text-gray-400" />
                   </Link>
-                  <Link to={createPageUrl('SocialMedia')} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-xl">
+                  <Link
+                    to={createPageUrl('SocialMedia')}
+                    className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-xl"
+                  >
                     <div className="flex items-center gap-3">
                       <Share2 className="w-5 h-5 text-emerald-600" />
                       <span className="font-medium text-sm">Social Analytics</span>
@@ -730,37 +848,45 @@ export default function MobileHub() {
       {/* Bottom Navigation */}
       <div className="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 px-2 py-2 z-50">
         <div className="flex items-center justify-around max-w-lg mx-auto">
-          <button 
+          <button
             onClick={() => setActiveTab('home')}
             className={`flex flex-col items-center gap-1 px-4 py-2 rounded-xl transition-colors ${
-              activeTab === 'home' ? 'text-violet-600 bg-violet-50 dark:bg-violet-900/20' : 'text-gray-500'
+              activeTab === 'home'
+                ? 'text-violet-600 bg-violet-50 dark:bg-violet-900/20'
+                : 'text-gray-500'
             }`}
           >
             <Home className="w-5 h-5" />
             <span className="text-xs font-medium">Home</span>
           </button>
-          <button 
+          <button
             onClick={() => setActiveTab('crm')}
             className={`flex flex-col items-center gap-1 px-4 py-2 rounded-xl transition-colors ${
-              activeTab === 'crm' ? 'text-violet-600 bg-violet-50 dark:bg-violet-900/20' : 'text-gray-500'
+              activeTab === 'crm'
+                ? 'text-violet-600 bg-violet-50 dark:bg-violet-900/20'
+                : 'text-gray-500'
             }`}
           >
             <Users className="w-5 h-5" />
             <span className="text-xs font-medium">CRM</span>
           </button>
-          <button 
+          <button
             onClick={() => setActiveTab('social')}
             className={`flex flex-col items-center gap-1 px-4 py-2 rounded-xl transition-colors ${
-              activeTab === 'social' ? 'text-violet-600 bg-violet-50 dark:bg-violet-900/20' : 'text-gray-500'
+              activeTab === 'social'
+                ? 'text-violet-600 bg-violet-50 dark:bg-violet-900/20'
+                : 'text-gray-500'
             }`}
           >
             <Share2 className="w-5 h-5" />
             <span className="text-xs font-medium">Social</span>
           </button>
-          <button 
+          <button
             onClick={() => setActiveTab('alerts')}
             className={`flex flex-col items-center gap-1 px-4 py-2 rounded-xl transition-colors relative ${
-              activeTab === 'alerts' ? 'text-violet-600 bg-violet-50 dark:bg-violet-900/20' : 'text-gray-500'
+              activeTab === 'alerts'
+                ? 'text-violet-600 bg-violet-50 dark:bg-violet-900/20'
+                : 'text-gray-500'
             }`}
           >
             <Bell className="w-5 h-5" />
@@ -769,10 +895,12 @@ export default function MobileHub() {
             )}
             <span className="text-xs font-medium">Alerts</span>
           </button>
-          <button 
+          <button
             onClick={() => setActiveTab('inbox')}
             className={`flex flex-col items-center gap-1 px-4 py-2 rounded-xl transition-colors relative ${
-              activeTab === 'inbox' ? 'text-violet-600 bg-violet-50 dark:bg-violet-900/20' : 'text-gray-500'
+              activeTab === 'inbox'
+                ? 'text-violet-600 bg-violet-50 dark:bg-violet-900/20'
+                : 'text-gray-500'
             }`}
           >
             <Mail className="w-5 h-5" />
@@ -781,10 +909,12 @@ export default function MobileHub() {
             )}
             <span className="text-xs font-medium">Inbox</span>
           </button>
-          <button 
+          <button
             onClick={() => setActiveTab('stats')}
             className={`flex flex-col items-center gap-1 px-4 py-2 rounded-xl transition-colors ${
-              activeTab === 'stats' ? 'text-violet-600 bg-violet-50 dark:bg-violet-900/20' : 'text-gray-500'
+              activeTab === 'stats'
+                ? 'text-violet-600 bg-violet-50 dark:bg-violet-900/20'
+                : 'text-gray-500'
             }`}
           >
             <BarChart3 className="w-5 h-5" />
@@ -797,25 +927,33 @@ export default function MobileHub() {
       <Sheet open={showEmailDetail} onOpenChange={setShowEmailDetail}>
         <SheetContent side="bottom" className="h-[85vh] rounded-t-3xl">
           <SheetHeader>
-            <SheetTitle>Email from {selectedEmail?.from_name || selectedEmail?.from_email}</SheetTitle>
+            <SheetTitle>
+              Email from {selectedEmail?.from_name || selectedEmail?.from_email}
+            </SheetTitle>
           </SheetHeader>
           {selectedEmail && (
             <ScrollArea className="h-[calc(85vh-120px)] mt-4">
               <div className="space-y-4">
                 <div>
                   <p className="text-sm text-gray-500 mb-1">Subject</p>
-                  <p className="font-medium text-gray-900 dark:text-white">{selectedEmail.subject}</p>
+                  <p className="font-medium text-gray-900 dark:text-white">
+                    {selectedEmail.subject}
+                  </p>
                 </div>
                 <div>
                   <p className="text-sm text-gray-500 mb-1">From</p>
                   <div className="flex items-center gap-2">
                     <Avatar className="w-8 h-8">
                       <AvatarFallback className="bg-emerald-100 text-emerald-600">
-                        {selectedEmail.from_name?.[0] || selectedEmail.from_email?.[0]?.toUpperCase() || '?'}
+                        {selectedEmail.from_name?.[0] ||
+                          selectedEmail.from_email?.[0]?.toUpperCase() ||
+                          '?'}
                       </AvatarFallback>
                     </Avatar>
                     <div>
-                      <p className="text-sm font-medium">{selectedEmail.from_name || selectedEmail.from_email}</p>
+                      <p className="text-sm font-medium">
+                        {selectedEmail.from_name || selectedEmail.from_email}
+                      </p>
                       <p className="text-xs text-gray-500">{selectedEmail.from_email}</p>
                     </div>
                   </div>
@@ -836,10 +974,12 @@ export default function MobileHub() {
                   />
                 </div>
                 <div className="flex gap-2">
-                  <Button 
+                  <Button
                     className="flex-1 gap-2 bg-emerald-600 hover:bg-emerald-700"
                     disabled={!replyContent.trim() || sendReplyMutation.isPending}
-                    onClick={() => sendReplyMutation.mutate({ emailId: selectedEmail.id, content: replyContent })}
+                    onClick={() =>
+                      sendReplyMutation.mutate({ emailId: selectedEmail.id, content: replyContent })
+                    }
                   >
                     {sendReplyMutation.isPending ? (
                       <Loader2 className="w-4 h-4 animate-spin" />
@@ -848,8 +988,8 @@ export default function MobileHub() {
                     )}
                     Send Reply
                   </Button>
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     onClick={() => {
                       base44.entities.SalesEmail.update(selectedEmail.id, { status: 'closed' });
                       setShowEmailDetail(false);
@@ -904,14 +1044,14 @@ export default function MobileHub() {
                       key={platform}
                       onClick={() => {
                         if (isSelected) {
-                          setSelectedPlatforms(selectedPlatforms.filter(p => p !== platform));
+                          setSelectedPlatforms(selectedPlatforms.filter((p) => p !== platform));
                         } else {
                           setSelectedPlatforms([...selectedPlatforms, platform]);
                         }
                       }}
                       className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all ${
-                        isSelected 
-                          ? `${getPlatformColor(platform)} text-white ring-2 ring-offset-2 ring-violet-500` 
+                        isSelected
+                          ? `${getPlatformColor(platform)} text-white ring-2 ring-offset-2 ring-violet-500`
                           : 'bg-gray-100 dark:bg-gray-800 text-gray-500'
                       }`}
                     >
@@ -936,7 +1076,9 @@ export default function MobileHub() {
                     <Image className="w-5 h-5" />
                   </Button>
                 </div>
-                <span className={`text-sm ${postContent.length > 280 ? 'text-red-500' : 'text-gray-500'}`}>
+                <span
+                  className={`text-sm ${postContent.length > 280 ? 'text-red-500' : 'text-gray-500'}`}
+                >
                   {postContent.length}/280
                 </span>
               </div>
@@ -947,10 +1089,14 @@ export default function MobileHub() {
               <Button variant="outline" className="flex-1" onClick={() => setShowComposer(false)}>
                 Cancel
               </Button>
-              <Button 
+              <Button
                 className="flex-1 gap-2 bg-violet-600 hover:bg-violet-700"
-                disabled={!postContent.trim() || selectedPlatforms.length === 0 || createPost.isPending}
-                onClick={() => createPost.mutate({ content: postContent, platforms: selectedPlatforms })}
+                disabled={
+                  !postContent.trim() || selectedPlatforms.length === 0 || createPost.isPending
+                }
+                onClick={() =>
+                  createPost.mutate({ content: postContent, platforms: selectedPlatforms })
+                }
               >
                 {createPost.isPending ? (
                   <Loader2 className="w-4 h-4 animate-spin" />

@@ -1,9 +1,19 @@
 import React from 'react';
-import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Switch } from "@/components/ui/switch";
-import { Button } from "@/components/ui/button";
-import { Zap, Mail, CheckSquare, Tag, Bell, UserPlus, ArrowRight, Trash2, Edit2 } from "lucide-react";
+import { Card } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Switch } from '@/components/ui/switch';
+import { Button } from '@/components/ui/button';
+import {
+  Zap,
+  Mail,
+  CheckSquare,
+  Tag,
+  Bell,
+  UserPlus,
+  ArrowRight,
+  Trash2,
+  Edit2,
+} from 'lucide-react';
 
 const triggerLabels = {
   deal_stage_change: 'Deal Stage Changed',
@@ -39,22 +49,26 @@ export default function AutomationRuleCard({ rule, onToggle, onDelete, onClick }
   const ActionIcon = actionIcons[rule.action_type] || Zap;
 
   return (
-    <Card 
-      className="p-4 border-0 shadow-sm hover:shadow-md transition-all"
-    >
+    <Card className="p-4 border-0 shadow-sm hover:shadow-md transition-all">
       <div className="flex items-start justify-between">
         <div className="flex items-start gap-3 flex-1 cursor-pointer" onClick={onClick}>
-          <div className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${
-            rule.is_active ? 'bg-violet-100 dark:bg-violet-900' : 'bg-gray-100 dark:bg-gray-800'
-          }`}>
-            <Zap className={`w-5 h-5 ${rule.is_active ? 'text-violet-600 dark:text-violet-400' : 'text-gray-400'}`} />
+          <div
+            className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${
+              rule.is_active ? 'bg-violet-100 dark:bg-violet-900' : 'bg-gray-100 dark:bg-gray-800'
+            }`}
+          >
+            <Zap
+              className={`w-5 h-5 ${rule.is_active ? 'text-violet-600 dark:text-violet-400' : 'text-gray-400'}`}
+            />
           </div>
           <div className="flex-1 min-w-0">
             <h3 className="font-semibold text-gray-900 dark:text-white truncate">{rule.name}</h3>
             {rule.description && (
-              <p className="text-sm text-gray-500 dark:text-gray-400 truncate mt-0.5">{rule.description}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400 truncate mt-0.5">
+                {rule.description}
+              </p>
             )}
-            
+
             <div className="flex items-center gap-2 mt-2 flex-wrap">
               <Badge variant="outline" className="text-xs">
                 {triggerLabels[rule.trigger_type]}
@@ -72,7 +86,7 @@ export default function AutomationRuleCard({ rule, onToggle, onDelete, onClick }
             </p>
           </div>
         </div>
-        
+
         <div className="flex items-center gap-2 shrink-0 ml-4">
           <Button
             size="icon"

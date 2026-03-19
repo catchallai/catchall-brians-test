@@ -1,21 +1,51 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { Textarea } from "@/components/ui/textarea";
-import { 
-  ArrowLeft, Download, TrendingUp, TrendingDown, DollarSign, 
-  Users, Building2, Target, Edit2, Save, X, Star, Tag, Plus, FileText
-} from "lucide-react";
-import { 
-  BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, 
-  Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell 
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+import { Textarea } from '@/components/ui/textarea';
+import {
+  ArrowLeft,
+  Download,
+  TrendingUp,
+  TrendingDown,
+  DollarSign,
+  Users,
+  Building2,
+  Target,
+  Edit2,
+  Save,
+  X,
+  Star,
+  Tag,
+  Plus,
+  FileText,
+} from 'lucide-react';
+import {
+  BarChart,
+  Bar,
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
 } from 'recharts';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
 
 export default function PortfolioDetail({ portfolio, onBack, user }) {
   const [editingNotes, setEditingNotes] = useState(null);
@@ -27,51 +57,54 @@ export default function PortfolioDetail({ portfolio, onBack, user }) {
     queryKey: ['portfolio-companies', portfolio.id],
     queryFn: async () => {
       const allCompanies = await base44.entities.AerospaceCompany.list();
-      return allCompanies.filter(c => portfolio.company_ids?.includes(c.id));
-    }
+      return allCompanies.filter((c) => portfolio.company_ids?.includes(c.id));
+    },
   });
 
   const { data: notes = [] } = useQuery({
     queryKey: ['portfolio-notes', portfolio.id],
-    queryFn: () => base44.entities.PortfolioCompanyNote.filter({ 
-      portfolio_id: portfolio.id,
-      user_email: user.email 
-    }),
-    enabled: !!user?.email
+    queryFn: () =>
+      base44.entities.PortfolioCompanyNote.filter({
+        portfolio_id: portfolio.id,
+        user_email: user.email,
+      }),
+    enabled: !!user?.email,
   });
 
   const removeCompanyMutation = useMutation({
     mutationFn: (companyId) => {
-      const newCompanyIds = portfolio.company_ids.filter(id => id !== companyId);
-      return base44.entities.AerospacePortfolio.update(portfolio.id, { company_ids: newCompanyIds });
+      const newCompanyIds = portfolio.company_ids.filter((id) => id !== companyId);
+      return base44.entities.AerospacePortfolio.update(portfolio.id, {
+        company_ids: newCompanyIds,
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['aerospace-portfolios'] });
       queryClient.invalidateQueries({ queryKey: ['portfolio-companies'] });
-    }
+    },
   });
 
   const saveNoteMutation = useMutation({
     mutationFn: (data) => {
-      const existing = notes.find(n => n.company_id === data.company_id);
+      const existing = notes.find((n) => n.company_id === data.company_id);
       if (existing) {
         return base44.entities.PortfolioCompanyNote.update(existing.id, data);
       }
       return base44.entities.PortfolioCompanyNote.create({
         ...data,
         portfolio_id: portfolio.id,
-        user_email: user.email
+        user_email: user.email,
       });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['portfolio-notes'] });
       setShowNoteDialog(false);
       setEditingNotes(null);
-    }
+    },
   });
 
   const getNoteForCompany = (companyId) => {
-    return notes.find(n => n.company_id === companyId);
+    return notes.find((n) => n.company_id === companyId);
   };
 
   const handleSaveNote = () => {
@@ -82,33 +115,43 @@ export default function PortfolioDetail({ portfolio, onBack, user }) {
   const kpis = {
     totalCompanies: companies.length,
     totalEmployees: companies.reduce((sum, c) => sum + (c.employee_count || 0), 0),
-    avgGrowth: companies.length > 0 
-      ? companies.reduce((sum, c) => {
-          const growth = parseFloat((c.financial_highlights?.revenue_growth || '0').replace(/[^0-9.-]/g, ''));
-          return sum + (isNaN(growth) ? 0 : growth);
-        }, 0) / companies.length
-      : 0,
-    totalContracts: companies.reduce((sum, c) => 
-      sum + (c.dod_contracts?.length || 0) + (c.public_sector_contracts?.length || 0), 0
+    avgGrowth:
+      companies.length > 0
+        ? companies.reduce((sum, c) => {
+            const growth = parseFloat(
+              (c.financial_highlights?.revenue_growth || '0').replace(/[^0-9.-]/g, '')
+            );
+            return sum + (isNaN(growth) ? 0 : growth);
+          }, 0) / companies.length
+        : 0,
+    totalContracts: companies.reduce(
+      (sum, c) => sum + (c.dod_contracts?.length || 0) + (c.public_sector_contracts?.length || 0),
+      0
     ),
-    publicCompanies: companies.filter(c => c.company_type === 'public').length,
-    privateCompanies: companies.filter(c => c.company_type === 'private').length
+    publicCompanies: companies.filter((c) => c.company_type === 'public').length,
+    privateCompanies: companies.filter((c) => c.company_type === 'private').length,
   };
 
   // Chart data
-  const employeeData = companies.map(c => ({
-    name: c.company_name.length > 20 ? c.company_name.substring(0, 20) + '...' : c.company_name,
-    employees: c.employee_count || 0
-  })).sort((a, b) => b.employees - a.employees).slice(0, 10);
+  const employeeData = companies
+    .map((c) => ({
+      name: c.company_name.length > 20 ? c.company_name.substring(0, 20) + '...' : c.company_name,
+      employees: c.employee_count || 0,
+    }))
+    .sort((a, b) => b.employees - a.employees)
+    .slice(0, 10);
 
-  const contractData = companies.map(c => ({
-    name: c.company_name.length > 20 ? c.company_name.substring(0, 20) + '...' : c.company_name,
-    contracts: (c.dod_contracts?.length || 0) + (c.public_sector_contracts?.length || 0)
-  })).sort((a, b) => b.contracts - a.contracts).slice(0, 10);
+  const contractData = companies
+    .map((c) => ({
+      name: c.company_name.length > 20 ? c.company_name.substring(0, 20) + '...' : c.company_name,
+      contracts: (c.dod_contracts?.length || 0) + (c.public_sector_contracts?.length || 0),
+    }))
+    .sort((a, b) => b.contracts - a.contracts)
+    .slice(0, 10);
 
   const typeDistribution = [
     { name: 'Public', value: kpis.publicCompanies, color: '#3b82f6' },
-    { name: 'Private', value: kpis.privateCompanies, color: '#8b5cf6' }
+    { name: 'Private', value: kpis.privateCompanies, color: '#8b5cf6' },
   ];
 
   const generateReport = () => {
@@ -125,14 +168,18 @@ Public Companies: ${kpis.publicCompanies}
 Private Companies: ${kpis.privateCompanies}
 
 === COMPANIES ===
-${companies.map(c => `
+${companies
+  .map(
+    (c) => `
 ${c.company_name}
 - Type: ${c.company_type}
 - Employees: ${c.employee_count?.toLocaleString() || 'N/A'}
 - Revenue: ${c.annual_revenue || 'N/A'}
 - Contracts: ${(c.dod_contracts?.length || 0) + (c.public_sector_contracts?.length || 0)}
 ${getNoteForCompany(c.id)?.notes ? `- Notes: ${getNoteForCompany(c.id).notes}` : ''}
-`).join('\n')}
+`
+  )
+  .join('\n')}
     `.trim();
 
     const blob = new Blob([report], { type: 'text/plain' });
@@ -154,10 +201,7 @@ ${getNoteForCompany(c.id)?.notes ? `- Notes: ${getNoteForCompany(c.id).notes}` :
           </Button>
           <div>
             <h2 className="text-2xl font-bold flex items-center gap-2">
-              <div 
-                className="w-4 h-4 rounded-full" 
-                style={{ backgroundColor: portfolio.color }}
-              />
+              <div className="w-4 h-4 rounded-full" style={{ backgroundColor: portfolio.color }} />
               {portfolio.name}
             </h2>
             {portfolio.description && (
@@ -280,22 +324,35 @@ ${getNoteForCompany(c.id)?.notes ? `- Notes: ${getNoteForCompany(c.id).notes}` :
             {companies.map((company) => {
               const note = getNoteForCompany(company.id);
               return (
-                <div key={company.id} className="border rounded-lg p-4 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                <div
+                  key={company.id}
+                  className="border rounded-lg p-4 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                >
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-2">
                         {company.logo_url && (
-                          <img src={company.logo_url} alt={company.company_name} className="w-8 h-8 object-contain" />
+                          <img
+                            src={company.logo_url}
+                            alt={company.company_name}
+                            className="w-8 h-8 object-contain"
+                          />
                         )}
                         <h3 className="font-semibold">{company.company_name}</h3>
-                        <Badge className={company.company_type === 'public' ? 'bg-blue-100 text-blue-700' : 'bg-purple-100 text-purple-700'}>
+                        <Badge
+                          className={
+                            company.company_type === 'public'
+                              ? 'bg-blue-100 text-blue-700'
+                              : 'bg-purple-100 text-purple-700'
+                          }
+                        >
                           {company.company_type}
                         </Badge>
                         {note?.rating && (
                           <div className="flex items-center gap-1">
                             {[...Array(5)].map((_, i) => (
-                              <Star 
-                                key={i} 
+                              <Star
+                                key={i}
                                 className={`w-3 h-3 ${i < note.rating ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'}`}
                               />
                             ))}
@@ -305,20 +362,27 @@ ${getNoteForCompany(c.id)?.notes ? `- Notes: ${getNoteForCompany(c.id).notes}` :
                       <div className="grid grid-cols-4 gap-4 text-sm mb-2">
                         <div>
                           <span className="text-gray-500">Employees:</span>
-                          <span className="font-medium ml-1">{company.employee_count?.toLocaleString() || 'N/A'}</span>
+                          <span className="font-medium ml-1">
+                            {company.employee_count?.toLocaleString() || 'N/A'}
+                          </span>
                         </div>
                         <div>
                           <span className="text-gray-500">Revenue:</span>
-                          <span className="font-medium ml-1">{company.annual_revenue || 'N/A'}</span>
+                          <span className="font-medium ml-1">
+                            {company.annual_revenue || 'N/A'}
+                          </span>
                         </div>
                         <div>
                           <span className="text-gray-500">Growth:</span>
-                          <span className="font-medium ml-1">{company.financial_highlights?.revenue_growth || 'N/A'}</span>
+                          <span className="font-medium ml-1">
+                            {company.financial_highlights?.revenue_growth || 'N/A'}
+                          </span>
                         </div>
                         <div>
                           <span className="text-gray-500">Contracts:</span>
                           <span className="font-medium ml-1">
-                            {(company.dod_contracts?.length || 0) + (company.public_sector_contracts?.length || 0)}
+                            {(company.dod_contracts?.length || 0) +
+                              (company.public_sector_contracts?.length || 0)}
                           </span>
                         </div>
                       </div>
@@ -343,12 +407,14 @@ ${getNoteForCompany(c.id)?.notes ? `- Notes: ${getNoteForCompany(c.id).notes}` :
                         variant="ghost"
                         size="icon"
                         onClick={() => {
-                          setEditingNotes(note || { 
-                            company_id: company.id, 
-                            notes: '', 
-                            tags: [], 
-                            rating: 0 
-                          });
+                          setEditingNotes(
+                            note || {
+                              company_id: company.id,
+                              notes: '',
+                              tags: [],
+                              rating: 0,
+                            }
+                          );
                           setShowNoteDialog(true);
                         }}
                       >
@@ -392,10 +458,10 @@ ${getNoteForCompany(c.id)?.notes ? `- Notes: ${getNoteForCompany(c.id).notes}` :
                       onClick={() => setEditingNotes({ ...editingNotes, rating })}
                       className="focus:outline-none"
                     >
-                      <Star 
+                      <Star
                         className={`w-6 h-6 ${
-                          rating <= (editingNotes.rating || 0) 
-                            ? 'fill-yellow-400 text-yellow-400' 
+                          rating <= (editingNotes.rating || 0)
+                            ? 'fill-yellow-400 text-yellow-400'
                             : 'text-gray-300'
                         }`}
                       />
@@ -407,7 +473,9 @@ ${getNoteForCompany(c.id)?.notes ? `- Notes: ${getNoteForCompany(c.id).notes}` :
                 <Label>Watch Reason</Label>
                 <Input
                   value={editingNotes.watch_reason || ''}
-                  onChange={(e) => setEditingNotes({ ...editingNotes, watch_reason: e.target.value })}
+                  onChange={(e) =>
+                    setEditingNotes({ ...editingNotes, watch_reason: e.target.value })
+                  }
                   placeholder="Why are you tracking this company?"
                 />
               </div>
@@ -430,9 +498,9 @@ ${getNoteForCompany(c.id)?.notes ? `- Notes: ${getNoteForCompany(c.id).notes}` :
                     onKeyPress={(e) => {
                       if (e.key === 'Enter' && newTag.trim()) {
                         const currentTags = editingNotes.tags || [];
-                        setEditingNotes({ 
-                          ...editingNotes, 
-                          tags: [...currentTags, newTag.trim()] 
+                        setEditingNotes({
+                          ...editingNotes,
+                          tags: [...currentTags, newTag.trim()],
                         });
                         setNewTag('');
                       }
@@ -442,9 +510,9 @@ ${getNoteForCompany(c.id)?.notes ? `- Notes: ${getNoteForCompany(c.id).notes}` :
                     onClick={() => {
                       if (newTag.trim()) {
                         const currentTags = editingNotes.tags || [];
-                        setEditingNotes({ 
-                          ...editingNotes, 
-                          tags: [...currentTags, newTag.trim()] 
+                        setEditingNotes({
+                          ...editingNotes,
+                          tags: [...currentTags, newTag.trim()],
                         });
                         setNewTag('');
                       }
@@ -473,7 +541,9 @@ ${getNoteForCompany(c.id)?.notes ? `- Notes: ${getNoteForCompany(c.id).notes}` :
             </div>
           )}
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowNoteDialog(false)}>Cancel</Button>
+            <Button variant="outline" onClick={() => setShowNoteDialog(false)}>
+              Cancel
+            </Button>
             <Button onClick={handleSaveNote}>Save</Button>
           </DialogFooter>
         </DialogContent>

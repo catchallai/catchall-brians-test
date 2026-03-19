@@ -1,25 +1,58 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { 
-  Users, Building2, Target, Sparkles, Loader2, 
-  TrendingUp, AlertCircle, CheckCircle, Filter
-} from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import {
+  Users,
+  Building2,
+  Target,
+  Sparkles,
+  Loader2,
+  TrendingUp,
+  AlertCircle,
+  CheckCircle,
+  Filter,
+} from 'lucide-react';
 import { useToast } from '@/components/ui/toast-provider';
 
 const CONTENT_ANGLES = [
-  { id: 'pain_points', label: 'Address Pain Points', description: 'Content solving customer challenges' },
-  { id: 'industry_trends', label: 'Industry Trends', description: 'Relevant trends for target industries' },
-  { id: 'case_studies', label: 'Case Studies', description: 'Success stories from similar customers' },
-  { id: 'product_education', label: 'Product Education', description: 'How-to guides and tutorials' },
-  { id: 'thought_leadership', label: 'Thought Leadership', description: 'Expert insights and opinions' },
+  {
+    id: 'pain_points',
+    label: 'Address Pain Points',
+    description: 'Content solving customer challenges',
+  },
+  {
+    id: 'industry_trends',
+    label: 'Industry Trends',
+    description: 'Relevant trends for target industries',
+  },
+  {
+    id: 'case_studies',
+    label: 'Case Studies',
+    description: 'Success stories from similar customers',
+  },
+  {
+    id: 'product_education',
+    label: 'Product Education',
+    description: 'How-to guides and tutorials',
+  },
+  {
+    id: 'thought_leadership',
+    label: 'Thought Leadership',
+    description: 'Expert insights and opinions',
+  },
 ];
 
 export default function CRMContentGenerator({ contacts, companies, deals }) {
@@ -49,18 +82,19 @@ export default function CRMContentGenerator({ contacts, companies, deals }) {
     ],
     companies: [
       { value: 'all', label: 'All Companies' },
-      ...([...new Set(companies?.map(c => c.industry).filter(Boolean))].slice(0, 5).map(i => ({ value: i, label: i }))),
+      ...[...new Set(companies?.map((c) => c.industry).filter(Boolean))]
+        .slice(0, 5)
+        .map((i) => ({ value: i, label: i })),
     ],
   };
 
   const getSegmentData = () => {
     if (selectedSource === 'deals') {
-      const filtered = selectedSegment === 'all' 
-        ? deals 
-        : deals?.filter(d => d.stage === selectedSegment);
+      const filtered =
+        selectedSegment === 'all' ? deals : deals?.filter((d) => d.stage === selectedSegment);
       return {
         count: filtered?.length || 0,
-        data: filtered?.slice(0, 10).map(d => ({
+        data: filtered?.slice(0, 10).map((d) => ({
           title: d.title,
           value: d.value,
           stage: d.stage,
@@ -69,12 +103,13 @@ export default function CRMContentGenerator({ contacts, companies, deals }) {
       };
     }
     if (selectedSource === 'contacts') {
-      const filtered = selectedSegment === 'all'
-        ? contacts
-        : contacts?.filter(c => c.status === selectedSegment);
+      const filtered =
+        selectedSegment === 'all'
+          ? contacts
+          : contacts?.filter((c) => c.status === selectedSegment);
       return {
         count: filtered?.length || 0,
-        data: filtered?.slice(0, 10).map(c => ({
+        data: filtered?.slice(0, 10).map((c) => ({
           name: `${c.first_name} ${c.last_name}`,
           status: c.status,
           job_title: c.job_title,
@@ -83,12 +118,13 @@ export default function CRMContentGenerator({ contacts, companies, deals }) {
       };
     }
     if (selectedSource === 'companies') {
-      const filtered = selectedSegment === 'all'
-        ? companies
-        : companies?.filter(c => c.industry === selectedSegment);
+      const filtered =
+        selectedSegment === 'all'
+          ? companies
+          : companies?.filter((c) => c.industry === selectedSegment);
       return {
         count: filtered?.length || 0,
-        data: filtered?.slice(0, 10).map(c => ({
+        data: filtered?.slice(0, 10).map((c) => ({
           name: c.name,
           industry: c.industry,
           size: c.size,
@@ -102,8 +138,10 @@ export default function CRMContentGenerator({ contacts, companies, deals }) {
   const generateMutation = useMutation({
     mutationFn: async () => {
       const segmentData = getSegmentData();
-      const anglesText = selectedAngles.map(a => CONTENT_ANGLES.find(x => x.id === a)?.label).join(', ');
-      
+      const anglesText = selectedAngles
+        .map((a) => CONTENT_ANGLES.find((x) => x.id === a)?.label)
+        .join(', ');
+
       const result = await base44.integrations.Core.InvokeLLM({
         prompt: `Generate 5 targeted content ideas for marketing/SEO based on CRM data.
 
@@ -133,27 +171,27 @@ For each idea provide:
 - funnel_stage: top, middle, or bottom of funnel`,
         add_context_from_internet: true,
         response_json_schema: {
-          type: "object",
+          type: 'object',
           properties: {
             ideas: {
-              type: "array",
+              type: 'array',
               items: {
-                type: "object",
+                type: 'object',
                 properties: {
-                  title: { type: "string" },
-                  description: { type: "string" },
-                  target_keyword: { type: "string" },
-                  keyword_difficulty: { type: "number" },
-                  search_volume: { type: "number" },
-                  opportunity_score: { type: "number" },
-                  content_type: { type: "string" },
-                  target_segment: { type: "string" },
-                  funnel_stage: { type: "string" }
-                }
-              }
-            }
-          }
-        }
+                  title: { type: 'string' },
+                  description: { type: 'string' },
+                  target_keyword: { type: 'string' },
+                  keyword_difficulty: { type: 'number' },
+                  search_volume: { type: 'number' },
+                  opportunity_score: { type: 'number' },
+                  content_type: { type: 'string' },
+                  target_segment: { type: 'string' },
+                  funnel_stage: { type: 'string' },
+                },
+              },
+            },
+          },
+        },
       });
 
       return result.ideas || [];
@@ -182,10 +220,8 @@ For each idea provide:
   });
 
   const toggleAngle = (angleId) => {
-    setSelectedAngles(prev => 
-      prev.includes(angleId) 
-        ? prev.filter(a => a !== angleId)
-        : [...prev, angleId]
+    setSelectedAngles((prev) =>
+      prev.includes(angleId) ? prev.filter((a) => a !== angleId) : [...prev, angleId]
     );
   };
 
@@ -195,9 +231,12 @@ For each idea provide:
     <div className="space-y-6">
       {/* Source Selection */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card 
+        <Card
           className={`cursor-pointer transition-all ${selectedSource === 'deals' ? 'ring-2 ring-violet-500 bg-violet-50 dark:bg-violet-900/20' : 'hover:bg-gray-50 dark:hover:bg-gray-800'}`}
-          onClick={() => { setSelectedSource('deals'); setSelectedSegment('all'); }}
+          onClick={() => {
+            setSelectedSource('deals');
+            setSelectedSegment('all');
+          }}
         >
           <CardContent className="p-4 flex items-center gap-3">
             <div className="w-10 h-10 rounded-lg bg-violet-100 dark:bg-violet-900/40 flex items-center justify-center">
@@ -210,9 +249,12 @@ For each idea provide:
           </CardContent>
         </Card>
 
-        <Card 
+        <Card
           className={`cursor-pointer transition-all ${selectedSource === 'contacts' ? 'ring-2 ring-blue-500 bg-blue-50 dark:bg-blue-900/20' : 'hover:bg-gray-50 dark:hover:bg-gray-800'}`}
-          onClick={() => { setSelectedSource('contacts'); setSelectedSegment('all'); }}
+          onClick={() => {
+            setSelectedSource('contacts');
+            setSelectedSegment('all');
+          }}
         >
           <CardContent className="p-4 flex items-center gap-3">
             <div className="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center">
@@ -225,9 +267,12 @@ For each idea provide:
           </CardContent>
         </Card>
 
-        <Card 
+        <Card
           className={`cursor-pointer transition-all ${selectedSource === 'companies' ? 'ring-2 ring-purple-500 bg-purple-50 dark:bg-purple-900/20' : 'hover:bg-gray-50 dark:hover:bg-gray-800'}`}
-          onClick={() => { setSelectedSource('companies'); setSelectedSegment('all'); }}
+          onClick={() => {
+            setSelectedSource('companies');
+            setSelectedSegment('all');
+          }}
         >
           <CardContent className="p-4 flex items-center gap-3">
             <div className="w-10 h-10 rounded-lg bg-purple-100 dark:bg-purple-900/40 flex items-center justify-center">
@@ -256,15 +301,20 @@ For each idea provide:
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {segmentOptions[selectedSource]?.map(opt => (
-                  <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                {segmentOptions[selectedSource]?.map((opt) => (
+                  <SelectItem key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
-            
+
             <div className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
               <p className="text-sm text-gray-600 dark:text-gray-300">
-                <span className="font-semibold text-gray-900 dark:text-white">{segmentData.count}</span> records selected
+                <span className="font-semibold text-gray-900 dark:text-white">
+                  {segmentData.count}
+                </span>{' '}
+                records selected
               </p>
             </div>
           </CardContent>
@@ -279,15 +329,17 @@ For each idea provide:
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
-              {CONTENT_ANGLES.map(angle => (
-                <div 
+              {CONTENT_ANGLES.map((angle) => (
+                <div
                   key={angle.id}
                   className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer"
                   onClick={() => toggleAngle(angle.id)}
                 >
                   <Checkbox checked={selectedAngles.includes(angle.id)} />
                   <div>
-                    <p className="text-sm font-medium text-gray-900 dark:text-white">{angle.label}</p>
+                    <p className="text-sm font-medium text-gray-900 dark:text-white">
+                      {angle.label}
+                    </p>
                     <p className="text-xs text-gray-500">{angle.description}</p>
                   </div>
                 </div>
@@ -311,7 +363,7 @@ For each idea provide:
       </Card>
 
       {/* Generate Button */}
-      <Button 
+      <Button
         onClick={() => generateMutation.mutate()}
         disabled={generateMutation.isPending || selectedAngles.length === 0}
         className="w-full gap-2 bg-violet-600 hover:bg-violet-700"
@@ -330,12 +382,16 @@ For each idea provide:
         <Card className="glass-card rounded-2xl">
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="text-lg">Generated Ideas</CardTitle>
-            <Button 
+            <Button
               onClick={() => saveIdeasMutation.mutate(generatedIdeas)}
               disabled={saveIdeasMutation.isPending}
               className="gap-2"
             >
-              {saveIdeasMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />}
+              {saveIdeasMutation.isPending ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <CheckCircle className="w-4 h-4" />
+              )}
               Save All to Content Studio
             </Button>
           </CardHeader>
@@ -348,7 +404,9 @@ For each idea provide:
                     <p className="text-sm text-gray-500 mt-1">{idea.description}</p>
                     <div className="flex flex-wrap gap-2 mt-3">
                       <Badge variant="outline">{idea.content_type}</Badge>
-                      <Badge className="bg-emerald-100 text-emerald-700">{idea.funnel_stage} funnel</Badge>
+                      <Badge className="bg-emerald-100 text-emerald-700">
+                        {idea.funnel_stage} funnel
+                      </Badge>
                       <Badge className="bg-violet-100 text-violet-700">{idea.target_segment}</Badge>
                     </div>
                   </div>
@@ -358,7 +416,9 @@ For each idea provide:
                   </div>
                 </div>
                 <div className="flex gap-4 mt-3 text-xs text-gray-500">
-                  <span>Keyword: <strong>{idea.target_keyword}</strong></span>
+                  <span>
+                    Keyword: <strong>{idea.target_keyword}</strong>
+                  </span>
                   <span>Volume: {idea.search_volume?.toLocaleString()}</span>
                   <span>Difficulty: {idea.keyword_difficulty}</span>
                 </div>

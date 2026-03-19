@@ -1,37 +1,37 @@
 import React from 'react';
-import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
-import { Calendar, DollarSign, Users, Target } from "lucide-react";
-import { format } from "date-fns";
+import { Card } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
+import { Calendar, DollarSign, Users, Target } from 'lucide-react';
+import { format } from 'date-fns';
 
 const typeIcons = {
-  email: "📧",
-  social_media: "📱",
-  ppc: "💰",
-  content: "📝",
-  seo: "🔍",
-  event: "🎪",
-  referral: "🤝",
-  other: "📌"
+  email: '📧',
+  social_media: '📱',
+  ppc: '💰',
+  content: '📝',
+  seo: '🔍',
+  event: '🎪',
+  referral: '🤝',
+  other: '📌',
 };
 
 const statusColors = {
-  draft: "bg-gray-100 text-gray-700 border-gray-200",
-  active: "bg-emerald-100 text-emerald-700 border-emerald-200",
-  paused: "bg-amber-100 text-amber-700 border-amber-200",
-  completed: "bg-blue-100 text-blue-700 border-blue-200",
+  draft: 'bg-gray-100 text-gray-700 border-gray-200',
+  active: 'bg-emerald-100 text-emerald-700 border-emerald-200',
+  paused: 'bg-amber-100 text-amber-700 border-amber-200',
+  completed: 'bg-blue-100 text-blue-700 border-blue-200',
 };
 
 const typeColors = {
-  email: "bg-violet-100 text-violet-700",
-  social_media: "bg-pink-100 text-pink-700",
-  ppc: "bg-amber-100 text-amber-700",
-  content: "bg-blue-100 text-blue-700",
-  seo: "bg-emerald-100 text-emerald-700",
-  event: "bg-orange-100 text-orange-700",
-  referral: "bg-cyan-100 text-cyan-700",
-  other: "bg-gray-100 text-gray-700"
+  email: 'bg-violet-100 text-violet-700',
+  social_media: 'bg-pink-100 text-pink-700',
+  ppc: 'bg-amber-100 text-amber-700',
+  content: 'bg-blue-100 text-blue-700',
+  seo: 'bg-emerald-100 text-emerald-700',
+  event: 'bg-orange-100 text-orange-700',
+  referral: 'bg-cyan-100 text-cyan-700',
+  other: 'bg-gray-100 text-gray-700',
 };
 
 export default function CampaignCard({ campaign, leadsCount, dealsCount, revenue, onClick }) {
@@ -46,7 +46,7 @@ export default function CampaignCard({ campaign, leadsCount, dealsCount, revenue
   };
 
   return (
-    <Card 
+    <Card
       className="p-5 border-0 shadow-sm hover:shadow-lg transition-all cursor-pointer group"
       onClick={onClick}
     >
@@ -93,7 +93,9 @@ export default function CampaignCard({ campaign, leadsCount, dealsCount, revenue
         <div className="mb-3">
           <div className="flex justify-between text-xs text-gray-500 mb-1">
             <span>Budget Used</span>
-            <span>{formatCurrency(campaign.spent || 0)} / {formatCurrency(campaign.budget)}</span>
+            <span>
+              {formatCurrency(campaign.spent || 0)} / {formatCurrency(campaign.budget)}
+            </span>
           </div>
           <Progress value={budgetProgress} className="h-1.5" />
         </div>
@@ -104,7 +106,9 @@ export default function CampaignCard({ campaign, leadsCount, dealsCount, revenue
         <div className="mb-3">
           <div className="flex justify-between text-xs text-gray-500 mb-1">
             <span>Leads Target</span>
-            <span>{leadsCount} / {campaign.target_leads}</span>
+            <span>
+              {leadsCount} / {campaign.target_leads}
+            </span>
           </div>
           <Progress value={Math.min(leadsProgress, 100)} className="h-1.5" />
         </div>

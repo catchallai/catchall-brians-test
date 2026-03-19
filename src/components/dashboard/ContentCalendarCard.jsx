@@ -1,30 +1,34 @@
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Calendar, Clock, CheckCircle2, AlertCircle } from "lucide-react";
-import { format, isToday, isTomorrow, isPast, isFuture } from "date-fns";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Calendar, Clock, CheckCircle2, AlertCircle } from 'lucide-react';
+import { format, isToday, isTomorrow, isPast, isFuture } from 'date-fns';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 
 const platformColors = {
-  twitter: "bg-gray-900 text-white",
-  linkedin: "bg-blue-600 text-white",
-  facebook: "bg-blue-500 text-white",
-  instagram: "bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400 text-white",
-  youtube: "bg-red-600 text-white",
+  twitter: 'bg-gray-900 text-white',
+  linkedin: 'bg-blue-600 text-white',
+  facebook: 'bg-blue-500 text-white',
+  instagram: 'bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400 text-white',
+  youtube: 'bg-red-600 text-white',
 };
 
 export default function ContentCalendarCard({ posts, brands }) {
   const upcomingPosts = posts
-    .filter(p => p.status !== 'published' && p.scheduled_date && isFuture(new Date(p.scheduled_date)))
+    .filter(
+      (p) => p.status !== 'published' && p.scheduled_date && isFuture(new Date(p.scheduled_date))
+    )
     .sort((a, b) => new Date(a.scheduled_date) - new Date(b.scheduled_date))
     .slice(0, 5);
 
-  const todayPosts = posts.filter(p => p.scheduled_date && isToday(new Date(p.scheduled_date))).length;
-  const scheduledPosts = posts.filter(p => p.status === 'scheduled').length;
-  const draftPosts = posts.filter(p => p.status === 'draft').length;
+  const todayPosts = posts.filter(
+    (p) => p.scheduled_date && isToday(new Date(p.scheduled_date))
+  ).length;
+  const scheduledPosts = posts.filter((p) => p.status === 'scheduled').length;
+  const draftPosts = posts.filter((p) => p.status === 'draft').length;
 
-  const getBrandName = (brandId) => brands.find(b => b.id === brandId)?.name || 'Unknown';
+  const getBrandName = (brandId) => brands.find((b) => b.id === brandId)?.name || 'Unknown';
 
   const getDateLabel = (date) => {
     const d = new Date(date);
@@ -61,7 +65,7 @@ export default function ContentCalendarCard({ posts, brands }) {
           </div>
           <div className="text-center p-2 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg">
             <p className="text-lg font-bold text-emerald-600 dark:text-emerald-400">
-              {posts.filter(p => p.status === 'published').length}
+              {posts.filter((p) => p.status === 'published').length}
             </p>
             <p className="text-xs text-gray-500">Published</p>
           </div>
@@ -71,11 +75,13 @@ export default function ContentCalendarCard({ posts, brands }) {
         {upcomingPosts.length > 0 ? (
           <div className="space-y-2">
             {upcomingPosts.map((post) => (
-              <div 
-                key={post.id} 
+              <div
+                key={post.id}
                 className="flex items-center gap-3 p-2 rounded-lg bg-gray-50 dark:bg-gray-800/50 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
               >
-                <div className={`w-8 h-8 rounded-lg ${platformColors[post.platform] || 'bg-gray-500 text-white'} flex items-center justify-center text-xs font-bold flex-shrink-0`}>
+                <div
+                  className={`w-8 h-8 rounded-lg ${platformColors[post.platform] || 'bg-gray-500 text-white'} flex items-center justify-center text-xs font-bold flex-shrink-0`}
+                >
                   {post.platform?.[0]?.toUpperCase() || 'P'}
                 </div>
                 <div className="flex-1 min-w-0">
@@ -104,7 +110,7 @@ export default function ContentCalendarCard({ posts, brands }) {
           </div>
         )}
 
-        <Link 
+        <Link
           to={createPageUrl('SocialCalendar')}
           className="block text-center text-sm text-violet-600 dark:text-violet-400 hover:underline py-2"
         >

@@ -24,7 +24,7 @@
     --input: 229 231 235;
     --ring: 124 58 237;
     --radius: 0.75rem;
-    
+
     /* Custom theme colors */
     --sidebar-bg: 255 255 255;
     --sidebar-border: 243 244 246;
@@ -57,7 +57,7 @@
     --border: 51 65 85;
     --input: 51 65 85;
     --ring: 139 92 246;
-    
+
     /* Custom theme colors - dark */
     --sidebar-bg: 15 23 42;
     --sidebar-border: 51 65 85;
@@ -76,7 +76,9 @@
 
   body {
     @apply bg-background text-foreground;
-    font-feature-settings: "rlig" 1, "calt" 1;
+    font-feature-settings:
+      'rlig' 1,
+      'calt' 1;
   }
 }
 
@@ -84,23 +86,23 @@
   .glass {
     @apply bg-white/70 dark:bg-slate-800/70 backdrop-blur-xl border border-white/20 dark:border-slate-700/50;
   }
-  
+
   .glass-card {
     @apply bg-white/60 dark:bg-slate-800/60 backdrop-blur-xl border border-white/30 dark:border-slate-700/40 shadow-lg shadow-black/5;
   }
-  
+
   .glass-sidebar {
     @apply bg-white/80 dark:bg-slate-900/80 backdrop-blur-2xl border-r border-white/20 dark:border-slate-700/50;
   }
-  
+
   .glass-topbar {
     @apply bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl border-b border-white/20 dark:border-slate-700/50;
   }
-  
+
   .gradient-bg {
     @apply bg-gradient-to-br from-violet-50 via-slate-50 to-cyan-50 dark:from-slate-950 dark:via-slate-900 dark:to-violet-950;
   }
-  
+
   .gradient-text {
     @apply bg-gradient-to-r from-violet-600 to-cyan-600 bg-clip-text text-transparent;
   }
@@ -108,7 +110,9 @@
 
 /* Dark mode transitions */
 html {
-  transition: background-color 0.3s ease, color 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
 }
 
 /* Card styling for dark mode */
@@ -117,11 +121,15 @@ html {
 }
 
 .dark .shadow-md {
-  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.4), 0 2px 4px -2px rgb(0 0 0 / 0.4);
+  box-shadow:
+    0 4px 6px -1px rgb(0 0 0 / 0.4),
+    0 2px 4px -2px rgb(0 0 0 / 0.4);
 }
 
 .dark .shadow-lg {
-  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.5), 0 4px 6px -4px rgb(0 0 0 / 0.5);
+  box-shadow:
+    0 10px 15px -3px rgb(0 0 0 / 0.5),
+    0 4px 6px -4px rgb(0 0 0 / 0.5);
 }
 
 /* Skeleton loading dark mode */

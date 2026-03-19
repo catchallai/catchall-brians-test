@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
+import { Badge } from '@/components/ui/badge';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Star, Heart, ThumbsUp, Award } from "lucide-react";
+import { Star, Heart, ThumbsUp, Award } from 'lucide-react';
 
 export default function ContractorRatingSystem() {
   const [showRateModal, setShowRateModal] = useState(false);
@@ -17,59 +17,60 @@ export default function ContractorRatingSystem() {
     communication: 0,
     timeliness: 0,
     feedback: '',
-    wouldRehire: true
+    wouldRehire: true,
   });
   const queryClient = useQueryClient();
 
   const { data: user } = useQuery({
     queryKey: ['current-user'],
-    queryFn: () => base44.auth.me()
+    queryFn: () => base44.auth.me(),
   });
 
   const { data: contractors = [] } = useQuery({
     queryKey: ['contractors'],
-    queryFn: () => base44.entities.Contractor.list('-rating', 100)
+    queryFn: () => base44.entities.Contractor.list('-rating', 100),
   });
 
   const { data: schedules = [] } = useQuery({
     queryKey: ['completed-schedules'],
     queryFn: async () => {
       const all = await base44.entities.ContractorSchedule.list('-end_date', 100);
-      return all.filter(s => s.status === 'completed');
-    }
+      return all.filter((s) => s.status === 'completed');
+    },
   });
 
   const { data: ratings = [] } = useQuery({
     queryKey: ['contractor-ratings'],
-    queryFn: () => base44.entities.ContractorRating.list('-created_date', 100)
+    queryFn: () => base44.entities.ContractorRating.list('-created_date', 100),
   });
 
   const rateMutation = useMutation({
     mutationFn: (data) => base44.entities.ContractorRating.create(data),
     onSuccess: async (data, variables) => {
       // Update contractor's average rating
-      const contractorRatings = ratings.filter(r => r.contractor_id === variables.contractor_id);
+      const contractorRatings = ratings.filter((r) => r.contractor_id === variables.contractor_id);
       const totalRatings = contractorRatings.length + 1;
-      const avgRating = (contractorRatings.reduce((sum, r) => sum + r.rating, 0) + variables.rating) / totalRatings;
+      const avgRating =
+        (contractorRatings.reduce((sum, r) => sum + r.rating, 0) + variables.rating) / totalRatings;
 
-      const contractor = contractors.find(c => c.id === variables.contractor_id);
+      const contractor = contractors.find((c) => c.id === variables.contractor_id);
       await base44.entities.Contractor.update(variables.contractor_id, {
         rating: avgRating,
         total_ratings: totalRatings,
-        completed_projects: (contractor?.completed_projects || 0) + 1
+        completed_projects: (contractor?.completed_projects || 0) + 1,
       });
 
       queryClient.invalidateQueries({ queryKey: ['contractor-ratings'] });
       queryClient.invalidateQueries({ queryKey: ['contractors'] });
       setShowRateModal(false);
       resetForm();
-    }
+    },
   });
 
   const togglePreferredMutation = useMutation({
-    mutationFn: ({ id, isPreferred }) => 
+    mutationFn: ({ id, isPreferred }) =>
       base44.entities.Contractor.update(id, { is_preferred: !isPreferred }),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['contractors'] })
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['contractors'] }),
   });
 
   const resetForm = () => {
@@ -79,7 +80,7 @@ export default function ContractorRatingSystem() {
       communication: 0,
       timeliness: 0,
       feedback: '',
-      wouldRehire: true
+      wouldRehire: true,
     });
     setSelectedSchedule(null);
   };
@@ -101,7 +102,7 @@ export default function ContractorRatingSystem() {
       feedback: rating.feedback,
       would_rehire: rating.wouldRehire,
       rated_by: user?.email,
-      rated_by_name: user?.full_name
+      rated_by_name: user?.full_name,
     });
   };
 
@@ -122,13 +123,9 @@ export default function ContractorRatingSystem() {
     </div>
   );
 
-  const unratedSchedules = schedules.filter(s => 
-    !ratings.some(r => r.schedule_id === s.id)
-  );
+  const unratedSchedules = schedules.filter((s) => !ratings.some((r) => r.schedule_id === s.id));
 
-  const topContractors = contractors
-    .filter(c => c.rating && c.rating >= 4)
-    .slice(0, 5);
+  const topContractors = contractors.filter((c) => c.rating && c.rating >= 4).slice(0, 5);
 
   return (
     <div className="space-y-6">
@@ -149,7 +146,10 @@ export default function ContractorRatingSystem() {
           ) : (
             <div className="space-y-3">
               {unratedSchedules.map((schedule) => (
-                <div key={schedule.id} className="p-3 rounded-lg border hover:bg-gray-50 dark:hover:bg-gray-800">
+                <div
+                  key={schedule.id}
+                  className="p-3 rounded-lg border hover:bg-gray-50 dark:hover:bg-gray-800"
+                >
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <h4 className="font-semibold text-gray-900 dark:text-white">
@@ -159,7 +159,7 @@ export default function ContractorRatingSystem() {
                         {schedule.project_name}
                       </p>
                     </div>
-                    <Button 
+                    <Button
                       size="sm"
                       onClick={() => {
                         setSelectedSchedule(schedule);
@@ -187,7 +187,10 @@ export default function ContractorRatingSystem() {
         <CardContent>
           <div className="space-y-3">
             {topContractors.map((contractor, idx) => (
-              <div key={contractor.id} className="p-3 rounded-lg border hover:bg-gray-50 dark:hover:bg-gray-800">
+              <div
+                key={contractor.id}
+                className="p-3 rounded-lg border hover:bg-gray-50 dark:hover:bg-gray-800"
+              >
                 <div className="flex items-center gap-3">
                   <div className="text-2xl font-bold text-gray-400">#{idx + 1}</div>
                   <div className="flex-1">
@@ -218,10 +221,12 @@ export default function ContractorRatingSystem() {
                   <Button
                     size="sm"
                     variant="outline"
-                    onClick={() => togglePreferredMutation.mutate({ 
-                      id: contractor.id, 
-                      isPreferred: contractor.is_preferred 
-                    })}
+                    onClick={() =>
+                      togglePreferredMutation.mutate({
+                        id: contractor.id,
+                        isPreferred: contractor.is_preferred,
+                      })
+                    }
                   >
                     {contractor.is_preferred ? (
                       <Heart className="w-4 h-4 fill-current" />

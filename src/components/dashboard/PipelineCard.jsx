@@ -1,7 +1,7 @@
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Target, DollarSign, TrendingUp } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Target, DollarSign, TrendingUp } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 
@@ -20,16 +20,16 @@ export default function PipelineCard({ deals }) {
     .map(([stage, config]) => ({
       stage,
       ...config,
-      count: deals.filter(d => d.stage === stage).length,
-      value: deals.filter(d => d.stage === stage).reduce((sum, d) => sum + (d.value || 0), 0)
+      count: deals.filter((d) => d.stage === stage).length,
+      value: deals.filter((d) => d.stage === stage).reduce((sum, d) => sum + (d.value || 0), 0),
     }));
 
   const totalPipeline = deals
-    .filter(d => !['won', 'lost'].includes(d.stage))
+    .filter((d) => !['won', 'lost'].includes(d.stage))
     .reduce((sum, d) => sum + (d.value || 0), 0);
 
   const wonValue = deals
-    .filter(d => d.stage === 'won')
+    .filter((d) => d.stage === 'won')
     .reduce((sum, d) => sum + (d.value || 0), 0);
 
   const formatCurrency = (value) => {
@@ -38,7 +38,7 @@ export default function PipelineCard({ deals }) {
     return `$${value.toLocaleString()}`;
   };
 
-  const maxCount = Math.max(...activeDealsByStage.map(s => s.count), 1);
+  const maxCount = Math.max(...activeDealsByStage.map((s) => s.count), 1);
 
   return (
     <Card className="border-0 shadow-sm">
@@ -65,7 +65,7 @@ export default function PipelineCard({ deals }) {
                 </span>
               </div>
               <div className="h-2 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
-                <div 
+                <div
                   className={`h-full ${stage.color} rounded-full transition-all duration-500`}
                   style={{ width: `${(stage.count / maxCount) * 100}%` }}
                 />
@@ -85,7 +85,7 @@ export default function PipelineCard({ deals }) {
           </span>
         </div>
 
-        <Link 
+        <Link
           to={createPageUrl('Deals')}
           className="block text-center text-sm text-violet-600 dark:text-violet-400 hover:underline py-2"
         >

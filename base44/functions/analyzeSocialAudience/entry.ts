@@ -5,7 +5,9 @@ Deno.serve(async (req) => {
     const base44 = createClientFromRequest(req);
     const { social_account_id } = await req.json();
 
-    const account = await base44.asServiceRole.entities.SocialAccount.filter({ id: social_account_id });
+    const account = await base44.asServiceRole.entities.SocialAccount.filter({
+      id: social_account_id,
+    });
     if (!account.length) return Response.json({ error: 'Account not found' }, { status: 404 });
 
     const posts = await base44.asServiceRole.entities.SocialPost.filter({ social_account_id });
@@ -15,7 +17,11 @@ Deno.serve(async (req) => {
 
 Followers: ${account[0].followers_count}
 Posts analyzed: ${posts.length}
-Topics: ${posts.slice(0, 10).map(p => p.topics?.join(', ')).filter(Boolean).join('; ')}
+Topics: ${posts
+        .slice(0, 10)
+        .map((p) => p.topics?.join(', '))
+        .filter(Boolean)
+        .join('; ')}
 
 Provide:
 1. Demographics: age_groups (%), gender (%), top 5 countries
@@ -24,21 +30,21 @@ Provide:
 4. Recommended segment name`,
       add_context_from_internet: true,
       response_json_schema: {
-        type: "object",
+        type: 'object',
         properties: {
           demographics: {
-            type: "object",
+            type: 'object',
             properties: {
-              age_groups: { type: "object" },
-              gender: { type: "object" },
-              top_countries: { type: "array", items: { type: "string" } }
-            }
+              age_groups: { type: 'object' },
+              gender: { type: 'object' },
+              top_countries: { type: 'array', items: { type: 'string' } },
+            },
           },
-          interests: { type: "array", items: { type: "string" } },
-          behaviors: { type: "array", items: { type: "string" } },
-          segment_name: { type: "string" }
-        }
-      }
+          interests: { type: 'array', items: { type: 'string' } },
+          behaviors: { type: 'array', items: { type: 'string' } },
+          segment_name: { type: 'string' },
+        },
+      },
     });
 
     const audienceData = await base44.asServiceRole.entities.SocialAudience.create({
@@ -49,12 +55,12 @@ Provide:
       demographics: analysis.demographics,
       interests: analysis.interests,
       behaviors: analysis.behaviors,
-      segment_name: analysis.segment_name
+      segment_name: analysis.segment_name,
     });
 
     return Response.json({
       success: true,
-      data: audienceData
+      data: audienceData,
     });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });

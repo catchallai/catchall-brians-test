@@ -1,9 +1,20 @@
 import React from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { BarChart, Bar, PieChart, Pie, Cell, ResponsiveContainer, XAxis, YAxis, Tooltip, Legend } from 'recharts';
-import { Building2, MapPin, Monitor, TrendingUp, Eye, Clock, Target } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import {
+  BarChart,
+  Bar,
+  PieChart,
+  Pie,
+  Cell,
+  ResponsiveContainer,
+  XAxis,
+  YAxis,
+  Tooltip,
+  Legend,
+} from 'recharts';
+import { Building2, MapPin, Monitor, TrendingUp, Eye, Clock, Target } from 'lucide-react';
 
 const CHART_COLORS = ['#8B5CF6', '#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#EC4899'];
 
@@ -12,7 +23,9 @@ export default function SegmentAnalysis({ open, onClose, segment, visitors }) {
 
   // Calculate analytics
   const avgScore = Math.round(visitors.reduce((sum, v) => sum + v.leadScore, 0) / visitors.length);
-  const avgPages = Math.round(visitors.reduce((sum, v) => sum + v.pagesViewed, 0) / visitors.length);
+  const avgPages = Math.round(
+    visitors.reduce((sum, v) => sum + v.pagesViewed, 0) / visitors.length
+  );
   const avgTimeMinutes = Math.round(
     visitors.reduce((sum, v) => sum + parseInt(v.timeOnSite.split('m')[0]), 0) / visitors.length
   );
@@ -23,7 +36,10 @@ export default function SegmentAnalysis({ open, onClose, segment, visitors }) {
       acc[v.industry] = (acc[v.industry] || 0) + 1;
       return acc;
     }, {})
-  ).map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value).slice(0, 5);
+  )
+    .map(([name, value]) => ({ name, value }))
+    .sort((a, b) => b.value - a.value)
+    .slice(0, 5);
 
   // Tier distribution
   const tierData = Object.entries(
@@ -48,7 +64,10 @@ export default function SegmentAnalysis({ open, onClose, segment, visitors }) {
       acc[v.country] = (acc[v.country] || 0) + 1;
       return acc;
     }, {})
-  ).map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value).slice(0, 6);
+  )
+    .map(([name, value]) => ({ name, value }))
+    .sort((a, b) => b.value - a.value)
+    .slice(0, 6);
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
@@ -112,7 +131,10 @@ export default function SegmentAnalysis({ open, onClose, segment, visitors }) {
                       dataKey="value"
                     >
                       {tierData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={CHART_COLORS[index % CHART_COLORS.length]} />
+                        <Cell
+                          key={`cell-${index}`}
+                          fill={CHART_COLORS[index % CHART_COLORS.length]}
+                        />
                       ))}
                     </Pie>
                     <Tooltip />
@@ -189,22 +211,28 @@ export default function SegmentAnalysis({ open, onClose, segment, visitors }) {
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
-                {visitors.sort((a, b) => b.leadScore - a.leadScore).slice(0, 10).map((visitor, idx) => (
-                  <div key={visitor.id} className="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-800 rounded">
-                    <div className="flex items-center gap-3">
-                      <span className="text-sm font-mono text-gray-400">#{idx + 1}</span>
-                      <img src={visitor.logo} alt={visitor.company} className="w-6 h-6 rounded" />
-                      <span className="text-sm font-medium">{visitor.company}</span>
+                {visitors
+                  .sort((a, b) => b.leadScore - a.leadScore)
+                  .slice(0, 10)
+                  .map((visitor, idx) => (
+                    <div
+                      key={visitor.id}
+                      className="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-800 rounded"
+                    >
+                      <div className="flex items-center gap-3">
+                        <span className="text-sm font-mono text-gray-400">#{idx + 1}</span>
+                        <img src={visitor.logo} alt={visitor.company} className="w-6 h-6 rounded" />
+                        <span className="text-sm font-medium">{visitor.company}</span>
+                      </div>
+                      <div className="flex items-center gap-4 text-sm text-gray-500">
+                        <span className="flex items-center gap-1">
+                          <Eye className="w-3 h-3" />
+                          {visitor.pagesViewed}
+                        </span>
+                        <Badge>{visitor.leadScore}</Badge>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-4 text-sm text-gray-500">
-                      <span className="flex items-center gap-1">
-                        <Eye className="w-3 h-3" />
-                        {visitor.pagesViewed}
-                      </span>
-                      <Badge>{visitor.leadScore}</Badge>
-                    </div>
-                  </div>
-                ))}
+                  ))}
               </div>
             </CardContent>
           </Card>

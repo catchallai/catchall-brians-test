@@ -1,10 +1,27 @@
 import React, { useState, useMemo } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { History, TrendingUp, TrendingDown, Minus, Target, BarChart3 } from "lucide-react";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, Area, AreaChart } from 'recharts';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { History, TrendingUp, TrendingDown, Minus, Target, BarChart3 } from 'lucide-react';
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  Legend,
+  Area,
+  AreaChart,
+} from 'recharts';
 import { format, subDays } from 'date-fns';
 
 export default function HistoricalDataCard({ keywords, keywordHistory, websites }) {
@@ -18,20 +35,21 @@ export default function HistoricalDataCard({ keywords, keywordHistory, websites 
     const days = parseInt(timeRange);
     const data = [];
     const siteList = websites || [];
-    
+
     for (let i = days; i >= 0; i--) {
       const date = subDays(new Date(), i);
       const displayDate = format(date, 'MMM d');
-      
+
       // Simulate historical scores with slight variations
-      const baseScore = selectedWebsite === 'all' 
-        ? siteList.reduce((sum, w) => sum + (w.seo_score || 70), 0) / Math.max(siteList.length, 1)
-        : siteList.find(w => w.id === selectedWebsite)?.seo_score || 70;
-      
+      const baseScore =
+        selectedWebsite === 'all'
+          ? siteList.reduce((sum, w) => sum + (w.seo_score || 70), 0) / Math.max(siteList.length, 1)
+          : siteList.find((w) => w.id === selectedWebsite)?.seo_score || 70;
+
       // Add some realistic variation over time (scores generally trend up with small fluctuations)
       const dayVariation = Math.sin(i * 0.3) * 3 + (days - i) * 0.1;
       const score = Math.round(Math.max(0, Math.min(100, baseScore - dayVariation)));
-      
+
       data.push({
         date: displayDate,
         score,
@@ -40,38 +58,42 @@ export default function HistoricalDataCard({ keywords, keywordHistory, websites 
         backlinks: Math.round(Math.max(0, Math.min(100, score + Math.random() * 15 - 10))),
       });
     }
-    
+
     return data;
   }, [websites, selectedWebsite, timeRange]);
 
   const chartData = useMemo(() => {
     const days = parseInt(timeRange);
     const data = [];
-    
+
     for (let i = days; i >= 0; i--) {
       const date = subDays(new Date(), i);
       const dateStr = format(date, 'yyyy-MM-dd');
       const displayDate = format(date, 'MMM d');
-      
+
       const dayData = { date: displayDate };
-      
+
       if (selectedKeyword === 'all') {
         // Average position for all keywords
-        const dayHistory = keywordHistory.filter(h => h.date === dateStr);
+        const dayHistory = keywordHistory.filter((h) => h.date === dateStr);
         if (dayHistory.length > 0) {
-          dayData.position = Math.round(dayHistory.reduce((sum, h) => sum + h.position, 0) / dayHistory.length);
+          dayData.position = Math.round(
+            dayHistory.reduce((sum, h) => sum + h.position, 0) / dayHistory.length
+          );
         }
       } else {
-        const entry = keywordHistory.find(h => h.keyword_id === selectedKeyword && h.date === dateStr);
+        const entry = keywordHistory.find(
+          (h) => h.keyword_id === selectedKeyword && h.date === dateStr
+        );
         if (entry) {
           dayData.position = entry.position;
         }
       }
-      
+
       data.push(dayData);
     }
-    
-    return data.filter(d => d.position !== undefined);
+
+    return data.filter((d) => d.position !== undefined);
   }, [keywordHistory, selectedKeyword, timeRange]);
 
   const trendData = useMemo(() => {
@@ -81,7 +103,7 @@ export default function HistoricalDataCard({ keywords, keywordHistory, websites 
     const change = first - last;
     return {
       change: Math.abs(change),
-      direction: change > 0 ? 'up' : change < 0 ? 'down' : 'stable'
+      direction: change > 0 ? 'up' : change < 0 ? 'down' : 'stable',
     };
   }, [chartData]);
 
@@ -92,7 +114,7 @@ export default function HistoricalDataCard({ keywords, keywordHistory, websites 
     const change = last - first;
     return {
       change: Math.abs(change),
-      direction: change > 0 ? 'up' : change < 0 ? 'down' : 'stable'
+      direction: change > 0 ? 'up' : change < 0 ? 'down' : 'stable',
     };
   }, [scoreHistory]);
 
@@ -130,8 +152,10 @@ export default function HistoricalDataCard({ keywords, keywordHistory, websites 
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Keywords (Avg)</SelectItem>
-                {keywords.map(kw => (
-                  <SelectItem key={kw.id} value={kw.id}>{kw.keyword}</SelectItem>
+                {keywords.map((kw) => (
+                  <SelectItem key={kw.id} value={kw.id}>
+                    {kw.keyword}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -142,8 +166,10 @@ export default function HistoricalDataCard({ keywords, keywordHistory, websites 
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Websites (Avg)</SelectItem>
-                {(websites || []).map(w => (
-                  <SelectItem key={w.id} value={w.id}>{w.domain}</SelectItem>
+                {(websites || []).map((w) => (
+                  <SelectItem key={w.id} value={w.id}>
+                    {w.domain}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -165,15 +191,28 @@ export default function HistoricalDataCard({ keywords, keywordHistory, websites 
           chartData.length > 0 ? (
             <>
               <div className="flex items-center gap-4 mb-4">
-                <Badge className={`gap-1 ${
-                  trendData.direction === 'up' ? 'bg-emerald-100 text-emerald-700' :
-                  trendData.direction === 'down' ? 'bg-red-100 text-red-700' :
-                  'bg-gray-100 text-gray-700'
-                }`}>
-                  {trendData.direction === 'up' ? <TrendingUp className="w-3 h-3" /> :
-                   trendData.direction === 'down' ? <TrendingDown className="w-3 h-3" /> :
-                   <Minus className="w-3 h-3" />}
-                  {trendData.change} positions {trendData.direction === 'up' ? 'improved' : trendData.direction === 'down' ? 'dropped' : 'stable'}
+                <Badge
+                  className={`gap-1 ${
+                    trendData.direction === 'up'
+                      ? 'bg-emerald-100 text-emerald-700'
+                      : trendData.direction === 'down'
+                        ? 'bg-red-100 text-red-700'
+                        : 'bg-gray-100 text-gray-700'
+                  }`}
+                >
+                  {trendData.direction === 'up' ? (
+                    <TrendingUp className="w-3 h-3" />
+                  ) : trendData.direction === 'down' ? (
+                    <TrendingDown className="w-3 h-3" />
+                  ) : (
+                    <Minus className="w-3 h-3" />
+                  )}
+                  {trendData.change} positions{' '}
+                  {trendData.direction === 'up'
+                    ? 'improved'
+                    : trendData.direction === 'down'
+                      ? 'dropped'
+                      : 'stable'}
                 </Badge>
               </div>
               <div className="h-48">
@@ -183,10 +222,10 @@ export default function HistoricalDataCard({ keywords, keywordHistory, websites 
                     <XAxis dataKey="date" tick={{ fontSize: 10 }} />
                     <YAxis reversed domain={[1, 'auto']} tick={{ fontSize: 10 }} />
                     <Tooltip />
-                    <Line 
-                      type="monotone" 
-                      dataKey="position" 
-                      stroke="#6366f1" 
+                    <Line
+                      type="monotone"
+                      dataKey="position"
+                      stroke="#6366f1"
                       strokeWidth={2}
                       dot={{ fill: '#6366f1', r: 3 }}
                       name="Position"
@@ -204,15 +243,28 @@ export default function HistoricalDataCard({ keywords, keywordHistory, websites 
         ) : (
           <>
             <div className="flex items-center gap-4 mb-4">
-              <Badge className={`gap-1 ${
-                scoreTrendData.direction === 'up' ? 'bg-emerald-100 text-emerald-700' :
-                scoreTrendData.direction === 'down' ? 'bg-red-100 text-red-700' :
-                'bg-gray-100 text-gray-700'
-              }`}>
-                {scoreTrendData.direction === 'up' ? <TrendingUp className="w-3 h-3" /> :
-                 scoreTrendData.direction === 'down' ? <TrendingDown className="w-3 h-3" /> :
-                 <Minus className="w-3 h-3" />}
-                {scoreTrendData.change} points {scoreTrendData.direction === 'up' ? 'improved' : scoreTrendData.direction === 'down' ? 'dropped' : 'stable'}
+              <Badge
+                className={`gap-1 ${
+                  scoreTrendData.direction === 'up'
+                    ? 'bg-emerald-100 text-emerald-700'
+                    : scoreTrendData.direction === 'down'
+                      ? 'bg-red-100 text-red-700'
+                      : 'bg-gray-100 text-gray-700'
+                }`}
+              >
+                {scoreTrendData.direction === 'up' ? (
+                  <TrendingUp className="w-3 h-3" />
+                ) : scoreTrendData.direction === 'down' ? (
+                  <TrendingDown className="w-3 h-3" />
+                ) : (
+                  <Minus className="w-3 h-3" />
+                )}
+                {scoreTrendData.change} points{' '}
+                {scoreTrendData.direction === 'up'
+                  ? 'improved'
+                  : scoreTrendData.direction === 'down'
+                    ? 'dropped'
+                    : 'stable'}
               </Badge>
               <div className="flex gap-3 text-xs">
                 <span className="flex items-center gap-1">
@@ -234,45 +286,45 @@ export default function HistoricalDataCard({ keywords, keywordHistory, websites 
                 <AreaChart data={scoreHistory}>
                   <defs>
                     <linearGradient id="scoreGradient" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.3}/>
-                      <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0}/>
+                      <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.3} />
+                      <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0} />
                     </linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                   <XAxis dataKey="date" tick={{ fontSize: 10 }} />
                   <YAxis domain={[0, 100]} tick={{ fontSize: 10 }} />
-                  <Tooltip 
+                  <Tooltip
                     contentStyle={{ fontSize: 12, borderRadius: 8 }}
                     formatter={(value, name) => [`${value}`, name]}
                   />
-                  <Area 
-                    type="monotone" 
-                    dataKey="score" 
-                    stroke="#8b5cf6" 
+                  <Area
+                    type="monotone"
+                    dataKey="score"
+                    stroke="#8b5cf6"
                     strokeWidth={2}
                     fill="url(#scoreGradient)"
                     name="Overall Score"
                   />
-                  <Line 
-                    type="monotone" 
-                    dataKey="technical" 
-                    stroke="#3b82f6" 
+                  <Line
+                    type="monotone"
+                    dataKey="technical"
+                    stroke="#3b82f6"
                     strokeWidth={1.5}
                     dot={false}
                     name="Technical"
                   />
-                  <Line 
-                    type="monotone" 
-                    dataKey="content" 
-                    stroke="#10b981" 
+                  <Line
+                    type="monotone"
+                    dataKey="content"
+                    stroke="#10b981"
                     strokeWidth={1.5}
                     dot={false}
                     name="Content"
                   />
-                  <Line 
-                    type="monotone" 
-                    dataKey="backlinks" 
-                    stroke="#f97316" 
+                  <Line
+                    type="monotone"
+                    dataKey="backlinks"
+                    stroke="#f97316"
                     strokeWidth={1.5}
                     dot={false}
                     name="Backlinks"

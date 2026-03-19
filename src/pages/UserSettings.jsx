@@ -1,21 +1,42 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Badge } from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Skeleton } from '@/components/ui/skeleton';
 import {
-  User, Bell, Link2, Key, Save, Loader2, Check, Copy, Eye, EyeOff,
-  Mail, MessageSquare, TrendingUp, AlertTriangle, Lightbulb, Target,
-  Twitter, Linkedin, Facebook, Instagram, Youtube, RefreshCw, Trash2, Plus
-} from "lucide-react";
+  User,
+  Bell,
+  Link2,
+  Key,
+  Save,
+  Loader2,
+  Check,
+  Copy,
+  Eye,
+  EyeOff,
+  Mail,
+  MessageSquare,
+  TrendingUp,
+  AlertTriangle,
+  Lightbulb,
+  Target,
+  Twitter,
+  Linkedin,
+  Facebook,
+  Instagram,
+  Youtube,
+  RefreshCw,
+  Trash2,
+  Plus,
+} from 'lucide-react';
 import { useToast } from '@/components/ui/toast-provider';
 
 export default function UserSettings() {
@@ -84,7 +105,12 @@ export default function UserSettings() {
         </TabsContent>
 
         <TabsContent value="integrations">
-          <IntegrationSettings user={user} socialAccounts={socialAccounts} queryClient={queryClient} toast={toast} />
+          <IntegrationSettings
+            user={user}
+            socialAccounts={socialAccounts}
+            queryClient={queryClient}
+            toast={toast}
+          />
         </TabsContent>
 
         <TabsContent value="api">
@@ -188,7 +214,11 @@ function ProfileSettings({ user, queryClient, toast }) {
             disabled={updateMutation.isPending}
             className="gap-2"
           >
-            {updateMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+            {updateMutation.isPending ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <Save className="w-4 h-4" />
+            )}
             Save Changes
           </Button>
         </div>
@@ -224,23 +254,68 @@ function NotificationSettings({ user, queryClient, toast }) {
       title: 'Email Notifications',
       icon: Mail,
       items: [
-        { key: 'email_alerts', label: 'Critical Alerts', description: 'Important system and security alerts', icon: AlertTriangle },
-        { key: 'email_content_ideas', label: 'Content Ideas', description: 'New AI-generated content suggestions', icon: Lightbulb },
-        { key: 'email_competitor_updates', label: 'Competitor Updates', description: 'Changes in competitor activity', icon: Target },
-        { key: 'email_weekly_digest', label: 'Weekly Digest', description: 'Summary of your weekly performance', icon: TrendingUp },
-        { key: 'email_seo_alerts', label: 'SEO Alerts', description: 'Ranking changes and technical issues', icon: TrendingUp },
-      ]
+        {
+          key: 'email_alerts',
+          label: 'Critical Alerts',
+          description: 'Important system and security alerts',
+          icon: AlertTriangle,
+        },
+        {
+          key: 'email_content_ideas',
+          label: 'Content Ideas',
+          description: 'New AI-generated content suggestions',
+          icon: Lightbulb,
+        },
+        {
+          key: 'email_competitor_updates',
+          label: 'Competitor Updates',
+          description: 'Changes in competitor activity',
+          icon: Target,
+        },
+        {
+          key: 'email_weekly_digest',
+          label: 'Weekly Digest',
+          description: 'Summary of your weekly performance',
+          icon: TrendingUp,
+        },
+        {
+          key: 'email_seo_alerts',
+          label: 'SEO Alerts',
+          description: 'Ranking changes and technical issues',
+          icon: TrendingUp,
+        },
+      ],
     },
     {
       title: 'Push Notifications',
       icon: Bell,
       items: [
-        { key: 'push_mentions', label: 'Social Mentions', description: 'When your brand is mentioned', icon: MessageSquare },
-        { key: 'push_engagement_spikes', label: 'Engagement Spikes', description: 'Unusual engagement activity', icon: TrendingUp },
-        { key: 'push_campaign_updates', label: 'Campaign Updates', description: 'Campaign performance milestones', icon: Target },
-        { key: 'push_deal_updates', label: 'Deal Updates', description: 'CRM deal stage changes', icon: Target },
-      ]
-    }
+        {
+          key: 'push_mentions',
+          label: 'Social Mentions',
+          description: 'When your brand is mentioned',
+          icon: MessageSquare,
+        },
+        {
+          key: 'push_engagement_spikes',
+          label: 'Engagement Spikes',
+          description: 'Unusual engagement activity',
+          icon: TrendingUp,
+        },
+        {
+          key: 'push_campaign_updates',
+          label: 'Campaign Updates',
+          description: 'Campaign performance milestones',
+          icon: Target,
+        },
+        {
+          key: 'push_deal_updates',
+          label: 'Deal Updates',
+          description: 'CRM deal stage changes',
+          icon: Target,
+        },
+      ],
+    },
   ];
 
   return (
@@ -267,7 +342,9 @@ function NotificationSettings({ user, queryClient, toast }) {
                 </div>
                 <Switch
                   checked={preferences[item.key]}
-                  onCheckedChange={(checked) => setPreferences({ ...preferences, [item.key]: checked })}
+                  onCheckedChange={(checked) =>
+                    setPreferences({ ...preferences, [item.key]: checked })
+                  }
                 />
               </div>
             ))}
@@ -281,7 +358,11 @@ function NotificationSettings({ user, queryClient, toast }) {
           disabled={updateMutation.isPending}
           className="gap-2"
         >
-          {updateMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+          {updateMutation.isPending ? (
+            <Loader2 className="w-4 h-4 animate-spin" />
+          ) : (
+            <Save className="w-4 h-4" />
+          )}
           Save Preferences
         </Button>
       </div>
@@ -291,11 +372,41 @@ function NotificationSettings({ user, queryClient, toast }) {
 
 function IntegrationSettings({ user, socialAccounts, queryClient, toast }) {
   const integrations = [
-    { id: 'twitter', name: 'X (Twitter)', icon: Twitter, color: 'bg-gray-900', connected: socialAccounts.some(a => a.platform === 'twitter') },
-    { id: 'linkedin', name: 'LinkedIn', icon: Linkedin, color: 'bg-blue-600', connected: socialAccounts.some(a => a.platform === 'linkedin') },
-    { id: 'facebook', name: 'Facebook', icon: Facebook, color: 'bg-blue-500', connected: socialAccounts.some(a => a.platform === 'facebook') },
-    { id: 'instagram', name: 'Instagram', icon: Instagram, color: 'bg-gradient-to-br from-purple-600 to-orange-400', connected: socialAccounts.some(a => a.platform === 'instagram') },
-    { id: 'youtube', name: 'YouTube', icon: Youtube, color: 'bg-red-600', connected: socialAccounts.some(a => a.platform === 'youtube') },
+    {
+      id: 'twitter',
+      name: 'X (Twitter)',
+      icon: Twitter,
+      color: 'bg-gray-900',
+      connected: socialAccounts.some((a) => a.platform === 'twitter'),
+    },
+    {
+      id: 'linkedin',
+      name: 'LinkedIn',
+      icon: Linkedin,
+      color: 'bg-blue-600',
+      connected: socialAccounts.some((a) => a.platform === 'linkedin'),
+    },
+    {
+      id: 'facebook',
+      name: 'Facebook',
+      icon: Facebook,
+      color: 'bg-blue-500',
+      connected: socialAccounts.some((a) => a.platform === 'facebook'),
+    },
+    {
+      id: 'instagram',
+      name: 'Instagram',
+      icon: Instagram,
+      color: 'bg-gradient-to-br from-purple-600 to-orange-400',
+      connected: socialAccounts.some((a) => a.platform === 'instagram'),
+    },
+    {
+      id: 'youtube',
+      name: 'YouTube',
+      icon: Youtube,
+      color: 'bg-red-600',
+      connected: socialAccounts.some((a) => a.platform === 'youtube'),
+    },
   ];
 
   const emailIntegrations = [
@@ -308,12 +419,14 @@ function IntegrationSettings({ user, socialAccounts, queryClient, toast }) {
       <Card className="glass-card rounded-2xl">
         <CardHeader>
           <CardTitle>Social Media Accounts</CardTitle>
-          <CardDescription>Connect your social media accounts for analytics and publishing</CardDescription>
+          <CardDescription>
+            Connect your social media accounts for analytics and publishing
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {integrations.map((integration) => {
-              const connectedAccount = socialAccounts.find(a => a.platform === integration.id);
+              const connectedAccount = socialAccounts.find((a) => a.platform === integration.id);
               return (
                 <div
                   key={integration.id}
@@ -324,7 +437,9 @@ function IntegrationSettings({ user, socialAccounts, queryClient, toast }) {
                   }`}
                 >
                   <div className="flex items-center justify-between mb-3">
-                    <div className={`w-10 h-10 rounded-lg ${integration.color} flex items-center justify-center`}>
+                    <div
+                      className={`w-10 h-10 rounded-lg ${integration.color} flex items-center justify-center`}
+                    >
                       <integration.icon className="w-5 h-5 text-white" />
                     </div>
                     {integration.connected && (
@@ -339,10 +454,10 @@ function IntegrationSettings({ user, socialAccounts, queryClient, toast }) {
                     <p className="text-sm text-gray-500 mt-1">@{connectedAccount.account_name}</p>
                   )}
                   <Button
-                    variant={integration.connected ? "outline" : "default"}
+                    variant={integration.connected ? 'outline' : 'default'}
                     size="sm"
                     className="w-full mt-3"
-                    onClick={() => window.location.href = '/SocialMedia'}
+                    onClick={() => (window.location.href = '/SocialMedia')}
                   >
                     {integration.connected ? 'Manage' : 'Connect'}
                   </Button>
@@ -401,7 +516,12 @@ function APIKeySettings({ user, queryClient, toast }) {
     const newKey = {
       id: Date.now().toString(),
       name: newKeyName,
-      key: 'ca_' + Array.from({ length: 32 }, () => 'abcdefghijklmnopqrstuvwxyz0123456789'[Math.floor(Math.random() * 36)]).join(''),
+      key:
+        'ca_' +
+        Array.from(
+          { length: 32 },
+          () => 'abcdefghijklmnopqrstuvwxyz0123456789'[Math.floor(Math.random() * 36)]
+        ).join(''),
       created: new Date().toISOString(),
       lastUsed: null,
     };
@@ -416,7 +536,7 @@ function APIKeySettings({ user, queryClient, toast }) {
   };
 
   const deleteKey = (id) => {
-    setKeys(keys.filter(k => k.id !== id));
+    setKeys(keys.filter((k) => k.id !== id));
     toast.success('API key deleted');
   };
 
@@ -474,7 +594,8 @@ function APIKeySettings({ user, queryClient, toast }) {
                       <p className="font-medium text-gray-900 dark:text-white">{apiKey.name}</p>
                       <p className="text-xs text-gray-500">
                         Created {new Date(apiKey.created).toLocaleDateString()}
-                        {apiKey.lastUsed && ` • Last used ${new Date(apiKey.lastUsed).toLocaleDateString()}`}
+                        {apiKey.lastUsed &&
+                          ` • Last used ${new Date(apiKey.lastUsed).toLocaleDateString()}`}
                       </p>
                     </div>
                     <div className="flex items-center gap-2">
@@ -483,13 +604,13 @@ function APIKeySettings({ user, queryClient, toast }) {
                         size="icon"
                         onClick={() => setShowKey({ ...showKey, [apiKey.id]: !showKey[apiKey.id] })}
                       >
-                        {showKey[apiKey.id] ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                        {showKey[apiKey.id] ? (
+                          <EyeOff className="w-4 h-4" />
+                        ) : (
+                          <Eye className="w-4 h-4" />
+                        )}
                       </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => copyKey(apiKey.key)}
-                      >
+                      <Button variant="ghost" size="icon" onClick={() => copyKey(apiKey.key)}>
                         <Copy className="w-4 h-4" />
                       </Button>
                       <Button
@@ -517,7 +638,11 @@ function APIKeySettings({ user, queryClient, toast }) {
                 disabled={saveMutation.isPending}
                 className="gap-2"
               >
-                {saveMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                {saveMutation.isPending ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Save className="w-4 h-4" />
+                )}
                 Save Changes
               </Button>
             </div>
@@ -537,7 +662,7 @@ function APIKeySettings({ user, queryClient, toast }) {
               Use your API key to authenticate requests to the CatchAll API:
             </p>
             <pre className="bg-gray-900 text-gray-100 rounded-lg p-4 text-sm overflow-x-auto">
-{`curl -X GET "https://api.catchall.io/v1/contacts" \\
+              {`curl -X GET "https://api.catchall.io/v1/contacts" \\
   -H "Authorization: Bearer YOUR_API_KEY" \\
   -H "Content-Type: application/json"`}
             </pre>
