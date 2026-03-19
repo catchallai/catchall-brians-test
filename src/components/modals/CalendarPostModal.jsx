@@ -24,6 +24,7 @@ import {
 	Maximize2,
 	Calendar,
 	CheckCircle2,
+	Eye,
 	MessageSquare,
 	GitBranch,
 	Clock,
@@ -128,7 +129,6 @@ function PlatformPreviewPanel({ platform, caption, imageUrl, videoUrl }) {
 		<div className='flex flex-col h-full'>
 			<p className='text-sm font-semibold text-gray-700 dark:text-gray-300 mb-4 flex items-center gap-2'>
 				{p.label} Preview
-				<span className='text-xs font-normal text-gray-400 cursor-help'>ⓘ</span>
 			</p>
 
 			{!caption && !imageUrl && !videoUrl ? (
@@ -504,7 +504,7 @@ export default function CalendarPostModal({
 							size='sm'
 							className={`gap-1.5 text-sm ${showPreview ? 'bg-blue-600 hover:bg-blue-700 text-white' : ''}`}
 							onClick={() => setShowPreview((v) => !v)}>
-							👁 Preview
+							<Eye className='w-4 h-4' /> Preview
 						</Button>
 						<button className='p-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors text-gray-400'>
 							<Maximize2 className='w-4 h-4' />
