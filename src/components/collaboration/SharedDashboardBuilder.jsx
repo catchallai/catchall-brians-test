@@ -1,13 +1,19 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Badge } from "@/components/ui/badge";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Plus, Share2, Trash2, Users } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog';
+import { Badge } from '@/components/ui/badge';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Plus, Share2, Trash2, Users } from 'lucide-react';
 
 export default function SharedDashboardBuilder({ businessId }) {
   const [showModal, setShowModal] = useState(false);
@@ -29,9 +35,12 @@ export default function SharedDashboardBuilder({ businessId }) {
     queryKey: ['shared-dashboards', businessId],
     queryFn: async () => {
       if (!businessId) return [];
-      return await base44.entities.SharedDashboard.filter({
-        business_id: businessId
-      }, '-created_date');
+      return await base44.entities.SharedDashboard.filter(
+        {
+          business_id: businessId,
+        },
+        '-created_date'
+      );
     },
     enabled: !!businessId,
   });
@@ -42,11 +51,12 @@ export default function SharedDashboardBuilder({ businessId }) {
   });
 
   const createDashMutation = useMutation({
-    mutationFn: (data) => base44.entities.SharedDashboard.create({
-      ...data,
-      business_id: businessId,
-      created_by: user?.email,
-    }),
+    mutationFn: (data) =>
+      base44.entities.SharedDashboard.create({
+        ...data,
+        business_id: businessId,
+        created_by: user?.email,
+      }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['shared-dashboards', businessId] });
       handleModalClose();
@@ -73,7 +83,7 @@ export default function SharedDashboardBuilder({ businessId }) {
 
   const toggleUserShare = (email) => {
     const newSharedWith = formData.shared_with.includes(email)
-      ? formData.shared_with.filter(e => e !== email)
+      ? formData.shared_with.filter((e) => e !== email)
       : [...formData.shared_with, email];
     setFormData({ ...formData, shared_with: newSharedWith });
   };
@@ -98,12 +108,17 @@ export default function SharedDashboardBuilder({ businessId }) {
           <p className="text-sm text-gray-500 py-8 text-center">No shared dashboards yet</p>
         ) : (
           dashboards.map((dash) => (
-            <div key={dash.id} className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+            <div
+              key={dash.id}
+              className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700"
+            >
               <div className="flex items-start justify-between gap-3 mb-2">
                 <div className="flex-1">
                   <h4 className="font-medium text-gray-900 dark:text-white">{dash.name}</h4>
                   {dash.description && (
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{dash.description}</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                      {dash.description}
+                    </p>
                   )}
                 </div>
                 <Button
@@ -183,13 +198,18 @@ export default function SharedDashboardBuilder({ businessId }) {
               <label className="text-sm font-medium mb-3 block">Share With Team Members</label>
               <div className="space-y-2 max-h-48 overflow-y-auto">
                 {users.map((u) => (
-                  <label key={u.id} className="flex items-center gap-2 p-2 hover:bg-gray-50 dark:hover:bg-gray-800 rounded cursor-pointer">
+                  <label
+                    key={u.id}
+                    className="flex items-center gap-2 p-2 hover:bg-gray-50 dark:hover:bg-gray-800 rounded cursor-pointer"
+                  >
                     <Checkbox
                       checked={formData.shared_with.includes(u.email)}
                       onCheckedChange={() => toggleUserShare(u.email)}
                     />
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-gray-900 dark:text-white">{u.full_name}</p>
+                      <p className="text-sm font-medium text-gray-900 dark:text-white">
+                        {u.full_name}
+                      </p>
                       <p className="text-xs text-gray-500">{u.email}</p>
                     </div>
                   </label>
@@ -199,7 +219,9 @@ export default function SharedDashboardBuilder({ businessId }) {
           </div>
 
           <DialogFooter>
-            <Button variant="outline" onClick={handleModalClose}>Cancel</Button>
+            <Button variant="outline" onClick={handleModalClose}>
+              Cancel
+            </Button>
             <Button onClick={handleCreateDash} disabled={!formData.name.trim()} className="gap-2">
               <Share2 className="w-4 h-4" />
               Create Dashboard

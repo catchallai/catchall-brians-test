@@ -1,17 +1,38 @@
 import React, { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2 } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Loader2 } from 'lucide-react';
 
 const TRIGGERS = [
-  { id: 'deal_stage_change', label: 'Deal Stage Changed', hasValue: true, values: ['lead', 'qualified', 'proposal', 'negotiation', 'won', 'lost'] },
+  {
+    id: 'deal_stage_change',
+    label: 'Deal Stage Changed',
+    hasValue: true,
+    values: ['lead', 'qualified', 'proposal', 'negotiation', 'won', 'lost'],
+  },
   { id: 'contact_created', label: 'Contact Created', hasValue: false },
-  { id: 'contact_status_change', label: 'Contact Status Changed', hasValue: true, values: ['lead', 'prospect', 'customer', 'churned'] },
-  { id: 'activity_completed', label: 'Activity Completed', hasValue: true, values: ['call', 'email', 'meeting', 'task', 'note'] },
+  {
+    id: 'contact_status_change',
+    label: 'Contact Status Changed',
+    hasValue: true,
+    values: ['lead', 'prospect', 'customer', 'churned'],
+  },
+  {
+    id: 'activity_completed',
+    label: 'Activity Completed',
+    hasValue: true,
+    values: ['call', 'email', 'meeting', 'task', 'note'],
+  },
   { id: 'email_opened', label: 'Email Opened', hasValue: false },
   { id: 'email_clicked', label: 'Email Link Clicked', hasValue: false },
   { id: 'lead_score_threshold', label: 'Lead Score Threshold', hasValue: true, isNumber: true },
@@ -65,13 +86,13 @@ export default function AutomationRuleModal({ open, onClose, rule, templates, on
     onSave(formData);
   };
 
-  const selectedTrigger = TRIGGERS.find(t => t.id === formData.trigger_type);
-  const selectedAction = ACTIONS.find(a => a.id === formData.action_type);
+  const selectedTrigger = TRIGGERS.find((t) => t.id === formData.trigger_type);
+  const selectedAction = ACTIONS.find((a) => a.id === formData.action_type);
 
   const updateActionConfig = (field, value) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      action_config: { ...prev.action_config, [field]: value }
+      action_config: { ...prev.action_config, [field]: value },
     }));
   };
 
@@ -81,7 +102,7 @@ export default function AutomationRuleModal({ open, onClose, rule, templates, on
         <DialogHeader>
           <DialogTitle>{rule ? 'Edit Automation Rule' : 'Create Automation Rule'}</DialogTitle>
         </DialogHeader>
-        
+
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label>Rule Name *</Label>
@@ -109,14 +130,18 @@ export default function AutomationRuleModal({ open, onClose, rule, templates, on
               <Label>Trigger</Label>
               <Select
                 value={formData.trigger_type}
-                onValueChange={(value) => setFormData({ ...formData, trigger_type: value, trigger_value: '' })}
+                onValueChange={(value) =>
+                  setFormData({ ...formData, trigger_type: value, trigger_value: '' })
+                }
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select trigger" />
                 </SelectTrigger>
                 <SelectContent>
-                  {TRIGGERS.map(t => (
-                    <SelectItem key={t.id} value={t.id}>{t.label}</SelectItem>
+                  {TRIGGERS.map((t) => (
+                    <SelectItem key={t.id} value={t.id}>
+                      {t.label}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -141,8 +166,10 @@ export default function AutomationRuleModal({ open, onClose, rule, templates, on
                       <SelectValue placeholder="Select value" />
                     </SelectTrigger>
                     <SelectContent>
-                      {selectedTrigger.values?.map(v => (
-                        <SelectItem key={v} value={v}>{v.replace('_', ' ')}</SelectItem>
+                      {selectedTrigger.values?.map((v) => (
+                        <SelectItem key={v} value={v}>
+                          {v.replace('_', ' ')}
+                        </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -157,14 +184,18 @@ export default function AutomationRuleModal({ open, onClose, rule, templates, on
               <Label>Action</Label>
               <Select
                 value={formData.action_type}
-                onValueChange={(value) => setFormData({ ...formData, action_type: value, action_config: {} })}
+                onValueChange={(value) =>
+                  setFormData({ ...formData, action_type: value, action_config: {} })
+                }
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select action" />
                 </SelectTrigger>
                 <SelectContent>
-                  {ACTIONS.map(a => (
-                    <SelectItem key={a.id} value={a.id}>{a.label}</SelectItem>
+                  {ACTIONS.map((a) => (
+                    <SelectItem key={a.id} value={a.id}>
+                      {a.label}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -187,7 +218,9 @@ export default function AutomationRuleModal({ open, onClose, rule, templates, on
                       value={formData.action_config.task_type || ''}
                       onValueChange={(value) => updateActionConfig('task_type', value)}
                     >
-                      <SelectTrigger><SelectValue placeholder="Type" /></SelectTrigger>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Type" />
+                      </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="call">Call</SelectItem>
                         <SelectItem value="email">Email</SelectItem>
@@ -202,7 +235,9 @@ export default function AutomationRuleModal({ open, onClose, rule, templates, on
                       value={formData.action_config.task_priority || ''}
                       onValueChange={(value) => updateActionConfig('task_priority', value)}
                     >
-                      <SelectTrigger><SelectValue placeholder="Priority" /></SelectTrigger>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Priority" />
+                      </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="low">Low</SelectItem>
                         <SelectItem value="medium">Medium</SelectItem>
@@ -221,10 +256,14 @@ export default function AutomationRuleModal({ open, onClose, rule, templates, on
                   value={formData.action_config.email_template || ''}
                   onValueChange={(value) => updateActionConfig('email_template', value)}
                 >
-                  <SelectTrigger><SelectValue placeholder="Select template" /></SelectTrigger>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select template" />
+                  </SelectTrigger>
                   <SelectContent>
-                    {templates?.map(t => (
-                      <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>
+                    {templates?.map((t) => (
+                      <SelectItem key={t.id} value={t.id}>
+                        {t.name}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -238,7 +277,9 @@ export default function AutomationRuleModal({ open, onClose, rule, templates, on
                   value={formData.action_config.new_status || ''}
                   onValueChange={(value) => updateActionConfig('new_status', value)}
                 >
-                  <SelectTrigger><SelectValue placeholder="Select status" /></SelectTrigger>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select status" />
+                  </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="lead">Lead</SelectItem>
                     <SelectItem value="prospect">Prospect</SelectItem>
@@ -273,8 +314,13 @@ export default function AutomationRuleModal({ open, onClose, rule, templates, on
           </div>
 
           <div className="flex justify-end gap-3 pt-4">
-            <Button type="button" variant="outline" onClick={onClose}>Cancel</Button>
-            <Button type="submit" disabled={isLoading || !formData.trigger_type || !formData.action_type}>
+            <Button type="button" variant="outline" onClick={onClose}>
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              disabled={isLoading || !formData.trigger_type || !formData.action_type}
+            >
               {isLoading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
               {rule ? 'Update Rule' : 'Create Rule'}
             </Button>

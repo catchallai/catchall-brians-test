@@ -20,7 +20,7 @@ Deno.serve(async (req) => {
       'No Response - Follow Up': 'no_response',
       '✅ Contacted': 'contacted',
       '✅ Closed': 'closed',
-      '❌ Not Interested': 'not_interested'
+      '❌ Not Interested': 'not_interested',
     };
 
     const imported = [];
@@ -30,11 +30,14 @@ Deno.serve(async (req) => {
       try {
         // Map stage value
         let stage = stageMapping[row.stage] || 'new_lead';
-        
+
         // Parse tags if they exist
         let tags = [];
         if (row.tags) {
-          tags = row.tags.split(',').map(t => t.trim()).filter(t => t);
+          tags = row.tags
+            .split(',')
+            .map((t) => t.trim())
+            .filter((t) => t);
         }
 
         const opportunityData = {
@@ -48,7 +51,7 @@ Deno.serve(async (req) => {
           value: parseFloat(row['Lead Value']) || 0,
           notes: row.Notes || '',
           tags: tags,
-          priority: 'medium'
+          priority: 'medium',
         };
 
         const created = await base44.entities.Opportunity.create(opportunityData);
@@ -56,7 +59,7 @@ Deno.serve(async (req) => {
       } catch (error) {
         errors.push({
           row: row['Opportunity Name'] || row.email,
-          error: error.message
+          error: error.message,
         });
       }
     }
@@ -65,9 +68,8 @@ Deno.serve(async (req) => {
       success: true,
       imported: imported.length,
       errors: errors.length,
-      errorDetails: errors
+      errorDetails: errors,
     });
-
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
   }

@@ -1,16 +1,23 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
-import { 
-  DollarSign, Calendar, Percent, User, Building2, 
-  Activity, FileText, Edit, Trash2 
-} from "lucide-react";
-import { format } from "date-fns";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
+import {
+  DollarSign,
+  Calendar,
+  Percent,
+  User,
+  Building2,
+  Activity,
+  FileText,
+  Edit,
+  Trash2,
+} from 'lucide-react';
+import { format } from 'date-fns';
 
 export default function DealDetailModal({ open, onClose, dealId, onEdit, onDelete }) {
   const { data: deal, isLoading } = useQuery({
@@ -97,7 +104,9 @@ export default function DealDetailModal({ open, onClose, dealId, onEdit, onDelet
                 {contact && (
                   <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
                     <User className="w-4 h-4" />
-                    <span>{contact.first_name} {contact.last_name}</span>
+                    <span>
+                      {contact.first_name} {contact.last_name}
+                    </span>
                   </div>
                 )}
                 {company && (
@@ -122,7 +131,9 @@ export default function DealDetailModal({ open, onClose, dealId, onEdit, onDelet
 
               {deal.description && (
                 <div className="mt-4 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                  <p className="text-sm text-gray-600 dark:text-gray-400 whitespace-pre-wrap">{deal.description}</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 whitespace-pre-wrap">
+                    {deal.description}
+                  </p>
                 </div>
               )}
             </CardContent>
@@ -138,17 +149,27 @@ export default function DealDetailModal({ open, onClose, dealId, onEdit, onDelet
                 </h3>
                 <div className="space-y-3">
                   {activities.slice(0, 5).map((activity) => (
-                    <div key={activity.id} className="flex items-start gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                      <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
-                        activity.type === 'call' ? 'bg-blue-100 dark:bg-blue-900' :
-                        activity.type === 'email' ? 'bg-violet-100 dark:bg-violet-900' :
-                        activity.type === 'meeting' ? 'bg-emerald-100 dark:bg-emerald-900' :
-                        'bg-gray-100 dark:bg-gray-700'
-                      }`}>
+                    <div
+                      key={activity.id}
+                      className="flex items-start gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg"
+                    >
+                      <div
+                        className={`w-8 h-8 rounded-lg flex items-center justify-center ${
+                          activity.type === 'call'
+                            ? 'bg-blue-100 dark:bg-blue-900'
+                            : activity.type === 'email'
+                              ? 'bg-violet-100 dark:bg-violet-900'
+                              : activity.type === 'meeting'
+                                ? 'bg-emerald-100 dark:bg-emerald-900'
+                                : 'bg-gray-100 dark:bg-gray-700'
+                        }`}
+                      >
                         <FileText className="w-4 h-4" />
                       </div>
                       <div className="flex-1">
-                        <p className="font-medium text-gray-900 dark:text-white text-sm">{activity.title}</p>
+                        <p className="font-medium text-gray-900 dark:text-white text-sm">
+                          {activity.title}
+                        </p>
                         <p className="text-xs text-gray-500">
                           {activity.due_date && format(new Date(activity.due_date), 'MMM d, yyyy')}
                         </p>
@@ -169,7 +190,11 @@ export default function DealDetailModal({ open, onClose, dealId, onEdit, onDelet
               <Edit className="w-4 h-4" />
               Edit Deal
             </Button>
-            <Button variant="outline" onClick={() => onDelete?.(deal)} className="gap-2 text-red-600 hover:text-red-700 border-red-200 hover:border-red-300">
+            <Button
+              variant="outline"
+              onClick={() => onDelete?.(deal)}
+              className="gap-2 text-red-600 hover:text-red-700 border-red-200 hover:border-red-300"
+            >
               <Trash2 className="w-4 h-4" />
               Delete
             </Button>

@@ -1,7 +1,7 @@
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
-import { BarChart3 } from "lucide-react";
+import { BarChart3 } from 'lucide-react';
 
 const STAGES = [
   { id: 'lead', label: 'Lead', color: '#6b7280' },
@@ -13,12 +13,12 @@ const STAGES = [
 ];
 
 export default function StageDistribution({ deals }) {
-  const data = STAGES.map(stage => ({
+  const data = STAGES.map((stage) => ({
     name: stage.label,
-    value: deals.filter(d => d.stage === stage.id).length,
-    amount: deals.filter(d => d.stage === stage.id).reduce((sum, d) => sum + (d.value || 0), 0),
-    color: stage.color
-  })).filter(d => d.value > 0);
+    value: deals.filter((d) => d.stage === stage.id).length,
+    amount: deals.filter((d) => d.stage === stage.id).reduce((sum, d) => sum + (d.value || 0), 0),
+    color: stage.color,
+  })).filter((d) => d.value > 0);
 
   const formatCurrency = (value) => {
     if (value >= 1000000) return `$${(value / 1000000).toFixed(1)}M`;
@@ -85,15 +85,12 @@ export default function StageDistribution({ deals }) {
             </PieChart>
           </ResponsiveContainer>
         </div>
-        
+
         {/* Legend */}
         <div className="flex flex-wrap justify-center gap-3 mt-2">
           {data.map((item) => (
             <div key={item.name} className="flex items-center gap-1.5">
-              <div 
-                className="w-3 h-3 rounded-full" 
-                style={{ backgroundColor: item.color }} 
-              />
+              <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }} />
               <span className="text-xs text-gray-600">
                 {item.name} ({item.value})
               </span>

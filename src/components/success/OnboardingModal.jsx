@@ -1,15 +1,16 @@
 import React, { useState } from 'react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, Plus, X } from "lucide-react";
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Loader2, Plus, X } from 'lucide-react';
 
 export default function OnboardingModal({ open, onClose, contacts, onSave, isLoading }) {
   const [formData, setFormData] = useState({
@@ -21,8 +22,8 @@ export default function OnboardingModal({ open, onClose, contacts, onSave, isLoa
       { name: 'System Setup', completed: false },
       { name: 'Training Session', completed: false },
       { name: 'First Use Case', completed: false },
-      { name: 'Go-Live', completed: false }
-    ]
+      { name: 'Go-Live', completed: false },
+    ],
   });
 
   const handleSubmit = (e) => {
@@ -31,21 +32,21 @@ export default function OnboardingModal({ open, onClose, contacts, onSave, isLoa
       ...formData,
       status: 'in_progress',
       progress_percentage: 0,
-      start_date: new Date().toISOString().slice(0, 10)
+      start_date: new Date().toISOString().slice(0, 10),
     });
   };
 
   const addMilestone = () => {
     setFormData({
       ...formData,
-      milestones: [...formData.milestones, { name: '', completed: false }]
+      milestones: [...formData.milestones, { name: '', completed: false }],
     });
   };
 
   const removeMilestone = (index) => {
     setFormData({
       ...formData,
-      milestones: formData.milestones.filter((_, i) => i !== index)
+      milestones: formData.milestones.filter((_, i) => i !== index),
     });
   };
 
@@ -72,7 +73,7 @@ export default function OnboardingModal({ open, onClose, contacts, onSave, isLoa
                 <SelectValue placeholder="Select customer" />
               </SelectTrigger>
               <SelectContent>
-                {contacts.map(contact => (
+                {contacts.map((contact) => (
                   <SelectItem key={contact.id} value={contact.id}>
                     {contact.first_name} {contact.last_name} - {contact.company}
                   </SelectItem>
@@ -87,7 +88,9 @@ export default function OnboardingModal({ open, onClose, contacts, onSave, isLoa
               <Input
                 type="date"
                 value={formData.target_completion_date}
-                onChange={(e) => setFormData({ ...formData, target_completion_date: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, target_completion_date: e.target.value })
+                }
               />
             </div>
 
@@ -134,10 +137,7 @@ export default function OnboardingModal({ open, onClose, contacts, onSave, isLoa
             <Button type="button" variant="outline" onClick={onClose}>
               Cancel
             </Button>
-            <Button
-              type="submit"
-              disabled={!formData.contact_id || isLoading}
-            >
+            <Button type="submit" disabled={!formData.contact_id || isLoading}>
               {isLoading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
               Start Onboarding
             </Button>

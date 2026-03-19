@@ -1,16 +1,28 @@
 import React, { useState } from 'react';
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, addMonths, subMonths, startOfWeek, endOfWeek } from "date-fns";
+import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { ChevronLeft, ChevronRight, Plus } from 'lucide-react';
+import {
+  format,
+  startOfMonth,
+  endOfMonth,
+  eachDayOfInterval,
+  isSameMonth,
+  isSameDay,
+  addMonths,
+  subMonths,
+  startOfWeek,
+  endOfWeek,
+} from 'date-fns';
 
 const platformColors = {
-  twitter: "bg-gray-900 text-white border-gray-700",
-  linkedin: "bg-blue-600 text-white border-blue-500",
-  facebook: "bg-blue-500 text-white border-blue-400",
-  instagram: "bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400 text-white border-pink-400",
-  youtube: "bg-red-600 text-white border-red-500",
+  twitter: 'bg-gray-900 text-white border-gray-700',
+  linkedin: 'bg-blue-600 text-white border-blue-500',
+  facebook: 'bg-blue-500 text-white border-blue-400',
+  instagram:
+    'bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400 text-white border-pink-400',
+  youtube: 'bg-red-600 text-white border-red-500',
 };
 
 export default function ContentCalendar({ posts, onAddPost, onEditPost }) {
@@ -23,7 +35,7 @@ export default function ContentCalendar({ posts, onAddPost, onEditPost }) {
   const days = eachDayOfInterval({ start: calendarStart, end: calendarEnd });
 
   const getPostsForDay = (day) => {
-    return posts.filter(post => {
+    return posts.filter((post) => {
       if (!post.scheduled_time) return false;
       return isSameDay(new Date(post.scheduled_time), day);
     });
@@ -36,22 +48,34 @@ export default function ContentCalendar({ posts, onAddPost, onEditPost }) {
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <Button variant="ghost" size="icon" onClick={() => setCurrentMonth(subMonths(currentMonth, 1))}>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setCurrentMonth(subMonths(currentMonth, 1))}
+          >
             <ChevronLeft className="w-4 h-4" />
           </Button>
           <h3 className="font-semibold text-lg">{format(currentMonth, 'MMMM yyyy')}</h3>
-          <Button variant="ghost" size="icon" onClick={() => setCurrentMonth(addMonths(currentMonth, 1))}>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setCurrentMonth(addMonths(currentMonth, 1))}
+          >
             <ChevronRight className="w-4 h-4" />
           </Button>
         </div>
-        <Button size="sm" onClick={() => onAddPost()} className="gap-1 bg-violet-600 hover:bg-violet-700">
+        <Button
+          size="sm"
+          onClick={() => onAddPost()}
+          className="gap-1 bg-violet-600 hover:bg-violet-700"
+        >
           <Plus className="w-4 h-4" /> Add Post
         </Button>
       </div>
 
       {/* Week Days */}
       <div className="grid grid-cols-7 gap-1 mb-1">
-        {weekDays.map(day => (
+        {weekDays.map((day) => (
           <div key={day} className="text-center text-xs font-medium text-gray-500 py-2">
             {day}
           </div>
@@ -72,9 +96,11 @@ export default function ContentCalendar({ posts, onAddPost, onEditPost }) {
                 isCurrentMonth ? 'bg-white' : 'bg-gray-50'
               } ${isToday ? 'border-violet-300 bg-violet-50' : 'border-gray-100'}`}
             >
-              <div className={`text-xs font-medium mb-1 ${
-                isCurrentMonth ? (isToday ? 'text-violet-600' : 'text-gray-700') : 'text-gray-300'
-              }`}>
+              <div
+                className={`text-xs font-medium mb-1 ${
+                  isCurrentMonth ? (isToday ? 'text-violet-600' : 'text-gray-700') : 'text-gray-300'
+                }`}
+              >
                 {format(day, 'd')}
               </div>
               <div className="space-y-1">
@@ -84,11 +110,14 @@ export default function ContentCalendar({ posts, onAddPost, onEditPost }) {
                     onClick={() => onEditPost(post)}
                     className={`text-xs p-1 rounded cursor-pointer truncate border ${platformColors[post.platform]}`}
                   >
-                    {format(new Date(post.scheduled_time), 'HH:mm')} - {post.content?.slice(0, 15)}...
+                    {format(new Date(post.scheduled_time), 'HH:mm')} - {post.content?.slice(0, 15)}
+                    ...
                   </div>
                 ))}
                 {dayPosts.length > 3 && (
-                  <div className="text-xs text-gray-400 text-center">+{dayPosts.length - 3} more</div>
+                  <div className="text-xs text-gray-400 text-center">
+                    +{dayPosts.length - 3} more
+                  </div>
                 )}
               </div>
             </div>

@@ -1,21 +1,24 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
-import { Clock, RotateCcw, User } from "lucide-react";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent } from '@/components/ui/card';
+import { Clock, RotateCcw, User } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export default function ContentVersionHistory({ articleId, open, onClose, onRestore }) {
   const { data: versions = [], isLoading } = useQuery({
     queryKey: ['content-versions', articleId],
     queryFn: async () => {
       if (!articleId) return [];
-      return await base44.entities.ContentVersion.filter({ article_id: articleId }, '-version_number');
+      return await base44.entities.ContentVersion.filter(
+        { article_id: articleId },
+        '-version_number'
+      );
     },
-    enabled: !!articleId && open
+    enabled: !!articleId && open,
   });
 
   const { data: article } = useQuery({
@@ -25,7 +28,7 @@ export default function ContentVersionHistory({ articleId, open, onClose, onRest
       const articles = await base44.entities.GeneratedArticle.filter({ id: articleId });
       return articles[0];
     },
-    enabled: !!articleId && open
+    enabled: !!articleId && open,
   });
 
   return (
@@ -37,7 +40,7 @@ export default function ContentVersionHistory({ articleId, open, onClose, onRest
 
         {isLoading ? (
           <div className="space-y-3">
-            {[1, 2, 3].map(i => (
+            {[1, 2, 3].map((i) => (
               <Skeleton key={i} className="h-24 w-full" />
             ))}
           </div>
@@ -60,7 +63,9 @@ export default function ContentVersionHistory({ articleId, open, onClose, onRest
                           {new Date(article.updated_date).toLocaleString()}
                         </span>
                       </div>
-                      <p className="text-sm text-gray-600 line-clamp-2">{article.content?.substring(0, 150)}...</p>
+                      <p className="text-sm text-gray-600 line-clamp-2">
+                        {article.content?.substring(0, 150)}...
+                      </p>
                       <div className="flex items-center gap-4 mt-2 text-xs text-gray-500">
                         <span>{article.word_count} words</span>
                         <span>SEO: {article.seo_score}%</span>
@@ -92,7 +97,9 @@ export default function ContentVersionHistory({ articleId, open, onClose, onRest
                       {version.change_description && (
                         <p className="text-sm text-gray-700 mb-2">{version.change_description}</p>
                       )}
-                      <p className="text-sm text-gray-600 line-clamp-2">{version.content?.substring(0, 150)}...</p>
+                      <p className="text-sm text-gray-600 line-clamp-2">
+                        {version.content?.substring(0, 150)}...
+                      </p>
                       <div className="flex items-center gap-4 mt-2 text-xs text-gray-500">
                         <span>{version.word_count} words</span>
                         {version.seo_score && <span>SEO: {version.seo_score}%</span>}

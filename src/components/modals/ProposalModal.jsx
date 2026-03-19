@@ -1,14 +1,28 @@
 import React, { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Trash2, FileText, Mail } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Plus, Trash2, FileText, Mail } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { useToast } from '@/components/ui/toast-provider';
 
-export default function ProposalModal({ open, onClose, proposal, contacts, deals, onSave, isLoading }) {
+export default function ProposalModal({
+  open,
+  onClose,
+  proposal,
+  contacts,
+  deals,
+  onSave,
+  isLoading,
+}) {
   const toast = useToast();
   const [generatingPdf, setGeneratingPdf] = useState(false);
   const [sendingEmail, setSendingEmail] = useState(false);
@@ -22,7 +36,7 @@ export default function ProposalModal({ open, onClose, proposal, contacts, deals
     line_items: [],
     terms: '',
     notes: '',
-    valid_until: ''
+    valid_until: '',
   });
 
   React.useEffect(() => {
@@ -39,7 +53,7 @@ export default function ProposalModal({ open, onClose, proposal, contacts, deals
         line_items: [],
         terms: '',
         notes: '',
-        valid_until: ''
+        valid_until: '',
       });
     }
   }, [proposal, open]);
@@ -47,24 +61,27 @@ export default function ProposalModal({ open, onClose, proposal, contacts, deals
   const addLineItem = () => {
     setFormData({
       ...formData,
-      line_items: [...(formData.line_items || []), {
-        name: '',
-        description: '',
-        quantity: 1,
-        unit_price: 0,
-        total: 0
-      }]
+      line_items: [
+        ...(formData.line_items || []),
+        {
+          name: '',
+          description: '',
+          quantity: 1,
+          unit_price: 0,
+          total: 0,
+        },
+      ],
     });
   };
 
   const updateLineItem = (index, field, value) => {
     const newItems = [...formData.line_items];
     newItems[index] = { ...newItems[index], [field]: value };
-    
+
     if (field === 'quantity' || field === 'unit_price') {
       newItems[index].total = newItems[index].quantity * newItems[index].unit_price;
     }
-    
+
     const total = newItems.reduce((sum, item) => sum + (item.total || 0), 0);
     setFormData({ ...formData, line_items: newItems, total_value: total });
   };
@@ -85,10 +102,12 @@ export default function ProposalModal({ open, onClose, proposal, contacts, deals
       toast.error('Please save the proposal first');
       return;
     }
-    
+
     setGeneratingPdf(true);
     try {
-      const response = await base44.functions.invoke('generateProposalPdf', { proposalId: proposal.id });
+      const response = await base44.functions.invoke('generateProposalPdf', {
+        proposalId: proposal.id,
+      });
       const blob = new Blob([response.data], { type: 'application/pdf' });
       const url = window.URL.createObjectURL(blob);
       window.open(url, '_blank');
@@ -105,7 +124,7 @@ export default function ProposalModal({ open, onClose, proposal, contacts, deals
       toast.error('Please save the proposal first');
       return;
     }
-    
+
     setSendingEmail(true);
     try {
       await base44.functions.invoke('emailProposal', { proposalId: proposal.id });
@@ -139,16 +158,21 @@ export default function ProposalModal({ open, onClose, proposal, contacts, deals
 
             <div>
               <label className="text-sm font-medium">Contact *</label>
-              <Select value={formData.contact_id || undefined} onValueChange={(val) => setFormData({ ...formData, contact_id: val })}>
+              <Select
+                value={formData.contact_id || undefined}
+                onValueChange={(val) => setFormData({ ...formData, contact_id: val })}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Select contact" />
                 </SelectTrigger>
                 <SelectContent>
-                  {contacts?.length > 0 ? contacts.map(c => (
-                    <SelectItem key={c.id} value={c.id}>
-                      {c.first_name} {c.last_name}
-                    </SelectItem>
-                  )) : (
+                  {contacts?.length > 0 ? (
+                    contacts.map((c) => (
+                      <SelectItem key={c.id} value={c.id}>
+                        {c.first_name} {c.last_name}
+                      </SelectItem>
+                    ))
+                  ) : (
                     <div className="p-2 text-sm text-gray-500">No contacts found</div>
                   )}
                 </SelectContent>
@@ -157,13 +181,16 @@ export default function ProposalModal({ open, onClose, proposal, contacts, deals
 
             <div>
               <label className="text-sm font-medium">Deal (Optional)</label>
-              <Select value={formData.deal_id || undefined} onValueChange={(val) => setFormData({ ...formData, deal_id: val })}>
+              <Select
+                value={formData.deal_id || undefined}
+                onValueChange={(val) => setFormData({ ...formData, deal_id: val })}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Select deal" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value={null}>None</SelectItem>
-                  {deals?.map(d => (
+                  {deals?.map((d) => (
                     <SelectItem key={d.id} value={d.id}>
                       {d.title}
                     </SelectItem>
@@ -195,7 +222,12 @@ export default function ProposalModal({ open, onClose, proposal, contacts, deals
               <div key={index} className="p-4 border rounded-lg space-y-3 mb-3">
                 <div className="flex justify-between">
                   <span className="font-medium">Item {index + 1}</span>
-                  <Button type="button" onClick={() => removeLineItem(index)} size="sm" variant="ghost">
+                  <Button
+                    type="button"
+                    onClick={() => removeLineItem(index)}
+                    size="sm"
+                    variant="ghost"
+                  >
                     <Trash2 className="w-4 h-4" />
                   </Button>
                 </div>
@@ -214,7 +246,9 @@ export default function ProposalModal({ open, onClose, proposal, contacts, deals
                     <Input
                       type="number"
                       value={item.quantity}
-                      onChange={(e) => updateLineItem(index, 'quantity', parseFloat(e.target.value))}
+                      onChange={(e) =>
+                        updateLineItem(index, 'quantity', parseFloat(e.target.value))
+                      }
                       min="1"
                     />
                   </div>
@@ -223,7 +257,9 @@ export default function ProposalModal({ open, onClose, proposal, contacts, deals
                     <Input
                       type="number"
                       value={item.unit_price}
-                      onChange={(e) => updateLineItem(index, 'unit_price', parseFloat(e.target.value))}
+                      onChange={(e) =>
+                        updateLineItem(index, 'unit_price', parseFloat(e.target.value))
+                      }
                       min="0"
                     />
                   </div>
@@ -238,9 +274,7 @@ export default function ProposalModal({ open, onClose, proposal, contacts, deals
                   />
                 </div>
 
-                <div className="text-right font-medium">
-                  Total: ${(item.total || 0).toFixed(2)}
-                </div>
+                <div className="text-right font-medium">Total: ${(item.total || 0).toFixed(2)}</div>
               </div>
             ))}
           </div>
@@ -278,9 +312,9 @@ export default function ProposalModal({ open, onClose, proposal, contacts, deals
             <div className="flex gap-2">
               {proposal?.id && (
                 <>
-                  <Button 
-                    type="button" 
-                    variant="outline" 
+                  <Button
+                    type="button"
+                    variant="outline"
                     onClick={handleViewPdf}
                     disabled={generatingPdf}
                     className="gap-2"
@@ -288,9 +322,9 @@ export default function ProposalModal({ open, onClose, proposal, contacts, deals
                     <FileText className="w-4 h-4" />
                     {generatingPdf ? 'Generating...' : 'View PDF'}
                   </Button>
-                  <Button 
-                    type="button" 
-                    variant="outline" 
+                  <Button
+                    type="button"
+                    variant="outline"
                     onClick={handleEmailProposal}
                     disabled={sendingEmail}
                     className="gap-2"
@@ -302,7 +336,9 @@ export default function ProposalModal({ open, onClose, proposal, contacts, deals
               )}
             </div>
             <div className="flex gap-3">
-              <Button type="button" variant="outline" onClick={onClose}>Cancel</Button>
+              <Button type="button" variant="outline" onClick={onClose}>
+                Cancel
+              </Button>
               <Button type="submit" disabled={isLoading || !formData.title || !formData.contact_id}>
                 {proposal ? 'Update' : 'Create'} Proposal
               </Button>

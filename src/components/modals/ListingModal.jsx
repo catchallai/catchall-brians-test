@@ -1,10 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2 } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Loader2 } from 'lucide-react';
 
 const platforms = [
   { value: 'google_business', label: 'Google Business' },
@@ -15,7 +21,7 @@ const platforms = [
   { value: 'yellowpages', label: 'Yellow Pages' },
   { value: 'tripadvisor', label: 'TripAdvisor' },
   { value: 'foursquare', label: 'Foursquare' },
-  { value: 'other', label: 'Other' }
+  { value: 'other', label: 'Other' },
 ];
 
 export default function ListingModal({ open, onClose, listing, websites = [], onSave, isLoading }) {
@@ -32,7 +38,7 @@ export default function ListingModal({ open, onClose, listing, websites = [], on
     phone: '',
     rating: 0,
     review_count: 0,
-    status: 'pending'
+    status: 'pending',
   });
 
   useEffect(() => {
@@ -50,7 +56,7 @@ export default function ListingModal({ open, onClose, listing, websites = [], on
         phone: listing.phone || '',
         rating: listing.rating || 0,
         review_count: listing.review_count || 0,
-        status: listing.status || 'pending'
+        status: listing.status || 'pending',
       });
     } else {
       setFormData({
@@ -66,7 +72,7 @@ export default function ListingModal({ open, onClose, listing, websites = [], on
         phone: '',
         rating: 0,
         review_count: 0,
-        status: 'pending'
+        status: 'pending',
       });
     }
   }, [listing, open, websites]);
@@ -96,13 +102,18 @@ export default function ListingModal({ open, onClose, listing, websites = [], on
 
             <div className="space-y-2">
               <Label>Website</Label>
-              <Select value={formData.website_id} onValueChange={(v) => setFormData({ ...formData, website_id: v })}>
+              <Select
+                value={formData.website_id}
+                onValueChange={(v) => setFormData({ ...formData, website_id: v })}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Select website" />
                 </SelectTrigger>
                 <SelectContent>
-                  {websites.map(w => (
-                    <SelectItem key={w.id} value={w.id}>{w.name}</SelectItem>
+                  {websites.map((w) => (
+                    <SelectItem key={w.id} value={w.id}>
+                      {w.name}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -110,13 +121,18 @@ export default function ListingModal({ open, onClose, listing, websites = [], on
 
             <div className="space-y-2">
               <Label>Platform *</Label>
-              <Select value={formData.platform} onValueChange={(v) => setFormData({ ...formData, platform: v })}>
+              <Select
+                value={formData.platform}
+                onValueChange={(v) => setFormData({ ...formData, platform: v })}
+              >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {platforms.map(p => (
-                    <SelectItem key={p.value} value={p.value}>{p.label}</SelectItem>
+                  {platforms.map((p) => (
+                    <SelectItem key={p.value} value={p.value}>
+                      {p.label}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -183,7 +199,10 @@ export default function ListingModal({ open, onClose, listing, websites = [], on
 
             <div className="space-y-2">
               <Label>Status</Label>
-              <Select value={formData.status} onValueChange={(v) => setFormData({ ...formData, status: v })}>
+              <Select
+                value={formData.status}
+                onValueChange={(v) => setFormData({ ...formData, status: v })}
+              >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -198,7 +217,9 @@ export default function ListingModal({ open, onClose, listing, websites = [], on
           </div>
 
           <div className="flex justify-end gap-3 pt-4">
-            <Button type="button" variant="outline" onClick={onClose}>Cancel</Button>
+            <Button type="button" variant="outline" onClick={onClose}>
+              Cancel
+            </Button>
             <Button type="submit" disabled={isLoading}>
               {isLoading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
               {listing ? 'Update' : 'Add Listing'}

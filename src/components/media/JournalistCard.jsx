@@ -1,8 +1,8 @@
 import React from 'react';
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Mail, ExternalLink, Globe, Users, TrendingUp } from "lucide-react";
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Mail, ExternalLink, Globe, Users, TrendingUp } from 'lucide-react';
 
 export default function JournalistCard({ journalist, onContact }) {
   return (
@@ -28,7 +28,9 @@ export default function JournalistCard({ journalist, onContact }) {
         {journalist.beat?.length > 0 && (
           <div className="flex flex-wrap gap-1 mb-3">
             {journalist.beat.slice(0, 3).map((b, i) => (
-              <Badge key={i} variant="outline" className="text-xs">{b}</Badge>
+              <Badge key={i} variant="outline" className="text-xs">
+                {b}
+              </Badge>
             ))}
           </div>
         )}
@@ -55,7 +57,11 @@ export default function JournalistCard({ journalist, onContact }) {
           </Button>
           {journalist.twitter_handle && (
             <Button size="sm" variant="outline" asChild>
-              <a href={`https://twitter.com/${journalist.twitter_handle}`} target="_blank" rel="noopener noreferrer">
+              <a
+                href={`https://twitter.com/${journalist.twitter_handle}`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 <ExternalLink className="w-3 h-3" />
               </a>
             </Button>

@@ -1,15 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import TemplateEditor from '@/components/email/TemplateEditor';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Loader2, Sparkles, Eye, Code, Palette, Copy, Check } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Card } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Loader2, Sparkles, Eye, Code, Palette, Copy, Check } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 
 const LAYOUTS = [
@@ -83,7 +89,7 @@ export default function EmailTemplateModal({ open, onClose, template, onSave, is
   const handleGenerate = async () => {
     if (!generatePrompt.trim()) return;
     setIsGenerating(true);
-    
+
     const result = await base44.integrations.Core.InvokeLLM({
       prompt: `Generate professional email content for: ${generatePrompt}
       
@@ -93,16 +99,16 @@ export default function EmailTemplateModal({ open, onClose, template, onSave, is
       Use personalization variables like {{first_name}}, {{company_name}} where appropriate.
       Make it engaging and action-oriented.`,
       response_json_schema: {
-        type: "object",
+        type: 'object',
         properties: {
-          subject: { type: "string" },
-          body: { type: "string" },
-          suggested_name: { type: "string" }
-        }
-      }
+          subject: { type: 'string' },
+          body: { type: 'string' },
+          suggested_name: { type: 'string' },
+        },
+      },
     });
 
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       name: prev.name || result.suggested_name || '',
       subject: result.subject || prev.subject,
@@ -140,12 +146,18 @@ export default function EmailTemplateModal({ open, onClose, template, onSave, is
               <p className="text-xs text-gray-500 mb-1">Subject:</p>
               <p className="font-semibold text-gray-900">{previewSubject || 'Subject Line'}</p>
             </div>
-            <div className="prose prose-sm max-w-none dark:prose-invert" dangerouslySetInnerHTML={{ __html: previewBody || '<p>Your email content will appear here...</p>' }} />
+            <div
+              className="prose prose-sm max-w-none dark:prose-invert"
+              dangerouslySetInnerHTML={{
+                __html: previewBody || '<p>Your email content will appear here...</p>',
+              }}
+            />
           </div>
         </div>
         <div className="bg-gray-100 px-4 py-2 border-t">
           <p className="text-xs text-gray-500">
-            Preview uses sample data: {SAMPLE_DATA.first_name} {SAMPLE_DATA.last_name} from {SAMPLE_DATA.company_name}
+            Preview uses sample data: {SAMPLE_DATA.first_name} {SAMPLE_DATA.last_name} from{' '}
+            {SAMPLE_DATA.company_name}
           </p>
         </div>
       </div>
@@ -158,8 +170,12 @@ export default function EmailTemplateModal({ open, onClose, template, onSave, is
         <DialogHeader>
           <DialogTitle>{template ? 'Edit Template' : 'Create Email Template'}</DialogTitle>
         </DialogHeader>
-        
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col overflow-hidden">
+
+        <Tabs
+          value={activeTab}
+          onValueChange={setActiveTab}
+          className="flex-1 flex flex-col overflow-hidden"
+        >
           <TabsList className="grid grid-cols-3 w-fit">
             <TabsTrigger value="edit" className="gap-1">
               <Code className="w-4 h-4" /> Edit
@@ -214,7 +230,7 @@ export default function EmailTemplateModal({ open, onClose, template, onSave, is
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      {LAYOUTS.map(l => (
+                      {LAYOUTS.map((l) => (
                         <SelectItem key={l.id} value={l.id}>
                           <div>
                             <span>{l.label}</span>
@@ -242,7 +258,7 @@ export default function EmailTemplateModal({ open, onClose, template, onSave, is
                 <div className="flex items-center justify-between">
                   <Label htmlFor="body">Email Body *</Label>
                   <div className="flex gap-1">
-                    {VARIABLES.map(v => (
+                    {VARIABLES.map((v) => (
                       <Badge
                         key={v.tag}
                         variant="outline"
@@ -326,16 +342,18 @@ export default function EmailTemplateModal({ open, onClose, template, onSave, is
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      {LAYOUTS.map(l => (
-                        <SelectItem key={l.id} value={l.id}>{l.label}</SelectItem>
+                      {LAYOUTS.map((l) => (
+                        <SelectItem key={l.id} value={l.id}>
+                          {l.label}
+                        </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                 </div>
               </div>
 
-              <Button 
-                onClick={handleGenerate} 
+              <Button
+                onClick={handleGenerate}
                 disabled={isGenerating || !generatePrompt.trim()}
                 className="w-full gap-2 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700"
               >
@@ -349,7 +367,9 @@ export default function EmailTemplateModal({ open, onClose, template, onSave, is
 
               {formData.body && (
                 <div className="p-4 bg-white rounded-lg border mt-4">
-                  <p className="text-xs text-gray-500 mb-2">Generated content (switch to Edit tab to modify):</p>
+                  <p className="text-xs text-gray-500 mb-2">
+                    Generated content (switch to Edit tab to modify):
+                  </p>
                   <p className="font-medium text-gray-900 mb-1">{formData.subject}</p>
                   <p className="text-sm text-gray-600 line-clamp-4">{formData.body}</p>
                 </div>
@@ -362,7 +382,10 @@ export default function EmailTemplateModal({ open, onClose, template, onSave, is
           <Button type="button" variant="outline" onClick={onClose}>
             Cancel
           </Button>
-          <Button onClick={handleSubmit} disabled={isLoading || !formData.name || !formData.subject || !formData.body}>
+          <Button
+            onClick={handleSubmit}
+            disabled={isLoading || !formData.name || !formData.subject || !formData.body}
+          >
             {isLoading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
             {template ? 'Update Template' : 'Create Template'}
           </Button>

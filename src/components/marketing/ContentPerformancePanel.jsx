@@ -1,10 +1,10 @@
 import React from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
-import { FileText, Eye, Clock, TrendingUp, Link2, Share2 } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
+import { FileText, Eye, Clock, TrendingUp, Link2, Share2 } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 
 export default function ContentPerformancePanel() {
@@ -16,11 +16,14 @@ export default function ContentPerformancePanel() {
   const totalViews = performance.reduce((sum, p) => sum + (p.pageviews || 0), 0);
   const totalConversions = performance.reduce((sum, p) => sum + (p.conversions || 0), 0);
   const totalBacklinks = performance.reduce((sum, p) => sum + (p.backlinks_earned || 0), 0);
-  const avgTimeOnPage = performance.length > 0 
-    ? (performance.reduce((sum, p) => sum + (p.avg_time_on_page || 0), 0) / performance.length).toFixed(0)
-    : 0;
+  const avgTimeOnPage =
+    performance.length > 0
+      ? (
+          performance.reduce((sum, p) => sum + (p.avg_time_on_page || 0), 0) / performance.length
+        ).toFixed(0)
+      : 0;
 
-  const chartData = performance.slice(0, 8).map(p => ({
+  const chartData = performance.slice(0, 8).map((p) => ({
     name: p.title?.slice(0, 20) + '...',
     views: p.pageviews || 0,
     conversions: p.conversions || 0,
@@ -30,7 +33,9 @@ export default function ContentPerformancePanel() {
     <div className="space-y-6">
       <div>
         <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Content Performance</h2>
-        <p className="text-sm text-gray-500">Track how your content drives traffic and conversions</p>
+        <p className="text-sm text-gray-500">
+          Track how your content drives traffic and conversions
+        </p>
       </div>
 
       {/* Stats */}
@@ -38,7 +43,9 @@ export default function ContentPerformancePanel() {
         <Card className="glass-card rounded-2xl">
           <CardContent className="p-4 text-center">
             <Eye className="w-6 h-6 text-blue-500 mx-auto mb-2" />
-            <p className="text-2xl font-bold text-gray-900 dark:text-white">{totalViews.toLocaleString()}</p>
+            <p className="text-2xl font-bold text-gray-900 dark:text-white">
+              {totalViews.toLocaleString()}
+            </p>
             <p className="text-sm text-gray-500">Total Views</p>
           </CardContent>
         </Card>
@@ -102,7 +109,9 @@ export default function ContentPerformancePanel() {
               <div className="space-y-3">
                 {performance.slice(0, 6).map((item) => (
                   <div key={item.id} className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                    <p className="font-medium text-gray-900 dark:text-white truncate">{item.title}</p>
+                    <p className="font-medium text-gray-900 dark:text-white truncate">
+                      {item.title}
+                    </p>
                     <div className="flex items-center gap-4 mt-2 text-xs text-gray-500">
                       <span className="flex items-center gap-1">
                         <Eye className="w-3 h-3" />

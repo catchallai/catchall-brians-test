@@ -1,25 +1,33 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Switch } from "@/components/ui/switch";
-import { Zap, Plus, Activity, CheckCircle, Mail, Target, Clock } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Switch } from '@/components/ui/switch';
+import { Zap, Plus, Activity, CheckCircle, Mail, Target, Clock } from 'lucide-react';
 import WorkflowModal from './WorkflowModal';
 
 const triggerLabels = {
-  followup_completed: { label: 'Follow-up Completed', icon: CheckCircle, color: 'text-emerald-500' },
+  followup_completed: {
+    label: 'Follow-up Completed',
+    icon: CheckCircle,
+    color: 'text-emerald-500',
+  },
   positive_call: { label: 'Positive Call Sentiment', icon: Activity, color: 'text-green-500' },
   negative_call: { label: 'Negative Call Sentiment', icon: Activity, color: 'text-red-500' },
   reservation_confirmed: { label: 'Reservation Confirmed', icon: Target, color: 'text-blue-500' },
-  reservation_completed: { label: 'Reservation Completed', icon: CheckCircle, color: 'text-emerald-500' },
-  deal_inactive: { label: 'Deal Inactive 7+ Days', icon: Clock, color: 'text-amber-500' }
+  reservation_completed: {
+    label: 'Reservation Completed',
+    icon: CheckCircle,
+    color: 'text-emerald-500',
+  },
+  deal_inactive: { label: 'Deal Inactive 7+ Days', icon: Clock, color: 'text-amber-500' },
 };
 
 const actionLabels = {
   update_stage: 'Update Deal Stage',
   create_task: 'Create Task',
   send_email: 'Send Email',
-  create_followup: 'Create Follow-up'
+  create_followup: 'Create Follow-up',
 };
 
 export default function WorkflowPanel({ workflows, onToggle, onEdit, executions }) {
@@ -37,7 +45,10 @@ export default function WorkflowPanel({ workflows, onToggle, onEdit, executions 
             Deal Automation Workflows
           </CardTitle>
           <Button
-            onClick={() => { setEditingWorkflow(null); setShowModal(true); }}
+            onClick={() => {
+              setEditingWorkflow(null);
+              setShowModal(true);
+            }}
             size="sm"
             className="gap-2 bg-violet-600 hover:bg-violet-700"
           >
@@ -49,15 +60,21 @@ export default function WorkflowPanel({ workflows, onToggle, onEdit, executions 
           <div className="space-y-4">
             <div className="grid grid-cols-3 gap-3 mb-4">
               <div className="p-3 bg-violet-50 rounded-lg text-center">
-                <p className="text-2xl font-bold text-violet-600">{workflows.filter(w => w.is_active).length}</p>
+                <p className="text-2xl font-bold text-violet-600">
+                  {workflows.filter((w) => w.is_active).length}
+                </p>
                 <p className="text-xs text-gray-600">Active</p>
               </div>
               <div className="p-3 bg-emerald-50 rounded-lg text-center">
-                <p className="text-2xl font-bold text-emerald-600">{workflows.reduce((sum, w) => sum + (w.execution_count || 0), 0)}</p>
+                <p className="text-2xl font-bold text-emerald-600">
+                  {workflows.reduce((sum, w) => sum + (w.execution_count || 0), 0)}
+                </p>
                 <p className="text-xs text-gray-600">Total Runs</p>
               </div>
               <div className="p-3 bg-blue-50 rounded-lg text-center">
-                <p className="text-2xl font-bold text-blue-600">{executions.filter(e => e.status === 'success').length}</p>
+                <p className="text-2xl font-bold text-blue-600">
+                  {executions.filter((e) => e.status === 'success').length}
+                </p>
                 <p className="text-xs text-gray-600">Successful</p>
               </div>
             </div>
@@ -71,10 +88,10 @@ export default function WorkflowPanel({ workflows, onToggle, onEdit, executions 
             ) : (
               <div className="space-y-3">
                 <h4 className="font-semibold text-gray-900 text-sm">Active Workflows</h4>
-                {workflows.map(workflow => {
+                {workflows.map((workflow) => {
                   const trigger = triggerLabels[workflow.trigger_type];
                   const TriggerIcon = trigger?.icon || Zap;
-                  
+
                   return (
                     <div key={workflow.id} className="border rounded-lg p-3">
                       <div className="flex items-start justify-between mb-2">
@@ -82,7 +99,9 @@ export default function WorkflowPanel({ workflows, onToggle, onEdit, executions 
                           <TriggerIcon className={`w-4 h-4 ${trigger?.color || 'text-gray-500'}`} />
                           <div>
                             <p className="font-medium text-sm">{workflow.name}</p>
-                            <p className="text-xs text-gray-600">{trigger?.label || workflow.trigger_type}</p>
+                            <p className="text-xs text-gray-600">
+                              {trigger?.label || workflow.trigger_type}
+                            </p>
                           </div>
                         </div>
                         <Switch
@@ -104,7 +123,10 @@ export default function WorkflowPanel({ workflows, onToggle, onEdit, executions 
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => { setEditingWorkflow(workflow); setShowModal(true); }}
+                          onClick={() => {
+                            setEditingWorkflow(workflow);
+                            setShowModal(true);
+                          }}
                         >
                           Edit
                         </Button>
@@ -119,15 +141,21 @@ export default function WorkflowPanel({ workflows, onToggle, onEdit, executions 
               <div className="mt-6">
                 <h4 className="font-semibold text-gray-900 text-sm mb-3">Recent Executions</h4>
                 <div className="space-y-2">
-                  {recentExecutions.map(exec => (
+                  {recentExecutions.map((exec) => (
                     <div key={exec.id} className="p-2 bg-gray-50 rounded text-xs">
                       <div className="flex items-center justify-between mb-1">
-                        <span className="font-medium">{workflows.find(w => w.id === exec.workflow_id)?.name}</span>
-                        <Badge className={`${exec.status === 'success' ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'} border-0 text-xs`}>
+                        <span className="font-medium">
+                          {workflows.find((w) => w.id === exec.workflow_id)?.name}
+                        </span>
+                        <Badge
+                          className={`${exec.status === 'success' ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'} border-0 text-xs`}
+                        >
                           {exec.status}
                         </Badge>
                       </div>
-                      <p className="text-gray-600">{exec.actions_executed?.length || 0} actions executed</p>
+                      <p className="text-gray-600">
+                        {exec.actions_executed?.length || 0} actions executed
+                      </p>
                     </div>
                   ))}
                 </div>
@@ -139,7 +167,10 @@ export default function WorkflowPanel({ workflows, onToggle, onEdit, executions 
 
       <WorkflowModal
         open={showModal}
-        onClose={() => { setShowModal(false); setEditingWorkflow(null); }}
+        onClose={() => {
+          setShowModal(false);
+          setEditingWorkflow(null);
+        }}
         workflow={editingWorkflow}
         onSave={onEdit}
       />

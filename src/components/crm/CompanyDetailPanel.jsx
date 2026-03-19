@@ -1,20 +1,31 @@
 import React from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { 
-  Users, Globe, MapPin, Phone, DollarSign, Building2, Target, Sparkles, 
-  TrendingUp, Newspaper, DollarSign as FundingIcon, UserCheck, Link2
-} from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import {
+  Users,
+  Globe,
+  MapPin,
+  Phone,
+  DollarSign,
+  Building2,
+  Target,
+  Sparkles,
+  TrendingUp,
+  Newspaper,
+  DollarSign as FundingIcon,
+  UserCheck,
+  Link2,
+} from 'lucide-react';
 
 export default function CompanyDetailPanel({ companyId }) {
   const [logoFailed, setLogoFailed] = React.useState(false);
   const queryClient = useQueryClient();
-  
+
   const { data: company, isLoading: loadingCompany } = useQuery({
     queryKey: ['company', companyId],
     queryFn: async () => {
@@ -29,13 +40,13 @@ export default function CompanyDetailPanel({ companyId }) {
       return await base44.functions.invoke('enrichCompanyIntelligence', {
         company_id: company.id,
         company_name: company.name,
-        website: company.website
+        website: company.website,
       });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['company', companyId] });
       queryClient.invalidateQueries({ queryKey: ['companies'] });
-    }
+    },
   });
 
   const { data: contacts = [] } = useQuery({
@@ -55,7 +66,7 @@ export default function CompanyDetailPanel({ companyId }) {
     queryFn: async () => {
       if (!company?.related_company_ids || company.related_company_ids.length === 0) return [];
       const allCompanies = await base44.entities.Company.list('-created_date', 500);
-      return allCompanies.filter(c => company.related_company_ids.includes(c.id));
+      return allCompanies.filter((c) => company.related_company_ids.includes(c.id));
     },
     enabled: !!company?.related_company_ids,
   });
@@ -75,8 +86,8 @@ export default function CompanyDetailPanel({ companyId }) {
         <CardContent className="pt-6">
           <div className="flex items-start gap-4 mb-4">
             {company.logo_url && !logoFailed ? (
-              <img 
-                src={company.logo_url} 
+              <img
+                src={company.logo_url}
                 alt={company.name}
                 className="w-16 h-16 rounded-xl object-cover border border-gray-200 dark:border-gray-700"
                 onError={() => setLogoFailed(true)}
@@ -89,9 +100,7 @@ export default function CompanyDetailPanel({ companyId }) {
             <div className="flex-1">
               <h2 className="text-2xl font-bold text-gray-900 dark:text-white">{company.name}</h2>
               {company.industry && (
-                <Badge className="mt-2 bg-violet-100 text-violet-700">
-                  {company.industry}
-                </Badge>
+                <Badge className="mt-2 bg-violet-100 text-violet-700">{company.industry}</Badge>
               )}
             </div>
           </div>
@@ -100,7 +109,12 @@ export default function CompanyDetailPanel({ companyId }) {
             {company.website && (
               <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
                 <Globe className="w-4 h-4" />
-                <a href={company.website} target="_blank" rel="noopener noreferrer" className="hover:text-violet-600">
+                <a
+                  href={company.website}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-violet-600"
+                >
                   {company.website}
                 </a>
               </div>
@@ -134,7 +148,10 @@ export default function CompanyDetailPanel({ companyId }) {
           {company.ai_enriched && (
             <div className="mt-4 flex items-center gap-2 text-xs text-gray-500">
               <Sparkles className="w-3 h-3 text-violet-500" />
-              AI enriched {company.ai_enriched_date ? new Date(company.ai_enriched_date).toLocaleDateString() : ''}
+              AI enriched{' '}
+              {company.ai_enriched_date
+                ? new Date(company.ai_enriched_date).toLocaleDateString()
+                : ''}
             </div>
           )}
 
@@ -200,10 +217,14 @@ export default function CompanyDetailPanel({ companyId }) {
           ) : (
             <div className="space-y-2">
               {contacts.slice(0, 10).map((contact) => (
-                <div key={contact.id} className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                <div
+                  key={contact.id}
+                  className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                >
                   <Avatar className="w-8 h-8">
                     <AvatarFallback className="bg-violet-100 dark:bg-violet-900 text-violet-600 dark:text-violet-300 text-xs">
-                      {contact.first_name?.[0]}{contact.last_name?.[0]}
+                      {contact.first_name?.[0]}
+                      {contact.last_name?.[0]}
                     </AvatarFallback>
                   </Avatar>
                   <div className="flex-1 min-w-0">
@@ -212,11 +233,15 @@ export default function CompanyDetailPanel({ companyId }) {
                     </p>
                     <p className="text-xs text-gray-500">{contact.job_title || contact.email}</p>
                   </div>
-                  <Badge className={
-                    contact.status === 'customer' ? 'bg-green-100 text-green-700' :
-                    contact.status === 'prospect' ? 'bg-blue-100 text-blue-700' :
-                    'bg-yellow-100 text-yellow-700'
-                  }>
+                  <Badge
+                    className={
+                      contact.status === 'customer'
+                        ? 'bg-green-100 text-green-700'
+                        : contact.status === 'prospect'
+                          ? 'bg-blue-100 text-blue-700'
+                          : 'bg-yellow-100 text-yellow-700'
+                    }
+                  >
                     {contact.status}
                   </Badge>
                 </div>
@@ -235,10 +260,17 @@ export default function CompanyDetailPanel({ companyId }) {
           <CardContent>
             <div className="space-y-3">
               {deals.map((deal) => (
-                <div key={deal.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                <div
+                  key={deal.id}
+                  className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg"
+                >
                   <div>
-                    <p className="font-medium text-gray-900 dark:text-white text-sm">{deal.title}</p>
-                    <p className="text-xs text-gray-500 capitalize">{deal.stage?.replace('_', ' ')}</p>
+                    <p className="font-medium text-gray-900 dark:text-white text-sm">
+                      {deal.title}
+                    </p>
+                    <p className="text-xs text-gray-500 capitalize">
+                      {deal.stage?.replace('_', ' ')}
+                    </p>
                   </div>
                   <p className="text-lg font-bold text-emerald-600 dark:text-emerald-400">
                     ${(deal.value / 1000).toFixed(0)}k
@@ -262,7 +294,10 @@ export default function CompanyDetailPanel({ companyId }) {
           <CardContent>
             <ul className="space-y-2">
               {company.industry_trends.map((trend, idx) => (
-                <li key={idx} className="flex items-start gap-2 text-sm text-gray-700 dark:text-gray-300">
+                <li
+                  key={idx}
+                  className="flex items-start gap-2 text-sm text-gray-700 dark:text-gray-300"
+                >
                   <span className="text-blue-500 mt-1">•</span>
                   <span>{trend}</span>
                 </li>
@@ -285,12 +320,19 @@ export default function CompanyDetailPanel({ companyId }) {
             <div className="space-y-3">
               {company.recent_news.map((news, idx) => (
                 <div key={idx} className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                  <p className="font-medium text-gray-900 dark:text-white text-sm mb-1">{news.title}</p>
+                  <p className="font-medium text-gray-900 dark:text-white text-sm mb-1">
+                    {news.title}
+                  </p>
                   <p className="text-xs text-gray-600 dark:text-gray-400 mb-2">{news.summary}</p>
                   <div className="flex items-center justify-between">
                     <p className="text-xs text-gray-500">{news.date}</p>
                     {news.url && (
-                      <a href={news.url} target="_blank" rel="noopener noreferrer" className="text-xs text-violet-600 hover:underline">
+                      <a
+                        href={news.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-xs text-violet-600 hover:underline"
+                      >
                         Read more →
                       </a>
                     )}
@@ -314,9 +356,14 @@ export default function CompanyDetailPanel({ companyId }) {
           <CardContent>
             <div className="space-y-3">
               {company.funding_rounds.map((round, idx) => (
-                <div key={idx} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                <div
+                  key={idx}
+                  className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg"
+                >
                   <div>
-                    <p className="font-medium text-gray-900 dark:text-white text-sm">{round.round_type}</p>
+                    <p className="font-medium text-gray-900 dark:text-white text-sm">
+                      {round.round_type}
+                    </p>
                     <p className="text-xs text-gray-500">{round.date}</p>
                     {round.investors && round.investors.length > 0 && (
                       <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
@@ -346,7 +393,11 @@ export default function CompanyDetailPanel({ companyId }) {
           <CardContent>
             <div className="flex flex-wrap gap-2">
               {company.key_competitors.map((competitor, idx) => (
-                <Badge key={idx} variant="outline" className="bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 border-red-200 dark:border-red-800">
+                <Badge
+                  key={idx}
+                  variant="outline"
+                  className="bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 border-red-200 dark:border-red-800"
+                >
                   {competitor}
                 </Badge>
               ))}
@@ -367,16 +418,25 @@ export default function CompanyDetailPanel({ companyId }) {
           <CardContent>
             <div className="space-y-2">
               {relatedCompanies.map((related) => (
-                <div key={related.id} className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                <div
+                  key={related.id}
+                  className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                >
                   {related.logo_url ? (
-                    <img src={related.logo_url} alt={related.name} className="w-8 h-8 rounded object-cover" />
+                    <img
+                      src={related.logo_url}
+                      alt={related.name}
+                      className="w-8 h-8 rounded object-cover"
+                    />
                   ) : (
                     <div className="w-8 h-8 rounded bg-purple-100 dark:bg-purple-900 flex items-center justify-center text-purple-600 dark:text-purple-300 font-bold text-sm">
                       {related.name?.[0]?.toUpperCase()}
                     </div>
                   )}
                   <div className="flex-1">
-                    <p className="font-medium text-gray-900 dark:text-white text-sm">{related.name}</p>
+                    <p className="font-medium text-gray-900 dark:text-white text-sm">
+                      {related.name}
+                    </p>
                     {related.industry && (
                       <p className="text-xs text-gray-500">{related.industry}</p>
                     )}

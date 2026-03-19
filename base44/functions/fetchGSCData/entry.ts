@@ -4,7 +4,7 @@ Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
     const user = await base44.auth.me();
-    
+
     if (!user) {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -20,21 +20,24 @@ Deno.serve(async (req) => {
       {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${accessToken}`,
+          Authorization: `Bearer ${accessToken}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           startDate: start_date,
           endDate: end_date,
           dimensions: ['query', 'page', 'date'],
-          rowLimit: 1000
-        })
+          rowLimit: 1000,
+        }),
       }
     );
 
     if (!searchAnalyticsResponse.ok) {
       const error = await searchAnalyticsResponse.text();
-      return Response.json({ error: `GSC API error: ${error}` }, { status: searchAnalyticsResponse.status });
+      return Response.json(
+        { error: `GSC API error: ${error}` },
+        { status: searchAnalyticsResponse.status }
+      );
     }
 
     const data = await searchAnalyticsResponse.json();
@@ -43,7 +46,7 @@ Deno.serve(async (req) => {
     const keywords = {};
     const dailyMetrics = {};
 
-    (data.rows || []).forEach(row => {
+    (data.rows || []).forEach((row) => {
       const query = row.keys[0];
       const page = row.keys[1];
       const date = row.keys[2];
@@ -56,7 +59,7 @@ Deno.serve(async (req) => {
           impressions: 0,
           ctr: 0,
           position: 0,
-          pages: new Set()
+          pages: new Set(),
         };
       }
 
@@ -75,23 +78,22 @@ Deno.serve(async (req) => {
     });
 
     // Calculate average CTR and position for daily metrics
-    Object.values(dailyMetrics).forEach(day => {
+    Object.values(dailyMetrics).forEach((day) => {
       day.ctr = day.clicks / day.impressions;
-      const dayRows = data.rows.filter(r => r.keys[2] === day.date);
+      const dayRows = data.rows.filter((r) => r.keys[2] === day.date);
       day.position = dayRows.reduce((sum, r) => sum + r.position, 0) / dayRows.length;
     });
 
     return Response.json({
-      keywords: Object.values(keywords).map(k => ({
+      keywords: Object.values(keywords).map((k) => ({
         ...k,
-        pages: Array.from(k.pages)
+        pages: Array.from(k.pages),
       })),
       daily_metrics: Object.values(dailyMetrics).sort((a, b) => a.date.localeCompare(b.date)),
       total_clicks: data.rows.reduce((sum, r) => sum + r.clicks, 0),
       total_impressions: data.rows.reduce((sum, r) => sum + r.impressions, 0),
-      avg_position: data.rows.reduce((sum, r) => sum + r.position, 0) / (data.rows.length || 1)
+      avg_position: data.rows.reduce((sum, r) => sum + r.position, 0) / (data.rows.length || 1),
     });
-
   } catch (error) {
     console.error('GSC fetch error:', error);
     return Response.json({ error: error.message }, { status: 500 });

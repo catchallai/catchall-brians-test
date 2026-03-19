@@ -1,14 +1,22 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
 import {
-  Plus, Eye, Edit, Trash2, Globe, TrendingUp, Target, Copy, ExternalLink
-} from "lucide-react";
+  Plus,
+  Eye,
+  Edit,
+  Trash2,
+  Globe,
+  TrendingUp,
+  Target,
+  Copy,
+  ExternalLink,
+} from 'lucide-react';
 import LandingPageEditorModal from '@/components/landing/LandingPageEditorModal';
 import LandingPagePreviewModal from '@/components/landing/LandingPagePreviewModal';
 import EmptyState from '@/components/ui/EmptyState';
@@ -40,10 +48,11 @@ export default function LandingPageBuilder() {
   });
 
   const createPageMutation = useMutation({
-    mutationFn: (data) => base44.entities.LandingPage.create({
-      ...data,
-      business_id: user?.current_business_id,
-    }),
+    mutationFn: (data) =>
+      base44.entities.LandingPage.create({
+        ...data,
+        business_id: user?.current_business_id,
+      }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['landing-pages'] });
     },
@@ -92,8 +101,8 @@ export default function LandingPageBuilder() {
     setShowEditor(true);
   };
 
-  const publishedPages = landingPages.filter(p => p.status === 'published');
-  const draftPages = landingPages.filter(p => p.status === 'draft');
+  const publishedPages = landingPages.filter((p) => p.status === 'published');
+  const draftPages = landingPages.filter((p) => p.status === 'draft');
   const totalViews = landingPages.reduce((sum, p) => sum + (p.views || 0), 0);
   const totalConversions = landingPages.reduce((sum, p) => sum + (p.conversions || 0), 0);
 
@@ -102,7 +111,9 @@ export default function LandingPageBuilder() {
       <div className="p-4 sm:p-6 lg:p-8 space-y-6">
         <Skeleton className="h-10 w-64" />
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {[...Array(3)].map((_, i) => <Skeleton key={i} className="h-28" />)}
+          {[...Array(3)].map((_, i) => (
+            <Skeleton key={i} className="h-28" />
+          ))}
         </div>
       </div>
     );
@@ -127,21 +138,27 @@ export default function LandingPageBuilder() {
         <Card className="glass-card">
           <CardContent className="p-4 text-center">
             <Globe className="w-6 h-6 text-violet-500 mx-auto mb-2" />
-            <p className="text-2xl font-bold text-gray-900 dark:text-white">{landingPages.length}</p>
+            <p className="text-2xl font-bold text-gray-900 dark:text-white">
+              {landingPages.length}
+            </p>
             <p className="text-sm text-gray-500">Total Pages</p>
           </CardContent>
         </Card>
         <Card className="glass-card">
           <CardContent className="p-4 text-center">
             <Target className="w-6 h-6 text-green-500 mx-auto mb-2" />
-            <p className="text-2xl font-bold text-gray-900 dark:text-white">{publishedPages.length}</p>
+            <p className="text-2xl font-bold text-gray-900 dark:text-white">
+              {publishedPages.length}
+            </p>
             <p className="text-sm text-gray-500">Published</p>
           </CardContent>
         </Card>
         <Card className="glass-card">
           <CardContent className="p-4 text-center">
             <Eye className="w-6 h-6 text-blue-500 mx-auto mb-2" />
-            <p className="text-2xl font-bold text-gray-900 dark:text-white">{totalViews.toLocaleString()}</p>
+            <p className="text-2xl font-bold text-gray-900 dark:text-white">
+              {totalViews.toLocaleString()}
+            </p>
             <p className="text-sm text-gray-500">Total Views</p>
           </CardContent>
         </Card>
@@ -240,19 +257,19 @@ export default function LandingPageBuilder() {
                 </div>
 
                 {page.status === 'published' && (
-                   <Button
-                     variant="ghost"
-                     size="sm"
-                     className="w-full gap-1"
-                     onClick={() => {
-                       const shareUrl = `${window.location.origin}/#/PublicLandingPage?slug=${page.slug}`;
-                       window.open(shareUrl, '_blank');
-                     }}
-                   >
-                     <ExternalLink className="w-3 h-3" />
-                     View Live Page
-                   </Button>
-                 )}
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="w-full gap-1"
+                    onClick={() => {
+                      const shareUrl = `${window.location.origin}/#/PublicLandingPage?slug=${page.slug}`;
+                      window.open(shareUrl, '_blank');
+                    }}
+                  >
+                    <ExternalLink className="w-3 h-3" />
+                    View Live Page
+                  </Button>
+                )}
               </CardContent>
             </Card>
           ))}

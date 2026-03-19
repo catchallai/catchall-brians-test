@@ -1,11 +1,23 @@
 import React, { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, Save } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Loader2, Save } from 'lucide-react';
 
 export default function SaveTemplateModal({ open, onClose, onSave, currentDeck }) {
   const [name, setName] = useState('');
@@ -25,7 +37,7 @@ export default function SaveTemplateModal({ open, onClose, onSave, currentDeck }
         branding: currentDeck.branding,
         default_slides: currentDeck.slides,
         is_public: false,
-        usage_count: 0
+        usage_count: 0,
       });
       onClose();
       setName('');
@@ -102,15 +114,19 @@ export default function SaveTemplateModal({ open, onClose, onSave, currentDeck }
           <Button variant="outline" onClick={onClose}>
             Cancel
           </Button>
-          <Button 
-            onClick={handleSave} 
+          <Button
+            onClick={handleSave}
             disabled={!name || isSaving}
             className="bg-violet-600 hover:bg-violet-700"
           >
             {isSaving ? (
-              <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Saving...</>
+              <>
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" /> Saving...
+              </>
             ) : (
-              <><Save className="w-4 h-4 mr-2" /> Save Template</>
+              <>
+                <Save className="w-4 h-4 mr-2" /> Save Template
+              </>
             )}
           </Button>
         </DialogFooter>

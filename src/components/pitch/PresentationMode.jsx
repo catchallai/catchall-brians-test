@@ -1,28 +1,35 @@
 import React, { useState, useEffect } from 'react';
-import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight, X, ExternalLink, Play, Pause } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { ChevronLeft, ChevronRight, X, ExternalLink, Play, Pause } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const slideTransitions = {
   fade: {
     initial: { opacity: 0 },
     animate: { opacity: 1 },
-    exit: { opacity: 0 }
+    exit: { opacity: 0 },
   },
   slide: {
     initial: { x: 100, opacity: 0 },
     animate: { x: 0, opacity: 1 },
-    exit: { x: -100, opacity: 0 }
+    exit: { x: -100, opacity: 0 },
   },
   zoom: {
     initial: { scale: 0.8, opacity: 0 },
     animate: { scale: 1, opacity: 1 },
-    exit: { scale: 1.2, opacity: 0 }
-  }
+    exit: { scale: 1.2, opacity: 0 },
+  },
 };
 
-export default function PresentationMode({ open, onClose, slides, branding, deckTitle, companyName }) {
+export default function PresentationMode({
+  open,
+  onClose,
+  slides,
+  branding,
+  deckTitle,
+  companyName,
+}) {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [transition, setTransition] = useState('fade');
   const [linkModal, setLinkModal] = useState(null);
@@ -70,7 +77,7 @@ export default function PresentationMode({ open, onClose, slides, branding, deck
   // Load custom fonts
   useEffect(() => {
     if (branding?.custom_fonts) {
-      branding.custom_fonts.forEach(font => {
+      branding.custom_fonts.forEach((font) => {
         const style = document.createElement('style');
         style.textContent = `
           @font-face {
@@ -234,7 +241,7 @@ export default function PresentationMode({ open, onClose, slides, branding, deck
             className="relative w-full h-full flex flex-col"
             style={{
               backgroundColor: branding?.background_color || '#ffffff',
-              fontFamily: branding?.font_body || 'Inter'
+              fontFamily: branding?.font_body || 'Inter',
             }}
           >
             {/* Header */}
@@ -293,7 +300,7 @@ export default function PresentationMode({ open, onClose, slides, branding, deck
                     className="text-6xl font-bold mb-10"
                     style={{
                       color: branding?.primary_color || '#7c3aed',
-                      fontFamily: branding?.font_heading || 'Inter'
+                      fontFamily: branding?.font_heading || 'Inter',
                     }}
                   >
                     {slide.title}

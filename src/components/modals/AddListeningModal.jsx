@@ -1,15 +1,10 @@
 import React, { useState } from 'react';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Loader2, Hash, AtSign, Search } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Loader2, Hash, AtSign, Search } from 'lucide-react';
 
 const TYPES = [
   { id: 'keyword', label: 'Keyword', icon: Search, description: 'Track any word or phrase' },
@@ -54,10 +49,8 @@ export default function AddListeningModal({ open, onClose, onSave, isLoading, ed
   };
 
   const togglePlatform = (platformId) => {
-    setPlatforms(prev => 
-      prev.includes(platformId) 
-        ? prev.filter(p => p !== platformId)
-        : [...prev, platformId]
+    setPlatforms((prev) =>
+      prev.includes(platformId) ? prev.filter((p) => p !== platformId) : [...prev, platformId]
     );
   };
 
@@ -65,14 +58,16 @@ export default function AddListeningModal({ open, onClose, onSave, isLoading, ed
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>{editingKeyword ? 'Edit Tracked Keyword' : 'Add Keyword to Track'}</DialogTitle>
+          <DialogTitle>
+            {editingKeyword ? 'Edit Tracked Keyword' : 'Add Keyword to Track'}
+          </DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
           {/* Type Selection */}
           <div className="space-y-2">
             <Label>What do you want to track?</Label>
             <div className="grid grid-cols-3 gap-2">
-              {TYPES.map(t => {
+              {TYPES.map((t) => {
                 const Icon = t.icon;
                 return (
                   <button
@@ -80,13 +75,17 @@ export default function AddListeningModal({ open, onClose, onSave, isLoading, ed
                     type="button"
                     onClick={() => setType(t.id)}
                     className={`p-3 rounded-lg border text-center transition-all ${
-                      type === t.id 
-                        ? 'border-violet-500 bg-violet-50' 
+                      type === t.id
+                        ? 'border-violet-500 bg-violet-50'
                         : 'border-gray-200 hover:border-gray-300'
                     }`}
                   >
-                    <Icon className={`w-5 h-5 mx-auto mb-1 ${type === t.id ? 'text-violet-600' : 'text-gray-400'}`} />
-                    <p className={`text-sm font-medium ${type === t.id ? 'text-violet-700' : 'text-gray-700'}`}>
+                    <Icon
+                      className={`w-5 h-5 mx-auto mb-1 ${type === t.id ? 'text-violet-600' : 'text-gray-400'}`}
+                    />
+                    <p
+                      className={`text-sm font-medium ${type === t.id ? 'text-violet-700' : 'text-gray-700'}`}
+                    >
                       {t.label}
                     </p>
                   </button>
@@ -98,7 +97,11 @@ export default function AddListeningModal({ open, onClose, onSave, isLoading, ed
           {/* Keyword Input */}
           <div className="space-y-2">
             <Label>
-              {type === 'keyword' ? 'Keyword or phrase' : type === 'hashtag' ? 'Hashtag' : 'Username'}
+              {type === 'keyword'
+                ? 'Keyword or phrase'
+                : type === 'hashtag'
+                  ? 'Hashtag'
+                  : 'Username'}
             </Label>
             <div className="relative">
               {type !== 'keyword' && (
@@ -109,7 +112,13 @@ export default function AddListeningModal({ open, onClose, onSave, isLoading, ed
               <Input
                 value={keyword}
                 onChange={(e) => setKeyword(e.target.value)}
-                placeholder={type === 'keyword' ? 'e.g., AI marketing' : type === 'hashtag' ? 'e.g., marketing' : 'e.g., competitor'}
+                placeholder={
+                  type === 'keyword'
+                    ? 'e.g., AI marketing'
+                    : type === 'hashtag'
+                      ? 'e.g., marketing'
+                      : 'e.g., competitor'
+                }
                 className={type !== 'keyword' ? 'pl-8' : ''}
               />
             </div>
@@ -119,7 +128,7 @@ export default function AddListeningModal({ open, onClose, onSave, isLoading, ed
           <div className="space-y-2">
             <Label>Platforms to monitor</Label>
             <div className="space-y-2">
-              {PLATFORMS.map(p => (
+              {PLATFORMS.map((p) => (
                 <div key={p.id} className="flex items-center space-x-2">
                   <Checkbox
                     id={p.id}
@@ -135,8 +144,10 @@ export default function AddListeningModal({ open, onClose, onSave, isLoading, ed
           </div>
 
           <div className="flex justify-end gap-3 pt-4">
-            <Button variant="outline" onClick={onClose}>Cancel</Button>
-            <Button 
+            <Button variant="outline" onClick={onClose}>
+              Cancel
+            </Button>
+            <Button
               onClick={handleSubmit}
               disabled={!keyword.trim() || platforms.length === 0 || isLoading}
               className="bg-violet-600 hover:bg-violet-700"

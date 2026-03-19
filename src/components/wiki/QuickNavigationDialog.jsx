@@ -3,16 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { FileText, Folder, Clock, Star, Search } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { FileText, Folder, Clock, Star, Search } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 
 export default function QuickNavigationDialog({ open, onClose, spaceId }) {
   const [searchQuery, setSearchQuery] = useState('');
@@ -22,7 +17,7 @@ export default function QuickNavigationDialog({ open, onClose, spaceId }) {
     queryKey: ['quick-nav-pages', spaceId],
     queryFn: async () => {
       const allPages = await base44.entities.WikiPage.list();
-      return spaceId ? allPages.filter(p => p.space_id === spaceId) : allPages;
+      return spaceId ? allPages.filter((p) => p.space_id === spaceId) : allPages;
     },
   });
 
@@ -31,22 +26,22 @@ export default function QuickNavigationDialog({ open, onClose, spaceId }) {
     queryFn: async () => {
       const user = await base44.auth.me();
       const allBookmarks = await base44.entities.WikiPageBookmark.list();
-      return allBookmarks.filter(b => b.user_email === user.email);
+      return allBookmarks.filter((b) => b.user_email === user.email);
     },
   });
 
   const filteredPages = pages
-    .filter(p => !searchQuery || p.title.toLowerCase().includes(searchQuery.toLowerCase()))
+    .filter((p) => !searchQuery || p.title.toLowerCase().includes(searchQuery.toLowerCase()))
     .sort((a, b) => (b.view_count || 0) - (a.view_count || 0))
     .slice(0, 10);
 
-  const bookmarkedPageIds = bookmarks.map(b => b.page_id);
+  const bookmarkedPageIds = bookmarks.map((b) => b.page_id);
 
   const handleNavigate = (page) => {
     const viewCount = (page.view_count || 0) + 1;
-    base44.entities.WikiPage.update(page.id, { 
+    base44.entities.WikiPage.update(page.id, {
       view_count: viewCount,
-      last_viewed_at: new Date().toISOString()
+      last_viewed_at: new Date().toISOString(),
     });
     navigate(`${createPageUrl('WikiPageEditor')}?spaceId=${page.space_id}&pageId=${page.id}`);
     onClose();
@@ -87,11 +82,9 @@ export default function QuickNavigationDialog({ open, onClose, spaceId }) {
         <ScrollArea className="h-96">
           <div className="space-y-2 pr-4">
             {filteredPages.length === 0 ? (
-              <div className="text-center py-8 text-gray-500">
-                No pages found
-              </div>
+              <div className="text-center py-8 text-gray-500">No pages found</div>
             ) : (
-              filteredPages.map(page => (
+              filteredPages.map((page) => (
                 <button
                   key={page.id}
                   onClick={() => handleNavigate(page)}
@@ -109,18 +102,14 @@ export default function QuickNavigationDialog({ open, onClose, spaceId }) {
                         )}
                       </div>
                       {page.ai_summary && (
-                        <p className="text-xs text-gray-500 line-clamp-1 mt-1">
-                          {page.ai_summary}
-                        </p>
+                        <p className="text-xs text-gray-500 line-clamp-1 mt-1">{page.ai_summary}</p>
                       )}
                     </div>
                     <div className="flex items-center gap-2 text-xs text-gray-400">
                       {page.view_count > 0 && (
                         <Badge variant="secondary">{page.view_count} views</Badge>
                       )}
-                      {page.last_viewed_at && (
-                        <Clock className="w-3 h-3" />
-                      )}
+                      {page.last_viewed_at && <Clock className="w-3 h-3" />}
                     </div>
                   </div>
                 </button>
@@ -130,7 +119,8 @@ export default function QuickNavigationDialog({ open, onClose, spaceId }) {
         </ScrollArea>
 
         <div className="text-xs text-gray-500 border-t pt-3">
-          Press <kbd className="px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded">Cmd+K</kbd> or <kbd className="px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded">Ctrl+K</kbd> to open
+          Press <kbd className="px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded">Cmd+K</kbd> or{' '}
+          <kbd className="px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded">Ctrl+K</kbd> to open
         </div>
       </DialogContent>
     </Dialog>

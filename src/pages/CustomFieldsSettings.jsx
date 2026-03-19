@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
-import { Card } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import CustomFieldManager from '@/components/crm/CustomFieldManager';
 
 export default function CustomFieldsSettings() {
@@ -18,7 +18,9 @@ export default function CustomFieldsSettings() {
       {/* Header */}
       <div>
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Custom Fields</h1>
-        <p className="text-gray-500 dark:text-gray-400 mt-1">Define custom fields for your contacts, companies, and deals</p>
+        <p className="text-gray-500 dark:text-gray-400 mt-1">
+          Define custom fields for your contacts, companies, and deals
+        </p>
       </div>
 
       {/* Tabs */}

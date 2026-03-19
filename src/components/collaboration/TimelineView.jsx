@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Calendar, ChevronLeft, ChevronRight } from "lucide-react";
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Calendar, ChevronLeft, ChevronRight } from 'lucide-react';
 
 const priorityColors = {
   low: 'bg-gray-400',
@@ -27,7 +27,7 @@ export default function TimelineView({ project, tasks, user }) {
   };
 
   const getTasksForDate = (date) => {
-    return tasks.filter(task => {
+    return tasks.filter((task) => {
       if (!task.due_date) return false;
       const taskDate = new Date(task.due_date);
       return taskDate.toDateString() === date.toDateString();
@@ -87,7 +87,7 @@ export default function TimelineView({ project, tasks, user }) {
                   {days.map((day, idx) => {
                     const isToday = day.toDateString() === today.toDateString();
                     const isWeekend = day.getDay() === 0 || day.getDay() === 6;
-                    
+
                     return (
                       <div
                         key={idx}
@@ -109,14 +109,21 @@ export default function TimelineView({ project, tasks, user }) {
                 {tasks.map((task) => {
                   const taskDueDate = task.due_date ? new Date(task.due_date) : null;
                   const taskStartDate = task.start_date ? new Date(task.start_date) : taskDueDate;
-                  
+
                   return (
-                    <div key={task.id} className="flex border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                    <div
+                      key={task.id}
+                      className="flex border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50"
+                    >
                       {days.map((day, idx) => {
-                        const hasTask = taskDueDate && day.toDateString() === taskDueDate.toDateString();
-                        const isInRange = taskStartDate && taskDueDate && 
-                          day >= taskStartDate && day <= taskDueDate;
-                        
+                        const hasTask =
+                          taskDueDate && day.toDateString() === taskDueDate.toDateString();
+                        const isInRange =
+                          taskStartDate &&
+                          taskDueDate &&
+                          day >= taskStartDate &&
+                          day <= taskDueDate;
+
                         return (
                           <div
                             key={idx}
@@ -129,7 +136,9 @@ export default function TimelineView({ project, tasks, user }) {
                               />
                             )}
                             {isInRange && !hasTask && (
-                              <div className={`absolute inset-y-1 left-0 right-0 ${priorityColors[task.priority] || priorityColors.medium} opacity-30`} />
+                              <div
+                                className={`absolute inset-y-1 left-0 right-0 ${priorityColors[task.priority] || priorityColors.medium} opacity-30`}
+                              />
                             )}
                           </div>
                         );

@@ -1,16 +1,11 @@
 import React from 'react';
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Users, Eye, Edit3 } from "lucide-react";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Users, Eye, Edit3 } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 export default function ActiveEditors({ editors = [] }) {
-  const activeEditors = editors.filter(e => e.is_editing);
-  const viewers = editors.filter(e => !e.is_editing);
+  const activeEditors = editors.filter((e) => e.is_editing);
+  const viewers = editors.filter((e) => !e.is_editing);
 
   if (editors.length === 0) return null;
 
@@ -23,11 +18,13 @@ export default function ActiveEditors({ editors = [] }) {
               <TooltipTrigger asChild>
                 <div className="relative">
                   <Avatar className="w-8 h-8 border-2 border-white dark:border-gray-900">
-                    <AvatarFallback className={`text-xs ${
-                      editor.is_editing 
-                        ? 'bg-green-100 text-green-700' 
-                        : 'bg-blue-100 text-blue-700'
-                    }`}>
+                    <AvatarFallback
+                      className={`text-xs ${
+                        editor.is_editing
+                          ? 'bg-green-100 text-green-700'
+                          : 'bg-blue-100 text-blue-700'
+                      }`}
+                    >
                       {editor.user_name?.[0] || 'U'}
                     </AvatarFallback>
                   </Avatar>
@@ -58,24 +55,24 @@ export default function ActiveEditors({ editors = [] }) {
               </TooltipTrigger>
               <TooltipContent>
                 <div className="space-y-1">
-                  {editors.slice(3).map(editor => (
-                    <div key={editor.id} className="text-xs">{editor.user_name}</div>
+                  {editors.slice(3).map((editor) => (
+                    <div key={editor.id} className="text-xs">
+                      {editor.user_name}
+                    </div>
                   ))}
                 </div>
               </TooltipContent>
             </Tooltip>
           )}
         </div>
-        
+
         <div className="text-xs text-gray-500 flex items-center gap-1">
           <Users className="w-3 h-3" />
           {activeEditors.length > 0 && (
             <span className="text-green-600">{activeEditors.length} editing</span>
           )}
           {activeEditors.length > 0 && viewers.length > 0 && <span>•</span>}
-          {viewers.length > 0 && (
-            <span>{viewers.length} viewing</span>
-          )}
+          {viewers.length > 0 && <span>{viewers.length} viewing</span>}
         </div>
       </div>
     </TooltipProvider>

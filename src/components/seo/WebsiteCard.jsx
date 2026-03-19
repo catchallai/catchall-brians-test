@@ -1,21 +1,34 @@
 import React from 'react';
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { ExternalLink, Settings, Sparkles, Loader2, Search, Link2, TrendingUp, Globe, Clock, Trash2 } from "lucide-react";
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import {
+  ExternalLink,
+  Settings,
+  Sparkles,
+  Loader2,
+  Search,
+  Link2,
+  TrendingUp,
+  Globe,
+  Clock,
+  Trash2,
+} from 'lucide-react';
 import SEOScoreGauge from './SEOScoreGauge';
 import moment from 'moment';
 
-export default function WebsiteCard({ 
-  website, 
-  keywords, 
-  backlinks, 
-  onEdit, 
+export default function WebsiteCard({
+  website,
+  keywords,
+  backlinks,
+  onEdit,
   onAnalyze,
-  onDelete, 
-  isAnalyzing
+  onDelete,
+  isAnalyzing,
 }) {
-  const top10Keywords = keywords.filter(k => k.current_position && k.current_position <= 10).length;
-  
+  const top10Keywords = keywords.filter(
+    (k) => k.current_position && k.current_position <= 10
+  ).length;
+
   // Normalize SEO score - handle both 0-1 and 0-100 formats
   const normalizedScore = (() => {
     const score = website.seo_score;
@@ -23,7 +36,7 @@ export default function WebsiteCard({
     if (score > 0 && score <= 1) return Math.round(score * 100);
     return Math.round(score);
   })();
-  
+
   const formatNumber = (num) => {
     if (!num) return '-';
     if (num >= 1000000) return `${(num / 1000000).toFixed(1)}M`;
@@ -32,17 +45,41 @@ export default function WebsiteCard({
   };
 
   const metrics = [
-    { icon: Search, label: 'Keywords', value: keywords.length, sub: `${top10Keywords} top 10`, color: 'text-violet-500' },
-    { icon: Link2, label: 'Backlinks', value: backlinks.length, sub: `${backlinks.filter(b => b.status === 'active').length} active`, color: 'text-blue-500' },
-    { icon: TrendingUp, label: 'Traffic', value: formatNumber(website.organic_traffic), sub: 'monthly', color: 'text-emerald-500' },
-    { icon: Globe, label: 'DA', value: website.domain_authority || '-', sub: 'authority', color: 'text-amber-500' },
+    {
+      icon: Search,
+      label: 'Keywords',
+      value: keywords.length,
+      sub: `${top10Keywords} top 10`,
+      color: 'text-violet-500',
+    },
+    {
+      icon: Link2,
+      label: 'Backlinks',
+      value: backlinks.length,
+      sub: `${backlinks.filter((b) => b.status === 'active').length} active`,
+      color: 'text-blue-500',
+    },
+    {
+      icon: TrendingUp,
+      label: 'Traffic',
+      value: formatNumber(website.organic_traffic),
+      sub: 'monthly',
+      color: 'text-emerald-500',
+    },
+    {
+      icon: Globe,
+      label: 'DA',
+      value: website.domain_authority || '-',
+      sub: 'authority',
+      color: 'text-amber-500',
+    },
   ];
 
   return (
     <Card className="group relative overflow-hidden border-0 bg-white dark:bg-gray-800 shadow-sm hover:shadow-xl transition-all duration-300 rounded-2xl">
       {/* Top gradient accent */}
       <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-500 to-teal-600" />
-      
+
       <CardContent className="p-5">
         {/* Header */}
         <div className="flex items-start justify-between mb-5">
@@ -52,9 +89,9 @@ export default function WebsiteCard({
             </div>
             <div>
               <h3 className="font-bold text-gray-900 dark:text-white text-lg">{website.name}</h3>
-              <a 
-                href={website.url} 
-                target="_blank" 
+              <a
+                href={website.url}
+                target="_blank"
                 rel="noopener noreferrer"
                 className="text-sm text-gray-400 hover:text-emerald-600 flex items-center gap-1 transition-colors"
               >
@@ -63,11 +100,11 @@ export default function WebsiteCard({
               </a>
             </div>
           </div>
-          
+
           <div className="flex gap-1">
-            <Button 
-              variant="ghost" 
-              size="icon" 
+            <Button
+              variant="ghost"
+              size="icon"
               className="h-9 w-9 rounded-xl text-emerald-500 hover:text-emerald-700 hover:bg-emerald-50 dark:hover:bg-emerald-900/20"
               onClick={onAnalyze}
               disabled={isAnalyzing}
@@ -78,22 +115,26 @@ export default function WebsiteCard({
                 <Sparkles className="w-4 h-4" />
               )}
             </Button>
-            <Button 
-              variant="ghost" 
-              size="icon" 
+            <Button
+              variant="ghost"
+              size="icon"
               className="h-9 w-9 rounded-xl text-gray-400 hover:text-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700"
               onClick={onEdit}
             >
               <Settings className="w-4 h-4" />
             </Button>
             {onDelete && (
-              <Button 
-                variant="ghost" 
-                size="icon" 
+              <Button
+                variant="ghost"
+                size="icon"
                 className="h-9 w-9 rounded-xl text-red-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
                 onClick={(e) => {
                   e.stopPropagation();
-                  if (confirm('Delete this website? This will also remove all associated keywords and backlinks.')) {
+                  if (
+                    confirm(
+                      'Delete this website? This will also remove all associated keywords and backlinks.'
+                    )
+                  ) {
                     onDelete();
                   }
                 }}
@@ -112,7 +153,10 @@ export default function WebsiteCard({
         {/* Metrics Grid */}
         <div className="grid grid-cols-2 gap-2">
           {metrics.map((metric) => (
-            <div key={metric.label} className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-3 text-center hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+            <div
+              key={metric.label}
+              className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-3 text-center hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+            >
               <div className="flex items-center justify-center gap-1 mb-1">
                 <metric.icon className={`w-3.5 h-3.5 ${metric.color}`} />
                 <span className="text-xs text-gray-500 dark:text-gray-400">{metric.label}</span>

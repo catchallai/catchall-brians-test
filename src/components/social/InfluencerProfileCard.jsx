@@ -1,29 +1,38 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Progress } from "@/components/ui/progress";
-import { 
-  Users, Star, TrendingUp, ExternalLink, Loader2, 
-  Heart, MessageCircle, Share2, CheckCircle, MapPin,
-  Link2, Sparkles, UserPlus
-} from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Progress } from '@/components/ui/progress';
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+  Users,
+  Star,
+  TrendingUp,
+  ExternalLink,
+  Loader2,
+  Heart,
+  MessageCircle,
+  Share2,
+  CheckCircle,
+  MapPin,
+  Link2,
+  Sparkles,
+  UserPlus,
+} from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 const platformConfig = {
-  twitter: { color: "bg-gray-900", icon: "𝕏", name: "X (Twitter)" },
-  linkedin: { color: "bg-blue-600", icon: "in", name: "LinkedIn" },
-  facebook: { color: "bg-blue-500", icon: "f", name: "Facebook" },
-  instagram: { color: "bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400", icon: "IG", name: "Instagram" },
-  youtube: { color: "bg-red-600", icon: "▶", name: "YouTube" },
-  tiktok: { color: "bg-black", icon: "♪", name: "TikTok" },
+  twitter: { color: 'bg-gray-900', icon: '𝕏', name: 'X (Twitter)' },
+  linkedin: { color: 'bg-blue-600', icon: 'in', name: 'LinkedIn' },
+  facebook: { color: 'bg-blue-500', icon: 'f', name: 'Facebook' },
+  instagram: {
+    color: 'bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400',
+    icon: 'IG',
+    name: 'Instagram',
+  },
+  youtube: { color: 'bg-red-600', icon: '▶', name: 'YouTube' },
+  tiktok: { color: 'bg-black', icon: '♪', name: 'TikTok' },
 };
 
 export default function InfluencerProfileCard({ mention, onClose }) {
@@ -32,7 +41,7 @@ export default function InfluencerProfileCard({ mention, onClose }) {
 
   const fetchProfile = async () => {
     setLoading(true);
-    
+
     const result = await base44.integrations.Core.InvokeLLM({
       prompt: `Research and provide detailed social media profile information for @${mention.author} on ${mention.platform}.
       
@@ -51,63 +60,63 @@ export default function InfluencerProfileCard({ mention, onClose }) {
       12. Collaboration potential assessment`,
       add_context_from_internet: true,
       response_json_schema: {
-        type: "object",
+        type: 'object',
         properties: {
-          full_name: { type: "string" },
-          username: { type: "string" },
-          bio: { type: "string" },
-          location: { type: "string" },
-          website: { type: "string" },
-          profile_image_url: { type: "string" },
-          followers: { type: "number" },
-          following: { type: "number" },
-          total_posts: { type: "number" },
-          engagement_rate: { type: "number" },
-          avg_likes: { type: "number" },
-          avg_comments: { type: "number" },
-          content_niche: { type: "array", items: { type: "string" } },
-          post_frequency: { type: "string" },
-          best_content_types: { type: "array", items: { type: "string" } },
+          full_name: { type: 'string' },
+          username: { type: 'string' },
+          bio: { type: 'string' },
+          location: { type: 'string' },
+          website: { type: 'string' },
+          profile_image_url: { type: 'string' },
+          followers: { type: 'number' },
+          following: { type: 'number' },
+          total_posts: { type: 'number' },
+          engagement_rate: { type: 'number' },
+          avg_likes: { type: 'number' },
+          avg_comments: { type: 'number' },
+          content_niche: { type: 'array', items: { type: 'string' } },
+          post_frequency: { type: 'string' },
+          best_content_types: { type: 'array', items: { type: 'string' } },
           audience_demographics: {
-            type: "object",
+            type: 'object',
             properties: {
-              age_range: { type: "string" },
-              gender_split: { type: "string" },
-              top_locations: { type: "array", items: { type: "string" } }
-            }
+              age_range: { type: 'string' },
+              gender_split: { type: 'string' },
+              top_locations: { type: 'array', items: { type: 'string' } },
+            },
           },
-          brand_mentions: { type: "array", items: { type: "string" } },
+          brand_mentions: { type: 'array', items: { type: 'string' } },
           influence_breakdown: {
-            type: "object",
+            type: 'object',
             properties: {
-              reach: { type: "number" },
-              relevance: { type: "number" },
-              resonance: { type: "number" },
-              overall: { type: "number" }
-            }
+              reach: { type: 'number' },
+              relevance: { type: 'number' },
+              resonance: { type: 'number' },
+              overall: { type: 'number' },
+            },
           },
           collaboration_fit: {
-            type: "object",
+            type: 'object',
             properties: {
-              score: { type: "number" },
-              reasons: { type: "array", items: { type: "string" } },
-              outreach_tips: { type: "array", items: { type: "string" } }
-            }
+              score: { type: 'number' },
+              reasons: { type: 'array', items: { type: 'string' } },
+              outreach_tips: { type: 'array', items: { type: 'string' } },
+            },
           },
           recent_posts: {
-            type: "array",
+            type: 'array',
             items: {
-              type: "object",
+              type: 'object',
               properties: {
-                content: { type: "string" },
-                likes: { type: "number" },
-                comments: { type: "number" },
-                date: { type: "string" }
-              }
-            }
-          }
-        }
-      }
+                content: { type: 'string' },
+                likes: { type: 'number' },
+                comments: { type: 'number' },
+                date: { type: 'string' },
+              },
+            },
+          },
+        },
+      },
     });
 
     setProfile(result);
@@ -134,7 +143,9 @@ export default function InfluencerProfileCard({ mention, onClose }) {
       <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <div className={`w-6 h-6 rounded ${platform.color} flex items-center justify-center text-white text-xs font-bold`}>
+            <div
+              className={`w-6 h-6 rounded ${platform.color} flex items-center justify-center text-white text-xs font-bold`}
+            >
               {platform.icon}
             </div>
             Influencer Profile
@@ -152,10 +163,14 @@ export default function InfluencerProfileCard({ mention, onClose }) {
             <div className="flex items-start gap-4 p-4 bg-gray-50 rounded-xl">
               <Avatar className="w-16 h-16">
                 <AvatarImage src={profile.profile_image_url} />
-                <AvatarFallback className="text-lg">{profile.full_name?.[0] || mention.author?.[0]}</AvatarFallback>
+                <AvatarFallback className="text-lg">
+                  {profile.full_name?.[0] || mention.author?.[0]}
+                </AvatarFallback>
               </Avatar>
               <div className="flex-1">
-                <h3 className="text-lg font-semibold text-gray-900">{profile.full_name || mention.author}</h3>
+                <h3 className="text-lg font-semibold text-gray-900">
+                  {profile.full_name || mention.author}
+                </h3>
                 <p className="text-gray-500">@{profile.username || mention.author}</p>
                 {profile.location && (
                   <p className="text-sm text-gray-400 flex items-center gap-1 mt-1">
@@ -165,7 +180,9 @@ export default function InfluencerProfileCard({ mention, onClose }) {
                 {profile.bio && <p className="text-sm text-gray-600 mt-2">{profile.bio}</p>}
               </div>
               <div className="text-center">
-                <p className="text-2xl font-bold text-violet-600">{profile.influence_breakdown?.overall || mention.influence_score || 0}</p>
+                <p className="text-2xl font-bold text-violet-600">
+                  {profile.influence_breakdown?.overall || mention.influence_score || 0}
+                </p>
                 <p className="text-xs text-gray-500">Influence Score</p>
               </div>
             </div>
@@ -181,11 +198,15 @@ export default function InfluencerProfileCard({ mention, onClose }) {
                 <p className="text-xs text-gray-500">Following</p>
               </div>
               <div className="text-center p-3 bg-gray-50 rounded-lg">
-                <p className="text-xl font-bold text-gray-900">{profile.engagement_rate?.toFixed(1) || 0}%</p>
+                <p className="text-xl font-bold text-gray-900">
+                  {profile.engagement_rate?.toFixed(1) || 0}%
+                </p>
                 <p className="text-xs text-gray-500">Engagement</p>
               </div>
               <div className="text-center p-3 bg-gray-50 rounded-lg">
-                <p className="text-xl font-bold text-gray-900">{formatNumber(profile.total_posts)}</p>
+                <p className="text-xl font-bold text-gray-900">
+                  {formatNumber(profile.total_posts)}
+                </p>
                 <p className="text-xs text-gray-500">Posts</p>
               </div>
             </div>
@@ -205,14 +226,18 @@ export default function InfluencerProfileCard({ mention, onClose }) {
                   <div>
                     <div className="flex justify-between text-sm mb-1">
                       <span>Relevance</span>
-                      <span className="font-medium">{profile.influence_breakdown.relevance}/100</span>
+                      <span className="font-medium">
+                        {profile.influence_breakdown.relevance}/100
+                      </span>
                     </div>
                     <Progress value={profile.influence_breakdown.relevance} className="h-2" />
                   </div>
                   <div>
                     <div className="flex justify-between text-sm mb-1">
                       <span>Resonance</span>
-                      <span className="font-medium">{profile.influence_breakdown.resonance}/100</span>
+                      <span className="font-medium">
+                        {profile.influence_breakdown.resonance}/100
+                      </span>
                     </div>
                     <Progress value={profile.influence_breakdown.resonance} className="h-2" />
                   </div>
@@ -226,7 +251,9 @@ export default function InfluencerProfileCard({ mention, onClose }) {
                 <h4 className="font-medium text-gray-900 mb-2">Content Niche</h4>
                 <div className="flex flex-wrap gap-2">
                   {profile.content_niche.map((niche, idx) => (
-                    <Badge key={idx} variant="outline">{niche}</Badge>
+                    <Badge key={idx} variant="outline">
+                      {niche}
+                    </Badge>
                   ))}
                 </div>
               </div>
@@ -247,7 +274,9 @@ export default function InfluencerProfileCard({ mention, onClose }) {
                   </div>
                   <div>
                     <p className="text-gray-500">Top Locations</p>
-                    <p className="font-medium">{profile.audience_demographics.top_locations?.slice(0, 2).join(', ')}</p>
+                    <p className="font-medium">
+                      {profile.audience_demographics.top_locations?.slice(0, 2).join(', ')}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -289,7 +318,9 @@ export default function InfluencerProfileCard({ mention, onClose }) {
                 <h4 className="font-medium text-gray-900 mb-2">Brands Mentioned</h4>
                 <div className="flex flex-wrap gap-2">
                   {profile.brand_mentions.map((brand, idx) => (
-                    <Badge key={idx} className="bg-gray-100 text-gray-700">{brand}</Badge>
+                    <Badge key={idx} className="bg-gray-100 text-gray-700">
+                      {brand}
+                    </Badge>
                   ))}
                 </div>
               </div>
@@ -304,8 +335,12 @@ export default function InfluencerProfileCard({ mention, onClose }) {
                     <div key={idx} className="p-3 bg-white border rounded-lg">
                       <p className="text-sm text-gray-600 line-clamp-2">{post.content}</p>
                       <div className="flex items-center gap-4 mt-2 text-xs text-gray-400">
-                        <span className="flex items-center gap-1"><Heart className="w-3 h-3" /> {formatNumber(post.likes)}</span>
-                        <span className="flex items-center gap-1"><MessageCircle className="w-3 h-3" /> {formatNumber(post.comments)}</span>
+                        <span className="flex items-center gap-1">
+                          <Heart className="w-3 h-3" /> {formatNumber(post.likes)}
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <MessageCircle className="w-3 h-3" /> {formatNumber(post.comments)}
+                        </span>
                         <span>{post.date}</span>
                       </div>
                     </div>
@@ -336,9 +371,7 @@ export default function InfluencerProfileCard({ mention, onClose }) {
             </div>
           </div>
         ) : (
-          <div className="text-center py-12 text-gray-500">
-            Unable to load profile data
-          </div>
+          <div className="text-center py-12 text-gray-500">Unable to load profile data</div>
         )}
       </DialogContent>
     </Dialog>

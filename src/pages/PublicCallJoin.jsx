@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card } from "@/components/ui/card";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Card } from '@/components/ui/card';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Video, Mic, AlertCircle, Video as VideoIcon, Loader } from 'lucide-react';
 
 export default function PublicCallJoin() {
@@ -71,10 +71,13 @@ export default function PublicCallJoin() {
       });
 
       // Store guest info in session storage for the call interface
-      sessionStorage.setItem(`call-${callId}-guest`, JSON.stringify({
-        name: guestName,
-        joinedAt: new Date().toISOString(),
-      }));
+      sessionStorage.setItem(
+        `call-${callId}-guest`,
+        JSON.stringify({
+          name: guestName,
+          joinedAt: new Date().toISOString(),
+        })
+      );
 
       navigate(`/call/${callId}`, { state: { guestName, isGuest: true } });
     } catch (err) {
@@ -125,9 +128,7 @@ export default function PublicCallJoin() {
         </div>
 
         {/* Header */}
-        <h1 className="text-2xl font-bold text-gray-900 text-center mb-2">
-          Join Call
-        </h1>
+        <h1 className="text-2xl font-bold text-gray-900 text-center mb-2">Join Call</h1>
         <p className="text-gray-600 text-center text-sm mb-6">
           You've been invited to join a video call
         </p>
@@ -150,9 +151,7 @@ export default function PublicCallJoin() {
 
         {/* Name Input */}
         <div className="mb-6">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Your Name
-          </label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Your Name</label>
           <Input
             placeholder="Enter your name"
             value={guestName}

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Badge } from "@/components/ui/badge";
+import { Badge } from '@/components/ui/badge';
 
 export function UnreadBadge({ count }) {
   if (!count || count === 0) return null;

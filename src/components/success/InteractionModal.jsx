@@ -1,18 +1,26 @@
 import React, { useState, useEffect } from 'react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2 } from "lucide-react";
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Loader2 } from 'lucide-react';
 
-export default function InteractionModal({ open, onClose, interaction, contacts, onSave, isLoading }) {
+export default function InteractionModal({
+  open,
+  onClose,
+  interaction,
+  contacts,
+  onSave,
+  isLoading,
+}) {
   const [formData, setFormData] = useState({
     contact_id: '',
     interaction_type: 'check_in',
@@ -21,7 +29,7 @@ export default function InteractionModal({ open, onClose, interaction, contacts,
     sentiment: 'neutral',
     summary: '',
     csm_name: '',
-    next_touchpoint: ''
+    next_touchpoint: '',
   });
 
   useEffect(() => {
@@ -29,12 +37,16 @@ export default function InteractionModal({ open, onClose, interaction, contacts,
       setFormData({
         contact_id: interaction.contact_id || '',
         interaction_type: interaction.interaction_type || 'check_in',
-        interaction_date: interaction.interaction_date ? new Date(interaction.interaction_date).toISOString().slice(0, 16) : new Date().toISOString().slice(0, 16),
+        interaction_date: interaction.interaction_date
+          ? new Date(interaction.interaction_date).toISOString().slice(0, 16)
+          : new Date().toISOString().slice(0, 16),
         duration_minutes: interaction.duration_minutes || '',
         sentiment: interaction.sentiment || 'neutral',
         summary: interaction.summary || '',
         csm_name: interaction.csm_name || '',
-        next_touchpoint: interaction.next_touchpoint ? new Date(interaction.next_touchpoint).toISOString().slice(0, 10) : ''
+        next_touchpoint: interaction.next_touchpoint
+          ? new Date(interaction.next_touchpoint).toISOString().slice(0, 10)
+          : '',
       });
     } else {
       setFormData({
@@ -45,7 +57,7 @@ export default function InteractionModal({ open, onClose, interaction, contacts,
         sentiment: 'neutral',
         summary: '',
         csm_name: '',
-        next_touchpoint: ''
+        next_touchpoint: '',
       });
     }
   }, [interaction]);
@@ -54,7 +66,7 @@ export default function InteractionModal({ open, onClose, interaction, contacts,
     e.preventDefault();
     onSave({
       ...formData,
-      duration_minutes: formData.duration_minutes ? parseInt(formData.duration_minutes) : null
+      duration_minutes: formData.duration_minutes ? parseInt(formData.duration_minutes) : null,
     });
   };
 
@@ -76,7 +88,7 @@ export default function InteractionModal({ open, onClose, interaction, contacts,
                   <SelectValue placeholder="Select customer" />
                 </SelectTrigger>
                 <SelectContent>
-                  {contacts.map(contact => (
+                  {contacts.map((contact) => (
                     <SelectItem key={contact.id} value={contact.id}>
                       {contact.first_name} {contact.last_name} - {contact.company}
                     </SelectItem>
@@ -180,10 +192,7 @@ export default function InteractionModal({ open, onClose, interaction, contacts,
             <Button type="button" variant="outline" onClick={onClose}>
               Cancel
             </Button>
-            <Button
-              type="submit"
-              disabled={!formData.contact_id || isLoading}
-            >
+            <Button type="submit" disabled={!formData.contact_id || isLoading}>
               {isLoading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
               {interaction ? 'Update' : 'Create'} Interaction
             </Button>

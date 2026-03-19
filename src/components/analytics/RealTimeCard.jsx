@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent } from "@/components/ui/card";
-import { Activity, Users, Eye, MousePointer } from "lucide-react";
+import { Card, CardContent } from '@/components/ui/card';
+import { Activity, Users, Eye, MousePointer } from 'lucide-react';
 
 export default function RealTimeCard() {
   // SyberJet real-time data
@@ -16,12 +16,14 @@ export default function RealTimeCard() {
   // Simulate real-time updates
   useEffect(() => {
     const interval = setInterval(() => {
-      setActiveUsers(prev => Math.max(1, prev + Math.floor(Math.random() * 7) - 3));
-      setRecentPageviews(prev => prev + Math.floor(Math.random() * 5) + 1);
-      setActivePages(prev => prev.map(p => ({
-        ...p,
-        users: Math.max(1, p.users + Math.floor(Math.random() * 3) - 1)
-      })));
+      setActiveUsers((prev) => Math.max(1, prev + Math.floor(Math.random() * 7) - 3));
+      setRecentPageviews((prev) => prev + Math.floor(Math.random() * 5) + 1);
+      setActivePages((prev) =>
+        prev.map((p) => ({
+          ...p,
+          users: Math.max(1, p.users + Math.floor(Math.random() * 3) - 1),
+        }))
+      );
     }, 3000);
 
     return () => clearInterval(interval);
@@ -59,7 +61,9 @@ export default function RealTimeCard() {
           <div className="space-y-1.5">
             {activePages.map((page) => (
               <div key={page.path} className="flex items-center justify-between text-sm">
-                <span className="text-gray-600 dark:text-gray-400 truncate max-w-[150px]">{page.path}</span>
+                <span className="text-gray-600 dark:text-gray-400 truncate max-w-[150px]">
+                  {page.path}
+                </span>
                 <div className="flex items-center gap-1 text-emerald-600">
                   <MousePointer className="w-3 h-3" />
                   <span className="font-medium">{page.users}</span>

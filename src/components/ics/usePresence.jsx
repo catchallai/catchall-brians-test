@@ -11,92 +11,95 @@ export function usePresence(user) {
   const [isLoading, setIsLoading] = useState(true);
 
   // Initialize and update user's presence
-  const updatePresence = useCallback(async (status = 'online', inCall = false, callId = null, customStatus = null) => {
-    if (!user?.email) return;
+  const updatePresence = useCallback(
+    async (status = 'online', inCall = false, callId = null, customStatus = null) => {
+      if (!user?.email) return;
 
-    try {
-      // Check if presence record exists
-      const existing = await base44.entities.Presence.filter({ user_email: user.email });
-      
-      const updateData = {
-        status,
-        in_call: inCall,
-        call_id: callId,
-        last_activity: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-        ...(customStatus && {
-          custom_status: customStatus.custom_status,
-          status_emoji: customStatus.status_emoji,
-          status_expires_at: customStatus.status_expires_at || null,
-          dnd_enabled: customStatus.dnd_enabled || false,
-          dnd_expires_at: customStatus.dnd_expires_at || null,
-          away_message: customStatus.away_message || '',
-        }),
-      };
+      try {
+        // Check if presence record exists
+        const existing = await base44.entities.Presence.filter({ user_email: user.email });
 
-      if (existing.length > 0) {
-        // Update existing
-        await base44.entities.Presence.update(existing[0].id, updateData);
-      } else {
-        // Create new
-        await base44.entities.Presence.create({
-          user_email: user.email,
-          user_name: user.full_name,
-          ...updateData,
+        const updateData = {
+          status,
+          in_call: inCall,
+          call_id: callId,
+          last_activity: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          ...(customStatus && {
+            custom_status: customStatus.custom_status,
+            status_emoji: customStatus.status_emoji,
+            status_expires_at: customStatus.status_expires_at || null,
+            dnd_enabled: customStatus.dnd_enabled || false,
+            dnd_expires_at: customStatus.dnd_expires_at || null,
+            away_message: customStatus.away_message || '',
+          }),
+        };
+
+        if (existing.length > 0) {
+          // Update existing
+          await base44.entities.Presence.update(existing[0].id, updateData);
+        } else {
+          // Create new
+          await base44.entities.Presence.create({
+            user_email: user.email,
+            user_name: user.full_name,
+            ...updateData,
+          });
+        }
+
+        setUserPresence({
+          email: user.email,
+          name: user.full_name,
+          status,
+          in_call: inCall,
+          call_id: callId,
+          custom_status: customStatus?.custom_status || '',
+          status_emoji: customStatus?.status_emoji || '',
+          dnd_enabled: customStatus?.dnd_enabled || false,
+          away_message: customStatus?.away_message || '',
         });
+      } catch (error) {
+        console.error('Error updating presence:', error);
       }
-
-      setUserPresence({
-        email: user.email,
-        name: user.full_name,
-        status,
-        in_call: inCall,
-        call_id: callId,
-        custom_status: customStatus?.custom_status || '',
-        status_emoji: customStatus?.status_emoji || '',
-        dnd_enabled: customStatus?.dnd_enabled || false,
-        away_message: customStatus?.away_message || '',
-      });
-    } catch (error) {
-      console.error('Error updating presence:', error);
-    }
-  }, [user]);
+    },
+    [user]
+  );
 
   // Fetch all presence records
   const fetchAllPresence = useCallback(async () => {
     try {
       const presenceRecords = await base44.entities.Presence.list();
       const presenceMap = {};
-      
-      presenceRecords.forEach(record => {
-         // Check if status or DND has expired
-         const now = new Date();
-         let activeStatus = record.status;
-         let customStatus = record.custom_status;
-         let statusEmoji = record.status_emoji;
-         let dndEnabled = record.dnd_enabled;
 
-         if (record.status_expires_at && new Date(record.status_expires_at) < now) {
-           customStatus = '';
-           statusEmoji = '';
-         }
+      presenceRecords.forEach((record) => {
+        // Check if status or DND has expired
+        const now = new Date();
+        let activeStatus = record.status;
+        let customStatus = record.custom_status;
+        let statusEmoji = record.status_emoji;
+        let dndEnabled = record.dnd_enabled;
 
-         if (record.dnd_expires_at && new Date(record.dnd_expires_at) < now) {
-           dndEnabled = false;
-         }
+        if (record.status_expires_at && new Date(record.status_expires_at) < now) {
+          customStatus = '';
+          statusEmoji = '';
+        }
 
-         presenceMap[record.user_email] = {
-           email: record.user_email,
-           name: record.user_name,
-           status: activeStatus,
-           in_call: record.in_call,
-           call_id: record.call_id,
-           custom_status: customStatus,
-           status_emoji: statusEmoji,
-           dnd_enabled: dndEnabled,
-           away_message: dndEnabled ? record.away_message : '',
-         };
-       });
+        if (record.dnd_expires_at && new Date(record.dnd_expires_at) < now) {
+          dndEnabled = false;
+        }
+
+        presenceMap[record.user_email] = {
+          email: record.user_email,
+          name: record.user_name,
+          status: activeStatus,
+          in_call: record.in_call,
+          call_id: record.call_id,
+          custom_status: customStatus,
+          status_emoji: statusEmoji,
+          dnd_enabled: dndEnabled,
+          away_message: dndEnabled ? record.away_message : '',
+        };
+      });
 
       setAllPresence(presenceMap);
     } catch (error) {
@@ -139,21 +142,21 @@ export function usePresence(user) {
     const handleActivity = () => {
       clearTimeout(activityTimeout);
       updatePresence('online', false);
-      
+
       activityTimeout = setTimeout(() => {
         updatePresence('away', false);
       }, AWAY_TIMEOUT);
     };
 
     const events = ['mousedown', 'keydown', 'scroll', 'touchstart'];
-    events.forEach(event => document.addEventListener(event, handleActivity));
+    events.forEach((event) => document.addEventListener(event, handleActivity));
 
     return () => {
       clearInterval(updateInterval);
       clearTimeout(activityTimeout);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
-      events.forEach(event => document.removeEventListener(event, handleActivity));
-      
+      events.forEach((event) => document.removeEventListener(event, handleActivity));
+
       // Set offline on unmount
       updatePresence('offline', false);
     };
@@ -165,22 +168,22 @@ export function usePresence(user) {
 
     const unsubscribe = base44.entities.Presence.subscribe((event) => {
       if (event.type === 'create' || event.type === 'update') {
-        setAllPresence(prev => ({
-           ...prev,
-           [event.data.user_email]: {
-             email: event.data.user_email,
-             name: event.data.user_name,
-             status: event.data.status,
-             in_call: event.data.in_call,
-             call_id: event.data.call_id,
-             custom_status: event.data.custom_status,
-             status_emoji: event.data.status_emoji,
-             dnd_enabled: event.data.dnd_enabled,
-             away_message: event.data.away_message,
-           },
-         }));
+        setAllPresence((prev) => ({
+          ...prev,
+          [event.data.user_email]: {
+            email: event.data.user_email,
+            name: event.data.user_name,
+            status: event.data.status,
+            in_call: event.data.in_call,
+            call_id: event.data.call_id,
+            custom_status: event.data.custom_status,
+            status_emoji: event.data.status_emoji,
+            dnd_enabled: event.data.dnd_enabled,
+            away_message: event.data.away_message,
+          },
+        }));
       } else if (event.type === 'delete') {
-        setAllPresence(prev => {
+        setAllPresence((prev) => {
           const updated = { ...prev };
           delete updated[event.id];
           return updated;

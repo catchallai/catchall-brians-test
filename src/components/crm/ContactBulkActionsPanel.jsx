@@ -1,15 +1,41 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from "@/components/ui/alert-dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Mail, Tag, CheckCircle2, ListTodo, Loader2 } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog';
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogCancel,
+  AlertDialogAction,
+} from '@/components/ui/alert-dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Mail, Tag, CheckCircle2, ListTodo, Loader2 } from 'lucide-react';
 import { useToast } from '@/components/ui/toast-provider';
 
-export default function ContactBulkActionsPanel({ selectedContactIds, contacts, user, onComplete }) {
+export default function ContactBulkActionsPanel({
+  selectedContactIds,
+  contacts,
+  user,
+  onComplete,
+}) {
   const [showEmailModal, setShowEmailModal] = useState(false);
   const [showTagModal, setShowTagModal] = useState(false);
   const [showStatusModal, setShowStatusModal] = useState(false);
@@ -21,7 +47,7 @@ export default function ContactBulkActionsPanel({ selectedContactIds, contacts, 
   const queryClient = useQueryClient();
   const toast = useToast();
 
-  const selectedContacts = contacts.filter(c => selectedContactIds.includes(c.id));
+  const selectedContacts = contacts.filter((c) => selectedContactIds.includes(c.id));
 
   const bulkEmailMutation = useMutation({
     mutationFn: async (data) => {
@@ -32,7 +58,7 @@ export default function ContactBulkActionsPanel({ selectedContactIds, contacts, 
           body: data.body,
           from_email: user?.email,
         });
-        
+
         await base44.entities.Activity.create({
           entity_type: 'contact',
           entity_id: contact.id,
@@ -127,12 +153,7 @@ export default function ContactBulkActionsPanel({ selectedContactIds, contacts, 
           <Mail className="w-4 h-4" />
           Send Email
         </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => setShowTagModal(true)}
-          className="gap-2"
-        >
+        <Button variant="outline" size="sm" onClick={() => setShowTagModal(true)} className="gap-2">
           <Tag className="w-4 h-4" />
           Add Tag
         </Button>
@@ -184,7 +205,9 @@ export default function ContactBulkActionsPanel({ selectedContactIds, contacts, 
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowEmailModal(false)}>Cancel</Button>
+            <Button variant="outline" onClick={() => setShowEmailModal(false)}>
+              Cancel
+            </Button>
             <Button
               onClick={() => bulkEmailMutation.mutate(emailData)}
               disabled={!emailData.subject || !emailData.body || bulkEmailMutation.isPending}
@@ -219,7 +242,9 @@ export default function ContactBulkActionsPanel({ selectedContactIds, contacts, 
             className="mt-2"
           />
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowTagModal(false)}>Cancel</Button>
+            <Button variant="outline" onClick={() => setShowTagModal(false)}>
+              Cancel
+            </Button>
             <Button
               onClick={() => bulkTagMutation.mutate(tagData)}
               disabled={!tagData || bulkTagMutation.isPending}
@@ -249,7 +274,9 @@ export default function ContactBulkActionsPanel({ selectedContactIds, contacts, 
             </SelectContent>
           </Select>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowStatusModal(false)}>Cancel</Button>
+            <Button variant="outline" onClick={() => setShowStatusModal(false)}>
+              Cancel
+            </Button>
             <Button
               onClick={() => bulkStatusMutation.mutate(statusData)}
               disabled={bulkStatusMutation.isPending}
@@ -289,7 +316,10 @@ export default function ContactBulkActionsPanel({ selectedContactIds, contacts, 
             </div>
             <div>
               <label className="text-sm font-medium">Priority</label>
-              <Select value={taskData.priority} onValueChange={(value) => setTaskData({ ...taskData, priority: value })}>
+              <Select
+                value={taskData.priority}
+                onValueChange={(value) => setTaskData({ ...taskData, priority: value })}
+              >
                 <SelectTrigger className="mt-1">
                   <SelectValue />
                 </SelectTrigger>
@@ -302,7 +332,9 @@ export default function ContactBulkActionsPanel({ selectedContactIds, contacts, 
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowTaskModal(false)}>Cancel</Button>
+            <Button variant="outline" onClick={() => setShowTaskModal(false)}>
+              Cancel
+            </Button>
             <Button
               onClick={() => bulkTaskMutation.mutate(taskData)}
               disabled={!taskData.title || bulkTaskMutation.isPending}

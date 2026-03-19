@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { Download, Play, File, FileText, FileImage, FileVideo } from 'lucide-react';
 
 const getFileIcon = (type) => {
@@ -40,31 +40,19 @@ export default function FilePreview({ file }) {
             onClick={() => setShowPreview(true)}
             className="inline-block max-w-xs rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 hover:opacity-90 transition-opacity"
           >
-            <img
-              src={file.url}
-              alt={file.name}
-              className="w-full h-auto max-h-48 object-cover"
-            />
+            <img src={file.url} alt={file.name} className="w-full h-auto max-h-48 object-cover" />
           </button>
         ) : (
           <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
             <div className="max-w-4xl max-h-96 relative">
-              <img
-                src={file.url}
-                alt={file.name}
-                className="w-full h-full object-contain"
-              />
+              <img src={file.url} alt={file.name} className="w-full h-full object-contain" />
               <button
                 onClick={() => setShowPreview(false)}
                 className="absolute top-2 right-2 bg-white text-black rounded-full p-2 hover:bg-gray-200"
               >
                 ✕
               </button>
-              <Button
-                onClick={handleDownload}
-                className="absolute bottom-2 left-2"
-                size="sm"
-              >
+              <Button onClick={handleDownload} className="absolute bottom-2 left-2" size="sm">
                 <Download className="w-4 h-4 mr-1" />
                 Download
               </Button>
@@ -80,20 +68,12 @@ export default function FilePreview({ file }) {
     return (
       <div className="mt-2">
         <div className="bg-gray-900 rounded-lg overflow-hidden border border-gray-700">
-          <video
-            controls
-            className="w-full max-w-sm"
-          >
+          <video controls className="w-full max-w-sm">
             <source src={file.url} type={file.type} />
             Your browser does not support the video tag.
           </video>
         </div>
-        <Button
-          onClick={handleDownload}
-          variant="outline"
-          size="sm"
-          className="mt-2"
-        >
+        <Button onClick={handleDownload} variant="outline" size="sm" className="mt-2">
           <Download className="w-4 h-4 mr-1" />
           Download
         </Button>
@@ -109,12 +89,7 @@ export default function FilePreview({ file }) {
           <source src={file.url} type={file.type} />
           Your browser does not support the audio tag.
         </audio>
-        <Button
-          onClick={handleDownload}
-          variant="outline"
-          size="sm"
-          className="mt-2"
-        >
+        <Button onClick={handleDownload} variant="outline" size="sm" className="mt-2">
           <Download className="w-4 h-4 mr-1" />
           Download
         </Button>
@@ -128,19 +103,12 @@ export default function FilePreview({ file }) {
       <div className="flex items-center gap-3">
         <Icon className="w-8 h-8 text-gray-400 flex-shrink-0" />
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
-            {file.name}
-          </p>
+          <p className="text-sm font-medium text-gray-900 dark:text-white truncate">{file.name}</p>
           <p className="text-xs text-gray-500 dark:text-gray-400">
             {(file.size / 1024 / 1024).toFixed(2)} MB
           </p>
         </div>
-        <Button
-          onClick={handleDownload}
-          variant="ghost"
-          size="sm"
-          className="flex-shrink-0"
-        >
+        <Button onClick={handleDownload} variant="ghost" size="sm" className="flex-shrink-0">
           <Download className="w-4 h-4" />
         </Button>
       </div>

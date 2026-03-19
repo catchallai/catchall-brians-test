@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
-import { Shield, Loader2, CheckCircle, AlertTriangle } from "lucide-react";
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
+import { Shield, Loader2, CheckCircle, AlertTriangle } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 
 export default function PlagiarismChecker({ content, onScoreUpdate }) {
@@ -24,13 +24,13 @@ Return JSON with:
 - concerning_phrases: array of strings (max 5)
 - recommendation: string`,
         response_json_schema: {
-          type: "object",
+          type: 'object',
           properties: {
-            originality_score: { type: "number" },
-            concerning_phrases: { type: "array", items: { type: "string" } },
-            recommendation: { type: "string" }
-          }
-        }
+            originality_score: { type: 'number' },
+            concerning_phrases: { type: 'array', items: { type: 'string' } },
+            recommendation: { type: 'string' },
+          },
+        },
       });
 
       setScore(result);
@@ -92,7 +92,9 @@ Return JSON with:
                     <div className="mt-2">
                       <p className="text-xs font-medium mb-1">Concerning phrases:</p>
                       {score.concerning_phrases.map((phrase, idx) => (
-                        <p key={idx} className="text-xs italic">• {phrase}</p>
+                        <p key={idx} className="text-xs italic">
+                          • {phrase}
+                        </p>
                       ))}
                     </div>
                   )}

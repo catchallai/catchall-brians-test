@@ -1,10 +1,10 @@
 import React, { useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Bell, Clock, CheckCircle2, AlertCircle, X } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Bell, Clock, CheckCircle2, AlertCircle, X } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 
 export default function CalendarNotifications() {
@@ -17,15 +17,21 @@ export default function CalendarNotifications() {
 
   const { data: notifications = [] } = useQuery({
     queryKey: ['calendar-notifications', user?.id],
-    queryFn: () => base44.entities.CalendarNotification.filter({ user_id: user.id, read: false }, '-created_date', 10),
+    queryFn: () =>
+      base44.entities.CalendarNotification.filter(
+        { user_id: user.id, read: false },
+        '-created_date',
+        10
+      ),
     enabled: !!user?.id,
   });
 
   const markAsReadMutation = useMutation({
-    mutationFn: (id) => base44.entities.CalendarNotification.update(id, { 
-      read: true, 
-      read_at: new Date().toISOString() 
-    }),
+    mutationFn: (id) =>
+      base44.entities.CalendarNotification.update(id, {
+        read: true,
+        read_at: new Date().toISOString(),
+      }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['calendar-notifications'] });
     },
@@ -60,14 +66,16 @@ export default function CalendarNotifications() {
         <CardTitle className="flex items-center gap-2">
           <Bell className="w-5 h-5" />
           Notifications
-          <Badge className="bg-violet-600 dark:bg-violet-500 text-white">{notifications.length}</Badge>
+          <Badge className="bg-violet-600 dark:bg-violet-500 text-white">
+            {notifications.length}
+          </Badge>
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
         {notifications.map((notification) => {
           const Icon = notificationIcons[notification.type] || Bell;
           const colorClass = notificationColors[notification.type] || 'bg-gray-100 text-gray-700';
-          
+
           return (
             <div
               key={notification.id}

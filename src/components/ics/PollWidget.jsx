@@ -1,17 +1,19 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
 import { BarChart3, Plus, X } from 'lucide-react';
 
-export default function PollWidget({ 
-  channelId, 
-  user,
-  onPollCreated
-}) {
+export default function PollWidget({ channelId, user, onPollCreated }) {
   const [polls, setPolls] = useState([]);
   const [showCreatePoll, setShowCreatePoll] = useState(false);
   const [pollQuestion, setPollQuestion] = useState('');
@@ -20,9 +22,9 @@ export default function PollWidget({
 
   const loadPolls = async () => {
     try {
-      const activePoll = await base44.entities.Poll.filter({ 
+      const activePoll = await base44.entities.Poll.filter({
         channel_id: channelId,
-        status: 'active'
+        status: 'active',
       });
       setPolls(activePoll || []);
     } catch (err) {
@@ -35,11 +37,11 @@ export default function PollWidget({
   }, [channelId]);
 
   const createPoll = async () => {
-    if (!pollQuestion || pollOptions.filter(o => o.trim()).length < 2) return;
+    if (!pollQuestion || pollOptions.filter((o) => o.trim()).length < 2) return;
 
     try {
       const formattedOptions = pollOptions
-        .filter(o => o.trim())
+        .filter((o) => o.trim())
         .map((text, idx) => ({
           id: `opt-${idx}`,
           text: text.trim(),
@@ -67,10 +69,10 @@ export default function PollWidget({
 
   const vote = async (pollId, optionId) => {
     try {
-      const poll = polls.find(p => p.id === pollId);
+      const poll = polls.find((p) => p.id === pollId);
       if (!poll) return;
 
-      const updatedOptions = poll.options.map(opt => {
+      const updatedOptions = poll.options.map((opt) => {
         if (opt.id === optionId) {
           const votes = [...(opt.votes || [])];
           if (!votes.includes(user?.email)) {
@@ -101,7 +103,7 @@ export default function PollWidget({
     }
   };
 
-  const maxVotes = Math.max(...polls.flatMap(p => p.options.map(o => o.vote_count)), 1);
+  const maxVotes = Math.max(...polls.flatMap((p) => p.options.map((o) => o.vote_count)), 1);
 
   return (
     <div className="space-y-4">
@@ -163,8 +165,12 @@ export default function PollWidget({
                 </Button>
               </div>
               <div className="flex gap-2 justify-end">
-                <Button variant="outline" onClick={() => setShowCreatePoll(false)}>Cancel</Button>
-                <Button onClick={createPoll} className="bg-blue-600 hover:bg-blue-700">Create Poll</Button>
+                <Button variant="outline" onClick={() => setShowCreatePoll(false)}>
+                  Cancel
+                </Button>
+                <Button onClick={createPoll} className="bg-blue-600 hover:bg-blue-700">
+                  Create Poll
+                </Button>
               </div>
             </div>
           </DialogContent>
@@ -175,18 +181,20 @@ export default function PollWidget({
         {polls.length === 0 ? (
           <p className="text-xs text-gray-500 py-4 text-center">No active polls</p>
         ) : (
-          polls.map(poll => {
-            const hasVoted = poll.options.some(opt => opt.votes?.includes(user?.email));
+          polls.map((poll) => {
+            const hasVoted = poll.options.some((opt) => opt.votes?.includes(user?.email));
             return (
               <Card key={poll.id} className="bg-blue-50 border-blue-200">
                 <CardContent className="pt-4 space-y-3">
                   <div>
                     <p className="font-medium text-sm text-gray-900 mb-2">{poll.question}</p>
-                    <Badge variant="outline" className="text-xs">{poll.total_votes} votes</Badge>
+                    <Badge variant="outline" className="text-xs">
+                      {poll.total_votes} votes
+                    </Badge>
                   </div>
 
                   <div className="space-y-2">
-                    {poll.options?.map(option => {
+                    {poll.options?.map((option) => {
                       const percentage = maxVotes > 0 ? (option.vote_count / maxVotes) * 100 : 0;
                       const userVoted = option.votes?.includes(user?.email);
                       return (
@@ -196,7 +204,9 @@ export default function PollWidget({
                           className="w-full text-left"
                         >
                           <div className="flex items-center justify-between mb-1">
-                            <span className={`text-sm ${userVoted ? 'font-semibold text-blue-700' : 'text-gray-700'}`}>
+                            <span
+                              className={`text-sm ${userVoted ? 'font-semibold text-blue-700' : 'text-gray-700'}`}
+                            >
                               {option.text}
                             </span>
                             <span className="text-xs text-gray-600">{option.vote_count}</span>

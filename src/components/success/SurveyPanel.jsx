@@ -1,25 +1,26 @@
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { ThumbsUp, ThumbsDown, Minus, MessageSquare, Star } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { ThumbsUp, ThumbsDown, Minus, MessageSquare, Star } from 'lucide-react';
 
 const npsColors = {
   promoter: { bg: 'bg-emerald-100', text: 'text-emerald-700', icon: ThumbsUp },
   passive: { bg: 'bg-amber-100', text: 'text-amber-700', icon: Minus },
-  detractor: { bg: 'bg-red-100', text: 'text-red-700', icon: ThumbsDown }
+  detractor: { bg: 'bg-red-100', text: 'text-red-700', icon: ThumbsDown },
 };
 
 export default function SurveyPanel({ surveys, contacts }) {
-  const completedSurveys = surveys.filter(s => s.status === 'completed');
-  const npsSurveys = completedSurveys.filter(s => s.survey_type === 'nps' && s.score !== null);
-  
-  const avgNPS = npsSurveys.length > 0
-    ? Math.round(npsSurveys.reduce((sum, s) => sum + s.score, 0) / npsSurveys.length)
-    : 0;
+  const completedSurveys = surveys.filter((s) => s.status === 'completed');
+  const npsSurveys = completedSurveys.filter((s) => s.survey_type === 'nps' && s.score !== null);
 
-  const promoters = completedSurveys.filter(s => s.nps_category === 'promoter').length;
-  const passives = completedSurveys.filter(s => s.nps_category === 'passive').length;
-  const detractors = completedSurveys.filter(s => s.nps_category === 'detractor').length;
+  const avgNPS =
+    npsSurveys.length > 0
+      ? Math.round(npsSurveys.reduce((sum, s) => sum + s.score, 0) / npsSurveys.length)
+      : 0;
+
+  const promoters = completedSurveys.filter((s) => s.nps_category === 'promoter').length;
+  const passives = completedSurveys.filter((s) => s.nps_category === 'passive').length;
+  const detractors = completedSurveys.filter((s) => s.nps_category === 'detractor').length;
 
   return (
     <div className="space-y-4">
@@ -61,8 +62,8 @@ export default function SurveyPanel({ surveys, contacts }) {
           <CardTitle>Recent Feedback</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
-          {completedSurveys.slice(0, 10).map(survey => {
-            const contact = contacts.find(c => c.id === survey.contact_id);
+          {completedSurveys.slice(0, 10).map((survey) => {
+            const contact = contacts.find((c) => c.id === survey.contact_id);
             const npsConfig = npsColors[survey.nps_category] || npsColors.passive;
             const Icon = npsConfig.icon;
 

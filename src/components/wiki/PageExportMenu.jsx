@@ -1,12 +1,12 @@
 import React from 'react';
-import { Button } from "@/components/ui/button";
+import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Download, FileText, File } from "lucide-react";
+} from '@/components/ui/dropdown-menu';
+import { Download, FileText, File } from 'lucide-react';
 
 export default function PageExportMenu({ page }) {
   const exportAsPDF = async () => {
@@ -36,7 +36,7 @@ export default function PageExportMenu({ page }) {
   const exportAsMarkdown = () => {
     // Convert HTML to basic markdown
     let markdown = `# ${page.title}\n\n`;
-    
+
     // Simple HTML to Markdown conversion
     let text = page.content
       .replace(/<h1>/g, '# ')
@@ -51,7 +51,7 @@ export default function PageExportMenu({ page }) {
       .replace(/<\/p>/g, '\n\n')
       .replace(/<br\s*\/?>/g, '\n')
       .replace(/<[^>]*>/g, '');
-    
+
     markdown += text;
 
     const blob = new Blob([markdown], { type: 'text/markdown' });

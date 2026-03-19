@@ -1,24 +1,43 @@
 import React, { useState } from 'react';
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
-import { Trash2, CheckCircle, Tag, Download } from "lucide-react";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Badge } from '@/components/ui/badge';
+import { Trash2, CheckCircle, Tag, Download } from 'lucide-react';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 import ConfirmDialog from '@/components/ui/ConfirmDialog';
 
 const STAGES = [
-  'new_lead', 'email_list', 'media_inquiry', 'reservation_request',
-  'contacted', 'no_response', 'closed', 'not_interested'
+  'new_lead',
+  'email_list',
+  'media_inquiry',
+  'reservation_request',
+  'contacted',
+  'no_response',
+  'closed',
+  'not_interested',
 ];
 
-export default function BulkActionsPanel({ 
-  opportunities, 
-  onDelete, 
-  onUpdateStage, 
+export default function BulkActionsPanel({
+  opportunities,
+  onDelete,
+  onUpdateStage,
   onAddTags,
-  isLoading 
+  isLoading,
 }) {
   const [selectedIds, setSelectedIds] = useState(new Set());
   const [bulkStage, setBulkStage] = useState('');
@@ -26,14 +45,14 @@ export default function BulkActionsPanel({
 
   const selectedCount = selectedIds.size;
   const totalValue = opportunities
-    .filter(opp => selectedIds.has(opp.id))
+    .filter((opp) => selectedIds.has(opp.id))
     .reduce((sum, opp) => sum + (opp.value || 0), 0);
 
   const toggleSelectAll = () => {
     if (selectedIds.size === opportunities.length) {
       setSelectedIds(new Set());
     } else {
-      setSelectedIds(new Set(opportunities.map(opp => opp.id)));
+      setSelectedIds(new Set(opportunities.map((opp) => opp.id)));
     }
   };
 
@@ -74,7 +93,8 @@ export default function BulkActionsPanel({
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div>
                 <p className="font-semibold text-gray-900 dark:text-white">
-                  {selectedCount} selected • ${totalValue.toLocaleString('en-US', { maximumFractionDigits: 0 })} total value
+                  {selectedCount} selected • $
+                  {totalValue.toLocaleString('en-US', { maximumFractionDigits: 0 })} total value
                 </p>
               </div>
               <div className="flex flex-wrap gap-2">
@@ -83,14 +103,14 @@ export default function BulkActionsPanel({
                     <SelectValue placeholder="Change stage..." />
                   </SelectTrigger>
                   <SelectContent>
-                    {STAGES.map(stage => (
+                    {STAGES.map((stage) => (
                       <SelectItem key={stage} value={stage}>
                         {stage.replace(/_/g, ' ')}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
-                <Button 
+                <Button
                   onClick={handleBulkStageChange}
                   disabled={!bulkStage}
                   className="gap-2"
@@ -109,11 +129,7 @@ export default function BulkActionsPanel({
                   <Trash2 className="w-4 h-4" />
                   Delete
                 </Button>
-                <Button
-                  variant="outline"
-                  onClick={() => setSelectedIds(new Set())}
-                  size="sm"
-                >
+                <Button variant="outline" onClick={() => setSelectedIds(new Set())} size="sm">
                   Clear
                 </Button>
               </div>
@@ -149,8 +165,11 @@ export default function BulkActionsPanel({
                   </TableCell>
                 </TableRow>
               ) : (
-                opportunities.map(opp => (
-                  <TableRow key={opp.id} className={selectedIds.has(opp.id) ? 'bg-violet-50 dark:bg-violet-900/20' : ''}>
+                opportunities.map((opp) => (
+                  <TableRow
+                    key={opp.id}
+                    className={selectedIds.has(opp.id) ? 'bg-violet-50 dark:bg-violet-900/20' : ''}
+                  >
                     <TableCell>
                       <Checkbox
                         checked={selectedIds.has(opp.id)}

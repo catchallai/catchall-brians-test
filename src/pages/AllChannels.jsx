@@ -1,26 +1,41 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Input } from "@/components/ui/input";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Input } from '@/components/ui/input';
+import { Skeleton } from '@/components/ui/skeleton';
 import {
-  ShieldCheck, Clock, FileText, Send, Plus, Pencil, Trash2,
-  CheckCircle, XCircle, Search, Image, Play, Facebook, Linkedin,
-  Twitter, Instagram, Globe, RefreshCw
-} from "lucide-react";
+  ShieldCheck,
+  Clock,
+  FileText,
+  Send,
+  Plus,
+  Pencil,
+  Trash2,
+  CheckCircle,
+  XCircle,
+  Search,
+  Image,
+  Play,
+  Facebook,
+  Linkedin,
+  Twitter,
+  Instagram,
+  Globe,
+  RefreshCw,
+} from 'lucide-react';
 import { format } from 'date-fns';
 import CalendarPostModal from '@/components/modals/CalendarPostModal';
 
 const PLATFORM_COLORS = {
-  Facebook:  'bg-blue-600',
+  Facebook: 'bg-blue-600',
   Instagram: 'bg-gradient-to-br from-pink-500 to-purple-600',
-  LinkedIn:  'bg-blue-700',
-  Twitter:   'bg-gray-900',
-  YouTube:   'bg-red-600',
+  LinkedIn: 'bg-blue-700',
+  Twitter: 'bg-gray-900',
+  YouTube: 'bg-red-600',
 };
 
 const PLATFORM_LETTERS = {
@@ -32,13 +47,25 @@ const PLATFORM_LETTERS = {
 };
 
 const STATUS_CONFIG = {
-  draft:            { label: 'Draft',           color: 'bg-gray-100 text-gray-700',   dot: 'bg-gray-400' },
-  pending_review:   { label: 'Pending Review',  color: 'bg-yellow-100 text-yellow-700', dot: 'bg-yellow-500' },
-  pending_approval: { label: 'Pending Approval', color: 'bg-amber-100 text-amber-700', dot: 'bg-amber-500' },
-  changes_requested:{ label: 'Changes Requested', color: 'bg-orange-100 text-orange-700', dot: 'bg-orange-500' },
-  approved:         { label: 'Approved',        color: 'bg-emerald-100 text-emerald-700', dot: 'bg-emerald-500' },
-  published:        { label: 'Published',       color: 'bg-violet-100 text-violet-700', dot: 'bg-violet-500' },
-  rejected:         { label: 'Rejected',        color: 'bg-red-100 text-red-700',      dot: 'bg-red-500' },
+  draft: { label: 'Draft', color: 'bg-gray-100 text-gray-700', dot: 'bg-gray-400' },
+  pending_review: {
+    label: 'Pending Review',
+    color: 'bg-yellow-100 text-yellow-700',
+    dot: 'bg-yellow-500',
+  },
+  pending_approval: {
+    label: 'Pending Approval',
+    color: 'bg-amber-100 text-amber-700',
+    dot: 'bg-amber-500',
+  },
+  changes_requested: {
+    label: 'Changes Requested',
+    color: 'bg-orange-100 text-orange-700',
+    dot: 'bg-orange-500',
+  },
+  approved: { label: 'Approved', color: 'bg-emerald-100 text-emerald-700', dot: 'bg-emerald-500' },
+  published: { label: 'Published', color: 'bg-violet-100 text-violet-700', dot: 'bg-violet-500' },
+  rejected: { label: 'Rejected', color: 'bg-red-100 text-red-700', dot: 'bg-red-500' },
 };
 
 function PostCard({ post, onEdit, onDelete, onApprove, onReject, showApprovalActions }) {
@@ -71,11 +98,15 @@ function PostCard({ post, onEdit, onDelete, onApprove, onReject, showApprovalAct
                 {post.title && (
                   <p className="font-semibold text-gray-900 text-sm truncate">{post.title}</p>
                 )}
-                <p className="text-sm text-gray-600 line-clamp-2 mt-0.5">{post.caption || <span className="italic text-gray-400">No caption</span>}</p>
+                <p className="text-sm text-gray-600 line-clamp-2 mt-0.5">
+                  {post.caption || <span className="italic text-gray-400">No caption</span>}
+                </p>
               </div>
               <div className="flex items-center gap-1 flex-shrink-0">
                 <Badge className={`text-xs ${statusCfg.color}`}>
-                  <span className={`w-1.5 h-1.5 rounded-full mr-1.5 inline-block ${statusCfg.dot}`} />
+                  <span
+                    className={`w-1.5 h-1.5 rounded-full mr-1.5 inline-block ${statusCfg.dot}`}
+                  />
                   {statusCfg.label}
                 </Badge>
               </div>
@@ -85,7 +116,7 @@ function PostCard({ post, onEdit, onDelete, onApprove, onReject, showApprovalAct
               {/* Platform Chips + Schedule */}
               <div className="flex items-center gap-2 flex-wrap">
                 <div className="flex gap-1">
-                  {(post.platforms || []).map(pl => (
+                  {(post.platforms || []).map((pl) => (
                     <span
                       key={pl}
                       title={pl}
@@ -125,7 +156,12 @@ function PostCard({ post, onEdit, onDelete, onApprove, onReject, showApprovalAct
                     </Button>
                   </>
                 )}
-                <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => onEdit(post)}>
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  className="h-7 w-7"
+                  onClick={() => onEdit(post)}
+                >
                   <Pencil className="w-3.5 h-3.5 text-gray-400" />
                 </Button>
                 <Button
@@ -145,7 +181,16 @@ function PostCard({ post, onEdit, onDelete, onApprove, onReject, showApprovalAct
   );
 }
 
-function PostList({ posts, onEdit, onDelete, onApprove, onReject, showApprovalActions, emptyMessage, emptyIcon: EmptyIcon }) {
+function PostList({
+  posts,
+  onEdit,
+  onDelete,
+  onApprove,
+  onReject,
+  showApprovalActions,
+  emptyMessage,
+  emptyIcon: EmptyIcon,
+}) {
   if (posts.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-16 text-center">
@@ -156,7 +201,7 @@ function PostList({ posts, onEdit, onDelete, onApprove, onReject, showApprovalAc
   }
   return (
     <div className="space-y-3">
-      {posts.map(post => (
+      {posts.map((post) => (
         <PostCard
           key={post.id}
           post={post}
@@ -237,7 +282,7 @@ export default function AllChannels() {
         approved_by: user?.email || '',
         approved_by_name: user?.full_name || '',
         approved_date: new Date().toISOString().split('T')[0],
-      }
+      },
     });
   };
 
@@ -245,7 +290,7 @@ export default function AllChannels() {
     const reason = prompt('Reason for rejection (optional):') ?? '';
     updateMutation.mutate({
       id: post.id,
-      data: { status: 'rejected', rejected_reason: reason }
+      data: { status: 'rejected', rejected_reason: reason },
     });
   };
 
@@ -257,37 +302,55 @@ export default function AllChannels() {
     }
   };
 
-  const filtered = posts.filter(p => {
+  const filtered = posts.filter((p) => {
     if (!search) return true;
     const q = search.toLowerCase();
     return (
       p.caption?.toLowerCase().includes(q) ||
       p.title?.toLowerCase().includes(q) ||
-      (p.platforms || []).some(pl => pl.toLowerCase().includes(q))
+      (p.platforms || []).some((pl) => pl.toLowerCase().includes(q))
     );
   });
 
   // Tab buckets
-  const approvalPosts = filtered.filter(p =>
+  const approvalPosts = filtered.filter((p) =>
     ['pending_approval', 'pending_review', 'changes_requested'].includes(p.status)
   );
-  const queuePosts = filtered.filter(p =>
-    ['approved'].includes(p.status)
-  );
-  const draftPosts = filtered.filter(p =>
-    ['draft', 'rejected'].includes(p.status)
-  );
-  const sentPosts = filtered.filter(p =>
-    ['published'].includes(p.status)
-  );
+  const queuePosts = filtered.filter((p) => ['approved'].includes(p.status));
+  const draftPosts = filtered.filter((p) => ['draft', 'rejected'].includes(p.status));
+  const sentPosts = filtered.filter((p) => ['published'].includes(p.status));
 
   const PLATFORMS = ['Facebook', 'Instagram', 'LinkedIn', 'Twitter', 'YouTube'];
 
   const stats = [
-    { label: 'Awaiting Approval', count: approvalPosts.length, color: 'text-amber-600', bg: 'bg-amber-50', icon: ShieldCheck },
-    { label: 'Approved / Queue', count: queuePosts.length, color: 'text-emerald-600', bg: 'bg-emerald-50', icon: Clock },
-    { label: 'Drafts', count: draftPosts.length, color: 'text-gray-600', bg: 'bg-gray-50', icon: FileText },
-    { label: 'Published', count: sentPosts.length, color: 'text-violet-600', bg: 'bg-violet-50', icon: Send },
+    {
+      label: 'Awaiting Approval',
+      count: approvalPosts.length,
+      color: 'text-amber-600',
+      bg: 'bg-amber-50',
+      icon: ShieldCheck,
+    },
+    {
+      label: 'Approved / Queue',
+      count: queuePosts.length,
+      color: 'text-emerald-600',
+      bg: 'bg-emerald-50',
+      icon: Clock,
+    },
+    {
+      label: 'Drafts',
+      count: draftPosts.length,
+      color: 'text-gray-600',
+      bg: 'bg-gray-50',
+      icon: FileText,
+    },
+    {
+      label: 'Published',
+      count: sentPosts.length,
+      color: 'text-violet-600',
+      bg: 'bg-violet-50',
+      icon: Send,
+    },
   ];
 
   return (
@@ -308,7 +371,10 @@ export default function AllChannels() {
             <RefreshCw className="w-4 h-4 text-gray-500" />
           </Button>
           <Button
-            onClick={() => { setSelectedPost(null); setShowModal(true); }}
+            onClick={() => {
+              setSelectedPost(null);
+              setShowModal(true);
+            }}
             className="bg-violet-600 hover:bg-violet-700 gap-2"
           >
             <Plus className="w-4 h-4" /> New Post
@@ -318,10 +384,12 @@ export default function AllChannels() {
 
       {/* Stats Row */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        {stats.map(s => (
+        {stats.map((s) => (
           <Card key={s.label} className={`border-0 shadow-sm ${s.bg}`}>
             <CardContent className="p-4 flex items-center gap-3">
-              <div className={`w-10 h-10 rounded-xl flex items-center justify-center bg-white shadow-sm`}>
+              <div
+                className={`w-10 h-10 rounded-xl flex items-center justify-center bg-white shadow-sm`}
+              >
                 <s.icon className={`w-5 h-5 ${s.color}`} />
               </div>
               <div>
@@ -338,15 +406,19 @@ export default function AllChannels() {
         <CardContent className="p-4">
           <div className="flex items-center gap-6 flex-wrap">
             <p className="text-sm font-semibold text-gray-500">By Platform:</p>
-            {PLATFORMS.map(pl => {
-              const count = filtered.filter(p => (p.platforms || []).includes(pl)).length;
+            {PLATFORMS.map((pl) => {
+              const count = filtered.filter((p) => (p.platforms || []).includes(pl)).length;
               return (
                 <div key={pl} className="flex items-center gap-2">
-                  <span className={`w-6 h-6 rounded-full text-white text-[9px] font-bold flex items-center justify-center ${PLATFORM_COLORS[pl] || 'bg-gray-400'}`}>
+                  <span
+                    className={`w-6 h-6 rounded-full text-white text-[9px] font-bold flex items-center justify-center ${PLATFORM_COLORS[pl] || 'bg-gray-400'}`}
+                  >
                     {PLATFORM_LETTERS[pl]}
                   </span>
                   <span className="text-sm font-medium text-gray-700">{pl}</span>
-                  <Badge variant="outline" className="text-xs px-1.5 py-0">{count}</Badge>
+                  <Badge variant="outline" className="text-xs px-1.5 py-0">
+                    {count}
+                  </Badge>
                 </div>
               );
             })}
@@ -359,7 +431,7 @@ export default function AllChannels() {
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
         <Input
           value={search}
-          onChange={e => setSearch(e.target.value)}
+          onChange={(e) => setSearch(e.target.value)}
           placeholder="Search posts by caption, title, or platform..."
           className="pl-9 bg-white"
         />
@@ -368,7 +440,9 @@ export default function AllChannels() {
       {/* Tabs */}
       {isLoading ? (
         <div className="space-y-3">
-          {[...Array(5)].map((_, i) => <Skeleton key={i} className="h-24 rounded-xl" />)}
+          {[...Array(5)].map((_, i) => (
+            <Skeleton key={i} className="h-24 rounded-xl" />
+          ))}
         </div>
       ) : (
         <Tabs defaultValue="approvals">
@@ -478,7 +552,10 @@ export default function AllChannels() {
       {/* Modal */}
       <CalendarPostModal
         open={showModal}
-        onClose={() => { setShowModal(false); setSelectedPost(null); }}
+        onClose={() => {
+          setShowModal(false);
+          setSelectedPost(null);
+        }}
         post={selectedPost}
         onSave={handleSave}
         isLoading={createMutation.isPending || updateMutation.isPending}

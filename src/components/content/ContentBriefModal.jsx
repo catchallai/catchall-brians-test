@@ -1,18 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Badge } from "@/components/ui/badge";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Loader2, Sparkles, FileText, Plus, X } from "lucide-react";
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Badge } from '@/components/ui/badge';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Loader2, Sparkles, FileText, Plus, X } from 'lucide-react';
 
 export default function ContentBriefModal({ open, onClose, idea }) {
   const [formData, setFormData] = useState({
@@ -71,26 +66,26 @@ Generate:
 - Word count recommendation`,
         add_context_from_internet: true,
         response_json_schema: {
-          type: "object",
+          type: 'object',
           properties: {
-            secondary_keywords: { type: "array", items: { type: "string" } },
+            secondary_keywords: { type: 'array', items: { type: 'string' } },
             outline: {
-              type: "array",
+              type: 'array',
               items: {
-                type: "object",
+                type: 'object',
                 properties: {
-                  heading: { type: "string" },
-                  type: { type: "string" },
-                  notes: { type: "string" }
-                }
-              }
+                  heading: { type: 'string' },
+                  type: { type: 'string' },
+                  notes: { type: 'string' },
+                },
+              },
             },
-            questions_to_answer: { type: "array", items: { type: "string" } },
-            tone: { type: "string" },
-            target_audience: { type: "string" },
-            word_count_target: { type: "number" }
-          }
-        }
+            questions_to_answer: { type: 'array', items: { type: 'string' } },
+            tone: { type: 'string' },
+            target_audience: { type: 'string' },
+            word_count_target: { type: 'number' },
+          },
+        },
       });
 
       setFormData({
@@ -111,7 +106,7 @@ Generate:
     if (newKeyword && !formData.secondary_keywords.includes(newKeyword)) {
       setFormData({
         ...formData,
-        secondary_keywords: [...formData.secondary_keywords, newKeyword]
+        secondary_keywords: [...formData.secondary_keywords, newKeyword],
       });
       setNewKeyword('');
     }
@@ -120,7 +115,7 @@ Generate:
   const removeKeyword = (kw) => {
     setFormData({
       ...formData,
-      secondary_keywords: formData.secondary_keywords.filter(k => k !== kw)
+      secondary_keywords: formData.secondary_keywords.filter((k) => k !== kw),
     });
   };
 
@@ -184,7 +179,9 @@ Generate:
               <Input
                 type="number"
                 value={formData.word_count_target}
-                onChange={(e) => setFormData({ ...formData, word_count_target: parseInt(e.target.value) })}
+                onChange={(e) =>
+                  setFormData({ ...formData, word_count_target: parseInt(e.target.value) })
+                }
               />
             </div>
             <div>
@@ -222,14 +219,20 @@ Generate:
           )}
 
           <div className="flex justify-end gap-3 pt-4 border-t">
-            <Button variant="outline" onClick={onClose}>Cancel</Button>
+            <Button variant="outline" onClick={onClose}>
+              Cancel
+            </Button>
             <Button
               variant="outline"
               onClick={generateBrief}
               disabled={isGenerating || !formData.title || !formData.target_keyword}
               className="gap-2"
             >
-              {isGenerating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+              {isGenerating ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <Sparkles className="w-4 h-4" />
+              )}
               AI Generate
             </Button>
             <Button

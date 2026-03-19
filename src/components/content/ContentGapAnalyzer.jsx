@@ -1,20 +1,27 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { 
-  Search, Loader2, Target, TrendingUp, AlertTriangle, 
-  CheckCircle, ArrowRight, Sparkles, BarChart2
-} from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import {
+  Search,
+  Loader2,
+  Target,
+  TrendingUp,
+  AlertTriangle,
+  CheckCircle,
+  ArrowRight,
+  Sparkles,
+  BarChart2,
+} from 'lucide-react';
 
 const priorityColors = {
   high: 'bg-red-100 text-red-700',
   medium: 'bg-amber-100 text-amber-700',
-  low: 'bg-blue-100 text-blue-700'
+  low: 'bg-blue-100 text-blue-700',
 };
 
 export default function ContentGapAnalyzer({ websites, keywords, competitors, onSelectTopic }) {
@@ -25,8 +32,14 @@ export default function ContentGapAnalyzer({ websites, keywords, competitors, on
   const analyzeContentGaps = async () => {
     setIsAnalyzing(true);
 
-    const keywordList = keywords.slice(0, 20).map(k => k.keyword).join(', ');
-    const competitorList = competitors.slice(0, 5).map(c => c.name).join(', ');
+    const keywordList = keywords
+      .slice(0, 20)
+      .map((k) => k.keyword)
+      .join(', ');
+    const competitorList = competitors
+      .slice(0, 5)
+      .map((c) => c.name)
+      .join(', ');
     const websiteInfo = websites[0]?.name || 'the business';
 
     const result = await base44.integrations.Core.InvokeLLM({
@@ -65,59 +78,59 @@ export default function ContentGapAnalyzer({ websites, keywords, competitors, on
          - Estimated traffic potential`,
       add_context_from_internet: true,
       response_json_schema: {
-        type: "object",
+        type: 'object',
         properties: {
           content_gaps: {
-            type: "array",
+            type: 'array',
             items: {
-              type: "object",
+              type: 'object',
               properties: {
-                topic: { type: "string" },
-                gap_type: { type: "string" },
-                priority: { type: "string" },
-                search_intent: { type: "string" },
-                search_volume: { type: "number" },
-                difficulty: { type: "number" },
-                reason: { type: "string" },
-                content_type: { type: "string" },
-                quick_win: { type: "boolean" }
-              }
-            }
+                topic: { type: 'string' },
+                gap_type: { type: 'string' },
+                priority: { type: 'string' },
+                search_intent: { type: 'string' },
+                search_volume: { type: 'number' },
+                difficulty: { type: 'number' },
+                reason: { type: 'string' },
+                content_type: { type: 'string' },
+                quick_win: { type: 'boolean' },
+              },
+            },
           },
           competitor_advantages: {
-            type: "array",
+            type: 'array',
             items: {
-              type: "object",
+              type: 'object',
               properties: {
-                topic: { type: "string" },
-                competitor: { type: "string" },
-                content_format: { type: "string" },
-                why_effective: { type: "string" }
-              }
-            }
+                topic: { type: 'string' },
+                competitor: { type: 'string' },
+                content_format: { type: 'string' },
+                why_effective: { type: 'string' },
+              },
+            },
           },
           quick_wins: {
-            type: "array",
+            type: 'array',
             items: {
-              type: "object",
+              type: 'object',
               properties: {
-                topic: { type: "string" },
-                effort: { type: "string" },
-                potential_traffic: { type: "number" },
-                content_type: { type: "string" }
-              }
-            }
+                topic: { type: 'string' },
+                effort: { type: 'string' },
+                potential_traffic: { type: 'number' },
+                content_type: { type: 'string' },
+              },
+            },
           },
           recommendations: {
-            type: "object",
+            type: 'object',
             properties: {
-              content_clusters: { type: "array", items: { type: "string" } },
-              priority_order: { type: "array", items: { type: "string" } },
-              total_traffic_potential: { type: "number" }
-            }
-          }
-        }
-      }
+              content_clusters: { type: 'array', items: { type: 'string' } },
+              priority_order: { type: 'array', items: { type: 'string' } },
+              total_traffic_potential: { type: 'number' },
+            },
+          },
+        },
+      },
     });
 
     setAnalysis(result);
@@ -125,7 +138,7 @@ export default function ContentGapAnalyzer({ websites, keywords, competitors, on
   };
 
   const formatVolume = (vol) => {
-    if (vol >= 1000) return `${(vol/1000).toFixed(1)}K`;
+    if (vol >= 1000) return `${(vol / 1000).toFixed(1)}K`;
     return vol;
   };
 
@@ -165,7 +178,9 @@ export default function ContentGapAnalyzer({ websites, keywords, competitors, on
               <Loader2 className="w-5 h-5 animate-spin text-violet-600" />
               <div>
                 <p className="font-medium text-violet-900">Analyzing content gaps...</p>
-                <p className="text-sm text-violet-600">Comparing with competitors and identifying opportunities</p>
+                <p className="text-sm text-violet-600">
+                  Comparing with competitors and identifying opportunities
+                </p>
               </div>
             </div>
           </div>
@@ -176,11 +191,15 @@ export default function ContentGapAnalyzer({ websites, keywords, competitors, on
             {/* Summary Stats */}
             <div className="grid grid-cols-3 gap-4">
               <div className="p-4 bg-gradient-to-br from-violet-50 to-purple-50 rounded-xl text-center">
-                <p className="text-3xl font-bold text-violet-600">{analysis.content_gaps?.length || 0}</p>
+                <p className="text-3xl font-bold text-violet-600">
+                  {analysis.content_gaps?.length || 0}
+                </p>
                 <p className="text-sm text-gray-600">Content Gaps</p>
               </div>
               <div className="p-4 bg-gradient-to-br from-emerald-50 to-green-50 rounded-xl text-center">
-                <p className="text-3xl font-bold text-emerald-600">{analysis.quick_wins?.length || 0}</p>
+                <p className="text-3xl font-bold text-emerald-600">
+                  {analysis.quick_wins?.length || 0}
+                </p>
                 <p className="text-sm text-gray-600">Quick Wins</p>
               </div>
               <div className="p-4 bg-gradient-to-br from-blue-50 to-cyan-50 rounded-xl text-center">
@@ -201,7 +220,7 @@ export default function ContentGapAnalyzer({ websites, keywords, competitors, on
                 <ScrollArea className="h-80">
                   <div className="space-y-3">
                     {analysis.content_gaps.map((gap, idx) => (
-                      <div 
+                      <div
                         key={idx}
                         className="p-4 bg-white border border-gray-100 rounded-lg hover:shadow-md transition-all cursor-pointer"
                         onClick={() => onSelectTopic?.(gap)}
@@ -221,8 +240,12 @@ export default function ContentGapAnalyzer({ websites, keywords, competitors, on
                                 {formatVolume(gap.search_volume)}/mo
                               </span>
                               <span>Difficulty: {gap.difficulty}</span>
-                              <Badge variant="outline" className="text-xs">{gap.content_type}</Badge>
-                              <Badge variant="outline" className="text-xs">{gap.search_intent}</Badge>
+                              <Badge variant="outline" className="text-xs">
+                                {gap.content_type}
+                              </Badge>
+                              <Badge variant="outline" className="text-xs">
+                                {gap.search_intent}
+                              </Badge>
                             </div>
                             <p className="text-sm text-gray-600 mt-2">{gap.reason}</p>
                           </div>
@@ -246,10 +269,12 @@ export default function ContentGapAnalyzer({ websites, keywords, competitors, on
                 </h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   {analysis.quick_wins.map((win, idx) => (
-                    <div 
+                    <div
                       key={idx}
                       className="p-3 bg-emerald-50 rounded-lg cursor-pointer hover:bg-emerald-100 transition-colors"
-                      onClick={() => onSelectTopic?.({ topic: win.topic, content_type: win.content_type })}
+                      onClick={() =>
+                        onSelectTopic?.({ topic: win.topic, content_type: win.content_type })
+                      }
                     >
                       <div className="flex items-center justify-between">
                         <span className="font-medium text-gray-900">{win.topic}</span>
@@ -271,7 +296,9 @@ export default function ContentGapAnalyzer({ websites, keywords, competitors, on
                 <h4 className="font-semibold text-gray-900 mb-2">Recommended Content Clusters</h4>
                 <div className="flex flex-wrap gap-2">
                   {analysis.recommendations.content_clusters.map((cluster, idx) => (
-                    <Badge key={idx} className="bg-blue-100 text-blue-700">{cluster}</Badge>
+                    <Badge key={idx} className="bg-blue-100 text-blue-700">
+                      {cluster}
+                    </Badge>
                   ))}
                 </div>
               </div>

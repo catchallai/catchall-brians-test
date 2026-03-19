@@ -1,22 +1,35 @@
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
-import { Mail, Eye, MessageSquare, CheckCircle } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+} from 'recharts';
+import { Mail, Eye, MessageSquare, CheckCircle } from 'lucide-react';
 
 const COLORS = ['#8b5cf6', '#06b6d4', '#10b981', '#f59e0b', '#ef4444'];
 
 export default function EmailAnalytics({ outreach }) {
-  const totalSent = outreach.filter(o => o.status !== 'draft').length;
-  const opened = outreach.filter(o => ['opened', 'replied', 'published'].includes(o.status)).length;
-  const replied = outreach.filter(o => ['replied', 'published'].includes(o.status)).length;
-  const published = outreach.filter(o => o.status === 'published').length;
+  const totalSent = outreach.filter((o) => o.status !== 'draft').length;
+  const opened = outreach.filter((o) =>
+    ['opened', 'replied', 'published'].includes(o.status)
+  ).length;
+  const replied = outreach.filter((o) => ['replied', 'published'].includes(o.status)).length;
+  const published = outreach.filter((o) => o.status === 'published').length;
 
   const statusData = [
     { name: 'Sent', value: totalSent - opened, color: '#6b7280' },
     { name: 'Opened', value: opened - replied, color: '#8b5cf6' },
     { name: 'Replied', value: replied - published, color: '#10b981' },
     { name: 'Published', value: published, color: '#06b6d4' },
-  ].filter(d => d.value > 0);
+  ].filter((d) => d.value > 0);
 
   const stats = [
     { label: 'Total Sent', value: totalSent, icon: Mail, color: 'text-gray-600' },
@@ -89,7 +102,10 @@ export default function EmailAnalytics({ outreach }) {
                 <div className="flex flex-wrap justify-center gap-4 mt-2">
                   {statusData.map((item) => (
                     <div key={item.name} className="flex items-center gap-2">
-                      <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }} />
+                      <div
+                        className="w-3 h-3 rounded-full"
+                        style={{ backgroundColor: item.color }}
+                      />
                       <span className="text-sm text-gray-600 dark:text-gray-400">{item.name}</span>
                     </div>
                   ))}

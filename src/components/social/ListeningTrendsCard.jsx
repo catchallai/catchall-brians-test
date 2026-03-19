@@ -1,42 +1,72 @@
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { TrendingUp, TrendingDown, Minus, BarChart3 } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { TrendingUp, TrendingDown, Minus, BarChart3 } from 'lucide-react';
 
 export default function ListeningTrendsCard({ keywords, mentions }) {
   // Calculate trends from data
-  const keywordStats = keywords.map(kw => {
-    const kwMentions = mentions.filter(m => m.listening_id === kw.id);
-    const recentMentions = kwMentions.filter(m => {
-      const date = new Date(m.post_date);
-      const weekAgo = new Date();
-      weekAgo.setDate(weekAgo.getDate() - 7);
-      return date > weekAgo;
-    });
-    
-    return {
-      keyword: kw.keyword,
-      type: kw.type,
-      total: kwMentions.length,
-      recent: recentMentions.length,
-      sentiment: {
-        positive: kwMentions.filter(m => m.sentiment === 'positive').length,
-        neutral: kwMentions.filter(m => m.sentiment === 'neutral').length,
-        negative: kwMentions.filter(m => m.sentiment === 'negative').length,
-      },
-      avgInfluence: kwMentions.length > 0 
-        ? Math.round(kwMentions.reduce((sum, m) => sum + (m.influence_score || 0), 0) / kwMentions.length)
-        : 0,
-      trending: kw.trending_score || 0,
-    };
-  }).sort((a, b) => b.trending - a.trending);
+  const keywordStats = keywords
+    .map((kw) => {
+      const kwMentions = mentions.filter((m) => m.listening_id === kw.id);
+      const recentMentions = kwMentions.filter((m) => {
+        const date = new Date(m.post_date);
+        const weekAgo = new Date();
+        weekAgo.setDate(weekAgo.getDate() - 7);
+        return date > weekAgo;
+      });
+
+      return {
+        keyword: kw.keyword,
+        type: kw.type,
+        total: kwMentions.length,
+        recent: recentMentions.length,
+        sentiment: {
+          positive: kwMentions.filter((m) => m.sentiment === 'positive').length,
+          neutral: kwMentions.filter((m) => m.sentiment === 'neutral').length,
+          negative: kwMentions.filter((m) => m.sentiment === 'negative').length,
+        },
+        avgInfluence:
+          kwMentions.length > 0
+            ? Math.round(
+                kwMentions.reduce((sum, m) => sum + (m.influence_score || 0), 0) / kwMentions.length
+              )
+            : 0,
+        trending: kw.trending_score || 0,
+      };
+    })
+    .sort((a, b) => b.trending - a.trending);
 
   // Top trending topics from mentions
   const topicCounts = {};
-  mentions.forEach(m => {
+  mentions.forEach((m) => {
     const words = m.content?.toLowerCase().match(/\b\w{4,}\b/g) || [];
-    words.forEach(word => {
-      if (!['this', 'that', 'with', 'from', 'have', 'been', 'were', 'they', 'their', 'what', 'when', 'where', 'which', 'would', 'could', 'should', 'about', 'there', 'these', 'those', 'being', 'other'].includes(word)) {
+    words.forEach((word) => {
+      if (
+        ![
+          'this',
+          'that',
+          'with',
+          'from',
+          'have',
+          'been',
+          'were',
+          'they',
+          'their',
+          'what',
+          'when',
+          'where',
+          'which',
+          'would',
+          'could',
+          'should',
+          'about',
+          'there',
+          'these',
+          'those',
+          'being',
+          'other',
+        ].includes(word)
+      ) {
         topicCounts[word] = (topicCounts[word] || 0) + 1;
       }
     });
@@ -74,7 +104,9 @@ export default function ListeningTrendsCard({ keywords, mentions }) {
                     ) : (
                       <Minus className="w-4 h-4 text-gray-400" />
                     )}
-                    <Badge variant="outline" className="text-xs">{stat.trending} trend</Badge>
+                    <Badge variant="outline" className="text-xs">
+                      {stat.trending} trend
+                    </Badge>
                   </div>
                 </div>
                 <div className="flex gap-4 text-xs text-gray-500">
@@ -100,9 +132,9 @@ export default function ListeningTrendsCard({ keywords, mentions }) {
           <CardContent>
             <div className="flex flex-wrap gap-2">
               {topTopics.map(([topic, count], i) => (
-                <Badge 
-                  key={i} 
-                  variant="outline" 
+                <Badge
+                  key={i}
+                  variant="outline"
                   className={`${i < 3 ? 'bg-violet-50 border-violet-200' : ''}`}
                 >
                   {topic} ({count})

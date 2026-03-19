@@ -1,13 +1,13 @@
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Award, TrendingUp, Users } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Award, TrendingUp, Users } from 'lucide-react';
 
 export default function CSMPerformanceCard({ onboardings, healthScores, opportunities }) {
   const csmMetrics = React.useMemo(() => {
     const metrics = {};
 
-    onboardings.forEach(o => {
+    onboardings.forEach((o) => {
       const csm = o.csm_assigned || 'Unassigned';
       if (!metrics[csm]) {
         metrics[csm] = {
@@ -18,29 +18,33 @@ export default function CSMPerformanceCard({ onboardings, healthScores, opportun
           completedOnboarding: 0,
           totalOnboarding: 0,
           opportunities: 0,
-          opportunityValue: 0
+          opportunityValue: 0,
         };
       }
 
       metrics[csm].totalOnboarding++;
       if (o.status === 'completed') metrics[csm].completedOnboarding++;
 
-      const health = healthScores.find(h => h.contact_id === o.contact_id);
+      const health = healthScores.find((h) => h.contact_id === o.contact_id);
       if (health) {
         metrics[csm].avgHealth += health.health_score || 0;
         metrics[csm].healthCount++;
       }
 
-      const customerOpps = opportunities.filter(opp => opp.contact_id === o.contact_id);
+      const customerOpps = opportunities.filter((opp) => opp.contact_id === o.contact_id);
       metrics[csm].opportunities += customerOpps.length;
-      metrics[csm].opportunityValue += customerOpps.reduce((sum, opp) => sum + (opp.estimated_value || 0), 0);
+      metrics[csm].opportunityValue += customerOpps.reduce(
+        (sum, opp) => sum + (opp.estimated_value || 0),
+        0
+      );
     });
 
     return Object.values(metrics)
-      .map(m => ({
+      .map((m) => ({
         ...m,
         avgHealth: m.healthCount > 0 ? Math.round(m.avgHealth / m.healthCount) : 0,
-        completionRate: m.totalOnboarding > 0 ? Math.round((m.completedOnboarding / m.totalOnboarding) * 100) : 0
+        completionRate:
+          m.totalOnboarding > 0 ? Math.round((m.completedOnboarding / m.totalOnboarding) * 100) : 0,
       }))
       .sort((a, b) => b.avgHealth - a.avgHealth);
   }, [onboardings, healthScores, opportunities]);
@@ -56,7 +60,10 @@ export default function CSMPerformanceCard({ onboardings, healthScores, opportun
       <CardContent>
         <div className="space-y-4">
           {csmMetrics.slice(0, 5).map((csm, index) => (
-            <div key={csm.name} className="p-3 bg-gradient-to-r from-violet-50 to-transparent dark:from-violet-900/20 rounded-lg">
+            <div
+              key={csm.name}
+              className="p-3 bg-gradient-to-r from-violet-50 to-transparent dark:from-violet-900/20 rounded-lg"
+            >
               <div className="flex items-start justify-between mb-2">
                 <div className="flex items-center gap-2">
                   {index === 0 && <Award className="w-4 h-4 text-amber-500" />}

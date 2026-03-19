@@ -1,15 +1,10 @@
 import React, { useState } from 'react';
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Badge } from "@/components/ui/badge";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Copy, Check, Code, FileCode, Braces } from "lucide-react";
+import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Badge } from '@/components/ui/badge';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Copy, Check, Code, FileCode, Braces } from 'lucide-react';
 
 export default function FormEmbedCode({ open, onClose, form }) {
   const [copied, setCopied] = useState(null);
@@ -21,31 +16,33 @@ export default function FormEmbedCode({ open, onClose, form }) {
 
   const htmlCode = `<!-- ${form.name} Contact Form -->
 <form id="contact-form-${formId}" onsubmit="submitForm(event)">
-${form.fields?.map(field => {
-  if (field.type === 'textarea') {
-    return `  <div class="form-group">
+${form.fields
+  ?.map((field) => {
+    if (field.type === 'textarea') {
+      return `  <div class="form-group">
     <label for="${field.id}">${field.label}${field.required ? ' *' : ''}</label>
     <textarea id="${field.id}" name="${field.id}" placeholder="${field.placeholder || ''}" ${field.required ? 'required' : ''}></textarea>
   </div>`;
-  } else if (field.type === 'select') {
-    return `  <div class="form-group">
+    } else if (field.type === 'select') {
+      return `  <div class="form-group">
     <label for="${field.id}">${field.label}${field.required ? ' *' : ''}</label>
     <select id="${field.id}" name="${field.id}" ${field.required ? 'required' : ''}>
       <option value="">Select...</option>
-${field.options?.map(opt => `      <option value="${opt}">${opt}</option>`).join('\n')}
+${field.options?.map((opt) => `      <option value="${opt}">${opt}</option>`).join('\n')}
     </select>
   </div>`;
-  } else if (field.type === 'checkbox') {
-    return `  <div class="form-group checkbox">
+    } else if (field.type === 'checkbox') {
+      return `  <div class="form-group checkbox">
     <input type="checkbox" id="${field.id}" name="${field.id}" ${field.required ? 'required' : ''}>
     <label for="${field.id}">${field.label}${field.required ? ' *' : ''}</label>
   </div>`;
-  }
-  return `  <div class="form-group">
+    }
+    return `  <div class="form-group">
     <label for="${field.id}">${field.label}${field.required ? ' *' : ''}</label>
     <input type="${field.type}" id="${field.id}" name="${field.id}" placeholder="${field.placeholder || ''}" ${field.required ? 'required' : ''}>
   </div>`;
-}).join('\n')}
+  })
+  .join('\n')}
   <button type="submit">${form.submit_button_text || 'Submit'}</button>
   <div id="form-message" style="display: none;"></div>
 </form>
@@ -239,14 +236,11 @@ curl -X POST '${apiEndpoint}' \\
                   {copied === 'html' ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
                   {copied === 'html' ? 'Copied!' : 'Copy'}
                 </Button>
-                <Textarea 
-                  value={htmlCode}
-                  readOnly
-                  className="font-mono text-xs h-96"
-                />
+                <Textarea value={htmlCode} readOnly className="font-mono text-xs h-96" />
               </div>
               <p className="text-sm text-gray-500 mt-2">
-                Copy and paste this complete HTML snippet into your website. Includes form, styling, and submission handling.
+                Copy and paste this complete HTML snippet into your website. Includes form, styling,
+                and submission handling.
               </p>
             </TabsContent>
 
@@ -261,11 +255,7 @@ curl -X POST '${apiEndpoint}' \\
                   {copied === 'js' ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
                   {copied === 'js' ? 'Copied!' : 'Copy'}
                 </Button>
-                <Textarea 
-                  value={jsCode}
-                  readOnly
-                  className="font-mono text-xs h-64"
-                />
+                <Textarea value={jsCode} readOnly className="font-mono text-xs h-64" />
               </div>
               <p className="text-sm text-gray-500 mt-2">
                 Use this JavaScript code to integrate with your existing form or SPA framework.
@@ -283,11 +273,7 @@ curl -X POST '${apiEndpoint}' \\
                   {copied === 'curl' ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
                   {copied === 'curl' ? 'Copied!' : 'Copy'}
                 </Button>
-                <Textarea 
-                  value={curlCode}
-                  readOnly
-                  className="font-mono text-xs h-48"
-                />
+                <Textarea value={curlCode} readOnly className="font-mono text-xs h-48" />
               </div>
               <p className="text-sm text-gray-500 mt-2">
                 Test the API directly from your terminal or use in backend integrations.

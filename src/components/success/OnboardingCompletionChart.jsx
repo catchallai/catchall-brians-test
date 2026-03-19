@@ -1,7 +1,16 @@
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
-import { Users } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  Legend,
+} from 'recharts';
+import { Users } from 'lucide-react';
 
 export default function OnboardingCompletionChart({ onboardings }) {
   const chartData = React.useMemo(() => {
@@ -9,10 +18,10 @@ export default function OnboardingCompletionChart({ onboardings }) {
       not_started: 0,
       in_progress: 0,
       completed: 0,
-      stalled: 0
+      stalled: 0,
     };
 
-    onboardings.forEach(o => {
+    onboardings.forEach((o) => {
       statusCounts[o.status]++;
     });
 
@@ -21,10 +30,10 @@ export default function OnboardingCompletionChart({ onboardings }) {
       '26-50%': 0,
       '51-75%': 0,
       '76-99%': 0,
-      '100%': 0
+      '100%': 0,
     };
 
-    onboardings.forEach(o => {
+    onboardings.forEach((o) => {
       const progress = o.progress_percentage || 0;
       if (progress === 0) progressBuckets['0-25%']++;
       else if (progress <= 25) progressBuckets['0-25%']++;
@@ -39,7 +48,7 @@ export default function OnboardingCompletionChart({ onboardings }) {
       { name: '26-50%', count: progressBuckets['26-50%'] },
       { name: '51-75%', count: progressBuckets['51-75%'] },
       { name: '76-99%', count: progressBuckets['76-99%'] },
-      { name: '100%', count: progressBuckets['100%'] }
+      { name: '100%', count: progressBuckets['100%'] },
     ];
   }, [onboardings]);
 
@@ -55,20 +64,13 @@ export default function OnboardingCompletionChart({ onboardings }) {
         <ResponsiveContainer width="100%" height={300}>
           <BarChart data={chartData}>
             <CartesianGrid strokeDasharray="3 3" className="stroke-gray-200 dark:stroke-gray-700" />
-            <XAxis 
-              dataKey="name" 
-              className="text-xs"
-              tick={{ fill: 'currentColor' }}
-            />
-            <YAxis 
-              className="text-xs"
-              tick={{ fill: 'currentColor' }}
-            />
-            <Tooltip 
-              contentStyle={{ 
-                backgroundColor: 'rgba(255, 255, 255, 0.95)', 
+            <XAxis dataKey="name" className="text-xs" tick={{ fill: 'currentColor' }} />
+            <YAxis className="text-xs" tick={{ fill: 'currentColor' }} />
+            <Tooltip
+              contentStyle={{
+                backgroundColor: 'rgba(255, 255, 255, 0.95)',
                 border: '1px solid #e5e7eb',
-                borderRadius: '8px'
+                borderRadius: '8px',
               }}
             />
             <Bar dataKey="count" fill="#3b82f6" radius={[8, 8, 0, 0]} name="Customers" />

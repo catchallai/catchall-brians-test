@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { ArrowRight, DollarSign } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { ArrowRight, DollarSign } from 'lucide-react';
 
 const STAGES = [
   { id: 'lead', label: 'Lead', color: 'bg-gray-50 dark:bg-gray-800' },
@@ -15,7 +15,7 @@ export default function SalesPipelineKanban({ deals = [], onDealDrop, onDealClic
   const [draggedDeal, setDraggedDeal] = useState(null);
 
   const getDealsByStage = (stageId) => {
-    return deals.filter(d => d.stage === stageId);
+    return deals.filter((d) => d.stage === stageId);
   };
 
   const getStageTotal = (stageId) => {
@@ -43,7 +43,7 @@ export default function SalesPipelineKanban({ deals = [], onDealDrop, onDealClic
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
-        {STAGES.map(stage => {
+        {STAGES.map((stage) => {
           const stageDels = getDealsByStage(stage.id);
           const stageTotal = getStageTotal(stage.id);
 
@@ -65,7 +65,7 @@ export default function SalesPipelineKanban({ deals = [], onDealDrop, onDealClic
               </div>
 
               <div className="space-y-3">
-                {stageDels.map(deal => (
+                {stageDels.map((deal) => (
                   <Card
                     key={deal.id}
                     className="cursor-grab active:cursor-grabbing hover:shadow-md transition-all"

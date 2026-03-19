@@ -1,16 +1,37 @@
 import React, { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2 } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Loader2 } from 'lucide-react';
 
 const CONDITION_FIELDS = [
   { id: 'job_title', label: 'Job Title', type: 'text' },
-  { id: 'source', label: 'Lead Source', type: 'select', options: ['website', 'referral', 'linkedin', 'cold_outreach', 'event', 'other'] },
-  { id: 'status', label: 'Contact Status', type: 'select', options: ['lead', 'prospect', 'customer'] },
-  { id: 'company_size', label: 'Company Size', type: 'select', options: ['1-10', '11-50', '51-200', '201-500', '501-1000', '1000+'] },
+  {
+    id: 'source',
+    label: 'Lead Source',
+    type: 'select',
+    options: ['website', 'referral', 'linkedin', 'cold_outreach', 'event', 'other'],
+  },
+  {
+    id: 'status',
+    label: 'Contact Status',
+    type: 'select',
+    options: ['lead', 'prospect', 'customer'],
+  },
+  {
+    id: 'company_size',
+    label: 'Company Size',
+    type: 'select',
+    options: ['1-10', '11-50', '51-200', '201-500', '501-1000', '1000+'],
+  },
   { id: 'email_opened', label: 'Emails Opened', type: 'number' },
   { id: 'email_clicked', label: 'Emails Clicked', type: 'number' },
   { id: 'activities_count', label: 'Activities Count', type: 'number' },
@@ -62,7 +83,7 @@ export default function LeadScoreRuleModal({ open, onClose, rule, onSave, isLoad
     });
   };
 
-  const selectedField = CONDITION_FIELDS.find(f => f.id === formData.condition_field);
+  const selectedField = CONDITION_FIELDS.find((f) => f.id === formData.condition_field);
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
@@ -70,7 +91,7 @@ export default function LeadScoreRuleModal({ open, onClose, rule, onSave, isLoad
         <DialogHeader>
           <DialogTitle>{rule ? 'Edit Scoring Rule' : 'Create Scoring Rule'}</DialogTitle>
         </DialogHeader>
-        
+
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label>Rule Name *</Label>
@@ -114,18 +135,18 @@ export default function LeadScoreRuleModal({ open, onClose, rule, onSave, isLoad
 
           <div className="p-4 bg-gray-50 rounded-lg space-y-4">
             <h4 className="font-medium text-gray-900">Condition</h4>
-            
+
             <div className="space-y-2">
               <Label>Field</Label>
               <Select
                 value={formData.condition_field}
                 onValueChange={(value) => {
-                  const field = CONDITION_FIELDS.find(f => f.id === value);
-                  setFormData({ 
-                    ...formData, 
+                  const field = CONDITION_FIELDS.find((f) => f.id === value);
+                  setFormData({
+                    ...formData,
                     condition_field: value,
                     condition_operator: field?.type === 'exists' ? 'exists' : 'equals',
-                    condition_value: ''
+                    condition_value: '',
                   });
                 }}
               >
@@ -133,8 +154,10 @@ export default function LeadScoreRuleModal({ open, onClose, rule, onSave, isLoad
                   <SelectValue placeholder="Select field" />
                 </SelectTrigger>
                 <SelectContent>
-                  {CONDITION_FIELDS.map(f => (
-                    <SelectItem key={f.id} value={f.id}>{f.label}</SelectItem>
+                  {CONDITION_FIELDS.map((f) => (
+                    <SelectItem key={f.id} value={f.id}>
+                      {f.label}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -146,7 +169,9 @@ export default function LeadScoreRuleModal({ open, onClose, rule, onSave, isLoad
                   <Label>Operator</Label>
                   <Select
                     value={formData.condition_operator}
-                    onValueChange={(value) => setFormData({ ...formData, condition_operator: value })}
+                    onValueChange={(value) =>
+                      setFormData({ ...formData, condition_operator: value })
+                    }
                   >
                     <SelectTrigger>
                       <SelectValue />
@@ -170,14 +195,18 @@ export default function LeadScoreRuleModal({ open, onClose, rule, onSave, isLoad
                   {selectedField.type === 'select' ? (
                     <Select
                       value={formData.condition_value}
-                      onValueChange={(value) => setFormData({ ...formData, condition_value: value })}
+                      onValueChange={(value) =>
+                        setFormData({ ...formData, condition_value: value })
+                      }
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="Select value" />
                       </SelectTrigger>
                       <SelectContent>
-                        {selectedField.options?.map(opt => (
-                          <SelectItem key={opt} value={opt}>{opt.replace('_', ' ')}</SelectItem>
+                        {selectedField.options?.map((opt) => (
+                          <SelectItem key={opt} value={opt}>
+                            {opt.replace('_', ' ')}
+                          </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
@@ -185,7 +214,9 @@ export default function LeadScoreRuleModal({ open, onClose, rule, onSave, isLoad
                     <Input
                       type={selectedField.type === 'number' ? 'number' : 'text'}
                       value={formData.condition_value}
-                      onChange={(e) => setFormData({ ...formData, condition_value: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({ ...formData, condition_value: e.target.value })
+                      }
                       placeholder={selectedField.type === 'number' ? '0' : 'Value'}
                     />
                   )}
@@ -195,7 +226,9 @@ export default function LeadScoreRuleModal({ open, onClose, rule, onSave, isLoad
           </div>
 
           <div className="flex justify-end gap-3 pt-4">
-            <Button type="button" variant="outline" onClick={onClose}>Cancel</Button>
+            <Button type="button" variant="outline" onClick={onClose}>
+              Cancel
+            </Button>
             <Button type="submit" disabled={isLoading || !formData.condition_field}>
               {isLoading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
               {rule ? 'Update Rule' : 'Create Rule'}

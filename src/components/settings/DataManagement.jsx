@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Loader2, Zap, CheckCircle, AlertCircle } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Loader2, Zap, CheckCircle, AlertCircle } from 'lucide-react';
 import { useToast } from '@/components/ui/toast-provider';
 
 export default function DataManagement() {
@@ -13,7 +13,7 @@ export default function DataManagement() {
   const handleEnrichAllCompanies = async () => {
     setEnriching(true);
     setEnrichResults(null);
-    
+
     try {
       const response = await base44.functions.invoke('enrichAllCompanies');
       setEnrichResults(response);
@@ -36,18 +36,13 @@ export default function DataManagement() {
       <CardContent className="space-y-6">
         <div className="space-y-3">
           <h3 className="font-medium text-gray-900 dark:text-white">Company Enrichment</h3>
-          <p className="text-sm text-gray-500">Enrich all companies with AI-powered data including descriptions, industry trends, and competitors.</p>
-          
-          <Button 
-            onClick={handleEnrichAllCompanies}
-            disabled={enriching}
-            className="gap-2"
-          >
-            {enriching ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
-            ) : (
-              <Zap className="w-4 h-4" />
-            )}
+          <p className="text-sm text-gray-500">
+            Enrich all companies with AI-powered data including descriptions, industry trends, and
+            competitors.
+          </p>
+
+          <Button onClick={handleEnrichAllCompanies} disabled={enriching} className="gap-2">
+            {enriching ? <Loader2 className="w-4 h-4 animate-spin" /> : <Zap className="w-4 h-4" />}
             {enriching ? 'Enriching...' : 'Enrich All Companies'}
           </Button>
 
@@ -60,7 +55,9 @@ export default function DataManagement() {
                     Enriched {enrichResults.enriched} of {enrichResults.total} companies
                   </p>
                   <p className="text-gray-600 dark:text-gray-400 mt-1">
-                    {enrichResults.enriched > 0 ? 'Company data updated with descriptions, industry trends, and competitors.' : 'No new companies to enrich.'}
+                    {enrichResults.enriched > 0
+                      ? 'Company data updated with descriptions, industry trends, and competitors.'
+                      : 'No new companies to enrich.'}
                   </p>
                 </div>
               </div>
@@ -72,7 +69,8 @@ export default function DataManagement() {
           <div className="flex items-start gap-2 p-3 rounded-lg bg-blue-50 dark:bg-blue-900/20">
             <AlertCircle className="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
             <p className="text-sm text-blue-700 dark:text-blue-300">
-              This operation uses AI to fetch current company data from the internet. It may take a few minutes depending on the number of companies.
+              This operation uses AI to fetch current company data from the internet. It may take a
+              few minutes depending on the number of companies.
             </p>
           </div>
         </div>

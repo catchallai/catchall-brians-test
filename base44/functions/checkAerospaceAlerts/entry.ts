@@ -10,9 +10,9 @@ Deno.serve(async (req) => {
     }
 
     // Get all active alerts for this user
-    const alerts = await base44.entities.AerospaceAlert.filter({ 
+    const alerts = await base44.entities.AerospaceAlert.filter({
       created_by: user.email,
-      is_active: true 
+      is_active: true,
     });
 
     // Get all aerospace companies
@@ -26,23 +26,31 @@ Deno.serve(async (req) => {
       const monitoredCompanies = alert.monitored_companies || [];
 
       // Filter companies based on alert criteria and monitored list
-      const relevantCompanies = companies.filter(company => {
+      const relevantCompanies = companies.filter((company) => {
         // If specific companies are monitored, only check those
         if (monitoredCompanies.length > 0 && !monitoredCompanies.includes(company.id)) {
           return false;
         }
 
         // Apply criteria filters
-        if (criteria.company_type && criteria.company_type !== 'all' && company.company_type !== criteria.company_type) {
+        if (
+          criteria.company_type &&
+          criteria.company_type !== 'all' &&
+          company.company_type !== criteria.company_type
+        ) {
           return false;
         }
 
         if (criteria.revenue_growth_min) {
-          const growth = parseFloat(company.financial_highlights?.revenue_growth?.replace(/[^0-9.-]/g, '')) || 0;
+          const growth =
+            parseFloat(company.financial_highlights?.revenue_growth?.replace(/[^0-9.-]/g, '')) || 0;
           if (growth < parseFloat(criteria.revenue_growth_min)) return false;
         }
 
-        if (criteria.employee_count_min && company.employee_count < parseInt(criteria.employee_count_min)) {
+        if (
+          criteria.employee_count_min &&
+          company.employee_count < parseInt(criteria.employee_count_min)
+        ) {
           return false;
         }
 
@@ -58,7 +66,7 @@ Deno.serve(async (req) => {
           const threshold = criteria.sentiment_change_threshold || 20;
           const sentimentScore = company.news_sentiment.sentiment_score || 0;
           const lastAnalyzed = company.news_sentiment.last_analyzed;
-          
+
           // Check if sentiment changed significantly (this is simplified - in production you'd track historical data)
           if (Math.abs(sentimentScore - 50) > threshold) {
             companyNotifications.push({
@@ -66,7 +74,7 @@ Deno.serve(async (req) => {
               title: `Sentiment Alert: ${company.company_name}`,
               message: `News sentiment is ${company.news_sentiment.overall_sentiment} (${sentimentScore}/100)`,
               company_id: company.id,
-              company_name: company.company_name
+              company_name: company.company_name,
             });
           }
         }
@@ -76,10 +84,10 @@ Deno.serve(async (req) => {
           const recentContracts = [
             ...(company.dod_contracts || []),
             ...(company.public_sector_contracts || []),
-            ...(company.recent_contracts || [])
+            ...(company.recent_contracts || []),
           ];
 
-          const largeContracts = recentContracts.filter(contract => {
+          const largeContracts = recentContracts.filter((contract) => {
             const value = parseFloat(contract.value?.replace(/[^0-9.-]/g, '')) || 0;
             const minValue = parseFloat(criteria.contract_value_min || 50);
             return value >= minValue;
@@ -92,7 +100,7 @@ Deno.serve(async (req) => {
               title: `Major Contract: ${company.company_name}`,
               message: `${topContract.title} - ${topContract.value}`,
               company_id: company.id,
-              company_name: company.company_name
+              company_name: company.company_name,
             });
           }
         }
@@ -107,7 +115,7 @@ Deno.serve(async (req) => {
               title: `Funding Round: ${company.company_name}`,
               message: `${latestRound.round} - ${latestRound.amount} raised`,
               company_id: company.id,
-              company_name: company.company_name
+              company_name: company.company_name,
             });
           }
         }
@@ -116,29 +124,32 @@ Deno.serve(async (req) => {
         if (triggerEvents.includes('negative_pr')) {
           const negativePR = company.negative_pr || [];
           const incidents = company.incidents || [];
-          
+
           if (negativePR.length > 0 || incidents.length > 0) {
-            const alert_text = negativePR.length > 0 
-              ? `${negativePR[0].title} (${negativePR[0].severity})`
-              : `${incidents[0].title}`;
-            
+            const alert_text =
+              negativePR.length > 0
+                ? `${negativePR[0].title} (${negativePR[0].severity})`
+                : `${incidents[0].title}`;
+
             companyNotifications.push({
               type: 'negative_pr',
               title: `Alert: ${company.company_name}`,
               message: alert_text,
               company_id: company.id,
-              company_name: company.company_name
+              company_name: company.company_name,
             });
           }
         }
 
         // Check for keyword matches in news
         if (criteria.keywords && criteria.keywords.length > 0) {
-          const keywords = criteria.keywords.map(k => k.toLowerCase());
+          const keywords = criteria.keywords.map((k) => k.toLowerCase());
           const headlines = company.news_sentiment?.recent_headlines || [];
-          
-          const matchingHeadlines = headlines.filter(h => 
-            keywords.some(kw => h.title?.toLowerCase().includes(kw) || h.summary?.toLowerCase().includes(kw))
+
+          const matchingHeadlines = headlines.filter((h) =>
+            keywords.some(
+              (kw) => h.title?.toLowerCase().includes(kw) || h.summary?.toLowerCase().includes(kw)
+            )
           );
 
           if (matchingHeadlines.length > 0) {
@@ -147,7 +158,7 @@ Deno.serve(async (req) => {
               title: `Keyword Match: ${company.company_name}`,
               message: matchingHeadlines[0].title,
               company_id: company.id,
-              company_name: company.company_name
+              company_name: company.company_name,
             });
           }
         }
@@ -156,7 +167,7 @@ Deno.serve(async (req) => {
         if (triggerEvents.includes('data_update') && company.last_scanned) {
           const lastScanned = new Date(company.last_scanned);
           const hoursSinceUpdate = (Date.now() - lastScanned.getTime()) / (1000 * 60 * 60);
-          
+
           // Only notify if updated in last 24 hours
           if (hoursSinceUpdate < 24) {
             companyNotifications.push({
@@ -164,7 +175,7 @@ Deno.serve(async (req) => {
               title: `Data Updated: ${company.company_name}`,
               message: `Company data refreshed ${Math.round(hoursSinceUpdate)} hours ago`,
               company_id: company.id,
-              company_name: company.company_name
+              company_name: company.company_name,
             });
           }
         }
@@ -176,13 +187,13 @@ Deno.serve(async (req) => {
             alert_name: alert.name,
             company: company.company_name,
             notifications: companyNotifications,
-            notification_channels: alert.notification_channels || ['in_app']
+            notification_channels: alert.notification_channels || ['in_app'],
           });
 
           // Update alert trigger count
           await base44.entities.AerospaceAlert.update(alert.id, {
             last_triggered: new Date().toISOString(),
-            trigger_count: (alert.trigger_count || 0) + companyNotifications.length
+            trigger_count: (alert.trigger_count || 0) + companyNotifications.length,
           });
         }
       }
@@ -199,7 +210,7 @@ Deno.serve(async (req) => {
             title: notif.title,
             message: notif.message,
             link: `/AerospaceScanner?company=${notif.company_id}`,
-            is_read: false
+            is_read: false,
           });
         }
 
@@ -215,7 +226,7 @@ Deno.serve(async (req) => {
               <p><strong>Event:</strong> ${notif.type.replace(/_/g, ' ')}</p>
               <p>${notif.message}</p>
               <p><a href="https://app.base44.com/AerospaceScanner?company=${notif.company_id}">View Company Details</a></p>
-            `
+            `,
           });
         }
       }
@@ -225,9 +236,8 @@ Deno.serve(async (req) => {
       success: true,
       alerts_checked: alerts.length,
       notifications_sent: notifications.reduce((sum, n) => sum + n.notifications.length, 0),
-      notifications
+      notifications,
     });
-
   } catch (error) {
     console.error('Error checking aerospace alerts:', error);
     return Response.json({ error: error.message }, { status: 500 });

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 
 const getColor = (value, min, max, colorScheme = 'violet') => {
   const normalized = (value - min) / (max - min || 1);
-  
+
   const schemes = {
     violet: {
       colors: ['#f5f3ff', '#c4b5fd', '#8b5cf6', '#6d28d9', '#4c1d95'],
@@ -23,27 +23,27 @@ const getColor = (value, min, max, colorScheme = 'violet') => {
   return colors[Math.max(0, index)];
 };
 
-export default function HeatmapChart({ 
-  data = [], 
-  xLabels = [], 
+export default function HeatmapChart({
+  data = [],
+  xLabels = [],
   yLabels = [],
   valueKey = 'value',
   xKey = 'x',
   yKey = 'y',
   colorScheme = 'violet',
   showValues = true,
-  title
+  title,
 }) {
   const [hoveredCell, setHoveredCell] = useState(null);
 
   // Calculate min/max for color scaling
-  const values = data.map(d => d[valueKey]);
+  const values = data.map((d) => d[valueKey]);
   const minValue = Math.min(...values);
   const maxValue = Math.max(...values);
 
   // Create matrix from data
   const matrix = {};
-  data.forEach(d => {
+  data.forEach((d) => {
     const key = `${d[yKey]}-${d[xKey]}`;
     matrix[key] = d[valueKey];
   });
@@ -51,14 +51,14 @@ export default function HeatmapChart({
   return (
     <div className="space-y-4">
       {title && <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300">{title}</h4>}
-      
+
       <div className="overflow-x-auto">
         <div className="inline-block min-w-full">
           {/* X-axis labels */}
           <div className="flex ml-20">
             {xLabels.map((label, i) => (
-              <div 
-                key={i} 
+              <div
+                key={i}
                 className="flex-1 min-w-[50px] text-center text-xs text-gray-500 dark:text-gray-400 pb-2 truncate px-1"
                 title={label}
               >
@@ -72,24 +72,29 @@ export default function HeatmapChart({
             {yLabels.map((yLabel, yi) => (
               <div key={yi} className="flex items-center">
                 {/* Y-axis label */}
-                <div className="w-20 pr-2 text-right text-xs text-gray-500 dark:text-gray-400 truncate" title={yLabel}>
+                <div
+                  className="w-20 pr-2 text-right text-xs text-gray-500 dark:text-gray-400 truncate"
+                  title={yLabel}
+                >
                   {yLabel}
                 </div>
-                
+
                 {/* Row cells */}
                 <div className="flex flex-1">
                   {xLabels.map((xLabel, xi) => {
                     const cellKey = `${yLabel}-${xLabel}`;
                     const value = matrix[cellKey] ?? 0;
                     const isHovered = hoveredCell === cellKey;
-                    
+
                     return (
                       <div
                         key={xi}
                         className={`flex-1 min-w-[50px] h-10 flex items-center justify-center text-xs font-medium transition-all cursor-pointer border border-white dark:border-gray-800 relative group/cell ${
                           isHovered ? 'ring-2 ring-violet-500 z-10' : ''
                         }`}
-                        style={{ backgroundColor: getColor(value, minValue, maxValue, colorScheme) }}
+                        style={{
+                          backgroundColor: getColor(value, minValue, maxValue, colorScheme),
+                        }}
                         onMouseEnter={() => setHoveredCell(cellKey)}
                         onMouseLeave={() => setHoveredCell(null)}
                       >
@@ -100,8 +105,14 @@ export default function HeatmapChart({
                           </div>
                         )}
                         {showValues && (
-                          <span className={value > (maxValue - minValue) / 2 + minValue ? 'text-white' : 'text-gray-700'}>
-                            {value >= 1000 ? `${(value/1000).toFixed(1)}k` : value}
+                          <span
+                            className={
+                              value > (maxValue - minValue) / 2 + minValue
+                                ? 'text-white'
+                                : 'text-gray-700'
+                            }
+                          >
+                            {value >= 1000 ? `${(value / 1000).toFixed(1)}k` : value}
                           </span>
                         )}
                       </div>
@@ -117,10 +128,17 @@ export default function HeatmapChart({
             <span className="text-xs text-gray-500">Low</span>
             <div className="flex h-3 w-32 rounded overflow-hidden">
               {[0, 0.25, 0.5, 0.75, 1].map((v, i) => (
-                <div 
-                  key={i} 
+                <div
+                  key={i}
                   className="flex-1"
-                  style={{ backgroundColor: getColor(minValue + v * (maxValue - minValue), minValue, maxValue, colorScheme) }}
+                  style={{
+                    backgroundColor: getColor(
+                      minValue + v * (maxValue - minValue),
+                      minValue,
+                      maxValue,
+                      colorScheme
+                    ),
+                  }}
                 />
               ))}
             </div>
@@ -128,7 +146,6 @@ export default function HeatmapChart({
           </div>
         </div>
       </div>
-
     </div>
   );
 }

@@ -12,13 +12,9 @@ export default function MentionHighlighter({ content, mentions = [] }) {
 
   sortedMentions.forEach(({ email, name, index, length }) => {
     if (index > lastIndex) {
-      parts.push(
-        <span key={`text-${lastIndex}`}>
-          {content.substring(lastIndex, index)}
-        </span>
-      );
+      parts.push(<span key={`text-${lastIndex}`}>{content.substring(lastIndex, index)}</span>);
     }
-    
+
     parts.push(
       <span
         key={`mention-${email}`}
@@ -28,16 +24,12 @@ export default function MentionHighlighter({ content, mentions = [] }) {
         @{name || email.split('@')[0]}
       </span>
     );
-    
+
     lastIndex = index + length;
   });
 
   if (lastIndex < content.length) {
-    parts.push(
-      <span key={`text-${lastIndex}`}>
-        {content.substring(lastIndex)}
-      </span>
-    );
+    parts.push(<span key={`text-${lastIndex}`}>{content.substring(lastIndex)}</span>);
   }
 
   return <>{parts}</>;

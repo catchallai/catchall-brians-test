@@ -14,18 +14,18 @@ Deno.serve(async (req) => {
     const base44 = createClientFromRequest(req);
 
     // Find the email tracking record
-    const trackingRecords = await base44.asServiceRole.entities.EmailTracking.filter({ 
-      tracking_id: trackingId 
+    const trackingRecords = await base44.asServiceRole.entities.EmailTracking.filter({
+      tracking_id: trackingId,
     });
 
     if (trackingRecords.length > 0) {
       const record = trackingRecords[0];
       const now = new Date().toISOString();
-      
+
       // Update or add to clicked links
       const clickedLinks = record.clicked_links || [];
-      const existingLink = clickedLinks.find(link => link.url === targetUrl);
-      
+      const existingLink = clickedLinks.find((link) => link.url === targetUrl);
+
       if (existingLink) {
         existingLink.click_count = (existingLink.click_count || 0) + 1;
         existingLink.clicked_date = now;
@@ -33,14 +33,14 @@ Deno.serve(async (req) => {
         clickedLinks.push({
           url: targetUrl,
           clicked_date: now,
-          click_count: 1
+          click_count: 1,
         });
       }
 
       // Update tracking record
       await base44.asServiceRole.entities.EmailTracking.update(record.id, {
         clicked: true,
-        clicked_links: clickedLinks
+        clicked_links: clickedLinks,
       });
     }
 
@@ -48,14 +48,14 @@ Deno.serve(async (req) => {
     return Response.redirect(targetUrl, 302);
   } catch (error) {
     console.error('Click tracking error:', error);
-    
+
     // Try to redirect anyway
     const url = new URL(req.url);
     const targetUrl = url.searchParams.get('url');
     if (targetUrl) {
       return Response.redirect(targetUrl, 302);
     }
-    
+
     return new Response('Tracking error', { status: 500 });
   }
 });

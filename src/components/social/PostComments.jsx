@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
-import { Checkbox } from "@/components/ui/checkbox";
-import { MessageSquare, Send, CheckCircle, Loader2 } from "lucide-react";
+import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
+import { Checkbox } from '@/components/ui/checkbox';
+import { MessageSquare, Send, CheckCircle, Loader2 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 
 export default function PostComments({ postId, currentUser }) {
@@ -45,7 +45,8 @@ export default function PostComments({ postId, currentUser }) {
     });
   };
 
-  const canManageComments = currentUser?.role === 'admin' || currentUser?.social_media_role === 'admin';
+  const canManageComments =
+    currentUser?.role === 'admin' || currentUser?.social_media_role === 'admin';
 
   if (isLoading) {
     return (
@@ -91,7 +92,10 @@ export default function PostComments({ postId, currentUser }) {
                       {formatDistanceToNow(new Date(comment.created_date), { addSuffix: true })}
                     </span>
                     {comment.resolved && (
-                      <Badge variant="outline" className="text-xs bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 border-green-300 dark:border-green-700">
+                      <Badge
+                        variant="outline"
+                        className="text-xs bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 border-green-300 dark:border-green-700"
+                      >
                         <CheckCircle className="w-3 h-3 mr-1" />
                         Resolved
                       </Badge>
@@ -105,7 +109,7 @@ export default function PostComments({ postId, currentUser }) {
                       <Checkbox
                         id={`resolve-${comment.id}`}
                         checked={comment.resolved}
-                        onCheckedChange={(checked) => 
+                        onCheckedChange={(checked) =>
                           toggleResolveMutation.mutate({ id: comment.id, resolved: checked })
                         }
                       />

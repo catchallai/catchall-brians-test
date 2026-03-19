@@ -1,13 +1,19 @@
 import React, { useState } from 'react';
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Plus, Search, Mail, MapPin, Calendar, Edit, CheckCircle2 } from "lucide-react";
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Plus, Search, Mail, MapPin, Calendar, Edit, CheckCircle2 } from 'lucide-react';
 import ContactsSidebar from '@/components/crm/ContactsSidebar';
 import PostalMailModal from '@/components/modals/PostalMailModal';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
 import Pagination from '@/components/ui-custom/Pagination';
 
@@ -52,16 +58,20 @@ export default function PostalMailModule() {
     }
   };
 
-  const filteredMail = postalMail.filter(mail => {
-    const matchesSearch = mail.subject?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         mail.recipient_name?.toLowerCase().includes(searchTerm.toLowerCase());
+  const filteredMail = postalMail.filter((mail) => {
+    const matchesSearch =
+      mail.subject?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      mail.recipient_name?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesType = typeFilter === 'all' || mail.mail_type === typeFilter;
     const matchesStatus = statusFilter === 'all' || mail.status === statusFilter;
     return matchesSearch && matchesType && matchesStatus;
   });
 
   const totalPages = Math.ceil(filteredMail.length / itemsPerPage);
-  const paginatedMail = filteredMail.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+  const paginatedMail = filteredMail.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
 
   const getStatusColor = (status) => {
     const colors = {
@@ -69,7 +79,7 @@ export default function PostalMailModule() {
       sent: 'bg-blue-100 text-blue-800',
       delivered: 'bg-green-100 text-green-800',
       returned: 'bg-red-100 text-red-800',
-      cancelled: 'bg-gray-100 text-gray-800'
+      cancelled: 'bg-gray-100 text-gray-800',
     };
     return colors[status] || colors.draft;
   };
@@ -85,13 +95,20 @@ export default function PostalMailModule() {
         <div className="border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-slate-900 p-4 sm:p-6">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Postal Mail</h1>
-              <p className="text-sm text-gray-500 mt-1">Keep track of all postal communications logged to your CRM</p>
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
+                Postal Mail
+              </h1>
+              <p className="text-sm text-gray-500 mt-1">
+                Keep track of all postal communications logged to your CRM
+              </p>
             </div>
-            <Button 
-              className="gap-2 bg-violet-600 hover:bg-violet-700" 
+            <Button
+              className="gap-2 bg-violet-600 hover:bg-violet-700"
               size="sm"
-              onClick={() => { setEditingMail(null); setShowModal(true); }}
+              onClick={() => {
+                setEditingMail(null);
+                setShowModal(true);
+              }}
             >
               <Plus className="w-4 h-4" />
               New Mail
@@ -101,11 +118,11 @@ export default function PostalMailModule() {
         <div className="border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-slate-800/50 p-4 flex flex-wrap gap-3 items-center">
           <div className="relative flex-1 min-w-64">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-            <Input 
-              placeholder="Search mail..." 
-              value={searchTerm} 
-              onChange={(e) => setSearchTerm(e.target.value)} 
-              className="pl-10" 
+            <Input
+              placeholder="Search mail..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10"
             />
           </div>
           <Select value={typeFilter} onValueChange={setTypeFilter}>
@@ -140,17 +157,43 @@ export default function PostalMailModule() {
           ) : filteredMail.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 text-center">
               <div className="mb-8">
-                <svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" className="mx-auto">
+                <svg
+                  width="200"
+                  height="200"
+                  viewBox="0 0 200 200"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="mx-auto"
+                >
                   {/* Envelope base */}
-                  <rect x="30" y="60" width="140" height="100" rx="8" fill="#E0E7FF" stroke="#6366F1" strokeWidth="2"/>
-                  
+                  <rect
+                    x="30"
+                    y="60"
+                    width="140"
+                    height="100"
+                    rx="8"
+                    fill="#E0E7FF"
+                    stroke="#6366F1"
+                    strokeWidth="2"
+                  />
+
                   {/* Envelope flap */}
-                  <path d="M30 60 L100 110 L170 60" stroke="#6366F1" strokeWidth="2" fill="none"/>
-                  <path d="M30 60 L100 110 L170 60 L170 70 L100 120 L30 70 Z" fill="#C7D2FE" opacity="0.7"/>
-                  
+                  <path d="M30 60 L100 110 L170 60" stroke="#6366F1" strokeWidth="2" fill="none" />
+                  <path
+                    d="M30 60 L100 110 L170 60 L170 70 L100 120 L30 70 Z"
+                    fill="#C7D2FE"
+                    opacity="0.7"
+                  />
+
                   {/* Check mark circle */}
-                  <circle cx="150" cy="140" r="25" fill="#10B981"/>
-                  <path d="M140 140 L147 147 L160 132" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
+                  <circle cx="150" cy="140" r="25" fill="#10B981" />
+                  <path
+                    d="M140 140 L147 147 L160 132"
+                    stroke="white"
+                    strokeWidth="3"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
                 </svg>
               </div>
               <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
@@ -158,10 +201,16 @@ export default function PostalMailModule() {
               </h3>
               <div className="space-y-2 text-sm text-gray-600 dark:text-gray-400 max-w-md">
                 <p>• Keep track of all postal communications logged to your CRM</p>
-                <p>• Stay organized by filtering postal mail by date or associated records for a clear and concise overview</p>
+                <p>
+                  • Stay organized by filtering postal mail by date or associated records for a
+                  clear and concise overview
+                </p>
               </div>
-              <Button 
-                onClick={() => { setEditingMail(null); setShowModal(true); }}
+              <Button
+                onClick={() => {
+                  setEditingMail(null);
+                  setShowModal(true);
+                }}
                 className="gap-2 mt-6 bg-violet-600 hover:bg-violet-700"
               >
                 <Plus className="w-4 h-4" />
@@ -172,8 +221,8 @@ export default function PostalMailModule() {
             <>
               <div className="space-y-3">
                 {paginatedMail.map((mail) => (
-                  <div 
-                    key={mail.id} 
+                  <div
+                    key={mail.id}
                     className="bg-white dark:bg-slate-800 rounded-lg border border-gray-200 dark:border-gray-700 p-5 hover:shadow-md transition-shadow"
                   >
                     <div className="flex items-start justify-between">
@@ -183,9 +232,7 @@ export default function PostalMailModule() {
                           <h3 className="font-semibold text-lg text-gray-900 dark:text-white">
                             {mail.subject}
                           </h3>
-                          <Badge className={getStatusColor(mail.status)}>
-                            {mail.status}
-                          </Badge>
+                          <Badge className={getStatusColor(mail.status)}>{mail.status}</Badge>
                           <Badge variant="outline" className="text-xs">
                             {mail.mail_type}
                           </Badge>
@@ -222,10 +269,13 @@ export default function PostalMailModule() {
                           )}
                         </div>
                       </div>
-                      <Button 
-                        size="sm" 
+                      <Button
+                        size="sm"
                         variant="outline"
-                        onClick={() => { setEditingMail(mail); setShowModal(true); }}
+                        onClick={() => {
+                          setEditingMail(mail);
+                          setShowModal(true);
+                        }}
                       >
                         <Edit className="w-4 h-4" />
                       </Button>
@@ -252,7 +302,10 @@ export default function PostalMailModule() {
 
       <PostalMailModal
         open={showModal}
-        onClose={() => { setShowModal(false); setEditingMail(null); }}
+        onClose={() => {
+          setShowModal(false);
+          setEditingMail(null);
+        }}
         onSave={handleSave}
         mail={editingMail}
         isLoading={createMutation.isPending || updateMutation.isPending}

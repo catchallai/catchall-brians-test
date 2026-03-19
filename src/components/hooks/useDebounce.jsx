@@ -21,10 +21,12 @@ export function useDebouncedCallback(callback, delay = 300) {
 
   const debouncedCallback = (...args) => {
     if (timer) clearTimeout(timer);
-    
-    setTimer(setTimeout(() => {
-      callback(...args);
-    }, delay));
+
+    setTimer(
+      setTimeout(() => {
+        callback(...args);
+      }, delay)
+    );
   };
 
   return debouncedCallback;

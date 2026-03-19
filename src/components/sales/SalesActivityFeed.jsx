@@ -1,7 +1,7 @@
 import React from 'react';
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { CheckCircle, Phone, FileText, Calendar, TrendingUp, Clock } from "lucide-react";
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { CheckCircle, Phone, FileText, Calendar, TrendingUp, Clock } from 'lucide-react';
 
 const ACTIVITY_ICONS = {
   deal_won: CheckCircle,
@@ -61,7 +61,7 @@ export default function SalesActivityFeed({ activities = [] }) {
     <Card className="glass-card">
       <CardContent className="p-6">
         <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Team Activity</h3>
-        
+
         {recentActivities.length === 0 ? (
           <p className="text-sm text-gray-500 text-center py-8">No recent activity</p>
         ) : (
@@ -71,7 +71,10 @@ export default function SalesActivityFeed({ activities = [] }) {
               const colorClass = ACTIVITY_COLORS[activity.type] || 'bg-gray-100 text-gray-700';
 
               return (
-                <div key={activity.id} className="flex items-start gap-3 pb-3 border-b border-gray-200 dark:border-gray-700 last:border-0">
+                <div
+                  key={activity.id}
+                  className="flex items-start gap-3 pb-3 border-b border-gray-200 dark:border-gray-700 last:border-0"
+                >
                   <div className={`p-2 rounded-lg ${colorClass} flex-shrink-0`}>
                     <Icon className="w-4 h-4" />
                   </div>

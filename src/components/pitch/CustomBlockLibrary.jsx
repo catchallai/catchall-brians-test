@@ -1,16 +1,24 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
-  LayoutGrid, Image, BarChart3, Quote, Zap, TrendingUp,
-  Clock, GitCompare, Plus, Search
-} from "lucide-react";
+  LayoutGrid,
+  Image,
+  BarChart3,
+  Quote,
+  Zap,
+  TrendingUp,
+  Clock,
+  GitCompare,
+  Plus,
+  Search,
+} from 'lucide-react';
 
 const blockIcons = {
   text_image: Image,
@@ -21,7 +29,7 @@ const blockIcons = {
   stats: TrendingUp,
   timeline: Clock,
   comparison: GitCompare,
-  custom: LayoutGrid
+  custom: LayoutGrid,
 };
 
 export default function CustomBlockLibrary({ open, onClose, onSelect }) {
@@ -36,20 +44,21 @@ export default function CustomBlockLibrary({ open, onClose, onSelect }) {
 
   const useBlockMutation = useMutation({
     mutationFn: async (blockId) => {
-      const block = blocks.find(b => b.id === blockId);
+      const block = blocks.find((b) => b.id === blockId);
       if (block) {
         await base44.entities.CustomSlideBlock.update(blockId, {
-          usage_count: (block.usage_count || 0) + 1
+          usage_count: (block.usage_count || 0) + 1,
         });
       }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['custom-slide-blocks'] });
-    }
+    },
   });
 
-  const filteredBlocks = blocks.filter(b => {
-    const matchesSearch = !search ||
+  const filteredBlocks = blocks.filter((b) => {
+    const matchesSearch =
+      !search ||
       b.name.toLowerCase().includes(search.toLowerCase()) ||
       b.description?.toLowerCase().includes(search.toLowerCase());
     const matchesType = blockType === 'all' || b.block_type === blockType;
@@ -117,9 +126,7 @@ export default function CustomBlockLibrary({ open, onClose, onSelect }) {
                     <h4 className="font-semibold text-sm text-gray-900 dark:text-white mb-1">
                       {block.name}
                     </h4>
-                    <p className="text-xs text-gray-500 line-clamp-2 mb-2">
-                      {block.description}
-                    </p>
+                    <p className="text-xs text-gray-500 line-clamp-2 mb-2">{block.description}</p>
                     <Badge variant="outline" className="text-xs">
                       {block.block_type.replace('_', ' ')}
                     </Badge>

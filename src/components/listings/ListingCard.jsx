@@ -1,13 +1,13 @@
 import React from 'react';
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { 
-  MapPin, 
-  Phone, 
-  Star, 
-  ExternalLink, 
-  CheckCircle, 
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import {
+  MapPin,
+  Phone,
+  Star,
+  ExternalLink,
+  CheckCircle,
   AlertTriangle,
   XCircle,
   Clock,
@@ -15,8 +15,8 @@ import {
   Flag,
   Settings,
   Eye,
-  Send
-} from "lucide-react";
+  Send,
+} from 'lucide-react';
 
 const platformLogos = {
   google_business: '🔍',
@@ -27,7 +27,7 @@ const platformLogos = {
   yellowpages: '📒',
   tripadvisor: '🦉',
   foursquare: '📍',
-  other: '🌐'
+  other: '🌐',
 };
 
 const platformNames = {
@@ -39,20 +39,24 @@ const platformNames = {
   yellowpages: 'Yellow Pages',
   tripadvisor: 'TripAdvisor',
   foursquare: 'Foursquare',
-  other: 'Other'
+  other: 'Other',
 };
 
 const statusConfig = {
   verified: { icon: CheckCircle, color: 'bg-emerald-100 text-emerald-700', label: 'Verified' },
   pending: { icon: Clock, color: 'bg-amber-100 text-amber-700', label: 'Pending' },
-  needs_attention: { icon: AlertTriangle, color: 'bg-red-100 text-red-700', label: 'Needs Attention' },
-  not_found: { icon: XCircle, color: 'bg-gray-100 text-gray-700', label: 'Not Found' }
+  needs_attention: {
+    icon: AlertTriangle,
+    color: 'bg-red-100 text-red-700',
+    label: 'Needs Attention',
+  },
+  not_found: { icon: XCircle, color: 'bg-gray-100 text-gray-700', label: 'Not Found' },
 };
 
 const severityConfig = {
   critical: { color: 'bg-red-500 text-white', label: 'Critical' },
   warning: { color: 'bg-amber-500 text-white', label: 'Warning' },
-  ok: { color: 'bg-emerald-500 text-white', label: 'OK' }
+  ok: { color: 'bg-emerald-500 text-white', label: 'OK' },
 };
 
 export default function ListingCard({ listing, onEdit, onManageGBP, onViewDetails, onSubmitFix }) {
@@ -61,7 +65,9 @@ export default function ListingCard({ listing, onEdit, onManageGBP, onViewDetail
   const StatusIcon = status.icon;
 
   return (
-    <Card className={`border-0 shadow-sm hover:shadow-md transition-all ${listing.needs_manual_review ? 'ring-2 ring-red-300' : ''}`}>
+    <Card
+      className={`border-0 shadow-sm hover:shadow-md transition-all ${listing.needs_manual_review ? 'ring-2 ring-red-300' : ''}`}
+    >
       <CardContent className="p-4">
         <div className="flex items-start justify-between gap-4">
           <div className="flex items-start gap-3">
@@ -74,9 +80,7 @@ export default function ListingCard({ listing, onEdit, onManageGBP, onViewDetail
                   {status.label}
                 </Badge>
                 {listing.severity && listing.severity !== 'ok' && (
-                  <Badge className={`${severity.color} text-xs`}>
-                    {severity.label}
-                  </Badge>
+                  <Badge className={`${severity.color} text-xs`}>{severity.label}</Badge>
                 )}
                 {listing.needs_manual_review && (
                   <Badge className="bg-red-600 text-white text-xs gap-1">
@@ -86,7 +90,7 @@ export default function ListingCard({ listing, onEdit, onManageGBP, onViewDetail
                 )}
               </div>
               <p className="text-sm text-gray-500">{platformNames[listing.platform]}</p>
-              
+
               <div className="flex items-center gap-4 mt-2 text-sm text-gray-600">
                 {listing.address && (
                   <span className="flex items-center gap-1">
@@ -115,7 +119,11 @@ export default function ListingCard({ listing, onEdit, onManageGBP, onViewDetail
               {listing.issues?.length > 0 && (
                 <div className="flex flex-wrap gap-1 mt-2">
                   {listing.issues.slice(0, 3).map((issue, idx) => (
-                    <Badge key={idx} variant="outline" className="text-xs text-red-600 border-red-200">
+                    <Badge
+                      key={idx}
+                      variant="outline"
+                      className="text-xs text-red-600 border-red-200"
+                    >
                       {issue}
                     </Badge>
                   ))}
@@ -151,19 +159,35 @@ export default function ListingCard({ listing, onEdit, onManageGBP, onViewDetail
 
           <div className="flex flex-col gap-2">
             {onViewDetails && (
-              <Button variant="outline" size="sm" className="gap-1" onClick={() => onViewDetails(listing)}>
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-1"
+                onClick={() => onViewDetails(listing)}
+              >
                 <Eye className="w-3 h-3" />
                 Details
               </Button>
             )}
-            {onSubmitFix && (listing.status === 'needs_attention' || listing.issues?.length > 0) && (
-              <Button variant="outline" size="sm" className="gap-1 text-violet-600 border-violet-200 hover:bg-violet-50" onClick={() => onSubmitFix(listing)}>
-                <Send className="w-3 h-3" />
-                Submit Fix
-              </Button>
-            )}
+            {onSubmitFix &&
+              (listing.status === 'needs_attention' || listing.issues?.length > 0) && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="gap-1 text-violet-600 border-violet-200 hover:bg-violet-50"
+                  onClick={() => onSubmitFix(listing)}
+                >
+                  <Send className="w-3 h-3" />
+                  Submit Fix
+                </Button>
+              )}
             {onManageGBP && (
-              <Button variant="outline" size="sm" className="gap-1 text-blue-600 border-blue-200 hover:bg-blue-50" onClick={onManageGBP}>
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-1 text-blue-600 border-blue-200 hover:bg-blue-50"
+                onClick={onManageGBP}
+              >
                 <Settings className="w-3 h-3" />
                 Manage GBP
               </Button>

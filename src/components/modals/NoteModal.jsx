@@ -1,10 +1,22 @@
 import React, { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 export default function NoteModal({ open, onClose, onSave, note, isLoading }) {
   const [formData, setFormData] = useState({
@@ -15,7 +27,7 @@ export default function NoteModal({ open, onClose, onSave, note, isLoading }) {
     company_id: '',
     deal_id: '',
     tags: [],
-    is_pinned: false
+    is_pinned: false,
   });
 
   useEffect(() => {
@@ -30,20 +42,20 @@ export default function NoteModal({ open, onClose, onSave, note, isLoading }) {
         company_id: '',
         deal_id: '',
         tags: [],
-        is_pinned: false
+        is_pinned: false,
       });
     }
   }, [note, open]);
 
   const handleChange = (field, value) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
     const submitData = {
       ...formData,
-      last_modified_date: new Date().toISOString()
+      last_modified_date: new Date().toISOString(),
     };
     onSave(submitData);
   };
@@ -80,7 +92,10 @@ export default function NoteModal({ open, onClose, onSave, note, isLoading }) {
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="associated_with">Associated With</Label>
-              <Select value={formData.associated_with} onValueChange={(value) => handleChange('associated_with', value)}>
+              <Select
+                value={formData.associated_with}
+                onValueChange={(value) => handleChange('associated_with', value)}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Select type" />
                 </SelectTrigger>

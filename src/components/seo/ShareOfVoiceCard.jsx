@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
-import { Volume2, Loader2, Sparkles, TrendingUp } from "lucide-react";
+import { Volume2, Loader2, Sparkles, TrendingUp } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 
 const COLORS = ['#6366f1', '#f59e0b', '#10b981', '#ef4444', '#8b5cf6', '#ec4899'];
@@ -15,11 +15,13 @@ export default function ShareOfVoiceCard({ website, keywords, onSaveSov }) {
   const calculateSov = async () => {
     setIsCalculating(true);
 
-    const keywordData = keywords.filter(k => k.website_id === website?.id).map(k => ({
-      keyword: k.keyword,
-      position: k.current_position,
-      volume: k.search_volume
-    }));
+    const keywordData = keywords
+      .filter((k) => k.website_id === website?.id)
+      .map((k) => ({
+        keyword: k.keyword,
+        position: k.current_position,
+        volume: k.search_volume,
+      }));
 
     const analysis = await base44.integrations.Core.InvokeLLM({
       prompt: `Calculate Share of Voice for this website based on keyword rankings.
@@ -35,31 +37,31 @@ Calculate:
 Use CTR curve: Position 1 = 28%, Position 2 = 15%, Position 3 = 11%, etc.`,
       add_context_from_internet: true,
       response_json_schema: {
-        type: "object",
+        type: 'object',
         properties: {
-          sov_percentage: { type: "number" },
-          estimated_traffic: { type: "number" },
-          keywords_in_top_3: { type: "number" },
-          keywords_in_top_10: { type: "number" },
-          keywords_in_top_20: { type: "number" },
+          sov_percentage: { type: 'number' },
+          estimated_traffic: { type: 'number' },
+          keywords_in_top_3: { type: 'number' },
+          keywords_in_top_10: { type: 'number' },
+          keywords_in_top_20: { type: 'number' },
           competitors: {
-            type: "array",
+            type: 'array',
             items: {
-              type: "object",
+              type: 'object',
               properties: {
-                domain: { type: "string" },
-                sov_percentage: { type: "number" }
-              }
-            }
+                domain: { type: 'string' },
+                sov_percentage: { type: 'number' },
+              },
+            },
           },
-          trend: { type: "string" },
-          insights: { type: "array", items: { type: "string" } }
-        }
-      }
+          trend: { type: 'string' },
+          insights: { type: 'array', items: { type: 'string' } },
+        },
+      },
     });
 
     setSovData(analysis);
-    
+
     if (onSaveSov && website?.id) {
       onSaveSov({
         website_id: website.id,
@@ -70,20 +72,22 @@ Use CTR curve: Position 1 = 28%, Position 2 = 15%, Position 3 = 11%, etc.`,
         keywords_in_top_10: analysis.keywords_in_top_10,
         keywords_in_top_20: analysis.keywords_in_top_20,
         estimated_traffic: analysis.estimated_traffic,
-        competitors: analysis.competitors
+        competitors: analysis.competitors,
       });
     }
 
     setIsCalculating(false);
   };
 
-  const chartData = sovData ? [
-    { name: website?.name || 'You', value: sovData.sov_percentage },
-    ...(sovData.competitors?.slice(0, 5).map(c => ({
-      name: c.domain,
-      value: c.sov_percentage
-    })) || [])
-  ] : [];
+  const chartData = sovData
+    ? [
+        { name: website?.name || 'You', value: sovData.sov_percentage },
+        ...(sovData.competitors?.slice(0, 5).map((c) => ({
+          name: c.domain,
+          value: c.sov_percentage,
+        })) || []),
+      ]
+    : [];
 
   return (
     <Card className="border-0 shadow-sm">
@@ -98,8 +102,8 @@ Use CTR curve: Position 1 = 28%, Position 2 = 15%, Position 3 = 11%, etc.`,
               <p className="text-xs text-gray-500">Market visibility analysis</p>
             </div>
           </div>
-          <Button 
-            size="sm" 
+          <Button
+            size="sm"
             onClick={calculateSov}
             disabled={isCalculating || !website}
             className="gap-1 bg-purple-600 hover:bg-purple-700"
@@ -123,13 +127,19 @@ Use CTR curve: Position 1 = 28%, Position 2 = 15%, Position 3 = 11%, etc.`,
           <div className="space-y-4">
             {/* Main SOV */}
             <div className="text-center p-4 bg-gradient-to-r from-purple-50 to-indigo-50 rounded-xl">
-              <p className="text-4xl font-bold text-purple-600">{sovData.sov_percentage?.toFixed(1)}%</p>
+              <p className="text-4xl font-bold text-purple-600">
+                {sovData.sov_percentage?.toFixed(1)}%
+              </p>
               <p className="text-sm text-gray-600">Your Share of Voice</p>
-              <Badge className={`mt-2 ${
-                sovData.trend === 'up' ? 'bg-emerald-100 text-emerald-700' :
-                sovData.trend === 'down' ? 'bg-red-100 text-red-700' :
-                'bg-gray-100 text-gray-700'
-              }`}>
+              <Badge
+                className={`mt-2 ${
+                  sovData.trend === 'up'
+                    ? 'bg-emerald-100 text-emerald-700'
+                    : sovData.trend === 'down'
+                      ? 'bg-red-100 text-red-700'
+                      : 'bg-gray-100 text-gray-700'
+                }`}
+              >
                 <TrendingUp className="w-3 h-3 mr-1" />
                 {sovData.trend || 'Stable'}
               </Badge>
@@ -138,7 +148,9 @@ Use CTR curve: Position 1 = 28%, Position 2 = 15%, Position 3 = 11%, etc.`,
             {/* Ranking Breakdown */}
             <div className="grid grid-cols-3 gap-2">
               <div className="text-center p-2 bg-emerald-50 rounded-lg">
-                <p className="text-lg font-bold text-emerald-600">{sovData.keywords_in_top_3 || 0}</p>
+                <p className="text-lg font-bold text-emerald-600">
+                  {sovData.keywords_in_top_3 || 0}
+                </p>
                 <p className="text-xs text-gray-500">Top 3</p>
               </div>
               <div className="text-center p-2 bg-blue-50 rounded-lg">
@@ -146,7 +158,9 @@ Use CTR curve: Position 1 = 28%, Position 2 = 15%, Position 3 = 11%, etc.`,
                 <p className="text-xs text-gray-500">Top 10</p>
               </div>
               <div className="text-center p-2 bg-amber-50 rounded-lg">
-                <p className="text-lg font-bold text-amber-600">{sovData.keywords_in_top_20 || 0}</p>
+                <p className="text-lg font-bold text-amber-600">
+                  {sovData.keywords_in_top_20 || 0}
+                </p>
                 <p className="text-xs text-gray-500">Top 20</p>
               </div>
             </div>
@@ -180,7 +194,10 @@ Use CTR curve: Position 1 = 28%, Position 2 = 15%, Position 3 = 11%, etc.`,
               {chartData.map((item, idx) => (
                 <div key={idx} className="flex items-center justify-between text-xs">
                   <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full" style={{ backgroundColor: COLORS[idx % COLORS.length] }} />
+                    <div
+                      className="w-2 h-2 rounded-full"
+                      style={{ backgroundColor: COLORS[idx % COLORS.length] }}
+                    />
                     <span className="truncate max-w-[120px]">{item.name}</span>
                   </div>
                   <span className="font-medium">{item.value.toFixed(1)}%</span>
@@ -194,7 +211,9 @@ Use CTR curve: Position 1 = 28%, Position 2 = 15%, Position 3 = 11%, etc.`,
                 <p className="text-xs font-medium text-gray-700 mb-2">Insights</p>
                 <ul className="space-y-1">
                   {sovData.insights.slice(0, 3).map((insight, idx) => (
-                    <li key={idx} className="text-xs text-gray-600">• {insight}</li>
+                    <li key={idx} className="text-xs text-gray-600">
+                      • {insight}
+                    </li>
                   ))}
                 </ul>
               </div>

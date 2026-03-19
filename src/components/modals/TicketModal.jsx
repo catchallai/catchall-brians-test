@@ -1,11 +1,23 @@
 import React, { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { X, Trash2, Search } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { X, Trash2, Search } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 
@@ -21,38 +33,38 @@ export default function TicketModal({ open, onClose, onSave, ticket, isLoading }
     create_date: new Date().toISOString().split('T')[0],
     contact_ids: [],
     company_ids: [],
-    deal_ids: []
+    deal_ids: [],
   });
 
   const [showAssociations, setShowAssociations] = useState({
     contacts: false,
     companies: false,
-    deals: false
+    deals: false,
   });
 
   const [searchTerms, setSearchTerms] = useState({
     contact: '',
     company: '',
-    deal: ''
+    deal: '',
   });
 
   // Fetch data for associations
   const { data: contacts = [] } = useQuery({
     queryKey: ['contacts'],
     queryFn: () => base44.entities.Contact.list(),
-    enabled: open
+    enabled: open,
   });
 
   const { data: companies = [] } = useQuery({
     queryKey: ['companies'],
     queryFn: () => base44.entities.Company.list(),
-    enabled: open
+    enabled: open,
   });
 
   const { data: deals = [] } = useQuery({
     queryKey: ['deals'],
     queryFn: () => base44.entities.Deal.list(),
-    enabled: open
+    enabled: open,
   });
 
   useEffect(() => {
@@ -61,7 +73,7 @@ export default function TicketModal({ open, onClose, onSave, ticket, isLoading }
         ...ticket,
         contact_ids: ticket.contact_ids || [],
         company_ids: ticket.company_ids || [],
-        deal_ids: ticket.deal_ids || []
+        deal_ids: ticket.deal_ids || [],
       });
     } else {
       const ticketNumber = `T-${Date.now()}`;
@@ -77,38 +89,38 @@ export default function TicketModal({ open, onClose, onSave, ticket, isLoading }
         create_date: new Date().toISOString().split('T')[0],
         contact_ids: [],
         company_ids: [],
-        deal_ids: []
+        deal_ids: [],
       });
     }
   }, [ticket, open]);
 
   const handleChange = (field, value) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   const addAssociation = (type, id) => {
     const field = `${type}_ids`;
     if (!formData[field].includes(id)) {
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
-        [field]: [...prev[field], id]
+        [field]: [...prev[field], id],
       }));
     }
   };
 
   const removeAssociation = (type, id) => {
     const field = `${type}_ids`;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [field]: prev[field].filter(item => item !== id)
+      [field]: prev[field].filter((item) => item !== id),
     }));
   };
 
   const getFilteredItems = (items, searchTerm, nameField) => {
     if (!searchTerm) return items.slice(0, 5);
-    return items.filter(item => 
-      item[nameField]?.toLowerCase().includes(searchTerm.toLowerCase())
-    ).slice(0, 10);
+    return items
+      .filter((item) => item[nameField]?.toLowerCase().includes(searchTerm.toLowerCase()))
+      .slice(0, 10);
   };
 
   const handleSubmit = (e) => {
@@ -121,16 +133,11 @@ export default function TicketModal({ open, onClose, onSave, ticket, isLoading }
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-xl font-semibold">Create Ticket</DialogTitle>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="absolute right-4 top-4"
-            onClick={onClose}
-          >
+          <Button variant="ghost" size="icon" className="absolute right-4 top-4" onClick={onClose}>
             <X className="w-4 h-4" />
           </Button>
         </DialogHeader>
-        
+
         <form onSubmit={handleSubmit} className="space-y-4 pt-4">
           <div className="space-y-2">
             <Label htmlFor="ticket_name">
@@ -148,7 +155,10 @@ export default function TicketModal({ open, onClose, onSave, ticket, isLoading }
             <Label htmlFor="pipeline">
               Pipeline <span className="text-red-500">*</span>
             </Label>
-            <Select value={formData.pipeline} onValueChange={(value) => handleChange('pipeline', value)}>
+            <Select
+              value={formData.pipeline}
+              onValueChange={(value) => handleChange('pipeline', value)}
+            >
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
@@ -165,7 +175,10 @@ export default function TicketModal({ open, onClose, onSave, ticket, isLoading }
             <Label htmlFor="status">
               Ticket status <span className="text-red-500">*</span>
             </Label>
-            <Select value={formData.status} onValueChange={(value) => handleChange('status', value)}>
+            <Select
+              value={formData.status}
+              onValueChange={(value) => handleChange('status', value)}
+            >
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
@@ -191,7 +204,10 @@ export default function TicketModal({ open, onClose, onSave, ticket, isLoading }
 
           <div className="space-y-2">
             <Label htmlFor="source">Source</Label>
-            <Select value={formData.source} onValueChange={(value) => handleChange('source', value)}>
+            <Select
+              value={formData.source}
+              onValueChange={(value) => handleChange('source', value)}
+            >
               <SelectTrigger>
                 <SelectValue placeholder="Select source" />
               </SelectTrigger>
@@ -218,7 +234,10 @@ export default function TicketModal({ open, onClose, onSave, ticket, isLoading }
 
           <div className="space-y-2">
             <Label htmlFor="priority">Priority</Label>
-            <Select value={formData.priority} onValueChange={(value) => handleChange('priority', value)}>
+            <Select
+              value={formData.priority}
+              onValueChange={(value) => handleChange('priority', value)}
+            >
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
@@ -243,16 +262,21 @@ export default function TicketModal({ open, onClose, onSave, ticket, isLoading }
 
           <div className="border-t pt-4 space-y-4">
             <Label className="text-base font-semibold">Associate Ticket with</Label>
-            
+
             {/* Contacts Association */}
             <div className="space-y-2">
               {formData.contact_ids.length > 0 && (
                 <div className="space-y-1 mb-2">
-                  {formData.contact_ids.map(contactId => {
-                    const contact = contacts.find(c => c.id === contactId);
+                  {formData.contact_ids.map((contactId) => {
+                    const contact = contacts.find((c) => c.id === contactId);
                     return contact ? (
-                      <div key={contactId} className="flex items-center justify-between bg-gray-50 dark:bg-slate-800 p-2 rounded">
-                        <span className="text-sm">{contact.first_name} {contact.last_name}</span>
+                      <div
+                        key={contactId}
+                        className="flex items-center justify-between bg-gray-50 dark:bg-slate-800 p-2 rounded"
+                      >
+                        <span className="text-sm">
+                          {contact.first_name} {contact.last_name}
+                        </span>
                         <Button
                           type="button"
                           size="sm"
@@ -268,7 +292,9 @@ export default function TicketModal({ open, onClose, onSave, ticket, isLoading }
               )}
               <button
                 type="button"
-                onClick={() => setShowAssociations(prev => ({ ...prev, contacts: !prev.contacts }))}
+                onClick={() =>
+                  setShowAssociations((prev) => ({ ...prev, contacts: !prev.contacts }))
+                }
                 className="text-sm text-blue-600 hover:text-blue-700 font-medium"
               >
                 + Contacts
@@ -280,23 +306,27 @@ export default function TicketModal({ open, onClose, onSave, ticket, isLoading }
                     <Input
                       placeholder="Search contacts..."
                       value={searchTerms.contact}
-                      onChange={(e) => setSearchTerms(prev => ({ ...prev, contact: e.target.value }))}
+                      onChange={(e) =>
+                        setSearchTerms((prev) => ({ ...prev, contact: e.target.value }))
+                      }
                       className="pl-8 h-8 text-sm"
                     />
                   </div>
-                  {getFilteredItems(contacts, searchTerms.contact, 'first_name').map(contact => (
+                  {getFilteredItems(contacts, searchTerms.contact, 'first_name').map((contact) => (
                     <button
                       key={contact.id}
                       type="button"
                       onClick={() => {
                         addAssociation('contact', contact.id);
-                        setShowAssociations(prev => ({ ...prev, contacts: false }));
-                        setSearchTerms(prev => ({ ...prev, contact: '' }));
+                        setShowAssociations((prev) => ({ ...prev, contacts: false }));
+                        setSearchTerms((prev) => ({ ...prev, contact: '' }));
                       }}
                       className="w-full text-left text-sm p-2 hover:bg-gray-100 dark:hover:bg-slate-700 rounded"
                     >
                       {contact.first_name} {contact.last_name}
-                      {contact.email && <span className="text-gray-500 ml-2">({contact.email})</span>}
+                      {contact.email && (
+                        <span className="text-gray-500 ml-2">({contact.email})</span>
+                      )}
                     </button>
                   ))}
                 </div>
@@ -307,10 +337,13 @@ export default function TicketModal({ open, onClose, onSave, ticket, isLoading }
             <div className="space-y-2">
               {formData.company_ids.length > 0 && (
                 <div className="space-y-1 mb-2">
-                  {formData.company_ids.map(companyId => {
-                    const company = companies.find(c => c.id === companyId);
+                  {formData.company_ids.map((companyId) => {
+                    const company = companies.find((c) => c.id === companyId);
                     return company ? (
-                      <div key={companyId} className="flex items-center justify-between bg-gray-50 dark:bg-slate-800 p-2 rounded">
+                      <div
+                        key={companyId}
+                        className="flex items-center justify-between bg-gray-50 dark:bg-slate-800 p-2 rounded"
+                      >
                         <span className="text-sm">{company.name}</span>
                         <Button
                           type="button"
@@ -327,7 +360,9 @@ export default function TicketModal({ open, onClose, onSave, ticket, isLoading }
               )}
               <button
                 type="button"
-                onClick={() => setShowAssociations(prev => ({ ...prev, companies: !prev.companies }))}
+                onClick={() =>
+                  setShowAssociations((prev) => ({ ...prev, companies: !prev.companies }))
+                }
                 className="text-sm text-blue-600 hover:text-blue-700 font-medium"
               >
                 + Companies
@@ -339,18 +374,20 @@ export default function TicketModal({ open, onClose, onSave, ticket, isLoading }
                     <Input
                       placeholder="Search companies..."
                       value={searchTerms.company}
-                      onChange={(e) => setSearchTerms(prev => ({ ...prev, company: e.target.value }))}
+                      onChange={(e) =>
+                        setSearchTerms((prev) => ({ ...prev, company: e.target.value }))
+                      }
                       className="pl-8 h-8 text-sm"
                     />
                   </div>
-                  {getFilteredItems(companies, searchTerms.company, 'name').map(company => (
+                  {getFilteredItems(companies, searchTerms.company, 'name').map((company) => (
                     <button
                       key={company.id}
                       type="button"
                       onClick={() => {
                         addAssociation('company', company.id);
-                        setShowAssociations(prev => ({ ...prev, companies: false }));
-                        setSearchTerms(prev => ({ ...prev, company: '' }));
+                        setShowAssociations((prev) => ({ ...prev, companies: false }));
+                        setSearchTerms((prev) => ({ ...prev, company: '' }));
                       }}
                       className="w-full text-left text-sm p-2 hover:bg-gray-100 dark:hover:bg-slate-700 rounded"
                     >
@@ -365,10 +402,13 @@ export default function TicketModal({ open, onClose, onSave, ticket, isLoading }
             <div className="space-y-2">
               {formData.deal_ids.length > 0 && (
                 <div className="space-y-1 mb-2">
-                  {formData.deal_ids.map(dealId => {
-                    const deal = deals.find(d => d.id === dealId);
+                  {formData.deal_ids.map((dealId) => {
+                    const deal = deals.find((d) => d.id === dealId);
                     return deal ? (
-                      <div key={dealId} className="flex items-center justify-between bg-gray-50 dark:bg-slate-800 p-2 rounded">
+                      <div
+                        key={dealId}
+                        className="flex items-center justify-between bg-gray-50 dark:bg-slate-800 p-2 rounded"
+                      >
                         <span className="text-sm">{deal.title}</span>
                         <Button
                           type="button"
@@ -385,7 +425,7 @@ export default function TicketModal({ open, onClose, onSave, ticket, isLoading }
               )}
               <button
                 type="button"
-                onClick={() => setShowAssociations(prev => ({ ...prev, deals: !prev.deals }))}
+                onClick={() => setShowAssociations((prev) => ({ ...prev, deals: !prev.deals }))}
                 className="text-sm text-blue-600 hover:text-blue-700 font-medium"
               >
                 + Deals
@@ -397,18 +437,20 @@ export default function TicketModal({ open, onClose, onSave, ticket, isLoading }
                     <Input
                       placeholder="Search deals..."
                       value={searchTerms.deal}
-                      onChange={(e) => setSearchTerms(prev => ({ ...prev, deal: e.target.value }))}
+                      onChange={(e) =>
+                        setSearchTerms((prev) => ({ ...prev, deal: e.target.value }))
+                      }
                       className="pl-8 h-8 text-sm"
                     />
                   </div>
-                  {getFilteredItems(deals, searchTerms.deal, 'title').map(deal => (
+                  {getFilteredItems(deals, searchTerms.deal, 'title').map((deal) => (
                     <button
                       key={deal.id}
                       type="button"
                       onClick={() => {
                         addAssociation('deal', deal.id);
-                        setShowAssociations(prev => ({ ...prev, deals: false }));
-                        setSearchTerms(prev => ({ ...prev, deal: '' }));
+                        setShowAssociations((prev) => ({ ...prev, deals: false }));
+                        setSearchTerms((prev) => ({ ...prev, deal: '' }));
                       }}
                       className="w-full text-left text-sm p-2 hover:bg-gray-100 dark:hover:bg-slate-700 rounded"
                     >
@@ -425,18 +467,10 @@ export default function TicketModal({ open, onClose, onSave, ticket, isLoading }
             <Button type="button" variant="outline" onClick={onClose}>
               Cancel
             </Button>
-            <Button 
-              type="submit" 
-              disabled={isLoading}
-              className="bg-teal-600 hover:bg-teal-700"
-            >
+            <Button type="submit" disabled={isLoading} className="bg-teal-600 hover:bg-teal-700">
               {isLoading ? 'Creating...' : 'Create'}
             </Button>
-            <Button 
-              type="button" 
-              variant="outline"
-              disabled={isLoading}
-            >
+            <Button type="button" variant="outline" disabled={isLoading}>
               Create and add another
             </Button>
           </DialogFooter>

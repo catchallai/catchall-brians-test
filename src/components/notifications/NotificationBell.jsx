@@ -1,17 +1,22 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { 
-  Bell, TrendingUp, TrendingDown, Link2, MessageSquare, 
-  FileText, Users, AlertTriangle, CheckCircle, X, Settings
+  Bell,
+  TrendingUp,
+  TrendingDown,
+  Link2,
+  MessageSquare,
+  FileText,
+  Users,
+  AlertTriangle,
+  CheckCircle,
+  X,
+  Settings,
 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 
@@ -50,7 +55,7 @@ export default function NotificationBell() {
 
   const markAllReadMutation = useMutation({
     mutationFn: async () => {
-      const unread = notifications.filter(n => !n.is_read);
+      const unread = notifications.filter((n) => !n.is_read);
       for (const n of unread) {
         await base44.entities.Notification.update(n.id, { is_read: true });
       }
@@ -63,7 +68,7 @@ export default function NotificationBell() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['notifications'] }),
   });
 
-  const unreadCount = notifications.filter(n => !n.is_read).length;
+  const unreadCount = notifications.filter((n) => !n.is_read).length;
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -81,9 +86,9 @@ export default function NotificationBell() {
         <div className="flex items-center justify-between p-3 border-b dark:border-gray-700">
           <h3 className="font-semibold text-gray-900 dark:text-white">Notifications</h3>
           {unreadCount > 0 && (
-            <Button 
-              variant="ghost" 
-              size="sm" 
+            <Button
+              variant="ghost"
+              size="sm"
               className="text-xs"
               onClick={() => markAllReadMutation.mutate()}
             >
@@ -102,7 +107,7 @@ export default function NotificationBell() {
               {notifications.slice(0, 20).map((notification) => {
                 const Icon = notificationIcons[notification.type] || Bell;
                 return (
-                  <div 
+                  <div
                     key={notification.id}
                     className={`p-3 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors ${
                       !notification.is_read ? 'bg-blue-50/50 dark:bg-blue-900/10' : ''
@@ -133,7 +138,9 @@ export default function NotificationBell() {
                           {notification.message}
                         </p>
                         <p className="text-xs text-gray-400 mt-1">
-                          {formatDistanceToNow(new Date(notification.created_date), { addSuffix: true })}
+                          {formatDistanceToNow(new Date(notification.created_date), {
+                            addSuffix: true,
+                          })}
                         </p>
                       </div>
                     </div>

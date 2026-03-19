@@ -1,10 +1,16 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Upload, FileText, Check, AlertCircle, Loader2 } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { Upload, FileText, Check, AlertCircle, Loader2 } from 'lucide-react';
 import Papa from 'papaparse';
 
 export default function ImportAviationDataModal({ open, onClose }) {
@@ -83,8 +89,12 @@ export default function ImportAviationDataModal({ open, onClose }) {
                 <div className="flex items-center gap-2">
                   <Check className="w-5 h-5 text-emerald-600" />
                   <div>
-                    <p className="font-medium text-emerald-900 dark:text-emerald-100">{file?.name}</p>
-                    <p className="text-sm text-emerald-800 dark:text-emerald-200">{csvData.length} rows ready to import</p>
+                    <p className="font-medium text-emerald-900 dark:text-emerald-100">
+                      {file?.name}
+                    </p>
+                    <p className="text-sm text-emerald-800 dark:text-emerald-200">
+                      {csvData.length} rows ready to import
+                    </p>
                   </div>
                 </div>
               </Card>
@@ -107,14 +117,19 @@ export default function ImportAviationDataModal({ open, onClose }) {
             </div>
             <p className="font-semibold text-gray-900 dark:text-white">Import Complete!</p>
             <p className="text-sm text-gray-500 mt-1">
-              {importMutation.data?.companiesCreated} companies and {importMutation.data?.contactsCreated} contacts created
+              {importMutation.data?.companiesCreated} companies and{' '}
+              {importMutation.data?.contactsCreated} contacts created
             </p>
             {importMutation.data?.errors?.length > 0 && (
               <div className="mt-4 w-full">
-                <p className="text-sm font-medium text-amber-900 dark:text-amber-100 mb-2">Warnings:</p>
+                <p className="text-sm font-medium text-amber-900 dark:text-amber-100 mb-2">
+                  Warnings:
+                </p>
                 <div className="max-h-32 overflow-y-auto space-y-1">
                   {importMutation.data.errors.map((err, i) => (
-                    <p key={i} className="text-xs text-amber-700 dark:text-amber-200">{err}</p>
+                    <p key={i} className="text-xs text-amber-700 dark:text-amber-200">
+                      {err}
+                    </p>
                   ))}
                 </div>
               </div>

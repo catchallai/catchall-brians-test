@@ -1,14 +1,24 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card } from "@/components/ui/card";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { 
-  Presentation, Plus, Save, Download, Eye, Loader2, 
-  Palette, Layout, Sparkles, FileText, FolderOpen, BookmarkPlus
-} from "lucide-react";
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Card } from '@/components/ui/card';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import {
+  Presentation,
+  Plus,
+  Save,
+  Download,
+  Eye,
+  Loader2,
+  Palette,
+  Layout,
+  Sparkles,
+  FileText,
+  FolderOpen,
+  BookmarkPlus,
+} from 'lucide-react';
 import BrandingPanel from '@/components/pitch/BrandingPanel';
 import SlideTemplates from '@/components/pitch/SlideTemplates';
 import SlideEditor from '@/components/pitch/SlideEditor';
@@ -33,7 +43,7 @@ export default function PitchDeckCreator() {
     background_color: '#ffffff',
     font_heading: 'Inter',
     font_body: 'Inter',
-    logo_url: ''
+    logo_url: '',
   });
   const [deckTitle, setDeckTitle] = useState('');
   const [companyName, setCompanyName] = useState('');
@@ -101,7 +111,7 @@ export default function PitchDeckCreator() {
       background_color: '#ffffff',
       font_heading: 'Inter',
       font_body: 'Inter',
-      logo_url: ''
+      logo_url: '',
     });
   };
 
@@ -129,7 +139,7 @@ export default function PitchDeckCreator() {
       title: block.name,
       content: block.default_content,
       layout: block.layout,
-      order: slides.length
+      order: slides.length,
     };
     setSlides([...slides, newSlide]);
   };
@@ -150,7 +160,7 @@ export default function PitchDeckCreator() {
       type: template.id,
       title: template.title,
       content: {},
-      order: slides.length
+      order: slides.length,
     };
     setSlides([...slides, newSlide]);
   };
@@ -190,18 +200,18 @@ Current Content: ${JSON.stringify(slide.content)}
 
 Provide enhanced content with better wording, more impact, and professional tone.`,
         response_json_schema: {
-          type: "object",
+          type: 'object',
           properties: {
-            title: { type: "string" },
-            content: { type: "object" }
-          }
-        }
+            title: { type: 'string' },
+            content: { type: 'object' },
+          },
+        },
       });
 
       handleUpdateSlide(index, {
         ...slide,
         title: enhanced.title,
-        content: enhanced.content
+        content: enhanced.content,
       });
     } catch (error) {
       console.error('AI enhancement failed:', error);
@@ -215,7 +225,7 @@ Provide enhanced content with better wording, more impact, and professional tone
       slides,
       branding,
       status: 'draft',
-      last_edited: new Date().toISOString()
+      last_edited: new Date().toISOString(),
     };
     const result = await saveDeckMutation.mutateAsync(data);
     setSelectedDeck(result);
@@ -228,11 +238,11 @@ Provide enhanced content with better wording, more impact, and professional tone
       if (!deckToExport) {
         deckToExport = await handleSave();
       }
-      
-      const response = await base44.functions.invoke('exportPitchDeckPDF', { 
-        deckId: deckToExport.id 
+
+      const response = await base44.functions.invoke('exportPitchDeckPDF', {
+        deckId: deckToExport.id,
       });
-      
+
       const blob = new Blob([response.data], { type: 'application/pdf' });
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -253,13 +263,13 @@ Provide enhanced content with better wording, more impact, and professional tone
       if (!deckToExport) {
         deckToExport = await handleSave();
       }
-      
-      const response = await base44.functions.invoke('exportPitchDeckPPTX', { 
-        deckId: deckToExport.id 
+
+      const response = await base44.functions.invoke('exportPitchDeckPPTX', {
+        deckId: deckToExport.id,
       });
-      
-      const blob = new Blob([response.data], { 
-        type: 'application/vnd.openxmlformats-officedocument.presentationml.presentation' 
+
+      const blob = new Blob([response.data], {
+        type: 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
       });
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -280,7 +290,7 @@ Provide enhanced content with better wording, more impact, and professional tone
         ...branding,
         primary_color: brand.brand_colors.primary,
         secondary_color: brand.brand_colors.secondary || brand.brand_colors.primary,
-        logo_url: brand.logo_url || ''
+        logo_url: brand.logo_url || '',
       });
     }
     setCompanyName(brand.name || '');
@@ -300,21 +310,13 @@ Provide enhanced content with better wording, more impact, and professional tone
               className="w-64 font-semibold border-0 bg-transparent focus-visible:ring-0"
             />
           </div>
-          
+
           <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setShowTemplateLibrary(true)}
-            >
+            <Button variant="outline" size="sm" onClick={() => setShowTemplateLibrary(true)}>
               <FolderOpen className="w-4 h-4 mr-2" />
               Templates
             </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleNewDeck}
-            >
+            <Button variant="outline" size="sm" onClick={handleNewDeck}>
               <Plus className="w-4 h-4 mr-2" />
               New
             </Button>
@@ -352,9 +354,13 @@ Provide enhanced content with better wording, more impact, and professional tone
               className="bg-violet-600 hover:bg-violet-700"
             >
               {saveDeckMutation.isPending ? (
-                <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Saving...</>
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" /> Saving...
+                </>
               ) : (
-                <><Save className="w-4 h-4 mr-2" /> Save</>
+                <>
+                  <Save className="w-4 h-4 mr-2" /> Save
+                </>
               )}
             </Button>
             <div className="flex items-center gap-1">
@@ -387,7 +393,9 @@ Provide enhanced content with better wording, more impact, and professional tone
           <div className="lg:col-span-3 space-y-4">
             {/* Company Info */}
             <Card className="p-4 bg-white dark:bg-gray-800">
-              <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">Company Info</h3>
+              <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">
+                Company Info
+              </h3>
               <div className="space-y-3">
                 <div>
                   <label className="text-xs text-gray-500">Company Name</label>
@@ -402,7 +410,7 @@ Provide enhanced content with better wording, more impact, and professional tone
                   <div>
                     <label className="text-xs text-gray-500 mb-2 block">Load from Brand</label>
                     <div className="space-y-1">
-                      {brands.slice(0, 3).map(brand => (
+                      {brands.slice(0, 3).map((brand) => (
                         <Button
                           key={brand.id}
                           variant="outline"
@@ -429,7 +437,9 @@ Provide enhanced content with better wording, more impact, and professional tone
 
             {/* Custom Blocks */}
             <Card className="p-4 bg-white dark:bg-gray-800">
-              <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">Custom Blocks</h3>
+              <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">
+                Custom Blocks
+              </h3>
               <div className="space-y-2">
                 <Button
                   variant="outline"
@@ -460,23 +470,24 @@ Provide enhanced content with better wording, more impact, and professional tone
             />
 
             {/* Collaboration */}
-            <CollaborationPanel 
-              collaborators={[]}
-              currentUser={user}
-            />
+            <CollaborationPanel collaborators={[]} currentUser={user} />
 
             {/* Saved Decks */}
             {decks.length > 0 && (
               <Card className="p-4 bg-white dark:bg-gray-800">
-                <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">Recent Decks</h3>
+                <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">
+                  Recent Decks
+                </h3>
                 <div className="space-y-2">
-                  {decks.slice(0, 5).map(deck => (
+                  {decks.slice(0, 5).map((deck) => (
                     <button
                       key={deck.id}
                       onClick={() => handleLoadDeck(deck)}
                       className="w-full text-left p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-sm"
                     >
-                      <p className="font-medium text-gray-900 dark:text-white truncate">{deck.title}</p>
+                      <p className="font-medium text-gray-900 dark:text-white truncate">
+                        {deck.title}
+                      </p>
                       <p className="text-xs text-gray-500">{deck.slides?.length || 0} slides</p>
                     </button>
                   ))}
@@ -508,9 +519,7 @@ Provide enhanced content with better wording, more impact, and professional tone
                     </TabsList>
                   </Tabs>
                   {viewMode === 'editor' && editingSlideIndex !== null && (
-                    <p className="text-sm text-gray-500">
-                      Editing: Slide {editingSlideIndex + 1}
-                    </p>
+                    <p className="text-sm text-gray-500">Editing: Slide {editingSlideIndex + 1}</p>
                   )}
                 </div>
 
@@ -552,7 +561,9 @@ Provide enhanced content with better wording, more impact, and professional tone
                           slide={slides[editingSlideIndex]}
                           companyName={companyName}
                           industry={selectedDeck?.industry}
-                          onApplySuggestion={(updated) => handleUpdateSlide(editingSlideIndex, updated)}
+                          onApplySuggestion={(updated) =>
+                            handleUpdateSlide(editingSlideIndex, updated)
+                          }
                         />
                       </div>
                     </div>

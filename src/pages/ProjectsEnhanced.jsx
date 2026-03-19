@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Plus, LayoutGrid, List, CalendarDays, Users, Zap } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Plus, LayoutGrid, List, CalendarDays, Users, Zap } from 'lucide-react';
 
 import SprintBoard from '@/components/projects/SprintBoard.jsx';
 import GanttChart from '@/components/projects/GanttChart.jsx';
@@ -21,41 +21,38 @@ export default function ProjectsEnhanced() {
 
   const { data: projects = [] } = useQuery({
     queryKey: ['projects'],
-    queryFn: () => base44.entities.Project.list('-created_date', 50)
+    queryFn: () => base44.entities.Project.list('-created_date', 50),
   });
 
   const { data: tasks = [] } = useQuery({
     queryKey: ['tasks', selectedProject?.id],
-    queryFn: () => selectedProject
-      ? base44.entities.Task.filter({ project_id: selectedProject.id })
-      : [],
-    enabled: !!selectedProject
+    queryFn: () =>
+      selectedProject ? base44.entities.Task.filter({ project_id: selectedProject.id }) : [],
+    enabled: !!selectedProject,
   });
 
   const { data: sprints = [] } = useQuery({
     queryKey: ['sprints', selectedProject?.id],
-    queryFn: () => selectedProject
-      ? base44.entities.Sprint.filter({ project_id: selectedProject.id })
-      : [],
-    enabled: !!selectedProject
+    queryFn: () =>
+      selectedProject ? base44.entities.Sprint.filter({ project_id: selectedProject.id }) : [],
+    enabled: !!selectedProject,
   });
 
   const { data: workloads = [] } = useQuery({
     queryKey: ['workloads'],
-    queryFn: () => base44.entities.Workload.list('-week_start', 20)
+    queryFn: () => base44.entities.Workload.list('-week_start', 20),
   });
 
   const { data: timeLogs = [] } = useQuery({
     queryKey: ['time-logs'],
-    queryFn: () => base44.entities.TimeLog.list('-date', 100)
+    queryFn: () => base44.entities.TimeLog.list('-date', 100),
   });
 
   const { data: epics = [] } = useQuery({
     queryKey: ['epics', selectedProject?.id],
-    queryFn: () => selectedProject
-      ? base44.entities.Epic.filter({ project_id: selectedProject.id })
-      : [],
-    enabled: !!selectedProject
+    queryFn: () =>
+      selectedProject ? base44.entities.Epic.filter({ project_id: selectedProject.id }) : [],
+    enabled: !!selectedProject,
   });
 
   const createSprintMutation = useMutation({
@@ -70,12 +67,12 @@ export default function ProjectsEnhanced() {
         goal: 'Deliver key features and improvements',
         start_date: startDate.toISOString().split('T')[0],
         end_date: endDate.toISOString().split('T')[0],
-        capacity: 80
+        capacity: 80,
       });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['sprints'] });
-    }
+    },
   });
 
   if (!selectedProject) {
@@ -102,7 +99,9 @@ export default function ProjectsEnhanced() {
                 <CardTitle>{project.name}</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">{project.description}</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                  {project.description}
+                </p>
                 <div className="flex gap-2">
                   <Badge variant="outline">{project.status}</Badge>
                 </div>
@@ -114,18 +113,18 @@ export default function ProjectsEnhanced() {
     );
   }
 
-  const activeSprint = sprints.find(s => s.status === 'active');
+  const activeSprint = sprints.find((s) => s.status === 'active');
   const totalHours = timeLogs.reduce((sum, log) => sum + (log.hours || 0), 0);
-  
+
   // Calculate metrics
-  const completedTasks = tasks.filter(t => t.status === 'done').length;
-  const inProgressTasks = tasks.filter(t => t.status === 'in_progress').length;
-  const todoTasks = tasks.filter(t => t.status === 'todo').length;
-  const completionRate = tasks.length > 0 ? (completedTasks / tasks.length * 100).toFixed(0) : 0;
-  
+  const completedTasks = tasks.filter((t) => t.status === 'done').length;
+  const inProgressTasks = tasks.filter((t) => t.status === 'in_progress').length;
+  const todoTasks = tasks.filter((t) => t.status === 'todo').length;
+  const completionRate = tasks.length > 0 ? ((completedTasks / tasks.length) * 100).toFixed(0) : 0;
+
   const totalBudget = selectedProject.budget || 0;
   const spentBudget = selectedProject.budget_spent || 0;
-  const budgetPercentage = totalBudget > 0 ? (spentBudget / totalBudget * 100).toFixed(0) : 0;
+  const budgetPercentage = totalBudget > 0 ? ((spentBudget / totalBudget) * 100).toFixed(0) : 0;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
@@ -133,15 +132,21 @@ export default function ProjectsEnhanced() {
       <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-4">
         <div className="flex items-center justify-between max-w-7xl mx-auto">
           <div className="flex items-center gap-3">
-            <Button variant="ghost" size="sm" onClick={() => setSelectedProject(null)}>← Back</Button>
+            <Button variant="ghost" size="sm" onClick={() => setSelectedProject(null)}>
+              ← Back
+            </Button>
             <div>
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{selectedProject.name}</h1>
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+                {selectedProject.name}
+              </h1>
               <p className="text-sm text-gray-500">{selectedProject.description}</p>
             </div>
           </div>
-          
+
           <div className="flex gap-2">
-            <Button variant="outline" size="sm">Share</Button>
+            <Button variant="outline" size="sm">
+              Share
+            </Button>
             <Button size="sm" className="bg-blue-600 hover:bg-blue-700">
               <Plus className="w-4 h-4 mr-2" /> Add Task
             </Button>
@@ -156,7 +161,9 @@ export default function ProjectsEnhanced() {
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">Project Budget</p>
+                  <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">
+                    Project Budget
+                  </p>
                   <p className="text-2xl font-bold">${(totalBudget / 1000).toFixed(0)}k</p>
                   <p className="text-xs text-gray-400">/ month</p>
                 </div>
@@ -194,7 +201,9 @@ export default function ProjectsEnhanced() {
                   <div className="absolute inset-0 flex items-center justify-center">
                     <div className="text-center">
                       <p className="text-2xl font-bold text-blue-600">{completionRate}%</p>
-                      <p className="text-xs text-gray-400">{completedTasks} of {tasks.length}</p>
+                      <p className="text-xs text-gray-400">
+                        {completedTasks} of {tasks.length}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -255,7 +264,10 @@ export default function ProjectsEnhanced() {
                       <span className="font-medium">{completedTasks} tasks</span>
                     </div>
                     <div className="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-2">
-                      <div className="bg-green-500 h-2 rounded-full" style={{ width: `${completionRate}%` }} />
+                      <div
+                        className="bg-green-500 h-2 rounded-full"
+                        style={{ width: `${completionRate}%` }}
+                      />
                     </div>
                   </div>
                 </div>
@@ -274,10 +286,13 @@ export default function ProjectsEnhanced() {
                   <p className="text-sm text-gray-500 text-center py-4">No epics yet</p>
                 ) : (
                   epics.map((epic) => {
-                    const epicTasks = tasks.filter(t => t.epic_id === epic.id);
-                    const epicCompleted = epicTasks.filter(t => t.status === 'done').length;
-                    const epicProgress = epicTasks.length > 0 ? (epicCompleted / epicTasks.length * 100).toFixed(0) : 0;
-                    
+                    const epicTasks = tasks.filter((t) => t.epic_id === epic.id);
+                    const epicCompleted = epicTasks.filter((t) => t.status === 'done').length;
+                    const epicProgress =
+                      epicTasks.length > 0
+                        ? ((epicCompleted / epicTasks.length) * 100).toFixed(0)
+                        : 0;
+
                     return (
                       <div key={epic.id} className="border-l-4 border-blue-500 pl-4 py-2">
                         <div className="flex items-center justify-between mb-2">
@@ -290,7 +305,10 @@ export default function ProjectsEnhanced() {
                           </div>
                         </div>
                         <div className="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-2">
-                          <div className="bg-blue-500 h-2 rounded-full transition-all" style={{ width: `${epicProgress}%` }} />
+                          <div
+                            className="bg-blue-500 h-2 rounded-full transition-all"
+                            style={{ width: `${epicProgress}%` }}
+                          />
                         </div>
                         {epic.target_date && (
                           <p className="text-xs text-gray-400 mt-2">
@@ -324,11 +342,15 @@ export default function ProjectsEnhanced() {
                     <div className="flex gap-4 text-sm">
                       <div>
                         <p className="text-gray-500">Start</p>
-                        <p className="font-medium">{new Date(activeSprint.start_date).toLocaleDateString()}</p>
+                        <p className="font-medium">
+                          {new Date(activeSprint.start_date).toLocaleDateString()}
+                        </p>
                       </div>
                       <div>
                         <p className="text-gray-500">End</p>
-                        <p className="font-medium">{new Date(activeSprint.end_date).toLocaleDateString()}</p>
+                        <p className="font-medium">
+                          {new Date(activeSprint.end_date).toLocaleDateString()}
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -349,10 +371,13 @@ export default function ProjectsEnhanced() {
               <CardContent>
                 <div className="space-y-3">
                   {tasks
-                    .filter(t => t.status !== 'done')
+                    .filter((t) => t.status !== 'done')
                     .slice(0, 5)
                     .map((task) => (
-                      <div key={task.id} className="flex items-start gap-3 p-2 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors">
+                      <div
+                        key={task.id}
+                        className="flex items-start gap-3 p-2 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                      >
                         <div className="flex-1">
                           <p className="text-sm font-medium">{task.title}</p>
                           <div className="flex items-center gap-2 mt-1">
@@ -360,7 +385,9 @@ export default function ProjectsEnhanced() {
                               {task.priority}
                             </Badge>
                             {task.assigned_to && (
-                              <span className="text-xs text-gray-500">{task.assigned_to.split('@')[0]}</span>
+                              <span className="text-xs text-gray-500">
+                                {task.assigned_to.split('@')[0]}
+                              </span>
                             )}
                           </div>
                         </div>

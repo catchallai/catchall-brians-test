@@ -1,8 +1,8 @@
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Calendar, Clock, Image, Video, ArrowRight } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Calendar, Clock, Image, Video, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import moment from 'moment';
@@ -13,17 +13,17 @@ const platformIcons = {
   twitter: '𝕏',
   linkedin: '💼',
   tiktok: '🎵',
-  youtube: '▶️'
+  youtube: '▶️',
 };
 
 export default function UpcomingPosts({ posts = [], brands = [] }) {
   const upcomingPosts = posts
-    .filter(p => p.status !== 'published' && p.scheduled_date)
+    .filter((p) => p.status !== 'published' && p.scheduled_date)
     .sort((a, b) => new Date(a.scheduled_date) - new Date(b.scheduled_date))
     .slice(0, 5);
 
   const getBrandForPost = (post) => {
-    return brands.find(b => b.id === post.brand_id);
+    return brands.find((b) => b.id === post.brand_id);
   };
 
   if (upcomingPosts.length === 0) {
@@ -65,8 +65,8 @@ export default function UpcomingPosts({ posts = [], brands = [] }) {
         {upcomingPosts.map((post) => {
           const brand = getBrandForPost(post);
           return (
-            <div 
-              key={post.id} 
+            <div
+              key={post.id}
               className="p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors"
               style={{ borderLeft: brand ? `4px solid ${brand.color}` : '4px solid #e5e7eb' }}
             >
@@ -74,9 +74,13 @@ export default function UpcomingPosts({ posts = [], brands = [] }) {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
                     {brand && (
-                      <Badge 
-                        className="text-xs" 
-                        style={{ backgroundColor: `${brand.color}20`, color: brand.color, border: `1px solid ${brand.color}40` }}
+                      <Badge
+                        className="text-xs"
+                        style={{
+                          backgroundColor: `${brand.color}20`,
+                          color: brand.color,
+                          border: `1px solid ${brand.color}40`,
+                        }}
                       >
                         {brand.name}
                       </Badge>
@@ -88,7 +92,9 @@ export default function UpcomingPosts({ posts = [], brands = [] }) {
                   <div className="flex items-center gap-2 mt-1">
                     <div className="flex gap-1">
                       {post.platforms?.slice(0, 3).map((platform, idx) => (
-                        <span key={idx} className="text-xs">{platformIcons[platform] || '📱'}</span>
+                        <span key={idx} className="text-xs">
+                          {platformIcons[platform] || '📱'}
+                        </span>
                       ))}
                     </div>
                     <span className="text-xs text-gray-400">•</span>
@@ -98,11 +104,15 @@ export default function UpcomingPosts({ posts = [], brands = [] }) {
                     </span>
                   </div>
                 </div>
-                <Badge className={
-                  post.status === 'approved' ? 'bg-emerald-100 text-emerald-700' :
-                  post.status === 'pending_approval' ? 'bg-amber-100 text-amber-700' :
-                  'bg-gray-100 text-gray-700'
-                }>
+                <Badge
+                  className={
+                    post.status === 'approved'
+                      ? 'bg-emerald-100 text-emerald-700'
+                      : post.status === 'pending_approval'
+                        ? 'bg-amber-100 text-amber-700'
+                        : 'bg-gray-100 text-gray-700'
+                  }
+                >
                   {post.status?.replace('_', ' ')}
                 </Badge>
               </div>

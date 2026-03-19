@@ -1,17 +1,45 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { 
-  Rocket, Search, RefreshCw, Building2, Users, DollarSign, 
-  TrendingUp, Globe, Loader2, Plus, ExternalLink, Target,
-  Briefcase, Zap, ChevronDown, ChevronUp, AlertTriangle, Activity, FileText, Shield, Lock, Unlock,
-  Sparkles, TrendingDown, Minus, Package
-} from "lucide-react";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+import {
+  Rocket,
+  Search,
+  RefreshCw,
+  Building2,
+  Users,
+  DollarSign,
+  TrendingUp,
+  Globe,
+  Loader2,
+  Plus,
+  ExternalLink,
+  Target,
+  Briefcase,
+  Zap,
+  ChevronDown,
+  ChevronUp,
+  AlertTriangle,
+  Activity,
+  FileText,
+  Shield,
+  Lock,
+  Unlock,
+  Sparkles,
+  TrendingDown,
+  Minus,
+  Package,
+} from 'lucide-react';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import EmptyState from '@/components/ui/EmptyState';
 import FinancialTrendsChart from '@/components/aerospace/FinancialTrendsChart';
 import CompanyMap from '@/components/aerospace/CompanyMap';
@@ -24,9 +52,16 @@ import TrendCharts from '@/components/aerospace/TrendCharts';
 import CompanyComparison from '@/components/aerospace/CompanyComparison';
 import PortfolioManager from '@/components/aerospace/PortfolioManager';
 import PortfolioDetail from '@/components/aerospace/PortfolioDetail';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Checkbox } from '@/components/ui/checkbox';
 
 export default function AerospaceScanner() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -47,7 +82,7 @@ export default function AerospaceScanner() {
 
   const { data: user } = useQuery({
     queryKey: ['current-user'],
-    queryFn: () => base44.auth.me()
+    queryFn: () => base44.auth.me(),
   });
 
   const { data: companies = [], isLoading } = useQuery({
@@ -117,153 +152,153 @@ For each company provide:
 Include all major public and private aerospace companies. For private companies, research available funding, investor, and valuation data from sources like Crunchbase, industry news, etc.`,
         add_context_from_internet: true,
         response_json_schema: {
-          type: "object",
+          type: 'object',
           properties: {
             companies: {
-              type: "array",
+              type: 'array',
               items: {
-                type: "object",
+                type: 'object',
                 properties: {
-                  company_name: { type: "string" },
-                  company_type: { type: "string", enum: ["public", "private"] },
-                  ticker_symbol: { type: "string" },
-                  exchange: { type: "string" },
-                  investors: { type: "array", items: { type: "string" } },
+                  company_name: { type: 'string' },
+                  company_type: { type: 'string', enum: ['public', 'private'] },
+                  ticker_symbol: { type: 'string' },
+                  exchange: { type: 'string' },
+                  investors: { type: 'array', items: { type: 'string' } },
                   funding_rounds: {
-                    type: "array",
+                    type: 'array',
                     items: {
-                      type: "object",
+                      type: 'object',
                       properties: {
-                        round: { type: "string" },
-                        amount: { type: "string" },
-                        date: { type: "string" },
-                        investors: { type: "array", items: { type: "string" } }
-                      }
-                    }
+                        round: { type: 'string' },
+                        amount: { type: 'string' },
+                        date: { type: 'string' },
+                        investors: { type: 'array', items: { type: 'string' } },
+                      },
+                    },
                   },
-                  headquarters: { type: "string" },
-                  founded_year: { type: "string" },
-                  ceo: { type: "string" },
-                  employee_count: { type: "number" },
-                  market_cap: { type: "string" },
-                  annual_revenue: { type: "string" },
-                  description: { type: "string" },
-                  business_segments: { 
-                    type: "array",
-                    items: { type: "string" }
+                  headquarters: { type: 'string' },
+                  founded_year: { type: 'string' },
+                  ceo: { type: 'string' },
+                  employee_count: { type: 'number' },
+                  market_cap: { type: 'string' },
+                  annual_revenue: { type: 'string' },
+                  description: { type: 'string' },
+                  business_segments: {
+                    type: 'array',
+                    items: { type: 'string' },
                   },
-                  key_products: { 
-                    type: "array",
-                    items: { type: "string" }
+                  key_products: {
+                    type: 'array',
+                    items: { type: 'string' },
                   },
-                  competitors: { 
-                    type: "array",
-                    items: { type: "string" }
+                  competitors: {
+                    type: 'array',
+                    items: { type: 'string' },
                   },
                   dod_contracts: {
-                    type: "array",
+                    type: 'array',
                     items: {
-                      type: "object",
+                      type: 'object',
                       properties: {
-                        title: { type: "string" },
-                        contract_number: { type: "string" },
-                        value: { type: "string" },
-                        date: { type: "string" },
-                        agency: { type: "string" },
-                        description: { type: "string" },
-                        status: { type: "string" }
-                      }
-                    }
+                        title: { type: 'string' },
+                        contract_number: { type: 'string' },
+                        value: { type: 'string' },
+                        date: { type: 'string' },
+                        agency: { type: 'string' },
+                        description: { type: 'string' },
+                        status: { type: 'string' },
+                      },
+                    },
                   },
                   public_sector_contracts: {
-                    type: "array",
+                    type: 'array',
                     items: {
-                      type: "object",
+                      type: 'object',
                       properties: {
-                        title: { type: "string" },
-                        contract_number: { type: "string" },
-                        value: { type: "string" },
-                        date: { type: "string" },
-                        agency: { type: "string" },
-                        description: { type: "string" },
-                        status: { type: "string" }
-                      }
-                    }
+                        title: { type: 'string' },
+                        contract_number: { type: 'string' },
+                        value: { type: 'string' },
+                        date: { type: 'string' },
+                        agency: { type: 'string' },
+                        description: { type: 'string' },
+                        status: { type: 'string' },
+                      },
+                    },
                   },
                   financial_highlights: {
-                    type: "object",
+                    type: 'object',
                     properties: {
-                      revenue_growth: { type: "string" },
-                      profit_margin: { type: "string" },
-                      debt_to_equity: { type: "string" },
-                      pe_ratio: { type: "string" }
-                    }
+                      revenue_growth: { type: 'string' },
+                      profit_margin: { type: 'string' },
+                      debt_to_equity: { type: 'string' },
+                      pe_ratio: { type: 'string' },
+                    },
                   },
                   growth_metrics: {
-                    type: "object",
+                    type: 'object',
                     properties: {
-                      revenue_growth_3yr: { type: "string" },
-                      revenue_growth_5yr: { type: "string" },
-                      employee_growth_rate: { type: "string" },
-                      market_cap_growth: { type: "string" },
-                      backlog_growth: { type: "string" },
+                      revenue_growth_3yr: { type: 'string' },
+                      revenue_growth_5yr: { type: 'string' },
+                      employee_growth_rate: { type: 'string' },
+                      market_cap_growth: { type: 'string' },
+                      backlog_growth: { type: 'string' },
                       expansion_markets: {
-                        type: "array",
-                        items: { type: "string" }
-                      }
-                    }
+                        type: 'array',
+                        items: { type: 'string' },
+                      },
+                    },
                   },
                   negative_pr: {
-                    type: "array",
+                    type: 'array',
                     items: {
-                      type: "object",
+                      type: 'object',
                       properties: {
-                        title: { type: "string" },
-                        date: { type: "string" },
-                        source: { type: "string" },
-                        summary: { type: "string" },
-                        severity: { type: "string" },
-                        impact: { type: "string" },
-                        url: { type: "string" }
-                      }
-                    }
+                        title: { type: 'string' },
+                        date: { type: 'string' },
+                        source: { type: 'string' },
+                        summary: { type: 'string' },
+                        severity: { type: 'string' },
+                        impact: { type: 'string' },
+                        url: { type: 'string' },
+                      },
+                    },
                   },
                   incidents: {
-                    type: "array",
+                    type: 'array',
                     items: {
-                      type: "object",
+                      type: 'object',
                       properties: {
-                        title: { type: "string" },
-                        date: { type: "string" },
-                        type: { type: "string" },
-                        description: { type: "string" },
-                        casualties: { type: "string" },
-                        investigation_status: { type: "string" },
-                        findings: { type: "string" },
-                        regulatory_action: { type: "string" }
-                      }
-                    }
+                        title: { type: 'string' },
+                        date: { type: 'string' },
+                        type: { type: 'string' },
+                        description: { type: 'string' },
+                        casualties: { type: 'string' },
+                        investigation_status: { type: 'string' },
+                        findings: { type: 'string' },
+                        regulatory_action: { type: 'string' },
+                      },
+                    },
                   },
-                  strategic_initiatives: { 
-                    type: "array",
-                    items: { type: "string" }
+                  strategic_initiatives: {
+                    type: 'array',
+                    items: { type: 'string' },
                   },
-                  rd_focus: { 
-                    type: "array",
-                    items: { type: "string" }
-                  }
-                }
-              }
-            }
-          }
-        }
+                  rd_focus: {
+                    type: 'array',
+                    items: { type: 'string' },
+                  },
+                },
+              },
+            },
+          },
+        },
       });
 
       // Save all companies
       for (const company of response.companies) {
         await createCompanyMutation.mutateAsync({
           ...company,
-          last_scanned: new Date().toISOString()
+          last_scanned: new Date().toISOString(),
         });
       }
     } catch (error) {
@@ -319,129 +354,129 @@ Include all major public and private aerospace companies. For private companies,
   Include major manufacturers like Textron Aviation (Cessna), Embraer, Honda Aircraft, Cirrus Aircraft, Pilatus, Gulfstream (for smaller models), and any other companies in this segment.`,
         add_context_from_internet: true,
         response_json_schema: {
-          type: "object",
+          type: 'object',
           properties: {
             companies: {
-              type: "array",
+              type: 'array',
               items: {
-                type: "object",
+                type: 'object',
                 properties: {
-                  company_name: { type: "string" },
-                  logo_url: { type: "string" },
-                  company_type: { type: "string", enum: ["public", "private"] },
-                  ticker_symbol: { type: "string" },
-                  exchange: { type: "string" },
-                  headquarters: { type: "string" },
-                  founded_year: { type: "string" },
-                  ceo: { type: "string" },
-                  employee_count: { type: "number" },
-                  market_cap: { type: "string" },
-                  annual_revenue: { type: "string" },
-                  funding_total: { type: "string" },
-                  investors: { type: "array", items: { type: "string" } },
+                  company_name: { type: 'string' },
+                  logo_url: { type: 'string' },
+                  company_type: { type: 'string', enum: ['public', 'private'] },
+                  ticker_symbol: { type: 'string' },
+                  exchange: { type: 'string' },
+                  headquarters: { type: 'string' },
+                  founded_year: { type: 'string' },
+                  ceo: { type: 'string' },
+                  employee_count: { type: 'number' },
+                  market_cap: { type: 'string' },
+                  annual_revenue: { type: 'string' },
+                  funding_total: { type: 'string' },
+                  investors: { type: 'array', items: { type: 'string' } },
                   funding_rounds: {
-                    type: "array",
+                    type: 'array',
                     items: {
-                      type: "object",
+                      type: 'object',
                       properties: {
-                        round: { type: "string" },
-                        amount: { type: "string" },
-                        date: { type: "string" },
-                        investors: { type: "array", items: { type: "string" } }
-                      }
-                    }
+                        round: { type: 'string' },
+                        amount: { type: 'string' },
+                        date: { type: 'string' },
+                        investors: { type: 'array', items: { type: 'string' } },
+                      },
+                    },
                   },
-                  website: { type: "string" },
-                  description: { type: "string" },
-                  business_segments: { type: "array", items: { type: "string" } },
-                  key_products: { type: "array", items: { type: "string" } },
-                  competitors: { type: "array", items: { type: "string" } },
+                  website: { type: 'string' },
+                  description: { type: 'string' },
+                  business_segments: { type: 'array', items: { type: 'string' } },
+                  key_products: { type: 'array', items: { type: 'string' } },
+                  competitors: { type: 'array', items: { type: 'string' } },
                   recent_contracts: {
-                    type: "array",
+                    type: 'array',
                     items: {
-                      type: "object",
+                      type: 'object',
                       properties: {
-                        title: { type: "string" },
-                        value: { type: "string" },
-                        date: { type: "string" },
-                        description: { type: "string" }
-                      }
-                    }
+                        title: { type: 'string' },
+                        value: { type: 'string' },
+                        date: { type: 'string' },
+                        description: { type: 'string' },
+                      },
+                    },
                   },
                   dod_contracts: {
-                    type: "array",
+                    type: 'array',
                     items: {
-                      type: "object",
+                      type: 'object',
                       properties: {
-                        title: { type: "string" },
-                        contract_number: { type: "string" },
-                        value: { type: "string" },
-                        date: { type: "string" },
-                        agency: { type: "string" },
-                        description: { type: "string" },
-                        status: { type: "string" }
-                      }
-                    }
+                        title: { type: 'string' },
+                        contract_number: { type: 'string' },
+                        value: { type: 'string' },
+                        date: { type: 'string' },
+                        agency: { type: 'string' },
+                        description: { type: 'string' },
+                        status: { type: 'string' },
+                      },
+                    },
                   },
                   public_sector_contracts: {
-                    type: "array",
+                    type: 'array',
                     items: {
-                      type: "object",
+                      type: 'object',
                       properties: {
-                        title: { type: "string" },
-                        contract_number: { type: "string" },
-                        value: { type: "string" },
-                        date: { type: "string" },
-                        agency: { type: "string" },
-                        description: { type: "string" },
-                        status: { type: "string" }
-                      }
-                    }
+                        title: { type: 'string' },
+                        contract_number: { type: 'string' },
+                        value: { type: 'string' },
+                        date: { type: 'string' },
+                        agency: { type: 'string' },
+                        description: { type: 'string' },
+                        status: { type: 'string' },
+                      },
+                    },
                   },
                   financial_highlights: {
-                    type: "object",
+                    type: 'object',
                     properties: {
-                      revenue_growth: { type: "string" },
-                      profit_margin: { type: "string" },
-                      debt_to_equity: { type: "string" },
-                      pe_ratio: { type: "string" }
-                    }
+                      revenue_growth: { type: 'string' },
+                      profit_margin: { type: 'string' },
+                      debt_to_equity: { type: 'string' },
+                      pe_ratio: { type: 'string' },
+                    },
                   },
                   growth_metrics: {
-                    type: "object",
+                    type: 'object',
                     properties: {
-                      revenue_growth_3yr: { type: "string" },
-                      revenue_growth_5yr: { type: "string" },
-                      employee_growth_rate: { type: "string" },
-                      market_cap_growth: { type: "string" },
-                      backlog_growth: { type: "string" },
-                      expansion_markets: { type: "array", items: { type: "string" } }
-                    }
+                      revenue_growth_3yr: { type: 'string' },
+                      revenue_growth_5yr: { type: 'string' },
+                      employee_growth_rate: { type: 'string' },
+                      market_cap_growth: { type: 'string' },
+                      backlog_growth: { type: 'string' },
+                      expansion_markets: { type: 'array', items: { type: 'string' } },
+                    },
                   },
-                  strategic_initiatives: { type: "array", items: { type: "string" } },
-                  rd_focus: { type: "array", items: { type: "string" } },
+                  strategic_initiatives: { type: 'array', items: { type: 'string' } },
+                  rd_focus: { type: 'array', items: { type: 'string' } },
                   partnerships: {
-                    type: "array",
+                    type: 'array',
                     items: {
-                      type: "object",
+                      type: 'object',
                       properties: {
-                        partner: { type: "string" },
-                        description: { type: "string" }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
+                        partner: { type: 'string' },
+                        description: { type: 'string' },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
       });
 
       // Save all companies
       for (const company of response.companies) {
         await createCompanyMutation.mutateAsync({
           ...company,
-          last_scanned: new Date().toISOString()
+          last_scanned: new Date().toISOString(),
         });
       }
     } catch (error) {
@@ -457,7 +492,7 @@ Include all major public and private aerospace companies. For private companies,
     setIsScanning(true);
     try {
       let imported = 0;
-      const existingNames = companies.map(c => c.company_name.toLowerCase());
+      const existingNames = companies.map((c) => c.company_name.toLowerCase());
 
       for (const competitor of competitors) {
         if (existingNames.includes(competitor.name.toLowerCase())) continue;
@@ -476,54 +511,54 @@ If yes, provide comprehensive aerospace company data including:
 If this is NOT an aerospace/aviation company, return is_aerospace: false.`,
           add_context_from_internet: true,
           response_json_schema: {
-            type: "object",
+            type: 'object',
             properties: {
-              is_aerospace: { type: "boolean" },
-              company_name: { type: "string" },
-              logo_url: { type: "string" },
-              company_type: { type: "string", enum: ["public", "private"] },
-              ticker_symbol: { type: "string" },
-              exchange: { type: "string" },
-              headquarters: { type: "string" },
-              founded_year: { type: "string" },
-              ceo: { type: "string" },
-              employee_count: { type: "number" },
-              market_cap: { type: "string" },
-              annual_revenue: { type: "string" },
-              funding_total: { type: "string" },
-              investors: { type: "array", items: { type: "string" } },
+              is_aerospace: { type: 'boolean' },
+              company_name: { type: 'string' },
+              logo_url: { type: 'string' },
+              company_type: { type: 'string', enum: ['public', 'private'] },
+              ticker_symbol: { type: 'string' },
+              exchange: { type: 'string' },
+              headquarters: { type: 'string' },
+              founded_year: { type: 'string' },
+              ceo: { type: 'string' },
+              employee_count: { type: 'number' },
+              market_cap: { type: 'string' },
+              annual_revenue: { type: 'string' },
+              funding_total: { type: 'string' },
+              investors: { type: 'array', items: { type: 'string' } },
               funding_rounds: {
-                type: "array",
+                type: 'array',
                 items: {
-                  type: "object",
+                  type: 'object',
                   properties: {
-                    round: { type: "string" },
-                    amount: { type: "string" },
-                    date: { type: "string" },
-                    investors: { type: "array", items: { type: "string" } }
-                  }
-                }
+                    round: { type: 'string' },
+                    amount: { type: 'string' },
+                    date: { type: 'string' },
+                    investors: { type: 'array', items: { type: 'string' } },
+                  },
+                },
               },
-              website: { type: "string" },
-              description: { type: "string" },
-              business_segments: { type: "array", items: { type: "string" } },
-              key_products: { type: "array", items: { type: "string" } },
-              competitors: { type: "array", items: { type: "string" } },
-              dod_contracts: { type: "array", items: { type: "object" } },
-              public_sector_contracts: { type: "array", items: { type: "object" } },
-              financial_highlights: { type: "object" },
-              growth_metrics: { type: "object" },
-              strategic_initiatives: { type: "array", items: { type: "string" } },
-              rd_focus: { type: "array", items: { type: "string" } },
-              partnerships: { type: "array", items: { type: "object" } }
-            }
-          }
+              website: { type: 'string' },
+              description: { type: 'string' },
+              business_segments: { type: 'array', items: { type: 'string' } },
+              key_products: { type: 'array', items: { type: 'string' } },
+              competitors: { type: 'array', items: { type: 'string' } },
+              dod_contracts: { type: 'array', items: { type: 'object' } },
+              public_sector_contracts: { type: 'array', items: { type: 'object' } },
+              financial_highlights: { type: 'object' },
+              growth_metrics: { type: 'object' },
+              strategic_initiatives: { type: 'array', items: { type: 'string' } },
+              rd_focus: { type: 'array', items: { type: 'string' } },
+              partnerships: { type: 'array', items: { type: 'object' } },
+            },
+          },
         });
 
         if (response.is_aerospace) {
           await createCompanyMutation.mutateAsync({
             ...response,
-            last_scanned: new Date().toISOString()
+            last_scanned: new Date().toISOString(),
           });
           imported++;
         }
@@ -557,119 +592,119 @@ Provide detailed data including:
 - Partnerships and key relationships`,
         add_context_from_internet: true,
         response_json_schema: {
-          type: "object",
+          type: 'object',
           properties: {
-            company_name: { type: "string" },
-            logo_url: { type: "string" },
-            company_type: { type: "string", enum: ["public", "private"] },
-            ticker_symbol: { type: "string" },
-            exchange: { type: "string" },
-            headquarters: { type: "string" },
-            founded_year: { type: "string" },
-            ceo: { type: "string" },
-            employee_count: { type: "number" },
-            market_cap: { type: "string" },
-            annual_revenue: { type: "string" },
-            funding_total: { type: "string" },
-            investors: { type: "array", items: { type: "string" } },
+            company_name: { type: 'string' },
+            logo_url: { type: 'string' },
+            company_type: { type: 'string', enum: ['public', 'private'] },
+            ticker_symbol: { type: 'string' },
+            exchange: { type: 'string' },
+            headquarters: { type: 'string' },
+            founded_year: { type: 'string' },
+            ceo: { type: 'string' },
+            employee_count: { type: 'number' },
+            market_cap: { type: 'string' },
+            annual_revenue: { type: 'string' },
+            funding_total: { type: 'string' },
+            investors: { type: 'array', items: { type: 'string' } },
             funding_rounds: {
-              type: "array",
+              type: 'array',
               items: {
-                type: "object",
+                type: 'object',
                 properties: {
-                  round: { type: "string" },
-                  amount: { type: "string" },
-                  date: { type: "string" },
-                  investors: { type: "array", items: { type: "string" } }
-                }
-              }
+                  round: { type: 'string' },
+                  amount: { type: 'string' },
+                  date: { type: 'string' },
+                  investors: { type: 'array', items: { type: 'string' } },
+                },
+              },
             },
-            website: { type: "string" },
-            description: { type: "string" },
-            business_segments: { type: "array", items: { type: "string" } },
-            key_products: { type: "array", items: { type: "string" } },
-            competitors: { type: "array", items: { type: "string" } },
+            website: { type: 'string' },
+            description: { type: 'string' },
+            business_segments: { type: 'array', items: { type: 'string' } },
+            key_products: { type: 'array', items: { type: 'string' } },
+            competitors: { type: 'array', items: { type: 'string' } },
             recent_contracts: {
-              type: "array",
+              type: 'array',
               items: {
-                type: "object",
+                type: 'object',
                 properties: {
-                  title: { type: "string" },
-                  value: { type: "string" },
-                  date: { type: "string" },
-                  description: { type: "string" }
-                }
-              }
+                  title: { type: 'string' },
+                  value: { type: 'string' },
+                  date: { type: 'string' },
+                  description: { type: 'string' },
+                },
+              },
             },
             dod_contracts: {
-              type: "array",
+              type: 'array',
               items: {
-                type: "object",
+                type: 'object',
                 properties: {
-                  title: { type: "string" },
-                  contract_number: { type: "string" },
-                  value: { type: "string" },
-                  date: { type: "string" },
-                  agency: { type: "string" },
-                  description: { type: "string" },
-                  status: { type: "string" }
-                }
-              }
+                  title: { type: 'string' },
+                  contract_number: { type: 'string' },
+                  value: { type: 'string' },
+                  date: { type: 'string' },
+                  agency: { type: 'string' },
+                  description: { type: 'string' },
+                  status: { type: 'string' },
+                },
+              },
             },
             public_sector_contracts: {
-              type: "array",
+              type: 'array',
               items: {
-                type: "object",
+                type: 'object',
                 properties: {
-                  title: { type: "string" },
-                  contract_number: { type: "string" },
-                  value: { type: "string" },
-                  date: { type: "string" },
-                  agency: { type: "string" },
-                  description: { type: "string" },
-                  status: { type: "string" }
-                }
-              }
+                  title: { type: 'string' },
+                  contract_number: { type: 'string' },
+                  value: { type: 'string' },
+                  date: { type: 'string' },
+                  agency: { type: 'string' },
+                  description: { type: 'string' },
+                  status: { type: 'string' },
+                },
+              },
             },
             financial_highlights: {
-              type: "object",
+              type: 'object',
               properties: {
-                revenue_growth: { type: "string" },
-                profit_margin: { type: "string" },
-                debt_to_equity: { type: "string" },
-                pe_ratio: { type: "string" }
-              }
+                revenue_growth: { type: 'string' },
+                profit_margin: { type: 'string' },
+                debt_to_equity: { type: 'string' },
+                pe_ratio: { type: 'string' },
+              },
             },
             growth_metrics: {
-              type: "object",
+              type: 'object',
               properties: {
-                revenue_growth_3yr: { type: "string" },
-                revenue_growth_5yr: { type: "string" },
-                employee_growth_rate: { type: "string" },
-                market_cap_growth: { type: "string" },
-                backlog_growth: { type: "string" },
-                expansion_markets: { type: "array", items: { type: "string" } }
-              }
+                revenue_growth_3yr: { type: 'string' },
+                revenue_growth_5yr: { type: 'string' },
+                employee_growth_rate: { type: 'string' },
+                market_cap_growth: { type: 'string' },
+                backlog_growth: { type: 'string' },
+                expansion_markets: { type: 'array', items: { type: 'string' } },
+              },
             },
-            strategic_initiatives: { type: "array", items: { type: "string" } },
-            rd_focus: { type: "array", items: { type: "string" } },
+            strategic_initiatives: { type: 'array', items: { type: 'string' } },
+            rd_focus: { type: 'array', items: { type: 'string' } },
             partnerships: {
-              type: "array",
+              type: 'array',
               items: {
-                type: "object",
+                type: 'object',
                 properties: {
-                  partner: { type: "string" },
-                  description: { type: "string" }
-                }
-              }
-            }
-          }
-        }
+                  partner: { type: 'string' },
+                  description: { type: 'string' },
+                },
+              },
+            },
+          },
+        },
       });
 
       await createCompanyMutation.mutateAsync({
         ...response,
-        last_scanned: new Date().toISOString()
+        last_scanned: new Date().toISOString(),
       });
 
       setNewCompanyName('');
@@ -708,88 +743,98 @@ Provide detailed data including:
 Use current internet data to provide the most accurate and recent information.`,
         add_context_from_internet: true,
         response_json_schema: {
-          type: "object",
+          type: 'object',
           properties: {
             financial_highlights: {
-              type: "object",
+              type: 'object',
               properties: {
-                revenue_growth: { type: "string" },
-                profit_margin: { type: "string" },
-                debt_to_equity: { type: "string" },
-                pe_ratio: { type: "string" }
-              }
+                revenue_growth: { type: 'string' },
+                profit_margin: { type: 'string' },
+                debt_to_equity: { type: 'string' },
+                pe_ratio: { type: 'string' },
+              },
             },
             news_sentiment: {
-              type: "object",
+              type: 'object',
               properties: {
-                overall_sentiment: { type: "string", enum: ["positive", "neutral", "negative"] },
-                sentiment_score: { type: "number" },
+                overall_sentiment: { type: 'string', enum: ['positive', 'neutral', 'negative'] },
+                sentiment_score: { type: 'number' },
                 recent_headlines: {
-                  type: "array",
+                  type: 'array',
                   items: {
-                    type: "object",
+                    type: 'object',
                     properties: {
-                      title: { type: "string" },
-                      sentiment: { type: "string" },
-                      date: { type: "string" },
-                      source: { type: "string" },
-                      summary: { type: "string" }
-                    }
-                  }
+                      title: { type: 'string' },
+                      sentiment: { type: 'string' },
+                      date: { type: 'string' },
+                      source: { type: 'string' },
+                      summary: { type: 'string' },
+                    },
+                  },
                 },
-                last_analyzed: { type: "string" }
-              }
+                last_analyzed: { type: 'string' },
+              },
             },
             major_projects: {
-              type: "array",
+              type: 'array',
               items: {
-                type: "object",
+                type: 'object',
                 properties: {
-                  name: { type: "string" },
-                  description: { type: "string" },
-                  lifecycle_stage: { type: "string", enum: ["concept", "development", "testing", "production", "operational", "retired"] },
-                  status: { type: "string" },
-                  expected_completion: { type: "string" },
-                  customer: { type: "string" }
-                }
-              }
+                  name: { type: 'string' },
+                  description: { type: 'string' },
+                  lifecycle_stage: {
+                    type: 'string',
+                    enum: [
+                      'concept',
+                      'development',
+                      'testing',
+                      'production',
+                      'operational',
+                      'retired',
+                    ],
+                  },
+                  status: { type: 'string' },
+                  expected_completion: { type: 'string' },
+                  customer: { type: 'string' },
+                },
+              },
             },
             supply_chain: {
-              type: "object",
+              type: 'object',
               properties: {
                 key_suppliers: {
-                  type: "array",
+                  type: 'array',
                   items: {
-                    type: "object",
+                    type: 'object',
                     properties: {
-                      name: { type: "string" },
-                      supplies: { type: "string" }
-                    }
-                  }
+                      name: { type: 'string' },
+                      supplies: { type: 'string' },
+                    },
+                  },
                 },
                 strategic_partners: {
-                  type: "array",
+                  type: 'array',
                   items: {
-                    type: "object",
+                    type: 'object',
                     properties: {
-                      name: { type: "string" },
-                      partnership_type: { type: "string" }
-                    }
-                  }
+                      name: { type: 'string' },
+                      partnership_type: { type: 'string' },
+                    },
+                  },
                 },
-                vertical_integration_level: { type: "string" }
-              }
-            }
-          }
-        }
+                vertical_integration_level: { type: 'string' },
+              },
+            },
+          },
+        },
       });
 
       await updateCompanyMutation.mutateAsync({
         id: company.id,
         data: {
           ...response,
-          last_enriched: new Date().toISOString()
-        }
+          last_enriched: new Date().toISOString(),
+        },
       });
     } catch (error) {
       console.error('Enrichment failed:', error);
@@ -802,7 +847,7 @@ Use current internet data to provide the most accurate and recent information.`,
       let updated = 0;
       for (const company of companies) {
         if (company.logo_url) continue; // Skip if already has logo
-        
+
         try {
           const response = await base44.integrations.Core.InvokeLLM({
             prompt: `Find the official company logo image URL for ${company.company_name}. 
@@ -812,17 +857,17 @@ Search for their official website logo or brand logo. Return a direct image URL 
 For well-known companies like Boeing, Lockheed Martin, SpaceX, etc., find their official brand logo URL.`,
             add_context_from_internet: true,
             response_json_schema: {
-              type: "object",
+              type: 'object',
               properties: {
-                logo_url: { type: "string" }
-              }
-            }
+                logo_url: { type: 'string' },
+              },
+            },
           });
 
           if (response.logo_url) {
             await updateCompanyMutation.mutateAsync({
               id: company.id,
-              data: { logo_url: response.logo_url }
+              data: { logo_url: response.logo_url },
             });
             updated++;
           }
@@ -862,149 +907,149 @@ For well-known companies like Boeing, Lockheed Martin, SpaceX, etc., find their 
 - partnerships (array with partner and description)`,
         add_context_from_internet: true,
         response_json_schema: {
-          type: "object",
+          type: 'object',
           properties: {
-            employee_count: { type: "number" },
-            market_cap: { type: "string" },
-            annual_revenue: { type: "string" },
-            ceo: { type: "string" },
-            description: { type: "string" },
-            business_segments: { 
-              type: "array",
-              items: { type: "string" }
+            employee_count: { type: 'number' },
+            market_cap: { type: 'string' },
+            annual_revenue: { type: 'string' },
+            ceo: { type: 'string' },
+            description: { type: 'string' },
+            business_segments: {
+              type: 'array',
+              items: { type: 'string' },
             },
-            key_products: { 
-              type: "array",
-              items: { type: "string" }
+            key_products: {
+              type: 'array',
+              items: { type: 'string' },
             },
-            competitors: { 
-              type: "array",
-              items: { type: "string" }
+            competitors: {
+              type: 'array',
+              items: { type: 'string' },
             },
             recent_contracts: {
-              type: "array",
+              type: 'array',
               items: {
-                type: "object",
+                type: 'object',
                 properties: {
-                  title: { type: "string" },
-                  value: { type: "string" },
-                  date: { type: "string" },
-                  description: { type: "string" }
-                }
-              }
+                  title: { type: 'string' },
+                  value: { type: 'string' },
+                  date: { type: 'string' },
+                  description: { type: 'string' },
+                },
+              },
             },
             dod_contracts: {
-              type: "array",
+              type: 'array',
               items: {
-                type: "object",
+                type: 'object',
                 properties: {
-                  title: { type: "string" },
-                  contract_number: { type: "string" },
-                  value: { type: "string" },
-                  date: { type: "string" },
-                  agency: { type: "string" },
-                  description: { type: "string" },
-                  status: { type: "string" }
-                }
-              }
+                  title: { type: 'string' },
+                  contract_number: { type: 'string' },
+                  value: { type: 'string' },
+                  date: { type: 'string' },
+                  agency: { type: 'string' },
+                  description: { type: 'string' },
+                  status: { type: 'string' },
+                },
+              },
             },
             public_sector_contracts: {
-              type: "array",
+              type: 'array',
               items: {
-                type: "object",
+                type: 'object',
                 properties: {
-                  title: { type: "string" },
-                  contract_number: { type: "string" },
-                  value: { type: "string" },
-                  date: { type: "string" },
-                  agency: { type: "string" },
-                  description: { type: "string" },
-                  status: { type: "string" }
-                }
-              }
+                  title: { type: 'string' },
+                  contract_number: { type: 'string' },
+                  value: { type: 'string' },
+                  date: { type: 'string' },
+                  agency: { type: 'string' },
+                  description: { type: 'string' },
+                  status: { type: 'string' },
+                },
+              },
             },
             financial_highlights: {
-              type: "object",
+              type: 'object',
               properties: {
-                revenue_growth: { type: "string" },
-                profit_margin: { type: "string" },
-                debt_to_equity: { type: "string" },
-                pe_ratio: { type: "string" }
-              }
+                revenue_growth: { type: 'string' },
+                profit_margin: { type: 'string' },
+                debt_to_equity: { type: 'string' },
+                pe_ratio: { type: 'string' },
+              },
             },
-            strategic_initiatives: { 
-              type: "array",
-              items: { type: "string" }
+            strategic_initiatives: {
+              type: 'array',
+              items: { type: 'string' },
             },
-            rd_focus: { 
-              type: "array",
-              items: { type: "string" }
+            rd_focus: {
+              type: 'array',
+              items: { type: 'string' },
             },
             growth_metrics: {
-              type: "object",
+              type: 'object',
               properties: {
-                revenue_growth_3yr: { type: "string" },
-                revenue_growth_5yr: { type: "string" },
-                employee_growth_rate: { type: "string" },
-                market_cap_growth: { type: "string" },
-                backlog_growth: { type: "string" },
+                revenue_growth_3yr: { type: 'string' },
+                revenue_growth_5yr: { type: 'string' },
+                employee_growth_rate: { type: 'string' },
+                market_cap_growth: { type: 'string' },
+                backlog_growth: { type: 'string' },
                 expansion_markets: {
-                  type: "array",
-                  items: { type: "string" }
-                }
-              }
+                  type: 'array',
+                  items: { type: 'string' },
+                },
+              },
             },
             negative_pr: {
-              type: "array",
+              type: 'array',
               items: {
-                type: "object",
+                type: 'object',
                 properties: {
-                  title: { type: "string" },
-                  date: { type: "string" },
-                  source: { type: "string" },
-                  summary: { type: "string" },
-                  severity: { type: "string" },
-                  impact: { type: "string" },
-                  url: { type: "string" }
-                }
-              }
+                  title: { type: 'string' },
+                  date: { type: 'string' },
+                  source: { type: 'string' },
+                  summary: { type: 'string' },
+                  severity: { type: 'string' },
+                  impact: { type: 'string' },
+                  url: { type: 'string' },
+                },
+              },
             },
             incidents: {
-              type: "array",
+              type: 'array',
               items: {
-                type: "object",
+                type: 'object',
                 properties: {
-                  title: { type: "string" },
-                  date: { type: "string" },
-                  type: { type: "string" },
-                  description: { type: "string" },
-                  casualties: { type: "string" },
-                  investigation_status: { type: "string" },
-                  findings: { type: "string" },
-                  regulatory_action: { type: "string" }
-                }
-              }
+                  title: { type: 'string' },
+                  date: { type: 'string' },
+                  type: { type: 'string' },
+                  description: { type: 'string' },
+                  casualties: { type: 'string' },
+                  investigation_status: { type: 'string' },
+                  findings: { type: 'string' },
+                  regulatory_action: { type: 'string' },
+                },
+              },
             },
             partnerships: {
-              type: "array",
+              type: 'array',
               items: {
-                type: "object",
+                type: 'object',
                 properties: {
-                  partner: { type: "string" },
-                  description: { type: "string" }
-                }
-              }
-            }
-          }
-        }
+                  partner: { type: 'string' },
+                  description: { type: 'string' },
+                },
+              },
+            },
+          },
+        },
       });
 
       await updateCompanyMutation.mutateAsync({
         id: company.id,
         data: {
           ...response,
-          last_scanned: new Date().toISOString()
-        }
+          last_scanned: new Date().toISOString(),
+        },
       });
     } catch (error) {
       console.error('Rescan failed:', error);
@@ -1019,12 +1064,13 @@ For well-known companies like Boeing, Lockheed Martin, SpaceX, etc., find their 
     setFiltersForAlert(filters);
   };
 
-  const filteredCompanies = companies.filter(c => {
+  const filteredCompanies = companies.filter((c) => {
     // Basic search and type filters
-    const matchesSearch = c.company_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    const matchesSearch =
+      c.company_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       c.ticker_symbol?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesType = companyTypeFilter === 'all' || c.company_type === companyTypeFilter;
-    
+
     if (!matchesSearch || !matchesType) return false;
 
     // Advanced filters
@@ -1037,12 +1083,16 @@ For well-known companies like Boeing, Lockheed Martin, SpaceX, etc., find their 
 
     // Revenue growth
     if (advancedFilters.revenue_growth_min) {
-      const growth = parseFloat(c.financial_highlights?.revenue_growth?.replace(/[^0-9.-]/g, '')) || 0;
+      const growth =
+        parseFloat(c.financial_highlights?.revenue_growth?.replace(/[^0-9.-]/g, '')) || 0;
       if (growth < parseFloat(advancedFilters.revenue_growth_min)) return false;
     }
 
     // Employee count
-    if (advancedFilters.employee_count_min && c.employee_count < parseInt(advancedFilters.employee_count_min)) {
+    if (
+      advancedFilters.employee_count_min &&
+      c.employee_count < parseInt(advancedFilters.employee_count_min)
+    ) {
       return false;
     }
 
@@ -1055,15 +1105,21 @@ For well-known companies like Boeing, Lockheed Martin, SpaceX, etc., find their 
 
     // R&D focus keywords
     if (advancedFilters.rd_focus_keywords) {
-      const keywords = advancedFilters.rd_focus_keywords.toLowerCase().split(',').map(k => k.trim());
+      const keywords = advancedFilters.rd_focus_keywords
+        .toLowerCase()
+        .split(',')
+        .map((k) => k.trim());
       const rdFocus = (c.rd_focus || []).join(' ').toLowerCase();
-      if (!keywords.some(kw => rdFocus.includes(kw))) return false;
+      if (!keywords.some((kw) => rdFocus.includes(kw))) return false;
     }
 
     // Contract value
     if (advancedFilters.contract_value_min) {
       const minValue = parseFloat(advancedFilters.contract_value_min);
-      const hasLargeContract = [...(c.dod_contracts || []), ...(c.public_sector_contracts || [])].some(contract => {
+      const hasLargeContract = [
+        ...(c.dod_contracts || []),
+        ...(c.public_sector_contracts || []),
+      ].some((contract) => {
         const value = parseFloat(contract.value?.replace(/[^0-9.-]/g, '')) || 0;
         return value >= minValue;
       });
@@ -1072,7 +1128,7 @@ For well-known companies like Boeing, Lockheed Martin, SpaceX, etc., find their 
 
     // Incident severity (exclude)
     if (advancedFilters.incident_severity.length > 0 && c.incidents?.length > 0) {
-      const hasExcludedSeverity = c.incidents.some(inc => 
+      const hasExcludedSeverity = c.incidents.some((inc) =>
         advancedFilters.incident_severity.includes(inc.severity)
       );
       if (hasExcludedSeverity) return false;
@@ -1119,19 +1175,11 @@ For well-known companies like Boeing, Lockheed Martin, SpaceX, etc., find their 
                   Compare ({selectedForComparison.length})
                 </Button>
               )}
-              <Button
-                onClick={() => setShowPortfolios(true)}
-                variant="outline"
-                className="gap-2"
-              >
+              <Button onClick={() => setShowPortfolios(true)} variant="outline" className="gap-2">
                 <Briefcase className="w-4 h-4" />
                 Portfolios
               </Button>
-              <Button
-                onClick={() => setShowAddCompany(true)}
-                variant="outline"
-                className="gap-2"
-              >
+              <Button onClick={() => setShowAddCompany(true)} variant="outline" className="gap-2">
                 <Search className="w-4 h-4" />
                 Add Company
               </Button>
@@ -1142,9 +1190,13 @@ For well-known companies like Boeing, Lockheed Martin, SpaceX, etc., find their 
                 className="gap-2"
               >
                 {isScanning ? (
-                  <><Loader2 className="w-4 h-4 animate-spin" /> Importing...</>
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" /> Importing...
+                  </>
                 ) : (
-                  <><Users className="w-4 h-4" /> Import Competitors</>
+                  <>
+                    <Users className="w-4 h-4" /> Import Competitors
+                  </>
                 )}
               </Button>
               <Button
@@ -1154,9 +1206,13 @@ For well-known companies like Boeing, Lockheed Martin, SpaceX, etc., find their 
                 className="gap-2"
               >
                 {isScanning ? (
-                  <><Loader2 className="w-4 h-4 animate-spin" /> Scanning...</>
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" /> Scanning...
+                  </>
                 ) : (
-                  <><Rocket className="w-4 h-4" /> Light Jets</>
+                  <>
+                    <Rocket className="w-4 h-4" /> Light Jets
+                  </>
                 )}
               </Button>
               <Button
@@ -1166,9 +1222,13 @@ For well-known companies like Boeing, Lockheed Martin, SpaceX, etc., find their 
                 className="gap-2"
               >
                 {isScanning ? (
-                  <><Loader2 className="w-4 h-4 animate-spin" /> Fetching...</>
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" /> Fetching...
+                  </>
                 ) : (
-                  <><Building2 className="w-4 h-4" /> Fetch Logos</>
+                  <>
+                    <Building2 className="w-4 h-4" /> Fetch Logos
+                  </>
                 )}
               </Button>
               <Button
@@ -1177,9 +1237,13 @@ For well-known companies like Boeing, Lockheed Martin, SpaceX, etc., find their 
                 className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 gap-2"
               >
                 {isScanning ? (
-                  <><Loader2 className="w-4 h-4 animate-spin" /> Scanning...</>
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" /> Scanning...
+                  </>
                 ) : (
-                  <><Plus className="w-4 h-4" /> Scan All</>
+                  <>
+                    <Plus className="w-4 h-4" /> Scan All
+                  </>
                 )}
               </Button>
             </div>
@@ -1196,7 +1260,9 @@ For well-known companies like Boeing, Lockheed Martin, SpaceX, etc., find their 
                 </div>
                 <div>
                   <p className="text-xs text-gray-500 dark:text-gray-400">Total Companies</p>
-                  <p className="text-xl font-bold text-gray-900 dark:text-white">{companies.length}</p>
+                  <p className="text-xl font-bold text-gray-900 dark:text-white">
+                    {companies.length}
+                  </p>
                 </div>
               </div>
             </CardContent>
@@ -1211,7 +1277,10 @@ For well-known companies like Boeing, Lockheed Martin, SpaceX, etc., find their 
                 <div>
                   <p className="text-xs text-gray-500 dark:text-gray-400">Total Employees</p>
                   <p className="text-xl font-bold text-gray-900 dark:text-white">
-                    {(companies.reduce((sum, c) => sum + (c.employee_count || 0), 0) / 1000).toFixed(0)}k
+                    {(
+                      companies.reduce((sum, c) => sum + (c.employee_count || 0), 0) / 1000
+                    ).toFixed(0)}
+                    k
                   </p>
                 </div>
               </div>
@@ -1227,7 +1296,8 @@ For well-known companies like Boeing, Lockheed Martin, SpaceX, etc., find their 
                 <div>
                   <p className="text-xs text-gray-500 dark:text-gray-400">Public / Private</p>
                   <p className="text-xl font-bold text-gray-900 dark:text-white">
-                    {companies.filter(c => c.company_type === 'public').length} / {companies.filter(c => c.company_type === 'private').length}
+                    {companies.filter((c) => c.company_type === 'public').length} /{' '}
+                    {companies.filter((c) => c.company_type === 'private').length}
                   </p>
                 </div>
               </div>
@@ -1243,7 +1313,12 @@ For well-known companies like Boeing, Lockheed Martin, SpaceX, etc., find their 
                 <div>
                   <p className="text-xs text-gray-500 dark:text-gray-400">Last Scanned</p>
                   <p className="text-sm font-semibold text-gray-900 dark:text-white">
-                    {companies[0]?.last_scanned ? new Date(companies[0].last_scanned).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : 'Never'}
+                    {companies[0]?.last_scanned
+                      ? new Date(companies[0].last_scanned).toLocaleDateString('en-US', {
+                          month: 'short',
+                          day: 'numeric',
+                        })
+                      : 'Never'}
                   </p>
                 </div>
               </div>
@@ -1296,15 +1371,15 @@ For well-known companies like Boeing, Lockheed Martin, SpaceX, etc., find their 
                   <TabsTrigger value="map">Geographic Map</TabsTrigger>
                   <TabsTrigger value="network">Network Graph</TabsTrigger>
                 </TabsList>
-                
+
                 <TabsContent value="charts" className="mt-6">
                   <FinancialTrendsChart companies={filteredCompanies} />
                 </TabsContent>
-                
+
                 <TabsContent value="map" className="mt-6">
                   <CompanyMap companies={filteredCompanies} />
                 </TabsContent>
-                
+
                 <TabsContent value="network" className="mt-6">
                   <NetworkGraph companies={filteredCompanies} />
                 </TabsContent>
@@ -1329,30 +1404,40 @@ For well-known companies like Boeing, Lockheed Martin, SpaceX, etc., find their 
         ) : (
           <div className="space-y-4">
             {filteredCompanies.map((company) => (
-              <Card key={company.id} className="bg-white/80 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all">
+              <Card
+                key={company.id}
+                className="bg-white/80 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all"
+              >
                 <CardHeader className="pb-3">
                   <div className="flex items-start justify-between">
                     <div className="flex items-start gap-3 flex-1">
                       <div className="flex gap-2">
                         <Checkbox
-                          checked={selectedForComparison.some(c => c.id === company.id)}
+                          checked={selectedForComparison.some((c) => c.id === company.id)}
                           onCheckedChange={(checked) => {
                             if (checked) {
                               setSelectedForComparison([...selectedForComparison, company]);
                             } else {
-                              setSelectedForComparison(selectedForComparison.filter(c => c.id !== company.id));
+                              setSelectedForComparison(
+                                selectedForComparison.filter((c) => c.id !== company.id)
+                              );
                             }
                           }}
                           className="mt-1"
                           title="Select for comparison"
                         />
                         <Checkbox
-                          checked={selectedCompaniesForPortfolio.some(c => c.id === company.id)}
+                          checked={selectedCompaniesForPortfolio.some((c) => c.id === company.id)}
                           onCheckedChange={(checked) => {
                             if (checked) {
-                              setSelectedCompaniesForPortfolio([...selectedCompaniesForPortfolio, company]);
+                              setSelectedCompaniesForPortfolio([
+                                ...selectedCompaniesForPortfolio,
+                                company,
+                              ]);
                             } else {
-                              setSelectedCompaniesForPortfolio(selectedCompaniesForPortfolio.filter(c => c.id !== company.id));
+                              setSelectedCompaniesForPortfolio(
+                                selectedCompaniesForPortfolio.filter((c) => c.id !== company.id)
+                              );
                             }
                           }}
                           className="mt-1"
@@ -1360,52 +1445,52 @@ For well-known companies like Boeing, Lockheed Martin, SpaceX, etc., find their 
                         />
                       </div>
                       <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-2">
-                        {company.logo_url && (
-                          <img 
-                            src={company.logo_url} 
-                            alt={company.company_name}
-                            className="w-8 h-8 object-contain rounded"
-                            onError={(e) => e.target.style.display = 'none'}
-                          />
+                        <div className="flex items-center gap-3 mb-2">
+                          {company.logo_url && (
+                            <img
+                              src={company.logo_url}
+                              alt={company.company_name}
+                              className="w-8 h-8 object-contain rounded"
+                              onError={(e) => (e.target.style.display = 'none')}
+                            />
+                          )}
+                          <CardTitle className="text-xl">{company.company_name}</CardTitle>
+                          {company.company_type === 'private' ? (
+                            <Badge className="bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300">
+                              <Lock className="w-3 h-3 mr-1" />
+                              Private
+                            </Badge>
+                          ) : (
+                            <Badge className="bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
+                              <Unlock className="w-3 h-3 mr-1" />
+                              Public
+                            </Badge>
+                          )}
+                          {company.ticker_symbol && (
+                            <Badge className="bg-blue-600 text-white">
+                              {company.ticker_symbol}
+                            </Badge>
+                          )}
+                          {company.exchange && (
+                            <Badge variant="outline" className="text-xs">
+                              {company.exchange}
+                            </Badge>
+                          )}
+                        </div>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">
+                          {company.description}
+                        </p>
+                        {company.website && (
+                          <a
+                            href={company.website}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-xs text-blue-600 hover:text-blue-700 flex items-center gap-1 mt-1"
+                          >
+                            {company.website.replace(/https?:\/\//, '')}
+                            <ExternalLink className="w-3 h-3" />
+                          </a>
                         )}
-                        <CardTitle className="text-xl">{company.company_name}</CardTitle>
-                        {company.company_type === 'private' ? (
-                          <Badge className="bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300">
-                            <Lock className="w-3 h-3 mr-1" />
-                            Private
-                          </Badge>
-                        ) : (
-                          <Badge className="bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
-                            <Unlock className="w-3 h-3 mr-1" />
-                            Public
-                          </Badge>
-                        )}
-                        {company.ticker_symbol && (
-                          <Badge className="bg-blue-600 text-white">
-                            {company.ticker_symbol}
-                          </Badge>
-                        )}
-                        {company.exchange && (
-                          <Badge variant="outline" className="text-xs">
-                            {company.exchange}
-                          </Badge>
-                        )}
-                      </div>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">
-                        {company.description}
-                      </p>
-                      {company.website && (
-                        <a 
-                          href={company.website} 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className="text-xs text-blue-600 hover:text-blue-700 flex items-center gap-1 mt-1"
-                        >
-                          {company.website.replace(/https?:\/\//, '')}
-                          <ExternalLink className="w-3 h-3" />
-                        </a>
-                      )}
                       </div>
                     </div>
                     <div className="flex gap-2">
@@ -1430,9 +1515,15 @@ For well-known companies like Boeing, Lockheed Martin, SpaceX, etc., find their 
                       <Button
                         size="sm"
                         variant="ghost"
-                        onClick={() => setExpandedCompany(expandedCompany === company.id ? null : company.id)}
+                        onClick={() =>
+                          setExpandedCompany(expandedCompany === company.id ? null : company.id)
+                        }
                       >
-                        {expandedCompany === company.id ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                        {expandedCompany === company.id ? (
+                          <ChevronUp className="w-4 h-4" />
+                        ) : (
+                          <ChevronDown className="w-4 h-4" />
+                        )}
                       </Button>
                     </div>
                   </div>
@@ -1456,7 +1547,9 @@ For well-known companies like Boeing, Lockheed Martin, SpaceX, etc., find their 
                     {company.employee_count && (
                       <div>
                         <p className="text-xs text-gray-500">Employees</p>
-                        <p className="text-sm font-medium">{company.employee_count.toLocaleString()}</p>
+                        <p className="text-sm font-medium">
+                          {company.employee_count.toLocaleString()}
+                        </p>
                       </div>
                     )}
                     {company.market_cap && (
@@ -1485,7 +1578,9 @@ For well-known companies like Boeing, Lockheed Martin, SpaceX, etc., find their 
                           </div>
                           <div className="flex flex-wrap gap-2">
                             {company.business_segments.map((seg, i) => (
-                              <Badge key={i} variant="outline">{seg}</Badge>
+                              <Badge key={i} variant="outline">
+                                {seg}
+                              </Badge>
                             ))}
                           </div>
                         </div>
@@ -1500,7 +1595,10 @@ For well-known companies like Boeing, Lockheed Martin, SpaceX, etc., find their 
                           </div>
                           <ul className="space-y-1">
                             {company.key_products.map((prod, i) => (
-                              <li key={i} className="text-sm text-gray-600 dark:text-gray-400 flex items-start gap-2">
+                              <li
+                                key={i}
+                                className="text-sm text-gray-600 dark:text-gray-400 flex items-start gap-2"
+                              >
                                 <span className="text-emerald-500 mt-0.5">•</span>
                                 {prod}
                               </li>
@@ -1520,25 +1618,33 @@ For well-known companies like Boeing, Lockheed Martin, SpaceX, etc., find their 
                             {company.financial_highlights.revenue_growth && (
                               <div className="bg-gray-50 dark:bg-gray-800 p-2 rounded">
                                 <p className="text-xs text-gray-500">Revenue Growth</p>
-                                <p className="text-sm font-medium">{company.financial_highlights.revenue_growth}</p>
+                                <p className="text-sm font-medium">
+                                  {company.financial_highlights.revenue_growth}
+                                </p>
                               </div>
                             )}
                             {company.financial_highlights.profit_margin && (
                               <div className="bg-gray-50 dark:bg-gray-800 p-2 rounded">
                                 <p className="text-xs text-gray-500">Profit Margin</p>
-                                <p className="text-sm font-medium">{company.financial_highlights.profit_margin}</p>
+                                <p className="text-sm font-medium">
+                                  {company.financial_highlights.profit_margin}
+                                </p>
                               </div>
                             )}
                             {company.financial_highlights.debt_to_equity && (
                               <div className="bg-gray-50 dark:bg-gray-800 p-2 rounded">
                                 <p className="text-xs text-gray-500">Debt to Equity</p>
-                                <p className="text-sm font-medium">{company.financial_highlights.debt_to_equity}</p>
+                                <p className="text-sm font-medium">
+                                  {company.financial_highlights.debt_to_equity}
+                                </p>
                               </div>
                             )}
                             {company.financial_highlights.pe_ratio && (
                               <div className="bg-gray-50 dark:bg-gray-800 p-2 rounded">
                                 <p className="text-xs text-gray-500">P/E Ratio</p>
-                                <p className="text-sm font-medium">{company.financial_highlights.pe_ratio}</p>
+                                <p className="text-sm font-medium">
+                                  {company.financial_highlights.pe_ratio}
+                                </p>
                               </div>
                             )}
                           </div>
@@ -1554,7 +1660,10 @@ For well-known companies like Boeing, Lockheed Martin, SpaceX, etc., find their 
                           </div>
                           <ul className="space-y-1">
                             {company.strategic_initiatives.map((init, i) => (
-                              <li key={i} className="text-sm text-gray-600 dark:text-gray-400 flex items-start gap-2">
+                              <li
+                                key={i}
+                                className="text-sm text-gray-600 dark:text-gray-400 flex items-start gap-2"
+                              >
                                 <span className="text-amber-500 mt-0.5">•</span>
                                 {init}
                               </li>
@@ -1569,7 +1678,10 @@ For well-known companies like Boeing, Lockheed Martin, SpaceX, etc., find their 
                           <h4 className="font-semibold text-sm mb-2">R&D Focus Areas</h4>
                           <div className="flex flex-wrap gap-2">
                             {company.rd_focus.map((focus, i) => (
-                              <Badge key={i} className="bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300">
+                              <Badge
+                                key={i}
+                                className="bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300"
+                              >
                                 {focus}
                               </Badge>
                             ))}
@@ -1583,7 +1695,11 @@ For well-known companies like Boeing, Lockheed Martin, SpaceX, etc., find their 
                           <h4 className="font-semibold text-sm mb-2">Key Investors</h4>
                           <div className="flex flex-wrap gap-2">
                             {company.investors.map((investor, i) => (
-                              <Badge key={i} variant="outline" className="bg-purple-50 dark:bg-purple-900/20 border-purple-300 dark:border-purple-700">
+                              <Badge
+                                key={i}
+                                variant="outline"
+                                className="bg-purple-50 dark:bg-purple-900/20 border-purple-300 dark:border-purple-700"
+                              >
                                 {investor}
                               </Badge>
                             ))}
@@ -1596,7 +1712,10 @@ For well-known companies like Boeing, Lockheed Martin, SpaceX, etc., find their 
                           <h4 className="font-semibold text-sm mb-2">Funding Rounds</h4>
                           <div className="space-y-2">
                             {company.funding_rounds.map((round, i) => (
-                              <div key={i} className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg border border-purple-200 dark:border-purple-800">
+                              <div
+                                key={i}
+                                className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg border border-purple-200 dark:border-purple-800"
+                              >
                                 <div className="flex justify-between items-start mb-1">
                                   <p className="font-medium text-sm">{round.round}</p>
                                   <Badge className="bg-purple-600 text-white">{round.amount}</Badge>
@@ -1618,24 +1737,37 @@ For well-known companies like Boeing, Lockheed Martin, SpaceX, etc., find their 
                         <div>
                           <div className="flex items-center gap-2 mb-2">
                             <Shield className="w-4 h-4 text-blue-600" />
-                            <h4 className="font-semibold text-sm">Department of Defense Contracts</h4>
+                            <h4 className="font-semibold text-sm">
+                              Department of Defense Contracts
+                            </h4>
                           </div>
                           <div className="space-y-2">
                             {company.dod_contracts.map((contract, i) => (
-                              <div key={i} className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg border border-blue-200 dark:border-blue-800">
+                              <div
+                                key={i}
+                                className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg border border-blue-200 dark:border-blue-800"
+                              >
                                 <div className="flex justify-between items-start mb-1">
                                   <div>
                                     <p className="font-medium text-sm">{contract.title}</p>
                                     {contract.contract_number && (
-                                      <p className="text-xs text-gray-500">Contract #: {contract.contract_number}</p>
+                                      <p className="text-xs text-gray-500">
+                                        Contract #: {contract.contract_number}
+                                      </p>
                                     )}
                                   </div>
                                   <Badge className="bg-blue-600 text-white">{contract.value}</Badge>
                                 </div>
-                                <p className="text-xs text-gray-500 mb-1">{contract.date} • {contract.agency}</p>
-                                <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">{contract.description}</p>
+                                <p className="text-xs text-gray-500 mb-1">
+                                  {contract.date} • {contract.agency}
+                                </p>
+                                <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">
+                                  {contract.description}
+                                </p>
                                 {contract.status && (
-                                  <Badge variant="outline" className="text-xs">{contract.status}</Badge>
+                                  <Badge variant="outline" className="text-xs">
+                                    {contract.status}
+                                  </Badge>
                                 )}
                               </div>
                             ))}
@@ -1648,24 +1780,39 @@ For well-known companies like Boeing, Lockheed Martin, SpaceX, etc., find their 
                         <div>
                           <div className="flex items-center gap-2 mb-2">
                             <FileText className="w-4 h-4 text-indigo-600" />
-                            <h4 className="font-semibold text-sm">Public Sector Contracts (NASA, FAA, etc.)</h4>
+                            <h4 className="font-semibold text-sm">
+                              Public Sector Contracts (NASA, FAA, etc.)
+                            </h4>
                           </div>
                           <div className="space-y-2">
                             {company.public_sector_contracts.map((contract, i) => (
-                              <div key={i} className="bg-indigo-50 dark:bg-indigo-900/20 p-3 rounded-lg border border-indigo-200 dark:border-indigo-800">
+                              <div
+                                key={i}
+                                className="bg-indigo-50 dark:bg-indigo-900/20 p-3 rounded-lg border border-indigo-200 dark:border-indigo-800"
+                              >
                                 <div className="flex justify-between items-start mb-1">
                                   <div>
                                     <p className="font-medium text-sm">{contract.title}</p>
                                     {contract.contract_number && (
-                                      <p className="text-xs text-gray-500">Contract #: {contract.contract_number}</p>
+                                      <p className="text-xs text-gray-500">
+                                        Contract #: {contract.contract_number}
+                                      </p>
                                     )}
                                   </div>
-                                  <Badge className="bg-indigo-600 text-white">{contract.value}</Badge>
+                                  <Badge className="bg-indigo-600 text-white">
+                                    {contract.value}
+                                  </Badge>
                                 </div>
-                                <p className="text-xs text-gray-500 mb-1">{contract.date} • {contract.agency}</p>
-                                <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">{contract.description}</p>
+                                <p className="text-xs text-gray-500 mb-1">
+                                  {contract.date} • {contract.agency}
+                                </p>
+                                <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">
+                                  {contract.description}
+                                </p>
                                 {contract.status && (
-                                  <Badge variant="outline" className="text-xs">{contract.status}</Badge>
+                                  <Badge variant="outline" className="text-xs">
+                                    {contract.status}
+                                  </Badge>
                                 )}
                               </div>
                             ))}
@@ -1676,7 +1823,9 @@ For well-known companies like Boeing, Lockheed Martin, SpaceX, etc., find their 
                       {/* Recent Contracts */}
                       {company.recent_contracts?.length > 0 && (
                         <div>
-                          <h4 className="font-semibold text-sm mb-2">Other Recent Major Contracts</h4>
+                          <h4 className="font-semibold text-sm mb-2">
+                            Other Recent Major Contracts
+                          </h4>
                           <div className="space-y-2">
                             {company.recent_contracts.map((contract, i) => (
                               <div key={i} className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
@@ -1685,7 +1834,9 @@ For well-known companies like Boeing, Lockheed Martin, SpaceX, etc., find their 
                                   <Badge variant="outline">{contract.value}</Badge>
                                 </div>
                                 <p className="text-xs text-gray-500 mb-1">{contract.date}</p>
-                                <p className="text-xs text-gray-600 dark:text-gray-400">{contract.description}</p>
+                                <p className="text-xs text-gray-600 dark:text-gray-400">
+                                  {contract.description}
+                                </p>
                               </div>
                             ))}
                           </div>
@@ -1703,31 +1854,41 @@ For well-known companies like Boeing, Lockheed Martin, SpaceX, etc., find their 
                             {company.growth_metrics.revenue_growth_3yr && (
                               <div className="bg-green-50 dark:bg-green-900/20 p-2 rounded">
                                 <p className="text-xs text-gray-500">3-Year Revenue Growth</p>
-                                <p className="text-sm font-medium text-green-700 dark:text-green-300">{company.growth_metrics.revenue_growth_3yr}</p>
+                                <p className="text-sm font-medium text-green-700 dark:text-green-300">
+                                  {company.growth_metrics.revenue_growth_3yr}
+                                </p>
                               </div>
                             )}
                             {company.growth_metrics.revenue_growth_5yr && (
                               <div className="bg-green-50 dark:bg-green-900/20 p-2 rounded">
                                 <p className="text-xs text-gray-500">5-Year Revenue Growth</p>
-                                <p className="text-sm font-medium text-green-700 dark:text-green-300">{company.growth_metrics.revenue_growth_5yr}</p>
+                                <p className="text-sm font-medium text-green-700 dark:text-green-300">
+                                  {company.growth_metrics.revenue_growth_5yr}
+                                </p>
                               </div>
                             )}
                             {company.growth_metrics.employee_growth_rate && (
                               <div className="bg-green-50 dark:bg-green-900/20 p-2 rounded">
                                 <p className="text-xs text-gray-500">Employee Growth</p>
-                                <p className="text-sm font-medium text-green-700 dark:text-green-300">{company.growth_metrics.employee_growth_rate}</p>
+                                <p className="text-sm font-medium text-green-700 dark:text-green-300">
+                                  {company.growth_metrics.employee_growth_rate}
+                                </p>
                               </div>
                             )}
                             {company.growth_metrics.market_cap_growth && (
                               <div className="bg-green-50 dark:bg-green-900/20 p-2 rounded">
                                 <p className="text-xs text-gray-500">Market Cap Growth</p>
-                                <p className="text-sm font-medium text-green-700 dark:text-green-300">{company.growth_metrics.market_cap_growth}</p>
+                                <p className="text-sm font-medium text-green-700 dark:text-green-300">
+                                  {company.growth_metrics.market_cap_growth}
+                                </p>
                               </div>
                             )}
                             {company.growth_metrics.backlog_growth && (
                               <div className="bg-green-50 dark:bg-green-900/20 p-2 rounded">
                                 <p className="text-xs text-gray-500">Backlog Growth</p>
-                                <p className="text-sm font-medium text-green-700 dark:text-green-300">{company.growth_metrics.backlog_growth}</p>
+                                <p className="text-sm font-medium text-green-700 dark:text-green-300">
+                                  {company.growth_metrics.backlog_growth}
+                                </p>
                               </div>
                             )}
                           </div>
@@ -1736,7 +1897,12 @@ For well-known companies like Boeing, Lockheed Martin, SpaceX, etc., find their 
                               <p className="text-xs text-gray-500 mb-1">Expansion Markets</p>
                               <div className="flex flex-wrap gap-1">
                                 {company.growth_metrics.expansion_markets.map((market, i) => (
-                                  <Badge key={i} className="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300">{market}</Badge>
+                                  <Badge
+                                    key={i}
+                                    className="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300"
+                                  >
+                                    {market}
+                                  </Badge>
                                 ))}
                               </div>
                             </div>
@@ -1749,30 +1915,54 @@ For well-known companies like Boeing, Lockheed Martin, SpaceX, etc., find their 
                         <div>
                           <div className="flex items-center gap-2 mb-2">
                             <AlertTriangle className="w-4 h-4 text-red-500" />
-                            <h4 className="font-semibold text-sm">Negative Press & Controversies</h4>
+                            <h4 className="font-semibold text-sm">
+                              Negative Press & Controversies
+                            </h4>
                           </div>
                           <div className="space-y-2">
                             {company.negative_pr.map((pr, i) => (
-                              <div key={i} className={`p-3 rounded-lg border-l-4 ${
-                                pr.severity === 'high' ? 'bg-red-50 dark:bg-red-900/20 border-red-500' :
-                                pr.severity === 'medium' ? 'bg-amber-50 dark:bg-amber-900/20 border-amber-500' :
-                                'bg-yellow-50 dark:bg-yellow-900/20 border-yellow-500'
-                              }`}>
+                              <div
+                                key={i}
+                                className={`p-3 rounded-lg border-l-4 ${
+                                  pr.severity === 'high'
+                                    ? 'bg-red-50 dark:bg-red-900/20 border-red-500'
+                                    : pr.severity === 'medium'
+                                      ? 'bg-amber-50 dark:bg-amber-900/20 border-amber-500'
+                                      : 'bg-yellow-50 dark:bg-yellow-900/20 border-yellow-500'
+                                }`}
+                              >
                                 <div className="flex justify-between items-start mb-1">
                                   <p className="font-medium text-sm">{pr.title}</p>
-                                  <Badge className={
-                                    pr.severity === 'high' ? 'bg-red-600 text-white' :
-                                    pr.severity === 'medium' ? 'bg-amber-600 text-white' :
-                                    'bg-yellow-600 text-white'
-                                  }>{pr.severity}</Badge>
+                                  <Badge
+                                    className={
+                                      pr.severity === 'high'
+                                        ? 'bg-red-600 text-white'
+                                        : pr.severity === 'medium'
+                                          ? 'bg-amber-600 text-white'
+                                          : 'bg-yellow-600 text-white'
+                                    }
+                                  >
+                                    {pr.severity}
+                                  </Badge>
                                 </div>
-                                <p className="text-xs text-gray-500 mb-1">{pr.date} • {pr.source}</p>
-                                <p className="text-xs text-gray-700 dark:text-gray-300 mb-1">{pr.summary}</p>
+                                <p className="text-xs text-gray-500 mb-1">
+                                  {pr.date} • {pr.source}
+                                </p>
+                                <p className="text-xs text-gray-700 dark:text-gray-300 mb-1">
+                                  {pr.summary}
+                                </p>
                                 {pr.impact && (
-                                  <p className="text-xs text-gray-600 dark:text-gray-400 italic">Impact: {pr.impact}</p>
+                                  <p className="text-xs text-gray-600 dark:text-gray-400 italic">
+                                    Impact: {pr.impact}
+                                  </p>
                                 )}
                                 {pr.url && (
-                                  <a href={pr.url} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 hover:text-blue-700 flex items-center gap-1 mt-1">
+                                  <a
+                                    href={pr.url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-xs text-blue-600 hover:text-blue-700 flex items-center gap-1 mt-1"
+                                  >
                                     Read more <ExternalLink className="w-3 h-3" />
                                   </a>
                                 )}
@@ -1787,34 +1977,55 @@ For well-known companies like Boeing, Lockheed Martin, SpaceX, etc., find their 
                         <div>
                           <div className="flex items-center gap-2 mb-2">
                             <AlertTriangle className="w-4 h-4 text-orange-500" />
-                            <h4 className="font-semibold text-sm">Safety Incidents & Investigations</h4>
+                            <h4 className="font-semibold text-sm">
+                              Safety Incidents & Investigations
+                            </h4>
                           </div>
                           <div className="space-y-3">
                             {company.incidents.map((incident, i) => (
-                              <div key={i} className="bg-orange-50 dark:bg-orange-900/20 p-3 rounded-lg border border-orange-200 dark:border-orange-800">
+                              <div
+                                key={i}
+                                className="bg-orange-50 dark:bg-orange-900/20 p-3 rounded-lg border border-orange-200 dark:border-orange-800"
+                              >
                                 <div className="flex justify-between items-start mb-2">
                                   <div>
                                     <p className="font-medium text-sm">{incident.title}</p>
-                                    <p className="text-xs text-gray-500">{incident.date} • {incident.type}</p>
+                                    <p className="text-xs text-gray-500">
+                                      {incident.date} • {incident.type}
+                                    </p>
                                   </div>
                                   {incident.investigation_status && (
-                                    <Badge variant="outline" className="text-xs">{incident.investigation_status}</Badge>
+                                    <Badge variant="outline" className="text-xs">
+                                      {incident.investigation_status}
+                                    </Badge>
                                   )}
                                 </div>
-                                <p className="text-xs text-gray-700 dark:text-gray-300 mb-2">{incident.description}</p>
+                                <p className="text-xs text-gray-700 dark:text-gray-300 mb-2">
+                                  {incident.description}
+                                </p>
                                 {incident.casualties && (
-                                  <p className="text-xs text-red-600 dark:text-red-400 font-medium mb-1">Casualties: {incident.casualties}</p>
+                                  <p className="text-xs text-red-600 dark:text-red-400 font-medium mb-1">
+                                    Casualties: {incident.casualties}
+                                  </p>
                                 )}
                                 {incident.findings && (
                                   <div className="bg-white dark:bg-gray-800 p-2 rounded mt-2">
-                                    <p className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Findings:</p>
-                                    <p className="text-xs text-gray-600 dark:text-gray-400">{incident.findings}</p>
+                                    <p className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                      Findings:
+                                    </p>
+                                    <p className="text-xs text-gray-600 dark:text-gray-400">
+                                      {incident.findings}
+                                    </p>
                                   </div>
                                 )}
                                 {incident.regulatory_action && (
                                   <div className="bg-white dark:bg-gray-800 p-2 rounded mt-2">
-                                    <p className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Regulatory Action:</p>
-                                    <p className="text-xs text-gray-600 dark:text-gray-400">{incident.regulatory_action}</p>
+                                    <p className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                      Regulatory Action:
+                                    </p>
+                                    <p className="text-xs text-gray-600 dark:text-gray-400">
+                                      {incident.regulatory_action}
+                                    </p>
                                   </div>
                                 )}
                               </div>
@@ -1842,11 +2053,15 @@ For well-known companies like Boeing, Lockheed Martin, SpaceX, etc., find their 
                                 {company.news_sentiment.overall_sentiment === 'negative' && (
                                   <TrendingDown className="w-5 h-5 text-red-500" />
                                 )}
-                                <span className={`font-medium text-sm capitalize ${
-                                  company.news_sentiment.overall_sentiment === 'positive' ? 'text-green-700 dark:text-green-300' :
-                                  company.news_sentiment.overall_sentiment === 'negative' ? 'text-red-700 dark:text-red-300' :
-                                  'text-gray-700 dark:text-gray-300'
-                                }`}>
+                                <span
+                                  className={`font-medium text-sm capitalize ${
+                                    company.news_sentiment.overall_sentiment === 'positive'
+                                      ? 'text-green-700 dark:text-green-300'
+                                      : company.news_sentiment.overall_sentiment === 'negative'
+                                        ? 'text-red-700 dark:text-red-300'
+                                        : 'text-gray-700 dark:text-gray-300'
+                                  }`}
+                                >
                                   {company.news_sentiment.overall_sentiment} Sentiment
                                 </span>
                               </div>
@@ -1856,21 +2071,32 @@ For well-known companies like Boeing, Lockheed Martin, SpaceX, etc., find their 
                             </div>
                             {company.news_sentiment.recent_headlines?.length > 0 && (
                               <div className="space-y-2 mt-3">
-                                {company.news_sentiment.recent_headlines.slice(0, 3).map((headline, i) => (
-                                  <div key={i} className="bg-white dark:bg-gray-900 p-2 rounded text-xs">
-                                    <p className="font-medium mb-1">{headline.title}</p>
-                                    <div className="flex items-center gap-2 text-gray-500">
-                                      <span>{headline.source}</span>
-                                      <span>•</span>
-                                      <span>{headline.date}</span>
-                                      <Badge className={`ml-auto ${
-                                        headline.sentiment === 'positive' ? 'bg-green-100 text-green-700' :
-                                        headline.sentiment === 'negative' ? 'bg-red-100 text-red-700' :
-                                        'bg-gray-100 text-gray-700'
-                                      }`}>{headline.sentiment}</Badge>
+                                {company.news_sentiment.recent_headlines
+                                  .slice(0, 3)
+                                  .map((headline, i) => (
+                                    <div
+                                      key={i}
+                                      className="bg-white dark:bg-gray-900 p-2 rounded text-xs"
+                                    >
+                                      <p className="font-medium mb-1">{headline.title}</p>
+                                      <div className="flex items-center gap-2 text-gray-500">
+                                        <span>{headline.source}</span>
+                                        <span>•</span>
+                                        <span>{headline.date}</span>
+                                        <Badge
+                                          className={`ml-auto ${
+                                            headline.sentiment === 'positive'
+                                              ? 'bg-green-100 text-green-700'
+                                              : headline.sentiment === 'negative'
+                                                ? 'bg-red-100 text-red-700'
+                                                : 'bg-gray-100 text-gray-700'
+                                          }`}
+                                        >
+                                          {headline.sentiment}
+                                        </Badge>
+                                      </div>
                                     </div>
-                                  </div>
-                                ))}
+                                  ))}
                               </div>
                             )}
                           </div>
@@ -1886,24 +2112,37 @@ For well-known companies like Boeing, Lockheed Martin, SpaceX, etc., find their 
                           </div>
                           <div className="space-y-2">
                             {company.major_projects.map((project, i) => (
-                              <div key={i} className="bg-indigo-50 dark:bg-indigo-900/20 p-3 rounded-lg border border-indigo-200 dark:border-indigo-800">
+                              <div
+                                key={i}
+                                className="bg-indigo-50 dark:bg-indigo-900/20 p-3 rounded-lg border border-indigo-200 dark:border-indigo-800"
+                              >
                                 <div className="flex justify-between items-start mb-1">
                                   <p className="font-medium text-sm">{project.name}</p>
-                                  <Badge className={`${
-                                    project.lifecycle_stage === 'operational' ? 'bg-green-600' :
-                                    project.lifecycle_stage === 'production' ? 'bg-blue-600' :
-                                    project.lifecycle_stage === 'testing' ? 'bg-amber-600' :
-                                    project.lifecycle_stage === 'development' ? 'bg-purple-600' :
-                                    'bg-gray-600'
-                                  } text-white text-xs`}>
+                                  <Badge
+                                    className={`${
+                                      project.lifecycle_stage === 'operational'
+                                        ? 'bg-green-600'
+                                        : project.lifecycle_stage === 'production'
+                                          ? 'bg-blue-600'
+                                          : project.lifecycle_stage === 'testing'
+                                            ? 'bg-amber-600'
+                                            : project.lifecycle_stage === 'development'
+                                              ? 'bg-purple-600'
+                                              : 'bg-gray-600'
+                                    } text-white text-xs`}
+                                  >
                                     {project.lifecycle_stage}
                                   </Badge>
                                 </div>
-                                <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">{project.description}</p>
+                                <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">
+                                  {project.description}
+                                </p>
                                 <div className="flex gap-2 text-xs text-gray-500">
                                   {project.customer && <span>Customer: {project.customer}</span>}
                                   {project.expected_completion && (
-                                    <span className="ml-auto">ETC: {project.expected_completion}</span>
+                                    <span className="ml-auto">
+                                      ETC: {project.expected_completion}
+                                    </span>
                                   )}
                                 </div>
                               </div>
@@ -1937,10 +2176,16 @@ For well-known companies like Boeing, Lockheed Martin, SpaceX, etc., find their 
                                 </p>
                                 <div className="space-y-1">
                                   {company.supply_chain.key_suppliers.map((supplier, i) => (
-                                    <div key={i} className="bg-white dark:bg-gray-800 p-2 rounded text-xs">
+                                    <div
+                                      key={i}
+                                      className="bg-white dark:bg-gray-800 p-2 rounded text-xs"
+                                    >
                                       <span className="font-medium">{supplier.name}</span>
                                       {supplier.supplies && (
-                                        <span className="text-gray-500"> - {supplier.supplies}</span>
+                                        <span className="text-gray-500">
+                                          {' '}
+                                          - {supplier.supplies}
+                                        </span>
                                       )}
                                     </div>
                                   ))}
@@ -1974,9 +2219,14 @@ For well-known companies like Boeing, Lockheed Martin, SpaceX, etc., find their 
                           </div>
                           <div className="space-y-2">
                             {company.partnerships.map((partnership, i) => (
-                              <div key={i} className="bg-teal-50 dark:bg-teal-900/20 p-3 rounded-lg border border-teal-200 dark:border-teal-800">
+                              <div
+                                key={i}
+                                className="bg-teal-50 dark:bg-teal-900/20 p-3 rounded-lg border border-teal-200 dark:border-teal-800"
+                              >
                                 <p className="font-medium text-sm mb-1">{partnership.partner}</p>
-                                <p className="text-xs text-gray-600 dark:text-gray-400">{partnership.description}</p>
+                                <p className="text-xs text-gray-600 dark:text-gray-400">
+                                  {partnership.description}
+                                </p>
                               </div>
                             ))}
                           </div>
@@ -1989,7 +2239,9 @@ For well-known companies like Boeing, Lockheed Martin, SpaceX, etc., find their 
                           <h4 className="font-semibold text-sm mb-2">Main Competitors</h4>
                           <div className="flex flex-wrap gap-2">
                             {company.competitors.map((comp, i) => (
-                              <Badge key={i} variant="outline">{comp}</Badge>
+                              <Badge key={i} variant="outline">
+                                {comp}
+                              </Badge>
                             ))}
                           </div>
                         </div>
@@ -2003,14 +2255,14 @@ For well-known companies like Boeing, Lockheed Martin, SpaceX, etc., find their 
 
                       {/* Competitive Landscape */}
                       <CompetitorLandscape company={company} allCompanies={companies} />
-                      </div>
-                      )}
-                      </CardContent>
-                      </Card>
-                      ))}
-                      </div>
-                      )}
-                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
+      </div>
 
       {/* Add Company Dialog */}
       <Dialog open={showAddCompany} onOpenChange={setShowAddCompany}>
@@ -2018,7 +2270,8 @@ For well-known companies like Boeing, Lockheed Martin, SpaceX, etc., find their 
           <DialogHeader>
             <DialogTitle>Add Aerospace Company</DialogTitle>
             <DialogDescription>
-              Enter the name of an aerospace or aviation company to search and add to your intelligence database.
+              Enter the name of an aerospace or aviation company to search and add to your
+              intelligence database.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
@@ -2034,9 +2287,7 @@ For well-known companies like Boeing, Lockheed Martin, SpaceX, etc., find their 
                   }
                 }}
               />
-              <p className="text-xs text-gray-500">
-                Works with both public and private companies
-              </p>
+              <p className="text-xs text-gray-500">Works with both public and private companies</p>
             </div>
           </div>
           <DialogFooter>
@@ -2093,15 +2344,12 @@ For well-known companies like Boeing, Lockheed Martin, SpaceX, etc., find their 
             />
           ) : (
             <>
-              <PortfolioManager
-                user={user}
-                onSelectPortfolio={setSelectedPortfolio}
-              />
+              <PortfolioManager user={user} onSelectPortfolio={setSelectedPortfolio} />
               {selectedCompaniesForPortfolio.length > 0 && (
                 <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
                   <h4 className="font-semibold mb-2">Add selected companies to portfolio:</h4>
                   <div className="flex flex-wrap gap-2 mb-3">
-                    {selectedCompaniesForPortfolio.map(c => (
+                    {selectedCompaniesForPortfolio.map((c) => (
                       <Badge key={c.id}>{c.company_name}</Badge>
                     ))}
                   </div>
@@ -2109,16 +2357,18 @@ For well-known companies like Boeing, Lockheed Martin, SpaceX, etc., find their 
                     {user && (
                       <Button
                         onClick={async () => {
-                          const portfolios = await base44.entities.AerospacePortfolio.filter({ 
-                            user_email: user.email 
+                          const portfolios = await base44.entities.AerospacePortfolio.filter({
+                            user_email: user.email,
                           });
                           for (const portfolio of portfolios) {
                             const newCompanyIds = [
                               ...(portfolio.company_ids || []),
-                              ...selectedCompaniesForPortfolio.map(c => c.id).filter(id => !portfolio.company_ids?.includes(id))
+                              ...selectedCompaniesForPortfolio
+                                .map((c) => c.id)
+                                .filter((id) => !portfolio.company_ids?.includes(id)),
                             ];
-                            await base44.entities.AerospacePortfolio.update(portfolio.id, { 
-                              company_ids: newCompanyIds 
+                            await base44.entities.AerospacePortfolio.update(portfolio.id, {
+                              company_ids: newCompanyIds,
                             });
                           }
                           queryClient.invalidateQueries({ queryKey: ['aerospace-portfolios'] });
@@ -2128,10 +2378,7 @@ For well-known companies like Boeing, Lockheed Martin, SpaceX, etc., find their 
                         Add to All Portfolios
                       </Button>
                     )}
-                    <Button
-                      variant="outline"
-                      onClick={() => setSelectedCompaniesForPortfolio([])}
-                    >
+                    <Button variant="outline" onClick={() => setSelectedCompaniesForPortfolio([])}>
                       Clear Selection
                     </Button>
                   </div>

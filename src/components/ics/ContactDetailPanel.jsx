@@ -1,20 +1,20 @@
 import React, { useState } from 'react';
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { 
-  X, 
-  MessageSquare, 
-  Video, 
-  Phone, 
-  Users, 
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import {
+  X,
+  MessageSquare,
+  Video,
+  Phone,
+  Users,
   Edit2,
   Mail,
   Briefcase,
   Calendar,
-  Link as LinkIcon
+  Link as LinkIcon,
 } from 'lucide-react';
 import PresenceIndicator from './PresenceIndicator';
 
@@ -48,18 +48,22 @@ export default function ContactDetailPanel({
   const contactData = editData || contact;
 
   return (
-    <div className={`fixed right-0 top-0 bottom-0 w-96 shadow-xl z-40 overflow-hidden flex flex-col ${
-      darkMode ? 'bg-slate-900 border-l border-slate-800' : 'bg-white border-l border-gray-200'
-    }`}>
+    <div
+      className={`fixed right-0 top-0 bottom-0 w-96 shadow-xl z-40 overflow-hidden flex flex-col ${
+        darkMode ? 'bg-slate-900 border-l border-slate-800' : 'bg-white border-l border-gray-200'
+      }`}
+    >
       {/* Header */}
       <div className={`p-6 border-b ${darkMode ? 'border-slate-800' : 'border-gray-200'}`}>
         <div className="flex items-start justify-between gap-4 mb-4">
           <div className="flex items-start gap-4 flex-1">
             <div className="relative">
               <Avatar className="w-14 h-14">
-                <AvatarFallback className={`text-lg font-semibold ${
-                  darkMode ? 'bg-violet-600 text-white' : 'bg-violet-100 text-violet-700'
-                }`}>
+                <AvatarFallback
+                  className={`text-lg font-semibold ${
+                    darkMode ? 'bg-violet-600 text-white' : 'bg-violet-100 text-violet-700'
+                  }`}
+                >
                   {contact.full_name?.[0]?.toUpperCase() || contact.email?.[0]?.toUpperCase()}
                 </AvatarFallback>
               </Avatar>
@@ -84,9 +88,7 @@ export default function ContactDetailPanel({
           <button
             onClick={onClose}
             className={`p-2 rounded-lg transition-colors ${
-              darkMode 
-                ? 'hover:bg-slate-800 text-gray-400' 
-                : 'hover:bg-gray-100 text-gray-600'
+              darkMode ? 'hover:bg-slate-800 text-gray-400' : 'hover:bg-gray-100 text-gray-600'
             }`}
           >
             <X className="w-5 h-5" />
@@ -97,11 +99,7 @@ export default function ContactDetailPanel({
         <div className="grid grid-cols-2 gap-2">
           {!isOwnProfile && (
             <>
-              <Button
-                size="sm"
-                className="gap-2"
-                onClick={() => onDirectMessage(contact)}
-              >
+              <Button size="sm" className="gap-2" onClick={() => onDirectMessage(contact)}>
                 <MessageSquare className="w-4 h-4" />
                 Message
               </Button>
@@ -135,11 +133,7 @@ export default function ContactDetailPanel({
             </>
           )}
           {isOwnProfile && (
-            <Button
-              size="sm"
-              className="gap-2 col-span-2"
-              onClick={handleEditToggle}
-            >
+            <Button size="sm" className="gap-2 col-span-2" onClick={handleEditToggle}>
               <Edit2 className="w-4 h-4" />
               {isEditing ? 'Cancel' : 'Edit Profile'}
             </Button>
@@ -159,7 +153,9 @@ export default function ContactDetailPanel({
               {isOwnProfile && isEditing ? (
                 <>
                   <div>
-                    <label className={`text-xs font-medium block mb-1 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                    <label
+                      className={`text-xs font-medium block mb-1 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}
+                    >
                       Full Name
                     </label>
                     <Input
@@ -169,7 +165,9 @@ export default function ContactDetailPanel({
                     />
                   </div>
                   <div>
-                    <label className={`text-xs font-medium block mb-1 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                    <label
+                      className={`text-xs font-medium block mb-1 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}
+                    >
                       Email
                     </label>
                     <Input
@@ -192,7 +190,9 @@ export default function ContactDetailPanel({
                   </div>
                   {contact.phone && (
                     <div className="flex items-center gap-2">
-                      <Phone className={`w-4 h-4 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`} />
+                      <Phone
+                        className={`w-4 h-4 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}
+                      />
                       <span className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                         {contact.phone}
                       </span>
@@ -206,7 +206,9 @@ export default function ContactDetailPanel({
           {/* Job Title */}
           {(contact.job_title || (isOwnProfile && isEditing)) && (
             <div>
-              <h3 className={`font-semibold mb-2 flex items-center gap-2 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+              <h3
+                className={`font-semibold mb-2 flex items-center gap-2 ${darkMode ? 'text-white' : 'text-gray-900'}`}
+              >
                 <Briefcase className="w-4 h-4" />
                 Job Title
               </h3>
@@ -253,12 +255,18 @@ export default function ContactDetailPanel({
                 Status
               </h3>
               <div className="flex items-center gap-2">
-                <div className={`w-2.5 h-2.5 rounded-full ${
-                  presence.status === 'online' ? 'bg-green-500' :
-                  presence.status === 'away' ? 'bg-yellow-500' :
-                  'bg-gray-500'
-                }`} />
-                <span className={`text-sm capitalize ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                <div
+                  className={`w-2.5 h-2.5 rounded-full ${
+                    presence.status === 'online'
+                      ? 'bg-green-500'
+                      : presence.status === 'away'
+                        ? 'bg-yellow-500'
+                        : 'bg-gray-500'
+                  }`}
+                />
+                <span
+                  className={`text-sm capitalize ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                >
                   {presence.status}
                 </span>
               </div>
@@ -269,12 +277,10 @@ export default function ContactDetailPanel({
 
       {/* Edit Save Footer */}
       {isOwnProfile && isEditing && (
-        <div className={`p-4 border-t ${darkMode ? 'border-slate-800' : 'border-gray-200'} flex gap-2`}>
-          <Button
-            variant="outline"
-            onClick={handleEditToggle}
-            className="flex-1"
-          >
+        <div
+          className={`p-4 border-t ${darkMode ? 'border-slate-800' : 'border-gray-200'} flex gap-2`}
+        >
+          <Button variant="outline" onClick={handleEditToggle} className="flex-1">
             Cancel
           </Button>
           <Button

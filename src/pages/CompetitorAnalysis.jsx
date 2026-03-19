@@ -1,35 +1,46 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
-  Plus, Search, Loader2, Sparkles, Target, Users, TrendingUp,
-  Grid3x3, List, Network as NetworkIcon, Table2, Shield
-} from "lucide-react";
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
+  Plus,
+  Search,
+  Loader2,
+  Sparkles,
+  Target,
+  Users,
+  TrendingUp,
+  Grid3x3,
+  List,
+  Network as NetworkIcon,
+  Table2,
+  Shield,
+} from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from '@/components/ui/dropdown-menu';
 import CompetitorCard from '@/components/social/CompetitorCard';
 import CompetitorDetailModal from '@/components/social/CompetitorDetailModal';
 import CompetitorReportModal from '@/components/modals/CompetitorReportModal';
 import CompetitorNetworkMap from '@/components/social/CompetitorNetworkMap';
 import EmptyState from '@/components/ui/EmptyState';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 export default function CompetitorAnalysis() {
   const [showCompetitorModal, setShowCompetitorModal] = useState(false);
@@ -106,11 +117,14 @@ export default function CompetitorAnalysis() {
   const discoverCompetitorsMutation = useMutation({
     mutationFn: async () => {
       setIsDiscoveringCompetitors(true);
-      const companyInfo = companies.length > 0 
-        ? companies.map(c => `${c.name} (${c.industry || 'general'}, ${c.website || 'no website'})`).join(', ')
-        : 'General business';
-      
-      const existingCompetitorNames = competitors.map(c => c.name.toLowerCase());
+      const companyInfo =
+        companies.length > 0
+          ? companies
+              .map((c) => `${c.name} (${c.industry || 'general'}, ${c.website || 'no website'})`)
+              .join(', ')
+          : 'General business';
+
+      const existingCompetitorNames = competitors.map((c) => c.name.toLowerCase());
 
       const analysis = await base44.integrations.Core.InvokeLLM({
         prompt: `Based on these company profiles: ${companyInfo}
@@ -124,21 +138,21 @@ export default function CompetitorAnalysis() {
         ${existingCompetitorNames.length > 0 ? `Exclude these already tracked competitors: ${existingCompetitorNames.join(', ')}` : ''}`,
         add_context_from_internet: true,
         response_json_schema: {
-          type: "object",
+          type: 'object',
           properties: {
             competitors: {
-              type: "array",
+              type: 'array',
               items: {
-                type: "object",
+                type: 'object',
                 properties: {
-                  name: { type: "string" },
-                  website: { type: "string" },
-                  reason: { type: "string" }
-                }
-              }
-            }
-          }
-        }
+                  name: { type: 'string' },
+                  website: { type: 'string' },
+                  reason: { type: 'string' },
+                },
+              },
+            },
+          },
+        },
       });
 
       let added = 0;
@@ -151,20 +165,20 @@ export default function CompetitorAnalysis() {
           added++;
         }
       }
-      
+
       return { added, total: analysis.competitors?.length || 0 };
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['competitors'] });
       setIsDiscoveringCompetitors(false);
     },
-    onError: () => setIsDiscoveringCompetitors(false)
+    onError: () => setIsDiscoveringCompetitors(false),
   });
 
   const analyzeCompetitorMutation = useMutation({
     mutationFn: async (competitor) => {
       setAnalyzingCompetitor(competitor.id);
-      
+
       // Fetch logo using multiple methods
       let logo_url = null;
       if (competitor.website) {
@@ -172,7 +186,7 @@ export default function CompetitorAnalysis() {
           // Method 1: Try Google's favicon service
           const domain = competitor.website.replace(/^https?:\/\//, '').replace(/\/.*$/, '');
           logo_url = `https://www.google.com/s2/favicons?domain=${domain}&sz=128`;
-          
+
           // Verify the logo loads
           try {
             const response = await fetch(logo_url);
@@ -187,7 +201,7 @@ export default function CompetitorAnalysis() {
           console.error('Logo fetch error:', err);
         }
       }
-      
+
       const analysis = await base44.integrations.Core.InvokeLLM({
         prompt: `Analyze competitor social media presence for: ${competitor.name}
         Website: ${competitor.website || 'N/A'}
@@ -202,62 +216,62 @@ export default function CompetitorAnalysis() {
         7. Content frequency analysis`,
         add_context_from_internet: true,
         response_json_schema: {
-          type: "object",
+          type: 'object',
           properties: {
             social_accounts: {
-              type: "array",
+              type: 'array',
               items: {
-                type: "object",
+                type: 'object',
                 properties: {
-                  platform: { type: "string" },
-                  handle: { type: "string" },
-                  followers: { type: "number" },
-                  engagement_rate: { type: "number" }
-                }
-              }
+                  platform: { type: 'string' },
+                  handle: { type: 'string' },
+                  followers: { type: 'number' },
+                  engagement_rate: { type: 'number' },
+                },
+              },
             },
-            strengths: { type: "array", items: { type: "string" } },
-            weaknesses: { type: "array", items: { type: "string" } },
-            top_content: { type: "array", items: { type: "string" } },
+            strengths: { type: 'array', items: { type: 'string' } },
+            weaknesses: { type: 'array', items: { type: 'string' } },
+            top_content: { type: 'array', items: { type: 'string' } },
             strategy_evolution: {
-              type: "array",
+              type: 'array',
               items: {
-                type: "object",
+                type: 'object',
                 properties: {
-                  period: { type: "string" },
-                  focus: { type: "string" },
-                  performance: { type: "string" }
-                }
-              }
+                  period: { type: 'string' },
+                  focus: { type: 'string' },
+                  performance: { type: 'string' },
+                },
+              },
             },
             successful_campaigns: {
-              type: "array",
+              type: 'array',
               items: {
-                type: "object",
+                type: 'object',
                 properties: {
-                  name: { type: "string" },
-                  type: { type: "string" },
-                  estimated_reach: { type: "number" },
-                  key_elements: { type: "array", items: { type: "string" } }
-                }
-              }
+                  name: { type: 'string' },
+                  type: { type: 'string' },
+                  estimated_reach: { type: 'number' },
+                  key_elements: { type: 'array', items: { type: 'string' } },
+                },
+              },
             },
             content_frequency: {
-              type: "object",
+              type: 'object',
               properties: {
-                posts_per_week: { type: "number" },
-                best_days: { type: "array", items: { type: "string" } },
-                content_mix: { type: "object" }
-              }
-            }
-          }
-        }
+                posts_per_week: { type: 'number' },
+                best_days: { type: 'array', items: { type: 'string' } },
+                content_mix: { type: 'object' },
+              },
+            },
+          },
+        },
       });
 
       await base44.entities.Competitor.update(competitor.id, {
         ...analysis,
         logo_url,
-        last_analyzed: new Date().toISOString()
+        last_analyzed: new Date().toISOString(),
       });
       return analysis;
     },
@@ -281,19 +295,28 @@ export default function CompetitorAnalysis() {
         periodStart.setDate(today.getDate() - 1);
       }
 
-      const yourBrandData = reportType === 'comparative' ? {
-        followers: socialAccounts.reduce((sum, a) => sum + (a.followers_count || 0), 0),
-        engagement_rate: socialAccounts.length > 0 
-          ? socialAccounts.reduce((sum, a) => sum + (a.engagement_rate || 0), 0) / socialAccounts.length 
-          : 0,
-        posts_per_week: scheduledPosts.length > 0 ? Math.round(scheduledPosts.length / 4) : 5,
-        avg_likes: socialPosts.length > 0 
-          ? Math.round(socialPosts.reduce((sum, p) => sum + (p.likes || 0), 0) / socialPosts.length) 
-          : 0
-      } : null;
+      const yourBrandData =
+        reportType === 'comparative'
+          ? {
+              followers: socialAccounts.reduce((sum, a) => sum + (a.followers_count || 0), 0),
+              engagement_rate:
+                socialAccounts.length > 0
+                  ? socialAccounts.reduce((sum, a) => sum + (a.engagement_rate || 0), 0) /
+                    socialAccounts.length
+                  : 0,
+              posts_per_week: scheduledPosts.length > 0 ? Math.round(scheduledPosts.length / 4) : 5,
+              avg_likes:
+                socialPosts.length > 0
+                  ? Math.round(
+                      socialPosts.reduce((sum, p) => sum + (p.likes || 0), 0) / socialPosts.length
+                    )
+                  : 0,
+            }
+          : null;
 
-      const promptBase = reportType === 'comparative'
-        ? `Generate a comparative analysis report between our brand and ${competitor.name}:
+      const promptBase =
+        reportType === 'comparative'
+          ? `Generate a comparative analysis report between our brand and ${competitor.name}:
           
 Our brand metrics:
 - Total followers: ${yourBrandData.followers}
@@ -306,7 +329,7 @@ Website: ${competitor.website || 'N/A'}
 Social accounts: ${JSON.stringify(competitor.social_accounts || [])}
 
 Generate detailed comparison with side-by-side metrics, areas we lead/need to improve, and strategic opportunities.`
-        : `Generate a ${reportType} competitor analysis report for: ${competitor.name}
+          : `Generate a ${reportType} competitor analysis report for: ${competitor.name}
         Website: ${competitor.website || 'N/A'}
         Social accounts: ${JSON.stringify(competitor.social_accounts || [])}
         
@@ -316,29 +339,29 @@ Generate detailed comparison with side-by-side metrics, areas we lead/need to im
         prompt: promptBase,
         add_context_from_internet: true,
         response_json_schema: {
-          type: "object",
+          type: 'object',
           properties: {
             metrics: {
-              type: "object",
+              type: 'object',
               properties: {
-                follower_change: { type: "number" },
-                follower_change_percent: { type: "number" },
-                engagement_change: { type: "number" },
-                posts_count: { type: "number" },
-                avg_likes: { type: "number" },
-                avg_comments: { type: "number" },
-                avg_shares: { type: "number" }
-              }
+                follower_change: { type: 'number' },
+                follower_change_percent: { type: 'number' },
+                engagement_change: { type: 'number' },
+                posts_count: { type: 'number' },
+                avg_likes: { type: 'number' },
+                avg_comments: { type: 'number' },
+                avg_shares: { type: 'number' },
+              },
             },
-            content_trends: { type: "array", items: { type: "object" } },
-            sentiment_analysis: { type: "object" },
-            alerts: { type: "array", items: { type: "object" } },
-            top_posts: { type: "array", items: { type: "object" } },
-            recommendations: { type: "array", items: { type: "string" } },
-            summary: { type: "string" },
-            comparative_data: { type: "object" }
-          }
-        }
+            content_trends: { type: 'array', items: { type: 'object' } },
+            sentiment_analysis: { type: 'object' },
+            alerts: { type: 'array', items: { type: 'object' } },
+            top_posts: { type: 'array', items: { type: 'object' } },
+            recommendations: { type: 'array', items: { type: 'string' } },
+            summary: { type: 'string' },
+            comparative_data: { type: 'object' },
+          },
+        },
       });
 
       const report = await base44.entities.CompetitorReport.create({
@@ -346,7 +369,7 @@ Generate detailed comparison with side-by-side metrics, areas we lead/need to im
         report_type: reportType,
         period_start: periodStart.toISOString().split('T')[0],
         period_end: today.toISOString().split('T')[0],
-        ...analysis
+        ...analysis,
       });
 
       return report;
@@ -361,25 +384,25 @@ Generate detailed comparison with side-by-side metrics, areas we lead/need to im
   const scanNewsMutation = useMutation({
     mutationFn: async (competitor) => {
       setScanningNewsFor(competitor.id);
-      
+
       const analysis = await base44.integrations.Core.InvokeLLM({
         prompt: `Search for the latest news, press releases, and media coverage about ${competitor.name} (${competitor.website || 'company'}).
         
 Find recent news articles and press releases with title, source, date, summary, sentiment.`,
         add_context_from_internet: true,
         response_json_schema: {
-          type: "object",
+          type: 'object',
           properties: {
-            news_mentions: { type: "array", items: { type: "object" } },
-            press_releases: { type: "array", items: { type: "object" } }
-          }
-        }
+            news_mentions: { type: 'array', items: { type: 'object' } },
+            press_releases: { type: 'array', items: { type: 'object' } },
+          },
+        },
       });
 
       await base44.entities.Competitor.update(competitor.id, {
         news_mentions: analysis.news_mentions || [],
         press_releases: analysis.press_releases || [],
-        last_news_scan: new Date().toISOString()
+        last_news_scan: new Date().toISOString(),
       });
 
       return analysis;
@@ -408,27 +431,27 @@ Find recent news articles and press releases with title, source, date, summary, 
   const deepAnalyzeMutation = useMutation({
     mutationFn: async (competitor) => {
       setDeepAnalyzingFor(competitor.id);
-      
+
       const analysis = await base44.integrations.Core.InvokeLLM({
         prompt: `Perform deep strategic analysis of ${competitor.name} social media presence.
         
 Analyze: content strategy, predicted campaigns, industry benchmarks.`,
         add_context_from_internet: true,
         response_json_schema: {
-          type: "object",
+          type: 'object',
           properties: {
-            content_strategy: { type: "object" },
-            predicted_campaigns: { type: "array", items: { type: "object" } },
-            industry_benchmark: { type: "object" }
-          }
-        }
+            content_strategy: { type: 'object' },
+            predicted_campaigns: { type: 'array', items: { type: 'object' } },
+            industry_benchmark: { type: 'object' },
+          },
+        },
       });
 
       await base44.entities.Competitor.update(competitor.id, {
         content_strategy: analysis.content_strategy,
         predicted_campaigns: analysis.predicted_campaigns,
         industry_benchmark: analysis.industry_benchmark,
-        last_analyzed: new Date().toISOString()
+        last_analyzed: new Date().toISOString(),
       });
 
       return analysis;
@@ -440,16 +463,16 @@ Analyze: content strategy, predicted campaigns, industry benchmarks.`,
     onError: () => setDeepAnalyzingFor(null),
   });
 
-  const filteredCompetitors = competitors.filter(c => {
+  const filteredCompetitors = competitors.filter((c) => {
     const matchesSearch = !searchTerm || c.name.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesTier = selectedTier === 'all' || c.tier === selectedTier;
     return matchesSearch && matchesTier;
   });
 
   const tierCounts = {
-    tier_1: competitors.filter(c => c.tier === 'tier_1').length,
-    tier_2: competitors.filter(c => c.tier === 'tier_2').length,
-    tier_3: competitors.filter(c => c.tier === 'tier_3').length,
+    tier_1: competitors.filter((c) => c.tier === 'tier_1').length,
+    tier_2: competitors.filter((c) => c.tier === 'tier_2').length,
+    tier_3: competitors.filter((c) => c.tier === 'tier_3').length,
   };
 
   const totalFollowers = competitors.reduce((sum, c) => {
@@ -462,7 +485,9 @@ Analyze: content strategy, predicted campaigns, industry benchmarks.`,
       <div className="p-4 sm:p-6 lg:p-8 space-y-6 min-h-screen">
         <Skeleton className="h-10 w-64" />
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-28" />)}
+          {[...Array(4)].map((_, i) => (
+            <Skeleton key={i} className="h-28" />
+          ))}
         </div>
       </div>
     );
@@ -473,11 +498,15 @@ Analyze: content strategy, predicted campaigns, industry benchmarks.`,
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Competitor Analysis</h1>
-          <p className="text-sm sm:text-base text-gray-500 mt-1">Track and analyze your competitors' social media presence</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
+            Competitor Analysis
+          </h1>
+          <p className="text-sm sm:text-base text-gray-500 mt-1">
+            Track and analyze your competitors' social media presence
+          </p>
         </div>
         <div className="flex gap-2">
-          <Button 
+          <Button
             variant="outline"
             onClick={() => discoverCompetitorsMutation.mutate()}
             disabled={isDiscoveringCompetitors}
@@ -490,7 +519,7 @@ Analyze: content strategy, predicted campaigns, industry benchmarks.`,
             )}
             {isDiscoveringCompetitors ? 'Discovering...' : 'Auto-Discover'}
           </Button>
-          <Button 
+          <Button
             onClick={() => setShowCompetitorModal(true)}
             className="gap-2 bg-violet-600 hover:bg-violet-700"
           >
@@ -513,8 +542,11 @@ Analyze: content strategy, predicted campaigns, industry benchmarks.`,
           <CardContent className="p-4 text-center">
             <Users className="w-6 h-6 text-blue-500 mx-auto mb-2" />
             <p className="text-2xl font-bold text-gray-900 dark:text-white">
-              {totalFollowers >= 1000000 ? `${(totalFollowers/1000000).toFixed(1)}M` : 
-               totalFollowers >= 1000 ? `${(totalFollowers/1000).toFixed(0)}K` : totalFollowers}
+              {totalFollowers >= 1000000
+                ? `${(totalFollowers / 1000000).toFixed(1)}M`
+                : totalFollowers >= 1000
+                  ? `${(totalFollowers / 1000).toFixed(0)}K`
+                  : totalFollowers}
             </p>
             <p className="text-sm text-gray-500">Combined Followers</p>
           </CardContent>
@@ -522,7 +554,9 @@ Analyze: content strategy, predicted campaigns, industry benchmarks.`,
         <Card className="glass-card rounded-2xl">
           <CardContent className="p-4 text-center">
             <TrendingUp className="w-6 h-6 text-emerald-500 mx-auto mb-2" />
-            <p className="text-2xl font-bold text-gray-900 dark:text-white">{competitorReports.length}</p>
+            <p className="text-2xl font-bold text-gray-900 dark:text-white">
+              {competitorReports.length}
+            </p>
             <p className="text-sm text-gray-500">Reports Generated</p>
           </CardContent>
         </Card>
@@ -530,7 +564,7 @@ Analyze: content strategy, predicted campaigns, industry benchmarks.`,
           <CardContent className="p-4 text-center">
             <Sparkles className="w-6 h-6 text-amber-500 mx-auto mb-2" />
             <p className="text-2xl font-bold text-gray-900 dark:text-white">
-              {competitors.filter(c => c.last_analyzed).length}
+              {competitors.filter((c) => c.last_analyzed).length}
             </p>
             <p className="text-sm text-gray-500">Analyzed</p>
           </CardContent>
@@ -551,18 +585,10 @@ Analyze: content strategy, predicted campaigns, industry benchmarks.`,
           </div>
           <Tabs value={selectedTier} onValueChange={setSelectedTier} className="w-full sm:w-auto">
             <TabsList className="grid grid-cols-4 w-full sm:w-auto">
-              <TabsTrigger value="all">
-                All ({competitors.length})
-              </TabsTrigger>
-              <TabsTrigger value="tier_1">
-                Tier 1 ({tierCounts.tier_1})
-              </TabsTrigger>
-              <TabsTrigger value="tier_2">
-                Tier 2 ({tierCounts.tier_2})
-              </TabsTrigger>
-              <TabsTrigger value="tier_3">
-                Tier 3 ({tierCounts.tier_3})
-              </TabsTrigger>
+              <TabsTrigger value="all">All ({competitors.length})</TabsTrigger>
+              <TabsTrigger value="tier_1">Tier 1 ({tierCounts.tier_1})</TabsTrigger>
+              <TabsTrigger value="tier_2">Tier 2 ({tierCounts.tier_2})</TabsTrigger>
+              <TabsTrigger value="tier_3">Tier 3 ({tierCounts.tier_3})</TabsTrigger>
             </TabsList>
           </Tabs>
         </div>
@@ -621,8 +647,8 @@ Analyze: content strategy, predicted campaigns, industry benchmarks.`,
       ) : (
         <>
           {viewMode === 'network' && (
-            <CompetitorNetworkMap 
-              competitors={filteredCompetitors} 
+            <CompetitorNetworkMap
+              competitors={filteredCompetitors}
               onSelectCompetitor={(comp) => setSelectedCompetitor(comp)}
               socialAccounts={socialAccounts}
             />
@@ -637,7 +663,9 @@ Analyze: content strategy, predicted campaigns, industry benchmarks.`,
                   onAnalyze={() => analyzeCompetitorMutation.mutate(competitor)}
                   isAnalyzing={analyzingCompetitor === competitor.id}
                   onView={() => setSelectedCompetitor(competitor)}
-                  onUpdateTier={(comp, tier) => updateTierMutation.mutate({ competitor: comp, tier })}
+                  onUpdateTier={(comp, tier) =>
+                    updateTierMutation.mutate({ competitor: comp, tier })
+                  }
                 />
               ))}
             </div>
@@ -646,13 +674,22 @@ Analyze: content strategy, predicted campaigns, industry benchmarks.`,
           {viewMode === 'list' && (
             <div className="space-y-3">
               {filteredCompetitors.map((competitor) => {
-                const totalFollowers = (competitor.social_accounts || []).reduce((sum, a) => sum + (a.followers || 0), 0);
-                const avgEngagement = competitor.social_accounts?.length > 0
-                  ? (competitor.social_accounts.reduce((sum, a) => sum + (a.engagement_rate || 0), 0) / competitor.social_accounts.length).toFixed(1)
-                  : 0;
-                
+                const totalFollowers = (competitor.social_accounts || []).reduce(
+                  (sum, a) => sum + (a.followers || 0),
+                  0
+                );
+                const avgEngagement =
+                  competitor.social_accounts?.length > 0
+                    ? (
+                        competitor.social_accounts.reduce(
+                          (sum, a) => sum + (a.engagement_rate || 0),
+                          0
+                        ) / competitor.social_accounts.length
+                      ).toFixed(1)
+                    : 0;
+
                 return (
-                  <Card 
+                  <Card
                     key={competitor.id}
                     className="glass-card hover:shadow-lg transition-all cursor-pointer"
                     onClick={() => setSelectedCompetitor(competitor)}
@@ -666,8 +703,8 @@ Analyze: content strategy, predicted campaigns, industry benchmarks.`,
                             </h3>
                             <DropdownMenu>
                               <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-                                <Badge 
-                                  variant="outline" 
+                                <Badge
+                                  variant="outline"
                                   className="capitalize cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700"
                                 >
                                   <Shield className="w-3 h-3 mr-1" />
@@ -675,13 +712,28 @@ Analyze: content strategy, predicted campaigns, industry benchmarks.`,
                                 </Badge>
                               </DropdownMenuTrigger>
                               <DropdownMenuContent onClick={(e) => e.stopPropagation()}>
-                                <DropdownMenuItem onClick={(e) => { e.stopPropagation(); updateTierMutation.mutate({ competitor, tier: 'tier_1' }); }}>
+                                <DropdownMenuItem
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    updateTierMutation.mutate({ competitor, tier: 'tier_1' });
+                                  }}
+                                >
                                   Tier 1 - Direct Competitor
                                 </DropdownMenuItem>
-                                <DropdownMenuItem onClick={(e) => { e.stopPropagation(); updateTierMutation.mutate({ competitor, tier: 'tier_2' }); }}>
+                                <DropdownMenuItem
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    updateTierMutation.mutate({ competitor, tier: 'tier_2' });
+                                  }}
+                                >
                                   Tier 2 - Indirect Competitor
                                 </DropdownMenuItem>
-                                <DropdownMenuItem onClick={(e) => { e.stopPropagation(); updateTierMutation.mutate({ competitor, tier: 'tier_3' }); }}>
+                                <DropdownMenuItem
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    updateTierMutation.mutate({ competitor, tier: 'tier_3' });
+                                  }}
+                                >
                                   Tier 3 - Potential Threat
                                 </DropdownMenuItem>
                               </DropdownMenuContent>
@@ -697,20 +749,25 @@ Analyze: content strategy, predicted campaigns, industry benchmarks.`,
                             {competitor.website || 'No website'}
                           </p>
                         </div>
-                        
+
                         <div className="flex items-center gap-6">
                           <div className="text-center">
                             <Users className="w-4 h-4 text-violet-500 mx-auto mb-1" />
                             <p className="text-sm font-semibold text-gray-900 dark:text-white">
-                              {totalFollowers >= 1000000 ? `${(totalFollowers/1000000).toFixed(1)}M` : 
-                               totalFollowers >= 1000 ? `${(totalFollowers/1000).toFixed(0)}K` : totalFollowers}
+                              {totalFollowers >= 1000000
+                                ? `${(totalFollowers / 1000000).toFixed(1)}M`
+                                : totalFollowers >= 1000
+                                  ? `${(totalFollowers / 1000).toFixed(0)}K`
+                                  : totalFollowers}
                             </p>
                             <p className="text-xs text-gray-500">Followers</p>
                           </div>
 
                           <div className="text-center">
                             <TrendingUp className="w-4 h-4 text-emerald-500 mx-auto mb-1" />
-                            <p className="text-sm font-semibold text-gray-900 dark:text-white">{avgEngagement}%</p>
+                            <p className="text-sm font-semibold text-gray-900 dark:text-white">
+                              {avgEngagement}%
+                            </p>
                             <p className="text-xs text-gray-500">Engagement</p>
                           </div>
 
@@ -778,20 +835,31 @@ Analyze: content strategy, predicted campaigns, industry benchmarks.`,
                     </thead>
                     <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                       {filteredCompetitors.map((competitor) => {
-                        const totalFollowers = (competitor.social_accounts || []).reduce((sum, a) => sum + (a.followers || 0), 0);
-                        const avgEngagement = competitor.social_accounts?.length > 0
-                          ? (competitor.social_accounts.reduce((sum, a) => sum + (a.engagement_rate || 0), 0) / competitor.social_accounts.length).toFixed(1)
-                          : 0;
-                        
+                        const totalFollowers = (competitor.social_accounts || []).reduce(
+                          (sum, a) => sum + (a.followers || 0),
+                          0
+                        );
+                        const avgEngagement =
+                          competitor.social_accounts?.length > 0
+                            ? (
+                                competitor.social_accounts.reduce(
+                                  (sum, a) => sum + (a.engagement_rate || 0),
+                                  0
+                                ) / competitor.social_accounts.length
+                              ).toFixed(1)
+                            : 0;
+
                         return (
-                          <tr 
+                          <tr
                             key={competitor.id}
                             className="hover:bg-gray-50 dark:hover:bg-gray-800/50 cursor-pointer transition-colors"
                             onClick={() => setSelectedCompetitor(competitor)}
                           >
                             <td className="px-4 py-3">
                               <div>
-                                <p className="font-medium text-gray-900 dark:text-white">{competitor.name}</p>
+                                <p className="font-medium text-gray-900 dark:text-white">
+                                  {competitor.name}
+                                </p>
                                 <p className="text-xs text-gray-500 dark:text-gray-400 truncate max-w-xs">
                                   {competitor.website || 'No website'}
                                 </p>
@@ -800,8 +868,8 @@ Analyze: content strategy, predicted campaigns, industry benchmarks.`,
                             <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
                               <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
-                                  <Badge 
-                                    variant="outline" 
+                                  <Badge
+                                    variant="outline"
                                     className="capitalize cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700"
                                   >
                                     <Shield className="w-3 h-3 mr-1" />
@@ -809,13 +877,25 @@ Analyze: content strategy, predicted campaigns, industry benchmarks.`,
                                   </Badge>
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent>
-                                  <DropdownMenuItem onClick={() => updateTierMutation.mutate({ competitor, tier: 'tier_1' })}>
+                                  <DropdownMenuItem
+                                    onClick={() =>
+                                      updateTierMutation.mutate({ competitor, tier: 'tier_1' })
+                                    }
+                                  >
                                     Tier 1 - Direct Competitor
                                   </DropdownMenuItem>
-                                  <DropdownMenuItem onClick={() => updateTierMutation.mutate({ competitor, tier: 'tier_2' })}>
+                                  <DropdownMenuItem
+                                    onClick={() =>
+                                      updateTierMutation.mutate({ competitor, tier: 'tier_2' })
+                                    }
+                                  >
                                     Tier 2 - Indirect Competitor
                                   </DropdownMenuItem>
-                                  <DropdownMenuItem onClick={() => updateTierMutation.mutate({ competitor, tier: 'tier_3' })}>
+                                  <DropdownMenuItem
+                                    onClick={() =>
+                                      updateTierMutation.mutate({ competitor, tier: 'tier_3' })
+                                    }
+                                  >
                                     Tier 3 - Potential Threat
                                   </DropdownMenuItem>
                                 </DropdownMenuContent>
@@ -823,12 +903,17 @@ Analyze: content strategy, predicted campaigns, industry benchmarks.`,
                             </td>
                             <td className="px-4 py-3">
                               <p className="text-sm font-medium text-gray-900 dark:text-white">
-                                {totalFollowers >= 1000000 ? `${(totalFollowers/1000000).toFixed(1)}M` : 
-                                 totalFollowers >= 1000 ? `${(totalFollowers/1000).toFixed(0)}K` : totalFollowers}
+                                {totalFollowers >= 1000000
+                                  ? `${(totalFollowers / 1000000).toFixed(1)}M`
+                                  : totalFollowers >= 1000
+                                    ? `${(totalFollowers / 1000).toFixed(0)}K`
+                                    : totalFollowers}
                               </p>
                             </td>
                             <td className="px-4 py-3">
-                              <p className="text-sm font-medium text-gray-900 dark:text-white">{avgEngagement}%</p>
+                              <p className="text-sm font-medium text-gray-900 dark:text-white">
+                                {avgEngagement}%
+                              </p>
                             </td>
                             <td className="px-4 py-3">
                               <div className="flex flex-wrap gap-1">
@@ -910,7 +995,10 @@ Analyze: content strategy, predicted campaigns, industry benchmarks.`,
             </div>
             <div className="space-y-2">
               <Label>Tier Classification</Label>
-              <Select value={newCompetitor.tier} onValueChange={(v) => setNewCompetitor({ ...newCompetitor, tier: v })}>
+              <Select
+                value={newCompetitor.tier}
+                onValueChange={(v) => setNewCompetitor({ ...newCompetitor, tier: v })}
+              >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -921,18 +1009,23 @@ Analyze: content strategy, predicted campaigns, industry benchmarks.`,
                 </SelectContent>
               </Select>
               <p className="text-xs text-gray-500">
-                {newCompetitor.tier === 'tier_1' && 'Direct competitors with similar products/services'}
+                {newCompetitor.tier === 'tier_1' &&
+                  'Direct competitors with similar products/services'}
                 {newCompetitor.tier === 'tier_2' && 'Indirect competitors in adjacent markets'}
                 {newCompetitor.tier === 'tier_3' && 'Emerging or potential competitors'}
               </p>
             </div>
             <div className="flex justify-end gap-3 pt-4">
-              <Button variant="outline" onClick={() => setShowCompetitorModal(false)}>Cancel</Button>
-              <Button 
+              <Button variant="outline" onClick={() => setShowCompetitorModal(false)}>
+                Cancel
+              </Button>
+              <Button
                 onClick={() => createCompetitorMutation.mutate(newCompetitor)}
                 disabled={!newCompetitor.name || createCompetitorMutation.isPending}
               >
-                {createCompetitorMutation.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                {createCompetitorMutation.isPending && (
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                )}
                 Add Competitor
               </Button>
             </div>
@@ -945,10 +1038,15 @@ Analyze: content strategy, predicted campaigns, industry benchmarks.`,
         open={!!selectedCompetitor}
         onClose={() => setSelectedCompetitor(null)}
         competitor={selectedCompetitor}
-        reports={competitorReports.filter(r => r.competitor_id === selectedCompetitor?.id)}
-        onGenerateReport={(type) => generateReportMutation.mutate({ competitor: selectedCompetitor, reportType: type })}
+        reports={competitorReports.filter((r) => r.competitor_id === selectedCompetitor?.id)}
+        onGenerateReport={(type) =>
+          generateReportMutation.mutate({ competitor: selectedCompetitor, reportType: type })
+        }
         isGenerating={generatingReport === selectedCompetitor?.id}
-        onViewReport={(report) => { setSelectedCompetitor(null); setSelectedReport(report); }}
+        onViewReport={(report) => {
+          setSelectedCompetitor(null);
+          setSelectedReport(report);
+        }}
         onScanNews={() => scanNewsMutation.mutate(selectedCompetitor)}
         isScanningNews={scanningNewsFor === selectedCompetitor?.id}
         onDeepAnalyze={() => deepAnalyzeMutation.mutate(selectedCompetitor)}
@@ -962,7 +1060,9 @@ Analyze: content strategy, predicted campaigns, industry benchmarks.`,
         open={!!selectedReport}
         onClose={() => setSelectedReport(null)}
         report={selectedReport}
-        competitorName={competitors.find(c => c.id === selectedReport?.competitor_id)?.name || 'Competitor'}
+        competitorName={
+          competitors.find((c) => c.id === selectedReport?.competitor_id)?.name || 'Competitor'
+        }
       />
     </div>
   );

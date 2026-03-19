@@ -1,16 +1,30 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { 
-  FileText, Loader2, Sparkles, Target, Hash, 
-  ListOrdered, Clock, BookOpen, Copy, CheckCircle
-} from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Textarea } from '@/components/ui/textarea';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
+  FileText,
+  Loader2,
+  Sparkles,
+  Target,
+  Hash,
+  ListOrdered,
+  Clock,
+  BookOpen,
+  Copy,
+  CheckCircle,
+} from 'lucide-react';
 
 export default function ContentOutlineGenerator({ keywords, selectedTopic }) {
   const [isGenerating, setIsGenerating] = useState(false);
@@ -74,60 +88,60 @@ export default function ContentOutlineGenerator({ keywords, selectedTopic }) {
          - Target audience`,
       add_context_from_internet: true,
       response_json_schema: {
-        type: "object",
+        type: 'object',
         properties: {
-          title_options: { type: "array", items: { type: "string" } },
-          meta_descriptions: { type: "array", items: { type: "string" } },
+          title_options: { type: 'array', items: { type: 'string' } },
+          meta_descriptions: { type: 'array', items: { type: 'string' } },
           introduction: {
-            type: "object",
+            type: 'object',
             properties: {
-              hook: { type: "string" },
-              problem: { type: "string" },
-              value_promise: { type: "string" }
-            }
+              hook: { type: 'string' },
+              problem: { type: 'string' },
+              value_promise: { type: 'string' },
+            },
           },
           sections: {
-            type: "array",
+            type: 'array',
             items: {
-              type: "object",
+              type: 'object',
               properties: {
-                heading: { type: "string" },
-                key_points: { type: "array", items: { type: "string" } },
-                word_count: { type: "number" },
-                internal_links: { type: "array", items: { type: "string" } },
-                media_suggestions: { type: "array", items: { type: "string" } }
-              }
-            }
+                heading: { type: 'string' },
+                key_points: { type: 'array', items: { type: 'string' } },
+                word_count: { type: 'number' },
+                internal_links: { type: 'array', items: { type: 'string' } },
+                media_suggestions: { type: 'array', items: { type: 'string' } },
+              },
+            },
           },
           conclusion: {
-            type: "object",
+            type: 'object',
             properties: {
-              summary_points: { type: "array", items: { type: "string" } },
-              cta: { type: "string" },
-              next_steps: { type: "array", items: { type: "string" } }
-            }
+              summary_points: { type: 'array', items: { type: 'string' } },
+              cta: { type: 'string' },
+              next_steps: { type: 'array', items: { type: 'string' } },
+            },
           },
           seo: {
-            type: "object",
+            type: 'object',
             properties: {
-              primary_keyword_placement: { type: "array", items: { type: "string" } },
-              secondary_keywords: { type: "array", items: { type: "string" } },
-              lsi_keywords: { type: "array", items: { type: "string" } },
-              internal_link_suggestions: { type: "array", items: { type: "string" } },
-              external_link_topics: { type: "array", items: { type: "string" } }
-            }
+              primary_keyword_placement: { type: 'array', items: { type: 'string' } },
+              secondary_keywords: { type: 'array', items: { type: 'string' } },
+              lsi_keywords: { type: 'array', items: { type: 'string' } },
+              internal_link_suggestions: { type: 'array', items: { type: 'string' } },
+              external_link_topics: { type: 'array', items: { type: 'string' } },
+            },
           },
           specifications: {
-            type: "object",
+            type: 'object',
             properties: {
-              word_count: { type: "number" },
-              reading_time: { type: "string" },
-              difficulty: { type: "string" },
-              target_audience: { type: "string" }
-            }
-          }
-        }
-      }
+              word_count: { type: 'number' },
+              reading_time: { type: 'string' },
+              difficulty: { type: 'string' },
+              target_audience: { type: 'string' },
+            },
+          },
+        },
+      },
     });
 
     setOutline(result);
@@ -136,20 +150,20 @@ export default function ContentOutlineGenerator({ keywords, selectedTopic }) {
 
   const copyOutline = () => {
     if (!outline) return;
-    
+
     let text = `# ${outline.title_options?.[0] || topic}\n\n`;
     text += `## Introduction\n${outline.introduction?.hook}\n\n`;
-    
-    outline.sections?.forEach(section => {
+
+    outline.sections?.forEach((section) => {
       text += `## ${section.heading}\n`;
-      section.key_points?.forEach(point => {
+      section.key_points?.forEach((point) => {
         text += `- ${point}\n`;
       });
       text += `\n`;
     });
-    
+
     text += `## Conclusion\n${outline.conclusion?.cta}\n`;
-    
+
     navigator.clipboard.writeText(text);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
@@ -220,7 +234,9 @@ export default function ContentOutlineGenerator({ keywords, selectedTopic }) {
               <Loader2 className="w-5 h-5 animate-spin text-violet-600" />
               <div>
                 <p className="font-medium text-violet-900">Generating content outline...</p>
-                <p className="text-sm text-violet-600">Creating SEO-optimized structure and recommendations</p>
+                <p className="text-sm text-violet-600">
+                  Creating SEO-optimized structure and recommendations
+                </p>
               </div>
             </div>
           </div>
@@ -232,7 +248,11 @@ export default function ContentOutlineGenerator({ keywords, selectedTopic }) {
               {/* Copy Button */}
               <div className="flex justify-end">
                 <Button variant="outline" size="sm" onClick={copyOutline} className="gap-2">
-                  {copied ? <CheckCircle className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />}
+                  {copied ? (
+                    <CheckCircle className="w-4 h-4 text-emerald-500" />
+                  ) : (
+                    <Copy className="w-4 h-4" />
+                  )}
                   {copied ? 'Copied!' : 'Copy Outline'}
                 </Button>
               </div>
@@ -257,7 +277,9 @@ export default function ContentOutlineGenerator({ keywords, selectedTopic }) {
                   </div>
                   <div className="p-3 bg-gray-50 rounded-lg text-center">
                     <Target className="w-5 h-5 text-gray-400 mx-auto mb-1" />
-                    <p className="text-sm font-medium truncate">{outline.specifications.difficulty}</p>
+                    <p className="text-sm font-medium truncate">
+                      {outline.specifications.difficulty}
+                    </p>
                     <p className="text-xs text-gray-500">Level</p>
                   </div>
                 </div>
@@ -340,7 +362,9 @@ export default function ContentOutlineGenerator({ keywords, selectedTopic }) {
                             <p className="text-xs text-gray-500 mb-1">Media suggestions:</p>
                             <div className="flex flex-wrap gap-1">
                               {section.media_suggestions.map((media, i) => (
-                                <Badge key={i} variant="outline" className="text-xs">{media}</Badge>
+                                <Badge key={i} variant="outline" className="text-xs">
+                                  {media}
+                                </Badge>
                               ))}
                             </div>
                           </div>
@@ -361,7 +385,9 @@ export default function ContentOutlineGenerator({ keywords, selectedTopic }) {
                         <p className="text-xs font-medium text-amber-700 mb-1">Key Takeaways</p>
                         <ul className="space-y-1">
                           {outline.conclusion.summary_points.map((point, i) => (
-                            <li key={i} className="text-sm text-gray-700">• {point}</li>
+                            <li key={i} className="text-sm text-gray-700">
+                              • {point}
+                            </li>
                           ))}
                         </ul>
                       </div>
@@ -384,7 +410,9 @@ export default function ContentOutlineGenerator({ keywords, selectedTopic }) {
                         <p className="text-xs font-medium text-blue-700 mb-1">Secondary Keywords</p>
                         <div className="flex flex-wrap gap-1">
                           {outline.seo.secondary_keywords.map((kw, i) => (
-                            <Badge key={i} className="bg-blue-100 text-blue-700">{kw}</Badge>
+                            <Badge key={i} className="bg-blue-100 text-blue-700">
+                              {kw}
+                            </Badge>
                           ))}
                         </div>
                       </div>
@@ -394,17 +422,23 @@ export default function ContentOutlineGenerator({ keywords, selectedTopic }) {
                         <p className="text-xs font-medium text-blue-700 mb-1">LSI Keywords</p>
                         <div className="flex flex-wrap gap-1">
                           {outline.seo.lsi_keywords.map((kw, i) => (
-                            <Badge key={i} variant="outline" className="text-xs">{kw}</Badge>
+                            <Badge key={i} variant="outline" className="text-xs">
+                              {kw}
+                            </Badge>
                           ))}
                         </div>
                       </div>
                     )}
                     {outline.seo.internal_link_suggestions?.length > 0 && (
                       <div>
-                        <p className="text-xs font-medium text-blue-700 mb-1">Internal Link Opportunities</p>
+                        <p className="text-xs font-medium text-blue-700 mb-1">
+                          Internal Link Opportunities
+                        </p>
                         <ul className="space-y-1">
                           {outline.seo.internal_link_suggestions.map((link, i) => (
-                            <li key={i} className="text-sm text-gray-700">→ {link}</li>
+                            <li key={i} className="text-sm text-gray-700">
+                              → {link}
+                            </li>
                           ))}
                         </ul>
                       </div>

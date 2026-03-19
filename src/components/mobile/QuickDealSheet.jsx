@@ -1,13 +1,19 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
-import { Loader2, Save } from "lucide-react";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
+import { Loader2, Save } from 'lucide-react';
 
 export default function QuickDealSheet({ open, onClose, deal = null }) {
   const [formData, setFormData] = useState({
@@ -79,14 +85,19 @@ export default function QuickDealSheet({ open, onClose, deal = null }) {
                 min="0"
                 max="100"
                 value={formData.probability}
-                onChange={(e) => setFormData({ ...formData, probability: parseInt(e.target.value) })}
+                onChange={(e) =>
+                  setFormData({ ...formData, probability: parseInt(e.target.value) })
+                }
               />
             </div>
           </div>
 
           <div>
             <Label className="text-xs">Stage *</Label>
-            <Select value={formData.stage} onValueChange={(value) => setFormData({ ...formData, stage: value })}>
+            <Select
+              value={formData.stage}
+              onValueChange={(value) => setFormData({ ...formData, stage: value })}
+            >
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
@@ -115,8 +126,8 @@ export default function QuickDealSheet({ open, onClose, deal = null }) {
             <Button type="button" variant="outline" className="flex-1" onClick={onClose}>
               Cancel
             </Button>
-            <Button 
-              type="submit" 
+            <Button
+              type="submit"
               className="flex-1 gap-2 bg-violet-600 hover:bg-violet-700"
               disabled={mutation.isPending}
             >

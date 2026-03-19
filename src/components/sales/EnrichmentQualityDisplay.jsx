@@ -1,8 +1,8 @@
 import React from 'react';
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
-import { Zap } from "lucide-react";
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent } from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
+import { Zap } from 'lucide-react';
 
 const getQualityGrade = (score) => {
   if (score >= 90) return { grade: 'A', color: 'bg-green-100 text-green-700', label: 'Excellent' };
@@ -21,7 +21,8 @@ export default function EnrichmentQualityDisplay({ lead }) {
   const hasEducation = lead.education?.length > 0;
   const hasSkills = lead.skills?.length > 0;
 
-  const completeness = [hasEmail, hasPhone, hasExperience, hasEducation, hasSkills].filter(Boolean).length * 20;
+  const completeness =
+    [hasEmail, hasPhone, hasExperience, hasEducation, hasSkills].filter(Boolean).length * 20;
 
   return (
     <Card className="glass-card">
@@ -75,7 +76,9 @@ export default function EnrichmentQualityDisplay({ lead }) {
             <span className={hasSkills ? '✓ text-green-600' : '✗ text-gray-400'}>
               {hasSkills ? '✓' : '✗'}
             </span>
-            <span className="text-gray-600 dark:text-gray-400">Skills ({lead.skills?.length || 0})</span>
+            <span className="text-gray-600 dark:text-gray-400">
+              Skills ({lead.skills?.length || 0})
+            </span>
           </div>
         </div>
 

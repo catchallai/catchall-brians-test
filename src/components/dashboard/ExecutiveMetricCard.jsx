@@ -1,14 +1,14 @@
 import React from 'react';
 import { TrendingUp, TrendingDown } from 'lucide-react';
 
-export default function ExecutiveMetricCard({ 
-  label, 
-  value, 
-  trend, 
-  trendDirection, 
+export default function ExecutiveMetricCard({
+  label,
+  value,
+  trend,
+  trendDirection,
   icon: Icon,
   color = 'violet',
-  subtext 
+  subtext,
 }) {
   const colorClasses = {
     violet: 'bg-violet-100 dark:bg-violet-900/30 text-violet-600 dark:text-violet-400',
@@ -18,7 +18,10 @@ export default function ExecutiveMetricCard({
     rose: 'bg-rose-100 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400',
   };
 
-  const trendColor = trendDirection === 'up' ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400';
+  const trendColor =
+    trendDirection === 'up'
+      ? 'text-emerald-600 dark:text-emerald-400'
+      : 'text-rose-600 dark:text-rose-400';
 
   return (
     <div className="glass-card p-4 rounded-xl">
@@ -27,18 +30,22 @@ export default function ExecutiveMetricCard({
           <p className="text-xs lg:text-sm text-gray-500 dark:text-gray-400 font-medium">{label}</p>
           {subtext && <p className="text-xs text-gray-400 dark:text-gray-500">{subtext}</p>}
         </div>
-        <div className={`w-8 h-8 lg:w-10 lg:h-10 rounded-lg flex items-center justify-center ${colorClasses[color]}`}>
+        <div
+          className={`w-8 h-8 lg:w-10 lg:h-10 rounded-lg flex items-center justify-center ${colorClasses[color]}`}
+        >
           <Icon className="w-4 h-4 lg:w-5 lg:h-5" />
         </div>
       </div>
-      
+
       <div className="flex items-end justify-between">
-        <p className="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white">
-          {value}
-        </p>
+        <p className="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white">{value}</p>
         {trend && (
           <div className={`flex items-center gap-1 ${trendColor} text-xs lg:text-sm font-semibold`}>
-            {trendDirection === 'up' ? <TrendingUp className="w-3 h-3 lg:w-4 lg:h-4" /> : <TrendingDown className="w-3 h-3 lg:w-4 lg:h-4" />}
+            {trendDirection === 'up' ? (
+              <TrendingUp className="w-3 h-3 lg:w-4 lg:h-4" />
+            ) : (
+              <TrendingDown className="w-3 h-3 lg:w-4 lg:h-4" />
+            )}
             {trend}
           </div>
         )}

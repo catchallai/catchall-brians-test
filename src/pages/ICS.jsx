@@ -3,36 +3,42 @@ import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useICCNotifications } from '@/components/ics/useICCNotifications';
 import NotificationAlert from '@/components/ics/NotificationAlert';
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card } from "@/components/ui/card";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { 
-  MessageSquare, 
-  Video, 
-  Phone, 
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Card } from '@/components/ui/card';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import {
+  MessageSquare,
+  Video,
+  Phone,
   PhoneOff,
-  Plus, 
-  Hash, 
-  Lock, 
-  Users, 
+  Plus,
+  Hash,
+  Lock,
+  Users,
   Search,
   Send,
   Paperclip,
   Smile,
-  MoreVertical
-} from "lucide-react";
+  MoreVertical,
+} from 'lucide-react';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+} from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { format } from 'date-fns';
 import VideoCallInterface from '@/components/ics/VideoCallInterface';
 import { usePresence } from '@/components/ics/usePresence';
@@ -50,7 +56,10 @@ import SettingsPanel from '@/components/ics/SettingsPanel';
 import NotificationPreferences from '@/components/notifications/NotificationPreferences.jsx';
 import NotificationCenter from '@/components/notifications/NotificationCenter';
 import { playNotificationSound, isInDND } from '@/components/notifications/NotificationSounds';
-import { extractMentions, createMentionNotifications } from '@/components/notifications/MentionParser';
+import {
+  extractMentions,
+  createMentionNotifications,
+} from '@/components/notifications/MentionParser';
 import ICSAdminPortal from '@/components/ics/ICSAdminPortal.jsx';
 import ContactDetailPanel from '@/components/ics/ContactDetailPanel';
 import IncomingCallNotification from '@/components/ics/IncomingCallNotification';
@@ -106,9 +115,8 @@ export default function ICS() {
     queryKey: ['channels'],
     queryFn: async () => {
       const allChannels = await base44.entities.Channel.list();
-      return allChannels.filter(c => 
-        !c.is_archived && 
-        (c.type === 'public' || c.members?.includes(user?.email))
+      return allChannels.filter(
+        (c) => !c.is_archived && (c.type === 'public' || c.members?.includes(user?.email))
       );
     },
     enabled: !!user,
@@ -118,7 +126,7 @@ export default function ICS() {
     queryKey: ['all-users'],
     queryFn: async () => {
       const users = await base44.entities.User.list('-created_date', 500);
-      return users.filter(u => u.email !== user?.email);
+      return users.filter((u) => u.email !== user?.email);
     },
     enabled: !!user,
   });
@@ -127,7 +135,7 @@ export default function ICS() {
     queryKey: ['archived-channels'],
     queryFn: async () => {
       const allChannels = await base44.entities.Channel.list();
-      return allChannels.filter(c => c.is_archived);
+      return allChannels.filter((c) => c.is_archived);
     },
     enabled: !!user,
   });
@@ -138,7 +146,7 @@ export default function ICS() {
       if (!selectedChannel) return [];
       const allMessages = await base44.entities.Message.list();
       return allMessages
-        .filter(m => m.channel_id === selectedChannel.id)
+        .filter((m) => m.channel_id === selectedChannel.id)
         .sort((a, b) => new Date(a.created_date) - new Date(b.created_date));
     },
     enabled: !!selectedChannel,
@@ -155,7 +163,7 @@ export default function ICS() {
   // Handle notification click - navigate to channel
   useEffect(() => {
     if (clickedNotification) {
-      const channel = channels?.find(c => c.id === clickedNotification.channel_id);
+      const channel = channels?.find((c) => c.id === clickedNotification.channel_id);
       if (channel) {
         setSelectedChannel(channel);
         markChannelAsRead(clickedNotification.channel_id);
@@ -170,7 +178,9 @@ export default function ICS() {
     queryFn: async () => {
       if (!selectedChannel) return null;
       const calls = await base44.entities.VideoCall.list();
-      return calls.find(c => c.channel_id === selectedChannel.id && c.status === 'active') || null;
+      return (
+        calls.find((c) => c.channel_id === selectedChannel.id && c.status === 'active') || null
+      );
     },
     enabled: !!selectedChannel,
     refetchInterval: 10000,
@@ -183,11 +193,14 @@ export default function ICS() {
       if (!user?.email) return null;
       const calls = await base44.entities.VideoCall.list();
       // Find active calls where user is in waiting_room or a participant
-      return calls.find(c => 
-        c.status === 'active' && 
-        !c.participants?.some(p => p.email === user?.email) &&
-        c.waiting_room?.some(w => w.email === user?.email)
-      ) || null;
+      return (
+        calls.find(
+          (c) =>
+            c.status === 'active' &&
+            !c.participants?.some((p) => p.email === user?.email) &&
+            c.waiting_room?.some((w) => w.email === user?.email)
+        ) || null
+      );
     },
     enabled: !!user?.email,
     refetchInterval: 5000,
@@ -202,7 +215,7 @@ export default function ICS() {
   // Subscribe to new messages
   useEffect(() => {
     if (!selectedChannel) return;
-    
+
     const unsubscribe = base44.entities.Message.subscribe((event) => {
       if (event.type === 'create' && event.data.channel_id === selectedChannel.id) {
         queryClient.invalidateQueries({ queryKey: ['messages', selectedChannel.id] });
@@ -231,23 +244,26 @@ export default function ICS() {
     mutationFn: (data) => base44.entities.Message.create(data),
     onSuccess: (newMessage) => {
       queryClient.invalidateQueries({ queryKey: ['messages'] });
-      
+
       // Handle mentions
-      const mentionedEmails = extractMentions(newMessage.content, channels.flatMap(c => c.members));
+      const mentionedEmails = extractMentions(
+        newMessage.content,
+        channels.flatMap((c) => c.members)
+      );
       if (mentionedEmails.length > 0) {
         createMentionNotifications(base44, newMessage, mentionedEmails);
       }
-      
+
       // Trigger notification for new messages from others
       if (newMessage.sender_email !== user?.email && notificationPrefs) {
         const isMuted = notificationPrefs.muted_channels?.includes(selectedChannel?.id);
         const inDND = isInDND(notificationPrefs.dnd_start_time, notificationPrefs.dnd_end_time);
-        
+
         if (!isMuted && (!inDND || !notificationPrefs.do_not_disturb_enabled)) {
           if (notificationPrefs.messages_enabled && notificationPrefs.sound_enabled) {
             playNotificationSound(notificationPrefs.sound_type);
           }
-          
+
           if (notificationPrefs.desktop_notifications_enabled) {
             try {
               new Notification(`New message from ${newMessage.sender_name}`, {
@@ -273,10 +289,11 @@ export default function ICS() {
   });
 
   const endCallMutation = useMutation({
-    mutationFn: (callId) => base44.entities.VideoCall.update(callId, {
-      status: 'ended',
-      ended_at: new Date().toISOString(),
-    }),
+    mutationFn: (callId) =>
+      base44.entities.VideoCall.update(callId, {
+        status: 'ended',
+        ended_at: new Date().toISOString(),
+      }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['active-call', selectedChannel?.id] });
       setIsInCall(false);
@@ -292,12 +309,15 @@ export default function ICS() {
 
   const admitFromWaitingRoomMutation = useMutation({
     mutationFn: async ({ callId, userEmail, userName }) => {
-      const waitingRoom = activeCall?.waiting_room?.filter(u => u.email !== userEmail) || [];
-      const participants = [...(activeCall?.participants || []), {
-        email: userEmail,
-        name: userName,
-        joined_at: new Date().toISOString(),
-      }];
+      const waitingRoom = activeCall?.waiting_room?.filter((u) => u.email !== userEmail) || [];
+      const participants = [
+        ...(activeCall?.participants || []),
+        {
+          email: userEmail,
+          name: userName,
+          joined_at: new Date().toISOString(),
+        },
+      ];
       return base44.entities.VideoCall.update(callId, {
         waiting_room: waitingRoom,
         participants,
@@ -339,11 +359,11 @@ export default function ICS() {
   const handleStartCall = () => {
     const roomId = `call-${selectedChannel.id}-${Date.now()}`;
     updatePresence('online', true, roomId);
-    
+
     // Get other members of the channel for waiting room
-    const otherMembers = selectedChannel?.members?.filter(m => m !== user?.email) || [];
-    const waitingRoom = otherMembers.map(email => {
-      const member = allUsers.find(u => u.email === email);
+    const otherMembers = selectedChannel?.members?.filter((m) => m !== user?.email) || [];
+    const waitingRoom = otherMembers.map((email) => {
+      const member = allUsers.find((u) => u.email === email);
       return {
         email,
         name: member?.full_name || email,
@@ -357,12 +377,14 @@ export default function ICS() {
       host_email: user?.email,
       started_by: user?.email,
       started_at: new Date().toISOString(),
-      participants: [{
-        email: user?.email,
-        name: user?.full_name,
-        joined_at: new Date().toISOString(),
-        is_screen_sharing: false,
-      }],
+      participants: [
+        {
+          email: user?.email,
+          name: user?.full_name,
+          joined_at: new Date().toISOString(),
+          is_screen_sharing: false,
+        },
+      ],
       waiting_room: waitingRoom,
       recording_status: 'not_started',
       recording_started_at: null,
@@ -376,43 +398,48 @@ export default function ICS() {
 
   const handleAcceptCall = async (callType = 'video') => {
     if (!incomingCall || !user) return;
-    
+
     // Add current user to participants
-    const updatedParticipants = [...incomingCall.participants, {
-      email: user.email,
-      name: user.full_name,
-      joined_at: new Date().toISOString(),
-    }];
-    
+    const updatedParticipants = [
+      ...incomingCall.participants,
+      {
+        email: user.email,
+        name: user.full_name,
+        joined_at: new Date().toISOString(),
+      },
+    ];
+
     // Remove from waiting room
-    const updatedWaitingRoom = incomingCall.waiting_room?.filter(w => w.email !== user.email) || [];
-    
+    const updatedWaitingRoom =
+      incomingCall.waiting_room?.filter((w) => w.email !== user.email) || [];
+
     await base44.entities.VideoCall.update(incomingCall.id, {
       participants: updatedParticipants,
       waiting_room: updatedWaitingRoom,
     });
-    
+
     // Find or create the channel and set it as active
-    const callChannel = channels.find(c => c.id === incomingCall.channel_id);
+    const callChannel = channels.find((c) => c.id === incomingCall.channel_id);
     if (callChannel) {
       setSelectedChannel(callChannel);
       setActiveView('chat');
     }
-    
+
     setIncomingCall(null);
     queryClient.invalidateQueries({ queryKey: ['active-call'] });
   };
 
   const handleDeclineCall = async () => {
     if (!incomingCall || !user) return;
-    
+
     // Just remove from waiting room
-    const updatedWaitingRoom = incomingCall.waiting_room?.filter(w => w.email !== user.email) || [];
-    
+    const updatedWaitingRoom =
+      incomingCall.waiting_room?.filter((w) => w.email !== user.email) || [];
+
     await base44.entities.VideoCall.update(incomingCall.id, {
       waiting_room: updatedWaitingRoom,
     });
-    
+
     setIncomingCall(null);
   };
 
@@ -430,9 +457,10 @@ export default function ICS() {
       callId: activeCall.id,
       data: {
         recording_status: newStatus,
-        recording_started_at: newStatus === 'recording' && !activeCall.recording_started_at 
-          ? new Date().toISOString() 
-          : activeCall.recording_started_at,
+        recording_started_at:
+          newStatus === 'recording' && !activeCall.recording_started_at
+            ? new Date().toISOString()
+            : activeCall.recording_started_at,
       },
     });
   };
@@ -448,7 +476,7 @@ export default function ICS() {
 
   const handleRejectUser = (userEmail) => {
     if (!activeCall) return;
-    const updatedWaitingRoom = activeCall.waiting_room?.filter(u => u.email !== userEmail) || [];
+    const updatedWaitingRoom = activeCall.waiting_room?.filter((u) => u.email !== userEmail) || [];
     updateCallMutation.mutate({
       callId: activeCall.id,
       data: { waiting_room: updatedWaitingRoom },
@@ -478,7 +506,7 @@ export default function ICS() {
       });
       const result = {};
       if (typingRecords && typingRecords.length > 0) {
-        typingRecords.forEach(record => {
+        typingRecords.forEach((record) => {
           result[record.user_email] = record.user_name;
         });
       }
@@ -491,7 +519,7 @@ export default function ICS() {
   // Subscribe to typing status
   useEffect(() => {
     if (!selectedChannel) return;
-    
+
     const unsubscribe = base44.entities.Presence.subscribe((event) => {
       if (event.data.channel_id === selectedChannel.id) {
         queryClient.invalidateQueries({ queryKey: ['typing-status', selectedChannel.id] });
@@ -503,13 +531,13 @@ export default function ICS() {
 
   const handleTyping = async (isTyping) => {
     if (!selectedChannel || !user) return;
-    
+
     try {
       const presenceRecords = await base44.entities.Presence.filter({
         user_email: user.email,
         channel_id: selectedChannel.id,
       });
-      
+
       if (presenceRecords.length > 0) {
         await base44.entities.Presence.update(presenceRecords[0].id, {
           is_typing: isTyping,
@@ -549,10 +577,7 @@ export default function ICS() {
         notificationButton={
           <div className="flex flex-col gap-2 w-full">
             <NotificationCenter user={user} />
-            <NotificationPreferences 
-              user={user} 
-              onPreferencesUpdate={handlePreferencesUpdate}
-            />
+            <NotificationPreferences user={user} onPreferencesUpdate={handlePreferencesUpdate} />
           </div>
         }
       />
@@ -575,7 +600,7 @@ export default function ICS() {
             onSendMessage={handleSendMessage}
             onStartCall={handleStartCall}
             onShowProfile={() => setShowProfile(true)}
-            typingUsers={Object.values(typingStatus).filter(name => name !== user?.full_name)}
+            typingUsers={Object.values(typingStatus).filter((name) => name !== user?.full_name)}
             onTyping={handleTyping}
             activeCall={activeCall}
             onEndCall={handleEndCall}
@@ -592,10 +617,11 @@ export default function ICS() {
             users={allUsers}
             allPresence={allPresence}
             onSelectUser={(selectedUser) => {
-              const dmChannel = channels.find(c => 
-                c.type === 'dm' && 
-                c.members?.includes(selectedUser.email) &&
-                c.members?.includes(user?.email)
+              const dmChannel = channels.find(
+                (c) =>
+                  c.type === 'dm' &&
+                  c.members?.includes(selectedUser.email) &&
+                  c.members?.includes(user?.email)
               );
 
               if (dmChannel) {
@@ -627,10 +653,11 @@ export default function ICS() {
               setSelectedContact(null);
             }}
             onDirectMessage={(contact) => {
-              const dmChannel = channels.find(c => 
-                c.type === 'dm' && 
-                c.members?.includes(contact.email) &&
-                c.members?.includes(user?.email)
+              const dmChannel = channels.find(
+                (c) =>
+                  c.type === 'dm' &&
+                  c.members?.includes(contact.email) &&
+                  c.members?.includes(user?.email)
               );
 
               if (dmChannel) {
@@ -649,10 +676,11 @@ export default function ICS() {
               }
             }}
             onVideoCall={(contact) => {
-              const dmChannel = channels.find(c => 
-                c.type === 'dm' && 
-                c.members?.includes(contact.email) &&
-                c.members?.includes(user?.email)
+              const dmChannel = channels.find(
+                (c) =>
+                  c.type === 'dm' &&
+                  c.members?.includes(contact.email) &&
+                  c.members?.includes(user?.email)
               );
 
               if (dmChannel) {
@@ -686,7 +714,7 @@ export default function ICS() {
       ) : activeView === 'notifications' ? (
         <NotificationsView user={user} />
       ) : activeView === 'archived' ? (
-        <ArchivedList 
+        <ArchivedList
           channels={archivedChannels}
           onSelectChannel={(channel) => {
             setSelectedChannel(channel);
@@ -713,6 +741,6 @@ export default function ICS() {
         onAccept={handleAcceptCall}
         onDecline={handleDeclineCall}
       />
-        </div>
-        );
+    </div>
+  );
 }

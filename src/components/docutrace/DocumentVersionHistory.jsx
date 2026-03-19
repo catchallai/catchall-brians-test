@@ -1,24 +1,12 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/components/ui/toast-provider';
 import ConfirmDialog from '@/components/ui/ConfirmDialog';
-import {
-  Clock,
-  Download,
-  Eye,
-  RotateCcw,
-  User,
-  CheckCircle2
-} from 'lucide-react';
+import { Clock, Download, Eye, RotateCcw, User, CheckCircle2 } from 'lucide-react';
 
 export default function DocumentVersionHistory({ open, onClose, document }) {
   const [revertVersion, setRevertVersion] = useState(null);
@@ -31,19 +19,19 @@ export default function DocumentVersionHistory({ open, onClose, document }) {
   const revertMutation = useMutation({
     mutationFn: async (version) => {
       const newVersionNumber = (document.versions?.length || 0) + 1;
-      
+
       // Create new version entry with the old file
       const newVersion = {
         version_number: newVersionNumber,
         file_url: version.file_url,
         uploaded_at: new Date().toISOString(),
         uploaded_by: (await base44.auth.me()).email,
-        changes_description: `Reverted to version ${version.version_number}`
+        changes_description: `Reverted to version ${version.version_number}`,
       };
 
       return await base44.entities.TrackedDocument.update(document.id, {
         file_url: version.file_url,
-        versions: [...document.versions, newVersion]
+        versions: [...document.versions, newVersion],
       });
     },
     onSuccess: () => {
@@ -54,7 +42,7 @@ export default function DocumentVersionHistory({ open, onClose, document }) {
     },
     onError: () => {
       toast.error('Failed to revert document');
-    }
+    },
   });
 
   const handleDownload = (version) => {
@@ -103,9 +91,7 @@ export default function DocumentVersionHistory({ open, onClose, document }) {
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-2">
-                          <h4 className="font-semibold">
-                            Version {version.version_number}
-                          </h4>
+                          <h4 className="font-semibold">Version {version.version_number}</h4>
                           {isCurrentVersion(version) && (
                             <Badge className="bg-violet-100 text-violet-800">
                               <CheckCircle2 className="w-3 h-3 mr-1" />
@@ -132,25 +118,14 @@ export default function DocumentVersionHistory({ open, onClose, document }) {
                       </div>
 
                       <div className="flex gap-2">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleView(version)}
-                        >
+                        <Button size="sm" variant="outline" onClick={() => handleView(version)}>
                           <Eye className="w-4 h-4" />
                         </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleDownload(version)}
-                        >
+                        <Button size="sm" variant="outline" onClick={() => handleDownload(version)}>
                           <Download className="w-4 h-4" />
                         </Button>
                         {!isCurrentVersion(version) && (
-                          <Button
-                            size="sm"
-                            onClick={() => setRevertVersion(version)}
-                          >
+                          <Button size="sm" onClick={() => setRevertVersion(version)}>
                             <RotateCcw className="w-4 h-4" />
                           </Button>
                         )}

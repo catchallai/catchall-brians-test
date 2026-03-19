@@ -5,7 +5,9 @@ Deno.serve(async (req) => {
     const base44 = createClientFromRequest(req);
     const { feedback_id } = await req.json();
 
-    const feedback = await base44.asServiceRole.entities.CustomerFeedback.filter({ id: feedback_id });
+    const feedback = await base44.asServiceRole.entities.CustomerFeedback.filter({
+      id: feedback_id,
+    });
     if (!feedback.length) {
       return Response.json({ error: 'Feedback not found' }, { status: 404 });
     }
@@ -17,7 +19,7 @@ Deno.serve(async (req) => {
 
     // Update feedback with sentiment
     await base44.asServiceRole.entities.CustomerFeedback.update(feedback_id, {
-      sentiment
+      sentiment,
     });
 
     // Check if should trigger workflow
@@ -27,7 +29,7 @@ Deno.serve(async (req) => {
     if (sentiment === 'negative' || (fb.nps_score && fb.nps_score < 7)) {
       // Find matching workflows
       const workflows = await base44.asServiceRole.entities.ProactiveEngagementWorkflow.filter({
-        is_active: true
+        is_active: true,
       });
 
       for (const workflow of workflows) {
@@ -35,7 +37,7 @@ Deno.serve(async (req) => {
           // Execute workflow
           const response = await base44.asServiceRole.functions.invoke('executeWorkflow', {
             workflow_id: workflow.id,
-            contact_id: fb.contact_id
+            contact_id: fb.contact_id,
           });
 
           if (response.data?.success) {
@@ -51,7 +53,7 @@ Deno.serve(async (req) => {
     if (workflowTriggered) {
       await base44.asServiceRole.entities.CustomerFeedback.update(feedback_id, {
         workflow_triggered: true,
-        workflow_id: triggeredWorkflowId
+        workflow_id: triggeredWorkflowId,
       });
     }
 
@@ -59,7 +61,7 @@ Deno.serve(async (req) => {
       feedback_id,
       sentiment,
       workflow_triggered: workflowTriggered,
-      workflow_id: triggeredWorkflowId
+      workflow_id: triggeredWorkflowId,
     });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
@@ -68,18 +70,36 @@ Deno.serve(async (req) => {
 
 function analyzeSentiment(message, npsScore) {
   // Keywords for sentiment detection
-  const positiveKeywords = ['great', 'excellent', 'love', 'amazing', 'perfect', 'happy', 'satisfied', 'wonderful'];
-  const negativeKeywords = ['terrible', 'awful', 'hate', 'poor', 'bad', 'disappointed', 'frustration', 'broken'];
+  const positiveKeywords = [
+    'great',
+    'excellent',
+    'love',
+    'amazing',
+    'perfect',
+    'happy',
+    'satisfied',
+    'wonderful',
+  ];
+  const negativeKeywords = [
+    'terrible',
+    'awful',
+    'hate',
+    'poor',
+    'bad',
+    'disappointed',
+    'frustration',
+    'broken',
+  ];
 
   const lowerMessage = message.toLowerCase();
-  
+
   let score = 0;
-  
-  positiveKeywords.forEach(keyword => {
+
+  positiveKeywords.forEach((keyword) => {
     if (lowerMessage.includes(keyword)) score += 1;
   });
-  
-  negativeKeywords.forEach(keyword => {
+
+  negativeKeywords.forEach((keyword) => {
     if (lowerMessage.includes(keyword)) score -= 1;
   });
 

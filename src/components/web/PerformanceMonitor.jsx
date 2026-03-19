@@ -1,8 +1,16 @@
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { Zap, Clock, Layout } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from 'recharts';
+import { Zap, Clock, Layout } from 'lucide-react';
 
 export default function PerformanceMonitor({ performances = [] }) {
   if (!performances.length) {
@@ -76,7 +84,10 @@ export default function PerformanceMonitor({ performances = [] }) {
           <ResponsiveContainer width="100%" height={200}>
             <LineChart data={performances.slice(-20)}>
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="timestamp" tickFormatter={(val) => new Date(val).toLocaleDateString()} />
+              <XAxis
+                dataKey="timestamp"
+                tickFormatter={(val) => new Date(val).toLocaleDateString()}
+              />
               <YAxis />
               <Tooltip />
               <Line type="monotone" dataKey="performance_score" stroke="#8b5cf6" strokeWidth={2} />

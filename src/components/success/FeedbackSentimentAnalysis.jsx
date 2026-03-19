@@ -1,21 +1,32 @@
 import React, { useMemo, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { MessageSquare, ThumbsUp, ThumbsDown, Minus, TrendingUp, TrendingDown } from "lucide-react";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { MessageSquare, ThumbsUp, ThumbsDown, Minus, TrendingUp, TrendingDown } from 'lucide-react';
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+} from 'recharts';
 
 const SENTIMENT_COLORS = {
   positive: '#10b981',
   neutral: '#6b7280',
-  negative: '#ef4444'
+  negative: '#ef4444',
 };
 
 const SENTIMENT_ICONS = {
   positive: ThumbsUp,
   neutral: Minus,
-  negative: ThumbsDown
+  negative: ThumbsDown,
 };
 
 export default function FeedbackSentimentAnalysis({ surveys, interactions }) {
@@ -26,11 +37,15 @@ export default function FeedbackSentimentAnalysis({ surveys, interactions }) {
     const feedback = [];
 
     // Add surveys
-    surveys.forEach(s => {
+    surveys.forEach((s) => {
       let sentiment = 'neutral';
       if (s.survey_type === 'nps') {
-        sentiment = s.nps_category === 'promoter' ? 'positive' : 
-                   s.nps_category === 'detractor' ? 'negative' : 'neutral';
+        sentiment =
+          s.nps_category === 'promoter'
+            ? 'positive'
+            : s.nps_category === 'detractor'
+              ? 'negative'
+              : 'neutral';
       } else if (s.score) {
         sentiment = s.score >= 8 ? 'positive' : s.score <= 5 ? 'negative' : 'neutral';
       }
@@ -43,12 +58,12 @@ export default function FeedbackSentimentAnalysis({ surveys, interactions }) {
         text: s.feedback,
         contact_id: s.contact_id,
         company_id: s.company_id,
-        survey_type: s.survey_type
+        survey_type: s.survey_type,
       });
     });
 
     // Add interaction feedback
-    interactions.forEach(i => {
+    interactions.forEach((i) => {
       if (i.summary) {
         feedback.push({
           type: 'interaction',
@@ -57,7 +72,7 @@ export default function FeedbackSentimentAnalysis({ surveys, interactions }) {
           text: i.summary,
           contact_id: i.contact_id,
           company_id: i.company_id,
-          interaction_type: i.interaction_type
+          interaction_type: i.interaction_type,
         });
       }
     });
@@ -68,15 +83,15 @@ export default function FeedbackSentimentAnalysis({ surveys, interactions }) {
   // Calculate sentiment distribution
   const sentimentDistribution = useMemo(() => {
     const distribution = {
-      positive: allFeedback.filter(f => f.sentiment === 'positive').length,
-      neutral: allFeedback.filter(f => f.sentiment === 'neutral').length,
-      negative: allFeedback.filter(f => f.sentiment === 'negative').length
+      positive: allFeedback.filter((f) => f.sentiment === 'positive').length,
+      neutral: allFeedback.filter((f) => f.sentiment === 'neutral').length,
+      negative: allFeedback.filter((f) => f.sentiment === 'negative').length,
     };
 
     return [
       { name: 'Positive', value: distribution.positive, color: SENTIMENT_COLORS.positive },
       { name: 'Neutral', value: distribution.neutral, color: SENTIMENT_COLORS.neutral },
-      { name: 'Negative', value: distribution.negative, color: SENTIMENT_COLORS.negative }
+      { name: 'Negative', value: distribution.negative, color: SENTIMENT_COLORS.negative },
     ];
   }, [allFeedback]);
 
@@ -88,16 +103,16 @@ export default function FeedbackSentimentAnalysis({ surveys, interactions }) {
       date.setDate(date.getDate() - i);
       const dateStr = date.toISOString().split('T')[0];
 
-      const dayFeedback = allFeedback.filter(f => {
+      const dayFeedback = allFeedback.filter((f) => {
         const feedbackDate = new Date(f.date).toISOString().split('T')[0];
         return feedbackDate === dateStr;
       });
 
       last30Days.push({
         date: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-        positive: dayFeedback.filter(f => f.sentiment === 'positive').length,
-        neutral: dayFeedback.filter(f => f.sentiment === 'neutral').length,
-        negative: dayFeedback.filter(f => f.sentiment === 'negative').length
+        positive: dayFeedback.filter((f) => f.sentiment === 'positive').length,
+        neutral: dayFeedback.filter((f) => f.sentiment === 'neutral').length,
+        negative: dayFeedback.filter((f) => f.sentiment === 'negative').length,
       });
     }
     return last30Days;
@@ -105,26 +120,28 @@ export default function FeedbackSentimentAnalysis({ surveys, interactions }) {
 
   // NPS Score calculation
   const npsScore = useMemo(() => {
-    const npsResponses = surveys.filter(s => s.survey_type === 'nps' && s.nps_category);
+    const npsResponses = surveys.filter((s) => s.survey_type === 'nps' && s.nps_category);
     if (npsResponses.length === 0) return null;
 
-    const promoters = npsResponses.filter(s => s.nps_category === 'promoter').length;
-    const detractors = npsResponses.filter(s => s.nps_category === 'detractor').length;
+    const promoters = npsResponses.filter((s) => s.nps_category === 'promoter').length;
+    const detractors = npsResponses.filter((s) => s.nps_category === 'detractor').length;
     const total = npsResponses.length;
 
     return Math.round(((promoters - detractors) / total) * 100);
   }, [surveys]);
 
   // Filter feedback
-  const filteredFeedback = filterSentiment === 'all' 
-    ? allFeedback 
-    : allFeedback.filter(f => f.sentiment === filterSentiment);
+  const filteredFeedback =
+    filterSentiment === 'all'
+      ? allFeedback
+      : allFeedback.filter((f) => f.sentiment === filterSentiment);
 
-  const totalPositive = allFeedback.filter(f => f.sentiment === 'positive').length;
-  const totalNegative = allFeedback.filter(f => f.sentiment === 'negative').length;
-  const sentimentRatio = totalPositive + totalNegative > 0 
-    ? ((totalPositive / (totalPositive + totalNegative)) * 100).toFixed(1)
-    : 0;
+  const totalPositive = allFeedback.filter((f) => f.sentiment === 'positive').length;
+  const totalNegative = allFeedback.filter((f) => f.sentiment === 'negative').length;
+  const sentimentRatio =
+    totalPositive + totalNegative > 0
+      ? ((totalPositive / (totalPositive + totalNegative)) * 100).toFixed(1)
+      : 0;
 
   return (
     <Card className="glass-card">
@@ -135,7 +152,10 @@ export default function FeedbackSentimentAnalysis({ surveys, interactions }) {
             Customer Feedback & Sentiment
           </CardTitle>
           {npsScore !== null && (
-            <Badge variant={npsScore >= 50 ? "default" : npsScore >= 0 ? "secondary" : "destructive"} className="text-lg px-3 py-1">
+            <Badge
+              variant={npsScore >= 50 ? 'default' : npsScore >= 0 ? 'secondary' : 'destructive'}
+              className="text-lg px-3 py-1"
+            >
               NPS: {npsScore}
             </Badge>
           )}
@@ -149,7 +169,9 @@ export default function FeedbackSentimentAnalysis({ surveys, interactions }) {
               <ThumbsUp className="w-4 h-4 text-emerald-600" />
               <p className="text-xs text-emerald-600 dark:text-emerald-400">Positive</p>
             </div>
-            <p className="text-2xl font-bold text-emerald-700 dark:text-emerald-300">{totalPositive}</p>
+            <p className="text-2xl font-bold text-emerald-700 dark:text-emerald-300">
+              {totalPositive}
+            </p>
           </div>
           <div className="p-4 bg-red-50 dark:bg-red-900/20 rounded-lg">
             <div className="flex items-center gap-2 mb-1">
@@ -164,7 +186,9 @@ export default function FeedbackSentimentAnalysis({ surveys, interactions }) {
           </div>
           <div className="p-4 bg-violet-50 dark:bg-violet-900/20 rounded-lg">
             <p className="text-xs text-violet-600 dark:text-violet-400 mb-1">Total Feedback</p>
-            <p className="text-2xl font-bold text-violet-700 dark:text-violet-300">{allFeedback.length}</p>
+            <p className="text-2xl font-bold text-violet-700 dark:text-violet-300">
+              {allFeedback.length}
+            </p>
           </div>
         </div>
 
@@ -208,9 +232,24 @@ export default function FeedbackSentimentAnalysis({ surveys, interactions }) {
                   <XAxis dataKey="date" stroke="#6b7280" tick={{ fontSize: 12 }} />
                   <YAxis stroke="#6b7280" tick={{ fontSize: 12 }} />
                   <Tooltip />
-                  <Bar dataKey="positive" stackId="a" fill={SENTIMENT_COLORS.positive} name="Positive" />
-                  <Bar dataKey="neutral" stackId="a" fill={SENTIMENT_COLORS.neutral} name="Neutral" />
-                  <Bar dataKey="negative" stackId="a" fill={SENTIMENT_COLORS.negative} name="Negative" />
+                  <Bar
+                    dataKey="positive"
+                    stackId="a"
+                    fill={SENTIMENT_COLORS.positive}
+                    name="Positive"
+                  />
+                  <Bar
+                    dataKey="neutral"
+                    stackId="a"
+                    fill={SENTIMENT_COLORS.neutral}
+                    name="Neutral"
+                  />
+                  <Bar
+                    dataKey="negative"
+                    stackId="a"
+                    fill={SENTIMENT_COLORS.negative}
+                    name="Negative"
+                  />
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -219,30 +258,30 @@ export default function FeedbackSentimentAnalysis({ surveys, interactions }) {
           <TabsContent value="feedback" className="space-y-4">
             {/* Filter */}
             <div className="flex gap-2">
-              <Button 
-                size="sm" 
+              <Button
+                size="sm"
                 variant={filterSentiment === 'all' ? 'default' : 'outline'}
                 onClick={() => setFilterSentiment('all')}
               >
                 All
               </Button>
-              <Button 
-                size="sm" 
+              <Button
+                size="sm"
                 variant={filterSentiment === 'positive' ? 'default' : 'outline'}
                 onClick={() => setFilterSentiment('positive')}
                 className="bg-emerald-600 hover:bg-emerald-700"
               >
                 Positive
               </Button>
-              <Button 
-                size="sm" 
+              <Button
+                size="sm"
                 variant={filterSentiment === 'neutral' ? 'default' : 'outline'}
                 onClick={() => setFilterSentiment('neutral')}
               >
                 Neutral
               </Button>
-              <Button 
-                size="sm" 
+              <Button
+                size="sm"
                 variant={filterSentiment === 'negative' ? 'default' : 'outline'}
                 onClick={() => setFilterSentiment('negative')}
                 className="bg-red-600 hover:bg-red-700"
@@ -258,17 +297,21 @@ export default function FeedbackSentimentAnalysis({ surveys, interactions }) {
                 return (
                   <div key={idx} className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
                     <div className="flex items-start gap-3">
-                      <SentimentIcon 
+                      <SentimentIcon
                         className={`w-5 h-5 mt-0.5 ${
-                          item.sentiment === 'positive' ? 'text-emerald-500' :
-                          item.sentiment === 'negative' ? 'text-red-500' :
-                          'text-gray-400'
+                          item.sentiment === 'positive'
+                            ? 'text-emerald-500'
+                            : item.sentiment === 'negative'
+                              ? 'text-red-500'
+                              : 'text-gray-400'
                         }`}
                       />
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">
                           <Badge variant="outline" className="text-xs">
-                            {item.type === 'survey' ? item.survey_type?.toUpperCase() : item.interaction_type}
+                            {item.type === 'survey'
+                              ? item.survey_type?.toUpperCase()
+                              : item.interaction_type}
                           </Badge>
                           <span className="text-xs text-gray-500">
                             {new Date(item.date).toLocaleDateString()}

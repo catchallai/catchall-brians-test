@@ -4,26 +4,26 @@ Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
     const user = await base44.auth.me();
-    
+
     if (!user) {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     // Get LinkedIn access token from app connector
     const accessToken = await base44.asServiceRole.connectors.getAccessToken('linkedin');
-    
+
     if (!accessToken) {
-      return Response.json({ 
+      return Response.json({
         success: false,
-        error: 'LinkedIn not authorized. Please authorize in Settings.' 
+        error: 'LinkedIn not authorized. Please authorize in Settings.',
       });
     }
 
     // Get user's LinkedIn profile info
     const profileResponse = await fetch('https://api.linkedin.com/v2/userinfo', {
       headers: {
-        'Authorization': `Bearer ${accessToken}`
-      }
+        Authorization: `Bearer ${accessToken}`,
+      },
     });
 
     if (!profileResponse.ok) {
@@ -38,14 +38,16 @@ Deno.serve(async (req) => {
       name: profile.name || profile.given_name || 'LinkedIn User',
       email: profile.email,
       profileUrl: `https://www.linkedin.com/in/${profile.sub}`,
-      sub: profile.sub
+      sub: profile.sub,
     });
-
   } catch (error) {
     console.error('LinkedIn verification error:', error);
-    return Response.json({ 
-      success: false,
-      error: error.message 
-    }, { status: 500 });
+    return Response.json(
+      {
+        success: false,
+        error: error.message,
+      },
+      { status: 500 }
+    );
   }
 });

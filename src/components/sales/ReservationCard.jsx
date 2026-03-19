@@ -1,8 +1,8 @@
 import React from 'react';
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Calendar, DollarSign, Package, Pencil } from "lucide-react";
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Calendar, DollarSign, Package, Pencil } from 'lucide-react';
 import { format } from 'date-fns';
 
 const statusColors = {
@@ -10,13 +10,13 @@ const statusColors = {
   confirmed: 'bg-emerald-100 text-emerald-700',
   completed: 'bg-blue-100 text-blue-700',
   cancelled: 'bg-red-100 text-red-700',
-  expired: 'bg-gray-100 text-gray-700'
+  expired: 'bg-gray-100 text-gray-700',
 };
 
 const paymentColors = {
   unpaid: 'bg-red-100 text-red-700',
   deposit_paid: 'bg-amber-100 text-amber-700',
-  paid: 'bg-emerald-100 text-emerald-700'
+  paid: 'bg-emerald-100 text-emerald-700',
 };
 
 export default function ReservationCard({ reservation, contactName, dealName, onEdit }) {
@@ -54,7 +54,9 @@ export default function ReservationCard({ reservation, contactName, dealName, on
           <div className="flex items-center gap-2 mb-2 text-sm text-gray-600">
             <DollarSign className="w-4 h-4" />
             <span>${reservation.value.toLocaleString()}</span>
-            {reservation.quantity > 1 && <span className="text-xs text-gray-500">x{reservation.quantity}</span>}
+            {reservation.quantity > 1 && (
+              <span className="text-xs text-gray-500">x{reservation.quantity}</span>
+            )}
           </div>
         )}
 

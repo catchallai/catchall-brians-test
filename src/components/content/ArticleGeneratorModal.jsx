@@ -1,19 +1,20 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Progress } from "@/components/ui/progress";
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Loader2, Wand2, FileText, CheckCircle } from "lucide-react";
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Progress } from '@/components/ui/progress';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Loader2, Wand2, FileText, CheckCircle } from 'lucide-react';
 
 export default function ArticleGeneratorModal({ open, onClose, briefs, brandVoices }) {
   const [selectedBrief, setSelectedBrief] = useState('');
@@ -26,8 +27,8 @@ export default function ArticleGeneratorModal({ open, onClose, briefs, brandVoic
   const [generatedArticle, setGeneratedArticle] = useState(null);
   const queryClient = useQueryClient();
 
-  const brief = briefs.find(b => b.id === selectedBrief);
-  const voice = brandVoices.find(v => v.id === selectedVoice);
+  const brief = briefs.find((b) => b.id === selectedBrief);
+  const voice = brandVoices.find((v) => v.id === selectedVoice);
 
   const generateArticle = async () => {
     setIsGenerating(true);
@@ -35,14 +36,16 @@ export default function ArticleGeneratorModal({ open, onClose, briefs, brandVoic
 
     try {
       setProgress(20);
-      
+
       const title = brief?.title || customTitle;
       const keyword = brief?.target_keyword || customKeyword;
-      const voiceGuidelines = voice ? `
+      const voiceGuidelines = voice
+        ? `
 Tone: ${voice.tone?.join(', ')}
 Vocabulary to use: ${voice.vocabulary?.join(', ')}
 Words to avoid: ${voice.avoid_words?.join(', ')}
-Guidelines: ${voice.guidelines}` : '';
+Guidelines: ${voice.guidelines}`
+        : '';
 
       setProgress(40);
 
@@ -54,8 +57,12 @@ Target Keyword: ${keyword}
 Secondary Keywords: ${brief?.secondary_keywords?.join(', ') || ''}
 Word Count Target: ${wordCount}
 
-${brief?.outline?.length ? `Outline:
-${brief.outline.map(o => `- ${o.heading}`).join('\n')}` : ''}
+${
+  brief?.outline?.length
+    ? `Outline:
+${brief.outline.map((o) => `- ${o.heading}`).join('\n')}`
+    : ''
+}
 
 ${voiceGuidelines}
 
@@ -63,16 +70,16 @@ Write in markdown format with proper H2/H3 headings.
 Include the target keyword naturally throughout.
 Make it engaging, informative, and actionable.`,
         response_json_schema: {
-          type: "object",
+          type: 'object',
           properties: {
-            content: { type: "string" },
-            meta_title: { type: "string" },
-            meta_description: { type: "string" },
-            word_count: { type: "number" },
-            seo_score: { type: "number" },
-            readability_score: { type: "number" }
-          }
-        }
+            content: { type: 'string' },
+            meta_title: { type: 'string' },
+            meta_description: { type: 'string' },
+            word_count: { type: 'number' },
+            seo_score: { type: 'number' },
+            readability_score: { type: 'number' },
+          },
+        },
       });
 
       setProgress(80);
@@ -87,13 +94,12 @@ Make it engaging, informative, and actionable.`,
         seo_score: result.seo_score || 85,
         readability_score: result.readability_score || 80,
         brand_voice_match: voice ? 90 : 0,
-        status: 'draft'
+        status: 'draft',
       });
 
       setProgress(100);
       setGeneratedArticle(article);
       queryClient.invalidateQueries({ queryKey: ['generated-articles'] });
-
     } catch (error) {
       console.error('Generation failed:', error);
     }
@@ -125,9 +131,13 @@ Make it engaging, informative, and actionable.`,
             <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
               Article Generated!
             </h3>
-            <p className="text-gray-500 mb-4">{generatedArticle.word_count} words • SEO Score: {generatedArticle.seo_score}%</p>
+            <p className="text-gray-500 mb-4">
+              {generatedArticle.word_count} words • SEO Score: {generatedArticle.seo_score}%
+            </p>
             <div className="flex justify-center gap-3">
-              <Button variant="outline" onClick={handleClose}>Close</Button>
+              <Button variant="outline" onClick={handleClose}>
+                Close
+              </Button>
               <Button>View Article</Button>
             </div>
           </div>
@@ -143,7 +153,9 @@ Make it engaging, informative, and actionable.`,
                   <SelectContent>
                     <SelectItem value={null}>Custom Article</SelectItem>
                     {briefs.map((b) => (
-                      <SelectItem key={b.id} value={b.id}>{b.title}</SelectItem>
+                      <SelectItem key={b.id} value={b.id}>
+                        {b.title}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -180,7 +192,9 @@ Make it engaging, informative, and actionable.`,
                 <SelectContent>
                   <SelectItem value={null}>Default</SelectItem>
                   {brandVoices.map((v) => (
-                    <SelectItem key={v.id} value={v.id}>{v.name}</SelectItem>
+                    <SelectItem key={v.id} value={v.id}>
+                      {v.name}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -206,7 +220,9 @@ Make it engaging, informative, and actionable.`,
             )}
 
             <div className="flex justify-end gap-3 pt-4 border-t">
-              <Button variant="outline" onClick={handleClose}>Cancel</Button>
+              <Button variant="outline" onClick={handleClose}>
+                Cancel
+              </Button>
               <Button
                 onClick={generateArticle}
                 disabled={isGenerating || (!selectedBrief && (!customTitle || !customKeyword))}

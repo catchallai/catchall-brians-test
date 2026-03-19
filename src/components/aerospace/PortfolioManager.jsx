@@ -1,15 +1,31 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { 
-  Briefcase, Plus, Edit2, Trash2, TrendingUp, TrendingDown, 
-  DollarSign, Users, Target, X, Star, Tag
-} from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Badge } from '@/components/ui/badge';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog';
+import {
+  Briefcase,
+  Plus,
+  Edit2,
+  Trash2,
+  TrendingUp,
+  TrendingDown,
+  DollarSign,
+  Users,
+  Target,
+  X,
+  Star,
+  Tag,
+} from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
@@ -20,19 +36,19 @@ export default function PortfolioManager({ user, onSelectPortfolio }) {
   const [newPortfolio, setNewPortfolio] = useState({
     name: '',
     description: '',
-    color: '#3b82f6'
+    color: '#3b82f6',
   });
   const queryClient = useQueryClient();
 
   const { data: portfolios = [] } = useQuery({
     queryKey: ['aerospace-portfolios', user?.email],
     queryFn: () => base44.entities.AerospacePortfolio.filter({ user_email: user.email }),
-    enabled: !!user?.email
+    enabled: !!user?.email,
   });
 
   const { data: allCompanies = [] } = useQuery({
     queryKey: ['aerospace-companies-all'],
-    queryFn: () => base44.entities.AerospaceCompany.list()
+    queryFn: () => base44.entities.AerospaceCompany.list(),
   });
 
   const createMutation = useMutation({
@@ -41,7 +57,7 @@ export default function PortfolioManager({ user, onSelectPortfolio }) {
       queryClient.invalidateQueries({ queryKey: ['aerospace-portfolios'] });
       setShowCreateDialog(false);
       setNewPortfolio({ name: '', description: '', color: '#3b82f6' });
-    }
+    },
   });
 
   const updateMutation = useMutation({
@@ -50,21 +66,21 @@ export default function PortfolioManager({ user, onSelectPortfolio }) {
       queryClient.invalidateQueries({ queryKey: ['aerospace-portfolios'] });
       setShowEditDialog(false);
       setEditingPortfolio(null);
-    }
+    },
   });
 
   const deleteMutation = useMutation({
     mutationFn: (id) => base44.entities.AerospacePortfolio.delete(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['aerospace-portfolios'] });
-    }
+    },
   });
 
   const handleCreate = () => {
     createMutation.mutate({
       ...newPortfolio,
       user_email: user.email,
-      company_ids: []
+      company_ids: [],
     });
   };
 
@@ -74,31 +90,42 @@ export default function PortfolioManager({ user, onSelectPortfolio }) {
       data: {
         name: editingPortfolio.name,
         description: editingPortfolio.description,
-        color: editingPortfolio.color
-      }
+        color: editingPortfolio.color,
+      },
     });
   };
 
   const getPortfolioStats = (portfolio) => {
-    const companies = allCompanies.filter(c => portfolio.company_ids?.includes(c.id));
+    const companies = allCompanies.filter((c) => portfolio.company_ids?.includes(c.id));
     const totalEmployees = companies.reduce((sum, c) => sum + (c.employee_count || 0), 0);
-    const avgGrowth = companies.length > 0 
-      ? companies.reduce((sum, c) => {
-          const growth = parseFloat((c.financial_highlights?.revenue_growth || '0').replace(/[^0-9.-]/g, ''));
-          return sum + (isNaN(growth) ? 0 : growth);
-        }, 0) / companies.length
-      : 0;
+    const avgGrowth =
+      companies.length > 0
+        ? companies.reduce((sum, c) => {
+            const growth = parseFloat(
+              (c.financial_highlights?.revenue_growth || '0').replace(/[^0-9.-]/g, '')
+            );
+            return sum + (isNaN(growth) ? 0 : growth);
+          }, 0) / companies.length
+        : 0;
 
     return {
       count: companies.length,
       totalEmployees,
-      avgGrowth: avgGrowth.toFixed(1)
+      avgGrowth: avgGrowth.toFixed(1),
     };
   };
 
   const colors = [
-    '#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6',
-    '#ec4899', '#06b6d4', '#84cc16', '#f97316', '#6366f1'
+    '#3b82f6',
+    '#10b981',
+    '#f59e0b',
+    '#ef4444',
+    '#8b5cf6',
+    '#ec4899',
+    '#06b6d4',
+    '#84cc16',
+    '#f97316',
+    '#6366f1',
   ];
 
   return (
@@ -121,8 +148,8 @@ export default function PortfolioManager({ user, onSelectPortfolio }) {
         {portfolios.map((portfolio) => {
           const stats = getPortfolioStats(portfolio);
           return (
-            <Card 
-              key={portfolio.id} 
+            <Card
+              key={portfolio.id}
               className="cursor-pointer hover:shadow-lg transition-shadow border-l-4"
               style={{ borderLeftColor: portfolio.color }}
               onClick={() => onSelectPortfolio(portfolio)}
@@ -225,7 +252,9 @@ export default function PortfolioManager({ user, onSelectPortfolio }) {
                     key={color}
                     onClick={() => setNewPortfolio({ ...newPortfolio, color })}
                     className={`w-8 h-8 rounded-full border-2 ${
-                      newPortfolio.color === color ? 'border-gray-900 dark:border-white' : 'border-transparent'
+                      newPortfolio.color === color
+                        ? 'border-gray-900 dark:border-white'
+                        : 'border-transparent'
                     }`}
                     style={{ backgroundColor: color }}
                   />
@@ -234,8 +263,12 @@ export default function PortfolioManager({ user, onSelectPortfolio }) {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowCreateDialog(false)}>Cancel</Button>
-            <Button onClick={handleCreate} disabled={!newPortfolio.name}>Create</Button>
+            <Button variant="outline" onClick={() => setShowCreateDialog(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleCreate} disabled={!newPortfolio.name}>
+              Create
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -252,14 +285,18 @@ export default function PortfolioManager({ user, onSelectPortfolio }) {
                 <Label>Portfolio Name</Label>
                 <Input
                   value={editingPortfolio.name}
-                  onChange={(e) => setEditingPortfolio({ ...editingPortfolio, name: e.target.value })}
+                  onChange={(e) =>
+                    setEditingPortfolio({ ...editingPortfolio, name: e.target.value })
+                  }
                 />
               </div>
               <div>
                 <Label>Description</Label>
                 <Textarea
                   value={editingPortfolio.description || ''}
-                  onChange={(e) => setEditingPortfolio({ ...editingPortfolio, description: e.target.value })}
+                  onChange={(e) =>
+                    setEditingPortfolio({ ...editingPortfolio, description: e.target.value })
+                  }
                 />
               </div>
               <div>
@@ -270,7 +307,9 @@ export default function PortfolioManager({ user, onSelectPortfolio }) {
                       key={color}
                       onClick={() => setEditingPortfolio({ ...editingPortfolio, color })}
                       className={`w-8 h-8 rounded-full border-2 ${
-                        editingPortfolio.color === color ? 'border-gray-900 dark:border-white' : 'border-transparent'
+                        editingPortfolio.color === color
+                          ? 'border-gray-900 dark:border-white'
+                          : 'border-transparent'
                       }`}
                       style={{ backgroundColor: color }}
                     />
@@ -280,7 +319,9 @@ export default function PortfolioManager({ user, onSelectPortfolio }) {
             </div>
           )}
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowEditDialog(false)}>Cancel</Button>
+            <Button variant="outline" onClick={() => setShowEditDialog(false)}>
+              Cancel
+            </Button>
             <Button onClick={handleUpdate}>Save Changes</Button>
           </DialogFooter>
         </DialogContent>

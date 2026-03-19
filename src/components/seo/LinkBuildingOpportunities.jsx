@@ -1,11 +1,17 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { 
-  Lightbulb, ExternalLink, Loader2, Target, TrendingUp,
-  CheckCircle2, Star, Zap
-} from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import {
+  Lightbulb,
+  ExternalLink,
+  Loader2,
+  Target,
+  TrendingUp,
+  CheckCircle2,
+  Star,
+  Zap,
+} from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 
 export default function LinkBuildingOpportunities({ backlinks, competitors, websites }) {
@@ -15,12 +21,16 @@ export default function LinkBuildingOpportunities({ backlinks, competitors, webs
 
   const analyzeOpportunities = async () => {
     setIsAnalyzing(true);
-    
+
     try {
-      const competitorNames = competitors?.slice(0, 5).map(c => c.name).join(', ') || 'industry competitors';
-      const currentDomains = [...new Set(backlinks.map(b => b.source_domain))].slice(0, 20);
+      const competitorNames =
+        competitors
+          ?.slice(0, 5)
+          .map((c) => c.name)
+          .join(', ') || 'industry competitors';
+      const currentDomains = [...new Set(backlinks.map((b) => b.source_domain))].slice(0, 20);
       const websiteDomain = websites?.[0]?.domain || 'your website';
-      
+
       const result = await base44.integrations.Core.InvokeLLM({
         prompt: `You are a link building expert. Analyze potential link building opportunities for a website: ${websiteDomain}
 
@@ -37,36 +47,36 @@ Based on competitor analysis and industry best practices, suggest 8-10 specific 
 
 Focus on actionable, realistic opportunities that could yield high-quality backlinks.`,
         response_json_schema: {
-          type: "object",
+          type: 'object',
           properties: {
             opportunities: {
-              type: "array",
+              type: 'array',
               items: {
-                type: "object",
+                type: 'object',
                 properties: {
-                  target: { type: "string" },
-                  target_url: { type: "string" },
-                  strategy: { type: "string" },
-                  difficulty: { type: "string", enum: ["easy", "medium", "hard"] },
-                  estimated_da: { type: "number" },
-                  priority: { type: "number" },
-                  action_steps: { type: "array", items: { type: "string" } },
-                  category: { type: "string" },
-                  potential_impact: { type: "string" }
-                }
-              }
+                  target: { type: 'string' },
+                  target_url: { type: 'string' },
+                  strategy: { type: 'string' },
+                  difficulty: { type: 'string', enum: ['easy', 'medium', 'hard'] },
+                  estimated_da: { type: 'number' },
+                  priority: { type: 'number' },
+                  action_steps: { type: 'array', items: { type: 'string' } },
+                  category: { type: 'string' },
+                  potential_impact: { type: 'string' },
+                },
+              },
             },
             summary: {
-              type: "object",
+              type: 'object',
               properties: {
-                total_potential_links: { type: "number" },
-                avg_da: { type: "number" },
-                quick_wins: { type: "number" }
-              }
-            }
-          }
+                total_potential_links: { type: 'number' },
+                avg_da: { type: 'number' },
+                quick_wins: { type: 'number' },
+              },
+            },
+          },
         },
-        add_context_from_internet: true
+        add_context_from_internet: true,
       });
 
       if (result.opportunities) {
@@ -83,7 +93,7 @@ Focus on actionable, realistic opportunities that could yield high-quality backl
   const difficultyColors = {
     easy: 'bg-emerald-100 text-emerald-700',
     medium: 'bg-amber-100 text-amber-700',
-    hard: 'bg-red-100 text-red-700'
+    hard: 'bg-red-100 text-red-700',
   };
 
   return (
@@ -95,8 +105,8 @@ Focus on actionable, realistic opportunities that could yield high-quality backl
             Link Building Opportunities
           </CardTitle>
           {!hasAnalyzed && (
-            <Button 
-              size="sm" 
+            <Button
+              size="sm"
               onClick={analyzeOpportunities}
               disabled={isAnalyzing}
               className="bg-amber-600 hover:bg-amber-700 gap-2"
@@ -143,8 +153,8 @@ Focus on actionable, realistic opportunities that could yield high-quality backl
         {hasAnalyzed && opportunities.length > 0 && (
           <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2">
             {opportunities.map((opp, i) => (
-              <div 
-                key={i} 
+              <div
+                key={i}
                 className="p-3 rounded-lg border border-gray-100 dark:border-gray-700 hover:border-amber-200 dark:hover:border-amber-800 transition-colors"
               >
                 <div className="flex items-start justify-between gap-2 mb-2">
@@ -166,7 +176,7 @@ Focus on actionable, realistic opportunities that could yield high-quality backl
                     <span className="text-xs font-medium text-gray-500">DA {opp.estimated_da}</span>
                   </div>
                 </div>
-                
+
                 <div className="flex items-center gap-4 text-xs text-gray-400">
                   <span className="flex items-center gap-1">
                     <TrendingUp className="w-3 h-3" />
@@ -182,7 +192,10 @@ Focus on actionable, realistic opportunities that could yield high-quality backl
                     <p className="text-xs font-medium text-gray-500 mb-1">Next Steps:</p>
                     <ul className="space-y-1">
                       {opp.action_steps.slice(0, 2).map((step, j) => (
-                        <li key={j} className="flex items-start gap-1.5 text-xs text-gray-600 dark:text-gray-400">
+                        <li
+                          key={j}
+                          className="flex items-start gap-1.5 text-xs text-gray-600 dark:text-gray-400"
+                        >
                           <CheckCircle2 className="w-3 h-3 text-emerald-500 mt-0.5 shrink-0" />
                           <span>{step}</span>
                         </li>
@@ -192,7 +205,7 @@ Focus on actionable, realistic opportunities that could yield high-quality backl
                 )}
 
                 {opp.target_url && (
-                  <a 
+                  <a
                     href={opp.target_url}
                     target="_blank"
                     rel="noopener noreferrer"

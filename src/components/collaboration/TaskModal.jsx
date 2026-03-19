@@ -5,21 +5,21 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Calendar as CalendarIcon } from "lucide-react";
+} from '@/components/ui/select';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Calendar as CalendarIcon } from 'lucide-react';
 
 export default function TaskModal({ open, onClose, task, onSave, isLoading }) {
   const [formData, setFormData] = useState({
@@ -144,14 +144,18 @@ export default function TaskModal({ open, onClose, task, onSave, isLoading }) {
                 <PopoverTrigger asChild>
                   <Button variant="outline" className="w-full justify-start text-left font-normal">
                     <CalendarIcon className="mr-2 h-4 w-4" />
-                    {formData.start_date ? new Date(formData.start_date).toLocaleDateString() : 'Pick a date'}
+                    {formData.start_date
+                      ? new Date(formData.start_date).toLocaleDateString()
+                      : 'Pick a date'}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0">
                   <Calendar
                     mode="single"
                     selected={formData.start_date ? new Date(formData.start_date) : undefined}
-                    onSelect={(date) => setFormData({ ...formData, start_date: date?.toISOString() })}
+                    onSelect={(date) =>
+                      setFormData({ ...formData, start_date: date?.toISOString() })
+                    }
                   />
                 </PopoverContent>
               </Popover>
@@ -163,7 +167,9 @@ export default function TaskModal({ open, onClose, task, onSave, isLoading }) {
                 <PopoverTrigger asChild>
                   <Button variant="outline" className="w-full justify-start text-left font-normal">
                     <CalendarIcon className="mr-2 h-4 w-4" />
-                    {formData.due_date ? new Date(formData.due_date).toLocaleDateString() : 'Pick a date'}
+                    {formData.due_date
+                      ? new Date(formData.due_date).toLocaleDateString()
+                      : 'Pick a date'}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0">

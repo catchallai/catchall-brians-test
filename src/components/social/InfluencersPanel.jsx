@@ -1,16 +1,19 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Users, ExternalLink, Star, TrendingUp, Eye } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Users, ExternalLink, Star, TrendingUp, Eye } from 'lucide-react';
 import InfluencerProfileCard from './InfluencerProfileCard';
 
 const platformConfig = {
-  twitter: { color: "bg-gray-900 text-white", icon: "𝕏" },
-  linkedin: { color: "bg-blue-600 text-white", icon: "in" },
-  facebook: { color: "bg-blue-500 text-white", icon: "f" },
-  instagram: { color: "bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400 text-white", icon: "IG" },
-  youtube: { color: "bg-red-600 text-white", icon: "▶" },
+  twitter: { color: 'bg-gray-900 text-white', icon: '𝕏' },
+  linkedin: { color: 'bg-blue-600 text-white', icon: 'in' },
+  facebook: { color: 'bg-blue-500 text-white', icon: 'f' },
+  instagram: {
+    color: 'bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400 text-white',
+    icon: 'IG',
+  },
+  youtube: { color: 'bg-red-600 text-white', icon: '▶' },
 };
 
 export default function InfluencersPanel({ mentions, onViewMention }) {
@@ -18,7 +21,7 @@ export default function InfluencersPanel({ mentions, onViewMention }) {
 
   // Filter and sort by influence score
   const influencers = mentions
-    .filter(m => m.influence_score >= 70 || m.author_followers >= 10000)
+    .filter((m) => m.influence_score >= 70 || m.author_followers >= 10000)
     .sort((a, b) => (b.influence_score || 0) - (a.influence_score || 0))
     .slice(0, 10);
 
@@ -52,7 +55,7 @@ export default function InfluencersPanel({ mentions, onViewMention }) {
       <CardContent className="space-y-3">
         {influencers.map((mention) => {
           const platform = platformConfig[mention.platform] || platformConfig.twitter;
-          
+
           return (
             <div
               key={mention.id}
@@ -61,7 +64,9 @@ export default function InfluencersPanel({ mentions, onViewMention }) {
             >
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2">
-                  <div className={`w-6 h-6 rounded ${platform.color} flex items-center justify-center text-xs font-bold`}>
+                  <div
+                    className={`w-6 h-6 rounded ${platform.color} flex items-center justify-center text-xs font-bold`}
+                  >
                     {platform.icon}
                   </div>
                   <span className="font-medium text-gray-900">@{mention.author}</span>
@@ -75,7 +80,10 @@ export default function InfluencersPanel({ mentions, onViewMention }) {
                     size="icon"
                     variant="ghost"
                     className="h-7 w-7"
-                    onClick={(e) => { e.stopPropagation(); setSelectedInfluencer(mention); }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSelectedInfluencer(mention);
+                    }}
                   >
                     <Eye className="w-4 h-4 text-violet-500" />
                   </Button>
@@ -99,7 +107,8 @@ export default function InfluencersPanel({ mentions, onViewMention }) {
                 </span>
                 <span className="flex items-center gap-1">
                   <TrendingUp className="w-3 h-3" />
-                  {(mention.likes || 0) + (mention.comments || 0) + (mention.shares || 0)} engagement
+                  {(mention.likes || 0) + (mention.comments || 0) + (mention.shares || 0)}{' '}
+                  engagement
                 </span>
               </div>
               <p className="text-sm text-gray-600 mt-2 line-clamp-2">{mention.content}</p>
@@ -109,7 +118,7 @@ export default function InfluencersPanel({ mentions, onViewMention }) {
       </CardContent>
 
       {/* Influencer Profile Modal */}
-      <InfluencerProfileCard 
+      <InfluencerProfileCard
         mention={selectedInfluencer}
         onClose={() => setSelectedInfluencer(null)}
       />

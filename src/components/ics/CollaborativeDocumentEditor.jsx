@@ -1,20 +1,26 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
 import { FileText, Edit2, Lock, Unlock, Users, X } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 
-export default function CollaborativeDocumentEditor({ 
-  channelId, 
+export default function CollaborativeDocumentEditor({
+  channelId,
   user,
   onDocumentSelect,
-  onClose
+  onClose,
 }) {
   const [documents, setDocuments] = useState([]);
   const [selectedDoc, setSelectedDoc] = useState(null);
@@ -129,11 +135,10 @@ export default function CollaborativeDocumentEditor({
                 className="min-h-96"
               />
               <div className="flex gap-2 justify-end">
-                <Button variant="outline" onClick={() => setShowNewDoc(false)}>Cancel</Button>
-                <Button 
-                  onClick={saveDocument}
-                  disabled={!newDocTitle || !docContent}
-                >
+                <Button variant="outline" onClick={() => setShowNewDoc(false)}>
+                  Cancel
+                </Button>
+                <Button onClick={saveDocument} disabled={!newDocTitle || !docContent}>
                   Create
                 </Button>
               </div>
@@ -146,12 +151,12 @@ export default function CollaborativeDocumentEditor({
         {documents.length === 0 ? (
           <p className="text-xs text-gray-500 py-4 text-center">No documents yet</p>
         ) : (
-          documents.map(doc => (
-            <div 
+          documents.map((doc) => (
+            <div
               key={doc.id}
               className={`p-3 rounded-lg border cursor-pointer transition-all ${
-                selectedDoc?.id === doc.id 
-                  ? 'bg-blue-50 border-blue-300' 
+                selectedDoc?.id === doc.id
+                  ? 'bg-blue-50 border-blue-300'
                   : 'bg-white border-gray-200 hover:border-gray-300'
               }`}
               onClick={() => {
@@ -170,13 +175,13 @@ export default function CollaborativeDocumentEditor({
                   {doc.collaborators?.length > 1 && (
                     <div className="flex items-center gap-1 mt-2">
                       <Users className="w-3 h-3 text-gray-400" />
-                      <span className="text-xs text-gray-600">{doc.collaborators.length} collaborators</span>
+                      <span className="text-xs text-gray-600">
+                        {doc.collaborators.length} collaborators
+                      </span>
                     </div>
                   )}
                 </div>
-                {doc.is_locked && (
-                  <Lock className="w-4 h-4 text-amber-500 flex-shrink-0" />
-                )}
+                {doc.is_locked && <Lock className="w-4 h-4 text-amber-500 flex-shrink-0" />}
               </div>
             </div>
           ))
@@ -188,7 +193,14 @@ export default function CollaborativeDocumentEditor({
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <CardTitle className="text-base">{docTitle}</CardTitle>
-              <Button size="icon" variant="ghost" onClick={() => { setSelectedDoc(null); onClose?.(); }}>
+              <Button
+                size="icon"
+                variant="ghost"
+                onClick={() => {
+                  setSelectedDoc(null);
+                  onClose?.();
+                }}
+              >
                 <X className="w-4 h-4" />
               </Button>
             </div>
@@ -202,8 +214,12 @@ export default function CollaborativeDocumentEditor({
                   className="min-h-64 font-mono text-sm"
                 />
                 <div className="flex gap-2 justify-end">
-                  <Button variant="outline" onClick={() => setIsEditing(false)}>Cancel</Button>
-                  <Button onClick={saveDocument} className="bg-emerald-600 hover:bg-emerald-700">Save</Button>
+                  <Button variant="outline" onClick={() => setIsEditing(false)}>
+                    Cancel
+                  </Button>
+                  <Button onClick={saveDocument} className="bg-emerald-600 hover:bg-emerald-700">
+                    Save
+                  </Button>
                 </div>
               </>
             ) : (
@@ -213,9 +229,9 @@ export default function CollaborativeDocumentEditor({
                 </div>
                 {selectedDoc.owner_email === user?.email && (
                   <div className="flex gap-2">
-                    <Button 
-                      size="sm" 
-                      variant="outline" 
+                    <Button
+                      size="sm"
+                      variant="outline"
                       onClick={() => setIsEditing(true)}
                       className="gap-2 flex-1"
                     >
@@ -228,7 +244,11 @@ export default function CollaborativeDocumentEditor({
                       onClick={() => toggleLock(selectedDoc)}
                       className="gap-2"
                     >
-                      {selectedDoc.is_locked ? <Unlock className="w-4 h-4" /> : <Lock className="w-4 h-4" />}
+                      {selectedDoc.is_locked ? (
+                        <Unlock className="w-4 h-4" />
+                      ) : (
+                        <Lock className="w-4 h-4" />
+                      )}
                     </Button>
                     <Button
                       size="sm"

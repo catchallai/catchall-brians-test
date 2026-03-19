@@ -1,11 +1,9 @@
 import React from 'react';
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
-import {
-  Lightbulb, Target, TrendingUp, FileText, ArrowRight
-} from "lucide-react";
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
+import { Lightbulb, Target, TrendingUp, FileText, ArrowRight } from 'lucide-react';
 
 const contentTypeColors = {
   blog: 'bg-blue-100 text-blue-700',
@@ -20,7 +18,9 @@ export default function ContentIdeaCard({ idea, onCreateBrief, isHighlight }) {
   const opportunityScore = idea.opportunity_score || 0;
 
   return (
-    <Card className={`glass-card rounded-2xl hover:shadow-lg transition-all ${isHighlight ? 'ring-2 ring-emerald-500' : ''}`}>
+    <Card
+      className={`glass-card rounded-2xl hover:shadow-lg transition-all ${isHighlight ? 'ring-2 ring-emerald-500' : ''}`}
+    >
       <CardContent className="p-4">
         <div className="flex items-start justify-between mb-2">
           <div className="flex items-center gap-2">
@@ -28,7 +28,9 @@ export default function ContentIdeaCard({ idea, onCreateBrief, isHighlight }) {
               <Lightbulb className="w-4 h-4 text-amber-600" />
             </div>
             {idea.content_type && (
-              <Badge className={contentTypeColors[idea.content_type] || 'bg-gray-100 text-gray-700'}>
+              <Badge
+                className={contentTypeColors[idea.content_type] || 'bg-gray-100 text-gray-700'}
+              >
                 {idea.content_type}
               </Badge>
             )}
@@ -41,8 +43,10 @@ export default function ContentIdeaCard({ idea, onCreateBrief, isHighlight }) {
           )}
         </div>
 
-        <h3 className="font-medium text-gray-900 dark:text-white mb-2 line-clamp-2">{idea.title}</h3>
-        
+        <h3 className="font-medium text-gray-900 dark:text-white mb-2 line-clamp-2">
+          {idea.title}
+        </h3>
+
         {idea.description && (
           <p className="text-sm text-gray-500 mb-3 line-clamp-2">{idea.description}</p>
         )}
@@ -56,11 +60,15 @@ export default function ContentIdeaCard({ idea, onCreateBrief, isHighlight }) {
 
         <div className="grid grid-cols-3 gap-2 mb-3 text-center">
           <div className="p-2 bg-gray-50 dark:bg-gray-700 rounded">
-            <p className="text-sm font-semibold text-gray-900 dark:text-white">{idea.keyword_difficulty || '-'}</p>
+            <p className="text-sm font-semibold text-gray-900 dark:text-white">
+              {idea.keyword_difficulty || '-'}
+            </p>
             <p className="text-xs text-gray-500">Difficulty</p>
           </div>
           <div className="p-2 bg-gray-50 dark:bg-gray-700 rounded">
-            <p className="text-sm font-semibold text-gray-900 dark:text-white">{idea.search_volume?.toLocaleString() || '-'}</p>
+            <p className="text-sm font-semibold text-gray-900 dark:text-white">
+              {idea.search_volume?.toLocaleString() || '-'}
+            </p>
             <p className="text-xs text-gray-500">Volume</p>
           </div>
           <div className="p-2 bg-gray-50 dark:bg-gray-700 rounded">
@@ -77,12 +85,7 @@ export default function ContentIdeaCard({ idea, onCreateBrief, isHighlight }) {
           <Progress value={opportunityScore} className="h-1.5" />
         </div>
 
-        <Button 
-          onClick={onCreateBrief} 
-          variant="outline" 
-          size="sm" 
-          className="w-full gap-1"
-        >
+        <Button onClick={onCreateBrief} variant="outline" size="sm" className="w-full gap-1">
           <FileText className="w-3 h-3" />
           Create Brief
           <ArrowRight className="w-3 h-3" />

@@ -5,7 +5,13 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Loader2, UserPlus, Trash2, Edit2, Check, X } from 'lucide-react';
 import { useToast } from '@/components/ui/toast-provider';
 import {
@@ -63,7 +69,7 @@ export default function UserManagement() {
     mutationFn: async ({ userId, data }) => {
       // Use backend function for full_name and email (admin fields)
       const { full_name, email, ...otherData } = data;
-      
+
       const updatePayload = { ...otherData };
       if (full_name) updatePayload.full_name = full_name;
       if (email) updatePayload.email = email;
@@ -103,16 +109,17 @@ export default function UserManagement() {
     onError: () => toast.error('Failed to delete user'),
   });
 
-  const filteredUsers = users.filter(user => {
-    const matchesSearch = user.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         user.email.toLowerCase().includes(searchTerm.toLowerCase());
+  const filteredUsers = users.filter((user) => {
+    const matchesSearch =
+      user.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.email.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesRole = roleFilter === 'all roles' || user.role === roleFilter;
     return matchesSearch && matchesRole;
   });
 
   const roleStats = {
-    admin: users.filter(u => u.role === 'admin').length,
-    user: users.filter(u => u.role === 'user').length,
+    admin: users.filter((u) => u.role === 'admin').length,
+    user: users.filter((u) => u.role === 'user').length,
     total: users.length,
   };
 
@@ -130,7 +137,9 @@ export default function UserManagement() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Users</h2>
-          <p className="text-gray-500 dark:text-gray-400 mt-1">Manage team members and their roles</p>
+          <p className="text-gray-500 dark:text-gray-400 mt-1">
+            Manage team members and their roles
+          </p>
         </div>
         <Dialog open={inviteOpen} onOpenChange={setInviteOpen}>
           <DialogTrigger asChild>
@@ -227,28 +236,50 @@ export default function UserManagement() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-gray-200 dark:border-gray-700">
-                  <th className="text-left py-4 px-6 font-semibold text-gray-900 dark:text-white">Name</th>
-                  <th className="text-left py-4 px-6 font-semibold text-gray-900 dark:text-white">Email</th>
-                  <th className="text-left py-4 px-6 font-semibold text-gray-900 dark:text-white">Role</th>
-                  <th className="text-right py-4 px-6 font-semibold text-gray-900 dark:text-white">Actions</th>
+                  <th className="text-left py-4 px-6 font-semibold text-gray-900 dark:text-white">
+                    Name
+                  </th>
+                  <th className="text-left py-4 px-6 font-semibold text-gray-900 dark:text-white">
+                    Email
+                  </th>
+                  <th className="text-left py-4 px-6 font-semibold text-gray-900 dark:text-white">
+                    Role
+                  </th>
+                  <th className="text-right py-4 px-6 font-semibold text-gray-900 dark:text-white">
+                    Actions
+                  </th>
                 </tr>
               </thead>
               <tbody>
                 {filteredUsers.length > 0 ? (
-                  filteredUsers.map(user => (
-                    <tr key={user.id} className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+                  filteredUsers.map((user) => (
+                    <tr
+                      key={user.id}
+                      className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
+                    >
                       <td className="py-4 px-6">
-                        <p className="font-medium text-gray-900 dark:text-white">{user.full_name || 'No name'}</p>
+                        <p className="font-medium text-gray-900 dark:text-white">
+                          {user.full_name || 'No name'}
+                        </p>
                       </td>
                       <td className="py-4 px-6 text-gray-600 dark:text-gray-400">{user.email}</td>
                       <td className="py-4 px-6">
-                        <Badge className={user.role === 'admin' ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700'}>
+                        <Badge
+                          className={
+                            user.role === 'admin'
+                              ? 'bg-red-100 text-red-700'
+                              : 'bg-blue-100 text-blue-700'
+                          }
+                        >
                           {user.role}
                         </Badge>
                       </td>
                       <td className="py-4 px-6 text-right">
                         <div className="flex items-center justify-end gap-2">
-                          <Dialog open={editingUser?.id === user.id} onOpenChange={(open) => !open && setEditingUser(null)}>
+                          <Dialog
+                            open={editingUser?.id === user.id}
+                            onOpenChange={(open) => !open && setEditingUser(null)}
+                          >
                             <DialogTrigger asChild>
                               <Button
                                 variant="ghost"
@@ -275,39 +306,51 @@ export default function UserManagement() {
                             <DialogContent className="max-h-[90vh] overflow-y-auto">
                               <DialogHeader>
                                 <DialogTitle>Edit User</DialogTitle>
-                                <DialogDescription>Update user information and role</DialogDescription>
+                                <DialogDescription>
+                                  Update user information and role
+                                </DialogDescription>
                               </DialogHeader>
                               <div className="space-y-4">
                                 {/* Personal Info */}
                                 <div className="border-t pt-4">
-                                  <h3 className="font-semibold text-sm mb-3 text-gray-900 dark:text-white">Personal Information</h3>
+                                  <h3 className="font-semibold text-sm mb-3 text-gray-900 dark:text-white">
+                                    Personal Information
+                                  </h3>
                                   <div className="space-y-3">
                                     <div className="space-y-2">
                                       <Label>Full Name</Label>
                                       <Input
                                         value={editData.full_name}
-                                        onChange={(e) => setEditData({ ...editData, full_name: e.target.value })}
+                                        onChange={(e) =>
+                                          setEditData({ ...editData, full_name: e.target.value })
+                                        }
                                       />
                                     </div>
                                     <div className="space-y-2">
                                       <Label>Email</Label>
                                       <Input
                                         value={editData.email || user.email}
-                                        onChange={(e) => setEditData({ ...editData, email: e.target.value })}
+                                        onChange={(e) =>
+                                          setEditData({ ...editData, email: e.target.value })
+                                        }
                                       />
                                     </div>
                                     <div className="space-y-2">
                                       <Label>Job Title</Label>
                                       <Input
                                         value={editData.title}
-                                        onChange={(e) => setEditData({ ...editData, title: e.target.value })}
+                                        onChange={(e) =>
+                                          setEditData({ ...editData, title: e.target.value })
+                                        }
                                       />
                                     </div>
                                     <div className="space-y-2">
                                       <Label>Department</Label>
                                       <Input
                                         value={editData.department}
-                                        onChange={(e) => setEditData({ ...editData, department: e.target.value })}
+                                        onChange={(e) =>
+                                          setEditData({ ...editData, department: e.target.value })
+                                        }
                                       />
                                     </div>
                                   </div>
@@ -315,13 +358,17 @@ export default function UserManagement() {
 
                                 {/* Contact Info */}
                                 <div className="border-t pt-4">
-                                  <h3 className="font-semibold text-sm mb-3 text-gray-900 dark:text-white">Contact Information</h3>
+                                  <h3 className="font-semibold text-sm mb-3 text-gray-900 dark:text-white">
+                                    Contact Information
+                                  </h3>
                                   <div className="space-y-3">
                                     <div className="space-y-2">
                                       <Label>Phone</Label>
                                       <Input
                                         value={editData.phone}
-                                        onChange={(e) => setEditData({ ...editData, phone: e.target.value })}
+                                        onChange={(e) =>
+                                          setEditData({ ...editData, phone: e.target.value })
+                                        }
                                       />
                                     </div>
                                   </div>
@@ -329,13 +376,17 @@ export default function UserManagement() {
 
                                 {/* Location */}
                                 <div className="border-t pt-4">
-                                  <h3 className="font-semibold text-sm mb-3 text-gray-900 dark:text-white">Location</h3>
+                                  <h3 className="font-semibold text-sm mb-3 text-gray-900 dark:text-white">
+                                    Location
+                                  </h3>
                                   <div className="space-y-3">
                                     <div className="space-y-2">
                                       <Label>Street Address</Label>
                                       <Input
                                         value={editData.address}
-                                        onChange={(e) => setEditData({ ...editData, address: e.target.value })}
+                                        onChange={(e) =>
+                                          setEditData({ ...editData, address: e.target.value })
+                                        }
                                       />
                                     </div>
                                     <div className="grid grid-cols-2 gap-3">
@@ -343,14 +394,18 @@ export default function UserManagement() {
                                         <Label>City</Label>
                                         <Input
                                           value={editData.city}
-                                          onChange={(e) => setEditData({ ...editData, city: e.target.value })}
+                                          onChange={(e) =>
+                                            setEditData({ ...editData, city: e.target.value })
+                                          }
                                         />
                                       </div>
                                       <div className="space-y-2">
                                         <Label>State/Province</Label>
                                         <Input
                                           value={editData.state}
-                                          onChange={(e) => setEditData({ ...editData, state: e.target.value })}
+                                          onChange={(e) =>
+                                            setEditData({ ...editData, state: e.target.value })
+                                          }
                                         />
                                       </div>
                                     </div>
@@ -359,14 +414,18 @@ export default function UserManagement() {
                                         <Label>Zip/Postal Code</Label>
                                         <Input
                                           value={editData.zip_code}
-                                          onChange={(e) => setEditData({ ...editData, zip_code: e.target.value })}
+                                          onChange={(e) =>
+                                            setEditData({ ...editData, zip_code: e.target.value })
+                                          }
                                         />
                                       </div>
                                       <div className="space-y-2">
                                         <Label>Country</Label>
                                         <Input
                                           value={editData.country}
-                                          onChange={(e) => setEditData({ ...editData, country: e.target.value })}
+                                          onChange={(e) =>
+                                            setEditData({ ...editData, country: e.target.value })
+                                          }
                                         />
                                       </div>
                                     </div>
@@ -377,7 +436,12 @@ export default function UserManagement() {
                                 <div className="border-t pt-4">
                                   <div className="space-y-2">
                                     <Label>Role</Label>
-                                    <Select value={editData.role} onValueChange={(value) => setEditData({ ...editData, role: value })}>
+                                    <Select
+                                      value={editData.role}
+                                      onValueChange={(value) =>
+                                        setEditData({ ...editData, role: value })
+                                      }
+                                    >
                                       <SelectTrigger>
                                         <SelectValue />
                                       </SelectTrigger>
@@ -390,7 +454,9 @@ export default function UserManagement() {
                                 </div>
 
                                 <Button
-                                  onClick={() => updateUserMutation.mutate({ userId: user.id, data: editData })}
+                                  onClick={() =>
+                                    updateUserMutation.mutate({ userId: user.id, data: editData })
+                                  }
                                   disabled={updateUserMutation.isPending}
                                   className="w-full"
                                 >

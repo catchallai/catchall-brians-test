@@ -1,17 +1,17 @@
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { 
-  UserPlus, 
-  Target, 
-  Mail, 
-  Phone, 
-  CheckCircle, 
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import {
+  UserPlus,
+  Target,
+  Mail,
+  Phone,
+  CheckCircle,
   AlertCircle,
   TrendingUp,
   TrendingDown,
-  MessageSquare
-} from "lucide-react";
+  MessageSquare,
+} from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 
 const activityIcons = {
@@ -26,38 +26,44 @@ const activityIcons = {
   mention: { icon: MessageSquare, color: 'text-purple-500 bg-purple-50' },
 };
 
-export default function RecentActivityFeed({ activities = [], contacts = [], deals = [], mentions = [] }) {
+export default function RecentActivityFeed({
+  activities = [],
+  contacts = [],
+  deals = [],
+  mentions = [],
+}) {
   // Generate activity items from real data
   const generateActivities = () => {
     const items = [];
-    
+
     // Recent contacts
-    contacts.slice(0, 3).forEach(c => {
+    contacts.slice(0, 3).forEach((c) => {
       items.push({
         type: 'contact_created',
         title: `New contact added`,
         description: `${c.first_name || 'Contact'} ${c.last_name || ''} from ${c.company_id ? 'a company' : c.source || 'unknown source'}`,
-        date: c.created_date
+        date: c.created_date,
       });
     });
 
     // Recent deals
-    deals.slice(0, 3).forEach(d => {
+    deals.slice(0, 3).forEach((d) => {
       items.push({
         type: d.stage === 'won' ? 'deal_won' : d.stage === 'lost' ? 'deal_lost' : 'deal_created',
-        title: d.stage === 'won' ? 'Deal won!' : d.stage === 'lost' ? 'Deal lost' : 'New deal created',
+        title:
+          d.stage === 'won' ? 'Deal won!' : d.stage === 'lost' ? 'Deal lost' : 'New deal created',
         description: `${d.title || 'Deal'} - $${d.value?.toLocaleString() || 0}`,
-        date: d.created_date
+        date: d.created_date,
       });
     });
 
     // Recent mentions
-    mentions.slice(0, 2).forEach(m => {
+    mentions.slice(0, 2).forEach((m) => {
       items.push({
         type: 'mention',
         title: `New ${m.platform || 'social'} mention`,
         description: (m.content || '').slice(0, 60) + '...',
-        date: m.created_date
+        date: m.created_date,
       });
     });
 

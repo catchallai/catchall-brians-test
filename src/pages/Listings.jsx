@@ -1,24 +1,30 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Skeleton } from "@/components/ui/skeleton";
-import { 
-  Plus, 
-  Search, 
-  MapPin, 
-  Scan, 
-  CheckCircle, 
-  AlertTriangle, 
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Skeleton } from '@/components/ui/skeleton';
+import {
+  Plus,
+  Search,
+  MapPin,
+  Scan,
+  CheckCircle,
+  AlertTriangle,
   XCircle,
   Loader2,
   Building2,
-  Flag
-} from "lucide-react";
+  Flag,
+} from 'lucide-react';
 import ListingCard from '@/components/listings/ListingCard';
 import ListingModal from '@/components/modals/ListingModal';
 import ListingDetailModal from '@/components/listings/ListingDetailModal';
@@ -84,9 +90,9 @@ export default function Listings() {
 
   const scanListings = async () => {
     if (websites.length === 0) return;
-    
+
     setScanning(true);
-    
+
     for (const website of websites) {
       const analysis = await base44.integrations.Core.InvokeLLM({
         prompt: `Analyze business listings for SyberJet Aircraft locations ONLY in the following areas:
@@ -137,40 +143,40 @@ export default function Listings() {
         - Severity: "critical", "warning", or "ok"`,
         add_context_from_internet: true,
         response_json_schema: {
-          type: "object",
+          type: 'object',
           properties: {
             reference_nap: {
-              type: "object",
+              type: 'object',
               properties: {
-                name: { type: "string" },
-                address: { type: "string" },
-                phone: { type: "string" }
-              }
+                name: { type: 'string' },
+                address: { type: 'string' },
+                phone: { type: 'string' },
+              },
             },
             listings: {
-              type: "array",
+              type: 'array',
               items: {
-                type: "object",
+                type: 'object',
                 properties: {
-                  platform: { type: "string" },
-                  business_name: { type: "string" },
-                  address: { type: "string" },
-                  city: { type: "string" },
-                  state: { type: "string" },
-                  zip_code: { type: "string" },
-                  phone: { type: "string" },
-                  rating: { type: "number" },
-                  review_count: { type: "number" },
-                  issues: { type: "array", items: { type: "string" } },
-                  nap_consistent: { type: "boolean" },
-                  suggested_corrections: { type: "array", items: { type: "string" } },
-                  needs_manual_review: { type: "boolean" },
-                  severity: { type: "string" }
-                }
-              }
-            }
-          }
-        }
+                  platform: { type: 'string' },
+                  business_name: { type: 'string' },
+                  address: { type: 'string' },
+                  city: { type: 'string' },
+                  state: { type: 'string' },
+                  zip_code: { type: 'string' },
+                  phone: { type: 'string' },
+                  rating: { type: 'number' },
+                  review_count: { type: 'number' },
+                  issues: { type: 'array', items: { type: 'string' } },
+                  nap_consistent: { type: 'boolean' },
+                  suggested_corrections: { type: 'array', items: { type: 'string' } },
+                  needs_manual_review: { type: 'boolean' },
+                  severity: { type: 'string' },
+                },
+              },
+            },
+          },
+        },
       });
 
       if (analysis.listings?.length > 0) {
@@ -178,32 +184,32 @@ export default function Listings() {
           const platformMap = {
             'google business': 'google_business',
             'google business profile': 'google_business',
-            'google': 'google_business',
-            'yelp': 'yelp',
-            'facebook': 'facebook',
+            google: 'google_business',
+            yelp: 'yelp',
+            facebook: 'facebook',
             'facebook business': 'facebook',
             'apple maps': 'apple_maps',
-            'apple': 'apple_maps',
+            apple: 'apple_maps',
             'bing places': 'bing_places',
-            'bing': 'bing_places',
-            'tripadvisor': 'tripadvisor',
+            bing: 'bing_places',
+            tripadvisor: 'tripadvisor',
             'trip advisor': 'tripadvisor',
-            'foursquare': 'foursquare',
+            foursquare: 'foursquare',
             'yellow pages': 'yellowpages',
-            'yellowpages': 'yellowpages'
+            yellowpages: 'yellowpages',
           };
-          
+
           const platform = platformMap[listing.platform?.toLowerCase()] || 'other';
           const severity = listing.severity?.toLowerCase() || 'ok';
           const hasIssues = listing.issues?.length > 0 || listing.needs_manual_review;
-          
+
           let status = 'verified';
           if (severity === 'critical' || listing.needs_manual_review) {
             status = 'needs_attention';
           } else if (severity === 'warning' || hasIssues) {
             status = 'pending';
           }
-          
+
           await base44.entities.Listing.create({
             website_id: website.id,
             business_name: listing.business_name || website.name,
@@ -221,7 +227,7 @@ export default function Listings() {
             suggested_corrections: listing.suggested_corrections || [],
             needs_manual_review: listing.needs_manual_review || false,
             severity: severity,
-            last_scanned: new Date().toISOString()
+            last_scanned: new Date().toISOString(),
           });
         }
       }
@@ -231,8 +237,9 @@ export default function Listings() {
     setScanning(false);
   };
 
-  const filteredListings = listings.filter(l => {
-    const matchesSearch = !searchTerm || 
+  const filteredListings = listings.filter((l) => {
+    const matchesSearch =
+      !searchTerm ||
       l.business_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       l.city?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesPlatform = filterPlatform === 'all' || l.platform === filterPlatform;
@@ -243,11 +250,11 @@ export default function Listings() {
 
   const stats = {
     total: listings.length,
-    verified: listings.filter(l => l.status === 'verified').length,
-    needsAttention: listings.filter(l => l.status === 'needs_attention').length,
-    napIssues: listings.filter(l => !l.nap_consistent).length,
-    manualReview: listings.filter(l => l.needs_manual_review).length,
-    critical: listings.filter(l => l.severity === 'critical').length
+    verified: listings.filter((l) => l.status === 'verified').length,
+    needsAttention: listings.filter((l) => l.status === 'needs_attention').length,
+    napIssues: listings.filter((l) => !l.nap_consistent).length,
+    manualReview: listings.filter((l) => l.needs_manual_review).length,
+    critical: listings.filter((l) => l.severity === 'critical').length,
   };
 
   if (isLoading) {
@@ -255,7 +262,9 @@ export default function Listings() {
       <div className="p-6 lg:p-8 space-y-6 min-h-screen">
         <Skeleton className="h-10 w-64" />
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-24" />)}
+          {[...Array(4)].map((_, i) => (
+            <Skeleton key={i} className="h-24" />
+          ))}
         </div>
       </div>
     );
@@ -267,23 +276,27 @@ export default function Listings() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Location Listings</h1>
-          <p className="text-gray-500 mt-1">Manage and monitor your business listings across platforms</p>
+          <p className="text-gray-500 mt-1">
+            Manage and monitor your business listings across platforms
+          </p>
         </div>
         <div className="flex gap-2">
-          <Button 
-            onClick={scanListings} 
-            variant="outline" 
+          <Button
+            onClick={scanListings}
+            variant="outline"
             className="gap-2"
             disabled={scanning || websites.length === 0}
           >
-            {scanning ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
-            ) : (
-              <Scan className="w-4 h-4" />
-            )}
+            {scanning ? <Loader2 className="w-4 h-4 animate-spin" /> : <Scan className="w-4 h-4" />}
             {scanning ? 'Scanning...' : 'Scan Listings'}
           </Button>
-          <Button onClick={() => { setSelectedListing(null); setShowModal(true); }} className="gap-2 bg-violet-600 hover:bg-violet-700">
+          <Button
+            onClick={() => {
+              setSelectedListing(null);
+              setShowModal(true);
+            }}
+            className="gap-2 bg-violet-600 hover:bg-violet-700"
+          >
             <Plus className="w-4 h-4" />
             Add Listing
           </Button>
@@ -389,8 +402,10 @@ export default function Listings() {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Sites</SelectItem>
-            {websites.map(w => (
-              <SelectItem key={w.id} value={w.id}>{w.name}</SelectItem>
+            {websites.map((w) => (
+              <SelectItem key={w.id} value={w.id}>
+                {w.name}
+              </SelectItem>
             ))}
           </SelectContent>
         </Select>
@@ -426,7 +441,10 @@ export default function Listings() {
 
       {/* GBP Manager */}
       {selectedGBPListing && (
-        <GBPManager listing={selectedGBPListing} onUpdate={() => queryClient.invalidateQueries({ queryKey: ['listings'] })} />
+        <GBPManager
+          listing={selectedGBPListing}
+          onUpdate={() => queryClient.invalidateQueries({ queryKey: ['listings'] })}
+        />
       )}
 
       {/* Listings */}
@@ -436,13 +454,17 @@ export default function Listings() {
             <Building2 className="w-12 h-12 mx-auto text-gray-300 mb-4" />
             <h3 className="text-lg font-medium text-gray-900 mb-2">No listings found</h3>
             <p className="text-gray-500 mb-4">
-              {listings.length === 0 
+              {listings.length === 0
                 ? "Click 'Scan Listings' to automatically find your business listings across platforms."
-                : "Try adjusting your filters to see more results."}
+                : 'Try adjusting your filters to see more results.'}
             </p>
             {listings.length === 0 && websites.length > 0 && (
               <Button onClick={scanListings} disabled={scanning}>
-                {scanning ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Scan className="w-4 h-4 mr-2" />}
+                {scanning ? (
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                ) : (
+                  <Scan className="w-4 h-4 mr-2" />
+                )}
                 Scan Listings
               </Button>
             )}
@@ -451,13 +473,17 @@ export default function Listings() {
       ) : (
         <div className="space-y-4">
           {filteredListings.map((listing) => (
-            <ListingCard 
-              key={listing.id} 
-              listing={listing} 
+            <ListingCard
+              key={listing.id}
+              listing={listing}
               onEdit={handleEdit}
               onViewDetails={(l) => setDetailListing(l)}
               onSubmitFix={(l) => setDetailListing(l)}
-              onManageGBP={listing.platform === 'google_business' ? () => setSelectedGBPListing(listing) : undefined}
+              onManageGBP={
+                listing.platform === 'google_business'
+                  ? () => setSelectedGBPListing(listing)
+                  : undefined
+              }
             />
           ))}
         </div>
@@ -466,7 +492,10 @@ export default function Listings() {
       {/* Modal */}
       <ListingModal
         open={showModal}
-        onClose={() => { setShowModal(false); setSelectedListing(null); }}
+        onClose={() => {
+          setShowModal(false);
+          setSelectedListing(null);
+        }}
         listing={selectedListing}
         websites={websites}
         onSave={handleSave}

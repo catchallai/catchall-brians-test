@@ -1,28 +1,20 @@
 import React, { useState } from 'react';
-import { 
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { 
-  Switch
-} from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { 
-  Settings,
-  Bell,
-  Moon,
-  Eye,
-  Lock,
-  Volume2,
-  Clock
-} from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Settings, Bell, Moon, Eye, Lock, Volume2, Clock } from 'lucide-react';
 import NotificationPreferences from '@/components/notifications/NotificationPreferences';
 
-export default function SettingsPanel({ open, onClose, user, darkMode, onThemeToggle, onPreferencesUpdate }) {
+export default function SettingsPanel({
+  open,
+  onClose,
+  user,
+  darkMode,
+  onThemeToggle,
+  onPreferencesUpdate,
+}) {
   const [settings, setSettings] = useState({
     compactMode: false,
     showOnlineStatus: true,
@@ -32,9 +24,9 @@ export default function SettingsPanel({ open, onClose, user, darkMode, onThemeTo
   });
 
   const handleSettingChange = (key) => {
-    setSettings(prev => ({
+    setSettings((prev) => ({
       ...prev,
-      [key]: !prev[key]
+      [key]: !prev[key],
     }));
   };
 
@@ -42,15 +34,9 @@ export default function SettingsPanel({ open, onClose, user, darkMode, onThemeTo
     <div className="flex items-center justify-between py-4 px-4 border-b border-slate-700 last:border-0">
       <div className="flex-1">
         <Label className="text-sm font-medium text-white cursor-pointer">{label}</Label>
-        {description && (
-          <p className="text-xs text-gray-400 mt-1">{description}</p>
-        )}
+        {description && <p className="text-xs text-gray-400 mt-1">{description}</p>}
       </div>
-      <Switch
-        checked={checked}
-        onCheckedChange={onChange}
-        className="ml-4"
-      />
+      <Switch checked={checked} onCheckedChange={onChange} className="ml-4" />
     </div>
   );
 
@@ -131,10 +117,7 @@ export default function SettingsPanel({ open, onClose, user, darkMode, onThemeTo
           {/* Notifications Settings */}
           <TabsContent value="notifications" className="space-y-2 mt-4">
             <div className="bg-slate-800/50 rounded-lg">
-              <NotificationPreferences 
-                user={user}
-                onPreferencesUpdate={onPreferencesUpdate}
-              />
+              <NotificationPreferences user={user} onPreferencesUpdate={onPreferencesUpdate} />
             </div>
           </TabsContent>
         </Tabs>

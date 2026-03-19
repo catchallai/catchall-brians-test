@@ -1,16 +1,16 @@
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Palette, Upload, Image as ImageIcon } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Palette, Upload, Image as ImageIcon } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 
 export default function BrandingPanel({ branding, onChange }) {
   const handleUploadLogo = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    
+
     try {
       const { file_url } = await base44.integrations.Core.UploadFile({ file });
       onChange({ ...branding, logo_url: file_url });
@@ -43,12 +43,14 @@ export default function BrandingPanel({ branding, onChange }) {
             {presetThemes.map((theme) => (
               <button
                 key={theme.name}
-                onClick={() => onChange({ 
-                  ...branding, 
-                  primary_color: theme.primary, 
-                  secondary_color: theme.secondary,
-                  background_color: theme.bg
-                })}
+                onClick={() =>
+                  onChange({
+                    ...branding,
+                    primary_color: theme.primary,
+                    secondary_color: theme.secondary,
+                    background_color: theme.bg,
+                  })
+                }
                 className="group relative h-12 rounded-lg border-2 hover:border-violet-500 transition-colors overflow-hidden"
                 style={{ backgroundColor: theme.bg }}
               >
@@ -104,9 +106,9 @@ export default function BrandingPanel({ branding, onChange }) {
           <div className="mt-2">
             {branding.logo_url ? (
               <div className="relative group">
-                <img 
-                  src={branding.logo_url} 
-                  alt="Logo" 
+                <img
+                  src={branding.logo_url}
+                  alt="Logo"
                   className="w-full h-24 object-contain bg-gray-50 dark:bg-gray-900 rounded-lg border"
                 />
                 <button
@@ -164,24 +166,31 @@ export default function BrandingPanel({ branding, onChange }) {
         </div>
 
         {/* Preview */}
-        <div className="p-4 rounded-lg border" style={{ 
-          backgroundColor: branding.background_color || '#ffffff',
-          borderColor: branding.primary_color || '#7c3aed'
-        }}>
-          <div style={{ 
-            color: branding.primary_color || '#7c3aed',
-            fontFamily: branding.font_heading || 'Inter',
-            fontSize: '16px',
-            fontWeight: 'bold',
-            marginBottom: '8px'
-          }}>
+        <div
+          className="p-4 rounded-lg border"
+          style={{
+            backgroundColor: branding.background_color || '#ffffff',
+            borderColor: branding.primary_color || '#7c3aed',
+          }}
+        >
+          <div
+            style={{
+              color: branding.primary_color || '#7c3aed',
+              fontFamily: branding.font_heading || 'Inter',
+              fontSize: '16px',
+              fontWeight: 'bold',
+              marginBottom: '8px',
+            }}
+          >
             Your Headline
           </div>
-          <div style={{ 
-            color: branding.secondary_color || '#6b7280',
-            fontFamily: branding.font_body || 'Inter',
-            fontSize: '12px'
-          }}>
+          <div
+            style={{
+              color: branding.secondary_color || '#6b7280',
+              fontFamily: branding.font_body || 'Inter',
+              fontSize: '12px',
+            }}
+          >
             Your body text will look like this in the presentation
           </div>
         </div>

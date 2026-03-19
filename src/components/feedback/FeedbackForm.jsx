@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Loader2, Send } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Loader2, Send } from 'lucide-react';
 
 export default function FeedbackForm({ contact = null, onSuccess = null }) {
   const [feedbackType, setFeedbackType] = useState('general');
@@ -20,7 +20,7 @@ export default function FeedbackForm({ contact = null, onSuccess = null }) {
         feedback_type: feedbackType,
         nps_score: feedbackType === 'nps' ? npsScore : null,
         message,
-        sentiment: 'neutral'
+        sentiment: 'neutral',
       });
 
       // Analyze feedback
@@ -34,7 +34,7 @@ export default function FeedbackForm({ contact = null, onSuccess = null }) {
       setNpsScore(null);
       setFeedbackType('general');
       onSuccess?.();
-    }
+    },
   });
 
   const canSubmit = message.trim().length > 0 && (feedbackType !== 'nps' || npsScore !== null);
@@ -46,7 +46,9 @@ export default function FeedbackForm({ contact = null, onSuccess = null }) {
       </CardHeader>
       <CardContent className="space-y-4">
         <div>
-          <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Feedback Type</label>
+          <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+            Feedback Type
+          </label>
           <select
             value={feedbackType}
             onChange={(e) => setFeedbackType(e.target.value)}
@@ -62,7 +64,9 @@ export default function FeedbackForm({ contact = null, onSuccess = null }) {
 
         {feedbackType === 'nps' && (
           <div>
-            <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">How likely are you to recommend us? (0-10)</label>
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              How likely are you to recommend us? (0-10)
+            </label>
             <div className="grid grid-cols-6 gap-2">
               {Array.from({ length: 11 }).map((_, i) => (
                 <button
@@ -103,15 +107,21 @@ export default function FeedbackForm({ contact = null, onSuccess = null }) {
           className="w-full gap-2"
         >
           {submitMutation.isPending ? (
-            <><Loader2 className="w-4 h-4 animate-spin" /> Submitting...</>
+            <>
+              <Loader2 className="w-4 h-4 animate-spin" /> Submitting...
+            </>
           ) : (
-            <><Send className="w-4 h-4" /> Submit Feedback</>
+            <>
+              <Send className="w-4 h-4" /> Submit Feedback
+            </>
           )}
         </Button>
 
         {submitMutation.isSuccess && (
           <div className="p-3 rounded-lg bg-green-100 dark:bg-green-900/30 border border-green-300 dark:border-green-800">
-            <p className="text-sm text-green-800 dark:text-green-200">✓ Thank you for your feedback!</p>
+            <p className="text-sm text-green-800 dark:text-green-200">
+              ✓ Thank you for your feedback!
+            </p>
           </div>
         )}
       </CardContent>

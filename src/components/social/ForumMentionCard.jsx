@@ -1,25 +1,25 @@
 import React from 'react';
-import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { MessageSquare, Eye, ThumbsUp, ExternalLink, Calendar, Users } from "lucide-react";
-import { format } from "date-fns";
+import { Card } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { MessageSquare, Eye, ThumbsUp, ExternalLink, Calendar, Users } from 'lucide-react';
+import { format } from 'date-fns';
 
 const sourceConfig = {
-  forum: { color: "bg-amber-100 text-amber-700", label: "Forum" },
-  reddit: { color: "bg-orange-500 text-white", label: "Reddit" },
-  discord: { color: "bg-indigo-500 text-white", label: "Discord" },
-  slack: { color: "bg-purple-500 text-white", label: "Slack" },
-  telegram: { color: "bg-blue-400 text-white", label: "Telegram" },
-  quora: { color: "bg-red-600 text-white", label: "Quora" },
-  blog_comments: { color: "bg-green-100 text-green-700", label: "Blog" },
-  news_comments: { color: "bg-gray-700 text-white", label: "News" },
-  other: { color: "bg-gray-100 text-gray-700", label: "Other" },
+  forum: { color: 'bg-amber-100 text-amber-700', label: 'Forum' },
+  reddit: { color: 'bg-orange-500 text-white', label: 'Reddit' },
+  discord: { color: 'bg-indigo-500 text-white', label: 'Discord' },
+  slack: { color: 'bg-purple-500 text-white', label: 'Slack' },
+  telegram: { color: 'bg-blue-400 text-white', label: 'Telegram' },
+  quora: { color: 'bg-red-600 text-white', label: 'Quora' },
+  blog_comments: { color: 'bg-green-100 text-green-700', label: 'Blog' },
+  news_comments: { color: 'bg-gray-700 text-white', label: 'News' },
+  other: { color: 'bg-gray-100 text-gray-700', label: 'Other' },
 };
 
 const sentimentColors = {
-  positive: "bg-emerald-100 text-emerald-700",
-  neutral: "bg-gray-100 text-gray-700",
-  negative: "bg-red-100 text-red-700",
+  positive: 'bg-emerald-100 text-emerald-700',
+  neutral: 'bg-gray-100 text-gray-700',
+  negative: 'bg-red-100 text-red-700',
 };
 
 export default function ForumMentionCard({ mention, onClick }) {
@@ -34,7 +34,7 @@ export default function ForumMentionCard({ mention, onClick }) {
   };
 
   return (
-    <Card 
+    <Card
       className="p-4 border-0 shadow-sm hover:shadow-md transition-all cursor-pointer"
       onClick={onClick}
     >
@@ -51,13 +51,11 @@ export default function ForumMentionCard({ mention, onClick }) {
               <p className="text-sm text-gray-500">{mention.source_name || 'Unknown source'}</p>
             </div>
             <div className="flex items-center gap-2 flex-shrink-0">
-              <Badge className={`${sentiment} border-0 text-xs`}>
-                {mention.sentiment}
-              </Badge>
+              <Badge className={`${sentiment} border-0 text-xs`}>{mention.sentiment}</Badge>
               {mention.source_url && (
-                <a 
-                  href={mention.source_url} 
-                  target="_blank" 
+                <a
+                  href={mention.source_url}
+                  target="_blank"
                   rel="noopener noreferrer"
                   className="text-gray-400 hover:text-gray-600"
                   onClick={(e) => e.stopPropagation()}
@@ -67,14 +65,15 @@ export default function ForumMentionCard({ mention, onClick }) {
               )}
             </div>
           </div>
-          
+
           <p className="text-sm text-gray-700 mb-2 line-clamp-2">{mention.content}</p>
-          
+
           <div className="flex items-center justify-between">
             <div className="flex gap-4 text-sm text-gray-500">
               {mention.replies_count > 0 && (
                 <span className="flex items-center gap-1">
-                  <MessageSquare className="w-4 h-4" /> {formatNumber(mention.replies_count)} replies
+                  <MessageSquare className="w-4 h-4" /> {formatNumber(mention.replies_count)}{' '}
+                  replies
                 </span>
               )}
               {mention.views_count > 0 && (

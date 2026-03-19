@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Sparkles, RefreshCw, Image, BarChart3, Wand2, Loader2 } from "lucide-react";
+import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Sparkles, RefreshCw, Image, BarChart3, Wand2, Loader2 } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 
 export default function AIAssistantPanel({ slide, companyName, industry, onApplySuggestion }) {
@@ -16,7 +16,7 @@ export default function AIAssistantPanel({ slide, companyName, industry, onApply
 
   const generateSuggestions = async () => {
     if (!slide) return;
-    
+
     setIsLoading(true);
     try {
       const result = await base44.integrations.Core.InvokeLLM({
@@ -34,26 +34,26 @@ Provide:
 3. visual_suggestions: 2-3 specific visual/chart recommendations
 4. data_points: 2-3 relevant statistics or metrics to include`,
         response_json_schema: {
-          type: "object",
+          type: 'object',
           properties: {
             content_suggestions: {
-              type: "array",
-              items: { type: "string" }
+              type: 'array',
+              items: { type: 'string' },
             },
             alternative_phrases: {
-              type: "array",
-              items: { type: "string" }
+              type: 'array',
+              items: { type: 'string' },
             },
             visual_suggestions: {
-              type: "array",
-              items: { type: "string" }
+              type: 'array',
+              items: { type: 'string' },
             },
             data_points: {
-              type: "array",
-              items: { type: "string" }
-            }
-          }
-        }
+              type: 'array',
+              items: { type: 'string' },
+            },
+          },
+        },
       });
 
       setSuggestions(result);
@@ -70,15 +70,15 @@ Provide:
       ...slide,
       content: {
         ...slide.content,
-        points: [...points, content]
-      }
+        points: [...points, content],
+      },
     });
   };
 
   const handleApplyTitle = (title) => {
     onApplySuggestion({
       ...slide,
-      title: title
+      title: title,
     });
   };
 
@@ -157,9 +157,7 @@ Provide:
                     key={i}
                     className="group p-2 rounded-lg bg-white/50 dark:bg-gray-800/50 hover:bg-white dark:hover:bg-gray-800 transition-colors border border-violet-100 dark:border-violet-800"
                   >
-                    <p className="text-xs text-gray-700 dark:text-gray-300 mb-1">
-                      {content}
-                    </p>
+                    <p className="text-xs text-gray-700 dark:text-gray-300 mb-1">{content}</p>
                     <Button
                       size="sm"
                       variant="ghost"
@@ -211,9 +209,7 @@ Provide:
                     key={i}
                     className="group p-2 rounded-lg bg-white/50 dark:bg-gray-800/50 hover:bg-white dark:hover:bg-gray-800 transition-colors border border-violet-100 dark:border-violet-800"
                   >
-                    <p className="text-xs text-gray-700 dark:text-gray-300 mb-1">
-                      {data}
-                    </p>
+                    <p className="text-xs text-gray-700 dark:text-gray-300 mb-1">{data}</p>
                     <Button
                       size="sm"
                       variant="ghost"
@@ -230,9 +226,7 @@ Provide:
         </div>
       ) : (
         <div className="text-center py-6">
-          <p className="text-xs text-gray-500 mb-3">
-            Get AI-powered suggestions for this slide
-          </p>
+          <p className="text-xs text-gray-500 mb-3">Get AI-powered suggestions for this slide</p>
           <Button
             size="sm"
             onClick={generateSuggestions}

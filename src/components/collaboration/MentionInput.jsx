@@ -1,17 +1,17 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
-import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { X } from "lucide-react";
+import { Textarea } from '@/components/ui/textarea';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { X } from 'lucide-react';
 
-export default function MentionInput({ 
-  value, 
-  onChange, 
+export default function MentionInput({
+  value,
+  onChange,
   onMentionsChange,
-  placeholder = "Type @ to mention someone...",
-  businessId
+  placeholder = 'Type @ to mention someone...',
+  businessId,
 }) {
   const [mentions, setMentions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -28,9 +28,10 @@ export default function MentionInput({
     enabled: !!businessId,
   });
 
-  const filteredUsers = users.filter(user => 
-    user.email.includes(searchTerm.toLowerCase()) || 
-    user.full_name?.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredUsers = users.filter(
+    (user) =>
+      user.email.includes(searchTerm.toLowerCase()) ||
+      user.full_name?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const handleInputChange = (e) => {
@@ -41,7 +42,7 @@ export default function MentionInput({
     const lastAtIndex = text.lastIndexOf('@');
     if (lastAtIndex !== -1) {
       const afterAt = text.substring(lastAtIndex + 1);
-      
+
       // If there's a space after @, close suggestions
       if (afterAt.includes(' ')) {
         setShowSuggestions(false);
@@ -61,22 +62,22 @@ export default function MentionInput({
     const beforeAt = value.substring(0, lastAtIndex);
     const afterAt = value.substring(lastAtIndex + 1);
     const restOfText = value.substring(lastAtIndex + 1 + searchTerm.length);
-    
+
     const newText = `${beforeAt}@${user.full_name || user.email} ${restOfText}`;
     onChange(newText);
-    
+
     if (!mentions.includes(user.email)) {
       const newMentions = [...mentions, user.email];
       setMentions(newMentions);
       onMentionsChange?.(newMentions);
     }
-    
+
     setShowSuggestions(false);
     setSearchTerm('');
   };
 
   const removeMention = (email) => {
-    const newMentions = mentions.filter(m => m !== email);
+    const newMentions = mentions.filter((m) => m !== email);
     setMentions(newMentions);
     onMentionsChange?.(newMentions);
   };
@@ -91,7 +92,7 @@ export default function MentionInput({
           placeholder={placeholder}
           className="pr-12"
         />
-        
+
         {/* Mention suggestions dropdown */}
         {showSuggestions && filteredUsers.length > 0 && (
           <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-50 max-h-48 overflow-y-auto">
@@ -105,27 +106,22 @@ export default function MentionInput({
                     : 'hover:bg-gray-50 dark:hover:bg-gray-700'
                 }`}
               >
-                <div className="font-medium text-gray-900 dark:text-white">
-                  {user.full_name}
-                </div>
+                <div className="font-medium text-gray-900 dark:text-white">{user.full_name}</div>
                 <div className="text-xs text-gray-500">{user.email}</div>
               </button>
             ))}
           </div>
         )}
       </div>
-      
+
       {/* Display mentioned users */}
       {mentions.length > 0 && (
         <div className="flex items-center gap-2 flex-wrap">
           <span className="text-xs font-medium text-gray-600 dark:text-gray-400">Mentioning:</span>
-          {mentions.map(email => (
+          {mentions.map((email) => (
             <Badge key={email} variant="secondary" className="gap-1">
               @{email.split('@')[0]}
-              <button
-                onClick={() => removeMention(email)}
-                className="hover:text-red-600"
-              >
+              <button onClick={() => removeMention(email)} className="hover:text-red-600">
                 <X className="w-3 h-3" />
               </button>
             </Badge>

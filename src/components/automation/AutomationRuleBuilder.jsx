@@ -5,7 +5,13 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Plus, Trash2, Edit2, Play, Power } from 'lucide-react';
 import ConfirmDialog from '@/components/ui/ConfirmDialog';
 
@@ -54,7 +60,8 @@ export default function AutomationRuleBuilder() {
   });
 
   const toggleMutation = useMutation({
-    mutationFn: ({ id, isActive }) => base44.entities.AutomationRule.update(id, { is_active: isActive }),
+    mutationFn: ({ id, isActive }) =>
+      base44.entities.AutomationRule.update(id, { is_active: isActive }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['automationRules'] });
     },
@@ -97,7 +104,14 @@ export default function AutomationRuleBuilder() {
     },
     opportunity_stage_change: {
       label: 'Opportunity Stage Change',
-      values: ['new_lead', 'email_list', 'media_inquiry', 'reservation_request', 'contacted', 'closed'],
+      values: [
+        'new_lead',
+        'email_list',
+        'media_inquiry',
+        'reservation_request',
+        'contacted',
+        'closed',
+      ],
     },
     contact_inactivity: {
       label: 'Contact Inactivity (30 days)',
@@ -141,7 +155,8 @@ export default function AutomationRuleBuilder() {
                 )}
                 <div className="flex flex-wrap gap-2 text-xs text-gray-500 dark:text-gray-400">
                   <span>
-                    <strong>Trigger:</strong> {triggerOptions[rule.trigger_type]?.label || rule.trigger_type}
+                    <strong>Trigger:</strong>{' '}
+                    {triggerOptions[rule.trigger_type]?.label || rule.trigger_type}
                   </span>
                   <span>•</span>
                   <span>
@@ -165,9 +180,7 @@ export default function AutomationRuleBuilder() {
                 <Button
                   size="sm"
                   variant="ghost"
-                  onClick={() =>
-                    toggleMutation.mutate({ id: rule.id, isActive: !rule.is_active })
-                  }
+                  onClick={() => toggleMutation.mutate({ id: rule.id, isActive: !rule.is_active })}
                   title={rule.is_active ? 'Disable' : 'Enable'}
                 >
                   <Power className="w-4 h-4" />
@@ -235,7 +248,9 @@ export default function AutomationRuleBuilder() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="contact_status_change">Contact Status Changes</SelectItem>
-                    <SelectItem value="opportunity_stage_change">Opportunity Stage Changes</SelectItem>
+                    <SelectItem value="opportunity_stage_change">
+                      Opportunity Stage Changes
+                    </SelectItem>
                     <SelectItem value="contact_inactivity">Contact Inactive 30 Days</SelectItem>
                   </SelectContent>
                 </Select>
@@ -246,7 +261,10 @@ export default function AutomationRuleBuilder() {
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     To this value
                   </label>
-                  <Select value={formData.trigger_value} onValueChange={(value) => setFormData({ ...formData, trigger_value: value })}>
+                  <Select
+                    value={formData.trigger_value}
+                    onValueChange={(value) => setFormData({ ...formData, trigger_value: value })}
+                  >
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -286,7 +304,10 @@ export default function AutomationRuleBuilder() {
                   onChange={(e) =>
                     setFormData({
                       ...formData,
-                      action_config: { ...formData.action_config, task_description: e.target.value },
+                      action_config: {
+                        ...formData.action_config,
+                        task_description: e.target.value,
+                      },
                     })
                   }
                   placeholder="Task description"

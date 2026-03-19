@@ -1,13 +1,30 @@
 import React, { useState, useMemo } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Plus, Search, Briefcase, Filter, X, Calendar, DollarSign, Users, LayoutGrid, List } from "lucide-react";
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Card } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Skeleton } from '@/components/ui/skeleton';
+import {
+  Plus,
+  Search,
+  Briefcase,
+  Filter,
+  X,
+  Calendar,
+  DollarSign,
+  Users,
+  LayoutGrid,
+  List,
+} from 'lucide-react';
 import EmptyState from '@/components/ui/EmptyState';
 import ProjectModal from '@/components/modals/ProjectModal';
 import TaskModal from '@/components/modals/TaskModal';
@@ -132,13 +149,14 @@ export default function Projects() {
 
     updateTaskMutation.mutate({
       id: taskId,
-      data: { status: newStatus }
+      data: { status: newStatus },
     });
   };
 
   const filteredProjects = useMemo(() => {
-    return projects.filter(project => {
-      const matchesSearch = !searchTerm || project.name.toLowerCase().includes(searchTerm.toLowerCase());
+    return projects.filter((project) => {
+      const matchesSearch =
+        !searchTerm || project.name.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesStatus = statusFilter === 'all' || project.status === statusFilter;
       const matchesPriority = priorityFilter === 'all' || project.priority === priorityFilter;
       return matchesSearch && matchesStatus && matchesPriority;
@@ -161,24 +179,26 @@ export default function Projects() {
   };
 
   const getCompanyName = (companyId) => {
-    return companies.find(c => c.id === companyId)?.name || 'N/A';
+    return companies.find((c) => c.id === companyId)?.name || 'N/A';
   };
 
   const getContactName = (contactId) => {
-    const contact = contacts.find(c => c.id === contactId);
+    const contact = contacts.find((c) => c.id === contactId);
     return contact ? `${contact.first_name} ${contact.last_name}` : 'N/A';
   };
 
   // Get backlog tasks (no project assigned)
-  const backlogTasks = tasks.filter(t => !t.project_id);
-  const projectTasks = selectedProject ? tasks.filter(t => t.project_id === selectedProject.id) : [];
-  
+  const backlogTasks = tasks.filter((t) => !t.project_id);
+  const projectTasks = selectedProject
+    ? tasks.filter((t) => t.project_id === selectedProject.id)
+    : [];
+
   const tasksByStatus = {
     backlog: backlogTasks,
-    todo: projectTasks.filter(t => t.status === 'todo'),
-    in_progress: projectTasks.filter(t => t.status === 'in_progress'),
-    review: projectTasks.filter(t => t.status === 'review'),
-    done: projectTasks.filter(t => t.status === 'done'),
+    todo: projectTasks.filter((t) => t.status === 'todo'),
+    in_progress: projectTasks.filter((t) => t.status === 'in_progress'),
+    review: projectTasks.filter((t) => t.status === 'review'),
+    done: projectTasks.filter((t) => t.status === 'done'),
   };
 
   return (
@@ -216,7 +236,13 @@ export default function Projects() {
               <Calendar className="w-4 h-4" />
             </Button>
           </div>
-          <Button onClick={() => { setEditingProject(null); setShowModal(true); }} className="gap-2 bg-violet-600 hover:bg-violet-700">
+          <Button
+            onClick={() => {
+              setEditingProject(null);
+              setShowModal(true);
+            }}
+            className="gap-2 bg-violet-600 hover:bg-violet-700"
+          >
             <Plus className="w-4 h-4" />
             New Project
           </Button>
@@ -230,7 +256,9 @@ export default function Projects() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-500 dark:text-gray-400">Total Projects</p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">{projects.length}</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">
+                  {projects.length}
+                </p>
               </div>
               <Briefcase className="w-8 h-8 text-violet-600" />
             </div>
@@ -240,7 +268,7 @@ export default function Projects() {
               <div>
                 <p className="text-sm text-gray-500 dark:text-gray-400">Active Projects</p>
                 <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">
-                  {projects.filter(p => p.status === 'active').length}
+                  {projects.filter((p) => p.status === 'active').length}
                 </p>
               </div>
               <Calendar className="w-8 h-8 text-green-600" />
@@ -262,7 +290,10 @@ export default function Projects() {
               <div>
                 <p className="text-sm text-gray-500 dark:text-gray-400">Avg Progress</p>
                 <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">
-                  {Math.round(projects.reduce((sum, p) => sum + (p.progress || 0), 0) / projects.length)}%
+                  {Math.round(
+                    projects.reduce((sum, p) => sum + (p.progress || 0), 0) / projects.length
+                  )}
+                  %
                 </p>
               </div>
               <Users className="w-8 h-8 text-orange-600" />
@@ -284,7 +315,7 @@ export default function Projects() {
             />
           </div>
           <Button
-            variant={showFilters ? "default" : "outline"}
+            variant={showFilters ? 'default' : 'outline'}
             onClick={() => setShowFilters(!showFilters)}
             className="gap-2"
           >
@@ -355,13 +386,16 @@ export default function Projects() {
             title="No projects yet"
             description="Start creating projects to organize your work."
             actionLabel="New Project"
-            onAction={() => { setEditingProject(null); setShowModal(true); }}
+            onAction={() => {
+              setEditingProject(null);
+              setShowModal(true);
+            }}
           />
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {filteredProjects.map((project) => (
-              <Card 
-                key={project.id} 
+              <Card
+                key={project.id}
                 className="p-5 glass-card hover:shadow-lg transition-all h-full cursor-pointer"
                 onClick={() => setSelectedProject(project)}
               >
@@ -378,9 +412,7 @@ export default function Projects() {
                 </div>
 
                 <div className="flex gap-2 mb-4 flex-wrap">
-                  <Badge className={priorityColors[project.priority]}>
-                    {project.priority}
-                  </Badge>
+                  <Badge className={priorityColors[project.priority]}>{project.priority}</Badge>
                   {project.team_members?.length > 0 && (
                     <Badge variant="outline">{project.team_members.length} members</Badge>
                   )}
@@ -407,7 +439,8 @@ export default function Projects() {
 
                 {project.budget && (
                   <p className="text-xs text-gray-500 mt-1">
-                    Budget: ${project.budget.toLocaleString()} / Spent: ${project.budget_spent.toLocaleString()}
+                    Budget: ${project.budget.toLocaleString()} / Spent: $
+                    {project.budget_spent.toLocaleString()}
                   </p>
                 )}
               </Card>
@@ -419,12 +452,15 @@ export default function Projects() {
         <div>
           {/* Project Selector */}
           <div className="mb-4">
-            <Select value={selectedProject?.id || ''} onValueChange={(id) => setSelectedProject(projects.find(p => p.id === id))}>
+            <Select
+              value={selectedProject?.id || ''}
+              onValueChange={(id) => setSelectedProject(projects.find((p) => p.id === id))}
+            >
               <SelectTrigger className="w-64">
                 <SelectValue placeholder="Select a project" />
               </SelectTrigger>
               <SelectContent>
-                {projects.map(project => (
+                {projects.map((project) => (
                   <SelectItem key={project.id} value={project.id}>
                     {project.name}
                   </SelectItem>
@@ -437,17 +473,28 @@ export default function Projects() {
             <>
               <div className="flex items-center justify-between mb-4">
                 <div>
-                  <h2 className="text-xl font-bold text-gray-900 dark:text-white">{selectedProject.name}</h2>
+                  <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+                    {selectedProject.name}
+                  </h2>
                   <p className="text-sm text-gray-500">{projectTasks.length} tasks</p>
                 </div>
-                <Button onClick={() => { setEditingTask(null); setShowTaskModal(true); }} className="gap-2">
+                <Button
+                  onClick={() => {
+                    setEditingTask(null);
+                    setShowTaskModal(true);
+                  }}
+                  className="gap-2"
+                >
                   <Plus className="w-4 h-4" />
                   Add Task
                 </Button>
               </div>
               <ProjectKanbanBoard
                 tasks={projectTasks}
-                onTaskClick={(task) => { setEditingTask(task); setShowTaskModal(true); }}
+                onTaskClick={(task) => {
+                  setEditingTask(task);
+                  setShowTaskModal(true);
+                }}
                 onStatusChange={(taskId, newStatus) => {
                   updateTaskMutation.mutate({ id: taskId, data: { status: newStatus } });
                 }}
@@ -459,7 +506,9 @@ export default function Projects() {
             </>
           ) : (
             <Card className="p-12 text-center">
-              <p className="text-gray-500 dark:text-gray-400">Select a project to view its kanban board</p>
+              <p className="text-gray-500 dark:text-gray-400">
+                Select a project to view its kanban board
+              </p>
             </Card>
           )}
         </div>
@@ -469,15 +518,24 @@ export default function Projects() {
           projects={filteredProjects}
           tasks={tasks}
           milestones={[]}
-          onProjectClick={(project) => { setEditingProject(project); setShowModal(true); }}
-          onTaskClick={(task) => { setEditingTask(task); setShowTaskModal(true); }}
+          onProjectClick={(project) => {
+            setEditingProject(project);
+            setShowModal(true);
+          }}
+          onTaskClick={(task) => {
+            setEditingTask(task);
+            setShowTaskModal(true);
+          }}
         />
       )}
 
       {/* Modals */}
       <ProjectModal
         open={showModal}
-        onClose={() => { setShowModal(false); setEditingProject(null); }}
+        onClose={() => {
+          setShowModal(false);
+          setEditingProject(null);
+        }}
         project={editingProject}
         companies={companies}
         contacts={contacts}
@@ -487,7 +545,10 @@ export default function Projects() {
 
       <TaskModal
         open={showTaskModal}
-        onClose={() => { setShowTaskModal(false); setEditingTask(null); }}
+        onClose={() => {
+          setShowTaskModal(false);
+          setEditingTask(null);
+        }}
         task={editingTask}
         onSave={handleTaskSave}
         isLoading={createTaskMutation.isPending || updateTaskMutation.isPending}

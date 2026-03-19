@@ -1,22 +1,22 @@
 import React, { useMemo } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Globe, MapPin } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Globe, MapPin } from 'lucide-react';
 
 export default function GeographicInsights({ mentions }) {
   const locationData = useMemo(() => {
     const locations = {};
-    
-    mentions.forEach(m => {
+
+    mentions.forEach((m) => {
       if (m.location || m.country) {
         const loc = m.country || m.location;
         if (!locations[loc]) {
-          locations[loc] = { 
-            count: 0, 
-            positive: 0, 
-            negative: 0, 
+          locations[loc] = {
+            count: 0,
+            positive: 0,
+            negative: 0,
             neutral: 0,
-            totalEngagement: 0 
+            totalEngagement: 0,
           };
         }
         locations[loc].count++;
@@ -56,10 +56,13 @@ export default function GeographicInsights({ mentions }) {
       <CardContent className="space-y-3">
         {locationData.map((loc, idx) => {
           const percentage = totalWithLocation > 0 ? (loc.count / totalWithLocation) * 100 : 0;
-          const dominantSentiment = loc.positive >= loc.negative && loc.positive >= loc.neutral 
-            ? 'positive' 
-            : loc.negative >= loc.neutral ? 'negative' : 'neutral';
-          
+          const dominantSentiment =
+            loc.positive >= loc.negative && loc.positive >= loc.neutral
+              ? 'positive'
+              : loc.negative >= loc.neutral
+                ? 'negative'
+                : 'neutral';
+
           return (
             <div key={loc.location} className="space-y-1">
               <div className="flex items-center justify-between">
@@ -68,11 +71,13 @@ export default function GeographicInsights({ mentions }) {
                   <span className="font-medium text-gray-900">{loc.location}</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Badge 
+                  <Badge
                     className={`text-xs border-0 ${
-                      dominantSentiment === 'positive' ? 'bg-emerald-100 text-emerald-700' :
-                      dominantSentiment === 'negative' ? 'bg-red-100 text-red-700' :
-                      'bg-gray-100 text-gray-700'
+                      dominantSentiment === 'positive'
+                        ? 'bg-emerald-100 text-emerald-700'
+                        : dominantSentiment === 'negative'
+                          ? 'bg-red-100 text-red-700'
+                          : 'bg-gray-100 text-gray-700'
                     }`}
                   >
                     {dominantSentiment}
@@ -81,15 +86,15 @@ export default function GeographicInsights({ mentions }) {
                 </div>
               </div>
               <div className="flex gap-1 h-2">
-                <div 
+                <div
                   className="bg-emerald-500 rounded-l-full transition-all"
                   style={{ width: `${(loc.positive / loc.count) * 100}%` }}
                 />
-                <div 
+                <div
                   className="bg-gray-400 transition-all"
                   style={{ width: `${(loc.neutral / loc.count) * 100}%` }}
                 />
-                <div 
+                <div
                   className="bg-red-500 rounded-r-full transition-all"
                   style={{ width: `${(loc.negative / loc.count) * 100}%` }}
                 />

@@ -1,17 +1,17 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
-import { Chrome, CheckCircle, AlertCircle, ExternalLink, Settings } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Badge } from '@/components/ui/badge';
+import { Chrome, CheckCircle, AlertCircle, ExternalLink, Settings } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
+} from '@/components/ui/dialog';
 
 export default function GoogleTrackingCard({ website, onSaveTracking }) {
   const [showSettings, setShowSettings] = useState(false);
@@ -21,7 +21,7 @@ export default function GoogleTrackingCard({ website, onSaveTracking }) {
   const handleSave = () => {
     onSaveTracking({
       ga_tracking_id: gaId,
-      gsc_verified: gscVerified
+      gsc_verified: gscVerified,
     });
     setShowSettings(false);
   };
@@ -73,7 +73,9 @@ export default function GoogleTrackingCard({ website, onSaveTracking }) {
                     className="w-4 h-4"
                   />
                 </div>
-                <Button onClick={handleSave} className="w-full">Save Settings</Button>
+                <Button onClick={handleSave} className="w-full">
+                  Save Settings
+                </Button>
               </div>
             </DialogContent>
           </Dialog>

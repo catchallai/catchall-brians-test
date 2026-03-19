@@ -1,6 +1,14 @@
 import React from 'react';
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { Badge } from "@/components/ui/badge";
+import {
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from 'recharts';
+import { Badge } from '@/components/ui/badge';
 import { TrendingUp, TrendingDown, Link2 } from 'lucide-react';
 import { format, eachWeekOfInterval } from 'date-fns';
 
@@ -9,12 +17,12 @@ export default function BacklinksGrowthChart({ dateRange, backlinks = [] }) {
   const generateData = () => {
     const weeks = eachWeekOfInterval({ start: dateRange.from, end: dateRange.to });
     let cumulative = 1200;
-    
+
     return weeks.map((date, idx) => {
       const newLinks = Math.round(15 + Math.random() * 25);
       const lostLinks = Math.round(3 + Math.random() * 8);
       cumulative += newLinks - lostLinks;
-      
+
       return {
         date: format(date, 'MMM d'),
         total: cumulative,
@@ -29,7 +37,7 @@ export default function BacklinksGrowthChart({ dateRange, backlinks = [] }) {
   const data = generateData();
   const latestData = data[data.length - 1] || {};
   const previousData = data[0] || {};
-  
+
   const netGrowth = latestData.total - previousData.total;
   const growthPercent = ((netGrowth / previousData.total) * 100).toFixed(1);
 
@@ -71,34 +79,29 @@ export default function BacklinksGrowthChart({ dateRange, backlinks = [] }) {
           <AreaChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
             <defs>
               <linearGradient id="colorBacklinks" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3}/>
-                <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
+                <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
+                <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
               </linearGradient>
             </defs>
-            <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" className="dark:stroke-gray-700" />
-            <XAxis 
-              dataKey="date" 
-              tick={{ fontSize: 10 }} 
-              tickLine={false}
-              axisLine={false}
+            <CartesianGrid
+              strokeDasharray="3 3"
+              stroke="#e5e7eb"
+              className="dark:stroke-gray-700"
             />
-            <YAxis 
-              tick={{ fontSize: 10 }} 
-              tickLine={false}
-              axisLine={false}
-            />
-            <Tooltip 
-              contentStyle={{ 
-                backgroundColor: 'rgba(255,255,255,0.95)', 
-                border: 'none', 
+            <XAxis dataKey="date" tick={{ fontSize: 10 }} tickLine={false} axisLine={false} />
+            <YAxis tick={{ fontSize: 10 }} tickLine={false} axisLine={false} />
+            <Tooltip
+              contentStyle={{
+                backgroundColor: 'rgba(255,255,255,0.95)',
+                border: 'none',
                 borderRadius: '8px',
-                boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+                boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
               }}
             />
-            <Area 
-              type="monotone" 
-              dataKey="total" 
-              stroke="#3b82f6" 
+            <Area
+              type="monotone"
+              dataKey="total"
+              stroke="#3b82f6"
               fill="url(#colorBacklinks)"
               strokeWidth={2}
               name="Total Backlinks"
@@ -109,7 +112,9 @@ export default function BacklinksGrowthChart({ dateRange, backlinks = [] }) {
 
       {/* Top Referring Domains */}
       <div>
-        <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-2">Top Referring Domains</p>
+        <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-2">
+          Top Referring Domains
+        </p>
         <div className="space-y-1">
           {topDomains.map((domain, idx) => (
             <div key={idx} className="flex items-center justify-between text-sm py-1">
@@ -118,7 +123,9 @@ export default function BacklinksGrowthChart({ dateRange, backlinks = [] }) {
                 <span className="text-gray-700 dark:text-gray-300">{domain.domain}</span>
               </div>
               <div className="flex items-center gap-2">
-                <Badge variant="outline" className="text-xs">DA {domain.da}</Badge>
+                <Badge variant="outline" className="text-xs">
+                  DA {domain.da}
+                </Badge>
                 <span className="text-xs text-gray-500">{domain.links} links</span>
               </div>
             </div>

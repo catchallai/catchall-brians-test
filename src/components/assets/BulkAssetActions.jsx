@@ -1,8 +1,14 @@
 import React, { useState } from 'react';
-import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Trash2, Folder, Tag, Download } from "lucide-react";
+import { Button } from '@/components/ui/button';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Trash2, Folder, Tag, Download } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { useToast } from '@/components/ui/toast-provider';
@@ -24,7 +30,7 @@ export default function BulkAssetActions({ selectedAssets, onClear, onComplete }
 
   const handleBulkDelete = async () => {
     if (!confirm(`Delete ${selectedAssets.length} assets?`)) return;
-    
+
     for (const id of selectedAssets) {
       await base44.entities.MediaAsset.delete(id);
     }
@@ -42,7 +48,7 @@ export default function BulkAssetActions({ selectedAssets, onClear, onComplete }
   };
 
   const handleBulkDownload = async () => {
-    const selectedAssetData = assets.filter(a => selectedAssets.includes(a.id));
+    const selectedAssetData = assets.filter((a) => selectedAssets.includes(a.id));
     for (const asset of selectedAssetData) {
       const a = document.createElement('a');
       a.href = asset.file_url;
@@ -59,7 +65,12 @@ export default function BulkAssetActions({ selectedAssets, onClear, onComplete }
       <div className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-white dark:bg-gray-800 shadow-2xl rounded-2xl border p-4 flex items-center gap-3 z-50">
         <span className="text-sm font-medium">{selectedAssets.length} selected</span>
         <div className="h-6 w-px bg-gray-200" />
-        <Button variant="outline" size="sm" onClick={() => setShowMoveModal(true)} className="gap-2">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setShowMoveModal(true)}
+          className="gap-2"
+        >
           <Folder className="w-4 h-4" />
           Move
         </Button>
@@ -67,11 +78,18 @@ export default function BulkAssetActions({ selectedAssets, onClear, onComplete }
           <Download className="w-4 h-4" />
           Download
         </Button>
-        <Button variant="outline" size="sm" onClick={handleBulkDelete} className="gap-2 text-red-600">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handleBulkDelete}
+          className="gap-2 text-red-600"
+        >
           <Trash2 className="w-4 h-4" />
           Delete
         </Button>
-        <Button variant="ghost" size="sm" onClick={onClear}>Cancel</Button>
+        <Button variant="ghost" size="sm" onClick={onClear}>
+          Cancel
+        </Button>
       </div>
 
       <Dialog open={showMoveModal} onOpenChange={setShowMoveModal}>
@@ -86,13 +104,17 @@ export default function BulkAssetActions({ selectedAssets, onClear, onComplete }
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value={null}>Root (No folder)</SelectItem>
-                {folders.map(f => (
-                  <SelectItem key={f.id} value={f.id}>{f.name}</SelectItem>
+                {folders.map((f) => (
+                  <SelectItem key={f.id} value={f.id}>
+                    {f.name}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
             <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => setShowMoveModal(false)}>Cancel</Button>
+              <Button variant="outline" onClick={() => setShowMoveModal(false)}>
+                Cancel
+              </Button>
               <Button onClick={handleBulkMove}>Move</Button>
             </div>
           </div>

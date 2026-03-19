@@ -1,14 +1,27 @@
 import React, { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Card, CardContent } from "@/components/ui/card";
-import { Plus, Trash2, Mail, Clock, Loader2 } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Card, CardContent } from '@/components/ui/card';
+import { Plus, Trash2, Mail, Clock, Loader2 } from 'lucide-react';
 
-export default function DripCampaignModal({ open, onClose, dripCampaign, templates, onSave, isLoading }) {
+export default function DripCampaignModal({
+  open,
+  onClose,
+  dripCampaign,
+  templates,
+  onSave,
+  isLoading,
+}) {
   const [formData, setFormData] = useState({
     name: '',
     trigger_type: 'manual',
@@ -40,10 +53,7 @@ export default function DripCampaignModal({ open, onClose, dripCampaign, templat
   const addEmail = () => {
     setFormData({
       ...formData,
-      emails: [
-        ...formData.emails,
-        { delay_days: 0, subject: '', body: '', template_id: '' }
-      ]
+      emails: [...formData.emails, { delay_days: 0, subject: '', body: '', template_id: '' }],
     });
   };
 
@@ -56,7 +66,7 @@ export default function DripCampaignModal({ open, onClose, dripCampaign, templat
   const removeEmail = (index) => {
     setFormData({
       ...formData,
-      emails: formData.emails.filter((_, i) => i !== index)
+      emails: formData.emails.filter((_, i) => i !== index),
     });
   };
 
@@ -120,7 +130,13 @@ export default function DripCampaignModal({ open, onClose, dripCampaign, templat
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <Label className="text-base font-semibold">Email Sequence</Label>
-              <Button type="button" onClick={addEmail} size="sm" variant="outline" className="gap-2">
+              <Button
+                type="button"
+                onClick={addEmail}
+                size="sm"
+                variant="outline"
+                className="gap-2"
+              >
                 <Plus className="w-4 h-4" />
                 Add Email
               </Button>
@@ -154,11 +170,15 @@ export default function DripCampaignModal({ open, onClose, dripCampaign, templat
                             <Input
                               type="number"
                               value={email.delay_days}
-                              onChange={(e) => updateEmail(index, 'delay_days', parseInt(e.target.value) || 0)}
+                              onChange={(e) =>
+                                updateEmail(index, 'delay_days', parseInt(e.target.value) || 0)
+                              }
                               className="w-20"
                               min="0"
                             />
-                            <span className="text-sm text-gray-500">days after {index === 0 ? 'enrollment' : 'previous email'}</span>
+                            <span className="text-sm text-gray-500">
+                              days after {index === 0 ? 'enrollment' : 'previous email'}
+                            </span>
                           </div>
 
                           <div>
@@ -167,7 +187,7 @@ export default function DripCampaignModal({ open, onClose, dripCampaign, templat
                               value={email.template_id}
                               onValueChange={(value) => {
                                 updateEmail(index, 'template_id', value);
-                                const template = templates?.find(t => t.id === value);
+                                const template = templates?.find((t) => t.id === value);
                                 if (template) {
                                   updateEmail(index, 'subject', template.subject);
                                   updateEmail(index, 'body', template.body);
@@ -229,7 +249,11 @@ export default function DripCampaignModal({ open, onClose, dripCampaign, templat
             <Button type="button" variant="outline" onClick={onClose} disabled={isLoading}>
               Cancel
             </Button>
-            <Button type="submit" disabled={isLoading || formData.emails.length === 0} className="bg-violet-600 hover:bg-violet-700">
+            <Button
+              type="submit"
+              disabled={isLoading || formData.emails.length === 0}
+              className="bg-violet-600 hover:bg-violet-700"
+            >
               {isLoading ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />

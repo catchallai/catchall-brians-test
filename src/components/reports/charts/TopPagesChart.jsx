@@ -1,6 +1,6 @@
 import React from 'react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
-import { Badge } from "@/components/ui/badge";
+import { Badge } from '@/components/ui/badge';
 import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
 
 export default function TopPagesChart({ dateRange }) {
@@ -13,7 +13,7 @@ export default function TopPagesChart({ dateRange }) {
     { page: '/demo', views: 3500, change: 12, bounce: 18 },
   ];
 
-  const chartData = topPages.map(p => ({
+  const chartData = topPages.map((p) => ({
     name: p.page.replace('/blog/', '').replace('/', '').slice(0, 15),
     views: p.views,
   }));
@@ -32,9 +32,7 @@ export default function TopPagesChart({ dateRange }) {
           <p className="text-xs text-gray-500 dark:text-gray-400">Top Pages Views</p>
         </div>
         <div className="text-center p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg">
-          <p className="text-2xl font-bold text-amber-600 dark:text-amber-400">
-            {avgBounce}%
-          </p>
+          <p className="text-2xl font-bold text-amber-600 dark:text-amber-400">{avgBounce}%</p>
           <p className="text-xs text-gray-500 dark:text-gray-400">Avg Bounce Rate</p>
         </div>
       </div>
@@ -43,8 +41,8 @@ export default function TopPagesChart({ dateRange }) {
       <div className="h-36">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={chartData} margin={{ top: 5, right: 5, left: 5, bottom: 5 }}>
-            <XAxis 
-              dataKey="name" 
+            <XAxis
+              dataKey="name"
               tick={{ fontSize: 9 }}
               tickLine={false}
               axisLine={false}
@@ -53,12 +51,12 @@ export default function TopPagesChart({ dateRange }) {
               height={50}
             />
             <YAxis hide />
-            <Tooltip 
-              contentStyle={{ 
-                backgroundColor: 'rgba(255,255,255,0.95)', 
-                border: 'none', 
+            <Tooltip
+              contentStyle={{
+                backgroundColor: 'rgba(255,255,255,0.95)',
+                border: 'none',
                 borderRadius: '8px',
-                boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+                boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
               }}
               formatter={(value) => [value.toLocaleString() + ' views', 'Views']}
             />
@@ -69,7 +67,9 @@ export default function TopPagesChart({ dateRange }) {
 
       {/* Top Pages List */}
       <div>
-        <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-2">Page Performance</p>
+        <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-2">
+          Page Performance
+        </p>
         <div className="space-y-1 max-h-32 overflow-y-auto">
           {topPages.slice(0, 4).map((page, idx) => (
             <div key={idx} className="flex items-center justify-between text-sm py-1">
@@ -78,12 +78,22 @@ export default function TopPagesChart({ dateRange }) {
               </span>
               <div className="flex items-center gap-2">
                 <span className="text-xs text-gray-500">{(page.views / 1000).toFixed(1)}K</span>
-                <span className={`flex items-center gap-0.5 text-xs font-medium ${
-                  page.change > 0 ? 'text-emerald-600' : page.change < 0 ? 'text-red-500' : 'text-gray-400'
-                }`}>
-                  {page.change > 0 ? <TrendingUp className="w-3 h-3" /> : 
-                   page.change < 0 ? <TrendingDown className="w-3 h-3" /> : 
-                   <Minus className="w-3 h-3" />}
+                <span
+                  className={`flex items-center gap-0.5 text-xs font-medium ${
+                    page.change > 0
+                      ? 'text-emerald-600'
+                      : page.change < 0
+                        ? 'text-red-500'
+                        : 'text-gray-400'
+                  }`}
+                >
+                  {page.change > 0 ? (
+                    <TrendingUp className="w-3 h-3" />
+                  ) : page.change < 0 ? (
+                    <TrendingDown className="w-3 h-3" />
+                  ) : (
+                    <Minus className="w-3 h-3" />
+                  )}
                   {Math.abs(page.change)}%
                 </span>
               </div>

@@ -1,6 +1,6 @@
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Cpu, Wifi, MonitorSmartphone, Languages } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Cpu, Wifi, MonitorSmartphone, Languages } from 'lucide-react';
 
 export default function TechnologyStackCard() {
   // SyberJet visitor technology data
@@ -47,19 +47,23 @@ export default function TechnologyStackCard() {
         <div>
           <div className="flex items-center gap-2 mb-3">
             <MonitorSmartphone className="w-4 h-4 text-gray-400" />
-            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Screen Resolutions</span>
+            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+              Screen Resolutions
+            </span>
           </div>
           <div className="space-y-2">
             {screenResolutions.slice(0, 4).map((res) => (
               <div key={res.resolution} className="flex items-center gap-3">
                 <span className="text-xs text-gray-500 w-28 font-mono">{res.resolution}</span>
                 <div className="flex-1 h-2 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
-                  <div 
+                  <div
                     className="h-full bg-cyan-500 rounded-full"
                     style={{ width: `${res.percentage}%` }}
                   />
                 </div>
-                <span className="text-xs font-medium text-gray-600 dark:text-gray-400 w-10 text-right">{res.percentage}%</span>
+                <span className="text-xs font-medium text-gray-600 dark:text-gray-400 w-10 text-right">
+                  {res.percentage}%
+                </span>
               </div>
             ))}
           </div>
@@ -69,14 +73,18 @@ export default function TechnologyStackCard() {
         <div>
           <div className="flex items-center gap-2 mb-3">
             <Wifi className="w-4 h-4 text-gray-400" />
-            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Connection Type</span>
+            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+              Connection Type
+            </span>
           </div>
           <div className="grid grid-cols-2 gap-2">
             {connectionTypes.map((conn) => (
               <div key={conn.type} className="bg-gray-50 dark:bg-gray-800 rounded-lg p-2.5">
                 <div className="flex items-center justify-between mb-1">
                   <span className="text-xs text-gray-600 dark:text-gray-400">{conn.type}</span>
-                  <span className="text-xs font-medium text-gray-700 dark:text-gray-300">{conn.percentage}%</span>
+                  <span className="text-xs font-medium text-gray-700 dark:text-gray-300">
+                    {conn.percentage}%
+                  </span>
                 </div>
                 <span className="text-xs text-gray-400">{conn.speed}</span>
               </div>
@@ -88,11 +96,13 @@ export default function TechnologyStackCard() {
         <div>
           <div className="flex items-center gap-2 mb-3">
             <Languages className="w-4 h-4 text-gray-400" />
-            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Browser Languages</span>
+            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+              Browser Languages
+            </span>
           </div>
           <div className="flex flex-wrap gap-2">
             {languages.map((lang) => (
-              <div 
+              <div
                 key={lang.code}
                 className="bg-gray-100 dark:bg-gray-700 rounded-lg px-2.5 py-1.5 text-xs"
               >

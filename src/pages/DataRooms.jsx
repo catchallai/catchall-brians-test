@@ -23,7 +23,7 @@ import {
   Mail,
   Calendar,
   Copy,
-  ExternalLink
+  ExternalLink,
 } from 'lucide-react';
 
 export default function DataRooms() {
@@ -53,10 +53,11 @@ export default function DataRooms() {
   });
 
   const createMutation = useMutation({
-    mutationFn: (data) => base44.entities.DataRoom.create({
-      ...data,
-      business_id: user?.business_id,
-    }),
+    mutationFn: (data) =>
+      base44.entities.DataRoom.create({
+        ...data,
+        business_id: user?.business_id,
+      }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['data-rooms'] });
       setShowModal(false);
@@ -106,7 +107,7 @@ export default function DataRooms() {
             <p style="color: #666; font-size: 14px;">Access expires: ${new Date(room.expires_at).toLocaleDateString()}</p>
             <p>Best regards,<br/>${user?.full_name || 'The Team'}</p>
           </div>
-        `
+        `,
       });
 
       if (!response.data.success) {
@@ -115,7 +116,7 @@ export default function DataRooms() {
 
       return await base44.entities.DataRoom.update(room.id, {
         status: 'active',
-        resend_email_id: response.data.emailId
+        resend_email_id: response.data.emailId,
       });
     },
     onSuccess: () => {
@@ -130,9 +131,10 @@ export default function DataRooms() {
     toast.success('Link copied to clipboard');
   };
 
-  const filteredRooms = dataRooms.filter(room =>
-    room.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    room.recipient_email?.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredRooms = dataRooms.filter(
+    (room) =>
+      room.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      room.recipient_email?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const getStatusColor = (status) => {
@@ -140,7 +142,7 @@ export default function DataRooms() {
       draft: 'bg-gray-100 text-gray-800',
       active: 'bg-green-100 text-green-800',
       expired: 'bg-red-100 text-red-800',
-      archived: 'bg-gray-100 text-gray-600'
+      archived: 'bg-gray-100 text-gray-600',
     };
     return colors[status] || colors.draft;
   };
@@ -150,7 +152,9 @@ export default function DataRooms() {
       <div className="p-6 space-y-4">
         <Skeleton className="h-12 w-64" />
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {[1, 2, 3].map(i => <Skeleton key={i} className="h-48" />)}
+          {[1, 2, 3].map((i) => (
+            <Skeleton key={i} className="h-48" />
+          ))}
         </div>
       </div>
     );
@@ -197,9 +201,7 @@ export default function DataRooms() {
                       <FolderOpen className="w-5 h-5 text-violet-600" />
                       {room.name}
                     </CardTitle>
-                    <Badge className={`mt-2 ${getStatusColor(room.status)}`}>
-                      {room.status}
-                    </Badge>
+                    <Badge className={`mt-2 ${getStatusColor(room.status)}`}>{room.status}</Badge>
                   </div>
                 </div>
               </CardHeader>
@@ -262,11 +264,7 @@ export default function DataRooms() {
                   >
                     <Edit className="w-4 h-4" />
                   </Button>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => setDeleteRoom(room)}
-                  >
+                  <Button size="sm" variant="outline" onClick={() => setDeleteRoom(room)}>
                     <Trash2 className="w-4 h-4" />
                   </Button>
                 </div>

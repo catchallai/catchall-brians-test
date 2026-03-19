@@ -1,51 +1,46 @@
 import React, { useState } from 'react';
-import { Button } from "@/components/ui/button";
+import { Button } from '@/components/ui/button';
 import { Camera, Maximize2, X, ExternalLink, Loader2 } from 'lucide-react';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 const platformStyles = {
   twitter: {
     bg: 'bg-black',
     text: 'text-white',
     accent: 'text-blue-400',
-    icon: '𝕏'
+    icon: '𝕏',
   },
   linkedin: {
     bg: 'bg-white',
     text: 'text-gray-900',
     accent: 'text-blue-600',
-    icon: 'in'
+    icon: 'in',
   },
   facebook: {
     bg: 'bg-white',
     text: 'text-gray-900',
     accent: 'text-blue-500',
-    icon: 'f'
+    icon: 'f',
   },
   instagram: {
     bg: 'bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400',
     text: 'text-white',
     accent: 'text-pink-300',
-    icon: 'IG'
+    icon: 'IG',
   },
   youtube: {
     bg: 'bg-white',
     text: 'text-gray-900',
     accent: 'text-red-600',
-    icon: '▶'
-  }
+    icon: '▶',
+  },
 };
 
-export default function PostScreenshot({ 
-  post, 
+export default function PostScreenshot({
+  post,
   accountName,
   platform = 'twitter',
-  className = ""
+  className = '',
 }) {
   const [showFullscreen, setShowFullscreen] = useState(false);
   const style = platformStyles[platform] || platformStyles.twitter;
@@ -55,14 +50,18 @@ export default function PostScreenshot({
     <div className={`${style.bg} rounded-lg overflow-hidden ${fullSize ? 'p-6' : 'p-3'}`}>
       {/* Header */}
       <div className="flex items-center gap-3 mb-3">
-        <div className={`${fullSize ? 'w-12 h-12' : 'w-8 h-8'} rounded-full bg-gray-300 flex items-center justify-center font-bold text-gray-600`}>
+        <div
+          className={`${fullSize ? 'w-12 h-12' : 'w-8 h-8'} rounded-full bg-gray-300 flex items-center justify-center font-bold text-gray-600`}
+        >
           {accountName?.[0]?.toUpperCase() || 'U'}
         </div>
         <div>
           <p className={`font-semibold ${style.text} ${fullSize ? 'text-base' : 'text-sm'}`}>
             @{accountName || 'username'}
           </p>
-          <p className={`text-xs ${platform === 'twitter' || platform === 'instagram' ? 'text-gray-400' : 'text-gray-500'}`}>
+          <p
+            className={`text-xs ${platform === 'twitter' || platform === 'instagram' ? 'text-gray-400' : 'text-gray-500'}`}
+          >
             {post?.post_date ? new Date(post.post_date).toLocaleDateString() : 'Just now'}
           </p>
         </div>
@@ -72,30 +71,36 @@ export default function PostScreenshot({
       </div>
 
       {/* Content */}
-      <div className={`${style.text} ${fullSize ? 'text-base mb-4' : 'text-sm mb-3'} ${fullSize ? '' : 'line-clamp-3'}`}>
+      <div
+        className={`${style.text} ${fullSize ? 'text-base mb-4' : 'text-sm mb-3'} ${fullSize ? '' : 'line-clamp-3'}`}
+      >
         {post?.content || 'Post content preview...'}
       </div>
 
       {/* Media placeholder */}
       {post?.image_url && (
         <div className="rounded-lg overflow-hidden mb-3">
-          <img 
-            src={post.image_url} 
-            alt="Post media" 
-            className="w-full h-auto object-cover"
-          />
+          <img src={post.image_url} alt="Post media" className="w-full h-auto object-cover" />
         </div>
       )}
 
       {/* Engagement */}
-      <div className={`flex items-center gap-4 pt-3 border-t ${platform === 'twitter' || platform === 'instagram' ? 'border-gray-700' : 'border-gray-200'}`}>
-        <span className={`flex items-center gap-1 ${fullSize ? 'text-sm' : 'text-xs'} ${platform === 'twitter' || platform === 'instagram' ? 'text-gray-400' : 'text-gray-500'}`}>
+      <div
+        className={`flex items-center gap-4 pt-3 border-t ${platform === 'twitter' || platform === 'instagram' ? 'border-gray-700' : 'border-gray-200'}`}
+      >
+        <span
+          className={`flex items-center gap-1 ${fullSize ? 'text-sm' : 'text-xs'} ${platform === 'twitter' || platform === 'instagram' ? 'text-gray-400' : 'text-gray-500'}`}
+        >
           ❤️ {(post?.likes || 0).toLocaleString()}
         </span>
-        <span className={`flex items-center gap-1 ${fullSize ? 'text-sm' : 'text-xs'} ${platform === 'twitter' || platform === 'instagram' ? 'text-gray-400' : 'text-gray-500'}`}>
+        <span
+          className={`flex items-center gap-1 ${fullSize ? 'text-sm' : 'text-xs'} ${platform === 'twitter' || platform === 'instagram' ? 'text-gray-400' : 'text-gray-500'}`}
+        >
           💬 {(post?.comments || 0).toLocaleString()}
         </span>
-        <span className={`flex items-center gap-1 ${fullSize ? 'text-sm' : 'text-xs'} ${platform === 'twitter' || platform === 'instagram' ? 'text-gray-400' : 'text-gray-500'}`}>
+        <span
+          className={`flex items-center gap-1 ${fullSize ? 'text-sm' : 'text-xs'} ${platform === 'twitter' || platform === 'instagram' ? 'text-gray-400' : 'text-gray-500'}`}
+        >
           🔄 {(post?.shares || 0).toLocaleString()}
         </span>
       </div>
@@ -115,7 +120,7 @@ export default function PostScreenshot({
 
   return (
     <>
-      <div 
+      <div
         className={`relative rounded-lg overflow-hidden cursor-pointer group ${className}`}
         onClick={() => setShowFullscreen(true)}
       >

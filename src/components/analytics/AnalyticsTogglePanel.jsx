@@ -1,12 +1,8 @@
 import React from 'react';
-import { Button } from "@/components/ui/button";
-import { 
-  Popover, 
-  PopoverContent, 
-  PopoverTrigger 
-} from "@/components/ui/popover";
-import { Switch } from "@/components/ui/switch";
-import { Settings2, LayoutGrid } from "lucide-react";
+import { Button } from '@/components/ui/button';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Switch } from '@/components/ui/switch';
+import { Settings2, LayoutGrid } from 'lucide-react';
 
 const sections = [
   { key: 'realTime', label: 'Real-Time Visitors' },
@@ -50,19 +46,19 @@ export default function AnalyticsTogglePanel({ visibility, onToggle }) {
           ))}
         </div>
         <div className="mt-3 pt-3 border-t border-gray-100 dark:border-gray-700 flex gap-2">
-          <Button 
-            variant="outline" 
-            size="sm" 
+          <Button
+            variant="outline"
+            size="sm"
             className="flex-1 text-xs"
-            onClick={() => sections.forEach(s => !visibility[s.key] && onToggle(s.key))}
+            onClick={() => sections.forEach((s) => !visibility[s.key] && onToggle(s.key))}
           >
             Show All
           </Button>
-          <Button 
-            variant="outline" 
-            size="sm" 
+          <Button
+            variant="outline"
+            size="sm"
             className="flex-1 text-xs"
-            onClick={() => sections.forEach(s => visibility[s.key] && onToggle(s.key))}
+            onClick={() => sections.forEach((s) => visibility[s.key] && onToggle(s.key))}
           >
             Hide All
           </Button>

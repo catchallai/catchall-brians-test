@@ -1,15 +1,17 @@
 import React, { useState } from 'react';
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card } from "@/components/ui/card";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Card } from '@/components/ui/card';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { PREDEFINED_STATUSES, DEFAULT_EMOJIS } from './statusConfig';
 import { X, Bell, BellOff } from 'lucide-react';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 const DURATION_OPTIONS = [
   { value: '30m', label: '30 minutes' },
@@ -42,13 +44,13 @@ export default function StatusSelector({ currentStatus, onStatusChange }) {
   const calculateExpiry = (duration) => {
     const now = new Date();
     const expiryDate = new Date(now);
-    
+
     if (duration === '30m') expiryDate.setMinutes(expiryDate.getMinutes() + 30);
     else if (duration === '1h') expiryDate.setHours(expiryDate.getHours() + 1);
     else if (duration === '2h') expiryDate.setHours(expiryDate.getHours() + 2);
     else if (duration === '4h') expiryDate.setHours(expiryDate.getHours() + 4);
     else if (duration === '1d') expiryDate.setDate(expiryDate.getDate() + 1);
-    
+
     return duration === 'clear' ? null : expiryDate.toISOString();
   };
 
@@ -103,16 +105,14 @@ export default function StatusSelector({ currentStatus, onStatusChange }) {
               Suggested statuses
             </p>
             <div className="grid grid-cols-2 gap-2">
-              {PREDEFINED_STATUSES.filter(s => s.id !== 'custom').map((status) => (
+              {PREDEFINED_STATUSES.filter((s) => s.id !== 'custom').map((status) => (
                 <button
                   key={status.id}
                   onClick={() => handleSelectStatus(status)}
                   className="flex items-center gap-2 p-2 rounded-lg text-sm hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-left"
                 >
                   <span className="text-lg">{status.emoji}</span>
-                  <span className="text-gray-700 dark:text-gray-300 text-xs">
-                    {status.label}
-                  </span>
+                  <span className="text-gray-700 dark:text-gray-300 text-xs">{status.label}</span>
                 </button>
               ))}
             </div>
@@ -191,17 +191,13 @@ export default function StatusSelector({ currentStatus, onStatusChange }) {
                     >
                       Set status
                     </Button>
-                    <Button
-                      onClick={() => setShowCustomInput(false)}
-                      variant="outline"
-                      size="sm"
-                    >
+                    <Button onClick={() => setShowCustomInput(false)} variant="outline" size="sm">
                       Cancel
                     </Button>
                   </div>
                 </div>
-                </div>
-                )}
+              </div>
+            )}
           </div>
 
           {currentStatus?.custom_status && (
@@ -232,11 +228,7 @@ export default function StatusSelector({ currentStatus, onStatusChange }) {
                       : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400'
                   }`}
                 >
-                  {dndEnabled ? (
-                    <BellOff className="w-4 h-4" />
-                  ) : (
-                    <Bell className="w-4 h-4" />
-                  )}
+                  {dndEnabled ? <BellOff className="w-4 h-4" /> : <Bell className="w-4 h-4" />}
                 </button>
               </div>
 
@@ -267,19 +259,15 @@ export default function StatusSelector({ currentStatus, onStatusChange }) {
                       className="text-xs"
                     />
                   </div>
-                  <Button
-                    onClick={handleDNDToggle}
-                    size="sm"
-                    className="w-full text-xs"
-                  >
+                  <Button onClick={handleDNDToggle} size="sm" className="w-full text-xs">
                     Enable DND
                   </Button>
                 </div>
               )}
             </div>
           </div>
-          </div>
-          </PopoverContent>
-          </Popover>
-          );
-          }
+        </div>
+      </PopoverContent>
+    </Popover>
+  );
+}

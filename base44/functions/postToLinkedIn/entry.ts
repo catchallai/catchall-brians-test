@@ -4,31 +4,34 @@ Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
     const user = await base44.auth.me();
-    
+
     if (!user) {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const { text, postId } = await req.json();
-    
+
     if (!text) {
       return Response.json({ error: 'Text content required' }, { status: 400 });
     }
 
     // Get LinkedIn access token from app connector
     const accessToken = await base44.asServiceRole.connectors.getAccessToken('linkedin');
-    
+
     if (!accessToken) {
-      return Response.json({ 
-        error: 'LinkedIn not connected. Please authorize LinkedIn in Social Accounts.' 
-      }, { status: 400 });
+      return Response.json(
+        {
+          error: 'LinkedIn not connected. Please authorize LinkedIn in Social Accounts.',
+        },
+        { status: 400 }
+      );
     }
 
     // Get user's LinkedIn profile ID (sub)
     const profileResponse = await fetch('https://api.linkedin.com/v2/userinfo', {
       headers: {
-        'Authorization': `Bearer ${accessToken}`
-      }
+        Authorization: `Bearer ${accessToken}`,
+      },
     });
 
     if (!profileResponse.ok) {
@@ -42,9 +45,9 @@ Deno.serve(async (req) => {
     const postResponse = await fetch('https://api.linkedin.com/v2/ugcPosts', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${accessToken}`,
+        Authorization: `Bearer ${accessToken}`,
         'Content-Type': 'application/json',
-        'X-Restli-Protocol-Version': '2.0.0'
+        'X-Restli-Protocol-Version': '2.0.0',
       },
       body: JSON.stringify({
         author: authorUrn,
@@ -52,15 +55,15 @@ Deno.serve(async (req) => {
         specificContent: {
           'com.linkedin.ugc.ShareContent': {
             shareCommentary: {
-              text: text
+              text: text,
             },
-            shareMediaCategory: 'NONE'
-          }
+            shareMediaCategory: 'NONE',
+          },
         },
         visibility: {
-          'com.linkedin.ugc.MemberNetworkVisibility': 'PUBLIC'
-        }
-      })
+          'com.linkedin.ugc.MemberNetworkVisibility': 'PUBLIC',
+        },
+      }),
     });
 
     if (!postResponse.ok) {
@@ -76,14 +79,16 @@ Deno.serve(async (req) => {
       success: true,
       platform: 'LinkedIn',
       id: postUrn,
-      url: postUrl
+      url: postUrl,
     });
-
   } catch (error) {
     console.error('LinkedIn post error:', error);
-    return Response.json({ 
-      success: false,
-      error: error.message 
-    }, { status: 500 });
+    return Response.json(
+      {
+        success: false,
+        error: error.message,
+      },
+      { status: 500 }
+    );
   }
 });

@@ -1,14 +1,8 @@
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { 
-  Bell, 
-  TrendingDown, 
-  AlertTriangle, 
-  Users,
-  ExternalLink
-} from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Bell, TrendingDown, AlertTriangle, Users, ExternalLink } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 
@@ -18,52 +12,58 @@ export default function AlertsSummary({ alerts = [], keywords = [], mentions = [
     const items = [];
 
     // Keyword ranking drops
-    keywords.forEach(k => {
-      if (k.previous_position && k.current_position && k.current_position > k.previous_position + 5) {
+    keywords.forEach((k) => {
+      if (
+        k.previous_position &&
+        k.current_position &&
+        k.current_position > k.previous_position + 5
+      ) {
         items.push({
           type: 'ranking_drop',
           severity: 'high',
           title: `Ranking dropped for "${k.keyword}"`,
           description: `Position ${k.previous_position} → ${k.current_position}`,
-          link: 'Keywords'
+          link: 'Keywords',
         });
       }
     });
 
     // Negative sentiment mentions
-    const negativeMentions = mentions.filter(m => m.sentiment === 'negative');
+    const negativeMentions = mentions.filter((m) => m.sentiment === 'negative');
     if (negativeMentions.length > 0) {
       items.push({
         type: 'negative_sentiment',
         severity: 'medium',
         title: `${negativeMentions.length} negative mentions detected`,
         description: 'Review and respond to negative feedback',
-        link: 'SocialListening'
+        link: 'SocialListening',
       });
     }
 
     // Influencer mentions
-    const influencerMentions = mentions.filter(m => m.is_influencer);
+    const influencerMentions = mentions.filter((m) => m.is_influencer);
     if (influencerMentions.length > 0) {
       items.push({
         type: 'influencer',
         severity: 'low',
         title: `${influencerMentions.length} influencer mentions`,
         description: 'Opportunity to engage with influencers',
-        link: 'SocialListening'
+        link: 'SocialListening',
       });
     }
 
     // Add real alerts
-    alerts.filter(a => !a.is_dismissed).forEach(a => {
-      items.push({
-        type: a.type,
-        severity: a.severity,
-        title: a.title,
-        description: a.description,
-        link: 'SocialListening'
+    alerts
+      .filter((a) => !a.is_dismissed)
+      .forEach((a) => {
+        items.push({
+          type: a.type,
+          severity: a.severity,
+          title: a.title,
+          description: a.description,
+          link: 'SocialListening',
+        });
       });
-    });
 
     return items.slice(0, 5);
   };
@@ -74,14 +74,14 @@ export default function AlertsSummary({ alerts = [], keywords = [], mentions = [
     critical: 'bg-red-100 text-red-700 border-red-200',
     high: 'bg-orange-100 text-orange-700 border-orange-200',
     medium: 'bg-amber-100 text-amber-700 border-amber-200',
-    low: 'bg-blue-100 text-blue-700 border-blue-200'
+    low: 'bg-blue-100 text-blue-700 border-blue-200',
   };
 
   const severityIcons = {
     critical: AlertTriangle,
     high: TrendingDown,
     medium: Bell,
-    low: Users
+    low: Users,
   };
 
   return (
@@ -105,8 +105,8 @@ export default function AlertsSummary({ alerts = [], keywords = [], mentions = [
             {alertItems.map((alert, idx) => {
               const Icon = severityIcons[alert.severity] || Bell;
               return (
-                <div 
-                  key={idx} 
+                <div
+                  key={idx}
                   className={`p-3 rounded-lg border ${severityColors[alert.severity] || severityColors.low}`}
                 >
                   <div className="flex items-start gap-3">

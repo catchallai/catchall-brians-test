@@ -1,11 +1,23 @@
 import React, { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Trash2 } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Plus, Trash2 } from 'lucide-react';
 
 export default function InvoiceModal({ open, onClose, onSave, invoice, deal, isLoading }) {
   const [formData, setFormData] = useState({
@@ -19,7 +31,7 @@ export default function InvoiceModal({ open, onClose, onSave, invoice, deal, isL
     issued_date: new Date().toISOString().split('T')[0],
     due_date: '',
     items: [{ description: '', quantity: 1, unit_price: 0, amount: 0 }],
-    notes: ''
+    notes: '',
   });
 
   useEffect(() => {
@@ -29,7 +41,7 @@ export default function InvoiceModal({ open, onClose, onSave, invoice, deal, isL
       // Pre-fill from deal
       const dueDate = new Date();
       dueDate.setDate(dueDate.getDate() + 30);
-      
+
       setFormData({
         invoice_number: `INV-${Date.now()}`,
         title: deal.title || '',
@@ -40,13 +52,15 @@ export default function InvoiceModal({ open, onClose, onSave, invoice, deal, isL
         status: 'draft',
         issued_date: new Date().toISOString().split('T')[0],
         due_date: dueDate.toISOString().split('T')[0],
-        items: [{ 
-          description: deal.description || deal.title || '', 
-          quantity: 1, 
-          unit_price: deal.value || 0, 
-          amount: deal.value || 0 
-        }],
-        notes: ''
+        items: [
+          {
+            description: deal.description || deal.title || '',
+            quantity: 1,
+            unit_price: deal.value || 0,
+            amount: deal.value || 0,
+          },
+        ],
+        notes: '',
       });
     } else {
       // Reset for new invoice
@@ -61,48 +75,48 @@ export default function InvoiceModal({ open, onClose, onSave, invoice, deal, isL
         issued_date: new Date().toISOString().split('T')[0],
         due_date: '',
         items: [{ description: '', quantity: 1, unit_price: 0, amount: 0 }],
-        notes: ''
+        notes: '',
       });
     }
   }, [invoice, deal, open]);
 
   const handleChange = (field, value) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   const handleItemChange = (index, field, value) => {
     const newItems = [...formData.items];
     newItems[index][field] = field === 'description' ? value : parseFloat(value) || 0;
-    
+
     // Calculate amount for this item
     if (field === 'quantity' || field === 'unit_price') {
       newItems[index].amount = newItems[index].quantity * newItems[index].unit_price;
     }
-    
+
     // Calculate total
     const total = newItems.reduce((sum, item) => sum + item.amount, 0);
-    
-    setFormData(prev => ({ 
-      ...prev, 
+
+    setFormData((prev) => ({
+      ...prev,
       items: newItems,
-      total_amount: total
+      total_amount: total,
     }));
   };
 
   const addItem = () => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      items: [...prev.items, { description: '', quantity: 1, unit_price: 0, amount: 0 }]
+      items: [...prev.items, { description: '', quantity: 1, unit_price: 0, amount: 0 }],
     }));
   };
 
   const removeItem = (index) => {
     const newItems = formData.items.filter((_, i) => i !== index);
     const total = newItems.reduce((sum, item) => sum + item.amount, 0);
-    setFormData(prev => ({ 
-      ...prev, 
+    setFormData((prev) => ({
+      ...prev,
       items: newItems,
-      total_amount: total
+      total_amount: total,
     }));
   };
 
@@ -115,7 +129,9 @@ export default function InvoiceModal({ open, onClose, onSave, invoice, deal, isL
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{invoice ? 'Edit Invoice' : deal ? 'Create Invoice from Deal' : 'New Invoice'}</DialogTitle>
+          <DialogTitle>
+            {invoice ? 'Edit Invoice' : deal ? 'Create Invoice from Deal' : 'New Invoice'}
+          </DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
@@ -130,7 +146,10 @@ export default function InvoiceModal({ open, onClose, onSave, invoice, deal, isL
             </div>
             <div className="space-y-2">
               <Label htmlFor="status">Status</Label>
-              <Select value={formData.status} onValueChange={(value) => handleChange('status', value)}>
+              <Select
+                value={formData.status}
+                onValueChange={(value) => handleChange('status', value)}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Select status" />
                 </SelectTrigger>
@@ -233,11 +252,7 @@ export default function InvoiceModal({ open, onClose, onSave, invoice, deal, isL
                     />
                   </div>
                   <div className="w-28">
-                    <Input
-                      value={`$${item.amount.toFixed(2)}`}
-                      disabled
-                      className="bg-gray-50"
-                    />
+                    <Input value={`$${item.amount.toFixed(2)}`} disabled className="bg-gray-50" />
                   </div>
                   {formData.items.length > 1 && (
                     <Button

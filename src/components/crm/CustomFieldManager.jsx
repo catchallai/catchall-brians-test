@@ -1,13 +1,25 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Badge } from "@/components/ui/badge";
-import { Plus, Edit2, Trash2, GripVertical } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog';
+import { Badge } from '@/components/ui/badge';
+import { Plus, Edit2, Trash2, GripVertical } from 'lucide-react';
 
 export default function CustomFieldManager({ entityType, businessId }) {
   const [showModal, setShowModal] = useState(false);
@@ -25,25 +37,32 @@ export default function CustomFieldManager({ entityType, businessId }) {
     queryKey: ['custom-fields', entityType, businessId],
     queryFn: async () => {
       if (!businessId) return [];
-      return await base44.entities.CustomField.filter({
-        entity_type: entityType,
-        business_id: businessId,
-        is_active: true
-      }, 'sort_order');
+      return await base44.entities.CustomField.filter(
+        {
+          entity_type: entityType,
+          business_id: businessId,
+          is_active: true,
+        },
+        'sort_order'
+      );
     },
     enabled: !!businessId,
   });
 
   const createMutation = useMutation({
     mutationFn: async (data) => {
-      const fieldName = data.label.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '');
+      const fieldName = data.label
+        .toLowerCase()
+        .replace(/\s+/g, '_')
+        .replace(/[^a-z0-9_]/g, '');
       return await base44.entities.CustomField.create({
         ...data,
         field_name: fieldName,
         entity_type: entityType,
         business_id: businessId,
         sort_order: fields.length,
-        options: data.field_type === 'dropdown' || data.field_type === 'multiselect' ? data.options : [],
+        options:
+          data.field_type === 'dropdown' || data.field_type === 'multiselect' ? data.options : [],
       });
     },
     onSuccess: () => {
@@ -100,7 +119,10 @@ export default function CustomFieldManager({ entityType, businessId }) {
         field_type: formData.field_type,
         description: formData.description,
         is_required: formData.is_required,
-        options: formData.field_type === 'dropdown' || formData.field_type === 'multiselect' ? formData.options : [],
+        options:
+          formData.field_type === 'dropdown' || formData.field_type === 'multiselect'
+            ? formData.options
+            : [],
       });
     } else {
       createMutation.mutate(formData);
@@ -125,14 +147,23 @@ export default function CustomFieldManager({ entityType, businessId }) {
         ) : (
           <div className="space-y-2">
             {fields.map((field) => (
-              <div key={field.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+              <div
+                key={field.id}
+                className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg"
+              >
                 <div className="flex items-center gap-3 flex-1">
                   <GripVertical className="w-4 h-4 text-gray-400" />
                   <div className="flex-1">
                     <div className="font-medium text-gray-900 dark:text-white">{field.label}</div>
                     <div className="flex items-center gap-2 mt-1">
-                      <Badge variant="outline" className="text-xs">{field.field_type}</Badge>
-                      {field.is_required && <Badge variant="secondary" className="text-xs">Required</Badge>}
+                      <Badge variant="outline" className="text-xs">
+                        {field.field_type}
+                      </Badge>
+                      {field.is_required && (
+                        <Badge variant="secondary" className="text-xs">
+                          Required
+                        </Badge>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -180,7 +211,10 @@ export default function CustomFieldManager({ entityType, businessId }) {
 
             <div>
               <label className="text-sm font-medium text-gray-700">Field Type *</label>
-              <Select value={formData.field_type} onValueChange={(v) => setFormData({ ...formData, field_type: v })}>
+              <Select
+                value={formData.field_type}
+                onValueChange={(v) => setFormData({ ...formData, field_type: v })}
+              >
                 <SelectTrigger className="mt-1">
                   <SelectValue />
                 </SelectTrigger>
@@ -224,10 +258,12 @@ export default function CustomFieldManager({ entityType, businessId }) {
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => setFormData({
-                          ...formData,
-                          options: formData.options.filter((_, i) => i !== idx)
-                        })}
+                        onClick={() =>
+                          setFormData({
+                            ...formData,
+                            options: formData.options.filter((_, i) => i !== idx),
+                          })
+                        }
                         className="text-red-600"
                       >
                         <Trash2 className="w-4 h-4" />
@@ -237,10 +273,12 @@ export default function CustomFieldManager({ entityType, businessId }) {
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => setFormData({
-                      ...formData,
-                      options: [...formData.options, { value: '', label: '' }]
-                    })}
+                    onClick={() =>
+                      setFormData({
+                        ...formData,
+                        options: [...formData.options, { value: '', label: '' }],
+                      })
+                    }
                     className="w-full gap-1"
                   >
                     <Plus className="w-3 h-3" />
@@ -262,7 +300,9 @@ export default function CustomFieldManager({ entityType, businessId }) {
           </div>
 
           <DialogFooter>
-            <Button variant="outline" onClick={handleModalClose}>Cancel</Button>
+            <Button variant="outline" onClick={handleModalClose}>
+              Cancel
+            </Button>
             <Button onClick={handleSave} disabled={!formData.label.trim()}>
               {editingField ? 'Update' : 'Create'} Field
             </Button>

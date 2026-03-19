@@ -1,14 +1,31 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Badge } from '@/components/ui/badge';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { AlertTriangle, Shield, Send, Loader2, CheckCircle2, Clock, XCircle, FileText, Mail, Scale } from "lucide-react";
+import {
+  AlertTriangle,
+  Shield,
+  Send,
+  Loader2,
+  CheckCircle2,
+  Clock,
+  XCircle,
+  FileText,
+  Mail,
+  Scale,
+} from 'lucide-react';
 
 export default function TakeDownRequestor() {
   const [formData, setFormData] = useState({
@@ -19,7 +36,7 @@ export default function TakeDownRequestor() {
     description: '',
     legal_basis: '',
     contact_name: '',
-    contact_email: ''
+    contact_email: '',
   });
   const [generating, setGenerating] = useState(false);
   const [generatedRequest, setGeneratedRequest] = useState(null);
@@ -28,21 +45,21 @@ export default function TakeDownRequestor() {
 
   const { data: requests = [] } = useQuery({
     queryKey: ['takedown-requests'],
-    queryFn: () => base44.entities.TakedownRequest.list('-created_date')
+    queryFn: () => base44.entities.TakedownRequest.list('-created_date'),
   });
 
   const saveRequestMutation = useMutation({
     mutationFn: (data) => base44.entities.TakedownRequest.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['takedown-requests'] });
-    }
+    },
   });
 
   const updateRequestMutation = useMutation({
     mutationFn: ({ id, data }) => base44.entities.TakedownRequest.update(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['takedown-requests'] });
-    }
+    },
   });
 
   const handleGenerate = async () => {
@@ -71,26 +88,26 @@ The letter should be professional, legally sound, and include all necessary elem
       const response = await base44.integrations.Core.InvokeLLM({
         prompt,
         response_json_schema: {
-          type: "object",
+          type: 'object',
           properties: {
-            subject_line: { type: "string" },
-            letter_body: { type: "string" },
-            legal_points: { type: "array", items: { type: "string" } },
-            follow_up_timeline: { type: "string" },
-            alternative_actions: { type: "array", items: { type: "string" } },
-            platform_contact_info: { type: "string" }
-          }
-        }
+            subject_line: { type: 'string' },
+            letter_body: { type: 'string' },
+            legal_points: { type: 'array', items: { type: 'string' } },
+            follow_up_timeline: { type: 'string' },
+            alternative_actions: { type: 'array', items: { type: 'string' } },
+            platform_contact_info: { type: 'string' },
+          },
+        },
       });
 
       setGeneratedRequest(response);
-      
+
       // Save the request with generated notice
       await saveRequestMutation.mutateAsync({
         ...formData,
         original_content_url: formData.your_content_url,
         generated_notice: response,
-        status: 'draft'
+        status: 'draft',
       });
     } catch (error) {
       console.error('Error generating takedown request:', error);
@@ -101,14 +118,14 @@ The letter should be professional, legally sound, and include all necessary elem
 
   const handleSendRequest = async (requestId) => {
     try {
-      const request = requests.find(r => r.id === requestId);
+      const request = requests.find((r) => r.id === requestId);
       if (!request) return;
 
       // Send email via Resend
       await base44.integrations.Core.SendEmail({
         to: request.contact_email,
         subject: request.generated_notice.subject_line,
-        body: request.generated_notice.letter_body
+        body: request.generated_notice.letter_body,
       });
 
       // Update status
@@ -116,8 +133,8 @@ The letter should be professional, legally sound, and include all necessary elem
         id: requestId,
         data: {
           status: 'sent',
-          sent_date: new Date().toISOString()
-        }
+          sent_date: new Date().toISOString(),
+        },
       });
 
       alert('Takedown notice sent successfully!');
@@ -132,9 +149,10 @@ The letter should be professional, legally sound, and include all necessary elem
       id: requestId,
       data: {
         status: newStatus,
-        response_date: newStatus !== 'draft' && newStatus !== 'sent' ? new Date().toISOString() : undefined,
-        resolution_notes: notes || undefined
-      }
+        response_date:
+          newStatus !== 'draft' && newStatus !== 'sent' ? new Date().toISOString() : undefined,
+        resolution_notes: notes || undefined,
+      },
     });
   };
 
@@ -144,31 +162,51 @@ The letter should be professional, legally sound, and include all necessary elem
     { value: 'patent', label: 'Patent Infringement' },
     { value: 'defamation', label: 'Defamation/Libel' },
     { value: 'privacy', label: 'Privacy Violation' },
-    { value: 'impersonation', label: 'Brand Impersonation' }
+    { value: 'impersonation', label: 'Brand Impersonation' },
   ];
 
   const platforms = [
-    'Google Search', 'YouTube', 'Facebook', 'Instagram', 'Twitter/X', 
-    'LinkedIn', 'TikTok', 'Amazon', 'eBay', 'Etsy', 'WordPress', 'Other'
+    'Google Search',
+    'YouTube',
+    'Facebook',
+    'Instagram',
+    'Twitter/X',
+    'LinkedIn',
+    'TikTok',
+    'Amazon',
+    'eBay',
+    'Etsy',
+    'WordPress',
+    'Other',
   ];
 
   const getStatusColor = (status) => {
-    switch(status) {
-      case 'sent': return 'bg-blue-100 text-blue-700 border-blue-300';
-      case 'acknowledged': return 'bg-amber-100 text-amber-700 border-amber-300';
-      case 'resolved': return 'bg-emerald-100 text-emerald-700 border-emerald-300';
-      case 'rejected': return 'bg-red-100 text-red-700 border-red-300';
-      default: return 'bg-gray-100 text-gray-700 border-gray-300';
+    switch (status) {
+      case 'sent':
+        return 'bg-blue-100 text-blue-700 border-blue-300';
+      case 'acknowledged':
+        return 'bg-amber-100 text-amber-700 border-amber-300';
+      case 'resolved':
+        return 'bg-emerald-100 text-emerald-700 border-emerald-300';
+      case 'rejected':
+        return 'bg-red-100 text-red-700 border-red-300';
+      default:
+        return 'bg-gray-100 text-gray-700 border-gray-300';
     }
   };
 
   const getStatusIcon = (status) => {
-    switch(status) {
-      case 'sent': return <Clock className="w-4 h-4" />;
-      case 'acknowledged': return <FileText className="w-4 h-4" />;
-      case 'resolved': return <CheckCircle2 className="w-4 h-4" />;
-      case 'rejected': return <XCircle className="w-4 h-4" />;
-      default: return <FileText className="w-4 h-4" />;
+    switch (status) {
+      case 'sent':
+        return <Clock className="w-4 h-4" />;
+      case 'acknowledged':
+        return <FileText className="w-4 h-4" />;
+      case 'resolved':
+        return <CheckCircle2 className="w-4 h-4" />;
+      case 'rejected':
+        return <XCircle className="w-4 h-4" />;
+      default:
+        return <FileText className="w-4 h-4" />;
     }
   };
 
@@ -180,7 +218,9 @@ The letter should be professional, legally sound, and include all necessary elem
             <AlertTriangle className="w-8 h-8 text-red-600" />
             TakeDown Requestor
           </h1>
-          <p className="text-gray-500 dark:text-gray-400 mt-1">Generate professional DMCA and legal takedown notices</p>
+          <p className="text-gray-500 dark:text-gray-400 mt-1">
+            Generate professional DMCA and legal takedown notices
+          </p>
         </div>
       </div>
 
@@ -197,26 +237,38 @@ The letter should be professional, legally sound, and include all necessary elem
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Label>Infringement Type</Label>
-                  <Select value={formData.infringement_type} onValueChange={(value) => setFormData({...formData, infringement_type: value})}>
+                  <Select
+                    value={formData.infringement_type}
+                    onValueChange={(value) =>
+                      setFormData({ ...formData, infringement_type: value })
+                    }
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Select type" />
                     </SelectTrigger>
                     <SelectContent>
-                      {infringementTypes.map(type => (
-                        <SelectItem key={type.value} value={type.value}>{type.label}</SelectItem>
+                      {infringementTypes.map((type) => (
+                        <SelectItem key={type.value} value={type.value}>
+                          {type.label}
+                        </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                 </div>
                 <div>
                   <Label>Platform/Website</Label>
-                  <Select value={formData.platform} onValueChange={(value) => setFormData({...formData, platform: value})}>
+                  <Select
+                    value={formData.platform}
+                    onValueChange={(value) => setFormData({ ...formData, platform: value })}
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Select platform" />
                     </SelectTrigger>
                     <SelectContent>
-                      {platforms.map(platform => (
-                        <SelectItem key={platform} value={platform}>{platform}</SelectItem>
+                      {platforms.map((platform) => (
+                        <SelectItem key={platform} value={platform}>
+                          {platform}
+                        </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -227,7 +279,7 @@ The letter should be professional, legally sound, and include all necessary elem
                 <Label>Infringing URL</Label>
                 <Input
                   value={formData.infringing_url}
-                  onChange={(e) => setFormData({...formData, infringing_url: e.target.value})}
+                  onChange={(e) => setFormData({ ...formData, infringing_url: e.target.value })}
                   placeholder="https://example.com/infringing-content"
                 />
               </div>
@@ -236,7 +288,7 @@ The letter should be professional, legally sound, and include all necessary elem
                 <Label>Your Original Content URL</Label>
                 <Input
                   value={formData.your_content_url}
-                  onChange={(e) => setFormData({...formData, your_content_url: e.target.value})}
+                  onChange={(e) => setFormData({ ...formData, your_content_url: e.target.value })}
                   placeholder="https://yoursite.com/original-content"
                 />
               </div>
@@ -245,7 +297,7 @@ The letter should be professional, legally sound, and include all necessary elem
                 <Label>Detailed Description</Label>
                 <Textarea
                   value={formData.description}
-                  onChange={(e) => setFormData({...formData, description: e.target.value})}
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   placeholder="Describe how your intellectual property is being infringed, including specific elements copied, dates, and any other relevant details..."
                   rows={4}
                 />
@@ -255,20 +307,22 @@ The letter should be professional, legally sound, and include all necessary elem
                 <Label>Legal Basis</Label>
                 <Textarea
                   value={formData.legal_basis}
-                  onChange={(e) => setFormData({...formData, legal_basis: e.target.value})}
+                  onChange={(e) => setFormData({ ...formData, legal_basis: e.target.value })}
                   placeholder="Cite the legal basis for your claim (e.g., copyright registration number, trademark number, patent details, etc.)"
                   rows={3}
                 />
               </div>
 
               <div className="border-t pt-4">
-                <h4 className="font-semibold text-gray-900 dark:text-white mb-3">Contact Information</h4>
+                <h4 className="font-semibold text-gray-900 dark:text-white mb-3">
+                  Contact Information
+                </h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <Label>Full Name</Label>
                     <Input
                       value={formData.contact_name}
-                      onChange={(e) => setFormData({...formData, contact_name: e.target.value})}
+                      onChange={(e) => setFormData({ ...formData, contact_name: e.target.value })}
                       placeholder="John Doe"
                     />
                   </div>
@@ -277,7 +331,7 @@ The letter should be professional, legally sound, and include all necessary elem
                     <Input
                       type="email"
                       value={formData.contact_email}
-                      onChange={(e) => setFormData({...formData, contact_email: e.target.value})}
+                      onChange={(e) => setFormData({ ...formData, contact_email: e.target.value })}
                       placeholder="john@company.com"
                     />
                   </div>
@@ -315,9 +369,18 @@ The letter should be professional, legally sound, and include all necessary elem
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3 text-xs text-gray-600 dark:text-gray-400">
-              <p>⚠️ This tool generates template legal notices. Always consult with a qualified attorney before sending any legal communication.</p>
-              <p>False or fraudulent takedown requests may result in legal liability under the DMCA and other laws.</p>
-              <p>Ensure you have legitimate rights to the intellectual property before submitting a takedown request.</p>
+              <p>
+                ⚠️ This tool generates template legal notices. Always consult with a qualified
+                attorney before sending any legal communication.
+              </p>
+              <p>
+                False or fraudulent takedown requests may result in legal liability under the DMCA
+                and other laws.
+              </p>
+              <p>
+                Ensure you have legitimate rights to the intellectual property before submitting a
+                takedown request.
+              </p>
             </CardContent>
           </Card>
 
@@ -331,19 +394,27 @@ The letter should be professional, legally sound, and include all necessary elem
             <CardContent className="space-y-3 text-sm">
               <div className="flex gap-2">
                 <CheckCircle2 className="w-4 h-4 text-emerald-500 mt-0.5 flex-shrink-0" />
-                <span className="text-gray-700 dark:text-gray-300">Document all evidence before sending</span>
+                <span className="text-gray-700 dark:text-gray-300">
+                  Document all evidence before sending
+                </span>
               </div>
               <div className="flex gap-2">
                 <CheckCircle2 className="w-4 h-4 text-emerald-500 mt-0.5 flex-shrink-0" />
-                <span className="text-gray-700 dark:text-gray-300">Keep copies of all communications</span>
+                <span className="text-gray-700 dark:text-gray-300">
+                  Keep copies of all communications
+                </span>
               </div>
               <div className="flex gap-2">
                 <CheckCircle2 className="w-4 h-4 text-emerald-500 mt-0.5 flex-shrink-0" />
-                <span className="text-gray-700 dark:text-gray-300">Follow platform-specific procedures</span>
+                <span className="text-gray-700 dark:text-gray-300">
+                  Follow platform-specific procedures
+                </span>
               </div>
               <div className="flex gap-2">
                 <CheckCircle2 className="w-4 h-4 text-emerald-500 mt-0.5 flex-shrink-0" />
-                <span className="text-gray-700 dark:text-gray-300">Allow reasonable time for response</span>
+                <span className="text-gray-700 dark:text-gray-300">
+                  Allow reasonable time for response
+                </span>
               </div>
             </CardContent>
           </Card>
@@ -358,8 +429,11 @@ The letter should be professional, legally sound, and include all necessary elem
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {requests.map(request => (
-                <div key={request.id} className="p-4 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+              {requests.map((request) => (
+                <div
+                  key={request.id}
+                  className="p-4 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                >
                   <div className="flex items-start justify-between mb-2">
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
@@ -368,25 +442,33 @@ The letter should be professional, legally sound, and include all necessary elem
                           <span className="ml-1">{request.status}</span>
                         </Badge>
                         <span className="text-sm text-gray-500">
-                          {infringementTypes.find(t => t.value === request.infringement_type)?.label}
+                          {
+                            infringementTypes.find((t) => t.value === request.infringement_type)
+                              ?.label
+                          }
                         </span>
                       </div>
                       <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
                         {request.infringing_url}
                       </p>
                       <p className="text-xs text-gray-500 mt-1">
-                        Platform: {request.platform} • Created: {new Date(request.created_date).toLocaleDateString()}
+                        Platform: {request.platform} • Created:{' '}
+                        {new Date(request.created_date).toLocaleDateString()}
                       </p>
                     </div>
                     <div className="flex gap-2">
                       {request.status === 'draft' && (
-                        <Button size="sm" variant="outline" onClick={() => handleSendRequest(request.id)}>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleSendRequest(request.id)}
+                        >
                           <Send className="w-3 h-3 mr-1" />
                           Send
                         </Button>
                       )}
                       {request.status === 'sent' && (
-                        <Select 
+                        <Select
                           onValueChange={(val) => handleStatusUpdate(request.id, val)}
                           value={request.status}
                         >
@@ -415,8 +497,8 @@ The letter should be professional, legally sound, and include all necessary elem
           <CardHeader>
             <div className="flex items-center justify-between">
               <CardTitle>Generated Takedown Notice</CardTitle>
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 size="sm"
                 onClick={() => {
                   if (requests.length > 0) {
@@ -433,7 +515,9 @@ The letter should be professional, legally sound, and include all necessary elem
             <div>
               <Label className="text-sm text-gray-500">Subject Line</Label>
               <div className="mt-1 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
-                <p className="font-medium text-gray-900 dark:text-white">{generatedRequest.subject_line}</p>
+                <p className="font-medium text-gray-900 dark:text-white">
+                  {generatedRequest.subject_line}
+                </p>
               </div>
             </div>
 
@@ -448,8 +532,12 @@ The letter should be professional, legally sound, and include all necessary elem
 
             {generatedRequest.platform_contact_info && (
               <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
-                <p className="text-sm font-medium text-blue-900 dark:text-blue-300 mb-2">Platform Contact Information</p>
-                <p className="text-sm text-gray-700 dark:text-gray-300">{generatedRequest.platform_contact_info}</p>
+                <p className="text-sm font-medium text-blue-900 dark:text-blue-300 mb-2">
+                  Platform Contact Information
+                </p>
+                <p className="text-sm text-gray-700 dark:text-gray-300">
+                  {generatedRequest.platform_contact_info}
+                </p>
               </div>
             )}
 
@@ -469,24 +557,29 @@ The letter should be professional, legally sound, and include all necessary elem
 
             {generatedRequest.follow_up_timeline && (
               <div className="p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800">
-                <p className="text-sm font-medium text-amber-900 dark:text-amber-300 mb-2">Follow-up Timeline</p>
-                <p className="text-sm text-gray-700 dark:text-gray-300">{generatedRequest.follow_up_timeline}</p>
+                <p className="text-sm font-medium text-amber-900 dark:text-amber-300 mb-2">
+                  Follow-up Timeline
+                </p>
+                <p className="text-sm text-gray-700 dark:text-gray-300">
+                  {generatedRequest.follow_up_timeline}
+                </p>
               </div>
             )}
 
-            {generatedRequest.alternative_actions && generatedRequest.alternative_actions.length > 0 && (
-              <div>
-                <Label className="text-sm text-gray-500 mb-2 block">Alternative Actions</Label>
-                <ul className="space-y-2">
-                  {generatedRequest.alternative_actions.map((action, idx) => (
-                    <li key={idx} className="flex items-start gap-2 text-sm">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0" />
-                      <span className="text-gray-700 dark:text-gray-300">{action}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
+            {generatedRequest.alternative_actions &&
+              generatedRequest.alternative_actions.length > 0 && (
+                <div>
+                  <Label className="text-sm text-gray-500 mb-2 block">Alternative Actions</Label>
+                  <ul className="space-y-2">
+                    {generatedRequest.alternative_actions.map((action, idx) => (
+                      <li key={idx} className="flex items-start gap-2 text-sm">
+                        <CheckCircle2 className="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0" />
+                        <span className="text-gray-700 dark:text-gray-300">{action}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
           </CardContent>
         </Card>
       )}

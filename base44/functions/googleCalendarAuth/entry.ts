@@ -2,7 +2,8 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
 
 const GOOGLE_CLIENT_ID = Deno.env.get('GOOGLE_CLIENT_ID');
 const GOOGLE_CLIENT_SECRET = Deno.env.get('GOOGLE_CLIENT_SECRET');
-const REDIRECT_URI = Deno.env.get('GOOGLE_REDIRECT_URI') || 'https://your-app.base44.app/oauth/google/callback';
+const REDIRECT_URI =
+  Deno.env.get('GOOGLE_REDIRECT_URI') || 'https://your-app.base44.app/oauth/google/callback';
 
 Deno.serve(async (req) => {
   try {
@@ -20,10 +21,11 @@ Deno.serve(async (req) => {
       const scopes = [
         'https://www.googleapis.com/auth/calendar',
         'https://www.googleapis.com/auth/calendar.events',
-        'https://www.googleapis.com/auth/userinfo.email'
+        'https://www.googleapis.com/auth/userinfo.email',
       ].join(' ');
 
-      const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?` +
+      const authUrl =
+        `https://accounts.google.com/o/oauth2/v2/auth?` +
         `client_id=${GOOGLE_CLIENT_ID}&` +
         `redirect_uri=${encodeURIComponent(REDIRECT_URI)}&` +
         `response_type=code&` +
@@ -45,8 +47,8 @@ Deno.serve(async (req) => {
           client_id: GOOGLE_CLIENT_ID,
           client_secret: GOOGLE_CLIENT_SECRET,
           redirect_uri: REDIRECT_URI,
-          grant_type: 'authorization_code'
-        })
+          grant_type: 'authorization_code',
+        }),
       });
 
       const tokens = await tokenResponse.json();
@@ -57,7 +59,7 @@ Deno.serve(async (req) => {
 
       // Get user's email
       const userInfoResponse = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
-        headers: { 'Authorization': `Bearer ${tokens.access_token}` }
+        headers: { Authorization: `Bearer ${tokens.access_token}` },
       });
       const userInfo = await userInfoResponse.json();
 
@@ -71,7 +73,7 @@ Deno.serve(async (req) => {
         google_calendar_email: userInfo.email,
         google_access_token: tokens.access_token,
         google_refresh_token: tokens.refresh_token,
-        google_token_expiry: expiryDate.toISOString()
+        google_token_expiry: expiryDate.toISOString(),
       });
 
       return Response.json({ success: true, email: userInfo.email });
@@ -90,8 +92,8 @@ Deno.serve(async (req) => {
           refresh_token: user.google_refresh_token,
           client_id: GOOGLE_CLIENT_ID,
           client_secret: GOOGLE_CLIENT_SECRET,
-          grant_type: 'refresh_token'
-        })
+          grant_type: 'refresh_token',
+        }),
       });
 
       const tokens = await tokenResponse.json();
@@ -105,7 +107,7 @@ Deno.serve(async (req) => {
 
       await base44.auth.updateMe({
         google_access_token: tokens.access_token,
-        google_token_expiry: expiryDate.toISOString()
+        google_token_expiry: expiryDate.toISOString(),
       });
 
       return Response.json({ success: true, access_token: tokens.access_token });

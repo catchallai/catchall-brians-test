@@ -1,15 +1,24 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
 import {
-  Users, TrendingUp, AlertTriangle, CheckCircle, Loader2,
-  Heart, Sparkles, Target, MessageSquare, Award, Clock
-} from "lucide-react";
+  Users,
+  TrendingUp,
+  AlertTriangle,
+  CheckCircle,
+  Loader2,
+  Heart,
+  Sparkles,
+  Target,
+  MessageSquare,
+  Award,
+  Clock,
+} from 'lucide-react';
 import OnboardingTracker from '@/components/success/OnboardingTracker';
 import InteractionTimeline from '@/components/success/InteractionTimeline';
 import SurveyPanel from '@/components/success/SurveyPanel';
@@ -64,13 +73,17 @@ export default function CustomerSuccess() {
   // Calculate health for all customers
   const calculateHealthMutation = useMutation({
     mutationFn: async () => {
-      const healthPromises = contacts.filter(c => c.status === 'customer').map(async (contact) => {
-        const contactInteractions = interactions.filter(i => i.contact_id === contact.id);
-        const contactSurveys = surveys.filter(s => s.contact_id === contact.id && s.status === 'completed');
-        const contactOnboarding = onboardings.find(o => o.contact_id === contact.id);
+      const healthPromises = contacts
+        .filter((c) => c.status === 'customer')
+        .map(async (contact) => {
+          const contactInteractions = interactions.filter((i) => i.contact_id === contact.id);
+          const contactSurveys = surveys.filter(
+            (s) => s.contact_id === contact.id && s.status === 'completed'
+          );
+          const contactOnboarding = onboardings.find((o) => o.contact_id === contact.id);
 
-        const analysis = await base44.integrations.Core.InvokeLLM({
-          prompt: `Calculate comprehensive customer health score for:
+          const analysis = await base44.integrations.Core.InvokeLLM({
+            prompt: `Calculate comprehensive customer health score for:
 
 Customer: ${contact.first_name} ${contact.last_name}
 Company: ${contact.company || 'Unknown'}
@@ -82,18 +95,25 @@ Blockers: ${contactOnboarding?.blockers?.join(', ') || 'None'}
 
 Recent Interactions (last 90 days):
 - Total: ${contactInteractions.length}
-- Positive sentiment: ${contactInteractions.filter(i => i.sentiment === 'positive').length}
-- Negative sentiment: ${contactInteractions.filter(i => i.sentiment === 'negative').length}
-- Support issues: ${contactInteractions.filter(i => i.interaction_type === 'support').length}
-- Escalations: ${contactInteractions.filter(i => i.interaction_type === 'escalation').length}
+- Positive sentiment: ${contactInteractions.filter((i) => i.sentiment === 'positive').length}
+- Negative sentiment: ${contactInteractions.filter((i) => i.sentiment === 'negative').length}
+- Support issues: ${contactInteractions.filter((i) => i.interaction_type === 'support').length}
+- Escalations: ${contactInteractions.filter((i) => i.interaction_type === 'escalation').length}
 
 Satisfaction Surveys:
 - Total completed: ${contactSurveys.length}
-- Average NPS: ${contactSurveys.filter(s => s.survey_type === 'nps' && s.score).length > 0 
-  ? (contactSurveys.filter(s => s.survey_type === 'nps').reduce((sum, s) => sum + (s.score || 0), 0) / contactSurveys.filter(s => s.survey_type === 'nps').length).toFixed(1)
-  : 'N/A'}
-- Promoters: ${contactSurveys.filter(s => s.nps_category === 'promoter').length}
-- Detractors: ${contactSurveys.filter(s => s.nps_category === 'detractor').length}
+- Average NPS: ${
+              contactSurveys.filter((s) => s.survey_type === 'nps' && s.score).length > 0
+                ? (
+                    contactSurveys
+                      .filter((s) => s.survey_type === 'nps')
+                      .reduce((sum, s) => sum + (s.score || 0), 0) /
+                    contactSurveys.filter((s) => s.survey_type === 'nps').length
+                  ).toFixed(1)
+                : 'N/A'
+            }
+- Promoters: ${contactSurveys.filter((s) => s.nps_category === 'promoter').length}
+- Detractors: ${contactSurveys.filter((s) => s.nps_category === 'detractor').length}
 
 Calculate:
 1. health_score (0-100): Weighted combination
@@ -107,39 +127,39 @@ Calculate:
 9. positive_signals: Array of good signals
 10. recommended_actions: 3-4 specific CS actions
 11. trend (improving/stable/declining): Based on recent data`,
-          response_json_schema: {
-            type: "object",
-            properties: {
-              health_score: { type: "number" },
-              health_status: { type: "string" },
-              usage_score: { type: "number" },
-              engagement_score: { type: "number" },
-              satisfaction_score: { type: "number" },
-              support_score: { type: "number" },
-              score_breakdown: { type: "object" },
-              risk_factors: { type: "array", items: { type: "string" } },
-              positive_signals: { type: "array", items: { type: "string" } },
-              recommended_actions: { type: "array", items: { type: "string" } },
-              trend: { type: "string" }
-            }
+            response_json_schema: {
+              type: 'object',
+              properties: {
+                health_score: { type: 'number' },
+                health_status: { type: 'string' },
+                usage_score: { type: 'number' },
+                engagement_score: { type: 'number' },
+                satisfaction_score: { type: 'number' },
+                support_score: { type: 'number' },
+                score_breakdown: { type: 'object' },
+                risk_factors: { type: 'array', items: { type: 'string' } },
+                positive_signals: { type: 'array', items: { type: 'string' } },
+                recommended_actions: { type: 'array', items: { type: 'string' } },
+                trend: { type: 'string' },
+              },
+            },
+          });
+
+          const existingHealth = healthScores.find((h) => h.contact_id === contact.id);
+          if (existingHealth) {
+            await base44.entities.CustomerHealth.update(existingHealth.id, {
+              ...analysis,
+              last_calculated: new Date().toISOString(),
+            });
+          } else {
+            await base44.entities.CustomerHealth.create({
+              contact_id: contact.id,
+              company_id: contact.company_id,
+              ...analysis,
+              last_calculated: new Date().toISOString(),
+            });
           }
         });
-
-        const existingHealth = healthScores.find(h => h.contact_id === contact.id);
-        if (existingHealth) {
-          await base44.entities.CustomerHealth.update(existingHealth.id, {
-            ...analysis,
-            last_calculated: new Date().toISOString()
-          });
-        } else {
-          await base44.entities.CustomerHealth.create({
-            contact_id: contact.id,
-            company_id: contact.company_id,
-            ...analysis,
-            last_calculated: new Date().toISOString()
-          });
-        }
-      });
 
       await Promise.all(healthPromises);
     },
@@ -151,13 +171,17 @@ Calculate:
   // Identify upsell opportunities
   const identifyOpportunitiesMutation = useMutation({
     mutationFn: async () => {
-      const oppPromises = contacts.filter(c => c.status === 'customer').map(async (contact) => {
-        const health = healthScores.find(h => h.contact_id === contact.id);
-        const contactInteractions = interactions.filter(i => i.contact_id === contact.id);
-        const contactSurveys = surveys.filter(s => s.contact_id === contact.id && s.status === 'completed');
+      const oppPromises = contacts
+        .filter((c) => c.status === 'customer')
+        .map(async (contact) => {
+          const health = healthScores.find((h) => h.contact_id === contact.id);
+          const contactInteractions = interactions.filter((i) => i.contact_id === contact.id);
+          const contactSurveys = surveys.filter(
+            (s) => s.contact_id === contact.id && s.status === 'completed'
+          );
 
-        const analysis = await base44.integrations.Core.InvokeLLM({
-          prompt: `Identify upsell/cross-sell opportunities for:
+          const analysis = await base44.integrations.Core.InvokeLLM({
+            prompt: `Identify upsell/cross-sell opportunities for:
 
 Customer: ${contact.first_name} ${contact.last_name}
 Company: ${contact.company || 'Unknown'}
@@ -168,10 +192,16 @@ Positive Signals:
 ${health?.positive_signals?.join('\n') || 'None'}
 
 Recent Interactions:
-${contactInteractions.slice(0, 5).map(i => `- ${i.interaction_type}: ${i.summary || 'No summary'} (${i.sentiment})`).join('\n')}
+${contactInteractions
+  .slice(0, 5)
+  .map((i) => `- ${i.interaction_type}: ${i.summary || 'No summary'} (${i.sentiment})`)
+  .join('\n')}
 
 Recent Feedback:
-${contactSurveys.slice(0, 3).map(s => `- ${s.survey_type}: ${s.score} - ${s.feedback || 'No feedback'}`).join('\n')}
+${contactSurveys
+  .slice(0, 3)
+  .map((s) => `- ${s.survey_type}: ${s.score} - ${s.feedback || 'No feedback'}`)
+  .join('\n')}
 
 Identify potential opportunities (return array of opportunities):
 For each opportunity provide:
@@ -185,38 +215,38 @@ For each opportunity provide:
 8. best_contact_time: When to reach out
 
 Only return opportunities with confidence >= 60`,
-          response_json_schema: {
-            type: "object",
-            properties: {
-              opportunities: {
-                type: "array",
-                items: {
-                  type: "object",
-                  properties: {
-                    opportunity_type: { type: "string" },
-                    product_service: { type: "string" },
-                    estimated_value: { type: "number" },
-                    confidence_score: { type: "number" },
-                    signals: { type: "array", items: { type: "string" } },
-                    reasoning: { type: "string" },
-                    recommended_approach: { type: "string" },
-                    best_contact_time: { type: "string" }
-                  }
-                }
-              }
-            }
+            response_json_schema: {
+              type: 'object',
+              properties: {
+                opportunities: {
+                  type: 'array',
+                  items: {
+                    type: 'object',
+                    properties: {
+                      opportunity_type: { type: 'string' },
+                      product_service: { type: 'string' },
+                      estimated_value: { type: 'number' },
+                      confidence_score: { type: 'number' },
+                      signals: { type: 'array', items: { type: 'string' } },
+                      reasoning: { type: 'string' },
+                      recommended_approach: { type: 'string' },
+                      best_contact_time: { type: 'string' },
+                    },
+                  },
+                },
+              },
+            },
+          });
+
+          for (const opp of analysis.opportunities || []) {
+            await base44.entities.UpsellOpportunity.create({
+              contact_id: contact.id,
+              company_id: contact.company_id,
+              ...opp,
+              identified_date: new Date().toISOString(),
+            });
           }
         });
-
-        for (const opp of analysis.opportunities || []) {
-          await base44.entities.UpsellOpportunity.create({
-            contact_id: contact.id,
-            company_id: contact.company_id,
-            ...opp,
-            identified_date: new Date().toISOString()
-          });
-        }
-      });
 
       await Promise.all(oppPromises);
     },
@@ -226,9 +256,10 @@ Only return opportunities with confidence >= 60`,
   });
 
   const createInteractionMutation = useMutation({
-    mutationFn: (data) => editingInteraction
-      ? base44.entities.CustomerInteraction.update(editingInteraction.id, data)
-      : base44.entities.CustomerInteraction.create(data),
+    mutationFn: (data) =>
+      editingInteraction
+        ? base44.entities.CustomerInteraction.update(editingInteraction.id, data)
+        : base44.entities.CustomerInteraction.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['customer-interactions'] });
       setShowInteractionModal(false);
@@ -252,15 +283,18 @@ Only return opportunities with confidence >= 60`,
   });
 
   // Stats
-  const customers = contacts.filter(c => c.status === 'customer');
-  const healthyCount = healthScores.filter(h => h.health_status === 'healthy').length;
-  const atRiskCount = healthScores.filter(h => h.health_status === 'at_risk').length;
-  const criticalCount = healthScores.filter(h => h.health_status === 'critical').length;
-  const avgHealth = healthScores.length > 0 
-    ? Math.round(healthScores.reduce((sum, h) => sum + (h.health_score || 0), 0) / healthScores.length)
-    : 0;
-  const activeOnboarding = onboardings.filter(o => o.status === 'in_progress').length;
-  const identifiedOpps = opportunities.filter(o => o.status === 'identified').length;
+  const customers = contacts.filter((c) => c.status === 'customer');
+  const healthyCount = healthScores.filter((h) => h.health_status === 'healthy').length;
+  const atRiskCount = healthScores.filter((h) => h.health_status === 'at_risk').length;
+  const criticalCount = healthScores.filter((h) => h.health_status === 'critical').length;
+  const avgHealth =
+    healthScores.length > 0
+      ? Math.round(
+          healthScores.reduce((sum, h) => sum + (h.health_score || 0), 0) / healthScores.length
+        )
+      : 0;
+  const activeOnboarding = onboardings.filter((o) => o.status === 'in_progress').length;
+  const identifiedOpps = opportunities.filter((o) => o.status === 'identified').length;
 
   return (
     <div className="p-4 sm:p-6 lg:p-8 space-y-6">
@@ -277,9 +311,13 @@ Only return opportunities with confidence >= 60`,
             className="gap-2 bg-violet-600 hover:bg-violet-700"
           >
             {calculateHealthMutation.isPending ? (
-              <><Loader2 className="w-4 h-4 animate-spin" /> Calculating...</>
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" /> Calculating...
+              </>
             ) : (
-              <><Heart className="w-4 h-4" /> Calculate Health</>
+              <>
+                <Heart className="w-4 h-4" /> Calculate Health
+              </>
             )}
           </Button>
           <Button
@@ -289,9 +327,13 @@ Only return opportunities with confidence >= 60`,
             className="gap-2"
           >
             {identifyOpportunitiesMutation.isPending ? (
-              <><Loader2 className="w-4 h-4 animate-spin" /> Finding...</>
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" /> Finding...
+              </>
             ) : (
-              <><Sparkles className="w-4 h-4" /> Find Opportunities</>
+              <>
+                <Sparkles className="w-4 h-4" /> Find Opportunities
+              </>
             )}
           </Button>
         </div>
@@ -354,11 +396,7 @@ Only return opportunities with confidence >= 60`,
         </TabsList>
 
         <TabsContent value="health" className="space-y-4">
-          <HealthDashboard
-            healthScores={healthScores}
-            contacts={contacts}
-            avgHealth={avgHealth}
-          />
+          <HealthDashboard healthScores={healthScores} contacts={contacts} avgHealth={avgHealth} />
         </TabsContent>
 
         <TabsContent value="onboarding" className="space-y-4">
@@ -377,8 +415,11 @@ Only return opportunities with confidence >= 60`,
 
         <TabsContent value="interactions" className="space-y-4">
           <div className="flex justify-end mb-4">
-            <Button 
-              onClick={() => { setEditingInteraction(null); setShowInteractionModal(true); }}
+            <Button
+              onClick={() => {
+                setEditingInteraction(null);
+                setShowInteractionModal(true);
+              }}
               className="gap-2"
             >
               <MessageSquare className="w-4 h-4" />
@@ -388,29 +429,29 @@ Only return opportunities with confidence >= 60`,
           <InteractionTimeline
             interactions={interactions}
             contacts={contacts}
-            onEdit={(interaction) => { setEditingInteraction(interaction); setShowInteractionModal(true); }}
+            onEdit={(interaction) => {
+              setEditingInteraction(interaction);
+              setShowInteractionModal(true);
+            }}
           />
         </TabsContent>
 
         <TabsContent value="surveys" className="space-y-4">
-          <SurveyPanel
-            surveys={surveys}
-            contacts={contacts}
-          />
+          <SurveyPanel surveys={surveys} contacts={contacts} />
         </TabsContent>
 
         <TabsContent value="opportunities" className="space-y-4">
-          <OpportunityPanel
-            opportunities={opportunities}
-            contacts={contacts}
-          />
+          <OpportunityPanel opportunities={opportunities} contacts={contacts} />
         </TabsContent>
       </Tabs>
 
       {/* Modals */}
       <InteractionModal
         open={showInteractionModal}
-        onClose={() => { setShowInteractionModal(false); setEditingInteraction(null); }}
+        onClose={() => {
+          setShowInteractionModal(false);
+          setEditingInteraction(null);
+        }}
         interaction={editingInteraction}
         contacts={customers}
         onSave={(data) => createInteractionMutation.mutate(data)}
@@ -420,7 +461,7 @@ Only return opportunities with confidence >= 60`,
       <OnboardingModal
         open={showOnboardingModal}
         onClose={() => setShowOnboardingModal(false)}
-        contacts={customers.filter(c => !onboardings.find(o => o.contact_id === c.id))}
+        contacts={customers.filter((c) => !onboardings.find((o) => o.contact_id === c.id))}
         onSave={(data) => createOnboardingMutation.mutate(data)}
         isLoading={createOnboardingMutation.isPending}
       />

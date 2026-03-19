@@ -1,15 +1,29 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { 
-  Lightbulb, Loader2, TrendingUp, Newspaper, Users, 
-  Sparkles, Target, BarChart2, Zap, BookOpen
-} from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
+  Lightbulb,
+  Loader2,
+  TrendingUp,
+  Newspaper,
+  Users,
+  Sparkles,
+  Target,
+  BarChart2,
+  Zap,
+  BookOpen,
+} from 'lucide-react';
 
 export default function TopicGenerator({ keywords, competitors, contentInsights, onSelectTopic }) {
   const [isGenerating, setIsGenerating] = useState(false);
@@ -20,9 +34,18 @@ export default function TopicGenerator({ keywords, competitors, contentInsights,
   const generateTopics = async () => {
     setIsGenerating(true);
 
-    const keywordList = keywords.slice(0, 15).map(k => k.keyword).join(', ');
-    const competitorList = competitors.slice(0, 5).map(c => `${c.name}: ${c.top_content?.join(', ') || 'unknown content'}`).join('; ');
-    const trendingTopics = contentInsights.flatMap(i => i.trending_topics || []).slice(0, 10).join(', ');
+    const keywordList = keywords
+      .slice(0, 15)
+      .map((k) => k.keyword)
+      .join(', ');
+    const competitorList = competitors
+      .slice(0, 5)
+      .map((c) => `${c.name}: ${c.top_content?.join(', ') || 'unknown content'}`)
+      .join('; ');
+    const trendingTopics = contentInsights
+      .flatMap((i) => i.trending_topics || [])
+      .slice(0, 10)
+      .join(', ');
 
     const result = await base44.integrations.Core.InvokeLLM({
       prompt: `Generate compelling content topic ideas for a business.
@@ -69,87 +92,87 @@ export default function TopicGenerator({ keywords, competitors, contentInsights,
       - Unique angle or hook`,
       add_context_from_internet: true,
       response_json_schema: {
-        type: "object",
+        type: 'object',
         properties: {
           trending: {
-            type: "array",
+            type: 'array',
             items: {
-              type: "object",
+              type: 'object',
               properties: {
-                title: { type: "string" },
-                description: { type: "string" },
-                content_type: { type: "string" },
-                effort: { type: "string" },
-                traffic_potential: { type: "string" },
-                keyword: { type: "string" },
-                hook: { type: "string" },
-                why_trending: { type: "string" }
-              }
-            }
+                title: { type: 'string' },
+                description: { type: 'string' },
+                content_type: { type: 'string' },
+                effort: { type: 'string' },
+                traffic_potential: { type: 'string' },
+                keyword: { type: 'string' },
+                hook: { type: 'string' },
+                why_trending: { type: 'string' },
+              },
+            },
           },
           evergreen: {
-            type: "array",
+            type: 'array',
             items: {
-              type: "object",
+              type: 'object',
               properties: {
-                title: { type: "string" },
-                description: { type: "string" },
-                content_type: { type: "string" },
-                effort: { type: "string" },
-                traffic_potential: { type: "string" },
-                keyword: { type: "string" },
-                hook: { type: "string" }
-              }
-            }
+                title: { type: 'string' },
+                description: { type: 'string' },
+                content_type: { type: 'string' },
+                effort: { type: 'string' },
+                traffic_potential: { type: 'string' },
+                keyword: { type: 'string' },
+                hook: { type: 'string' },
+              },
+            },
           },
           competitor_inspired: {
-            type: "array",
+            type: 'array',
             items: {
-              type: "object",
+              type: 'object',
               properties: {
-                title: { type: "string" },
-                description: { type: "string" },
-                content_type: { type: "string" },
-                effort: { type: "string" },
-                traffic_potential: { type: "string" },
-                keyword: { type: "string" },
-                hook: { type: "string" },
-                competitor_reference: { type: "string" }
-              }
-            }
+                title: { type: 'string' },
+                description: { type: 'string' },
+                content_type: { type: 'string' },
+                effort: { type: 'string' },
+                traffic_potential: { type: 'string' },
+                keyword: { type: 'string' },
+                hook: { type: 'string' },
+                competitor_reference: { type: 'string' },
+              },
+            },
           },
           data_driven: {
-            type: "array",
+            type: 'array',
             items: {
-              type: "object",
+              type: 'object',
               properties: {
-                title: { type: "string" },
-                description: { type: "string" },
-                content_type: { type: "string" },
-                effort: { type: "string" },
-                traffic_potential: { type: "string" },
-                keyword: { type: "string" },
-                hook: { type: "string" }
-              }
-            }
+                title: { type: 'string' },
+                description: { type: 'string' },
+                content_type: { type: 'string' },
+                effort: { type: 'string' },
+                traffic_potential: { type: 'string' },
+                keyword: { type: 'string' },
+                hook: { type: 'string' },
+              },
+            },
           },
           interactive: {
-            type: "array",
+            type: 'array',
             items: {
-              type: "object",
+              type: 'object',
               properties: {
-                title: { type: "string" },
-                description: { type: "string" },
-                content_type: { type: "string" },
-                effort: { type: "string" },
-                traffic_potential: { type: "string" },
-                keyword: { type: "string" },
-                hook: { type: "string" }
-              }
-            }
-          }
-        }
-      }
+                title: { type: 'string' },
+                description: { type: 'string' },
+                content_type: { type: 'string' },
+                effort: { type: 'string' },
+                traffic_potential: { type: 'string' },
+                keyword: { type: 'string' },
+                hook: { type: 'string' },
+              },
+            },
+          },
+        },
+      },
     });
 
     setTopics(result);
@@ -159,13 +182,13 @@ export default function TopicGenerator({ keywords, competitors, contentInsights,
   const effortColors = {
     low: 'bg-emerald-100 text-emerald-700',
     medium: 'bg-amber-100 text-amber-700',
-    high: 'bg-red-100 text-red-700'
+    high: 'bg-red-100 text-red-700',
   };
 
   const trafficColors = {
     low: 'bg-gray-100 text-gray-700',
     medium: 'bg-blue-100 text-blue-700',
-    high: 'bg-violet-100 text-violet-700'
+    high: 'bg-violet-100 text-violet-700',
   };
 
   const categoryConfig = {
@@ -173,13 +196,19 @@ export default function TopicGenerator({ keywords, competitors, contentInsights,
     evergreen: { icon: BookOpen, color: 'text-emerald-500', label: 'Evergreen Content' },
     competitor_inspired: { icon: Users, color: 'text-blue-500', label: 'Competitor-Inspired' },
     data_driven: { icon: BarChart2, color: 'text-purple-500', label: 'Data-Driven' },
-    interactive: { icon: Zap, color: 'text-amber-500', label: 'Interactive Content' }
+    interactive: { icon: Zap, color: 'text-amber-500', label: 'Interactive Content' },
   };
 
   const renderTopicCard = (topic, category) => (
-    <div 
+    <div
       className="p-4 bg-white border border-gray-100 rounded-lg hover:shadow-md transition-all cursor-pointer"
-      onClick={() => onSelectTopic?.({ topic: topic.title, content_type: topic.content_type, keyword: topic.keyword })}
+      onClick={() =>
+        onSelectTopic?.({
+          topic: topic.title,
+          content_type: topic.content_type,
+          keyword: topic.keyword,
+        })
+      }
     >
       <h4 className="font-medium text-gray-900">{topic.title}</h4>
       <p className="text-sm text-gray-600 mt-1">{topic.description}</p>
@@ -188,7 +217,9 @@ export default function TopicGenerator({ keywords, competitors, contentInsights,
         <Badge className={effortColors[topic.effort?.toLowerCase()] || effortColors.medium}>
           {topic.effort} effort
         </Badge>
-        <Badge className={trafficColors[topic.traffic_potential?.toLowerCase()] || trafficColors.medium}>
+        <Badge
+          className={trafficColors[topic.traffic_potential?.toLowerCase()] || trafficColors.medium}
+        >
           {topic.traffic_potential} traffic
         </Badge>
       </div>
@@ -198,9 +229,7 @@ export default function TopicGenerator({ keywords, competitors, contentInsights,
         </div>
       )}
       {topic.hook && (
-        <div className="mt-2 p-2 bg-violet-50 rounded text-sm text-violet-700">
-          💡 {topic.hook}
-        </div>
+        <div className="mt-2 p-2 bg-violet-50 rounded text-sm text-violet-700">💡 {topic.hook}</div>
       )}
     </div>
   );
@@ -252,7 +281,9 @@ export default function TopicGenerator({ keywords, competitors, contentInsights,
               <Loader2 className="w-5 h-5 animate-spin text-violet-600" />
               <div>
                 <p className="font-medium text-violet-900">Generating topic ideas...</p>
-                <p className="text-sm text-violet-600">Analyzing trends, competitors, and opportunities</p>
+                <p className="text-sm text-violet-600">
+                  Analyzing trends, competitors, and opportunities
+                </p>
               </div>
             </div>
           </div>
@@ -265,7 +296,7 @@ export default function TopicGenerator({ keywords, competitors, contentInsights,
                 const categoryTopics = topics[key];
                 if (!categoryTopics?.length) return null;
                 const Icon = config.icon;
-                
+
                 return (
                   <div key={key}>
                     <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">

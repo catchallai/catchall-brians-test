@@ -1,11 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2 } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Loader2 } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 
@@ -25,7 +31,7 @@ export default function TaskModal({ open, onClose, task, onSave, isLoading }) {
 
   const { data: users = [] } = useQuery({
     queryKey: ['users'],
-    queryFn: () => base44.entities.User.list()
+    queryFn: () => base44.entities.User.list(),
   });
 
   useEffect(() => {
@@ -67,10 +73,10 @@ export default function TaskModal({ open, onClose, task, onSave, isLoading }) {
       return;
     }
     setErrors({});
-    
+
     // Call onSave and get the result
     const result = await onSave(formData);
-    
+
     // If this is a new assignment (no existing task or assignee changed), notify the user
     if ((!task || task.assigned_to !== formData.assigned_to) && result?.id) {
       try {
@@ -80,7 +86,7 @@ export default function TaskModal({ open, onClose, task, onSave, isLoading }) {
           entity_type: 'task',
           assigned_to: formData.assigned_to,
           assigned_by: currentUser.email,
-          title: formData.title
+          title: formData.title,
         });
       } catch (error) {
         console.error('Failed to send notification:', error);
@@ -194,7 +200,9 @@ export default function TaskModal({ open, onClose, task, onSave, isLoading }) {
                 type="number"
                 step="0.5"
                 value={formData.estimated_hours}
-                onChange={(e) => setFormData({ ...formData, estimated_hours: parseFloat(e.target.value) || '' })}
+                onChange={(e) =>
+                  setFormData({ ...formData, estimated_hours: parseFloat(e.target.value) || '' })
+                }
                 placeholder="0"
               />
             </div>
@@ -205,7 +213,9 @@ export default function TaskModal({ open, onClose, task, onSave, isLoading }) {
                 type="number"
                 step="0.5"
                 value={formData.actual_hours}
-                onChange={(e) => setFormData({ ...formData, actual_hours: parseFloat(e.target.value) || '' })}
+                onChange={(e) =>
+                  setFormData({ ...formData, actual_hours: parseFloat(e.target.value) || '' })
+                }
                 placeholder="0"
               />
             </div>
@@ -219,7 +229,9 @@ export default function TaskModal({ open, onClose, task, onSave, isLoading }) {
               min="0"
               max="100"
               value={formData.progress}
-              onChange={(e) => setFormData({ ...formData, progress: parseInt(e.target.value) || 0 })}
+              onChange={(e) =>
+                setFormData({ ...formData, progress: parseInt(e.target.value) || 0 })
+              }
             />
           </div>
 

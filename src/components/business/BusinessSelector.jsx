@@ -7,9 +7,9 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Building2, Plus } from "lucide-react";
-import { Button } from "@/components/ui/button";
+} from '@/components/ui/select';
+import { Building2, Plus } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import BusinessModal from './BusinessModal';
 
 export default function BusinessSelector({ user }) {
@@ -48,10 +48,7 @@ export default function BusinessSelector({ user }) {
 
   return (
     <div className="flex items-center gap-2">
-      <Select
-        value={currentBusinessId}
-        onValueChange={(value) => updateUserMutation.mutate(value)}
-      >
+      <Select value={currentBusinessId} onValueChange={(value) => updateUserMutation.mutate(value)}>
         <SelectTrigger className="w-48 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
           <div className="flex items-center gap-2">
             <Building2 className="w-4 h-4 text-gray-400" />
@@ -78,10 +75,7 @@ export default function BusinessSelector({ user }) {
         </Button>
       )}
 
-      <BusinessModal
-        open={showModal}
-        onClose={() => setShowModal(false)}
-      />
+      <BusinessModal open={showModal} onClose={() => setShowModal(false)} />
     </div>
   );
 }

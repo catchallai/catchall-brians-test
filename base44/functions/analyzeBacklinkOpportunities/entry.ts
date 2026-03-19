@@ -13,7 +13,10 @@ Deno.serve(async (req) => {
     const analysis = await base44.integrations.Core.InvokeLLM({
       prompt: `Find backlink opportunities for ${website[0].url}:
       
-Current backlinks (${backlinks.length}): ${backlinks.slice(0, 5).map(b => b.source_domain).join(', ')}
+Current backlinks (${backlinks.length}): ${backlinks
+        .slice(0, 5)
+        .map((b) => b.source_domain)
+        .join(', ')}
 
 Identify:
 1. Broken links on competitor sites (where we can replace with our content)
@@ -24,25 +27,25 @@ Identify:
 For each opportunity: source_domain, source_url, opportunity_type, domain_authority, relevance_score (0-100), difficulty_score (0-100), contact_email`,
       add_context_from_internet: true,
       response_json_schema: {
-        type: "object",
+        type: 'object',
         properties: {
           opportunities: {
-            type: "array",
+            type: 'array',
             items: {
-              type: "object",
+              type: 'object',
               properties: {
-                source_domain: { type: "string" },
-                source_url: { type: "string" },
-                opportunity_type: { type: "string" },
-                domain_authority: { type: "number" },
-                relevance_score: { type: "number" },
-                difficulty_score: { type: "number" },
-                contact_email: { type: "string" }
-              }
-            }
-          }
-        }
-      }
+                source_domain: { type: 'string' },
+                source_url: { type: 'string' },
+                opportunity_type: { type: 'string' },
+                domain_authority: { type: 'number' },
+                relevance_score: { type: 'number' },
+                difficulty_score: { type: 'number' },
+                contact_email: { type: 'string' },
+              },
+            },
+          },
+        },
+      },
     });
 
     // Save opportunities
@@ -56,7 +59,7 @@ For each opportunity: source_domain, source_url, opportunity_type, domain_author
         domain_authority: opp.domain_authority,
         relevance_score: opp.relevance_score,
         difficulty_score: opp.difficulty_score,
-        contact_email: opp.contact_email
+        contact_email: opp.contact_email,
       });
       createdOpps.push(created);
     }
@@ -64,7 +67,7 @@ For each opportunity: source_domain, source_url, opportunity_type, domain_author
     return Response.json({
       success: true,
       opportunities_found: createdOpps.length,
-      data: createdOpps
+      data: createdOpps,
     });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });

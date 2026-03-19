@@ -1,10 +1,16 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { createPageUrl } from '@/utils';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Copy, Check, Upload, AlertCircle } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Copy, Check, Upload, AlertCircle } from 'lucide-react';
 
 export default function DocumentUploadModal({ open, onClose, onSuccess }) {
   const [file, setFile] = useState(null);
@@ -36,7 +42,7 @@ export default function DocumentUploadModal({ open, onClose, onSuccess }) {
       formData.append('name', fileName || file.name);
 
       const response = await base44.functions.invoke('uploadAndShareDocument', formData);
-      
+
       if (response.data.success) {
         const shareLink = `${window.location.origin}${createPageUrl('PublicDocumentViewerWrapper')}?token=${response.data.trackingCode}`;
         setShareLink(shareLink);
@@ -119,11 +125,7 @@ export default function DocumentUploadModal({ open, onClose, onSuccess }) {
               <Button variant="outline" onClick={handleClose} disabled={uploading}>
                 Cancel
               </Button>
-              <Button
-                onClick={handleUpload}
-                disabled={!file || uploading}
-                className="flex-1"
-              >
+              <Button onClick={handleUpload} disabled={!file || uploading} className="flex-1">
                 {uploading ? 'Uploading...' : 'Generate Share Link'}
               </Button>
             </div>
@@ -131,7 +133,9 @@ export default function DocumentUploadModal({ open, onClose, onSuccess }) {
         ) : (
           <div className="space-y-4">
             <div className="bg-green-50 border border-green-200 rounded-lg p-4 text-center">
-              <p className="text-sm font-medium text-green-700">✓ Document uploaded successfully!</p>
+              <p className="text-sm font-medium text-green-700">
+                ✓ Document uploaded successfully!
+              </p>
             </div>
 
             <div className="space-y-2">
@@ -143,11 +147,7 @@ export default function DocumentUploadModal({ open, onClose, onSuccess }) {
                   readOnly
                   className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm bg-gray-50"
                 />
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={handleCopy}
-                >
+                <Button variant="outline" size="icon" onClick={handleCopy}>
                   {copied ? (
                     <Check className="w-4 h-4 text-green-600" />
                   ) : (

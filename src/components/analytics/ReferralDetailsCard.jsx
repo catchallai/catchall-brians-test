@@ -1,8 +1,8 @@
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { ExternalLink, Globe, RefreshCw } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { ExternalLink, Globe, RefreshCw } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 
 export default function ReferralDetailsCard({ data, onRefresh, isRefreshing }) {
   // SyberJet referral sources - aviation industry focused
@@ -31,7 +31,13 @@ export default function ReferralDetailsCard({ data, onRefresh, isRefreshing }) {
           Top Referrers
         </CardTitle>
         {onRefresh && (
-          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={onRefresh} disabled={isRefreshing}>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-7 w-7"
+            onClick={onRefresh}
+            disabled={isRefreshing}
+          >
             <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin' : ''}`} />
           </Button>
         )}
@@ -39,8 +45,8 @@ export default function ReferralDetailsCard({ data, onRefresh, isRefreshing }) {
       <CardContent>
         <div className="space-y-2 max-h-[280px] overflow-y-auto pr-1">
           {referrals.map((ref, index) => (
-            <div 
-              key={ref.domain} 
+            <div
+              key={ref.domain}
               className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
             >
               <span className="w-5 text-xs font-medium text-gray-400">{index + 1}</span>
@@ -48,13 +54,15 @@ export default function ReferralDetailsCard({ data, onRefresh, isRefreshing }) {
                 <Globe className="w-4 h-4 text-gray-500" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-gray-900 dark:text-white truncate">{ref.domain}</p>
+                <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                  {ref.domain}
+                </p>
                 <p className="text-xs text-gray-400">{ref.visits.toLocaleString()} visits</p>
               </div>
-              <Badge className={`text-xs ${typeColors[ref.type]}`}>
-                {ref.type}
-              </Badge>
-              <span className="text-sm font-medium text-gray-500 w-10 text-right">{ref.percentage}%</span>
+              <Badge className={`text-xs ${typeColors[ref.type]}`}>{ref.type}</Badge>
+              <span className="text-sm font-medium text-gray-500 w-10 text-right">
+                {ref.percentage}%
+              </span>
             </div>
           ))}
         </div>

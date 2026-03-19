@@ -1,18 +1,53 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
-  TrendingUp, TrendingDown, Users, Eye, Clock, ArrowUpRight,
-  Globe, Monitor, Smartphone, Tablet, MapPin, BarChart3, PieChart,
-  Calendar, RefreshCw, Download
-} from "lucide-react";
-import { LineChart, Line, AreaChart, Area, BarChart, Bar, PieChart as RePieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Skeleton } from '@/components/ui/skeleton';
+import {
+  TrendingUp,
+  TrendingDown,
+  Users,
+  Eye,
+  Clock,
+  ArrowUpRight,
+  Globe,
+  Monitor,
+  Smartphone,
+  Tablet,
+  MapPin,
+  BarChart3,
+  PieChart,
+  Calendar,
+  RefreshCw,
+  Download,
+} from 'lucide-react';
+import {
+  LineChart,
+  Line,
+  AreaChart,
+  Area,
+  BarChart,
+  Bar,
+  PieChart as RePieChart,
+  Pie,
+  Cell,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  Legend,
+} from 'recharts';
 import { format, subDays } from 'date-fns';
 
 import VisitorTypeCard from '@/components/analytics/VisitorTypeCard';
@@ -52,7 +87,7 @@ export default function TrafficAnalytics() {
   });
 
   const toggleWidget = (key) => {
-    setWidgetVisibility(prev => ({ ...prev, [key]: !prev[key] }));
+    setWidgetVisibility((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 
   const { data: websites = [] } = useQuery({
@@ -65,30 +100,32 @@ export default function TrafficAnalytics() {
     queryFn: async () => {
       // SyberJet.com traffic data
       const days = dateRange === '7d' ? 7 : dateRange === '30d' ? 30 : 90;
-      
+
       // Simple seeded random function for consistent data
       const seededRandom = (seed) => {
         const x = Math.sin(seed) * 10000;
         return x - Math.floor(x);
       };
-      
+
       // SyberJet baseline metrics (realistic for luxury aviation website)
       const baseVisitors = 850;
       const basePageviews = 2400;
-      
+
       return Array.from({ length: days }, (_, i) => {
         const dateStr = format(subDays(new Date(), days - 1 - i), 'MMM dd');
         const dateSeed = dateStr.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
         const seed = dateSeed + i;
-        
+
         // Add weekly patterns (higher on weekdays)
         const dayOfWeek = subDays(new Date(), days - 1 - i).getDay();
-        const weekdayMultiplier = (dayOfWeek >= 1 && dayOfWeek <= 5) ? 1.2 : 0.7;
-        
+        const weekdayMultiplier = dayOfWeek >= 1 && dayOfWeek <= 5 ? 1.2 : 0.7;
+
         return {
           date: dateStr,
           visitors: Math.floor((baseVisitors + seededRandom(seed) * 400) * weekdayMultiplier),
-          pageviews: Math.floor((basePageviews + seededRandom(seed + 1) * 1200) * weekdayMultiplier),
+          pageviews: Math.floor(
+            (basePageviews + seededRandom(seed + 1) * 1200) * weekdayMultiplier
+          ),
           bounce_rate: Math.floor(seededRandom(seed + 2) * 15) + 28,
           avg_duration: Math.floor(seededRandom(seed + 3) * 120) + 140,
         };
@@ -99,8 +136,12 @@ export default function TrafficAnalytics() {
 
   const totalVisitors = trafficData.reduce((sum, d) => sum + d.visitors, 0);
   const totalPageviews = trafficData.reduce((sum, d) => sum + d.pageviews, 0);
-  const avgBounce = trafficData.length ? Math.round(trafficData.reduce((sum, d) => sum + d.bounce_rate, 0) / trafficData.length) : 0;
-  const avgDuration = trafficData.length ? Math.round(trafficData.reduce((sum, d) => sum + d.avg_duration, 0) / trafficData.length) : 0;
+  const avgBounce = trafficData.length
+    ? Math.round(trafficData.reduce((sum, d) => sum + d.bounce_rate, 0) / trafficData.length)
+    : 0;
+  const avgDuration = trafficData.length
+    ? Math.round(trafficData.reduce((sum, d) => sum + d.avg_duration, 0) / trafficData.length)
+    : 0;
 
   // Calculate percentage changes by comparing first half vs second half of period
   const calculateChange = (data, key) => {
@@ -108,12 +149,12 @@ export default function TrafficAnalytics() {
     const midpoint = Math.floor(data.length / 2);
     const firstHalf = data.slice(0, midpoint);
     const secondHalf = data.slice(midpoint);
-    
+
     const firstAvg = firstHalf.reduce((sum, d) => sum + d[key], 0) / firstHalf.length;
     const secondAvg = secondHalf.reduce((sum, d) => sum + d[key], 0) / secondHalf.length;
-    
+
     if (firstAvg === 0) return 0;
-    return ((secondAvg - firstAvg) / firstAvg * 100).toFixed(1);
+    return (((secondAvg - firstAvg) / firstAvg) * 100).toFixed(1);
   };
 
   const visitorsChange = calculateChange(trafficData, 'visitors');
@@ -161,7 +202,9 @@ export default function TrafficAnalytics() {
       <div className="p-4 sm:p-6 lg:p-8 space-y-6 min-h-screen">
         <Skeleton className="h-10 w-64" />
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-28" />)}
+          {[...Array(4)].map((_, i) => (
+            <Skeleton key={i} className="h-28" />
+          ))}
         </div>
       </div>
     );
@@ -172,8 +215,12 @@ export default function TrafficAnalytics() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Traffic Analytics</h1>
-          <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400 mt-1">Monitor your website traffic and audience insights</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
+            Traffic Analytics
+          </h1>
+          <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400 mt-1">
+            Monitor your website traffic and audience insights
+          </p>
         </div>
         <div className="flex flex-wrap items-center gap-2 sm:gap-3">
           <Select value={selectedWebsite} onValueChange={setSelectedWebsite}>
@@ -183,7 +230,9 @@ export default function TrafficAnalytics() {
             <SelectContent>
               <SelectItem value="all">All Websites</SelectItem>
               {websites.map((w) => (
-                <SelectItem key={w.id} value={w.id}>{w.name}</SelectItem>
+                <SelectItem key={w.id} value={w.id}>
+                  {w.name}
+                </SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -197,10 +246,7 @@ export default function TrafficAnalytics() {
               <SelectItem value="90d">Last 90 days</SelectItem>
             </SelectContent>
           </Select>
-          <AnalyticsTogglePanel 
-            visibility={widgetVisibility} 
-            onToggle={toggleWidget} 
-          />
+          <AnalyticsTogglePanel visibility={widgetVisibility} onToggle={toggleWidget} />
           <Button variant="outline" size="icon" className="shrink-0">
             <RefreshCw className="w-4 h-4" />
           </Button>
@@ -228,10 +274,21 @@ export default function TrafficAnalytics() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-500 dark:text-gray-400">Total Visitors</p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-white">{totalVisitors.toLocaleString()}</p>
-                <div className={`flex items-center gap-1 text-sm ${parseFloat(visitorsChange) >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>
-                  {parseFloat(visitorsChange) >= 0 ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
-                  <span>{parseFloat(visitorsChange) >= 0 ? '+' : ''}{visitorsChange}%</span>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                  {totalVisitors.toLocaleString()}
+                </p>
+                <div
+                  className={`flex items-center gap-1 text-sm ${parseFloat(visitorsChange) >= 0 ? 'text-emerald-600' : 'text-red-500'}`}
+                >
+                  {parseFloat(visitorsChange) >= 0 ? (
+                    <TrendingUp className="w-3 h-3" />
+                  ) : (
+                    <TrendingDown className="w-3 h-3" />
+                  )}
+                  <span>
+                    {parseFloat(visitorsChange) >= 0 ? '+' : ''}
+                    {visitorsChange}%
+                  </span>
                 </div>
               </div>
               <div className="w-10 h-10 rounded-lg bg-violet-100 dark:bg-violet-900/30 flex items-center justify-center">
@@ -246,10 +303,21 @@ export default function TrafficAnalytics() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-500 dark:text-gray-400">Page Views</p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-white">{totalPageviews.toLocaleString()}</p>
-                <div className={`flex items-center gap-1 text-sm ${parseFloat(pageviewsChange) >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>
-                  {parseFloat(pageviewsChange) >= 0 ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
-                  <span>{parseFloat(pageviewsChange) >= 0 ? '+' : ''}{pageviewsChange}%</span>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                  {totalPageviews.toLocaleString()}
+                </p>
+                <div
+                  className={`flex items-center gap-1 text-sm ${parseFloat(pageviewsChange) >= 0 ? 'text-emerald-600' : 'text-red-500'}`}
+                >
+                  {parseFloat(pageviewsChange) >= 0 ? (
+                    <TrendingUp className="w-3 h-3" />
+                  ) : (
+                    <TrendingDown className="w-3 h-3" />
+                  )}
+                  <span>
+                    {parseFloat(pageviewsChange) >= 0 ? '+' : ''}
+                    {pageviewsChange}%
+                  </span>
                 </div>
               </div>
               <div className="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
@@ -265,8 +333,14 @@ export default function TrafficAnalytics() {
               <div>
                 <p className="text-sm text-gray-500 dark:text-gray-400">Bounce Rate</p>
                 <p className="text-2xl font-bold text-gray-900 dark:text-white">{avgBounce}%</p>
-                <div className={`flex items-center gap-1 text-sm ${parseFloat(bounceChange) <= 0 ? 'text-emerald-600' : 'text-red-500'}`}>
-                  {parseFloat(bounceChange) <= 0 ? <TrendingDown className="w-3 h-3" /> : <TrendingUp className="w-3 h-3" />}
+                <div
+                  className={`flex items-center gap-1 text-sm ${parseFloat(bounceChange) <= 0 ? 'text-emerald-600' : 'text-red-500'}`}
+                >
+                  {parseFloat(bounceChange) <= 0 ? (
+                    <TrendingDown className="w-3 h-3" />
+                  ) : (
+                    <TrendingUp className="w-3 h-3" />
+                  )}
                   <span>{bounceChange}%</span>
                 </div>
               </div>
@@ -282,10 +356,21 @@ export default function TrafficAnalytics() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-500 dark:text-gray-400">Avg. Duration</p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-white">{Math.floor(avgDuration / 60)}m {avgDuration % 60}s</p>
-                <div className={`flex items-center gap-1 text-sm ${parseFloat(durationChange) >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>
-                  {parseFloat(durationChange) >= 0 ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
-                  <span>{parseFloat(durationChange) >= 0 ? '+' : ''}{durationChange}%</span>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                  {Math.floor(avgDuration / 60)}m {avgDuration % 60}s
+                </p>
+                <div
+                  className={`flex items-center gap-1 text-sm ${parseFloat(durationChange) >= 0 ? 'text-emerald-600' : 'text-red-500'}`}
+                >
+                  {parseFloat(durationChange) >= 0 ? (
+                    <TrendingUp className="w-3 h-3" />
+                  ) : (
+                    <TrendingDown className="w-3 h-3" />
+                  )}
+                  <span>
+                    {parseFloat(durationChange) >= 0 ? '+' : ''}
+                    {durationChange}%
+                  </span>
                 </div>
               </div>
               <div className="w-10 h-10 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center">
@@ -298,12 +383,24 @@ export default function TrafficAnalytics() {
 
       <Tabs defaultValue="trends">
         <TabsList className="w-full flex-wrap h-auto gap-1 p-1">
-          <TabsTrigger value="trends" className="text-xs sm:text-sm">Daily Trends</TabsTrigger>
-          <TabsTrigger value="sources" className="text-xs sm:text-sm">Traffic Sources</TabsTrigger>
-          <TabsTrigger value="visitors" className="text-xs sm:text-sm">Visitors</TabsTrigger>
-          <TabsTrigger value="journeys" className="text-xs sm:text-sm">User Journeys</TabsTrigger>
-          <TabsTrigger value="regions" className="text-xs sm:text-sm">Regional</TabsTrigger>
-          <TabsTrigger value="market" className="text-xs sm:text-sm">Market</TabsTrigger>
+          <TabsTrigger value="trends" className="text-xs sm:text-sm">
+            Daily Trends
+          </TabsTrigger>
+          <TabsTrigger value="sources" className="text-xs sm:text-sm">
+            Traffic Sources
+          </TabsTrigger>
+          <TabsTrigger value="visitors" className="text-xs sm:text-sm">
+            Visitors
+          </TabsTrigger>
+          <TabsTrigger value="journeys" className="text-xs sm:text-sm">
+            User Journeys
+          </TabsTrigger>
+          <TabsTrigger value="regions" className="text-xs sm:text-sm">
+            Regional
+          </TabsTrigger>
+          <TabsTrigger value="market" className="text-xs sm:text-sm">
+            Market
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="trends" className="mt-4">
@@ -317,12 +414,12 @@ export default function TrafficAnalytics() {
                   <AreaChart data={trafficData}>
                     <defs>
                       <linearGradient id="colorVisitors" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.3}/>
-                        <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0}/>
+                        <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.3} />
+                        <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0} />
                       </linearGradient>
                       <linearGradient id="colorPageviews" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#06b6d4" stopOpacity={0.3}/>
-                        <stop offset="95%" stopColor="#06b6d4" stopOpacity={0}/>
+                        <stop offset="5%" stopColor="#06b6d4" stopOpacity={0.3} />
+                        <stop offset="95%" stopColor="#06b6d4" stopOpacity={0} />
                       </linearGradient>
                     </defs>
                     <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
@@ -330,8 +427,20 @@ export default function TrafficAnalytics() {
                     <YAxis stroke="#9ca3af" fontSize={12} />
                     <Tooltip />
                     <Legend />
-                    <Area type="monotone" dataKey="visitors" stroke="#8b5cf6" fillOpacity={1} fill="url(#colorVisitors)" />
-                    <Area type="monotone" dataKey="pageviews" stroke="#06b6d4" fillOpacity={1} fill="url(#colorPageviews)" />
+                    <Area
+                      type="monotone"
+                      dataKey="visitors"
+                      stroke="#8b5cf6"
+                      fillOpacity={1}
+                      fill="url(#colorVisitors)"
+                    />
+                    <Area
+                      type="monotone"
+                      dataKey="pageviews"
+                      stroke="#06b6d4"
+                      fillOpacity={1}
+                      fill="url(#colorPageviews)"
+                    />
                   </AreaChart>
                 </ResponsiveContainer>
               </div>
@@ -367,8 +476,13 @@ export default function TrafficAnalytics() {
                 <div className="grid grid-cols-2 gap-2 mt-4">
                   {trafficSources.map((source) => (
                     <div key={source.name} className="flex items-center gap-2">
-                      <div className="w-3 h-3 rounded-full" style={{ backgroundColor: source.color }} />
-                      <span className="text-sm text-gray-600 dark:text-gray-400">{source.name}</span>
+                      <div
+                        className="w-3 h-3 rounded-full"
+                        style={{ backgroundColor: source.color }}
+                      />
+                      <span className="text-sm text-gray-600 dark:text-gray-400">
+                        {source.name}
+                      </span>
                       <span className="text-sm font-medium ml-auto">{source.value}%</span>
                     </div>
                   ))}
@@ -389,11 +503,13 @@ export default function TrafficAnalytics() {
                       </div>
                       <div className="flex-1">
                         <div className="flex items-center justify-between mb-1">
-                          <span className="font-medium text-gray-900 dark:text-white">{device.name}</span>
+                          <span className="font-medium text-gray-900 dark:text-white">
+                            {device.name}
+                          </span>
                           <span className="text-sm text-gray-500">{device.value}%</span>
                         </div>
                         <div className="h-2 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
-                          <div 
+                          <div
                             className="h-full bg-violet-500 rounded-full"
                             style={{ width: `${device.value}%` }}
                           />
@@ -434,21 +550,27 @@ export default function TrafficAnalytics() {
               <div className="space-y-3">
                 {regionData.map((region, index) => (
                   <div key={region.region} className="flex items-center gap-4">
-                    <span className="w-6 text-center text-sm font-medium text-gray-500">{index + 1}</span>
+                    <span className="w-6 text-center text-sm font-medium text-gray-500">
+                      {index + 1}
+                    </span>
                     <div className="flex-1">
                       <div className="flex items-center justify-between mb-1">
-                        <span className="font-medium text-gray-900 dark:text-white">{region.region}</span>
+                        <span className="font-medium text-gray-900 dark:text-white">
+                          {region.region}
+                        </span>
                         <div className="flex items-center gap-3">
-                          <span className="text-sm text-gray-500">{region.visitors.toLocaleString()} visitors</span>
+                          <span className="text-sm text-gray-500">
+                            {region.visitors.toLocaleString()} visitors
+                          </span>
                           <Badge variant="outline">{region.percentage}%</Badge>
                         </div>
                       </div>
                       <div className="h-2 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
-                        <div 
+                        <div
                           className="h-full rounded-full"
-                          style={{ 
+                          style={{
                             width: `${region.percentage}%`,
-                            backgroundColor: COLORS[index % COLORS.length]
+                            backgroundColor: COLORS[index % COLORS.length],
                           }}
                         />
                       </div>
@@ -467,9 +589,18 @@ export default function TrafficAnalytics() {
                 <CardContent className="p-4 text-center">
                   <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">{item.metric}</p>
                   <p className="text-2xl font-bold text-gray-900 dark:text-white">{item.value}</p>
-                  <div className={`flex items-center justify-center gap-1 text-sm ${item.trend === 'up' ? 'text-emerald-600' : 'text-red-500'}`}>
-                    {item.trend === 'up' ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
-                    <span>{item.change > 0 ? '+' : ''}{item.change}%</span>
+                  <div
+                    className={`flex items-center justify-center gap-1 text-sm ${item.trend === 'up' ? 'text-emerald-600' : 'text-red-500'}`}
+                  >
+                    {item.trend === 'up' ? (
+                      <TrendingUp className="w-3 h-3" />
+                    ) : (
+                      <TrendingDown className="w-3 h-3" />
+                    )}
+                    <span>
+                      {item.change > 0 ? '+' : ''}
+                      {item.change}%
+                    </span>
                   </div>
                 </CardContent>
               </Card>

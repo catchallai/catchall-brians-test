@@ -1,8 +1,8 @@
 import React, { useState, useMemo } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { AlertTriangle, Loader2, Sparkles, FileWarning, ExternalLink } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { AlertTriangle, Loader2, Sparkles, FileWarning, ExternalLink } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 
 export default function KeywordCannibalizationCard({ keywords, websites }) {
@@ -11,11 +11,11 @@ export default function KeywordCannibalizationCard({ keywords, websites }) {
 
   const analyzeCannibalization = async () => {
     setIsAnalyzing(true);
-    
-    const keywordData = keywords.map(k => ({
+
+    const keywordData = keywords.map((k) => ({
       keyword: k.keyword,
       targetUrl: k.target_url,
-      position: k.current_position
+      position: k.current_position,
     }));
 
     const analysis = await base44.integrations.Core.InvokeLLM({
@@ -30,33 +30,33 @@ Identify:
 
 Return issues sorted by severity (high, medium, low).`,
       response_json_schema: {
-        type: "object",
+        type: 'object',
         properties: {
           issues: {
-            type: "array",
+            type: 'array',
             items: {
-              type: "object",
+              type: 'object',
               properties: {
-                severity: { type: "string" },
-                type: { type: "string" },
-                keywords: { type: "array", items: { type: "string" } },
-                urls: { type: "array", items: { type: "string" } },
-                description: { type: "string" },
-                recommendation: { type: "string" }
-              }
-            }
+                severity: { type: 'string' },
+                type: { type: 'string' },
+                keywords: { type: 'array', items: { type: 'string' } },
+                urls: { type: 'array', items: { type: 'string' } },
+                description: { type: 'string' },
+                recommendation: { type: 'string' },
+              },
+            },
           },
           summary: {
-            type: "object",
+            type: 'object',
             properties: {
-              total_issues: { type: "number" },
-              high_priority: { type: "number" },
-              medium_priority: { type: "number" },
-              low_priority: { type: "number" }
-            }
-          }
-        }
-      }
+              total_issues: { type: 'number' },
+              high_priority: { type: 'number' },
+              medium_priority: { type: 'number' },
+              low_priority: { type: 'number' },
+            },
+          },
+        },
+      },
     });
 
     setCannibalization(analysis);
@@ -65,10 +65,14 @@ Return issues sorted by severity (high, medium, low).`,
 
   const getSeverityColor = (severity) => {
     switch (severity?.toLowerCase()) {
-      case 'high': return 'bg-red-100 text-red-700';
-      case 'medium': return 'bg-amber-100 text-amber-700';
-      case 'low': return 'bg-blue-100 text-blue-700';
-      default: return 'bg-gray-100 text-gray-700';
+      case 'high':
+        return 'bg-red-100 text-red-700';
+      case 'medium':
+        return 'bg-amber-100 text-amber-700';
+      case 'low':
+        return 'bg-blue-100 text-blue-700';
+      default:
+        return 'bg-gray-100 text-gray-700';
     }
   };
 
@@ -85,8 +89,8 @@ Return issues sorted by severity (high, medium, low).`,
               <p className="text-xs text-gray-500">Detect competing pages</p>
             </div>
           </div>
-          <Button 
-            size="sm" 
+          <Button
+            size="sm"
             onClick={analyzeCannibalization}
             disabled={isAnalyzing || keywords.length === 0}
             className="gap-1 bg-amber-600 hover:bg-amber-700"
@@ -115,15 +119,21 @@ Return issues sorted by severity (high, medium, low).`,
                 <p className="text-xs text-gray-500">Total</p>
               </div>
               <div className="text-center p-2 bg-red-50 rounded-lg">
-                <p className="text-lg font-bold text-red-600">{cannibalization.summary?.high_priority || 0}</p>
+                <p className="text-lg font-bold text-red-600">
+                  {cannibalization.summary?.high_priority || 0}
+                </p>
                 <p className="text-xs text-gray-500">High</p>
               </div>
               <div className="text-center p-2 bg-amber-50 rounded-lg">
-                <p className="text-lg font-bold text-amber-600">{cannibalization.summary?.medium_priority || 0}</p>
+                <p className="text-lg font-bold text-amber-600">
+                  {cannibalization.summary?.medium_priority || 0}
+                </p>
                 <p className="text-xs text-gray-500">Medium</p>
               </div>
               <div className="text-center p-2 bg-blue-50 rounded-lg">
-                <p className="text-lg font-bold text-blue-600">{cannibalization.summary?.low_priority || 0}</p>
+                <p className="text-lg font-bold text-blue-600">
+                  {cannibalization.summary?.low_priority || 0}
+                </p>
                 <p className="text-xs text-gray-500">Low</p>
               </div>
             </div>
@@ -133,15 +143,15 @@ Return issues sorted by severity (high, medium, low).`,
               {cannibalization.issues?.map((issue, idx) => (
                 <div key={idx} className="p-3 bg-gray-50 rounded-lg">
                   <div className="flex items-start justify-between mb-2">
-                    <Badge className={getSeverityColor(issue.severity)}>
-                      {issue.severity}
-                    </Badge>
+                    <Badge className={getSeverityColor(issue.severity)}>{issue.severity}</Badge>
                     <span className="text-xs text-gray-400">{issue.type}</span>
                   </div>
                   <p className="text-sm text-gray-700 mb-2">{issue.description}</p>
                   <div className="flex flex-wrap gap-1 mb-2">
                     {issue.keywords?.map((kw, i) => (
-                      <span key={i} className="text-xs bg-white px-2 py-0.5 rounded border">{kw}</span>
+                      <span key={i} className="text-xs bg-white px-2 py-0.5 rounded border">
+                        {kw}
+                      </span>
                     ))}
                   </div>
                   <p className="text-xs text-emerald-600">💡 {issue.recommendation}</p>

@@ -1,22 +1,33 @@
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Switch } from "@/components/ui/switch";
-import { Badge } from "@/components/ui/badge";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Switch } from '@/components/ui/switch';
+import { Badge } from '@/components/ui/badge';
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import {
-  Plus, Trash2, GripVertical, Type, Mail, Phone, MessageSquare, 
-  ListOrdered, CheckSquare, Calendar, Loader2, Eye
-} from "lucide-react";
+  Plus,
+  Trash2,
+  GripVertical,
+  Type,
+  Mail,
+  Phone,
+  MessageSquare,
+  ListOrdered,
+  CheckSquare,
+  Calendar,
+  Loader2,
+  Eye,
+} from 'lucide-react';
 
 const FIELD_TYPES = [
   { id: 'text', label: 'Text', icon: Type },
@@ -31,7 +42,13 @@ const FIELD_TYPES = [
 const DEFAULT_FIELDS = [
   { id: 'name', label: 'Full Name', type: 'text', required: true, placeholder: 'Enter your name' },
   { id: 'email', label: 'Email', type: 'email', required: true, placeholder: 'Enter your email' },
-  { id: 'message', label: 'Message', type: 'textarea', required: false, placeholder: 'Your message...' },
+  {
+    id: 'message',
+    label: 'Message',
+    type: 'textarea',
+    required: false,
+    placeholder: 'Your message...',
+  },
 ];
 
 export default function ContactFormBuilder({ open, onClose, form, websites, onSave, isLoading }) {
@@ -47,7 +64,7 @@ export default function ContactFormBuilder({ open, onClose, form, websites, onSa
     lead_value: 0,
     tags: [],
     is_active: true,
-    styling: {}
+    styling: {},
   });
 
   const [newTag, setNewTag] = useState('');
@@ -67,7 +84,7 @@ export default function ContactFormBuilder({ open, onClose, form, websites, onSa
         lead_value: form.lead_value || 0,
         tags: form.tags || [],
         is_active: form.is_active !== false,
-        styling: form.styling || {}
+        styling: form.styling || {},
       });
     } else {
       setFormData({
@@ -82,7 +99,7 @@ export default function ContactFormBuilder({ open, onClose, form, websites, onSa
         lead_value: 0,
         tags: [],
         is_active: true,
-        styling: {}
+        styling: {},
       });
     }
   }, [form, open]);
@@ -90,11 +107,11 @@ export default function ContactFormBuilder({ open, onClose, form, websites, onSa
   const addField = (type) => {
     const newField = {
       id: `field_${Date.now()}`,
-      label: FIELD_TYPES.find(t => t.id === type)?.label || 'Field',
+      label: FIELD_TYPES.find((t) => t.id === type)?.label || 'Field',
       type,
       required: false,
       placeholder: '',
-      options: type === 'select' ? ['Option 1', 'Option 2'] : undefined
+      options: type === 'select' ? ['Option 1', 'Option 2'] : undefined,
     };
     setFormData({ ...formData, fields: [...formData.fields, newField] });
   };
@@ -117,7 +134,7 @@ export default function ContactFormBuilder({ open, onClose, form, websites, onSa
   };
 
   const removeTag = (tag) => {
-    setFormData({ ...formData, tags: formData.tags.filter(t => t !== tag) });
+    setFormData({ ...formData, tags: formData.tags.filter((t) => t !== tag) });
   };
 
   const handleSave = () => {
@@ -136,7 +153,7 @@ export default function ContactFormBuilder({ open, onClose, form, websites, onSa
           <div className="space-y-4">
             <div>
               <Label>Form Name *</Label>
-              <Input 
+              <Input
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 placeholder="Contact Form"
@@ -145,14 +162,19 @@ export default function ContactFormBuilder({ open, onClose, form, websites, onSa
 
             <div>
               <Label>Website</Label>
-              <Select value={formData.website_id} onValueChange={(v) => setFormData({ ...formData, website_id: v })}>
+              <Select
+                value={formData.website_id}
+                onValueChange={(v) => setFormData({ ...formData, website_id: v })}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Select website (optional)" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value={null}>None</SelectItem>
                   {websites.map((w) => (
-                    <SelectItem key={w.id} value={w.id}>{w.name}</SelectItem>
+                    <SelectItem key={w.id} value={w.id}>
+                      {w.name}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -160,7 +182,7 @@ export default function ContactFormBuilder({ open, onClose, form, websites, onSa
 
             <div>
               <Label>Submit Button Text</Label>
-              <Input 
+              <Input
                 value={formData.submit_button_text}
                 onChange={(e) => setFormData({ ...formData, submit_button_text: e.target.value })}
               />
@@ -168,7 +190,7 @@ export default function ContactFormBuilder({ open, onClose, form, websites, onSa
 
             <div>
               <Label>Success Message</Label>
-              <Textarea 
+              <Textarea
                 value={formData.success_message}
                 onChange={(e) => setFormData({ ...formData, success_message: e.target.value })}
                 rows={2}
@@ -177,7 +199,7 @@ export default function ContactFormBuilder({ open, onClose, form, websites, onSa
 
             <div>
               <Label>Notification Email</Label>
-              <Input 
+              <Input
                 type="email"
                 value={formData.notification_email}
                 onChange={(e) => setFormData({ ...formData, notification_email: e.target.value })}
@@ -191,7 +213,7 @@ export default function ContactFormBuilder({ open, onClose, form, websites, onSa
                   <Label>Create CRM Contact</Label>
                   <p className="text-xs text-gray-500">Auto-create contact from submissions</p>
                 </div>
-                <Switch 
+                <Switch
                   checked={formData.create_contact}
                   onCheckedChange={(v) => setFormData({ ...formData, create_contact: v })}
                 />
@@ -202,7 +224,7 @@ export default function ContactFormBuilder({ open, onClose, form, websites, onSa
                   <Label>Create Lead/Deal</Label>
                   <p className="text-xs text-gray-500">Auto-create deal in pipeline</p>
                 </div>
-                <Switch 
+                <Switch
                   checked={formData.create_lead}
                   onCheckedChange={(v) => setFormData({ ...formData, create_lead: v })}
                 />
@@ -211,17 +233,19 @@ export default function ContactFormBuilder({ open, onClose, form, websites, onSa
               {formData.create_lead && (
                 <div>
                   <Label>Default Lead Value</Label>
-                  <Input 
+                  <Input
                     type="number"
                     value={formData.lead_value}
-                    onChange={(e) => setFormData({ ...formData, lead_value: parseFloat(e.target.value) || 0 })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, lead_value: parseFloat(e.target.value) || 0 })
+                    }
                   />
                 </div>
               )}
 
               <div className="flex items-center justify-between">
                 <Label>Active</Label>
-                <Switch 
+                <Switch
                   checked={formData.is_active}
                   onCheckedChange={(v) => setFormData({ ...formData, is_active: v })}
                 />
@@ -232,19 +256,23 @@ export default function ContactFormBuilder({ open, onClose, form, websites, onSa
             <div>
               <Label>Contact Tags</Label>
               <div className="flex gap-2 mt-1">
-                <Input 
+                <Input
                   value={newTag}
                   onChange={(e) => setNewTag(e.target.value)}
                   placeholder="Add tag"
                   onKeyPress={(e) => e.key === 'Enter' && addTag()}
                 />
-                <Button type="button" variant="outline" onClick={addTag}>Add</Button>
+                <Button type="button" variant="outline" onClick={addTag}>
+                  Add
+                </Button>
               </div>
               <div className="flex flex-wrap gap-1 mt-2">
                 {formData.tags.map((tag) => (
                   <Badge key={tag} variant="secondary" className="gap-1">
                     {tag}
-                    <button onClick={() => removeTag(tag)} className="hover:text-red-500">×</button>
+                    <button onClick={() => removeTag(tag)} className="hover:text-red-500">
+                      ×
+                    </button>
                   </Badge>
                 ))}
               </div>
@@ -288,7 +316,7 @@ export default function ContactFormBuilder({ open, onClose, form, websites, onSa
 
             <div className="space-y-2 max-h-[400px] overflow-y-auto">
               {formData.fields.map((field, index) => {
-                const FieldIcon = FIELD_TYPES.find(t => t.id === field.type)?.icon || Type;
+                const FieldIcon = FIELD_TYPES.find((t) => t.id === field.type)?.icon || Type;
                 return (
                   <Card key={field.id} className="border shadow-sm">
                     <CardContent className="p-3">
@@ -297,36 +325,40 @@ export default function ContactFormBuilder({ open, onClose, form, websites, onSa
                         <div className="flex-1 space-y-2">
                           <div className="flex items-center gap-2">
                             <FieldIcon className="w-4 h-4 text-gray-400" />
-                            <Input 
+                            <Input
                               value={field.label}
                               onChange={(e) => updateField(index, { label: e.target.value })}
                               className="h-8 text-sm"
                               placeholder="Field label"
                             />
-                            <Switch 
+                            <Switch
                               checked={field.required}
                               onCheckedChange={(v) => updateField(index, { required: v })}
                             />
                             <span className="text-xs text-gray-500">Required</span>
                           </div>
-                          <Input 
+                          <Input
                             value={field.placeholder || ''}
                             onChange={(e) => updateField(index, { placeholder: e.target.value })}
                             className="h-7 text-xs"
                             placeholder="Placeholder text"
                           />
                           {field.type === 'select' && (
-                            <Input 
+                            <Input
                               value={field.options?.join(', ') || ''}
-                              onChange={(e) => updateField(index, { options: e.target.value.split(',').map(o => o.trim()) })}
+                              onChange={(e) =>
+                                updateField(index, {
+                                  options: e.target.value.split(',').map((o) => o.trim()),
+                                })
+                              }
                               className="h-7 text-xs"
                               placeholder="Options (comma separated)"
                             />
                           )}
                         </div>
-                        <Button 
-                          variant="ghost" 
-                          size="icon" 
+                        <Button
+                          variant="ghost"
+                          size="icon"
                           className="h-8 w-8 text-red-500"
                           onClick={() => removeField(index)}
                         >
@@ -343,7 +375,12 @@ export default function ContactFormBuilder({ open, onClose, form, websites, onSa
 
         {/* Preview */}
         <div className="border-t pt-4 mt-4">
-          <Button variant="outline" size="sm" onClick={() => setShowPreview(!showPreview)} className="gap-2 mb-3">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowPreview(!showPreview)}
+            className="gap-2 mb-3"
+          >
             <Eye className="w-4 h-4" />
             {showPreview ? 'Hide Preview' : 'Show Preview'}
           </Button>
@@ -367,11 +404,18 @@ export default function ContactFormBuilder({ open, onClose, form, websites, onSa
                           </SelectTrigger>
                         </Select>
                       ) : (
-                        <Input type={field.type} placeholder={field.placeholder} className="mt-1" disabled />
+                        <Input
+                          type={field.type}
+                          placeholder={field.placeholder}
+                          className="mt-1"
+                          disabled
+                        />
                       )}
                     </div>
                   ))}
-                  <Button className="w-full bg-violet-600" disabled>{formData.submit_button_text}</Button>
+                  <Button className="w-full bg-violet-600" disabled>
+                    {formData.submit_button_text}
+                  </Button>
                 </div>
               </CardContent>
             </Card>
@@ -379,7 +423,9 @@ export default function ContactFormBuilder({ open, onClose, form, websites, onSa
         </div>
 
         <div className="flex justify-end gap-3 pt-4 border-t">
-          <Button variant="outline" onClick={onClose}>Cancel</Button>
+          <Button variant="outline" onClick={onClose}>
+            Cancel
+          </Button>
           <Button onClick={handleSave} disabled={isLoading || !formData.name}>
             {isLoading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
             {form ? 'Update Form' : 'Create Form'}

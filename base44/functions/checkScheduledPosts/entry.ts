@@ -14,13 +14,13 @@ Deno.serve(async (req) => {
 
     const allPosts = await base44.asServiceRole.entities.CalendarPost.filter({
       status: 'scheduled',
-      auto_post: true
+      auto_post: true,
     });
 
-    const duePosts = allPosts.filter(post => {
+    const duePosts = allPosts.filter((post) => {
       const scheduledDate = post.scheduled_date;
       const scheduledHour = post.scheduled_hour || 9; // Default to 9 AM
-      
+
       // Check if the post is due (same date and hour has passed)
       return scheduledDate === today && currentHour >= scheduledHour;
     });
@@ -32,30 +32,29 @@ Deno.serve(async (req) => {
       try {
         // Call the auto-post function
         const response = await base44.asServiceRole.functions.invoke('autoPostToSocial', {
-          postId: post.id
+          postId: post.id,
         });
 
         results.push({
           postId: post.id,
           success: response.data.success,
-          results: response.data.results
+          results: response.data.results,
         });
       } catch (error) {
         results.push({
           postId: post.id,
           success: false,
-          error: error.message
+          error: error.message,
         });
       }
     }
 
     return Response.json({
       checked: allPosts.length,
-      published: results.filter(r => r.success).length,
-      failed: results.filter(r => !r.success).length,
-      results
+      published: results.filter((r) => r.success).length,
+      failed: results.filter((r) => !r.success).length,
+      results,
     });
-
   } catch (error) {
     console.error('Check scheduled posts error:', error);
     return Response.json({ error: error.message }, { status: 500 });

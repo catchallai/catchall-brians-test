@@ -1,25 +1,43 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Textarea } from "@/components/ui/textarea";
-import { MessageSquare, Copy, Check, Sparkles, Send, ThumbsUp, ThumbsDown, Minus, Loader2 } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Textarea } from '@/components/ui/textarea';
+import {
+  MessageSquare,
+  Copy,
+  Check,
+  Sparkles,
+  Send,
+  ThumbsUp,
+  ThumbsDown,
+  Minus,
+  Loader2,
+} from 'lucide-react';
 
 const platformConfig = {
-  twitter: { color: "bg-gray-900 text-white", icon: "𝕏" },
-  linkedin: { color: "bg-blue-600 text-white", icon: "in" },
-  facebook: { color: "bg-blue-500 text-white", icon: "f" },
-  instagram: { color: "bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400 text-white", icon: "IG" },
-  youtube: { color: "bg-red-600 text-white", icon: "▶" },
+  twitter: { color: 'bg-gray-900 text-white', icon: '𝕏' },
+  linkedin: { color: 'bg-blue-600 text-white', icon: 'in' },
+  facebook: { color: 'bg-blue-500 text-white', icon: 'f' },
+  instagram: {
+    color: 'bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400 text-white',
+    icon: 'IG',
+  },
+  youtube: { color: 'bg-red-600 text-white', icon: '▶' },
 };
 
 const sentimentConfig = {
-  positive: { icon: ThumbsUp, color: "text-emerald-500", bg: "bg-emerald-100" },
-  neutral: { icon: Minus, color: "text-gray-500", bg: "bg-gray-100" },
-  negative: { icon: ThumbsDown, color: "text-red-500", bg: "bg-red-100" },
+  positive: { icon: ThumbsUp, color: 'text-emerald-500', bg: 'bg-emerald-100' },
+  neutral: { icon: Minus, color: 'text-gray-500', bg: 'bg-gray-100' },
+  negative: { icon: ThumbsDown, color: 'text-red-500', bg: 'bg-red-100' },
 };
 
-export default function ResponseSuggestionCard({ mention, onGenerateResponse, onUpdateStatus, isGenerating }) {
+export default function ResponseSuggestionCard({
+  mention,
+  onGenerateResponse,
+  onUpdateStatus,
+  isGenerating,
+}) {
   const [copied, setCopied] = useState(false);
   const [editedResponse, setEditedResponse] = useState(mention.suggested_response || '');
   const [showEdit, setShowEdit] = useState(false);
@@ -42,11 +60,15 @@ export default function ResponseSuggestionCard({ mention, onGenerateResponse, on
   };
 
   return (
-    <Card className={`border-0 shadow-sm ${mention.response_status === 'responded' ? 'opacity-60' : ''}`}>
+    <Card
+      className={`border-0 shadow-sm ${mention.response_status === 'responded' ? 'opacity-60' : ''}`}
+    >
       <CardContent className="p-4">
         {/* Original mention */}
         <div className="flex items-start gap-3 mb-4">
-          <div className={`w-8 h-8 rounded-lg ${platform.color} flex items-center justify-center text-sm font-bold flex-shrink-0`}>
+          <div
+            className={`w-8 h-8 rounded-lg ${platform.color} flex items-center justify-center text-sm font-bold flex-shrink-0`}
+          >
             {platform.icon}
           </div>
           <div className="flex-1 min-w-0">
@@ -57,7 +79,9 @@ export default function ResponseSuggestionCard({ mention, onGenerateResponse, on
                 {mention.sentiment}
               </Badge>
               {mention.response_status === 'responded' && (
-                <Badge className="bg-emerald-100 text-emerald-700 border-0 text-xs">Responded</Badge>
+                <Badge className="bg-emerald-100 text-emerald-700 border-0 text-xs">
+                  Responded
+                </Badge>
               )}
             </div>
             <p className="text-sm text-gray-600 line-clamp-2">{mention.content}</p>
@@ -76,25 +100,18 @@ export default function ResponseSuggestionCard({ mention, onGenerateResponse, on
                   placeholder="Edit your response..."
                 />
               ) : (
-                <p className="text-sm text-gray-700">{editedResponse || mention.suggested_response}</p>
+                <p className="text-sm text-gray-700">
+                  {editedResponse || mention.suggested_response}
+                </p>
               )}
             </div>
             <div className="flex items-center justify-between">
               <div className="flex gap-2">
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="gap-1"
-                  onClick={handleCopy}
-                >
+                <Button size="sm" variant="outline" className="gap-1" onClick={handleCopy}>
                   {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
                   {copied ? 'Copied!' : 'Copy'}
                 </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => setShowEdit(!showEdit)}
-                >
+                <Button size="sm" variant="outline" onClick={() => setShowEdit(!showEdit)}>
                   {showEdit ? 'Preview' : 'Edit'}
                 </Button>
               </div>

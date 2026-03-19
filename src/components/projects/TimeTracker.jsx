@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { Clock, Play } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+import { Clock, Play } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
@@ -20,14 +20,14 @@ export default function TimeTracker({ taskId, timeLogs = [] }) {
         user_email: user.email,
         hours: parseFloat(hours),
         date: new Date().toISOString().split('T')[0],
-        description
+        description,
       });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['time-logs'] });
       setHours('');
       setDescription('');
-    }
+    },
   });
 
   const totalHours = timeLogs.reduce((sum, log) => sum + (log.hours || 0), 0);
@@ -42,9 +42,7 @@ export default function TimeTracker({ taskId, timeLogs = [] }) {
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="flex items-center gap-2">
-          <Badge className="bg-violet-100 text-violet-800">
-            {totalHours.toFixed(1)}h logged
-          </Badge>
+          <Badge className="bg-violet-100 text-violet-800">{totalHours.toFixed(1)}h logged</Badge>
         </div>
 
         <div className="flex gap-2">

@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Badge } from "@/components/ui/badge";
-import { Search, FileText, Eye, Download } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Badge } from '@/components/ui/badge';
+import { Search, FileText, Eye, Download } from 'lucide-react';
 
 export default function DataRoomDocumentPicker({ open, onClose, selectedDocIds = [], onSave }) {
   const [searchTerm, setSearchTerm] = useState('');
@@ -22,14 +22,15 @@ export default function DataRoomDocumentPicker({ open, onClose, selectedDocIds =
     setSelected(selectedDocIds);
   }, [selectedDocIds, open]);
 
-  const filteredDocs = documents.filter(doc =>
-    doc.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    doc.description?.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredDocs = documents.filter(
+    (doc) =>
+      doc.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      doc.description?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const toggleDoc = (docId) => {
-    setSelected(prev =>
-      prev.includes(docId) ? prev.filter(id => id !== docId) : [...prev, docId]
+    setSelected((prev) =>
+      prev.includes(docId) ? prev.filter((id) => id !== docId) : [...prev, docId]
     );
   };
 
@@ -54,7 +55,9 @@ export default function DataRoomDocumentPicker({ open, onClose, selectedDocIds =
           <div className="max-h-96 overflow-y-auto space-y-2">
             {filteredDocs.length === 0 ? (
               <p className="text-sm text-gray-500 text-center py-8">
-                {documents.length === 0 ? 'No documents available. Upload documents in DocuTrace first.' : 'No matching documents'}
+                {documents.length === 0
+                  ? 'No documents available. Upload documents in DocuTrace first.'
+                  : 'No matching documents'}
               </p>
             ) : (
               filteredDocs.map((doc) => (
@@ -78,7 +81,9 @@ export default function DataRoomDocumentPicker({ open, onClose, selectedDocIds =
                         <div>
                           <p className="font-medium text-gray-900 dark:text-white">{doc.name}</p>
                           {doc.description && (
-                            <p className="text-sm text-gray-500 mt-1 line-clamp-2">{doc.description}</p>
+                            <p className="text-sm text-gray-500 mt-1 line-clamp-2">
+                              {doc.description}
+                            </p>
                           )}
                         </div>
                         <FileText className="w-5 h-5 text-blue-500" />
@@ -108,7 +113,12 @@ export default function DataRoomDocumentPicker({ open, onClose, selectedDocIds =
               <Button variant="outline" onClick={onClose}>
                 Cancel
               </Button>
-              <Button onClick={() => { onSave(selected); onClose(); }}>
+              <Button
+                onClick={() => {
+                  onSave(selected);
+                  onClose();
+                }}
+              >
                 Add Documents
               </Button>
             </div>

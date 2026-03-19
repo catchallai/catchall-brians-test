@@ -1,43 +1,55 @@
 import React, { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { X } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+import { Badge } from '@/components/ui/badge';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { X } from 'lucide-react';
 
-export default function ShareReportModal({ open, onClose, reports = [], selectedIds = [], onShare }) {
+export default function ShareReportModal({
+  open,
+  onClose,
+  reports = [],
+  selectedIds = [],
+  onShare,
+}) {
   const [selectedReports, setSelectedReports] = useState(selectedIds);
   const [emails, setEmails] = useState('');
   const [permission, setPermission] = useState('viewer');
 
   const toggleReport = (id) => {
-    setSelectedReports(prev => 
-      prev.includes(id) ? prev.filter(r => r !== id) : [...prev, id]
+    setSelectedReports((prev) =>
+      prev.includes(id) ? prev.filter((r) => r !== id) : [...prev, id]
     );
   };
 
   const handleShare = () => {
     const emailList = emails
       .split(',')
-      .map(e => e.trim())
-      .filter(e => e.includes('@'));
-    
+      .map((e) => e.trim())
+      .filter((e) => e.includes('@'));
+
     onShare({
       reportIds: selectedReports,
       emails: emailList,
-      permission
+      permission,
     });
-    
+
     setEmails('');
     setSelectedReports([]);
     onClose();
   };
 
   const selectedReportNames = reports
-    .filter(r => selectedReports.includes(r.id))
-    .map(r => r.name);
+    .filter((r) => selectedReports.includes(r.id))
+    .map((r) => r.name);
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
@@ -51,21 +63,23 @@ export default function ShareReportModal({ open, onClose, reports = [], selected
           <div>
             <div className="flex items-center gap-2 mb-2">
               <Label>Reports</Label>
-              <Badge variant="outline" className="text-xs">{selectedReports.length}/{reports.length}</Badge>
+              <Badge variant="outline" className="text-xs">
+                {selectedReports.length}/{reports.length}
+              </Badge>
             </div>
             <Select>
               <SelectTrigger>
                 <SelectValue placeholder="Select reports" />
               </SelectTrigger>
               <SelectContent>
-                {reports.map(report => (
-                  <div 
+                {reports.map((report) => (
+                  <div
                     key={report.id}
                     className="flex items-center gap-2 px-2 py-1.5 cursor-pointer hover:bg-gray-100 rounded"
                     onClick={() => toggleReport(report.id)}
                   >
-                    <input 
-                      type="checkbox" 
+                    <input
+                      type="checkbox"
                       checked={selectedReports.includes(report.id)}
                       onChange={() => {}}
                       className="rounded border-gray-300"
@@ -80,9 +94,9 @@ export default function ShareReportModal({ open, onClose, reports = [], selected
                 {selectedReportNames.map((name, idx) => (
                   <Badge key={idx} variant="secondary" className="text-xs gap-1">
                     {name}
-                    <X 
-                      className="w-3 h-3 cursor-pointer" 
-                      onClick={() => toggleReport(reports.find(r => r.name === name)?.id)}
+                    <X
+                      className="w-3 h-3 cursor-pointer"
+                      onClick={() => toggleReport(reports.find((r) => r.name === name)?.id)}
                     />
                   </Badge>
                 ))}
@@ -111,7 +125,7 @@ export default function ShareReportModal({ open, onClose, reports = [], selected
                     <SelectItem value="editor">Editor</SelectItem>
                   </SelectContent>
                 </Select>
-                <Button 
+                <Button
                   onClick={handleShare}
                   disabled={selectedReports.length === 0 || !emails.trim()}
                   className="bg-blue-500 hover:bg-blue-600"

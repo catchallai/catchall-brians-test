@@ -19,11 +19,11 @@ Deno.serve(async (req) => {
 
     // Fetch optimal posting times for selected platforms
     const optimalTimes = await base44.entities.OptimalPostingTime.filter({});
-    const platformTimes = optimalTimes.filter(ot => platforms.includes(ot.platform));
+    const platformTimes = optimalTimes.filter((ot) => platforms.includes(ot.platform));
 
     // Fetch recent engagement data to inform suggestions
     const socialPosts = await base44.entities.SocialPost.list('-created_date', 50);
-    const recentPerformance = socialPosts.slice(0, 20).map(p => ({
+    const recentPerformance = socialPosts.slice(0, 20).map((p) => ({
       platform: p.platform,
       dayOfWeek: p.posted_at ? new Date(p.posted_at).getDay() : null,
       hour: p.posted_at ? new Date(p.posted_at).getHours() : null,
@@ -46,10 +46,16 @@ Campaign Brief:
 - Platforms: ${platforms.join(', ')}
 
 Historical Optimal Posting Times:
-${platformTimes.map(pt => `${pt.platform} - ${pt.day_of_week === 0 ? 'Sunday' : pt.day_of_week === 1 ? 'Monday' : pt.day_of_week === 2 ? 'Tuesday' : pt.day_of_week === 3 ? 'Wednesday' : pt.day_of_week === 4 ? 'Thursday' : pt.day_of_week === 5 ? 'Friday' : 'Saturday'} at ${pt.hour}:00 (Engagement Score: ${pt.engagement_score.toFixed(1)})`).join('\n')}
+${platformTimes.map((pt) => `${pt.platform} - ${pt.day_of_week === 0 ? 'Sunday' : pt.day_of_week === 1 ? 'Monday' : pt.day_of_week === 2 ? 'Tuesday' : pt.day_of_week === 3 ? 'Wednesday' : pt.day_of_week === 4 ? 'Thursday' : pt.day_of_week === 5 ? 'Friday' : 'Saturday'} at ${pt.hour}:00 (Engagement Score: ${pt.engagement_score.toFixed(1)})`).join('\n')}
 
 Recent Performance Data (Top Posts):
-${recentPerformance.slice(0, 10).map(rp => `${rp.platform} - ${rp.dayOfWeek ? ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][rp.dayOfWeek] : 'Unknown'} ${rp.hour || 'Unknown'}:00 - Engagement: ${rp.engagement}`).join('\n')}
+${recentPerformance
+  .slice(0, 10)
+  .map(
+    (rp) =>
+      `${rp.platform} - ${rp.dayOfWeek ? ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][rp.dayOfWeek] : 'Unknown'} ${rp.hour || 'Unknown'}:00 - Engagement: ${rp.engagement}`
+  )
+  .join('\n')}
 
 Based on this data, provide a JSON response with:
 {
@@ -82,14 +88,14 @@ Return ONLY valid JSON.
                 preferredHours: { type: 'array', items: { type: 'number' } },
                 rationale: { type: 'string' },
                 frequency: { type: 'number' },
-                contentTypePreference: { type: 'string' }
-              }
-            }
+                contentTypePreference: { type: 'string' },
+              },
+            },
           },
           strategyNotes: { type: 'string' },
-          expectedImpact: { type: 'string' }
-        }
-      }
+          expectedImpact: { type: 'string' },
+        },
+      },
     });
 
     return Response.json({ suggestions });

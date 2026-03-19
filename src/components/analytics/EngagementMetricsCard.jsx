@@ -1,6 +1,6 @@
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Activity, MousePointer, Layers, ArrowDown } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Activity, MousePointer, Layers, ArrowDown } from 'lucide-react';
 
 export default function EngagementMetricsCard({ data }) {
   // SyberJet engagement metrics - high engagement for luxury aviation research
@@ -12,41 +12,41 @@ export default function EngagementMetricsCard({ data }) {
   };
 
   const items = [
-    { 
-      label: 'Pages/Session', 
-      value: metrics.pagesPerSession, 
+    {
+      label: 'Pages/Session',
+      value: metrics.pagesPerSession,
       suffix: '',
-      icon: Layers, 
+      icon: Layers,
       color: 'text-violet-500',
       bg: 'bg-violet-50 dark:bg-violet-900/20',
-      progress: (metrics.pagesPerSession / 5) * 100 
+      progress: (metrics.pagesPerSession / 5) * 100,
     },
-    { 
-      label: 'Scroll Depth', 
-      value: metrics.avgScrollDepth, 
+    {
+      label: 'Scroll Depth',
+      value: metrics.avgScrollDepth,
       suffix: '%',
-      icon: ArrowDown, 
+      icon: ArrowDown,
       color: 'text-blue-500',
       bg: 'bg-blue-50 dark:bg-blue-900/20',
-      progress: metrics.avgScrollDepth 
+      progress: metrics.avgScrollDepth,
     },
-    { 
-      label: 'Click Rate', 
-      value: metrics.clickRate, 
+    {
+      label: 'Click Rate',
+      value: metrics.clickRate,
       suffix: '%',
-      icon: MousePointer, 
+      icon: MousePointer,
       color: 'text-emerald-500',
       bg: 'bg-emerald-50 dark:bg-emerald-900/20',
-      progress: (metrics.clickRate / 10) * 100 
+      progress: (metrics.clickRate / 10) * 100,
     },
-    { 
-      label: 'Interaction', 
-      value: metrics.interactionRate, 
+    {
+      label: 'Interaction',
+      value: metrics.interactionRate,
       suffix: '%',
-      icon: Activity, 
+      icon: Activity,
       color: 'text-amber-500',
       bg: 'bg-amber-50 dark:bg-amber-900/20',
-      progress: metrics.interactionRate 
+      progress: metrics.interactionRate,
     },
   ];
 
@@ -67,10 +67,11 @@ export default function EngagementMetricsCard({ data }) {
                 <span className="text-xs text-gray-500 dark:text-gray-400">{item.label}</span>
               </div>
               <p className="text-xl font-bold text-gray-900 dark:text-white mb-2">
-                {item.value}{item.suffix}
+                {item.value}
+                {item.suffix}
               </p>
               <div className="h-1 bg-gray-200 dark:bg-gray-600 rounded-full overflow-hidden">
-                <div 
+                <div
                   className={`h-full rounded-full ${item.color.replace('text-', 'bg-')}`}
                   style={{ width: `${Math.min(item.progress, 100)}%` }}
                 />

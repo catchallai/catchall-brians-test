@@ -1,12 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
-import { Loader2, Sparkles, X } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Badge } from '@/components/ui/badge';
+import { Loader2, Sparkles, X } from 'lucide-react';
 import { toLocalISOString } from '@/utils/date';
 
 const PLATFORMS = [
@@ -16,15 +22,15 @@ const PLATFORMS = [
   { id: 'instagram', label: 'Instagram', icon: '📷', maxLength: 2200 },
 ];
 
-export default function SchedulePostModal({ 
-  open, 
-  onClose, 
-  post, 
-  accounts, 
-  onSave, 
+export default function SchedulePostModal({
+  open,
+  onClose,
+  post,
+  accounts,
+  onSave,
   onOptimize,
   isLoading,
-  isOptimizing 
+  isOptimizing,
 }) {
   const [formData, setFormData] = useState({
     platform: 'twitter',
@@ -85,7 +91,7 @@ export default function SchedulePostModal({
   };
 
   const removeHashtag = (tag) => {
-    setFormData({ ...formData, hashtags: formData.hashtags.filter(t => t !== tag) });
+    setFormData({ ...formData, hashtags: formData.hashtags.filter((t) => t !== tag) });
   };
 
   const handleOptimize = async () => {
@@ -99,7 +105,7 @@ export default function SchedulePostModal({
     }
   };
 
-  const selectedPlatform = PLATFORMS.find(p => p.id === formData.platform);
+  const selectedPlatform = PLATFORMS.find((p) => p.id === formData.platform);
   const charCount = formData.content.length;
   const isOverLimit = selectedPlatform && charCount > selectedPlatform.maxLength;
 
@@ -109,7 +115,7 @@ export default function SchedulePostModal({
         <DialogHeader>
           <DialogTitle>{post ? 'Edit Scheduled Post' : 'Schedule New Post'}</DialogTitle>
         </DialogHeader>
-        
+
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
@@ -122,7 +128,7 @@ export default function SchedulePostModal({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {PLATFORMS.map(p => (
+                  {PLATFORMS.map((p) => (
                     <SelectItem key={p.id} value={p.id}>
                       <span className="mr-2">{p.icon}</span> {p.label}
                     </SelectItem>
@@ -140,9 +146,13 @@ export default function SchedulePostModal({
                   <SelectValue placeholder="Select account" />
                 </SelectTrigger>
                 <SelectContent>
-                  {accounts?.filter(a => a.platform === formData.platform).map(a => (
-                    <SelectItem key={a.id} value={a.id}>@{a.account_name}</SelectItem>
-                  ))}
+                  {accounts
+                    ?.filter((a) => a.platform === formData.platform)
+                    .map((a) => (
+                      <SelectItem key={a.id} value={a.id}>
+                        @{a.account_name}
+                      </SelectItem>
+                    ))}
                 </SelectContent>
               </Select>
             </div>
@@ -190,7 +200,9 @@ export default function SchedulePostModal({
                 placeholder="Add hashtag"
                 onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addHashtag())}
               />
-              <Button type="button" variant="outline" onClick={addHashtag}>Add</Button>
+              <Button type="button" variant="outline" onClick={addHashtag}>
+                Add
+              </Button>
             </div>
             {formData.hashtags.length > 0 && (
               <div className="flex gap-1 flex-wrap mt-2">
@@ -210,14 +222,19 @@ export default function SchedulePostModal({
               type="datetime-local"
               value={formData.scheduled_time}
               min={toLocalISOString()}
-              onChange={(e) => { setScheduleError(''); setFormData({ ...formData, scheduled_time: e.target.value }); }}
+              onChange={(e) => {
+                setScheduleError('');
+                setFormData({ ...formData, scheduled_time: e.target.value });
+              }}
               required
             />
             {scheduleError && <p className="text-xs text-red-500">{scheduleError}</p>}
           </div>
 
           <div className="flex justify-end gap-3 pt-4">
-            <Button type="button" variant="outline" onClick={onClose}>Cancel</Button>
+            <Button type="button" variant="outline" onClick={onClose}>
+              Cancel
+            </Button>
             <Button type="submit" disabled={isLoading || isOverLimit}>
               {isLoading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
               {post ? 'Update' : 'Schedule'} Post

@@ -4,23 +4,27 @@ Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
     const user = await base44.auth.me();
-    
+
     if (!user) {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const { username } = await req.json();
-    
+
     if (!username) {
       return Response.json({ error: 'Username required' }, { status: 400 });
     }
 
     const bearerToken = Deno.env.get('TWITTER_BEARER_TOKEN');
-    
+
     if (!bearerToken) {
-      return Response.json({ 
-        error: 'Twitter API not configured. Please add TWITTER_BEARER_TOKEN in Settings > Secrets' 
-      }, { status: 500 });
+      return Response.json(
+        {
+          error:
+            'Twitter API not configured. Please add TWITTER_BEARER_TOKEN in Settings > Secrets',
+        },
+        { status: 500 }
+      );
     }
 
     // Remove @ if present
@@ -31,27 +35,33 @@ Deno.serve(async (req) => {
       `https://api.twitter.com/2/users/by/username/${cleanUsername}?user.fields=public_metrics,description,created_at,protected`,
       {
         headers: {
-          'Authorization': `Bearer ${bearerToken}`,
-        }
+          Authorization: `Bearer ${bearerToken}`,
+        },
       }
     );
 
     if (!userResponse.ok) {
       const error = await userResponse.json();
-      return Response.json({ 
-        error: `Twitter API error: ${error.detail || error.title || 'Failed to fetch user'}`,
-        details: error
-      }, { status: userResponse.status });
+      return Response.json(
+        {
+          error: `Twitter API error: ${error.detail || error.title || 'Failed to fetch user'}`,
+          details: error,
+        },
+        { status: userResponse.status }
+      );
     }
 
     const userData = await userResponse.json();
-    
+
     if (!userData.data) {
-      return Response.json({ 
-        error: `User @${cleanUsername} not found` 
-      }, { status: 404 });
+      return Response.json(
+        {
+          error: `User @${cleanUsername} not found`,
+        },
+        { status: 404 }
+      );
     }
-    
+
     const userId = userData.data.id;
     const metrics = userData.data.public_metrics;
     const isProtected = userData.data.protected;
@@ -63,12 +73,12 @@ Deno.serve(async (req) => {
         `https://api.twitter.com/2/users/${userId}/tweets?max_results=10&tweet.fields=public_metrics,created_at,entities&expansions=attachments.media_keys&media.fields=url`,
         {
           headers: {
-            'Authorization': `Bearer ${bearerToken}`,
-          }
+            Authorization: `Bearer ${bearerToken}`,
+          },
         }
       );
 
-      const tweetsData = await tweetsResponse.ok ? await tweetsResponse.json() : { data: [] };
+      const tweetsData = (await tweetsResponse.ok) ? await tweetsResponse.json() : { data: [] };
       tweets = tweetsData.data || [];
     }
 
@@ -82,18 +92,17 @@ Deno.serve(async (req) => {
       return sum + (tweet.public_metrics.impression_count || 0);
     }, 0);
 
-    const engagementRate = totalImpressions > 0 
-      ? ((totalEngagements / totalImpressions) * 100).toFixed(2)
-      : 0;
+    const engagementRate =
+      totalImpressions > 0 ? ((totalEngagements / totalImpressions) * 100).toFixed(2) : 0;
 
     // Format posts
-    const posts = tweets.map(tweet => {
+    const posts = tweets.map((tweet) => {
       const m = tweet.public_metrics;
       const totalEng = m.like_count + m.reply_count + m.retweet_count;
-      
+
       // Extract hashtags
-      const hashtags = tweet.entities?.hashtags?.map(h => h.tag) || [];
-      
+      const hashtags = tweet.entities?.hashtags?.map((h) => h.tag) || [];
+
       // Simple sentiment based on engagement ratio
       let sentiment = 'neutral';
       if (m.like_count > m.reply_count * 3) sentiment = 'positive';
@@ -109,7 +118,7 @@ Deno.serve(async (req) => {
         views: m.impression_count || 0,
         sentiment: sentiment,
         topics: hashtags.slice(0, 3),
-        hashtags: hashtags
+        hashtags: hashtags,
       };
     });
 
@@ -121,14 +130,16 @@ Deno.serve(async (req) => {
       total_posts: metrics.tweet_count,
       is_protected: isProtected,
       posts: posts,
-      note: isProtected ? 'Account is protected - tweets not available' : null
+      note: isProtected ? 'Account is protected - tweets not available' : null,
     });
-
   } catch (error) {
     console.error('Twitter API error:', error);
-    return Response.json({ 
-      error: error.message,
-      details: 'Make sure TWITTER_BEARER_TOKEN is set correctly'
-    }, { status: 500 });
+    return Response.json(
+      {
+        error: error.message,
+        details: 'Make sure TWITTER_BEARER_TOKEN is set correctly',
+      },
+      { status: 500 }
+    );
   }
 });

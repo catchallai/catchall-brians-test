@@ -1,21 +1,31 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { 
-  FileText, Loader2, CheckCircle, AlertTriangle, XCircle,
-  Link2, Type, Hash, Image, Lightbulb, Target, BarChart2
-} from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import {
+  FileText,
+  Loader2,
+  CheckCircle,
+  AlertTriangle,
+  XCircle,
+  Link2,
+  Type,
+  Hash,
+  Image,
+  Lightbulb,
+  Target,
+  BarChart2,
+} from 'lucide-react';
 
 const statusConfig = {
   good: { icon: CheckCircle, color: 'text-emerald-500', bg: 'bg-emerald-50' },
   warning: { icon: AlertTriangle, color: 'text-amber-500', bg: 'bg-amber-50' },
-  error: { icon: XCircle, color: 'text-red-500', bg: 'bg-red-50' }
+  error: { icon: XCircle, color: 'text-red-500', bg: 'bg-red-50' },
 };
 
 export default function OnPageSEOAnalyzer() {
@@ -26,9 +36,9 @@ export default function OnPageSEOAnalyzer() {
 
   const analyzeOnPageSEO = async () => {
     if (!pageUrl.trim()) return;
-    
+
     setIsAnalyzing(true);
-    
+
     const result = await base44.integrations.Core.InvokeLLM({
       prompt: `Perform a comprehensive on-page SEO analysis for: ${pageUrl}
       ${targetKeyword ? `Target keyword: "${targetKeyword}"` : ''}
@@ -89,106 +99,106 @@ export default function OnPageSEOAnalyzer() {
       Provide an overall on-page SEO score (0-100) and prioritized recommendations.`,
       add_context_from_internet: true,
       response_json_schema: {
-        type: "object",
+        type: 'object',
         properties: {
-          overall_score: { type: "number" },
+          overall_score: { type: 'number' },
           title_tag: {
-            type: "object",
+            type: 'object',
             properties: {
-              current: { type: "string" },
-              length: { type: "number" },
-              has_keyword: { type: "boolean" },
-              status: { type: "string" },
-              recommendation: { type: "string" }
-            }
+              current: { type: 'string' },
+              length: { type: 'number' },
+              has_keyword: { type: 'boolean' },
+              status: { type: 'string' },
+              recommendation: { type: 'string' },
+            },
           },
           meta_description: {
-            type: "object",
+            type: 'object',
             properties: {
-              current: { type: "string" },
-              length: { type: "number" },
-              has_keyword: { type: "boolean" },
-              has_cta: { type: "boolean" },
-              status: { type: "string" },
-              recommendation: { type: "string" }
-            }
+              current: { type: 'string' },
+              length: { type: 'number' },
+              has_keyword: { type: 'boolean' },
+              has_cta: { type: 'boolean' },
+              status: { type: 'string' },
+              recommendation: { type: 'string' },
+            },
           },
           headings: {
-            type: "object",
+            type: 'object',
             properties: {
-              h1_content: { type: "string" },
-              h1_count: { type: "number" },
-              h2_count: { type: "number" },
-              h3_count: { type: "number" },
-              keyword_in_h1: { type: "boolean" },
-              status: { type: "string" },
-              issues: { type: "array", items: { type: "string" } }
-            }
+              h1_content: { type: 'string' },
+              h1_count: { type: 'number' },
+              h2_count: { type: 'number' },
+              h3_count: { type: 'number' },
+              keyword_in_h1: { type: 'boolean' },
+              status: { type: 'string' },
+              issues: { type: 'array', items: { type: 'string' } },
+            },
           },
           keyword_analysis: {
-            type: "object",
+            type: 'object',
             properties: {
-              density: { type: "number" },
-              in_first_100_words: { type: "boolean" },
-              in_headings: { type: "boolean" },
-              lsi_keywords: { type: "array", items: { type: "string" } },
-              status: { type: "string" },
-              recommendation: { type: "string" }
-            }
+              density: { type: 'number' },
+              in_first_100_words: { type: 'boolean' },
+              in_headings: { type: 'boolean' },
+              lsi_keywords: { type: 'array', items: { type: 'string' } },
+              status: { type: 'string' },
+              recommendation: { type: 'string' },
+            },
           },
           content: {
-            type: "object",
+            type: 'object',
             properties: {
-              word_count: { type: "number" },
-              readability_score: { type: "number" },
-              reading_level: { type: "string" },
-              status: { type: "string" },
-              recommendation: { type: "string" }
-            }
+              word_count: { type: 'number' },
+              readability_score: { type: 'number' },
+              reading_level: { type: 'string' },
+              status: { type: 'string' },
+              recommendation: { type: 'string' },
+            },
           },
           internal_links: {
-            type: "object",
+            type: 'object',
             properties: {
-              count: { type: "number" },
-              unique_anchors: { type: "number" },
-              status: { type: "string" },
-              recommendations: { type: "array", items: { type: "string" } }
-            }
+              count: { type: 'number' },
+              unique_anchors: { type: 'number' },
+              status: { type: 'string' },
+              recommendations: { type: 'array', items: { type: 'string' } },
+            },
           },
           images: {
-            type: "object",
+            type: 'object',
             properties: {
-              total: { type: "number" },
-              with_alt: { type: "number" },
-              missing_alt: { type: "number" },
-              status: { type: "string" },
-              recommendation: { type: "string" }
-            }
+              total: { type: 'number' },
+              with_alt: { type: 'number' },
+              missing_alt: { type: 'number' },
+              status: { type: 'string' },
+              recommendation: { type: 'string' },
+            },
           },
           url_structure: {
-            type: "object",
+            type: 'object',
             properties: {
-              length: { type: "number" },
-              has_keyword: { type: "boolean" },
-              is_readable: { type: "boolean" },
-              status: { type: "string" },
-              recommendation: { type: "string" }
-            }
+              length: { type: 'number' },
+              has_keyword: { type: 'boolean' },
+              is_readable: { type: 'boolean' },
+              status: { type: 'string' },
+              recommendation: { type: 'string' },
+            },
           },
           priority_recommendations: {
-            type: "array",
+            type: 'array',
             items: {
-              type: "object",
+              type: 'object',
               properties: {
-                priority: { type: "string" },
-                area: { type: "string" },
-                action: { type: "string" },
-                impact: { type: "string" }
-              }
-            }
-          }
-        }
-      }
+                priority: { type: 'string' },
+                area: { type: 'string' },
+                action: { type: 'string' },
+                impact: { type: 'string' },
+              },
+            },
+          },
+        },
+      },
     });
 
     setAnalysis(result);
@@ -255,7 +265,9 @@ export default function OnPageSEOAnalyzer() {
               <Loader2 className="w-5 h-5 animate-spin text-violet-600" />
               <div>
                 <p className="font-medium text-violet-900">Analyzing on-page SEO...</p>
-                <p className="text-sm text-violet-600">Checking title, meta, content, links, and more</p>
+                <p className="text-sm text-violet-600">
+                  Checking title, meta, content, links, and more
+                </p>
               </div>
             </div>
           </div>
@@ -284,7 +296,9 @@ export default function OnPageSEOAnalyzer() {
               <TabsContent value="overview" className="space-y-4">
                 {/* Title Tag */}
                 {analysis.title_tag && (
-                  <div className={`p-4 rounded-lg ${getStatusConfig(analysis.title_tag.status).bg}`}>
+                  <div
+                    className={`p-4 rounded-lg ${getStatusConfig(analysis.title_tag.status).bg}`}
+                  >
                     <div className="flex items-start justify-between">
                       <div className="flex items-center gap-2">
                         <Type className="w-5 h-5 text-gray-600" />
@@ -292,10 +306,14 @@ export default function OnPageSEOAnalyzer() {
                       </div>
                       {renderStatusBadge(analysis.title_tag.status)}
                     </div>
-                    <p className="text-sm text-gray-700 mt-2 font-medium">"{analysis.title_tag.current}"</p>
+                    <p className="text-sm text-gray-700 mt-2 font-medium">
+                      "{analysis.title_tag.current}"
+                    </p>
                     <div className="flex gap-4 mt-2 text-sm text-gray-500">
                       <span>{analysis.title_tag.length} characters</span>
-                      <span>{analysis.title_tag.has_keyword ? '✓ Keyword found' : '✗ Keyword missing'}</span>
+                      <span>
+                        {analysis.title_tag.has_keyword ? '✓ Keyword found' : '✗ Keyword missing'}
+                      </span>
                     </div>
                     {analysis.title_tag.recommendation && (
                       <p className="text-sm text-gray-600 mt-2 p-2 bg-white/50 rounded">
@@ -307,7 +325,9 @@ export default function OnPageSEOAnalyzer() {
 
                 {/* Meta Description */}
                 {analysis.meta_description && (
-                  <div className={`p-4 rounded-lg ${getStatusConfig(analysis.meta_description.status).bg}`}>
+                  <div
+                    className={`p-4 rounded-lg ${getStatusConfig(analysis.meta_description.status).bg}`}
+                  >
                     <div className="flex items-start justify-between">
                       <div className="flex items-center gap-2">
                         <FileText className="w-5 h-5 text-gray-600" />
@@ -315,10 +335,14 @@ export default function OnPageSEOAnalyzer() {
                       </div>
                       {renderStatusBadge(analysis.meta_description.status)}
                     </div>
-                    <p className="text-sm text-gray-700 mt-2">"{analysis.meta_description.current}"</p>
+                    <p className="text-sm text-gray-700 mt-2">
+                      "{analysis.meta_description.current}"
+                    </p>
                     <div className="flex gap-4 mt-2 text-sm text-gray-500">
                       <span>{analysis.meta_description.length} characters</span>
-                      <span>{analysis.meta_description.has_keyword ? '✓ Keyword' : '✗ Keyword'}</span>
+                      <span>
+                        {analysis.meta_description.has_keyword ? '✓ Keyword' : '✗ Keyword'}
+                      </span>
                       <span>{analysis.meta_description.has_cta ? '✓ CTA' : '✗ CTA'}</span>
                     </div>
                     {analysis.meta_description.recommendation && (
@@ -339,7 +363,9 @@ export default function OnPageSEOAnalyzer() {
                       </div>
                       {renderStatusBadge(analysis.headings.status)}
                     </div>
-                    <p className="text-sm text-gray-700 mt-2 font-medium">H1: "{analysis.headings.h1_content}"</p>
+                    <p className="text-sm text-gray-700 mt-2 font-medium">
+                      H1: "{analysis.headings.h1_content}"
+                    </p>
                     <div className="flex gap-4 mt-2 text-sm text-gray-500">
                       <span>H1: {analysis.headings.h1_count}</span>
                       <span>H2: {analysis.headings.h2_count}</span>
@@ -348,7 +374,9 @@ export default function OnPageSEOAnalyzer() {
                     {analysis.headings.issues?.length > 0 && (
                       <div className="mt-2 space-y-1">
                         {analysis.headings.issues.map((issue, i) => (
-                          <p key={i} className="text-sm text-red-600">⚠ {issue}</p>
+                          <p key={i} className="text-sm text-red-600">
+                            ⚠ {issue}
+                          </p>
                         ))}
                       </div>
                     )}
@@ -357,7 +385,9 @@ export default function OnPageSEOAnalyzer() {
 
                 {/* URL Structure */}
                 {analysis.url_structure && (
-                  <div className={`p-4 rounded-lg ${getStatusConfig(analysis.url_structure.status).bg}`}>
+                  <div
+                    className={`p-4 rounded-lg ${getStatusConfig(analysis.url_structure.status).bg}`}
+                  >
                     <div className="flex items-start justify-between">
                       <div className="flex items-center gap-2">
                         <Link2 className="w-5 h-5 text-gray-600" />
@@ -368,7 +398,9 @@ export default function OnPageSEOAnalyzer() {
                     <div className="flex gap-4 mt-2 text-sm text-gray-500">
                       <span>{analysis.url_structure.length} characters</span>
                       <span>{analysis.url_structure.has_keyword ? '✓ Keyword' : '✗ Keyword'}</span>
-                      <span>{analysis.url_structure.is_readable ? '✓ Readable' : '✗ Not readable'}</span>
+                      <span>
+                        {analysis.url_structure.is_readable ? '✓ Readable' : '✗ Not readable'}
+                      </span>
                     </div>
                   </div>
                 )}
@@ -377,7 +409,9 @@ export default function OnPageSEOAnalyzer() {
               <TabsContent value="content" className="space-y-4">
                 {/* Keyword Analysis */}
                 {analysis.keyword_analysis && (
-                  <div className={`p-4 rounded-lg ${getStatusConfig(analysis.keyword_analysis.status).bg}`}>
+                  <div
+                    className={`p-4 rounded-lg ${getStatusConfig(analysis.keyword_analysis.status).bg}`}
+                  >
                     <div className="flex items-start justify-between">
                       <div className="flex items-center gap-2">
                         <Target className="w-5 h-5 text-gray-600" />
@@ -387,16 +421,34 @@ export default function OnPageSEOAnalyzer() {
                     </div>
                     <div className="mt-3">
                       <div className="flex items-center gap-2">
-                        <Progress value={Math.min(analysis.keyword_analysis.density * 20, 100)} className="h-3 flex-1" />
-                        <span className="font-bold">{analysis.keyword_analysis.density?.toFixed(2)}%</span>
+                        <Progress
+                          value={Math.min(analysis.keyword_analysis.density * 20, 100)}
+                          className="h-3 flex-1"
+                        />
+                        <span className="font-bold">
+                          {analysis.keyword_analysis.density?.toFixed(2)}%
+                        </span>
                       </div>
                       <p className="text-xs text-gray-500 mt-1">Optimal range: 1-3%</p>
                     </div>
                     <div className="flex gap-4 mt-3 text-sm">
-                      <span className={analysis.keyword_analysis.in_first_100_words ? 'text-emerald-600' : 'text-red-600'}>
-                        {analysis.keyword_analysis.in_first_100_words ? '✓' : '✗'} In first 100 words
+                      <span
+                        className={
+                          analysis.keyword_analysis.in_first_100_words
+                            ? 'text-emerald-600'
+                            : 'text-red-600'
+                        }
+                      >
+                        {analysis.keyword_analysis.in_first_100_words ? '✓' : '✗'} In first 100
+                        words
                       </span>
-                      <span className={analysis.keyword_analysis.in_headings ? 'text-emerald-600' : 'text-red-600'}>
+                      <span
+                        className={
+                          analysis.keyword_analysis.in_headings
+                            ? 'text-emerald-600'
+                            : 'text-red-600'
+                        }
+                      >
                         {analysis.keyword_analysis.in_headings ? '✓' : '✗'} In headings
                       </span>
                     </div>
@@ -405,7 +457,9 @@ export default function OnPageSEOAnalyzer() {
                         <p className="text-xs text-gray-500 mb-1">LSI Keywords Found:</p>
                         <div className="flex flex-wrap gap-1">
                           {analysis.keyword_analysis.lsi_keywords.map((kw, i) => (
-                            <Badge key={i} variant="outline" className="text-xs">{kw}</Badge>
+                            <Badge key={i} variant="outline" className="text-xs">
+                              {kw}
+                            </Badge>
                           ))}
                         </div>
                       </div>
@@ -449,7 +503,9 @@ export default function OnPageSEOAnalyzer() {
               <TabsContent value="links" className="space-y-4">
                 {/* Internal Links */}
                 {analysis.internal_links && (
-                  <div className={`p-4 rounded-lg ${getStatusConfig(analysis.internal_links.status).bg}`}>
+                  <div
+                    className={`p-4 rounded-lg ${getStatusConfig(analysis.internal_links.status).bg}`}
+                  >
                     <div className="flex items-start justify-between">
                       <div className="flex items-center gap-2">
                         <Link2 className="w-5 h-5 text-gray-600" />
@@ -464,13 +520,17 @@ export default function OnPageSEOAnalyzer() {
                       </div>
                       <div>
                         <p className="text-xs text-gray-500">Unique Anchors</p>
-                        <p className="text-xl font-bold">{analysis.internal_links.unique_anchors}</p>
+                        <p className="text-xl font-bold">
+                          {analysis.internal_links.unique_anchors}
+                        </p>
                       </div>
                     </div>
                     {analysis.internal_links.recommendations?.length > 0 && (
                       <div className="mt-3 space-y-1">
                         {analysis.internal_links.recommendations.map((rec, i) => (
-                          <p key={i} className="text-sm text-gray-600">💡 {rec}</p>
+                          <p key={i} className="text-sm text-gray-600">
+                            💡 {rec}
+                          </p>
                         ))}
                       </div>
                     )}
@@ -494,11 +554,15 @@ export default function OnPageSEOAnalyzer() {
                       </div>
                       <div>
                         <p className="text-xs text-gray-500">With Alt Tags</p>
-                        <p className="text-xl font-bold text-emerald-600">{analysis.images.with_alt}</p>
+                        <p className="text-xl font-bold text-emerald-600">
+                          {analysis.images.with_alt}
+                        </p>
                       </div>
                       <div>
                         <p className="text-xs text-gray-500">Missing Alt</p>
-                        <p className="text-xl font-bold text-red-600">{analysis.images.missing_alt}</p>
+                        <p className="text-xl font-bold text-red-600">
+                          {analysis.images.missing_alt}
+                        </p>
                       </div>
                     </div>
                     {analysis.images.recommendation && (
@@ -518,20 +582,26 @@ export default function OnPageSEOAnalyzer() {
                 <ScrollArea className="h-80">
                   <div className="space-y-3">
                     {analysis.priority_recommendations?.map((rec, idx) => (
-                      <div 
+                      <div
                         key={idx}
                         className={`p-4 rounded-lg ${
-                          rec.priority === 'high' ? 'bg-red-50 border-l-4 border-red-500' :
-                          rec.priority === 'medium' ? 'bg-amber-50 border-l-4 border-amber-500' :
-                          'bg-blue-50 border-l-4 border-blue-500'
+                          rec.priority === 'high'
+                            ? 'bg-red-50 border-l-4 border-red-500'
+                            : rec.priority === 'medium'
+                              ? 'bg-amber-50 border-l-4 border-amber-500'
+                              : 'bg-blue-50 border-l-4 border-blue-500'
                         }`}
                       >
                         <div className="flex items-center gap-2 mb-1">
-                          <Badge className={
-                            rec.priority === 'high' ? 'bg-red-100 text-red-700' :
-                            rec.priority === 'medium' ? 'bg-amber-100 text-amber-700' :
-                            'bg-blue-100 text-blue-700'
-                          }>
+                          <Badge
+                            className={
+                              rec.priority === 'high'
+                                ? 'bg-red-100 text-red-700'
+                                : rec.priority === 'medium'
+                                  ? 'bg-amber-100 text-amber-700'
+                                  : 'bg-blue-100 text-blue-700'
+                            }
+                          >
                             {rec.priority}
                           </Badge>
                           <Badge variant="outline">{rec.area}</Badge>

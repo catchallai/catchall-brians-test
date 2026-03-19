@@ -1,13 +1,27 @@
 import React, { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2 } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Loader2 } from 'lucide-react';
 
-export default function CallLoggerModal({ open, onClose, call, contacts, deals, onSave, isLoading }) {
+export default function CallLoggerModal({
+  open,
+  onClose,
+  call,
+  contacts,
+  deals,
+  onSave,
+  isLoading,
+}) {
   const [formData, setFormData] = useState({
     contact_id: '',
     deal_id: '',
@@ -19,7 +33,7 @@ export default function CallLoggerModal({ open, onClose, call, contacts, deals, 
     notes: '',
     next_action: '',
     sentiment: 'neutral',
-    topics_discussed: []
+    topics_discussed: [],
   });
 
   useEffect(() => {
@@ -31,11 +45,13 @@ export default function CallLoggerModal({ open, onClose, call, contacts, deals, 
         call_status: call.call_status || 'completed',
         duration_minutes: call.duration_minutes || '',
         phone_number: call.phone_number || '',
-        call_date: call.call_date ? new Date(call.call_date).toISOString().slice(0, 16) : new Date().toISOString().slice(0, 16),
+        call_date: call.call_date
+          ? new Date(call.call_date).toISOString().slice(0, 16)
+          : new Date().toISOString().slice(0, 16),
         notes: call.notes || '',
         next_action: call.next_action || '',
         sentiment: call.sentiment || 'neutral',
-        topics_discussed: call.topics_discussed || []
+        topics_discussed: call.topics_discussed || [],
       });
     }
   }, [call]);
@@ -44,7 +60,9 @@ export default function CallLoggerModal({ open, onClose, call, contacts, deals, 
     e.preventDefault();
     onSave({
       ...formData,
-      duration_minutes: formData.duration_minutes ? parseFloat(formData.duration_minutes) : undefined
+      duration_minutes: formData.duration_minutes
+        ? parseFloat(formData.duration_minutes)
+        : undefined,
     });
   };
 
@@ -66,7 +84,7 @@ export default function CallLoggerModal({ open, onClose, call, contacts, deals, 
                   <SelectValue placeholder="Select contact" />
                 </SelectTrigger>
                 <SelectContent>
-                  {contacts.map(c => (
+                  {contacts.map((c) => (
                     <SelectItem key={c.id} value={c.id}>
                       {c.first_name} {c.last_name}
                     </SelectItem>
@@ -85,7 +103,7 @@ export default function CallLoggerModal({ open, onClose, call, contacts, deals, 
                   <SelectValue placeholder="Select deal" />
                 </SelectTrigger>
                 <SelectContent>
-                  {deals.map(d => (
+                  {deals.map((d) => (
                     <SelectItem key={d.id} value={d.id}>
                       {d.title}
                     </SelectItem>
@@ -200,9 +218,11 @@ export default function CallLoggerModal({ open, onClose, call, contacts, deals, 
           </div>
 
           <div className="flex justify-end gap-3 pt-4">
-            <Button type="button" variant="outline" onClick={onClose}>Cancel</Button>
-            <Button 
-              type="submit" 
+            <Button type="button" variant="outline" onClick={onClose}>
+              Cancel
+            </Button>
+            <Button
+              type="submit"
               disabled={!formData.contact_id || isLoading}
               className="bg-emerald-600 hover:bg-emerald-700"
             >

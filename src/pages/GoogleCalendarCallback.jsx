@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { base44 } from '@/api/base44Client';
-import { Card, CardContent } from "@/components/ui/card";
-import { CheckCircle2, XCircle, Loader2 } from "lucide-react";
+import { Card, CardContent } from '@/components/ui/card';
+import { CheckCircle2, XCircle, Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 
@@ -35,7 +35,7 @@ export default function GoogleCalendarCallback() {
         const response = await base44.functions.invoke('googleCalendarAuth', {
           action: 'callback',
           code,
-          state
+          state,
         });
 
         if (response.data.success) {
@@ -74,9 +74,7 @@ export default function GoogleCalendarCallback() {
               <div className="w-16 h-16 mx-auto bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mb-4">
                 <CheckCircle2 className="w-10 h-10 text-green-600 dark:text-green-400" />
               </div>
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-                Success!
-              </h2>
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Success!</h2>
               <p className="text-gray-600 dark:text-gray-400">{message}</p>
               <p className="text-sm text-gray-500 dark:text-gray-500 mt-4">
                 Redirecting to Meeting Scheduler...
@@ -93,9 +91,7 @@ export default function GoogleCalendarCallback() {
                 Connection Failed
               </h2>
               <p className="text-gray-600 dark:text-gray-400">{message}</p>
-              <p className="text-sm text-gray-500 dark:text-gray-500 mt-4">
-                Redirecting...
-              </p>
+              <p className="text-sm text-gray-500 dark:text-gray-500 mt-4">Redirecting...</p>
             </>
           )}
         </CardContent>

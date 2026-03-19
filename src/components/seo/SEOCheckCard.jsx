@@ -1,19 +1,29 @@
 import React from 'react';
-import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { CheckCircle, AlertTriangle, XCircle, ChevronRight } from "lucide-react";
+import { Card } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { CheckCircle, AlertTriangle, XCircle, ChevronRight } from 'lucide-react';
 
 const statusConfig = {
-  pass: { icon: CheckCircle, color: "text-emerald-500", bg: "bg-emerald-50", badge: "bg-emerald-100 text-emerald-700" },
-  warning: { icon: AlertTriangle, color: "text-amber-500", bg: "bg-amber-50", badge: "bg-amber-100 text-amber-700" },
-  fail: { icon: XCircle, color: "text-red-500", bg: "bg-red-50", badge: "bg-red-100 text-red-700" },
+  pass: {
+    icon: CheckCircle,
+    color: 'text-emerald-500',
+    bg: 'bg-emerald-50',
+    badge: 'bg-emerald-100 text-emerald-700',
+  },
+  warning: {
+    icon: AlertTriangle,
+    color: 'text-amber-500',
+    bg: 'bg-amber-50',
+    badge: 'bg-amber-100 text-amber-700',
+  },
+  fail: { icon: XCircle, color: 'text-red-500', bg: 'bg-red-50', badge: 'bg-red-100 text-red-700' },
 };
 
 const priorityColors = {
-  critical: "bg-red-100 text-red-700",
-  high: "bg-orange-100 text-orange-700",
-  medium: "bg-amber-100 text-amber-700",
-  low: "bg-blue-100 text-blue-700",
+  critical: 'bg-red-100 text-red-700',
+  high: 'bg-orange-100 text-orange-700',
+  medium: 'bg-amber-100 text-amber-700',
+  low: 'bg-blue-100 text-blue-700',
 };
 
 export default function SEOCheckCard({ check, onClick }) {
@@ -21,7 +31,7 @@ export default function SEOCheckCard({ check, onClick }) {
   const StatusIcon = config.icon;
 
   return (
-    <Card 
+    <Card
       className={`p-4 border-0 shadow-sm hover:shadow-md transition-all cursor-pointer ${config.bg}`}
       onClick={onClick}
     >

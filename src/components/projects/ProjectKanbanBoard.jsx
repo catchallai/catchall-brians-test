@@ -1,37 +1,37 @@
 import React, { useMemo } from 'react';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
-import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
-import { Plus, Calendar, Clock, AlertCircle } from "lucide-react";
+import { Card } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
+import { Plus, Calendar, Clock, AlertCircle } from 'lucide-react';
 
 const statusConfig = {
   todo: {
     label: 'To Do',
     color: 'bg-gray-100 dark:bg-gray-800',
-    badgeColor: 'bg-gray-500'
+    badgeColor: 'bg-gray-500',
   },
   in_progress: {
     label: 'In Progress',
     color: 'bg-blue-50 dark:bg-blue-900/20',
-    badgeColor: 'bg-blue-500'
+    badgeColor: 'bg-blue-500',
   },
   review: {
     label: 'In Review',
     color: 'bg-purple-50 dark:bg-purple-900/20',
-    badgeColor: 'bg-purple-500'
+    badgeColor: 'bg-purple-500',
   },
   blocked: {
     label: 'Blocked',
     color: 'bg-red-50 dark:bg-red-900/20',
-    badgeColor: 'bg-red-500'
+    badgeColor: 'bg-red-500',
   },
   done: {
     label: 'Done',
     color: 'bg-green-50 dark:bg-green-900/20',
-    badgeColor: 'bg-green-500'
-  }
+    badgeColor: 'bg-green-500',
+  },
 };
 
 const priorityColors = {
@@ -56,10 +56,10 @@ export default function ProjectKanbanBoard({ tasks, onTaskClick, onStatusChange,
       in_progress: [],
       review: [],
       blocked: [],
-      done: []
+      done: [],
     };
 
-    tasks.forEach(task => {
+    tasks.forEach((task) => {
       if (grouped[task.status]) {
         grouped[task.status].push(task);
       }
@@ -82,7 +82,10 @@ export default function ProjectKanbanBoard({ tasks, onTaskClick, onStatusChange,
 
   const isOverdue = (dueDate) => {
     if (!dueDate) return false;
-    return new Date(dueDate) < new Date() && new Date(dueDate).toDateString() !== new Date().toDateString();
+    return (
+      new Date(dueDate) < new Date() &&
+      new Date(dueDate).toDateString() !== new Date().toDateString()
+    );
   };
 
   const isDueToday = (dueDate) => {
@@ -99,9 +102,7 @@ export default function ProjectKanbanBoard({ tasks, onTaskClick, onStatusChange,
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2">
                   <div className={`w-3 h-3 rounded-full ${config.badgeColor}`} />
-                  <h3 className="font-semibold text-gray-900 dark:text-white">
-                    {config.label}
-                  </h3>
+                  <h3 className="font-semibold text-gray-900 dark:text-white">{config.label}</h3>
                 </div>
                 <Badge variant="secondary" className="ml-2">
                   {tasksByStatus[status].length}
@@ -146,7 +147,9 @@ export default function ProjectKanbanBoard({ tasks, onTaskClick, onStatusChange,
                           >
                             {/* Task Type Icon */}
                             <div className="flex items-start justify-between mb-2">
-                              <span className="text-lg">{typeIcons[task.task_type] || typeIcons.task}</span>
+                              <span className="text-lg">
+                                {typeIcons[task.task_type] || typeIcons.task}
+                              </span>
                               {task.priority && (
                                 <Badge className={`${priorityColors[task.priority]} text-xs`}>
                                   {task.priority}
@@ -170,19 +173,23 @@ export default function ProjectKanbanBoard({ tasks, onTaskClick, onStatusChange,
                             <div className="space-y-2">
                               {/* Due Date */}
                               {task.due_date && (
-                                <div className={`flex items-center gap-1 text-xs ${
-                                  isOverdue(task.due_date) ? 'text-red-600 dark:text-red-400 font-semibold' :
-                                  isDueToday(task.due_date) ? 'text-orange-600 dark:text-orange-400 font-semibold' :
-                                  'text-gray-500 dark:text-gray-400'
-                                }`}>
+                                <div
+                                  className={`flex items-center gap-1 text-xs ${
+                                    isOverdue(task.due_date)
+                                      ? 'text-red-600 dark:text-red-400 font-semibold'
+                                      : isDueToday(task.due_date)
+                                        ? 'text-orange-600 dark:text-orange-400 font-semibold'
+                                        : 'text-gray-500 dark:text-gray-400'
+                                  }`}
+                                >
                                   {isOverdue(task.due_date) ? (
                                     <AlertCircle className="w-3 h-3" />
                                   ) : (
                                     <Calendar className="w-3 h-3" />
                                   )}
-                                  {new Date(task.due_date).toLocaleDateString('en-US', { 
-                                    month: 'short', 
-                                    day: 'numeric' 
+                                  {new Date(task.due_date).toLocaleDateString('en-US', {
+                                    month: 'short',
+                                    day: 'numeric',
                                   })}
                                   {isOverdue(task.due_date) && ' (Overdue)'}
                                   {isDueToday(task.due_date) && ' (Today)'}

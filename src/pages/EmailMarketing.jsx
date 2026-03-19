@@ -1,15 +1,26 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Skeleton } from "@/components/ui/skeleton";
-import { 
-  Plus, Mail, Send, FileText, Users, Eye, MousePointer, 
-  AlertCircle, Loader2, CheckCircle, BarChart3, TrendingUp,
-  List, Grid3x3 
-} from "lucide-react";
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Skeleton } from '@/components/ui/skeleton';
+import {
+  Plus,
+  Mail,
+  Send,
+  FileText,
+  Users,
+  Eye,
+  MousePointer,
+  AlertCircle,
+  Loader2,
+  CheckCircle,
+  BarChart3,
+  TrendingUp,
+  List,
+  Grid3x3,
+} from 'lucide-react';
 import EmailTemplateCard from '@/components/email/EmailTemplateCard';
 import EmailCampaignCard from '@/components/email/EmailCampaignCard';
 import EmailTemplateModal from '@/components/modals/EmailTemplateModal';
@@ -27,7 +38,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+} from '@/components/ui/alert-dialog';
 
 export default function EmailMarketing() {
   const [showTemplateModal, setShowTemplateModal] = useState(false);
@@ -68,7 +79,7 @@ export default function EmailMarketing() {
   <p style="margin-top: 30px;">Best regards,<br>The {{company_name}} Team</p>
 </div>`,
           category: 'welcome',
-          layout: 'branded'
+          layout: 'branded',
         },
         {
           name: 'Product Update',
@@ -89,7 +100,7 @@ export default function EmailMarketing() {
   <p style="margin-top: 30px;">Happy to help,<br>{{company_name}}</p>
 </div>`,
           category: 'announcement',
-          layout: 'branded'
+          layout: 'branded',
         },
         {
           name: 'Newsletter',
@@ -123,7 +134,7 @@ export default function EmailMarketing() {
   </div>
 </div>`,
           category: 'newsletter',
-          layout: 'newsletter'
+          layout: 'newsletter',
         },
         {
           name: 'Follow-Up',
@@ -142,7 +153,7 @@ export default function EmailMarketing() {
   <p style="margin-top: 30px;">Best regards,<br>{{sender_name}}<br>{{company_name}}</p>
 </div>`,
           category: 'follow_up',
-          layout: 'minimal'
+          layout: 'minimal',
         },
         {
           name: 'Promotional Offer',
@@ -163,11 +174,11 @@ export default function EmailMarketing() {
   </div>
 </div>`,
           category: 'promotional',
-          layout: 'promotional'
-        }
+          layout: 'promotional',
+        },
       ];
 
-      defaultTemplates.forEach(template => {
+      defaultTemplates.forEach((template) => {
         base44.entities.EmailTemplate.create(template);
       });
     }
@@ -192,7 +203,11 @@ export default function EmailMarketing() {
     queryKey: ['contacts', user?.current_business_id],
     queryFn: async () => {
       if (!user?.current_business_id) return [];
-      return await base44.entities.Contact.filter({ business_id: user.current_business_id }, '-created_date', 1000);
+      return await base44.entities.Contact.filter(
+        { business_id: user.current_business_id },
+        '-created_date',
+        1000
+      );
     },
     enabled: !!user?.current_business_id,
   });
@@ -263,12 +278,12 @@ export default function EmailMarketing() {
     mutationFn: async (emailCampaign) => {
       // Update campaign status to sending
       await base44.entities.EmailCampaign.update(emailCampaign.id, { status: 'sending' });
-      
+
       // Call Resend backend function
       const response = await base44.functions.invoke('sendCampaignEmail', {
-        campaignId: emailCampaign.id
+        campaignId: emailCampaign.id,
       });
-      
+
       return response.data;
     },
     onSuccess: () => {
@@ -417,8 +432,11 @@ export default function EmailMarketing() {
 
         <TabsContent value="campaigns" className="space-y-4">
           <div className="flex justify-end">
-            <Button 
-              onClick={() => { setEditingCampaign(null); setShowCampaignModal(true); }} 
+            <Button
+              onClick={() => {
+                setEditingCampaign(null);
+                setShowCampaignModal(true);
+              }}
               className="gap-2 bg-violet-600 hover:bg-violet-700"
               disabled={templates.length === 0}
             >
@@ -437,75 +455,90 @@ export default function EmailMarketing() {
             <EmptyState
               icon={Send}
               title="No email campaigns"
-              description={templates.length === 0 
-                ? "Create an email template first, then create your campaign."
-                : "Create your first email campaign to start reaching your contacts."
+              description={
+                templates.length === 0
+                  ? 'Create an email template first, then create your campaign.'
+                  : 'Create your first email campaign to start reaching your contacts.'
               }
-              actionLabel={templates.length > 0 ? "Create Campaign" : undefined}
-              onAction={templates.length > 0 ? () => { setEditingCampaign(null); setShowCampaignModal(true); } : undefined}
+              actionLabel={templates.length > 0 ? 'Create Campaign' : undefined}
+              onAction={
+                templates.length > 0
+                  ? () => {
+                      setEditingCampaign(null);
+                      setShowCampaignModal(true);
+                    }
+                  : undefined
+              }
             />
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-               {emailCampaigns.map((emailCampaign) => (
-                 <div key={emailCampaign.id} className="relative group">
-                 <EmailCampaignCard
-                   emailCampaign={emailCampaign}
-                   template={templates.find(t => t.id === emailCampaign.template_id)}
-                   onClick={() => handleEditCampaign(emailCampaign)}
-                 />
-                 <div className="absolute bottom-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                   <Button
-                     size="sm"
-                     variant="outline"
-                     className="gap-1 bg-white"
-                     onClick={(e) => { 
-                       e.stopPropagation(); 
-                       handlePreviewCampaign(emailCampaign);
-                     }}
-                   >
-                     <Eye className="w-3 h-3" />
-                     Preview
-                   </Button>
-                   {emailCampaign.status === 'draft' && (
-                     <>
-                       <Button
-                         size="sm"
-                         variant="outline"
-                         className="gap-1 bg-white"
-                         onClick={(e) => { 
-                           e.stopPropagation(); 
-                           setTestEmail(emailCampaign);
-                         }}
-                       >
-                         <Mail className="w-3 h-3" />
-                         Test
-                       </Button>
-                       {emailCampaign.contact_ids?.length > 0 && (
-                         <Button
-                           size="sm"
-                           className="gap-1 bg-emerald-600 hover:bg-emerald-700"
-                           onClick={(e) => { e.stopPropagation(); setSendConfirm(emailCampaign); }}
-                         >
-                           <Send className="w-3 h-3" />
-                           Send
-                         </Button>
-                       )}
-                     </>
-                   )}
-                   <Button
-                     size="sm"
-                     variant="outline"
-                     className="gap-1 bg-white text-red-600 hover:bg-red-50"
-                     onClick={(e) => { 
-                       e.stopPropagation(); 
-                       setDeleteConfirm({ type: 'campaign', id: emailCampaign.id, name: emailCampaign.name });
-                     }}
-                   >
-                     Delete
-                   </Button>
-                 </div>
-                 </div>
-               ))}
+              {emailCampaigns.map((emailCampaign) => (
+                <div key={emailCampaign.id} className="relative group">
+                  <EmailCampaignCard
+                    emailCampaign={emailCampaign}
+                    template={templates.find((t) => t.id === emailCampaign.template_id)}
+                    onClick={() => handleEditCampaign(emailCampaign)}
+                  />
+                  <div className="absolute bottom-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="gap-1 bg-white"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handlePreviewCampaign(emailCampaign);
+                      }}
+                    >
+                      <Eye className="w-3 h-3" />
+                      Preview
+                    </Button>
+                    {emailCampaign.status === 'draft' && (
+                      <>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="gap-1 bg-white"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setTestEmail(emailCampaign);
+                          }}
+                        >
+                          <Mail className="w-3 h-3" />
+                          Test
+                        </Button>
+                        {emailCampaign.contact_ids?.length > 0 && (
+                          <Button
+                            size="sm"
+                            className="gap-1 bg-emerald-600 hover:bg-emerald-700"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSendConfirm(emailCampaign);
+                            }}
+                          >
+                            <Send className="w-3 h-3" />
+                            Send
+                          </Button>
+                        )}
+                      </>
+                    )}
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="gap-1 bg-white text-red-600 hover:bg-red-50"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setDeleteConfirm({
+                          type: 'campaign',
+                          id: emailCampaign.id,
+                          name: emailCampaign.name,
+                        });
+                      }}
+                    >
+                      Delete
+                    </Button>
+                  </div>
+                </div>
+              ))}
             </div>
           )}
         </TabsContent>
@@ -518,7 +551,9 @@ export default function EmailMarketing() {
           {/* Engagement Summary */}
           <Card className="glass-card">
             <CardContent className="p-6">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Engagement Summary</h3>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                Engagement Summary
+              </h3>
               <div className="space-y-4">
                 <div>
                   <div className="flex justify-between text-sm mb-2">
@@ -526,8 +561,8 @@ export default function EmailMarketing() {
                     <span className="font-medium text-gray-900 dark:text-white">{totalOpened}</span>
                   </div>
                   <div className="h-8 bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden">
-                    <div 
-                      className="h-full bg-violet-500" 
+                    <div
+                      className="h-full bg-violet-500"
                       style={{ width: `${totalSent > 0 ? (totalOpened / totalSent) * 100 : 0}%` }}
                     />
                   </div>
@@ -535,11 +570,13 @@ export default function EmailMarketing() {
                 <div>
                   <div className="flex justify-between text-sm mb-2">
                     <span className="text-gray-600 dark:text-gray-400">Clicks</span>
-                    <span className="font-medium text-gray-900 dark:text-white">{totalClicked}</span>
+                    <span className="font-medium text-gray-900 dark:text-white">
+                      {totalClicked}
+                    </span>
                   </div>
                   <div className="h-8 bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden">
-                    <div 
-                      className="h-full bg-blue-500" 
+                    <div
+                      className="h-full bg-blue-500"
                       style={{ width: `${totalSent > 0 ? (totalClicked / totalSent) * 100 : 0}%` }}
                     />
                   </div>
@@ -547,12 +584,16 @@ export default function EmailMarketing() {
                 <div>
                   <div className="flex justify-between text-sm mb-2">
                     <span className="text-gray-600 dark:text-gray-400">Bounced</span>
-                    <span className="font-medium text-gray-900 dark:text-white">{emailCampaigns.reduce((sum, c) => sum + (c.total_bounced || 0), 0)}</span>
+                    <span className="font-medium text-gray-900 dark:text-white">
+                      {emailCampaigns.reduce((sum, c) => sum + (c.total_bounced || 0), 0)}
+                    </span>
                   </div>
                   <div className="h-8 bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden">
-                    <div 
-                      className="h-full bg-red-500" 
-                      style={{ width: `${totalSent > 0 ? (emailCampaigns.reduce((sum, c) => sum + (c.total_bounced || 0), 0) / totalSent) * 100 : 0}%` }}
+                    <div
+                      className="h-full bg-red-500"
+                      style={{
+                        width: `${totalSent > 0 ? (emailCampaigns.reduce((sum, c) => sum + (c.total_bounced || 0), 0) / totalSent) * 100 : 0}%`,
+                      }}
                     />
                   </div>
                 </div>
@@ -562,29 +603,39 @@ export default function EmailMarketing() {
 
           {/* Performance Metrics */}
           <div>
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Performance Metrics</h3>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+              Performance Metrics
+            </h3>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <Card className="glass-card">
                 <CardContent className="p-6 text-center">
-                  <div className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{emailCampaigns.length}</div>
+                  <div className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+                    {emailCampaigns.length}
+                  </div>
                   <div className="text-sm text-gray-500">Campaigns Sent</div>
                 </CardContent>
               </Card>
               <Card className="glass-card">
                 <CardContent className="p-6 text-center">
-                  <div className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{totalOpened}</div>
+                  <div className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+                    {totalOpened}
+                  </div>
                   <div className="text-sm text-gray-500">Total Opens</div>
                 </CardContent>
               </Card>
               <Card className="glass-card">
                 <CardContent className="p-6 text-center">
-                  <div className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{totalClicked}</div>
+                  <div className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+                    {totalClicked}
+                  </div>
                   <div className="text-sm text-gray-500">Total Clicks</div>
                 </CardContent>
               </Card>
               <Card className="glass-card">
                 <CardContent className="p-6 text-center">
-                  <div className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{emailCampaigns.reduce((sum, c) => sum + (c.total_bounced || 0), 0)}</div>
+                  <div className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+                    {emailCampaigns.reduce((sum, c) => sum + (c.total_bounced || 0), 0)}
+                  </div>
                   <div className="text-sm text-gray-500">Bounces</div>
                 </CardContent>
               </Card>
@@ -595,27 +646,42 @@ export default function EmailMarketing() {
           <Card className="glass-card">
             <CardContent className="p-6">
               <div className="flex items-center justify-between mb-6">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Open Rate Over Time</h3>
-                <div className="text-3xl font-bold text-violet-600">{overallOpenRate.toFixed(2)}%</div>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                  Open Rate Over Time
+                </h3>
+                <div className="text-3xl font-bold text-violet-600">
+                  {overallOpenRate.toFixed(2)}%
+                </div>
               </div>
               <div className="h-64 flex items-end justify-between gap-2">
-                {emailCampaigns.slice(0, 10).reverse().map((campaign, idx) => {
-                  const campaignOpenRate = campaign.total_sent > 0 ? (campaign.total_opened / campaign.total_sent) * 100 : 0;
-                  return (
-                    <div key={campaign.id} className="flex-1 flex flex-col items-center gap-2">
-                      <div 
-                        className="w-full bg-violet-500 rounded-t-lg hover:bg-violet-600 transition-colors cursor-pointer relative group"
-                        style={{ height: `${campaignOpenRate * 2.5}%`, minHeight: campaignOpenRate > 0 ? '4px' : '0' }}
-                        title={`${campaign.name}: ${campaignOpenRate.toFixed(1)}%`}
-                      >
-                        <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-                          {campaignOpenRate.toFixed(1)}%
+                {emailCampaigns
+                  .slice(0, 10)
+                  .reverse()
+                  .map((campaign, idx) => {
+                    const campaignOpenRate =
+                      campaign.total_sent > 0
+                        ? (campaign.total_opened / campaign.total_sent) * 100
+                        : 0;
+                    return (
+                      <div key={campaign.id} className="flex-1 flex flex-col items-center gap-2">
+                        <div
+                          className="w-full bg-violet-500 rounded-t-lg hover:bg-violet-600 transition-colors cursor-pointer relative group"
+                          style={{
+                            height: `${campaignOpenRate * 2.5}%`,
+                            minHeight: campaignOpenRate > 0 ? '4px' : '0',
+                          }}
+                          title={`${campaign.name}: ${campaignOpenRate.toFixed(1)}%`}
+                        >
+                          <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                            {campaignOpenRate.toFixed(1)}%
+                          </div>
                         </div>
+                        <span className="text-xs text-gray-500 transform -rotate-45 origin-top-left mt-2">
+                          {campaign.name?.slice(0, 8)}...
+                        </span>
                       </div>
-                      <span className="text-xs text-gray-500 transform -rotate-45 origin-top-left mt-2">{campaign.name?.slice(0, 8)}...</span>
-                    </div>
-                  );
-                })}
+                    );
+                  })}
               </div>
             </CardContent>
           </Card>
@@ -624,7 +690,9 @@ export default function EmailMarketing() {
           <Card className="glass-card">
             <CardContent className="p-6">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Top Performing Emails</h3>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                  Top Performing Emails
+                </h3>
                 <div className="flex gap-1 bg-gray-100 dark:bg-gray-800 p-1 rounded-lg">
                   <Button
                     variant={viewMode === 'list' ? 'default' : 'ghost'}
@@ -644,114 +712,176 @@ export default function EmailMarketing() {
                   </Button>
                 </div>
               </div>
-              
+
               {viewMode === 'list' ? (
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b border-gray-200 dark:border-gray-700">
-                      <th className="text-left py-3 px-4 text-sm font-medium text-gray-600 dark:text-gray-400">Campaign</th>
-                      <th className="text-right py-3 px-4 text-sm font-medium text-gray-600 dark:text-gray-400">Sent</th>
-                      <th className="text-right py-3 px-4 text-sm font-medium text-gray-600 dark:text-gray-400">Opens</th>
-                      <th className="text-right py-3 px-4 text-sm font-medium text-gray-600 dark:text-gray-400">Open Rate</th>
-                      <th className="text-right py-3 px-4 text-sm font-medium text-gray-600 dark:text-gray-400">Clicks</th>
-                      <th className="text-right py-3 px-4 text-sm font-medium text-gray-600 dark:text-gray-400">Click Rate</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {emailCampaigns
-                      .filter(c => c.total_sent > 0)
-                      .sort((a, b) => {
-                        const aRate = (a.total_opened / a.total_sent) * 100;
-                        const bRate = (b.total_opened / b.total_sent) * 100;
-                        return bRate - aRate;
-                      })
-                      .slice(0, 10)
-                      .map((campaign) => {
-                        const openRate = campaign.total_sent > 0 ? (campaign.total_opened / campaign.total_sent) * 100 : 0;
-                        const clickRate = campaign.total_sent > 0 ? (campaign.total_clicked / campaign.total_sent) * 100 : 0;
-                        return (
-                          <tr key={campaign.id} className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50">
-                            <td className="py-3 px-4">
-                              <div className="font-medium text-gray-900 dark:text-white">{campaign.name}</div>
-                              <div className="text-xs text-gray-500">{templates.find(t => t.id === campaign.template_id)?.name}</div>
-                            </td>
-                            <td className="text-right py-3 px-4 text-gray-900 dark:text-white">{campaign.total_sent}</td>
-                            <td className="text-right py-3 px-4 text-gray-900 dark:text-white">{campaign.total_opened}</td>
-                            <td className="text-right py-3 px-4">
-                              <span className="text-emerald-600 font-medium">{openRate.toFixed(1)}%</span>
-                            </td>
-                            <td className="text-right py-3 px-4 text-gray-900 dark:text-white">{campaign.total_clicked}</td>
-                            <td className="text-right py-3 px-4">
-                              <span className="text-blue-600 font-medium">{clickRate.toFixed(1)}%</span>
-                            </td>
-                          </tr>
-                        );
-                      })}
-                  </tbody>
-                </table>
-                {emailCampaigns.filter(c => c.total_sent > 0).length === 0 && (
-                  <div className="text-center py-12">
-                    <BarChart3 className="w-12 h-12 text-gray-300 dark:text-gray-700 mx-auto mb-3" />
-                    <p className="text-gray-500 dark:text-gray-400">No campaign data yet</p>
-                    <p className="text-sm text-gray-400 dark:text-gray-500 mt-1">Send some campaigns to see statistics</p>
-                  </div>
-                )}
-              </div>
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b border-gray-200 dark:border-gray-700">
+                        <th className="text-left py-3 px-4 text-sm font-medium text-gray-600 dark:text-gray-400">
+                          Campaign
+                        </th>
+                        <th className="text-right py-3 px-4 text-sm font-medium text-gray-600 dark:text-gray-400">
+                          Sent
+                        </th>
+                        <th className="text-right py-3 px-4 text-sm font-medium text-gray-600 dark:text-gray-400">
+                          Opens
+                        </th>
+                        <th className="text-right py-3 px-4 text-sm font-medium text-gray-600 dark:text-gray-400">
+                          Open Rate
+                        </th>
+                        <th className="text-right py-3 px-4 text-sm font-medium text-gray-600 dark:text-gray-400">
+                          Clicks
+                        </th>
+                        <th className="text-right py-3 px-4 text-sm font-medium text-gray-600 dark:text-gray-400">
+                          Click Rate
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {emailCampaigns
+                        .filter((c) => c.total_sent > 0)
+                        .sort((a, b) => {
+                          const aRate = (a.total_opened / a.total_sent) * 100;
+                          const bRate = (b.total_opened / b.total_sent) * 100;
+                          return bRate - aRate;
+                        })
+                        .slice(0, 10)
+                        .map((campaign) => {
+                          const openRate =
+                            campaign.total_sent > 0
+                              ? (campaign.total_opened / campaign.total_sent) * 100
+                              : 0;
+                          const clickRate =
+                            campaign.total_sent > 0
+                              ? (campaign.total_clicked / campaign.total_sent) * 100
+                              : 0;
+                          return (
+                            <tr
+                              key={campaign.id}
+                              className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50"
+                            >
+                              <td className="py-3 px-4">
+                                <div className="font-medium text-gray-900 dark:text-white">
+                                  {campaign.name}
+                                </div>
+                                <div className="text-xs text-gray-500">
+                                  {templates.find((t) => t.id === campaign.template_id)?.name}
+                                </div>
+                              </td>
+                              <td className="text-right py-3 px-4 text-gray-900 dark:text-white">
+                                {campaign.total_sent}
+                              </td>
+                              <td className="text-right py-3 px-4 text-gray-900 dark:text-white">
+                                {campaign.total_opened}
+                              </td>
+                              <td className="text-right py-3 px-4">
+                                <span className="text-emerald-600 font-medium">
+                                  {openRate.toFixed(1)}%
+                                </span>
+                              </td>
+                              <td className="text-right py-3 px-4 text-gray-900 dark:text-white">
+                                {campaign.total_clicked}
+                              </td>
+                              <td className="text-right py-3 px-4">
+                                <span className="text-blue-600 font-medium">
+                                  {clickRate.toFixed(1)}%
+                                </span>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                    </tbody>
+                  </table>
+                  {emailCampaigns.filter((c) => c.total_sent > 0).length === 0 && (
+                    <div className="text-center py-12">
+                      <BarChart3 className="w-12 h-12 text-gray-300 dark:text-gray-700 mx-auto mb-3" />
+                      <p className="text-gray-500 dark:text-gray-400">No campaign data yet</p>
+                      <p className="text-sm text-gray-400 dark:text-gray-500 mt-1">
+                        Send some campaigns to see statistics
+                      </p>
+                    </div>
+                  )}
+                </div>
               ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {emailCampaigns
-                  .filter(c => c.total_sent > 0)
-                  .sort((a, b) => {
-                    const aRate = (a.total_opened / a.total_sent) * 100;
-                    const bRate = (b.total_opened / b.total_sent) * 100;
-                    return bRate - aRate;
-                  })
-                  .slice(0, 10)
-                  .map((campaign) => {
-                    const openRate = campaign.total_sent > 0 ? (campaign.total_opened / campaign.total_sent) * 100 : 0;
-                    const clickRate = campaign.total_sent > 0 ? (campaign.total_clicked / campaign.total_sent) * 100 : 0;
-                    return (
-                      <Card key={campaign.id} className="glass-card hover:shadow-md transition-shadow">
-                        <CardContent className="p-4">
-                          <div className="mb-3">
-                            <h4 className="font-semibold text-gray-900 dark:text-white">{campaign.name}</h4>
-                            <p className="text-xs text-gray-500">{templates.find(t => t.id === campaign.template_id)?.name}</p>
-                          </div>
-                          <div className="space-y-2 text-sm">
-                            <div className="flex justify-between">
-                              <span className="text-gray-500">Sent:</span>
-                              <span className="font-medium text-gray-900 dark:text-white">{campaign.total_sent}</span>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {emailCampaigns
+                    .filter((c) => c.total_sent > 0)
+                    .sort((a, b) => {
+                      const aRate = (a.total_opened / a.total_sent) * 100;
+                      const bRate = (b.total_opened / b.total_sent) * 100;
+                      return bRate - aRate;
+                    })
+                    .slice(0, 10)
+                    .map((campaign) => {
+                      const openRate =
+                        campaign.total_sent > 0
+                          ? (campaign.total_opened / campaign.total_sent) * 100
+                          : 0;
+                      const clickRate =
+                        campaign.total_sent > 0
+                          ? (campaign.total_clicked / campaign.total_sent) * 100
+                          : 0;
+                      return (
+                        <Card
+                          key={campaign.id}
+                          className="glass-card hover:shadow-md transition-shadow"
+                        >
+                          <CardContent className="p-4">
+                            <div className="mb-3">
+                              <h4 className="font-semibold text-gray-900 dark:text-white">
+                                {campaign.name}
+                              </h4>
+                              <p className="text-xs text-gray-500">
+                                {templates.find((t) => t.id === campaign.template_id)?.name}
+                              </p>
                             </div>
-                            <div className="flex justify-between">
-                              <span className="text-gray-500">Opens:</span>
-                              <span className="font-medium text-gray-900 dark:text-white">{campaign.total_opened}</span>
+                            <div className="space-y-2 text-sm">
+                              <div className="flex justify-between">
+                                <span className="text-gray-500">Sent:</span>
+                                <span className="font-medium text-gray-900 dark:text-white">
+                                  {campaign.total_sent}
+                                </span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-gray-500">Opens:</span>
+                                <span className="font-medium text-gray-900 dark:text-white">
+                                  {campaign.total_opened}
+                                </span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-gray-500">Open Rate:</span>
+                                <span className="font-medium text-emerald-600">
+                                  {openRate.toFixed(1)}%
+                                </span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-gray-500">Clicks:</span>
+                                <span className="font-medium text-gray-900 dark:text-white">
+                                  {campaign.total_clicked}
+                                </span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-gray-500">Click Rate:</span>
+                                <span className="font-medium text-blue-600">
+                                  {clickRate.toFixed(1)}%
+                                </span>
+                              </div>
                             </div>
-                            <div className="flex justify-between">
-                              <span className="text-gray-500">Open Rate:</span>
-                              <span className="font-medium text-emerald-600">{openRate.toFixed(1)}%</span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span className="text-gray-500">Clicks:</span>
-                              <span className="font-medium text-gray-900 dark:text-white">{campaign.total_clicked}</span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span className="text-gray-500">Click Rate:</span>
-                              <span className="font-medium text-blue-600">{clickRate.toFixed(1)}%</span>
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    );
-                  })}
-                {emailCampaigns.filter(c => c.total_sent > 0).length === 0 && (
-                  <div className="col-span-full text-center py-12">
-                    <BarChart3 className="w-12 h-12 text-gray-300 dark:text-gray-700 mx-auto mb-3" />
-                    <p className="text-gray-500 dark:text-gray-400">No campaign data yet</p>
-                    <p className="text-sm text-gray-400 dark:text-gray-500 mt-1">Send some campaigns to see statistics</p>
-                  </div>
-                )}
-              </div>
+                          </CardContent>
+                        </Card>
+                      );
+                    })}
+                  {emailCampaigns.filter((c) => c.total_sent > 0).length === 0 && (
+                    <div className="col-span-full text-center py-12">
+                      <BarChart3 className="w-12 h-12 text-gray-300 dark:text-gray-700 mx-auto mb-3" />
+                      <p className="text-gray-500 dark:text-gray-400">No campaign data yet</p>
+                      <p className="text-sm text-gray-400 dark:text-gray-500 mt-1">
+                        Send some campaigns to see statistics
+                      </p>
+                    </div>
+                  )}
+                </div>
               )}
             </CardContent>
           </Card>
@@ -759,8 +889,11 @@ export default function EmailMarketing() {
 
         <TabsContent value="drips" className="space-y-4">
           <div className="flex justify-end">
-            <Button 
-              onClick={() => { setEditingDripCampaign(null); setShowDripModal(true); }} 
+            <Button
+              onClick={() => {
+                setEditingDripCampaign(null);
+                setShowDripModal(true);
+              }}
               className="gap-2 bg-violet-600 hover:bg-violet-700"
             >
               <Plus className="w-4 h-4" />
@@ -780,12 +913,22 @@ export default function EmailMarketing() {
               title="No drip campaigns"
               description="Create automated email sequences that nurture contacts over time."
               actionLabel="Create Drip Campaign"
-              onAction={() => { setEditingDripCampaign(null); setShowDripModal(true); }}
+              onAction={() => {
+                setEditingDripCampaign(null);
+                setShowDripModal(true);
+              }}
             />
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {dripCampaigns.map((drip) => (
-                <Card key={drip.id} className="glass-card hover:shadow-md transition-shadow cursor-pointer" onClick={() => { setEditingDripCampaign(drip); setShowDripModal(true); }}>
+                <Card
+                  key={drip.id}
+                  className="glass-card hover:shadow-md transition-shadow cursor-pointer"
+                  onClick={() => {
+                    setEditingDripCampaign(drip);
+                    setShowDripModal(true);
+                  }}
+                >
                   <CardContent className="p-6">
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex items-center gap-3">
@@ -793,7 +936,9 @@ export default function EmailMarketing() {
                           <Mail className="w-5 h-5 text-violet-600 dark:text-violet-400" />
                         </div>
                         <div>
-                          <h3 className="font-semibold text-gray-900 dark:text-white">{drip.name}</h3>
+                          <h3 className="font-semibold text-gray-900 dark:text-white">
+                            {drip.name}
+                          </h3>
                           <p className="text-xs text-gray-500">{drip.emails?.length || 0} emails</p>
                         </div>
                       </div>
@@ -804,7 +949,7 @@ export default function EmailMarketing() {
                           e.stopPropagation();
                           toggleDripMutation.mutate({
                             id: drip.id,
-                            status: drip.status === 'active' ? 'paused' : 'active'
+                            status: drip.status === 'active' ? 'paused' : 'active',
                           });
                         }}
                         className="text-xs"
@@ -812,19 +957,25 @@ export default function EmailMarketing() {
                         {drip.status === 'active' ? 'Pause' : 'Activate'}
                       </Button>
                     </div>
-                    
+
                     <div className="space-y-2 text-sm">
                       <div className="flex justify-between">
                         <span className="text-gray-500">Trigger:</span>
-                        <span className="text-gray-900 dark:text-white">{drip.trigger_type?.replace(/_/g, ' ')}</span>
+                        <span className="text-gray-900 dark:text-white">
+                          {drip.trigger_type?.replace(/_/g, ' ')}
+                        </span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-gray-500">Enrolled:</span>
-                        <span className="text-gray-900 dark:text-white">{drip.enrolled_count || 0}</span>
+                        <span className="text-gray-900 dark:text-white">
+                          {drip.enrolled_count || 0}
+                        </span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-gray-500">Completed:</span>
-                        <span className="text-gray-900 dark:text-white">{drip.completed_count || 0}</span>
+                        <span className="text-gray-900 dark:text-white">
+                          {drip.completed_count || 0}
+                        </span>
                       </div>
                       {(drip.open_rate > 0 || drip.click_rate > 0) && (
                         <div className="pt-2 border-t border-gray-100 dark:border-gray-800">
@@ -848,8 +999,11 @@ export default function EmailMarketing() {
 
         <TabsContent value="templates" className="space-y-4">
           <div className="flex justify-end">
-            <Button 
-              onClick={() => { setEditingTemplate(null); setShowTemplateModal(true); }} 
+            <Button
+              onClick={() => {
+                setEditingTemplate(null);
+                setShowTemplateModal(true);
+              }}
               className="gap-2 bg-violet-600 hover:bg-violet-700"
             >
               <Plus className="w-4 h-4" />
@@ -869,7 +1023,10 @@ export default function EmailMarketing() {
               title="No email templates"
               description="Create reusable email templates for your campaigns."
               actionLabel="Create Template"
-              onAction={() => { setEditingTemplate(null); setShowTemplateModal(true); }}
+              onAction={() => {
+                setEditingTemplate(null);
+                setShowTemplateModal(true);
+              }}
             />
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -884,9 +1041,13 @@ export default function EmailMarketing() {
                       size="sm"
                       variant="outline"
                       className="gap-1 bg-white text-red-600 hover:bg-red-50"
-                      onClick={(e) => { 
-                        e.stopPropagation(); 
-                        setDeleteConfirm({ type: 'template', id: template.id, name: template.name });
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setDeleteConfirm({
+                          type: 'template',
+                          id: template.id,
+                          name: template.name,
+                        });
                       }}
                     >
                       Delete
@@ -902,7 +1063,10 @@ export default function EmailMarketing() {
       {/* Modals */}
       <EmailTemplateModal
         open={showTemplateModal}
-        onClose={() => { setShowTemplateModal(false); setEditingTemplate(null); }}
+        onClose={() => {
+          setShowTemplateModal(false);
+          setEditingTemplate(null);
+        }}
         template={editingTemplate}
         onSave={handleSaveTemplate}
         isLoading={createTemplateMutation.isPending || updateTemplateMutation.isPending}
@@ -910,7 +1074,10 @@ export default function EmailMarketing() {
 
       <EmailCampaignModal
         open={showCampaignModal}
-        onClose={() => { setShowCampaignModal(false); setEditingCampaign(null); }}
+        onClose={() => {
+          setShowCampaignModal(false);
+          setEditingCampaign(null);
+        }}
         emailCampaign={editingCampaign}
         templates={templates}
         campaigns={campaigns}
@@ -921,7 +1088,10 @@ export default function EmailMarketing() {
 
       <DripCampaignModal
         open={showDripModal}
-        onClose={() => { setShowDripModal(false); setEditingDripCampaign(null); }}
+        onClose={() => {
+          setShowDripModal(false);
+          setEditingDripCampaign(null);
+        }}
         dripCampaign={editingDripCampaign}
         templates={templates}
         onSave={handleSaveDrip}
@@ -934,8 +1104,8 @@ export default function EmailMarketing() {
           <AlertDialogHeader>
             <AlertDialogTitle>Send Email Campaign?</AlertDialogTitle>
             <AlertDialogDescription>
-              This will send emails to {sendConfirm?.contact_ids?.length || 0} contacts. 
-              This action cannot be undone.
+              This will send emails to {sendConfirm?.contact_ids?.length || 0} contacts. This action
+              cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -965,7 +1135,7 @@ export default function EmailMarketing() {
       <CampaignPreview
         open={showPreview}
         onClose={() => setShowPreview(false)}
-        template={templates.find(t => t.id === previewCampaign?.template_id)}
+        template={templates.find((t) => t.id === previewCampaign?.template_id)}
         sampleContact={contacts[0]}
       />
 
@@ -973,7 +1143,9 @@ export default function EmailMarketing() {
       <AlertDialog open={!!deleteConfirm} onOpenChange={() => setDeleteConfirm(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete {deleteConfirm?.type === 'campaign' ? 'Campaign' : 'Template'}?</AlertDialogTitle>
+            <AlertDialogTitle>
+              Delete {deleteConfirm?.type === 'campaign' ? 'Campaign' : 'Template'}?
+            </AlertDialogTitle>
             <AlertDialogDescription>
               This will permanently delete "{deleteConfirm?.name}". This action cannot be undone.
             </AlertDialogDescription>
@@ -1007,7 +1179,9 @@ export default function EmailMarketing() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <div className="py-4">
-            <label className="text-sm font-medium text-gray-900 dark:text-white">Email Address</label>
+            <label className="text-sm font-medium text-gray-900 dark:text-white">
+              Email Address
+            </label>
             <input
               type="email"
               defaultValue={user?.email || ''}

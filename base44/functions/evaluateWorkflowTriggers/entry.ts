@@ -5,8 +5,10 @@ Deno.serve(async (req) => {
     const base44 = createClientFromRequest(req);
 
     // Get all active workflows
-    const workflows = await base44.asServiceRole.entities.ProactiveEngagementWorkflow.filter({ is_active: true });
-    
+    const workflows = await base44.asServiceRole.entities.ProactiveEngagementWorkflow.filter({
+      is_active: true,
+    });
+
     // Get all customers
     const contacts = await base44.asServiceRole.entities.Contact.filter({ status: 'customer' });
 
@@ -20,7 +22,7 @@ Deno.serve(async (req) => {
           const recentExecutions = await base44.asServiceRole.entities.WorkflowExecutionLog.filter({
             workflow_id: workflow.id,
             contact_id: contact.id,
-            status: 'completed'
+            status: 'completed',
           });
 
           const lastExecution = recentExecutions[0];
@@ -34,12 +36,12 @@ Deno.serve(async (req) => {
                 method: 'POST',
                 headers: {
                   'Content-Type': 'application/json',
-                  'Authorization': `Bearer ${Deno.env.get('BASE44_SERVICE_TOKEN')}`
+                  Authorization: `Bearer ${Deno.env.get('BASE44_SERVICE_TOKEN')}`,
                 },
                 body: JSON.stringify({
                   workflow_id: workflow.id,
-                  contact_id: contact.id
-                })
+                  contact_id: contact.id,
+                }),
               }
             );
 
@@ -47,7 +49,7 @@ Deno.serve(async (req) => {
               results.push({
                 workflow_id: workflow.id,
                 contact_id: contact.id,
-                status: 'triggered'
+                status: 'triggered',
               });
             }
           }
@@ -59,7 +61,7 @@ Deno.serve(async (req) => {
       total_workflows_checked: workflows.length,
       total_contacts_checked: contacts.length,
       workflows_triggered: results.length,
-      results
+      results,
     });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
@@ -133,7 +135,7 @@ function canExecuteWorkflow(workflow, lastExecution) {
 
   // Check frequency
   const hoursSince = (now - lastTime) / (1000 * 60 * 60);
-  
+
   switch (execution_frequency) {
     case 'once':
       return false;

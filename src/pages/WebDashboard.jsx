@@ -1,13 +1,11 @@
 import React from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
-import { Card, CardContent } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Card, CardContent } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
-import {
-  Globe, BarChart3, FileSearch, Activity, ArrowRight
-} from "lucide-react";
+import { Globe, BarChart3, FileSearch, Activity, ArrowRight } from 'lucide-react';
 
 export default function WebDashboard() {
   const { data: user } = useQuery({
@@ -36,9 +34,10 @@ export default function WebDashboard() {
   const stats = {
     websites: websites.length,
     totalVisitors: traffic.reduce((sum, t) => sum + (t.visitors || 0), 0),
-    avgSEOScore: websites.length > 0 
-      ? (websites.reduce((sum, w) => sum + (w.seo_score || 0), 0) / websites.length).toFixed(0)
-      : 0,
+    avgSEOScore:
+      websites.length > 0
+        ? (websites.reduce((sum, w) => sum + (w.seo_score || 0), 0) / websites.length).toFixed(0)
+        : 0,
     audits: audits.length,
   };
 
@@ -64,7 +63,9 @@ export default function WebDashboard() {
   return (
     <div className="p-6 space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-wider text-gray-400 dark:text-gray-500 uppercase">Web</h1>
+        <h1 className="text-3xl font-bold tracking-wider text-gray-400 dark:text-gray-500 uppercase">
+          Web
+        </h1>
         <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
           Web analytics and performance overview
         </p>
@@ -87,9 +88,13 @@ export default function WebDashboard() {
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Total Visitors (30d)</p>
+                <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                  Total Visitors (30d)
+                </p>
                 <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                  {stats.totalVisitors > 1000 ? `${(stats.totalVisitors / 1000).toFixed(1)}k` : stats.totalVisitors}
+                  {stats.totalVisitors > 1000
+                    ? `${(stats.totalVisitors / 1000).toFixed(1)}k`
+                    : stats.totalVisitors}
                 </p>
               </div>
               <Activity className="w-8 h-8 text-blue-500" />
@@ -101,8 +106,12 @@ export default function WebDashboard() {
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Avg. SEO Score</p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.avgSEOScore}/100</p>
+                <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                  Avg. SEO Score
+                </p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                  {stats.avgSEOScore}/100
+                </p>
               </div>
               <FileSearch className="w-8 h-8 text-emerald-500" />
             </div>
@@ -113,7 +122,9 @@ export default function WebDashboard() {
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Audits Completed</p>
+                <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                  Audits Completed
+                </p>
                 <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.audits}</p>
               </div>
               <BarChart3 className="w-8 h-8 text-amber-500" />
@@ -133,11 +144,15 @@ export default function WebDashboard() {
                   <CardContent className="pt-6">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <div className={`w-12 h-12 rounded-xl bg-${link.color}-100 dark:bg-${link.color}-900/40 flex items-center justify-center`}>
+                        <div
+                          className={`w-12 h-12 rounded-xl bg-${link.color}-100 dark:bg-${link.color}-900/40 flex items-center justify-center`}
+                        >
                           <Icon className={`w-6 h-6 text-${link.color}-600`} />
                         </div>
                         <div>
-                          <h3 className="font-semibold text-gray-900 dark:text-white">{link.name}</h3>
+                          <h3 className="font-semibold text-gray-900 dark:text-white">
+                            {link.name}
+                          </h3>
                           {link.count !== undefined && (
                             <p className="text-sm text-gray-500">{link.count} items</p>
                           )}

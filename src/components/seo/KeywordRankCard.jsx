@@ -1,11 +1,11 @@
 import React from 'react';
-import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { TrendingUp, TrendingDown, Minus, Search } from "lucide-react";
+import { Card } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { TrendingUp, TrendingDown, Minus, Search } from 'lucide-react';
 
 export default function KeywordRankCard({ keyword }) {
   const positionChange = (keyword.previous_position || 0) - (keyword.current_position || 0);
-  
+
   const getPositionBadge = () => {
     if (!keyword.current_position) return null;
     if (keyword.current_position <= 3) {
@@ -15,7 +15,11 @@ export default function KeywordRankCard({ keyword }) {
     } else if (keyword.current_position <= 20) {
       return <Badge className="bg-amber-100 text-amber-700 border-0">Page 2</Badge>;
     }
-    return <Badge className="bg-gray-100 text-gray-600 border-0">Page {Math.ceil(keyword.current_position / 10)}</Badge>;
+    return (
+      <Badge className="bg-gray-100 text-gray-600 border-0">
+        Page {Math.ceil(keyword.current_position / 10)}
+      </Badge>
+    );
   };
 
   const formatNumber = (num) => {
@@ -48,8 +52,14 @@ export default function KeywordRankCard({ keyword }) {
               {keyword.current_position || '-'}
             </span>
             {positionChange !== 0 && (
-              <span className={`flex items-center text-sm ${positionChange > 0 ? 'text-emerald-500' : 'text-red-500'}`}>
-                {positionChange > 0 ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
+              <span
+                className={`flex items-center text-sm ${positionChange > 0 ? 'text-emerald-500' : 'text-red-500'}`}
+              >
+                {positionChange > 0 ? (
+                  <TrendingUp className="w-3 h-3" />
+                ) : (
+                  <TrendingDown className="w-3 h-3" />
+                )}
                 {Math.abs(positionChange)}
               </span>
             )}
@@ -57,14 +67,21 @@ export default function KeywordRankCard({ keyword }) {
         </div>
         <div>
           <p className="text-xs text-gray-400 mb-1">Volume</p>
-          <span className="text-lg font-semibold text-gray-700">{formatNumber(keyword.search_volume)}</span>
+          <span className="text-lg font-semibold text-gray-700">
+            {formatNumber(keyword.search_volume)}
+          </span>
         </div>
         <div>
           <p className="text-xs text-gray-400 mb-1">Difficulty</p>
-          <span className={`text-lg font-semibold ${
-            keyword.difficulty < 30 ? 'text-emerald-600' : 
-            keyword.difficulty < 60 ? 'text-amber-600' : 'text-red-600'
-          }`}>
+          <span
+            className={`text-lg font-semibold ${
+              keyword.difficulty < 30
+                ? 'text-emerald-600'
+                : keyword.difficulty < 60
+                  ? 'text-amber-600'
+                  : 'text-red-600'
+            }`}
+          >
             {keyword.difficulty || '-'}
           </span>
         </div>

@@ -1,11 +1,27 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Mail, Eye, MousePointer, Reply, AlertCircle, Search, TrendingUp, Users, Clock } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
+  Mail,
+  Eye,
+  MousePointer,
+  Reply,
+  AlertCircle,
+  Search,
+  TrendingUp,
+  Users,
+  Clock,
+} from 'lucide-react';
 import EmptyState from '@/components/ui/EmptyState';
 import { format } from 'date-fns';
 
@@ -23,30 +39,31 @@ export default function EmailTracking() {
     queryFn: () => base44.entities.Contact.list('-created_date', 1000),
   });
 
-  const getContact = (contactId) => contacts.find(c => c.id === contactId);
+  const getContact = (contactId) => contacts.find((c) => c.id === contactId);
 
-  const filteredData = trackingData.filter(email => {
-    const matchesSearch = !searchTerm || 
+  const filteredData = trackingData.filter((email) => {
+    const matchesSearch =
+      !searchTerm ||
       email.subject?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       getContact(email.contact_id)?.email?.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    const matchesStatus = 
+
+    const matchesStatus =
       statusFilter === 'all' ||
       (statusFilter === 'opened' && email.opened) ||
       (statusFilter === 'unopened' && !email.opened) ||
       (statusFilter === 'clicked' && email.clicked) ||
       (statusFilter === 'replied' && email.replied) ||
       (statusFilter === 'bounced' && email.bounced);
-    
+
     return matchesSearch && matchesStatus;
   });
 
   // Stats
   const stats = {
     total: trackingData.length,
-    opened: trackingData.filter(e => e.opened).length,
-    clicked: trackingData.filter(e => e.clicked).length,
-    replied: trackingData.filter(e => e.replied).length,
+    opened: trackingData.filter((e) => e.opened).length,
+    clicked: trackingData.filter((e) => e.clicked).length,
+    replied: trackingData.filter((e) => e.replied).length,
   };
 
   const openRate = stats.total > 0 ? ((stats.opened / stats.total) * 100).toFixed(1) : 0;
@@ -57,7 +74,9 @@ export default function EmailTracking() {
       {/* Header */}
       <div>
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Email Tracking</h1>
-        <p className="text-gray-500 dark:text-gray-400">Monitor email opens, clicks, and engagement</p>
+        <p className="text-gray-500 dark:text-gray-400">
+          Monitor email opens, clicks, and engagement
+        </p>
       </div>
 
       {/* Stats */}
@@ -192,7 +211,7 @@ export default function EmailTracking() {
                           </Badge>
                         )}
                       </div>
-                      
+
                       <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
                         To: {contact?.email || 'Unknown'}
                       </p>
@@ -235,7 +254,10 @@ export default function EmailTracking() {
                           </p>
                           <div className="space-y-1">
                             {email.clicked_links.map((link, idx) => (
-                              <div key={idx} className="text-xs text-gray-600 dark:text-gray-400 flex items-center gap-2">
+                              <div
+                                key={idx}
+                                className="text-xs text-gray-600 dark:text-gray-400 flex items-center gap-2"
+                              >
                                 <MousePointer className="w-3 h-3" />
                                 <span className="truncate flex-1">{link.url}</span>
                                 <Badge variant="outline" className="text-xs">

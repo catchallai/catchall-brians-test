@@ -1,7 +1,7 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.4';
 import { Resend } from 'npm:resend@2.0.0';
 
-const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
+const resend = new Resend(Deno.env.get('RESEND_API_KEY'));
 
 Deno.serve(async (req) => {
   try {
@@ -28,15 +28,17 @@ Deno.serve(async (req) => {
     // Get website info
     let websiteName = 'Website';
     if (report.website_id) {
-      const websites = await base44.asServiceRole.entities.Website.filter({ id: report.website_id });
+      const websites = await base44.asServiceRole.entities.Website.filter({
+        id: report.website_id,
+      });
       if (websites.length > 0) {
         websiteName = websites[0].name;
       }
     }
 
     const reportData = report.report_data || {};
-    const generatedAt = reportData.generated_at 
-      ? new Date(reportData.generated_at).toLocaleDateString() 
+    const generatedAt = reportData.generated_at
+      ? new Date(reportData.generated_at).toLocaleDateString()
       : new Date().toLocaleDateString();
 
     // Build email HTML
@@ -85,29 +87,51 @@ Deno.serve(async (req) => {
         </div>
       </div>
 
-      ${reportData.top_keywords?.length > 0 ? `
+      ${
+        reportData.top_keywords?.length > 0
+          ? `
       <h2>Top Keywords</h2>
       <div class="keywords">
-        ${reportData.top_keywords.slice(0, 5).map(k => `
+        ${reportData.top_keywords
+          .slice(0, 5)
+          .map(
+            (k) => `
           <div class="keyword-item">
             <span>${k.keyword}</span>
             <span><strong>#${k.position}</strong> (${k.search_volume?.toLocaleString() || 0} vol)</span>
           </div>
-        `).join('')}
+        `
+          )
+          .join('')}
       </div>
-      ` : ''}
+      `
+          : ''
+      }
 
-      ${reportData.trends_summary ? `
+      ${
+        reportData.trends_summary
+          ? `
       <h2>Trends & Insights</h2>
       <p>${reportData.trends_summary}</p>
-      ` : ''}
+      `
+          : ''
+      }
 
-      ${reportData.recommendations?.length > 0 ? `
+      ${
+        reportData.recommendations?.length > 0
+          ? `
       <h2>Recommendations</h2>
-      ${reportData.recommendations.slice(0, 5).map(r => `
+      ${reportData.recommendations
+        .slice(0, 5)
+        .map(
+          (r) => `
         <div class="recommendation">${r}</div>
-      `).join('')}
-      ` : ''}
+      `
+        )
+        .join('')}
+      `
+          : ''
+      }
     </div>
     <div class="footer">
       <p>Sent by CatchAll SEO Platform</p>
@@ -132,7 +156,7 @@ Deno.serve(async (req) => {
 
     // Update report last sent
     await base44.asServiceRole.entities.SEOReport.update(reportId, {
-      last_run: new Date().toISOString()
+      last_run: new Date().toISOString(),
     });
 
     // Track API usage
@@ -141,15 +165,14 @@ Deno.serve(async (req) => {
       date: today,
       endpoint: 'SendEmail',
       calls_count: emailRecipients.length,
-      cost_estimate: emailRecipients.length * 0.001 // Example cost
+      cost_estimate: emailRecipients.length * 0.001, // Example cost
     });
 
-    return Response.json({ 
-      success: true, 
+    return Response.json({
+      success: true,
       sent: results.length,
-      recipients: emailRecipients 
+      recipients: emailRecipients,
     });
-
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
   }

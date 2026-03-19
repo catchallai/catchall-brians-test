@@ -1,26 +1,26 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
-import { 
-  Plus, 
-  FileText, 
-  Search, 
-  Send, 
-  Eye, 
-  CheckCircle2, 
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
+import {
+  Plus,
+  FileText,
+  Search,
+  Send,
+  Eye,
+  CheckCircle2,
   XCircle,
   Clock,
   FileSignature,
   Filter,
   Download,
-  Copy
-} from "lucide-react";
+  Copy,
+} from 'lucide-react';
 import LegalDocumentModal from '@/components/modals/LegalDocumentModal';
 import EmptyState from '@/components/ui/EmptyState';
 import ConfirmDialog from '@/components/ui/ConfirmDialog';
@@ -45,7 +45,7 @@ export default function LegalDocuments() {
     queryKey: ['legal-documents', user?.current_business_id],
     queryFn: async () => {
       const docs = await base44.entities.LegalDocument.filter({
-        business_id: user?.current_business_id
+        business_id: user?.current_business_id,
       });
       return docs.sort((a, b) => new Date(b.created_date) - new Date(a.created_date));
     },
@@ -54,9 +54,10 @@ export default function LegalDocuments() {
 
   const { data: contacts = [] } = useQuery({
     queryKey: ['contacts', user?.current_business_id],
-    queryFn: () => base44.entities.Contact.filter({ 
-      business_id: user?.current_business_id 
-    }),
+    queryFn: () =>
+      base44.entities.Contact.filter({
+        business_id: user?.current_business_id,
+      }),
     enabled: !!user?.current_business_id,
   });
 
@@ -107,7 +108,7 @@ export default function LegalDocuments() {
             <p style="color: #666; font-size: 14px;">This link will expire on ${new Date(doc.expires_date).toLocaleDateString()}.</p>
             <p>Best regards,<br/>${user?.full_name || 'The Team'}</p>
           </div>
-        `
+        `,
       });
 
       if (!response.data.success) {
@@ -118,7 +119,7 @@ export default function LegalDocuments() {
       return await base44.entities.LegalDocument.update(doc.id, {
         status: 'sent',
         sent_date: new Date().toISOString(),
-        resend_email_id: response.data.emailId
+        resend_email_id: response.data.emailId,
       });
     },
     onSuccess: () => {
@@ -163,10 +164,11 @@ export default function LegalDocuments() {
     toast.success('Tracking link copied to clipboard');
   };
 
-  const filteredDocuments = documents.filter(doc => {
-    const matchesSearch = doc.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         doc.recipient_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         doc.recipient_email?.toLowerCase().includes(searchTerm.toLowerCase());
+  const filteredDocuments = documents.filter((doc) => {
+    const matchesSearch =
+      doc.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      doc.recipient_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      doc.recipient_email?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesType = typeFilter === 'all' || doc.document_type === typeFilter;
     const matchesStatus = statusFilter === 'all' || doc.status === statusFilter;
     return matchesSearch && matchesType && matchesStatus;
@@ -174,12 +176,36 @@ export default function LegalDocuments() {
 
   const getStatusConfig = (status) => {
     const configs = {
-      draft: { icon: FileText, color: 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300', label: 'Draft' },
-      sent: { icon: Send, color: 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300', label: 'Sent' },
-      viewed: { icon: Eye, color: 'bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300', label: 'Viewed' },
-      signed: { icon: CheckCircle2, color: 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300', label: 'Signed' },
-      expired: { icon: Clock, color: 'bg-orange-100 text-orange-700 dark:bg-orange-900 dark:text-orange-300', label: 'Expired' },
-      declined: { icon: XCircle, color: 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300', label: 'Declined' },
+      draft: {
+        icon: FileText,
+        color: 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300',
+        label: 'Draft',
+      },
+      sent: {
+        icon: Send,
+        color: 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300',
+        label: 'Sent',
+      },
+      viewed: {
+        icon: Eye,
+        color: 'bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300',
+        label: 'Viewed',
+      },
+      signed: {
+        icon: CheckCircle2,
+        color: 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300',
+        label: 'Signed',
+      },
+      expired: {
+        icon: Clock,
+        color: 'bg-orange-100 text-orange-700 dark:bg-orange-900 dark:text-orange-300',
+        label: 'Expired',
+      },
+      declined: {
+        icon: XCircle,
+        color: 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300',
+        label: 'Declined',
+      },
     };
     return configs[status] || configs.draft;
   };
@@ -191,16 +217,16 @@ export default function LegalDocuments() {
       contractor_agreement: 'Contractor Agreement',
       location_release: 'Location Release',
       talent_release: 'Talent Release',
-      custom: 'Custom'
+      custom: 'Custom',
     };
     return labels[type] || type;
   };
 
   const stats = {
     total: documents.length,
-    sent: documents.filter(d => d.status === 'sent').length,
-    signed: documents.filter(d => d.status === 'signed').length,
-    pending: documents.filter(d => ['sent', 'viewed'].includes(d.status)).length,
+    sent: documents.filter((d) => d.status === 'sent').length,
+    signed: documents.filter((d) => d.status === 'signed').length,
+    pending: documents.filter((d) => ['sent', 'viewed'].includes(d.status)).length,
   };
 
   if (isLoading) {
@@ -226,7 +252,13 @@ export default function LegalDocuments() {
             Create, send, and track NDAs and media release forms
           </p>
         </div>
-        <Button onClick={() => { setEditingDoc(null); setShowModal(true); }} className="gap-2">
+        <Button
+          onClick={() => {
+            setEditingDoc(null);
+            setShowModal(true);
+          }}
+          className="gap-2"
+        >
           <Plus className="w-4 h-4" />
           Create Document
         </Button>
@@ -238,7 +270,9 @@ export default function LegalDocuments() {
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Total Documents</p>
+                <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                  Total Documents
+                </p>
                 <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.total}</p>
               </div>
               <FileSignature className="w-8 h-8 text-gray-400" />
@@ -263,7 +297,9 @@ export default function LegalDocuments() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Pending</p>
-                <p className="text-2xl font-bold text-orange-600 dark:text-orange-400">{stats.pending}</p>
+                <p className="text-2xl font-bold text-orange-600 dark:text-orange-400">
+                  {stats.pending}
+                </p>
               </div>
               <Clock className="w-8 h-8 text-orange-400" />
             </div>
@@ -275,7 +311,9 @@ export default function LegalDocuments() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Signed</p>
-                <p className="text-2xl font-bold text-green-600 dark:text-green-400">{stats.signed}</p>
+                <p className="text-2xl font-bold text-green-600 dark:text-green-400">
+                  {stats.signed}
+                </p>
               </div>
               <CheckCircle2 className="w-8 h-8 text-green-400" />
             </div>
@@ -333,7 +371,10 @@ export default function LegalDocuments() {
           title="No documents found"
           description="Create your first legal document to get started with tracking NDAs and media releases."
           actionLabel="Create Document"
-          onAction={() => { setEditingDoc(null); setShowModal(true); }}
+          onAction={() => {
+            setEditingDoc(null);
+            setShowModal(true);
+          }}
         />
       ) : (
         <div className="grid grid-cols-1 gap-4">
@@ -360,13 +401,19 @@ export default function LegalDocuments() {
 
                       <div className="space-y-1 text-sm text-gray-600 dark:text-gray-400">
                         {doc.recipient_name && (
-                          <p><strong>Recipient:</strong> {doc.recipient_name} ({doc.recipient_email})</p>
+                          <p>
+                            <strong>Recipient:</strong> {doc.recipient_name} ({doc.recipient_email})
+                          </p>
                         )}
                         {doc.company_name && (
-                          <p><strong>Company:</strong> {doc.company_name}</p>
+                          <p>
+                            <strong>Company:</strong> {doc.company_name}
+                          </p>
                         )}
                         {doc.sent_date && (
-                          <p><strong>Sent:</strong> {new Date(doc.sent_date).toLocaleString()}</p>
+                          <p>
+                            <strong>Sent:</strong> {new Date(doc.sent_date).toLocaleString()}
+                          </p>
                         )}
                         {doc.signed_date && (
                           <p className="text-green-600 dark:text-green-400">
@@ -374,10 +421,15 @@ export default function LegalDocuments() {
                           </p>
                         )}
                         {doc.expires_date && (
-                          <p><strong>Expires:</strong> {new Date(doc.expires_date).toLocaleDateString()}</p>
+                          <p>
+                            <strong>Expires:</strong>{' '}
+                            {new Date(doc.expires_date).toLocaleDateString()}
+                          </p>
                         )}
                         {doc.view_count > 0 && (
-                          <p><strong>Views:</strong> {doc.view_count}</p>
+                          <p>
+                            <strong>Views:</strong> {doc.view_count}
+                          </p>
                         )}
                       </div>
                     </div>
@@ -408,7 +460,10 @@ export default function LegalDocuments() {
                       <Button
                         size="sm"
                         variant="outline"
-                        onClick={() => { setEditingDoc(doc); setShowModal(true); }}
+                        onClick={() => {
+                          setEditingDoc(doc);
+                          setShowModal(true);
+                        }}
                       >
                         Edit
                       </Button>
@@ -432,7 +487,10 @@ export default function LegalDocuments() {
       {/* Modals */}
       <LegalDocumentModal
         open={showModal}
-        onClose={() => { setShowModal(false); setEditingDoc(null); }}
+        onClose={() => {
+          setShowModal(false);
+          setEditingDoc(null);
+        }}
         document={editingDoc}
         contacts={contacts}
         onSave={handleSave}

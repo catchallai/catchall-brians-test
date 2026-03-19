@@ -1,27 +1,61 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card, CardContent } from "@/components/ui/card";
-import { 
-  Loader2, Sparkles, Twitter, Linkedin, Facebook, 
-  Instagram, Calendar, Clock, Send, Wand2, Copy, Check
-} from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Card, CardContent } from '@/components/ui/card';
+import {
+  Loader2,
+  Sparkles,
+  Twitter,
+  Linkedin,
+  Facebook,
+  Instagram,
+  Calendar,
+  Clock,
+  Send,
+  Wand2,
+  Copy,
+  Check,
+} from 'lucide-react';
 import { useToast } from '@/components/ui/toast-provider';
 import { format } from 'date-fns';
 
 const PLATFORMS = [
-  { id: 'twitter', name: 'Twitter/X', icon: Twitter, color: 'bg-sky-100 text-sky-700', maxLength: 280 },
-  { id: 'linkedin', name: 'LinkedIn', icon: Linkedin, color: 'bg-blue-100 text-blue-700', maxLength: 3000 },
-  { id: 'facebook', name: 'Facebook', icon: Facebook, color: 'bg-indigo-100 text-indigo-700', maxLength: 2000 },
-  { id: 'instagram', name: 'Instagram', icon: Instagram, color: 'bg-pink-100 text-pink-700', maxLength: 2200 },
+  {
+    id: 'twitter',
+    name: 'Twitter/X',
+    icon: Twitter,
+    color: 'bg-sky-100 text-sky-700',
+    maxLength: 280,
+  },
+  {
+    id: 'linkedin',
+    name: 'LinkedIn',
+    icon: Linkedin,
+    color: 'bg-blue-100 text-blue-700',
+    maxLength: 3000,
+  },
+  {
+    id: 'facebook',
+    name: 'Facebook',
+    icon: Facebook,
+    color: 'bg-indigo-100 text-indigo-700',
+    maxLength: 2000,
+  },
+  {
+    id: 'instagram',
+    name: 'Instagram',
+    icon: Instagram,
+    color: 'bg-pink-100 text-pink-700',
+    maxLength: 2200,
+  },
 ];
 
 export default function ShareToSocialModal({ open, onClose, article, brief }) {
@@ -65,14 +99,14 @@ Generate copy for each platform with appropriate tone and length:
 
 Include relevant hashtags and a call-to-action where appropriate.`,
         response_json_schema: {
-          type: "object",
+          type: 'object',
           properties: {
-            twitter: { type: "string" },
-            linkedin: { type: "string" },
-            facebook: { type: "string" },
-            instagram: { type: "string" }
-          }
-        }
+            twitter: { type: 'string' },
+            linkedin: { type: 'string' },
+            facebook: { type: 'string' },
+            instagram: { type: 'string' },
+          },
+        },
       });
       return result;
     },
@@ -115,10 +149,8 @@ Include relevant hashtags and a call-to-action where appropriate.`,
   });
 
   const togglePlatform = (platformId) => {
-    setSelectedPlatforms(prev => 
-      prev.includes(platformId) 
-        ? prev.filter(p => p !== platformId)
-        : [...prev, platformId]
+    setSelectedPlatforms((prev) =>
+      prev.includes(platformId) ? prev.filter((p) => p !== platformId) : [...prev, platformId]
     );
   };
 
@@ -130,7 +162,7 @@ Include relevant hashtags and a call-to-action where appropriate.`,
 
   const getCharCount = (platformId) => {
     const text = socialCopy[platformId] || '';
-    const platform = PLATFORMS.find(p => p.id === platformId);
+    const platform = PLATFORMS.find((p) => p.id === platformId);
     return { current: text.length, max: platform?.maxLength || 280 };
   };
 
@@ -150,9 +182,7 @@ Include relevant hashtags and a call-to-action where appropriate.`,
             <CardContent className="p-4">
               <p className="text-sm text-gray-500 mb-1">Sharing content:</p>
               <p className="font-medium text-gray-900 dark:text-white">{contentTitle}</p>
-              {contentSummary && (
-                <p className="text-sm text-gray-500 mt-1">{contentSummary}</p>
-              )}
+              {contentSummary && <p className="text-sm text-gray-500 mt-1">{contentSummary}</p>}
             </CardContent>
           </Card>
 
@@ -160,7 +190,7 @@ Include relevant hashtags and a call-to-action where appropriate.`,
           <div>
             <Label className="mb-3 block">Select Platforms</Label>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              {PLATFORMS.map(platform => {
+              {PLATFORMS.map((platform) => {
                 const Icon = platform.icon;
                 const isSelected = selectedPlatforms.includes(platform.id);
                 return (
@@ -168,8 +198,8 @@ Include relevant hashtags and a call-to-action where appropriate.`,
                     key={platform.id}
                     onClick={() => togglePlatform(platform.id)}
                     className={`p-3 rounded-xl border-2 cursor-pointer transition-all ${
-                      isSelected 
-                        ? 'border-violet-500 bg-violet-50 dark:bg-violet-900/20' 
+                      isSelected
+                        ? 'border-violet-500 bg-violet-50 dark:bg-violet-900/20'
                         : 'border-gray-200 dark:border-gray-700 hover:border-gray-300'
                     }`}
                   >
@@ -185,7 +215,7 @@ Include relevant hashtags and a call-to-action where appropriate.`,
           </div>
 
           {/* Generate Copy Button */}
-          <Button 
+          <Button
             onClick={() => generateCopyMutation.mutate()}
             disabled={isGenerating || selectedPlatforms.length === 0}
             className="w-full gap-2"
@@ -203,8 +233,8 @@ Include relevant hashtags and a call-to-action where appropriate.`,
           {selectedPlatforms.length > 0 && (
             <Tabs defaultValue={selectedPlatforms[0]}>
               <TabsList className="w-full">
-                {selectedPlatforms.map(platformId => {
-                  const platform = PLATFORMS.find(p => p.id === platformId);
+                {selectedPlatforms.map((platformId) => {
+                  const platform = PLATFORMS.find((p) => p.id === platformId);
                   const Icon = platform.icon;
                   return (
                     <TabsTrigger key={platformId} value={platformId} className="gap-1">
@@ -215,8 +245,8 @@ Include relevant hashtags and a call-to-action where appropriate.`,
                 })}
               </TabsList>
 
-              {selectedPlatforms.map(platformId => {
-                const platform = PLATFORMS.find(p => p.id === platformId);
+              {selectedPlatforms.map((platformId) => {
+                const platform = PLATFORMS.find((p) => p.id === platformId);
                 const charCount = getCharCount(platformId);
                 const isOverLimit = charCount.current > charCount.max;
 
@@ -226,7 +256,9 @@ Include relevant hashtags and a call-to-action where appropriate.`,
                       <div className="flex items-center justify-between">
                         <Badge className={platform.color}>{platform.name}</Badge>
                         <div className="flex items-center gap-2">
-                          <span className={`text-xs ${isOverLimit ? 'text-red-500' : 'text-gray-500'}`}>
+                          <span
+                            className={`text-xs ${isOverLimit ? 'text-red-500' : 'text-gray-500'}`}
+                          >
                             {charCount.current}/{charCount.max}
                           </span>
                           <Button
@@ -246,7 +278,9 @@ Include relevant hashtags and a call-to-action where appropriate.`,
                       <Textarea
                         placeholder={`Write your ${platform.name} post...`}
                         value={socialCopy[platformId]}
-                        onChange={(e) => setSocialCopy(prev => ({ ...prev, [platformId]: e.target.value }))}
+                        onChange={(e) =>
+                          setSocialCopy((prev) => ({ ...prev, [platformId]: e.target.value }))
+                        }
                         rows={4}
                         className={isOverLimit ? 'border-red-500' : ''}
                       />
@@ -289,9 +323,13 @@ Include relevant hashtags and a call-to-action where appropriate.`,
             <Button variant="outline" onClick={onClose} className="flex-1">
               Cancel
             </Button>
-            <Button 
+            <Button
               onClick={() => scheduleMutation.mutate()}
-              disabled={scheduleMutation.isPending || selectedPlatforms.length === 0 || !selectedPlatforms.some(p => socialCopy[p])}
+              disabled={
+                scheduleMutation.isPending ||
+                selectedPlatforms.length === 0 ||
+                !selectedPlatforms.some((p) => socialCopy[p])
+              }
               className="flex-1 gap-2 bg-violet-600 hover:bg-violet-700"
             >
               {scheduleMutation.isPending ? (

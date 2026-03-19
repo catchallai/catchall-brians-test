@@ -1,15 +1,21 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Clock, Zap, ArrowRight, Trash, Plus, Calendar as CalendarIcon } from "lucide-react";
+import { Clock, Zap, ArrowRight, Trash, Plus, Calendar as CalendarIcon } from 'lucide-react';
 import { format, addHours, addDays } from 'date-fns';
 
 export default function PostQueueManager() {
@@ -21,18 +27,18 @@ export default function PostQueueManager() {
     hashtags: [],
     priority: 'normal',
     optimal_time_preference: 'peak_engagement',
-    auto_schedule: true
+    auto_schedule: true,
   });
   const queryClient = useQueryClient();
 
   const { data: queuedPosts = [] } = useQuery({
     queryKey: ['post-queue'],
-    queryFn: () => base44.entities.PostQueue.filter({ queue_status: 'queued' })
+    queryFn: () => base44.entities.PostQueue.filter({ queue_status: 'queued' }),
   });
 
   const { data: optimalTimes = [] } = useQuery({
     queryKey: ['optimal-times'],
-    queryFn: () => base44.entities.OptimalPostingTime.filter({ is_peak_time: true })
+    queryFn: () => base44.entities.OptimalPostingTime.filter({ is_peak_time: true }),
   });
 
   const createMutation = useMutation({
@@ -41,24 +47,22 @@ export default function PostQueueManager() {
       queryClient.invalidateQueries({ queryKey: ['post-queue'] });
       setShowModal(false);
       resetForm();
-    }
+    },
   });
 
   const deleteMutation = useMutation({
     mutationFn: (id) => base44.entities.PostQueue.delete(id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['post-queue'] })
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['post-queue'] }),
   });
 
   const schedulePostMutation = useMutation({
     mutationFn: async (queueItem) => {
       // Find optimal time for the platform
-      const platformTimes = optimalTimes.filter(t => 
-        queueItem.platforms.includes(t.platform)
-      );
-      
+      const platformTimes = optimalTimes.filter((t) => queueItem.platforms.includes(t.platform));
+
       let scheduledDate = new Date();
       let scheduledTime = '09:00';
-      
+
       if (platformTimes.length > 0 && queueItem.auto_schedule) {
         const bestTime = platformTimes.sort((a, b) => b.engagement_score - a.engagement_score)[0];
         scheduledDate = addDays(new Date(), 1);
@@ -78,13 +82,13 @@ export default function PostQueueManager() {
         scheduled_date: format(scheduledDate, 'yyyy-MM-dd'),
         scheduled_time: scheduledTime,
         status: 'approved',
-        auto_post: true
+        auto_post: true,
       });
 
       // Update queue status
       await base44.entities.PostQueue.update(queueItem.id, {
         queue_status: 'scheduled',
-        scheduled_post_id: calendarPost.id
+        scheduled_post_id: calendarPost.id,
       });
 
       return calendarPost;
@@ -92,7 +96,7 @@ export default function PostQueueManager() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['post-queue'] });
       queryClient.invalidateQueries({ queryKey: ['calendar-posts'] });
-    }
+    },
   });
 
   const resetForm = () => {
@@ -103,14 +107,14 @@ export default function PostQueueManager() {
       hashtags: [],
       priority: 'normal',
       optimal_time_preference: 'peak_engagement',
-      auto_schedule: true
+      auto_schedule: true,
     });
   };
 
   const togglePlatform = (platform) => {
     const current = formData.platforms || [];
     if (current.includes(platform)) {
-      setFormData({ ...formData, platforms: current.filter(p => p !== platform) });
+      setFormData({ ...formData, platforms: current.filter((p) => p !== platform) });
     } else {
       setFormData({ ...formData, platforms: [...current, platform] });
     }
@@ -124,7 +128,7 @@ export default function PostQueueManager() {
   const priorityColors = {
     low: 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300',
     normal: 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300',
-    high: 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300'
+    high: 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300',
   };
 
   return (
@@ -154,9 +158,7 @@ export default function PostQueueManager() {
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-2">
-                        <Badge className={priorityColors[item.priority]}>
-                          {item.priority}
-                        </Badge>
+                        <Badge className={priorityColors[item.priority]}>{item.priority}</Badge>
                         {item.auto_schedule && (
                           <Badge variant="outline" className="gap-1">
                             <Zap className="w-3 h-3" />
@@ -165,14 +167,18 @@ export default function PostQueueManager() {
                         )}
                       </div>
                       {item.title && (
-                        <h4 className="font-semibold text-gray-900 dark:text-white mb-1">{item.title}</h4>
+                        <h4 className="font-semibold text-gray-900 dark:text-white mb-1">
+                          {item.title}
+                        </h4>
                       )}
                       <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2 mb-2">
                         {item.caption}
                       </p>
                       <div className="flex flex-wrap gap-1">
-                        {item.platforms?.map(p => (
-                          <Badge key={p} variant="outline" className="text-xs">{p}</Badge>
+                        {item.platforms?.map((p) => (
+                          <Badge key={p} variant="outline" className="text-xs">
+                            {p}
+                          </Badge>
                         ))}
                       </div>
                     </div>
@@ -204,7 +210,13 @@ export default function PostQueueManager() {
           </div>
         )}
 
-        <Dialog open={showModal} onOpenChange={(open) => { setShowModal(open); if (!open) resetForm(); }}>
+        <Dialog
+          open={showModal}
+          onOpenChange={(open) => {
+            setShowModal(open);
+            if (!open) resetForm();
+          }}
+        >
           <DialogContent className="max-w-2xl">
             <DialogHeader>
               <DialogTitle>Add Post to Queue</DialogTitle>
@@ -233,8 +245,8 @@ export default function PostQueueManager() {
               <div className="space-y-2">
                 <Label>Platforms *</Label>
                 <div className="flex flex-wrap gap-2">
-                  {['Twitter', 'LinkedIn', 'Facebook', 'Instagram'].map(p => (
-                    <Badge 
+                  {['Twitter', 'LinkedIn', 'Facebook', 'Instagram'].map((p) => (
+                    <Badge
                       key={p}
                       className={`cursor-pointer ${formData.platforms?.includes(p) ? 'bg-violet-600' : 'bg-gray-200 text-gray-700'}`}
                       onClick={() => togglePlatform(p)}
@@ -248,7 +260,10 @@ export default function PostQueueManager() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>Priority</Label>
-                  <Select value={formData.priority} onValueChange={(v) => setFormData({ ...formData, priority: v })}>
+                  <Select
+                    value={formData.priority}
+                    onValueChange={(v) => setFormData({ ...formData, priority: v })}
+                  >
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -262,7 +277,10 @@ export default function PostQueueManager() {
 
                 <div className="space-y-2">
                   <Label>Optimal Time</Label>
-                  <Select value={formData.optimal_time_preference} onValueChange={(v) => setFormData({ ...formData, optimal_time_preference: v })}>
+                  <Select
+                    value={formData.optimal_time_preference}
+                    onValueChange={(v) => setFormData({ ...formData, optimal_time_preference: v })}
+                  >
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -277,10 +295,20 @@ export default function PostQueueManager() {
               </div>
 
               <div className="flex justify-end gap-3 pt-4">
-                <Button type="button" variant="outline" onClick={() => { setShowModal(false); resetForm(); }}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    setShowModal(false);
+                    resetForm();
+                  }}
+                >
                   Cancel
                 </Button>
-                <Button type="submit" disabled={createMutation.isPending || formData.platforms.length === 0}>
+                <Button
+                  type="submit"
+                  disabled={createMutation.isPending || formData.platforms.length === 0}
+                >
                   Add to Queue
                 </Button>
               </div>

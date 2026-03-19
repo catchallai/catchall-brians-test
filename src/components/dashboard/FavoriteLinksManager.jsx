@@ -1,29 +1,49 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Badge } from '@/components/ui/badge';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from '@/components/ui/select';
 import {
-  Plus, X, ArrowRight, Star, LayoutDashboard, Users, Building2, Target,
-  Calendar, Search, Link2, FileSearch, Megaphone, FileBarChart, Mail,
-  Zap, Globe, Share2, HelpCircle, Radio, MapPin, Newspaper, FileText,
-  BarChart3, PenTool, Activity, TrendingUp, Smartphone, Settings
-} from "lucide-react";
+  Plus,
+  X,
+  ArrowRight,
+  Star,
+  LayoutDashboard,
+  Users,
+  Building2,
+  Target,
+  Calendar,
+  Search,
+  Link2,
+  FileSearch,
+  Megaphone,
+  FileBarChart,
+  Mail,
+  Zap,
+  Globe,
+  Share2,
+  HelpCircle,
+  Radio,
+  MapPin,
+  Newspaper,
+  FileText,
+  BarChart3,
+  PenTool,
+  Activity,
+  TrendingUp,
+  Smartphone,
+  Settings,
+} from 'lucide-react';
 
 const AVAILABLE_PAGES = [
   { page: 'Dashboard', label: 'Dashboard', icon: LayoutDashboard, color: 'bg-violet-500' },
@@ -45,7 +65,12 @@ const AVAILABLE_PAGES = [
   { page: 'Campaigns', label: 'Campaigns', icon: Megaphone, color: 'bg-amber-500' },
   { page: 'EmailMarketing', label: 'Email Marketing', icon: Mail, color: 'bg-yellow-500' },
   { page: 'Reports', label: 'Reports', icon: FileBarChart, color: 'bg-slate-500' },
-  { page: 'MarketingHub', label: 'Marketing Hub', icon: TrendingUp, color: 'bg-gradient-to-r from-pink-500 to-violet-500' },
+  {
+    page: 'MarketingHub',
+    label: 'Marketing Hub',
+    icon: TrendingUp,
+    color: 'bg-gradient-to-r from-pink-500 to-violet-500',
+  },
   { page: 'ContentStudio', label: 'Content Studio', icon: PenTool, color: 'bg-violet-500' },
   { page: 'LocalSEO', label: 'Local SEO', icon: MapPin, color: 'bg-red-500' },
   { page: 'MediaOutreach', label: 'Media Outreach', icon: Mail, color: 'bg-blue-500' },
@@ -60,16 +85,16 @@ export default function FavoriteLinksManager({ favorites = [], onUpdate }) {
   const [customLabel, setCustomLabel] = useState('');
 
   const addFavorite = () => {
-    const pageInfo = AVAILABLE_PAGES.find(p => p.page === selectedPage);
+    const pageInfo = AVAILABLE_PAGES.find((p) => p.page === selectedPage);
     if (!pageInfo) return;
-    
+
     const newFavorite = {
       page: pageInfo.page,
       label: customLabel || pageInfo.label,
       icon: pageInfo.icon.name || pageInfo.page,
-      color: pageInfo.color
+      color: pageInfo.color,
     };
-    
+
     const updated = [...favorites, newFavorite];
     onUpdate(updated);
     setShowAddModal(false);
@@ -83,13 +108,11 @@ export default function FavoriteLinksManager({ favorites = [], onUpdate }) {
   };
 
   const getIconComponent = (iconName) => {
-    const pageInfo = AVAILABLE_PAGES.find(p => p.page === iconName || p.icon.name === iconName);
+    const pageInfo = AVAILABLE_PAGES.find((p) => p.page === iconName || p.icon.name === iconName);
     return pageInfo?.icon || Star;
   };
 
-  const availableToAdd = AVAILABLE_PAGES.filter(
-    p => !favorites.some(f => f.page === p.page)
-  );
+  const availableToAdd = AVAILABLE_PAGES.filter((p) => !favorites.some((f) => f.page === p.page));
 
   return (
     <>
@@ -99,20 +122,27 @@ export default function FavoriteLinksManager({ favorites = [], onUpdate }) {
           const Icon = getIconComponent(link.icon || link.page);
           return (
             <div key={index} className="relative group">
-              <Link 
+              <Link
                 to={createPageUrl(link.page)}
                 className="flex items-center justify-between p-3 sm:p-4 rounded-xl bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 hover:shadow-md transition-all"
               >
                 <div className="flex items-center gap-2 sm:gap-3">
-                  <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg ${link.color} flex items-center justify-center shrink-0`}>
+                  <div
+                    className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg ${link.color} flex items-center justify-center shrink-0`}
+                  >
                     <Icon className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                   </div>
-                  <span className="font-medium text-sm sm:text-base text-gray-900 dark:text-white">{link.label}</span>
+                  <span className="font-medium text-sm sm:text-base text-gray-900 dark:text-white">
+                    {link.label}
+                  </span>
                 </div>
                 <ArrowRight className="w-4 h-4 text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors hidden sm:block" />
               </Link>
               <button
-                onClick={(e) => { e.preventDefault(); removeFavorite(index); }}
+                onClick={(e) => {
+                  e.preventDefault();
+                  removeFavorite(index);
+                }}
                 className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
               >
                 <X className="w-3 h-3" />
@@ -120,7 +150,7 @@ export default function FavoriteLinksManager({ favorites = [], onUpdate }) {
             </div>
           );
         })}
-        
+
         {/* Add Button */}
         <button
           onClick={() => setShowAddModal(true)}
@@ -148,12 +178,14 @@ export default function FavoriteLinksManager({ favorites = [], onUpdate }) {
                   <SelectValue placeholder="Choose a page..." />
                 </SelectTrigger>
                 <SelectContent className="max-h-[300px]">
-                  {availableToAdd.map(p => {
+                  {availableToAdd.map((p) => {
                     const Icon = p.icon;
                     return (
                       <SelectItem key={p.page} value={p.page}>
                         <div className="flex items-center gap-2">
-                          <div className={`w-5 h-5 rounded ${p.color} flex items-center justify-center`}>
+                          <div
+                            className={`w-5 h-5 rounded ${p.color} flex items-center justify-center`}
+                          >
                             <Icon className="w-3 h-3 text-white" />
                           </div>
                           {p.label}
@@ -169,16 +201,18 @@ export default function FavoriteLinksManager({ favorites = [], onUpdate }) {
               <Input
                 value={customLabel}
                 onChange={(e) => setCustomLabel(e.target.value)}
-                placeholder={selectedPage ? AVAILABLE_PAGES.find(p => p.page === selectedPage)?.label : 'Enter custom label...'}
+                placeholder={
+                  selectedPage
+                    ? AVAILABLE_PAGES.find((p) => p.page === selectedPage)?.label
+                    : 'Enter custom label...'
+                }
               />
             </div>
             <div className="flex justify-end gap-3 pt-4">
-              <Button variant="outline" onClick={() => setShowAddModal(false)}>Cancel</Button>
-              <Button 
-                onClick={addFavorite}
-                disabled={!selectedPage}
-                className="gap-2"
-              >
+              <Button variant="outline" onClick={() => setShowAddModal(false)}>
+                Cancel
+              </Button>
+              <Button onClick={addFavorite} disabled={!selectedPage} className="gap-2">
                 <Plus className="w-4 h-4" />
                 Add to Favorites
               </Button>

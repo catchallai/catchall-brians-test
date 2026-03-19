@@ -1,33 +1,40 @@
 import React, { useState } from 'react';
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { ArrowUpDown, ArrowUp, ArrowDown, Download } from "lucide-react";
+import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import { ArrowUpDown, ArrowUp, ArrowDown, Download } from 'lucide-react';
 
 export default function ReportTable({ data, columns, onExport }) {
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
 
   const handleSort = (key) => {
-    setSortConfig(prev => ({
+    setSortConfig((prev) => ({
       key,
-      direction: prev.key === key && prev.direction === 'asc' ? 'desc' : 'asc'
+      direction: prev.key === key && prev.direction === 'asc' ? 'desc' : 'asc',
     }));
   };
 
   const sortedData = React.useMemo(() => {
     if (!sortConfig.key) return data;
-    
+
     return [...data].sort((a, b) => {
       const aVal = a[sortConfig.key];
       const bVal = b[sortConfig.key];
-      
+
       if (aVal === null || aVal === undefined) return 1;
       if (bVal === null || bVal === undefined) return -1;
-      
+
       if (typeof aVal === 'number' && typeof bVal === 'number') {
         return sortConfig.direction === 'asc' ? aVal - bVal : bVal - aVal;
       }
-      
+
       const comparison = String(aVal).localeCompare(String(bVal));
       return sortConfig.direction === 'asc' ? comparison : -comparison;
     });
@@ -35,14 +42,22 @@ export default function ReportTable({ data, columns, onExport }) {
 
   const getSortIcon = (key) => {
     if (sortConfig.key !== key) return <ArrowUpDown className="w-3 h-3 text-gray-300" />;
-    return sortConfig.direction === 'asc' 
-      ? <ArrowUp className="w-3 h-3 text-violet-600" />
-      : <ArrowDown className="w-3 h-3 text-violet-600" />;
+    return sortConfig.direction === 'asc' ? (
+      <ArrowUp className="w-3 h-3 text-violet-600" />
+    ) : (
+      <ArrowDown className="w-3 h-3 text-violet-600" />
+    );
   };
 
   const formatValue = (value, key) => {
     if (value === null || value === undefined) return '-';
-    if (key.includes('revenue') || key.includes('value') || key.includes('budget') || key.includes('spent') || key === 'avg_deal_size') {
+    if (
+      key.includes('revenue') ||
+      key.includes('value') ||
+      key.includes('budget') ||
+      key.includes('spent') ||
+      key === 'avg_deal_size'
+    ) {
       return `$${Number(value).toLocaleString()}`;
     }
     if (key.includes('roi')) {
@@ -71,8 +86,8 @@ export default function ReportTable({ data, columns, onExport }) {
         <Table>
           <TableHeader>
             <TableRow>
-              {columns.map(col => (
-                <TableHead 
+              {columns.map((col) => (
+                <TableHead
                   key={col.id}
                   className="cursor-pointer hover:bg-gray-50 select-none"
                   onClick={() => handleSort(col.id)}
@@ -95,10 +110,8 @@ export default function ReportTable({ data, columns, onExport }) {
             ) : (
               sortedData.map((row, idx) => (
                 <TableRow key={idx}>
-                  {columns.map(col => (
-                    <TableCell key={col.id}>
-                      {formatValue(row[col.id], col.id)}
-                    </TableCell>
+                  {columns.map((col) => (
+                    <TableCell key={col.id}>{formatValue(row[col.id], col.id)}</TableCell>
                   ))}
                 </TableRow>
               ))

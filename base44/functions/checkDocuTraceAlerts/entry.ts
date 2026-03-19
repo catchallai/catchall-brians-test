@@ -3,7 +3,7 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
-    
+
     // Authenticate user (admin only for scheduled task)
     const user = await base44.auth.me();
     if (user?.role !== 'admin') {
@@ -11,8 +11,8 @@ Deno.serve(async (req) => {
     }
 
     // Fetch all active alerts
-    const alerts = await base44.asServiceRole.entities.DocuTraceAlert.filter({ 
-      is_active: true 
+    const alerts = await base44.asServiceRole.entities.DocuTraceAlert.filter({
+      is_active: true,
     });
 
     // Fetch all documents
@@ -29,8 +29,8 @@ Deno.serve(async (req) => {
       alertsChecked++;
 
       // Filter documents based on alert specificity
-      const relevantDocs = alert.document_id 
-        ? documents.filter(d => d.id === alert.document_id)
+      const relevantDocs = alert.document_id
+        ? documents.filter((d) => d.id === alert.document_id)
         : documents;
 
       for (const doc of relevantDocs) {
@@ -42,8 +42,8 @@ Deno.serve(async (req) => {
           case 'specific_contact_view':
             // Check if specific contact viewed the document
             const contactEmails = alert.trigger_config?.contact_emails || [];
-            const hasContactView = (doc.access_logs || []).some(log => 
-              contactEmails.includes(log.email) && log.action === 'view'
+            const hasContactView = (doc.access_logs || []).some(
+              (log) => contactEmails.includes(log.email) && log.action === 'view'
             );
             if (hasContactView) {
               shouldTrigger = true;
@@ -71,8 +71,10 @@ Deno.serve(async (req) => {
             if (doc.expires_at) {
               const daysBeforeExpiration = alert.trigger_config?.days_before_expiration || 7;
               const expirationDate = new Date(doc.expires_at);
-              const daysUntilExpiration = Math.ceil((expirationDate - new Date()) / (1000 * 60 * 60 * 24));
-              
+              const daysUntilExpiration = Math.ceil(
+                (expirationDate - new Date()) / (1000 * 60 * 60 * 24)
+              );
+
               if (daysUntilExpiration <= daysBeforeExpiration && daysUntilExpiration > 0) {
                 shouldTrigger = true;
                 notificationMessage = `Document "${doc.name}" expires in ${daysUntilExpiration} days`;
@@ -82,9 +84,9 @@ Deno.serve(async (req) => {
 
           case 'high_value_deal_view':
             if (doc.deal_id) {
-              const deal = deals.find(d => d.id === doc.deal_id);
+              const deal = deals.find((d) => d.id === doc.deal_id);
               const dealValueThreshold = alert.trigger_config?.deal_value_threshold || 50000;
-              
+
               if (deal && deal.value >= dealValueThreshold && (doc.total_views || 0) > 0) {
                 shouldTrigger = true;
                 notificationMessage = `High-value deal document "${doc.name}" (Deal: ${deal.title}, $${deal.value.toLocaleString()}) has been viewed`;
@@ -100,7 +102,7 @@ Deno.serve(async (req) => {
             document_id: doc.id,
             document_name: doc.name,
             message: notificationMessage,
-            timestamp: new Date().toISOString()
+            timestamp: new Date().toISOString(),
           };
 
           // Send notifications based on channels
@@ -118,7 +120,7 @@ Deno.serve(async (req) => {
                   <p><strong>Time:</strong> ${new Date().toLocaleString()}</p>
                   <br>
                   <p>View document details in DocuTrace.</p>
-                `
+                `,
               });
             }
 
@@ -132,8 +134,8 @@ Deno.serve(async (req) => {
                 link: `/DocuTrace`,
                 metadata: {
                   alert_id: alert.id,
-                  document_id: doc.id
-                }
+                  document_id: doc.id,
+                },
               });
             }
           }
@@ -144,7 +146,7 @@ Deno.serve(async (req) => {
           // Update alert trigger stats
           await base44.asServiceRole.entities.DocuTraceAlert.update(alert.id, {
             last_triggered: new Date().toISOString(),
-            trigger_count: (alert.trigger_count || 0) + 1
+            trigger_count: (alert.trigger_count || 0) + 1,
           });
         }
       }
@@ -154,9 +156,8 @@ Deno.serve(async (req) => {
       success: true,
       alerts_checked: alertsChecked,
       notifications_sent: notificationsSent,
-      notifications
+      notifications,
     });
-
   } catch (error) {
     console.error('Alert check error:', error);
     return Response.json({ error: error.message }, { status: 500 });

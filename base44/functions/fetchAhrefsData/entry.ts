@@ -4,7 +4,7 @@ Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
     const user = await base44.auth.me();
-    
+
     if (!user) {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -23,9 +23,9 @@ Deno.serve(async (req) => {
       `https://api.ahrefs.com/v3/site-explorer/metrics-extended?target=${encodeURIComponent(targetDomain)}&protocol=https`,
       {
         headers: {
-          'Authorization': `Bearer ${apiKey}`,
-          'Accept': 'application/json'
-        }
+          Authorization: `Bearer ${apiKey}`,
+          Accept: 'application/json',
+        },
       }
     );
 
@@ -40,16 +40,16 @@ Deno.serve(async (req) => {
       `https://api.ahrefs.com/v3/site-explorer/backlinks?target=${encodeURIComponent(targetDomain)}&protocol=https&limit=100&order_by=domain_rating:desc`,
       {
         headers: {
-          'Authorization': `Bearer ${apiKey}`,
-          'Accept': 'application/json'
-        }
+          Authorization: `Bearer ${apiKey}`,
+          Accept: 'application/json',
+        },
       }
     );
 
     let backlinks = [];
     if (backlinksResponse.ok) {
       const backlinksData = await backlinksResponse.json();
-      backlinks = (backlinksData.backlinks || []).map(bl => ({
+      backlinks = (backlinksData.backlinks || []).map((bl) => ({
         source_url: bl.url_from,
         source_domain: bl.domain_from,
         target_url: bl.url_to,
@@ -59,7 +59,7 @@ Deno.serve(async (req) => {
         is_dofollow: bl.is_dofollow,
         first_seen: bl.first_seen,
         last_seen: bl.last_seen,
-        link_type: bl.is_dofollow ? 'dofollow' : 'nofollow'
+        link_type: bl.is_dofollow ? 'dofollow' : 'nofollow',
       }));
     }
 
@@ -68,23 +68,23 @@ Deno.serve(async (req) => {
       `https://api.ahrefs.com/v3/site-explorer/organic-keywords?target=${encodeURIComponent(targetDomain)}&protocol=https&limit=100&order_by=position:asc`,
       {
         headers: {
-          'Authorization': `Bearer ${apiKey}`,
-          'Accept': 'application/json'
-        }
+          Authorization: `Bearer ${apiKey}`,
+          Accept: 'application/json',
+        },
       }
     );
 
     let keywords = [];
     if (keywordsResponse.ok) {
       const keywordsData = await keywordsResponse.json();
-      keywords = (keywordsData.keywords || []).map(kw => ({
+      keywords = (keywordsData.keywords || []).map((kw) => ({
         keyword: kw.keyword,
         position: kw.position,
         search_volume: kw.volume,
         keyword_difficulty: kw.difficulty,
         cpc: kw.cpc,
         traffic: kw.traffic,
-        target_url: kw.url
+        target_url: kw.url,
       }));
     }
 
@@ -96,12 +96,11 @@ Deno.serve(async (req) => {
         referring_domains: metrics.refdomains || 0,
         organic_traffic: metrics.organic_traffic || 0,
         organic_keywords: metrics.organic_keywords || 0,
-        organic_value: metrics.organic_value || 0
+        organic_value: metrics.organic_value || 0,
       },
       backlinks: backlinks,
-      keywords: keywords
+      keywords: keywords,
     });
-
   } catch (error) {
     console.error('Ahrefs fetch error:', error);
     return Response.json({ error: error.message }, { status: 500 });

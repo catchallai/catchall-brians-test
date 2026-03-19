@@ -11,7 +11,7 @@ Deno.serve(async (req) => {
       fid: 50 + Math.random() * 100,
       cls: Math.random() * 0.2,
       ttfb: 200 + Math.random() * 300,
-      load_time: 2000 + Math.random() * 2000
+      load_time: 2000 + Math.random() * 2000,
     };
 
     // Calculate performance score
@@ -28,7 +28,7 @@ Deno.serve(async (req) => {
       ttfb: Math.round(metrics.ttfb),
       load_time: Math.round(metrics.load_time),
       performance_score: Math.round(performanceScore),
-      device_type: 'desktop'
+      device_type: 'desktop',
     });
 
     return Response.json({ success: true, data: performance });

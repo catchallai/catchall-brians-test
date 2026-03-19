@@ -1,20 +1,20 @@
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
-import { TrendingUp, Clock, Calendar } from "lucide-react";
+import { TrendingUp, Clock, Calendar } from 'lucide-react';
 
 export default function OptimalTimeAnalyzer() {
   const { data: optimalTimes = [] } = useQuery({
     queryKey: ['optimal-times'],
-    queryFn: () => base44.entities.OptimalPostingTime.list('-engagement_score', 50)
+    queryFn: () => base44.entities.OptimalPostingTime.list('-engagement_score', 50),
   });
 
-  const peakTimes = optimalTimes.filter(t => t.is_peak_time);
-  const platformData = ['Twitter', 'LinkedIn', 'Facebook', 'Instagram'].map(platform => ({
+  const peakTimes = optimalTimes.filter((t) => t.is_peak_time);
+  const platformData = ['Twitter', 'LinkedIn', 'Facebook', 'Instagram'].map((platform) => ({
     platform,
-    times: optimalTimes.filter(t => t.platform === platform).slice(0, 3)
+    times: optimalTimes.filter((t) => t.platform === platform).slice(0, 3),
   }));
 
   const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -67,35 +67,41 @@ export default function OptimalTimeAnalyzer() {
                 Best Times by Platform
               </h3>
               <div className="space-y-4">
-                {platformData.map(({ platform, times }) => (
-                  times.length > 0 && (
-                    <div key={platform} className="border-l-4 border-violet-400 pl-4">
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className="font-semibold text-gray-900 dark:text-white">{platform}</span>
-                        <Badge variant="outline" className="text-xs">{times.length} time slots</Badge>
+                {platformData.map(
+                  ({ platform, times }) =>
+                    times.length > 0 && (
+                      <div key={platform} className="border-l-4 border-violet-400 pl-4">
+                        <div className="flex items-center gap-2 mb-2">
+                          <span className="font-semibold text-gray-900 dark:text-white">
+                            {platform}
+                          </span>
+                          <Badge variant="outline" className="text-xs">
+                            {times.length} time slots
+                          </Badge>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          {times.map((time) => (
+                            <div
+                              key={`${time.day_of_week}-${time.hour}`}
+                              className="px-3 py-1.5 bg-gray-50 dark:bg-gray-800 rounded-lg text-xs"
+                            >
+                              <span className="font-medium text-gray-700 dark:text-gray-300">
+                                {dayNames[time.day_of_week].slice(0, 3)}
+                              </span>{' '}
+                              <span className="text-gray-600 dark:text-gray-400">
+                                {time.hour}:00
+                              </span>
+                              {time.is_peak_time && (
+                                <Badge className="ml-2 bg-violet-500 text-white text-xs">
+                                  Peak
+                                </Badge>
+                              )}
+                            </div>
+                          ))}
+                        </div>
                       </div>
-                      <div className="flex flex-wrap gap-2">
-                        {times.map((time) => (
-                          <div
-                            key={`${time.day_of_week}-${time.hour}`}
-                            className="px-3 py-1.5 bg-gray-50 dark:bg-gray-800 rounded-lg text-xs"
-                          >
-                            <span className="font-medium text-gray-700 dark:text-gray-300">
-                              {dayNames[time.day_of_week].slice(0, 3)}
-                            </span>
-                            {' '}
-                            <span className="text-gray-600 dark:text-gray-400">
-                              {time.hour}:00
-                            </span>
-                            {time.is_peak_time && (
-                              <Badge className="ml-2 bg-violet-500 text-white text-xs">Peak</Badge>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )
-                ))}
+                    )
+                )}
               </div>
             </div>
 

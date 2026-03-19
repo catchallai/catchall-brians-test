@@ -9,11 +9,31 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Loader2 } from 'lucide-react';
 
 const SECTIONS = [
-  'dashboard', 'contacts', 'companies', 'deals', 'activities', 'campaigns',
-  'emailMarketing', 'reports', 'seoDashboard', 'keywords', 'backlinks',
-  'seoAudit', 'socialMedia', 'socialListening', 'socialCalendar', 'hashtags',
-  'competitors', 'contentStudio', 'landing_pages', 'automation', 'docutrace',
-  'legal_documents', 'data_rooms', 'settings', 'admin'
+  'dashboard',
+  'contacts',
+  'companies',
+  'deals',
+  'activities',
+  'campaigns',
+  'emailMarketing',
+  'reports',
+  'seoDashboard',
+  'keywords',
+  'backlinks',
+  'seoAudit',
+  'socialMedia',
+  'socialListening',
+  'socialCalendar',
+  'hashtags',
+  'competitors',
+  'contentStudio',
+  'landing_pages',
+  'automation',
+  'docutrace',
+  'legal_documents',
+  'data_rooms',
+  'settings',
+  'admin',
 ];
 
 const ROLES = ['admin', 'editor', 'viewer', 'user'];
@@ -39,15 +59,15 @@ export default function RolePermissionsManager() {
 
   const updatePermissionMutation = useMutation({
     mutationFn: async ({ section, action, value }) => {
-      const existing = permissions.find(p => p.section === section);
-      
+      const existing = permissions.find((p) => p.section === section);
+
       if (existing) {
         return await base44.entities.RolePermission.update(existing.id, {
           [action]: value,
         });
       } else {
         const newPerm = { role: selectedRole, section };
-        ACTIONS.forEach(a => {
+        ACTIONS.forEach((a) => {
           newPerm[a.key] = a.key === action ? value : false;
         });
         return await base44.entities.RolePermission.create(newPerm);
@@ -59,7 +79,7 @@ export default function RolePermissionsManager() {
   });
 
   const getPermissionValue = (section, action) => {
-    const perm = permissions.find(p => p.section === section);
+    const perm = permissions.find((p) => p.section === section);
     return perm?.[action] || false;
   };
 
@@ -67,19 +87,21 @@ export default function RolePermissionsManager() {
     <div className="space-y-6">
       <div>
         <h2 className="text-2xl font-bold mb-2">Role-Based Access Control</h2>
-        <p className="text-gray-600 dark:text-gray-400">Manage permissions for each role across different sections</p>
+        <p className="text-gray-600 dark:text-gray-400">
+          Manage permissions for each role across different sections
+        </p>
       </div>
 
       <Tabs value={selectedRole} onValueChange={setSelectedRole} className="w-full">
         <TabsList className="grid w-full grid-cols-4">
-          {ROLES.map(role => (
+          {ROLES.map((role) => (
             <TabsTrigger key={role} value={role} className="capitalize">
               {role}
             </TabsTrigger>
           ))}
         </TabsList>
 
-        {ROLES.map(role => (
+        {ROLES.map((role) => (
           <TabsContent key={role} value={role}>
             <Card>
               <CardHeader>
@@ -97,7 +119,7 @@ export default function RolePermissionsManager() {
                       <thead>
                         <tr className="border-b">
                           <th className="text-left py-3 px-4 font-semibold">Section</th>
-                          {ACTIONS.map(action => (
+                          {ACTIONS.map((action) => (
                             <th key={action.key} className="text-center py-3 px-4 font-semibold">
                               {action.label}
                             </th>
@@ -105,10 +127,15 @@ export default function RolePermissionsManager() {
                         </tr>
                       </thead>
                       <tbody>
-                        {SECTIONS.map(section => (
-                          <tr key={section} className="border-b hover:bg-gray-50 dark:hover:bg-gray-800">
-                            <td className="py-3 px-4 font-medium capitalize">{section.replace(/_/g, ' ')}</td>
-                            {ACTIONS.map(action => (
+                        {SECTIONS.map((section) => (
+                          <tr
+                            key={section}
+                            className="border-b hover:bg-gray-50 dark:hover:bg-gray-800"
+                          >
+                            <td className="py-3 px-4 font-medium capitalize">
+                              {section.replace(/_/g, ' ')}
+                            </td>
+                            {ACTIONS.map((action) => (
                               <td key={action.key} className="text-center py-3 px-4">
                                 <Switch
                                   checked={getPermissionValue(section, action.key)}
@@ -140,10 +167,18 @@ export default function RolePermissionsManager() {
           <CardTitle className="text-base">About Roles</CardTitle>
         </CardHeader>
         <CardContent className="text-sm space-y-2 text-gray-700 dark:text-gray-300">
-          <p><strong>Admin:</strong> Full access to all sections and actions</p>
-          <p><strong>Editor:</strong> Can create, edit content; limited delete access</p>
-          <p><strong>Viewer:</strong> Read-only access to most sections; can export reports</p>
-          <p><strong>User:</strong> Very limited access; personal dashboard and settings only</p>
+          <p>
+            <strong>Admin:</strong> Full access to all sections and actions
+          </p>
+          <p>
+            <strong>Editor:</strong> Can create, edit content; limited delete access
+          </p>
+          <p>
+            <strong>Viewer:</strong> Read-only access to most sections; can export reports
+          </p>
+          <p>
+            <strong>User:</strong> Very limited access; personal dashboard and settings only
+          </p>
         </CardContent>
       </Card>
     </div>

@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Switch } from "@/components/ui/switch";
-import { RefreshCw, Clock, CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Switch } from '@/components/ui/switch';
+import { RefreshCw, Clock, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/components/ui/toast-provider';
@@ -23,49 +23,51 @@ export default function AutoSyncSettings() {
     queryFn: () => base44.entities.AutoSyncLog.list('-created_date', 10),
   });
 
-  const autoSyncEnabled = settings?.find(s => s.feature_key === 'auto_sync_social')?.enabled || false;
+  const autoSyncEnabled =
+    settings?.find((s) => s.feature_key === 'auto_sync_social')?.enabled || false;
   const lastSync = syncLogs[0];
 
   const toggleAutoSyncMutation = useMutation({
     mutationFn: async (enabled) => {
-      const existing = settings?.find(s => s.feature_key === 'auto_sync_social');
+      const existing = settings?.find((s) => s.feature_key === 'auto_sync_social');
       if (existing) {
         await base44.entities.FeatureSettings.update(existing.id, { enabled });
       } else {
         await base44.entities.FeatureSettings.create({
           feature_key: 'auto_sync_social',
           feature_name: 'Auto-Sync Social Media',
-          enabled
+          enabled,
         });
       }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['feature-settings'] });
       toast.success('Auto-sync settings updated');
-    }
+    },
   });
 
   const manualSyncMutation = useMutation({
     mutationFn: async () => {
       setIsManualSyncing(true);
       const startTime = Date.now();
-      
+
       const result = await base44.functions.invoke('autoSyncSocial', {});
-      
+
       const duration = Date.now() - startTime;
-      
+
       // Log the sync
       await base44.entities.AutoSyncLog.create({
         sync_type: 'social',
-        status: result.data.failed === 0 ? 'success' : result.data.synced > 0 ? 'partial' : 'failed',
+        status:
+          result.data.failed === 0 ? 'success' : result.data.synced > 0 ? 'partial' : 'failed',
         total_items: result.data.total,
         synced: result.data.synced,
         failed: result.data.failed,
         errors: result.data.errors || [],
         duration_ms: duration,
-        next_run: new Date(Date.now() + 3 * 60 * 60 * 1000).toISOString()
+        next_run: new Date(Date.now() + 3 * 60 * 60 * 1000).toISOString(),
       });
-      
+
       return result.data;
     },
     onSuccess: (data) => {
@@ -78,7 +80,7 @@ export default function AutoSyncSettings() {
     onError: () => {
       setIsManualSyncing(false);
       toast.error('Sync failed');
-    }
+    },
   });
 
   return (
@@ -110,15 +112,19 @@ export default function AutoSyncSettings() {
           <div className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
             <div className="flex items-center justify-between mb-3">
               <h4 className="font-medium text-gray-900 dark:text-white">Last Sync</h4>
-              <Badge className={
-                lastSync.status === 'success' ? 'bg-emerald-100 text-emerald-700' :
-                lastSync.status === 'partial' ? 'bg-amber-100 text-amber-700' :
-                'bg-red-100 text-red-700'
-              }>
+              <Badge
+                className={
+                  lastSync.status === 'success'
+                    ? 'bg-emerald-100 text-emerald-700'
+                    : lastSync.status === 'partial'
+                      ? 'bg-amber-100 text-amber-700'
+                      : 'bg-red-100 text-red-700'
+                }
+              >
                 {lastSync.status}
               </Badge>
             </div>
-            
+
             <div className="grid grid-cols-3 gap-4 mb-3">
               <div className="text-center p-2 bg-blue-50 dark:bg-blue-900/20 rounded">
                 <p className="text-xs text-gray-500 mb-1">Total</p>
@@ -175,9 +181,13 @@ export default function AutoSyncSettings() {
           className="w-full bg-violet-600 hover:bg-violet-700"
         >
           {isManualSyncing ? (
-            <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Syncing...</>
+            <>
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" /> Syncing...
+            </>
           ) : (
-            <><RefreshCw className="w-4 h-4 mr-2" /> Run Manual Sync</>
+            <>
+              <RefreshCw className="w-4 h-4 mr-2" /> Run Manual Sync
+            </>
           )}
         </Button>
 
@@ -187,12 +197,17 @@ export default function AutoSyncSettings() {
             <h4 className="font-medium text-gray-900 dark:text-white mb-3">Recent Syncs</h4>
             <div className="space-y-2">
               {syncLogs.slice(1, 6).map((log) => (
-                <div key={log.id} className="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-800 rounded text-sm">
+                <div
+                  key={log.id}
+                  className="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-800 rounded text-sm"
+                >
                   <span className="text-gray-600 dark:text-gray-400">
                     {new Date(log.created_date).toLocaleString()}
                   </span>
                   <div className="flex items-center gap-2">
-                    <span className="text-gray-500">{log.synced}/{log.total_items}</span>
+                    <span className="text-gray-500">
+                      {log.synced}/{log.total_items}
+                    </span>
                     {log.status === 'success' ? (
                       <CheckCircle2 className="w-4 h-4 text-emerald-500" />
                     ) : (

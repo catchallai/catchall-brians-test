@@ -1,10 +1,16 @@
 import React, { useMemo } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
+import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
 
 export default function CustomFieldsDisplay({
   entityType,
@@ -12,17 +18,20 @@ export default function CustomFieldsDisplay({
   businessId,
   values = {},
   onChange,
-  readOnly = false
+  readOnly = false,
 }) {
   const { data: fields = [] } = useQuery({
     queryKey: ['custom-fields', entityType, businessId],
     queryFn: async () => {
       if (!businessId) return [];
-      return await base44.entities.CustomField.filter({
-        entity_type: entityType,
-        business_id: businessId,
-        is_active: true
-      }, 'sort_order');
+      return await base44.entities.CustomField.filter(
+        {
+          entity_type: entityType,
+          business_id: businessId,
+          is_active: true,
+        },
+        'sort_order'
+      );
     },
     enabled: !!businessId,
   });
@@ -33,7 +42,7 @@ export default function CustomFieldsDisplay({
       if (!entityId) return [];
       return await base44.entities.CustomFieldValue.filter({
         entity_id: entityId,
-        entity_type: entityType
+        entity_type: entityType,
       });
     },
     enabled: !!entityId,
@@ -41,7 +50,7 @@ export default function CustomFieldsDisplay({
 
   const valueMap = useMemo(() => {
     const map = {};
-    customValues.forEach(cv => {
+    customValues.forEach((cv) => {
       map[cv.custom_field_id] = cv.value;
     });
     return map;
@@ -56,7 +65,7 @@ export default function CustomFieldsDisplay({
   return (
     <div className="space-y-4">
       <h3 className="font-semibold text-gray-900 dark:text-white">Custom Fields</h3>
-      
+
       {fields.map((field) => {
         const value = values[field.id] || valueMap[field.id] || '';
 
@@ -106,8 +115,12 @@ export default function CustomFieldsDisplay({
               />
             )}
 
-            {(field.field_type === 'dropdown') && (
-              <Select value={value} onValueChange={(v) => handleChange(field.id, v)} disabled={readOnly}>
+            {field.field_type === 'dropdown' && (
+              <Select
+                value={value}
+                onValueChange={(v) => handleChange(field.id, v)}
+                disabled={readOnly}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder={field.description || 'Select...'} />
                 </SelectTrigger>
@@ -126,7 +139,10 @@ export default function CustomFieldsDisplay({
                 {field.options?.map((opt) => {
                   const isSelected = value?.split(',').includes(opt.label);
                   return (
-                    <label key={opt.value || opt.label} className="flex items-center gap-2 cursor-pointer">
+                    <label
+                      key={opt.value || opt.label}
+                      className="flex items-center gap-2 cursor-pointer"
+                    >
                       <Checkbox
                         checked={isSelected}
                         onCheckedChange={(checked) => {
@@ -134,7 +150,7 @@ export default function CustomFieldsDisplay({
                           if (checked) {
                             selected.push(opt.label);
                           } else {
-                            selected = selected.filter(s => s !== opt.label);
+                            selected = selected.filter((s) => s !== opt.label);
                           }
                           handleChange(field.id, selected.join(','));
                         }}

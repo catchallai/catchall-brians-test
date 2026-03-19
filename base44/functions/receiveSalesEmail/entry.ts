@@ -11,7 +11,7 @@ Deno.serve(async (req) => {
     // Extract email and name from various formats
     let fromEmail = '';
     let fromName = '';
-    
+
     if (typeof from === 'string') {
       fromEmail = from;
     } else if (from && typeof from === 'object') {
@@ -33,32 +33,35 @@ Deno.serve(async (req) => {
       is_flagged: false,
       is_replied: false,
       status: 'new',
-      priority: 'medium'
+      priority: 'medium',
     });
 
     // Try to match with existing contact
     if (fromEmail) {
-      const contacts = await base44.asServiceRole.entities.Contact.filter({ 
-        email: fromEmail 
+      const contacts = await base44.asServiceRole.entities.Contact.filter({
+        email: fromEmail,
       });
 
       if (contacts.length > 0) {
         // Update last contacted date
         await base44.asServiceRole.entities.Contact.update(contacts[0].id, {
-          last_contacted: new Date().toISOString()
+          last_contacted: new Date().toISOString(),
         });
       }
     }
 
-    return Response.json({ 
+    return Response.json({
       success: true,
-      message: 'Email received and stored'
+      message: 'Email received and stored',
     });
   } catch (error) {
     console.error('Error processing email:', error);
-    return Response.json({ 
-      success: false,
-      error: error.message 
-    }, { status: 500 });
+    return Response.json(
+      {
+        success: false,
+        error: error.message,
+      },
+      { status: 500 }
+    );
   }
 });

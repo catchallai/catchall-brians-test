@@ -21,8 +21,8 @@ Deno.serve(async (req) => {
     // Check if token is expired and refresh if needed
     let accessToken = user.google_access_token;
     if (user.google_token_expiry && new Date(user.google_token_expiry) < new Date()) {
-      const refreshResponse = await base44.functions.invoke('googleCalendarAuth', { 
-        action: 'refresh' 
+      const refreshResponse = await base44.functions.invoke('googleCalendarAuth', {
+        action: 'refresh',
       });
       accessToken = refreshResponse.data.access_token;
     }
@@ -34,30 +34,33 @@ Deno.serve(async (req) => {
       location,
       start: {
         dateTime: start,
-        timeZone: 'UTC'
+        timeZone: 'UTC',
       },
       end: {
         dateTime: end,
-        timeZone: 'UTC'
+        timeZone: 'UTC',
       },
-      attendees: attendees?.map(email => ({ email })) || [],
+      attendees: attendees?.map((email) => ({ email })) || [],
       reminders: {
         useDefault: false,
         overrides: [
           { method: 'email', minutes: 24 * 60 },
-          { method: 'popup', minutes: 30 }
-        ]
-      }
+          { method: 'popup', minutes: 30 },
+        ],
+      },
     };
 
-    const response = await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${accessToken}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(event)
-    });
+    const response = await fetch(
+      'https://www.googleapis.com/calendar/v3/calendars/primary/events',
+      {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(event),
+      }
+    );
 
     const data = await response.json();
 
@@ -65,10 +68,10 @@ Deno.serve(async (req) => {
       throw new Error(data.error?.message || 'Failed to create event');
     }
 
-    return Response.json({ 
-      success: true, 
+    return Response.json({
+      success: true,
       eventId: data.id,
-      eventLink: data.htmlLink 
+      eventLink: data.htmlLink,
     });
   } catch (error) {
     console.error('Create calendar event error:', error);

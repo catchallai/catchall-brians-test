@@ -1,6 +1,6 @@
 import React from 'react';
-import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import { Button } from '@/components/ui/button';
+import { Plus } from 'lucide-react';
 
 export default function EmptyState({ icon: Icon, title, description, actionLabel, onAction }) {
   return (

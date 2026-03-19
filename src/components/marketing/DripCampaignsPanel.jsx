@@ -1,15 +1,21 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Plus, Mail, Play, Pause, Trash2, Loader2, Users, ArrowRight } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Plus, Mail, Play, Pause, Trash2, Loader2, Users, ArrowRight } from 'lucide-react';
 import { useToast } from '@/components/ui/toast-provider';
 
 const STATUS_COLORS = {
@@ -43,7 +49,12 @@ export default function DripCampaignsPanel({ campaigns, contacts }) {
       queryClient.invalidateQueries({ queryKey: ['drip-campaigns'] });
       setShowModal(false);
       toast.success('Campaign created');
-      setFormData({ name: '', trigger_type: 'contact_status_change', trigger_value: 'lead', emails: [{ delay_days: 0, subject: '', body: '' }] });
+      setFormData({
+        name: '',
+        trigger_type: 'contact_status_change',
+        trigger_value: 'lead',
+        emails: [{ delay_days: 0, subject: '', body: '' }],
+      });
     },
   });
 
@@ -57,23 +68,23 @@ export default function DripCampaignsPanel({ campaigns, contacts }) {
 
   const addEmailStep = () => {
     const lastDelay = formData.emails[formData.emails.length - 1]?.delay_days || 0;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      emails: [...prev.emails, { delay_days: lastDelay + 3, subject: '', body: '' }]
+      emails: [...prev.emails, { delay_days: lastDelay + 3, subject: '', body: '' }],
     }));
   };
 
   const updateEmailStep = (index, field, value) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      emails: prev.emails.map((e, i) => i === index ? { ...e, [field]: value } : e)
+      emails: prev.emails.map((e, i) => (i === index ? { ...e, [field]: value } : e)),
     }));
   };
 
   const removeEmailStep = (index) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      emails: prev.emails.filter((_, i) => i !== index)
+      emails: prev.emails.filter((_, i) => i !== index),
     }));
   };
 
@@ -82,7 +93,9 @@ export default function DripCampaignsPanel({ campaigns, contacts }) {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Email Drip Campaigns</h2>
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+            Email Drip Campaigns
+          </h2>
           <p className="text-sm text-gray-500">Automated email sequences triggered by actions</p>
         </div>
         <Button onClick={() => setShowModal(true)} className="gap-2">
@@ -97,7 +110,9 @@ export default function DripCampaignsPanel({ campaigns, contacts }) {
           <Card className="glass-card rounded-2xl">
             <CardContent className="py-12 text-center">
               <Mail className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-              <h3 className="font-semibold text-gray-900 dark:text-white mb-2">No Drip Campaigns</h3>
+              <h3 className="font-semibold text-gray-900 dark:text-white mb-2">
+                No Drip Campaigns
+              </h3>
               <p className="text-gray-500 mb-4">Create automated email sequences</p>
               <Button onClick={() => setShowModal(true)} className="gap-2">
                 <Plus className="w-4 h-4" />
@@ -112,7 +127,9 @@ export default function DripCampaignsPanel({ campaigns, contacts }) {
                 <div className="flex items-center justify-between">
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">
-                      <h3 className="font-semibold text-gray-900 dark:text-white">{campaign.name}</h3>
+                      <h3 className="font-semibold text-gray-900 dark:text-white">
+                        {campaign.name}
+                      </h3>
                       <Badge className={STATUS_COLORS[campaign.status]}>{campaign.status}</Badge>
                     </div>
                     <p className="text-sm text-gray-500 mb-3">
@@ -132,18 +149,22 @@ export default function DripCampaignsPanel({ campaigns, contacts }) {
                   </div>
                   <div className="flex gap-2">
                     {campaign.status === 'active' ? (
-                      <Button 
-                        variant="outline" 
+                      <Button
+                        variant="outline"
                         size="sm"
-                        onClick={() => updateStatusMutation.mutate({ id: campaign.id, status: 'paused' })}
+                        onClick={() =>
+                          updateStatusMutation.mutate({ id: campaign.id, status: 'paused' })
+                        }
                       >
                         <Pause className="w-4 h-4" />
                       </Button>
                     ) : (
-                      <Button 
-                        variant="outline" 
+                      <Button
+                        variant="outline"
                         size="sm"
-                        onClick={() => updateStatusMutation.mutate({ id: campaign.id, status: 'active' })}
+                        onClick={() =>
+                          updateStatusMutation.mutate({ id: campaign.id, status: 'active' })
+                        }
                       >
                         <Play className="w-4 h-4" />
                       </Button>
@@ -167,7 +188,7 @@ export default function DripCampaignsPanel({ campaigns, contacts }) {
               <Label>Campaign Name</Label>
               <Input
                 value={formData.name}
-                onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))}
                 placeholder="e.g., New Lead Nurture"
               />
             </div>
@@ -177,12 +198,16 @@ export default function DripCampaignsPanel({ campaigns, contacts }) {
                 <Label>Trigger Type</Label>
                 <Select
                   value={formData.trigger_type}
-                  onValueChange={(v) => setFormData(prev => ({ ...prev, trigger_type: v }))}
+                  onValueChange={(v) => setFormData((prev) => ({ ...prev, trigger_type: v }))}
                 >
-                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
                   <SelectContent>
                     {Object.entries(TRIGGER_LABELS).map(([key, label]) => (
-                      <SelectItem key={key} value={key}>{label}</SelectItem>
+                      <SelectItem key={key} value={key}>
+                        {label}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -191,7 +216,9 @@ export default function DripCampaignsPanel({ campaigns, contacts }) {
                 <Label>Trigger Value</Label>
                 <Input
                   value={formData.trigger_value}
-                  onChange={(e) => setFormData(prev => ({ ...prev, trigger_value: e.target.value }))}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, trigger_value: e.target.value }))
+                  }
                   placeholder="e.g., lead, proposal"
                 />
               </div>
@@ -205,7 +232,7 @@ export default function DripCampaignsPanel({ campaigns, contacts }) {
                   Add Email
                 </Button>
               </div>
-              
+
               {formData.emails.map((email, idx) => (
                 <Card key={idx} className="bg-gray-50 dark:bg-gray-800">
                   <CardContent className="p-4 space-y-3">
@@ -217,7 +244,9 @@ export default function DripCampaignsPanel({ campaigns, contacts }) {
                           type="number"
                           className="w-16 h-8"
                           value={email.delay_days}
-                          onChange={(e) => updateEmailStep(idx, 'delay_days', parseInt(e.target.value))}
+                          onChange={(e) =>
+                            updateEmailStep(idx, 'delay_days', parseInt(e.target.value))
+                          }
                         />
                         {idx > 0 && (
                           <Button variant="ghost" size="sm" onClick={() => removeEmailStep(idx)}>
@@ -243,8 +272,10 @@ export default function DripCampaignsPanel({ campaigns, contacts }) {
             </div>
 
             <div className="flex gap-3 pt-4">
-              <Button variant="outline" onClick={() => setShowModal(false)} className="flex-1">Cancel</Button>
-              <Button 
+              <Button variant="outline" onClick={() => setShowModal(false)} className="flex-1">
+                Cancel
+              </Button>
+              <Button
                 onClick={() => createMutation.mutate(formData)}
                 disabled={createMutation.isPending || !formData.name}
                 className="flex-1"

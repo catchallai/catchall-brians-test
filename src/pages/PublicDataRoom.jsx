@@ -6,15 +6,15 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { 
-  FileText, 
-  Download, 
-  Eye, 
-  Lock, 
+import {
+  FileText,
+  Download,
+  Eye,
+  Lock,
   FolderOpen,
   Calendar,
   Shield,
-  AlertCircle 
+  AlertCircle,
 } from 'lucide-react';
 import SessionReplayTracker from '@/components/analytics/SessionReplayTracker';
 
@@ -26,31 +26,35 @@ export default function PublicDataRoom() {
   const urlParams = new URLSearchParams(window.location.search);
   const token = urlParams.get('token');
 
-  const { data: dataRoom, isLoading, error: fetchError } = useQuery({
+  const {
+    data: dataRoom,
+    isLoading,
+    error: fetchError,
+  } = useQuery({
     queryKey: ['public-data-room', token],
     queryFn: async () => {
       const rooms = await base44.entities.DataRoom.filter({ tracking_code: token });
       if (!rooms || rooms.length === 0) {
         throw new Error('Data room not found');
       }
-      
+
       const room = rooms[0];
-      
+
       // Check if expired
       if (room.expires_at && new Date(room.expires_at) < new Date()) {
         throw new Error('Data room has expired');
       }
-      
+
       // Log access
       await base44.entities.DataRoom.update(room.id, {
         total_views: (room.total_views || 0) + 1,
-        last_accessed_at: new Date().toISOString()
+        last_accessed_at: new Date().toISOString(),
       });
-      
+
       return room;
     },
     enabled: !!token,
-    retry: false
+    retry: false,
   });
 
   const { data: documents = [] } = useQuery({
@@ -59,16 +63,16 @@ export default function PublicDataRoom() {
       if (!dataRoom?.document_ids || dataRoom.document_ids.length === 0) {
         return [];
       }
-      
+
       const docs = await Promise.all(
-        dataRoom.document_ids.map(id => 
-          base44.entities.TrackedDocument.filter({ id }).then(res => res[0])
+        dataRoom.document_ids.map((id) =>
+          base44.entities.TrackedDocument.filter({ id }).then((res) => res[0])
         )
       );
-      
+
       return docs.filter(Boolean);
     },
-    enabled: !!dataRoom && isAuthenticated
+    enabled: !!dataRoom && isAuthenticated,
   });
 
   useEffect(() => {
@@ -90,9 +94,9 @@ export default function PublicDataRoom() {
   const handleDownload = async (doc) => {
     try {
       await base44.entities.TrackedDocument.update(doc.id, {
-        total_downloads: (doc.total_downloads || 0) + 1
+        total_downloads: (doc.total_downloads || 0) + 1,
       });
-      
+
       const link = document.createElement('a');
       link.href = doc.file_url;
       link.download = doc.name;
@@ -147,9 +151,7 @@ export default function PublicDataRoom() {
                   onChange={(e) => setPassword(e.target.value)}
                   required
                 />
-                {error && (
-                  <p className="text-red-500 text-sm mt-2">{error}</p>
-                )}
+                {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
               </div>
               <Button type="submit" className="w-full">
                 Access Data Room
@@ -175,9 +177,7 @@ export default function PublicDataRoom() {
                   <p className="text-gray-600 mt-1">{dataRoom?.description}</p>
                 </div>
               </div>
-              <Badge className="bg-green-100 text-green-800">
-                {dataRoom?.status}
-              </Badge>
+              <Badge className="bg-green-100 text-green-800">{dataRoom?.status}</Badge>
             </div>
           </CardHeader>
           <CardContent>
@@ -228,17 +228,15 @@ export default function PublicDataRoom() {
                     size="sm"
                     variant="outline"
                     className="flex-1"
-                    onClick={() => window.open(`?page=PublicDocumentViewer&token=${doc.tracking_code}`, '_blank')}
+                    onClick={() =>
+                      window.open(`?page=PublicDocumentViewer&token=${doc.tracking_code}`, '_blank')
+                    }
                   >
                     <Eye className="w-4 h-4 mr-1" />
                     View
                   </Button>
                   {dataRoom?.allow_downloads && (
-                    <Button
-                      size="sm"
-                      className="flex-1"
-                      onClick={() => handleDownload(doc)}
-                    >
+                    <Button size="sm" className="flex-1" onClick={() => handleDownload(doc)}>
                       <Download className="w-4 h-4 mr-1" />
                       Download
                     </Button>

@@ -1,12 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { base44 } from '@/api/base44Client';
-import { Loader2, X } from "lucide-react";
+import { Loader2, X } from 'lucide-react';
 import { useToast } from '@/components/ui/toast-provider';
 
 export default function CallLogModal({ open, onClose, onSuccess, isLogCall = false }) {
@@ -70,9 +76,9 @@ export default function CallLogModal({ open, onClose, onSuccess, isLogCall = fal
 
   const handleContactChange = (contactId) => {
     setFormData({ ...formData, contact_id: contactId });
-    const contact = contacts.find(c => c.id === contactId);
+    const contact = contacts.find((c) => c.id === contactId);
     if (contact) {
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
         first_name: contact.first_name || '',
         last_name: contact.last_name || '',
@@ -85,9 +91,9 @@ export default function CallLogModal({ open, onClose, onSuccess, isLogCall = fal
 
   const handleCompanyChange = (companyId) => {
     setFormData({ ...formData, company_id: companyId });
-    const company = companies.find(c => c.id === companyId);
+    const company = companies.find((c) => c.id === companyId);
     if (company) {
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
         company_name: company.name || '',
       }));
@@ -108,7 +114,9 @@ export default function CallLogModal({ open, onClose, onSuccess, isLogCall = fal
 
       // Create or find company
       if (!companyId) {
-        const existingCompany = companies.find(c => c.name.toLowerCase() === formData.company_name.toLowerCase());
+        const existingCompany = companies.find(
+          (c) => c.name.toLowerCase() === formData.company_name.toLowerCase()
+        );
         if (existingCompany) {
           companyId = existingCompany.id;
         } else {
@@ -122,9 +130,10 @@ export default function CallLogModal({ open, onClose, onSuccess, isLogCall = fal
       // Create or find contact
       if (!contactId) {
         const existingContact = contacts.find(
-          c => c.first_name.toLowerCase() === formData.first_name.toLowerCase() &&
-               c.last_name.toLowerCase() === (formData.last_name || '').toLowerCase() &&
-               c.company_name.toLowerCase() === formData.company_name.toLowerCase()
+          (c) =>
+            c.first_name.toLowerCase() === formData.first_name.toLowerCase() &&
+            c.last_name.toLowerCase() === (formData.last_name || '').toLowerCase() &&
+            c.company_name.toLowerCase() === formData.company_name.toLowerCase()
         );
         if (existingContact) {
           contactId = existingContact.id;
@@ -198,10 +207,12 @@ export default function CallLogModal({ open, onClose, onSuccess, isLogCall = fal
             <Label htmlFor="contact_id">Known Contact (Optional)</Label>
             <Select value={formData.contact_id} onValueChange={handleContactChange}>
               <SelectTrigger disabled={searchingContacts}>
-                <SelectValue placeholder={searchingContacts ? "Loading..." : "Select a contact..."} />
+                <SelectValue
+                  placeholder={searchingContacts ? 'Loading...' : 'Select a contact...'}
+                />
               </SelectTrigger>
               <SelectContent>
-                {contacts.map(contact => (
+                {contacts.map((contact) => (
                   <SelectItem key={contact.id} value={contact.id}>
                     {contact.first_name} {contact.last_name} - {contact.company_name}
                   </SelectItem>
@@ -214,10 +225,12 @@ export default function CallLogModal({ open, onClose, onSuccess, isLogCall = fal
             <Label htmlFor="company_name">Company *</Label>
             <Select value={formData.company_id} onValueChange={handleCompanyChange}>
               <SelectTrigger disabled={searchingCompanies}>
-                <SelectValue placeholder={searchingCompanies ? "Loading..." : "Select a company..."} />
+                <SelectValue
+                  placeholder={searchingCompanies ? 'Loading...' : 'Select a company...'}
+                />
               </SelectTrigger>
               <SelectContent>
-                {companies.map(company => (
+                {companies.map((company) => (
                   <SelectItem key={company.id} value={company.id}>
                     {company.name}
                   </SelectItem>
@@ -278,7 +291,10 @@ export default function CallLogModal({ open, onClose, onSuccess, isLogCall = fal
 
           <div className="space-y-2">
             <Label htmlFor="outcome">Outcome</Label>
-            <Select value={formData.outcome} onValueChange={(value) => setFormData({ ...formData, outcome: value })}>
+            <Select
+              value={formData.outcome}
+              onValueChange={(value) => setFormData({ ...formData, outcome: value })}
+            >
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>

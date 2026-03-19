@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, Globe } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
+import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Plus, Globe } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
 import WebsiteModal from '@/components/modals/WebsiteModal';
 import EmptyState from '@/components/ui/EmptyState';
 import SEOOverviewStats from '@/components/seo/SEOOverviewStats';
@@ -73,19 +73,19 @@ export default function SEODashboard() {
 
   const detectSEOAnomaliesMutation = useMutation({
     mutationFn: async () => {
-      const seoData = websites.map(w => ({
+      const seoData = websites.map((w) => ({
         name: w.name,
         url: w.url,
         seo_score: w.seo_score || 0,
         organic_traffic: w.organic_traffic || 0,
-        domain_authority: w.domain_authority || 0
+        domain_authority: w.domain_authority || 0,
       }));
 
-      const keywordData = keywords.map(k => ({
+      const keywordData = keywords.map((k) => ({
         keyword: k.keyword,
         position: k.current_position,
         previous: k.previous_position,
-        volume: k.search_volume
+        volume: k.search_volume,
       }));
 
       const result = await base44.integrations.Core.InvokeLLM({
@@ -110,26 +110,26 @@ For each issue, provide:
 - Possible cause
 - Recommendation`,
         response_json_schema: {
-          type: "object",
+          type: 'object',
           properties: {
             anomalies: {
-              type: "array",
+              type: 'array',
               items: {
-                type: "object",
+                type: 'object',
                 properties: {
-                  severity: { type: "string" },
-                  title: { type: "string" },
-                  description: { type: "string" },
-                  recommendation: { type: "string" }
-                }
-              }
-            }
-          }
-        }
+                  severity: { type: 'string' },
+                  title: { type: 'string' },
+                  description: { type: 'string' },
+                  recommendation: { type: 'string' },
+                },
+              },
+            },
+          },
+        },
       });
 
       return result.anomalies || [];
-    }
+    },
   });
 
   const createMutation = useMutation({
@@ -140,7 +140,7 @@ For each issue, provide:
       setSelectedWebsite(null);
       toast.success('Website added successfully');
     },
-    onError: () => toast.error('Failed to add website')
+    onError: () => toast.error('Failed to add website'),
   });
 
   const updateMutation = useMutation({
@@ -151,7 +151,7 @@ For each issue, provide:
       setSelectedWebsite(null);
       toast.success('Website updated successfully');
     },
-    onError: () => toast.error('Failed to update website')
+    onError: () => toast.error('Failed to update website'),
   });
 
   const deleteMutation = useMutation({
@@ -160,13 +160,13 @@ For each issue, provide:
       queryClient.invalidateQueries({ queryKey: ['websites'] });
       toast.success('Website deleted successfully');
     },
-    onError: () => toast.error('Failed to delete website')
+    onError: () => toast.error('Failed to delete website'),
   });
 
   const analyzeWebsiteMutation = useMutation({
     mutationFn: async (website) => {
       setAnalyzingWebsite(website.id);
-      
+
       const analysis = await base44.integrations.Core.InvokeLLM({
         prompt: `Analyze the SEO metrics for this website: ${website.url}
         Website name: ${website.name}
@@ -180,44 +180,44 @@ For each issue, provide:
         6. Top 5 backlinks with source domain, anchor text, DA`,
         add_context_from_internet: true,
         response_json_schema: {
-          type: "object",
+          type: 'object',
           properties: {
-            domain_authority: { type: "number" },
-            page_authority: { type: "number" },
-            organic_traffic: { type: "number" },
-            seo_score: { type: "number" },
+            domain_authority: { type: 'number' },
+            page_authority: { type: 'number' },
+            organic_traffic: { type: 'number' },
+            seo_score: { type: 'number' },
             keywords: {
-              type: "array",
+              type: 'array',
               items: {
-                type: "object",
+                type: 'object',
                 properties: {
-                  keyword: { type: "string" },
-                  current_position: { type: "number" },
-                  search_volume: { type: "number" },
-                  difficulty: { type: "number" }
-                }
-              }
+                  keyword: { type: 'string' },
+                  current_position: { type: 'number' },
+                  search_volume: { type: 'number' },
+                  difficulty: { type: 'number' },
+                },
+              },
             },
             backlinks: {
-              type: "array",
+              type: 'array',
               items: {
-                type: "object",
+                type: 'object',
                 properties: {
-                  source_domain: { type: "string" },
-                  source_url: { type: "string" },
-                  anchor_text: { type: "string" },
-                  domain_authority: { type: "number" }
-                }
-              }
-            }
-          }
-        }
+                  source_domain: { type: 'string' },
+                  source_url: { type: 'string' },
+                  anchor_text: { type: 'string' },
+                  domain_authority: { type: 'number' },
+                },
+              },
+            },
+          },
+        },
       });
 
       // Count keywords and backlinks for this website
       const existingKeywords = await base44.entities.Keyword.filter({ website_id: website.id });
       const existingBacklinks = await base44.entities.Backlink.filter({ website_id: website.id });
-      
+
       await base44.entities.Website.update(website.id, {
         domain_authority: analysis.domain_authority,
         page_authority: analysis.page_authority,
@@ -225,10 +225,10 @@ For each issue, provide:
         seo_score: analysis.seo_score,
         total_keywords: existingKeywords.length + (analysis.keywords?.length || 0),
         total_backlinks: existingBacklinks.length + (analysis.backlinks?.length || 0),
-        last_audit_date: new Date().toISOString()
+        last_audit_date: new Date().toISOString(),
       });
 
-      const existingKeywordNames = new Set(existingKeywords.map(k => k.keyword?.toLowerCase()));
+      const existingKeywordNames = new Set(existingKeywords.map((k) => k.keyword?.toLowerCase()));
 
       // Create keywords with historical tracking
       if (analysis.keywords?.length > 0) {
@@ -240,9 +240,9 @@ For each issue, provide:
               current_position: kw.current_position,
               search_volume: kw.search_volume,
               difficulty: kw.difficulty,
-              target_url: website.url
+              target_url: website.url,
             });
-            
+
             // Create initial history entry
             await base44.entities.KeywordHistory.create({
               keyword_id: newKeyword.id,
@@ -250,13 +250,15 @@ For each issue, provide:
               position: kw.current_position,
               date: new Date().toISOString().split('T')[0],
               search_volume: kw.search_volume,
-              url: website.url
+              url: website.url,
             });
           }
         }
       }
 
-      const existingBacklinkDomains = new Set(existingBacklinks.map(b => b.source_domain?.toLowerCase()));
+      const existingBacklinkDomains = new Set(
+        existingBacklinks.map((b) => b.source_domain?.toLowerCase())
+      );
 
       if (analysis.backlinks?.length > 0) {
         for (const bl of analysis.backlinks) {
@@ -270,7 +272,7 @@ For each issue, provide:
               domain_authority: bl.domain_authority,
               link_type: 'dofollow',
               status: 'active',
-              first_seen: new Date().toISOString().split('T')[0]
+              first_seen: new Date().toISOString().split('T')[0],
             });
           }
         }
@@ -288,7 +290,7 @@ For each issue, provide:
     onError: () => {
       setAnalyzingWebsite(null);
       toast.error('Analysis failed');
-    }
+    },
   });
 
   const handleSave = (data) => {
@@ -304,15 +306,17 @@ For each issue, provide:
     setShowModal(true);
   };
 
-  const getWebsiteKeywords = (websiteId) => keywords.filter(k => k.website_id === websiteId);
-  const getWebsiteBacklinks = (websiteId) => backlinks.filter(b => b.website_id === websiteId);
+  const getWebsiteKeywords = (websiteId) => keywords.filter((k) => k.website_id === websiteId);
+  const getWebsiteBacklinks = (websiteId) => backlinks.filter((b) => b.website_id === websiteId);
 
   if (loadingWebsites) {
     return (
       <div className="p-6 lg:p-8 space-y-6 min-h-screen">
         <Skeleton className="h-10 w-64" />
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-24 rounded-xl" />)}
+          {[...Array(4)].map((_, i) => (
+            <Skeleton key={i} className="h-24 rounded-xl" />
+          ))}
         </div>
       </div>
     );
@@ -323,10 +327,17 @@ For each issue, provide:
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">SEO Dashboard</h1>
-          <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400 mt-1">Monitor and improve your search engine rankings</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
+            SEO Dashboard
+          </h1>
+          <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400 mt-1">
+            Monitor and improve your search engine rankings
+          </p>
         </div>
-        <Button onClick={() => setShowModal(true)} className="gap-2 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 shadow-lg shadow-emerald-500/20 w-full sm:w-auto">
+        <Button
+          onClick={() => setShowModal(true)}
+          className="gap-2 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 shadow-lg shadow-emerald-500/20 w-full sm:w-auto"
+        >
           <Plus className="w-4 h-4" />
           Add Website
         </Button>
@@ -351,10 +362,16 @@ For each issue, provide:
           {/* Main Content Grid */}
           <Tabs defaultValue="websites" className="space-y-5">
             <TabsList className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-1 rounded-xl shadow-sm">
-              <TabsTrigger value="websites" className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-emerald-500 data-[state=active]:to-teal-600 data-[state=active]:text-white">
+              <TabsTrigger
+                value="websites"
+                className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-emerald-500 data-[state=active]:to-teal-600 data-[state=active]:text-white"
+              >
                 Websites
               </TabsTrigger>
-              <TabsTrigger value="analytics" className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-emerald-500 data-[state=active]:to-teal-600 data-[state=active]:text-white">
+              <TabsTrigger
+                value="analytics"
+                className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-emerald-500 data-[state=active]:to-teal-600 data-[state=active]:text-white"
+              >
                 Analytics
               </TabsTrigger>
             </TabsList>
@@ -380,8 +397,8 @@ For each issue, provide:
               {websites.length > 0 && (
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
                   {websites.slice(0, 2).map((website) => (
-                    <TechnicalAuditCard 
-                      key={website.id} 
+                    <TechnicalAuditCard
+                      key={website.id}
                       website={website}
                       onAuditSaved={() => {
                         queryClient.invalidateQueries({ queryKey: ['websites'] });
@@ -395,18 +412,20 @@ For each issue, provide:
 
             <TabsContent value="analytics" className="space-y-5 mt-0">
               {websites[0] && (
-                <LiveDataIntegration 
+                <LiveDataIntegration
                   website={websites[0]}
                   onDataFetched={async ({ source, data }) => {
                     // Update website with live data
                     if (source === 'gsc' && data.keywords) {
                       // Sync GSC keywords
                       for (const kw of data.keywords.slice(0, 20)) {
-                        const existing = keywords.find(k => k.keyword?.toLowerCase() === kw.keyword?.toLowerCase());
+                        const existing = keywords.find(
+                          (k) => k.keyword?.toLowerCase() === kw.keyword?.toLowerCase()
+                        );
                         if (existing) {
                           await base44.entities.Keyword.update(existing.id, {
                             current_position: Math.round(kw.position),
-                            search_volume: kw.impressions
+                            search_volume: kw.impressions,
                           });
                         } else {
                           await base44.entities.Keyword.create({
@@ -414,32 +433,33 @@ For each issue, provide:
                             keyword: kw.keyword,
                             current_position: Math.round(kw.position),
                             search_volume: kw.impressions,
-                            target_url: kw.pages?.[0] || websites[0].url
+                            target_url: kw.pages?.[0] || websites[0].url,
                           });
                         }
                       }
                     }
-                    
+
                     if (source === 'semrush' && data.domain_metrics) {
                       await base44.entities.Website.update(websites[0].id, {
                         organic_traffic: data.domain_metrics.organic_traffic,
                         total_keywords: data.domain_metrics.organic_keywords,
-                        total_backlinks: data.backlinks?.total_backlinks || websites[0].total_backlinks
+                        total_backlinks:
+                          data.backlinks?.total_backlinks || websites[0].total_backlinks,
                       });
                     }
-                    
+
                     if (source === 'ahrefs' && data.domain_metrics) {
                       await base44.entities.Website.update(websites[0].id, {
                         domain_authority: data.domain_metrics.domain_rating,
                         organic_traffic: data.domain_metrics.organic_traffic,
-                        total_backlinks: data.domain_metrics.backlinks
+                        total_backlinks: data.domain_metrics.backlinks,
                       });
-                      
+
                       // Sync backlinks
                       if (data.backlinks) {
                         for (const bl of data.backlinks.slice(0, 50)) {
-                          const existing = backlinks.find(b => 
-                            b.source_url === bl.source_url && b.target_url === bl.target_url
+                          const existing = backlinks.find(
+                            (b) => b.source_url === bl.source_url && b.target_url === bl.target_url
                           );
                           if (!existing) {
                             await base44.entities.Backlink.create({
@@ -450,13 +470,13 @@ For each issue, provide:
                               anchor_text: bl.anchor_text,
                               domain_authority: bl.domain_rating,
                               link_type: bl.link_type,
-                              first_seen: bl.first_seen
+                              first_seen: bl.first_seen,
                             });
                           }
                         }
                       }
                     }
-                    
+
                     queryClient.invalidateQueries({ queryKey: ['websites'] });
                     queryClient.invalidateQueries({ queryKey: ['keywords'] });
                     queryClient.invalidateQueries({ queryKey: ['backlinks'] });
@@ -466,17 +486,14 @@ For each issue, provide:
               )}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
                 <SentimentOverview mentions={mentions} />
-                <ShareOfVoiceCard 
-                  website={websites[0]} 
+                <ShareOfVoiceCard
+                  website={websites[0]}
                   keywords={keywords}
                   onSaveSov={(data) => saveSovMutation.mutate(data)}
                 />
               </div>
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-                <SEOHistoricalTracker 
-                  keywords={keywords}
-                  keywordHistory={keywordHistory}
-                />
+                <SEOHistoricalTracker keywords={keywords} keywordHistory={keywordHistory} />
                 <SEOAnomalyDetector
                   websites={websites}
                   keywords={keywords}
@@ -485,14 +502,11 @@ For each issue, provide:
                 />
               </div>
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-                <HistoricalDataCard 
-                  keywords={keywords} 
-                  keywordHistory={keywordHistory}
-                />
-                <PredictiveAnalyticsCard 
-                  websites={websites} 
-                  keywords={keywords} 
-                  backlinks={backlinks} 
+                <HistoricalDataCard keywords={keywords} keywordHistory={keywordHistory} />
+                <PredictiveAnalyticsCard
+                  websites={websites}
+                  keywords={keywords}
+                  backlinks={backlinks}
                 />
               </div>
             </TabsContent>
@@ -503,7 +517,10 @@ For each issue, provide:
       {/* Modals */}
       <WebsiteModal
         open={showModal}
-        onClose={() => { setShowModal(false); setSelectedWebsite(null); }}
+        onClose={() => {
+          setShowModal(false);
+          setSelectedWebsite(null);
+        }}
         website={selectedWebsite}
         onSave={handleSave}
         isLoading={createMutation.isPending || updateMutation.isPending}

@@ -11,7 +11,7 @@ Deno.serve(async (req) => {
 
     // Fetch all companies
     const companies = await base44.entities.Company.list();
-    
+
     if (!companies || companies.length === 0) {
       return Response.json({ message: 'No companies to enrich', count: 0 });
     }
@@ -45,9 +45,9 @@ Focus on factual, current information.`;
             properties: {
               description: { type: 'string' },
               industry_trends: { type: 'array', items: { type: 'string' } },
-              key_competitors: { type: 'array', items: { type: 'string' } }
-            }
-          }
+              key_competitors: { type: 'array', items: { type: 'string' } },
+            },
+          },
         });
 
         if (enrichmentData) {
@@ -57,25 +57,30 @@ Focus on factual, current information.`;
             industry_trends: enrichmentData.industry_trends || company.industry_trends || [],
             key_competitors: enrichmentData.key_competitors || company.key_competitors || [],
             ai_enriched: true,
-            ai_enriched_date: new Date().toISOString()
+            ai_enriched_date: new Date().toISOString(),
           });
 
           enrichedCount++;
           results.push({ id: company.id, name: company.name, status: 'enriched' });
         }
       } catch (error) {
-        results.push({ id: company.id, name: company.name, status: 'failed', error: error.message });
+        results.push({
+          id: company.id,
+          name: company.name,
+          status: 'failed',
+          error: error.message,
+        });
       }
 
       // Small delay to avoid rate limiting
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await new Promise((resolve) => setTimeout(resolve, 500));
     }
 
     return Response.json({
       message: 'Company enrichment complete',
       total: companies.length,
       enriched: enrichedCount,
-      results
+      results,
     });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });

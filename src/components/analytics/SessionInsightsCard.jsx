@@ -1,7 +1,7 @@
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Route, Target, MousePointer, ArrowRight, TrendingUp, AlertCircle } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Route, Target, MousePointer, ArrowRight, TrendingUp, AlertCircle } from 'lucide-react';
 
 export default function SessionInsightsCard() {
   // Common user paths through SyberJet website
@@ -56,7 +56,9 @@ export default function SessionInsightsCard() {
       <CardContent className="space-y-6">
         {/* Top User Paths */}
         <div>
-          <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Top User Journeys</h4>
+          <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+            Top User Journeys
+          </h4>
           <div className="space-y-3">
             {topPaths.map((journey, idx) => (
               <div key={idx} className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
@@ -87,7 +89,9 @@ export default function SessionInsightsCard() {
 
         {/* Conversion Events */}
         <div>
-          <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Conversion Events</h4>
+          <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+            Conversion Events
+          </h4>
           <div className="grid grid-cols-2 gap-2">
             {conversionEvents.map((event) => (
               <div key={event.name} className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
@@ -96,9 +100,14 @@ export default function SessionInsightsCard() {
                   <span className="text-lg font-bold text-gray-900 dark:text-white">
                     {event.count.toLocaleString()}
                   </span>
-                  <Badge className={`text-xs ${event.change >= 0 ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'}`}>
-                    <TrendingUp className={`w-3 h-3 mr-1 ${event.change < 0 ? 'rotate-180' : ''}`} />
-                    {event.change > 0 ? '+' : ''}{event.change}%
+                  <Badge
+                    className={`text-xs ${event.change >= 0 ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'}`}
+                  >
+                    <TrendingUp
+                      className={`w-3 h-3 mr-1 ${event.change < 0 ? 'rotate-180' : ''}`}
+                    />
+                    {event.change > 0 ? '+' : ''}
+                    {event.change}%
                   </Badge>
                 </div>
               </div>
@@ -114,9 +123,14 @@ export default function SessionInsightsCard() {
           </h4>
           <div className="space-y-2">
             {dropOffPoints.map((point) => (
-              <div key={point.page} className="flex items-center justify-between bg-amber-50 dark:bg-amber-900/20 rounded-lg p-3">
+              <div
+                key={point.page}
+                className="flex items-center justify-between bg-amber-50 dark:bg-amber-900/20 rounded-lg p-3"
+              >
                 <div>
-                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{point.page}</span>
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    {point.page}
+                  </span>
                   <p className="text-xs text-gray-500">{point.issue}</p>
                 </div>
                 <Badge className="bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">

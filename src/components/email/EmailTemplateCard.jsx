@@ -1,15 +1,15 @@
 import React from 'react';
-import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Mail, Layout } from "lucide-react";
+import { Card } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Mail, Layout } from 'lucide-react';
 
 const categoryColors = {
-  newsletter: "bg-blue-100 text-blue-700",
-  promotional: "bg-pink-100 text-pink-700",
-  follow_up: "bg-amber-100 text-amber-700",
-  welcome: "bg-emerald-100 text-emerald-700",
-  announcement: "bg-violet-100 text-violet-700",
-  other: "bg-gray-100 text-gray-700",
+  newsletter: 'bg-blue-100 text-blue-700',
+  promotional: 'bg-pink-100 text-pink-700',
+  follow_up: 'bg-amber-100 text-amber-700',
+  welcome: 'bg-emerald-100 text-emerald-700',
+  announcement: 'bg-violet-100 text-violet-700',
+  other: 'bg-gray-100 text-gray-700',
 };
 
 const layoutLabels = {
@@ -21,7 +21,7 @@ const layoutLabels = {
 
 export default function EmailTemplateCard({ template, onClick }) {
   return (
-    <Card 
+    <Card
       className="p-4 border-0 shadow-sm hover:shadow-md transition-all cursor-pointer group"
       onClick={onClick}
     >

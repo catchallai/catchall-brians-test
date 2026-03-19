@@ -1,25 +1,31 @@
 import React, { useState, useEffect } from 'react';
 import CampaignPreview from '@/components/email/CampaignPreview';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Checkbox } from "@/components/ui/checkbox";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Badge } from "@/components/ui/badge";
-import { Loader2, Users } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Checkbox } from '@/components/ui/checkbox';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Badge } from '@/components/ui/badge';
+import { Loader2, Users } from 'lucide-react';
 
-export default function EmailCampaignModal({ 
-  open, 
-  onClose, 
-  emailCampaign, 
+export default function EmailCampaignModal({
+  open,
+  onClose,
+  emailCampaign,
   templates,
   campaigns,
   contacts,
-  onSave, 
-  isLoading 
+  onSave,
+  isLoading,
 }) {
   const [formData, setFormData] = useState({
     name: '',
@@ -55,36 +61,36 @@ export default function EmailCampaignModal({
   };
 
   const toggleContact = (contactId) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       contact_ids: prev.contact_ids.includes(contactId)
-        ? prev.contact_ids.filter(id => id !== contactId)
-        : [...prev.contact_ids, contactId]
+        ? prev.contact_ids.filter((id) => id !== contactId)
+        : [...prev.contact_ids, contactId],
     }));
   };
 
   const selectAllContacts = () => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      contact_ids: contacts.map(c => c.id)
+      contact_ids: contacts.map((c) => c.id),
     }));
   };
 
   const clearAllContacts = () => {
-    setFormData(prev => ({ ...prev, contact_ids: [] }));
+    setFormData((prev) => ({ ...prev, contact_ids: [] }));
   };
 
   const contactsByStatus = {
-    lead: contacts.filter(c => c.status === 'lead'),
-    prospect: contacts.filter(c => c.status === 'prospect'),
-    customer: contacts.filter(c => c.status === 'customer'),
+    lead: contacts.filter((c) => c.status === 'lead'),
+    prospect: contacts.filter((c) => c.status === 'prospect'),
+    customer: contacts.filter((c) => c.status === 'customer'),
   };
 
   const selectByStatus = (status) => {
-    const statusContacts = contactsByStatus[status]?.map(c => c.id) || [];
-    setFormData(prev => ({
+    const statusContacts = contactsByStatus[status]?.map((c) => c.id) || [];
+    setFormData((prev) => ({
       ...prev,
-      contact_ids: [...new Set([...prev.contact_ids, ...statusContacts])]
+      contact_ids: [...new Set([...prev.contact_ids, ...statusContacts])],
     }));
   };
 
@@ -92,9 +98,11 @@ export default function EmailCampaignModal({
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
         <DialogHeader>
-          <DialogTitle>{emailCampaign ? 'Edit Email Campaign' : 'Create Email Campaign'}</DialogTitle>
+          <DialogTitle>
+            {emailCampaign ? 'Edit Email Campaign' : 'Create Email Campaign'}
+          </DialogTitle>
         </DialogHeader>
-        
+
         <form onSubmit={handleSubmit} className="flex-1 overflow-hidden flex flex-col">
           <Tabs defaultValue="details" className="flex-1 overflow-hidden flex flex-col">
             <TabsList className="grid w-full grid-cols-2">
@@ -127,7 +135,7 @@ export default function EmailCampaignModal({
                       <SelectValue placeholder="Select a template" />
                     </SelectTrigger>
                     <SelectContent>
-                      {templates.map(template => (
+                      {templates.map((template) => (
                         <SelectItem key={template.id} value={template.id}>
                           {template.name}
                         </SelectItem>
@@ -140,14 +148,16 @@ export default function EmailCampaignModal({
                   <Label>Link to Marketing Campaign (Optional)</Label>
                   <Select
                     value={formData.campaign_id || 'none'}
-                    onValueChange={(value) => setFormData({ ...formData, campaign_id: value === 'none' ? '' : value })}
+                    onValueChange={(value) =>
+                      setFormData({ ...formData, campaign_id: value === 'none' ? '' : value })
+                    }
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Select a campaign" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="none">No campaign</SelectItem>
-                      {campaigns.map(campaign => (
+                      {campaigns.map((campaign) => (
                         <SelectItem key={campaign.id} value={campaign.id}>
                           {campaign.name}
                         </SelectItem>
@@ -168,19 +178,19 @@ export default function EmailCampaignModal({
                     </Button>
                   </div>
                   <div className="flex gap-1">
-                    <Badge 
+                    <Badge
                       className="cursor-pointer hover:bg-violet-200 bg-violet-100 text-violet-700 border-0"
                       onClick={() => selectByStatus('lead')}
                     >
                       + Leads ({contactsByStatus.lead.length})
                     </Badge>
-                    <Badge 
+                    <Badge
                       className="cursor-pointer hover:bg-amber-200 bg-amber-100 text-amber-700 border-0"
                       onClick={() => selectByStatus('prospect')}
                     >
                       + Prospects ({contactsByStatus.prospect.length})
                     </Badge>
-                    <Badge 
+                    <Badge
                       className="cursor-pointer hover:bg-emerald-200 bg-emerald-100 text-emerald-700 border-0"
                       onClick={() => selectByStatus('customer')}
                     >
@@ -190,20 +200,27 @@ export default function EmailCampaignModal({
                 </div>
 
                 <div className="border rounded-lg p-3 max-h-72 overflow-y-auto space-y-2">
-                  {contacts.length > 0 ? contacts.map((contact) => (
-                    <div key={contact.id} className="flex items-center gap-2">
-                      <Checkbox
-                        id={`contact-${contact.id}`}
-                        checked={formData.contact_ids.includes(contact.id)}
-                        onCheckedChange={() => toggleContact(contact.id)}
-                      />
-                      <label htmlFor={`contact-${contact.id}`} className="text-sm cursor-pointer flex-1">
-                        {contact.first_name} {contact.last_name}
-                        <span className="text-gray-400 ml-1">({contact.email})</span>
-                      </label>
-                      <Badge className="text-xs bg-gray-100 text-gray-600 border-0">{contact.status}</Badge>
-                    </div>
-                  )) : (
+                  {contacts.length > 0 ? (
+                    contacts.map((contact) => (
+                      <div key={contact.id} className="flex items-center gap-2">
+                        <Checkbox
+                          id={`contact-${contact.id}`}
+                          checked={formData.contact_ids.includes(contact.id)}
+                          onCheckedChange={() => toggleContact(contact.id)}
+                        />
+                        <label
+                          htmlFor={`contact-${contact.id}`}
+                          className="text-sm cursor-pointer flex-1"
+                        >
+                          {contact.first_name} {contact.last_name}
+                          <span className="text-gray-400 ml-1">({contact.email})</span>
+                        </label>
+                        <Badge className="text-xs bg-gray-100 text-gray-600 border-0">
+                          {contact.status}
+                        </Badge>
+                      </div>
+                    ))
+                  ) : (
                     <p className="text-sm text-gray-400 text-center py-4">No contacts available</p>
                   )}
                 </div>

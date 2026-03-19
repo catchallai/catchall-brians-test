@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CheckCircle, AlertCircle, Clock, ChevronDown } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { CheckCircle, AlertCircle, Clock, ChevronDown } from 'lucide-react';
 
 export default function WorkflowExecutionHistory({ workflowId = null }) {
   const [expandedId, setExpandedId] = useState(null);
@@ -14,32 +14,33 @@ export default function WorkflowExecutionHistory({ workflowId = null }) {
     queryFn: async () => {
       const query = workflowId ? { workflow_id: workflowId } : {};
       return await base44.entities.WorkflowExecutionLog.filter(query, '-started_at', 100);
-    }
+    },
   });
 
   const statusColor = {
     completed: 'bg-green-100 text-green-800',
     failed: 'bg-red-100 text-red-800',
     running: 'bg-blue-100 text-blue-800',
-    pending: 'bg-gray-100 text-gray-800'
+    pending: 'bg-gray-100 text-gray-800',
   };
 
   const statusIcon = {
     completed: <CheckCircle className="w-4 h-4 text-green-600" />,
     failed: <AlertCircle className="w-4 h-4 text-red-600" />,
     running: <Clock className="w-4 h-4 text-blue-600 animate-spin" />,
-    pending: <Clock className="w-4 h-4 text-gray-600" />
+    pending: <Clock className="w-4 h-4 text-gray-600" />,
   };
 
   if (isLoading) {
     return <div className="p-6 text-center text-gray-500">Loading executions...</div>;
   }
 
-  const completed = executions.filter(e => e.status === 'completed');
-  const failed = executions.filter(e => e.status === 'failed');
-  const successRate = completed.length + failed.length > 0 
-    ? Math.round((completed.length / (completed.length + failed.length)) * 100)
-    : 0;
+  const completed = executions.filter((e) => e.status === 'completed');
+  const failed = executions.filter((e) => e.status === 'failed');
+  const successRate =
+    completed.length + failed.length > 0
+      ? Math.round((completed.length / (completed.length + failed.length)) * 100)
+      : 0;
 
   return (
     <Card className="glass-card">
@@ -77,14 +78,16 @@ export default function WorkflowExecutionHistory({ workflowId = null }) {
                   <div className="flex items-center gap-3 flex-1">
                     {statusIcon[exec.status]}
                     <div className="flex-1 min-w-0">
-                      <p className="font-medium text-sm text-gray-900 dark:text-white">{exec.contact_name}</p>
-                      <p className="text-xs text-gray-600 dark:text-gray-400">{exec.workflow_name}</p>
+                      <p className="font-medium text-sm text-gray-900 dark:text-white">
+                        {exec.contact_name}
+                      </p>
+                      <p className="text-xs text-gray-600 dark:text-gray-400">
+                        {exec.workflow_name}
+                      </p>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Badge className={statusColor[exec.status]}>
-                      {exec.status}
-                    </Badge>
+                    <Badge className={statusColor[exec.status]}>{exec.status}</Badge>
                     <ChevronDown
                       className={`w-4 h-4 text-gray-400 transition-transform ${
                         expandedId === exec.id ? 'rotate-180' : ''
@@ -120,17 +123,29 @@ export default function WorkflowExecutionHistory({ workflowId = null }) {
                     )}
 
                     <div>
-                      <p className="font-semibold text-gray-700 dark:text-gray-300 mb-1">Actions Executed</p>
+                      <p className="font-semibold text-gray-700 dark:text-gray-300 mb-1">
+                        Actions Executed
+                      </p>
                       <div className="space-y-1">
                         {exec.executed_nodes?.map((node, idx) => (
                           <div key={idx} className="p-2 rounded bg-gray-100 dark:bg-gray-800">
                             <div className="flex items-center justify-between">
                               <span className="font-medium">{node.node_type}</span>
-                              <Badge className={node.status === 'completed' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}>
+                              <Badge
+                                className={
+                                  node.status === 'completed'
+                                    ? 'bg-green-100 text-green-800'
+                                    : 'bg-gray-100 text-gray-800'
+                                }
+                              >
                                 {node.status}
                               </Badge>
                             </div>
-                            {node.error && <p className="text-red-600 dark:text-red-400 text-xs mt-1">{node.error}</p>}
+                            {node.error && (
+                              <p className="text-red-600 dark:text-red-400 text-xs mt-1">
+                                {node.error}
+                              </p>
+                            )}
                           </div>
                         ))}
                       </div>

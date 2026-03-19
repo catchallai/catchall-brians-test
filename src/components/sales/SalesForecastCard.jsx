@@ -1,26 +1,48 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { 
-  TrendingUp, TrendingDown, Sparkles, Loader2, AlertTriangle, 
-  Target, Calendar, DollarSign, ArrowRight, CheckCircle, Clock
-} from "lucide-react";
-import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
+  TrendingUp,
+  TrendingDown,
+  Sparkles,
+  Loader2,
+  AlertTriangle,
+  Target,
+  Calendar,
+  DollarSign,
+  ArrowRight,
+  CheckCircle,
+  Clock,
+} from 'lucide-react';
+import {
+  BarChart,
+  Bar,
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  Cell,
+} from 'recharts';
 
 const riskColors = {
   low: 'bg-emerald-100 text-emerald-700',
   medium: 'bg-amber-100 text-amber-700',
   high: 'bg-red-100 text-red-700',
-  critical: 'bg-red-600 text-white'
+  critical: 'bg-red-600 text-white',
 };
 
-export default function SalesForecastCard({ 
-  forecast, 
-  onGenerate, 
-  isGenerating 
-}) {
+export default function SalesForecastCard({ forecast, onGenerate, isGenerating }) {
   const [period, setPeriod] = useState('this_month');
 
   const probabilityColor = (prob) => {
@@ -57,9 +79,13 @@ export default function SalesForecastCard({
             className="gap-2 bg-violet-600 hover:bg-violet-700"
           >
             {isGenerating ? (
-              <><Loader2 className="w-4 h-4 animate-spin" /> Generating...</>
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" /> Generating...
+              </>
             ) : (
-              <><Sparkles className="w-4 h-4" /> Generate Forecast</>
+              <>
+                <Sparkles className="w-4 h-4" /> Generate Forecast
+              </>
             )}
           </Button>
         </div>
@@ -69,7 +95,9 @@ export default function SalesForecastCard({
           <div className="text-center py-12">
             <Target className="w-16 h-16 text-gray-300 mx-auto mb-4" />
             <p className="text-gray-500 mb-2">No forecast generated yet</p>
-            <p className="text-gray-400 text-sm">Click "Generate Forecast" to analyze your pipeline</p>
+            <p className="text-gray-400 text-sm">
+              Click "Generate Forecast" to analyze your pipeline
+            </p>
           </div>
         ) : (
           <div className="space-y-6">
@@ -88,9 +116,13 @@ export default function SalesForecastCard({
                   </Badge>
                   <div className="flex items-center gap-1 text-sm text-gray-600">
                     {forecast.trends?.revenue_trend === 'up' ? (
-                      <><TrendingUp className="w-4 h-4 text-emerald-500" /> Trending Up</>
+                      <>
+                        <TrendingUp className="w-4 h-4 text-emerald-500" /> Trending Up
+                      </>
                     ) : (
-                      <><TrendingDown className="w-4 h-4 text-red-500" /> Trending Down</>
+                      <>
+                        <TrendingDown className="w-4 h-4 text-red-500" /> Trending Down
+                      </>
                     )}
                   </div>
                 </div>
@@ -100,15 +132,21 @@ export default function SalesForecastCard({
                 <div className="grid grid-cols-3 gap-3 pt-4 border-t">
                   <div>
                     <p className="text-xs text-gray-600">Conversion Rate</p>
-                    <p className="text-lg font-semibold text-gray-900">{forecast.trends.conversion_rate}%</p>
+                    <p className="text-lg font-semibold text-gray-900">
+                      {forecast.trends.conversion_rate}%
+                    </p>
                   </div>
                   <div>
                     <p className="text-xs text-gray-600">Avg Deal Size</p>
-                    <p className="text-lg font-semibold text-gray-900">${forecast.trends.avg_deal_size?.toLocaleString()}</p>
+                    <p className="text-lg font-semibold text-gray-900">
+                      ${forecast.trends.avg_deal_size?.toLocaleString()}
+                    </p>
                   </div>
                   <div>
                     <p className="text-xs text-gray-600">Sales Cycle</p>
-                    <p className="text-lg font-semibold text-gray-900">{forecast.trends.sales_cycle_days} days</p>
+                    <p className="text-lg font-semibold text-gray-900">
+                      {forecast.trends.sales_cycle_days} days
+                    </p>
                   </div>
                 </div>
               )}
@@ -133,9 +171,11 @@ export default function SalesForecastCard({
                           {deal.close_probability}% likely
                         </Badge>
                       </div>
-                      
+
                       <div className="flex items-center justify-between text-xs mb-2">
-                        <span className="text-gray-600">Value: ${deal.value?.toLocaleString()}</span>
+                        <span className="text-gray-600">
+                          Value: ${deal.value?.toLocaleString()}
+                        </span>
                         {deal.predicted_close_date && (
                           <span className="text-gray-600 flex items-center gap-1">
                             <Calendar className="w-3 h-3" />
@@ -153,11 +193,11 @@ export default function SalesForecastCard({
 
                       {/* Probability Bar */}
                       <div className="mt-3 h-2 bg-gray-200 rounded-full overflow-hidden">
-                        <div 
+                        <div
                           className="h-full transition-all duration-500"
-                          style={{ 
+                          style={{
                             width: `${deal.close_probability}%`,
-                            backgroundColor: probabilityColor(deal.close_probability)
+                            backgroundColor: probabilityColor(deal.close_probability),
                           }}
                         />
                       </div>

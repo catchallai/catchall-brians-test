@@ -1,17 +1,33 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Progress } from "@/components/ui/progress";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Progress } from '@/components/ui/progress';
+import { Skeleton } from '@/components/ui/skeleton';
 import {
-  MapPin, Star, Building2, Phone, Clock, Image, FileText, 
-  TrendingUp, AlertCircle, CheckCircle, Plus, RefreshCw, Sparkles,
-  Grid3X3, MessageSquare, ThumbsUp, ThumbsDown, Send, Eye
-} from "lucide-react";
+  MapPin,
+  Star,
+  Building2,
+  Phone,
+  Clock,
+  Image,
+  FileText,
+  TrendingUp,
+  AlertCircle,
+  CheckCircle,
+  Plus,
+  RefreshCw,
+  Sparkles,
+  Grid3X3,
+  MessageSquare,
+  ThumbsUp,
+  ThumbsDown,
+  Send,
+  Eye,
+} from 'lucide-react';
 import GBPOptimizationCard from '@/components/local/GBPOptimizationCard';
 import ReviewManagement from '@/components/local/ReviewManagement';
 import MapRankTracker from '@/components/local/MapRankTracker';
@@ -43,16 +59,24 @@ export default function LocalSEO() {
   });
 
   const totalReviews = reviews.length;
-  const pendingReviews = reviews.filter(r => r.status === 'pending').length;
-  const avgRating = reviews.length ? (reviews.reduce((sum, r) => sum + (r.rating || 0), 0) / reviews.length).toFixed(1) : 0;
-  const avgOptimization = profiles.length ? Math.round(profiles.reduce((sum, p) => sum + (p.optimization_score || 0), 0) / profiles.length) : 0;
+  const pendingReviews = reviews.filter((r) => r.status === 'pending').length;
+  const avgRating = reviews.length
+    ? (reviews.reduce((sum, r) => sum + (r.rating || 0), 0) / reviews.length).toFixed(1)
+    : 0;
+  const avgOptimization = profiles.length
+    ? Math.round(
+        profiles.reduce((sum, p) => sum + (p.optimization_score || 0), 0) / profiles.length
+      )
+    : 0;
 
   if (isLoading) {
     return (
       <div className="p-6 lg:p-8 space-y-6 min-h-screen">
         <Skeleton className="h-10 w-64" />
         <div className="grid grid-cols-4 gap-4">
-          {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-28" />)}
+          {[...Array(4)].map((_, i) => (
+            <Skeleton key={i} className="h-28" />
+          ))}
         </div>
       </div>
     );
@@ -64,9 +88,17 @@ export default function LocalSEO() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Local SEO</h1>
-          <p className="text-gray-500 dark:text-gray-400 mt-1">Manage GBP profiles, reviews, and local rankings</p>
+          <p className="text-gray-500 dark:text-gray-400 mt-1">
+            Manage GBP profiles, reviews, and local rankings
+          </p>
         </div>
-        <Button onClick={() => { setEditingProfile(null); setShowProfileModal(true); }} className="gap-2 bg-violet-600 hover:bg-violet-700">
+        <Button
+          onClick={() => {
+            setEditingProfile(null);
+            setShowProfileModal(true);
+          }}
+          className="gap-2 bg-violet-600 hover:bg-violet-700"
+        >
           <Plus className="w-4 h-4" />
           Add GBP Profile
         </Button>
@@ -81,7 +113,9 @@ export default function LocalSEO() {
                 <Building2 className="w-5 h-5 text-violet-600" />
               </div>
               <div>
-                <p className="text-2xl font-bold text-gray-900 dark:text-white">{profiles.length}</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                  {profiles.length}
+                </p>
                 <p className="text-sm text-gray-500">GBP Profiles</p>
               </div>
             </div>
@@ -126,7 +160,9 @@ export default function LocalSEO() {
                 <TrendingUp className="w-5 h-5 text-emerald-600" />
               </div>
               <div>
-                <p className="text-2xl font-bold text-gray-900 dark:text-white">{avgOptimization}%</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                  {avgOptimization}%
+                </p>
                 <p className="text-sm text-gray-500">Optimization</p>
               </div>
             </div>
@@ -139,7 +175,9 @@ export default function LocalSEO() {
           <TabsTrigger value="profiles">GBP Profiles</TabsTrigger>
           <TabsTrigger value="reviews" className="gap-1">
             Reviews
-            {pendingReviews > 0 && <Badge className="bg-amber-500 text-white text-xs ml-1">{pendingReviews}</Badge>}
+            {pendingReviews > 0 && (
+              <Badge className="bg-amber-500 text-white text-xs ml-1">{pendingReviews}</Badge>
+            )}
           </TabsTrigger>
           <TabsTrigger value="rankings">Map Rankings</TabsTrigger>
           <TabsTrigger value="listings">Listings</TabsTrigger>
@@ -150,8 +188,12 @@ export default function LocalSEO() {
             <Card className="glass-card rounded-2xl">
               <CardContent className="py-12 text-center">
                 <Building2 className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-                <h3 className="font-semibold text-gray-900 dark:text-white mb-2">No GBP Profiles</h3>
-                <p className="text-gray-500 mb-4">Add your Google Business Profiles to optimize local SEO</p>
+                <h3 className="font-semibold text-gray-900 dark:text-white mb-2">
+                  No GBP Profiles
+                </h3>
+                <p className="text-gray-500 mb-4">
+                  Add your Google Business Profiles to optimize local SEO
+                </p>
                 <Button onClick={() => setShowProfileModal(true)} className="gap-2">
                   <Plus className="w-4 h-4" />
                   Add Profile
@@ -161,10 +203,13 @@ export default function LocalSEO() {
           ) : (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               {profiles.map((profile) => (
-                <GBPOptimizationCard 
-                  key={profile.id} 
+                <GBPOptimizationCard
+                  key={profile.id}
                   profile={profile}
-                  onEdit={() => { setEditingProfile(profile); setShowProfileModal(true); }}
+                  onEdit={() => {
+                    setEditingProfile(profile);
+                    setShowProfileModal(true);
+                  }}
                 />
               ))}
             </div>
@@ -193,13 +238,20 @@ export default function LocalSEO() {
             <CardContent>
               <div className="space-y-3">
                 {listings.length === 0 ? (
-                  <p className="text-center text-gray-500 py-8">No listings found. Go to Listings page to add them.</p>
+                  <p className="text-center text-gray-500 py-8">
+                    No listings found. Go to Listings page to add them.
+                  </p>
                 ) : (
                   listings.slice(0, 10).map((listing) => (
-                    <div key={listing.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                    <div
+                      key={listing.id}
+                      className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg"
+                    >
                       <div className="flex items-center gap-3">
                         <Badge variant="outline">{listing.platform}</Badge>
-                        <span className="font-medium text-gray-900 dark:text-white">{listing.business_name}</span>
+                        <span className="font-medium text-gray-900 dark:text-white">
+                          {listing.business_name}
+                        </span>
                       </div>
                       <div className="flex items-center gap-2">
                         {listing.nap_consistent ? (
@@ -228,7 +280,10 @@ export default function LocalSEO() {
 
       <GBPProfileModal
         open={showProfileModal}
-        onClose={() => { setShowProfileModal(false); setEditingProfile(null); }}
+        onClose={() => {
+          setShowProfileModal(false);
+          setEditingProfile(null);
+        }}
         profile={editingProfile}
       />
     </div>

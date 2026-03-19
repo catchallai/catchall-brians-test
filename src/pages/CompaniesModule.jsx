@@ -1,15 +1,35 @@
 import React, { useState, useMemo } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Sheet, SheetContent } from "@/components/ui/sheet";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Plus, Search, Building2, ChevronDown, ChevronLeft, ChevronRight, Download, Globe, MapPin, Users, Eye, Upload, RefreshCw, ArrowUpDown } from "lucide-react";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Card } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Sheet, SheetContent } from '@/components/ui/sheet';
+import { Skeleton } from '@/components/ui/skeleton';
+import {
+  Plus,
+  Search,
+  Building2,
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  Download,
+  Globe,
+  MapPin,
+  Users,
+  Eye,
+  Upload,
+  RefreshCw,
+  ArrowUpDown,
+} from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import EmptyState from '@/components/ui/EmptyState';
 import ContactsSidebar from '@/components/crm/ContactsSidebar';
 import CompanyModal from '@/components/modals/CompanyModal';
@@ -58,12 +78,12 @@ export default function CompaniesModule() {
   const createMutation = useMutation({
     mutationFn: async (data) => {
       let companyData = { ...data };
-      
+
       // If no website provided, find it automatically
       if (!companyData.website && companyData.name) {
         try {
           const result = await base44.functions.invoke('findCompanyWebsite', {
-            company_name: companyData.name
+            company_name: companyData.name,
           });
           if (result.data?.website) {
             companyData.website = result.data.website;
@@ -72,13 +92,13 @@ export default function CompaniesModule() {
           console.log('Website lookup failed:', err);
         }
       }
-      
+
       const company = await base44.entities.Company.create(companyData);
       try {
         await base44.functions.invoke('enrichCompanyData', {
           company_id: company.id,
           company_name: company.name,
-          website: company.website
+          website: company.website,
         });
       } catch (err) {
         console.log('Auto-enrichment skipped:', err);
@@ -111,7 +131,7 @@ export default function CompaniesModule() {
 
   const syncAllLogosMutation = useMutation({
     mutationFn: async () => {
-      const companiesWithoutLogos = allCompanies.filter(c => c.website && !c.logo_url);
+      const companiesWithoutLogos = allCompanies.filter((c) => c.website && !c.logo_url);
       let syncedCount = 0;
 
       for (const company of companiesWithoutLogos) {
@@ -121,7 +141,7 @@ export default function CompaniesModule() {
             `https://logo.clearbit.com/${domain}`,
             `https://www.google.com/s2/favicons?domain=${domain}&sz=128`,
           ];
-          
+
           // Test if Clearbit logo exists using Image object
           await new Promise((resolve) => {
             const img = new Image();
@@ -172,30 +192,32 @@ export default function CompaniesModule() {
   const handleImport = async (data) => {
     // Get existing companies to check for duplicates
     const existingCompanies = await base44.entities.Company.list('-created_date', 1000);
-    const existingNames = new Set(existingCompanies.map(c => c.name?.toLowerCase()).filter(Boolean));
-    
+    const existingNames = new Set(
+      existingCompanies.map((c) => c.name?.toLowerCase()).filter(Boolean)
+    );
+
     let successCount = 0;
     const duplicateCompanies = [];
     const failedCompanies = [];
-    
+
     for (const row of data) {
       try {
         const companyData = {};
-        Object.keys(row).forEach(key => {
+        Object.keys(row).forEach((key) => {
           if (row[key]) companyData[key] = row[key];
         });
-        
+
         if (!companyData.name) {
           failedCompanies.push({ name: 'Unknown', reason: 'Missing company name' });
           continue;
         }
-        
+
         // Check for duplicate
         if (existingNames.has(companyData.name.toLowerCase())) {
           duplicateCompanies.push(companyData.name);
           continue;
         }
-        
+
         await base44.entities.Company.create(companyData);
         successCount++;
       } catch (err) {
@@ -208,13 +230,14 @@ export default function CompaniesModule() {
   };
 
   const handleFilterChange = (filterName, value) => {
-    setFilters(prev => ({ ...prev, [filterName]: value }));
+    setFilters((prev) => ({ ...prev, [filterName]: value }));
     setCurrentPage(1);
   };
 
-  const getContactCount = (companyId) => allContacts.filter(c => c.company_id === companyId).length;
+  const getContactCount = (companyId) =>
+    allContacts.filter((c) => c.company_id === companyId).length;
 
-  const getCompanyContacts = (companyId) => allContacts.filter(c => c.company_id === companyId);
+  const getCompanyContacts = (companyId) => allContacts.filter((c) => c.company_id === companyId);
 
   const getPrimaryContact = (companyId) => {
     const companyContacts = getCompanyContacts(companyId);
@@ -244,23 +267,35 @@ export default function CompaniesModule() {
   };
 
   const filteredCompanies = useMemo(() => {
-    const filtered = allCompanies.filter(company => {
-      const matchesSearch = !searchTerm || 
+    const filtered = allCompanies.filter((company) => {
+      const matchesSearch =
+        !searchTerm ||
         company.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         company.website?.toLowerCase().includes(searchTerm.toLowerCase());
-      
+
       const matchesIndustry = !filters.industry || company.industry === filters.industry;
       const matchesSize = !filters.size || company.size === filters.size;
       const matchesTier = !filters.tier || company.tier === filters.tier;
-      const matchesCountry = !filters.country || company.country?.toLowerCase().includes(filters.country.toLowerCase());
-      const matchesCity = !filters.city || company.city?.toLowerCase().includes(filters.city.toLowerCase());
-      
-      const matchesTab = activeTab === 'all' || 
+      const matchesCountry =
+        !filters.country || company.country?.toLowerCase().includes(filters.country.toLowerCase());
+      const matchesCity =
+        !filters.city || company.city?.toLowerCase().includes(filters.city.toLowerCase());
+
+      const matchesTab =
+        activeTab === 'all' ||
         (activeTab === 'tier1' && company.tier === 'Tier 1') ||
         (activeTab === 'tier2' && company.tier === 'Tier 2') ||
         (activeTab === 'tier3' && company.tier === 'Tier 3');
-      
-      return matchesSearch && matchesIndustry && matchesSize && matchesTier && matchesCountry && matchesCity && matchesTab;
+
+      return (
+        matchesSearch &&
+        matchesIndustry &&
+        matchesSize &&
+        matchesTier &&
+        matchesCountry &&
+        matchesCity &&
+        matchesTab
+      );
     });
 
     return filtered.sort((a, b) => {
@@ -279,12 +314,12 @@ export default function CompaniesModule() {
       { key: 'country', label: 'Country' },
       { key: 'phone', label: 'Phone' },
       { key: 'tier', label: 'Tier' },
-      { key: 'annual_revenue', label: 'Annual Revenue' }
+      { key: 'annual_revenue', label: 'Annual Revenue' },
     ];
     exportToCSV(filteredCompanies, 'companies', columns);
   };
 
-  const hasActiveFilters = Object.values(filters).some(v => v !== null) || searchTerm;
+  const hasActiveFilters = Object.values(filters).some((v) => v !== null) || searchTerm;
 
   return (
     <div className="flex h-screen bg-white dark:bg-slate-900">
@@ -296,13 +331,15 @@ export default function CompaniesModule() {
           <div className="p-4 sm:p-6 border-b border-gray-200 dark:border-gray-800">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div>
-                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Companies</h1>
+                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
+                  Companies
+                </h1>
               </div>
               <div className="flex flex-wrap gap-2">
-                <Button 
-                  onClick={() => syncAllLogosMutation.mutate()} 
-                  variant="outline" 
-                  className="gap-2" 
+                <Button
+                  onClick={() => syncAllLogosMutation.mutate()}
+                  variant="outline"
+                  className="gap-2"
                   size="sm"
                   disabled={syncAllLogosMutation.isPending}
                 >
@@ -313,11 +350,23 @@ export default function CompaniesModule() {
                   )}
                   Sync All Logos
                 </Button>
-                <Button onClick={() => setShowImportDialog(true)} variant="outline" className="gap-2" size="sm">
+                <Button
+                  onClick={() => setShowImportDialog(true)}
+                  variant="outline"
+                  className="gap-2"
+                  size="sm"
+                >
                   <Upload className="w-4 h-4" />
                   Import
                 </Button>
-                <Button onClick={() => { setEditingCompany(null); setShowModal(true); }} className="gap-2 bg-violet-600 hover:bg-violet-700" size="sm">
+                <Button
+                  onClick={() => {
+                    setEditingCompany(null);
+                    setShowModal(true);
+                  }}
+                  className="gap-2 bg-violet-600 hover:bg-violet-700"
+                  size="sm"
+                >
                   <Plus className="w-4 h-4" />
                   New Company
                 </Button>
@@ -328,16 +377,28 @@ export default function CompaniesModule() {
           {/* Tabs */}
           <Tabs value={activeTab} onValueChange={setActiveTab} className="px-4 sm:px-6">
             <TabsList className="bg-transparent border-b border-gray-200 dark:border-gray-800">
-              <TabsTrigger value="all" className="border-b-2 border-transparent data-[state=active]:border-violet-600">
+              <TabsTrigger
+                value="all"
+                className="border-b-2 border-transparent data-[state=active]:border-violet-600"
+              >
                 All companies
               </TabsTrigger>
-              <TabsTrigger value="tier1" className="border-b-2 border-transparent data-[state=active]:border-violet-600">
+              <TabsTrigger
+                value="tier1"
+                className="border-b-2 border-transparent data-[state=active]:border-violet-600"
+              >
                 Tier 1
               </TabsTrigger>
-              <TabsTrigger value="tier2" className="border-b-2 border-transparent data-[state=active]:border-violet-600">
+              <TabsTrigger
+                value="tier2"
+                className="border-b-2 border-transparent data-[state=active]:border-violet-600"
+              >
                 Tier 2
               </TabsTrigger>
-              <TabsTrigger value="tier3" className="border-b-2 border-transparent data-[state=active]:border-violet-600">
+              <TabsTrigger
+                value="tier3"
+                className="border-b-2 border-transparent data-[state=active]:border-violet-600"
+              >
                 Tier 3
               </TabsTrigger>
             </TabsList>
@@ -364,10 +425,18 @@ export default function CompaniesModule() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
-              <DropdownMenuItem onClick={() => handleFilterChange('industry', 'technology')}>Technology</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleFilterChange('industry', 'aviation')}>Aviation</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleFilterChange('industry', 'finance')}>Finance</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleFilterChange('industry', 'healthcare')}>Healthcare</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleFilterChange('industry', 'technology')}>
+                Technology
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleFilterChange('industry', 'aviation')}>
+                Aviation
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleFilterChange('industry', 'finance')}>
+                Finance
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleFilterChange('industry', 'healthcare')}>
+                Healthcare
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
 
@@ -379,10 +448,18 @@ export default function CompaniesModule() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
-              <DropdownMenuItem onClick={() => handleFilterChange('size', '1-10')}>1-10 employees</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleFilterChange('size', '11-50')}>11-50 employees</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleFilterChange('size', '51-200')}>51-200 employees</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleFilterChange('size', '201+')}>201+ employees</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleFilterChange('size', '1-10')}>
+                1-10 employees
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleFilterChange('size', '11-50')}>
+                11-50 employees
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleFilterChange('size', '51-200')}>
+                51-200 employees
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleFilterChange('size', '201+')}>
+                201+ employees
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
 
@@ -394,8 +471,12 @@ export default function CompaniesModule() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
-              <DropdownMenuItem onClick={() => handleFilterChange('owner', 'me')}>Me</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleFilterChange('owner', 'team')}>Team</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleFilterChange('owner', 'me')}>
+                Me
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleFilterChange('owner', 'team')}>
+                Team
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
 
@@ -407,9 +488,15 @@ export default function CompaniesModule() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
-              <DropdownMenuItem onClick={() => handleFilterChange('tier', 'Tier 1')}>Tier 1</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleFilterChange('tier', 'Tier 2')}>Tier 2</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleFilterChange('tier', 'Tier 3')}>Tier 3</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleFilterChange('tier', 'Tier 1')}>
+                Tier 1
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleFilterChange('tier', 'Tier 2')}>
+                Tier 2
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleFilterChange('tier', 'Tier 3')}>
+                Tier 3
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
 
@@ -421,10 +508,18 @@ export default function CompaniesModule() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
-              <DropdownMenuItem onClick={() => handleFilterChange('country', 'us')}>United States</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleFilterChange('country', 'uk')}>United Kingdom</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleFilterChange('country', 'ca')}>Canada</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleFilterChange('country', 'other')}>Other</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleFilterChange('country', 'us')}>
+                United States
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleFilterChange('country', 'uk')}>
+                United Kingdom
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleFilterChange('country', 'ca')}>
+                Canada
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleFilterChange('country', 'other')}>
+                Other
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
 
@@ -444,7 +539,14 @@ export default function CompaniesModule() {
               className="h-8 text-xs text-gray-500 hover:text-gray-700"
               onClick={() => {
                 setSearchTerm('');
-                setFilters({ industry: null, size: null, owner: null, tier: null, country: null, city: null });
+                setFilters({
+                  industry: null,
+                  size: null,
+                  owner: null,
+                  tier: null,
+                  country: null,
+                  city: null,
+                });
               }}
             >
               Clear all
@@ -465,7 +567,10 @@ export default function CompaniesModule() {
                 title="No matches for the current filters."
                 description="Expecting to see a new record? Try again in a few seconds as the system catches up."
                 actionLabel="Add Company"
-                onAction={() => { setEditingCompany(null); setShowModal(true); }}
+                onAction={() => {
+                  setEditingCompany(null);
+                  setShowModal(true);
+                }}
               />
             </div>
           ) : (
@@ -473,7 +578,7 @@ export default function CompaniesModule() {
               <table className="w-full">
                 <thead className="bg-gray-50 dark:bg-gray-800/50 sticky top-0 z-10">
                   <tr>
-                    <th 
+                    <th
                       className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                       onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
                     >
@@ -482,26 +587,45 @@ export default function CompaniesModule() {
                         <ArrowUpDown className="w-3 h-3" />
                       </div>
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase">Industry</th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase">Tier</th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase">Location</th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase">Website</th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase">Contacts</th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase">Revenue</th>
-                    <th className="px-4 py-3 text-right text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase">Actions</th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase">
+                      Industry
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase">
+                      Tier
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase">
+                      Location
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase">
+                      Website
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase">
+                      Contacts
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase">
+                      Revenue
+                    </th>
+                    <th className="px-4 py-3 text-right text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase">
+                      Actions
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-slate-900">
                   {filteredCompanies.map((company) => (
-                    <tr key={company.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/30 transition-colors">
+                    <tr
+                      key={company.id}
+                      className="hover:bg-gray-50 dark:hover:bg-gray-800/30 transition-colors"
+                    >
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-3">
                           {company.logo_url && !failedLogos.has(company.id) ? (
-                            <img 
-                              src={company.logo_url} 
+                            <img
+                              src={company.logo_url}
                               alt={company.name}
                               className="w-10 h-10 rounded-lg object-cover border border-gray-200 dark:border-gray-700"
-                              onError={() => setFailedLogos(prev => new Set(prev).add(company.id))}
+                              onError={() =>
+                                setFailedLogos((prev) => new Set(prev).add(company.id))
+                              }
                             />
                           ) : (
                             <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm">
@@ -509,16 +633,23 @@ export default function CompaniesModule() {
                             </div>
                           )}
                           <div>
-                            <p className="font-semibold text-gray-900 dark:text-white">{company.name}</p>
+                            <p className="font-semibold text-gray-900 dark:text-white">
+                              {company.name}
+                            </p>
                           </div>
                         </div>
                       </td>
                       <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
                         {company.industry ? (
-                          <Badge variant="secondary" className="bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-xs">
+                          <Badge
+                            variant="secondary"
+                            className="bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-xs"
+                          >
                             {industryLabels[company.industry] || company.industry}
                           </Badge>
-                        ) : '-'}
+                        ) : (
+                          '-'
+                        )}
                       </td>
                       <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
                         {company.tier || '-'}
@@ -528,10 +659,17 @@ export default function CompaniesModule() {
                       </td>
                       <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
                         {company.website ? (
-                          <a href={company.website} target="_blank" rel="noopener noreferrer" className="text-violet-600 dark:text-violet-400 hover:underline truncate block max-w-xs">
+                          <a
+                            href={company.website}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-violet-600 dark:text-violet-400 hover:underline truncate block max-w-xs"
+                          >
                             {company.website}
                           </a>
-                        ) : '-'}
+                        ) : (
+                          '-'
+                        )}
                       </td>
                       <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
                         <div className="flex items-center gap-1">
@@ -551,11 +689,7 @@ export default function CompaniesModule() {
                           >
                             <Eye className="w-4 h-4" />
                           </Button>
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={() => handleEdit(company)}
-                          >
+                          <Button size="sm" variant="ghost" onClick={() => handleEdit(company)}>
                             Edit
                           </Button>
                         </div>
@@ -607,7 +741,10 @@ export default function CompaniesModule() {
       {/* Modals */}
       <CompanyModal
         open={showModal}
-        onClose={() => { setShowModal(false); setEditingCompany(null); }}
+        onClose={() => {
+          setShowModal(false);
+          setEditingCompany(null);
+        }}
         company={editingCompany}
         onSave={handleSave}
         onDelete={(id) => deleteMutation.mutate(id)}
@@ -616,9 +753,7 @@ export default function CompaniesModule() {
 
       <Sheet open={showDetailPanel} onOpenChange={setShowDetailPanel}>
         <SheetContent className="w-full sm:max-w-2xl overflow-y-auto">
-          {selectedCompany && (
-            <CompanyDetailPanel companyId={selectedCompany.id} />
-          )}
+          {selectedCompany && <CompanyDetailPanel companyId={selectedCompany.id} />}
         </SheetContent>
       </Sheet>
 
@@ -628,11 +763,22 @@ export default function CompaniesModule() {
         onImport={handleImport}
         entityName="Company"
         requiredFields={['name']}
-        optionalFields={['website', 'industry', 'city', 'country', 'phone', 'tier', 'annual_revenue', 'description']}
+        optionalFields={[
+          'website',
+          'industry',
+          'city',
+          'country',
+          'phone',
+          'tier',
+          'annual_revenue',
+          'description',
+        ]}
         onImportComplete={(result) => {
           const messages = [];
           if (result.duplicateCompanies?.length > 0) {
-            messages.push(`⚠️ ${result.duplicateCompanies.length} duplicate companies skipped: ${result.duplicateCompanies.join(', ')}`);
+            messages.push(
+              `⚠️ ${result.duplicateCompanies.length} duplicate companies skipped: ${result.duplicateCompanies.join(', ')}`
+            );
           }
           if (result.failedCompanies?.length > 0) {
             messages.push(`❌ ${result.failedCompanies.length} companies failed`);

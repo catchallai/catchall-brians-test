@@ -4,14 +4,22 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Twitter, Linkedin, Facebook, Instagram, Loader2, CheckCircle, AlertCircle } from 'lucide-react';
+import {
+  Twitter,
+  Linkedin,
+  Facebook,
+  Instagram,
+  Loader2,
+  CheckCircle,
+  AlertCircle,
+} from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 
 const PLATFORMS = [
   { name: 'Twitter', icon: Twitter, color: 'bg-gray-900' },
   { name: 'LinkedIn', icon: Linkedin, color: 'bg-blue-600' },
   { name: 'Facebook', icon: Facebook, color: 'bg-blue-500' },
-  { name: 'Instagram', icon: Instagram, color: 'bg-gradient-to-br from-purple-600 to-orange-400' }
+  { name: 'Instagram', icon: Instagram, color: 'bg-gradient-to-br from-purple-600 to-orange-400' },
 ];
 
 export default function QuickPostModal({ open, onClose }) {
@@ -21,10 +29,8 @@ export default function QuickPostModal({ open, onClose }) {
   const [results, setResults] = useState([]);
 
   const togglePlatform = (platform) => {
-    setSelectedPlatforms(prev =>
-      prev.includes(platform)
-        ? prev.filter(p => p !== platform)
-        : [...prev, platform]
+    setSelectedPlatforms((prev) =>
+      prev.includes(platform) ? prev.filter((p) => p !== platform) : [...prev, platform]
     );
   };
 
@@ -37,13 +43,13 @@ export default function QuickPostModal({ open, onClose }) {
     try {
       const response = await base44.functions.invoke('quickPostToSocial', {
         content,
-        platforms: selectedPlatforms
+        platforms: selectedPlatforms,
       });
 
       setResults(response.data.results || []);
-      
+
       // If all successful, close after a moment
-      const allSuccess = response.data.results.every(r => r.success);
+      const allSuccess = response.data.results.every((r) => r.success);
       if (allSuccess) {
         setTimeout(() => {
           onClose();
@@ -73,7 +79,7 @@ export default function QuickPostModal({ open, onClose }) {
               Select Platforms
             </label>
             <div className="flex flex-wrap gap-2">
-              {PLATFORMS.map(platform => {
+              {PLATFORMS.map((platform) => {
                 const Icon = platform.icon;
                 const isSelected = selectedPlatforms.includes(platform.name);
                 return (
@@ -106,9 +112,7 @@ export default function QuickPostModal({ open, onClose }) {
               rows={6}
               className="resize-none"
             />
-            <div className="text-xs text-gray-500 mt-1">
-              {content.length} characters
-            </div>
+            <div className="text-xs text-gray-500 mt-1">{content.length} characters</div>
           </div>
 
           {/* Results */}
@@ -117,15 +121,26 @@ export default function QuickPostModal({ open, onClose }) {
               {results.map((result, idx) => (
                 <Alert
                   key={idx}
-                  className={result.success ? 'border-green-200 bg-green-50 dark:bg-green-900/20' : 'border-red-200 bg-red-50 dark:bg-red-900/20'}
+                  className={
+                    result.success
+                      ? 'border-green-200 bg-green-50 dark:bg-green-900/20'
+                      : 'border-red-200 bg-red-50 dark:bg-red-900/20'
+                  }
                 >
                   {result.success ? (
                     <CheckCircle className="w-4 h-4 text-green-600" />
                   ) : (
                     <AlertCircle className="w-4 h-4 text-red-600" />
                   )}
-                  <AlertDescription className={result.success ? 'text-green-800 dark:text-green-200' : 'text-red-800 dark:text-red-200'}>
-                    <strong>{result.platform}:</strong> {result.success ? 'Posted successfully!' : result.error}
+                  <AlertDescription
+                    className={
+                      result.success
+                        ? 'text-green-800 dark:text-green-200'
+                        : 'text-red-800 dark:text-red-200'
+                    }
+                  >
+                    <strong>{result.platform}:</strong>{' '}
+                    {result.success ? 'Posted successfully!' : result.error}
                   </AlertDescription>
                 </Alert>
               ))}

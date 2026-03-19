@@ -1,7 +1,7 @@
 import React from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 
 export default function LandingPagePreviewModal({ open, onClose, page }) {
   if (!page) return null;
@@ -15,9 +15,11 @@ export default function LandingPagePreviewModal({ open, onClose, page }) {
           className="relative py-24 px-6 text-center text-white"
           style={{
             backgroundColor: page.theme?.primary_color || '#7c3aed',
-            backgroundImage: content.backgroundImage ? `url(${content.backgroundImage})` : undefined,
+            backgroundImage: content.backgroundImage
+              ? `url(${content.backgroundImage})`
+              : undefined,
             backgroundSize: 'cover',
-            backgroundPosition: 'center'
+            backgroundPosition: 'center',
           }}
         >
           <h1 className="text-5xl font-bold mb-4">{content.heading}</h1>
@@ -138,10 +140,7 @@ export default function LandingPagePreviewModal({ open, onClose, page }) {
           </div>
         </DialogHeader>
 
-        <div
-          className="bg-white"
-          style={{ fontFamily: page.theme?.font_family || 'Inter' }}
-        >
+        <div className="bg-white" style={{ fontFamily: page.theme?.font_family || 'Inter' }}>
           {(page.sections || [])
             .sort((a, b) => (a.order || 0) - (b.order || 0))
             .map((section) => (

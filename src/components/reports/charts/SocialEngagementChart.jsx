@@ -1,6 +1,15 @@
 import React from 'react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
-import { Badge } from "@/components/ui/badge";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  Legend,
+} from 'recharts';
+import { Badge } from '@/components/ui/badge';
 import { format, eachWeekOfInterval } from 'date-fns';
 
 const platformColors = {
@@ -14,7 +23,7 @@ export default function SocialEngagementChart({ dateRange, mentions = [] }) {
   // Generate mock data
   const generateData = () => {
     const weeks = eachWeekOfInterval({ start: dateRange.from, end: dateRange.to });
-    
+
     return weeks.map((date, idx) => ({
       date: format(date, 'MMM d'),
       likes: Math.round(500 + Math.sin(idx * 0.4) * 200 + Math.random() * 150),
@@ -59,24 +68,19 @@ export default function SocialEngagementChart({ dateRange, mentions = [] }) {
       <div className="h-48">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" className="dark:stroke-gray-700" />
-            <XAxis 
-              dataKey="date" 
-              tick={{ fontSize: 10 }} 
-              tickLine={false}
-              axisLine={false}
+            <CartesianGrid
+              strokeDasharray="3 3"
+              stroke="#e5e7eb"
+              className="dark:stroke-gray-700"
             />
-            <YAxis 
-              tick={{ fontSize: 10 }} 
-              tickLine={false}
-              axisLine={false}
-            />
-            <Tooltip 
-              contentStyle={{ 
-                backgroundColor: 'rgba(255,255,255,0.95)', 
-                border: 'none', 
+            <XAxis dataKey="date" tick={{ fontSize: 10 }} tickLine={false} axisLine={false} />
+            <YAxis tick={{ fontSize: 10 }} tickLine={false} axisLine={false} />
+            <Tooltip
+              contentStyle={{
+                backgroundColor: 'rgba(255,255,255,0.95)',
+                border: 'none',
                 borderRadius: '8px',
-                boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+                boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
               }}
             />
             <Bar dataKey="likes" fill="#ec4899" radius={[2, 2, 0, 0]} name="Likes" />
@@ -91,9 +95,13 @@ export default function SocialEngagementChart({ dateRange, mentions = [] }) {
         <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-2">By Platform</p>
         <div className="flex gap-2 flex-wrap">
           {platformData.map((platform) => (
-            <Badge 
+            <Badge
               key={platform.name}
-              style={{ backgroundColor: platform.color + '20', color: platform.color, borderColor: platform.color }}
+              style={{
+                backgroundColor: platform.color + '20',
+                color: platform.color,
+                borderColor: platform.color,
+              }}
               variant="outline"
               className="text-xs"
             >

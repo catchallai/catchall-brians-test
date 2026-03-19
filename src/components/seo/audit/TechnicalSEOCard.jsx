@@ -1,10 +1,18 @@
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
-import { 
-  Bot, Clock, FileSearch, Lock, Server, Zap, 
-  CheckCircle, XCircle, AlertTriangle, ChevronRight 
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
+import {
+  Bot,
+  Clock,
+  FileSearch,
+  Lock,
+  Server,
+  Zap,
+  CheckCircle,
+  XCircle,
+  AlertTriangle,
+  ChevronRight,
 } from 'lucide-react';
 
 const statusIcon = {
@@ -66,10 +74,26 @@ export default function TechnicalSEOCard({ data }) {
       icon: Bot,
       data: checks.crawlability,
       details: [
-        { label: 'robots.txt', value: checks.crawlability.robotsTxt.exists ? 'Valid' : 'Missing', status: checks.crawlability.robotsTxt.exists ? 'pass' : 'fail' },
-        { label: 'Sitemap', value: `${checks.crawlability.sitemapXml.urls} URLs`, status: checks.crawlability.sitemapXml.exists ? 'pass' : 'fail' },
-        { label: 'Blocked Resources', value: checks.crawlability.blockedResources, status: checks.crawlability.blockedResources > 5 ? 'warning' : 'pass' },
-        { label: 'Crawl Errors', value: checks.crawlability.crawlErrors, status: checks.crawlability.crawlErrors > 0 ? 'warning' : 'pass' },
+        {
+          label: 'robots.txt',
+          value: checks.crawlability.robotsTxt.exists ? 'Valid' : 'Missing',
+          status: checks.crawlability.robotsTxt.exists ? 'pass' : 'fail',
+        },
+        {
+          label: 'Sitemap',
+          value: `${checks.crawlability.sitemapXml.urls} URLs`,
+          status: checks.crawlability.sitemapXml.exists ? 'pass' : 'fail',
+        },
+        {
+          label: 'Blocked Resources',
+          value: checks.crawlability.blockedResources,
+          status: checks.crawlability.blockedResources > 5 ? 'warning' : 'pass',
+        },
+        {
+          label: 'Crawl Errors',
+          value: checks.crawlability.crawlErrors,
+          status: checks.crawlability.crawlErrors > 0 ? 'warning' : 'pass',
+        },
       ],
     },
     {
@@ -78,10 +102,29 @@ export default function TechnicalSEOCard({ data }) {
       icon: FileSearch,
       data: checks.indexability,
       details: [
-        { label: 'Indexed Pages', value: `${checks.indexability.indexedPages}/${checks.indexability.totalPages}`, status: checks.indexability.indexedPages < checks.indexability.totalPages * 0.8 ? 'warning' : 'pass' },
-        { label: 'Noindex Pages', value: checks.indexability.noindexPages, status: checks.indexability.noindexPages > 10 ? 'warning' : 'pass' },
-        { label: 'Canonical Issues', value: checks.indexability.canonicalIssues, status: checks.indexability.canonicalIssues > 0 ? 'warning' : 'pass' },
-        { label: 'Duplicate Content', value: checks.indexability.duplicateContent, status: checks.indexability.duplicateContent > 5 ? 'warning' : 'pass' },
+        {
+          label: 'Indexed Pages',
+          value: `${checks.indexability.indexedPages}/${checks.indexability.totalPages}`,
+          status:
+            checks.indexability.indexedPages < checks.indexability.totalPages * 0.8
+              ? 'warning'
+              : 'pass',
+        },
+        {
+          label: 'Noindex Pages',
+          value: checks.indexability.noindexPages,
+          status: checks.indexability.noindexPages > 10 ? 'warning' : 'pass',
+        },
+        {
+          label: 'Canonical Issues',
+          value: checks.indexability.canonicalIssues,
+          status: checks.indexability.canonicalIssues > 0 ? 'warning' : 'pass',
+        },
+        {
+          label: 'Duplicate Content',
+          value: checks.indexability.duplicateContent,
+          status: checks.indexability.duplicateContent > 5 ? 'warning' : 'pass',
+        },
       ],
     },
     {
@@ -90,10 +133,30 @@ export default function TechnicalSEOCard({ data }) {
       icon: Zap,
       data: checks.siteSpeed,
       details: [
-        { label: 'LCP', value: `${checks.siteSpeed.lcp.value}${checks.siteSpeed.lcp.unit}`, status: checks.siteSpeed.lcp.status, hint: 'Largest Contentful Paint' },
-        { label: 'FID', value: `${checks.siteSpeed.fid.value}${checks.siteSpeed.fid.unit}`, status: checks.siteSpeed.fid.status, hint: 'First Input Delay' },
-        { label: 'CLS', value: checks.siteSpeed.cls.value, status: checks.siteSpeed.cls.status, hint: 'Cumulative Layout Shift' },
-        { label: 'TTFB', value: `${checks.siteSpeed.ttfb.value}${checks.siteSpeed.ttfb.unit}`, status: checks.siteSpeed.ttfb.status, hint: 'Time to First Byte' },
+        {
+          label: 'LCP',
+          value: `${checks.siteSpeed.lcp.value}${checks.siteSpeed.lcp.unit}`,
+          status: checks.siteSpeed.lcp.status,
+          hint: 'Largest Contentful Paint',
+        },
+        {
+          label: 'FID',
+          value: `${checks.siteSpeed.fid.value}${checks.siteSpeed.fid.unit}`,
+          status: checks.siteSpeed.fid.status,
+          hint: 'First Input Delay',
+        },
+        {
+          label: 'CLS',
+          value: checks.siteSpeed.cls.value,
+          status: checks.siteSpeed.cls.status,
+          hint: 'Cumulative Layout Shift',
+        },
+        {
+          label: 'TTFB',
+          value: `${checks.siteSpeed.ttfb.value}${checks.siteSpeed.ttfb.unit}`,
+          status: checks.siteSpeed.ttfb.status,
+          hint: 'Time to First Byte',
+        },
       ],
       score: checks.siteSpeed.overallScore,
     },
@@ -103,9 +166,21 @@ export default function TechnicalSEOCard({ data }) {
       icon: Lock,
       data: checks.security,
       details: [
-        { label: 'HTTPS', value: checks.security.https ? 'Enabled' : 'Disabled', status: checks.security.https ? 'pass' : 'fail' },
-        { label: 'Mixed Content', value: checks.security.mixedContent ? 'Found' : 'None', status: checks.security.mixedContent ? 'fail' : 'pass' },
-        { label: 'Security Headers', value: `${checks.security.securityHeaders.score}%`, status: checks.security.securityHeaders.score >= 80 ? 'pass' : 'warning' },
+        {
+          label: 'HTTPS',
+          value: checks.security.https ? 'Enabled' : 'Disabled',
+          status: checks.security.https ? 'pass' : 'fail',
+        },
+        {
+          label: 'Mixed Content',
+          value: checks.security.mixedContent ? 'Found' : 'None',
+          status: checks.security.mixedContent ? 'fail' : 'pass',
+        },
+        {
+          label: 'Security Headers',
+          value: `${checks.security.securityHeaders.score}%`,
+          status: checks.security.securityHeaders.score >= 80 ? 'pass' : 'warning',
+        },
       ],
     },
     {
@@ -114,10 +189,26 @@ export default function TechnicalSEOCard({ data }) {
       icon: Server,
       data: checks.serverHealth,
       details: [
-        { label: 'Uptime', value: `${checks.serverHealth.uptime}%`, status: checks.serverHealth.uptime >= 99.5 ? 'pass' : 'warning' },
-        { label: 'Response Time', value: `${checks.serverHealth.responseTime}ms`, status: checks.serverHealth.responseTime < 500 ? 'pass' : 'warning' },
-        { label: 'GZIP', value: checks.serverHealth.gzipEnabled ? 'Enabled' : 'Disabled', status: checks.serverHealth.gzipEnabled ? 'pass' : 'warning' },
-        { label: 'HTTP/2', value: checks.serverHealth.http2Enabled ? 'Enabled' : 'Disabled', status: checks.serverHealth.http2Enabled ? 'pass' : 'warning' },
+        {
+          label: 'Uptime',
+          value: `${checks.serverHealth.uptime}%`,
+          status: checks.serverHealth.uptime >= 99.5 ? 'pass' : 'warning',
+        },
+        {
+          label: 'Response Time',
+          value: `${checks.serverHealth.responseTime}ms`,
+          status: checks.serverHealth.responseTime < 500 ? 'pass' : 'warning',
+        },
+        {
+          label: 'GZIP',
+          value: checks.serverHealth.gzipEnabled ? 'Enabled' : 'Disabled',
+          status: checks.serverHealth.gzipEnabled ? 'pass' : 'warning',
+        },
+        {
+          label: 'HTTP/2',
+          value: checks.serverHealth.http2Enabled ? 'Enabled' : 'Disabled',
+          status: checks.serverHealth.http2Enabled ? 'pass' : 'warning',
+        },
       ],
     },
   ];
@@ -139,15 +230,21 @@ export default function TechnicalSEOCard({ data }) {
                 <span className="font-medium text-gray-900 dark:text-white">{section.title}</span>
               </div>
               <Badge className={statusBadge[section.data.status]}>
-                {section.data.status === 'pass' ? 'Passed' : section.data.status === 'fail' ? 'Failed' : 'Needs Attention'}
+                {section.data.status === 'pass'
+                  ? 'Passed'
+                  : section.data.status === 'fail'
+                    ? 'Failed'
+                    : 'Needs Attention'}
               </Badge>
             </div>
-            
+
             {section.score !== undefined && (
               <div className="mb-3">
                 <div className="flex items-center justify-between text-sm mb-1">
                   <span className="text-gray-500 dark:text-gray-400">Performance Score</span>
-                  <span className="font-medium text-gray-900 dark:text-white">{section.score}/100</span>
+                  <span className="font-medium text-gray-900 dark:text-white">
+                    {section.score}/100
+                  </span>
                 </div>
                 <Progress value={section.score} className="h-2" />
               </div>
@@ -155,14 +252,19 @@ export default function TechnicalSEOCard({ data }) {
 
             <div className="grid grid-cols-2 gap-2">
               {section.details.map((detail, idx) => (
-                <div key={idx} className="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded-lg">
+                <div
+                  key={idx}
+                  className="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded-lg"
+                >
                   <div className="flex items-center gap-2">
                     {statusIcon[detail.status]}
                     <span className="text-sm text-gray-600 dark:text-gray-300" title={detail.hint}>
                       {detail.label}
                     </span>
                   </div>
-                  <span className="text-sm font-medium text-gray-900 dark:text-white">{detail.value}</span>
+                  <span className="text-sm font-medium text-gray-900 dark:text-white">
+                    {detail.value}
+                  </span>
                 </div>
               ))}
             </div>

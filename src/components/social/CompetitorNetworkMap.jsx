@@ -1,10 +1,24 @@
 import React, { useRef, useEffect, useState, useMemo } from 'react';
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Network, ZoomIn, ZoomOut, RotateCcw, TrendingUp, Users, Target, Sparkles, Eye } from "lucide-react";
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import {
+  Network,
+  ZoomIn,
+  ZoomOut,
+  RotateCcw,
+  TrendingUp,
+  Users,
+  Target,
+  Sparkles,
+  Eye,
+} from 'lucide-react';
 
-export default function CompetitorNetworkMap({ competitors, onSelectCompetitor, socialAccounts = [] }) {
+export default function CompetitorNetworkMap({
+  competitors,
+  onSelectCompetitor,
+  socialAccounts = [],
+}) {
   const canvasRef = useRef(null);
   const containerRef = useRef(null);
   const [hoveredNode, setHoveredNode] = useState(null);
@@ -19,9 +33,11 @@ export default function CompetitorNetworkMap({ competitors, onSelectCompetitor, 
   // Calculate your brand's stats
   const yourBrandStats = useMemo(() => {
     const totalFollowers = socialAccounts.reduce((sum, a) => sum + (a.followers_count || 0), 0);
-    const avgEngagement = socialAccounts.length > 0 
-      ? socialAccounts.reduce((sum, a) => sum + (a.engagement_rate || 0), 0) / socialAccounts.length 
-      : 0;
+    const avgEngagement =
+      socialAccounts.length > 0
+        ? socialAccounts.reduce((sum, a) => sum + (a.engagement_rate || 0), 0) /
+          socialAccounts.length
+        : 0;
     return { totalFollowers, avgEngagement, platforms: socialAccounts.length };
   }, [socialAccounts]);
 
@@ -43,13 +59,13 @@ export default function CompetitorNetworkMap({ competitors, onSelectCompetitor, 
       if (animationRef.current) cancelAnimationFrame(animationRef.current);
       return;
     }
-    
+
     const animate = () => {
-      setRotation(prev => (prev + 0.001) % (2 * Math.PI));
+      setRotation((prev) => (prev + 0.001) % (2 * Math.PI));
       animationRef.current = requestAnimationFrame(animate);
     };
     animationRef.current = requestAnimationFrame(animate);
-    
+
     return () => {
       if (animationRef.current) cancelAnimationFrame(animationRef.current);
     };
@@ -64,27 +80,38 @@ export default function CompetitorNetworkMap({ competitors, onSelectCompetitor, 
 
     // Sort competitors by followers for layered positioning
     const sortedCompetitors = [...competitors].sort((a, b) => {
-      const aFollowers = (a.social_accounts || []).reduce((sum, acc) => sum + (acc.followers || 0), 0);
-      const bFollowers = (b.social_accounts || []).reduce((sum, acc) => sum + (acc.followers || 0), 0);
+      const aFollowers = (a.social_accounts || []).reduce(
+        (sum, acc) => sum + (acc.followers || 0),
+        0
+      );
+      const bFollowers = (b.social_accounts || []).reduce(
+        (sum, acc) => sum + (acc.followers || 0),
+        0
+      );
       return bFollowers - aFollowers;
     });
 
     const newNodes = sortedCompetitors.map((comp, idx) => {
       const angle = (2 * Math.PI * idx) / sortedCompetitors.length - Math.PI / 2 + rotation;
-      const totalFollowers = (comp.social_accounts || []).reduce((sum, a) => sum + (a.followers || 0), 0);
-      const avgEngagement = comp.social_accounts?.length > 0
-        ? comp.social_accounts.reduce((sum, a) => sum + (a.engagement_rate || 0), 0) / comp.social_accounts.length
-        : 0;
-      
+      const totalFollowers = (comp.social_accounts || []).reduce(
+        (sum, a) => sum + (a.followers || 0),
+        0
+      );
+      const avgEngagement =
+        comp.social_accounts?.length > 0
+          ? comp.social_accounts.reduce((sum, a) => sum + (a.engagement_rate || 0), 0) /
+            comp.social_accounts.length
+          : 0;
+
       // Vary radius based on engagement - higher engagement = closer to center
       const radiusMultiplier = 0.85 + (1 - Math.min(avgEngagement, 10) / 10) * 0.3;
       const radius = baseRadius * radiusMultiplier;
-      
+
       const nodeSize = Math.min(55, Math.max(30, 24 + Math.log10(totalFollowers + 1) * 6));
-      
+
       // Calculate threat level based on followers and engagement
       const threatScore = Math.min(100, (totalFollowers / 100000) * 30 + avgEngagement * 7);
-      
+
       return {
         id: comp.id,
         name: comp.name,
@@ -128,8 +155,8 @@ export default function CompetitorNetworkMap({ competitors, onSelectCompetitor, 
     const ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, dimensions.width, dimensions.height);
 
-    const centerNode = nodes.find(n => n.isCenter);
-    
+    const centerNode = nodes.find((n) => n.isCenter);
+
     // Draw background grid pattern
     ctx.strokeStyle = 'rgba(139, 92, 246, 0.05)';
     ctx.lineWidth = 1;
@@ -160,46 +187,55 @@ export default function CompetitorNetworkMap({ competitors, onSelectCompetitor, 
         ctx.setLineDash([]);
       });
     }
-    
+
     // Draw gradient connections
     if (centerNode) {
-      nodes.filter(n => !n.isCenter).forEach(node => {
-        const isHovered = hoveredNode === node.id;
-        const isSelected = selectedNode === node.id;
-        
-        // Draw connection line with pulse effect if selected
-        const gradient = ctx.createLinearGradient(centerNode.x, centerNode.y, node.x, node.y);
-        gradient.addColorStop(0, 'rgba(139, 92, 246, 0.5)');
-        gradient.addColorStop(0.5, node.color + '40');
-        gradient.addColorStop(1, node.color + '70');
-        
-        ctx.beginPath();
-        ctx.moveTo(centerNode.x, centerNode.y);
-        ctx.lineTo(node.x, node.y);
-        ctx.strokeStyle = isHovered || isSelected ? node.color : gradient;
-        ctx.lineWidth = isHovered || isSelected ? 3 : 1.5;
-        ctx.stroke();
+      nodes
+        .filter((n) => !n.isCenter)
+        .forEach((node) => {
+          const isHovered = hoveredNode === node.id;
+          const isSelected = selectedNode === node.id;
 
-        // Draw threat indicator dots along the line
-        if (node.threatScore > 60) {
-          const midX = (centerNode.x + node.x) / 2;
-          const midY = (centerNode.y + node.y) / 2;
+          // Draw connection line with pulse effect if selected
+          const gradient = ctx.createLinearGradient(centerNode.x, centerNode.y, node.x, node.y);
+          gradient.addColorStop(0, 'rgba(139, 92, 246, 0.5)');
+          gradient.addColorStop(0.5, node.color + '40');
+          gradient.addColorStop(1, node.color + '70');
+
           ctx.beginPath();
-          ctx.arc(midX, midY, 4, 0, Math.PI * 2);
-          ctx.fillStyle = node.threatScore > 80 ? '#ef4444' : '#f59e0b';
-          ctx.fill();
-        }
-      });
+          ctx.moveTo(centerNode.x, centerNode.y);
+          ctx.lineTo(node.x, node.y);
+          ctx.strokeStyle = isHovered || isSelected ? node.color : gradient;
+          ctx.lineWidth = isHovered || isSelected ? 3 : 1.5;
+          ctx.stroke();
+
+          // Draw threat indicator dots along the line
+          if (node.threatScore > 60) {
+            const midX = (centerNode.x + node.x) / 2;
+            const midY = (centerNode.y + node.y) / 2;
+            ctx.beginPath();
+            ctx.arc(midX, midY, 4, 0, Math.PI * 2);
+            ctx.fillStyle = node.threatScore > 80 ? '#ef4444' : '#f59e0b';
+            ctx.fill();
+          }
+        });
     }
 
     // Draw nodes
-    nodes.forEach(node => {
+    nodes.forEach((node) => {
       const isHovered = hoveredNode === node.id;
       const isSelected = selectedNode === node.id;
-      
+
       // Outer glow (larger for hovered/selected)
       const glowSize = isHovered || isSelected ? 20 : 14;
-      const glowGradient = ctx.createRadialGradient(node.x, node.y, 0, node.x, node.y, node.size / 2 + glowSize);
+      const glowGradient = ctx.createRadialGradient(
+        node.x,
+        node.y,
+        0,
+        node.x,
+        node.y,
+        node.size / 2 + glowSize
+      );
       glowGradient.addColorStop(0, node.color + (isHovered || isSelected ? '50' : '30'));
       glowGradient.addColorStop(1, 'transparent');
       ctx.beginPath();
@@ -209,8 +245,12 @@ export default function CompetitorNetworkMap({ competitors, onSelectCompetitor, 
 
       // Main node with 3D effect
       const nodeGradient = ctx.createRadialGradient(
-        node.x - node.size / 5, node.y - node.size / 5, 0,
-        node.x, node.y, node.size / 2
+        node.x - node.size / 5,
+        node.y - node.size / 5,
+        0,
+        node.x,
+        node.y,
+        node.size / 2
       );
       nodeGradient.addColorStop(0, lightenColor(node.color, 30));
       nodeGradient.addColorStop(0.5, node.color);
@@ -220,7 +260,7 @@ export default function CompetitorNetworkMap({ competitors, onSelectCompetitor, 
       ctx.arc(node.x, node.y, node.size / 2, 0, Math.PI * 2);
       ctx.fillStyle = nodeGradient;
       ctx.fill();
-      
+
       // White rim
       ctx.strokeStyle = isHovered || isSelected ? '#ffffff' : 'rgba(255,255,255,0.6)';
       ctx.lineWidth = isHovered || isSelected ? 3 : 2;
@@ -241,7 +281,7 @@ export default function CompetitorNetworkMap({ competitors, onSelectCompetitor, 
         ctx.strokeStyle = '#ffffff';
         ctx.lineWidth = 2;
         ctx.stroke();
-        
+
         // Star icon
         ctx.fillStyle = '#ffffff';
         ctx.font = 'bold 9px Arial';
@@ -260,7 +300,11 @@ export default function CompetitorNetworkMap({ competitors, onSelectCompetitor, 
         ctx.font = 'bold 8px Arial';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText(node.recentNews > 9 ? '9+' : node.recentNews, node.x - node.size / 3, node.y - node.size / 3);
+        ctx.fillText(
+          node.recentNews > 9 ? '9+' : node.recentNews,
+          node.x - node.size / 3,
+          node.y - node.size / 3
+        );
       }
 
       // Label
@@ -281,7 +325,8 @@ export default function CompetitorNetworkMap({ competitors, onSelectCompetitor, 
 
       // Engagement badge for non-center nodes
       if (!node.isCenter && node.engagement > 0) {
-        ctx.fillStyle = node.engagement > 5 ? '#10b981' : node.engagement > 2 ? '#f59e0b' : '#6b7280';
+        ctx.fillStyle =
+          node.engagement > 5 ? '#10b981' : node.engagement > 2 ? '#f59e0b' : '#6b7280';
         ctx.font = 'bold 8px Inter, system-ui, sans-serif';
         ctx.fillText(`${node.engagement.toFixed(1)}% eng`, node.x, node.y + node.size / 2 + 34);
       }
@@ -296,7 +341,7 @@ export default function CompetitorNetworkMap({ competitors, onSelectCompetitor, 
     const x = (e.clientX - rect.left) * scaleX;
     const y = (e.clientY - rect.top) * scaleY;
 
-    const hitNode = nodes.find(node => {
+    const hitNode = nodes.find((node) => {
       const dx = x - node.x;
       const dy = y - node.y;
       return Math.sqrt(dx * dx + dy * dy) < node.size / 2 + 5;
@@ -311,7 +356,7 @@ export default function CompetitorNetworkMap({ competitors, onSelectCompetitor, 
     }
   };
 
-  const hoveredNodeData = nodes.find(n => n.id === hoveredNode);
+  const hoveredNodeData = nodes.find((n) => n.id === hoveredNode);
 
   if (!competitors || competitors.length === 0) {
     return (
@@ -325,9 +370,12 @@ export default function CompetitorNetworkMap({ competitors, onSelectCompetitor, 
   }
 
   return (
-    <div ref={containerRef} className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-white/80 via-white/60 to-violet-50/40 dark:from-gray-800/80 dark:via-gray-800/60 dark:to-violet-900/30 backdrop-blur-xl border border-white/40 dark:border-gray-700/50 shadow-xl">
+    <div
+      ref={containerRef}
+      className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-white/80 via-white/60 to-violet-50/40 dark:from-gray-800/80 dark:via-gray-800/60 dark:to-violet-900/30 backdrop-blur-xl border border-white/40 dark:border-gray-700/50 shadow-xl"
+    >
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(139,92,246,0.1),transparent_60%)]" />
-      
+
       <div className="relative p-4">
         {/* Header */}
         <div className="flex items-center justify-between mb-3">
@@ -335,19 +383,21 @@ export default function CompetitorNetworkMap({ competitors, onSelectCompetitor, 
             <div className="p-1.5 rounded-lg bg-violet-100/80 dark:bg-violet-900/40">
               <Network className="w-4 h-4 text-violet-600 dark:text-violet-400" />
             </div>
-            <span className="font-semibold text-gray-800 dark:text-gray-200 text-sm">Competitive Landscape</span>
+            <span className="font-semibold text-gray-800 dark:text-gray-200 text-sm">
+              Competitive Landscape
+            </span>
             <Badge className="bg-violet-100 text-violet-700 border-0 text-xs">
               {competitors.length} tracked
             </Badge>
           </div>
-          
+
           {/* Controls */}
           <div className="flex items-center gap-1">
             <Button
               size="sm"
               variant="ghost"
               className="h-7 w-7 p-0"
-              onClick={() => setZoom(z => Math.max(0.5, z - 0.1))}
+              onClick={() => setZoom((z) => Math.max(0.5, z - 0.1))}
             >
               <ZoomOut className="w-3.5 h-3.5" />
             </Button>
@@ -355,7 +405,7 @@ export default function CompetitorNetworkMap({ competitors, onSelectCompetitor, 
               size="sm"
               variant="ghost"
               className="h-7 w-7 p-0"
-              onClick={() => setZoom(z => Math.min(1.5, z + 0.1))}
+              onClick={() => setZoom((z) => Math.min(1.5, z + 0.1))}
             >
               <ZoomIn className="w-3.5 h-3.5" />
             </Button>
@@ -365,7 +415,10 @@ export default function CompetitorNetworkMap({ competitors, onSelectCompetitor, 
               className={`h-7 w-7 p-0 ${isAnimating ? 'text-violet-600' : ''}`}
               onClick={() => setIsAnimating(!isAnimating)}
             >
-              <RotateCcw className={`w-3.5 h-3.5 ${isAnimating ? 'animate-spin' : ''}`} style={{ animationDuration: '3s' }} />
+              <RotateCcw
+                className={`w-3.5 h-3.5 ${isAnimating ? 'animate-spin' : ''}`}
+                style={{ animationDuration: '3s' }}
+              />
             </Button>
           </div>
         </div>
@@ -386,7 +439,9 @@ export default function CompetitorNetworkMap({ competitors, onSelectCompetitor, 
         {hoveredNodeData && !hoveredNodeData.isCenter && (
           <div className="absolute top-20 right-6 bg-white/95 dark:bg-gray-800/95 backdrop-blur-lg rounded-xl shadow-2xl p-4 w-56 border border-gray-200/50 dark:border-gray-700/50 z-10">
             <div className="flex items-start justify-between mb-2">
-              <p className="font-bold text-gray-900 dark:text-white text-sm">{hoveredNodeData.name}</p>
+              <p className="font-bold text-gray-900 dark:text-white text-sm">
+                {hoveredNodeData.name}
+              </p>
               {hoveredNodeData.hasInsights && (
                 <Badge className="bg-violet-100 text-violet-700 border-0 text-[10px]">
                   <Sparkles className="w-2.5 h-2.5 mr-0.5" />
@@ -394,16 +449,20 @@ export default function CompetitorNetworkMap({ competitors, onSelectCompetitor, 
                 </Badge>
               )}
             </div>
-            
+
             <div className="grid grid-cols-2 gap-2 mb-3">
               <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-2 text-center">
                 <Users className="w-3.5 h-3.5 text-violet-500 mx-auto mb-0.5" />
-                <p className="text-xs font-semibold text-gray-900 dark:text-white">{formatNumber(hoveredNodeData.followers)}</p>
+                <p className="text-xs font-semibold text-gray-900 dark:text-white">
+                  {formatNumber(hoveredNodeData.followers)}
+                </p>
                 <p className="text-[10px] text-gray-500">Followers</p>
               </div>
               <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-2 text-center">
                 <TrendingUp className="w-3.5 h-3.5 text-emerald-500 mx-auto mb-0.5" />
-                <p className="text-xs font-semibold text-gray-900 dark:text-white">{hoveredNodeData.engagement.toFixed(1)}%</p>
+                <p className="text-xs font-semibold text-gray-900 dark:text-white">
+                  {hoveredNodeData.engagement.toFixed(1)}%
+                </p>
                 <p className="text-[10px] text-gray-500">Engagement</p>
               </div>
             </div>
@@ -425,17 +484,20 @@ export default function CompetitorNetworkMap({ competitors, onSelectCompetitor, 
               <div className="mb-2">
                 <p className="text-[10px] text-gray-500 mb-1">Threat Level</p>
                 <div className="h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-                  <div 
+                  <div
                     className={`h-full rounded-full ${
-                      hoveredNodeData.threatScore > 80 ? 'bg-red-500' : 
-                      hoveredNodeData.threatScore > 50 ? 'bg-amber-500' : 'bg-emerald-500'
+                      hoveredNodeData.threatScore > 80
+                        ? 'bg-red-500'
+                        : hoveredNodeData.threatScore > 50
+                          ? 'bg-amber-500'
+                          : 'bg-emerald-500'
                     }`}
                     style={{ width: `${hoveredNodeData.threatScore}%` }}
                   />
                 </div>
               </div>
             )}
-            
+
             {hoveredNodeData.strengths?.length > 0 && (
               <div className="mb-2">
                 <p className="text-[10px] text-gray-500 mb-1">Top Strength</p>
@@ -485,13 +547,24 @@ export default function CompetitorNetworkMap({ competitors, onSelectCompetitor, 
 }
 
 function getCompetitorColor(index) {
-  const colors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#6366f1', '#ec4899', '#14b8a6', '#f97316', '#06b6d4', '#84cc16'];
+  const colors = [
+    '#3b82f6',
+    '#10b981',
+    '#f59e0b',
+    '#ef4444',
+    '#6366f1',
+    '#ec4899',
+    '#14b8a6',
+    '#f97316',
+    '#06b6d4',
+    '#84cc16',
+  ];
   return colors[index % colors.length];
 }
 
 function formatNumber(num) {
-  if (num >= 1000000) return `${(num/1000000).toFixed(1)}M`;
-  if (num >= 1000) return `${(num/1000).toFixed(1)}K`;
+  if (num >= 1000000) return `${(num / 1000000).toFixed(1)}M`;
+  if (num >= 1000) return `${(num / 1000).toFixed(1)}K`;
   return num.toString();
 }
 
@@ -499,16 +572,16 @@ function lightenColor(hex, percent) {
   const num = parseInt(hex.replace('#', ''), 16);
   const amt = Math.round(2.55 * percent);
   const R = Math.min(255, (num >> 16) + amt);
-  const G = Math.min(255, ((num >> 8) & 0x00FF) + amt);
-  const B = Math.min(255, (num & 0x0000FF) + amt);
-  return `#${(1 << 24 | R << 16 | G << 8 | B).toString(16).slice(1)}`;
+  const G = Math.min(255, ((num >> 8) & 0x00ff) + amt);
+  const B = Math.min(255, (num & 0x0000ff) + amt);
+  return `#${((1 << 24) | (R << 16) | (G << 8) | B).toString(16).slice(1)}`;
 }
 
 function darkenColor(hex, percent) {
   const num = parseInt(hex.replace('#', ''), 16);
   const amt = Math.round(2.55 * percent);
   const R = Math.max(0, (num >> 16) - amt);
-  const G = Math.max(0, ((num >> 8) & 0x00FF) - amt);
-  const B = Math.max(0, (num & 0x0000FF) - amt);
-  return `#${(1 << 24 | R << 16 | G << 8 | B).toString(16).slice(1)}`;
+  const G = Math.max(0, ((num >> 8) & 0x00ff) - amt);
+  const B = Math.max(0, (num & 0x0000ff) - amt);
+  return `#${((1 << 24) | (R << 16) | (G << 8) | B).toString(16).slice(1)}`;
 }

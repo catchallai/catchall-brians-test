@@ -1,18 +1,31 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Progress } from "@/components/ui/progress";
-import { 
-  MapPin, Star, MessageSquare, Image, Clock, Phone, Globe, 
-  Loader2, CheckCircle, AlertTriangle, TrendingUp, Calendar,
-  ThumbsUp, ThumbsDown, RefreshCw, Sparkles
-} from "lucide-react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Progress } from '@/components/ui/progress';
+import {
+  MapPin,
+  Star,
+  MessageSquare,
+  Image,
+  Clock,
+  Phone,
+  Globe,
+  Loader2,
+  CheckCircle,
+  AlertTriangle,
+  TrendingUp,
+  Calendar,
+  ThumbsUp,
+  ThumbsDown,
+  RefreshCw,
+  Sparkles,
+} from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 export default function GBPManager({ listing, onUpdate }) {
   const [analyzing, setAnalyzing] = useState(false);
@@ -23,7 +36,7 @@ export default function GBPManager({ listing, onUpdate }) {
 
   const analyzeGBP = async () => {
     setAnalyzing(true);
-    
+
     const result = await base44.integrations.Core.InvokeLLM({
       prompt: `Analyze this Google Business Profile listing and provide optimization recommendations:
       
@@ -41,62 +54,62 @@ export default function GBPManager({ listing, onUpdate }) {
       6. Competitor insights for the area`,
       add_context_from_internet: true,
       response_json_schema: {
-        type: "object",
+        type: 'object',
         properties: {
-          completeness_score: { type: "number" },
+          completeness_score: { type: 'number' },
           optimization_tips: {
-            type: "array",
+            type: 'array',
             items: {
-              type: "object",
+              type: 'object',
               properties: {
-                category: { type: "string" },
-                tip: { type: "string" },
-                priority: { type: "string" },
-                impact: { type: "string" }
-              }
-            }
+                category: { type: 'string' },
+                tip: { type: 'string' },
+                priority: { type: 'string' },
+                impact: { type: 'string' },
+              },
+            },
           },
           review_insights: {
-            type: "object",
+            type: 'object',
             properties: {
-              avg_response_time: { type: "string" },
+              avg_response_time: { type: 'string' },
               sentiment_breakdown: {
-                type: "object",
+                type: 'object',
                 properties: {
-                  positive: { type: "number" },
-                  neutral: { type: "number" },
-                  negative: { type: "number" }
-                }
+                  positive: { type: 'number' },
+                  neutral: { type: 'number' },
+                  negative: { type: 'number' },
+                },
               },
-              common_themes: { type: "array", items: { type: "string" } },
-              response_suggestions: { type: "array", items: { type: "string" } }
-            }
+              common_themes: { type: 'array', items: { type: 'string' } },
+              response_suggestions: { type: 'array', items: { type: 'string' } },
+            },
           },
           post_ideas: {
-            type: "array",
+            type: 'array',
             items: {
-              type: "object",
+              type: 'object',
               properties: {
-                type: { type: "string" },
-                title: { type: "string" },
-                content: { type: "string" }
-              }
-            }
+                type: { type: 'string' },
+                title: { type: 'string' },
+                content: { type: 'string' },
+              },
+            },
           },
-          local_seo_tips: { type: "array", items: { type: "string" } },
+          local_seo_tips: { type: 'array', items: { type: 'string' } },
           competitor_insights: {
-            type: "array",
+            type: 'array',
             items: {
-              type: "object",
+              type: 'object',
               properties: {
-                competitor: { type: "string" },
-                rating: { type: "number" },
-                strength: { type: "string" }
-              }
-            }
-          }
-        }
-      }
+                competitor: { type: 'string' },
+                rating: { type: 'number' },
+                strength: { type: 'string' },
+              },
+            },
+          },
+        },
+      },
     });
 
     setAnalysis(result);
@@ -105,7 +118,7 @@ export default function GBPManager({ listing, onUpdate }) {
 
   const generateReviewResponse = async (reviewType) => {
     setGeneratingResponse(reviewType);
-    
+
     const result = await base44.integrations.Core.InvokeLLM({
       prompt: `Generate a professional ${reviewType} review response for ${listing.business_name}.
       
@@ -116,11 +129,11 @@ export default function GBPManager({ listing, onUpdate }) {
       - Include business name naturally
       - Be under 150 words`,
       response_json_schema: {
-        type: "object",
+        type: 'object',
         properties: {
-          response: { type: "string" }
-        }
-      }
+          response: { type: 'string' },
+        },
+      },
     });
 
     setGeneratingResponse(null);
@@ -129,7 +142,7 @@ export default function GBPManager({ listing, onUpdate }) {
 
   const generatePost = async (postType) => {
     setGeneratingPost(true);
-    
+
     const result = await base44.integrations.Core.InvokeLLM({
       prompt: `Generate a Google Business Profile ${postType} post for ${listing.business_name} located in ${listing.city}, ${listing.state}.
       
@@ -140,13 +153,13 @@ export default function GBPManager({ listing, onUpdate }) {
       - Under 300 words
       - Include suggested image description`,
       response_json_schema: {
-        type: "object",
+        type: 'object',
         properties: {
-          post_content: { type: "string" },
-          suggested_image: { type: "string" },
-          cta_button: { type: "string" }
-        }
-      }
+          post_content: { type: 'string' },
+          suggested_image: { type: 'string' },
+          cta_button: { type: 'string' },
+        },
+      },
     });
 
     setPostContent(result.post_content);
@@ -167,13 +180,12 @@ export default function GBPManager({ listing, onUpdate }) {
             <MapPin className="w-5 h-5 text-blue-500" />
             Google Business Profile Manager
           </CardTitle>
-          <Button 
-            onClick={analyzeGBP} 
-            disabled={analyzing}
-            size="sm"
-            className="gap-2"
-          >
-            {analyzing ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
+          <Button onClick={analyzeGBP} disabled={analyzing} size="sm" className="gap-2">
+            {analyzing ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <RefreshCw className="w-4 h-4" />
+            )}
             Analyze GBP
           </Button>
         </div>
@@ -184,14 +196,22 @@ export default function GBPManager({ listing, onUpdate }) {
           <div className="flex items-start justify-between">
             <div>
               <h3 className="font-semibold text-gray-900">{listing.business_name}</h3>
-              <p className="text-sm text-gray-500">{listing.address}, {listing.city}, {listing.state}</p>
+              <p className="text-sm text-gray-500">
+                {listing.address}, {listing.city}, {listing.state}
+              </p>
               <div className="flex items-center gap-3 mt-2">
                 <div className="flex items-center gap-1">
                   <Star className="w-4 h-4 text-amber-500 fill-amber-500" />
                   <span className="font-medium">{listing.rating || 0}</span>
                   <span className="text-gray-400">({listing.review_count || 0})</span>
                 </div>
-                <Badge className={listing.status === 'verified' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}>
+                <Badge
+                  className={
+                    listing.status === 'verified'
+                      ? 'bg-emerald-100 text-emerald-700'
+                      : 'bg-amber-100 text-amber-700'
+                  }
+                >
                   {listing.status}
                 </Badge>
               </div>
@@ -229,12 +249,18 @@ export default function GBPManager({ listing, onUpdate }) {
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
-                        <Badge variant="outline" className="text-xs">{tip.category}</Badge>
-                        <Badge className={
-                          tip.priority === 'high' ? 'bg-red-100 text-red-700' :
-                          tip.priority === 'medium' ? 'bg-amber-100 text-amber-700' :
-                          'bg-blue-100 text-blue-700'
-                        }>
+                        <Badge variant="outline" className="text-xs">
+                          {tip.category}
+                        </Badge>
+                        <Badge
+                          className={
+                            tip.priority === 'high'
+                              ? 'bg-red-100 text-red-700'
+                              : tip.priority === 'medium'
+                                ? 'bg-amber-100 text-amber-700'
+                                : 'bg-blue-100 text-blue-700'
+                          }
+                        >
                           {tip.priority}
                         </Badge>
                       </div>
@@ -253,11 +279,15 @@ export default function GBPManager({ listing, onUpdate }) {
                 <div className="flex gap-4">
                   <div className="flex items-center gap-2">
                     <ThumbsUp className="w-4 h-4 text-emerald-500" />
-                    <span className="text-sm">{analysis.review_insights?.sentiment_breakdown?.positive || 0}% Positive</span>
+                    <span className="text-sm">
+                      {analysis.review_insights?.sentiment_breakdown?.positive || 0}% Positive
+                    </span>
                   </div>
                   <div className="flex items-center gap-2">
                     <ThumbsDown className="w-4 h-4 text-red-500" />
-                    <span className="text-sm">{analysis.review_insights?.sentiment_breakdown?.negative || 0}% Negative</span>
+                    <span className="text-sm">
+                      {analysis.review_insights?.sentiment_breakdown?.negative || 0}% Negative
+                    </span>
                   </div>
                 </div>
               </div>
@@ -267,7 +297,9 @@ export default function GBPManager({ listing, onUpdate }) {
                 <h4 className="font-medium text-gray-900 mb-2">Common Themes</h4>
                 <div className="flex flex-wrap gap-2">
                   {analysis.review_insights?.common_themes?.map((theme, idx) => (
-                    <Badge key={idx} variant="outline">{theme}</Badge>
+                    <Badge key={idx} variant="outline">
+                      {theme}
+                    </Badge>
                   ))}
                 </div>
               </div>
@@ -276,22 +308,30 @@ export default function GBPManager({ listing, onUpdate }) {
               <div>
                 <h4 className="font-medium text-gray-900 mb-2">Quick Response Templates</h4>
                 <div className="grid grid-cols-2 gap-3">
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     onClick={() => generateReviewResponse('positive')}
                     disabled={generatingResponse === 'positive'}
                     className="gap-2"
                   >
-                    {generatingResponse === 'positive' ? <Loader2 className="w-4 h-4 animate-spin" /> : <ThumbsUp className="w-4 h-4" />}
+                    {generatingResponse === 'positive' ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <ThumbsUp className="w-4 h-4" />
+                    )}
                     Positive Response
                   </Button>
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     onClick={() => generateReviewResponse('negative')}
                     disabled={generatingResponse === 'negative'}
                     className="gap-2"
                   >
-                    {generatingResponse === 'negative' ? <Loader2 className="w-4 h-4 animate-spin" /> : <ThumbsDown className="w-4 h-4" />}
+                    {generatingResponse === 'negative' ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <ThumbsDown className="w-4 h-4" />
+                    )}
                     Negative Response
                   </Button>
                 </div>
@@ -300,13 +340,28 @@ export default function GBPManager({ listing, onUpdate }) {
 
             <TabsContent value="posts" className="mt-4 space-y-4">
               <div className="flex gap-2 flex-wrap">
-                <Button size="sm" variant="outline" onClick={() => generatePost('update')} disabled={generatingPost}>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => generatePost('update')}
+                  disabled={generatingPost}
+                >
                   <Sparkles className="w-4 h-4 mr-1" /> Update Post
                 </Button>
-                <Button size="sm" variant="outline" onClick={() => generatePost('offer')} disabled={generatingPost}>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => generatePost('offer')}
+                  disabled={generatingPost}
+                >
                   <Sparkles className="w-4 h-4 mr-1" /> Offer Post
                 </Button>
-                <Button size="sm" variant="outline" onClick={() => generatePost('event')} disabled={generatingPost}>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => generatePost('event')}
+                  disabled={generatingPost}
+                >
                   <Sparkles className="w-4 h-4 mr-1" /> Event Post
                 </Button>
               </div>
@@ -320,7 +375,11 @@ export default function GBPManager({ listing, onUpdate }) {
               {postContent && (
                 <div className="p-4 bg-blue-50 rounded-lg">
                   <Label className="mb-2 block">Generated Post</Label>
-                  <Textarea value={postContent} onChange={(e) => setPostContent(e.target.value)} rows={5} />
+                  <Textarea
+                    value={postContent}
+                    onChange={(e) => setPostContent(e.target.value)}
+                    rows={5}
+                  />
                   <Button className="mt-2 gap-2" size="sm">
                     <CheckCircle className="w-4 h-4" /> Copy to Clipboard
                   </Button>
@@ -333,7 +392,9 @@ export default function GBPManager({ listing, onUpdate }) {
                 <div className="space-y-2">
                   {analysis.post_ideas?.map((idea, idx) => (
                     <div key={idx} className="p-3 bg-white border rounded-lg">
-                      <Badge variant="outline" className="text-xs mb-1">{idea.type}</Badge>
+                      <Badge variant="outline" className="text-xs mb-1">
+                        {idea.type}
+                      </Badge>
                       <p className="font-medium text-gray-900">{idea.title}</p>
                       <p className="text-sm text-gray-600">{idea.content}</p>
                     </div>
@@ -359,7 +420,10 @@ export default function GBPManager({ listing, onUpdate }) {
                   <h4 className="font-medium text-gray-900 mb-2">Nearby Competitors</h4>
                   <div className="space-y-2">
                     {analysis.competitor_insights.map((comp, idx) => (
-                      <div key={idx} className="flex items-center justify-between p-3 bg-white border rounded-lg">
+                      <div
+                        key={idx}
+                        className="flex items-center justify-between p-3 bg-white border rounded-lg"
+                      >
                         <div>
                           <p className="font-medium text-gray-900">{comp.competitor}</p>
                           <p className="text-xs text-gray-500">{comp.strength}</p>

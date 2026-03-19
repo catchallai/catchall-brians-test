@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Plus, Wrench, Calendar, DollarSign } from "lucide-react";
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Badge } from '@/components/ui/badge';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Plus, Wrench, Calendar, DollarSign } from 'lucide-react';
 import { useToast } from '@/components/ui/toast-provider';
 
 export default function MaintenanceHistory({ equipmentId }) {
@@ -19,22 +19,24 @@ export default function MaintenanceHistory({ equipmentId }) {
     performed_date: '',
     cost: '',
     description: '',
-    parts_replaced: []
+    parts_replaced: [],
   });
   const queryClient = useQueryClient();
   const toast = useToast();
 
   const { data: logs = [] } = useQuery({
     queryKey: ['maintenance-logs', equipmentId],
-    queryFn: () => base44.entities.MaintenanceLog.filter({ equipment_id: equipmentId }, '-performed_date'),
+    queryFn: () =>
+      base44.entities.MaintenanceLog.filter({ equipment_id: equipmentId }, '-performed_date'),
   });
 
   const createLogMutation = useMutation({
-    mutationFn: (data) => base44.entities.MaintenanceLog.create({
-      ...data,
-      equipment_id: equipmentId,
-      cost: parseFloat(data.cost) || 0
-    }),
+    mutationFn: (data) =>
+      base44.entities.MaintenanceLog.create({
+        ...data,
+        equipment_id: equipmentId,
+        cost: parseFloat(data.cost) || 0,
+      }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['maintenance-logs'] });
       setShowAddModal(false);
@@ -45,9 +47,9 @@ export default function MaintenanceHistory({ equipmentId }) {
         performed_date: '',
         cost: '',
         description: '',
-        parts_replaced: []
+        parts_replaced: [],
       });
-    }
+    },
   });
 
   const getTypeColor = (type) => {
@@ -56,7 +58,7 @@ export default function MaintenanceHistory({ equipmentId }) {
       repair: 'bg-red-100 text-red-800',
       inspection: 'bg-green-100 text-green-800',
       calibration: 'bg-purple-100 text-purple-800',
-      upgrade: 'bg-orange-100 text-orange-800'
+      upgrade: 'bg-orange-100 text-orange-800',
     };
     return colors[type] || 'bg-gray-100 text-gray-800';
   };
@@ -78,7 +80,7 @@ export default function MaintenanceHistory({ equipmentId }) {
         <p className="text-sm text-gray-500 text-center py-8">No maintenance history yet</p>
       ) : (
         <div className="space-y-3">
-          {logs.map(log => (
+          {logs.map((log) => (
             <Card key={log.id}>
               <CardContent className="p-4">
                 <div className="flex items-start justify-between mb-2">
@@ -94,8 +96,7 @@ export default function MaintenanceHistory({ equipmentId }) {
                   {log.performed_by && <span>By: {log.performed_by}</span>}
                   {log.cost > 0 && (
                     <span className="flex items-center gap-1">
-                      <DollarSign className="w-3 h-3" />
-                      ${log.cost.toLocaleString()}
+                      <DollarSign className="w-3 h-3" />${log.cost.toLocaleString()}
                     </span>
                   )}
                 </div>
@@ -116,7 +117,7 @@ export default function MaintenanceHistory({ equipmentId }) {
               <select
                 className="w-full border rounded-lg px-3 py-2"
                 value={formData.maintenance_type}
-                onChange={(e) => setFormData({...formData, maintenance_type: e.target.value})}
+                onChange={(e) => setFormData({ ...formData, maintenance_type: e.target.value })}
               >
                 <option value="routine">Routine</option>
                 <option value="repair">Repair</option>
@@ -129,7 +130,7 @@ export default function MaintenanceHistory({ equipmentId }) {
               <Label>Performed By</Label>
               <Input
                 value={formData.performed_by}
-                onChange={(e) => setFormData({...formData, performed_by: e.target.value})}
+                onChange={(e) => setFormData({ ...formData, performed_by: e.target.value })}
                 placeholder="Technician or vendor name"
               />
             </div>
@@ -138,7 +139,7 @@ export default function MaintenanceHistory({ equipmentId }) {
               <Input
                 type="date"
                 value={formData.performed_date}
-                onChange={(e) => setFormData({...formData, performed_date: e.target.value})}
+                onChange={(e) => setFormData({ ...formData, performed_date: e.target.value })}
               />
             </div>
             <div>
@@ -146,7 +147,7 @@ export default function MaintenanceHistory({ equipmentId }) {
               <Input
                 type="number"
                 value={formData.cost}
-                onChange={(e) => setFormData({...formData, cost: e.target.value})}
+                onChange={(e) => setFormData({ ...formData, cost: e.target.value })}
                 placeholder="0.00"
               />
             </div>
@@ -154,13 +155,15 @@ export default function MaintenanceHistory({ equipmentId }) {
               <Label>Description</Label>
               <Textarea
                 value={formData.description}
-                onChange={(e) => setFormData({...formData, description: e.target.value})}
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 placeholder="What was done..."
                 rows={3}
               />
             </div>
             <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => setShowAddModal(false)}>Cancel</Button>
+              <Button variant="outline" onClick={() => setShowAddModal(false)}>
+                Cancel
+              </Button>
               <Button onClick={() => createLogMutation.mutate(formData)}>Add Log</Button>
             </div>
           </div>

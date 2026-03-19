@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Loader2, Target, Zap, TrendingUp } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Loader2, Target, Zap, TrendingUp } from 'lucide-react';
 
 export default function SEOOpportunities() {
   const [selectedWebsite, setSelectedWebsite] = useState(null);
@@ -12,38 +12,44 @@ export default function SEOOpportunities() {
 
   const { data: websites = [] } = useQuery({
     queryKey: ['websites'],
-    queryFn: () => base44.entities.Website.list('-created_date', 50)
+    queryFn: () => base44.entities.Website.list('-created_date', 50),
   });
 
   const { data: opportunities = [] } = useQuery({
     queryKey: ['keyword-opportunities', selectedWebsite?.id],
-    queryFn: () => selectedWebsite 
-      ? base44.entities.KeywordOpportunity.filter({ website_id: selectedWebsite.id }, '-opportunity_score', 100)
-      : [],
-    enabled: !!selectedWebsite?.id
+    queryFn: () =>
+      selectedWebsite
+        ? base44.entities.KeywordOpportunity.filter(
+            { website_id: selectedWebsite.id },
+            '-opportunity_score',
+            100
+          )
+        : [],
+    enabled: !!selectedWebsite?.id,
   });
 
   const { data: actionItems = [] } = useQuery({
     queryKey: ['seo-actions', selectedWebsite?.id],
-    queryFn: () => selectedWebsite
-      ? base44.entities.SEOActionItem.filter({ website_id: selectedWebsite.id }, '-priority', 50)
-      : [],
-    enabled: !!selectedWebsite?.id
+    queryFn: () =>
+      selectedWebsite
+        ? base44.entities.SEOActionItem.filter({ website_id: selectedWebsite.id }, '-priority', 50)
+        : [],
+    enabled: !!selectedWebsite?.id,
   });
 
   const analyzeMutation = useMutation({
     mutationFn: async () => {
       await base44.functions.invoke('analyzeSEOOpportunities', {
-        website_id: selectedWebsite.id
+        website_id: selectedWebsite.id,
       });
       await base44.functions.invoke('generateSEORecommendations', {
-        website_id: selectedWebsite.id
+        website_id: selectedWebsite.id,
       });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['keyword-opportunities'] });
       queryClient.invalidateQueries({ queryKey: ['seo-actions'] });
-    }
+    },
   });
 
   if (!selectedWebsite) {
@@ -81,16 +87,23 @@ export default function SEOOpportunities() {
     );
   }
 
-  const pendingActions = actionItems.filter(a => a.status === 'pending');
-  const totalOpportunitiesValue = opportunities.reduce((sum, o) => sum + (o.estimated_traffic || 0), 0);
+  const pendingActions = actionItems.filter((a) => a.status === 'pending');
+  const totalOpportunitiesValue = opportunities.reduce(
+    (sum, o) => sum + (o.estimated_traffic || 0),
+    0
+  );
 
   return (
     <div className="p-6 lg:p-8 space-y-6 min-h-screen">
       <div className="flex items-center justify-between">
         <div>
           <div className="flex items-center gap-2 mb-2">
-            <Button variant="ghost" onClick={() => setSelectedWebsite(null)}>← Back</Button>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{selectedWebsite.name}</h1>
+            <Button variant="ghost" onClick={() => setSelectedWebsite(null)}>
+              ← Back
+            </Button>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+              {selectedWebsite.name}
+            </h1>
           </div>
           <p className="text-gray-500">{selectedWebsite.url}</p>
         </div>
@@ -100,9 +113,13 @@ export default function SEOOpportunities() {
           className="gap-2 bg-violet-600 hover:bg-violet-700"
         >
           {analyzeMutation.isPending ? (
-            <><Loader2 className="w-4 h-4 animate-spin" /> Analyzing...</>
+            <>
+              <Loader2 className="w-4 h-4 animate-spin" /> Analyzing...
+            </>
           ) : (
-            <><Zap className="w-4 h-4" /> Analyze Now</>
+            <>
+              <Zap className="w-4 h-4" /> Analyze Now
+            </>
           )}
         </Button>
       </div>
@@ -113,7 +130,9 @@ export default function SEOOpportunities() {
           <CardContent className="pt-6">
             <p className="text-sm text-gray-500">Keyword Opportunities</p>
             <p className="text-3xl font-bold text-violet-600">{opportunities.length}</p>
-            <p className="text-xs text-gray-400 mt-1">+{totalOpportunitiesValue.toLocaleString()} est. traffic</p>
+            <p className="text-xs text-gray-400 mt-1">
+              +{totalOpportunitiesValue.toLocaleString()} est. traffic
+            </p>
           </CardContent>
         </Card>
         <Card className="glass-card">
@@ -129,7 +148,9 @@ export default function SEOOpportunities() {
             <p className="text-lg font-bold text-gray-900 dark:text-white">
               {opportunities[0]?.keyword || 'N/A'}
             </p>
-            <p className="text-xs text-gray-400 mt-1">Score: {opportunities[0]?.opportunity_score || 0}/100</p>
+            <p className="text-xs text-gray-400 mt-1">
+              Score: {opportunities[0]?.opportunity_score || 0}/100
+            </p>
           </CardContent>
         </Card>
       </div>
@@ -142,18 +163,27 @@ export default function SEOOpportunities() {
           </CardHeader>
           <CardContent className="space-y-3">
             {actionItems.slice(0, 5).map((action) => (
-              <div key={action.id} className="p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+              <div
+                key={action.id}
+                className="p-4 rounded-lg border border-gray-200 dark:border-gray-700"
+              >
                 <div className="flex items-start justify-between mb-2">
                   <h4 className="font-medium text-gray-900 dark:text-white">{action.title}</h4>
-                  <Badge className={`${
-                    action.priority === 'critical' ? 'bg-red-100 text-red-800' :
-                    action.priority === 'high' ? 'bg-orange-100 text-orange-800' :
-                    'bg-blue-100 text-blue-800'
-                  }`}>
+                  <Badge
+                    className={`${
+                      action.priority === 'critical'
+                        ? 'bg-red-100 text-red-800'
+                        : action.priority === 'high'
+                          ? 'bg-orange-100 text-orange-800'
+                          : 'bg-blue-100 text-blue-800'
+                    }`}
+                  >
                     {action.priority}
                   </Badge>
                 </div>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">{action.description}</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                  {action.description}
+                </p>
                 <div className="flex gap-2 text-xs">
                   <span className="text-emerald-600">Impact: {action.estimated_impact}</span>
                   <span className="text-gray-500">Effort: {action.estimated_effort}</span>
@@ -188,7 +218,9 @@ export default function SEOOpportunities() {
                   {opportunities.slice(0, 10).map((opp) => (
                     <tr key={opp.id} className="border-b border-gray-100 dark:border-gray-800">
                       <td className="py-2 px-3">{opp.keyword}</td>
-                      <td className="text-right py-2 px-3">{opp.search_volume?.toLocaleString()}</td>
+                      <td className="text-right py-2 px-3">
+                        {opp.search_volume?.toLocaleString()}
+                      </td>
                       <td className="text-right py-2 px-3">{opp.difficulty}</td>
                       <td className="text-right py-2 px-3">
                         <Badge className="bg-emerald-100 text-emerald-800">

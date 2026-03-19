@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { Button } from "@/components/ui/button";
-import { SendIcon } from "lucide-react";
+import { Button } from '@/components/ui/button';
+import { SendIcon } from 'lucide-react';
 import MentionInput from './MentionInput';
 
 export default function NoteWithMentions({ entityType, entityId, businessId, onNoteAdded }) {
@@ -26,7 +26,7 @@ export default function NoteWithMentions({ entityType, entityId, businessId, onN
     if (!noteText.trim()) return;
 
     const userData = await base44.auth.me();
-    
+
     await createActivityMutation.mutate({
       business_id: businessId,
       entity_type: entityType,

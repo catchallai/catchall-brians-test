@@ -1,13 +1,8 @@
 import React from 'react';
-import { HelpCircle } from "lucide-react";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { HelpCircle } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
-export default function HelpTooltip({ content, side = "top" }) {
+export default function HelpTooltip({ content, side = 'top' }) {
   return (
     <TooltipProvider>
       <Tooltip delayDuration={300}>

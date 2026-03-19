@@ -1,14 +1,32 @@
 import React, { useState, useMemo } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Plus, Grid3x3, List, Filter, Upload, Search, X, DollarSign, User, Mail, Phone } from "lucide-react";
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Card } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Skeleton } from '@/components/ui/skeleton';
+import {
+  Plus,
+  Grid3x3,
+  List,
+  Filter,
+  Upload,
+  Search,
+  X,
+  DollarSign,
+  User,
+  Mail,
+  Phone,
+} from 'lucide-react';
 import OpportunityCard from '@/components/crm/OpportunityCard';
 import OpportunityModal from '@/components/modals/OpportunityModal';
 import PipelineKanban from '@/components/crm/PipelineKanban';
@@ -31,7 +49,7 @@ export default function Opportunities() {
   const [showImport, setShowImport] = useState(false);
   const queryClient = useQueryClient();
   const toast = useToast();
-  
+
   const debouncedSearch = useDebounce(searchTerm, 300);
 
   const { data: user } = useQuery({
@@ -87,7 +105,9 @@ export default function Opportunities() {
     },
     onSuccess: (result) => {
       queryClient.invalidateQueries({ queryKey: ['opportunities'] });
-      toast.success(`Imported ${result.imported} opportunities${result.errors > 0 ? ` (${result.errors} errors)` : ''}`);
+      toast.success(
+        `Imported ${result.imported} opportunities${result.errors > 0 ? ` (${result.errors} errors)` : ''}`
+      );
       setShowImport(false);
     },
     onError: () => toast.error('Failed to import opportunities'),
@@ -107,8 +127,9 @@ export default function Opportunities() {
   };
 
   const filteredOpportunities = useMemo(() => {
-    return opportunities.filter(opp => {
-      const matchesSearch = !debouncedSearch || 
+    return opportunities.filter((opp) => {
+      const matchesSearch =
+        !debouncedSearch ||
         opp.title?.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
         opp.contact_name?.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
         opp.contact_email?.toLowerCase().includes(debouncedSearch.toLowerCase());
@@ -128,7 +149,7 @@ export default function Opportunities() {
       closed: [],
       not_interested: [],
     };
-    filteredOpportunities.forEach(opp => {
+    filteredOpportunities.forEach((opp) => {
       if (grouped[opp.stage]) {
         grouped[opp.stage].push(opp);
       }
@@ -144,14 +165,30 @@ export default function Opportunities() {
         <table className="w-full">
           <thead className="bg-gray-50 dark:bg-gray-800/50">
             <tr>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase">Opportunity</th>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase">Contact</th>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase">Email</th>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase">Phone</th>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase">Stage</th>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase">Value</th>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase">Source</th>
-              <th className="px-4 py-3 text-right text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase">Actions</th>
+              <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase">
+                Opportunity
+              </th>
+              <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase">
+                Contact
+              </th>
+              <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase">
+                Email
+              </th>
+              <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase">
+                Phone
+              </th>
+              <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase">
+                Stage
+              </th>
+              <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase">
+                Value
+              </th>
+              <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase">
+                Source
+              </th>
+              <th className="px-4 py-3 text-right text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase">
+                Actions
+              </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
@@ -169,22 +206,32 @@ export default function Opportunities() {
 
               const stageColors = {
                 new_lead: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300',
-                email_list: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300',
+                email_list:
+                  'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300',
                 media_inquiry: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300',
-                reservation_request: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300',
+                reservation_request:
+                  'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300',
                 no_response: 'bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-300',
                 contacted: 'bg-cyan-100 text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-300',
                 closed: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300',
-                not_interested: 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300',
+                not_interested:
+                  'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300',
               };
 
               return (
-                <tr key={opportunity.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/30 transition-colors">
+                <tr
+                  key={opportunity.id}
+                  className="hover:bg-gray-50 dark:hover:bg-gray-800/30 transition-colors"
+                >
                   <td className="px-4 py-3">
                     <div>
-                      <p className="font-semibold text-gray-900 dark:text-white">{opportunity.title}</p>
+                      <p className="font-semibold text-gray-900 dark:text-white">
+                        {opportunity.title}
+                      </p>
                       {opportunity.notes && (
-                        <p className="text-xs text-gray-500 dark:text-gray-400 truncate max-w-xs mt-0.5">{opportunity.notes}</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 truncate max-w-xs mt-0.5">
+                          {opportunity.notes}
+                        </p>
                       )}
                     </div>
                   </td>
@@ -196,11 +243,16 @@ export default function Opportunities() {
                   </td>
                   <td className="px-4 py-3 text-sm">
                     {opportunity.contact_email ? (
-                      <a href={`mailto:${opportunity.contact_email}`} className="text-violet-600 dark:text-violet-400 hover:underline flex items-center gap-2">
+                      <a
+                        href={`mailto:${opportunity.contact_email}`}
+                        className="text-violet-600 dark:text-violet-400 hover:underline flex items-center gap-2"
+                      >
                         <Mail className="w-4 h-4" />
                         {opportunity.contact_email}
                       </a>
-                    ) : '-'}
+                    ) : (
+                      '-'
+                    )}
                   </td>
                   <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
                     {opportunity.contact_phone ? (
@@ -208,10 +260,14 @@ export default function Opportunities() {
                         <Phone className="w-4 h-4 text-gray-400" />
                         {opportunity.contact_phone}
                       </div>
-                    ) : '-'}
+                    ) : (
+                      '-'
+                    )}
                   </td>
                   <td className="px-4 py-3">
-                    <Badge className={`${stageColors[opportunity.stage] || 'bg-gray-100 text-gray-700'} text-xs`}>
+                    <Badge
+                      className={`${stageColors[opportunity.stage] || 'bg-gray-100 text-gray-700'} text-xs`}
+                    >
                       {stageLabels[opportunity.stage] || opportunity.stage}
                     </Badge>
                   </td>
@@ -221,18 +277,16 @@ export default function Opportunities() {
                         <DollarSign className="w-4 h-4" />
                         {opportunity.value.toFixed(2)}
                       </div>
-                    ) : '-'}
+                    ) : (
+                      '-'
+                    )}
                   </td>
                   <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
                     {opportunity.source || '-'}
                   </td>
                   <td className="px-4 py-3 text-right">
                     <div className="flex gap-2 justify-end">
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => handleEdit(opportunity)}
-                      >
+                      <Button size="sm" variant="ghost" onClick={() => handleEdit(opportunity)}>
                         Edit
                       </Button>
                       <Button
@@ -259,13 +313,21 @@ export default function Opportunities() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Opportunities</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
+            Opportunities
+          </h1>
           <p className="text-sm sm:text-base text-gray-500 mt-1">
-            Track leads from various sources • {filteredOpportunities.length} opportunities • ${totalValue.toFixed(2)} total value
+            Track leads from various sources • {filteredOpportunities.length} opportunities • $
+            {totalValue.toFixed(2)} total value
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
-          <Button variant="outline" className="gap-2 text-sm" size="sm" onClick={() => setShowImport(true)}>
+          <Button
+            variant="outline"
+            className="gap-2 text-sm"
+            size="sm"
+            onClick={() => setShowImport(true)}
+          >
             <Upload className="w-4 h-4" />
             Import
           </Button>
@@ -283,7 +345,13 @@ export default function Opportunities() {
               { key: 'notes', label: 'Notes' },
             ]}
           />
-          <Button onClick={() => { setEditingOpportunity(null); setShowModal(true); }} className="gap-2 bg-violet-600 hover:bg-violet-700">
+          <Button
+            onClick={() => {
+              setEditingOpportunity(null);
+              setShowModal(true);
+            }}
+            className="gap-2 bg-violet-600 hover:bg-violet-700"
+          >
             <Plus className="w-4 h-4" />
             Add opportunity
           </Button>
@@ -333,7 +401,7 @@ export default function Opportunities() {
             </div>
 
             <Button
-              variant={showFilters ? "default" : "outline"}
+              variant={showFilters ? 'default' : 'outline'}
               onClick={() => setShowFilters(!showFilters)}
               className="gap-2"
             >
@@ -366,27 +434,35 @@ export default function Opportunities() {
                 <Skeleton key={i} className="h-48 rounded-xl" />
               ))}
             </div>
-          ) : filteredOpportunities.filter(o => !['closed', 'not_interested'].includes(o.stage)).length === 0 ? (
+          ) : filteredOpportunities.filter((o) => !['closed', 'not_interested'].includes(o.stage))
+              .length === 0 ? (
             <EmptyState
               icon={Grid3x3}
               title="No open opportunities"
               description="All opportunities are either closed or not interested."
               actionLabel="Add Opportunity"
-              onAction={() => { setEditingOpportunity(null); setShowModal(true); }}
+              onAction={() => {
+                setEditingOpportunity(null);
+                setShowModal(true);
+              }}
             />
           ) : viewMode === 'grid' ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-              {filteredOpportunities.filter(o => !['closed', 'not_interested'].includes(o.stage)).map((opportunity) => (
-                <OpportunityCard
-                  key={opportunity.id}
-                  opportunity={opportunity}
-                  onEdit={() => handleEdit(opportunity)}
-                  onDelete={() => setDeleteConfirm(opportunity)}
-                />
-              ))}
+              {filteredOpportunities
+                .filter((o) => !['closed', 'not_interested'].includes(o.stage))
+                .map((opportunity) => (
+                  <OpportunityCard
+                    key={opportunity.id}
+                    opportunity={opportunity}
+                    onEdit={() => handleEdit(opportunity)}
+                    onDelete={() => setDeleteConfirm(opportunity)}
+                  />
+                ))}
             </div>
           ) : (
-            renderOpportunitiesTable(filteredOpportunities.filter(o => !['closed', 'not_interested'].includes(o.stage)))
+            renderOpportunitiesTable(
+              filteredOpportunities.filter((o) => !['closed', 'not_interested'].includes(o.stage))
+            )
           )}
         </TabsContent>
 
@@ -411,7 +487,9 @@ export default function Opportunities() {
                 <Skeleton key={i} className="h-48 rounded-xl" />
               ))}
             </div>
-          ) : filteredOpportunities.filter(o => ['no_response', 'new_lead', 'email_list', 'media_inquiry'].includes(o.stage)).length === 0 ? (
+          ) : filteredOpportunities.filter((o) =>
+              ['no_response', 'new_lead', 'email_list', 'media_inquiry'].includes(o.stage)
+            ).length === 0 ? (
             <EmptyState
               icon={Grid3x3}
               title="No opportunities need follow up"
@@ -419,14 +497,18 @@ export default function Opportunities() {
             />
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-              {filteredOpportunities.filter(o => ['no_response', 'new_lead', 'email_list', 'media_inquiry'].includes(o.stage)).map((opportunity) => (
-                <OpportunityCard
-                  key={opportunity.id}
-                  opportunity={opportunity}
-                  onEdit={() => handleEdit(opportunity)}
-                  onDelete={() => setDeleteConfirm(opportunity)}
-                />
-              ))}
+              {filteredOpportunities
+                .filter((o) =>
+                  ['no_response', 'new_lead', 'email_list', 'media_inquiry'].includes(o.stage)
+                )
+                .map((opportunity) => (
+                  <OpportunityCard
+                    key={opportunity.id}
+                    opportunity={opportunity}
+                    onEdit={() => handleEdit(opportunity)}
+                    onDelete={() => setDeleteConfirm(opportunity)}
+                  />
+                ))}
             </div>
           )}
         </TabsContent>
@@ -452,7 +534,9 @@ export default function Opportunities() {
                 <Skeleton key={i} className="h-48 rounded-xl" />
               ))}
             </div>
-          ) : filteredOpportunities.filter(o => ['contacted', 'reservation_request'].includes(o.stage)).length === 0 ? (
+          ) : filteredOpportunities.filter((o) =>
+              ['contacted', 'reservation_request'].includes(o.stage)
+            ).length === 0 ? (
             <EmptyState
               icon={Grid3x3}
               title="No opportunities in progress"
@@ -460,14 +544,16 @@ export default function Opportunities() {
             />
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-              {filteredOpportunities.filter(o => ['contacted', 'reservation_request'].includes(o.stage)).map((opportunity) => (
-                <OpportunityCard
-                  key={opportunity.id}
-                  opportunity={opportunity}
-                  onEdit={() => handleEdit(opportunity)}
-                  onDelete={() => setDeleteConfirm(opportunity)}
-                />
-              ))}
+              {filteredOpportunities
+                .filter((o) => ['contacted', 'reservation_request'].includes(o.stage))
+                .map((opportunity) => (
+                  <OpportunityCard
+                    key={opportunity.id}
+                    opportunity={opportunity}
+                    onEdit={() => handleEdit(opportunity)}
+                    onDelete={() => setDeleteConfirm(opportunity)}
+                  />
+                ))}
             </div>
           )}
         </TabsContent>
@@ -505,7 +591,10 @@ export default function Opportunities() {
               title="No opportunities yet"
               description="Start tracking opportunities by creating your first one."
               actionLabel="Add Opportunity"
-              onAction={() => { setEditingOpportunity(null); setShowModal(true); }}
+              onAction={() => {
+                setEditingOpportunity(null);
+                setShowModal(true);
+              }}
             />
           ) : viewMode === 'grid' ? (
             <PipelineKanban
@@ -531,7 +620,10 @@ export default function Opportunities() {
       {/* Modal */}
       <OpportunityModal
         open={showModal}
-        onClose={() => { setShowModal(false); setEditingOpportunity(null); }}
+        onClose={() => {
+          setShowModal(false);
+          setEditingOpportunity(null);
+        }}
         opportunity={editingOpportunity}
         contacts={contacts}
         onSave={handleSave}
@@ -547,7 +639,17 @@ export default function Opportunities() {
         requiredFields={['Opportunity Name', 'email']}
         optionalFields={['Contact Name', 'phone', 'stage', 'Lead Value', 'source', 'Notes', 'tags']}
         sampleData={[
-          { 'Opportunity Name': 'New Lead', 'Contact Name': 'John Doe', email: 'john@example.com', phone: '555-1234', stage: '🚨New Lead', 'Lead Value': '1000', source: 'Website', Notes: 'Interested in product', tags: 'hot,qualified' },
+          {
+            'Opportunity Name': 'New Lead',
+            'Contact Name': 'John Doe',
+            email: 'john@example.com',
+            phone: '555-1234',
+            stage: '🚨New Lead',
+            'Lead Value': '1000',
+            source: 'Website',
+            Notes: 'Interested in product',
+            tags: 'hot,qualified',
+          },
         ]}
       />
 

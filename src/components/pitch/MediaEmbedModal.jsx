@@ -1,10 +1,16 @@
 import React, { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Video, Link, Upload, Youtube, Globe } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { Video, Link, Upload, Youtube, Globe } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 
 export default function MediaEmbedModal({ open, onClose, onEmbed }) {
@@ -15,7 +21,7 @@ export default function MediaEmbedModal({ open, onClose, onEmbed }) {
   const handleUpload = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    
+
     setIsUploading(true);
     try {
       const { file_url } = await base44.integrations.Core.UploadFile({ file });
@@ -31,7 +37,7 @@ export default function MediaEmbedModal({ open, onClose, onEmbed }) {
 
   const handleEmbed = () => {
     if (!url) return;
-    
+
     let type = embedType;
     // Auto-detect YouTube
     if (url.includes('youtube.com') || url.includes('youtu.be')) {
@@ -39,7 +45,7 @@ export default function MediaEmbedModal({ open, onClose, onEmbed }) {
     } else if (url.includes('vimeo.com')) {
       type = 'vimeo';
     }
-    
+
     onEmbed({ type, url });
     onClose();
     setUrl('');
@@ -118,8 +124,8 @@ export default function MediaEmbedModal({ open, onClose, onEmbed }) {
             <Button variant="outline" onClick={onClose}>
               Cancel
             </Button>
-            <Button 
-              onClick={handleEmbed} 
+            <Button
+              onClick={handleEmbed}
               disabled={!url}
               className="bg-violet-600 hover:bg-violet-700"
             >

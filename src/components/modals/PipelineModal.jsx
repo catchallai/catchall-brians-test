@@ -1,42 +1,85 @@
 import React, { useState, useEffect } from 'react';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Plus, Trash2 } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Plus, Trash2 } from 'lucide-react';
 
 export default function PipelineModal({ open, onClose, pipeline, onSave, isLoading }) {
   const [formData, setFormData] = useState({
     name: '',
     stages: [
-      { id: 'new_lead', name: 'New Lead', leave_time: false, stage_handover: false, include_in_reports: false },
-      { id: 'contacted', name: 'Contacted', leave_time: false, stage_handover: false, include_in_reports: false },
-      { id: 'proposal_sent', name: 'Proposal Sent', leave_time: false, stage_handover: false, include_in_reports: false },
-      { id: 'closed', name: 'Closed', leave_time: false, stage_handover: false, include_in_reports: false },
-    ]
+      {
+        id: 'new_lead',
+        name: 'New Lead',
+        leave_time: false,
+        stage_handover: false,
+        include_in_reports: false,
+      },
+      {
+        id: 'contacted',
+        name: 'Contacted',
+        leave_time: false,
+        stage_handover: false,
+        include_in_reports: false,
+      },
+      {
+        id: 'proposal_sent',
+        name: 'Proposal Sent',
+        leave_time: false,
+        stage_handover: false,
+        include_in_reports: false,
+      },
+      {
+        id: 'closed',
+        name: 'Closed',
+        leave_time: false,
+        stage_handover: false,
+        include_in_reports: false,
+      },
+    ],
   });
 
   useEffect(() => {
     if (pipeline) {
       setFormData({
         name: pipeline.name || '',
-        stages: pipeline.stages || []
+        stages: pipeline.stages || [],
       });
     } else {
       setFormData({
         name: '',
         stages: [
-          { id: 'new_lead', name: 'New Lead', leave_time: false, stage_handover: false, include_in_reports: false },
-          { id: 'contacted', name: 'Contacted', leave_time: false, stage_handover: false, include_in_reports: false },
-          { id: 'proposal_sent', name: 'Proposal Sent', leave_time: false, stage_handover: false, include_in_reports: false },
-          { id: 'closed', name: 'Closed', leave_time: false, stage_handover: false, include_in_reports: false },
-        ]
+          {
+            id: 'new_lead',
+            name: 'New Lead',
+            leave_time: false,
+            stage_handover: false,
+            include_in_reports: false,
+          },
+          {
+            id: 'contacted',
+            name: 'Contacted',
+            leave_time: false,
+            stage_handover: false,
+            include_in_reports: false,
+          },
+          {
+            id: 'proposal_sent',
+            name: 'Proposal Sent',
+            leave_time: false,
+            stage_handover: false,
+            include_in_reports: false,
+          },
+          {
+            id: 'closed',
+            name: 'Closed',
+            leave_time: false,
+            stage_handover: false,
+            include_in_reports: false,
+          },
+        ],
       });
     }
   }, [pipeline, open]);
@@ -51,21 +94,21 @@ export default function PipelineModal({ open, onClose, pipeline, onSave, isLoadi
       ...formData,
       stages: [
         ...formData.stages,
-        { 
-          id: `stage_${Date.now()}`, 
-          name: '', 
-          leave_time: false, 
+        {
+          id: `stage_${Date.now()}`,
+          name: '',
+          leave_time: false,
           stage_handover: false,
-          include_in_reports: false
-        }
-      ]
+          include_in_reports: false,
+        },
+      ],
     });
   };
 
   const removeStage = (index) => {
     setFormData({
       ...formData,
-      stages: formData.stages.filter((_, i) => i !== index)
+      stages: formData.stages.filter((_, i) => i !== index),
     });
   };
 
@@ -100,7 +143,13 @@ export default function PipelineModal({ open, onClose, pipeline, onSave, isLoadi
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <Label>Pipeline Stages ({formData.stages.length})</Label>
-              <Button type="button" size="sm" variant="outline" onClick={addStage} className="gap-2">
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                onClick={addStage}
+                className="gap-2"
+              >
                 <Plus className="w-4 h-4" />
                 Add Stage
               </Button>
@@ -108,7 +157,10 @@ export default function PipelineModal({ open, onClose, pipeline, onSave, isLoadi
 
             <div className="space-y-3">
               {formData.stages.map((stage, index) => (
-                <div key={stage.id} className="border rounded-lg p-4 space-y-3 bg-gray-50 dark:bg-gray-800">
+                <div
+                  key={stage.id}
+                  className="border rounded-lg p-4 space-y-3 bg-gray-50 dark:bg-gray-800"
+                >
                   <div className="flex gap-2">
                     <div className="flex-1">
                       <Label className="text-xs text-gray-500">Stage Name</Label>
@@ -157,9 +209,14 @@ export default function PipelineModal({ open, onClose, pipeline, onSave, isLoadi
                       <Checkbox
                         id={`include-reports-${index}`}
                         checked={stage.include_in_reports}
-                        onCheckedChange={(checked) => updateStage(index, 'include_in_reports', checked)}
+                        onCheckedChange={(checked) =>
+                          updateStage(index, 'include_in_reports', checked)
+                        }
                       />
-                      <label htmlFor={`include-reports-${index}`} className="text-sm cursor-pointer">
+                      <label
+                        htmlFor={`include-reports-${index}`}
+                        className="text-sm cursor-pointer"
+                      >
                         Include in Reports
                       </label>
                     </div>
@@ -174,7 +231,7 @@ export default function PipelineModal({ open, onClose, pipeline, onSave, isLoadi
               Cancel
             </Button>
             <Button type="submit" disabled={isLoading}>
-              {isLoading ? 'Saving...' : (pipeline ? 'Update' : 'Create')}
+              {isLoading ? 'Saving...' : pipeline ? 'Update' : 'Create'}
             </Button>
           </div>
         </form>

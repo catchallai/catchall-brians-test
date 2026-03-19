@@ -1,11 +1,25 @@
 import React, { useState, useMemo } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Calendar, ChevronLeft, ChevronRight, Download, Filter, List, CalendarDays } from "lucide-react";
+import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
+  Calendar,
+  ChevronLeft,
+  ChevronRight,
+  Download,
+  Filter,
+  List,
+  CalendarDays,
+} from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 
@@ -38,12 +52,12 @@ export default function ProjectCalendar() {
 
   // Get unique assignees
   const assignees = useMemo(() => {
-    const emails = [...new Set(tasks.map(t => t.assigned_to).filter(Boolean))];
-    return emails.map(email => {
-      const contact = contacts.find(c => c.email === email);
+    const emails = [...new Set(tasks.map((t) => t.assigned_to).filter(Boolean))];
+    return emails.map((email) => {
+      const contact = contacts.find((c) => c.email === email);
       return {
         email,
-        name: contact ? `${contact.first_name} ${contact.last_name}` : email
+        name: contact ? `${contact.first_name} ${contact.last_name}` : email,
       };
     });
   }, [tasks, contacts]);
@@ -53,9 +67,9 @@ export default function ProjectCalendar() {
     let allEvents = [];
 
     // Add project start/end dates
-    projects.forEach(project => {
+    projects.forEach((project) => {
       if (selectedProject !== 'all' && project.id !== selectedProject) return;
-      
+
       if (project.start_date) {
         allEvents.push({
           id: `project-start-${project.id}`,
@@ -83,11 +97,11 @@ export default function ProjectCalendar() {
     });
 
     // Add task due dates
-    tasks.forEach(task => {
-      const project = projects.find(p => p.id === task.project_id);
+    tasks.forEach((task) => {
+      const project = projects.find((p) => p.id === task.project_id);
       if (selectedProject !== 'all' && task.project_id !== selectedProject) return;
       if (selectedAssignee !== 'all' && task.assigned_to !== selectedAssignee) return;
-      
+
       if (task.due_date) {
         allEvents.push({
           id: `task-${task.id}`,
@@ -104,10 +118,10 @@ export default function ProjectCalendar() {
     });
 
     // Add milestones
-    milestones.forEach(milestone => {
-      const project = projects.find(p => p.id === milestone.project_id);
+    milestones.forEach((milestone) => {
+      const project = projects.find((p) => p.id === milestone.project_id);
       if (selectedProject !== 'all' && milestone.project_id !== selectedProject) return;
-      
+
       if (milestone.due_date) {
         allEvents.push({
           id: `milestone-${milestone.id}`,
@@ -132,25 +146,25 @@ export default function ProjectCalendar() {
     const lastDay = new Date(year, month + 1, 0);
     const startDate = new Date(firstDay);
     startDate.setDate(startDate.getDate() - startDate.getDay());
-    
+
     const days = [];
     const current = new Date(startDate);
-    
+
     for (let i = 0; i < 42; i++) {
-      const dayEvents = events.filter(event => 
-        event.date.toDateString() === current.toDateString()
+      const dayEvents = events.filter(
+        (event) => event.date.toDateString() === current.toDateString()
       );
-      
+
       days.push({
         date: new Date(current),
         isCurrentMonth: current.getMonth() === month,
         isToday: current.toDateString() === new Date().toDateString(),
         events: dayEvents,
       });
-      
+
       current.setDate(current.getDate() + 1);
     }
-    
+
     return days;
   }, [currentDate, events]);
 
@@ -163,8 +177,8 @@ export default function ProjectCalendar() {
   const exportToCalendar = () => {
     // Generate ICS file
     let icsContent = 'BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//Project Management//EN\n';
-    
-    events.forEach(event => {
+
+    events.forEach((event) => {
       const dateStr = event.date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
       icsContent += `BEGIN:VEVENT\n`;
       icsContent += `UID:${event.id}\n`;
@@ -174,9 +188,9 @@ export default function ProjectCalendar() {
       icsContent += `DESCRIPTION:${event.type} - ${event.project}\n`;
       icsContent += `END:VEVENT\n`;
     });
-    
+
     icsContent += 'END:VCALENDAR';
-    
+
     const blob = new Blob([icsContent], { type: 'text/calendar' });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -191,15 +205,15 @@ export default function ProjectCalendar() {
   const typeColors = {
     'project-start': 'bg-blue-100 text-blue-800 border-blue-300',
     'project-end': 'bg-purple-100 text-purple-800 border-purple-300',
-    'task': 'bg-green-100 text-green-800 border-green-300',
-    'milestone': 'bg-orange-100 text-orange-800 border-orange-300',
+    task: 'bg-green-100 text-green-800 border-green-300',
+    milestone: 'bg-orange-100 text-orange-800 border-orange-300',
   };
 
   const typeIcons = {
     'project-start': '▶',
     'project-end': '🎯',
-    'task': '✓',
-    'milestone': '⭐',
+    task: '✓',
+    milestone: '⭐',
   };
 
   return (
@@ -267,8 +281,10 @@ export default function ProjectCalendar() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Projects</SelectItem>
-              {projects.map(project => (
-                <SelectItem key={project.id} value={project.id}>{project.name}</SelectItem>
+              {projects.map((project) => (
+                <SelectItem key={project.id} value={project.id}>
+                  {project.name}
+                </SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -279,8 +295,10 @@ export default function ProjectCalendar() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Assignees</SelectItem>
-              {assignees.map(assignee => (
-                <SelectItem key={assignee.email} value={assignee.email}>{assignee.name}</SelectItem>
+              {assignees.map((assignee) => (
+                <SelectItem key={assignee.email} value={assignee.email}>
+                  {assignee.name}
+                </SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -314,8 +332,11 @@ export default function ProjectCalendar() {
         <Card className="p-4">
           {/* Weekday headers */}
           <div className="grid grid-cols-7 gap-2 mb-2">
-            {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-              <div key={day} className="text-center font-semibold text-sm text-gray-600 dark:text-gray-400 py-2">
+            {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
+              <div
+                key={day}
+                className="text-center font-semibold text-sm text-gray-600 dark:text-gray-400 py-2"
+              >
                 {day}
               </div>
             ))}
@@ -332,14 +353,19 @@ export default function ProjectCalendar() {
                     : 'bg-gray-50 dark:bg-gray-900 border-gray-100 dark:border-gray-800'
                 } ${day.isToday ? 'ring-2 ring-violet-500' : ''}`}
               >
-                <div className={`text-sm font-semibold mb-1 ${
-                  day.isToday ? 'text-violet-600 dark:text-violet-400' : 
-                  day.isCurrentMonth ? 'text-gray-900 dark:text-white' : 'text-gray-400'
-                }`}>
+                <div
+                  className={`text-sm font-semibold mb-1 ${
+                    day.isToday
+                      ? 'text-violet-600 dark:text-violet-400'
+                      : day.isCurrentMonth
+                        ? 'text-gray-900 dark:text-white'
+                        : 'text-gray-400'
+                  }`}
+                >
                   {day.date.getDate()}
                 </div>
                 <div className="space-y-1">
-                  {day.events.slice(0, 3).map(event => (
+                  {day.events.slice(0, 3).map((event) => (
                     <Link
                       key={event.id}
                       to={createPageUrl('ProjectDetail', `id=${event.projectId}`)}
@@ -366,19 +392,23 @@ export default function ProjectCalendar() {
             {events.length === 0 ? (
               <p className="text-center text-gray-500 py-8">No events scheduled</p>
             ) : (
-              events.map(event => (
+              events.map((event) => (
                 <Link
                   key={event.id}
                   to={createPageUrl('ProjectDetail', `id=${event.projectId}`)}
                   className="flex items-center gap-4 p-3 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                 >
                   <div className="flex-shrink-0">
-                    <div className={`w-12 h-12 rounded-lg flex items-center justify-center text-xl ${typeColors[event.type]}`}>
+                    <div
+                      className={`w-12 h-12 rounded-lg flex items-center justify-center text-xl ${typeColors[event.type]}`}
+                    >
                       {typeIcons[event.type]}
                     </div>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h4 className="font-semibold text-gray-900 dark:text-white truncate">{event.title}</h4>
+                    <h4 className="font-semibold text-gray-900 dark:text-white truncate">
+                      {event.title}
+                    </h4>
                     <p className="text-sm text-gray-500 dark:text-gray-400">{event.project}</p>
                   </div>
                   <div className="flex-shrink-0 text-right">

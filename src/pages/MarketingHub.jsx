@@ -1,16 +1,29 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Skeleton } from '@/components/ui/skeleton';
 import {
-  TrendingUp, Users, Mail, Target, Link2, FlaskConical,
-  UserPlus, FileText, Bell, RefreshCw, Plus, BarChart3,
-  DollarSign, Percent, ArrowUpRight, ArrowDownRight
-} from "lucide-react";
+  TrendingUp,
+  Users,
+  Mail,
+  Target,
+  Link2,
+  FlaskConical,
+  UserPlus,
+  FileText,
+  Bell,
+  RefreshCw,
+  Plus,
+  BarChart3,
+  DollarSign,
+  Percent,
+  ArrowUpRight,
+  ArrowDownRight,
+} from 'lucide-react';
 import LeadScoringPanel from '@/components/marketing/LeadScoringPanel';
 import UTMTrackingPanel from '@/components/marketing/UTMTrackingPanel';
 import ABTestingPanel from '@/components/marketing/ABTestingPanel';
@@ -30,7 +43,11 @@ export default function MarketingHub() {
     queryKey: ['contacts', user?.current_business_id],
     queryFn: async () => {
       if (!user?.current_business_id) return [];
-      return await base44.entities.Contact.filter({ business_id: user.current_business_id }, '-created_date', 500);
+      return await base44.entities.Contact.filter(
+        { business_id: user.current_business_id },
+        '-created_date',
+        500
+      );
     },
     enabled: !!user?.current_business_id,
   });
@@ -39,7 +56,11 @@ export default function MarketingHub() {
     queryKey: ['deals', user?.current_business_id],
     queryFn: async () => {
       if (!user?.current_business_id) return [];
-      return await base44.entities.Deal.filter({ business_id: user.current_business_id }, '-created_date', 200);
+      return await base44.entities.Deal.filter(
+        { business_id: user.current_business_id },
+        '-created_date',
+        200
+      );
     },
     enabled: !!user?.current_business_id,
   });
@@ -60,12 +81,14 @@ export default function MarketingHub() {
   });
 
   // Calculate metrics
-  const hotLeads = leadScores.filter(l => l.grade === 'A' || l.grade === 'B').length;
-  const convertedReferrals = referrals.filter(r => r.status === 'converted').length;
-  
-  const pipelineValue = deals.filter(d => d.stage !== 'closed_won' && d.stage !== 'closed_lost')
+  const hotLeads = leadScores.filter((l) => l.grade === 'A' || l.grade === 'B').length;
+  const convertedReferrals = referrals.filter((r) => r.status === 'converted').length;
+
+  const pipelineValue = deals
+    .filter((d) => d.stage !== 'closed_won' && d.stage !== 'closed_lost')
     .reduce((sum, d) => sum + (d.value || 0), 0);
-  const wonValue = deals.filter(d => d.stage === 'closed_won')
+  const wonValue = deals
+    .filter((d) => d.stage === 'closed_won')
     .reduce((sum, d) => sum + (d.value || 0), 0);
 
   return (
@@ -73,7 +96,9 @@ export default function MarketingHub() {
       {/* Header */}
       <div>
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Marketing Hub</h1>
-        <p className="text-gray-500 dark:text-gray-400 mt-1">Automation, analytics, and optimization tools</p>
+        <p className="text-gray-500 dark:text-gray-400 mt-1">
+          Automation, analytics, and optimization tools
+        </p>
       </div>
 
       {/* Stats Overview */}
@@ -99,7 +124,9 @@ export default function MarketingHub() {
                 <UserPlus className="w-5 h-5 text-amber-600" />
               </div>
               <div>
-                <p className="text-2xl font-bold text-gray-900 dark:text-white">{convertedReferrals}</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                  {convertedReferrals}
+                </p>
                 <p className="text-xs text-gray-500">Referrals</p>
               </div>
             </div>
@@ -113,7 +140,9 @@ export default function MarketingHub() {
                 <DollarSign className="w-5 h-5 text-cyan-600" />
               </div>
               <div>
-                <p className="text-2xl font-bold text-gray-900 dark:text-white">${(pipelineValue / 1000).toFixed(0)}k</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                  ${(pipelineValue / 1000).toFixed(0)}k
+                </p>
                 <p className="text-xs text-gray-500">Pipeline</p>
               </div>
             </div>
@@ -127,7 +156,9 @@ export default function MarketingHub() {
                 <TrendingUp className="w-5 h-5 text-green-600" />
               </div>
               <div>
-                <p className="text-2xl font-bold text-gray-900 dark:text-white">${(wonValue / 1000).toFixed(0)}k</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                  ${(wonValue / 1000).toFixed(0)}k
+                </p>
                 <p className="text-xs text-gray-500">Won Revenue</p>
               </div>
             </div>

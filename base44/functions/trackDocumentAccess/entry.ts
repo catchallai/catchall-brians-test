@@ -6,14 +6,14 @@ Deno.serve(async (req) => {
     const url = new URL(req.url);
     const trackingCode = url.searchParams.get('code');
     const action = url.searchParams.get('action') || 'view';
-    
+
     if (!trackingCode) {
       return Response.json({ error: 'Tracking code required' }, { status: 400 });
     }
 
     // Find document by tracking code
-    const documents = await base44.asServiceRole.entities.TrackedDocument.filter({ 
-      tracking_code: trackingCode 
+    const documents = await base44.asServiceRole.entities.TrackedDocument.filter({
+      tracking_code: trackingCode,
     });
 
     if (!documents || documents.length === 0) {
@@ -28,7 +28,8 @@ Deno.serve(async (req) => {
     }
 
     // Get request info
-    const ipAddress = req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || 'unknown';
+    const ipAddress =
+      req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || 'unknown';
     const userAgent = req.headers.get('user-agent') || 'unknown';
 
     // Create access log entry
@@ -37,14 +38,14 @@ Deno.serve(async (req) => {
       action: action,
       ip_address: ipAddress,
       user_agent: userAgent,
-      location: 'Unknown'
+      location: 'Unknown',
     };
 
     // Update document with new access log
     const updatedLogs = [...(document.access_logs || []), logEntry];
     const updateData = {
       access_logs: updatedLogs,
-      last_viewed_at: new Date().toISOString()
+      last_viewed_at: new Date().toISOString(),
     };
 
     if (action === 'view') {
@@ -56,12 +57,11 @@ Deno.serve(async (req) => {
     await base44.asServiceRole.entities.TrackedDocument.update(document.id, updateData);
 
     // Return the PDF file URL for redirect
-    return Response.json({ 
+    return Response.json({
       file_url: document.file_url,
       action: action,
-      tracked: true
+      tracked: true,
     });
-
   } catch (error) {
     console.error('Tracking error:', error);
     return Response.json({ error: error.message }, { status: 500 });

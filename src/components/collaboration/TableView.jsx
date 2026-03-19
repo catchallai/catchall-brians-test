@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
   Table,
   TableBody,
@@ -11,14 +11,14 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { Plus, MoreVertical, Calendar, User, ArrowUpDown } from "lucide-react";
+} from '@/components/ui/table';
+import { Plus, MoreVertical, Calendar, User, ArrowUpDown } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from '@/components/ui/dropdown-menu';
 import TaskModal from './TaskModal';
 
 const priorityColors = {
@@ -43,11 +43,12 @@ export default function TableView({ project, tasks, user }) {
   const queryClient = useQueryClient();
 
   const createTaskMutation = useMutation({
-    mutationFn: (data) => base44.entities.ProjectTask.create({
-      ...data,
-      project_id: project.id,
-      created_by: user?.email,
-    }),
+    mutationFn: (data) =>
+      base44.entities.ProjectTask.create({
+        ...data,
+        project_id: project.id,
+        created_by: user?.email,
+      }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['project-tasks'] });
       setShowTaskModal(false);
@@ -145,14 +146,17 @@ export default function TableView({ project, tasks, user }) {
               </TableRow>
             ) : (
               sortedTasks.map((task) => (
-                <TableRow key={task.id} className="cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                <TableRow
+                  key={task.id}
+                  className="cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700/50"
+                >
                   <TableCell>
                     <Checkbox
                       checked={task.status === 'done'}
                       onCheckedChange={(checked) => {
                         updateTaskMutation.mutate({
                           id: task.id,
-                          data: { ...task, status: checked ? 'done' : 'todo' }
+                          data: { ...task, status: checked ? 'done' : 'todo' },
                         });
                       }}
                     />
@@ -173,7 +177,9 @@ export default function TableView({ project, tasks, user }) {
                     </Badge>
                   </TableCell>
                   <TableCell>
-                    <Badge className={`${priorityColors[task.priority] || priorityColors.medium} text-xs`}>
+                    <Badge
+                      className={`${priorityColors[task.priority] || priorityColors.medium} text-xs`}
+                    >
                       {task.priority || 'medium'}
                     </Badge>
                   </TableCell>
@@ -203,10 +209,12 @@ export default function TableView({ project, tasks, user }) {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => {
-                          setSelectedTask(task);
-                          setShowTaskModal(true);
-                        }}>
+                        <DropdownMenuItem
+                          onClick={() => {
+                            setSelectedTask(task);
+                            setShowTaskModal(true);
+                          }}
+                        >
                           Edit
                         </DropdownMenuItem>
                         <DropdownMenuItem

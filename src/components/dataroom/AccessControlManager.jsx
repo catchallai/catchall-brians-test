@@ -1,14 +1,26 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Badge } from "@/components/ui/badge";
-import { Plus, Edit2, Trash2, Clock } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Badge } from '@/components/ui/badge';
+import { Plus, Edit2, Trash2, Clock } from 'lucide-react';
 
 export default function AccessControlManager({ dataRoomId }) {
   const [showModal, setShowModal] = useState(false);
@@ -31,20 +43,24 @@ export default function AccessControlManager({ dataRoomId }) {
     queryKey: ['dr-access-controls', dataRoomId],
     queryFn: async () => {
       if (!dataRoomId) return [];
-      return await base44.entities.DataRoomAccessControl.filter({
-        data_room_id: dataRoomId,
-        is_active: true
-      }, '-created_date');
+      return await base44.entities.DataRoomAccessControl.filter(
+        {
+          data_room_id: dataRoomId,
+          is_active: true,
+        },
+        '-created_date'
+      );
     },
     enabled: !!dataRoomId,
   });
 
   const createMutation = useMutation({
-    mutationFn: (data) => base44.entities.DataRoomAccessControl.create({
-      ...data,
-      data_room_id: dataRoomId,
-      download_limit: data.download_limit ? parseInt(data.download_limit) : null,
-    }),
+    mutationFn: (data) =>
+      base44.entities.DataRoomAccessControl.create({
+        ...data,
+        data_room_id: dataRoomId,
+        download_limit: data.download_limit ? parseInt(data.download_limit) : null,
+      }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['dr-access-controls', dataRoomId] });
       handleModalClose();
@@ -52,10 +68,11 @@ export default function AccessControlManager({ dataRoomId }) {
   });
 
   const updateMutation = useMutation({
-    mutationFn: (data) => base44.entities.DataRoomAccessControl.update(editingAccess.id, {
-      ...data,
-      download_limit: data.download_limit ? parseInt(data.download_limit) : null,
-    }),
+    mutationFn: (data) =>
+      base44.entities.DataRoomAccessControl.update(editingAccess.id, {
+        ...data,
+        download_limit: data.download_limit ? parseInt(data.download_limit) : null,
+      }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['dr-access-controls', dataRoomId] });
       handleModalClose();
@@ -133,14 +150,26 @@ export default function AccessControlManager({ dataRoomId }) {
           <p className="text-sm text-gray-500">No access controls configured.</p>
         ) : (
           accessControls.map((access) => (
-            <div key={access.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+            <div
+              key={access.id}
+              className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg"
+            >
               <div className="flex-1 space-y-1">
                 <div className="font-medium text-gray-900 dark:text-white">{access.user_email}</div>
                 <div className="flex items-center gap-2 flex-wrap">
-                  <Badge variant="outline" className="text-xs">{access.permission_level}</Badge>
-                  {access.can_download && <Badge variant="secondary" className="text-xs">Download</Badge>}
+                  <Badge variant="outline" className="text-xs">
+                    {access.permission_level}
+                  </Badge>
+                  {access.can_download && (
+                    <Badge variant="secondary" className="text-xs">
+                      Download
+                    </Badge>
+                  )}
                   {access.expiry_date && (
-                    <Badge variant={isExpired(access.expiry_date) ? 'destructive' : 'outline'} className="text-xs gap-1">
+                    <Badge
+                      variant={isExpired(access.expiry_date) ? 'destructive' : 'outline'}
+                      className="text-xs gap-1"
+                    >
                       <Clock className="w-3 h-3" />
                       Expires {new Date(access.expiry_date).toLocaleDateString()}
                     </Badge>
@@ -156,7 +185,12 @@ export default function AccessControlManager({ dataRoomId }) {
                 <Button variant="ghost" size="sm" onClick={() => handleEdit(access)}>
                   <Edit2 className="w-3 h-3" />
                 </Button>
-                <Button variant="ghost" size="sm" onClick={() => deleteMutation.mutate(access.id)} className="text-red-600">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => deleteMutation.mutate(access.id)}
+                  className="text-red-600"
+                >
                   <Trash2 className="w-3 h-3" />
                 </Button>
               </div>
@@ -187,7 +221,10 @@ export default function AccessControlManager({ dataRoomId }) {
 
             <div>
               <label className="text-sm font-medium">Permission Level</label>
-              <Select value={formData.permission_level} onValueChange={(v) => setFormData({ ...formData, permission_level: v })}>
+              <Select
+                value={formData.permission_level}
+                onValueChange={(v) => setFormData({ ...formData, permission_level: v })}
+              >
                 <SelectTrigger className="mt-1">
                   <SelectValue />
                 </SelectTrigger>
@@ -202,15 +239,24 @@ export default function AccessControlManager({ dataRoomId }) {
             <div className="space-y-2">
               <label className="text-sm font-medium">Specific Permissions</label>
               <label className="flex items-center gap-2">
-                <Checkbox checked={formData.can_view} onCheckedChange={(v) => setFormData({ ...formData, can_view: v })} />
+                <Checkbox
+                  checked={formData.can_view}
+                  onCheckedChange={(v) => setFormData({ ...formData, can_view: v })}
+                />
                 <span className="text-sm">Can view documents</span>
               </label>
               <label className="flex items-center gap-2">
-                <Checkbox checked={formData.can_download} onCheckedChange={(v) => setFormData({ ...formData, can_download: v })} />
+                <Checkbox
+                  checked={formData.can_download}
+                  onCheckedChange={(v) => setFormData({ ...formData, can_download: v })}
+                />
                 <span className="text-sm">Can download documents</span>
               </label>
               <label className="flex items-center gap-2">
-                <Checkbox checked={formData.can_manage_users} onCheckedChange={(v) => setFormData({ ...formData, can_manage_users: v })} />
+                <Checkbox
+                  checked={formData.can_manage_users}
+                  onCheckedChange={(v) => setFormData({ ...formData, can_manage_users: v })}
+                />
                 <span className="text-sm">Can manage user access</span>
               </label>
             </div>
@@ -240,23 +286,34 @@ export default function AccessControlManager({ dataRoomId }) {
             <div className="space-y-2">
               <label className="text-sm font-medium">Notifications</label>
               <label className="flex items-center gap-2">
-                <Checkbox checked={formData.notify_on_view} onCheckedChange={(v) => setFormData({ ...formData, notify_on_view: v })} />
+                <Checkbox
+                  checked={formData.notify_on_view}
+                  onCheckedChange={(v) => setFormData({ ...formData, notify_on_view: v })}
+                />
                 <span className="text-sm">Notify on view</span>
               </label>
               <label className="flex items-center gap-2">
-                <Checkbox checked={formData.notify_on_download} onCheckedChange={(v) => setFormData({ ...formData, notify_on_download: v })} />
+                <Checkbox
+                  checked={formData.notify_on_download}
+                  onCheckedChange={(v) => setFormData({ ...formData, notify_on_download: v })}
+                />
                 <span className="text-sm">Notify on download</span>
               </label>
             </div>
 
             <label className="flex items-center gap-2">
-              <Checkbox checked={formData.password_required} onCheckedChange={(v) => setFormData({ ...formData, password_required: v })} />
+              <Checkbox
+                checked={formData.password_required}
+                onCheckedChange={(v) => setFormData({ ...formData, password_required: v })}
+              />
               <span className="text-sm">Require password to access</span>
             </label>
           </div>
 
           <DialogFooter>
-            <Button variant="outline" onClick={handleModalClose}>Cancel</Button>
+            <Button variant="outline" onClick={handleModalClose}>
+              Cancel
+            </Button>
             <Button onClick={handleSave} disabled={!formData.user_email.trim()}>
               {editingAccess ? 'Update' : 'Grant'} Access
             </Button>

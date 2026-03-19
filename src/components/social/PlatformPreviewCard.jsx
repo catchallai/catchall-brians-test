@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Facebook, Instagram, Linkedin, Twitter, Youtube, Edit2, Calendar } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Facebook, Instagram, Linkedin, Twitter, Youtube, Edit2, Calendar } from 'lucide-react';
 import { format } from 'date-fns';
 
 const PLATFORM_ICONS = {
@@ -26,19 +26,20 @@ export default function PlatformPreviewCard({ platform, posts, onEditPost }) {
   const [showDetailModal, setShowDetailModal] = useState(false);
   const Icon = PLATFORM_ICONS[platform.toLowerCase()] || Calendar;
   const colorClass = PLATFORM_COLORS[platform.toLowerCase()] || 'bg-violet-600';
-  
+
   // Get the first 9 posts for this platform
   const platformPosts = posts
-    .filter(post => 
-      post.platforms && 
-      Array.isArray(post.platforms) &&
-      post.platforms.some(p => p.toLowerCase() === platform.toLowerCase())
+    .filter(
+      (post) =>
+        post.platforms &&
+        Array.isArray(post.platforms) &&
+        post.platforms.some((p) => p.toLowerCase() === platform.toLowerCase())
     )
     .slice(0, 9);
 
   return (
     <>
-      <Card 
+      <Card
         className="glass-card rounded-2xl hover:shadow-xl transition-all cursor-pointer border-2 hover:border-violet-300"
         onClick={() => setShowDetailModal(true)}
       >
@@ -62,16 +63,16 @@ export default function PlatformPreviewCard({ platform, posts, onEditPost }) {
                 <div
                   key={index}
                   className={`aspect-square rounded-lg overflow-hidden ${
-                    post 
-                      ? 'bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-700' 
+                    post
+                      ? 'bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-700'
                       : 'bg-gray-100 dark:bg-gray-800 border-2 border-dashed border-gray-300 dark:border-gray-600'
                   }`}
                 >
                   {post ? (
                     post.image_url ? (
-                      <img 
-                        src={post.image_url} 
-                        alt={post.caption || 'Post'} 
+                      <img
+                        src={post.image_url}
+                        alt={post.caption || 'Post'}
                         className="w-full h-full object-cover"
                       />
                     ) : (
@@ -88,7 +89,7 @@ export default function PlatformPreviewCard({ platform, posts, onEditPost }) {
               );
             })}
           </div>
-          
+
           <div className="mt-4 text-center">
             <p className="text-sm text-gray-600 dark:text-gray-400">
               Click to view and edit all posts
@@ -111,16 +112,16 @@ export default function PlatformPreviewCard({ platform, posts, onEditPost }) {
               </div>
             </div>
           </DialogHeader>
-          
+
           {/* Grid of all posts for this platform */}
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-6">
             {platformPosts.map((post) => (
               <Card key={post.id} className="overflow-hidden hover:shadow-lg transition-all">
                 <div className="aspect-square bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-700">
                   {post.image_url ? (
-                    <img 
-                      src={post.image_url} 
-                      alt={post.caption || 'Post'} 
+                    <img
+                      src={post.image_url}
+                      alt={post.caption || 'Post'}
                       className="w-full h-full object-cover"
                     />
                   ) : (
@@ -143,9 +144,9 @@ export default function PlatformPreviewCard({ platform, posts, onEditPost }) {
                       {post.caption}
                     </p>
                   )}
-                  <Button 
-                    size="sm" 
-                    variant="outline" 
+                  <Button
+                    size="sm"
+                    variant="outline"
                     className="w-full gap-2"
                     onClick={() => {
                       onEditPost(post);
@@ -158,7 +159,7 @@ export default function PlatformPreviewCard({ platform, posts, onEditPost }) {
                 </CardContent>
               </Card>
             ))}
-            
+
             {platformPosts.length === 0 && (
               <div className="col-span-full py-12 text-center">
                 <Calendar className="w-12 h-12 mx-auto mb-4 text-gray-300" />

@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import ReactQuill from 'react-quill';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Code, Eye } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Code, Eye } from 'lucide-react';
 
 const AVAILABLE_VARIABLES = [
   '{{first_name}}',
@@ -20,30 +20,39 @@ export default function TemplateEditor({ value, onChange, subject }) {
 
   const modules = {
     toolbar: [
-      [{ 'header': [1, 2, 3, false] }],
+      [{ header: [1, 2, 3, false] }],
       ['bold', 'italic', 'underline', 'strike'],
-      [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-      [{ 'color': [] }, { 'background': [] }],
-      [{ 'align': [] }],
+      [{ list: 'ordered' }, { list: 'bullet' }],
+      [{ color: [] }, { background: [] }],
+      [{ align: [] }],
       ['link', 'image'],
-      ['clean']
+      ['clean'],
     ],
   };
 
   const formats = [
     'header',
-    'bold', 'italic', 'underline', 'strike',
-    'list', 'bullet',
-    'color', 'background',
+    'bold',
+    'italic',
+    'underline',
+    'strike',
+    'list',
+    'bullet',
+    'color',
+    'background',
     'align',
-    'link', 'image'
+    'link',
+    'image',
   ];
 
   const renderPreview = () => {
     let previewContent = value;
-    AVAILABLE_VARIABLES.forEach(variable => {
+    AVAILABLE_VARIABLES.forEach((variable) => {
       const placeholder = variable.replace('{{', '').replace('}}', '').replace(/_/g, ' ');
-      previewContent = previewContent.replace(new RegExp(variable.replace(/[{}]/g, '\\$&'), 'g'), `[${placeholder}]`);
+      previewContent = previewContent.replace(
+        new RegExp(variable.replace(/[{}]/g, '\\$&'), 'g'),
+        `[${placeholder}]`
+      );
     });
     return previewContent;
   };
@@ -53,9 +62,11 @@ export default function TemplateEditor({ value, onChange, subject }) {
       {/* Variable Helpers */}
       <Card className="bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800">
         <CardContent className="p-4">
-          <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Available Variables:</p>
+          <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            Available Variables:
+          </p>
           <div className="flex flex-wrap gap-2">
-            {AVAILABLE_VARIABLES.map(variable => (
+            {AVAILABLE_VARIABLES.map((variable) => (
               <Badge
                 key={variable}
                 variant="outline"
@@ -105,7 +116,7 @@ export default function TemplateEditor({ value, onChange, subject }) {
                   <p className="font-semibold text-gray-900 dark:text-white">{subject}</p>
                 </div>
               )}
-              <div 
+              <div
                 className="prose prose-sm max-w-none dark:prose-invert"
                 dangerouslySetInnerHTML={{ __html: renderPreview() }}
               />

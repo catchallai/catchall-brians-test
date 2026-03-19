@@ -1,12 +1,24 @@
 import React, { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Switch } from "@/components/ui/switch";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Switch } from '@/components/ui/switch';
 
 export default function SubscriptionModal({ open, onClose, onSave, subscription, isLoading }) {
   const [formData, setFormData] = useState({
@@ -20,7 +32,7 @@ export default function SubscriptionModal({ open, onClose, onSave, subscription,
     trial_end_date: '',
     payment_method: '',
     auto_renewal: true,
-    notes: ''
+    notes: '',
   });
 
   useEffect(() => {
@@ -38,30 +50,30 @@ export default function SubscriptionModal({ open, onClose, onSave, subscription,
         trial_end_date: '',
         payment_method: '',
         auto_renewal: true,
-        notes: ''
+        notes: '',
       });
     }
   }, [subscription, open]);
 
   const handleChange = (field, value) => {
-    setFormData(prev => {
+    setFormData((prev) => {
       const updated = { ...prev, [field]: value };
-      
+
       // Calculate MRR and ARR
       if (field === 'amount' || field === 'billing_frequency') {
         const amount = field === 'amount' ? value : updated.amount;
         const frequency = field === 'billing_frequency' ? value : updated.billing_frequency;
-        
+
         let mrr = 0;
         if (frequency === 'monthly') mrr = amount;
         else if (frequency === 'quarterly') mrr = amount / 3;
         else if (frequency === 'annually') mrr = amount / 12;
         else if (frequency === 'weekly') mrr = amount * 4.33;
-        
+
         updated.mrr = mrr;
         updated.arr = mrr * 12;
       }
-      
+
       return updated;
     });
   };
@@ -99,7 +111,10 @@ export default function SubscriptionModal({ open, onClose, onSave, subscription,
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="status">Status</Label>
-                  <Select value={formData.status} onValueChange={(value) => handleChange('status', value)}>
+                  <Select
+                    value={formData.status}
+                    onValueChange={(value) => handleChange('status', value)}
+                  >
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -151,7 +166,10 @@ export default function SubscriptionModal({ open, onClose, onSave, subscription,
 
                 <div className="space-y-2">
                   <Label htmlFor="currency">Currency</Label>
-                  <Select value={formData.currency} onValueChange={(value) => handleChange('currency', value)}>
+                  <Select
+                    value={formData.currency}
+                    onValueChange={(value) => handleChange('currency', value)}
+                  >
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -165,7 +183,10 @@ export default function SubscriptionModal({ open, onClose, onSave, subscription,
 
                 <div className="space-y-2">
                   <Label htmlFor="billing_frequency">Frequency *</Label>
-                  <Select value={formData.billing_frequency} onValueChange={(value) => handleChange('billing_frequency', value)}>
+                  <Select
+                    value={formData.billing_frequency}
+                    onValueChange={(value) => handleChange('billing_frequency', value)}
+                  >
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -220,14 +241,20 @@ export default function SubscriptionModal({ open, onClose, onSave, subscription,
                     <div className="text-2xl font-bold text-blue-700 dark:text-blue-300">
                       ${formData.mrr?.toFixed(2) || '0.00'}
                     </div>
-                    <div className="text-xs text-blue-600 dark:text-blue-400">Monthly Recurring Revenue</div>
+                    <div className="text-xs text-blue-600 dark:text-blue-400">
+                      Monthly Recurring Revenue
+                    </div>
                   </div>
                   <div className="bg-violet-50 dark:bg-violet-900/20 p-4 rounded-lg">
-                    <div className="text-sm font-medium text-violet-900 dark:text-violet-100">ARR</div>
+                    <div className="text-sm font-medium text-violet-900 dark:text-violet-100">
+                      ARR
+                    </div>
                     <div className="text-2xl font-bold text-violet-700 dark:text-violet-300">
                       ${formData.arr?.toFixed(2) || '0.00'}
                     </div>
-                    <div className="text-xs text-violet-600 dark:text-violet-400">Annual Recurring Revenue</div>
+                    <div className="text-xs text-violet-600 dark:text-violet-400">
+                      Annual Recurring Revenue
+                    </div>
                   </div>
                 </div>
               )}

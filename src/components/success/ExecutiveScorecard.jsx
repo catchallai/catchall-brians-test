@@ -1,9 +1,9 @@
 import React from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Trophy, TrendingUp, Users } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Trophy, TrendingUp, Users } from 'lucide-react';
 
 export default function ExecutiveScorecard() {
   const { data: scorecards = [] } = useQuery({
@@ -40,7 +40,7 @@ export default function ExecutiveScorecard() {
                 {currentPeriod.portfolio_health_score?.toFixed(0)}
               </p>
             </div>
-            
+
             <div className="p-4 rounded-lg bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-900/10">
               <p className="text-xs text-gray-600 dark:text-gray-400">NRR</p>
               <p className="text-3xl font-bold text-green-600 dark:text-green-400 mt-1">
@@ -70,21 +70,31 @@ export default function ExecutiveScorecard() {
             </div>
             <div className="text-center p-3 rounded-lg border border-gray-200 dark:border-gray-700">
               <p className="text-sm text-gray-600">Satisfaction</p>
-              <p className="text-2xl font-bold text-green-600 mt-1">{currentPeriod.customer_satisfaction?.toFixed(0)}</p>
+              <p className="text-2xl font-bold text-green-600 mt-1">
+                {currentPeriod.customer_satisfaction?.toFixed(0)}
+              </p>
             </div>
             <div className="text-center p-3 rounded-lg border border-gray-200 dark:border-gray-700">
               <p className="text-sm text-gray-600">Task Completion</p>
-              <p className="text-2xl font-bold text-blue-600 mt-1">{currentPeriod.task_completion_rate?.toFixed(0)}%</p>
+              <p className="text-2xl font-bold text-blue-600 mt-1">
+                {currentPeriod.task_completion_rate?.toFixed(0)}%
+              </p>
             </div>
           </div>
 
           <div className="mt-6 p-4 rounded-lg bg-gray-50 dark:bg-gray-800">
-            <p className="text-sm font-semibold text-gray-900 dark:text-white mb-3">Top Performers</p>
+            <p className="text-sm font-semibold text-gray-900 dark:text-white mb-3">
+              Top Performers
+            </p>
             <div className="space-y-2 text-sm">
               {scorecards.slice(0, 3).map((sc, i) => (
                 <div key={i} className="flex items-center justify-between">
-                  <span className="text-gray-600 dark:text-gray-400">#{sc.rank} {sc.csm_email?.split('@')[0]}</span>
-                  <span className="font-bold text-gray-900 dark:text-white">{sc.overall_score?.toFixed(0)}/100</span>
+                  <span className="text-gray-600 dark:text-gray-400">
+                    #{sc.rank} {sc.csm_email?.split('@')[0]}
+                  </span>
+                  <span className="font-bold text-gray-900 dark:text-white">
+                    {sc.overall_score?.toFixed(0)}/100
+                  </span>
                 </div>
               ))}
             </div>

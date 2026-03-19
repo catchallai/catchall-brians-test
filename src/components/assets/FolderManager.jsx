@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { FolderPlus, Folder, ChevronRight } from "lucide-react";
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { FolderPlus, Folder, ChevronRight } from 'lucide-react';
 import { useToast } from '@/components/ui/toast-provider';
 
 export default function FolderManager({ onFolderSelect, currentFolderId }) {
@@ -27,7 +27,7 @@ export default function FolderManager({ onFolderSelect, currentFolderId }) {
       setShowNewFolderModal(false);
       setFolderName('');
       toast.success('Folder created');
-    }
+    },
   });
 
   const FOLDER_COLORS = [
@@ -51,19 +51,23 @@ export default function FolderManager({ onFolderSelect, currentFolderId }) {
       <button
         onClick={() => onFolderSelect(null)}
         className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg transition-colors ${
-          !currentFolderId ? 'bg-violet-50 dark:bg-violet-900/30 text-violet-700' : 'hover:bg-gray-100 dark:hover:bg-gray-800'
+          !currentFolderId
+            ? 'bg-violet-50 dark:bg-violet-900/30 text-violet-700'
+            : 'hover:bg-gray-100 dark:hover:bg-gray-800'
         }`}
       >
         <Folder className="w-4 h-4" />
         <span className="text-sm">All Assets</span>
       </button>
 
-      {folders.map(folder => (
+      {folders.map((folder) => (
         <button
           key={folder.id}
           onClick={() => onFolderSelect(folder.id)}
           className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg transition-colors ${
-            currentFolderId === folder.id ? 'bg-violet-50 dark:bg-violet-900/30 text-violet-700' : 'hover:bg-gray-100 dark:hover:bg-gray-800'
+            currentFolderId === folder.id
+              ? 'bg-violet-50 dark:bg-violet-900/30 text-violet-700'
+              : 'hover:bg-gray-100 dark:hover:bg-gray-800'
           }`}
         >
           <Folder className="w-4 h-4" style={{ color: folder.color }} />
@@ -89,12 +93,14 @@ export default function FolderManager({ onFolderSelect, currentFolderId }) {
             <div>
               <Label>Color</Label>
               <div className="flex gap-2">
-                {FOLDER_COLORS.map(color => (
+                {FOLDER_COLORS.map((color) => (
                   <button
                     key={color.value}
                     onClick={() => setFolderColor(color.value)}
                     className={`w-8 h-8 rounded-full border-2 ${
-                      folderColor === color.value ? 'border-gray-900 dark:border-white' : 'border-transparent'
+                      folderColor === color.value
+                        ? 'border-gray-900 dark:border-white'
+                        : 'border-transparent'
                     }`}
                     style={{ backgroundColor: color.value }}
                     title={color.label}
@@ -103,9 +109,13 @@ export default function FolderManager({ onFolderSelect, currentFolderId }) {
               </div>
             </div>
             <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => setShowNewFolderModal(false)}>Cancel</Button>
+              <Button variant="outline" onClick={() => setShowNewFolderModal(false)}>
+                Cancel
+              </Button>
               <Button
-                onClick={() => createFolderMutation.mutate({ name: folderName, color: folderColor })}
+                onClick={() =>
+                  createFolderMutation.mutate({ name: folderName, color: folderColor })
+                }
                 disabled={!folderName.trim()}
               >
                 Create

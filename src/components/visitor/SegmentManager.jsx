@@ -1,15 +1,28 @@
 import React, { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent } from '@/components/ui/card';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { Layers, Plus, Trash2, Star, Edit2, BarChart3, X } from "lucide-react";
+import { Layers, Plus, Trash2, Star, Edit2, BarChart3, X } from 'lucide-react';
 
 const COLORS = [
   { name: 'Violet', value: '#8B5CF6' },
@@ -28,7 +41,7 @@ export default function SegmentManager({ open, onClose, onApplySegment, allVisit
     description: '',
     filters: {},
     color: COLORS[0].value,
-    is_favorite: false
+    is_favorite: false,
   });
 
   const queryClient = useQueryClient();
@@ -43,7 +56,13 @@ export default function SegmentManager({ open, onClose, onApplySegment, allVisit
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['visitor-segments'] });
       setShowCreate(false);
-      setNewSegment({ name: '', description: '', filters: {}, color: COLORS[0].value, is_favorite: false });
+      setNewSegment({
+        name: '',
+        description: '',
+        filters: {},
+        color: COLORS[0].value,
+        is_favorite: false,
+      });
     },
   });
 
@@ -68,7 +87,7 @@ export default function SegmentManager({ open, onClose, onApplySegment, allVisit
     if (editingSegment) {
       updateSegmentMutation.mutate({
         id: editingSegment.id,
-        data: { ...newSegment, visitor_count: count }
+        data: { ...newSegment, visitor_count: count },
       });
     } else {
       createSegmentMutation.mutate({ ...newSegment, visitor_count: count });
@@ -82,7 +101,7 @@ export default function SegmentManager({ open, onClose, onApplySegment, allVisit
       description: segment.description || '',
       filters: segment.filters || {},
       color: segment.color || COLORS[0].value,
-      is_favorite: segment.is_favorite || false
+      is_favorite: segment.is_favorite || false,
     });
     setShowCreate(true);
   };
@@ -90,15 +109,16 @@ export default function SegmentManager({ open, onClose, onApplySegment, allVisit
   const handleApplySegment = (segment) => {
     updateSegmentMutation.mutate({
       id: segment.id,
-      data: { last_used: new Date().toISOString() }
+      data: { last_used: new Date().toISOString() },
     });
     onApplySegment(segment.filters);
     onClose();
   };
 
   const calculateSegmentCount = (filters) => {
-    return allVisitors.filter(visitor => {
-      if (filters.industries?.length && !filters.industries.includes(visitor.industry)) return false;
+    return allVisitors.filter((visitor) => {
+      if (filters.industries?.length && !filters.industries.includes(visitor.industry))
+        return false;
       if (filters.tiers?.length && !filters.tiers.includes(visitor.scoreData?.tier)) return false;
       if (filters.countries?.length && !filters.countries.includes(visitor.country)) return false;
       if (filters.devices?.length && !filters.devices.includes(visitor.device)) return false;
@@ -114,8 +134,8 @@ export default function SegmentManager({ open, onClose, onApplySegment, allVisit
     }).length;
   };
 
-  const uniqueIndustries = [...new Set(allVisitors.map(v => v.industry))];
-  const uniqueCountries = [...new Set(allVisitors.map(v => v.country))];
+  const uniqueIndustries = [...new Set(allVisitors.map((v) => v.industry))];
+  const uniqueCountries = [...new Set(allVisitors.map((v) => v.country))];
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
@@ -139,19 +159,29 @@ export default function SegmentManager({ open, onClose, onApplySegment, allVisit
 
             <div className="space-y-3">
               {segments.map((segment) => (
-                <Card key={segment.id} className="bg-white dark:bg-gray-800 border-l-4" style={{ borderLeftColor: segment.color }}>
+                <Card
+                  key={segment.id}
+                  className="bg-white dark:bg-gray-800 border-l-4"
+                  style={{ borderLeftColor: segment.color }}
+                >
                   <CardContent className="p-4">
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">
-                          <h4 className="font-medium text-gray-900 dark:text-white">{segment.name}</h4>
-                          {segment.is_favorite && <Star className="w-4 h-4 text-amber-500 fill-amber-500" />}
+                          <h4 className="font-medium text-gray-900 dark:text-white">
+                            {segment.name}
+                          </h4>
+                          {segment.is_favorite && (
+                            <Star className="w-4 h-4 text-amber-500 fill-amber-500" />
+                          )}
                           <Badge variant="outline" className="ml-auto">
                             {segment.visitor_count || 0} visitors
                           </Badge>
                         </div>
                         {segment.description && (
-                          <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">{segment.description}</p>
+                          <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">
+                            {segment.description}
+                          </p>
                         )}
                         <div className="flex flex-wrap gap-1">
                           {segment.filters?.industries?.length > 0 && (
@@ -172,13 +202,25 @@ export default function SegmentManager({ open, onClose, onApplySegment, allVisit
                         </div>
                       </div>
                       <div className="flex gap-1 ml-3">
-                        <Button variant="ghost" size="sm" onClick={() => handleApplySegment(segment)}>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleApplySegment(segment)}
+                        >
                           Apply
                         </Button>
-                        <Button variant="ghost" size="sm" onClick={() => handleEditSegment(segment)}>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleEditSegment(segment)}
+                        >
                           <Edit2 className="w-4 h-4" />
                         </Button>
-                        <Button variant="ghost" size="sm" onClick={() => deleteSegmentMutation.mutate(segment.id)}>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => deleteSegmentMutation.mutate(segment.id)}
+                        >
                           <Trash2 className="w-4 h-4 text-red-500" />
                         </Button>
                       </div>
@@ -208,7 +250,7 @@ export default function SegmentManager({ open, onClose, onApplySegment, allVisit
               <div>
                 <Label>Color</Label>
                 <div className="flex gap-2 mt-2">
-                  {COLORS.map(color => (
+                  {COLORS.map((color) => (
                     <button
                       key={color.value}
                       className={`w-8 h-8 rounded-full border-2 ${newSegment.color === color.value ? 'border-gray-900 dark:border-white' : 'border-gray-300'}`}
@@ -231,12 +273,12 @@ export default function SegmentManager({ open, onClose, onApplySegment, allVisit
 
             <div className="space-y-3 border-t pt-4">
               <h4 className="font-medium text-sm">Filter Criteria</h4>
-              
+
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label>Lead Score Tiers</Label>
                   <div className="flex flex-wrap gap-2 mt-2">
-                    {['hot', 'warm', 'engaged', 'early'].map(tier => (
+                    {['hot', 'warm', 'engaged', 'early'].map((tier) => (
                       <Button
                         key={tier}
                         variant={newSegment.filters.tiers?.includes(tier) ? 'default' : 'outline'}
@@ -244,9 +286,12 @@ export default function SegmentManager({ open, onClose, onApplySegment, allVisit
                         onClick={() => {
                           const tiers = newSegment.filters.tiers || [];
                           const updated = tiers.includes(tier)
-                            ? tiers.filter(t => t !== tier)
+                            ? tiers.filter((t) => t !== tier)
                             : [...tiers, tier];
-                          setNewSegment({ ...newSegment, filters: { ...newSegment.filters, tiers: updated } });
+                          setNewSegment({
+                            ...newSegment,
+                            filters: { ...newSegment.filters, tiers: updated },
+                          });
                         }}
                       >
                         {tier}
@@ -258,17 +303,22 @@ export default function SegmentManager({ open, onClose, onApplySegment, allVisit
                 <div>
                   <Label>Devices</Label>
                   <div className="flex flex-wrap gap-2 mt-2">
-                    {['Desktop', 'Mobile', 'iPad'].map(device => (
+                    {['Desktop', 'Mobile', 'iPad'].map((device) => (
                       <Button
                         key={device}
-                        variant={newSegment.filters.devices?.includes(device) ? 'default' : 'outline'}
+                        variant={
+                          newSegment.filters.devices?.includes(device) ? 'default' : 'outline'
+                        }
                         size="sm"
                         onClick={() => {
                           const devices = newSegment.filters.devices || [];
                           const updated = devices.includes(device)
-                            ? devices.filter(d => d !== device)
+                            ? devices.filter((d) => d !== device)
                             : [...devices, device];
-                          setNewSegment({ ...newSegment, filters: { ...newSegment.filters, devices: updated } });
+                          setNewSegment({
+                            ...newSegment,
+                            filters: { ...newSegment.filters, devices: updated },
+                          });
                         }}
                       >
                         {device}
@@ -285,10 +335,15 @@ export default function SegmentManager({ open, onClose, onApplySegment, allVisit
                     type="number"
                     placeholder="e.g., 70"
                     value={newSegment.filters.min_score || ''}
-                    onChange={(e) => setNewSegment({
-                      ...newSegment,
-                      filters: { ...newSegment.filters, min_score: parseInt(e.target.value) || undefined }
-                    })}
+                    onChange={(e) =>
+                      setNewSegment({
+                        ...newSegment,
+                        filters: {
+                          ...newSegment.filters,
+                          min_score: parseInt(e.target.value) || undefined,
+                        },
+                      })
+                    }
                   />
                 </div>
                 <div>
@@ -297,10 +352,15 @@ export default function SegmentManager({ open, onClose, onApplySegment, allVisit
                     type="number"
                     placeholder="e.g., 5"
                     value={newSegment.filters.min_pages || ''}
-                    onChange={(e) => setNewSegment({
-                      ...newSegment,
-                      filters: { ...newSegment.filters, min_pages: parseInt(e.target.value) || undefined }
-                    })}
+                    onChange={(e) =>
+                      setNewSegment({
+                        ...newSegment,
+                        filters: {
+                          ...newSegment.filters,
+                          min_pages: parseInt(e.target.value) || undefined,
+                        },
+                      })
+                    }
                   />
                 </div>
                 <div>
@@ -309,10 +369,15 @@ export default function SegmentManager({ open, onClose, onApplySegment, allVisit
                     type="number"
                     placeholder="e.g., 30"
                     value={newSegment.filters.days_ago_max || ''}
-                    onChange={(e) => setNewSegment({
-                      ...newSegment,
-                      filters: { ...newSegment.filters, days_ago_max: parseInt(e.target.value) || undefined }
-                    })}
+                    onChange={(e) =>
+                      setNewSegment({
+                        ...newSegment,
+                        filters: {
+                          ...newSegment.filters,
+                          days_ago_max: parseInt(e.target.value) || undefined,
+                        },
+                      })
+                    }
                   />
                 </div>
               </div>
@@ -321,17 +386,21 @@ export default function SegmentManager({ open, onClose, onApplySegment, allVisit
                 <div className="flex items-center gap-2">
                   <Switch
                     checked={newSegment.filters.is_return_visitor || false}
-                    onCheckedChange={(checked) => setNewSegment({
-                      ...newSegment,
-                      filters: { ...newSegment.filters, is_return_visitor: checked }
-                    })}
+                    onCheckedChange={(checked) =>
+                      setNewSegment({
+                        ...newSegment,
+                        filters: { ...newSegment.filters, is_return_visitor: checked },
+                      })
+                    }
                   />
                   <Label>Return Visitors Only</Label>
                 </div>
                 <div className="flex items-center gap-2">
                   <Switch
                     checked={newSegment.is_favorite}
-                    onCheckedChange={(checked) => setNewSegment({ ...newSegment, is_favorite: checked })}
+                    onCheckedChange={(checked) =>
+                      setNewSegment({ ...newSegment, is_favorite: checked })
+                    }
                   />
                   <Label>Favorite Segment</Label>
                 </div>
@@ -339,13 +408,20 @@ export default function SegmentManager({ open, onClose, onApplySegment, allVisit
 
               <div className="bg-violet-50 dark:bg-violet-900/20 p-3 rounded-lg">
                 <p className="text-sm text-violet-700 dark:text-violet-300">
-                  📊 This segment will match <strong>{calculateSegmentCount(newSegment.filters)}</strong> visitors
+                  📊 This segment will match{' '}
+                  <strong>{calculateSegmentCount(newSegment.filters)}</strong> visitors
                 </p>
               </div>
             </div>
 
             <DialogFooter className="gap-2">
-              <Button variant="outline" onClick={() => { setShowCreate(false); setEditingSegment(null); }}>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setShowCreate(false);
+                  setEditingSegment(null);
+                }}
+              >
                 Cancel
               </Button>
               <Button onClick={handleSaveSegment} disabled={!newSegment.name}>

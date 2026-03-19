@@ -1,12 +1,19 @@
 import React from 'react';
-import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { GripVertical, DollarSign, TrendingUp, Calendar, Edit, Eye } from "lucide-react";
-import { DndContext, DragOverlay, closestCorners, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
+import { Card } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { GripVertical, DollarSign, TrendingUp, Calendar, Edit, Eye } from 'lucide-react';
+import {
+  DndContext,
+  DragOverlay,
+  closestCorners,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy, useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { format } from 'date-fns';
 
 function DealCard({ deal, contact, onClick, onEdit }) {
@@ -46,21 +53,20 @@ function DealCard({ deal, contact, onClick, onEdit }) {
       onMouseLeave={() => setIsHovered(false)}
     >
       <div className="flex items-start gap-2">
-        <div
-          {...attributes}
-          {...listeners}
-          className="cursor-grab active:cursor-grabbing"
-        >
+        <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing">
           <GripVertical className="w-4 h-4 text-gray-400 mt-1 flex-shrink-0" />
         </div>
         <div className="flex-1 min-w-0 space-y-2">
-          <p className="font-medium text-gray-900 dark:text-white text-sm line-clamp-2">{deal.title}</p>
-          
+          <p className="font-medium text-gray-900 dark:text-white text-sm line-clamp-2">
+            {deal.title}
+          </p>
+
           {contact && (
             <div className="flex items-center gap-2">
               <Avatar className="w-5 h-5">
                 <AvatarFallback className="bg-violet-100 dark:bg-violet-900 text-violet-600 dark:text-violet-300 text-[10px]">
-                  {contact.first_name?.[0]}{contact.last_name?.[0]}
+                  {contact.first_name?.[0]}
+                  {contact.last_name?.[0]}
                 </AvatarFallback>
               </Avatar>
               <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
@@ -123,16 +129,16 @@ function DealCard({ deal, contact, onClick, onEdit }) {
   );
 }
 
-export default function DealKanbanBoard({ 
-  deals, 
-  stages, 
-  stageColors, 
-  onDragStart, 
-  onDragOver, 
-  onDrop, 
+export default function DealKanbanBoard({
+  deals,
+  stages,
+  stageColors,
+  onDragStart,
+  onDragOver,
+  onDrop,
   onViewDeal,
   onEditDeal,
-  getContact 
+  getContact,
 }) {
   const [activeId, setActiveId] = React.useState(null);
 
@@ -151,10 +157,14 @@ export default function DealKanbanBoard({
     return `$${value.toLocaleString()}`;
   };
 
-  const getDealsForStage = (stageId) => deals.filter(d => d.stage === stageId);
-  const getStageValue = (stageId) => getDealsForStage(stageId).reduce((sum, d) => sum + (d.value || 0), 0);
+  const getDealsForStage = (stageId) => deals.filter((d) => d.stage === stageId);
+  const getStageValue = (stageId) =>
+    getDealsForStage(stageId).reduce((sum, d) => sum + (d.value || 0), 0);
   const getStageWeightedValue = (stageId) => {
-    return getDealsForStage(stageId).reduce((sum, d) => sum + ((d.value || 0) * ((d.probability || 50) / 100)), 0);
+    return getDealsForStage(stageId).reduce(
+      (sum, d) => sum + (d.value || 0) * ((d.probability || 50) / 100),
+      0
+    );
   };
 
   const handleDragStart = (event) => {
@@ -163,22 +173,22 @@ export default function DealKanbanBoard({
 
   const handleDragEnd = (event) => {
     const { active, over } = event;
-    
+
     if (over && active.id !== over.id) {
-      const draggedDeal = deals.find(d => d.id === active.id);
-      
+      const draggedDeal = deals.find((d) => d.id === active.id);
+
       // Check if dropped over a stage container
       let targetStageId = null;
       if (over.id.startsWith('stage-')) {
         targetStageId = over.id.replace('stage-', '');
       } else {
         // Dropped over another deal, find its stage
-        const overDeal = deals.find(d => d.id === over.id);
+        const overDeal = deals.find((d) => d.id === over.id);
         if (overDeal) {
           targetStageId = overDeal.stage;
         }
       }
-      
+
       if (draggedDeal && targetStageId && draggedDeal.stage !== targetStageId) {
         // Call the original onDrop with fake event
         const fakeEvent = { preventDefault: () => {} };
@@ -186,11 +196,11 @@ export default function DealKanbanBoard({
         onDrop(fakeEvent, targetStageId);
       }
     }
-    
+
     setActiveId(null);
   };
 
-  const activeDeal = activeId ? deals.find(d => d.id === activeId) : null;
+  const activeDeal = activeId ? deals.find((d) => d.id === activeId) : null;
 
   return (
     <DndContext
@@ -212,7 +222,7 @@ export default function DealKanbanBoard({
             <SortableContext
               key={stageId}
               id={`stage-${stageId}`}
-              items={stageDeals.map(d => d.id)}
+              items={stageDeals.map((d) => d.id)}
               strategy={verticalListSortingStrategy}
             >
               <div
@@ -223,7 +233,9 @@ export default function DealKanbanBoard({
                 <div className="mb-4">
                   <div className="flex items-center justify-between mb-2">
                     <h3 className="font-semibold text-gray-900 dark:text-white">{stageName}</h3>
-                    <Badge variant="outline" className="text-xs">{stageDeals.length}</Badge>
+                    <Badge variant="outline" className="text-xs">
+                      {stageDeals.length}
+                    </Badge>
                   </div>
                   <div className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
                     <div className="flex items-center gap-1">
@@ -254,9 +266,7 @@ export default function DealKanbanBoard({
                     );
                   })}
                   {stageDeals.length === 0 && (
-                    <div className="text-center py-8 text-gray-400 text-sm">
-                      Drop deals here
-                    </div>
+                    <div className="text-center py-8 text-gray-400 text-sm">Drop deals here</div>
                   )}
                 </div>
               </div>

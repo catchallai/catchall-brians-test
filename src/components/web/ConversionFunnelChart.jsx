@@ -1,7 +1,7 @@
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { TrendingDown } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { TrendingDown } from 'lucide-react';
 
 export default function ConversionFunnelChart({ funnel }) {
   if (!funnel) return null;
@@ -20,19 +20,17 @@ export default function ConversionFunnelChart({ funnel }) {
       </CardHeader>
       <CardContent className="space-y-4">
         {funnel.step_analytics?.map((step, idx) => {
-          const widthPercent = maxVisitors > 0 ? (step.visitors / maxVisitors * 100) : 0;
-          
+          const widthPercent = maxVisitors > 0 ? (step.visitors / maxVisitors) * 100 : 0;
+
           return (
             <div key={idx}>
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm font-medium">
                   Step {step.step_order}: {funnel.steps?.[idx]?.step_name || 'Unknown'}
                 </span>
-                <span className="text-sm text-gray-500">
-                  {step.visitors} visitors
-                </span>
+                <span className="text-sm text-gray-500">{step.visitors} visitors</span>
               </div>
-              
+
               <div className="relative">
                 <div className="bg-gray-200 dark:bg-gray-700 h-12 rounded-lg overflow-hidden">
                   <div
@@ -44,11 +42,13 @@ export default function ConversionFunnelChart({ funnel }) {
                     </span>
                   </div>
                 </div>
-                
+
                 {step.drop_off > 0 && (
                   <div className="mt-1 flex items-center gap-1 text-xs text-red-600">
                     <TrendingDown className="w-3 h-3" />
-                    <span>{step.drop_off} dropped ({step.drop_off_rate}%)</span>
+                    <span>
+                      {step.drop_off} dropped ({step.drop_off_rate}%)
+                    </span>
                   </div>
                 )}
               </div>

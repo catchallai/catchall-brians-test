@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useMutation } from '@tanstack/react-query';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Calendar, Loader2, CheckCircle } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Calendar, Loader2, CheckCircle } from 'lucide-react';
 
 export default function BusinessReviewScheduler({ contacts = [] }) {
   const [selected, setSelected] = useState(null);
@@ -18,7 +18,7 @@ export default function BusinessReviewScheduler({ contacts = [] }) {
       setSelected(null);
       setDate('');
       setTime('');
-    }
+    },
   });
 
   const handleSchedule = () => {
@@ -38,11 +38,11 @@ export default function BusinessReviewScheduler({ contacts = [] }) {
       contact_email: selected.email,
       title: `Business Review - ${selected.first_name} ${selected.last_name}`,
       scheduled_date: dateTime,
-      duration_minutes: duration
+      duration_minutes: duration,
     });
   };
 
-  const customers = contacts.filter(c => c.status === 'customer');
+  const customers = contacts.filter((c) => c.status === 'customer');
 
   return (
     <Card className="glass-card">
@@ -54,14 +54,16 @@ export default function BusinessReviewScheduler({ contacts = [] }) {
       </CardHeader>
       <CardContent className="space-y-3">
         <div className="space-y-2">
-          <label className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">Customer</label>
+          <label className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">
+            Customer
+          </label>
           <select
             value={selected?.id || ''}
-            onChange={(e) => setSelected(customers.find(c => c.id === e.target.value))}
+            onChange={(e) => setSelected(customers.find((c) => c.id === e.target.value))}
             className="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800"
           >
             <option value="">Select customer...</option>
-            {customers.map(c => (
+            {customers.map((c) => (
               <option key={c.id} value={c.id}>
                 {c.first_name} {c.last_name}
               </option>
@@ -73,17 +75,24 @@ export default function BusinessReviewScheduler({ contacts = [] }) {
           <>
             <div className="grid grid-cols-2 gap-2">
               <div>
-                <label className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">Date</label>
+                <label className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Date
+                </label>
                 <input
                   type="date"
                   value={date}
                   min={new Date().toLocaleDateString('en-CA')}
-                  onChange={(e) => { setScheduleError(''); setDate(e.target.value); }}
+                  onChange={(e) => {
+                    setScheduleError('');
+                    setDate(e.target.value);
+                  }}
                   className="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800"
                 />
               </div>
               <div>
-                <label className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">Time</label>
+                <label className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Time
+                </label>
                 <input
                   type="time"
                   value={time}
@@ -94,7 +103,9 @@ export default function BusinessReviewScheduler({ contacts = [] }) {
             </div>
 
             <div>
-              <label className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">Duration (minutes)</label>
+              <label className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">
+                Duration (minutes)
+              </label>
               <select
                 value={duration}
                 onChange={(e) => setDuration(parseInt(e.target.value))}
@@ -113,9 +124,13 @@ export default function BusinessReviewScheduler({ contacts = [] }) {
               className="w-full gap-2 text-sm"
             >
               {scheduleMutation.isPending ? (
-                <><Loader2 className="w-4 h-4 animate-spin" /> Scheduling...</>
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" /> Scheduling...
+                </>
               ) : (
-                <><CheckCircle className="w-4 h-4" /> Schedule Review</>
+                <>
+                  <CheckCircle className="w-4 h-4" /> Schedule Review
+                </>
               )}
             </Button>
 

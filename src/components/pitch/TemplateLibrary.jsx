@@ -1,16 +1,25 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Badge } from "@/components/ui/badge";
-import { 
-  Sparkles, Star, TrendingUp, Building2, Heart, Laptop, 
-  Stethoscope, DollarSign, User, Search, Plus
-} from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { Badge } from '@/components/ui/badge';
+import {
+  Sparkles,
+  Star,
+  TrendingUp,
+  Building2,
+  Heart,
+  Laptop,
+  Stethoscope,
+  DollarSign,
+  User,
+  Search,
+  Plus,
+} from 'lucide-react';
 
 const categoryIcons = {
   startup: Sparkles,
@@ -22,7 +31,7 @@ const categoryIcons = {
   tech: Laptop,
   healthcare: Stethoscope,
   finance: DollarSign,
-  custom: User
+  custom: User,
 };
 
 export default function TemplateLibrary({ open, onClose, onSelect }) {
@@ -37,20 +46,21 @@ export default function TemplateLibrary({ open, onClose, onSelect }) {
 
   const useTemplateMutation = useMutation({
     mutationFn: async (templateId) => {
-      const template = templates.find(t => t.id === templateId);
+      const template = templates.find((t) => t.id === templateId);
       if (template) {
         await base44.entities.PitchDeckTemplate.update(templateId, {
-          usage_count: (template.usage_count || 0) + 1
+          usage_count: (template.usage_count || 0) + 1,
         });
       }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['pitch-deck-templates'] });
-    }
+    },
   });
 
-  const filteredTemplates = templates.filter(t => {
-    const matchesSearch = !search || 
+  const filteredTemplates = templates.filter((t) => {
+    const matchesSearch =
+      !search ||
       t.name.toLowerCase().includes(search.toLowerCase()) ||
       t.description?.toLowerCase().includes(search.toLowerCase());
     const matchesCategory = category === 'all' || t.category === category;
@@ -109,30 +119,30 @@ export default function TemplateLibrary({ open, onClose, onSelect }) {
                   onClick={() => handleSelect(template)}
                 >
                   {/* Preview */}
-                  <div 
+                  <div
                     className="h-32 flex items-center justify-center relative"
-                    style={{ 
+                    style={{
                       backgroundColor: template.branding?.background_color || '#f9fafb',
-                      borderBottom: `3px solid ${template.branding?.primary_color || '#7c3aed'}`
+                      borderBottom: `3px solid ${template.branding?.primary_color || '#7c3aed'}`,
                     }}
                   >
                     {template.thumbnail_url ? (
-                      <img 
-                        src={template.thumbnail_url} 
+                      <img
+                        src={template.thumbnail_url}
                         alt={template.name}
                         className="w-full h-full object-cover"
                       />
                     ) : (
                       <div className="flex flex-col items-center gap-2">
-                        <Icon 
-                          className="w-12 h-12" 
+                        <Icon
+                          className="w-12 h-12"
                           style={{ color: template.branding?.primary_color || '#7c3aed' }}
                         />
-                        <div 
+                        <div
                           className="text-2xl font-bold"
-                          style={{ 
+                          style={{
                             color: template.branding?.primary_color || '#7c3aed',
-                            fontFamily: template.branding?.font_heading || 'Inter'
+                            fontFamily: template.branding?.font_heading || 'Inter',
                           }}
                         >
                           {template.name}

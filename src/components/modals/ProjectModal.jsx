@@ -1,14 +1,28 @@
 import React, { useState, useEffect } from 'react';
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, X } from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Badge } from "@/components/ui/badge";
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Loader2, X } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Badge } from '@/components/ui/badge';
 
-export default function ProjectModal({ open, onClose, project, companies, contacts, onSave, isLoading }) {
+export default function ProjectModal({
+  open,
+  onClose,
+  project,
+  companies,
+  contacts,
+  onSave,
+  isLoading,
+}) {
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -20,7 +34,7 @@ export default function ProjectModal({ open, onClose, project, companies, contac
     progress: 0,
     start_date: '',
     end_date: '',
-    team_members: []
+    team_members: [],
   });
   const [memberEmail, setMemberEmail] = useState('');
 
@@ -37,7 +51,7 @@ export default function ProjectModal({ open, onClose, project, companies, contac
         progress: project.progress || 0,
         start_date: project.start_date || '',
         end_date: project.end_date || '',
-        team_members: project.team_members || []
+        team_members: project.team_members || [],
       });
     } else {
       setFormData({
@@ -51,7 +65,7 @@ export default function ProjectModal({ open, onClose, project, companies, contac
         progress: 0,
         start_date: '',
         end_date: '',
-        team_members: []
+        team_members: [],
       });
     }
   }, [project, open]);
@@ -68,7 +82,7 @@ export default function ProjectModal({ open, onClose, project, companies, contac
   };
 
   const removeTeamMember = (email) => {
-    setFormData({ ...formData, team_members: formData.team_members.filter(m => m !== email) });
+    setFormData({ ...formData, team_members: formData.team_members.filter((m) => m !== email) });
   };
 
   return (
@@ -100,7 +114,10 @@ export default function ProjectModal({ open, onClose, project, companies, contac
           <div className="grid grid-cols-2 gap-4">
             <div>
               <Label>Status</Label>
-              <Select value={formData.status} onValueChange={(value) => setFormData({ ...formData, status: value })}>
+              <Select
+                value={formData.status}
+                onValueChange={(value) => setFormData({ ...formData, status: value })}
+              >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -116,7 +133,10 @@ export default function ProjectModal({ open, onClose, project, companies, contac
 
             <div>
               <Label>Priority</Label>
-              <Select value={formData.priority} onValueChange={(value) => setFormData({ ...formData, priority: value })}>
+              <Select
+                value={formData.priority}
+                onValueChange={(value) => setFormData({ ...formData, priority: value })}
+              >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -132,14 +152,19 @@ export default function ProjectModal({ open, onClose, project, companies, contac
 
           <div>
             <Label>Company (Optional)</Label>
-            <Select value={formData.company_id} onValueChange={(value) => setFormData({ ...formData, company_id: value })}>
+            <Select
+              value={formData.company_id}
+              onValueChange={(value) => setFormData({ ...formData, company_id: value })}
+            >
               <SelectTrigger>
                 <SelectValue placeholder="Select company (optional)" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value={null}>None</SelectItem>
                 {companies?.map((company) => (
-                  <SelectItem key={company.id} value={company.id}>{company.name}</SelectItem>
+                  <SelectItem key={company.id} value={company.id}>
+                    {company.name}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -151,7 +176,9 @@ export default function ProjectModal({ open, onClose, project, companies, contac
               <Input
                 type="number"
                 value={formData.budget}
-                onChange={(e) => setFormData({ ...formData, budget: parseFloat(e.target.value) || '' })}
+                onChange={(e) =>
+                  setFormData({ ...formData, budget: parseFloat(e.target.value) || '' })
+                }
                 placeholder="Enter budget (optional)"
               />
             </div>
@@ -163,7 +190,9 @@ export default function ProjectModal({ open, onClose, project, companies, contac
                 min="0"
                 max="100"
                 value={formData.progress}
-                onChange={(e) => setFormData({ ...formData, progress: parseInt(e.target.value) || 0 })}
+                onChange={(e) =>
+                  setFormData({ ...formData, progress: parseInt(e.target.value) || 0 })
+                }
               />
             </div>
           </div>
@@ -198,7 +227,9 @@ export default function ProjectModal({ open, onClose, project, companies, contac
                 placeholder="email@example.com"
                 onKeyPress={(e) => e.key === 'Enter' && addTeamMember()}
               />
-              <Button type="button" onClick={addTeamMember} size="sm">Add</Button>
+              <Button type="button" onClick={addTeamMember} size="sm">
+                Add
+              </Button>
             </div>
             <div className="flex flex-wrap gap-2">
               {formData.team_members.map((email) => (
@@ -211,11 +242,10 @@ export default function ProjectModal({ open, onClose, project, companies, contac
           </div>
 
           <div className="flex justify-end gap-2 pt-4">
-            <Button variant="outline" onClick={onClose}>Cancel</Button>
-            <Button 
-              onClick={handleSubmit}
-              disabled={!formData.name || isLoading}
-            >
+            <Button variant="outline" onClick={onClose}>
+              Cancel
+            </Button>
+            <Button onClick={handleSubmit} disabled={!formData.name || isLoading}>
               {isLoading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
               {project ? 'Update' : 'Create'} Project
             </Button>

@@ -1,17 +1,29 @@
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { 
-  Lightbulb, TrendingUp, Calendar, Target, AlertTriangle,
-  Newspaper, Megaphone, BarChart3, ArrowUp, ArrowDown, Minus,
-  ExternalLink, Clock, Sparkles, CheckCircle
-} from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import {
+  Lightbulb,
+  TrendingUp,
+  Calendar,
+  Target,
+  AlertTriangle,
+  Newspaper,
+  Megaphone,
+  BarChart3,
+  ArrowUp,
+  ArrowDown,
+  Minus,
+  ExternalLink,
+  Clock,
+  Sparkles,
+  CheckCircle,
+} from 'lucide-react';
 
 const confidenceColors = {
   high: 'bg-emerald-100 text-emerald-700',
   medium: 'bg-amber-100 text-amber-700',
-  low: 'bg-gray-100 text-gray-700'
+  low: 'bg-gray-100 text-gray-700',
 };
 
 export default function CompetitorInsightsPanel({ competitor }) {
@@ -40,7 +52,9 @@ export default function CompetitorInsightsPanel({ competitor }) {
                 <p className="text-xs text-gray-500 mb-1">Primary Themes</p>
                 <div className="flex flex-wrap gap-1">
                   {competitor.content_strategy.primary_themes.map((theme, i) => (
-                    <Badge key={i} className="bg-violet-100 text-violet-700 border-0">{theme}</Badge>
+                    <Badge key={i} className="bg-violet-100 text-violet-700 border-0">
+                      {theme}
+                    </Badge>
                   ))}
                 </div>
               </div>
@@ -50,7 +64,9 @@ export default function CompetitorInsightsPanel({ competitor }) {
                 <p className="text-xs text-gray-500 mb-1">Content Pillars</p>
                 <div className="flex flex-wrap gap-1">
                   {competitor.content_strategy.content_pillars.map((pillar, i) => (
-                    <Badge key={i} variant="outline">{pillar}</Badge>
+                    <Badge key={i} variant="outline">
+                      {pillar}
+                    </Badge>
                   ))}
                 </div>
               </div>
@@ -74,7 +90,9 @@ export default function CompetitorInsightsPanel({ competitor }) {
                 <p className="text-xs text-gray-500 mb-1">Common CTAs</p>
                 <div className="flex flex-wrap gap-1">
                   {competitor.content_strategy.cta_patterns.slice(0, 4).map((cta, i) => (
-                    <Badge key={i} variant="outline" className="text-xs">{cta}</Badge>
+                    <Badge key={i} variant="outline" className="text-xs">
+                      {cta}
+                    </Badge>
                   ))}
                 </div>
               </div>
@@ -94,7 +112,10 @@ export default function CompetitorInsightsPanel({ competitor }) {
           </CardHeader>
           <CardContent className="space-y-3">
             {competitor.predicted_campaigns.map((campaign, i) => (
-              <div key={i} className="p-3 border rounded-lg bg-gradient-to-r from-violet-50 to-white dark:from-violet-900/20 dark:to-gray-800">
+              <div
+                key={i}
+                className="p-3 border rounded-lg bg-gradient-to-r from-violet-50 to-white dark:from-violet-900/20 dark:to-gray-800"
+              >
                 <div className="flex items-center justify-between mb-2">
                   <span className="font-medium text-gray-900 dark:text-white">{campaign.name}</span>
                   <div className="flex items-center gap-2">
@@ -113,7 +134,9 @@ export default function CompetitorInsightsPanel({ competitor }) {
                     <p className="text-xs text-gray-500 mb-1">Detection Signals:</p>
                     <div className="flex flex-wrap gap-1">
                       {campaign.signals.map((signal, j) => (
-                        <Badge key={j} variant="outline" className="text-xs">{signal}</Badge>
+                        <Badge key={j} variant="outline" className="text-xs">
+                          {signal}
+                        </Badge>
                       ))}
                     </div>
                   </div>
@@ -143,34 +166,61 @@ export default function CompetitorInsightsPanel({ competitor }) {
           <CardContent>
             <div className="space-y-3">
               {[
-                { label: 'Follower Rank', value: competitor.industry_benchmark.follower_percentile, suffix: 'percentile' },
-                { label: 'Engagement Rank', value: competitor.industry_benchmark.engagement_percentile, suffix: 'percentile' },
-                { label: 'Growth Rate', value: competitor.industry_benchmark.growth_rate_percentile, suffix: 'percentile' },
-                { label: 'Content Quality', value: competitor.industry_benchmark.content_quality_score, suffix: '/100' },
-                { label: 'Brand Strength', value: competitor.industry_benchmark.brand_strength_score, suffix: '/100' },
-              ].filter(m => m.value != null).map((metric, i) => (
-                <div key={i}>
-                  <div className="flex justify-between text-sm mb-1">
-                    <span className="text-gray-600 dark:text-gray-400">{metric.label}</span>
-                    <span className="font-medium">
-                      {metric.value}{metric.suffix}
-                      {metric.suffix === 'percentile' && metric.value >= 75 && (
-                        <ArrowUp className="w-3 h-3 inline ml-1 text-emerald-500" />
-                      )}
-                    </span>
+                {
+                  label: 'Follower Rank',
+                  value: competitor.industry_benchmark.follower_percentile,
+                  suffix: 'percentile',
+                },
+                {
+                  label: 'Engagement Rank',
+                  value: competitor.industry_benchmark.engagement_percentile,
+                  suffix: 'percentile',
+                },
+                {
+                  label: 'Growth Rate',
+                  value: competitor.industry_benchmark.growth_rate_percentile,
+                  suffix: 'percentile',
+                },
+                {
+                  label: 'Content Quality',
+                  value: competitor.industry_benchmark.content_quality_score,
+                  suffix: '/100',
+                },
+                {
+                  label: 'Brand Strength',
+                  value: competitor.industry_benchmark.brand_strength_score,
+                  suffix: '/100',
+                },
+              ]
+                .filter((m) => m.value != null)
+                .map((metric, i) => (
+                  <div key={i}>
+                    <div className="flex justify-between text-sm mb-1">
+                      <span className="text-gray-600 dark:text-gray-400">{metric.label}</span>
+                      <span className="font-medium">
+                        {metric.value}
+                        {metric.suffix}
+                        {metric.suffix === 'percentile' && metric.value >= 75 && (
+                          <ArrowUp className="w-3 h-3 inline ml-1 text-emerald-500" />
+                        )}
+                      </span>
+                    </div>
+                    <div className="h-2 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
+                      <div
+                        className={`h-full rounded-full transition-all ${
+                          metric.value >= 75
+                            ? 'bg-emerald-500'
+                            : metric.value >= 50
+                              ? 'bg-blue-500'
+                              : metric.value >= 25
+                                ? 'bg-amber-500'
+                                : 'bg-red-500'
+                        }`}
+                        style={{ width: `${metric.value}%` }}
+                      />
+                    </div>
                   </div>
-                  <div className="h-2 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
-                    <div 
-                      className={`h-full rounded-full transition-all ${
-                        metric.value >= 75 ? 'bg-emerald-500' : 
-                        metric.value >= 50 ? 'bg-blue-500' : 
-                        metric.value >= 25 ? 'bg-amber-500' : 'bg-red-500'
-                      }`}
-                      style={{ width: `${metric.value}%` }}
-                    />
-                  </div>
-                </div>
-              ))}
+                ))}
               {competitor.industry_benchmark.industry_avg_engagement && (
                 <div className="grid grid-cols-2 gap-3 mt-3 pt-3 border-t">
                   <div className="text-center p-2 bg-gray-50 dark:bg-gray-800 rounded">
@@ -208,18 +258,31 @@ export default function CompetitorInsightsPanel({ competitor }) {
           </CardHeader>
           <CardContent className="space-y-3">
             {competitor.news_mentions?.slice(0, 3).map((news, i) => (
-              <div key={i} className="p-3 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+              <div
+                key={i}
+                className="p-3 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+              >
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">
-                      <Badge variant="outline" className="text-xs">{news.category || 'News'}</Badge>
-                      <Badge className={
-                        news.sentiment === 'positive' ? 'bg-emerald-100 text-emerald-700' :
-                        news.sentiment === 'negative' ? 'bg-red-100 text-red-700' :
-                        'bg-gray-100 text-gray-700'
-                      }>{news.sentiment}</Badge>
+                      <Badge variant="outline" className="text-xs">
+                        {news.category || 'News'}
+                      </Badge>
+                      <Badge
+                        className={
+                          news.sentiment === 'positive'
+                            ? 'bg-emerald-100 text-emerald-700'
+                            : news.sentiment === 'negative'
+                              ? 'bg-red-100 text-red-700'
+                              : 'bg-gray-100 text-gray-700'
+                        }
+                      >
+                        {news.sentiment}
+                      </Badge>
                     </div>
-                    <h4 className="font-medium text-gray-900 dark:text-white text-sm">{news.title}</h4>
+                    <h4 className="font-medium text-gray-900 dark:text-white text-sm">
+                      {news.title}
+                    </h4>
                     <p className="text-xs text-gray-500 mt-1">{news.summary}</p>
                     <div className="flex items-center gap-2 mt-2 text-xs text-gray-400">
                       <span>{news.source}</span>
@@ -237,7 +300,10 @@ export default function CompetitorInsightsPanel({ competitor }) {
             ))}
 
             {competitor.press_releases?.slice(0, 2).map((pr, i) => (
-              <div key={`pr-${i}`} className="p-3 border border-violet-200 dark:border-violet-800 rounded-lg bg-violet-50 dark:bg-violet-900/20">
+              <div
+                key={`pr-${i}`}
+                className="p-3 border border-violet-200 dark:border-violet-800 rounded-lg bg-violet-50 dark:bg-violet-900/20"
+              >
                 <div className="flex items-center gap-2 mb-1">
                   <Megaphone className="w-4 h-4 text-violet-600" />
                   <span className="text-xs text-violet-600 font-medium">Press Release</span>
@@ -248,7 +314,9 @@ export default function CompetitorInsightsPanel({ competitor }) {
                 {pr.key_announcements?.length > 0 && (
                   <div className="flex flex-wrap gap-1 mt-2">
                     {pr.key_announcements.map((ann, j) => (
-                      <Badge key={j} variant="outline" className="text-xs">{ann}</Badge>
+                      <Badge key={j} variant="outline" className="text-xs">
+                        {ann}
+                      </Badge>
                     ))}
                   </div>
                 )}

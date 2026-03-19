@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { FileText, Download, CheckCircle } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { FileText, Download, CheckCircle } from 'lucide-react';
 
 export default function DocumentVersionHistory({ documentId }) {
   const [selectedVersion, setSelectedVersion] = useState(null);
@@ -14,9 +14,12 @@ export default function DocumentVersionHistory({ documentId }) {
     queryKey: ['document-versions', documentId],
     queryFn: async () => {
       if (!documentId) return [];
-      return await base44.entities.DocumentVersion.filter({
-        document_id: documentId
-      }, '-version_number');
+      return await base44.entities.DocumentVersion.filter(
+        {
+          document_id: documentId,
+        },
+        '-version_number'
+      );
     },
     enabled: !!documentId,
   });
@@ -40,12 +43,17 @@ export default function DocumentVersionHistory({ documentId }) {
 
         <CardContent className="space-y-3">
           {versions.map((version, idx) => (
-            <div key={version.id} className="flex items-start justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+            <div
+              key={version.id}
+              className="flex items-start justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg"
+            >
               <div className="flex items-start gap-3 flex-1">
                 <FileText className="w-4 h-4 text-gray-400 mt-1 flex-shrink-0" />
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
-                    <span className="font-medium text-gray-900 dark:text-white">Version {version.version_number}</span>
+                    <span className="font-medium text-gray-900 dark:text-white">
+                      Version {version.version_number}
+                    </span>
                     {version.is_current && (
                       <Badge variant="default" className="gap-1">
                         <CheckCircle className="w-3 h-3" />
@@ -55,10 +63,13 @@ export default function DocumentVersionHistory({ documentId }) {
                   </div>
                   <p className="text-xs text-gray-500 mb-2">{formatBytes(version.file_size)}</p>
                   {version.change_notes && (
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">{version.change_notes}</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                      {version.change_notes}
+                    </p>
                   )}
                   <p className="text-xs text-gray-500">
-                    Uploaded {new Date(version.created_date).toLocaleDateString()} by {version.created_by}
+                    Uploaded {new Date(version.created_date).toLocaleDateString()} by{' '}
+                    {version.created_by}
                   </p>
                 </div>
               </div>

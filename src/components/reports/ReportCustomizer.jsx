@@ -1,19 +1,36 @@
 import React, { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { 
-  Loader2, Calendar, Mail, BarChart2, LineChart, PieChart, 
-  TrendingUp, Save, FileText, Target, Link2, Globe, Users
-} from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import {
+  Loader2,
+  Calendar,
+  Mail,
+  BarChart2,
+  LineChart,
+  PieChart,
+  TrendingUp,
+  Save,
+  FileText,
+  Target,
+  Link2,
+  Globe,
+  Users,
+} from 'lucide-react';
 
 const AVAILABLE_METRICS = {
   seo: [
@@ -44,7 +61,7 @@ const AVAILABLE_METRICS = {
     { id: 'conversion_rates', label: 'Conversion Rates', icon: Target },
     { id: 'revenue', label: 'Revenue', icon: TrendingUp },
     { id: 'avg_deal_size', label: 'Average Deal Size', icon: BarChart2 },
-  ]
+  ],
 };
 
 const AVAILABLE_CHARTS = [
@@ -66,14 +83,14 @@ const DATE_RANGES = [
   { value: 'custom', label: 'Custom Range' },
 ];
 
-export default function ReportCustomizer({ 
-  open, 
-  onClose, 
-  template, 
-  websites = [], 
-  onSave, 
+export default function ReportCustomizer({
+  open,
+  onClose,
+  template,
+  websites = [],
+  onSave,
   onSaveAsTemplate,
-  isLoading 
+  isLoading,
 }) {
   const [activeTab, setActiveTab] = useState('metrics');
   const [formData, setFormData] = useState({
@@ -107,47 +124,49 @@ export default function ReportCustomizer({
   }, [template]);
 
   const toggleMetric = (metricId) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       selected_metrics: prev.selected_metrics.includes(metricId)
-        ? prev.selected_metrics.filter(m => m !== metricId)
-        : [...prev.selected_metrics, metricId]
+        ? prev.selected_metrics.filter((m) => m !== metricId)
+        : [...prev.selected_metrics, metricId],
     }));
   };
 
   const toggleChart = (chartId) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       selected_charts: prev.selected_charts.includes(chartId)
-        ? prev.selected_charts.filter(c => c !== chartId)
-        : [...prev.selected_charts, chartId]
+        ? prev.selected_charts.filter((c) => c !== chartId)
+        : [...prev.selected_charts, chartId],
     }));
   };
 
   const handleSubmit = () => {
     const recipients = formData.recipients
       .split(',')
-      .map(e => e.trim())
-      .filter(e => e.includes('@'));
+      .map((e) => e.trim())
+      .filter((e) => e.includes('@'));
 
     onSave({
       ...formData,
       recipients,
       template_id: template?.id,
-      next_run: formData.schedule !== 'manual'
-        ? new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
-        : null
+      next_run:
+        formData.schedule !== 'manual'
+          ? new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+          : null,
     });
   };
 
   const handleSaveAsTemplate = () => {
     if (onSaveAsTemplate) {
       onSaveAsTemplate({
-        name: formData.name.replace(/\s*-\s*\d{1,2}\/\d{1,2}\/\d{4}/, '').trim() || 'Custom Template',
+        name:
+          formData.name.replace(/\s*-\s*\d{1,2}\/\d{1,2}\/\d{4}/, '').trim() || 'Custom Template',
         description: 'Custom report template',
         metrics: formData.selected_metrics,
         category: 'custom',
-        icon: 'FileText'
+        icon: 'FileText',
       });
     }
   };
@@ -161,7 +180,9 @@ export default function ReportCustomizer({
       <DialogContent className="max-w-3xl max-h-[90vh] overflow-hidden flex flex-col">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-3">
-            <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${template.iconBg || 'bg-blue-100 text-blue-600'}`}>
+            <div
+              className={`w-10 h-10 rounded-lg flex items-center justify-center ${template.iconBg || 'bg-blue-100 text-blue-600'}`}
+            >
               <Icon className="w-5 h-5" />
             </div>
             <div>
@@ -171,7 +192,11 @@ export default function ReportCustomizer({
           </DialogTitle>
         </DialogHeader>
 
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col overflow-hidden">
+        <Tabs
+          value={activeTab}
+          onValueChange={setActiveTab}
+          className="flex-1 flex flex-col overflow-hidden"
+        >
           <TabsList className="grid grid-cols-4 w-full">
             <TabsTrigger value="metrics">Metrics</TabsTrigger>
             <TabsTrigger value="charts">Charts</TabsTrigger>
@@ -194,13 +219,18 @@ export default function ReportCustomizer({
 
                 <div>
                   <Label>Website</Label>
-                  <Select value={formData.website_id} onValueChange={(v) => setFormData({ ...formData, website_id: v })}>
+                  <Select
+                    value={formData.website_id}
+                    onValueChange={(v) => setFormData({ ...formData, website_id: v })}
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Select a website" />
                     </SelectTrigger>
                     <SelectContent>
-                      {websites.map(w => (
-                        <SelectItem key={w.id} value={w.id}>{w.name}</SelectItem>
+                      {websites.map((w) => (
+                        <SelectItem key={w.id} value={w.id}>
+                          {w.name}
+                        </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -210,18 +240,18 @@ export default function ReportCustomizer({
                   <div key={category}>
                     <Label className="capitalize mb-2 block">{category} Metrics</Label>
                     <div className="grid grid-cols-2 gap-2">
-                      {metrics.map(metric => (
-                        <Card 
+                      {metrics.map((metric) => (
+                        <Card
                           key={metric.id}
                           className={`cursor-pointer transition-all ${
-                            formData.selected_metrics.includes(metric.id) 
-                              ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' 
+                            formData.selected_metrics.includes(metric.id)
+                              ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
                               : 'hover:border-gray-300'
                           }`}
                           onClick={() => toggleMetric(metric.id)}
                         >
                           <CardContent className="p-3 flex items-center gap-3">
-                            <Checkbox 
+                            <Checkbox
                               checked={formData.selected_metrics.includes(metric.id)}
                               onCheckedChange={() => toggleMetric(metric.id)}
                             />
@@ -235,7 +265,9 @@ export default function ReportCustomizer({
                 ))}
 
                 <div className="flex items-center gap-2 pt-2">
-                  <Badge variant="secondary">{formData.selected_metrics.length} metrics selected</Badge>
+                  <Badge variant="secondary">
+                    {formData.selected_metrics.length} metrics selected
+                  </Badge>
                 </div>
               </div>
             </TabsContent>
@@ -244,18 +276,18 @@ export default function ReportCustomizer({
             <TabsContent value="charts" className="space-y-4 m-0">
               <Label>Select Charts to Include</Label>
               <div className="grid grid-cols-2 gap-3">
-                {AVAILABLE_CHARTS.map(chart => (
-                  <Card 
+                {AVAILABLE_CHARTS.map((chart) => (
+                  <Card
                     key={chart.id}
                     className={`cursor-pointer transition-all ${
-                      formData.selected_charts.includes(chart.id) 
-                        ? 'border-violet-500 bg-violet-50 dark:bg-violet-900/20' 
+                      formData.selected_charts.includes(chart.id)
+                        ? 'border-violet-500 bg-violet-50 dark:bg-violet-900/20'
                         : 'hover:border-gray-300'
                     }`}
                     onClick={() => toggleChart(chart.id)}
                   >
                     <CardContent className="p-4 flex items-center gap-3">
-                      <Checkbox 
+                      <Checkbox
                         checked={formData.selected_charts.includes(chart.id)}
                         onCheckedChange={() => toggleChart(chart.id)}
                       />
@@ -279,16 +311,18 @@ export default function ReportCustomizer({
                   <Calendar className="w-4 h-4" />
                   Date Range
                 </Label>
-                <Select 
-                  value={formData.date_range_type} 
+                <Select
+                  value={formData.date_range_type}
                   onValueChange={(v) => setFormData({ ...formData, date_range_type: v })}
                 >
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {DATE_RANGES.map(range => (
-                      <SelectItem key={range.value} value={range.value}>{range.label}</SelectItem>
+                    {DATE_RANGES.map((range) => (
+                      <SelectItem key={range.value} value={range.value}>
+                        {range.label}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -301,7 +335,9 @@ export default function ReportCustomizer({
                     <Input
                       type="date"
                       value={formData.custom_start_date}
-                      onChange={(e) => setFormData({ ...formData, custom_start_date: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({ ...formData, custom_start_date: e.target.value })
+                      }
                     />
                   </div>
                   <div>
@@ -309,7 +345,9 @@ export default function ReportCustomizer({
                     <Input
                       type="date"
                       value={formData.custom_end_date}
-                      onChange={(e) => setFormData({ ...formData, custom_end_date: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({ ...formData, custom_end_date: e.target.value })
+                      }
                     />
                   </div>
                 </div>
@@ -320,7 +358,10 @@ export default function ReportCustomizer({
                   <Calendar className="w-4 h-4" />
                   Schedule
                 </Label>
-                <Select value={formData.schedule} onValueChange={(v) => setFormData({ ...formData, schedule: v })}>
+                <Select
+                  value={formData.schedule}
+                  onValueChange={(v) => setFormData({ ...formData, schedule: v })}
+                >
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
@@ -352,7 +393,8 @@ export default function ReportCustomizer({
               <div>
                 <Label>Custom Notes & Recommendations</Label>
                 <p className="text-sm text-gray-500 mb-2">
-                  Add your own notes, insights, or recommendations to include in the generated report.
+                  Add your own notes, insights, or recommendations to include in the generated
+                  report.
                 </p>
                 <Textarea
                   value={formData.custom_notes}
@@ -364,8 +406,9 @@ export default function ReportCustomizer({
               </div>
               <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
                 <p className="text-sm text-blue-800 dark:text-blue-300">
-                  <strong>Tip:</strong> Your notes will appear in a dedicated section of the generated report. 
-                  Use this to add context, highlight key findings, or include action items for your team.
+                  <strong>Tip:</strong> Your notes will appear in a dedicated section of the
+                  generated report. Use this to add context, highlight key findings, or include
+                  action items for your team.
                 </p>
               </div>
             </TabsContent>
@@ -374,8 +417,8 @@ export default function ReportCustomizer({
 
         {/* Actions */}
         <div className="flex justify-between gap-2 pt-4 border-t mt-4">
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             onClick={handleSaveAsTemplate}
             disabled={formData.selected_metrics.length === 0}
             className="gap-2"
@@ -384,9 +427,11 @@ export default function ReportCustomizer({
             Save as Template
           </Button>
           <div className="flex gap-2">
-            <Button variant="outline" onClick={onClose}>Cancel</Button>
-            <Button 
-              onClick={handleSubmit} 
+            <Button variant="outline" onClick={onClose}>
+              Cancel
+            </Button>
+            <Button
+              onClick={handleSubmit}
               disabled={!formData.name || !formData.website_id || isLoading}
               className="bg-blue-600 hover:bg-blue-700"
             >

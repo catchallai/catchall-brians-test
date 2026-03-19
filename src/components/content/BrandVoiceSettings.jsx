@@ -1,20 +1,15 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Badge } from "@/components/ui/badge";
-import { Switch } from "@/components/ui/switch";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Plus, PenTool, Trash2, Star, Loader2, X } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Badge } from '@/components/ui/badge';
+import { Switch } from '@/components/ui/switch';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Plus, PenTool, Trash2, Star, Loader2, X } from 'lucide-react';
 
 export default function BrandVoiceSettings({ brandVoices, websites }) {
   const [showModal, setShowModal] = useState(false);
@@ -34,9 +29,10 @@ export default function BrandVoiceSettings({ brandVoices, websites }) {
   const queryClient = useQueryClient();
 
   const saveMutation = useMutation({
-    mutationFn: (data) => editingVoice
-      ? base44.entities.BrandVoice.update(editingVoice.id, data)
-      : base44.entities.BrandVoice.create(data),
+    mutationFn: (data) =>
+      editingVoice
+        ? base44.entities.BrandVoice.update(editingVoice.id, data)
+        : base44.entities.BrandVoice.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['brand-voices'] });
       handleClose();
@@ -84,7 +80,7 @@ export default function BrandVoiceSettings({ brandVoices, websites }) {
   };
 
   const removeFromArray = (field, value) => {
-    setFormData({ ...formData, [field]: formData[field].filter(v => v !== value) });
+    setFormData({ ...formData, [field]: formData[field].filter((v) => v !== value) });
   };
 
   return (
@@ -92,7 +88,9 @@ export default function BrandVoiceSettings({ brandVoices, websites }) {
       <div className="flex justify-between items-center">
         <div>
           <h3 className="font-semibold text-gray-900 dark:text-white">Brand Voice Profiles</h3>
-          <p className="text-sm text-gray-500">Define your brand's writing style for AI-generated content</p>
+          <p className="text-sm text-gray-500">
+            Define your brand's writing style for AI-generated content
+          </p>
         </div>
         <Button onClick={() => setShowModal(true)} className="gap-2">
           <Plus className="w-4 h-4" />
@@ -104,8 +102,12 @@ export default function BrandVoiceSettings({ brandVoices, websites }) {
         <Card className="glass-card rounded-2xl">
           <CardContent className="py-12 text-center">
             <PenTool className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">No Brand Voices Defined</h3>
-            <p className="text-gray-500 mb-4">Create a brand voice profile to ensure consistent AI-generated content</p>
+            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">
+              No Brand Voices Defined
+            </h3>
+            <p className="text-gray-500 mb-4">
+              Create a brand voice profile to ensure consistent AI-generated content
+            </p>
             <Button onClick={() => setShowModal(true)} className="gap-2">
               <Plus className="w-4 h-4" />
               Create Voice Profile
@@ -136,9 +138,9 @@ export default function BrandVoiceSettings({ brandVoices, websites }) {
                     <Button variant="ghost" size="icon" onClick={() => handleEdit(voice)}>
                       <PenTool className="w-4 h-4" />
                     </Button>
-                    <Button 
-                      variant="ghost" 
-                      size="icon" 
+                    <Button
+                      variant="ghost"
+                      size="icon"
                       className="text-red-500"
                       onClick={() => deleteMutation.mutate(voice.id)}
                     >
@@ -152,7 +154,9 @@ export default function BrandVoiceSettings({ brandVoices, websites }) {
                     <p className="text-xs text-gray-500 mb-1">Tone:</p>
                     <div className="flex flex-wrap gap-1">
                       {voice.tone.map((t) => (
-                        <Badge key={t} variant="outline" className="text-xs">{t}</Badge>
+                        <Badge key={t} variant="outline" className="text-xs">
+                          {t}
+                        </Badge>
                       ))}
                     </div>
                   </div>
@@ -192,7 +196,11 @@ export default function BrandVoiceSettings({ brandVoices, websites }) {
                   placeholder="Add tone"
                   onKeyPress={(e) => e.key === 'Enter' && addToArray('tone', newTone, setNewTone)}
                 />
-                <Button type="button" variant="outline" onClick={() => addToArray('tone', newTone, setNewTone)}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => addToArray('tone', newTone, setNewTone)}
+                >
                   <Plus className="w-4 h-4" />
                 </Button>
               </div>
@@ -200,7 +208,9 @@ export default function BrandVoiceSettings({ brandVoices, websites }) {
                 {formData.tone.map((t) => (
                   <Badge key={t} variant="secondary" className="gap-1">
                     {t}
-                    <button onClick={() => removeFromArray('tone', t)}><X className="w-3 h-3" /></button>
+                    <button onClick={() => removeFromArray('tone', t)}>
+                      <X className="w-3 h-3" />
+                    </button>
                   </Badge>
                 ))}
               </div>
@@ -213,9 +223,15 @@ export default function BrandVoiceSettings({ brandVoices, websites }) {
                   value={newWord}
                   onChange={(e) => setNewWord(e.target.value)}
                   placeholder="Add word/phrase"
-                  onKeyPress={(e) => e.key === 'Enter' && addToArray('vocabulary', newWord, setNewWord)}
+                  onKeyPress={(e) =>
+                    e.key === 'Enter' && addToArray('vocabulary', newWord, setNewWord)
+                  }
                 />
-                <Button type="button" variant="outline" onClick={() => addToArray('vocabulary', newWord, setNewWord)}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => addToArray('vocabulary', newWord, setNewWord)}
+                >
                   <Plus className="w-4 h-4" />
                 </Button>
               </div>
@@ -223,7 +239,9 @@ export default function BrandVoiceSettings({ brandVoices, websites }) {
                 {formData.vocabulary.map((w) => (
                   <Badge key={w} variant="secondary" className="gap-1">
                     {w}
-                    <button onClick={() => removeFromArray('vocabulary', w)}><X className="w-3 h-3" /></button>
+                    <button onClick={() => removeFromArray('vocabulary', w)}>
+                      <X className="w-3 h-3" />
+                    </button>
                   </Badge>
                 ))}
               </div>
@@ -236,9 +254,15 @@ export default function BrandVoiceSettings({ brandVoices, websites }) {
                   value={newAvoid}
                   onChange={(e) => setNewAvoid(e.target.value)}
                   placeholder="Add word to avoid"
-                  onKeyPress={(e) => e.key === 'Enter' && addToArray('avoid_words', newAvoid, setNewAvoid)}
+                  onKeyPress={(e) =>
+                    e.key === 'Enter' && addToArray('avoid_words', newAvoid, setNewAvoid)
+                  }
                 />
-                <Button type="button" variant="outline" onClick={() => addToArray('avoid_words', newAvoid, setNewAvoid)}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => addToArray('avoid_words', newAvoid, setNewAvoid)}
+                >
                   <Plus className="w-4 h-4" />
                 </Button>
               </div>
@@ -246,7 +270,9 @@ export default function BrandVoiceSettings({ brandVoices, websites }) {
                 {formData.avoid_words.map((w) => (
                   <Badge key={w} variant="outline" className="gap-1 bg-red-50 text-red-700">
                     {w}
-                    <button onClick={() => removeFromArray('avoid_words', w)}><X className="w-3 h-3" /></button>
+                    <button onClick={() => removeFromArray('avoid_words', w)}>
+                      <X className="w-3 h-3" />
+                    </button>
                   </Badge>
                 ))}
               </div>
@@ -281,7 +307,9 @@ export default function BrandVoiceSettings({ brandVoices, websites }) {
             </div>
 
             <div className="flex justify-end gap-3 pt-4 border-t">
-              <Button variant="outline" onClick={handleClose}>Cancel</Button>
+              <Button variant="outline" onClick={handleClose}>
+                Cancel
+              </Button>
               <Button
                 onClick={() => saveMutation.mutate(formData)}
                 disabled={saveMutation.isPending || !formData.name}

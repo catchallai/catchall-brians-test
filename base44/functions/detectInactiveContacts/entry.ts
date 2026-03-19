@@ -45,7 +45,9 @@ Deno.serve(async (req) => {
           if (rule.action_type === 'create_task' && rule.action_config?.task_title) {
             await base44.asServiceRole.entities.Task.create({
               title: rule.action_config.task_title,
-              description: rule.action_config.task_description || `Re-engage with ${contact.first_name} ${contact.last_name}`,
+              description:
+                rule.action_config.task_description ||
+                `Re-engage with ${contact.first_name} ${contact.last_name}`,
               contact_id: contact.id,
               status: 'pending',
               priority: 'high',

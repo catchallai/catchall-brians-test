@@ -7,20 +7,34 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Badge } from "@/components/ui/badge";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Badge } from '@/components/ui/badge';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
-  Send, Loader2, AlertTriangle, Smartphone, Monitor, Zap, Palette,
-  Layout, Type, Image, MousePointer, Eye, Code, Globe, CheckCircle2,
-  X, Plus
-} from "lucide-react";
+  Send,
+  Loader2,
+  AlertTriangle,
+  Smartphone,
+  Monitor,
+  Zap,
+  Palette,
+  Layout,
+  Type,
+  Image,
+  MousePointer,
+  Eye,
+  Code,
+  Globe,
+  CheckCircle2,
+  X,
+  Plus,
+} from 'lucide-react';
 
 const ISSUE_CATEGORIES = [
   {
@@ -34,7 +48,7 @@ const ISSUE_CATEGORIES = [
       { id: 'layout_spacing', label: 'Inconsistent spacing/margins', severity: 'low' },
       { id: 'layout_grid', label: 'Grid system issues', severity: 'medium' },
       { id: 'layout_container', label: 'Container width problems', severity: 'medium' },
-    ]
+    ],
   },
   {
     id: 'responsive',
@@ -47,7 +61,7 @@ const ISSUE_CATEGORIES = [
       { id: 'resp_breakpoint', label: 'Breakpoint transition problems', severity: 'medium' },
       { id: 'resp_touch', label: 'Touch target too small', severity: 'high' },
       { id: 'resp_scroll', label: 'Horizontal scroll on mobile', severity: 'high' },
-    ]
+    ],
   },
   {
     id: 'typography',
@@ -60,7 +74,7 @@ const ISSUE_CATEGORIES = [
       { id: 'typo_weight', label: 'Font weight inconsistency', severity: 'low' },
       { id: 'typo_line', label: 'Line height/spacing issues', severity: 'low' },
       { id: 'typo_readability', label: 'Poor readability/contrast', severity: 'high' },
-    ]
+    ],
   },
   {
     id: 'visual',
@@ -73,7 +87,7 @@ const ISSUE_CATEGORIES = [
       { id: 'visual_icons', label: 'Missing/wrong icons', severity: 'low' },
       { id: 'visual_shadow', label: 'Shadow/depth issues', severity: 'low' },
       { id: 'visual_border', label: 'Border/radius inconsistency', severity: 'low' },
-    ]
+    ],
   },
   {
     id: 'images',
@@ -86,7 +100,7 @@ const ISSUE_CATEGORIES = [
       { id: 'img_size', label: 'Wrong image dimensions', severity: 'medium' },
       { id: 'img_alt', label: 'Missing alt text', severity: 'medium' },
       { id: 'img_loading', label: 'Slow image loading', severity: 'medium' },
-    ]
+    ],
   },
   {
     id: 'interaction',
@@ -99,7 +113,7 @@ const ISSUE_CATEGORIES = [
       { id: 'int_animation', label: 'Animation issues', severity: 'low' },
       { id: 'int_focus', label: 'Focus states missing', severity: 'high' },
       { id: 'int_transition', label: 'Transition problems', severity: 'low' },
-    ]
+    ],
   },
   {
     id: 'accessibility',
@@ -112,7 +126,7 @@ const ISSUE_CATEGORIES = [
       { id: 'a11y_screen', label: 'Screen reader issues', severity: 'high' },
       { id: 'a11y_labels', label: 'Missing ARIA labels', severity: 'medium' },
       { id: 'a11y_focus', label: 'Focus order problems', severity: 'medium' },
-    ]
+    ],
   },
   {
     id: 'performance',
@@ -125,7 +139,7 @@ const ISSUE_CATEGORIES = [
       { id: 'perf_assets', label: 'Unoptimized assets', severity: 'medium' },
       { id: 'perf_fonts', label: 'Font loading issues', severity: 'medium' },
       { id: 'perf_css', label: 'CSS bloat/unused styles', severity: 'low' },
-    ]
+    ],
   },
 ];
 
@@ -149,34 +163,35 @@ export default function DesignIssuesReportModal({ open, onClose, websites = [] }
   const [sent, setSent] = useState(false);
 
   const toggleIssue = (issueId) => {
-    setSelectedIssues(prev => 
-      prev.includes(issueId) 
-        ? prev.filter(id => id !== issueId)
-        : [...prev, issueId]
+    setSelectedIssues((prev) =>
+      prev.includes(issueId) ? prev.filter((id) => id !== issueId) : [...prev, issueId]
     );
   };
 
   const addCustomIssue = () => {
     if (newCustomIssue.trim()) {
-      setCustomIssues(prev => [...prev, { id: `custom_${Date.now()}`, label: newCustomIssue.trim(), severity: 'medium' }]);
+      setCustomIssues((prev) => [
+        ...prev,
+        { id: `custom_${Date.now()}`, label: newCustomIssue.trim(), severity: 'medium' },
+      ]);
       setNewCustomIssue('');
     }
   };
 
   const removeCustomIssue = (id) => {
-    setCustomIssues(prev => prev.filter(i => i.id !== id));
+    setCustomIssues((prev) => prev.filter((i) => i.id !== id));
   };
 
   const getSelectedIssueDetails = () => {
     const details = [];
-    ISSUE_CATEGORIES.forEach(cat => {
-      cat.issues.forEach(issue => {
+    ISSUE_CATEGORIES.forEach((cat) => {
+      cat.issues.forEach((issue) => {
         if (selectedIssues.includes(issue.id)) {
           details.push({ ...issue, category: cat.name });
         }
       });
     });
-    customIssues.forEach(issue => {
+    customIssues.forEach((issue) => {
       details.push({ ...issue, category: 'Custom Issues' });
     });
     return details;
@@ -184,12 +199,12 @@ export default function DesignIssuesReportModal({ open, onClose, websites = [] }
 
   const handleSend = async () => {
     if (!recipients.trim()) return;
-    
+
     setIsSending(true);
-    
+
     const issueDetails = getSelectedIssueDetails();
-    const website = websites.find(w => w.id === selectedWebsite);
-    
+    const website = websites.find((w) => w.id === selectedWebsite);
+
     const emailBody = `
 <h2>Design Issues Report: ${reportName}</h2>
 <p><strong>Website:</strong> ${website?.name || 'Not specified'} (${website?.url || 'N/A'})</p>
@@ -204,13 +219,17 @@ export default function DesignIssuesReportModal({ open, onClose, websites = [] }
     <th style="border: 1px solid #e5e7eb; padding: 8px; text-align: left;">Category</th>
     <th style="border: 1px solid #e5e7eb; padding: 8px; text-align: left;">Severity</th>
   </tr>
-  ${issueDetails.map(issue => `
+  ${issueDetails
+    .map(
+      (issue) => `
   <tr>
     <td style="border: 1px solid #e5e7eb; padding: 8px;">${issue.label}</td>
     <td style="border: 1px solid #e5e7eb; padding: 8px;">${issue.category}</td>
     <td style="border: 1px solid #e5e7eb; padding: 8px; color: ${issue.severity === 'high' ? '#dc2626' : issue.severity === 'medium' ? '#d97706' : '#16a34a'};">${issue.severity.toUpperCase()}</td>
   </tr>
-  `).join('')}
+  `
+    )
+    .join('')}
 </table>
 
 ${additionalNotes ? `<h3>Additional Notes:</h3><p>${additionalNotes}</p>` : ''}
@@ -218,8 +237,11 @@ ${additionalNotes ? `<h3>Additional Notes:</h3><p>${additionalNotes}</p>` : ''}
 <p style="margin-top: 20px; color: #6b7280; font-size: 12px;">Generated by CatchAll Business Suite</p>
     `;
 
-    const emailList = recipients.split(',').map(e => e.trim()).filter(e => e);
-    
+    const emailList = recipients
+      .split(',')
+      .map((e) => e.trim())
+      .filter((e) => e);
+
     for (const email of emailList) {
       await base44.integrations.Core.SendEmail({
         to: email,
@@ -230,7 +252,7 @@ ${additionalNotes ? `<h3>Additional Notes:</h3><p>${additionalNotes}</p>` : ''}
 
     setIsSending(false);
     setSent(true);
-    
+
     setTimeout(() => {
       setSent(false);
       onClose();
@@ -243,7 +265,7 @@ ${additionalNotes ? `<h3>Additional Notes:</h3><p>${additionalNotes}</p>` : ''}
   };
 
   const selectedCount = selectedIssues.length + customIssues.length;
-  const highCount = getSelectedIssueDetails().filter(i => i.severity === 'high').length;
+  const highCount = getSelectedIssueDetails().filter((i) => i.severity === 'high').length;
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
@@ -255,7 +277,9 @@ ${additionalNotes ? `<h3>Additional Notes:</h3><p>${additionalNotes}</p>` : ''}
             </div>
             <div>
               <span>Design Issues Report</span>
-              <p className="text-sm font-normal text-gray-500">Select issues to send to your design team</p>
+              <p className="text-sm font-normal text-gray-500">
+                Select issues to send to your design team
+              </p>
             </div>
           </DialogTitle>
         </DialogHeader>
@@ -270,23 +294,31 @@ ${additionalNotes ? `<h3>Additional Notes:</h3><p>${additionalNotes}</p>` : ''}
           <TabsContent value="issues" className="flex-1 overflow-hidden mt-4">
             <ScrollArea className="h-[400px] pr-4">
               <div className="space-y-6">
-                {ISSUE_CATEGORIES.map(category => {
+                {ISSUE_CATEGORIES.map((category) => {
                   const Icon = category.icon;
-                  const categorySelected = category.issues.filter(i => selectedIssues.includes(i.id)).length;
-                  
+                  const categorySelected = category.issues.filter((i) =>
+                    selectedIssues.includes(i.id)
+                  ).length;
+
                   return (
                     <div key={category.id} className="space-y-2">
                       <div className="flex items-center gap-2">
-                        <div className={`w-8 h-8 rounded-lg ${category.color} flex items-center justify-center`}>
+                        <div
+                          className={`w-8 h-8 rounded-lg ${category.color} flex items-center justify-center`}
+                        >
                           <Icon className="w-4 h-4" />
                         </div>
-                        <h3 className="font-medium text-gray-900 dark:text-white">{category.name}</h3>
+                        <h3 className="font-medium text-gray-900 dark:text-white">
+                          {category.name}
+                        </h3>
                         {categorySelected > 0 && (
-                          <Badge variant="secondary" className="text-xs">{categorySelected} selected</Badge>
+                          <Badge variant="secondary" className="text-xs">
+                            {categorySelected} selected
+                          </Badge>
                         )}
                       </div>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 ml-10">
-                        {category.issues.map(issue => (
+                        {category.issues.map((issue) => (
                           <label
                             key={issue.id}
                             className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all ${
@@ -326,14 +358,24 @@ ${additionalNotes ? `<h3>Additional Notes:</h3><p>${additionalNotes}</p>` : ''}
                         onChange={(e) => setNewCustomIssue(e.target.value)}
                         onKeyDown={(e) => e.key === 'Enter' && addCustomIssue()}
                       />
-                      <Button onClick={addCustomIssue} disabled={!newCustomIssue.trim()}>Add</Button>
+                      <Button onClick={addCustomIssue} disabled={!newCustomIssue.trim()}>
+                        Add
+                      </Button>
                     </div>
-                    {customIssues.map(issue => (
-                      <div key={issue.id} className="flex items-center gap-2 p-3 rounded-lg border border-violet-500 bg-violet-50 dark:bg-violet-900/20">
+                    {customIssues.map((issue) => (
+                      <div
+                        key={issue.id}
+                        className="flex items-center gap-2 p-3 rounded-lg border border-violet-500 bg-violet-50 dark:bg-violet-900/20"
+                      >
                         <CheckCircle2 className="w-4 h-4 text-violet-600" />
                         <span className="flex-1 text-sm">{issue.label}</span>
                         <Badge className={SEVERITY_COLORS[issue.severity]}>{issue.severity}</Badge>
-                        <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => removeCustomIssue(issue.id)}>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-6 w-6"
+                          onClick={() => removeCustomIssue(issue.id)}
+                        >
                           <X className="w-3 h-3" />
                         </Button>
                       </div>
@@ -377,8 +419,10 @@ ${additionalNotes ? `<h3>Additional Notes:</h3><p>${additionalNotes}</p>` : ''}
                 className="w-full h-10 rounded-md border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3"
               >
                 <option value="">Select a website...</option>
-                {websites.map(w => (
-                  <option key={w.id} value={w.id}>{w.name} ({w.url})</option>
+                {websites.map((w) => (
+                  <option key={w.id} value={w.id}>
+                    {w.name} ({w.url})
+                  </option>
                 ))}
               </select>
             </div>
@@ -417,14 +461,20 @@ ${additionalNotes ? `<h3>Additional Notes:</h3><p>${additionalNotes}</p>` : ''}
             <div className="bg-gray-50 dark:bg-gray-800 rounded-xl p-6 space-y-4">
               <div className="flex items-center justify-between">
                 <h3 className="font-semibold text-lg">{reportName}</h3>
-                <Badge className={priority === 'urgent' || priority === 'high' ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700'}>
+                <Badge
+                  className={
+                    priority === 'urgent' || priority === 'high'
+                      ? 'bg-red-100 text-red-700'
+                      : 'bg-blue-100 text-blue-700'
+                  }
+                >
                   {priority.toUpperCase()} Priority
                 </Badge>
               </div>
 
               {selectedWebsite && (
                 <p className="text-sm text-gray-600 dark:text-gray-400">
-                  <strong>Website:</strong> {websites.find(w => w.id === selectedWebsite)?.name}
+                  <strong>Website:</strong> {websites.find((w) => w.id === selectedWebsite)?.name}
                 </p>
               )}
 
@@ -437,12 +487,16 @@ ${additionalNotes ? `<h3>Additional Notes:</h3><p>${additionalNotes}</p>` : ''}
               <div className="space-y-2">
                 <p className="font-medium">
                   Issues ({selectedCount})
-                  {highCount > 0 && <span className="text-red-600 ml-2">({highCount} high severity)</span>}
+                  {highCount > 0 && (
+                    <span className="text-red-600 ml-2">({highCount} high severity)</span>
+                  )}
                 </p>
                 <div className="space-y-1">
-                  {getSelectedIssueDetails().map(issue => (
+                  {getSelectedIssueDetails().map((issue) => (
                     <div key={issue.id} className="flex items-center gap-2 text-sm">
-                      <span className={`w-2 h-2 rounded-full ${issue.severity === 'high' ? 'bg-red-500' : issue.severity === 'medium' ? 'bg-amber-500' : 'bg-green-500'}`} />
+                      <span
+                        className={`w-2 h-2 rounded-full ${issue.severity === 'high' ? 'bg-red-500' : issue.severity === 'medium' ? 'bg-amber-500' : 'bg-green-500'}`}
+                      />
                       <span>{issue.label}</span>
                       <span className="text-gray-400">({issue.category})</span>
                     </div>
@@ -473,8 +527,10 @@ ${additionalNotes ? `<h3>Additional Notes:</h3><p>${additionalNotes}</p>` : ''}
               <Badge className="bg-red-100 text-red-700">{highCount} high severity</Badge>
             )}
           </div>
-          <Button variant="outline" onClick={onClose}>Cancel</Button>
-          <Button 
+          <Button variant="outline" onClick={onClose}>
+            Cancel
+          </Button>
+          <Button
             onClick={handleSend}
             disabled={selectedCount === 0 || !recipients.trim() || isSending || sent}
             className="gap-2"

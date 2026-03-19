@@ -10,7 +10,7 @@ Deno.serve(async (req) => {
     const renewals = await base44.entities.RenewalForecast.list('-renewal_date', 500);
     const rules = await base44.entities.ProactiveEngagementRule.list('-created_date', 500);
 
-    const activeRules = rules.filter(r => r.is_active);
+    const activeRules = rules.filter((r) => r.is_active);
     let tasksCreated = 0;
     let alertsCreated = 0;
 
@@ -24,26 +24,34 @@ Deno.serve(async (req) => {
         const operator = rule.trigger_condition.operator;
         const value = parseFloat(rule.trigger_condition.value);
 
-        matchingContacts = healthScores.filter(h => {
-          const metricValue = h[metric] || 0;
-          switch(operator) {
-            case 'less_than': return metricValue < value;
-            case 'greater_than': return metricValue > value;
-            case 'less_than_or_equal': return metricValue <= value;
-            case 'greater_than_or_equal': return metricValue >= value;
-            case 'equals': return metricValue === value;
-            default: return false;
-          }
-        }).map(h => contacts.find(c => c.id === h.contact_id)).filter(Boolean);
-
+        matchingContacts = healthScores
+          .filter((h) => {
+            const metricValue = h[metric] || 0;
+            switch (operator) {
+              case 'less_than':
+                return metricValue < value;
+              case 'greater_than':
+                return metricValue > value;
+              case 'less_than_or_equal':
+                return metricValue <= value;
+              case 'greater_than_or_equal':
+                return metricValue >= value;
+              case 'equals':
+                return metricValue === value;
+              default:
+                return false;
+            }
+          })
+          .map((h) => contacts.find((c) => c.id === h.contact_id))
+          .filter(Boolean);
       } else if (rule.rule_type === 'timeline_based') {
         // Renewal timeline
         matchingContacts = renewals
-          .filter(r => {
+          .filter((r) => {
             const daysLeft = r.days_to_renewal;
             return daysLeft <= parseInt(rule.trigger_condition.value) && daysLeft > 0;
           })
-          .map(r => contacts.find(c => c.id === r.contact_id))
+          .map((r) => contacts.find((c) => c.id === r.contact_id))
           .filter(Boolean);
       }
 
@@ -51,7 +59,7 @@ Deno.serve(async (req) => {
       for (const contact of matchingContacts) {
         if (!contact) continue;
 
-        const onboarding = onboardings.find(o => o.contact_id === contact.id);
+        const onboarding = onboardings.find((o) => o.contact_id === contact.id);
         const csmAssigned = onboarding?.csm_assigned || 'unassigned';
 
         // Create task
@@ -65,7 +73,7 @@ Deno.serve(async (req) => {
               priority: rule.priority,
               status: 'open',
               task_type: 'health_check',
-              due_date: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+              due_date: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
             });
             tasksCreated++;
           } catch (e) {
@@ -84,7 +92,7 @@ Deno.serve(async (req) => {
             triggered_by: rule.name,
             recommended_action: rule.recommended_actions?.[0],
             csm_assigned: csmAssigned,
-            is_active: true
+            is_active: true,
           });
           alertsCreated++;
         } catch (e) {
@@ -94,15 +102,15 @@ Deno.serve(async (req) => {
 
       // Update rule trigger count
       await base44.entities.ProactiveEngagementRule.update(rule.id, {
-        times_triggered: (rule.times_triggered || 0) + matchingContacts.length
+        times_triggered: (rule.times_triggered || 0) + matchingContacts.length,
       });
     }
 
-    return Response.json({ 
-      success: true, 
-      tasksCreated, 
+    return Response.json({
+      success: true,
+      tasksCreated,
       alertsCreated,
-      rulesProcessed: activeRules.length 
+      rulesProcessed: activeRules.length,
     });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });

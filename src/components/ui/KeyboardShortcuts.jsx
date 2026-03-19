@@ -1,11 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Keyboard } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Keyboard } from 'lucide-react';
 
 const shortcuts = [
   { keys: ['⌘', 'K'], description: 'Open global search' },
@@ -23,43 +18,43 @@ export function useKeyboardShortcuts(handlers = {}) {
     const handleKeyDown = (e) => {
       const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
       const cmdKey = isMac ? e.metaKey : e.ctrlKey;
-      
+
       // Global search: Cmd/Ctrl + K
       if (cmdKey && e.key === 'k') {
         e.preventDefault();
         handlers.onSearch?.();
       }
-      
+
       // New item: Cmd/Ctrl + N
       if (cmdKey && e.key === 'n' && !e.shiftKey) {
         e.preventDefault();
         handlers.onNew?.();
       }
-      
+
       // Save: Cmd/Ctrl + S
       if (cmdKey && e.key === 's') {
         e.preventDefault();
         handlers.onSave?.();
       }
-      
+
       // Export: Cmd/Ctrl + E
       if (cmdKey && e.key === 'e') {
         e.preventDefault();
         handlers.onExport?.();
       }
-      
+
       // Help: Cmd/Ctrl + /
       if (cmdKey && e.key === '/') {
         e.preventDefault();
         handlers.onHelp?.();
       }
-      
+
       // Dark mode: Cmd/Ctrl + D
       if (cmdKey && e.key === 'd') {
         e.preventDefault();
         handlers.onToggleDarkMode?.();
       }
-      
+
       // Escape
       if (e.key === 'Escape') {
         handlers.onEscape?.();
@@ -89,7 +84,7 @@ export default function KeyboardShortcutsDialog({ open, onClose }) {
               </span>
               <div className="flex items-center gap-1">
                 {shortcut.keys.map((key, j) => (
-                  <kbd 
+                  <kbd
                     key={j}
                     className="px-2 py-1 text-xs font-medium bg-gray-100 dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-700"
                   >
@@ -100,9 +95,7 @@ export default function KeyboardShortcutsDialog({ open, onClose }) {
             </div>
           ))}
         </div>
-        <p className="text-xs text-gray-400 mt-4">
-          Use Ctrl instead of ⌘ on Windows/Linux
-        </p>
+        <p className="text-xs text-gray-400 mt-4">Use Ctrl instead of ⌘ on Windows/Linux</p>
       </DialogContent>
     </Dialog>
   );

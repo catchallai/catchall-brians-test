@@ -1,18 +1,40 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { 
-  TrendingUp, TrendingDown, DollarSign, Users, Building2, 
-  Sparkles, Loader2, X, Target, Activity, Shield, Zap
-} from "lucide-react";
-import { 
-  BarChart, Bar, LineChart, Line, RadarChart, Radar, PolarGrid, 
-  PolarAngleAxis, PolarRadiusAxis, XAxis, YAxis, CartesianGrid, 
-  Tooltip, Legend, ResponsiveContainer 
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import {
+  TrendingUp,
+  TrendingDown,
+  DollarSign,
+  Users,
+  Building2,
+  Sparkles,
+  Loader2,
+  X,
+  Target,
+  Activity,
+  Shield,
+  Zap,
+} from 'lucide-react';
+import {
+  BarChart,
+  Bar,
+  LineChart,
+  Line,
+  RadarChart,
+  Radar,
+  PolarGrid,
+  PolarAngleAxis,
+  PolarRadiusAxis,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
 } from 'recharts';
 import { base44 } from '@/api/base44Client';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 export default function CompanyComparison({ companies, onClose }) {
   const [aiAnalysis, setAiAnalysis] = useState(null);
@@ -21,7 +43,7 @@ export default function CompanyComparison({ companies, onClose }) {
   const generateAIAnalysis = async () => {
     setIsAnalyzing(true);
     try {
-      const companiesData = companies.map(c => ({
+      const companiesData = companies.map((c) => ({
         name: c.company_name,
         revenue: c.annual_revenue,
         employees: c.employee_count,
@@ -32,7 +54,7 @@ export default function CompanyComparison({ companies, onClose }) {
         contracts: [...(c.dod_contracts || []), ...(c.public_sector_contracts || [])].length,
         rd_focus: c.rd_focus,
         incidents: c.incidents?.length || 0,
-        negative_pr: c.negative_pr?.length || 0
+        negative_pr: c.negative_pr?.length || 0,
       }));
 
       const response = await base44.integrations.Core.InvokeLLM({
@@ -50,57 +72,57 @@ Provide:
 7. collaboration_opportunities (array of potential partnership opportunities between companies)`,
         add_context_from_internet: true,
         response_json_schema: {
-          type: "object",
+          type: 'object',
           properties: {
             competitive_strengths: {
-              type: "object",
+              type: 'object',
               additionalProperties: {
-                type: "array",
-                items: { type: "string" }
-              }
+                type: 'array',
+                items: { type: 'string' },
+              },
             },
             competitive_weaknesses: {
-              type: "object",
+              type: 'object',
               additionalProperties: {
-                type: "array",
-                items: { type: "string" }
-              }
+                type: 'array',
+                items: { type: 'string' },
+              },
             },
             market_positioning: {
-              type: "array",
+              type: 'array',
               items: {
-                type: "object",
+                type: 'object',
                 properties: {
-                  company_name: { type: "string" },
-                  position_description: { type: "string" },
-                  market_share_estimate: { type: "string" }
-                }
-              }
+                  company_name: { type: 'string' },
+                  position_description: { type: 'string' },
+                  market_share_estimate: { type: 'string' },
+                },
+              },
             },
             key_differentiators: {
-              type: "object",
+              type: 'object',
               additionalProperties: {
-                type: "array",
-                items: { type: "string" }
-              }
+                type: 'array',
+                items: { type: 'string' },
+              },
             },
             recommendations: {
-              type: "object",
-              additionalProperties: { type: "string" }
+              type: 'object',
+              additionalProperties: { type: 'string' },
             },
             overall_winner: {
-              type: "object",
+              type: 'object',
               properties: {
-                company_name: { type: "string" },
-                reasoning: { type: "string" }
-              }
+                company_name: { type: 'string' },
+                reasoning: { type: 'string' },
+              },
             },
             collaboration_opportunities: {
-              type: "array",
-              items: { type: "string" }
-            }
-          }
-        }
+              type: 'array',
+              items: { type: 'string' },
+            },
+          },
+        },
       });
 
       setAiAnalysis(response);
@@ -112,24 +134,25 @@ Provide:
   };
 
   // Prepare chart data
-  const employeeData = companies.map(c => ({
+  const employeeData = companies.map((c) => ({
     name: c.company_name.length > 15 ? c.company_name.substring(0, 15) + '...' : c.company_name,
-    employees: c.employee_count || 0
+    employees: c.employee_count || 0,
   }));
 
-  const contractData = companies.map(c => ({
+  const contractData = companies.map((c) => ({
     name: c.company_name.length > 15 ? c.company_name.substring(0, 15) + '...' : c.company_name,
     DoD: (c.dod_contracts || []).length,
-    Public: (c.public_sector_contracts || []).length
+    Public: (c.public_sector_contracts || []).length,
   }));
 
-  const radarData = companies[0]?.business_segments?.map((segment, idx) => {
-    const dataPoint = { segment };
-    companies.forEach(c => {
-      dataPoint[c.company_name] = c.business_segments?.includes(segment) ? 100 : 0;
-    });
-    return dataPoint;
-  }) || [];
+  const radarData =
+    companies[0]?.business_segments?.map((segment, idx) => {
+      const dataPoint = { segment };
+      companies.forEach((c) => {
+        dataPoint[c.company_name] = c.business_segments?.includes(segment) ? 100 : 0;
+      });
+      return dataPoint;
+    }) || [];
 
   const parseNumber = (str) => {
     if (!str) return 0;
@@ -191,12 +214,21 @@ Provide:
                 <table className="w-full border-collapse">
                   <thead>
                     <tr className="border-b-2 border-gray-200 dark:border-gray-700">
-                      <th className="text-left p-3 font-semibold text-gray-700 dark:text-gray-300">Metric</th>
+                      <th className="text-left p-3 font-semibold text-gray-700 dark:text-gray-300">
+                        Metric
+                      </th>
                       {companies.map((c, idx) => (
-                        <th key={idx} className="text-left p-3 font-semibold text-gray-700 dark:text-gray-300">
+                        <th
+                          key={idx}
+                          className="text-left p-3 font-semibold text-gray-700 dark:text-gray-300"
+                        >
                           <div className="flex items-center gap-2">
                             {c.logo_url && (
-                              <img src={c.logo_url} alt={c.company_name} className="w-6 h-6 object-contain" />
+                              <img
+                                src={c.logo_url}
+                                alt={c.company_name}
+                                className="w-6 h-6 object-contain"
+                              />
                             )}
                             {c.company_name}
                           </div>
@@ -209,7 +241,13 @@ Provide:
                       <td className="p-3 font-medium">Type</td>
                       {companies.map((c, idx) => (
                         <td key={idx} className="p-3">
-                          <Badge className={c.company_type === 'public' ? 'bg-blue-100 text-blue-700' : 'bg-purple-100 text-purple-700'}>
+                          <Badge
+                            className={
+                              c.company_type === 'public'
+                                ? 'bg-blue-100 text-blue-700'
+                                : 'bg-purple-100 text-purple-700'
+                            }
+                          >
                             {c.company_type}
                           </Badge>
                         </td>
@@ -218,13 +256,17 @@ Provide:
                     <tr className="border-b border-gray-100 dark:border-gray-800">
                       <td className="p-3 font-medium">Headquarters</td>
                       {companies.map((c, idx) => (
-                        <td key={idx} className="p-3 text-sm">{c.headquarters || 'N/A'}</td>
+                        <td key={idx} className="p-3 text-sm">
+                          {c.headquarters || 'N/A'}
+                        </td>
                       ))}
                     </tr>
                     <tr className="border-b border-gray-100 dark:border-gray-800">
                       <td className="p-3 font-medium">CEO</td>
                       {companies.map((c, idx) => (
-                        <td key={idx} className="p-3 text-sm">{c.ceo || 'N/A'}</td>
+                        <td key={idx} className="p-3 text-sm">
+                          {c.ceo || 'N/A'}
+                        </td>
                       ))}
                     </tr>
                     <tr className="border-b border-gray-100 dark:border-gray-800 bg-blue-50/50 dark:bg-blue-900/20">
@@ -238,13 +280,17 @@ Provide:
                     <tr className="border-b border-gray-100 dark:border-gray-800 bg-green-50/50 dark:bg-green-900/20">
                       <td className="p-3 font-medium">Annual Revenue</td>
                       {companies.map((c, idx) => (
-                        <td key={idx} className="p-3 text-sm font-semibold">{c.annual_revenue || 'N/A'}</td>
+                        <td key={idx} className="p-3 text-sm font-semibold">
+                          {c.annual_revenue || 'N/A'}
+                        </td>
                       ))}
                     </tr>
                     <tr className="border-b border-gray-100 dark:border-gray-800 bg-violet-50/50 dark:bg-violet-900/20">
                       <td className="p-3 font-medium">Market Cap / Valuation</td>
                       {companies.map((c, idx) => (
-                        <td key={idx} className="p-3 text-sm font-semibold">{c.market_cap || 'N/A'}</td>
+                        <td key={idx} className="p-3 text-sm font-semibold">
+                          {c.market_cap || 'N/A'}
+                        </td>
                       ))}
                     </tr>
                     <tr className="border-b border-gray-100 dark:border-gray-800">
@@ -260,32 +306,43 @@ Provide:
                               )}
                               {c.financial_highlights.revenue_growth}
                             </div>
-                          ) : 'N/A'}
+                          ) : (
+                            'N/A'
+                          )}
                         </td>
                       ))}
                     </tr>
                     <tr className="border-b border-gray-100 dark:border-gray-800">
                       <td className="p-3 font-medium">DoD Contracts</td>
                       {companies.map((c, idx) => (
-                        <td key={idx} className="p-3 text-sm">{(c.dod_contracts || []).length}</td>
+                        <td key={idx} className="p-3 text-sm">
+                          {(c.dod_contracts || []).length}
+                        </td>
                       ))}
                     </tr>
                     <tr className="border-b border-gray-100 dark:border-gray-800">
                       <td className="p-3 font-medium">Public Sector Contracts</td>
                       {companies.map((c, idx) => (
-                        <td key={idx} className="p-3 text-sm">{(c.public_sector_contracts || []).length}</td>
+                        <td key={idx} className="p-3 text-sm">
+                          {(c.public_sector_contracts || []).length}
+                        </td>
                       ))}
                     </tr>
                     <tr className="border-b border-gray-100 dark:border-gray-800">
                       <td className="p-3 font-medium">R&D Focus Areas</td>
                       {companies.map((c, idx) => (
-                        <td key={idx} className="p-3 text-sm">{(c.rd_focus || []).length}</td>
+                        <td key={idx} className="p-3 text-sm">
+                          {(c.rd_focus || []).length}
+                        </td>
                       ))}
                     </tr>
                     <tr className="border-b border-gray-100 dark:border-gray-800 bg-red-50/50 dark:bg-red-900/20">
                       <td className="p-3 font-medium">Safety Incidents</td>
                       {companies.map((c, idx) => (
-                        <td key={idx} className="p-3 text-sm font-semibold text-red-600 dark:text-red-400">
+                        <td
+                          key={idx}
+                          className="p-3 text-sm font-semibold text-red-600 dark:text-red-400"
+                        >
                           {(c.incidents || []).length}
                         </td>
                       ))}
@@ -293,7 +350,10 @@ Provide:
                     <tr className="border-b border-gray-100 dark:border-gray-800 bg-amber-50/50 dark:bg-amber-900/20">
                       <td className="p-3 font-medium">Negative PR Items</td>
                       {companies.map((c, idx) => (
-                        <td key={idx} className="p-3 text-sm font-semibold text-amber-600 dark:text-amber-400">
+                        <td
+                          key={idx}
+                          className="p-3 text-sm font-semibold text-amber-600 dark:text-amber-400"
+                        >
                           {(c.negative_pr || []).length}
                         </td>
                       ))}
@@ -357,7 +417,9 @@ Provide:
                             key={idx}
                             name={c.company_name}
                             dataKey={c.company_name}
-                            stroke={['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'][idx % 5]}
+                            stroke={
+                              ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'][idx % 5]
+                            }
                             fill={['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'][idx % 5]}
                             fillOpacity={0.3}
                           />
@@ -373,11 +435,19 @@ Provide:
             {/* Financial Analysis */}
             <TabsContent value="financials" className="mt-6 space-y-4">
               {companies.map((company, idx) => (
-                <Card key={idx} className="border-l-4" style={{ borderLeftColor: ['#3b82f6', '#10b981', '#f59e0b'][idx % 3] }}>
+                <Card
+                  key={idx}
+                  className="border-l-4"
+                  style={{ borderLeftColor: ['#3b82f6', '#10b981', '#f59e0b'][idx % 3] }}
+                >
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                       {company.logo_url && (
-                        <img src={company.logo_url} alt={company.company_name} className="w-6 h-6 object-contain" />
+                        <img
+                          src={company.logo_url}
+                          alt={company.company_name}
+                          className="w-6 h-6 object-contain"
+                        />
                       )}
                       {company.company_name}
                     </CardTitle>
@@ -387,25 +457,33 @@ Provide:
                       {company.financial_highlights?.revenue_growth && (
                         <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded">
                           <p className="text-xs text-gray-500">Revenue Growth</p>
-                          <p className="text-lg font-bold text-green-600">{company.financial_highlights.revenue_growth}</p>
+                          <p className="text-lg font-bold text-green-600">
+                            {company.financial_highlights.revenue_growth}
+                          </p>
                         </div>
                       )}
                       {company.financial_highlights?.profit_margin && (
                         <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded">
                           <p className="text-xs text-gray-500">Profit Margin</p>
-                          <p className="text-lg font-bold">{company.financial_highlights.profit_margin}</p>
+                          <p className="text-lg font-bold">
+                            {company.financial_highlights.profit_margin}
+                          </p>
                         </div>
                       )}
                       {company.financial_highlights?.debt_to_equity && (
                         <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded">
                           <p className="text-xs text-gray-500">Debt to Equity</p>
-                          <p className="text-lg font-bold">{company.financial_highlights.debt_to_equity}</p>
+                          <p className="text-lg font-bold">
+                            {company.financial_highlights.debt_to_equity}
+                          </p>
                         </div>
                       )}
                       {company.financial_highlights?.pe_ratio && (
                         <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded">
                           <p className="text-xs text-gray-500">P/E Ratio</p>
-                          <p className="text-lg font-bold">{company.financial_highlights.pe_ratio}</p>
+                          <p className="text-lg font-bold">
+                            {company.financial_highlights.pe_ratio}
+                          </p>
                         </div>
                       )}
                     </div>
@@ -436,8 +514,12 @@ Provide:
                         </CardTitle>
                       </CardHeader>
                       <CardContent>
-                        <p className="text-2xl font-bold mb-2">{aiAnalysis.overall_winner.company_name}</p>
-                        <p className="text-gray-700 dark:text-gray-300">{aiAnalysis.overall_winner.reasoning}</p>
+                        <p className="text-2xl font-bold mb-2">
+                          {aiAnalysis.overall_winner.company_name}
+                        </p>
+                        <p className="text-gray-700 dark:text-gray-300">
+                          {aiAnalysis.overall_winner.reasoning}
+                        </p>
                       </CardContent>
                     </Card>
                   )}
@@ -452,19 +534,24 @@ Provide:
                         </CardTitle>
                       </CardHeader>
                       <CardContent className="space-y-4">
-                        {Object.entries(aiAnalysis.competitive_strengths || {}).map(([company, strengths], idx) => (
-                          <div key={idx}>
-                            <h4 className="font-semibold mb-2">{company}</h4>
-                            <ul className="space-y-1">
-                              {strengths.map((strength, i) => (
-                                <li key={i} className="text-sm text-gray-700 dark:text-gray-300 flex items-start gap-2">
-                                  <span className="text-green-500 mt-0.5">✓</span>
-                                  {strength}
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                        ))}
+                        {Object.entries(aiAnalysis.competitive_strengths || {}).map(
+                          ([company, strengths], idx) => (
+                            <div key={idx}>
+                              <h4 className="font-semibold mb-2">{company}</h4>
+                              <ul className="space-y-1">
+                                {strengths.map((strength, i) => (
+                                  <li
+                                    key={i}
+                                    className="text-sm text-gray-700 dark:text-gray-300 flex items-start gap-2"
+                                  >
+                                    <span className="text-green-500 mt-0.5">✓</span>
+                                    {strength}
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          )
+                        )}
                       </CardContent>
                     </Card>
 
@@ -476,19 +563,24 @@ Provide:
                         </CardTitle>
                       </CardHeader>
                       <CardContent className="space-y-4">
-                        {Object.entries(aiAnalysis.competitive_weaknesses || {}).map(([company, weaknesses], idx) => (
-                          <div key={idx}>
-                            <h4 className="font-semibold mb-2">{company}</h4>
-                            <ul className="space-y-1">
-                              {weaknesses.map((weakness, i) => (
-                                <li key={i} className="text-sm text-gray-700 dark:text-gray-300 flex items-start gap-2">
-                                  <span className="text-red-500 mt-0.5">✗</span>
-                                  {weakness}
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                        ))}
+                        {Object.entries(aiAnalysis.competitive_weaknesses || {}).map(
+                          ([company, weaknesses], idx) => (
+                            <div key={idx}>
+                              <h4 className="font-semibold mb-2">{company}</h4>
+                              <ul className="space-y-1">
+                                {weaknesses.map((weakness, i) => (
+                                  <li
+                                    key={i}
+                                    className="text-sm text-gray-700 dark:text-gray-300 flex items-start gap-2"
+                                  >
+                                    <span className="text-red-500 mt-0.5">✗</span>
+                                    {weakness}
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          )
+                        )}
                       </CardContent>
                     </Card>
                   </div>
@@ -509,7 +601,9 @@ Provide:
                               <h4 className="font-semibold">{pos.company_name}</h4>
                               <Badge>{pos.market_share_estimate}</Badge>
                             </div>
-                            <p className="text-sm text-gray-700 dark:text-gray-300">{pos.position_description}</p>
+                            <p className="text-sm text-gray-700 dark:text-gray-300">
+                              {pos.position_description}
+                            </p>
                           </div>
                         ))}
                       </CardContent>
@@ -525,18 +619,23 @@ Provide:
                       </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                      {Object.entries(aiAnalysis.key_differentiators || {}).map(([company, differentiators], idx) => (
-                        <div key={idx}>
-                          <h4 className="font-semibold mb-2">{company}</h4>
-                          <div className="flex flex-wrap gap-2">
-                            {differentiators.map((diff, i) => (
-                              <Badge key={i} className="bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300">
-                                {diff}
-                              </Badge>
-                            ))}
+                      {Object.entries(aiAnalysis.key_differentiators || {}).map(
+                        ([company, differentiators], idx) => (
+                          <div key={idx}>
+                            <h4 className="font-semibold mb-2">{company}</h4>
+                            <div className="flex flex-wrap gap-2">
+                              {differentiators.map((diff, i) => (
+                                <Badge
+                                  key={i}
+                                  className="bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300"
+                                >
+                                  {diff}
+                                </Badge>
+                              ))}
+                            </div>
                           </div>
-                        </div>
-                      ))}
+                        )
+                      )}
                     </CardContent>
                   </Card>
 
@@ -549,12 +648,19 @@ Provide:
                       </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-3">
-                      {Object.entries(aiAnalysis.recommendations || {}).map(([company, recommendation], idx) => (
-                        <div key={idx} className="bg-purple-50 dark:bg-purple-900/20 p-4 rounded-lg border-l-4 border-purple-600">
-                          <h4 className="font-semibold mb-2">{company}</h4>
-                          <p className="text-sm text-gray-700 dark:text-gray-300">{recommendation}</p>
-                        </div>
-                      ))}
+                      {Object.entries(aiAnalysis.recommendations || {}).map(
+                        ([company, recommendation], idx) => (
+                          <div
+                            key={idx}
+                            className="bg-purple-50 dark:bg-purple-900/20 p-4 rounded-lg border-l-4 border-purple-600"
+                          >
+                            <h4 className="font-semibold mb-2">{company}</h4>
+                            <p className="text-sm text-gray-700 dark:text-gray-300">
+                              {recommendation}
+                            </p>
+                          </div>
+                        )
+                      )}
                     </CardContent>
                   </Card>
 
@@ -570,7 +676,10 @@ Provide:
                       <CardContent>
                         <ul className="space-y-2">
                           {aiAnalysis.collaboration_opportunities.map((opp, idx) => (
-                            <li key={idx} className="bg-emerald-50 dark:bg-emerald-900/20 p-3 rounded-lg text-sm text-gray-700 dark:text-gray-300">
+                            <li
+                              key={idx}
+                              className="bg-emerald-50 dark:bg-emerald-900/20 p-3 rounded-lg text-sm text-gray-700 dark:text-gray-300"
+                            >
                               {opp}
                             </li>
                           ))}

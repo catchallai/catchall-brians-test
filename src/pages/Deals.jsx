@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Plus, Target, BarChart3, Zap, Search, Layout, List as ListIcon } from "lucide-react";
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Plus, Target, BarChart3, Zap, Search, Layout, List as ListIcon } from 'lucide-react';
 import DealCard from '@/components/crm/DealCard';
 import DealModal from '@/components/modals/DealModal';
 import DealDetailModal from '@/components/crm/DealDetailModal';
@@ -17,10 +17,23 @@ import { useToast } from '@/components/ui/toast-provider';
 import DealKanbanBoard from '@/components/sales/DealKanbanBoard';
 import DealForecasting from '@/components/sales/DealForecasting';
 import DealAutomationRules from '@/components/sales/DealAutomationRules';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 
 const DEFAULT_STAGES = [
   { id: 'lead', label: 'Lead', color: 'bg-gray-100' },
@@ -32,8 +45,14 @@ const DEFAULT_STAGES = [
 ];
 
 const STAGE_COLORS = [
-  'bg-gray-100', 'bg-blue-50', 'bg-violet-50', 'bg-amber-50', 
-  'bg-emerald-50', 'bg-pink-50', 'bg-cyan-50', 'bg-orange-50'
+  'bg-gray-100',
+  'bg-blue-50',
+  'bg-violet-50',
+  'bg-amber-50',
+  'bg-emerald-50',
+  'bg-pink-50',
+  'bg-cyan-50',
+  'bg-orange-50',
 ];
 
 export default function Deals() {
@@ -64,7 +83,7 @@ export default function Deals() {
     enabled: !!user,
   });
 
-  const defaultPipeline = pipelines.find(p => p.is_default) || pipelines[0];
+  const defaultPipeline = pipelines.find((p) => p.is_default) || pipelines[0];
 
   const { data: allDeals = [], isLoading: loadingDeals } = useQuery({
     queryKey: ['deals'],
@@ -115,9 +134,9 @@ export default function Deals() {
 
   const updateDealMutation = useMutation({
     mutationFn: async ({ id, data }) => {
-      const oldDeal = deals.find(d => d.id === id);
+      const oldDeal = deals.find((d) => d.id === id);
       const result = await base44.entities.Deal.update(id, data);
-      
+
       // Create notification if stage changed
       if (oldDeal && oldDeal.stage !== data.stage) {
         try {
@@ -136,7 +155,7 @@ export default function Deals() {
           console.log('Notification creation skipped');
         }
       }
-      
+
       return result;
     },
     onSuccess: () => {
@@ -161,7 +180,7 @@ export default function Deals() {
     mutationFn: async (data) => {
       const pipeline = await base44.entities.Pipeline.create({
         ...data,
-        is_default: pipelines.length === 0
+        is_default: pipelines.length === 0,
       });
       return pipeline;
     },
@@ -206,9 +225,9 @@ export default function Deals() {
     setDraggedDeal(null);
   };
 
-  const getContact = (contactId) => contacts.find(c => c.id === contactId);
+  const getContact = (contactId) => contacts.find((c) => c.id === contactId);
 
-  const getDealsForStage = (stageId) => deals.filter(d => d.stage === stageId);
+  const getDealsForStage = (stageId) => deals.filter((d) => d.stage === stageId);
 
   const getStageValue = (stageId) => {
     return getDealsForStage(stageId).reduce((sum, d) => sum + (d.value || 0), 0);
@@ -220,12 +239,13 @@ export default function Deals() {
     return `$${value}`;
   };
 
-  const filteredDeals = deals.filter(deal => {
-    const matchesSearch = !searchTerm || 
+  const filteredDeals = deals.filter((deal) => {
+    const matchesSearch =
+      !searchTerm ||
       deal.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       deal.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       getContact(deal.contact_id)?.first_name.toLowerCase().includes(searchTerm.toLowerCase());
-    
+
     const matchesStage = filterStage === 'all' || deal.stage === filterStage;
     return matchesSearch && matchesStage;
   });
@@ -249,168 +269,189 @@ export default function Deals() {
   return (
     <div className="p-4 sm:p-6 lg:p-8 space-y-4 sm:space-y-6 min-h-screen">
       {/* Header */}
-       <div className="flex flex-col gap-4">
-         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-           <div>
-             <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Sales Pipeline</h1>
-             <p className="text-sm sm:text-base text-gray-500 mt-1">Manage active deals through your sales process</p>
-           </div>
-           <div className="flex gap-2">
-             <Button onClick={() => setShowDealModal(true)} className="gap-2 bg-violet-600 hover:bg-violet-700">
-               <Plus className="w-4 h-4" />
-               Add Deal
-             </Button>
-             <Button onClick={() => setShowPipelineModal(true)} variant="outline" className="gap-2">
-               <Plus className="w-4 h-4" />
-               Customize
-             </Button>
-           </div>
-         </div>
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
+              Sales Pipeline
+            </h1>
+            <p className="text-sm sm:text-base text-gray-500 mt-1">
+              Manage active deals through your sales process
+            </p>
+          </div>
+          <div className="flex gap-2">
+            <Button
+              onClick={() => setShowDealModal(true)}
+              className="gap-2 bg-violet-600 hover:bg-violet-700"
+            >
+              <Plus className="w-4 h-4" />
+              Add Deal
+            </Button>
+            <Button onClick={() => setShowPipelineModal(true)} variant="outline" className="gap-2">
+              <Plus className="w-4 h-4" />
+              Customize
+            </Button>
+          </div>
+        </div>
 
-         {/* Search & Filter Bar */}
-         <div className="flex flex-col sm:flex-row gap-3 items-end">
-           <div className="flex-1 relative">
-             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-             <Input
-               placeholder="Search deals..."
-               value={searchTerm}
-               onChange={(e) => setSearchTerm(e.target.value)}
-               className="pl-10"
-             />
-           </div>
-           <Select value={filterStage} onValueChange={setFilterStage}>
-             <SelectTrigger className="w-full sm:w-40">
-               <SelectValue />
-             </SelectTrigger>
-             <SelectContent>
-               <SelectItem value="all">All Stages</SelectItem>
-               {(defaultPipeline?.stages || DEFAULT_STAGES).map(stage => (
-                 <SelectItem key={stage.id} value={stage.id}>
-                   {stage.label}
-                 </SelectItem>
-               ))}
-             </SelectContent>
-           </Select>
-           <div className="flex gap-2">
-             <Button
-               variant={viewMode === 'kanban' ? 'default' : 'outline'}
-               size="icon"
-               onClick={() => setViewMode('kanban')}
-             >
-               <Layout className="w-4 h-4" />
-             </Button>
-             <Button
-               variant={viewMode === 'list' ? 'default' : 'outline'}
-               size="icon"
-               onClick={() => setViewMode('list')}
-             >
-               <ListIcon className="w-4 h-4" />
-             </Button>
-           </div>
-         </div>
-       </div>
+        {/* Search & Filter Bar */}
+        <div className="flex flex-col sm:flex-row gap-3 items-end">
+          <div className="flex-1 relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <Input
+              placeholder="Search deals..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+          <Select value={filterStage} onValueChange={setFilterStage}>
+            <SelectTrigger className="w-full sm:w-40">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Stages</SelectItem>
+              {(defaultPipeline?.stages || DEFAULT_STAGES).map((stage) => (
+                <SelectItem key={stage.id} value={stage.id}>
+                  {stage.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <div className="flex gap-2">
+            <Button
+              variant={viewMode === 'kanban' ? 'default' : 'outline'}
+              size="icon"
+              onClick={() => setViewMode('kanban')}
+            >
+              <Layout className="w-4 h-4" />
+            </Button>
+            <Button
+              variant={viewMode === 'list' ? 'default' : 'outline'}
+              size="icon"
+              onClick={() => setViewMode('list')}
+            >
+              <ListIcon className="w-4 h-4" />
+            </Button>
+          </div>
+        </div>
+      </div>
 
       {/* Content */}
-       {deals.length === 0 ? (
-         <EmptyState
-           icon={Target}
-           title="No deals yet"
-           description="Create your first deal to start managing your pipeline."
-         />
-       ) : viewMode === 'list' ? (
-         // List View
-         <Card className="glass-card rounded-2xl overflow-hidden">
-           <Table>
-             <TableHeader>
-               <TableRow>
-                 <TableHead>Deal</TableHead>
-                 <TableHead>Contact</TableHead>
-                 <TableHead>Stage</TableHead>
-                 <TableHead>Value</TableHead>
-                 <TableHead>Probability</TableHead>
-                 <TableHead>Close Date</TableHead>
-                 <TableHead>Actions</TableHead>
-               </TableRow>
-             </TableHeader>
-             <TableBody>
-               {filteredDeals.map(deal => {
-                 const contact = getContact(deal.contact_id);
-                 const stage = (defaultPipeline?.stages || DEFAULT_STAGES).find(s => s.id === deal.stage);
-                 return (
-                   <TableRow key={deal.id} className="hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer">
-                     <TableCell className="font-medium">{deal.title}</TableCell>
-                     <TableCell>{contact?.first_name} {contact?.last_name}</TableCell>
-                     <TableCell>{stage?.label || deal.stage}</TableCell>
-                     <TableCell className="font-semibold">{formatCurrency(deal.value)}</TableCell>
-                     <TableCell>{deal.probability || 0}%</TableCell>
-                     <TableCell>{deal.expected_close_date ? new Date(deal.expected_close_date).toLocaleDateString() : '-'}</TableCell>
-                     <TableCell>
-                       <Button variant="ghost" size="sm" onClick={() => handleViewDeal(deal)}>
-                         View
-                       </Button>
-                     </TableCell>
-                   </TableRow>
-                 );
-               })}
-             </TableBody>
-           </Table>
-         </Card>
-       ) : (
-         // Kanban View
-         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-           <TabsList className="grid w-full max-w-md grid-cols-3">
-             <TabsTrigger value="kanban" className="gap-2">
-               <Target className="w-4 h-4" />
-               Pipeline
-             </TabsTrigger>
-             <TabsTrigger value="forecast" className="gap-2">
-               <BarChart3 className="w-4 h-4" />
-               Forecast
-             </TabsTrigger>
-             <TabsTrigger value="automation" className="gap-2">
-               <Zap className="w-4 h-4" />
-               Automation
-             </TabsTrigger>
-           </TabsList>
+      {deals.length === 0 ? (
+        <EmptyState
+          icon={Target}
+          title="No deals yet"
+          description="Create your first deal to start managing your pipeline."
+        />
+      ) : viewMode === 'list' ? (
+        // List View
+        <Card className="glass-card rounded-2xl overflow-hidden">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Deal</TableHead>
+                <TableHead>Contact</TableHead>
+                <TableHead>Stage</TableHead>
+                <TableHead>Value</TableHead>
+                <TableHead>Probability</TableHead>
+                <TableHead>Close Date</TableHead>
+                <TableHead>Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filteredDeals.map((deal) => {
+                const contact = getContact(deal.contact_id);
+                const stage = (defaultPipeline?.stages || DEFAULT_STAGES).find(
+                  (s) => s.id === deal.stage
+                );
+                return (
+                  <TableRow
+                    key={deal.id}
+                    className="hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer"
+                  >
+                    <TableCell className="font-medium">{deal.title}</TableCell>
+                    <TableCell>
+                      {contact?.first_name} {contact?.last_name}
+                    </TableCell>
+                    <TableCell>{stage?.label || deal.stage}</TableCell>
+                    <TableCell className="font-semibold">{formatCurrency(deal.value)}</TableCell>
+                    <TableCell>{deal.probability || 0}%</TableCell>
+                    <TableCell>
+                      {deal.expected_close_date
+                        ? new Date(deal.expected_close_date).toLocaleDateString()
+                        : '-'}
+                    </TableCell>
+                    <TableCell>
+                      <Button variant="ghost" size="sm" onClick={() => handleViewDeal(deal)}>
+                        View
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
+        </Card>
+      ) : (
+        // Kanban View
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="grid w-full max-w-md grid-cols-3">
+            <TabsTrigger value="kanban" className="gap-2">
+              <Target className="w-4 h-4" />
+              Pipeline
+            </TabsTrigger>
+            <TabsTrigger value="forecast" className="gap-2">
+              <BarChart3 className="w-4 h-4" />
+              Forecast
+            </TabsTrigger>
+            <TabsTrigger value="automation" className="gap-2">
+              <Zap className="w-4 h-4" />
+              Automation
+            </TabsTrigger>
+          </TabsList>
 
-           {/* Kanban View */}
-           <TabsContent value="kanban" className="mt-6">
-             {/* Funnel & Distribution */}
-             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-               <SalesFunnel deals={filteredDeals} />
-               <StageDistribution deals={filteredDeals} />
-             </div>
+          {/* Kanban View */}
+          <TabsContent value="kanban" className="mt-6">
+            {/* Funnel & Distribution */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+              <SalesFunnel deals={filteredDeals} />
+              <StageDistribution deals={filteredDeals} />
+            </div>
 
-             {/* Kanban Board */}
-             <DealKanbanBoard
-               deals={filteredDeals}
-               stages={defaultPipeline?.stages || DEFAULT_STAGES}
-               stageColors={STAGE_COLORS}
-               onDragStart={handleDragStart}
-               onDragOver={handleDragOver}
-               onDrop={handleDrop}
-               onViewDeal={handleViewDeal}
-               onEditDeal={handleEditDeal}
-               getContact={getContact}
-             />
-           </TabsContent>
+            {/* Kanban Board */}
+            <DealKanbanBoard
+              deals={filteredDeals}
+              stages={defaultPipeline?.stages || DEFAULT_STAGES}
+              stageColors={STAGE_COLORS}
+              onDragStart={handleDragStart}
+              onDragOver={handleDragOver}
+              onDrop={handleDrop}
+              onViewDeal={handleViewDeal}
+              onEditDeal={handleEditDeal}
+              getContact={getContact}
+            />
+          </TabsContent>
 
-           {/* Forecast View */}
-           <TabsContent value="forecast" className="mt-6">
-             <DealForecasting deals={filteredDeals} />
-           </TabsContent>
+          {/* Forecast View */}
+          <TabsContent value="forecast" className="mt-6">
+            <DealForecasting deals={filteredDeals} />
+          </TabsContent>
 
-           {/* Automation View */}
-           <TabsContent value="automation" className="mt-6">
-             <DealAutomationRules businessId={user?.current_business_id} />
-           </TabsContent>
-         </Tabs>
-       )}
+          {/* Automation View */}
+          <TabsContent value="automation" className="mt-6">
+            <DealAutomationRules businessId={user?.current_business_id} />
+          </TabsContent>
+        </Tabs>
+      )}
 
       {/* Deal Modal */}
       <DealModal
         open={showDealModal}
-        onClose={() => { setShowDealModal(false); setEditingDeal(null); }}
+        onClose={() => {
+          setShowDealModal(false);
+          setEditingDeal(null);
+        }}
         deal={editingDeal}
         contacts={contacts}
         companies={companies}
@@ -421,7 +462,10 @@ export default function Deals() {
       {/* Deal Detail Modal */}
       <DealDetailModal
         open={showDealDetail}
-        onClose={() => { setShowDealDetail(false); setSelectedDealId(null); }}
+        onClose={() => {
+          setShowDealDetail(false);
+          setSelectedDealId(null);
+        }}
         dealId={selectedDealId}
         onEdit={(deal) => {
           setShowDealDetail(false);

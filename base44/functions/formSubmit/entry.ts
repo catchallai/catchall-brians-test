@@ -1,7 +1,7 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.4';
 import { Resend } from 'npm:resend@2.0.0';
 
-const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
+const resend = new Resend(Deno.env.get('RESEND_API_KEY'));
 
 Deno.serve(async (req) => {
   // Handle CORS preflight
@@ -21,36 +21,48 @@ Deno.serve(async (req) => {
     const { formId, data, sourceUrl } = await req.json();
 
     if (!formId || !data) {
-      return Response.json({ error: 'Form ID and data required' }, { 
-        status: 400,
-        headers: { 'Access-Control-Allow-Origin': '*' }
-      });
+      return Response.json(
+        { error: 'Form ID and data required' },
+        {
+          status: 400,
+          headers: { 'Access-Control-Allow-Origin': '*' },
+        }
+      );
     }
 
     // Get form configuration
     const forms = await base44.asServiceRole.entities.ContactForm.filter({ id: formId });
     if (forms.length === 0) {
-      return Response.json({ error: 'Form not found' }, { 
-        status: 404,
-        headers: { 'Access-Control-Allow-Origin': '*' }
-      });
+      return Response.json(
+        { error: 'Form not found' },
+        {
+          status: 404,
+          headers: { 'Access-Control-Allow-Origin': '*' },
+        }
+      );
     }
 
     const form = forms[0];
     if (!form.is_active) {
-      return Response.json({ error: 'Form is not active' }, { 
-        status: 400,
-        headers: { 'Access-Control-Allow-Origin': '*' }
-      });
+      return Response.json(
+        { error: 'Form is not active' },
+        {
+          status: 400,
+          headers: { 'Access-Control-Allow-Origin': '*' },
+        }
+      );
     }
 
     // Validate required fields
     for (const field of form.fields || []) {
       if (field.required && !data[field.id]) {
-        return Response.json({ error: `${field.label} is required` }, { 
-          status: 400,
-          headers: { 'Access-Control-Allow-Origin': '*' }
-        });
+        return Response.json(
+          { error: `${field.label} is required` },
+          {
+            status: 400,
+            headers: { 'Access-Control-Allow-Origin': '*' },
+          }
+        );
       }
     }
 
@@ -67,7 +79,7 @@ Deno.serve(async (req) => {
         source: 'contact_form',
         status: 'lead',
         tags: form.tags || [],
-        notes: `Submitted via ${form.name} form.\n\nMessage: ${data.message || 'N/A'}`
+        notes: `Submitted via ${form.name} form.\n\nMessage: ${data.message || 'N/A'}`,
       };
 
       const contact = await base44.asServiceRole.entities.Contact.create(contactData);
@@ -82,7 +94,7 @@ Deno.serve(async (req) => {
         stage: 'lead',
         value: form.lead_value || 0,
         source: 'contact_form',
-        notes: data.message || ''
+        notes: data.message || '',
       };
 
       const deal = await base44.asServiceRole.entities.Deal.create(dealData);
@@ -96,18 +108,21 @@ Deno.serve(async (req) => {
       contact_id: contactId,
       deal_id: dealId,
       source_url: sourceUrl || '',
-      status: 'new'
+      status: 'new',
     });
 
     // Update form submission count
     await base44.asServiceRole.entities.ContactForm.update(formId, {
-      submissions_count: (form.submissions_count || 0) + 1
+      submissions_count: (form.submissions_count || 0) + 1,
     });
 
     // Send notification email
     if (form.notification_email) {
       const fieldsHtml = Object.entries(data)
-        .map(([key, value]) => `<tr><td style="padding: 8px; border-bottom: 1px solid #eee; font-weight: 600;">${key}</td><td style="padding: 8px; border-bottom: 1px solid #eee;">${value}</td></tr>`)
+        .map(
+          ([key, value]) =>
+            `<tr><td style="padding: 8px; border-bottom: 1px solid #eee; font-weight: 600;">${key}</td><td style="padding: 8px; border-bottom: 1px solid #eee;">${value}</td></tr>`
+        )
         .join('');
 
       await resend.emails.send({
@@ -123,7 +138,7 @@ Deno.serve(async (req) => {
             </table>
             <p style="color: #666; font-size: 12px;">Submitted from: ${sourceUrl || 'Unknown'}</p>
           </div>
-        `
+        `,
       });
     }
 
@@ -133,23 +148,28 @@ Deno.serve(async (req) => {
       title: 'New Form Submission',
       message: `${data.name || data.email || 'Someone'} submitted ${form.name}`,
       priority: 'medium',
-      link: 'ContactForms'
+      link: 'ContactForms',
     });
 
-    return Response.json({ 
-      success: true, 
-      message: form.success_message || 'Thank you for your submission!',
-      submission_id: submission.id,
-      contact_id: contactId,
-      deal_id: dealId
-    }, {
-      headers: { 'Access-Control-Allow-Origin': '*' }
-    });
-
+    return Response.json(
+      {
+        success: true,
+        message: form.success_message || 'Thank you for your submission!',
+        submission_id: submission.id,
+        contact_id: contactId,
+        deal_id: dealId,
+      },
+      {
+        headers: { 'Access-Control-Allow-Origin': '*' },
+      }
+    );
   } catch (error) {
-    return Response.json({ error: error.message }, { 
-      status: 500,
-      headers: { 'Access-Control-Allow-Origin': '*' }
-    });
+    return Response.json(
+      { error: error.message },
+      {
+        status: 500,
+        headers: { 'Access-Control-Allow-Origin': '*' },
+      }
+    );
   }
 });

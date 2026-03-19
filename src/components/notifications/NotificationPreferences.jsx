@@ -1,25 +1,25 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
-import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from '@/components/ui/button';
+import { Switch } from '@/components/ui/switch';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
+} from '@/components/ui/dialog';
 import { Settings, Bell, Volume2, Moon } from 'lucide-react';
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from '@/components/ui/select';
 import { playNotificationSound } from './NotificationSounds';
 
 export default function NotificationPreferences({ user, onPreferencesUpdate }) {
@@ -38,17 +38,19 @@ export default function NotificationPreferences({ user, onPreferencesUpdate }) {
       const records = await base44.entities.NotificationPreference.filter({
         user_email: user?.email,
       });
-      setPrefs(records[0] || {
-        user_email: user?.email,
-        messages_enabled: true,
-        mentions_enabled: true,
-        updates_enabled: true,
-        sound_enabled: true,
-        sound_type: 'bell',
-        do_not_disturb_enabled: false,
-        desktop_notifications_enabled: true,
-        muted_channels: [],
-      });
+      setPrefs(
+        records[0] || {
+          user_email: user?.email,
+          messages_enabled: true,
+          mentions_enabled: true,
+          updates_enabled: true,
+          sound_enabled: true,
+          sound_type: 'bell',
+          do_not_disturb_enabled: false,
+          desktop_notifications_enabled: true,
+          muted_channels: [],
+        }
+      );
     } catch (err) {
       console.error('Failed to load preferences:', err);
     }
@@ -72,7 +74,7 @@ export default function NotificationPreferences({ user, onPreferencesUpdate }) {
   };
 
   const updatePref = (key, value) => {
-    setPrefs(prev => ({ ...prev, [key]: value }));
+    setPrefs((prev) => ({ ...prev, [key]: value }));
   };
 
   if (!prefs) {
@@ -165,12 +167,15 @@ export default function NotificationPreferences({ user, onPreferencesUpdate }) {
                 <div className="space-y-2">
                   <Label htmlFor="sound-type">Sound Type</Label>
                   <div className="flex gap-2">
-                    <Select value={prefs.sound_type} onValueChange={(val) => updatePref('sound_type', val)}>
+                    <Select
+                      value={prefs.sound_type}
+                      onValueChange={(val) => updatePref('sound_type', val)}
+                    >
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        {['bell', 'chime', 'ding', 'pop', 'whoosh'].map(sound => (
+                        {['bell', 'chime', 'ding', 'pop', 'whoosh'].map((sound) => (
                           <SelectItem key={sound} value={sound}>
                             {sound.charAt(0).toUpperCase() + sound.slice(1)}
                           </SelectItem>
@@ -211,7 +216,9 @@ export default function NotificationPreferences({ user, onPreferencesUpdate }) {
               {prefs.do_not_disturb_enabled && (
                 <div className="space-y-3 pt-2 border-t">
                   <div>
-                    <Label htmlFor="dnd-start" className="text-xs">Start Time</Label>
+                    <Label htmlFor="dnd-start" className="text-xs">
+                      Start Time
+                    </Label>
                     <Input
                       id="dnd-start"
                       type="time"
@@ -220,7 +227,9 @@ export default function NotificationPreferences({ user, onPreferencesUpdate }) {
                     />
                   </div>
                   <div>
-                    <Label htmlFor="dnd-end" className="text-xs">End Time</Label>
+                    <Label htmlFor="dnd-end" className="text-xs">
+                      End Time
+                    </Label>
                     <Input
                       id="dnd-end"
                       type="time"

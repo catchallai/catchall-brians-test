@@ -1,29 +1,40 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
-import { Button } from "@/components/ui/button";
-import { TrendingUp, TrendingDown, Minus, AlertTriangle, CheckCircle } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
+import { Button } from '@/components/ui/button';
+import { TrendingUp, TrendingDown, Minus, AlertTriangle, CheckCircle } from 'lucide-react';
 
 const healthColors = {
-  healthy: { bg: 'bg-emerald-100 dark:bg-emerald-900/30', text: 'text-emerald-700 dark:text-emerald-300', bar: 'bg-emerald-500' },
-  at_risk: { bg: 'bg-amber-100 dark:bg-amber-900/30', text: 'text-amber-700 dark:text-amber-300', bar: 'bg-amber-500' },
-  critical: { bg: 'bg-red-100 dark:bg-red-900/30', text: 'text-red-700 dark:text-red-300', bar: 'bg-red-500' }
+  healthy: {
+    bg: 'bg-emerald-100 dark:bg-emerald-900/30',
+    text: 'text-emerald-700 dark:text-emerald-300',
+    bar: 'bg-emerald-500',
+  },
+  at_risk: {
+    bg: 'bg-amber-100 dark:bg-amber-900/30',
+    text: 'text-amber-700 dark:text-amber-300',
+    bar: 'bg-amber-500',
+  },
+  critical: {
+    bg: 'bg-red-100 dark:bg-red-900/30',
+    text: 'text-red-700 dark:text-red-300',
+    bar: 'bg-red-500',
+  },
 };
 
 const trendIcons = {
   improving: { icon: TrendingUp, color: 'text-emerald-500' },
   stable: { icon: Minus, color: 'text-gray-500' },
-  declining: { icon: TrendingDown, color: 'text-red-500' }
+  declining: { icon: TrendingDown, color: 'text-red-500' },
 };
 
 export default function HealthDashboard({ healthScores, contacts, avgHealth }) {
   const [selectedHealth, setSelectedHealth] = useState(null);
   const [filter, setFilter] = useState('all');
 
-  const filteredScores = filter === 'all' 
-    ? healthScores 
-    : healthScores.filter(h => h.health_status === filter);
+  const filteredScores =
+    filter === 'all' ? healthScores : healthScores.filter((h) => h.health_status === filter);
 
   return (
     <div className="space-y-4">
@@ -42,7 +53,7 @@ export default function HealthDashboard({ healthScores, contacts, avgHealth }) {
           onClick={() => setFilter('critical')}
           className={filter === 'critical' ? 'bg-red-600 hover:bg-red-700' : ''}
         >
-          Critical ({healthScores.filter(h => h.health_status === 'critical').length})
+          Critical ({healthScores.filter((h) => h.health_status === 'critical').length})
         </Button>
         <Button
           variant={filter === 'at_risk' ? 'default' : 'outline'}
@@ -50,7 +61,7 @@ export default function HealthDashboard({ healthScores, contacts, avgHealth }) {
           onClick={() => setFilter('at_risk')}
           className={filter === 'at_risk' ? 'bg-amber-600 hover:bg-amber-700' : ''}
         >
-          At Risk ({healthScores.filter(h => h.health_status === 'at_risk').length})
+          At Risk ({healthScores.filter((h) => h.health_status === 'at_risk').length})
         </Button>
         <Button
           variant={filter === 'healthy' ? 'default' : 'outline'}
@@ -58,14 +69,14 @@ export default function HealthDashboard({ healthScores, contacts, avgHealth }) {
           onClick={() => setFilter('healthy')}
           className={filter === 'healthy' ? 'bg-emerald-600 hover:bg-emerald-700' : ''}
         >
-          Healthy ({healthScores.filter(h => h.health_status === 'healthy').length})
+          Healthy ({healthScores.filter((h) => h.health_status === 'healthy').length})
         </Button>
       </div>
 
       {/* Health Scores Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {filteredScores.map(health => {
-          const contact = contacts.find(c => c.id === health.contact_id);
+        {filteredScores.map((health) => {
+          const contact = contacts.find((c) => c.id === health.contact_id);
           const colors = healthColors[health.health_status] || healthColors.healthy;
           const TrendIcon = trendIcons[health.trend]?.icon || Minus;
           const trendColor = trendIcons[health.trend]?.color || 'text-gray-500';
@@ -93,19 +104,27 @@ export default function HealthDashboard({ healthScores, contacts, avgHealth }) {
 
                 <div className="grid grid-cols-4 gap-2 text-xs mb-3">
                   <div className="text-center p-2 bg-blue-50 dark:bg-blue-900/20 rounded">
-                    <p className="font-semibold text-blue-700 dark:text-blue-300">{health.usage_score}</p>
+                    <p className="font-semibold text-blue-700 dark:text-blue-300">
+                      {health.usage_score}
+                    </p>
                     <p className="text-gray-600 dark:text-gray-400">Usage</p>
                   </div>
                   <div className="text-center p-2 bg-emerald-50 dark:bg-emerald-900/20 rounded">
-                    <p className="font-semibold text-emerald-700 dark:text-emerald-300">{health.engagement_score}</p>
+                    <p className="font-semibold text-emerald-700 dark:text-emerald-300">
+                      {health.engagement_score}
+                    </p>
                     <p className="text-gray-600 dark:text-gray-400">Engage</p>
                   </div>
                   <div className="text-center p-2 bg-violet-50 dark:bg-violet-900/20 rounded">
-                    <p className="font-semibold text-violet-700 dark:text-violet-300">{health.satisfaction_score}</p>
+                    <p className="font-semibold text-violet-700 dark:text-violet-300">
+                      {health.satisfaction_score}
+                    </p>
                     <p className="text-gray-600 dark:text-gray-400">CSAT</p>
                   </div>
                   <div className="text-center p-2 bg-amber-50 dark:bg-amber-900/20 rounded">
-                    <p className="font-semibold text-amber-700 dark:text-amber-300">{health.support_score}</p>
+                    <p className="font-semibold text-amber-700 dark:text-amber-300">
+                      {health.support_score}
+                    </p>
                     <p className="text-gray-600 dark:text-gray-400">Support</p>
                   </div>
                 </div>

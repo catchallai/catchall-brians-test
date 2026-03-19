@@ -20,21 +20,24 @@ Deno.serve(async (req) => {
     const templateIds = brief.approved_template_ids || [];
 
     if (copyIds.length === 0 || templateIds.length === 0) {
-      return Response.json({ error: 'Campaign brief has no approved copy or templates linked' }, { status: 400 });
+      return Response.json(
+        { error: 'Campaign brief has no approved copy or templates linked' },
+        { status: 400 }
+      );
     }
 
     // Fetch approved copy and templates
-    const copyItems = await Promise.all(copyIds.map(id => 
-      base44.entities.ApprovedCopy.filter({ id })
-    )).then(results => results.flatMap(r => r));
+    const copyItems = await Promise.all(
+      copyIds.map((id) => base44.entities.ApprovedCopy.filter({ id }))
+    ).then((results) => results.flatMap((r) => r));
 
-    const templates = await Promise.all(templateIds.map(id => 
-      base44.entities.ApprovedGraphicTemplate.filter({ id })
-    )).then(results => results.flatMap(r => r));
+    const templates = await Promise.all(
+      templateIds.map((id) => base44.entities.ApprovedGraphicTemplate.filter({ id }))
+    ).then((results) => results.flatMap((r) => r));
 
     // Get optimal times for scheduling
     const optimalTimes = await base44.entities.OptimalPostingTime.list();
-    const platformTimes = optimalTimes.filter(ot => platforms.includes(ot.platform));
+    const platformTimes = optimalTimes.filter((ot) => platforms.includes(ot.platform));
 
     // Generate draft posts
     const createdPosts = [];
@@ -52,9 +55,9 @@ Deno.serve(async (req) => {
         if (createdPosts.length >= postCount) break;
 
         // Get optimal times for this platform
-        const platformOptimal = platformTimes.filter(pt => pt.platform === platform);
+        const platformOptimal = platformTimes.filter((pt) => pt.platform === platform);
         let selectedTime = platformOptimal[0];
-        
+
         if (!selectedTime) {
           selectedTime = { platform, hour: 10, day_of_week: currentDate.getDay() };
         }
@@ -85,13 +88,15 @@ Deno.serve(async (req) => {
           campaign_brief_id: campaignBriefId,
           approved_copy_id: copy.id,
           approved_template_id: template.id,
-          workflow_history: [{
-            action: 'auto_created_from_brief',
-            by_email: user.email,
-            by_name: user.full_name,
-            timestamp: new Date().toISOString(),
-            note: `Auto-generated from campaign brief: ${brief.title}`
-          }]
+          workflow_history: [
+            {
+              action: 'auto_created_from_brief',
+              by_email: user.email,
+              by_name: user.full_name,
+              timestamp: new Date().toISOString(),
+              note: `Auto-generated from campaign brief: ${brief.title}`,
+            },
+          ],
         });
 
         createdPosts.push(newPost);
@@ -105,13 +110,13 @@ Deno.serve(async (req) => {
     return Response.json({
       success: true,
       postsCreated: createdPosts.length,
-      posts: createdPosts.map(p => ({
+      posts: createdPosts.map((p) => ({
         id: p.id,
         title: p.title,
         platform: p.platforms[0],
         scheduledDate: p.scheduled_date,
-        status: p.status
-      }))
+        status: p.status,
+      })),
     });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });

@@ -1,12 +1,24 @@
 import React, { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, X } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Plus, X } from 'lucide-react';
 
 export default function QuoteModal({ open, onClose, onSave, quote, isLoading }) {
   const [formData, setFormData] = useState({
@@ -26,7 +38,7 @@ export default function QuoteModal({ open, onClose, onSave, quote, isLoading }) 
     valid_until: '',
     notes: '',
     terms: '',
-    payment_terms: 'Net 30'
+    payment_terms: 'Net 30',
   });
 
   useEffect(() => {
@@ -51,45 +63,45 @@ export default function QuoteModal({ open, onClose, onSave, quote, isLoading }) 
         valid_until: '',
         notes: '',
         terms: '',
-        payment_terms: 'Net 30'
+        payment_terms: 'Net 30',
       });
     }
   }, [quote, open]);
 
   const handleChange = (field, value) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   const addLineItem = () => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      line_items: [...prev.line_items, { product_name: '', quantity: 1, unit_price: 0, total: 0 }]
+      line_items: [...prev.line_items, { product_name: '', quantity: 1, unit_price: 0, total: 0 }],
     }));
   };
 
   const removeLineItem = (index) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      line_items: prev.line_items.filter((_, i) => i !== index)
+      line_items: prev.line_items.filter((_, i) => i !== index),
     }));
   };
 
   const updateLineItem = (index, field, value) => {
     const newItems = [...formData.line_items];
     newItems[index][field] = value;
-    
+
     if (field === 'quantity' || field === 'unit_price') {
       newItems[index].total = newItems[index].quantity * newItems[index].unit_price;
     }
-    
+
     const subtotal = newItems.reduce((sum, item) => sum + (item.total || 0), 0);
     const total = subtotal + formData.tax_amount - formData.discount_amount;
-    
-    setFormData(prev => ({
+
+    setFormData((prev) => ({
       ...prev,
       line_items: newItems,
       subtotal,
-      total_amount: total
+      total_amount: total,
     }));
   };
 
@@ -97,7 +109,7 @@ export default function QuoteModal({ open, onClose, onSave, quote, isLoading }) 
     const subtotal = formData.line_items.reduce((sum, item) => sum + (item.total || 0), 0);
     const total = subtotal + (formData.tax_amount || 0) - (formData.discount_amount || 0);
     if (subtotal !== formData.subtotal || total !== formData.total_amount) {
-      setFormData(prev => ({ ...prev, subtotal, total_amount: total }));
+      setFormData((prev) => ({ ...prev, subtotal, total_amount: total }));
     }
   }, [formData.tax_amount, formData.discount_amount]);
 
@@ -145,7 +157,10 @@ export default function QuoteModal({ open, onClose, onSave, quote, isLoading }) 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="status">Status</Label>
-                  <Select value={formData.status} onValueChange={(value) => handleChange('status', value)}>
+                  <Select
+                    value={formData.status}
+                    onValueChange={(value) => handleChange('status', value)}
+                  >
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -162,7 +177,10 @@ export default function QuoteModal({ open, onClose, onSave, quote, isLoading }) 
 
                 <div className="space-y-2">
                   <Label htmlFor="signing_status">Signing Status</Label>
-                  <Select value={formData.signing_status} onValueChange={(value) => handleChange('signing_status', value)}>
+                  <Select
+                    value={formData.signing_status}
+                    onValueChange={(value) => handleChange('signing_status', value)}
+                  >
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -200,7 +218,10 @@ export default function QuoteModal({ open, onClose, onSave, quote, isLoading }) 
             <TabsContent value="items" className="space-y-4 mt-4">
               <div className="space-y-3">
                 {formData.line_items.map((item, index) => (
-                  <div key={index} className="grid grid-cols-12 gap-2 items-end p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                  <div
+                    key={index}
+                    className="grid grid-cols-12 gap-2 items-end p-3 bg-gray-50 dark:bg-gray-800 rounded-lg"
+                  >
                     <div className="col-span-5">
                       <Label className="text-xs">Product/Service</Label>
                       <Input
@@ -214,7 +235,9 @@ export default function QuoteModal({ open, onClose, onSave, quote, isLoading }) 
                       <Input
                         type="number"
                         value={item.quantity}
-                        onChange={(e) => updateLineItem(index, 'quantity', parseFloat(e.target.value) || 0)}
+                        onChange={(e) =>
+                          updateLineItem(index, 'quantity', parseFloat(e.target.value) || 0)
+                        }
                       />
                     </div>
                     <div className="col-span-2">
@@ -222,7 +245,9 @@ export default function QuoteModal({ open, onClose, onSave, quote, isLoading }) 
                       <Input
                         type="number"
                         value={item.unit_price}
-                        onChange={(e) => updateLineItem(index, 'unit_price', parseFloat(e.target.value) || 0)}
+                        onChange={(e) =>
+                          updateLineItem(index, 'unit_price', parseFloat(e.target.value) || 0)
+                        }
                         step="0.01"
                       />
                     </div>
@@ -242,7 +267,12 @@ export default function QuoteModal({ open, onClose, onSave, quote, isLoading }) 
                     </div>
                   </div>
                 ))}
-                <Button type="button" variant="outline" onClick={addLineItem} className="w-full gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={addLineItem}
+                  className="w-full gap-2"
+                >
                   <Plus className="w-4 h-4" />
                   Add Line Item
                 </Button>
@@ -266,14 +296,18 @@ export default function QuoteModal({ open, onClose, onSave, quote, isLoading }) 
                       id="discount_amount"
                       type="number"
                       value={formData.discount_amount}
-                      onChange={(e) => handleChange('discount_amount', parseFloat(e.target.value) || 0)}
+                      onChange={(e) =>
+                        handleChange('discount_amount', parseFloat(e.target.value) || 0)
+                      }
                       step="0.01"
                     />
                   </div>
                 </div>
                 <div className="bg-violet-50 dark:bg-violet-900/20 p-4 rounded-lg">
                   <div className="flex justify-between items-center">
-                    <span className="font-semibold text-gray-700 dark:text-gray-300">Total Amount</span>
+                    <span className="font-semibold text-gray-700 dark:text-gray-300">
+                      Total Amount
+                    </span>
                     <span className="text-2xl font-bold text-violet-700 dark:text-violet-300">
                       ${formData.total_amount?.toFixed(2) || '0.00'}
                     </span>
@@ -285,7 +319,10 @@ export default function QuoteModal({ open, onClose, onSave, quote, isLoading }) 
             <TabsContent value="terms" className="space-y-4 mt-4">
               <div className="space-y-2">
                 <Label htmlFor="payment_terms">Payment Terms</Label>
-                <Select value={formData.payment_terms} onValueChange={(value) => handleChange('payment_terms', value)}>
+                <Select
+                  value={formData.payment_terms}
+                  onValueChange={(value) => handleChange('payment_terms', value)}
+                >
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>

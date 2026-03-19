@@ -1,8 +1,21 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { RefreshCw, ArrowRight, ArrowLeft, ArrowLeftRight, CheckCircle, XCircle } from 'lucide-react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
+  RefreshCw,
+  ArrowRight,
+  ArrowLeft,
+  ArrowLeftRight,
+  CheckCircle,
+  XCircle,
+} from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { useToast } from '@/components/ui/toast-provider';
 
@@ -20,7 +33,7 @@ export default function HubSpotSync() {
     try {
       const response = await base44.functions.invoke('syncHubspot', {
         syncType,
-        direction
+        direction,
       });
 
       if (response.data.success) {
@@ -40,7 +53,11 @@ export default function HubSpotSync() {
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <img src="https://www.hubspot.com/hubfs/HubSpot_Logos/HubSpot-Inversed-Favicon.png" className="w-6 h-6" alt="HubSpot" />
+          <img
+            src="https://www.hubspot.com/hubfs/HubSpot_Logos/HubSpot-Inversed-Favicon.png"
+            className="w-6 h-6"
+            alt="HubSpot"
+          />
           HubSpot Sync
         </CardTitle>
         <CardDescription>
@@ -96,11 +113,7 @@ export default function HubSpotSync() {
             </Select>
           </div>
 
-          <Button 
-            onClick={handleSync} 
-            disabled={syncing}
-            className="w-full"
-          >
+          <Button onClick={handleSync} disabled={syncing} className="w-full">
             {syncing ? (
               <>
                 <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
@@ -118,14 +131,16 @@ export default function HubSpotSync() {
         {results && (
           <div className="space-y-3 pt-4 border-t">
             <h3 className="font-semibold text-gray-900 dark:text-white">Sync Results</h3>
-            
+
             <div className="grid grid-cols-2 gap-3">
               <div className="bg-green-50 dark:bg-green-900/20 p-3 rounded-lg border border-green-200 dark:border-green-800">
                 <div className="flex items-center gap-2 text-green-700 dark:text-green-300 mb-1">
                   <CheckCircle className="w-4 h-4" />
                   <span className="text-sm font-medium">Contacts Created</span>
                 </div>
-                <p className="text-2xl font-bold text-green-900 dark:text-green-100">{results.contactsCreated}</p>
+                <p className="text-2xl font-bold text-green-900 dark:text-green-100">
+                  {results.contactsCreated}
+                </p>
               </div>
 
               <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg border border-blue-200 dark:border-blue-800">
@@ -133,7 +148,9 @@ export default function HubSpotSync() {
                   <CheckCircle className="w-4 h-4" />
                   <span className="text-sm font-medium">Contacts Updated</span>
                 </div>
-                <p className="text-2xl font-bold text-blue-900 dark:text-blue-100">{results.contactsUpdated}</p>
+                <p className="text-2xl font-bold text-blue-900 dark:text-blue-100">
+                  {results.contactsUpdated}
+                </p>
               </div>
 
               <div className="bg-green-50 dark:bg-green-900/20 p-3 rounded-lg border border-green-200 dark:border-green-800">
@@ -141,7 +158,9 @@ export default function HubSpotSync() {
                   <CheckCircle className="w-4 h-4" />
                   <span className="text-sm font-medium">Companies Created</span>
                 </div>
-                <p className="text-2xl font-bold text-green-900 dark:text-green-100">{results.companiesCreated}</p>
+                <p className="text-2xl font-bold text-green-900 dark:text-green-100">
+                  {results.companiesCreated}
+                </p>
               </div>
 
               <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg border border-blue-200 dark:border-blue-800">
@@ -149,7 +168,9 @@ export default function HubSpotSync() {
                   <CheckCircle className="w-4 h-4" />
                   <span className="text-sm font-medium">Companies Updated</span>
                 </div>
-                <p className="text-2xl font-bold text-blue-900 dark:text-blue-100">{results.companiesUpdated}</p>
+                <p className="text-2xl font-bold text-blue-900 dark:text-blue-100">
+                  {results.companiesUpdated}
+                </p>
               </div>
             </div>
 
@@ -161,7 +182,9 @@ export default function HubSpotSync() {
                 </div>
                 <div className="max-h-32 overflow-y-auto space-y-1">
                   {results.errors.map((error, idx) => (
-                    <p key={idx} className="text-xs text-red-600 dark:text-red-400">{error}</p>
+                    <p key={idx} className="text-xs text-red-600 dark:text-red-400">
+                      {error}
+                    </p>
                   ))}
                 </div>
               </div>
@@ -170,8 +193,13 @@ export default function HubSpotSync() {
         )}
 
         <div className="pt-4 border-t text-xs text-gray-500 dark:text-gray-400 space-y-2">
-          <p><strong>Note:</strong> Matching is done by email for contacts and domain for companies.</p>
-          <p>Bidirectional sync will update existing records with the most recent data from either system.</p>
+          <p>
+            <strong>Note:</strong> Matching is done by email for contacts and domain for companies.
+          </p>
+          <p>
+            Bidirectional sync will update existing records with the most recent data from either
+            system.
+          </p>
         </div>
       </CardContent>
     </Card>

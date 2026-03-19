@@ -1,16 +1,36 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Package, Plus, Search, TrendingDown, AlertCircle, Calendar, DollarSign, Edit, Trash2, QrCode, Upload, Download, Shield } from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Package,
+  Plus,
+  Search,
+  TrendingDown,
+  AlertCircle,
+  Calendar,
+  DollarSign,
+  Edit,
+  Trash2,
+  QrCode,
+  Upload,
+  Download,
+  Shield,
+} from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import QRCodeGenerator from '@/components/equipment/QRCodeGenerator';
 import MaintenanceHistory from '@/components/equipment/MaintenanceHistory';
 import CheckoutSystem from '@/components/equipment/CheckoutSystem';
@@ -41,7 +61,7 @@ export default function EquipmentInventory() {
     insurance_policy: '',
     insurance_expiry: '',
     insurance_provider: '',
-    photo_urls: []
+    photo_urls: [],
   });
 
   const queryClient = useQueryClient();
@@ -91,7 +111,7 @@ export default function EquipmentInventory() {
       warranty_expiry: '',
       maintenance_schedule: 'As Needed',
       status: 'Active',
-      notes: ''
+      notes: '',
     });
     setEditingEquipment(null);
   };
@@ -116,28 +136,43 @@ export default function EquipmentInventory() {
 
     setUploadingPhotos(true);
     const urls = [];
-    
+
     for (const file of files) {
       const { file_url } = await base44.integrations.Core.UploadFile({ file });
       urls.push(file_url);
     }
-    
-    setFormData(prev => ({
+
+    setFormData((prev) => ({
       ...prev,
-      photo_urls: [...(prev.photo_urls || []), ...urls]
+      photo_urls: [...(prev.photo_urls || []), ...urls],
     }));
     setUploadingPhotos(false);
     toast.success(`${files.length} photo(s) uploaded`);
   };
 
   const handleExportCSV = () => {
-    const headers = ['Name', 'Category', 'Serial', 'Status', 'Condition', 'Value', 'Location', 'Assigned To'];
-    const rows = equipment.map(e => [
-      e.name, e.category, e.serial_number || '', e.status, e.condition,
-      e.current_value || '', e.location || '', e.assigned_to || ''
+    const headers = [
+      'Name',
+      'Category',
+      'Serial',
+      'Status',
+      'Condition',
+      'Value',
+      'Location',
+      'Assigned To',
+    ];
+    const rows = equipment.map((e) => [
+      e.name,
+      e.category,
+      e.serial_number || '',
+      e.status,
+      e.condition,
+      e.current_value || '',
+      e.location || '',
+      e.assigned_to || '',
     ]);
-    
-    const csv = [headers, ...rows].map(row => row.join(',')).join('\n');
+
+    const csv = [headers, ...rows].map((row) => row.join(',')).join('\n');
     const blob = new Blob([csv], { type: 'text/csv' });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -148,37 +183,51 @@ export default function EquipmentInventory() {
     toast.success('CSV exported');
   };
 
-  const filteredEquipment = equipment.filter(item =>
-    item.name?.toLowerCase().includes(search.toLowerCase()) ||
-    item.serial_number?.toLowerCase().includes(search.toLowerCase()) ||
-    item.assigned_to?.toLowerCase().includes(search.toLowerCase())
+  const filteredEquipment = equipment.filter(
+    (item) =>
+      item.name?.toLowerCase().includes(search.toLowerCase()) ||
+      item.serial_number?.toLowerCase().includes(search.toLowerCase()) ||
+      item.assigned_to?.toLowerCase().includes(search.toLowerCase())
   );
 
   const totalValue = equipment.reduce((sum, item) => sum + (item.current_value || 0), 0);
-  const needsMaintenance = equipment.filter(item => {
+  const needsMaintenance = equipment.filter((item) => {
     if (!item.next_maintenance) return false;
-    const daysUntil = Math.floor((new Date(item.next_maintenance) - new Date()) / (1000 * 60 * 60 * 24));
+    const daysUntil = Math.floor(
+      (new Date(item.next_maintenance) - new Date()) / (1000 * 60 * 60 * 24)
+    );
     return daysUntil <= 30;
   }).length;
 
   const getConditionColor = (condition) => {
-    switch(condition) {
-      case 'Excellent': return 'bg-emerald-100 text-emerald-700 border-emerald-300';
-      case 'Good': return 'bg-blue-100 text-blue-700 border-blue-300';
-      case 'Fair': return 'bg-amber-100 text-amber-700 border-amber-300';
-      case 'Poor': return 'bg-orange-100 text-orange-700 border-orange-300';
-      case 'Needs Repair': return 'bg-red-100 text-red-700 border-red-300';
-      default: return 'bg-gray-100 text-gray-700 border-gray-300';
+    switch (condition) {
+      case 'Excellent':
+        return 'bg-emerald-100 text-emerald-700 border-emerald-300';
+      case 'Good':
+        return 'bg-blue-100 text-blue-700 border-blue-300';
+      case 'Fair':
+        return 'bg-amber-100 text-amber-700 border-amber-300';
+      case 'Poor':
+        return 'bg-orange-100 text-orange-700 border-orange-300';
+      case 'Needs Repair':
+        return 'bg-red-100 text-red-700 border-red-300';
+      default:
+        return 'bg-gray-100 text-gray-700 border-gray-300';
     }
   };
 
   const getStatusColor = (status) => {
-    switch(status) {
-      case 'Active': return 'bg-emerald-100 text-emerald-700 border-emerald-300';
-      case 'In Repair': return 'bg-amber-100 text-amber-700 border-amber-300';
-      case 'Retired': return 'bg-gray-100 text-gray-700 border-gray-300';
-      case 'Disposed': return 'bg-red-100 text-red-700 border-red-300';
-      default: return 'bg-gray-100 text-gray-700 border-gray-300';
+    switch (status) {
+      case 'Active':
+        return 'bg-emerald-100 text-emerald-700 border-emerald-300';
+      case 'In Repair':
+        return 'bg-amber-100 text-amber-700 border-amber-300';
+      case 'Retired':
+        return 'bg-gray-100 text-gray-700 border-gray-300';
+      case 'Disposed':
+        return 'bg-red-100 text-red-700 border-red-300';
+      default:
+        return 'bg-gray-100 text-gray-700 border-gray-300';
     }
   };
 
@@ -190,14 +239,22 @@ export default function EquipmentInventory() {
             <Package className="w-8 h-8 text-indigo-600" />
             Equipment Inventory
           </h1>
-          <p className="text-gray-500 dark:text-gray-400 mt-1">Manage your company assets and equipment</p>
+          <p className="text-gray-500 dark:text-gray-400 mt-1">
+            Manage your company assets and equipment
+          </p>
         </div>
         <div className="flex gap-2">
           <Button onClick={handleExportCSV} variant="outline" className="gap-2">
             <Download className="w-4 h-4" />
             Export CSV
           </Button>
-          <Button onClick={() => { resetForm(); setModalOpen(true); }} className="bg-indigo-600 hover:bg-indigo-700">
+          <Button
+            onClick={() => {
+              resetForm();
+              setModalOpen(true);
+            }}
+            className="bg-indigo-600 hover:bg-indigo-700"
+          >
             <Plus className="w-5 h-5 mr-2" />
             Add Equipment
           </Button>
@@ -210,7 +267,9 @@ export default function EquipmentInventory() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-500">Total Items</p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-white">{equipment.length}</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                  {equipment.length}
+                </p>
               </div>
               <Package className="w-8 h-8 text-indigo-600" />
             </div>
@@ -221,7 +280,9 @@ export default function EquipmentInventory() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-500">Total Value</p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-white">${totalValue.toLocaleString()}</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                  ${totalValue.toLocaleString()}
+                </p>
               </div>
               <DollarSign className="w-8 h-8 text-emerald-600" />
             </div>
@@ -232,7 +293,9 @@ export default function EquipmentInventory() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-500">Needs Maintenance</p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-white">{needsMaintenance}</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                  {needsMaintenance}
+                </p>
               </div>
               <AlertCircle className="w-8 h-8 text-amber-600" />
             </div>
@@ -244,7 +307,13 @@ export default function EquipmentInventory() {
               <div>
                 <p className="text-sm text-gray-500">Depreciation</p>
                 <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                  ${equipment.reduce((sum, item) => sum + ((item.purchase_price || 0) - (item.current_value || 0)), 0).toLocaleString()}
+                  $
+                  {equipment
+                    .reduce(
+                      (sum, item) => sum + ((item.purchase_price || 0) - (item.current_value || 0)),
+                      0
+                    )
+                    .toLocaleString()}
                 </p>
               </div>
               <TrendingDown className="w-8 h-8 text-red-600" />
@@ -273,53 +342,90 @@ export default function EquipmentInventory() {
         <CardContent>
           <div className="space-y-3">
             {filteredEquipment.map((item) => (
-              <div key={item.id} className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:border-indigo-300 transition-colors">
+              <div
+                key={item.id}
+                className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:border-indigo-300 transition-colors"
+              >
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">
-                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{item.name}</h3>
-                      <Badge variant="outline" className="text-xs">{item.category}</Badge>
-                      <Badge className={`text-xs border ${getStatusColor(item.status)}`}>{item.status}</Badge>
-                      <Badge className={`text-xs border ${getConditionColor(item.condition)}`}>{item.condition}</Badge>
+                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                        {item.name}
+                      </h3>
+                      <Badge variant="outline" className="text-xs">
+                        {item.category}
+                      </Badge>
+                      <Badge className={`text-xs border ${getStatusColor(item.status)}`}>
+                        {item.status}
+                      </Badge>
+                      <Badge className={`text-xs border ${getConditionColor(item.condition)}`}>
+                        {item.condition}
+                      </Badge>
                     </div>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
                       {item.serial_number && (
                         <div>
                           <p className="text-gray-500">Serial #</p>
-                          <p className="font-medium text-gray-900 dark:text-white">{item.serial_number}</p>
+                          <p className="font-medium text-gray-900 dark:text-white">
+                            {item.serial_number}
+                          </p>
                         </div>
                       )}
                       {item.assigned_to && (
                         <div>
                           <p className="text-gray-500">Assigned To</p>
-                          <p className="font-medium text-gray-900 dark:text-white">{item.assigned_to}</p>
+                          <p className="font-medium text-gray-900 dark:text-white">
+                            {item.assigned_to}
+                          </p>
                         </div>
                       )}
                       {item.location && (
                         <div>
                           <p className="text-gray-500">Location</p>
-                          <p className="font-medium text-gray-900 dark:text-white">{item.location}</p>
+                          <p className="font-medium text-gray-900 dark:text-white">
+                            {item.location}
+                          </p>
                         </div>
                       )}
                       {item.current_value && (
                         <div>
                           <p className="text-gray-500">Value</p>
-                          <p className="font-medium text-gray-900 dark:text-white">${item.current_value.toLocaleString()}</p>
+                          <p className="font-medium text-gray-900 dark:text-white">
+                            ${item.current_value.toLocaleString()}
+                          </p>
                         </div>
                       )}
                     </div>
                   </div>
                   <div className="flex gap-2">
-                    <Button variant="outline" size="sm" onClick={(e) => { e.stopPropagation(); setSelectedEquipment(item); }}>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedEquipment(item);
+                      }}
+                    >
                       View Details
                     </Button>
-                    <Button variant="outline" size="sm" onClick={() => { setQREquipment(item); setShowQRModal(true); }}>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setQREquipment(item);
+                        setShowQRModal(true);
+                      }}
+                    >
                       <QrCode className="w-4 h-4" />
                     </Button>
                     <Button variant="outline" size="sm" onClick={() => handleEdit(item)}>
                       <Edit className="w-4 h-4" />
                     </Button>
-                    <Button variant="outline" size="sm" onClick={() => deleteMutation.mutate(item.id)}>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => deleteMutation.mutate(item.id)}
+                    >
                       <Trash2 className="w-4 h-4 text-red-600" />
                     </Button>
                   </div>
@@ -339,11 +445,17 @@ export default function EquipmentInventory() {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label>Equipment Name*</Label>
-                <Input value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})} />
+                <Input
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                />
               </div>
               <div>
                 <Label>Category*</Label>
-                <Select value={formData.category} onValueChange={(value) => setFormData({...formData, category: value})}>
+                <Select
+                  value={formData.category}
+                  onValueChange={(value) => setFormData({ ...formData, category: value })}
+                >
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
@@ -361,11 +473,17 @@ export default function EquipmentInventory() {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label>Serial Number</Label>
-                <Input value={formData.serial_number} onChange={(e) => setFormData({...formData, serial_number: e.target.value})} />
+                <Input
+                  value={formData.serial_number}
+                  onChange={(e) => setFormData({ ...formData, serial_number: e.target.value })}
+                />
               </div>
               <div>
                 <Label>Status</Label>
-                <Select value={formData.status} onValueChange={(value) => setFormData({...formData, status: value})}>
+                <Select
+                  value={formData.status}
+                  onValueChange={(value) => setFormData({ ...formData, status: value })}
+                >
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
@@ -381,21 +499,36 @@ export default function EquipmentInventory() {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label>Purchase Date</Label>
-                <Input type="date" value={formData.purchase_date} onChange={(e) => setFormData({...formData, purchase_date: e.target.value})} />
+                <Input
+                  type="date"
+                  value={formData.purchase_date}
+                  onChange={(e) => setFormData({ ...formData, purchase_date: e.target.value })}
+                />
               </div>
               <div>
                 <Label>Purchase Price</Label>
-                <Input type="number" value={formData.purchase_price} onChange={(e) => setFormData({...formData, purchase_price: e.target.value})} />
+                <Input
+                  type="number"
+                  value={formData.purchase_price}
+                  onChange={(e) => setFormData({ ...formData, purchase_price: e.target.value })}
+                />
               </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label>Current Value</Label>
-                <Input type="number" value={formData.current_value} onChange={(e) => setFormData({...formData, current_value: e.target.value})} />
+                <Input
+                  type="number"
+                  value={formData.current_value}
+                  onChange={(e) => setFormData({ ...formData, current_value: e.target.value })}
+                />
               </div>
               <div>
                 <Label>Condition</Label>
-                <Select value={formData.condition} onValueChange={(value) => setFormData({...formData, condition: value})}>
+                <Select
+                  value={formData.condition}
+                  onValueChange={(value) => setFormData({ ...formData, condition: value })}
+                >
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
@@ -412,16 +545,26 @@ export default function EquipmentInventory() {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label>Location</Label>
-                <Input value={formData.location} onChange={(e) => setFormData({...formData, location: e.target.value})} />
+                <Input
+                  value={formData.location}
+                  onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                />
               </div>
               <div>
                 <Label>Assigned To</Label>
-                <Input value={formData.assigned_to} onChange={(e) => setFormData({...formData, assigned_to: e.target.value})} />
+                <Input
+                  value={formData.assigned_to}
+                  onChange={(e) => setFormData({ ...formData, assigned_to: e.target.value })}
+                />
               </div>
             </div>
             <div>
               <Label>Notes</Label>
-              <Textarea value={formData.notes} onChange={(e) => setFormData({...formData, notes: e.target.value})} rows={3} />
+              <Textarea
+                value={formData.notes}
+                onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                rows={3}
+              />
             </div>
 
             {/* Insurance Section */}
@@ -433,16 +576,28 @@ export default function EquipmentInventory() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label>Policy Number</Label>
-                  <Input value={formData.insurance_policy} onChange={(e) => setFormData({...formData, insurance_policy: e.target.value})} />
+                  <Input
+                    value={formData.insurance_policy}
+                    onChange={(e) => setFormData({ ...formData, insurance_policy: e.target.value })}
+                  />
                 </div>
                 <div>
                   <Label>Provider</Label>
-                  <Input value={formData.insurance_provider} onChange={(e) => setFormData({...formData, insurance_provider: e.target.value})} />
+                  <Input
+                    value={formData.insurance_provider}
+                    onChange={(e) =>
+                      setFormData({ ...formData, insurance_provider: e.target.value })
+                    }
+                  />
                 </div>
               </div>
               <div className="mt-3">
                 <Label>Insurance Expiry</Label>
-                <Input type="date" value={formData.insurance_expiry} onChange={(e) => setFormData({...formData, insurance_expiry: e.target.value})} />
+                <Input
+                  type="date"
+                  value={formData.insurance_expiry}
+                  onChange={(e) => setFormData({ ...formData, insurance_expiry: e.target.value })}
+                />
               </div>
             </div>
 
@@ -473,10 +628,12 @@ export default function EquipmentInventory() {
                       <div key={idx} className="relative">
                         <img src={url} alt="" className="w-20 h-20 object-cover rounded-lg" />
                         <button
-                          onClick={() => setFormData(prev => ({
-                            ...prev,
-                            photo_urls: prev.photo_urls.filter((_, i) => i !== idx)
-                          }))}
+                          onClick={() =>
+                            setFormData((prev) => ({
+                              ...prev,
+                              photo_urls: prev.photo_urls.filter((_, i) => i !== idx),
+                            }))
+                          }
                           className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1"
                         >
                           <X className="w-3 h-3" />
@@ -489,7 +646,9 @@ export default function EquipmentInventory() {
             </div>
 
             <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => setModalOpen(false)}>Cancel</Button>
+              <Button variant="outline" onClick={() => setModalOpen(false)}>
+                Cancel
+              </Button>
               <Button onClick={handleSubmit} className="bg-indigo-600 hover:bg-indigo-700">
                 {editingEquipment ? 'Update' : 'Create'}
               </Button>
@@ -516,11 +675,16 @@ export default function EquipmentInventory() {
                 {selectedEquipment.photo_urls?.length > 0 && (
                   <div className="grid grid-cols-3 gap-2">
                     {selectedEquipment.photo_urls.map((url, idx) => (
-                      <img key={idx} src={url} alt="" className="w-full h-32 object-cover rounded-lg" />
+                      <img
+                        key={idx}
+                        src={url}
+                        alt=""
+                        className="w-full h-32 object-cover rounded-lg"
+                      />
                     ))}
                   </div>
                 )}
-                
+
                 <div className="grid grid-cols-2 gap-4 text-sm">
                   <div>
                     <p className="text-gray-500">Category</p>
@@ -532,7 +696,9 @@ export default function EquipmentInventory() {
                   </div>
                   <div>
                     <p className="text-gray-500">Current Value</p>
-                    <p className="font-medium">${selectedEquipment.current_value?.toLocaleString() || 'N/A'}</p>
+                    <p className="font-medium">
+                      ${selectedEquipment.current_value?.toLocaleString() || 'N/A'}
+                    </p>
                   </div>
                   <div>
                     <p className="text-gray-500">Condition</p>
@@ -562,7 +728,9 @@ export default function EquipmentInventory() {
                         {selectedEquipment.insurance_expiry && (
                           <div>
                             <p className="text-gray-600">Expiry</p>
-                            <p className="font-medium">{new Date(selectedEquipment.insurance_expiry).toLocaleDateString()}</p>
+                            <p className="font-medium">
+                              {new Date(selectedEquipment.insurance_expiry).toLocaleDateString()}
+                            </p>
                           </div>
                         )}
                       </div>
@@ -587,7 +755,10 @@ export default function EquipmentInventory() {
       <QRCodeGenerator
         equipment={qrEquipment}
         open={showQRModal}
-        onClose={() => { setShowQRModal(false); setQREquipment(null); }}
+        onClose={() => {
+          setShowQRModal(false);
+          setQREquipment(null);
+        }}
       />
     </div>
   );

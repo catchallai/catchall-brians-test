@@ -1,26 +1,46 @@
 import React from 'react';
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import { base44 } from '@/api/base44Client';
-import { 
-  Calendar, Clock, Users, MoreHorizontal, Play, Download, 
-  Trash2, Copy, Share2, AlertCircle, CheckCircle, Loader2,
-  Search, Target, Link2, MapPin, FileText, PieChart, TrendingUp, Mail, Activity, History, MessageSquare
-} from "lucide-react";
+import {
+  Calendar,
+  Clock,
+  Users,
+  MoreHorizontal,
+  Play,
+  Download,
+  Trash2,
+  Copy,
+  Share2,
+  AlertCircle,
+  CheckCircle,
+  Loader2,
+  Search,
+  Target,
+  Link2,
+  MapPin,
+  FileText,
+  PieChart,
+  TrendingUp,
+  Mail,
+  Activity,
+  History,
+  MessageSquare,
+} from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from '@/components/ui/dropdown-menu';
 import moment from 'moment';
 
 const scheduleLabels = {
   manual: 'Manual',
   weekly: 'Weekly',
-  monthly: 'Monthly'
+  monthly: 'Monthly',
 };
 
 const templateIcons = {
@@ -34,7 +54,7 @@ const templateIcons = {
   campaign_roi: TrendingUp,
   social_media: Share2,
   email_marketing: Mail,
-  weekly_digest: Activity
+  weekly_digest: Activity,
 };
 
 const templateColors = {
@@ -48,15 +68,15 @@ const templateColors = {
   campaign_roi: 'bg-teal-100 text-teal-600',
   social_media: 'bg-pink-100 text-pink-600',
   email_marketing: 'bg-cyan-100 text-cyan-600',
-  weekly_digest: 'bg-purple-100 text-purple-600'
+  weekly_digest: 'bg-purple-100 text-purple-600',
 };
 
-export default function ReportList({ 
-  reports, 
-  selectedIds = [], 
-  onSelect, 
-  onRun, 
-  onDelete, 
+export default function ReportList({
+  reports,
+  selectedIds = [],
+  onSelect,
+  onRun,
+  onDelete,
   onDuplicate,
   onExport,
   onView,
@@ -64,7 +84,7 @@ export default function ReportList({
   onSchedule,
   onShare,
   onComment,
-  runningId 
+  runningId,
 }) {
   const [downloadingId, setDownloadingId] = React.useState(null);
   const [sendingId, setSendingId] = React.useState(null);
@@ -95,10 +115,10 @@ export default function ReportList({
     }
     setSendingId(report.id);
     try {
-      await base44.functions.invoke('exportReportPdf', { 
-        reportId: report.id, 
-        sendEmail: true, 
-        recipients: report.recipients 
+      await base44.functions.invoke('exportReportPdf', {
+        reportId: report.id,
+        sendEmail: true,
+        recipients: report.recipients,
       });
       alert('Report sent successfully!');
     } catch (error) {
@@ -111,26 +131,26 @@ export default function ReportList({
       {reports.map((report) => {
         const isSelected = selectedIds.includes(report.id);
         const isRunning = runningId === report.id;
-        
+
         return (
-          <Card 
-            key={report.id} 
+          <Card
+            key={report.id}
             className={`border-0 shadow-sm hover:shadow-md transition-all bg-white dark:bg-gray-800 ${isSelected ? 'ring-2 ring-violet-500' : ''}`}
           >
             <CardContent className="p-4">
               <div className="flex items-center gap-4">
                 {/* Checkbox */}
-                <Checkbox 
-                  checked={isSelected}
-                  onCheckedChange={() => onSelect(report.id)}
-                />
-                
+                <Checkbox checked={isSelected} onCheckedChange={() => onSelect(report.id)} />
+
                 {/* Icon */}
                 {(() => {
                   const Icon = templateIcons[report.template_id] || Search;
-                  const colorClass = templateColors[report.template_id] || 'bg-gray-100 text-gray-600';
+                  const colorClass =
+                    templateColors[report.template_id] || 'bg-gray-100 text-gray-600';
                   return (
-                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${colorClass}`}>
+                    <div
+                      className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${colorClass}`}
+                    >
                       <Icon className="w-5 h-5" />
                     </div>
                   );
@@ -139,7 +159,7 @@ export default function ReportList({
                 {/* Main Info */}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <h3 
+                    <h3
                       className="font-medium text-gray-900 dark:text-white hover:text-violet-600 dark:hover:text-violet-400 cursor-pointer"
                       onClick={() => onView && report.report_data && onView(report)}
                     >
@@ -154,19 +174,22 @@ export default function ReportList({
                   <div className="flex items-center gap-3 mt-1 text-sm text-gray-500 dark:text-gray-400">
                     <span className="flex items-center gap-1">
                       <Calendar className="w-3 h-3" />
-                      {report.last_run ? moment(report.last_run).format('MMM D, YYYY h:mm A') : 'Never run'}
+                      {report.last_run
+                        ? moment(report.last_run).format('MMM D, YYYY h:mm A')
+                        : 'Never run'}
                     </span>
                     <span className="flex items-center gap-1">
                       <Clock className="w-3 h-3" />
                       {scheduleLabels[report.schedule] || 'Manual'}
-                      {report.schedule !== 'manual' && report.next_run && 
-                        `, on ${moment(report.next_run).format('dddd')}`
-                      }
+                      {report.schedule !== 'manual' &&
+                        report.next_run &&
+                        `, on ${moment(report.next_run).format('dddd')}`}
                     </span>
                     {report.recipients?.length > 0 && (
                       <span className="flex items-center gap-1">
                         <Users className="w-3 h-3" />
-                        for {report.recipients.length} recipient{report.recipients.length > 1 ? 's' : ''}
+                        for {report.recipients.length} recipient
+                        {report.recipients.length > 1 ? 's' : ''}
                       </span>
                     )}
                   </div>
@@ -190,9 +213,9 @@ export default function ReportList({
 
                 {/* Actions */}
                 <div className="flex items-center gap-1">
-                  <Button 
-                    size="icon" 
-                    variant="ghost" 
+                  <Button
+                    size="icon"
+                    variant="ghost"
                     onClick={() => onRun(report)}
                     disabled={isRunning}
                     className="h-8 w-8"
@@ -204,9 +227,9 @@ export default function ReportList({
                     )}
                   </Button>
                   {report.report_data && onExport && (
-                    <Button 
-                      size="icon" 
-                      variant="ghost" 
+                    <Button
+                      size="icon"
+                      variant="ghost"
                       className="h-8 w-8"
                       onClick={() => onExport(report)}
                       title="Export Report"
@@ -215,9 +238,9 @@ export default function ReportList({
                     </Button>
                   )}
                   {onShare && (
-                    <Button 
-                      size="icon" 
-                      variant="ghost" 
+                    <Button
+                      size="icon"
+                      variant="ghost"
                       className="h-8 w-8"
                       onClick={() => onShare(report)}
                       title="Share Report"
@@ -226,9 +249,9 @@ export default function ReportList({
                     </Button>
                   )}
                   {onComment && (
-                    <Button 
-                      size="icon" 
-                      variant="ghost" 
+                    <Button
+                      size="icon"
+                      variant="ghost"
                       className="h-8 w-8"
                       onClick={() => onComment(report)}
                       title="Comments & Activity"
@@ -263,7 +286,7 @@ export default function ReportList({
                         <Copy className="w-4 h-4 mr-2" />
                         Duplicate
                       </DropdownMenuItem>
-                      <DropdownMenuItem 
+                      <DropdownMenuItem
                         onClick={() => onDelete(report.id)}
                         className="text-red-600"
                       >

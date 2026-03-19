@@ -1,12 +1,12 @@
 import React from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { formatDistanceToNow } from 'date-fns';
-import { MessageSquare, CheckCircle, Plus, Edit, AlertCircle, AtSign } from "lucide-react";
+import { MessageSquare, CheckCircle, Plus, Edit, AlertCircle, AtSign } from 'lucide-react';
 
-import { Mail } from "lucide-react";
+import { Mail } from 'lucide-react';
 
 const activityIcons = {
   created: Plus,
@@ -33,10 +33,14 @@ export default function ActivityFeed({ entityType, entityId }) {
     queryKey: ['activities', entityType, entityId],
     queryFn: async () => {
       if (!entityId) return [];
-      return await base44.entities.Activity.filter({
-        entity_type: entityType,
-        entity_id: entityId
-      }, '-created_date', 50);
+      return await base44.entities.Activity.filter(
+        {
+          entity_type: entityType,
+          entity_id: entityId,
+        },
+        '-created_date',
+        50
+      );
     },
     enabled: !!entityId,
   });
@@ -81,9 +85,14 @@ export default function ActivityFeed({ entityType, entityId }) {
           {activities.map((activity) => {
             const Icon = activityIcons[activity.activity_type] || AlertCircle;
             return (
-              <div key={activity.id} className="flex gap-3 pb-4 border-b border-gray-100 dark:border-gray-800 last:border-0">
+              <div
+                key={activity.id}
+                className="flex gap-3 pb-4 border-b border-gray-100 dark:border-gray-800 last:border-0"
+              >
                 <div className="flex-shrink-0">
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center ${activityColors[activity.activity_type]}`}>
+                  <div
+                    className={`w-8 h-8 rounded-full flex items-center justify-center ${activityColors[activity.activity_type]}`}
+                  >
                     <Icon className="w-4 h-4" />
                   </div>
                 </div>
@@ -102,7 +111,9 @@ export default function ActivityFeed({ entityType, entityId }) {
                     </Badge>
                   </div>
                   {activity.description && (
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">{activity.description}</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
+                      {activity.description}
+                    </p>
                   )}
                   {activity.mentions && activity.mentions.length > 0 && (
                     <div className="flex items-center gap-2 mt-2 flex-wrap">

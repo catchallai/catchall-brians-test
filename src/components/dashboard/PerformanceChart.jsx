@@ -1,6 +1,6 @@
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { TrendingUp } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { TrendingUp } from 'lucide-react';
 import InteractiveAreaChart from '@/components/charts/InteractiveAreaChart';
 
 export default function PerformanceChart({ data, title, dataKeys = ['deals', 'mentions'] }) {
@@ -13,8 +13,8 @@ export default function PerformanceChart({ data, title, dataKeys = ['deals', 'me
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <InteractiveAreaChart 
-          data={data} 
+        <InteractiveAreaChart
+          data={data}
           dataKeys={dataKeys}
           xKey="name"
           height={256}

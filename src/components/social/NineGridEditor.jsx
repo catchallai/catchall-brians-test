@@ -1,19 +1,22 @@
 import React, { useState, useRef } from 'react';
-import { Card, CardContent } from "@/components/ui/card";
-import { Plus } from "lucide-react";
-import { DndContext, closestCenter, DragOverlay, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
+import { Card, CardContent } from '@/components/ui/card';
+import { Plus } from 'lucide-react';
+import {
+  DndContext,
+  closestCenter,
+  DragOverlay,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core';
 import { SortableContext, useSortable, rectSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 
 function SortableGridItem({ id, post, position, onAddPost, onEditPost }) {
-  const {
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-    listeners,
-    attributes,
-  } = useSortable({ id, disabled: !post });
+  const { setNodeRef, transform, transition, isDragging, listeners, attributes } = useSortable({
+    id,
+    disabled: !post,
+  });
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -71,17 +74,18 @@ function SortableGridItem({ id, post, position, onAddPost, onEditPost }) {
       title="Click to edit · Double-click to preview · Drag to reorder"
     >
       {post.image_url ? (
-        <img src={post.image_url} alt={post.caption || 'Post'} className="w-full h-full object-cover" />
-      ) : post.video_url ? (
-        <video
-          src={post.video_url}
+        <img
+          src={post.image_url}
+          alt={post.caption || 'Post'}
           className="w-full h-full object-cover"
-          muted
-          playsInline
         />
+      ) : post.video_url ? (
+        <video src={post.video_url} className="w-full h-full object-cover" muted playsInline />
       ) : (
         <div className="w-full h-full bg-gradient-to-br from-violet-400 to-purple-500 flex items-center justify-center">
-          <p className="text-white text-center p-4 text-sm font-medium line-clamp-3">{post.caption || 'No caption'}</p>
+          <p className="text-white text-center p-4 text-sm font-medium line-clamp-3">
+            {post.caption || 'No caption'}
+          </p>
         </div>
       )}
 
@@ -90,7 +94,10 @@ function SortableGridItem({ id, post, position, onAddPost, onEditPost }) {
         <div className="w-full p-2 opacity-0 group-hover:opacity-100 transition-all">
           {post.scheduled_date && (
             <p className="text-white text-xs font-medium bg-black/50 rounded px-1.5 py-0.5 inline-block">
-              {new Date(post.scheduled_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+              {new Date(post.scheduled_date).toLocaleDateString('en-US', {
+                month: 'short',
+                day: 'numeric',
+              })}
             </p>
           )}
         </div>
@@ -99,13 +106,17 @@ function SortableGridItem({ id, post, position, onAddPost, onEditPost }) {
   );
 }
 
-export default function NineGridEditor({ posts = [], onPostsChange, onEditPost, onAddPost, baseScheduleDate = null }) {
+export default function NineGridEditor({
+  posts = [],
+  onPostsChange,
+  onEditPost,
+  onAddPost,
+  baseScheduleDate = null,
+}) {
   const [activeId, setActiveId] = useState(null);
   const [localSlots, setLocalSlots] = useState(null); // optimistic local state
 
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 4 } })
-  );
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 4 } }));
 
   // Sort posts by scheduled_date ascending, fill into slots left-to-right
   const sortedPosts = [...posts].sort((a, b) => {
@@ -134,7 +145,7 @@ export default function NineGridEditor({ posts = [], onPostsChange, onEditPost, 
       const newIndex = parseInt(over.id);
       const newSlots = [...gridSlots];
       [newSlots[oldIndex], newSlots[newIndex]] = [newSlots[newIndex], newSlots[oldIndex]];
-      
+
       // Update scheduled dates based on new position
       const today = new Date();
       const updatedSlots = newSlots.map((post, idx) => {
@@ -146,9 +157,9 @@ export default function NineGridEditor({ posts = [], onPostsChange, onEditPost, 
           scheduled_date: newDate.toISOString().split('T')[0],
         };
       });
-      
+
       setLocalSlots(updatedSlots); // instant UI update
-      onPostsChange(updatedSlots.filter(p => p !== null)); // async backend save
+      onPostsChange(updatedSlots.filter((p) => p !== null)); // async backend save
     }
     setActiveId(null);
     setLocalSlots(null);
@@ -178,7 +189,8 @@ export default function NineGridEditor({ posts = [], onPostsChange, onEditPost, 
           <div>
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white">9-Grid Layout</h3>
             <p className="text-sm text-gray-500 dark:text-gray-400">
-              Posts auto-sort by date · Click empty to create · Click post to edit · Double-click to preview
+              Posts auto-sort by date · Click empty to create · Click post to edit · Double-click to
+              preview
             </p>
           </div>
         </div>
@@ -189,7 +201,10 @@ export default function NineGridEditor({ posts = [], onPostsChange, onEditPost, 
           onDragStart={handleDragStart}
           onDragEnd={handleDragEnd}
         >
-          <SortableContext items={gridSlots.map((_, i) => String(i))} strategy={rectSortingStrategy}>
+          <SortableContext
+            items={gridSlots.map((_, i) => String(i))}
+            strategy={rectSortingStrategy}
+          >
             <div className="grid grid-cols-3 gap-4">
               {gridSlots.map((post, index) => (
                 <SortableGridItem
@@ -208,7 +223,11 @@ export default function NineGridEditor({ posts = [], onPostsChange, onEditPost, 
             {activePost && (
               <div className="aspect-square rounded-xl overflow-hidden shadow-2xl opacity-90 w-40">
                 {activePost.image_url ? (
-                  <img src={activePost.image_url} alt="Dragging" className="w-full h-full object-cover" />
+                  <img
+                    src={activePost.image_url}
+                    alt="Dragging"
+                    className="w-full h-full object-cover"
+                  />
                 ) : (
                   <div className="w-full h-full bg-gradient-to-br from-violet-400 to-purple-500 flex items-center justify-center">
                     <p className="text-white text-center p-4 text-sm">{activePost.caption}</p>

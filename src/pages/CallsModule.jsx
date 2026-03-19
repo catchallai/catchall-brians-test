@@ -1,11 +1,24 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Plus, Search, Phone, ChevronDown, ChevronLeft, ChevronRight, Download } from "lucide-react";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import {
+  Plus,
+  Search,
+  Phone,
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  Download,
+} from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import EmptyState from '@/components/ui/EmptyState';
 import ContactsSidebar from '@/components/crm/ContactsSidebar';
 import CallLogModal from '@/components/modals/CallLogModal';
@@ -31,11 +44,11 @@ export default function CallsModule() {
   });
 
   const handleFilterChange = (filterName, value) => {
-    setFilters(prev => ({ ...prev, [filterName]: value }));
+    setFilters((prev) => ({ ...prev, [filterName]: value }));
     setCurrentPage(1);
   };
 
-  const hasActiveFilters = Object.values(filters).some(v => v !== null) || searchTerm;
+  const hasActiveFilters = Object.values(filters).some((v) => v !== null) || searchTerm;
 
   return (
     <div className="flex h-screen bg-white dark:bg-slate-900">
@@ -47,12 +60,14 @@ export default function CallsModule() {
           <div className="p-4 sm:p-6 border-b border-gray-200 dark:border-gray-800">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div>
-                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Calls</h1>
+                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
+                  Calls
+                </h1>
               </div>
               <div className="flex flex-wrap gap-2">
-                <Button 
-                  variant="outline" 
-                  className="gap-2" 
+                <Button
+                  variant="outline"
+                  className="gap-2"
                   size="sm"
                   onClick={() => {
                     setCallModalType('log');
@@ -62,8 +77,8 @@ export default function CallsModule() {
                   <Phone className="w-4 h-4" />
                   Log Call
                 </Button>
-                <Button 
-                  className="gap-2 bg-violet-600 hover:bg-violet-700" 
+                <Button
+                  className="gap-2 bg-violet-600 hover:bg-violet-700"
                   size="sm"
                   onClick={() => {
                     setCallModalType('new');
@@ -80,10 +95,16 @@ export default function CallsModule() {
           {/* Tabs */}
           <Tabs value={activeTab} onValueChange={setActiveTab} className="px-4 sm:px-6">
             <TabsList className="bg-transparent border-b border-gray-200 dark:border-gray-800">
-              <TabsTrigger value="recorded" className="border-b-2 border-transparent data-[state=active]:border-violet-600">
+              <TabsTrigger
+                value="recorded"
+                className="border-b-2 border-transparent data-[state=active]:border-violet-600"
+              >
                 Recorded calls
               </TabsTrigger>
-              <TabsTrigger value="all" className="border-b-2 border-transparent data-[state=active]:border-violet-600">
+              <TabsTrigger
+                value="all"
+                className="border-b-2 border-transparent data-[state=active]:border-violet-600"
+              >
                 All calls
               </TabsTrigger>
             </TabsList>
@@ -110,8 +131,12 @@ export default function CallsModule() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
-              <DropdownMenuItem onClick={() => handleFilterChange('transcript', 'with')}>With transcript</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleFilterChange('transcript', 'without')}>Without transcript</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleFilterChange('transcript', 'with')}>
+                With transcript
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleFilterChange('transcript', 'without')}>
+                Without transcript
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
 
@@ -123,8 +148,12 @@ export default function CallsModule() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
-              <DropdownMenuItem onClick={() => handleFilterChange('assignedTo', 'me')}>Me</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleFilterChange('assignedTo', 'team')}>Team</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleFilterChange('assignedTo', 'me')}>
+                Me
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleFilterChange('assignedTo', 'team')}>
+                Team
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
 
@@ -136,9 +165,15 @@ export default function CallsModule() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
-              <DropdownMenuItem onClick={() => handleFilterChange('date', 'today')}>Today</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleFilterChange('date', 'week')}>This week</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleFilterChange('date', 'month')}>This month</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleFilterChange('date', 'today')}>
+                Today
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleFilterChange('date', 'week')}>
+                This week
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleFilterChange('date', 'month')}>
+                This month
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
 
@@ -150,9 +185,15 @@ export default function CallsModule() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
-              <DropdownMenuItem onClick={() => handleFilterChange('duration', 'short')}>Short (&lt;5 min)</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleFilterChange('duration', 'medium')}>Medium (5-30 min)</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleFilterChange('duration', 'long')}>Long (&gt;30 min)</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleFilterChange('duration', 'short')}>
+                Short (&lt;5 min)
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleFilterChange('duration', 'medium')}>
+                Medium (5-30 min)
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleFilterChange('duration', 'long')}>
+                Long (&gt;30 min)
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
 
@@ -164,8 +205,12 @@ export default function CallsModule() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
-              <DropdownMenuItem onClick={() => handleFilterChange('notes', 'with')}>With notes</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleFilterChange('notes', 'without')}>Without notes</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleFilterChange('notes', 'with')}>
+                With notes
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleFilterChange('notes', 'without')}>
+                Without notes
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
 
@@ -188,7 +233,13 @@ export default function CallsModule() {
               className="h-8 text-xs text-gray-500 hover:text-gray-700"
               onClick={() => {
                 setSearchTerm('');
-                setFilters({ transcript: null, assignedTo: null, date: null, duration: null, notes: null });
+                setFilters({
+                  transcript: null,
+                  assignedTo: null,
+                  date: null,
+                  duration: null,
+                  notes: null,
+                });
               }}
             >
               Clear all
@@ -241,7 +292,7 @@ export default function CallsModule() {
         </div>
       </div>
 
-      <CallLogModal 
+      <CallLogModal
         open={callModalOpen}
         onClose={() => setCallModalOpen(false)}
         isLogCall={callModalType === 'log'}

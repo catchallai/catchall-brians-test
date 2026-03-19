@@ -1,42 +1,53 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, Edit, Users, Target, DollarSign, Calendar, Search, Link2, TrendingUp, TrendingDown } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import {
+  ArrowLeft,
+  Edit,
+  Users,
+  Target,
+  DollarSign,
+  Calendar,
+  Search,
+  Link2,
+  TrendingUp,
+  TrendingDown,
+} from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
-import { format } from "date-fns";
+import { format } from 'date-fns';
 import CampaignModal from '@/components/modals/CampaignModal';
 import ContactCard from '@/components/crm/ContactCard';
 import KeywordRankCard from '@/components/seo/KeywordRankCard';
 import BacklinkItem from '@/components/seo/BacklinkItem';
 
 const statusColors = {
-  draft: "bg-gray-100 text-gray-700",
-  active: "bg-emerald-100 text-emerald-700",
-  paused: "bg-amber-100 text-amber-700",
-  completed: "bg-blue-100 text-blue-700",
+  draft: 'bg-gray-100 text-gray-700',
+  active: 'bg-emerald-100 text-emerald-700',
+  paused: 'bg-amber-100 text-amber-700',
+  completed: 'bg-blue-100 text-blue-700',
 };
 
 const typeLabels = {
-  email: "📧 Email",
-  social_media: "📱 Social Media",
-  ppc: "💰 PPC / Ads",
-  content: "📝 Content",
-  seo: "🔍 SEO",
-  event: "🎪 Event",
-  referral: "🤝 Referral",
-  other: "📌 Other"
+  email: '📧 Email',
+  social_media: '📱 Social Media',
+  ppc: '💰 PPC / Ads',
+  content: '📝 Content',
+  seo: '🔍 SEO',
+  event: '🎪 Event',
+  referral: '🤝 Referral',
+  other: '📌 Other',
 };
 
 export default function CampaignDetail() {
   const [showModal, setShowModal] = useState(false);
   const queryClient = useQueryClient();
-  
+
   const urlParams = new URLSearchParams(window.location.search);
   const campaignId = urlParams.get('id');
 
@@ -78,7 +89,7 @@ export default function CampaignDetail() {
     },
   });
 
-  const campaign = campaigns.find(c => c.id === campaignId);
+  const campaign = campaigns.find((c) => c.id === campaignId);
 
   if (!campaign) {
     return (
@@ -96,32 +107,39 @@ export default function CampaignDetail() {
     );
   }
 
-  const linkedContacts = contacts.filter(c => campaign.contact_ids?.includes(c.id));
-  const linkedDeals = deals.filter(d => campaign.deal_ids?.includes(d.id));
-  const linkedKeywords = keywords.filter(k => campaign.keyword_ids?.includes(k.id));
-  const linkedBacklinks = backlinks.filter(b => campaign.backlink_ids?.includes(b.id));
+  const linkedContacts = contacts.filter((c) => campaign.contact_ids?.includes(c.id));
+  const linkedDeals = deals.filter((d) => campaign.deal_ids?.includes(d.id));
+  const linkedKeywords = keywords.filter((k) => campaign.keyword_ids?.includes(k.id));
+  const linkedBacklinks = backlinks.filter((b) => campaign.backlink_ids?.includes(b.id));
 
-  const wonDeals = linkedDeals.filter(d => d.stage === 'won');
+  const wonDeals = linkedDeals.filter((d) => d.stage === 'won');
   const totalRevenue = wonDeals.reduce((sum, d) => sum + (d.value || 0), 0);
-  const pipelineValue = linkedDeals.filter(d => !['won', 'lost'].includes(d.stage)).reduce((sum, d) => sum + (d.value || 0), 0);
+  const pipelineValue = linkedDeals
+    .filter((d) => !['won', 'lost'].includes(d.stage))
+    .reduce((sum, d) => sum + (d.value || 0), 0);
 
   const budgetProgress = campaign.budget > 0 ? ((campaign.spent || 0) / campaign.budget) * 100 : 0;
-  const leadsProgress = campaign.target_leads > 0 ? (linkedContacts.length / campaign.target_leads) * 100 : 0;
-  const revenueProgress = campaign.target_revenue > 0 ? (totalRevenue / campaign.target_revenue) * 100 : 0;
+  const leadsProgress =
+    campaign.target_leads > 0 ? (linkedContacts.length / campaign.target_leads) * 100 : 0;
+  const revenueProgress =
+    campaign.target_revenue > 0 ? (totalRevenue / campaign.target_revenue) * 100 : 0;
 
   const formatCurrency = (value) => {
     if (!value) return '$0';
     return `$${value.toLocaleString()}`;
   };
 
-  const getCompany = (companyId) => companies.find(c => c.id === companyId);
+  const getCompany = (companyId) => companies.find((c) => c.id === companyId);
 
   return (
     <div className="p-6 lg:p-8 space-y-6 bg-gray-50 min-h-screen">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
         <div>
-          <Link to={createPageUrl('Campaigns')} className="text-sm text-gray-500 hover:text-gray-700 flex items-center gap-1 mb-2">
+          <Link
+            to={createPageUrl('Campaigns')}
+            className="text-sm text-gray-500 hover:text-gray-700 flex items-center gap-1 mb-2"
+          >
             <ArrowLeft className="w-4 h-4" />
             Back to Campaigns
           </Link>
@@ -134,8 +152,9 @@ export default function CampaignDetail() {
                 {campaign.start_date && (
                   <span className="text-sm text-gray-500 flex items-center gap-1">
                     <Calendar className="w-3 h-3" />
-                    {format(new Date(campaign.start_date), 'MMM d')} 
-                    {campaign.end_date && ` - ${format(new Date(campaign.end_date), 'MMM d, yyyy')}`}
+                    {format(new Date(campaign.start_date), 'MMM d')}
+                    {campaign.end_date &&
+                      ` - ${format(new Date(campaign.end_date), 'MMM d, yyyy')}`}
                   </span>
                 )}
               </div>
@@ -199,7 +218,9 @@ export default function CampaignDetail() {
             <Progress value={budgetProgress} className="h-2" />
             <div className="flex justify-between mt-2 text-sm">
               <span className="text-gray-500">{budgetProgress.toFixed(0)}% used</span>
-              <span className="text-gray-500">{formatCurrency(campaign.budget - (campaign.spent || 0))} remaining</span>
+              <span className="text-gray-500">
+                {formatCurrency(campaign.budget - (campaign.spent || 0))} remaining
+              </span>
             </div>
           </CardContent>
         </Card>
@@ -242,15 +263,21 @@ export default function CampaignDetail() {
                   <div className="flex items-center justify-between">
                     <div>
                       <h4 className="font-semibold text-gray-900">{deal.title}</h4>
-                      <Badge className={`mt-1 text-xs ${
-                        deal.stage === 'won' ? 'bg-emerald-100 text-emerald-700' :
-                        deal.stage === 'lost' ? 'bg-red-100 text-red-700' :
-                        'bg-blue-100 text-blue-700'
-                      }`}>
+                      <Badge
+                        className={`mt-1 text-xs ${
+                          deal.stage === 'won'
+                            ? 'bg-emerald-100 text-emerald-700'
+                            : deal.stage === 'lost'
+                              ? 'bg-red-100 text-red-700'
+                              : 'bg-blue-100 text-blue-700'
+                        }`}
+                      >
                         {deal.stage}
                       </Badge>
                     </div>
-                    <span className="text-lg font-bold text-emerald-600">{formatCurrency(deal.value)}</span>
+                    <span className="text-lg font-bold text-emerald-600">
+                      {formatCurrency(deal.value)}
+                    </span>
                   </div>
                 </Card>
               ))}

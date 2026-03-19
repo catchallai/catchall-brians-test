@@ -20,20 +20,22 @@ Deno.serve(async (req) => {
 
     // Validate brief has assets
     if (!brief.approved_copy_ids?.length || !brief.approved_template_ids?.length) {
-      return Response.json({ 
-        skipped: 'Brief has no approved copy or templates', 
-        briefId 
+      return Response.json({
+        skipped: 'Brief has no approved copy or templates',
+        briefId,
       });
     }
 
     // Fetch approved copy and templates
     const copyItems = await Promise.all(
-      brief.approved_copy_ids.map(id => base44.asServiceRole.entities.ApprovedCopy.filter({ id }))
-    ).then(results => results.flatMap(r => r));
+      brief.approved_copy_ids.map((id) => base44.asServiceRole.entities.ApprovedCopy.filter({ id }))
+    ).then((results) => results.flatMap((r) => r));
 
     const templates = await Promise.all(
-      brief.approved_template_ids.map(id => base44.asServiceRole.entities.ApprovedGraphicTemplate.filter({ id }))
-    ).then(results => results.flatMap(r => r));
+      brief.approved_template_ids.map((id) =>
+        base44.asServiceRole.entities.ApprovedGraphicTemplate.filter({ id })
+      )
+    ).then((results) => results.flatMap((r) => r));
 
     // Parse period (e.g., "2026-03") and get date range
     const [year, month] = (brief.month || '').split('-');
@@ -46,21 +48,25 @@ Deno.serve(async (req) => {
 
     // Get platform preferences from drivers
     const platforms = (brief.drivers || [])
-      .filter(d => d.channel && ['Social', 'Email', 'Ads', 'Website', 'Newsletter', 'EDM'].includes(d.channel))
-      .map(d => {
+      .filter(
+        (d) =>
+          d.channel &&
+          ['Social', 'Email', 'Ads', 'Website', 'Newsletter', 'EDM'].includes(d.channel)
+      )
+      .map((d) => {
         const platformMap = {
-          'Social': ['Instagram', 'LinkedIn', 'Twitter'],
-          'Email': [],
-          'Ads': ['Instagram', 'Facebook'],
-          'Website': [],
-          'Newsletter': [],
-          'EDM': []
+          Social: ['Instagram', 'LinkedIn', 'Twitter'],
+          Email: [],
+          Ads: ['Instagram', 'Facebook'],
+          Website: [],
+          Newsletter: [],
+          EDM: [],
         };
         return platformMap[d.channel] || [];
       })
-      .flatMap(p => p);
+      .flatMap((p) => p);
 
-    const uniquePlatforms = [...new Set(platforms)].filter(p => p);
+    const uniquePlatforms = [...new Set(platforms)].filter((p) => p);
     if (uniquePlatforms.length === 0) {
       return Response.json({ skipped: 'No platform drivers defined' });
     }
@@ -100,13 +106,15 @@ Deno.serve(async (req) => {
             campaign_brief_id: briefId,
             approved_copy_id: copy.id,
             approved_template_id: template.id,
-            workflow_history: [{
-              action: 'auto_created_on_brief_activation',
-              by_email: 'system@automation',
-              by_name: 'System Automation',
-              timestamp: new Date().toISOString(),
-              note: `Auto-generated when brief "${brief.title}" was activated`
-            }]
+            workflow_history: [
+              {
+                action: 'auto_created_on_brief_activation',
+                by_email: 'system@automation',
+                by_name: 'System Automation',
+                timestamp: new Date().toISOString(),
+                note: `Auto-generated when brief "${brief.title}" was activated`,
+              },
+            ],
           });
 
           createdPosts.push(newPost);
@@ -128,7 +136,7 @@ Deno.serve(async (req) => {
         briefId,
         postsCreated: createdPosts.length,
         platforms: uniquePlatforms,
-      }
+      },
     });
 
     return Response.json({

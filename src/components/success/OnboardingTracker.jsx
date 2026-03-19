@@ -1,15 +1,15 @@
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
-import { Button } from "@/components/ui/button";
-import { CheckCircle, Circle, AlertTriangle, Clock } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
+import { Button } from '@/components/ui/button';
+import { CheckCircle, Circle, AlertTriangle, Clock } from 'lucide-react';
 
 const statusColors = {
   not_started: { bg: 'bg-gray-100', text: 'text-gray-700' },
   in_progress: { bg: 'bg-blue-100', text: 'text-blue-700' },
   completed: { bg: 'bg-emerald-100', text: 'text-emerald-700' },
-  stalled: { bg: 'bg-red-100', text: 'text-red-700' }
+  stalled: { bg: 'bg-red-100', text: 'text-red-700' },
 };
 
 export default function OnboardingTracker({ onboardings, contacts, onUpdate }) {
@@ -18,23 +18,25 @@ export default function OnboardingTracker({ onboardings, contacts, onUpdate }) {
     updatedMilestones[milestoneIndex] = {
       ...updatedMilestones[milestoneIndex],
       completed: !updatedMilestones[milestoneIndex].completed,
-      completed_date: !updatedMilestones[milestoneIndex].completed ? new Date().toISOString() : null
+      completed_date: !updatedMilestones[milestoneIndex].completed
+        ? new Date().toISOString()
+        : null,
     };
 
-    const completedCount = updatedMilestones.filter(m => m.completed).length;
+    const completedCount = updatedMilestones.filter((m) => m.completed).length;
     const progress = Math.round((completedCount / updatedMilestones.length) * 100);
 
     onUpdate(onboarding.id, {
       milestones: updatedMilestones,
       progress_percentage: progress,
-      status: progress === 100 ? 'completed' : 'in_progress'
+      status: progress === 100 ? 'completed' : 'in_progress',
     });
   };
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-      {onboardings.map(onboarding => {
-        const contact = contacts.find(c => c.id === onboarding.contact_id);
+      {onboardings.map((onboarding) => {
+        const contact = contacts.find((c) => c.id === onboarding.contact_id);
         const colors = statusColors[onboarding.status];
 
         return (
@@ -93,7 +95,9 @@ export default function OnboardingTracker({ onboardings, contacts, onUpdate }) {
                         <Circle className="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0" />
                       )}
                       <div className="flex-1">
-                        <p className={`text-sm ${milestone.completed ? 'line-through text-gray-500' : ''}`}>
+                        <p
+                          className={`text-sm ${milestone.completed ? 'line-through text-gray-500' : ''}`}
+                        >
                           {milestone.name}
                         </p>
                         {milestone.completed && milestone.completed_date && (

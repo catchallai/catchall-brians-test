@@ -1,53 +1,66 @@
 import React, { useState } from 'react';
-import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
-import { 
-  Users, Target, Search, Share2, Mail, Zap, CheckCircle, 
-  ArrowRight, ArrowLeft, Sparkles, Building2, BarChart3
-} from "lucide-react";
+import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Progress } from '@/components/ui/progress';
+import {
+  Users,
+  Target,
+  Search,
+  Share2,
+  Mail,
+  Zap,
+  CheckCircle,
+  ArrowRight,
+  ArrowLeft,
+  Sparkles,
+  Building2,
+  BarChart3,
+} from 'lucide-react';
 
 const ONBOARDING_STEPS = [
   {
     id: 'welcome',
     title: 'Welcome to CatchAll Business Suite!',
-    description: 'Your complete platform for business development, CRM, sales, marketing, SEO, and more—all in one place.',
+    description:
+      'Your complete platform for business development, CRM, sales, marketing, SEO, and more—all in one place.',
     icon: Sparkles,
     color: 'bg-violet-500',
     tips: [
       'Track aerospace opportunities and competitors',
       'Manage contacts, companies, and opportunities',
       'Monitor SEO performance and social media',
-      'Automate workflows and collaborate with your team'
-    ]
+      'Automate workflows and collaborate with your team',
+    ],
   },
   {
     id: 'bizdev',
     title: 'Business Development',
-    description: 'Scan aerospace industry trends, analyze competitors, and track leads with AI-powered insights.',
+    description:
+      'Scan aerospace industry trends, analyze competitors, and track leads with AI-powered insights.',
     icon: BarChart3,
     color: 'bg-blue-500',
     tips: [
       'Aerospace Scanner monitors industry news and opportunities',
       'Track visitor activity and score leads automatically',
       'Manage legal documents and contracts',
-      'Monitor press mentions and media coverage'
+      'Monitor press mentions and media coverage',
     ],
-    page: 'BusinessDevDashboard'
+    page: 'BusinessDevDashboard',
   },
   {
     id: 'crm',
     title: 'CRM & Opportunities',
-    description: 'Organize contacts, companies, and opportunities. Track deals from first touch to close.',
+    description:
+      'Organize contacts, companies, and opportunities. Track deals from first touch to close.',
     icon: Users,
     color: 'bg-emerald-500',
     tips: [
       'Import and enrich contact data automatically',
       'Link contacts to multiple companies',
       'Create opportunities and track progress',
-      'Use DocuTrace for document tracking and Data Rooms for secure file sharing'
+      'Use DocuTrace for document tracking and Data Rooms for secure file sharing',
     ],
-    page: 'Contacts'
+    page: 'Contacts',
   },
   {
     id: 'sales',
@@ -59,37 +72,39 @@ const ONBOARDING_STEPS = [
       'Enrich leads with AI-powered data',
       'Create automated email sequences',
       'Generate and track proposals',
-      'Schedule meetings with integrated calendar'
+      'Schedule meetings with integrated calendar',
     ],
-    page: 'SalesHub'
+    page: 'SalesHub',
   },
   {
     id: 'seo',
     title: 'SEO & Analytics',
-    description: 'Monitor website performance, track keywords, analyze backlinks, and optimize local SEO.',
+    description:
+      'Monitor website performance, track keywords, analyze backlinks, and optimize local SEO.',
     icon: Search,
     color: 'bg-amber-500',
     tips: [
       'Run comprehensive SEO audits',
       'Track keyword rankings and competitors',
       'Monitor and analyze backlinks',
-      'Manage local SEO and Google Business Profile'
+      'Manage local SEO and Google Business Profile',
     ],
-    page: 'SEODashboard'
+    page: 'SEODashboard',
   },
   {
     id: 'social',
     title: 'Social & Content',
-    description: 'Plan content, schedule posts, monitor conversations, and analyze social performance.',
+    description:
+      'Plan content, schedule posts, monitor conversations, and analyze social performance.',
     icon: Share2,
     color: 'bg-pink-500',
     tips: [
       'Create and schedule social media posts',
       'Monitor brand mentions and sentiment',
       'Build landing pages without code',
-      'Track social leads and engagement'
+      'Track social leads and engagement',
     ],
-    page: 'SocialMedia'
+    page: 'SocialMedia',
   },
   {
     id: 'collaboration',
@@ -101,23 +116,24 @@ const ONBOARDING_STEPS = [
       'Create projects and assign tasks',
       'Build knowledge bases with Spaces',
       'Real-time chat and video calls with ICS',
-      'Track time and manage resources'
+      'Track time and manage resources',
     ],
-    page: 'Projects'
+    page: 'Projects',
   },
   {
     id: 'complete',
-    title: 'You\'re All Set!',
-    description: 'You\'re ready to start using CatchAll Business Suite. Explore the features and grow your business!',
+    title: "You're All Set!",
+    description:
+      "You're ready to start using CatchAll Business Suite. Explore the features and grow your business!",
     icon: CheckCircle,
     color: 'bg-emerald-500',
     tips: [
       'Customize enabled features in Settings',
       'Visit Help Center for detailed guides',
       'Use keyboard shortcuts (press ? for help)',
-      'Drag navigation items to Favorites for quick access'
-    ]
-  }
+      'Drag navigation items to Favorites for quick access',
+    ],
+  },
 ];
 
 export default function OnboardingModal({ open, onClose, onComplete, completedSteps = [] }) {
@@ -149,8 +165,15 @@ export default function OnboardingModal({ open, onClose, onComplete, completedSt
         {/* Progress */}
         <div className="px-6 pt-6">
           <div className="flex items-center justify-between text-sm text-gray-500 mb-2">
-            <span>Step {currentStep + 1} of {ONBOARDING_STEPS.length}</span>
-            <Button variant="ghost" size="sm" onClick={handleSkip} className="text-gray-400 hover:text-gray-600">
+            <span>
+              Step {currentStep + 1} of {ONBOARDING_STEPS.length}
+            </span>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleSkip}
+              className="text-gray-400 hover:text-gray-600"
+            >
               Skip Tour
             </Button>
           </div>
@@ -159,7 +182,9 @@ export default function OnboardingModal({ open, onClose, onComplete, completedSt
 
         {/* Content */}
         <div className="p-6 text-center">
-          <div className={`w-16 h-16 ${step.color} rounded-2xl flex items-center justify-center mx-auto mb-4`}>
+          <div
+            className={`w-16 h-16 ${step.color} rounded-2xl flex items-center justify-center mx-auto mb-4`}
+          >
             <step.icon className="w-8 h-8 text-white" />
           </div>
           <h2 className="text-2xl font-bold text-gray-900 mb-2">{step.title}</h2>

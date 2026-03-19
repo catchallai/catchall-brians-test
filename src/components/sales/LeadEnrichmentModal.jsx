@@ -1,19 +1,29 @@
 import React, { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Loader2, Sparkles, ExternalLink, User, Briefcase, Mail, Phone, MapPin, Search } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import {
+  Loader2,
+  Sparkles,
+  ExternalLink,
+  User,
+  Briefcase,
+  Mail,
+  Phone,
+  MapPin,
+  Search,
+} from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 
-export default function LeadEnrichmentModal({ 
-  open, 
-  onClose, 
-  onEnrich, 
+export default function LeadEnrichmentModal({
+  open,
+  onClose,
+  onEnrich,
   onSaveToContacts,
-  isEnriching 
+  isEnriching,
 }) {
   const [linkedinUrl, setLinkedinUrl] = useState('');
   const [enrichedData, setEnrichedData] = useState(null);
@@ -46,10 +56,8 @@ export default function LeadEnrichmentModal({
   const handleSearch = async () => {
     setIsSearching(true);
     try {
-      const searchQuery = searchCompany 
-        ? `${searchName} at ${searchCompany}` 
-        : searchName;
-      
+      const searchQuery = searchCompany ? `${searchName} at ${searchCompany}` : searchName;
+
       const result = await base44.integrations.Core.InvokeLLM({
         prompt: `Search LinkedIn for: ${searchQuery}
 
@@ -64,26 +72,26 @@ Find the top 5 most relevant LinkedIn profiles. For each person, provide:
 Return results in order of relevance.`,
         add_context_from_internet: true,
         response_json_schema: {
-          type: "object",
+          type: 'object',
           properties: {
             profiles: {
-              type: "array",
+              type: 'array',
               items: {
-                type: "object",
+                type: 'object',
                 properties: {
-                  name: { type: "string" },
-                  title: { type: "string" },
-                  company: { type: "string" },
-                  linkedin_url: { type: "string" },
-                  location: { type: "string" },
-                  headline: { type: "string" }
-                }
-              }
-            }
-          }
-        }
+                  name: { type: 'string' },
+                  title: { type: 'string' },
+                  company: { type: 'string' },
+                  linkedin_url: { type: 'string' },
+                  location: { type: 'string' },
+                  headline: { type: 'string' },
+                },
+              },
+            },
+          },
+        },
       });
-      
+
       setSearchResults(result.profiles || []);
     } catch (error) {
       console.error('Search failed:', error);
@@ -122,7 +130,8 @@ Return results in order of relevance.`,
                   placeholder="https://www.linkedin.com/in/username"
                 />
                 <p className="text-xs text-gray-500">
-                  Paste a LinkedIn profile URL to extract contact information and professional details
+                  Paste a LinkedIn profile URL to extract contact information and professional
+                  details
                 </p>
               </div>
 
@@ -132,9 +141,13 @@ Return results in order of relevance.`,
                 className="w-full gap-2 bg-violet-600 hover:bg-violet-700"
               >
                 {isEnriching ? (
-                  <><Loader2 className="w-4 h-4 animate-spin" /> Enriching...</>
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" /> Enriching...
+                  </>
                 ) : (
-                  <><Sparkles className="w-4 h-4" /> Enrich Profile</>
+                  <>
+                    <Sparkles className="w-4 h-4" /> Enrich Profile
+                  </>
                 )}
               </Button>
             </TabsContent>
@@ -165,9 +178,13 @@ Return results in order of relevance.`,
                   className="w-full gap-2 bg-blue-600 hover:bg-blue-700"
                 >
                   {isSearching ? (
-                    <><Loader2 className="w-4 h-4 animate-spin" /> Searching...</>
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" /> Searching...
+                    </>
                   ) : (
-                    <><Search className="w-4 h-4" /> Search LinkedIn</>
+                    <>
+                      <Search className="w-4 h-4" /> Search LinkedIn
+                    </>
                   )}
                 </Button>
               </div>
@@ -186,9 +203,13 @@ Return results in order of relevance.`,
                           <div className="flex-1">
                             <p className="font-medium text-gray-900">{profile.name}</p>
                             <p className="text-sm text-gray-600">{profile.title}</p>
-                            <p className="text-xs text-gray-500">{profile.company} • {profile.location}</p>
+                            <p className="text-xs text-gray-500">
+                              {profile.company} • {profile.location}
+                            </p>
                             {profile.headline && (
-                              <p className="text-xs text-gray-400 mt-1 line-clamp-1">{profile.headline}</p>
+                              <p className="text-xs text-gray-400 mt-1 line-clamp-1">
+                                {profile.headline}
+                              </p>
                             )}
                           </div>
                           <Button size="sm" variant="ghost" className="text-violet-600">
@@ -209,9 +230,9 @@ Return results in order of relevance.`,
               <div>
                 <h3 className="text-lg font-bold text-gray-900">{enrichedData.full_name}</h3>
                 <p className="text-sm text-gray-600">{enrichedData.headline}</p>
-                <a 
-                  href={enrichedData.linkedin_url} 
-                  target="_blank" 
+                <a
+                  href={enrichedData.linkedin_url}
+                  target="_blank"
                   rel="noopener noreferrer"
                   className="text-xs text-violet-600 hover:text-violet-700 flex items-center gap-1 mt-1"
                 >
@@ -230,7 +251,9 @@ Return results in order of relevance.`,
                   <Mail className="w-4 h-4 text-gray-500" />
                   <div className="flex-1 min-w-0">
                     <p className="text-xs text-gray-500">Email</p>
-                    <p className="text-sm font-medium truncate">{enrichedData.email || 'Not found'}</p>
+                    <p className="text-sm font-medium truncate">
+                      {enrichedData.email || 'Not found'}
+                    </p>
                   </div>
                 </div>
 
@@ -248,7 +271,9 @@ Return results in order of relevance.`,
                   <Briefcase className="w-4 h-4 text-gray-500" />
                   <div className="flex-1 min-w-0">
                     <p className="text-xs text-gray-500">Company</p>
-                    <p className="text-sm font-medium truncate">{enrichedData.company || 'Not found'}</p>
+                    <p className="text-sm font-medium truncate">
+                      {enrichedData.company || 'Not found'}
+                    </p>
                   </div>
                 </div>
 
@@ -256,7 +281,9 @@ Return results in order of relevance.`,
                   <MapPin className="w-4 h-4 text-gray-500" />
                   <div className="flex-1 min-w-0">
                     <p className="text-xs text-gray-500">Location</p>
-                    <p className="text-sm font-medium truncate">{enrichedData.location || 'Not found'}</p>
+                    <p className="text-sm font-medium truncate">
+                      {enrichedData.location || 'Not found'}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -268,9 +295,9 @@ Return results in order of relevance.`,
                 <p className="text-xs font-medium text-blue-700 mb-1">Current Position</p>
                 <p className="text-sm text-gray-900">{enrichedData.job_title}</p>
                 {enrichedData.company_website && (
-                  <a 
-                    href={enrichedData.company_website} 
-                    target="_blank" 
+                  <a
+                    href={enrichedData.company_website}
+                    target="_blank"
                     rel="noopener noreferrer"
                     className="text-xs text-blue-600 hover:text-blue-700 flex items-center gap-1 mt-1"
                   >
@@ -295,7 +322,9 @@ Return results in order of relevance.`,
                   {enrichedData.experience.slice(0, 3).map((exp, i) => (
                     <div key={i} className="p-2 border rounded-lg text-sm">
                       <p className="font-medium text-gray-900">{exp.title}</p>
-                      <p className="text-xs text-gray-600">{exp.company} • {exp.duration}</p>
+                      <p className="text-xs text-gray-600">
+                        {exp.company} • {exp.duration}
+                      </p>
                     </div>
                   ))}
                 </div>
@@ -318,11 +347,7 @@ Return results in order of relevance.`,
 
             {/* Actions */}
             <div className="flex gap-3 pt-4 border-t">
-              <Button
-                variant="outline"
-                onClick={handleClose}
-                className="flex-1"
-              >
+              <Button variant="outline" onClick={handleClose} className="flex-1">
                 Cancel
               </Button>
               <Button

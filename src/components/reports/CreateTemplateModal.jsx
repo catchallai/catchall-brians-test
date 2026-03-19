@@ -1,12 +1,18 @@
 import React, { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2 } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Checkbox } from '@/components/ui/checkbox';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Loader2 } from 'lucide-react';
 
 const AVAILABLE_METRICS = [
   { id: 'organic_traffic', label: 'Organic Traffic', category: 'seo' },
@@ -64,11 +70,11 @@ export default function CreateTemplateModal({ open, onClose, onSave, isLoading }
   });
 
   const handleMetricToggle = (metricId) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       metrics: prev.metrics.includes(metricId)
-        ? prev.metrics.filter(m => m !== metricId)
-        : [...prev.metrics, metricId]
+        ? prev.metrics.filter((m) => m !== metricId)
+        : [...prev.metrics, metricId],
     }));
   };
 
@@ -114,26 +120,36 @@ export default function CreateTemplateModal({ open, onClose, onSave, isLoading }
           <div className="grid grid-cols-2 gap-4">
             <div>
               <Label>Category</Label>
-              <Select value={formData.category} onValueChange={(v) => setFormData({ ...formData, category: v })}>
+              <Select
+                value={formData.category}
+                onValueChange={(v) => setFormData({ ...formData, category: v })}
+              >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {CATEGORIES.map(cat => (
-                    <SelectItem key={cat.value} value={cat.value}>{cat.label}</SelectItem>
+                  {CATEGORIES.map((cat) => (
+                    <SelectItem key={cat.value} value={cat.value}>
+                      {cat.label}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
             <div>
               <Label>Icon</Label>
-              <Select value={formData.icon} onValueChange={(v) => setFormData({ ...formData, icon: v })}>
+              <Select
+                value={formData.icon}
+                onValueChange={(v) => setFormData({ ...formData, icon: v })}
+              >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {ICONS.map(icon => (
-                    <SelectItem key={icon.value} value={icon.value}>{icon.label}</SelectItem>
+                  {ICONS.map((icon) => (
+                    <SelectItem key={icon.value} value={icon.value}>
+                      {icon.label}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -146,17 +162,20 @@ export default function CreateTemplateModal({ open, onClose, onSave, isLoading }
               {Object.entries(groupedMetrics).map(([category, metrics]) => (
                 <div key={category}>
                   <p className="text-xs font-semibold text-gray-500 uppercase mb-2">
-                    {CATEGORIES.find(c => c.value === category)?.label || category}
+                    {CATEGORIES.find((c) => c.value === category)?.label || category}
                   </p>
                   <div className="grid grid-cols-2 gap-2">
-                    {metrics.map(metric => (
+                    {metrics.map((metric) => (
                       <div key={metric.id} className="flex items-center gap-2">
                         <Checkbox
                           id={metric.id}
                           checked={formData.metrics.includes(metric.id)}
                           onCheckedChange={() => handleMetricToggle(metric.id)}
                         />
-                        <label htmlFor={metric.id} className="text-sm text-gray-700 dark:text-gray-300 cursor-pointer">
+                        <label
+                          htmlFor={metric.id}
+                          className="text-sm text-gray-700 dark:text-gray-300 cursor-pointer"
+                        >
                           {metric.label}
                         </label>
                       </div>
@@ -169,11 +188,10 @@ export default function CreateTemplateModal({ open, onClose, onSave, isLoading }
           </div>
 
           <div className="flex justify-end gap-2 pt-4 border-t">
-            <Button variant="outline" onClick={onClose}>Cancel</Button>
-            <Button 
-              onClick={handleSubmit} 
-              disabled={!formData.name || isLoading}
-            >
+            <Button variant="outline" onClick={onClose}>
+              Cancel
+            </Button>
+            <Button onClick={handleSubmit} disabled={!formData.name || isLoading}>
               {isLoading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
               Create Template
             </Button>

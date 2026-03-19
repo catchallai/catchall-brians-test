@@ -1,6 +1,6 @@
 import React from 'react';
-import { 
-  DndContext, 
+import {
+  DndContext,
   closestCenter,
   KeyboardSensor,
   PointerSensor,
@@ -12,22 +12,17 @@ import {
   SortableContext,
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
-  useSortable
+  useSortable,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { GripVertical, Trash2, Sparkles } from "lucide-react";
+import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { GripVertical, Trash2, Sparkles } from 'lucide-react';
 
 function SortableSlide({ slide, index, branding, onEdit, onDelete, onAIEnhance }) {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging
-  } = useSortable({ id: slide.id });
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: slide.id,
+  });
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -37,29 +32,25 @@ function SortableSlide({ slide, index, branding, onEdit, onDelete, onAIEnhance }
 
   return (
     <div ref={setNodeRef} style={style}>
-      <Card 
+      <Card
         className="group relative overflow-hidden cursor-pointer"
         style={{
-          borderLeft: `4px solid ${branding?.primary_color || '#7c3aed'}`
+          borderLeft: `4px solid ${branding?.primary_color || '#7c3aed'}`,
         }}
       >
         <div className="p-4">
           <div className="flex items-start gap-3">
             {/* Drag Handle */}
-            <div
-              {...attributes}
-              {...listeners}
-              className="cursor-grab active:cursor-grabbing mt-1"
-            >
+            <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing mt-1">
               <GripVertical className="w-5 h-5 text-gray-400 hover:text-gray-600" />
             </div>
 
             {/* Slide Number */}
-            <div 
+            <div
               className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold shrink-0"
-              style={{ 
+              style={{
                 backgroundColor: branding?.primary_color || '#7c3aed',
-                color: 'white'
+                color: 'white',
               }}
             >
               {index + 1}
@@ -67,11 +58,11 @@ function SortableSlide({ slide, index, branding, onEdit, onDelete, onAIEnhance }
 
             {/* Content */}
             <div className="flex-1 min-w-0" onClick={() => onEdit(index)}>
-              <h4 
+              <h4
                 className="font-semibold text-base mb-1 truncate"
-                style={{ 
+                style={{
                   color: branding?.primary_color || '#7c3aed',
-                  fontFamily: branding?.font_heading || 'Inter'
+                  fontFamily: branding?.font_heading || 'Inter',
                 }}
               >
                 {slide.title || 'Untitled Slide'}
@@ -113,7 +104,14 @@ function SortableSlide({ slide, index, branding, onEdit, onDelete, onAIEnhance }
   );
 }
 
-export default function DraggableSlideList({ slides, branding, onReorder, onEdit, onDelete, onAIEnhance }) {
+export default function DraggableSlideList({
+  slides,
+  branding,
+  onReorder,
+  onEdit,
+  onDelete,
+  onAIEnhance,
+}) {
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
@@ -125,23 +123,16 @@ export default function DraggableSlideList({ slides, branding, onReorder, onEdit
     const { active, over } = event;
 
     if (active.id !== over.id) {
-      const oldIndex = slides.findIndex(s => s.id === active.id);
-      const newIndex = slides.findIndex(s => s.id === over.id);
+      const oldIndex = slides.findIndex((s) => s.id === active.id);
+      const newIndex = slides.findIndex((s) => s.id === over.id);
       const newSlides = arrayMove(slides, oldIndex, newIndex);
       onReorder(newSlides);
     }
   };
 
   return (
-    <DndContext
-      sensors={sensors}
-      collisionDetection={closestCenter}
-      onDragEnd={handleDragEnd}
-    >
-      <SortableContext
-        items={slides.map(s => s.id)}
-        strategy={verticalListSortingStrategy}
-      >
+    <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+      <SortableContext items={slides.map((s) => s.id)} strategy={verticalListSortingStrategy}>
         <div className="space-y-3">
           {slides.map((slide, index) => (
             <SortableSlide

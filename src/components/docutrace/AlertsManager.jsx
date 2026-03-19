@@ -1,15 +1,28 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Badge } from "@/components/ui/badge";
-import { Switch } from "@/components/ui/switch";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Bell, Plus, Trash2, Eye, Download, Clock, DollarSign, Mail, Loader2 } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Badge } from '@/components/ui/badge';
+import { Switch } from '@/components/ui/switch';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Bell, Plus, Trash2, Eye, Download, Clock, DollarSign, Mail, Loader2 } from 'lucide-react';
 
 export default function AlertsManager() {
   const [showCreate, setShowCreate] = useState(false);
@@ -19,18 +32,18 @@ export default function AlertsManager() {
     document_id: '',
     trigger_type: 'view_threshold',
     trigger_config: {},
-    notification_channels: ['in_app']
+    notification_channels: ['in_app'],
   });
   const queryClient = useQueryClient();
 
   const { data: alerts = [] } = useQuery({
     queryKey: ['docutrace-alerts'],
-    queryFn: () => base44.entities.DocuTraceAlert.list('-created_date')
+    queryFn: () => base44.entities.DocuTraceAlert.list('-created_date'),
   });
 
   const { data: documents = [] } = useQuery({
     queryKey: ['tracked-documents'],
-    queryFn: () => base44.entities.TrackedDocument.list()
+    queryFn: () => base44.entities.TrackedDocument.list(),
   });
 
   const createMutation = useMutation({
@@ -39,25 +52,25 @@ export default function AlertsManager() {
       queryClient.invalidateQueries({ queryKey: ['docutrace-alerts'] });
       setShowCreate(false);
       resetForm();
-    }
+    },
   });
 
   const deleteMutation = useMutation({
     mutationFn: (id) => base44.entities.DocuTraceAlert.delete({ id }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['docutrace-alerts'] });
-    }
+    },
   });
 
   const toggleMutation = useMutation({
     mutationFn: ({ id, is_active }) => base44.entities.DocuTraceAlert.update(id, { is_active }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['docutrace-alerts'] });
-    }
+    },
   });
 
   const checkNowMutation = useMutation({
-    mutationFn: () => base44.functions.invoke('checkDocuTraceAlerts', {})
+    mutationFn: () => base44.functions.invoke('checkDocuTraceAlerts', {}),
   });
 
   const resetForm = () => {
@@ -67,7 +80,7 @@ export default function AlertsManager() {
       document_id: '',
       trigger_type: 'view_threshold',
       trigger_config: {},
-      notification_channels: ['in_app']
+      notification_channels: ['in_app'],
     });
   };
 
@@ -77,12 +90,18 @@ export default function AlertsManager() {
 
   const getTriggerIcon = (type) => {
     switch (type) {
-      case 'specific_contact_view': return Eye;
-      case 'view_threshold': return Eye;
-      case 'download_threshold': return Download;
-      case 'expiration_warning': return Clock;
-      case 'high_value_deal_view': return DollarSign;
-      default: return Bell;
+      case 'specific_contact_view':
+        return Eye;
+      case 'view_threshold':
+        return Eye;
+      case 'download_threshold':
+        return Download;
+      case 'expiration_warning':
+        return Clock;
+      case 'high_value_deal_view':
+        return DollarSign;
+      default:
+        return Bell;
     }
   };
 
@@ -101,7 +120,11 @@ export default function AlertsManager() {
               onClick={() => checkNowMutation.mutate()}
               disabled={checkNowMutation.isPending}
             >
-              {checkNowMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Check Now'}
+              {checkNowMutation.isPending ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                'Check Now'
+              )}
             </Button>
             <Button size="sm" onClick={() => setShowCreate(true)} className="gap-2">
               <Plus className="w-4 h-4" />
@@ -135,7 +158,7 @@ export default function AlertsManager() {
                     <div className="flex items-center gap-2">
                       <Switch
                         checked={alert.is_active}
-                        onCheckedChange={(checked) => 
+                        onCheckedChange={(checked) =>
                           toggleMutation.mutate({ id: alert.id, is_active: checked })
                         }
                       />
@@ -154,8 +177,15 @@ export default function AlertsManager() {
                       {alert.trigger_type.replace(/_/g, ' ')}
                     </Badge>
                     {alert.notification_channels.map((ch) => (
-                      <Badge key={ch} className="bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 text-xs">
-                        {ch === 'email' ? <Mail className="w-3 h-3 mr-1" /> : <Bell className="w-3 h-3 mr-1" />}
+                      <Badge
+                        key={ch}
+                        className="bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 text-xs"
+                      >
+                        {ch === 'email' ? (
+                          <Mail className="w-3 h-3 mr-1" />
+                        ) : (
+                          <Bell className="w-3 h-3 mr-1" />
+                        )}
                         {ch}
                       </Badge>
                     ))}
@@ -186,7 +216,7 @@ export default function AlertsManager() {
                 <label className="text-sm font-medium mb-2 block">Alert Name</label>
                 <Input
                   value={alertForm.name}
-                  onChange={(e) => setAlertForm({...alertForm, name: e.target.value})}
+                  onChange={(e) => setAlertForm({ ...alertForm, name: e.target.value })}
                   placeholder="High-value deal document viewed"
                 />
               </div>
@@ -195,24 +225,26 @@ export default function AlertsManager() {
                 <label className="text-sm font-medium mb-2 block">Description (Optional)</label>
                 <Textarea
                   value={alertForm.description}
-                  onChange={(e) => setAlertForm({...alertForm, description: e.target.value})}
+                  onChange={(e) => setAlertForm({ ...alertForm, description: e.target.value })}
                   placeholder="Alert description"
                 />
               </div>
 
               <div>
                 <label className="text-sm font-medium mb-2 block">Document (Optional)</label>
-                <Select 
-                  value={alertForm.document_id} 
-                  onValueChange={(val) => setAlertForm({...alertForm, document_id: val})}
+                <Select
+                  value={alertForm.document_id}
+                  onValueChange={(val) => setAlertForm({ ...alertForm, document_id: val })}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="All documents" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value={null}>All documents</SelectItem>
-                    {documents.map(d => (
-                      <SelectItem key={d.id} value={d.id}>{d.name}</SelectItem>
+                    {documents.map((d) => (
+                      <SelectItem key={d.id} value={d.id}>
+                        {d.name}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -220,9 +252,11 @@ export default function AlertsManager() {
 
               <div>
                 <label className="text-sm font-medium mb-2 block">Trigger Type</label>
-                <Select 
-                  value={alertForm.trigger_type} 
-                  onValueChange={(val) => setAlertForm({...alertForm, trigger_type: val, trigger_config: {}})}
+                <Select
+                  value={alertForm.trigger_type}
+                  onValueChange={(val) =>
+                    setAlertForm({ ...alertForm, trigger_type: val, trigger_config: {} })
+                  }
                 >
                   <SelectTrigger>
                     <SelectValue />
@@ -240,13 +274,19 @@ export default function AlertsManager() {
               {/* Trigger Configuration */}
               {alertForm.trigger_type === 'specific_contact_view' && (
                 <div>
-                  <label className="text-sm font-medium mb-2 block">Contact Emails (comma-separated)</label>
+                  <label className="text-sm font-medium mb-2 block">
+                    Contact Emails (comma-separated)
+                  </label>
                   <Input
                     placeholder="john@example.com, jane@example.com"
-                    onChange={(e) => setAlertForm({
-                      ...alertForm, 
-                      trigger_config: { contact_emails: e.target.value.split(',').map(e => e.trim()) }
-                    })}
+                    onChange={(e) =>
+                      setAlertForm({
+                        ...alertForm,
+                        trigger_config: {
+                          contact_emails: e.target.value.split(',').map((e) => e.trim()),
+                        },
+                      })
+                    }
                   />
                 </div>
               )}
@@ -257,10 +297,12 @@ export default function AlertsManager() {
                   <Input
                     type="number"
                     placeholder="10"
-                    onChange={(e) => setAlertForm({
-                      ...alertForm, 
-                      trigger_config: { view_threshold: parseInt(e.target.value) }
-                    })}
+                    onChange={(e) =>
+                      setAlertForm({
+                        ...alertForm,
+                        trigger_config: { view_threshold: parseInt(e.target.value) },
+                      })
+                    }
                   />
                 </div>
               )}
@@ -271,10 +313,12 @@ export default function AlertsManager() {
                   <Input
                     type="number"
                     placeholder="5"
-                    onChange={(e) => setAlertForm({
-                      ...alertForm, 
-                      trigger_config: { download_threshold: parseInt(e.target.value) }
-                    })}
+                    onChange={(e) =>
+                      setAlertForm({
+                        ...alertForm,
+                        trigger_config: { download_threshold: parseInt(e.target.value) },
+                      })
+                    }
                   />
                 </div>
               )}
@@ -285,10 +329,12 @@ export default function AlertsManager() {
                   <Input
                     type="number"
                     placeholder="7"
-                    onChange={(e) => setAlertForm({
-                      ...alertForm, 
-                      trigger_config: { days_before_expiration: parseInt(e.target.value) }
-                    })}
+                    onChange={(e) =>
+                      setAlertForm({
+                        ...alertForm,
+                        trigger_config: { days_before_expiration: parseInt(e.target.value) },
+                      })
+                    }
                   />
                 </div>
               )}
@@ -299,10 +345,12 @@ export default function AlertsManager() {
                   <Input
                     type="number"
                     placeholder="50000"
-                    onChange={(e) => setAlertForm({
-                      ...alertForm, 
-                      trigger_config: { deal_value_threshold: parseInt(e.target.value) }
-                    })}
+                    onChange={(e) =>
+                      setAlertForm({
+                        ...alertForm,
+                        trigger_config: { deal_value_threshold: parseInt(e.target.value) },
+                      })
+                    }
                   />
                 </div>
               )}
@@ -317,8 +365,8 @@ export default function AlertsManager() {
                       onChange={(e) => {
                         const channels = e.target.checked
                           ? [...alertForm.notification_channels, 'in_app']
-                          : alertForm.notification_channels.filter(c => c !== 'in_app');
-                        setAlertForm({...alertForm, notification_channels: channels});
+                          : alertForm.notification_channels.filter((c) => c !== 'in_app');
+                        setAlertForm({ ...alertForm, notification_channels: channels });
                       }}
                     />
                     <Bell className="w-4 h-4" />
@@ -331,8 +379,8 @@ export default function AlertsManager() {
                       onChange={(e) => {
                         const channels = e.target.checked
                           ? [...alertForm.notification_channels, 'email']
-                          : alertForm.notification_channels.filter(c => c !== 'email');
-                        setAlertForm({...alertForm, notification_channels: channels});
+                          : alertForm.notification_channels.filter((c) => c !== 'email');
+                        setAlertForm({ ...alertForm, notification_channels: channels });
                       }}
                     />
                     <Mail className="w-4 h-4" />
@@ -348,9 +396,17 @@ export default function AlertsManager() {
               </Button>
               <Button
                 onClick={handleSubmit}
-                disabled={!alertForm.name || alertForm.notification_channels.length === 0 || createMutation.isPending}
+                disabled={
+                  !alertForm.name ||
+                  alertForm.notification_channels.length === 0 ||
+                  createMutation.isPending
+                }
               >
-                {createMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Create Alert'}
+                {createMutation.isPending ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  'Create Alert'
+                )}
               </Button>
             </DialogFooter>
           </DialogContent>

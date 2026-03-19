@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Badge } from '@/components/ui/badge';
 
 export default function HeatmapViewer({ pageUrl, heatmaps = [] }) {
   const [activeType, setActiveType] = useState('click');
 
-  const clickHeatmap = heatmaps.find(h => h.heatmap_type === 'click');
-  const scrollHeatmap = heatmaps.find(h => h.heatmap_type === 'scroll');
+  const clickHeatmap = heatmaps.find((h) => h.heatmap_type === 'click');
+  const scrollHeatmap = heatmaps.find((h) => h.heatmap_type === 'scroll');
 
   return (
     <Card className="glass-card">

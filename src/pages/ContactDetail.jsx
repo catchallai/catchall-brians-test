@@ -3,13 +3,37 @@ import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ArrowLeft, Mail, Phone, Linkedin, Calendar, Building2, BriefcaseIcon, Edit2, MapPin, Globe, Link2, FileText, Users, MessageSquare, Send, Plus, X } from "lucide-react";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Sheet, SheetContent } from "@/components/ui/sheet";
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
+  ArrowLeft,
+  Mail,
+  Phone,
+  Linkedin,
+  Calendar,
+  Building2,
+  BriefcaseIcon,
+  Edit2,
+  MapPin,
+  Globe,
+  Link2,
+  FileText,
+  Users,
+  MessageSquare,
+  Send,
+  Plus,
+  X,
+} from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Sheet, SheetContent } from '@/components/ui/sheet';
 import ContactModal from '@/components/modals/ContactModal';
 import EmailContactModal from '@/components/modals/EmailContactModal';
 import EmailTrackingPanel from '@/components/crm/EmailTrackingPanel';
@@ -32,7 +56,11 @@ export default function ContactDetail() {
     queryFn: () => base44.auth.me(),
   });
 
-  const { data: contact, isLoading: loadingContact, refetch } = useQuery({
+  const {
+    data: contact,
+    isLoading: loadingContact,
+    refetch,
+  } = useQuery({
     queryKey: ['contact', contactId],
     queryFn: async () => {
       if (!contactId) return null;
@@ -55,10 +83,14 @@ export default function ContactDetail() {
     queryKey: ['activities', contact?.id],
     queryFn: async () => {
       if (!contact?.id) return [];
-      return await base44.entities.Activity.filter({
-        entity_type: 'contact',
-        entity_id: contact.id,
-      }, '-created_date', 50);
+      return await base44.entities.Activity.filter(
+        {
+          entity_type: 'contact',
+          entity_id: contact.id,
+        },
+        '-created_date',
+        50
+      );
     },
     enabled: !!contact?.id,
   });
@@ -76,7 +108,7 @@ export default function ContactDetail() {
     queryKey: ['team-members'],
     queryFn: async () => {
       const allUsers = await base44.entities.User.list('-created_date', 100);
-      return allUsers.filter(u => u.id !== user?.id);
+      return allUsers.filter((u) => u.id !== user?.id);
     },
     enabled: !!user?.id,
   });
@@ -96,10 +128,10 @@ export default function ContactDetail() {
     },
   });
 
-  const associatedCompanies = contact?.company_ids?.length 
-    ? companies.filter(c => contact.company_ids.includes(c.id))
-    : contact?.company_id 
-      ? companies.filter(c => c.id === contact.company_id)
+  const associatedCompanies = contact?.company_ids?.length
+    ? companies.filter((c) => contact.company_ids.includes(c.id))
+    : contact?.company_id
+      ? companies.filter((c) => c.id === contact.company_id)
       : [];
 
   const statusColors = {
@@ -157,19 +189,16 @@ export default function ContactDetail() {
           </Link>
           <div className="flex items-center gap-4">
             <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white text-2xl font-bold">
-              {contact.first_name?.[0]}{contact.last_name?.[0]}
+              {contact.first_name?.[0]}
+              {contact.last_name?.[0]}
             </div>
             <div>
               <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
                 {contact.first_name} {contact.last_name}
               </h1>
-              {contact.job_title && (
-                <p className="text-gray-500 mt-1">{contact.job_title}</p>
-              )}
+              {contact.job_title && <p className="text-gray-500 mt-1">{contact.job_title}</p>}
               <div className="flex gap-2 mt-2">
-                <Badge className={statusColors[contact.status]}>
-                  {contact.status}
-                </Badge>
+                <Badge className={statusColors[contact.status]}>{contact.status}</Badge>
                 {contact.source && (
                   <Badge className={sourceColors[contact.source]}>
                     {contact.source.replace('_', ' ')}
@@ -184,7 +213,10 @@ export default function ContactDetail() {
             <Mail className="w-4 h-4" />
             Send Email
           </Button>
-          <Button onClick={() => setShowEditModal(true)} className="gap-2 bg-violet-600 hover:bg-violet-700">
+          <Button
+            onClick={() => setShowEditModal(true)}
+            className="gap-2 bg-violet-600 hover:bg-violet-700"
+          >
             <Edit2 className="w-4 h-4" />
             Edit Contact
           </Button>
@@ -196,7 +228,9 @@ export default function ContactDetail() {
         {/* Main Info */}
         <div className="md:col-span-2 space-y-4">
           <Card className="p-6">
-            <h2 className="font-semibold text-gray-900 dark:text-white mb-4">Contact Information</h2>
+            <h2 className="font-semibold text-gray-900 dark:text-white mb-4">
+              Contact Information
+            </h2>
             <div className="space-y-4">
               {contact.email && (
                 <div className="flex items-center gap-3">
@@ -217,7 +251,12 @@ export default function ContactDetail() {
               {contact.linkedin_url && (
                 <div className="flex items-center gap-3">
                   <Linkedin className="w-5 h-5 text-gray-400" />
-                  <a href={contact.linkedin_url} target="_blank" rel="noopener noreferrer" className="text-violet-600 hover:underline">
+                  <a
+                    href={contact.linkedin_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-violet-600 hover:underline"
+                  >
                     LinkedIn Profile
                   </a>
                 </div>
@@ -236,7 +275,9 @@ export default function ContactDetail() {
           {/* Company Information */}
           {(contact.company_name || contact.website || contact.country || contact.hq_city) && (
             <Card className="p-6">
-              <h2 className="font-semibold text-gray-900 dark:text-white mb-4">Company Information</h2>
+              <h2 className="font-semibold text-gray-900 dark:text-white mb-4">
+                Company Information
+              </h2>
               <div className="space-y-4">
                 {contact.company_name && (
                   <div className="flex items-center gap-3">
@@ -273,7 +314,12 @@ export default function ContactDetail() {
                 {contact.website && (
                   <div className="flex items-center gap-3">
                     <Globe className="w-5 h-5 text-gray-400" />
-                    <a href={contact.website} target="_blank" rel="noopener noreferrer" className="text-violet-600 hover:underline">
+                    <a
+                      href={contact.website}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-violet-600 hover:underline"
+                    >
                       {contact.website}
                     </a>
                   </div>
@@ -281,7 +327,12 @@ export default function ContactDetail() {
                 {contact.contact_page_url && (
                   <div className="flex items-center gap-3">
                     <Link2 className="w-5 h-5 text-gray-400" />
-                    <a href={contact.contact_page_url} target="_blank" rel="noopener noreferrer" className="text-violet-600 hover:underline text-sm">
+                    <a
+                      href={contact.contact_page_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-violet-600 hover:underline text-sm"
+                    >
                       Contact Page
                     </a>
                   </div>
@@ -292,7 +343,11 @@ export default function ContactDetail() {
                     <div className="space-y-1">
                       <p className="text-xs text-gray-500 mb-1">General Emails:</p>
                       {contact.general_emails.map((email, i) => (
-                        <a key={i} href={`mailto:${email}`} className="block text-sm text-violet-600 hover:underline">
+                        <a
+                          key={i}
+                          href={`mailto:${email}`}
+                          className="block text-sm text-violet-600 hover:underline"
+                        >
                           {email}
                         </a>
                       ))}
@@ -305,7 +360,11 @@ export default function ContactDetail() {
                     <div className="space-y-1">
                       <p className="text-xs text-gray-500 mb-1">General Phones:</p>
                       {contact.general_phones.map((phone, i) => (
-                        <a key={i} href={`tel:${phone}`} className="block text-sm text-violet-600 hover:underline">
+                        <a
+                          key={i}
+                          href={`tel:${phone}`}
+                          className="block text-sm text-violet-600 hover:underline"
+                        >
                           {phone}
                         </a>
                       ))}
@@ -329,12 +388,18 @@ export default function ContactDetail() {
                     <div className="space-y-2 text-sm">
                       <p className="text-gray-700 dark:text-gray-300">{contact.role_1_name}</p>
                       {contact.role_1_email && (
-                        <a href={`mailto:${contact.role_1_email}`} className="block text-violet-600 hover:underline">
+                        <a
+                          href={`mailto:${contact.role_1_email}`}
+                          className="block text-violet-600 hover:underline"
+                        >
                           {contact.role_1_email}
                         </a>
                       )}
                       {contact.role_1_phone && (
-                        <a href={`tel:${contact.role_1_phone}`} className="block text-violet-600 hover:underline">
+                        <a
+                          href={`tel:${contact.role_1_phone}`}
+                          className="block text-violet-600 hover:underline"
+                        >
                           {contact.role_1_phone}
                         </a>
                       )}
@@ -349,12 +414,18 @@ export default function ContactDetail() {
                     <div className="space-y-2 text-sm">
                       <p className="text-gray-700 dark:text-gray-300">{contact.role_2_name}</p>
                       {contact.role_2_email && (
-                        <a href={`mailto:${contact.role_2_email}`} className="block text-violet-600 hover:underline">
+                        <a
+                          href={`mailto:${contact.role_2_email}`}
+                          className="block text-violet-600 hover:underline"
+                        >
                           {contact.role_2_email}
                         </a>
                       )}
                       {contact.role_2_phone && (
-                        <a href={`tel:${contact.role_2_phone}`} className="block text-violet-600 hover:underline">
+                        <a
+                          href={`tel:${contact.role_2_phone}`}
+                          className="block text-violet-600 hover:underline"
+                        >
                           {contact.role_2_phone}
                         </a>
                       )}
@@ -369,12 +440,18 @@ export default function ContactDetail() {
                     <div className="space-y-2 text-sm">
                       <p className="text-gray-700 dark:text-gray-300">{contact.signer_name}</p>
                       {contact.signer_email && (
-                        <a href={`mailto:${contact.signer_email}`} className="block text-violet-600 hover:underline">
+                        <a
+                          href={`mailto:${contact.signer_email}`}
+                          className="block text-violet-600 hover:underline"
+                        >
                           {contact.signer_email}
                         </a>
                       )}
                       {contact.signer_phone && (
-                        <a href={`tel:${contact.signer_phone}`} className="block text-violet-600 hover:underline">
+                        <a
+                          href={`tel:${contact.signer_phone}`}
+                          className="block text-violet-600 hover:underline"
+                        >
                           {contact.signer_phone}
                         </a>
                       )}
@@ -386,7 +463,8 @@ export default function ContactDetail() {
           )}
 
           {/* LOI/MOU Information */}
-          {(contact.loi_summary || (contact.loi_source_urls && contact.loi_source_urls.length > 0)) && (
+          {(contact.loi_summary ||
+            (contact.loi_source_urls && contact.loi_source_urls.length > 0)) && (
             <Card className="p-6">
               <h2 className="font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
                 <FileText className="w-5 h-5" />
@@ -456,7 +534,12 @@ export default function ContactDetail() {
                 <Building2 className="w-5 h-5" />
                 Associated Companies ({associatedCompanies.length})
               </h2>
-              <Button size="sm" variant="outline" onClick={() => setShowAddCompanyModal(true)} className="gap-1">
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => setShowAddCompanyModal(true)}
+                className="gap-1"
+              >
                 <Plus className="w-4 h-4" />
                 Add
               </Button>
@@ -468,18 +551,19 @@ export default function ContactDetail() {
                     key={company.id}
                     className="p-3 rounded-lg border border-gray-200 dark:border-gray-700 flex items-start justify-between group hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
                   >
-                    <Link
-                      to={createPageUrl('Companies')}
-                      className="flex-1"
-                    >
-                      <div className="font-medium text-gray-900 dark:text-white hover:text-violet-600">{company.name}</div>
+                    <Link to={createPageUrl('Companies')} className="flex-1">
+                      <div className="font-medium text-gray-900 dark:text-white hover:text-violet-600">
+                        {company.name}
+                      </div>
                       {company.industry && (
                         <div className="text-sm text-gray-500">{company.industry}</div>
                       )}
                     </Link>
                     <button
                       onClick={() => {
-                        const newCompanyIds = (contact.company_ids || []).filter(id => id !== company.id);
+                        const newCompanyIds = (contact.company_ids || []).filter(
+                          (id) => id !== company.id
+                        );
                         base44.entities.Contact.update(contact.id, { company_ids: newCompanyIds });
                         queryClient.invalidateQueries({ queryKey: ['contact', contactId] });
                       }}
@@ -503,19 +587,24 @@ export default function ContactDetail() {
                     <SelectValue placeholder="Select a company..." />
                   </SelectTrigger>
                   <SelectContent>
-                    {companies.filter(c => !associatedCompanies.find(ac => ac.id === c.id)).map((company) => (
-                      <SelectItem key={company.id} value={company.id}>
-                        {company.name}
-                      </SelectItem>
-                    ))}
+                    {companies
+                      .filter((c) => !associatedCompanies.find((ac) => ac.id === c.id))
+                      .map((company) => (
+                        <SelectItem key={company.id} value={company.id}>
+                          {company.name}
+                        </SelectItem>
+                      ))}
                   </SelectContent>
                 </Select>
                 <div className="flex gap-2">
-                  <Button 
+                  <Button
                     size="sm"
                     onClick={() => {
                       if (selectedCompanyForAdd) {
-                        const newCompanyIds = [...(contact.company_ids || []), selectedCompanyForAdd];
+                        const newCompanyIds = [
+                          ...(contact.company_ids || []),
+                          selectedCompanyForAdd,
+                        ];
                         base44.entities.Contact.update(contact.id, { company_ids: newCompanyIds });
                         queryClient.invalidateQueries({ queryKey: ['contact', contactId] });
                         setShowAddCompanyModal(false);
@@ -527,7 +616,7 @@ export default function ContactDetail() {
                   >
                     Add Company
                   </Button>
-                  <Button 
+                  <Button
                     size="sm"
                     variant="ghost"
                     onClick={() => {
@@ -546,7 +635,9 @@ export default function ContactDetail() {
           {contact.notes && (
             <Card className="p-6">
               <h2 className="font-semibold text-gray-900 dark:text-white mb-3">Notes</h2>
-              <p className="text-gray-600 dark:text-gray-400 whitespace-pre-wrap">{contact.notes}</p>
+              <p className="text-gray-600 dark:text-gray-400 whitespace-pre-wrap">
+                {contact.notes}
+              </p>
             </Card>
           )}
 
@@ -559,7 +650,10 @@ export default function ContactDetail() {
             {activities.length > 0 ? (
               <div className="space-y-3">
                 {activities.map((activity) => (
-                  <div key={activity.id} className="pb-3 border-b border-gray-200 dark:border-gray-700 last:border-0">
+                  <div
+                    key={activity.id}
+                    className="pb-3 border-b border-gray-200 dark:border-gray-700 last:border-0"
+                  >
                     <p className="text-sm font-medium text-gray-900 dark:text-white">
                       {activity.title || activity.activity_type}
                     </p>
@@ -582,10 +676,13 @@ export default function ContactDetail() {
             <div className="space-y-4 text-sm">
               <div>
                 <p className="text-gray-500 mb-2">Assigned To</p>
-                <Select value={contact.owner_email || ''} onValueChange={(ownerEmail) => {
-                  base44.entities.Contact.update(contact.id, { owner_email: ownerEmail });
-                  queryClient.invalidateQueries({ queryKey: ['contact', contactId] });
-                }}>
+                <Select
+                  value={contact.owner_email || ''}
+                  onValueChange={(ownerEmail) => {
+                    base44.entities.Contact.update(contact.id, { owner_email: ownerEmail });
+                    queryClient.invalidateQueries({ queryKey: ['contact', contactId] });
+                  }}
+                >
                   <SelectTrigger className="h-8">
                     <SelectValue placeholder="Unassigned" />
                   </SelectTrigger>
@@ -601,10 +698,13 @@ export default function ContactDetail() {
               </div>
               <div>
                 <p className="text-gray-500 mb-2">Status</p>
-                <Select value={contact.status} onValueChange={(newStatus) => {
-                  base44.entities.Contact.update(contact.id, { status: newStatus });
-                  queryClient.invalidateQueries({ queryKey: ['contact', contactId] });
-                }}>
+                <Select
+                  value={contact.status}
+                  onValueChange={(newStatus) => {
+                    base44.entities.Contact.update(contact.id, { status: newStatus });
+                    queryClient.invalidateQueries({ queryKey: ['contact', contactId] });
+                  }}
+                >
                   <SelectTrigger className="h-8">
                     <SelectValue />
                   </SelectTrigger>
@@ -618,7 +718,9 @@ export default function ContactDetail() {
               </div>
               <div>
                 <p className="text-gray-500">Source</p>
-                <p className="font-medium text-gray-900 dark:text-white capitalize">{contact.source || '-'}</p>
+                <p className="font-medium text-gray-900 dark:text-white capitalize">
+                  {contact.source || '-'}
+                </p>
               </div>
               <div>
                 <p className="text-gray-500">Added</p>
@@ -642,7 +744,10 @@ export default function ContactDetail() {
               <h3 className="font-semibold text-gray-900 dark:text-white mb-3">Tags</h3>
               <div className="flex flex-wrap gap-2">
                 {contact.tags.map((tag) => (
-                  <Badge key={tag} className="bg-violet-100 text-violet-800 dark:bg-violet-900/30 dark:text-violet-300">
+                  <Badge
+                    key={tag}
+                    className="bg-violet-100 text-violet-800 dark:bg-violet-900/30 dark:text-violet-300"
+                  >
                     {tag}
                   </Badge>
                 ))}
@@ -693,11 +798,7 @@ export default function ContactDetail() {
                 </div>
               </div>
             ) : (
-              <Button
-                variant="outline"
-                className="w-full"
-                onClick={() => setShowTaskForm(true)}
-              >
+              <Button variant="outline" className="w-full" onClick={() => setShowTaskForm(true)}>
                 + Create Follow-up Task
               </Button>
             )}
@@ -708,7 +809,7 @@ export default function ContactDetail() {
               <MessageSquare className="w-5 h-5" />
               Team Notes ({notes.length})
             </h3>
-            
+
             {/* Add Note */}
             <div className="mb-4">
               <textarea

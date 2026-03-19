@@ -8,7 +8,7 @@ export const extractMentions = (content, users = []) => {
     const mentionedName = match[1];
     // Find user by name or email
     const user = users.find(
-      u =>
+      (u) =>
         u.full_name?.toLowerCase().includes(mentionedName.toLowerCase()) ||
         u.email?.toLowerCase().startsWith(mentionedName.toLowerCase())
     );
@@ -24,7 +24,7 @@ export const extractMentions = (content, users = []) => {
 export const createMentionNotifications = async (base44, messageData, mentionedEmails) => {
   if (mentionedEmails.length === 0) return;
 
-  const notificationsToCreate = mentionedEmails.map(email => ({
+  const notificationsToCreate = mentionedEmails.map((email) => ({
     user_email: email,
     type: 'mention',
     title: `${messageData.sender_name} mentioned you`,

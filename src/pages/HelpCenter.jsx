@@ -1,41 +1,162 @@
 import React, { useState, useMemo } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import {
-  Search, BookOpen, HelpCircle, Video, ChevronRight, ChevronDown, ChevronUp,
-  Users, Target, BarChart3, Share2, Mail, Zap, Home, ArrowLeft, Globe,
-  Radio, FileText, MapPin, Newspaper, Calendar, Settings, Activity, PenTool,
-  TrendingUp, Megaphone, Building2, Phone, MessageSquare, Clock, CheckCircle2,
-  Lightbulb, PlayCircle, FileQuestion, Sparkles, Star, Eye, Package, DollarSign,
-  Presentation, FileSearch, AlertTriangle, User
-} from "lucide-react";
+  Search,
+  BookOpen,
+  HelpCircle,
+  Video,
+  ChevronRight,
+  ChevronDown,
+  ChevronUp,
+  Users,
+  Target,
+  BarChart3,
+  Share2,
+  Mail,
+  Zap,
+  Home,
+  ArrowLeft,
+  Globe,
+  Radio,
+  FileText,
+  MapPin,
+  Newspaper,
+  Calendar,
+  Settings,
+  Activity,
+  PenTool,
+  TrendingUp,
+  Megaphone,
+  Building2,
+  Phone,
+  MessageSquare,
+  Clock,
+  CheckCircle2,
+  Lightbulb,
+  PlayCircle,
+  FileQuestion,
+  Sparkles,
+  Star,
+  Eye,
+  Package,
+  DollarSign,
+  Presentation,
+  FileSearch,
+  AlertTriangle,
+  User,
+} from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import ReactMarkdown from 'react-markdown';
 import { useToast } from '@/components/ui/toast-provider';
 
 const CATEGORIES = [
-  { id: 'getting_started', label: 'Getting Started', icon: Home, color: 'bg-violet-100 text-violet-700', description: 'New to CatchAll? Start here' },
-  { id: 'crm', label: 'CRM & Contacts', icon: Users, color: 'bg-blue-100 text-blue-700', description: 'Manage contacts, companies, and deals' },
-  { id: 'seo', label: 'SEO Tools', icon: BarChart3, color: 'bg-amber-100 text-amber-700', description: 'Track rankings, keywords, and backlinks' },
-  { id: 'analytics', label: 'Traffic & Analytics', icon: TrendingUp, color: 'bg-emerald-100 text-emerald-700', description: 'User journeys, visitor insights, and AI analytics' },
-  { id: 'social_media', label: 'Social Media', icon: Share2, color: 'bg-pink-100 text-pink-700', description: 'Social listening, scheduling, and AI predictions' },
-  { id: 'marketing', label: 'Marketing', icon: Mail, color: 'bg-indigo-100 text-indigo-700', description: 'Campaigns, email marketing, and reports' },
-  { id: 'content', label: 'Content', icon: PenTool, color: 'bg-cyan-100 text-cyan-700', description: 'Content strategy and creation' },
-  { id: 'automation', label: 'Automation', icon: Zap, color: 'bg-amber-100 text-amber-700', description: 'Automate your workflows' },
-  { id: 'ai_tools', label: 'AI Tools', icon: Sparkles, color: 'bg-purple-100 text-purple-700', description: 'AI-powered features and tools' },
-  { id: 'business_dev', label: 'Business Dev', icon: Presentation, color: 'bg-blue-100 text-blue-700', description: 'Pitch decks, DMCA, lead scoring' },
-  { id: 'assets', label: 'Assets & Finance', icon: Package, color: 'bg-emerald-100 text-emerald-700', description: 'Equipment and accounting' },
-  { id: 'mobile', label: 'Mobile App', icon: Phone, color: 'bg-purple-100 text-purple-700', description: 'CatchAll on-the-go' },
-  { id: 'settings', label: 'Settings & Account', icon: Settings, color: 'bg-gray-100 text-gray-700', description: 'Profile, notifications, API keys' },
-  { id: 'faq', label: 'FAQ', icon: HelpCircle, color: 'bg-slate-100 text-slate-700', description: 'Common questions answered' },
+  {
+    id: 'getting_started',
+    label: 'Getting Started',
+    icon: Home,
+    color: 'bg-violet-100 text-violet-700',
+    description: 'New to CatchAll? Start here',
+  },
+  {
+    id: 'crm',
+    label: 'CRM & Contacts',
+    icon: Users,
+    color: 'bg-blue-100 text-blue-700',
+    description: 'Manage contacts, companies, and deals',
+  },
+  {
+    id: 'seo',
+    label: 'SEO Tools',
+    icon: BarChart3,
+    color: 'bg-amber-100 text-amber-700',
+    description: 'Track rankings, keywords, and backlinks',
+  },
+  {
+    id: 'analytics',
+    label: 'Traffic & Analytics',
+    icon: TrendingUp,
+    color: 'bg-emerald-100 text-emerald-700',
+    description: 'User journeys, visitor insights, and AI analytics',
+  },
+  {
+    id: 'social_media',
+    label: 'Social Media',
+    icon: Share2,
+    color: 'bg-pink-100 text-pink-700',
+    description: 'Social listening, scheduling, and AI predictions',
+  },
+  {
+    id: 'marketing',
+    label: 'Marketing',
+    icon: Mail,
+    color: 'bg-indigo-100 text-indigo-700',
+    description: 'Campaigns, email marketing, and reports',
+  },
+  {
+    id: 'content',
+    label: 'Content',
+    icon: PenTool,
+    color: 'bg-cyan-100 text-cyan-700',
+    description: 'Content strategy and creation',
+  },
+  {
+    id: 'automation',
+    label: 'Automation',
+    icon: Zap,
+    color: 'bg-amber-100 text-amber-700',
+    description: 'Automate your workflows',
+  },
+  {
+    id: 'ai_tools',
+    label: 'AI Tools',
+    icon: Sparkles,
+    color: 'bg-purple-100 text-purple-700',
+    description: 'AI-powered features and tools',
+  },
+  {
+    id: 'business_dev',
+    label: 'Business Dev',
+    icon: Presentation,
+    color: 'bg-blue-100 text-blue-700',
+    description: 'Pitch decks, DMCA, lead scoring',
+  },
+  {
+    id: 'assets',
+    label: 'Assets & Finance',
+    icon: Package,
+    color: 'bg-emerald-100 text-emerald-700',
+    description: 'Equipment and accounting',
+  },
+  {
+    id: 'mobile',
+    label: 'Mobile App',
+    icon: Phone,
+    color: 'bg-purple-100 text-purple-700',
+    description: 'CatchAll on-the-go',
+  },
+  {
+    id: 'settings',
+    label: 'Settings & Account',
+    icon: Settings,
+    color: 'bg-gray-100 text-gray-700',
+    description: 'Profile, notifications, API keys',
+  },
+  {
+    id: 'faq',
+    label: 'FAQ',
+    icon: HelpCircle,
+    color: 'bg-slate-100 text-slate-700',
+    description: 'Common questions answered',
+  },
 ];
 
 const VIDEO_TUTORIALS = [
@@ -129,12 +250,48 @@ const VIDEO_TUTORIALS = [
 ];
 
 const QUICK_START_STEPS = [
-  { id: 1, title: 'Add Your First Contact', description: 'Go to Contacts and create your first lead or customer', link: 'Contacts', icon: Users },
-  { id: 2, title: 'Create a Deal', description: 'Track a sales opportunity in your pipeline', link: 'Deals', icon: Target },
-  { id: 3, title: 'Set Up SEO Tracking', description: 'Add your website to monitor SEO performance', link: 'SEODashboard', icon: Globe },
-  { id: 4, title: 'Start Social Listening', description: 'Track mentions of your brand across social media', link: 'SocialListening', icon: Radio },
-  { id: 5, title: 'Explore AI Analytics', description: 'Map user journeys and get AI-powered insights', link: 'TrafficAnalytics', icon: TrendingUp },
-  { id: 6, title: 'Try Mobile Hub', description: 'Access CatchAll on-the-go with the mobile experience', link: 'MobileHub', icon: Phone },
+  {
+    id: 1,
+    title: 'Add Your First Contact',
+    description: 'Go to Contacts and create your first lead or customer',
+    link: 'Contacts',
+    icon: Users,
+  },
+  {
+    id: 2,
+    title: 'Create a Deal',
+    description: 'Track a sales opportunity in your pipeline',
+    link: 'Deals',
+    icon: Target,
+  },
+  {
+    id: 3,
+    title: 'Set Up SEO Tracking',
+    description: 'Add your website to monitor SEO performance',
+    link: 'SEODashboard',
+    icon: Globe,
+  },
+  {
+    id: 4,
+    title: 'Start Social Listening',
+    description: 'Track mentions of your brand across social media',
+    link: 'SocialListening',
+    icon: Radio,
+  },
+  {
+    id: 5,
+    title: 'Explore AI Analytics',
+    description: 'Map user journeys and get AI-powered insights',
+    link: 'TrafficAnalytics',
+    icon: TrendingUp,
+  },
+  {
+    id: 6,
+    title: 'Try Mobile Hub',
+    description: 'Access CatchAll on-the-go with the mobile experience',
+    link: 'MobileHub',
+    icon: Phone,
+  },
 ];
 
 const DEFAULT_ARTICLES = [
@@ -181,7 +338,7 @@ Your all-in-one platform for managing customer relationships, SEO performance, s
 
 - Browse articles by category using the sidebar
 - Use the search bar to find specific topics
-- Check the FAQ for common questions`
+- Check the FAQ for common questions`,
   },
   {
     id: 'quick-start',
@@ -235,7 +392,7 @@ Get up and running in just a few minutes.
 
 ## You're All Set!
 
-Explore more features as you get comfortable with the platform.`
+Explore more features as you get comfortable with the platform.`,
   },
   {
     id: 'navigation',
@@ -274,9 +431,9 @@ The left sidebar contains all main sections:
 
 ## Mobile Navigation
 
-On mobile devices, tap the menu icon to open the sidebar.`
+On mobile devices, tap the menu icon to open the sidebar.`,
   },
-  
+
   // CRM Articles
   {
     id: 'contacts-guide',
@@ -331,7 +488,7 @@ Learn how to effectively manage your contacts in the CRM.
 ✅ Keep contact information up to date
 ✅ Log all interactions as activities
 ✅ Use consistent naming conventions
-✅ Set follow-up reminders for important contacts`
+✅ Set follow-up reminders for important contacts`,
   },
   {
     id: 'companies-guide',
@@ -374,7 +531,7 @@ Each company page shows:
 
 - Create companies before adding contacts for better organization
 - Use the industry field to segment your accounts
-- Track company-level metrics for account-based selling`
+- Track company-level metrics for account-based selling`,
   },
   {
     id: 'deals-pipeline',
@@ -428,7 +585,7 @@ Track your sales opportunities from lead to close.
 - **Pipeline Value**: Total value of open deals
 - **Win Rate**: Percentage of deals won
 - **Average Deal Size**: Mean value of closed deals
-- **Sales Cycle**: Average time to close`
+- **Sales Cycle**: Average time to close`,
   },
   {
     id: 'activities-guide',
@@ -479,7 +636,7 @@ View all activities in chronological order on:
 
 - Log activities immediately after they happen
 - Include key details in notes
-- Link activities to both contacts and deals when relevant`
+- Link activities to both contacts and deals when relevant`,
   },
 
   // SEO Articles
@@ -533,7 +690,7 @@ From the dashboard you can:
 - Run a technical audit
 - View keyword rankings
 - Analyze backlinks
-- Generate reports`
+- Generate reports`,
   },
   {
     id: 'keyword-tracking',
@@ -586,7 +743,7 @@ Organize keywords by:
 - Product/service
 - Location
 - Intent (informational, commercial)
-- Priority level`
+- Priority level`,
   },
   {
     id: 'backlinks-guide',
@@ -629,7 +786,7 @@ Backlinks are links from other websites pointing to your site. They're a key ran
 - Create valuable content worth linking to
 - Guest post on industry sites
 - Get listed in directories
-- Engage in digital PR`
+- Engage in digital PR`,
   },
   {
     id: 'seo-audit',
@@ -680,7 +837,7 @@ Find and fix technical SEO issues on your website.
 1. Review each issue
 2. Click for detailed recommendations
 3. Make changes on your website
-4. Re-run the audit to verify fixes`
+4. Re-run the audit to verify fixes`,
   },
 
   // Social Media Articles
@@ -739,7 +896,7 @@ Use Deep Scan to find discussions in:
 - Reddit
 - Forums
 - Quora
-- Blog comments`
+- Blog comments`,
   },
   {
     id: 'social-calendar',
@@ -789,7 +946,7 @@ Plan and schedule your social media content.
 - Plan content 1-2 weeks ahead
 - Use consistent posting times
 - Mix content types (educational, promotional, engaging)
-- Review and approve posts before publishing`
+- Review and approve posts before publishing`,
   },
   {
     id: 'social-analytics',
@@ -831,7 +988,7 @@ Discover which content performs best:
 1. Add competitor accounts
 2. Compare your metrics to theirs
 3. Identify content gaps
-4. Learn from their successes`
+4. Learn from their successes`,
   },
 
   // Marketing Articles
@@ -893,7 +1050,7 @@ After sending, monitor:
 - Open rate
 - Click rate
 - Unsubscribes
-- Bounces`
+- Bounces`,
   },
   {
     id: 'reports-guide',
@@ -940,7 +1097,7 @@ Create comprehensive reports for your stakeholders.
 
 - Email directly from the platform
 - Download and share manually
-- Schedule automatic sends`
+- Schedule automatic sends`,
   },
 
   // Content Articles
@@ -990,7 +1147,7 @@ After publishing, monitor:
 - Page views
 - Time on page
 - Rankings achieved
-- Conversions`
+- Conversions`,
   },
 
   // Automation Articles
@@ -1041,7 +1198,7 @@ Automate repetitive tasks and workflows.
 - Enable/disable rules as needed
 - View automation history
 - Test before activating
-- Monitor for errors`
+- Monitor for errors`,
   },
 
   // Traffic & Analytics Articles
@@ -1099,7 +1256,7 @@ Industry benchmarks and market positioning.
 
 ## Toggle Widgets
 
-Use the toggle panel to show/hide specific analytics cards based on your needs.`
+Use the toggle panel to show/hide specific analytics cards based on your needs.`,
   },
   {
     id: 'user-journey-mapping',
@@ -1174,7 +1331,7 @@ Prioritized recommendations:
 - Run analysis monthly to track changes
 - Prioritize high-impact, low-effort fixes
 - Test recommendations with A/B testing
-- Monitor drop-off rates after changes`
+- Monitor drop-off rates after changes`,
   },
   {
     id: 'visitor-profiles',
@@ -1248,7 +1405,7 @@ Click on any visitor to expand:
 - Focus outreach on Hot and Warm leads
 - Review score breakdowns to understand buyer behavior
 - Use patterns to optimize high-intent pages
-- Compare industry distribution to target market`
+- Compare industry distribution to target market`,
   },
   {
     id: 'user-journey-segments',
@@ -1334,7 +1491,7 @@ Different segments show different metrics:
 - Compare segments to find optimization opportunities
 - Analyze high-intent entry points for conversion tips
 - Review mobile vs desktop journey differences
-- Test fixes on high drop-off points`
+- Test fixes on high drop-off points`,
   },
 
   // Mobile App Articles
@@ -1415,7 +1572,7 @@ Get notified about:
 - Use quick actions for common tasks
 - Swipe to call/email contacts
 - Check alerts regularly
-- Review analytics on-the-go`
+- Review analytics on-the-go`,
   },
   {
     id: 'mobile-install',
@@ -1457,7 +1614,7 @@ Add CatchAll to your home screen for a native app-like experience.
 - Bottom navigation bar
 - Swipe gestures
 - Pull to refresh
-- Native sharing`
+- Native sharing`,
   },
 
   // Settings Articles
@@ -1521,7 +1678,7 @@ Generate API keys for:
 1. Enter a key name
 2. Click **Generate Key**
 3. Copy and store securely
-4. Use in Authorization header`
+4. Use in Authorization header`,
   },
   {
     id: 'api-keys',
@@ -1572,7 +1729,7 @@ Access CatchAll data programmatically:
 View and manage connected services:
 - Social media accounts
 - Email providers
-- Analytics platforms`
+- Analytics platforms`,
   },
 
   // Social Media - New AI Features
@@ -1633,7 +1790,7 @@ The AI analyzes:
 2. Adjust content calendar accordingly
 3. Prepare for trending topics
 4. Monitor competitor forecasts
-5. Iterate based on results`
+5. Iterate based on results`,
   },
   {
     id: 'competitor-intelligence',
@@ -1692,7 +1849,7 @@ Generate side-by-side comparisons:
 1. Review competitor reports weekly
 2. Identify successful tactics to adapt
 3. Find content gaps to exploit
-4. Stay ahead of campaign launches`
+4. Stay ahead of campaign launches`,
   },
   {
     id: 'hashtag-pool',
@@ -1750,7 +1907,7 @@ Monitor which hashtags perform best:
 - Mix popular and niche tags
 - Rotate hashtags regularly
 - Track what works per platform
-- Mark favorites for quick access`
+- Mark favorites for quick access`,
   },
 
   // FAQ
@@ -1829,7 +1986,7 @@ Each AI tool includes:
 - Best practices
 - Integration options
 
-Click "Launch Feature" to access any tool.`
+Click "Launch Feature" to access any tool.`,
   },
   {
     id: 'visitor-profiles-lead-scoring',
@@ -1876,7 +2033,7 @@ The AI considers:
 - Focus on hot and warm leads first
 - Review score factors to understand behavior
 - Use patterns to optimize pages
-- Add high-score visitors to CRM`
+- Add high-score visitors to CRM`,
   },
   // Business Dev Articles
   {
@@ -1942,7 +2099,7 @@ The AI creates:
 - Use the brand selector for consistency
 - Review all AI suggestions
 - Customize for your audience
-- Practice your delivery`
+- Practice your delivery`,
   },
   {
     id: 'pitch-deck-analyzer',
@@ -2008,7 +2165,7 @@ Get specific suggestions for:
 2. Read category breakdowns
 3. Focus on critical items
 4. Make improvements
-5. Re-analyze to track progress`
+5. Re-analyze to track progress`,
   },
   {
     id: 'takedown-requestor',
@@ -2078,9 +2235,9 @@ The AI creates a professional legal notice including:
 1. Document the date sent
 2. Save copies of correspondence
 3. Track response deadline
-4. Follow escalation procedures if needed`
+4. Follow escalation procedures if needed`,
   },
-  // Assets & Finance Articles  
+  // Assets & Finance Articles
   {
     id: 'equipment-inventory',
     title: 'Equipment Inventory Management',
@@ -2150,7 +2307,7 @@ Monitor:
 - Schedule preventive maintenance
 - Track location changes
 - Document repairs and services
-- Review and audit periodically`
+- Review and audit periodically`,
   },
   {
     id: 'accounting-dashboard',
@@ -2221,7 +2378,7 @@ View latest activity:
 - Control expense growth
 - Maintain positive cash flow
 - Review transactions regularly
-- Plan for seasonal variations`
+- Plan for seasonal variations`,
   },
   {
     id: 'user-profile-settings',
@@ -2298,7 +2455,7 @@ Customize what you receive:
 - Export your data anytime
 - Control what's shared
 - Manage connected apps
-- Delete account option`
+- Delete account option`,
   },
   {
     id: 'faq-general',
@@ -2378,7 +2535,7 @@ A: Go to Settings and look for the team management section to invite colleagues.
 A: Click on your profile in the top right and select account settings.
 
 **Q: Can I export my data?**
-A: Yes, most sections have an Export option to download your data as CSV.`
+A: Yes, most sections have an Export option to download your data as CSV.`,
   },
 ];
 
@@ -2399,7 +2556,7 @@ export default function HelpCenter() {
     const params = new URLSearchParams(window.location.search);
     const articleId = params.get('article');
     if (articleId) {
-      const article = DEFAULT_ARTICLES.find(a => a.id === articleId);
+      const article = DEFAULT_ARTICLES.find((a) => a.id === articleId);
       if (article) {
         setSelectedArticle(article);
         setSelectedCategory(article.category);
@@ -2412,14 +2569,17 @@ export default function HelpCenter() {
     queryFn: () => base44.entities.HelpArticle.list('order', 100),
   });
 
-  const allArticles = [...DEFAULT_ARTICLES, ...customArticles].sort((a, b) => (a.order || 99) - (b.order || 99));
+  const allArticles = [...DEFAULT_ARTICLES, ...customArticles].sort(
+    (a, b) => (a.order || 99) - (b.order || 99)
+  );
 
   const filteredArticles = useMemo(() => {
-    return allArticles.filter(article => {
-      const matchesSearch = !searchQuery || 
+    return allArticles.filter((article) => {
+      const matchesSearch =
+        !searchQuery ||
         article.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         article.content?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        article.tags?.some(t => t.toLowerCase().includes(searchQuery.toLowerCase()));
+        article.tags?.some((t) => t.toLowerCase().includes(searchQuery.toLowerCase()));
       const matchesCategory = !selectedCategory || article.category === selectedCategory;
       return matchesSearch && matchesCategory;
     });
@@ -2427,19 +2587,19 @@ export default function HelpCenter() {
 
   const articlesByCategory = useMemo(() => {
     const grouped = {};
-    CATEGORIES.forEach(cat => {
-      grouped[cat.id] = allArticles.filter(a => a.category === cat.id);
+    CATEGORIES.forEach((cat) => {
+      grouped[cat.id] = allArticles.filter((a) => a.category === cat.id);
     });
     return grouped;
   }, [allArticles]);
 
   const toggleSection = (categoryId) => {
-    setExpandedSections(prev => ({ ...prev, [categoryId]: !prev[categoryId] }));
+    setExpandedSections((prev) => ({ ...prev, [categoryId]: !prev[categoryId] }));
   };
 
   const handleAskAI = async () => {
     if (!aiQuestion.trim()) return;
-    
+
     setIsAskingAI(true);
     try {
       const response = await base44.integrations.Core.InvokeLLM({
@@ -2453,9 +2613,10 @@ export default function HelpCenter() {
     }
   };
 
-  const filteredVideos = videoCategory === 'all' 
-    ? VIDEO_TUTORIALS 
-    : VIDEO_TUTORIALS.filter(v => v.category === videoCategory);
+  const filteredVideos =
+    videoCategory === 'all'
+      ? VIDEO_TUTORIALS
+      : VIDEO_TUTORIALS.filter((v) => v.category === videoCategory);
 
   // Article view
   if (selectedArticle) {
@@ -2466,7 +2627,10 @@ export default function HelpCenter() {
           <div className="p-4 border-b border-gray-200 dark:border-gray-700">
             <Button
               variant="ghost"
-              onClick={() => { setSelectedArticle(null); setSelectedCategory(null); }}
+              onClick={() => {
+                setSelectedArticle(null);
+                setSelectedCategory(null);
+              }}
               className="gap-2 w-full justify-start"
             >
               <ArrowLeft className="w-4 h-4" />
@@ -2475,13 +2639,13 @@ export default function HelpCenter() {
           </div>
           <ScrollArea className="h-[calc(100vh-8rem)]">
             <div className="p-4 space-y-4">
-              {CATEGORIES.map(cat => (
+              {CATEGORIES.map((cat) => (
                 <div key={cat.id}>
                   <button
                     onClick={() => toggleSection(cat.id)}
                     className={`w-full flex items-center justify-between p-2 rounded-lg text-sm font-medium transition-colors ${
-                      selectedArticle?.category === cat.id 
-                        ? 'bg-violet-50 text-violet-700 dark:bg-violet-900/30 dark:text-violet-300' 
+                      selectedArticle?.category === cat.id
+                        ? 'bg-violet-50 text-violet-700 dark:bg-violet-900/30 dark:text-violet-300'
                         : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
                     }`}
                   >
@@ -2497,7 +2661,7 @@ export default function HelpCenter() {
                   </button>
                   {(expandedSections[cat.id] || selectedArticle?.category === cat.id) && (
                     <div className="ml-6 mt-1 space-y-1">
-                      {articlesByCategory[cat.id]?.map(article => (
+                      {articlesByCategory[cat.id]?.map((article) => (
                         <button
                           key={article.id}
                           onClick={() => setSelectedArticle(article)}
@@ -2523,42 +2687,62 @@ export default function HelpCenter() {
           <div className="max-w-3xl mx-auto p-6 lg:p-8">
             <Button
               variant="ghost"
-              onClick={() => { setSelectedArticle(null); setSelectedCategory(null); }}
+              onClick={() => {
+                setSelectedArticle(null);
+                setSelectedCategory(null);
+              }}
               className="mb-4 gap-2 lg:hidden"
             >
               <ArrowLeft className="w-4 h-4" />
               Back
             </Button>
-            
+
             <div className="flex items-center gap-2 mb-4">
-              <Badge className={CATEGORIES.find(c => c.id === selectedArticle.category)?.color || 'bg-gray-100'}>
-                {CATEGORIES.find(c => c.id === selectedArticle.category)?.label || selectedArticle.category}
+              <Badge
+                className={
+                  CATEGORIES.find((c) => c.id === selectedArticle.category)?.color || 'bg-gray-100'
+                }
+              >
+                {CATEGORIES.find((c) => c.id === selectedArticle.category)?.label ||
+                  selectedArticle.category}
               </Badge>
-              <Badge variant="outline" className="capitalize">{selectedArticle.type}</Badge>
+              <Badge variant="outline" className="capitalize">
+                {selectedArticle.type}
+              </Badge>
             </div>
 
             <article className="max-w-none">
               <ReactMarkdown
                 components={{
-                  h1: ({node, ...props}) => (
-                    <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-6 pb-4 border-b border-gray-200 dark:border-gray-700" {...props} />
+                  h1: ({ node, ...props }) => (
+                    <h1
+                      className="text-3xl font-bold text-gray-900 dark:text-white mb-6 pb-4 border-b border-gray-200 dark:border-gray-700"
+                      {...props}
+                    />
                   ),
-                  h2: ({node, ...props}) => (
-                    <h2 className="text-xl font-semibold text-gray-900 dark:text-white mt-8 mb-4 flex items-center gap-2" {...props} />
+                  h2: ({ node, ...props }) => (
+                    <h2
+                      className="text-xl font-semibold text-gray-900 dark:text-white mt-8 mb-4 flex items-center gap-2"
+                      {...props}
+                    />
                   ),
-                  h3: ({node, ...props}) => (
-                    <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mt-6 mb-3" {...props} />
+                  h3: ({ node, ...props }) => (
+                    <h3
+                      className="text-lg font-semibold text-gray-800 dark:text-gray-200 mt-6 mb-3"
+                      {...props}
+                    />
                   ),
-                  p: ({node, ...props}) => (
-                    <p className="text-gray-600 dark:text-gray-300 mb-4 leading-relaxed" {...props} />
+                  p: ({ node, ...props }) => (
+                    <p
+                      className="text-gray-600 dark:text-gray-300 mb-4 leading-relaxed"
+                      {...props}
+                    />
                   ),
-                  ul: ({node, ...props}) => (
-                    <ul className="space-y-2 mb-6 ml-1" {...props} />
-                  ),
-                  ol: ({node, ...props}) => (
+                  ul: ({ node, ...props }) => <ul className="space-y-2 mb-6 ml-1" {...props} />,
+                  ol: ({ node, ...props }) => (
                     <ol className="space-y-3 mb-6 ml-1 list-none counter-reset-item" {...props} />
                   ),
-                  li: ({node, ordered, ...props}) => (
+                  li: ({ node, ordered, ...props }) => (
                     <li className="flex items-start gap-3 text-gray-600 dark:text-gray-300">
                       <span className="flex-shrink-0 w-6 h-6 rounded-full bg-violet-100 dark:bg-violet-900/40 text-violet-600 dark:text-violet-400 flex items-center justify-center text-xs font-medium mt-0.5">
                         {ordered ? props.index + 1 : '•'}
@@ -2566,39 +2750,64 @@ export default function HelpCenter() {
                       <span className="flex-1" {...props} />
                     </li>
                   ),
-                  strong: ({node, ...props}) => (
+                  strong: ({ node, ...props }) => (
                     <strong className="font-semibold text-gray-900 dark:text-white" {...props} />
                   ),
-                  table: ({node, ...props}) => (
+                  table: ({ node, ...props }) => (
                     <div className="overflow-x-auto my-6 rounded-xl border border-gray-200 dark:border-gray-700">
-                      <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700" {...props} />
+                      <table
+                        className="min-w-full divide-y divide-gray-200 dark:divide-gray-700"
+                        {...props}
+                      />
                     </div>
                   ),
-                  thead: ({node, ...props}) => (
+                  thead: ({ node, ...props }) => (
                     <thead className="bg-gray-50 dark:bg-gray-800" {...props} />
                   ),
-                  th: ({node, ...props}) => (
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider" {...props} />
+                  th: ({ node, ...props }) => (
+                    <th
+                      className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider"
+                      {...props}
+                    />
                   ),
-                  td: ({node, ...props}) => (
-                    <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300 border-t border-gray-100 dark:border-gray-700" {...props} />
+                  td: ({ node, ...props }) => (
+                    <td
+                      className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300 border-t border-gray-100 dark:border-gray-700"
+                      {...props}
+                    />
                   ),
-                  tr: ({node, ...props}) => (
-                    <tr className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors" {...props} />
+                  tr: ({ node, ...props }) => (
+                    <tr
+                      className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
+                      {...props}
+                    />
                   ),
-                  blockquote: ({node, ...props}) => (
-                    <blockquote className="border-l-4 border-violet-400 bg-violet-50 dark:bg-violet-900/20 pl-4 py-3 my-4 rounded-r-lg text-gray-700 dark:text-gray-300 italic" {...props} />
+                  blockquote: ({ node, ...props }) => (
+                    <blockquote
+                      className="border-l-4 border-violet-400 bg-violet-50 dark:bg-violet-900/20 pl-4 py-3 my-4 rounded-r-lg text-gray-700 dark:text-gray-300 italic"
+                      {...props}
+                    />
                   ),
-                  code: ({node, inline, ...props}) => (
-                    inline 
-                      ? <code className="bg-gray-100 dark:bg-gray-800 text-violet-600 dark:text-violet-400 px-1.5 py-0.5 rounded text-sm font-mono" {...props} />
-                      : <code className="block bg-gray-900 dark:bg-gray-950 text-gray-100 p-4 rounded-xl text-sm font-mono overflow-x-auto my-4" {...props} />
-                  ),
-                  hr: ({node, ...props}) => (
+                  code: ({ node, inline, ...props }) =>
+                    inline ? (
+                      <code
+                        className="bg-gray-100 dark:bg-gray-800 text-violet-600 dark:text-violet-400 px-1.5 py-0.5 rounded text-sm font-mono"
+                        {...props}
+                      />
+                    ) : (
+                      <code
+                        className="block bg-gray-900 dark:bg-gray-950 text-gray-100 p-4 rounded-xl text-sm font-mono overflow-x-auto my-4"
+                        {...props}
+                      />
+                    ),
+                  hr: ({ node, ...props }) => (
                     <hr className="my-8 border-gray-200 dark:border-gray-700" {...props} />
                   ),
-                  a: ({node, ...props}) => (
-                    <a className="text-violet-600 dark:text-violet-400 hover:underline font-medium" {...props} />
+                  a: ({ node, ...props }) => (
+                    <a
+                      className="text-violet-600 dark:text-violet-400 hover:underline font-medium"
+                      {...props}
+                    />
                   ),
                 }}
               >
@@ -2612,9 +2821,9 @@ export default function HelpCenter() {
                 <h3 className="text-lg font-semibold mb-4">Related Articles</h3>
                 <div className="grid gap-2">
                   {articlesByCategory[selectedArticle.category]
-                    .filter(a => a.id !== selectedArticle.id)
+                    .filter((a) => a.id !== selectedArticle.id)
                     .slice(0, 3)
-                    .map(article => (
+                    .map((article) => (
                       <button
                         key={article.id}
                         onClick={() => setSelectedArticle(article)}
@@ -2623,8 +2832,7 @@ export default function HelpCenter() {
                         <ChevronRight className="w-4 h-4 text-gray-400" />
                         <span className="text-sm font-medium">{article.title}</span>
                       </button>
-                    ))
-                  }
+                    ))}
                 </div>
               </div>
             )}
@@ -2646,7 +2854,7 @@ export default function HelpCenter() {
         <p className="text-gray-500 dark:text-gray-400 mb-6">
           Search our knowledge base, watch video tutorials, or ask our AI assistant
         </p>
-        
+
         {/* Search with Ask AI */}
         <div className="flex gap-2">
           <div className="relative flex-1">
@@ -2654,11 +2862,14 @@ export default function HelpCenter() {
             <Input
               placeholder="Search for help articles or ask a question..."
               value={searchQuery}
-              onChange={(e) => { setSearchQuery(e.target.value); setSelectedCategory(null); }}
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+                setSelectedCategory(null);
+              }}
               className="pl-12 h-12 text-lg rounded-xl"
             />
           </div>
-          <Button 
+          <Button
             onClick={handleAskAI}
             disabled={isAskingAI}
             className="h-12 px-6 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700"
@@ -2676,7 +2887,9 @@ export default function HelpCenter() {
                 <Sparkles className="w-5 h-5 text-violet-600 flex-shrink-0 mt-1" />
                 <div className="flex-1">
                   <p className="font-medium text-gray-900 dark:text-white mb-2">AI Assistant</p>
-                  <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">{aiAnswer}</p>
+                  <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
+                    {aiAnswer}
+                  </p>
                 </div>
               </div>
             </CardContent>
@@ -2708,159 +2921,181 @@ export default function HelpCenter() {
 
           {/* Guides Tab */}
           <TabsContent value="guides" className="mt-6">
-
             {/* Search Results */}
             {searchQuery && (
-        <div className="max-w-3xl mx-auto">
-          <h2 className="text-lg font-semibold mb-4">
-            {filteredArticles.length} results for "{searchQuery}"
-          </h2>
-          <div className="space-y-2">
-            {filteredArticles.map(article => {
-              const cat = CATEGORIES.find(c => c.id === article.category);
-              return (
-                <Card 
-                  key={article.id}
-                  className="border-0 shadow-sm hover:shadow-md transition-all cursor-pointer"
-                  onClick={() => setSelectedArticle(article)}
-                >
-                  <CardContent className="p-4 flex items-center gap-4">
-                    <div className={`w-10 h-10 rounded-lg ${cat?.color || 'bg-gray-100'} flex items-center justify-center shrink-0`}>
-                      {cat?.icon && <cat.icon className="w-5 h-5" />}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-medium text-gray-900 dark:text-white">{article.title}</h3>
-                      <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-1">
-                        {article.content?.replace(/[#*`]/g, '').substring(0, 100)}...
-                      </p>
-                    </div>
-                    <ChevronRight className="w-5 h-5 text-gray-400" />
-                  </CardContent>
-                </Card>
-              );
-            })}
-            {filteredArticles.length === 0 && (
-              <Card className="border-0 shadow-sm">
-                <CardContent className="p-8 text-center">
-                  <FileQuestion className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-                  <p className="text-gray-500">No articles found matching your search</p>
-                </CardContent>
-              </Card>
+              <div className="max-w-3xl mx-auto">
+                <h2 className="text-lg font-semibold mb-4">
+                  {filteredArticles.length} results for "{searchQuery}"
+                </h2>
+                <div className="space-y-2">
+                  {filteredArticles.map((article) => {
+                    const cat = CATEGORIES.find((c) => c.id === article.category);
+                    return (
+                      <Card
+                        key={article.id}
+                        className="border-0 shadow-sm hover:shadow-md transition-all cursor-pointer"
+                        onClick={() => setSelectedArticle(article)}
+                      >
+                        <CardContent className="p-4 flex items-center gap-4">
+                          <div
+                            className={`w-10 h-10 rounded-lg ${cat?.color || 'bg-gray-100'} flex items-center justify-center shrink-0`}
+                          >
+                            {cat?.icon && <cat.icon className="w-5 h-5" />}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <h3 className="font-medium text-gray-900 dark:text-white">
+                              {article.title}
+                            </h3>
+                            <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-1">
+                              {article.content?.replace(/[#*`]/g, '').substring(0, 100)}...
+                            </p>
+                          </div>
+                          <ChevronRight className="w-5 h-5 text-gray-400" />
+                        </CardContent>
+                      </Card>
+                    );
+                  })}
+                  {filteredArticles.length === 0 && (
+                    <Card className="border-0 shadow-sm">
+                      <CardContent className="p-8 text-center">
+                        <FileQuestion className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+                        <p className="text-gray-500">No articles found matching your search</p>
+                      </CardContent>
+                    </Card>
+                  )}
+                </div>
+              </div>
             )}
-          </div>
-        </div>
-      )}
 
             {/* Default View (no search) */}
             {!searchQuery && (
               <>
-          {/* Quick Start */}
-          <div className="max-w-4xl mx-auto">
-            <div className="flex items-center gap-2 mb-4">
-              <PlayCircle className="w-5 h-5 text-violet-500" />
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Quick Start</h2>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              {QUICK_START_STEPS.map((step, idx) => (
-                <Link
-                  key={step.id}
-                  to={createPageUrl(step.link)}
-                  className="group"
-                >
-                  <Card className="border-0 shadow-sm hover:shadow-md transition-all h-full">
-                    <CardContent className="p-4">
-                      <div className="flex items-center gap-3 mb-2">
-                        <div className="w-8 h-8 bg-violet-100 dark:bg-violet-900/30 rounded-lg flex items-center justify-center text-violet-600 dark:text-violet-400 font-bold text-sm">
-                          {idx + 1}
-                        </div>
-                        <step.icon className="w-5 h-5 text-gray-400 group-hover:text-violet-500 transition-colors" />
-                      </div>
-                      <h3 className="font-medium text-gray-900 dark:text-white mb-1">{step.title}</h3>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">{step.description}</p>
-                    </CardContent>
-                  </Card>
-                </Link>
-              ))}
-            </div>
-          </div>
+                {/* Quick Start */}
+                <div className="max-w-4xl mx-auto">
+                  <div className="flex items-center gap-2 mb-4">
+                    <PlayCircle className="w-5 h-5 text-violet-500" />
+                    <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+                      Quick Start
+                    </h2>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    {QUICK_START_STEPS.map((step, idx) => (
+                      <Link key={step.id} to={createPageUrl(step.link)} className="group">
+                        <Card className="border-0 shadow-sm hover:shadow-md transition-all h-full">
+                          <CardContent className="p-4">
+                            <div className="flex items-center gap-3 mb-2">
+                              <div className="w-8 h-8 bg-violet-100 dark:bg-violet-900/30 rounded-lg flex items-center justify-center text-violet-600 dark:text-violet-400 font-bold text-sm">
+                                {idx + 1}
+                              </div>
+                              <step.icon className="w-5 h-5 text-gray-400 group-hover:text-violet-500 transition-colors" />
+                            </div>
+                            <h3 className="font-medium text-gray-900 dark:text-white mb-1">
+                              {step.title}
+                            </h3>
+                            <p className="text-sm text-gray-500 dark:text-gray-400">
+                              {step.description}
+                            </p>
+                          </CardContent>
+                        </Card>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
 
-          {/* Categories Grid */}
-          <div className="max-w-4xl mx-auto">
-            <div className="flex items-center gap-2 mb-4">
-              <BookOpen className="w-5 h-5 text-violet-500" />
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Browse by Category</h2>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              {CATEGORIES.map(cat => (
-                <Card 
-                  key={cat.id}
-                  className="border-0 shadow-sm hover:shadow-md transition-all cursor-pointer group"
-                  onClick={() => {
-                    setSelectedCategory(cat.id);
-                    const firstArticle = articlesByCategory[cat.id]?.[0];
-                    if (firstArticle) setSelectedArticle(firstArticle);
-                  }}
-                >
-                  <CardContent className="p-4">
-                    <div className={`w-10 h-10 rounded-lg ${cat.color} flex items-center justify-center mb-3 group-hover:scale-110 transition-transform`}>
-                      <cat.icon className="w-5 h-5" />
-                    </div>
-                    <h3 className="font-semibold text-gray-900 dark:text-white mb-1">{cat.label}</h3>
-                    <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">{cat.description}</p>
-                    <p className="text-xs text-violet-600 dark:text-violet-400 font-medium">
-                      {articlesByCategory[cat.id]?.length || 0} articles
-                    </p>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </div>
+                {/* Categories Grid */}
+                <div className="max-w-4xl mx-auto">
+                  <div className="flex items-center gap-2 mb-4">
+                    <BookOpen className="w-5 h-5 text-violet-500" />
+                    <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+                      Browse by Category
+                    </h2>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    {CATEGORIES.map((cat) => (
+                      <Card
+                        key={cat.id}
+                        className="border-0 shadow-sm hover:shadow-md transition-all cursor-pointer group"
+                        onClick={() => {
+                          setSelectedCategory(cat.id);
+                          const firstArticle = articlesByCategory[cat.id]?.[0];
+                          if (firstArticle) setSelectedArticle(firstArticle);
+                        }}
+                      >
+                        <CardContent className="p-4">
+                          <div
+                            className={`w-10 h-10 rounded-lg ${cat.color} flex items-center justify-center mb-3 group-hover:scale-110 transition-transform`}
+                          >
+                            <cat.icon className="w-5 h-5" />
+                          </div>
+                          <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
+                            {cat.label}
+                          </h3>
+                          <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">
+                            {cat.description}
+                          </p>
+                          <p className="text-xs text-violet-600 dark:text-violet-400 font-medium">
+                            {articlesByCategory[cat.id]?.length || 0} articles
+                          </p>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                </div>
 
-          {/* Featured Articles */}
-          <div className="max-w-4xl mx-auto">
-            <div className="flex items-center gap-2 mb-4">
-              <Lightbulb className="w-5 h-5 text-amber-500" />
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Popular Articles</h2>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {allArticles.filter(a => a.is_featured).slice(0, 6).map(article => {
-                const cat = CATEGORIES.find(c => c.id === article.category);
-                return (
-                  <Card 
-                    key={article.id}
-                    className="border-0 shadow-sm hover:shadow-md transition-all cursor-pointer"
-                    onClick={() => setSelectedArticle(article)}
-                  >
-                    <CardContent className="p-4 flex items-start gap-4">
-                      <div className={`w-10 h-10 rounded-lg ${cat?.color || 'bg-gray-100'} flex items-center justify-center shrink-0`}>
-                        {cat?.icon && <cat.icon className="w-5 h-5" />}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <h3 className="font-medium text-gray-900 dark:text-white mb-1">{article.title}</h3>
-                        <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-2">
-                          {article.content?.replace(/[#*`]/g, '').substring(0, 80)}...
-                        </p>
-                      </div>
-                      <ChevronRight className="w-5 h-5 text-gray-400 shrink-0" />
-                    </CardContent>
-                  </Card>
-                );
-              })}
-            </div>
-          </div>
+                {/* Featured Articles */}
+                <div className="max-w-4xl mx-auto">
+                  <div className="flex items-center gap-2 mb-4">
+                    <Lightbulb className="w-5 h-5 text-amber-500" />
+                    <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+                      Popular Articles
+                    </h2>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {allArticles
+                      .filter((a) => a.is_featured)
+                      .slice(0, 6)
+                      .map((article) => {
+                        const cat = CATEGORIES.find((c) => c.id === article.category);
+                        return (
+                          <Card
+                            key={article.id}
+                            className="border-0 shadow-sm hover:shadow-md transition-all cursor-pointer"
+                            onClick={() => setSelectedArticle(article)}
+                          >
+                            <CardContent className="p-4 flex items-start gap-4">
+                              <div
+                                className={`w-10 h-10 rounded-lg ${cat?.color || 'bg-gray-100'} flex items-center justify-center shrink-0`}
+                              >
+                                {cat?.icon && <cat.icon className="w-5 h-5" />}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <h3 className="font-medium text-gray-900 dark:text-white mb-1">
+                                  {article.title}
+                                </h3>
+                                <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-2">
+                                  {article.content?.replace(/[#*`]/g, '').substring(0, 80)}...
+                                </p>
+                              </div>
+                              <ChevronRight className="w-5 h-5 text-gray-400 shrink-0" />
+                            </CardContent>
+                          </Card>
+                        );
+                      })}
+                  </div>
+                </div>
 
                 {/* Still Need Help */}
                 <div className="max-w-xl mx-auto text-center">
                   <Card className="border-0 shadow-sm bg-gradient-to-br from-violet-50 to-indigo-50 dark:from-violet-900/20 dark:to-indigo-900/20">
                     <CardContent className="p-6">
                       <MessageSquare className="w-10 h-10 text-violet-500 mx-auto mb-3" />
-                      <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Still need help?</h3>
+                      <h3 className="font-semibold text-gray-900 dark:text-white mb-2">
+                        Still need help?
+                      </h3>
                       <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
                         Can't find what you're looking for? Our support team is here to help.
                       </p>
-                      <Button className="bg-violet-600 hover:bg-violet-700">
-                        Contact Support
-                      </Button>
+                      <Button className="bg-violet-600 hover:bg-violet-700">Contact Support</Button>
                     </CardContent>
                   </Card>
                 </div>
@@ -2880,8 +3115,10 @@ export default function HelpCenter() {
                 >
                   All Videos
                 </Button>
-                {CATEGORIES.map(cat => {
-                  const videosInCategory = VIDEO_TUTORIALS.filter(v => v.category === cat.id).length;
+                {CATEGORIES.map((cat) => {
+                  const videosInCategory = VIDEO_TUTORIALS.filter(
+                    (v) => v.category === cat.id
+                  ).length;
                   if (videosInCategory === 0) return null;
                   return (
                     <Button
@@ -2900,11 +3137,16 @@ export default function HelpCenter() {
 
               {/* Video Grid */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredVideos.map(video => {
-                  const cat = CATEGORIES.find(c => c.id === video.category);
+                {filteredVideos.map((video) => {
+                  const cat = CATEGORIES.find((c) => c.id === video.category);
                   return (
-                    <Card key={video.id} className="overflow-hidden hover:shadow-lg transition-shadow">
-                      <div className={`aspect-video ${video.thumbnail} relative flex items-center justify-center cursor-pointer group`}>
+                    <Card
+                      key={video.id}
+                      className="overflow-hidden hover:shadow-lg transition-shadow"
+                    >
+                      <div
+                        className={`aspect-video ${video.thumbnail} relative flex items-center justify-center cursor-pointer group`}
+                      >
                         {video.isFeatured && (
                           <Badge className="absolute top-2 left-2 bg-amber-500 text-white border-0">
                             <Star className="w-3 h-3 mr-1" />
@@ -2920,8 +3162,12 @@ export default function HelpCenter() {
                         </div>
                       </div>
                       <CardContent className="p-4">
-                        <h3 className="font-semibold text-gray-900 dark:text-white mb-2">{video.title}</h3>
-                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-3 line-clamp-2">{video.description}</p>
+                        <h3 className="font-semibold text-gray-900 dark:text-white mb-2">
+                          {video.title}
+                        </h3>
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-3 line-clamp-2">
+                          {video.description}
+                        </p>
                         <div className="flex items-center justify-between text-xs text-gray-500">
                           <div className="flex items-center gap-1">
                             <Eye className="w-3 h-3" />
@@ -2943,11 +3189,7 @@ export default function HelpCenter() {
           <TabsContent value="quickstart" className="mt-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {QUICK_START_STEPS.map((step, idx) => (
-                <Link
-                  key={step.id}
-                  to={createPageUrl(step.link)}
-                  className="group"
-                >
+                <Link key={step.id} to={createPageUrl(step.link)} className="group">
                   <Card className="border-0 shadow-sm hover:shadow-md transition-all h-full">
                     <CardContent className="p-4">
                       <div className="flex items-center gap-3 mb-2">
@@ -2956,7 +3198,9 @@ export default function HelpCenter() {
                         </div>
                         <step.icon className="w-5 h-5 text-gray-400 group-hover:text-violet-500 transition-colors" />
                       </div>
-                      <h3 className="font-medium text-gray-900 dark:text-white mb-1">{step.title}</h3>
+                      <h3 className="font-medium text-gray-900 dark:text-white mb-1">
+                        {step.title}
+                      </h3>
                       <p className="text-sm text-gray-500 dark:text-gray-400">{step.description}</p>
                     </CardContent>
                   </Card>
@@ -2968,29 +3212,36 @@ export default function HelpCenter() {
           {/* Popular Tab */}
           <TabsContent value="popular" className="mt-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {allArticles.filter(a => a.is_featured).slice(0, 8).map(article => {
-                const cat = CATEGORIES.find(c => c.id === article.category);
-                return (
-                  <Card 
-                    key={article.id}
-                    className="border-0 shadow-sm hover:shadow-md transition-all cursor-pointer"
-                    onClick={() => setSelectedArticle(article)}
-                  >
-                    <CardContent className="p-4 flex items-start gap-4">
-                      <div className={`w-10 h-10 rounded-lg ${cat?.color || 'bg-gray-100'} flex items-center justify-center shrink-0`}>
-                        {cat?.icon && <cat.icon className="w-5 h-5" />}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <h3 className="font-medium text-gray-900 dark:text-white mb-1">{article.title}</h3>
-                        <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-2">
-                          {article.content?.replace(/[#*`]/g, '').substring(0, 80)}...
-                        </p>
-                      </div>
-                      <ChevronRight className="w-5 h-5 text-gray-400 shrink-0" />
-                    </CardContent>
-                  </Card>
-                );
-              })}
+              {allArticles
+                .filter((a) => a.is_featured)
+                .slice(0, 8)
+                .map((article) => {
+                  const cat = CATEGORIES.find((c) => c.id === article.category);
+                  return (
+                    <Card
+                      key={article.id}
+                      className="border-0 shadow-sm hover:shadow-md transition-all cursor-pointer"
+                      onClick={() => setSelectedArticle(article)}
+                    >
+                      <CardContent className="p-4 flex items-start gap-4">
+                        <div
+                          className={`w-10 h-10 rounded-lg ${cat?.color || 'bg-gray-100'} flex items-center justify-center shrink-0`}
+                        >
+                          {cat?.icon && <cat.icon className="w-5 h-5" />}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-medium text-gray-900 dark:text-white mb-1">
+                            {article.title}
+                          </h3>
+                          <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-2">
+                            {article.content?.replace(/[#*`]/g, '').substring(0, 80)}...
+                          </p>
+                        </div>
+                        <ChevronRight className="w-5 h-5 text-gray-400 shrink-0" />
+                      </CardContent>
+                    </Card>
+                  );
+                })}
             </div>
           </TabsContent>
         </Tabs>
