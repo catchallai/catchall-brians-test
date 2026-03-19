@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { appendHashtagToCaption } from '@/utils/appendHashtagToCaption';
 import { base44 } from '@/api/base44Client';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from "@/components/ui/button";
@@ -35,6 +36,7 @@ const DEFAULT_FORM = {
   status: 'draft',
   auto_post: false,
 };
+
 
 function PlatformPreview({ platform, caption, imageUrl, videoUrl }) {
   const PIcon = PLATFORMS.find(p => p.id === platform)?.icon || Globe;
@@ -129,10 +131,11 @@ export default function BufferComposer({ hashtagPool = [], onSuccess }) {
   };
 
   const addHashtag = (tag) => {
-    const clean = tag.replace(/^#/, '').trim();
-    if (clean && !form.hashtags.includes(clean)) {
-      setForm(f => ({ ...f, hashtags: [...f.hashtags, clean], caption: f.caption + (f.caption ? ' ' : '') + '#' + clean }));
-    }
+    setForm(f => {
+      const result = appendHashtagToCaption(f.caption, tag, f.hashtags);
+      if (!result) return f;
+      return { ...f, ...result };
+    });
     setHashtagInput('');
   };
 
@@ -228,7 +231,16 @@ export default function BufferComposer({ hashtagPool = [], onSuccess }) {
           <Label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Caption</Label>
           <Textarea
             value={form.caption}
-            onChange={(e) => setForm(f => ({ ...f, caption: e.target.value }))}
+            onChange={(e) => {
+              const newCaption = e.target.value;
+              setForm(f => ({
+                ...f,
+                caption: newCaption,
+                // Reset tracked hashtags when the caption no longer contains any,
+                // so that the next addHashtag call correctly inserts a blank line.
+                hashtags: /#\w+/.test(newCaption) ? f.hashtags : [],
+              }));
+            }}
             placeholder="What do you want to share?"
             rows={5}
             className={`resize-none ${overLimit ? 'border-red-400 focus-visible:ring-red-400' : ''}`}

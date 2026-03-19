@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { appendHashtagToCaption } from '@/utils/appendHashtagToCaption';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -467,6 +468,15 @@ export default function CalendarPostModal({
 		setShowBestTimes(false);
 	};
 
+	const addHashtag = (tag) => {
+		setFormData((f) => {
+			const existingHashtags = Array.isArray(f.hashtags) ? f.hashtags : [];
+			const result = appendHashtagToCaption(f.caption, tag, existingHashtags);
+			if (!result) return f;
+			return { ...f, ...result };
+		});
+	};
+
 	const isViewer = currentUser?.social_media_role === 'viewer';
 	const isAdmin =
 		currentUser?.role === 'admin' ||
@@ -593,9 +603,16 @@ export default function CalendarPostModal({
 								</div>
 								<Textarea
 									value={formData.caption}
-									onChange={(e) =>
-										setFormData((f) => ({ ...f, caption: e.target.value }))
-									}
+									onChange={(e) => {
+										const newCaption = e.target.value;
+										setFormData((f) => ({
+											...f,
+											caption: newCaption,
+											// Reset tracked hashtags when the caption no longer contains any,
+											// so the next addHashtag call correctly inserts a blank line.
+											hashtags: /#\w+/.test(newCaption) ? f.hashtags : [],
+										}));
+									}}
 									placeholder='What would you like to share?'
 									className='border-0 shadow-none focus-visible:ring-0 resize-none text-[15px] text-gray-800 dark:text-gray-200 bg-transparent p-0 min-h-[120px] leading-relaxed'
 								/>
@@ -711,16 +728,7 @@ export default function CalendarPostModal({
 									{hashtagPool.slice(0, 10).map((h) => (
 										<button
 											key={h.id}
-											onClick={() =>
-												setFormData((f) => ({
-													...f,
-													caption:
-														f.caption +
-														(f.caption ? ' ' : '') +
-														'#' +
-														h.hashtag,
-												}))
-											}
+											onClick={() => addHashtag(h.hashtag)}
 											className='text-xs text-violet-600 bg-violet-50 hover:bg-violet-100 border border-violet-200 rounded-full px-2 py-0.5 transition-colors'>
 											#{h.hashtag}
 										</button>
