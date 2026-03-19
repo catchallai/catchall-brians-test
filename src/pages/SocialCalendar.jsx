@@ -299,7 +299,7 @@ export default function SocialCalendar() {
 
       <div>
         {/* Calendar Header */}
-        <Card className="glass-card rounded-2xl mb-6 print:shadow-none print:border">
+        <Card className="glass-card rounded-2xl mb-6">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
@@ -313,7 +313,7 @@ export default function SocialCalendar() {
                   <p className="text-sm text-gray-500">{dateRange}</p>
                 </div>
               </div>
-              <div className="flex items-center gap-2 print:hidden">
+              <div className="flex items-center gap-2">
                 <Button variant="ghost" size="icon" onClick={() => setCurrentMonth(subMonths(currentMonth, 1))}>
                   <ChevronLeft className="w-4 h-4" />
                 </Button>
@@ -486,7 +486,7 @@ export default function SocialCalendar() {
               </CardContent>
             </Card>
           ) : (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 print:grid-cols-3 print:gap-3">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
               {filteredPosts.map((post) => (
                 <div key={post.id} className="flex flex-col">
                   <CalendarPostCard 
@@ -506,7 +506,7 @@ export default function SocialCalendar() {
         )}
 
         {/* Enhanced Features Grid */}
-        <div className="grid lg:grid-cols-2 gap-6 mt-6 print:hidden">
+        <div className="grid lg:grid-cols-2 gap-6 mt-6">
           <div className="space-y-6">
             <PostQueueManager />
             <CalendarNotifications />
@@ -524,12 +524,12 @@ export default function SocialCalendar() {
         </div>
 
         {/* Approval Section */}
-        <Card className="border-0 shadow-sm mt-6 print:shadow-none print:border print:border-emerald-500 bg-white dark:bg-gray-800 rounded-2xl">
+        <Card className="border-0 shadow-sm mt-6 bg-white dark:bg-gray-800 rounded-2xl">
           <CardContent className="p-6">
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
               <div className="flex-1 w-full sm:w-auto">
                 <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">Sign Off Approved By</label>
-                <div className="border-b-2 border-emerald-400 mt-2 pb-2 print:min-h-[24px]">
+                <div className="border-b-2 border-emerald-400 mt-2 pb-2">
                   {showApprovalSection ? (
                     <Input
                       value={approverName}
@@ -546,7 +546,7 @@ export default function SocialCalendar() {
               </div>
               <div className="flex-1 w-full sm:w-auto">
                 <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">Sign Off Date</label>
-                <div className="border-b-2 border-emerald-400 mt-2 pb-2 print:min-h-[24px]">
+                <div className="border-b-2 border-emerald-400 mt-2 pb-2">
                   <span className="text-lg text-gray-700 dark:text-gray-300 font-medium">
                     {filteredPosts.find(p => p.approved_date)?.approved_date 
                       ? format(new Date(filteredPosts.find(p => p.approved_date).approved_date), 'MMM d, yyyy')
@@ -554,7 +554,7 @@ export default function SocialCalendar() {
                   </span>
                 </div>
               </div>
-              <div className="print:hidden w-full sm:w-auto">
+              <div className="w-full sm:w-auto">
                 {showApprovalSection ? (
                   <div className="flex gap-3">
                     <Button 
