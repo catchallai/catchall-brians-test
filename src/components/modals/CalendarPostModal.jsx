@@ -406,13 +406,18 @@ export default function CalendarPostModal({
   };
 
   const togglePlatform = (id) => {
-    setFormData((f) => ({
-      ...f,
-      platforms: f.platforms.includes(id)
+    setFormData((f) => {
+      const next = f.platforms.includes(id)
         ? f.platforms.filter((p) => p !== id)
-        : [...f.platforms, id],
-    }));
-    setPreviewPlatform(id);
+        : [...f.platforms, id];
+      // Keep previewPlatform pointed at a selected platform
+      if (next.includes(id)) {
+        setPreviewPlatform(id);
+      } else if (next.length > 0 && !next.includes(previewPlatform)) {
+        setPreviewPlatform(next[0]);
+      }
+      return { ...f, platforms: next };
+    });
   };
 
   const handleSubmit = (status) => {
@@ -553,7 +558,7 @@ export default function CalendarPostModal({
           {/* LEFT: Composer */}
           {(activeTab === 'compose' || !post) && (
             <div
-              className={`flex flex-col overflow-y-auto ${showPreview ? 'w-[58%]' : 'w-full'} border-r border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900`}
+              className={`flex flex-col overflow-y-auto ${showPreview && formData.platforms.length > 0 ? 'w-[58%]' : 'w-full'} border-r border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900`}
             >
               {/* Platform Avatars */}
               <div className="flex items-center gap-3 px-6 pt-5 pb-4">
@@ -565,7 +570,9 @@ export default function CalendarPostModal({
                     onClick={() => togglePlatform(pl.id)}
                   />
                 ))}
-                <span className="text-xs text-gray-400 ml-1">Click to toggle platforms</span>
+                <span className="text-xs text-gray-400 ml-1">
+                  Where would you like to share this post?
+                </span>
               </div>
 
               {/* Caption area */}
@@ -587,7 +594,7 @@ export default function CalendarPostModal({
                       hashtags: /#\w+/.test(newCaption) ? f.hashtags : [],
                     }));
                   }}
-                  placeholder="What would you like to share?"
+                  placeholder="Start writing your post here..."
                   className="border-0 shadow-none focus-visible:ring-0 resize-none text-[15px] text-gray-800 dark:text-gray-200 bg-transparent p-0 min-h-[120px] leading-relaxed"
                 />
               </div>
@@ -738,11 +745,11 @@ export default function CalendarPostModal({
           )}
 
           {/* RIGHT: Preview + Scheduling */}
-          {(activeTab === 'compose' || !post) && showPreview && (
+          {(activeTab === 'compose' || !post) && showPreview && formData.platforms.length > 0 && (
             <div className="flex-1 flex flex-col bg-gray-50 dark:bg-gray-950 overflow-y-auto">
               {/* Platform preview tabs */}
               <div className="flex border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
-                {PLATFORMS.map((pl) => (
+                {PLATFORMS.filter((pl) => formData.platforms.includes(pl.id)).map((pl) => (
                   <button
                     key={pl.id}
                     onClick={() => setPreviewPlatform(pl.id)}
