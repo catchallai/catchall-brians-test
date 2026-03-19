@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Loader2, Sparkles, X } from "lucide-react";
+import { toLocalISOString } from '@/utils/date';
 
 const PLATFORMS = [
   { id: 'twitter', label: 'X (Twitter)', icon: '𝕏', maxLength: 280 },
@@ -32,7 +33,9 @@ export default function SchedulePostModal({
     scheduled_time: '',
     hashtags: [],
     status: 'scheduled',
+    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
   });
+  const [scheduleError, setScheduleError] = useState('');
   const [newHashtag, setNewHashtag] = useState('');
 
   useEffect(() => {
@@ -44,6 +47,7 @@ export default function SchedulePostModal({
         scheduled_time: post.scheduled_time ? post.scheduled_time.slice(0, 16) : '',
         hashtags: post.hashtags || [],
         status: post.status || 'scheduled',
+        timezone: post.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone,
       });
     } else {
       const now = new Date();
@@ -52,15 +56,21 @@ export default function SchedulePostModal({
         platform: 'twitter',
         social_account_id: accounts?.[0]?.id || '',
         content: '',
-        scheduled_time: now.toISOString().slice(0, 16),
+        scheduled_time: toLocalISOString(now),
         hashtags: [],
         status: 'scheduled',
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
       });
     }
   }, [post, open, accounts]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    if (new Date(formData.scheduled_time) <= new Date()) {
+      setScheduleError('Scheduled time must be in the future.');
+      return;
+    }
+    setScheduleError('');
     onSave({
       ...formData,
       scheduled_time: new Date(formData.scheduled_time).toISOString(),
@@ -199,9 +209,11 @@ export default function SchedulePostModal({
             <Input
               type="datetime-local"
               value={formData.scheduled_time}
-              onChange={(e) => setFormData({ ...formData, scheduled_time: e.target.value })}
+              min={toLocalISOString()}
+              onChange={(e) => { setScheduleError(''); setFormData({ ...formData, scheduled_time: e.target.value }); }}
               required
             />
+            {scheduleError && <p className="text-xs text-red-500">{scheduleError}</p>}
           </div>
 
           <div className="flex justify-end gap-3 pt-4">

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { appendHashtagToCaption } from '@/utils';
+import { appendHashtagToCaption } from '@/utils/appendHashtagToCaption';
 import { base44 } from '@/api/base44Client';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from "@/components/ui/button";
@@ -13,6 +13,7 @@ import {
   Twitter, Linkedin, Facebook, Instagram, Youtube,
   Hash, Send, CheckCircle2, Globe
 } from "lucide-react";
+import { todayLocal } from '@/utils/date';
 
 const PLATFORMS = [
   { id: 'Twitter', label: 'X (Twitter)', icon: Twitter, color: 'bg-black text-white', limit: 280 },
@@ -28,13 +29,14 @@ const DEFAULT_FORM = {
   image_url: '',
   video_url: '',
   media_type: 'none',
-  scheduled_date: new Date().toISOString().split('T')[0],
+  scheduled_date: todayLocal(),
   scheduled_time: '09:00',
   platforms: [],
   hashtags: [],
   status: 'draft',
   auto_post: false,
 };
+
 
 function PlatformPreview({ platform, caption, imageUrl, videoUrl }) {
   const PIcon = PLATFORMS.find(p => p.id === platform)?.icon || Globe;
@@ -89,6 +91,7 @@ export default function BufferComposer({ hashtagPool = [], onSuccess }) {
   const [hashtagInput, setHashtagInput] = useState('');
   const [previewPlatform, setPreviewPlatform] = useState('Twitter');
   const [saved, setSaved] = useState(false);
+  const [scheduleError, setScheduleError] = useState('');
 
   const createMutation = useMutation({
     mutationFn: (data) => base44.entities.CalendarPost.create(data),
@@ -128,42 +131,23 @@ export default function BufferComposer({ hashtagPool = [], onSuccess }) {
   };
 
   const addHashtag = (tag) => {
-    const clean = tag.replace(/^#/, '').trim();
-
     setForm(f => {
-      // No hashtag text: no change
-      if (!clean) {
-        return f;
-      }
-
-      // Already present: avoid duplicates even under rapid successive calls
-      if (f.hashtags.includes(clean)) {
-        return f;
-      }
-
-      const newHashtags = [...f.hashtags, clean];
-      let newCaption;
-
-      if (f.hashtags.length === 0) {
-        // First hashtag: preserve existing behavior (likely adds "\n\n" before hashtags)
-        newCaption = appendHashtagToCaption(f.caption, clean);
-      } else {
-        // Subsequent hashtags: avoid inserting extra blank lines
-        const separator = f.caption.endsWith(' ') || f.caption === '' ? '' : ' ';
-        newCaption = `${f.caption}${separator}#${clean}`;
-      }
-
-      return {
-        ...f,
-        hashtags: newHashtags,
-        caption: newCaption,
-      };
+      const result = appendHashtagToCaption(f.caption, tag, f.hashtags);
+      if (!result) return f;
+      return { ...f, ...result };
     });
-
     setHashtagInput('');
   };
 
   const handleSubmit = (status = 'draft') => {
+    if (status !== 'draft') {
+      const scheduledAt = new Date(`${form.scheduled_date}T${form.scheduled_time}`);
+      if (isNaN(scheduledAt.getTime()) || scheduledAt <= new Date()) {
+        setScheduleError('Scheduled time must be in the future.');
+        return;
+      }
+    }
+    setScheduleError('');
     createMutation.mutate({ ...form, status });
   };
 
@@ -247,7 +231,16 @@ export default function BufferComposer({ hashtagPool = [], onSuccess }) {
           <Label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Caption</Label>
           <Textarea
             value={form.caption}
-            onChange={(e) => setForm(f => ({ ...f, caption: e.target.value }))}
+            onChange={(e) => {
+              const newCaption = e.target.value;
+              setForm(f => ({
+                ...f,
+                caption: newCaption,
+                // Reset tracked hashtags when the caption no longer contains any,
+                // so that the next addHashtag call correctly inserts a blank line.
+                hashtags: /#\w+/.test(newCaption) ? f.hashtags : [],
+              }));
+            }}
             placeholder="What do you want to share?"
             rows={5}
             className={`resize-none ${overLimit ? 'border-red-400 focus-visible:ring-red-400' : ''}`}
@@ -300,7 +293,8 @@ export default function BufferComposer({ hashtagPool = [], onSuccess }) {
               <Calendar className="w-3 h-3" /> Date
             </Label>
             <Input type="date" value={form.scheduled_date}
-              onChange={(e) => setForm(f => ({ ...f, scheduled_date: e.target.value }))} />
+              min={todayLocal()}
+              onChange={(e) => { setScheduleError(''); setForm(f => ({ ...f, scheduled_date: e.target.value })); }} />
           </div>
           <div className="space-y-1.5">
             <Label className="text-xs font-semibold text-gray-500 uppercase tracking-wide flex items-center gap-1">
@@ -319,6 +313,8 @@ export default function BufferComposer({ hashtagPool = [], onSuccess }) {
             </div>
           </div>
         </div>
+
+        {scheduleError && <p className="text-xs text-red-500">{scheduleError}</p>}
 
         {/* Actions */}
         <div className="flex gap-3 pt-2">

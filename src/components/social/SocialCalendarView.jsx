@@ -31,6 +31,7 @@ const platformBorderColors = {
 
 const statusColors = {
   draft: "border-gray-300 bg-gray-50 dark:bg-gray-800 dark:border-gray-600",
+  scheduled: "border-blue-300 bg-blue-50 dark:bg-blue-900/20 dark:border-blue-600",
   pending_approval: "border-amber-300 bg-amber-50 dark:bg-amber-900/20 dark:border-amber-600",
   approved: "border-emerald-300 bg-emerald-50 dark:bg-emerald-900/20 dark:border-emerald-600",
   published: "border-violet-300 bg-violet-50 dark:bg-violet-900/20 dark:border-violet-600",
@@ -38,6 +39,7 @@ const statusColors = {
 
 const statusBadges = {
   draft: { label: "Draft", class: "bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300" },
+  scheduled: { label: "Scheduled", class: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300" },
   pending_approval: { label: "Pending", class: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300" },
   approved: { label: "Approved", class: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300" },
   published: { label: "Published", class: "bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-300" },
@@ -277,8 +279,215 @@ function DayView({ day, posts, onAddPost, onEditPost, deletePostMutation, update
   );
 }
 
-export default function SocialCalendarView({ posts = [], onAddPost, onEditPost, onDeletePost, currentMonth, onMonthChange, viewType = 'month' }) {
+function WeekView({ days, getPostsForDay, onAddPost, onEditPost, deletePostMutation, updatePostMutation, draggedPost, setDraggedPost, showPopover, hidePopover }) {
+  const scrollRef = useRef(null);
+  const [showOvernight, setShowOvernight] = useState(false);
+  const [draggingOver, setDraggingOver] = useState(null); // { hour, dayIdx }
+  const now = new Date();
+  const nowHour = now.getHours();
+  const nowMinute = now.getMinutes();
+  const nowMinutePct = (nowMinute / 60) * 100;
+
+  useEffect(() => {
+    if (scrollRef.current) {
+      const targetHour = Math.max(nowHour - 1, 0);
+      const hourEl = scrollRef.current.querySelector(`[data-week-hour="${targetHour}"]`);
+      if (hourEl) hourEl.scrollIntoView({ block: 'start', behavior: 'smooth' });
+    }
+  }, []);
+
+  const handleCellClick = (day, hour) => {
+    onAddPost && onAddPost({
+      scheduled_date: format(day, 'yyyy-MM-dd'),
+      scheduled_time: `${String(hour).padStart(2, '0')}:00`,
+    });
+  };
+
+  const handleDrop = (e, day, hour) => {
+    e.preventDefault();
+    setDraggingOver(null);
+    if (draggedPost) {
+      updatePostMutation.mutate({
+        id: draggedPost.id,
+        data: {
+          ...draggedPost,
+          scheduled_date: format(day, 'yyyy-MM-dd'),
+          scheduled_time: `${String(hour).padStart(2, '0')}:00`,
+        },
+      });
+      setDraggedPost(null);
+    }
+  };
+
+  const visibleOvernightCount = days.reduce((total, day) => {
+    const dayPosts = getPostsForDay(day);
+    return total + dayPosts.filter(p => {
+      const h = getPostHour(p);
+      return h !== null && OVERNIGHT_HOURS.includes(h);
+    }).length;
+  }, 0);
+
+  return (
+    <div className="overflow-y-auto max-h-[700px]" ref={scrollRef}>
+      {/* Sticky day column headers */}
+      <div className="flex sticky top-0 z-20 bg-white dark:bg-gray-800 border-b-2 border-gray-200 dark:border-gray-600">
+        <div className="w-16 flex-shrink-0" />
+        {days.map((day, i) => {
+          const isToday = isSameDay(day, new Date());
+          return (
+            <div
+              key={i}
+              className={`flex-1 text-center py-2 border-l border-gray-100 dark:border-gray-700 ${isToday ? 'bg-violet-50 dark:bg-violet-900/20' : ''}`}
+            >
+              <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">{format(day, 'EEE')}</div>
+              <div className={`text-lg font-bold mx-auto w-8 h-8 flex items-center justify-center rounded-full ${
+                isToday ? 'bg-violet-600 text-white' : 'text-gray-800 dark:text-gray-100'
+              }`}>
+                {format(day, 'd')}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* All-day row */}
+      <div className="flex border-b border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-800/50 min-h-[36px]">
+        <div className="w-16 flex-shrink-0 px-2 py-2 text-xs text-gray-400 font-medium border-r border-gray-200 dark:border-gray-600">all-day</div>
+        {days.map((day, i) => {
+          const untimedPosts = getPostsForDay(day).filter(p => getPostHour(p) === null);
+          return (
+            <div key={i} className="flex-1 border-l border-gray-100 dark:border-gray-700 px-1 py-1 flex flex-wrap gap-1">
+              {untimedPosts.map(post => (
+                <div
+                  key={post.id}
+                  draggable
+                  onDragStart={(e) => { setDraggedPost(post); e.dataTransfer.effectAllowed = 'move'; }}
+                  onMouseEnter={(e) => showPopover(post, e)}
+                  onMouseLeave={hidePopover}
+                  onClick={() => onEditPost(post)}
+                  className={`text-xs px-1.5 py-0.5 rounded cursor-pointer border truncate max-w-full ${statusColors[post.status] || statusColors.draft}`}
+                >
+                  {post.title || post.caption?.slice(0, 12) || 'Untitled'}
+                </div>
+              ))}
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Overnight collapse */}
+      {!showOvernight && (
+        <button
+          onClick={() => setShowOvernight(true)}
+          className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-gray-400 hover:text-gray-600 bg-gray-50 dark:bg-gray-900/30 border-b border-gray-100 dark:border-gray-700 transition-colors"
+        >
+          <ChevronRight className="w-3 h-3" />
+          Show overnight (1–5 AM){visibleOvernightCount > 0 ? ` · ${visibleOvernightCount} post${visibleOvernightCount !== 1 ? 's' : ''}` : ''}
+        </button>
+      )}
+
+      {/* Hourly grid */}
+      {HOURS.map(hour => {
+        if (!showOvernight && OVERNIGHT_HOURS.includes(hour)) return null;
+        const isCurrentHour = hour === nowHour;
+
+        return (
+          <div key={hour} data-week-hour={hour} className="flex border-b border-gray-100 dark:border-gray-700 min-h-[64px] relative">
+            {/* Hour label */}
+            <div className={`w-16 flex-shrink-0 px-2 pt-1.5 text-xs font-medium border-r border-gray-100 dark:border-gray-700 flex-none ${
+              isCurrentHour ? 'text-violet-600 dark:text-violet-400 font-bold' : 'text-gray-400 dark:text-gray-500'
+            }`}>
+              {formatHour(hour)}
+            </div>
+
+            {/* Day columns */}
+            {days.map((day, dayIdx) => {
+              const isToday = isSameDay(day, new Date());
+              const dayHourPosts = getPostsForDay(day).filter(p => getPostHour(p) === hour);
+              const isDragTarget = draggingOver?.hour === hour && draggingOver?.dayIdx === dayIdx;
+              const showTimeLine = isToday && isCurrentHour;
+
+              return (
+                <div
+                  key={dayIdx}
+                  className={`flex-1 border-l border-gray-100 dark:border-gray-700 px-1 py-1 relative cursor-pointer group/cell transition-colors ${
+                    isDragTarget
+                      ? 'bg-violet-100 dark:bg-violet-900/40 ring-1 ring-inset ring-violet-400'
+                      : isToday
+                        ? 'bg-violet-50/40 dark:bg-violet-900/10'
+                        : 'hover:bg-gray-50 dark:hover:bg-gray-700/30'
+                  }`}
+                  onClick={() => handleCellClick(day, hour)}
+                  onDragOver={(e) => { e.preventDefault(); setDraggingOver({ hour, dayIdx }); }}
+                  onDragLeave={() => setDraggingOver(null)}
+                  onDrop={(e) => handleDrop(e, day, hour)}
+                >
+                  {/* Current time red line — only in today's column */}
+                  {showTimeLine && (
+                    <div
+                      className="absolute left-0 right-0 flex items-center pointer-events-none z-10"
+                      style={{ top: `${nowMinutePct}%` }}
+                    >
+                      <div className="w-2 h-2 rounded-full bg-red-500 -ml-1 flex-shrink-0" />
+                      <div className="flex-1 h-px bg-red-500" />
+                    </div>
+                  )}
+
+                  <div className="flex flex-col gap-0.5" onClick={e => e.stopPropagation()}>
+                    {dayHourPosts.slice(0, 2).map(post => {
+                      const borderColor = platformBorderColors[post.platforms?.[0]] || 'border-l-gray-400';
+                      return (
+                        <div
+                          key={post.id}
+                          draggable
+                          onDragStart={(e) => { setDraggedPost(post); e.dataTransfer.effectAllowed = 'move'; }}
+                          onMouseEnter={(e) => showPopover(post, e)}
+                          onMouseLeave={hidePopover}
+                          onClick={() => onEditPost(post)}
+                          className={`text-xs px-1.5 py-1 rounded border-l-2 ${borderColor} cursor-pointer truncate ${statusColors[post.status] || statusColors.draft} ${draggedPost?.id === post.id ? 'opacity-50' : ''}`}
+                        >
+                          {post.title || post.caption?.slice(0, 16) || 'Untitled'}
+                        </div>
+                      );
+                    })}
+                    {dayHourPosts.length > 2 && (
+                      <button onClick={() => onEditPost(dayHourPosts[0])} className="text-xs text-violet-600 hover:underline text-left">
+                        +{dayHourPosts.length - 2} more
+                      </button>
+                    )}
+                    {dayHourPosts.length === 0 && (
+                      <div className="opacity-0 group-hover/cell:opacity-100 transition-opacity">
+                        <span className="text-xs text-violet-400 flex items-center gap-0.5">
+                          <Plus className="w-3 h-3" />
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        );
+      })}
+
+      {showOvernight && (
+        <button
+          onClick={() => setShowOvernight(false)}
+          className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-gray-400 hover:text-gray-600 bg-gray-50 dark:bg-gray-900/30 border-t border-gray-100 transition-colors"
+        >
+          <ChevronLeft className="w-3 h-3" />
+          Hide overnight hours
+        </button>
+      )}
+    </div>
+  );
+}
+
+export default function SocialCalendarView({ posts = [], onAddPost, onEditPost, onDeletePost, currentMonth, onMonthChange, onViewTypeChange, viewType = 'month' }) {
   const [draggedPost, setDraggedPost] = useState(null);
+  const [hoveredPost, setHoveredPost] = useState(null);
+  const [popoverPos, setPopoverPos] = useState({ x: 0, y: 0, above: false });
+  const popoverTimeoutRef = useRef(null);
   const queryClient = useQueryClient();
 
   const updatePostMutation = useMutation({
@@ -290,6 +499,46 @@ export default function SocialCalendarView({ posts = [], onAddPost, onEditPost, 
     mutationFn: (id) => base44.entities.CalendarPost.delete(id),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['calendar-posts'] }),
   });
+
+  // Keyboard shortcuts: ←/→ to navigate, T = today, D/W/M = switch view
+  useEffect(() => {
+    const handler = (e) => {
+      const tag = e.target.tagName;
+      if (['INPUT', 'TEXTAREA', 'SELECT'].includes(tag) || e.target.isContentEditable) return;
+      if (e.key === 'ArrowLeft') {
+        if (viewType === 'day') onMonthChange(addDays(currentMonth, -1));
+        else if (viewType === 'week') onMonthChange(addDays(currentMonth, -7));
+        else onMonthChange(subMonths(currentMonth, 1));
+      } else if (e.key === 'ArrowRight') {
+        if (viewType === 'day') onMonthChange(addDays(currentMonth, 1));
+        else if (viewType === 'week') onMonthChange(addDays(currentMonth, 7));
+        else onMonthChange(addMonths(currentMonth, 1));
+      } else if (e.key === 't' || e.key === 'T') {
+        onMonthChange(new Date());
+      } else if (e.key === 'd' || e.key === 'D') {
+        onViewTypeChange?.('day');
+      } else if (e.key === 'w' || e.key === 'W') {
+        onViewTypeChange?.('week');
+      } else if (e.key === 'm' || e.key === 'M') {
+        onViewTypeChange?.('month');
+      }
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [viewType, currentMonth, onMonthChange, onViewTypeChange]);
+
+  // Popover helpers
+  const showPopover = (post, e) => {
+    clearTimeout(popoverTimeoutRef.current);
+    const rect = e.currentTarget.getBoundingClientRect();
+    const above = rect.top > 300;
+    setPopoverPos({ x: rect.left, y: above ? rect.top : rect.bottom, above });
+    setHoveredPost(post);
+  };
+  const hidePopover = () => {
+    popoverTimeoutRef.current = setTimeout(() => setHoveredPost(null), 150);
+  };
+  const keepPopover = () => clearTimeout(popoverTimeoutRef.current);
 
   let days;
   if (viewType === 'day') {
@@ -341,10 +590,18 @@ export default function SocialCalendarView({ posts = [], onAddPost, onEditPost, 
     <Card className="border-0 shadow-sm bg-white dark:bg-gray-800 rounded-2xl overflow-hidden">
       {/* Header */}
       <div className="flex items-center justify-between p-5 border-b-2 border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-800/50">
-        <div className="flex items-center gap-4">
-          <Button 
-            variant="outline" 
-            size="icon" 
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => onMonthChange(new Date())}
+            className="px-4 font-semibold"
+          >
+            Today
+          </Button>
+          <Button
+            variant="outline"
+            size="icon"
             onClick={() => {
               if (viewType === 'day') {
                 onMonthChange(addDays(currentMonth, -1));
@@ -354,20 +611,20 @@ export default function SocialCalendarView({ posts = [], onAddPost, onEditPost, 
                 onMonthChange(subMonths(currentMonth, 1));
               }
             }}
-            className="h-10 w-10"
+            className="h-9 w-9"
           >
-            <ChevronLeft className="w-5 h-5" />
+            <ChevronLeft className="w-4 h-4" />
           </Button>
-          <h3 className="font-bold text-2xl text-gray-900 dark:text-white min-w-[200px] text-center">
+          <h3 className="font-bold text-xl text-gray-900 dark:text-white min-w-[200px] text-center">
             {viewType === 'day'
               ? format(currentMonth, 'EEEE, MMMM d, yyyy')
-              : viewType === 'week' 
+              : viewType === 'week'
                 ? `Week of ${format(startOfWeek(currentMonth), 'MMM d, yyyy')}`
                 : format(currentMonth, 'MMMM yyyy')}
           </h3>
-          <Button 
-            variant="outline" 
-            size="icon" 
+          <Button
+            variant="outline"
+            size="icon"
             onClick={() => {
               if (viewType === 'day') {
                 onMonthChange(addDays(currentMonth, 1));
@@ -377,9 +634,9 @@ export default function SocialCalendarView({ posts = [], onAddPost, onEditPost, 
                 onMonthChange(addMonths(currentMonth, 1));
               }
             }}
-            className="h-10 w-10"
+            className="h-9 w-9"
           >
-            <ChevronRight className="w-5 h-5" />
+            <ChevronRight className="w-4 h-4" />
           </Button>
         </div>
         <Button size="lg" onClick={onAddPost} className="gap-2 bg-violet-600 hover:bg-violet-700 font-semibold">
@@ -387,9 +644,9 @@ export default function SocialCalendarView({ posts = [], onAddPost, onEditPost, 
         </Button>
       </div>
 
-      {/* Week Days Header */}
-      {viewType !== 'day' && (
-        <div className={`grid ${viewType === 'week' ? 'grid-cols-7' : 'grid-cols-7'} border-b-2 border-gray-200 dark:border-gray-600`}>
+      {/* Week Days Header — month view only */}
+      {viewType === 'month' && (
+        <div className="grid grid-cols-7 border-b-2 border-gray-200 dark:border-gray-600">
           {weekDays.map(day => (
             <div key={day} className="text-center text-sm font-bold text-gray-700 dark:text-gray-300 py-4 bg-gray-100 dark:bg-gray-800/80 uppercase tracking-wide">
               {day}
@@ -414,8 +671,21 @@ export default function SocialCalendarView({ posts = [], onAddPost, onEditPost, 
           statusColors={statusColors}
           statusBadges={statusBadges}
         />
+      ) : viewType === 'week' ? (
+        <WeekView
+          days={days}
+          getPostsForDay={getPostsForDay}
+          onAddPost={onAddPost}
+          onEditPost={onEditPost}
+          deletePostMutation={deletePostMutation}
+          updatePostMutation={updatePostMutation}
+          draggedPost={draggedPost}
+          setDraggedPost={setDraggedPost}
+          showPopover={showPopover}
+          hidePopover={hidePopover}
+        />
       ) : (
-        <div className={`grid ${viewType === 'week' ? 'grid-cols-7' : 'grid-cols-7'}`}>
+        <div className="grid grid-cols-7">
           {days.map((day, idx) => {
             const dayPosts = getPostsForDay(day);
             const isCurrentMonth = isSameMonth(day, currentMonth);
@@ -457,6 +727,8 @@ export default function SocialCalendarView({ posts = [], onAddPost, onEditPost, 
                         key={post.id}
                         draggable
                         onDragStart={(e) => handleDragStart(e, post)}
+                        onMouseEnter={(e) => showPopover(post, e)}
+                        onMouseLeave={hidePopover}
                         className={`text-sm p-2 rounded-lg cursor-move border-2 transition-all hover:shadow-md group/post ${
                           statusColors[post.status] || statusColors.draft
                         } ${draggedPost?.id === post.id ? 'opacity-50' : ''}`}
@@ -464,7 +736,7 @@ export default function SocialCalendarView({ posts = [], onAddPost, onEditPost, 
                         <div className="flex items-center justify-between gap-2 mb-1">
                           <div className="flex items-center gap-2 min-w-0 flex-1 cursor-pointer" onClick={() => onEditPost(post)}>
                             {post.platforms?.[0] && (
-                              <div className={`w-3 h-3 rounded-full flex-shrink-0 ${platformColors[post.platforms[0]] || 'bg-gray-400'}`} />
+                              <div className={`w-3 h-3 rounded-full flex-shrink-0 ${platformColors[String(post.platforms[0]).toLowerCase()] || 'bg-gray-400'}`} />
                             )}
                             <span className="truncate text-gray-800 dark:text-gray-200 font-semibold">
                               {post.title || post.caption?.slice(0, 18) || 'Untitled'}
@@ -493,6 +765,58 @@ export default function SocialCalendarView({ posts = [], onAddPost, onEditPost, 
               </div>
             );
           })}
+        </div>
+      )}
+
+      {/* Event hover popover */}
+      {hoveredPost && (
+        <div
+          onMouseEnter={keepPopover}
+          onMouseLeave={hidePopover}
+          className="fixed z-50 w-72 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-xl shadow-xl p-4"
+          style={{
+            left: Math.min(popoverPos.x, window.innerWidth - 300),
+            ...(popoverPos.above
+              ? { bottom: window.innerHeight - popoverPos.y + 8 }
+              : { top: popoverPos.y + 8 }),
+          }}
+        >
+          <div className="flex items-start justify-between gap-2 mb-2">
+            <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 leading-snug">
+              {hoveredPost.title || 'Untitled'}
+            </p>
+            {(() => { const si = statusBadges[hoveredPost.status] || statusBadges.draft; return <Badge className={`text-xs px-1.5 flex-shrink-0 ${si.class}`}>{si.label}</Badge>; })()}
+          </div>
+          {hoveredPost.caption && (
+            <p className="text-xs text-gray-500 dark:text-gray-400 mb-3 line-clamp-3">{hoveredPost.caption}</p>
+          )}
+          <div className="flex items-center gap-2 mb-3 flex-wrap">
+            {hoveredPost.platforms?.map(p => (
+              <span key={p} className="flex items-center gap-1 text-xs text-gray-600 dark:text-gray-400">
+                <div className={`w-2.5 h-2.5 rounded-full ${platformColors[String(p).toLowerCase()] || 'bg-gray-400'}`} />
+                {p}
+              </span>
+            ))}
+          </div>
+          {(hoveredPost.scheduled_date || hoveredPost.scheduled_time) && (
+            <p className="text-xs text-gray-400 dark:text-gray-500 mb-3">
+              {hoveredPost.scheduled_date}{hoveredPost.scheduled_time ? ` at ${hoveredPost.scheduled_time}` : ''}
+            </p>
+          )}
+          <div className="flex gap-2">
+            <button
+              onClick={() => { setHoveredPost(null); onEditPost(hoveredPost); }}
+              className="flex-1 text-xs px-3 py-1.5 rounded-lg bg-violet-600 hover:bg-violet-700 text-white font-medium transition-colors"
+            >
+              Edit
+            </button>
+            <button
+              onClick={() => { setHoveredPost(null); deletePostMutation.mutate(hoveredPost.id); }}
+              className="text-xs px-3 py-1.5 rounded-lg border border-red-200 hover:bg-red-50 text-red-600 font-medium transition-colors"
+            >
+              Delete
+            </button>
+          </div>
         </div>
       )}
 
