@@ -30,8 +30,6 @@ const AuthenticatedApp = () => {
     );
   }
 
-  const temp = 0
-
   // Handle authentication errors
   if (authError) {
     if (authError.type === 'user_not_registered') {
