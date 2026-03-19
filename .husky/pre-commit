@@ -98,4 +98,4 @@ else
   echo "No files to check with ESLint. Skipping."
 fi
 
-echo "Before Takeoff Checklist Complete ✅. Commit will proceed ✈️."
+echo "Before Takeoff Checklist Complete. Commit Cleared for Takeoff 🛫"
