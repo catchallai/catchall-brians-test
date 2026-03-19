@@ -22,20 +22,25 @@ VITE_BASE44_ACCESS_TOKEN=YOUR_BASE44_ACCESS_TOKEN_HERE
 
 ## Pre-commit Checks & Formatting
 
-This project uses Husky, lint-staged, Prettier, and ESLint to enforce code quality and formatting on every commit.
+This project uses Husky, Prettier, and ESLint to enforce code quality and formatting on every commit.
 
 - On each commit, the following checks run automatically:
   1. Prettier formatting check
   2. ESLint linting check
-  3. lint-staged (checks only staged files)
 - If any check fails, the commit is blocked and you’ll see a message with instructions to fix issues.
-- To bypass the checklist (not recommended), use:
+- To bypass the checklist (not recommended), you can:
 
   ```sh
-  git commit --skip-checklist -m "your message"
+  git commit --no-verify -m "your message"
   ```
 
-- The checklist is automatically skipped in CI environments.
+or disable Husky for a single command:
+
+```sh
+HUSKY=0 git commit -m "your message"
+```
+
+- In CI environments, you can disable these checks by setting `HUSKY=0` before running Git commands.
 
 ### Formatting the Entire Codebase
 

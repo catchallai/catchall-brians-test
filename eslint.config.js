@@ -6,7 +6,8 @@ import pluginUnusedImports from 'eslint-plugin-unused-imports';
 
 export default [
   {
-    files: ['**/*.{js,mjs,cjs,jsx,ts,tsx}'],
+    // TODO: Add TypeScript support (ts, tsx)
+    files: ['**/*.{js,mjs,cjs,jsx}'],
     ...pluginJs.configs.recommended,
     ...pluginReact.configs.flat.recommended,
     languageOptions: {
@@ -30,17 +31,7 @@ export default [
       'unused-imports': pluginUnusedImports,
     },
     rules: {
-      // Best practices
-      'no-unused-vars': [
-        'error',
-        {
-          vars: 'all',
-          args: 'after-used',
-          ignoreRestSiblings: true,
-          varsIgnorePattern: '^_',
-          argsIgnorePattern: '^_',
-        },
-      ],
+      'no-unused-vars': 'off',
       'no-console': ['warn', { allow: ['warn', 'error'] }],
       eqeqeq: ['error', 'always'],
       curly: 'error',
