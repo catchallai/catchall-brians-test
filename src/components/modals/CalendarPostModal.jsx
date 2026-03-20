@@ -1,9 +1,8 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { appendHashtagToCaption } from '@/utils/appendHashtagToCaption';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import {
   Select,
@@ -202,7 +201,9 @@ function BestTimeSuggestions({ platforms, onApply }) {
     const today = new Date();
     const todayDay = today.getDay();
     let daysUntil = (targetDay - todayDay + 7) % 7;
-    if (daysUntil === 0) daysUntil = 7; // Push to next week if same day
+    if (daysUntil === 0) {
+      daysUntil = 7; // Push to next week if same day
+    }
     const next = new Date(today);
     next.setDate(today.getDate() + daysUntil);
     return next.toISOString().split('T')[0];
@@ -312,6 +313,31 @@ const DEFAULT_FORM = {
   auto_post: false,
 };
 
+const DIRTY_FIELDS = [
+  'title',
+  'caption',
+  'image_url',
+  'video_url',
+  'media_type',
+  'scheduled_date',
+  'scheduled_time',
+  'status',
+  'order',
+  'is_recurring',
+  'recurrence_type',
+  'recurrence_end_date',
+  'auto_post',
+];
+
+const arraysEqual = (left = [], right = []) =>
+  left.length === right.length && left.every((value, index) => value === right[index]);
+
+const hasFormChanges = (current, initial) =>
+  DIRTY_FIELDS.some((field) => current[field] !== initial[field]) ||
+  !arraysEqual(current.platforms, initial.platforms) ||
+  !arraysEqual(current.hashtags, initial.hashtags) ||
+  !arraysEqual(current.recurrence_days, initial.recurrence_days);
+
 export default function CalendarPostModal({
   open,
   onClose,
@@ -364,7 +390,9 @@ export default function CalendarPostModal({
         };
         initialFormDataRef.current = initial;
         setFormData(initial);
-        if (post.platforms?.[0]) setPreviewPlatform(post.platforms[0]);
+        if (post.platforms?.[0]) {
+          setPreviewPlatform(post.platforms[0]);
+        }
       } else {
         const initial = { ...DEFAULT_FORM, scheduled_date: todayLocal() };
         initialFormDataRef.current = initial;
@@ -373,17 +401,15 @@ export default function CalendarPostModal({
     }
   }, [post, open]);
 
-  const isDirty =
-    JSON.stringify(formData) !== JSON.stringify(initialFormDataRef.current);
+  const isDirty = hasFormChanges(formData, initialFormDataRef.current);
 
-  const { guardedClose, markAsSubmitted, discardDialogProps } = useUnsavedChangesGuard({
-    isDirty,
-    onClose,
-  });
+  const { guardedClose, discardDialogProps } = useUnsavedChangesGuard({ isDirty, onClose });
 
   const handleImageUpload = async (e) => {
     const file = e.target.files?.[0];
-    if (!file) return;
+    if (!file) {
+      return;
+    }
     setUploading(true);
     const { file_url } = await base44.integrations.Core.UploadFile({ file });
     setFormData((f) => ({
@@ -397,7 +423,9 @@ export default function CalendarPostModal({
 
   const handleVideoUpload = async (e) => {
     const file = e.target.files?.[0];
-    if (!file) return;
+    if (!file) {
+      return;
+    }
     setUploading(true);
     const { file_url } = await base44.integrations.Core.UploadFile({ file });
     setFormData((f) => ({
@@ -412,11 +440,16 @@ export default function CalendarPostModal({
   const handleDrop = (e) => {
     e.preventDefault();
     const file = e.dataTransfer.files?.[0];
-    if (!file) return;
+    if (!file) {
+      return;
+    }
     const isVideo = file.type.startsWith('video/');
     const syntheticEvent = { target: { files: [file] } };
-    if (isVideo) handleVideoUpload(syntheticEvent);
-    else handleImageUpload(syntheticEvent);
+    if (isVideo) {
+      handleVideoUpload(syntheticEvent);
+    } else {
+      handleImageUpload(syntheticEvent);
+    }
   };
 
   const togglePlatform = (id) => {
@@ -434,7 +467,7 @@ export default function CalendarPostModal({
     });
   };
 
-  const handleSubmit = (status) => {
+  const handleSubmit = async (status) => {
     if (status !== 'draft') {
       const scheduledAt = new Date(`${formData.scheduled_date}T${formData.scheduled_time}`);
       if (isNaN(scheduledAt.getTime()) || scheduledAt <= new Date()) {
@@ -446,12 +479,12 @@ export default function CalendarPostModal({
     // If admin requires approval, override to pending_approval
     const finalStatus =
       isAdmin && requireApproval && status === 'approved' ? 'pending_approval' : status;
-    markAsSubmitted();
-    onSave({
+    await onSave({
       ...formData,
       status: finalStatus,
       timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
     });
+    guardedClose({ open: false, bypass: true });
   };
 
   const applyBestTime = (date, time) => {
@@ -463,7 +496,9 @@ export default function CalendarPostModal({
     setFormData((f) => {
       const existingHashtags = Array.isArray(f.hashtags) ? f.hashtags : [];
       const result = appendHashtagToCaption(f.caption, tag, existingHashtags);
-      if (!result) return f;
+      if (!result) {
+        return f;
+      }
       return { ...f, ...result };
     });
   };

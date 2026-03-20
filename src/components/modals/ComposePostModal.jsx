@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Loader2, Sparkles, Calendar, Send, X, AlertCircle } from 'lucide-react';
+import { Loader2, Sparkles, Calendar, X, AlertCircle } from 'lucide-react';
 import AIPostAssistant from '@/components/social/AIPostAssistant';
 import { toLocalISOString } from '@/utils/date';
 import useUnsavedChangesGuard from '@/components/hooks/useUnsavedChangesGuard';
@@ -79,10 +79,7 @@ export default function ComposePostModal({
     hashtags.length > 0 ||
     scheduledTime !== '';
 
-  const { guardedClose, markAsSubmitted, discardDialogProps } = useUnsavedChangesGuard({
-    isDirty,
-    onClose,
-  });
+  const { guardedClose, discardDialogProps } = useUnsavedChangesGuard({ isDirty, onClose });
 
   useEffect(() => {
     if (open) {
@@ -97,7 +94,9 @@ export default function ComposePostModal({
 
   // Group accounts by platform
   const accountsByPlatform = accounts.reduce((acc, account) => {
-    if (!acc[account.platform]) acc[account.platform] = [];
+    if (!acc[account.platform]) {
+      acc[account.platform] = [];
+    }
     acc[account.platform].push(account);
     return acc;
   }, {});
@@ -133,7 +132,9 @@ export default function ComposePostModal({
   };
 
   const handleAdaptContent = async () => {
-    if (!masterContent.trim() || selectedAccounts.length === 0) return;
+    if (!masterContent.trim() || selectedAccounts.length === 0) {
+      return;
+    }
 
     const platforms = [
       ...new Set(selectedAccounts.map((id) => accounts.find((a) => a.id === id)?.platform)),
@@ -146,7 +147,7 @@ export default function ComposePostModal({
     }
   };
 
-  const handleSchedule = () => {
+  const handleSchedule = async () => {
     if (scheduledTime && new Date(scheduledTime) <= new Date()) {
       setScheduleError('Scheduled time must be in the future.');
       return;
@@ -168,8 +169,8 @@ export default function ComposePostModal({
       };
     });
 
-    markAsSubmitted();
-    onSchedule(posts);
+    await onSchedule(posts);
+    guardedClose({ open: false, bypass: true });
   };
 
   const selectedPlatforms = [
@@ -260,7 +261,9 @@ export default function ComposePostModal({
                 <div className="space-y-3 max-h-[200px] overflow-y-auto">
                   {PLATFORMS.map((platform) => {
                     const platformAccounts = accountsByPlatform[platform.id] || [];
-                    if (platformAccounts.length === 0) return null;
+                    if (platformAccounts.length === 0) {
+                      return null;
+                    }
 
                     return (
                       <div key={platform.id} className="space-y-2">
