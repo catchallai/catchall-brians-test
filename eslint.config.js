@@ -64,6 +64,7 @@ export default [
   // TS/TSX config (with TS parser and project)
   {
     files: ['**/*.{ts,tsx,d.ts}'],
+    ...pluginReact.configs.flat.recommended,
     languageOptions: {
       parser: parserTs,
       parserOptions: {
@@ -80,6 +81,7 @@ export default [
     plugins: {
       '@typescript-eslint': pluginTs,
       'unused-imports': pluginUnusedImports,
+      'react-hooks': pluginReactHooks,
     },
     rules: {
       'react-hooks/rules-of-hooks': 'error',
