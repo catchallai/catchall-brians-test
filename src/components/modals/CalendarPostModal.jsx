@@ -194,7 +194,7 @@ function BestTimeSuggestions({ platforms, onApply }) {
   const primaryPlatform = activePlatforms[0];
   const suggestions = BEST_TIMES[primaryPlatform] || BEST_TIMES['Twitter'];
 
-  const getNextOccurrence = (dayName, time) => {
+  const getNextOccurrence = (dayName) => {
     const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
     const targetDay = days.findIndex((d) => d === dayName);
     const today = new Date();
@@ -218,7 +218,7 @@ function BestTimeSuggestions({ platforms, onApply }) {
         {suggestions.map((s, i) => (
           <button
             key={i}
-            onClick={() => onApply(getNextOccurrence(s.day, s.time), s.time)}
+            onClick={() => onApply(getNextOccurrence(s.day), s.time)}
             className="text-xs border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 rounded-lg px-2 py-2 hover:border-violet-400 hover:bg-violet-50 dark:hover:bg-violet-900/20 transition-colors text-center group"
           >
             <div className="font-semibold text-gray-700 dark:text-gray-300 group-hover:text-violet-700 dark:group-hover:text-violet-400">
@@ -328,7 +328,7 @@ export default function CalendarPostModal({
   const [previewPlatform, setPreviewPlatform] = useState('Twitter');
   const [showPreview, setShowPreview] = useState(true);
   const [activeTab, setActiveTab] = useState('compose');
-  const [saved, setSaved] = useState(false);
+
   const [showBestTimes, setShowBestTimes] = useState(false);
   const [scheduleError, setScheduleError] = useState('');
   const [requireApproval, setRequireApproval] = useState(true);
@@ -338,7 +338,6 @@ export default function CalendarPostModal({
   useEffect(() => {
     if (open) {
       setActiveTab('compose');
-      setSaved(false);
       setShowBestTimes(false);
       setRequireApproval(true);
       if (post) {
@@ -406,13 +405,18 @@ export default function CalendarPostModal({
   };
 
   const togglePlatform = (id) => {
-    setFormData((f) => ({
-      ...f,
-      platforms: f.platforms.includes(id)
+    setFormData((f) => {
+      const next = f.platforms.includes(id)
         ? f.platforms.filter((p) => p !== id)
-        : [...f.platforms, id],
-    }));
-    setPreviewPlatform(id);
+        : [...f.platforms, id];
+      // Keep previewPlatform pointed at a selected platform
+      if (next.includes(id)) {
+        setPreviewPlatform(id);
+      } else if (next.length > 0 && !next.includes(previewPlatform)) {
+        setPreviewPlatform(next[0]);
+      }
+      return { ...f, platforms: next };
+    });
   };
 
   const handleSubmit = (status) => {
@@ -432,7 +436,6 @@ export default function CalendarPostModal({
       status: finalStatus,
       timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
     });
-    if (status === 'draft') setSaved(true);
   };
 
   const applyBestTime = (date, time) => {
@@ -565,7 +568,9 @@ export default function CalendarPostModal({
                     onClick={() => togglePlatform(pl.id)}
                   />
                 ))}
-                <span className="text-xs text-gray-400 ml-1">Click to toggle platforms</span>
+                <span className="text-xs text-gray-400 ml-1">
+                  Where would you like to share this post?
+                </span>
               </div>
 
               {/* Caption area */}
@@ -587,7 +592,7 @@ export default function CalendarPostModal({
                       hashtags: /#\w+/.test(newCaption) ? f.hashtags : [],
                     }));
                   }}
-                  placeholder="What would you like to share?"
+                  placeholder="Start writing your post here..."
                   className="border-0 shadow-none focus-visible:ring-0 resize-none text-[15px] text-gray-800 dark:text-gray-200 bg-transparent p-0 min-h-[120px] leading-relaxed"
                 />
               </div>
@@ -740,30 +745,34 @@ export default function CalendarPostModal({
           {/* RIGHT: Preview + Scheduling */}
           {(activeTab === 'compose' || !post) && showPreview && (
             <div className="flex-1 flex flex-col bg-gray-50 dark:bg-gray-950 overflow-y-auto">
-              {/* Platform preview tabs */}
-              <div className="flex border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
-                {PLATFORMS.map((pl) => (
-                  <button
-                    key={pl.id}
-                    onClick={() => setPreviewPlatform(pl.id)}
-                    className={`px-3 py-2 text-xs font-medium border-b-2 transition-colors ${
-                      previewPlatform === pl.id
-                        ? 'border-blue-500 text-blue-600 dark:text-blue-400'
-                        : 'border-transparent text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'
-                    }`}
-                  >
-                    {pl.id === 'Twitter' ? 'Twitter / X' : pl.id}
-                  </button>
-                ))}
-              </div>
-              <div className="p-4 flex-1">
-                <PlatformPreviewPanel
-                  platform={previewPlatform}
-                  caption={formData.caption}
-                  imageUrl={formData.image_url}
-                  videoUrl={formData.video_url}
-                />
-              </div>
+              {/* Platform preview tabs — only when at least one platform is selected */}
+              {formData.platforms.length > 0 && (
+                <>
+                  <div className="flex border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
+                    {PLATFORMS.filter((pl) => formData.platforms.includes(pl.id)).map((pl) => (
+                      <button
+                        key={pl.id}
+                        onClick={() => setPreviewPlatform(pl.id)}
+                        className={`px-3 py-2 text-xs font-medium border-b-2 transition-colors ${
+                          previewPlatform === pl.id
+                            ? 'border-blue-500 text-blue-600 dark:text-blue-400'
+                            : 'border-transparent text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'
+                        }`}
+                      >
+                        {pl.id === 'Twitter' ? 'Twitter / X' : pl.id}
+                      </button>
+                    ))}
+                  </div>
+                  <div className="p-4 flex-1">
+                    <PlatformPreviewPanel
+                      platform={previewPlatform}
+                      caption={formData.caption}
+                      imageUrl={formData.image_url}
+                      videoUrl={formData.video_url}
+                    />
+                  </div>
+                </>
+              )}
 
               {/* Scheduling panel */}
               <div className="border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 px-5 py-4 space-y-4">
