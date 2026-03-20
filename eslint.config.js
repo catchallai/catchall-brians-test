@@ -82,7 +82,7 @@ export default [
       'unused-imports': pluginUnusedImports,
     },
     rules: {
-      '@typescript-eslint/no-unused-vars': ['error'],
+      'react-hooks/rules-of-hooks': 'error',
       'unused-imports/no-unused-imports': 'error',
       'unused-imports/no-unused-vars': [
         'error',
