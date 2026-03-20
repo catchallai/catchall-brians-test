@@ -11,15 +11,19 @@
  * Statuses and their colors/icons are defined in STATUS_CONFIG.
  * Status formatting is handled by getFormattedStatus utility.
  */
-import { Clock, CheckCircle, AlertCircle, FileText, BookCheck } from 'lucide-react';
+import { Clock, CheckCircle, AlertCircle, FileText, BookCheck, PencilOff } from 'lucide-react';
 import { getFormattedStatus } from '../utils/getFormattedStatus'; // Formats status string for display
+import Tooltip from '@/components/ui-custom/Tooltip';
 
 export type PostStatusType =
   | 'draft'
   | 'pending_review'
   | 'pending_approval'
+  | 'changes_requested'
+  | 'scheduled'
   | 'unused'
   | 'approved'
+  | 'rejected'
   | 'published';
 
 export interface PostStatusChipProps {
@@ -44,6 +48,16 @@ const STATUS_CONFIG: Record<PostStatusType, { color: string; icon: JSX.Element; 
     icon: <Clock className="w-4 h-4 text-amber-700 dark:text-amber-300" />,
     text: 'text-amber-700 dark:text-amber-300',
   },
+  changes_requested: {
+    color: 'border-red-300 dark:border-red-600 bg-red-50 dark:bg-red-900/30',
+    icon: <PencilOff className="w-4 h-4 text-red-700 dark:text-red-300" />,
+    text: 'text-red-700 dark:text-red-300',
+  },
+  scheduled: {
+    color: 'border-blue-300 dark:border-blue-600 bg-blue-50 dark:bg-blue-900/30',
+    icon: <Clock className="w-4 h-4 text-blue-700 dark:text-blue-300" />,
+    text: 'text-blue-700 dark:text-blue-300',
+  },
   unused: {
     color: 'border-red-300 dark:border-red-600 bg-red-50 dark:bg-red-900/30',
     icon: <AlertCircle className="w-4 h-4 text-red-700 dark:text-red-300" />,
@@ -53,6 +67,11 @@ const STATUS_CONFIG: Record<PostStatusType, { color: string; icon: JSX.Element; 
     color: 'border-emerald-300 dark:border-emerald-600 bg-emerald-50 dark:bg-emerald-900/30',
     icon: <CheckCircle className="w-4 h-4 text-emerald-700 dark:text-emerald-300" />,
     text: 'text-emerald-700 dark:text-emerald-300',
+  },
+  rejected: {
+    color: 'border-red-300 dark:border-red-600 bg-red-50 dark:bg-red-900/30',
+    icon: <AlertCircle className="w-4 h-4 text-red-700 dark:text-red-300" />,
+    text: 'text-red-700 dark:text-red-300',
   },
   published: {
     color: 'border-violet-300 dark:border-violet-600 bg-violet-50 dark:bg-violet-900/30',
@@ -70,6 +89,8 @@ export default function PostStatusChip(props: PostStatusChipProps) {
   const chip = (
     <span
       className={`inline-flex items-center gap-1 px-2 py-1 border text-xs font-medium rounded-full transition-colors ${config.color} ${config.text} ${className || ''}`}
+      aria-label={iconOnly ? formattedStatus : undefined}
+      tabIndex={iconOnly ? 0 : undefined}
     >
       {config.icon}
       {!iconOnly && <span>{formattedStatus}</span>}
@@ -78,12 +99,9 @@ export default function PostStatusChip(props: PostStatusChipProps) {
 
   if (iconOnly) {
     return (
-      <span className="group relative cursor-pointer">
+      <Tooltip content={formattedStatus} side="top">
         {chip}
-        <span className="absolute z-50 top-1/2 left-full -translate-y-1/2 ml-2 px-2 py-1 rounded bg-gray-800 text-white text-xs opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap shadow-xl">
-          {formattedStatus}
-        </span>
-      </span>
+      </Tooltip>
     );
   }
   return chip;
