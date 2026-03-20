@@ -3,10 +3,12 @@ import pluginJs from '@eslint/js';
 import pluginReact from 'eslint-plugin-react';
 import pluginReactHooks from 'eslint-plugin-react-hooks';
 import pluginUnusedImports from 'eslint-plugin-unused-imports';
+import pluginTs from '@typescript-eslint/eslint-plugin';
+import parserTs from '@typescript-eslint/parser';
 
 export default [
+  // JS/JSX config (no TS parser)
   {
-    // TODO: Add TypeScript support (ts, tsx)
     files: ['**/*.{js,mjs,cjs,jsx}'],
     ...pluginJs.configs.recommended,
     ...pluginReact.configs.flat.recommended,
@@ -47,6 +49,40 @@ export default [
       // React Hooks
       'react-hooks/rules-of-hooks': 'error',
       // Unused imports/vars
+      'unused-imports/no-unused-imports': 'error',
+      'unused-imports/no-unused-vars': [
+        'error',
+        {
+          vars: 'all',
+          varsIgnorePattern: '^_',
+          args: 'after-used',
+          argsIgnorePattern: '^_',
+        },
+      ],
+    },
+  },
+  // TS/TSX config (with TS parser and project)
+  {
+    files: ['**/*.{ts,tsx,d.ts}'],
+    languageOptions: {
+      parser: parserTs,
+      parserOptions: {
+        project: './tsconfig.json',
+        tsconfigRootDir: process.cwd(),
+        sourceType: 'module',
+        ecmaVersion: 2022,
+        ecmaFeatures: {
+          jsx: true,
+        },
+      },
+      globals: globals.browser,
+    },
+    plugins: {
+      '@typescript-eslint': pluginTs,
+      'unused-imports': pluginUnusedImports,
+    },
+    rules: {
+      '@typescript-eslint/no-unused-vars': ['error'],
       'unused-imports/no-unused-imports': 'error',
       'unused-imports/no-unused-vars': [
         'error',
