@@ -42,6 +42,8 @@ import PostComments from '../social/PostComments';
 import PostApprovalPanel from '../social/PostApprovalPanel';
 import Tooltip from '@/components/ui-custom/Tooltip';
 import { todayLocal } from '@/utils/date';
+import useUnsavedChangesGuard from '@/components/hooks/useUnsavedChangesGuard';
+import ConfirmDialog from '@/components/ui/ConfirmDialog';
 
 const PLATFORMS = [
   {
@@ -334,6 +336,7 @@ export default function CalendarPostModal({
   const [requireApproval, setRequireApproval] = useState(true);
   const fileInputRef = useRef();
   const videoInputRef = useRef();
+  const initialFormDataRef = useRef({ ...DEFAULT_FORM });
 
   useEffect(() => {
     if (open) {
@@ -341,7 +344,7 @@ export default function CalendarPostModal({
       setShowBestTimes(false);
       setRequireApproval(true);
       if (post) {
-        setFormData({
+        const initial = {
           title: post.title || '',
           caption: post.caption || '',
           image_url: post.image_url || '',
@@ -358,13 +361,25 @@ export default function CalendarPostModal({
           recurrence_end_date: post.recurrence_end_date || '',
           recurrence_days: post.recurrence_days || [],
           auto_post: post.auto_post || false,
-        });
+        };
+        initialFormDataRef.current = initial;
+        setFormData(initial);
         if (post.platforms?.[0]) setPreviewPlatform(post.platforms[0]);
       } else {
-        setFormData({ ...DEFAULT_FORM, scheduled_date: todayLocal() });
+        const initial = { ...DEFAULT_FORM, scheduled_date: todayLocal() };
+        initialFormDataRef.current = initial;
+        setFormData(initial);
       }
     }
   }, [post, open]);
+
+  const isDirty =
+    JSON.stringify(formData) !== JSON.stringify(initialFormDataRef.current);
+
+  const { guardedClose, markAsSubmitted, discardDialogProps } = useUnsavedChangesGuard({
+    isDirty,
+    onClose,
+  });
 
   const handleImageUpload = async (e) => {
     const file = e.target.files?.[0];
@@ -431,6 +446,7 @@ export default function CalendarPostModal({
     // If admin requires approval, override to pending_approval
     const finalStatus =
       isAdmin && requireApproval && status === 'approved' ? 'pending_approval' : status;
+    markAsSubmitted();
     onSave({
       ...formData,
       status: finalStatus,
@@ -461,7 +477,7 @@ export default function CalendarPostModal({
   const overLimit = formData.caption.length > activePlatform.limit;
 
   return (
-    <Dialog open={open} onOpenChange={onClose}>
+    <Dialog open={open} onOpenChange={guardedClose}>
       <DialogContent
         className="p-0 max-w-5xl w-full max-h-[92vh] overflow-hidden rounded-2xl bg-white dark:bg-gray-900"
         style={{ gap: 0 }}
@@ -497,7 +513,7 @@ export default function CalendarPostModal({
               <Maximize2 className="w-4 h-4" />
             </button>
             <button
-              onClick={onClose}
+              onClick={() => guardedClose(false)}
               className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors text-gray-400"
             >
               <X className="w-4 h-4" />
@@ -922,6 +938,7 @@ export default function CalendarPostModal({
           </div>
         </div>
       </DialogContent>
+      <ConfirmDialog {...discardDialogProps} />
     </Dialog>
   );
 }

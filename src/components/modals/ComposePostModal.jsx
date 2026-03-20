@@ -10,6 +10,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Loader2, Sparkles, Calendar, Send, X, AlertCircle } from 'lucide-react';
 import AIPostAssistant from '@/components/social/AIPostAssistant';
 import { toLocalISOString } from '@/utils/date';
+import useUnsavedChangesGuard from '@/components/hooks/useUnsavedChangesGuard';
+import ConfirmDialog from '@/components/ui/ConfirmDialog';
 
 // Remove the function from here and import from utils
 
@@ -69,6 +71,18 @@ export default function ComposePostModal({
   const [scheduledTime, setScheduledTime] = useState('');
   const [scheduleError, setScheduleError] = useState('');
   const [activeTab, setActiveTab] = useState('compose');
+
+  const isDirty =
+    masterContent !== '' ||
+    selectedAccounts.length > 0 ||
+    Object.keys(platformContent).length > 0 ||
+    hashtags.length > 0 ||
+    scheduledTime !== '';
+
+  const { guardedClose, markAsSubmitted, discardDialogProps } = useUnsavedChangesGuard({
+    isDirty,
+    onClose,
+  });
 
   useEffect(() => {
     if (open) {
@@ -154,6 +168,7 @@ export default function ComposePostModal({
       };
     });
 
+    markAsSubmitted();
     onSchedule(posts);
   };
 
@@ -162,7 +177,7 @@ export default function ComposePostModal({
   ].filter(Boolean);
 
   return (
-    <Dialog open={open} onOpenChange={onClose}>
+    <Dialog open={open} onOpenChange={guardedClose}>
       <DialogContent className="sm:max-w-2xl max-h-[85vh] overflow-hidden flex flex-col">
         <DialogHeader>
           <DialogTitle>Compose Post</DialogTitle>
@@ -282,7 +297,7 @@ export default function ComposePostModal({
             </div>
 
             <div className="flex justify-end gap-2 pt-4">
-              <Button variant="outline" onClick={onClose}>
+              <Button variant="outline" onClick={() => guardedClose(false)}>
                 Cancel
               </Button>
               <Button
@@ -434,6 +449,7 @@ export default function ComposePostModal({
           </TabsContent>
         </Tabs>
       </DialogContent>
+      <ConfirmDialog {...discardDialogProps} />
     </Dialog>
   );
 }
