@@ -40,10 +40,35 @@ import DataManagement from '@/components/settings/DataManagement';
 import AIToggleSettings from '@/components/settings/AIToggleSettings';
 import HubSpotSync from '@/components/settings/HubSpotSync';
 
+const SETTINGS_TABS = [
+  'profile',
+  'notifications',
+  'appearance',
+  'preferences',
+  'features',
+  'autosync',
+  'integrations',
+  'rbac',
+  'users',
+  'data',
+  'ai',
+];
+
+const getValidSettingsTab = (tab) => (SETTINGS_TABS.includes(tab) ? tab : 'profile');
+
+const buildProfileUpdatePayload = (profile) => ({
+  timezone: profile.timezone,
+  language: profile.language,
+  job_title: profile.job_title,
+  company: profile.company,
+  phone: profile.phone,
+  bio: profile.bio,
+});
+
 export default function Settings() {
   const [searchParams] = useSearchParams();
   const [saving, setSaving] = useState(false);
-  const [activeTab, setActiveTab] = useState(searchParams.get('tab') || 'profile');
+  const [activeTab, setActiveTab] = useState(getValidSettingsTab(searchParams.get('tab')));
   const queryClient = useQueryClient();
   const toast = useToast();
   const { theme, setTheme } = useTheme();
@@ -102,10 +127,7 @@ export default function Settings() {
   }, [user]);
 
   React.useEffect(() => {
-    const requestedTab = searchParams.get('tab');
-    if (requestedTab) {
-      setActiveTab(requestedTab);
-    }
+    setActiveTab(getValidSettingsTab(searchParams.get('tab')));
   }, [searchParams]);
 
   const saveMutation = useMutation({
@@ -121,12 +143,15 @@ export default function Settings() {
 
   const handleSave = async () => {
     setSaving(true);
-    await saveMutation.mutateAsync({
-      ...profile,
-      notification_settings: notifications,
-      preferences: preferences,
-    });
-    setSaving(false);
+    try {
+      await saveMutation.mutateAsync({
+        ...buildProfileUpdatePayload(profile),
+        notification_settings: notifications,
+        preferences,
+      });
+    } finally {
+      setSaving(false);
+    }
   };
 
   if (isLoading) {

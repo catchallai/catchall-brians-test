@@ -534,7 +534,7 @@ export default function CalendarPostModal({
   const openIntegrationSettings = (providerKey) => {
     setConnectPrompt(null);
     const providerLabel = providerKey === 'dropbox' ? 'Dropbox' : 'Google Drive';
-    openRouteFromComposer(`${createPageUrl('Settings')}?tab=integrations&provider=${providerKey}`, {
+    openRouteFromComposer(`${createPageUrl('Settings')}?tab=integrations`, {
       title: `Open ${providerLabel} Setup?`,
       description: `You have unsaved post changes. Continue to Settings to manage ${providerLabel} integrations?`,
     });
@@ -622,7 +622,7 @@ export default function CalendarPostModal({
     {
       section: 'My Media',
       items: [
-        { label: 'Upload Image(s)', icon: ImageIcon, onSelect: triggerImageUpload },
+        { label: 'Upload Image', icon: ImageIcon, onSelect: triggerImageUpload },
         { label: 'Upload Video', icon: Video, onSelect: triggerVideoUpload },
         { label: 'Dropbox', icon: Cloud, onSelect: () => handleCloudMediaSource('dropbox') },
         {
