@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent } from '@/components/ui/card';
@@ -80,6 +80,11 @@ export default function SocialCalendar() {
   const [nineGridPosts, setNineGridPosts] = useState(Array(9).fill(null));
   const [galleryPosts, setGalleryPosts] = useState([]);
   const queryClient = useQueryClient();
+
+  // Update expired post statuses every time this page is visited
+  useEffect(() => {
+    base44.functions.invoke('updateExpiredPostStatuses', {}).catch(console.error);
+  }, []);
 
   const startDate = format(startOfMonth(currentMonth), 'yyyy-MM-dd');
   const endDate = format(endOfMonth(currentMonth), 'yyyy-MM-dd');
