@@ -367,10 +367,13 @@ export default function CalendarPostModal({
   const fileInputRef = useRef();
   const videoInputRef = useRef();
   const captionRef = useRef(null);
-  const captionSelectionRef = useRef({ start: 0, end: 0 });
+  const captionSelectionRef = useRef({ start: null, end: null });
   const initialFormDataRef = useRef({ ...DEFAULT_FORM });
 
   useEffect(() => {
+    setIsEmojiPickerOpen(false);
+    captionSelectionRef.current = { start: null, end: null };
+
     if (open) {
       setActiveTab('compose');
       setShowBestTimes(false);
@@ -513,31 +516,58 @@ export default function CalendarPostModal({
     if (!target) {
       return;
     }
+
+    if (target !== captionRef.current || document.activeElement !== target) {
+      return;
+    }
+
     captionSelectionRef.current = {
-      start: target.selectionStart ?? 0,
-      end: target.selectionEnd ?? target.selectionStart ?? 0,
+      start: target.selectionStart ?? null,
+      end: target.selectionEnd ?? target.selectionStart ?? null,
     };
   };
 
-  const handleEmojiSelect = ({ emoji }) => {
+  const getCaptionInsertionContext = (caption) => {
     const textarea = captionRef.current;
-    const fallbackPosition = formData.caption.length;
-    const start = textarea?.selectionStart ?? captionSelectionRef.current.start ?? fallbackPosition;
-    const end = textarea?.selectionEnd ?? captionSelectionRef.current.end ?? start;
-    const nextCaption = formData.caption.slice(0, start) + emoji + formData.caption.slice(end);
-    const nextCaretPosition = start + emoji.length;
+    const currentCaption = textarea?.value ?? caption;
+    const hasLiveSelection =
+      textarea === captionRef.current && document.activeElement === captionRef.current;
+    const hasStoredSelection =
+      Number.isInteger(captionSelectionRef.current.start) &&
+      Number.isInteger(captionSelectionRef.current.end);
+    const fallbackPosition = currentCaption.length;
+    const start = hasLiveSelection
+      ? (textarea.selectionStart ?? fallbackPosition)
+      : hasStoredSelection
+        ? captionSelectionRef.current.start
+        : fallbackPosition;
+    const end = hasLiveSelection
+      ? (textarea.selectionEnd ?? start)
+      : hasStoredSelection
+        ? captionSelectionRef.current.end
+        : start;
 
-    captionSelectionRef.current = {
-      start: nextCaretPosition,
-      end: nextCaretPosition,
-    };
+    return { currentCaption, start, end };
+  };
 
-    setFormData((f) => ({
-      ...f,
-      caption: nextCaption,
-      hashtags: /#\w+/.test(nextCaption) ? f.hashtags : [],
-    }));
-    setIsEmojiPickerOpen(false);
+  const handleEmojiSelect = ({ emoji }) => {
+    let nextCaretPosition = 0;
+    setFormData((f) => {
+      const { currentCaption, start, end } = getCaptionInsertionContext(f.caption);
+      const nextCaption = currentCaption.slice(0, start) + emoji + currentCaption.slice(end);
+
+      nextCaretPosition = start + emoji.length;
+      captionSelectionRef.current = {
+        start: nextCaretPosition,
+        end: nextCaretPosition,
+      };
+
+      return {
+        ...f,
+        caption: nextCaption,
+        hashtags: /#\w+/.test(nextCaption) ? f.hashtags : [],
+      };
+    });
 
     requestAnimationFrame(() => {
       const nextTextarea = captionRef.current;
@@ -793,7 +823,11 @@ export default function CalendarPostModal({
                     <PopoverTrigger asChild>
                       <button
                         type="button"
-                        onClick={() => updateCaptionSelection(captionRef.current)}
+                        onClick={() => {
+                          if (document.activeElement === captionRef.current) {
+                            updateCaptionSelection(captionRef.current);
+                          }
+                        }}
                         className="p-1.5 text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
                       >
                         <Smile className="w-5 h-5" />
@@ -802,6 +836,11 @@ export default function CalendarPostModal({
                     <PopoverContent
                       align="start"
                       side="top"
+                      onFocusOutside={(event) => {
+                        if (event.target === captionRef.current) {
+                          event.preventDefault();
+                        }
+                      }}
                       className="w-auto p-0 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900"
                     >
                       <EmojiPicker
