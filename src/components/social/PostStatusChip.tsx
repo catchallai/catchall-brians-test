@@ -91,6 +91,7 @@ export default function PostStatusChip(props: PostStatusChipProps) {
       className={`inline-flex items-center gap-1 px-2 py-1 border text-xs font-medium rounded-full transition-colors ${config.color} ${config.text} ${className || ''}`}
       aria-label={iconOnly ? formattedStatus : undefined}
       tabIndex={iconOnly ? 0 : undefined}
+      role={iconOnly ? 'img' : undefined}
     >
       {config.icon}
       {!iconOnly && <span>{formattedStatus}</span>}
