@@ -40,7 +40,9 @@ export default function VisualEditAgent() {
 
   // Position overlay relative to element
   const positionOverlay = (overlay, element, isSelected = false) => {
-    if (!element || !isVisualEditModeRef.current) return;
+    if (!element || !isVisualEditModeRef.current) {
+      return;
+    }
 
     // Force layout recalculation
     void element.offsetWidth;
@@ -77,7 +79,9 @@ export default function VisualEditAgent() {
 
   // Find elements by ID - first try data-source-location, fallback to data-visual-selector-id
   const findElementsById = (id) => {
-    if (!id) return [];
+    if (!id) {
+      return [];
+    }
     const sourceElements = [...document.querySelectorAll(`[data-source-location="${id}"]`)];
     if (sourceElements.length > 0) {
       return sourceElements;
@@ -98,7 +102,9 @@ export default function VisualEditAgent() {
 
   // Handle mouse over event
   const handleMouseOver = (e) => {
-    if (!isVisualEditModeRef.current || isPopoverDraggingRef.current) return;
+    if (!isVisualEditModeRef.current || isPopoverDraggingRef.current) {
+      return;
+    }
 
     // Prevent hover effects when a dropdown is open
     if (isDropdownOpenRef.current) {
@@ -148,13 +154,17 @@ export default function VisualEditAgent() {
 
   // Handle mouse out event
   const handleMouseOut = () => {
-    if (isPopoverDraggingRef.current) return;
+    if (isPopoverDraggingRef.current) {
+      return;
+    }
     clearHoverOverlays();
   };
 
   // Handle element click
   const handleElementClick = (e) => {
-    if (!isVisualEditModeRef.current) return;
+    if (!isVisualEditModeRef.current) {
+      return;
+    }
 
     // Close dropdowns when clicking anywhere in iframe if a dropdown is open
     if (isDropdownOpenRef.current) {

@@ -22,7 +22,9 @@ export const extractMentions = (content, users = []) => {
 
 // Create notification for mentioned users
 export const createMentionNotifications = async (base44, messageData, mentionedEmails) => {
-  if (mentionedEmails.length === 0) return;
+  if (mentionedEmails.length === 0) {
+    return;
+  }
 
   const notificationsToCreate = mentionedEmails.map((email) => ({
     user_email: email,

@@ -1,8 +1,7 @@
-import React from 'react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { Send, Users, MousePointer, Eye } from 'lucide-react';
+import { Users, MousePointer, Eye } from 'lucide-react';
 import { format } from 'date-fns';
 
 const statusColors = {

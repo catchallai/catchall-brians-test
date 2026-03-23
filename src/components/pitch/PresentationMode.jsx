@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { ChevronLeft, ChevronRight, X, ExternalLink, Play, Pause } from 'lucide-react';
+import { ChevronLeft, ChevronRight, X, ExternalLink } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const slideTransitions = {
@@ -48,11 +48,18 @@ export default function PresentationMode({
   };
 
   const handleKeyDown = (e) => {
-    if (e.key === 'ArrowRight' || e.key === ' ') nextSlide();
-    if (e.key === 'ArrowLeft') prevSlide();
+    if (e.key === 'ArrowRight' || e.key === ' ') {
+      nextSlide();
+    }
+    if (e.key === 'ArrowLeft') {
+      prevSlide();
+    }
     if (e.key === 'Escape') {
-      if (linkModal) setLinkModal(null);
-      else onClose();
+      if (linkModal) {
+        setLinkModal(null);
+      } else {
+        onClose();
+      }
     }
   };
 
@@ -72,7 +79,9 @@ export default function PresentationMode({
   }, [open]);
 
   const slide = slides[currentSlide];
-  if (!slide) return null;
+  if (!slide) {
+    return null;
+  }
 
   // Load custom fonts
   useEffect(() => {
@@ -91,7 +100,9 @@ export default function PresentationMode({
   }, [branding]);
 
   const renderContent = (content) => {
-    if (!content) return null;
+    if (!content) {
+      return null;
+    }
 
     return (
       <>

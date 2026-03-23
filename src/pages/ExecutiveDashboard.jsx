@@ -36,7 +36,9 @@ export default function ExecutiveDashboard() {
   const { data: competitors = [], isLoading: loadingCompetitors } = useQuery({
     queryKey: ['competitors', user?.current_business_id],
     queryFn: async () => {
-      if (!user?.current_business_id) return [];
+      if (!user?.current_business_id) {
+        return [];
+      }
       return await base44.entities.Competitor.filter(
         { business_id: user.current_business_id },
         '-last_analyzed',
@@ -49,7 +51,9 @@ export default function ExecutiveDashboard() {
   const { data: visitors = [], isLoading: loadingVisitors } = useQuery({
     queryKey: ['visitor-sessions', user?.current_business_id],
     queryFn: async () => {
-      if (!user?.current_business_id) return [];
+      if (!user?.current_business_id) {
+        return [];
+      }
       return await base44.entities.VisitorSession.filter(
         { business_id: user.current_business_id },
         '-created_date',
@@ -62,7 +66,9 @@ export default function ExecutiveDashboard() {
   const { data: reservations = [], isLoading: loadingReservations } = useQuery({
     queryKey: ['reservations', user?.current_business_id],
     queryFn: async () => {
-      if (!user?.current_business_id) return [];
+      if (!user?.current_business_id) {
+        return [];
+      }
       return await base44.entities.SalesReservation.filter(
         { business_id: user.current_business_id },
         '-created_date',
@@ -75,7 +81,9 @@ export default function ExecutiveDashboard() {
   const { data: deals = [] } = useQuery({
     queryKey: ['deals', user?.current_business_id],
     queryFn: async () => {
-      if (!user?.current_business_id) return [];
+      if (!user?.current_business_id) {
+        return [];
+      }
       return await base44.entities.Deal.filter(
         { business_id: user.current_business_id },
         '-created_date',
@@ -90,10 +98,18 @@ export default function ExecutiveDashboard() {
     let score = 0;
     score += Math.min(visitor.pages_viewed * 5, 30);
     score += Math.min(Math.floor((visitor.time_on_site || 0) / 60) * 3, 25);
-    if (visitor.company_name) score += 20;
-    if (visitor.company_tier === 'tier_1') score += 25;
-    if (visitor.company_tier === 'tier_2') score += 15;
-    if (visitor.company_tier === 'tier_3') score += 5;
+    if (visitor.company_name) {
+      score += 20;
+    }
+    if (visitor.company_tier === 'tier_1') {
+      score += 25;
+    }
+    if (visitor.company_tier === 'tier_2') {
+      score += 15;
+    }
+    if (visitor.company_tier === 'tier_3') {
+      score += 5;
+    }
     return Math.min(score, 100);
   };
 

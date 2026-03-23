@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -18,7 +18,9 @@ export default function PublicDocumentViewer() {
   } = useQuery({
     queryKey: ['tracked-document', token],
     queryFn: async () => {
-      if (!token) return null;
+      if (!token) {
+        return null;
+      }
       const docs = await base44.entities.TrackedDocument.filter({ tracking_code: token });
       const doc = docs?.[0];
 
@@ -37,7 +39,9 @@ export default function PublicDocumentViewer() {
   });
 
   const handleDownload = async () => {
-    if (!document) return;
+    if (!document) {
+      return;
+    }
 
     try {
       setDownloadStarted(true);

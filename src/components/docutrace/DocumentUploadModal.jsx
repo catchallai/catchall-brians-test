@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { createPageUrl } from '@/utils';
 import {
@@ -46,7 +46,9 @@ export default function DocumentUploadModal({ open, onClose, onSuccess }) {
       if (response.data.success) {
         const shareLink = `${window.location.origin}${createPageUrl('PublicDocumentViewerWrapper')}?token=${response.data.trackingCode}`;
         setShareLink(shareLink);
-        if (onSuccess) onSuccess({ ...response.data, shareLink });
+        if (onSuccess) {
+          onSuccess({ ...response.data, shareLink });
+        }
       }
     } catch (err) {
       setError(err.message || 'Upload failed');

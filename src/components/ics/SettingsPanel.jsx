@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Settings, Bell, Moon, Eye, Lock, Volume2, Clock } from 'lucide-react';
+import { Settings, Bell, Eye, Lock } from 'lucide-react';
 import NotificationPreferences from '@/components/notifications/NotificationPreferences';
 
 export default function SettingsPanel({

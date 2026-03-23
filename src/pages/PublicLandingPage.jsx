@@ -1,11 +1,8 @@
-import React from 'react';
-import { useParams } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
-import { createPageUrl } from '@/utils';
 import SessionReplayTracker from '@/components/analytics/SessionReplayTracker';
 
 export default function PublicLandingPage() {

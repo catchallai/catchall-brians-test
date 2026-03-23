@@ -1,22 +1,12 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import {
-  Users,
-  MessageSquare,
-  Radio,
-  Activity,
-  AlertTriangle,
-  CheckCircle,
-  Search,
-  RefreshCw,
-  Clock,
-} from 'lucide-react';
+import { Users, MessageSquare, Radio, AlertTriangle, Search, RefreshCw, Clock } from 'lucide-react';
 
 export default function ICSAdminPortal({ user, darkMode }) {
   const [searchUser, setSearchUser] = useState('');

@@ -1,10 +1,11 @@
-import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { TrendingDown } from 'lucide-react';
 
 export default function ConversionFunnelChart({ funnel }) {
-  if (!funnel) return null;
+  if (!funnel) {
+    return null;
+  }
 
   const maxVisitors = funnel.total_entered || 0;
 

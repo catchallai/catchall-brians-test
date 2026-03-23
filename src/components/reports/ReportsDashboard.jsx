@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useState } from 'react';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -20,7 +20,6 @@ import {
   Share2,
   Eye,
   BarChart2,
-  PieChart,
   Radar,
   Grid3X3,
 } from 'lucide-react';
@@ -35,7 +34,6 @@ import DraggableDashboard from '@/components/dashboard/DraggableDashboard';
 import ScatterPlotChart from '@/components/charts/ScatterPlotChart';
 import HeatmapChart from '@/components/charts/HeatmapChart';
 import RadarComparisonChart from '@/components/charts/RadarComparisonChart';
-import InteractiveAreaChart from '@/components/charts/InteractiveAreaChart';
 
 const AVAILABLE_WIDGETS = [
   {
@@ -150,7 +148,9 @@ export default function ReportsDashboard({
   const [widgetSizes, setWidgetSizes] = useState({});
 
   const getDateRange = () => {
-    if (dateRange === 'custom') return customRange;
+    if (dateRange === 'custom') {
+      return customRange;
+    }
     const range = DATE_RANGES.find((r) => r.value === dateRange);
     return range?.getRange() || { from: subDays(new Date(), 30), to: new Date() };
   };

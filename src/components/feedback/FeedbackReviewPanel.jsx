@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -33,9 +33,15 @@ export default function FeedbackReviewPanel() {
   });
 
   const filteredFeedback = feedback.filter((f) => {
-    if (filterSentiment === 'all') return true;
-    if (filterSentiment === 'negative') return f.sentiment === 'negative';
-    if (filterSentiment === 'unreviewed') return f.status === 'new';
+    if (filterSentiment === 'all') {
+      return true;
+    }
+    if (filterSentiment === 'negative') {
+      return f.sentiment === 'negative';
+    }
+    if (filterSentiment === 'unreviewed') {
+      return f.status === 'new';
+    }
     return f.sentiment === filterSentiment;
   });
 
@@ -46,8 +52,12 @@ export default function FeedbackReviewPanel() {
   };
 
   const npsColor = (score) => {
-    if (score >= 9) return 'bg-green-100 text-green-800';
-    if (score >= 7) return 'bg-blue-100 text-blue-800';
+    if (score >= 9) {
+      return 'bg-green-100 text-green-800';
+    }
+    if (score >= 7) {
+      return 'bg-blue-100 text-blue-800';
+    }
     return 'bg-red-100 text-red-800';
   };
 

@@ -1,11 +1,10 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Plus, Globe } from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/card';
 import WebsiteModal from '@/components/modals/WebsiteModal';
 import EmptyState from '@/components/ui/EmptyState';
 import SEOOverviewStats from '@/components/seo/SEOOverviewStats';

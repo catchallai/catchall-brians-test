@@ -64,7 +64,9 @@ export default function CompanyDetailPanel({ companyId }) {
   const { data: relatedCompanies = [] } = useQuery({
     queryKey: ['related-companies', companyId],
     queryFn: async () => {
-      if (!company?.related_company_ids || company.related_company_ids.length === 0) return [];
+      if (!company?.related_company_ids || company.related_company_ids.length === 0) {
+        return [];
+      }
       const allCompanies = await base44.entities.Company.list('-created_date', 500);
       return allCompanies.filter((c) => company.related_company_ids.includes(c.id));
     },
@@ -75,7 +77,9 @@ export default function CompanyDetailPanel({ companyId }) {
     return <Skeleton className="h-64" />;
   }
 
-  if (!company) return null;
+  if (!company) {
+    return null;
+  }
 
   const totalDealValue = deals.reduce((sum, d) => sum + (d.value || 0), 0);
 

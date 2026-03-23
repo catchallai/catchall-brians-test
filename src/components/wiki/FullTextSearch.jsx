@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Input } from '@/components/ui/input';
@@ -21,7 +21,9 @@ export default function FullTextSearch({ spaceId, onPageSelect }) {
   const { data: results = [] } = useQuery({
     queryKey: ['search-pages', query, spaceId],
     queryFn: async () => {
-      if (query.length < 2) return [];
+      if (query.length < 2) {
+        return [];
+      }
 
       const allPages = await base44.entities.WikiPage.list();
       const lowerQuery = query.toLowerCase();
@@ -78,7 +80,9 @@ export default function FullTextSearch({ spaceId, onPageSelect }) {
   const { data: bookmarks = [] } = useQuery({
     queryKey: ['user-bookmarks', user?.email],
     queryFn: async () => {
-      if (!user) return [];
+      if (!user) {
+        return [];
+      }
       const allBookmarks = await base44.entities.WikiPageBookmark.list();
       return allBookmarks.filter((b) => b.user_email === user.email);
     },
@@ -116,7 +120,9 @@ export default function FullTextSearch({ spaceId, onPageSelect }) {
                     key={page.id}
                     to={`${createPageUrl('WikiPageEditor')}?spaceId=${page.space_id}&pageId=${page.id}`}
                     onClick={() => {
-                      if (onPageSelect) onPageSelect(page);
+                      if (onPageSelect) {
+                        onPageSelect(page);
+                      }
                       setShowResults(false);
                     }}
                     className="block p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"

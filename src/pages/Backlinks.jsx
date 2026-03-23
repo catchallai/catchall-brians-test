@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
@@ -78,7 +78,9 @@ export default function Backlinks() {
   const { data: backlinks = [], isLoading } = useQuery({
     queryKey: ['backlinks', user?.current_business_id],
     queryFn: async () => {
-      if (!user?.current_business_id) return [];
+      if (!user?.current_business_id) {
+        return [];
+      }
       return await base44.entities.Backlink.filter(
         { business_id: user.current_business_id },
         '-created_date',
@@ -91,7 +93,9 @@ export default function Backlinks() {
   const { data: websites = [] } = useQuery({
     queryKey: ['websites', user?.current_business_id],
     queryFn: async () => {
-      if (!user?.current_business_id) return [];
+      if (!user?.current_business_id) {
+        return [];
+      }
       return await base44.entities.Website.filter(
         { business_id: user.current_business_id },
         '-created_date',
@@ -104,7 +108,9 @@ export default function Backlinks() {
   const { data: competitors = [] } = useQuery({
     queryKey: ['competitors', user?.current_business_id],
     queryFn: async () => {
-      if (!user?.current_business_id) return [];
+      if (!user?.current_business_id) {
+        return [];
+      }
       return await base44.entities.Competitor.filter(
         { business_id: user.current_business_id },
         '-created_date',
@@ -155,7 +161,9 @@ export default function Backlinks() {
     }
 
     const website = websites.find((w) => w.id === selectedWebsiteForScan);
-    if (!website) return;
+    if (!website) {
+      return;
+    }
 
     setScanStatus('scanning');
     setScanProgress(10);

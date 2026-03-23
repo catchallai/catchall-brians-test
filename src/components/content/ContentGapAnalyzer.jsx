@@ -1,17 +1,14 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import {
   Search,
   Loader2,
   Target,
-  TrendingUp,
-  AlertTriangle,
   CheckCircle,
   ArrowRight,
   Sparkles,
@@ -138,7 +135,9 @@ export default function ContentGapAnalyzer({ websites, keywords, competitors, on
   };
 
   const formatVolume = (vol) => {
-    if (vol >= 1000) return `${(vol / 1000).toFixed(1)}K`;
+    if (vol >= 1000) {
+      return `${(vol / 1000).toFixed(1)}K`;
+    }
     return vol;
   };
 

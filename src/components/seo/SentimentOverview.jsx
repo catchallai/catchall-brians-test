@@ -1,9 +1,10 @@
-import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { MessageSquare } from 'lucide-react';
 
 export default function SentimentOverview({ mentions }) {
-  if (!mentions || mentions.length === 0) return null;
+  if (!mentions || mentions.length === 0) {
+    return null;
+  }
 
   const negative = mentions.filter((m) => m.sentiment === 'negative').length;
   const neutral = mentions.filter((m) => m.sentiment === 'neutral').length;

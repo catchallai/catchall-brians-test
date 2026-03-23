@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   Select,
@@ -8,9 +8,9 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Trash2, Folder, Tag, Download } from 'lucide-react';
+import { Trash2, Folder, Download } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
-import { useQuery, useMutation } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { useToast } from '@/components/ui/toast-provider';
 
 export default function BulkAssetActions({ selectedAssets, onClear, onComplete }) {
@@ -29,7 +29,9 @@ export default function BulkAssetActions({ selectedAssets, onClear, onComplete }
   });
 
   const handleBulkDelete = async () => {
-    if (!confirm(`Delete ${selectedAssets.length} assets?`)) return;
+    if (!confirm(`Delete ${selectedAssets.length} assets?`)) {
+      return;
+    }
 
     for (const id of selectedAssets) {
       await base44.entities.MediaAsset.delete(id);
@@ -58,7 +60,9 @@ export default function BulkAssetActions({ selectedAssets, onClear, onComplete }
     toast.success('Downloads started');
   };
 
-  if (selectedAssets.length === 0) return null;
+  if (selectedAssets.length === 0) {
+    return null;
+  }
 
   return (
     <>

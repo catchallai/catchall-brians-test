@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from 'react';
-import CampaignPreview from '@/components/email/CampaignPreview';
+import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -15,7 +14,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, Users } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 
 export default function EmailCampaignModal({
   open,

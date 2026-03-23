@@ -1,4 +1,3 @@
-import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -7,14 +6,11 @@ import {
   Building2,
   Star,
   MapPin,
-  Phone,
-  Clock,
   Image,
   FileText,
   CheckCircle,
   AlertCircle,
   Settings,
-  TrendingUp,
 } from 'lucide-react';
 
 export default function GBPOptimizationCard({ profile, onEdit }) {
@@ -22,14 +18,22 @@ export default function GBPOptimizationCard({ profile, onEdit }) {
   const issues = profile.optimization_issues || [];
 
   const getScoreColor = (score) => {
-    if (score >= 80) return 'text-emerald-600';
-    if (score >= 60) return 'text-amber-600';
+    if (score >= 80) {
+      return 'text-emerald-600';
+    }
+    if (score >= 60) {
+      return 'text-amber-600';
+    }
     return 'text-red-600';
   };
 
   const getScoreBg = (score) => {
-    if (score >= 80) return 'bg-emerald-100';
-    if (score >= 60) return 'bg-amber-100';
+    if (score >= 80) {
+      return 'bg-emerald-100';
+    }
+    if (score >= 60) {
+      return 'bg-amber-100';
+    }
     return 'bg-red-100';
   };
 

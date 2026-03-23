@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -15,10 +15,7 @@ import {
   Sparkles,
   RefreshCw,
   Loader2,
-  TrendingUp,
-  Users,
   CheckCircle,
-  AlertCircle,
   GitBranch,
   Play,
 } from 'lucide-react';
@@ -61,7 +58,9 @@ export default function Automation() {
   const { data: contacts = [] } = useQuery({
     queryKey: ['contacts', user?.current_business_id],
     queryFn: async () => {
-      if (!user?.current_business_id) return [];
+      if (!user?.current_business_id) {
+        return [];
+      }
       return await base44.entities.Contact.filter(
         { business_id: user.current_business_id },
         '-created_date',
@@ -74,7 +73,9 @@ export default function Automation() {
   const { data: companies = [] } = useQuery({
     queryKey: ['companies', user?.current_business_id],
     queryFn: async () => {
-      if (!user?.current_business_id) return [];
+      if (!user?.current_business_id) {
+        return [];
+      }
       return await base44.entities.Company.filter(
         { business_id: user.current_business_id },
         '-created_date',

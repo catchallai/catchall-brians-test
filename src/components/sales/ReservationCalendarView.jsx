@@ -1,6 +1,5 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 export default function ReservationCalendarView({ reservations = [] }) {
@@ -22,7 +21,9 @@ export default function ReservationCalendarView({ reservations = [] }) {
   }
 
   const getReservationsForDate = (date) => {
-    if (!date) return [];
+    if (!date) {
+      return [];
+    }
     return reservations.filter((r) => {
       const resDate = new Date(r.reservation_date);
       return resDate.toDateString() === date.toDateString();

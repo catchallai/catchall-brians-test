@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Select,
@@ -8,7 +8,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { MapPin, Monitor, Smartphone, Tablet, TrendingUp, TrendingDown, Minus } from 'lucide-react';
+import { MapPin, Monitor, Smartphone, Tablet } from 'lucide-react';
 
 const devices = [
   { value: 'all', label: 'All Devices', icon: Monitor },

@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { base44 } from '@/api/base44Client';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -11,21 +11,14 @@ import {
   Users,
   Mail,
   Send,
-  Calendar,
-  TrendingUp,
-  Globe,
   Search,
   Plus,
   Filter,
   Sparkles,
-  FileText,
   Eye,
   Clock,
   CheckCircle,
-  ExternalLink,
   Download,
-  BarChart3,
-  Loader2,
   Link2,
 } from 'lucide-react';
 import JournalistCard from '@/components/media/JournalistCard';

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -15,9 +15,15 @@ import {
 } from 'lucide-react';
 
 const scoreColors = (score) => {
-  if (score >= 80) return { bg: 'bg-emerald-100', text: 'text-emerald-700', bar: 'bg-emerald-500' };
-  if (score >= 60) return { bg: 'bg-blue-100', text: 'text-blue-700', bar: 'bg-blue-500' };
-  if (score >= 40) return { bg: 'bg-amber-100', text: 'text-amber-700', bar: 'bg-amber-500' };
+  if (score >= 80) {
+    return { bg: 'bg-emerald-100', text: 'text-emerald-700', bar: 'bg-emerald-500' };
+  }
+  if (score >= 60) {
+    return { bg: 'bg-blue-100', text: 'text-blue-700', bar: 'bg-blue-500' };
+  }
+  if (score >= 40) {
+    return { bg: 'bg-amber-100', text: 'text-amber-700', bar: 'bg-amber-500' };
+  }
   return { bg: 'bg-red-100', text: 'text-red-700', bar: 'bg-red-500' };
 };
 

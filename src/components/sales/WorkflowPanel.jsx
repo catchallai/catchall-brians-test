@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
-import { Zap, Plus, Activity, CheckCircle, Mail, Target, Clock } from 'lucide-react';
+import { Zap, Plus, Activity, CheckCircle, Target, Clock } from 'lucide-react';
 import WorkflowModal from './WorkflowModal';
 
 const triggerLabels = {

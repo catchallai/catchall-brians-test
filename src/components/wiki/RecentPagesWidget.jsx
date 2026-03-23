@@ -1,4 +1,3 @@
-import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
@@ -41,7 +40,9 @@ export default function RecentPagesWidget({ spaceId, limit = 5 }) {
   const { data: bookmarks = [] } = useQuery({
     queryKey: ['user-bookmarks', user?.email],
     queryFn: async () => {
-      if (!user) return [];
+      if (!user) {
+        return [];
+      }
       const allBookmarks = await base44.entities.WikiPageBookmark.list();
       return allBookmarks.filter((b) => b.user_email === user.email);
     },
@@ -51,16 +52,24 @@ export default function RecentPagesWidget({ spaceId, limit = 5 }) {
   const bookmarkedPageIds = bookmarks.map((b) => b.page_id);
 
   const formatRelativeTime = (dateStr) => {
-    if (!dateStr) return '';
+    if (!dateStr) {
+      return '';
+    }
     const date = new Date(dateStr);
     const now = new Date();
     const diff = now - date;
     const hours = Math.floor(diff / (1000 * 60 * 60));
     const days = Math.floor(hours / 24);
 
-    if (days > 7) return date.toLocaleDateString();
-    if (days > 0) return `${days}d ago`;
-    if (hours > 0) return `${hours}h ago`;
+    if (days > 7) {
+      return date.toLocaleDateString();
+    }
+    if (days > 0) {
+      return `${days}d ago`;
+    }
+    if (hours > 0) {
+      return `${hours}h ago`;
+    }
     return 'Just now';
   };
 

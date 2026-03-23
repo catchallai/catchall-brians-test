@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
-import { Bell, X, Check, AlertCircle } from 'lucide-react';
+import { Bell, Check, AlertCircle } from 'lucide-react';
 
 export default function NotificationManager({ user }) {
   const [notifications, setNotifications] = useState([]);
@@ -38,7 +38,9 @@ export default function NotificationManager({ user }) {
 
   // Subscribe to real-time notifications
   useEffect(() => {
-    if (!user?.email) return;
+    if (!user?.email) {
+      return;
+    }
 
     const unsubscribe = base44.entities.Notification.subscribe((event) => {
       if (event.type === 'create' && event.data?.user_email === user.email) {
@@ -46,7 +48,9 @@ export default function NotificationManager({ user }) {
 
         // Check if this is a mention notification and user has mentions enabled
         const isMention = notification.type === 'mention';
-        if (isMention && !user?.mentions_enabled) return;
+        if (isMention && !user?.mentions_enabled) {
+          return;
+        }
 
         // Show notification if not in DND
         if (!dndActive && user?.desktop_notifications_enabled) {

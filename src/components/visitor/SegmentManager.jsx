@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -12,17 +12,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+
 import { Switch } from '@/components/ui/switch';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { Layers, Plus, Trash2, Star, Edit2, BarChart3, X } from 'lucide-react';
+import { Layers, Plus, Trash2, Star, Edit2 } from 'lucide-react';
 
 const COLORS = [
   { name: 'Violet', value: '#8B5CF6' },
@@ -117,19 +111,36 @@ export default function SegmentManager({ open, onClose, onApplySegment, allVisit
 
   const calculateSegmentCount = (filters) => {
     return allVisitors.filter((visitor) => {
-      if (filters.industries?.length && !filters.industries.includes(visitor.industry))
+      if (filters.industries?.length && !filters.industries.includes(visitor.industry)) {
         return false;
-      if (filters.tiers?.length && !filters.tiers.includes(visitor.scoreData?.tier)) return false;
-      if (filters.countries?.length && !filters.countries.includes(visitor.country)) return false;
-      if (filters.devices?.length && !filters.devices.includes(visitor.device)) return false;
-      if (filters.min_pages && visitor.pagesViewed < filters.min_pages) return false;
-      if (filters.min_score && visitor.leadScore < filters.min_score) return false;
+      }
+      if (filters.tiers?.length && !filters.tiers.includes(visitor.scoreData?.tier)) {
+        return false;
+      }
+      if (filters.countries?.length && !filters.countries.includes(visitor.country)) {
+        return false;
+      }
+      if (filters.devices?.length && !filters.devices.includes(visitor.device)) {
+        return false;
+      }
+      if (filters.min_pages && visitor.pagesViewed < filters.min_pages) {
+        return false;
+      }
+      if (filters.min_score && visitor.leadScore < filters.min_score) {
+        return false;
+      }
       if (filters.min_time_minutes) {
         const timeMinutes = parseInt(visitor.timeOnSite.split('m')[0]);
-        if (timeMinutes < filters.min_time_minutes) return false;
+        if (timeMinutes < filters.min_time_minutes) {
+          return false;
+        }
       }
-      if (filters.is_return_visitor && visitor.visitCount <= 1) return false;
-      if (filters.days_ago_max && visitor.daysAgo > filters.days_ago_max) return false;
+      if (filters.is_return_visitor && visitor.visitCount <= 1) {
+        return false;
+      }
+      if (filters.days_ago_max && visitor.daysAgo > filters.days_ago_max) {
+        return false;
+      }
       return true;
     }).length;
   };

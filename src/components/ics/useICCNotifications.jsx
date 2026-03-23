@@ -15,15 +15,21 @@ export function useICCNotifications(user, channels, messages) {
 
   // Subscribe to real-time message updates
   useEffect(() => {
-    if (!user?.email) return;
+    if (!user?.email) {
+      return;
+    }
 
     const unsubscribe = base44.entities.Message.subscribe((event) => {
-      if (event.type !== 'create') return;
+      if (event.type !== 'create') {
+        return;
+      }
 
       const msg = event.data;
       const channel = channels?.find((c) => c.id === msg.channel_id);
 
-      if (!channel || msg.sender_email === user.email) return;
+      if (!channel || msg.sender_email === user.email) {
+        return;
+      }
 
       // Check if message mentions the user
       const isMention =

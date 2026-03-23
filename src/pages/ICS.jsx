@@ -1,51 +1,10 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useICCNotifications } from '@/components/ics/useICCNotifications';
 import NotificationAlert from '@/components/ics/NotificationAlert';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card } from '@/components/ui/card';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import {
-  MessageSquare,
-  Video,
-  Phone,
-  PhoneOff,
-  Plus,
-  Hash,
-  Lock,
-  Users,
-  Search,
-  Send,
-  Paperclip,
-  Smile,
-  MoreVertical,
-} from 'lucide-react';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { format } from 'date-fns';
-import VideoCallInterface from '@/components/ics/VideoCallInterface';
+
 import { usePresence } from '@/components/ics/usePresence';
-import PresenceIndicator from '@/components/ics/PresenceIndicator';
-import StatusSelector from '@/components/ics/StatusSelector';
-import FileUploader from '@/components/ics/FileUploader';
-import FilePreview from '@/components/ics/FilePreview';
 import Sidebar from '@/components/ics/Sidebar';
 import ConversationsList from '@/components/ics/ConversationsList';
 import ChatArea from '@/components/ics/ChatArea';
@@ -96,7 +55,9 @@ export default function ICS() {
   const { data: prefsData } = useQuery({
     queryKey: ['notification-prefs', user?.email],
     queryFn: async () => {
-      if (!user) return null;
+      if (!user) {
+        return null;
+      }
       const records = await base44.entities.NotificationPreference.filter({
         user_email: user.email,
       });
@@ -143,7 +104,9 @@ export default function ICS() {
   const { data: messages = [] } = useQuery({
     queryKey: ['messages', selectedChannel?.id],
     queryFn: async () => {
-      if (!selectedChannel) return [];
+      if (!selectedChannel) {
+        return [];
+      }
       const allMessages = await base44.entities.Message.list();
       return allMessages
         .filter((m) => m.channel_id === selectedChannel.id)
@@ -176,7 +139,9 @@ export default function ICS() {
   const { data: activeCall } = useQuery({
     queryKey: ['active-call', selectedChannel?.id],
     queryFn: async () => {
-      if (!selectedChannel) return null;
+      if (!selectedChannel) {
+        return null;
+      }
       const calls = await base44.entities.VideoCall.list();
       return (
         calls.find((c) => c.channel_id === selectedChannel.id && c.status === 'active') || null
@@ -190,7 +155,9 @@ export default function ICS() {
   const { data: incomingCallData } = useQuery({
     queryKey: ['incoming-calls', user?.email],
     queryFn: async () => {
-      if (!user?.email) return null;
+      if (!user?.email) {
+        return null;
+      }
       const calls = await base44.entities.VideoCall.list();
       // Find active calls where user is in waiting_room or a participant
       return (
@@ -214,7 +181,9 @@ export default function ICS() {
 
   // Subscribe to new messages
   useEffect(() => {
-    if (!selectedChannel) return;
+    if (!selectedChannel) {
+      return;
+    }
 
     const unsubscribe = base44.entities.Message.subscribe((event) => {
       if (event.type === 'create' && event.data.channel_id === selectedChannel.id) {
@@ -340,7 +309,9 @@ export default function ICS() {
   };
 
   const handleSendMessage = (messageData) => {
-    if (!selectedChannel) return;
+    if (!selectedChannel) {
+      return;
+    }
 
     sendMessageMutation.mutate({
       channel_id: selectedChannel.id,
@@ -397,7 +368,9 @@ export default function ICS() {
   };
 
   const handleAcceptCall = async (callType = 'video') => {
-    if (!incomingCall || !user) return;
+    if (!incomingCall || !user) {
+      return;
+    }
 
     // Add current user to participants
     const updatedParticipants = [
@@ -430,7 +403,9 @@ export default function ICS() {
   };
 
   const handleDeclineCall = async () => {
-    if (!incomingCall || !user) return;
+    if (!incomingCall || !user) {
+      return;
+    }
 
     // Just remove from waiting room
     const updatedWaitingRoom =
@@ -451,7 +426,9 @@ export default function ICS() {
   };
 
   const handleToggleRecording = () => {
-    if (!activeCall) return;
+    if (!activeCall) {
+      return;
+    }
     const newStatus = activeCall.recording_status === 'recording' ? 'paused' : 'recording';
     updateCallMutation.mutate({
       callId: activeCall.id,
@@ -466,7 +443,9 @@ export default function ICS() {
   };
 
   const handleAdmitUser = (userEmail, userName) => {
-    if (!activeCall) return;
+    if (!activeCall) {
+      return;
+    }
     admitFromWaitingRoomMutation.mutate({
       callId: activeCall.id,
       userEmail,
@@ -475,7 +454,9 @@ export default function ICS() {
   };
 
   const handleRejectUser = (userEmail) => {
-    if (!activeCall) return;
+    if (!activeCall) {
+      return;
+    }
     const updatedWaitingRoom = activeCall.waiting_room?.filter((u) => u.email !== userEmail) || [];
     updateCallMutation.mutate({
       callId: activeCall.id,
@@ -484,7 +465,9 @@ export default function ICS() {
   };
 
   const handleToggleWaitingRoom = () => {
-    if (!activeCall) return;
+    if (!activeCall) {
+      return;
+    }
     updateCallMutation.mutate({
       callId: activeCall.id,
       data: {
@@ -499,7 +482,9 @@ export default function ICS() {
   const { data: typingStatus = {} } = useQuery({
     queryKey: ['typing-status', selectedChannel?.id],
     queryFn: async () => {
-      if (!selectedChannel) return {};
+      if (!selectedChannel) {
+        return {};
+      }
       const typingRecords = await base44.entities.Presence.filter({
         channel_id: selectedChannel.id,
         is_typing: true,
@@ -518,7 +503,9 @@ export default function ICS() {
 
   // Subscribe to typing status
   useEffect(() => {
-    if (!selectedChannel) return;
+    if (!selectedChannel) {
+      return;
+    }
 
     const unsubscribe = base44.entities.Presence.subscribe((event) => {
       if (event.data.channel_id === selectedChannel.id) {
@@ -530,7 +517,9 @@ export default function ICS() {
   }, [selectedChannel, queryClient]);
 
   const handleTyping = async (isTyping) => {
-    if (!selectedChannel || !user) return;
+    if (!selectedChannel || !user) {
+      return;
+    }
 
     try {
       const presenceRecords = await base44.entities.Presence.filter({

@@ -28,7 +28,9 @@ export function useFeatures() {
 
   const isEnabled = (featureKey) => {
     const setting = featureSettings.find((f) => f.feature_key === featureKey);
-    if (setting) return setting.enabled;
+    if (setting) {
+      return setting.enabled;
+    }
     return DEFAULT_FEATURES[featureKey] || false;
   };
 

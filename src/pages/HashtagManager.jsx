@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -10,13 +10,11 @@ import {
   Plus,
   Hash,
   Trash2,
-  TrendingUp,
   Copy,
   Check,
   Search,
   Folder,
   FolderPlus,
-  X,
   MoreVertical,
   Star,
   StarOff,
@@ -66,7 +64,9 @@ export default function HashtagManager() {
   });
 
   const handleAddHashtag = () => {
-    if (!newHashtag.trim()) return;
+    if (!newHashtag.trim()) {
+      return;
+    }
     const cleanTag = newHashtag.replace('#', '').trim();
     if (hashtags.some((h) => h.hashtag.toLowerCase() === cleanTag.toLowerCase())) {
       return; // Already exists

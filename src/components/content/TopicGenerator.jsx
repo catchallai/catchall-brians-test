@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -16,10 +16,8 @@ import {
   Lightbulb,
   Loader2,
   TrendingUp,
-  Newspaper,
   Users,
   Sparkles,
-  Target,
   BarChart2,
   Zap,
   BookOpen,
@@ -294,7 +292,9 @@ export default function TopicGenerator({ keywords, competitors, contentInsights,
             <div className="space-y-6">
               {Object.entries(categoryConfig).map(([key, config]) => {
                 const categoryTopics = topics[key];
-                if (!categoryTopics?.length) return null;
+                if (!categoryTopics?.length) {
+                  return null;
+                }
                 const Icon = config.icon;
 
                 return (

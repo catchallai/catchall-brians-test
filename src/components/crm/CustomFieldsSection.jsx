@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { Card } from '@/components/ui/card';
@@ -19,7 +19,9 @@ export default function CustomFieldsSection({ entityType, entityId, businessId, 
   const { data: fields = [] } = useQuery({
     queryKey: ['custom-fields', entityType, businessId],
     queryFn: async () => {
-      if (!businessId) return [];
+      if (!businessId) {
+        return [];
+      }
       return await base44.entities.CustomField.filter(
         {
           entity_type: entityType,
@@ -35,7 +37,9 @@ export default function CustomFieldsSection({ entityType, entityId, businessId, 
   const { data: customValues = [] } = useQuery({
     queryKey: ['custom-field-values', entityId],
     queryFn: async () => {
-      if (!entityId) return [];
+      if (!entityId) {
+        return [];
+      }
       return await base44.entities.CustomFieldValue.filter({
         entity_id: entityId,
         entity_type: entityType,
@@ -58,7 +62,9 @@ export default function CustomFieldsSection({ entityType, entityId, businessId, 
     onValuesChange?.(updated);
   };
 
-  if (!fields.length) return null;
+  if (!fields.length) {
+    return null;
+  }
 
   return (
     <Card className="p-6">

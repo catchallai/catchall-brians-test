@@ -1,15 +1,9 @@
-import React, { useState } from 'react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
@@ -36,7 +30,9 @@ export default function AutoScheduleAssistant({ campaignBriefId, onSuccess }) {
   };
 
   const getSuggestions = async () => {
-    if (!campaignBriefId || selectedPlatforms.length === 0) return;
+    if (!campaignBriefId || selectedPlatforms.length === 0) {
+      return;
+    }
     setLoading(true);
     setError(null);
     try {
@@ -55,7 +51,9 @@ export default function AutoScheduleAssistant({ campaignBriefId, onSuccess }) {
   };
 
   const autoPopulate = async (postCount = 20) => {
-    if (!campaignBriefId || selectedPlatforms.length === 0) return;
+    if (!campaignBriefId || selectedPlatforms.length === 0) {
+      return;
+    }
     setLoading(true);
     setError(null);
     try {

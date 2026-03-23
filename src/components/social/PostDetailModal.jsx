@@ -1,4 +1,3 @@
-import React from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
@@ -25,7 +24,9 @@ const platformConfig = {
 };
 
 export default function PostDetailModal({ open, onClose, post, accountName }) {
-  if (!post) return null;
+  if (!post) {
+    return null;
+  }
 
   const sentiment = sentimentConfig[post.sentiment] || sentimentConfig.neutral;
   const platform = platformConfig[post.platform] || platformConfig.twitter;

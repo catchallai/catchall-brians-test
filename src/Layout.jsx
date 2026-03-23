@@ -2,11 +2,11 @@ import React, { useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import GlobalSearch from '@/components/search/GlobalSearch';
-import { ThemeProvider, useTheme } from '@/components/theme/ThemeProvider';
+import { ThemeProvider } from '@/components/theme/ThemeProvider';
 import ThemeToggle from '@/components/theme/ThemeToggle';
 import NotificationBell from '@/components/notifications/NotificationBell';
 import SessionReplayTracker from '@/components/analytics/SessionReplayTracker';
@@ -40,10 +40,8 @@ import {
   FileText,
   BarChart3,
   PenTool,
-  Keyboard,
   Activity,
   TrendingUp,
-  Smartphone,
   Plus,
   UserCircle,
   AlertTriangle,
@@ -63,13 +61,7 @@ import {
 import ErrorBoundary from '@/components/ui/ErrorBoundary';
 import KeyboardShortcutsDialog, { useKeyboardShortcuts } from '@/components/ui/KeyboardShortcuts';
 import { base44 } from '@/api/base44Client';
-import {
-  useQuery,
-  useMutation,
-  useQueryClient,
-  QueryClient,
-  QueryClientProvider,
-} from '@tanstack/react-query';
+import { useQuery, useQueryClient, QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useFeatures, PAGE_FEATURE_MAP } from '@/components/hooks/useFeatures';
 import OnboardingModal from '@/components/onboarding/OnboardingModal';
 import { ToastProvider } from '@/components/ui/toast-provider';
@@ -452,22 +444,33 @@ function SidebarContent({
 
   // Filter navigation based on enabled features
   const filteredNavigation = navigation.filter((item) => {
-    if (item.name === 'divider') return true;
-    // Always show Dashboard, Settings, Activity Logs, Help Center
-    if (['Dashboard', 'Settings', 'ActivityLogs', 'HelpCenter', 'SEOTools'].includes(item.page))
+    if (item.name === 'divider') {
       return true;
+    }
+    // Always show Dashboard, Settings, Activity Logs, Help Center
+    if (['Dashboard', 'Settings', 'ActivityLogs', 'HelpCenter', 'SEOTools'].includes(item.page)) {
+      return true;
+    }
     // Check if feature is enabled
     const featureKey = PAGE_FEATURE_MAP[item.page];
-    if (!featureKey) return true; // If no feature mapping, show it
+    if (!featureKey) {
+      return true;
+    } // If no feature mapping, show it
     return isEnabled(featureKey);
   });
 
   // Remove consecutive dividers and trailing dividers
   const cleanedNavigation = filteredNavigation.filter((item, idx, arr) => {
-    if (item.name !== 'divider' && item.name !== 'favorites') return true;
-    if (item.name === 'favorites') return true;
+    if (item.name !== 'divider' && item.name !== 'favorites') {
+      return true;
+    }
+    if (item.name === 'favorites') {
+      return true;
+    }
     const nextItem = arr[idx + 1];
-    if (!nextItem || nextItem.name === 'divider') return false;
+    if (!nextItem || nextItem.name === 'divider') {
+      return false;
+    }
     return true;
   });
 
@@ -507,7 +510,9 @@ function SidebarContent({
               };
 
               // Hide dividers when sidebar is collapsed
-              if (isCollapsed) return null;
+              if (isCollapsed) {
+                return null;
+              }
 
               return (
                 <div key={idx} className="pt-4 pb-1">
@@ -561,7 +566,9 @@ function SidebarContent({
 
             if (item.name === 'favorites') {
               // Hide favorites section when sidebar is collapsed
-              if (isCollapsed) return null;
+              if (isCollapsed) {
+                return null;
+              }
 
               return (
                 <div
@@ -723,7 +730,9 @@ function LayoutContent({ children, currentPageName }) {
   const { data: onboardingStatus } = useQuery({
     queryKey: ['user-onboarding', user?.id],
     queryFn: async () => {
-      if (!user?.id) return null;
+      if (!user?.id) {
+        return null;
+      }
       const records = await base44.entities.UserOnboarding.filter({ user_id: user.id });
       return records[0] || null;
     },
@@ -785,10 +794,16 @@ function LayoutContent({ children, currentPageName }) {
 
   const handleAddFavorite = useCallback(
     async (navItem) => {
-      if (!user) return;
+      if (!user) {
+        return;
+      }
       const currentFavorites = user.favorite_links || [];
-      if (currentFavorites.length >= 3) return;
-      if (currentFavorites.some((f) => f.page === navItem.page)) return;
+      if (currentFavorites.length >= 3) {
+        return;
+      }
+      if (currentFavorites.some((f) => f.page === navItem.page)) {
+        return;
+      }
 
       const newFavorites = [...currentFavorites, { page: navItem.page, label: navItem.label }];
       await base44.auth.updateMe({ favorite_links: newFavorites });
@@ -799,7 +814,9 @@ function LayoutContent({ children, currentPageName }) {
 
   const handleRemoveFavorite = useCallback(
     async (page) => {
-      if (!user) return;
+      if (!user) {
+        return;
+      }
       const currentFavorites = user.favorite_links || [];
       const newFavorites = currentFavorites.filter((f) => f.page !== page);
       await base44.auth.updateMe({ favorite_links: newFavorites });

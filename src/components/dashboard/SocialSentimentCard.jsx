@@ -1,14 +1,6 @@
-import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import {
-  ThumbsUp,
-  ThumbsDown,
-  Minus,
-  MessageSquare,
-  TrendingUp,
-  AlertTriangle,
-} from 'lucide-react';
+import { ThumbsUp, ThumbsDown, Minus, MessageSquare, AlertTriangle } from 'lucide-react';
 
 export default function SocialSentimentCard({ mentions, alerts }) {
   const sentimentCounts = {

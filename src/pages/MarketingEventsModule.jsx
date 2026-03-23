@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Plus, Search, Filter, Calendar, MapPin, Users, ExternalLink, Edit } from 'lucide-react';
+import { Plus, Search, Calendar, MapPin, Users, ExternalLink, Edit } from 'lucide-react';
 import EmptyState from '@/components/ui/EmptyState';
 import ContactsSidebar from '@/components/crm/ContactsSidebar';
 import MarketingEventModal from '@/components/modals/MarketingEventModal';
@@ -82,8 +82,12 @@ export default function MarketingEventsModule() {
   };
 
   const getFormatIcon = (format) => {
-    if (format === 'virtual') return '💻';
-    if (format === 'in_person') return '🏢';
+    if (format === 'virtual') {
+      return '💻';
+    }
+    if (format === 'in_person') {
+      return '🏢';
+    }
     return '🔀';
   };
 

@@ -1,14 +1,11 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Badge } from '@/components/ui/badge';
-import { Skeleton } from '@/components/ui/skeleton';
 import {
   Users,
-  TrendingUp,
   AlertTriangle,
   CheckCircle,
   Loader2,
@@ -16,7 +13,6 @@ import {
   Sparkles,
   Target,
   MessageSquare,
-  Award,
   Clock,
 } from 'lucide-react';
 import OnboardingTracker from '@/components/success/OnboardingTracker';
@@ -24,7 +20,6 @@ import InteractionTimeline from '@/components/success/InteractionTimeline';
 import SurveyPanel from '@/components/success/SurveyPanel';
 import OpportunityPanel from '@/components/success/OpportunityPanel';
 import HealthDashboard from '@/components/success/HealthDashboard';
-import EmptyState from '@/components/ui/EmptyState';
 import InteractionModal from '@/components/success/InteractionModal';
 import OnboardingModal from '@/components/success/OnboardingModal';
 

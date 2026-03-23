@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -171,7 +171,9 @@ export default function ReportCustomizer({
     }
   };
 
-  if (!template) return null;
+  if (!template) {
+    return null;
+  }
 
   const Icon = template.icon || FileText;
 

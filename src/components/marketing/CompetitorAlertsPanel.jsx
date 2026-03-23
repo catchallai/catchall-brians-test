@@ -1,10 +1,9 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
 import {
   Select,
   SelectContent,
@@ -12,7 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Bell, ExternalLink, ThumbsUp, ThumbsDown, Minus, Check, Filter } from 'lucide-react';
+import { Bell, ExternalLink, ThumbsUp, ThumbsDown, Minus, Check } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { useToast } from '@/components/ui/toast-provider';
 
@@ -56,8 +55,12 @@ export default function CompetitorAlertsPanel() {
   });
 
   const filteredAlerts = alerts.filter((a) => {
-    if (statusFilter !== 'all' && a.status !== statusFilter) return false;
-    if (priorityFilter !== 'all' && a.priority !== priorityFilter) return false;
+    if (statusFilter !== 'all' && a.status !== statusFilter) {
+      return false;
+    }
+    if (priorityFilter !== 'all' && a.priority !== priorityFilter) {
+      return false;
+    }
     return true;
   });
 

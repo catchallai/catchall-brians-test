@@ -1,4 +1,3 @@
-import React from 'react';
 import {
   Tooltip as ShadcnTooltip,
   TooltipContent,
@@ -38,7 +37,9 @@ export function FeatureTooltip({
   onDismiss,
   show,
 }) {
-  if (!show) return children;
+  if (!show) {
+    return children;
+  }
 
   return (
     <div className="relative">

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -117,7 +117,9 @@ export default function TicketModal({ open, onClose, onSave, ticket, isLoading }
   };
 
   const getFilteredItems = (items, searchTerm, nameField) => {
-    if (!searchTerm) return items.slice(0, 5);
+    if (!searchTerm) {
+      return items.slice(0, 5);
+    }
     return items
       .filter((item) => item[nameField]?.toLowerCase().includes(searchTerm.toLowerCase()))
       .slice(0, 10);

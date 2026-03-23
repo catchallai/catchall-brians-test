@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -34,7 +34,9 @@ export default function SharedDashboardBuilder({ businessId }) {
   const { data: dashboards = [] } = useQuery({
     queryKey: ['shared-dashboards', businessId],
     queryFn: async () => {
-      if (!businessId) return [];
+      if (!businessId) {
+        return [];
+      }
       return await base44.entities.SharedDashboard.filter(
         {
           business_id: businessId,
@@ -89,7 +91,9 @@ export default function SharedDashboardBuilder({ businessId }) {
   };
 
   const handleCreateDash = () => {
-    if (!formData.name.trim()) return;
+    if (!formData.name.trim()) {
+      return;
+    }
     createDashMutation.mutate(formData);
   };
 

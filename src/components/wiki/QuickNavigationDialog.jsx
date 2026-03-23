@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { base44 } from '@/api/base44Client';
@@ -6,7 +6,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { FileText, Folder, Clock, Star, Search } from 'lucide-react';
+import { FileText, Clock, Star, Search } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 
 export default function QuickNavigationDialog({ open, onClose, spaceId }) {

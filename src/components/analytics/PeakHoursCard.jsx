@@ -1,4 +1,3 @@
-import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Clock } from 'lucide-react';
 
@@ -18,15 +17,25 @@ export default function PeakHoursCard({ data }) {
     }));
 
   const getColor = (value) => {
-    if (value < 20) return 'bg-gray-100 dark:bg-gray-700';
-    if (value < 40) return 'bg-violet-100 dark:bg-violet-900/30';
-    if (value < 60) return 'bg-violet-300 dark:bg-violet-700';
-    if (value < 80) return 'bg-violet-500';
+    if (value < 20) {
+      return 'bg-gray-100 dark:bg-gray-700';
+    }
+    if (value < 40) {
+      return 'bg-violet-100 dark:bg-violet-900/30';
+    }
+    if (value < 60) {
+      return 'bg-violet-300 dark:bg-violet-700';
+    }
+    if (value < 80) {
+      return 'bg-violet-500';
+    }
     return 'bg-violet-700';
   };
 
   const getTextColor = (value) => {
-    if (value >= 60) return 'text-white';
+    if (value >= 60) {
+      return 'text-white';
+    }
     return 'text-gray-600 dark:text-gray-400';
   };
 

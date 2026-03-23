@@ -1,19 +1,9 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import {
-  Phone,
-  Calendar,
-  Target,
-  TrendingUp,
-  Plus,
-  PhoneCall,
-  AlertCircle,
-  Users,
-} from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Phone, Target, TrendingUp, Plus, PhoneCall, Users } from 'lucide-react';
 import { createPageUrl } from '@/utils';
 import CallLoggerModal from '@/components/sales/CallLoggerModal';
 import SalesCallCard from '@/components/sales/SalesCallCard';
@@ -641,8 +631,12 @@ Consider:
   };
 
   const formatCurrency = (value) => {
-    if (value >= 1000000) return `$${(value / 1000000).toFixed(1)}M`;
-    if (value >= 1000) return `$${(value / 1000).toFixed(0)}K`;
+    if (value >= 1000000) {
+      return `$${(value / 1000000).toFixed(1)}M`;
+    }
+    if (value >= 1000) {
+      return `$${(value / 1000).toFixed(0)}K`;
+    }
     return `$${value}`;
   };
 

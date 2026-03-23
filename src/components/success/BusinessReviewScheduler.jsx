@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useMutation } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -22,7 +22,9 @@ export default function BusinessReviewScheduler({ contacts = [] }) {
   });
 
   const handleSchedule = () => {
-    if (!selected || !date || !time) return;
+    if (!selected || !date || !time) {
+      return;
+    }
 
     const scheduledAt = new Date(`${date}T${time}:00`);
     if (scheduledAt <= new Date()) {

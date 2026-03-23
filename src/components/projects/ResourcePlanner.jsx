@@ -1,8 +1,7 @@
-import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
-import { Users, AlertTriangle, TrendingUp } from 'lucide-react';
+import { Users, AlertTriangle } from 'lucide-react';
 
 export default function ResourcePlanner({ tasks = [], timeLogs = [] }) {
   const teamMembers = [...new Set(tasks.map((t) => t.assigned_to).filter(Boolean))];

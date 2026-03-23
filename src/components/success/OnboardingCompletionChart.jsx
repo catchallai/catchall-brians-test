@@ -1,15 +1,6 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  Legend,
-} from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { Users } from 'lucide-react';
 
 export default function OnboardingCompletionChart({ onboardings }) {
@@ -35,12 +26,19 @@ export default function OnboardingCompletionChart({ onboardings }) {
 
     onboardings.forEach((o) => {
       const progress = o.progress_percentage || 0;
-      if (progress === 0) progressBuckets['0-25%']++;
-      else if (progress <= 25) progressBuckets['0-25%']++;
-      else if (progress <= 50) progressBuckets['26-50%']++;
-      else if (progress <= 75) progressBuckets['51-75%']++;
-      else if (progress < 100) progressBuckets['76-99%']++;
-      else progressBuckets['100%']++;
+      if (progress === 0) {
+        progressBuckets['0-25%']++;
+      } else if (progress <= 25) {
+        progressBuckets['0-25%']++;
+      } else if (progress <= 50) {
+        progressBuckets['26-50%']++;
+      } else if (progress <= 75) {
+        progressBuckets['51-75%']++;
+      } else if (progress < 100) {
+        progressBuckets['76-99%']++;
+      } else {
+        progressBuckets['100%']++;
+      }
     });
 
     return [

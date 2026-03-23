@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Plus, Search, Box, DollarSign, Edit, Upload, Package } from 'lucide-react';
+import { Plus, Search, DollarSign, Edit, Upload, Package } from 'lucide-react';
 import ContactsSidebar from '@/components/crm/ContactsSidebar';
 import ProductModal from '@/components/modals/ProductModal';
 import ImportDialog from '@/components/ui/ImportDialog';

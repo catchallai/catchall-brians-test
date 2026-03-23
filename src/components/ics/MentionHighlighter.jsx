@@ -1,5 +1,3 @@
-import React from 'react';
-
 export default function MentionHighlighter({ content, mentions = [] }) {
   if (!mentions || mentions.length === 0) {
     return <>{content}</>;

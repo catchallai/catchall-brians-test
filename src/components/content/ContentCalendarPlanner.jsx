@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -12,16 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import {
-  Calendar,
-  Loader2,
-  Sparkles,
-  Clock,
-  Target,
-  CheckCircle,
-  ArrowRight,
-  FileText,
-} from 'lucide-react';
+import { Calendar, Loader2, Sparkles, Clock, Target } from 'lucide-react';
 
 export default function ContentCalendarPlanner({ keywords, selectedTopic }) {
   const [isPlanning, setIsPlanning] = useState(false);
@@ -126,7 +117,9 @@ export default function ContentCalendarPlanner({ keywords, selectedTopic }) {
       const weekStart = new Date(date);
       weekStart.setDate(date.getDate() - date.getDay());
       const weekKey = weekStart.toISOString().split('T')[0];
-      if (!weeks[weekKey]) weeks[weekKey] = [];
+      if (!weeks[weekKey]) {
+        weeks[weekKey] = [];
+      }
       weeks[weekKey].push(item);
     });
     return weeks;

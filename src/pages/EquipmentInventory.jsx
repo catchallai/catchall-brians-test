@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,7 +11,6 @@ import {
   Search,
   TrendingDown,
   AlertCircle,
-  Calendar,
   DollarSign,
   Edit,
   Trash2,
@@ -132,7 +131,9 @@ export default function EquipmentInventory() {
 
   const handlePhotoUpload = async (e) => {
     const files = Array.from(e.target.files || []);
-    if (files.length === 0) return;
+    if (files.length === 0) {
+      return;
+    }
 
     setUploadingPhotos(true);
     const urls = [];
@@ -192,7 +193,9 @@ export default function EquipmentInventory() {
 
   const totalValue = equipment.reduce((sum, item) => sum + (item.current_value || 0), 0);
   const needsMaintenance = equipment.filter((item) => {
-    if (!item.next_maintenance) return false;
+    if (!item.next_maintenance) {
+      return false;
+    }
     const daysUntil = Math.floor(
       (new Date(item.next_maintenance) - new Date()) / (1000 * 60 * 60 * 24)
     );

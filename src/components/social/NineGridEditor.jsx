@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import { useState, useRef } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Plus } from 'lucide-react';
 import {
@@ -120,8 +120,12 @@ export default function NineGridEditor({
 
   // Sort posts by scheduled_date ascending, fill into slots left-to-right
   const sortedPosts = [...posts].sort((a, b) => {
-    if (!a.scheduled_date) return 1;
-    if (!b.scheduled_date) return -1;
+    if (!a.scheduled_date) {
+      return 1;
+    }
+    if (!b.scheduled_date) {
+      return -1;
+    }
     return new Date(a.scheduled_date) - new Date(b.scheduled_date);
   });
 
@@ -149,7 +153,9 @@ export default function NineGridEditor({
       // Update scheduled dates based on new position
       const today = new Date();
       const updatedSlots = newSlots.map((post, idx) => {
-        if (!post) return null;
+        if (!post) {
+          return null;
+        }
         const newDate = new Date(today);
         newDate.setDate(newDate.getDate() + idx);
         return {

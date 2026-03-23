@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -21,7 +21,9 @@ export default function BatchOperations({ contacts = [], onClose }) {
 
   const batchAssignMutation = useMutation({
     mutationFn: async () => {
-      if (!csmAssign) return;
+      if (!csmAssign) {
+        return;
+      }
 
       const onboardings = await base44.entities.CustomerOnboarding.list('-created_date', 500);
 

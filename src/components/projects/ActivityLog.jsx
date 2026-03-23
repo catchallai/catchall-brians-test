@@ -1,4 +1,3 @@
-import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Activity, Plus, Edit, Trash, CheckCircle } from 'lucide-react';
@@ -16,7 +15,9 @@ export default function ActivityLog({ projectId }) {
   const { data: activities = [] } = useQuery({
     queryKey: ['activity-logs', projectId],
     queryFn: async () => {
-      if (!projectId) return [];
+      if (!projectId) {
+        return [];
+      }
       const logs = await base44.entities.ActivityLog.filter(
         {
           entity_type: 'project',

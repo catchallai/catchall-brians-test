@@ -1,7 +1,6 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Camera, RefreshCw, Loader2, ExternalLink, Maximize2, X } from 'lucide-react';
+import { Camera, RefreshCw, Loader2, ExternalLink, Maximize2 } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
@@ -18,7 +17,9 @@ export default function WebsiteScreenshot({
   const [error, setError] = useState(null);
 
   const captureScreenshot = async () => {
-    if (!url) return;
+    if (!url) {
+      return;
+    }
 
     setIsCapturing(true);
     setError(null);

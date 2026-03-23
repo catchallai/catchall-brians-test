@@ -1,7 +1,7 @@
-import React, { useState, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import {
   Select,
   SelectContent,
@@ -75,7 +75,9 @@ export default function CustomerSuccessDashboard() {
     contacts
       .filter((c) => c.status === 'customer')
       .forEach((c) => {
-        if (c.company_size) segmentSet.add(c.company_size);
+        if (c.company_size) {
+          segmentSet.add(c.company_size);
+        }
       });
     return Array.from(segmentSet);
   }, [contacts]);
@@ -86,8 +88,12 @@ export default function CustomerSuccessDashboard() {
       const onboarding = onboardings.find((o) => o.contact_id === h.contact_id);
       const contact = contacts.find((c) => c.id === h.contact_id);
 
-      if (csmFilter !== 'all' && onboarding?.csm_assigned !== csmFilter) return false;
-      if (segmentFilter !== 'all' && contact?.company_size !== segmentFilter) return false;
+      if (csmFilter !== 'all' && onboarding?.csm_assigned !== csmFilter) {
+        return false;
+      }
+      if (segmentFilter !== 'all' && contact?.company_size !== segmentFilter) {
+        return false;
+      }
 
       return true;
     });
@@ -97,8 +103,12 @@ export default function CustomerSuccessDashboard() {
     return onboardings.filter((o) => {
       const contact = contacts.find((c) => c.id === o.contact_id);
 
-      if (csmFilter !== 'all' && o.csm_assigned !== csmFilter) return false;
-      if (segmentFilter !== 'all' && contact?.company_size !== segmentFilter) return false;
+      if (csmFilter !== 'all' && o.csm_assigned !== csmFilter) {
+        return false;
+      }
+      if (segmentFilter !== 'all' && contact?.company_size !== segmentFilter) {
+        return false;
+      }
 
       return true;
     });
@@ -109,8 +119,12 @@ export default function CustomerSuccessDashboard() {
       const contact = contacts.find((c) => c.id === opp.contact_id);
       const onboarding = onboardings.find((o) => o.contact_id === opp.contact_id);
 
-      if (csmFilter !== 'all' && onboarding?.csm_assigned !== csmFilter) return false;
-      if (segmentFilter !== 'all' && contact?.company_size !== segmentFilter) return false;
+      if (csmFilter !== 'all' && onboarding?.csm_assigned !== csmFilter) {
+        return false;
+      }
+      if (segmentFilter !== 'all' && contact?.company_size !== segmentFilter) {
+        return false;
+      }
 
       return true;
     });

@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   Eraser,
@@ -29,7 +29,9 @@ export default function WhiteboardCanvas({ isHost, onDataChange, versions = [], 
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    if (!canvas) return;
+    if (!canvas) {
+      return;
+    }
 
     canvas.width = canvas.offsetWidth;
     canvas.height = canvas.offsetHeight;
@@ -41,13 +43,17 @@ export default function WhiteboardCanvas({ isHost, onDataChange, versions = [], 
   }, [lineWidth, color]);
 
   const saveState = () => {
-    if (!canvasRef.current) return;
+    if (!canvasRef.current) {
+      return;
+    }
     setHistory([...history, canvasRef.current.toDataURL()]);
     onDataChange?.(canvasRef.current.toDataURL());
   };
 
   const startDrawing = (e) => {
-    if (!isHost) return;
+    if (!isHost) {
+      return;
+    }
     const canvas = canvasRef.current;
     const rect = canvas.getBoundingClientRect();
     const ctx = canvas.getContext('2d');
@@ -71,9 +77,13 @@ export default function WhiteboardCanvas({ isHost, onDataChange, versions = [], 
   };
 
   const draw = (e) => {
-    if (!isDrawing || !isHost || !startPos) return;
+    if (!isDrawing || !isHost || !startPos) {
+      return;
+    }
     const canvas = canvasRef.current;
-    if (!canvas) return;
+    if (!canvas) {
+      return;
+    }
     const rect = canvas.getBoundingClientRect();
     const ctx = canvas.getContext('2d');
     const currentPos = {
@@ -145,16 +155,22 @@ export default function WhiteboardCanvas({ isHost, onDataChange, versions = [], 
   };
 
   const stopDrawing = () => {
-    if (!isHost) return;
+    if (!isHost) {
+      return;
+    }
     setIsDrawing(false);
     setTempCanvas(null);
     saveState();
   };
 
   const addText = () => {
-    if (!isHost) return;
+    if (!isHost) {
+      return;
+    }
     const text = prompt('Enter text:');
-    if (!text) return;
+    if (!text) {
+      return;
+    }
 
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
@@ -166,9 +182,13 @@ export default function WhiteboardCanvas({ isHost, onDataChange, versions = [], 
   };
 
   const addImage = async (e) => {
-    if (!isHost) return;
+    if (!isHost) {
+      return;
+    }
     const file = e.target.files?.[0];
-    if (!file) return;
+    if (!file) {
+      return;
+    }
 
     const reader = new FileReader();
     reader.onload = (event) => {
@@ -186,7 +206,9 @@ export default function WhiteboardCanvas({ isHost, onDataChange, versions = [], 
   };
 
   const undo = () => {
-    if (history.length === 0) return;
+    if (history.length === 0) {
+      return;
+    }
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
     const newHistory = history.slice(0, -1);

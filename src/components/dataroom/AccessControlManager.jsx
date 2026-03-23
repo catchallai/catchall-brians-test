@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -42,7 +42,9 @@ export default function AccessControlManager({ dataRoomId }) {
   const { data: accessControls = [] } = useQuery({
     queryKey: ['dr-access-controls', dataRoomId],
     queryFn: async () => {
-      if (!dataRoomId) return [];
+      if (!dataRoomId) {
+        return [];
+      }
       return await base44.entities.DataRoomAccessControl.filter(
         {
           data_room_id: dataRoomId,
@@ -121,7 +123,9 @@ export default function AccessControlManager({ dataRoomId }) {
   };
 
   const handleSave = () => {
-    if (!formData.user_email.trim()) return;
+    if (!formData.user_email.trim()) {
+      return;
+    }
 
     if (editingAccess) {
       updateMutation.mutate(formData);
@@ -131,7 +135,9 @@ export default function AccessControlManager({ dataRoomId }) {
   };
 
   const isExpired = (expiryDate) => {
-    if (!expiryDate) return false;
+    if (!expiryDate) {
+      return false;
+    }
     return new Date(expiryDate) < new Date();
   };
 

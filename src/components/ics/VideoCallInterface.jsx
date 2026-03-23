@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -19,11 +19,7 @@ import {
   Shield,
   Monitor,
   Settings,
-  Maximize,
-  Volume2,
-  VolumeX,
   Image as ImageIcon,
-  X as XIcon,
   Pencil,
   Link as LinkIcon,
   Copy,
@@ -64,7 +60,9 @@ export default function VideoCallInterface({
   const { data: whiteboardVersions = [] } = useQuery({
     queryKey: ['whiteboard-versions', activeCall?.id],
     queryFn: async () => {
-      if (!activeCall?.id) return [];
+      if (!activeCall?.id) {
+        return [];
+      }
       return await WhiteboardVersionManager.getVersions(base44, activeCall.id);
     },
     enabled: !!activeCall?.id,
@@ -181,7 +179,9 @@ export default function VideoCallInterface({
   };
 
   const togglePublicJoin = async () => {
-    if (!isHost || !activeCall) return;
+    if (!isHost || !activeCall) {
+      return;
+    }
     const newSetting = !activeCall.settings?.allow_public_join;
     updateCallMutation.mutate({
       callId: activeCall.id,

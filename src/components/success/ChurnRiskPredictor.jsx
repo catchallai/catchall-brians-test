@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { AlertTriangle, Loader2, TrendingDown } from 'lucide-react';
+import { Loader2, TrendingDown } from 'lucide-react';
 
 export default function ChurnRiskPredictor({ contacts = [] }) {
   const [predictions, setPredictions] = useState([]);

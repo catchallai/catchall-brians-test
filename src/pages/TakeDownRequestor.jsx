@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -119,7 +119,9 @@ The letter should be professional, legally sound, and include all necessary elem
   const handleSendRequest = async (requestId) => {
     try {
       const request = requests.find((r) => r.id === requestId);
-      if (!request) return;
+      if (!request) {
+        return;
+      }
 
       // Send email via Resend
       await base44.integrations.Core.SendEmail({

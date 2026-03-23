@@ -23,7 +23,9 @@ export default function CSMPerformanceCard({ onboardings, healthScores, opportun
       }
 
       metrics[csm].totalOnboarding++;
-      if (o.status === 'completed') metrics[csm].completedOnboarding++;
+      if (o.status === 'completed') {
+        metrics[csm].completedOnboarding++;
+      }
 
       const health = healthScores.find((h) => h.contact_id === o.contact_id);
       if (health) {

@@ -1,4 +1,3 @@
-import React from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -11,13 +10,11 @@ import {
   AlertCircle,
   CheckCircle,
   ThumbsUp,
-  ThumbsDown,
   Calendar,
   FileText,
   Lightbulb,
   MessageSquare,
   Heart,
-  Share2,
 } from 'lucide-react';
 import { format } from 'date-fns';
 
@@ -45,7 +42,9 @@ const severityConfig = {
 };
 
 export default function CompetitorReportModal({ open, onClose, report, competitorName }) {
-  if (!report) return null;
+  if (!report) {
+    return null;
+  }
 
   return (
     <Dialog open={open} onOpenChange={onClose}>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 
 const getColor = (value, min, max, colorScheme = 'violet') => {
   const normalized = (value - min) / (max - min || 1);

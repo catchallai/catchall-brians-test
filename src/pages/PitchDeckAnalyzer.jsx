@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -13,7 +13,6 @@ import {
   XCircle,
   TrendingUp,
   Target,
-  Users,
   Lightbulb,
 } from 'lucide-react';
 
@@ -31,7 +30,9 @@ export default function PitchDeckAnalyzer() {
   };
 
   const handleAnalyze = async () => {
-    if (!file) return;
+    if (!file) {
+      return;
+    }
     setAnalyzing(true);
 
     try {
@@ -102,20 +103,32 @@ Also provide:
   };
 
   const getScoreColor = (score) => {
-    if (score >= 8) return 'text-emerald-600';
-    if (score >= 6) return 'text-amber-600';
+    if (score >= 8) {
+      return 'text-emerald-600';
+    }
+    if (score >= 6) {
+      return 'text-amber-600';
+    }
     return 'text-red-600';
   };
 
   const getReadinessColor = (status) => {
-    if (status === 'Ready') return 'bg-emerald-100 text-emerald-700 border-emerald-300';
-    if (status === 'Nearly Ready') return 'bg-amber-100 text-amber-700 border-amber-300';
+    if (status === 'Ready') {
+      return 'bg-emerald-100 text-emerald-700 border-emerald-300';
+    }
+    if (status === 'Nearly Ready') {
+      return 'bg-amber-100 text-amber-700 border-amber-300';
+    }
     return 'bg-red-100 text-red-700 border-red-300';
   };
 
   const getReadinessIcon = (status) => {
-    if (status === 'Ready') return <CheckCircle2 className="w-5 h-5" />;
-    if (status === 'Nearly Ready') return <AlertTriangle className="w-5 h-5" />;
+    if (status === 'Ready') {
+      return <CheckCircle2 className="w-5 h-5" />;
+    }
+    if (status === 'Nearly Ready') {
+      return <AlertTriangle className="w-5 h-5" />;
+    }
     return <XCircle className="w-5 h-5" />;
   };
 

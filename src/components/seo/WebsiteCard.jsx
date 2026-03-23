@@ -1,4 +1,3 @@
-import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import {
@@ -32,15 +31,25 @@ export default function WebsiteCard({
   // Normalize SEO score - handle both 0-1 and 0-100 formats
   const normalizedScore = (() => {
     const score = website.seo_score;
-    if (!score) return 0;
-    if (score > 0 && score <= 1) return Math.round(score * 100);
+    if (!score) {
+      return 0;
+    }
+    if (score > 0 && score <= 1) {
+      return Math.round(score * 100);
+    }
     return Math.round(score);
   })();
 
   const formatNumber = (num) => {
-    if (!num) return '-';
-    if (num >= 1000000) return `${(num / 1000000).toFixed(1)}M`;
-    if (num >= 1000) return `${(num / 1000).toFixed(1)}K`;
+    if (!num) {
+      return '-';
+    }
+    if (num >= 1000000) {
+      return `${(num / 1000000).toFixed(1)}M`;
+    }
+    if (num >= 1000) {
+      return `${(num / 1000).toFixed(1)}K`;
+    }
     return num.toString();
   };
 

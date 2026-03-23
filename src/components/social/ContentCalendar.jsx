@@ -1,7 +1,6 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { ChevronLeft, ChevronRight, Plus } from 'lucide-react';
 import {
   format,
@@ -36,7 +35,9 @@ export default function ContentCalendar({ posts, onAddPost, onEditPost }) {
 
   const getPostsForDay = (day) => {
     return posts.filter((post) => {
-      if (!post.scheduled_time) return false;
+      if (!post.scheduled_time) {
+        return false;
+      }
       return isSameDay(new Date(post.scheduled_time), day);
     });
   };

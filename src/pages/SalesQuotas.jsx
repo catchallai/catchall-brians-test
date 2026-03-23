@@ -1,10 +1,9 @@
-import React from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { Trophy, TrendingUp, Target, Phone, Calendar, DollarSign } from 'lucide-react';
+import { Trophy, Target, Phone, Calendar, DollarSign } from 'lucide-react';
 import QuotaTrendsChart from '@/components/sales/QuotaTrendsChart';
 
 export default function SalesQuotas() {
@@ -30,8 +29,12 @@ export default function SalesQuotas() {
   );
 
   const formatCurrency = (value) => {
-    if (value >= 1000000) return `$${(value / 1000000).toFixed(1)}M`;
-    if (value >= 1000) return `$${(value / 1000).toFixed(0)}K`;
+    if (value >= 1000000) {
+      return `$${(value / 1000000).toFixed(1)}M`;
+    }
+    if (value >= 1000) {
+      return `$${(value / 1000).toFixed(0)}K`;
+    }
     return `$${value}`;
   };
 

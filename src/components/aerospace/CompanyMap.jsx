@@ -1,4 +1,3 @@
-import React from 'react';
 import { MapContainer, TileLayer, Marker, Popup, Circle } from 'react-leaflet';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -33,9 +32,13 @@ const locationCoords = {
 };
 
 const getCoordinates = (location) => {
-  if (!location) return null;
+  if (!location) {
+    return null;
+  }
   for (const [city, coords] of Object.entries(locationCoords)) {
-    if (location.includes(city)) return coords;
+    if (location.includes(city)) {
+      return coords;
+    }
   }
   return null;
 };

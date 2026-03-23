@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -362,7 +362,9 @@ export default function GlobalSearch() {
           ) : (
             <div className="divide-y divide-gray-100 dark:divide-gray-700">
               {Object.entries(results).map(([type, items]) => {
-                if (items.length === 0) return null;
+                if (items.length === 0) {
+                  return null;
+                }
                 const config = entityConfig[type];
                 const Icon = config.icon;
 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Plus, Search, ChevronDown, Calendar, DollarSign, Edit, FileSignature } from 'lucide-react';
@@ -6,15 +6,9 @@ import ContactsSidebar from '@/components/crm/ContactsSidebar';
 import QuoteModal from '@/components/modals/QuoteModal';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+
 import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { format, isAfter, addDays } from 'date-fns';
 import Pagination from '@/components/ui-custom/Pagination';
 import {
@@ -67,7 +61,9 @@ export default function QuotesModule() {
   };
 
   const isExpiringSoon = (validUntil) => {
-    if (!validUntil) return false;
+    if (!validUntil) {
+      return false;
+    }
     const expiryDate = new Date(validUntil);
     const sevenDaysFromNow = addDays(new Date(), 7);
     return isAfter(sevenDaysFromNow, expiryDate) && isAfter(expiryDate, new Date());
@@ -124,12 +120,18 @@ export default function QuotesModule() {
   };
 
   const getTabCount = (tab) => {
-    if (tab === 'all') return quotes.length;
-    if (tab === 'expiring_soon') return quotes.filter((q) => isExpiringSoon(q.valid_until)).length;
-    if (tab === 'pending_acceptance')
+    if (tab === 'all') {
+      return quotes.length;
+    }
+    if (tab === 'expiring_soon') {
+      return quotes.filter((q) => isExpiringSoon(q.valid_until)).length;
+    }
+    if (tab === 'pending_acceptance') {
       return quotes.filter((q) => q.status === 'pending_acceptance').length;
-    if (tab === 'pending_approval')
+    }
+    if (tab === 'pending_approval') {
       return quotes.filter((q) => q.status === 'pending_approval').length;
+    }
     return 0;
   };
 

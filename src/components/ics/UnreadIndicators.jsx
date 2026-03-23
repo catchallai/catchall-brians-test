@@ -1,8 +1,9 @@
-import React from 'react';
 import { Badge } from '@/components/ui/badge';
 
 export function UnreadBadge({ count }) {
-  if (!count || count === 0) return null;
+  if (!count || count === 0) {
+    return null;
+  }
   return (
     <Badge variant="destructive" className="ml-auto text-xs">
       {count > 99 ? '99+' : count}

@@ -1,13 +1,14 @@
-import React from 'react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { TrendingUp, TrendingDown, Minus, Search } from 'lucide-react';
+import { TrendingUp, TrendingDown, Search } from 'lucide-react';
 
 export default function KeywordRankCard({ keyword }) {
   const positionChange = (keyword.previous_position || 0) - (keyword.current_position || 0);
 
   const getPositionBadge = () => {
-    if (!keyword.current_position) return null;
+    if (!keyword.current_position) {
+      return null;
+    }
     if (keyword.current_position <= 3) {
       return <Badge className="bg-emerald-100 text-emerald-700 border-0">Top 3</Badge>;
     } else if (keyword.current_position <= 10) {
@@ -23,9 +24,15 @@ export default function KeywordRankCard({ keyword }) {
   };
 
   const formatNumber = (num) => {
-    if (!num) return '-';
-    if (num >= 1000000) return `${(num / 1000000).toFixed(1)}M`;
-    if (num >= 1000) return `${(num / 1000).toFixed(1)}K`;
+    if (!num) {
+      return '-';
+    }
+    if (num >= 1000000) {
+      return `${(num / 1000000).toFixed(1)}M`;
+    }
+    if (num >= 1000) {
+      return `${(num / 1000).toFixed(1)}K`;
+    }
     return num.toString();
   };
 

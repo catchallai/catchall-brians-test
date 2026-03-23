@@ -1,27 +1,9 @@
-import React, { useMemo } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useMemo } from 'react';
+import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import {
-  Globe,
-  TrendingUp,
-  TrendingDown,
-  AlertTriangle,
-  Link2,
-  BarChart3,
-  Minus,
-} from 'lucide-react';
-import {
-  AreaChart,
-  Area,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell,
-} from 'recharts';
-import { format, subDays, differenceInDays } from 'date-fns';
+import { Globe, TrendingUp, TrendingDown, AlertTriangle, BarChart3, Minus } from 'lucide-react';
+import { AreaChart, Area, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import { format, subDays } from 'date-fns';
 
 export default function BacklinkAnalytics({ backlinks }) {
   // Referring Domains
@@ -39,7 +21,9 @@ export default function BacklinkAnalytics({ backlinks }) {
       const weekStart = subDays(now, (i + 1) * 7);
       const weekEnd = subDays(now, i * 7);
       const count = backlinks.filter((b) => {
-        if (!b.first_seen) return false;
+        if (!b.first_seen) {
+          return false;
+        }
         const date = new Date(b.first_seen);
         return date >= weekStart && date < weekEnd;
       }).length;

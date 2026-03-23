@@ -1,33 +1,9 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { base44 } from '@/api/base44Client';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { useQuery } from '@tanstack/react-query';
+import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Badge } from '@/components/ui/badge';
-import { Skeleton } from '@/components/ui/skeleton';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Textarea } from '@/components/ui/textarea';
-import {
-  Sparkles,
-  Target,
-  TrendingUp,
-  Calendar,
-  FileText,
-  Lightbulb,
-  Loader2,
-  Search,
-  BarChart2,
-  Zap,
-  ArrowRight,
-  Plus,
-  CheckCircle,
-  BookOpen,
-  Newspaper,
-  Users,
-  Clock,
-} from 'lucide-react';
+import { Sparkles, Target, Calendar, FileText, Lightbulb, Search, Users } from 'lucide-react';
 import ContentGapAnalyzer from '@/components/content/ContentGapAnalyzer';
 import TopicGenerator from '@/components/content/TopicGenerator';
 import ContentCalendarPlanner from '@/components/content/ContentCalendarPlanner';

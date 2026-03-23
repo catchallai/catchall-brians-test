@@ -1,4 +1,3 @@
-import React from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -12,14 +11,15 @@ import {
   XAxis,
   YAxis,
   Tooltip,
-  Legend,
 } from 'recharts';
-import { Building2, MapPin, Monitor, TrendingUp, Eye, Clock, Target } from 'lucide-react';
+import { Building2, MapPin, Monitor, Eye, Target } from 'lucide-react';
 
 const CHART_COLORS = ['#8B5CF6', '#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#EC4899'];
 
 export default function SegmentAnalysis({ open, onClose, segment, visitors }) {
-  if (!segment || !visitors) return null;
+  if (!segment || !visitors) {
+    return null;
+  }
 
   // Calculate analytics
   const avgScore = Math.round(visitors.reduce((sum, v) => sum + v.leadScore, 0) / visitors.length);

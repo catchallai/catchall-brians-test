@@ -1,23 +1,17 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Progress } from '@/components/ui/progress';
 import {
-  Users,
-  Star,
-  TrendingUp,
   ExternalLink,
   Loader2,
   Heart,
   MessageCircle,
-  Share2,
   CheckCircle,
   MapPin,
   Link2,
-  Sparkles,
   UserPlus,
 } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -132,9 +126,15 @@ export default function InfluencerProfileCard({ mention, onClose }) {
   const platform = platformConfig[mention?.platform] || platformConfig.twitter;
 
   const formatNumber = (num) => {
-    if (!num) return '0';
-    if (num >= 1000000) return `${(num / 1000000).toFixed(1)}M`;
-    if (num >= 1000) return `${(num / 1000).toFixed(1)}K`;
+    if (!num) {
+      return '0';
+    }
+    if (num >= 1000000) {
+      return `${(num / 1000000).toFixed(1)}M`;
+    }
+    if (num >= 1000) {
+      return `${(num / 1000).toFixed(1)}K`;
+    }
     return num.toString();
   };
 

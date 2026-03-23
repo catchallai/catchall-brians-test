@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -30,7 +30,9 @@ export default function KeywordResearchCard({ onAddKeyword }) {
   const [results, setResults] = useState(null);
 
   const researchKeywords = async () => {
-    if (!seedKeyword.trim()) return;
+    if (!seedKeyword.trim()) {
+      return;
+    }
 
     setIsResearching(true);
 
@@ -132,14 +134,22 @@ export default function KeywordResearchCard({ onAddKeyword }) {
   };
 
   const getDifficultyLevel = (score) => {
-    if (score <= 30) return 'easy';
-    if (score <= 60) return 'medium';
+    if (score <= 30) {
+      return 'easy';
+    }
+    if (score <= 60) {
+      return 'medium';
+    }
     return 'hard';
   };
 
   const formatVolume = (vol) => {
-    if (vol >= 1000000) return `${(vol / 1000000).toFixed(1)}M`;
-    if (vol >= 1000) return `${(vol / 1000).toFixed(1)}K`;
+    if (vol >= 1000000) {
+      return `${(vol / 1000000).toFixed(1)}M`;
+    }
+    if (vol >= 1000) {
+      return `${(vol / 1000).toFixed(1)}K`;
+    }
     return vol;
   };
 

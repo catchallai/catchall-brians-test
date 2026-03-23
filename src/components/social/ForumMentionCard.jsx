@@ -1,4 +1,3 @@
-import React from 'react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { MessageSquare, Eye, ThumbsUp, ExternalLink, Calendar, Users } from 'lucide-react';
@@ -27,9 +26,15 @@ export default function ForumMentionCard({ mention, onClick }) {
   const sentiment = sentimentColors[mention.sentiment] || sentimentColors.neutral;
 
   const formatNumber = (num) => {
-    if (!num) return '0';
-    if (num >= 1000000) return `${(num / 1000000).toFixed(1)}M`;
-    if (num >= 1000) return `${(num / 1000).toFixed(1)}K`;
+    if (!num) {
+      return '0';
+    }
+    if (num >= 1000000) {
+      return `${(num / 1000000).toFixed(1)}M`;
+    }
+    if (num >= 1000) {
+      return `${(num / 1000).toFixed(1)}K`;
+    }
     return num.toString();
   };
 

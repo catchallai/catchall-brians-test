@@ -1,4 +1,3 @@
-import React from 'react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -6,7 +5,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { MoreVertical, Folder, Archive, Trash2, Copy } from 'lucide-react';
+import { Folder, Archive, Trash2, Copy } from 'lucide-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { useToast } from '@/components/ui/toast-provider';
@@ -72,7 +71,9 @@ export default function BulkPageActions({ selectedPages, onClearSelection, folde
     toast.success('Pages duplicated successfully');
   };
 
-  if (selectedPages.length === 0) return null;
+  if (selectedPages.length === 0) {
+    return null;
+  }
 
   return (
     <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50">

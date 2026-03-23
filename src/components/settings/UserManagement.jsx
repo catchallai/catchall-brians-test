@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
@@ -12,7 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Loader2, UserPlus, Trash2, Edit2, Check, X } from 'lucide-react';
+import { Loader2, UserPlus, Trash2, Edit2 } from 'lucide-react';
 import { useToast } from '@/components/ui/toast-provider';
 import {
   Dialog,
@@ -71,8 +71,12 @@ export default function UserManagement() {
       const { full_name, email, ...otherData } = data;
 
       const updatePayload = { ...otherData };
-      if (full_name) updatePayload.full_name = full_name;
-      if (email) updatePayload.email = email;
+      if (full_name) {
+        updatePayload.full_name = full_name;
+      }
+      if (email) {
+        updatePayload.email = email;
+      }
 
       // If updating name or email, use admin function
       if (full_name || email) {

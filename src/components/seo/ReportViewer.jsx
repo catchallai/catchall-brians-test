@@ -1,4 +1,3 @@
-import React from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -16,18 +15,26 @@ import {
 import moment from 'moment';
 
 export default function ReportViewer({ open, onClose, report, website, onExport }) {
-  if (!report?.report_data) return null;
+  if (!report?.report_data) {
+    return null;
+  }
 
   const data = report.report_data;
 
   const getTrendIcon = (change) => {
-    if (change > 0) return <TrendingUp className="w-4 h-4 text-emerald-500" />;
-    if (change < 0) return <TrendingDown className="w-4 h-4 text-red-500" />;
+    if (change > 0) {
+      return <TrendingUp className="w-4 h-4 text-emerald-500" />;
+    }
+    if (change < 0) {
+      return <TrendingDown className="w-4 h-4 text-red-500" />;
+    }
     return <Minus className="w-4 h-4 text-gray-400" />;
   };
 
   const formatChange = (change) => {
-    if (!change) return '0%';
+    if (!change) {
+      return '0%';
+    }
     const prefix = change > 0 ? '+' : '';
     return `${prefix}${change}%`;
   };

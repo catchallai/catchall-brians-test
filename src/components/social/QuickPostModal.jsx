@@ -1,8 +1,7 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import {
   Twitter,
@@ -35,7 +34,9 @@ export default function QuickPostModal({ open, onClose }) {
   };
 
   const handlePost = async () => {
-    if (!content.trim() || selectedPlatforms.length === 0) return;
+    if (!content.trim() || selectedPlatforms.length === 0) {
+      return;
+    }
 
     setPosting(true);
     setResults([]);

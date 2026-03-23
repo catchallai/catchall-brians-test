@@ -1,11 +1,10 @@
-import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { Loader2, RefreshCw, Target, TrendingUp, User } from 'lucide-react';
+import { Loader2, RefreshCw, Target } from 'lucide-react';
 import { useToast } from '@/components/ui/toast-provider';
 
 const GRADE_COLORS = {
@@ -33,29 +32,48 @@ export default function LeadScoringPanel({ contacts, leadScores, deals }) {
         ) {
           demographicScore += 30;
         }
-        if (contact.status === 'customer') demographicScore += 20;
-        if (contact.status === 'prospect') demographicScore += 10;
+        if (contact.status === 'customer') {
+          demographicScore += 20;
+        }
+        if (contact.status === 'prospect') {
+          demographicScore += 10;
+        }
 
         // Calculate behavioral score (deals, activities)
         let behavioralScore = 0;
         const contactDeals = deals.filter((d) => d.contact_id === contact.id);
-        if (contactDeals.length > 0) behavioralScore += 20;
+        if (contactDeals.length > 0) {
+          behavioralScore += 20;
+        }
         const hasWonDeal = contactDeals.some((d) => d.stage === 'closed_won');
-        if (hasWonDeal) behavioralScore += 30;
+        if (hasWonDeal) {
+          behavioralScore += 30;
+        }
 
         // Calculate engagement score
         let engagementScore = 0;
-        if (contact.email) engagementScore += 10;
-        if (contact.phone) engagementScore += 10;
-        if (contact.source === 'referral') engagementScore += 20;
+        if (contact.email) {
+          engagementScore += 10;
+        }
+        if (contact.phone) {
+          engagementScore += 10;
+        }
+        if (contact.source === 'referral') {
+          engagementScore += 20;
+        }
 
         const totalScore = demographicScore + behavioralScore + engagementScore;
 
         let grade = 'F';
-        if (totalScore >= 80) grade = 'A';
-        else if (totalScore >= 60) grade = 'B';
-        else if (totalScore >= 40) grade = 'C';
-        else if (totalScore >= 20) grade = 'D';
+        if (totalScore >= 80) {
+          grade = 'A';
+        } else if (totalScore >= 60) {
+          grade = 'B';
+        } else if (totalScore >= 40) {
+          grade = 'C';
+        } else if (totalScore >= 20) {
+          grade = 'D';
+        }
 
         // Check if score exists
         const existing = leadScores.find((s) => s.contact_id === contact.id);
@@ -152,7 +170,9 @@ export default function LeadScoringPanel({ contacts, leadScores, deals }) {
             <div className="space-y-3">
               {sortedScores.slice(0, 15).map((score) => {
                 const contact = getContact(score.contact_id);
-                if (!contact) return null;
+                if (!contact) {
+                  return null;
+                }
 
                 return (
                   <div

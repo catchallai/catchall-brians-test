@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -42,8 +42,6 @@ import {
   Search,
   Filter,
   ChevronRight,
-  ArrowUpRight,
-  ExternalLink,
   Mail,
   Calendar,
   Activity,
@@ -51,7 +49,6 @@ import {
   Grid3x3,
   List,
   Bell,
-  Settings,
   Layers,
   BarChart3,
 } from 'lucide-react';
@@ -202,7 +199,7 @@ const calculateAILeadScore = (visitor) => {
 
 // Seeded random number generator for consistent data
 const seededRandom = (seed) => {
-  let x = Math.sin(seed++) * 10000;
+  const x = Math.sin(seed++) * 10000;
   return x - Math.floor(x);
 };
 
@@ -373,7 +370,7 @@ const generateVisitors = () => {
   ];
 
   const visitors = [];
-  let sessionNum = 8900;
+  const sessionNum = 8900;
   let seed = 12345; // Fixed seed for consistent results
 
   for (let i = 0; i < 100; i++) {
@@ -513,7 +510,9 @@ export default function VisitorProfiles() {
 
   // Handle create lead
   const handleCreateLead = () => {
-    if (!selectedVisitor) return;
+    if (!selectedVisitor) {
+      return;
+    }
 
     createContactMutation.mutate({
       company_name: selectedVisitor.company,
@@ -530,7 +529,9 @@ export default function VisitorProfiles() {
 
   // Handle schedule follow-up
   const handleScheduleFollowUp = () => {
-    if (!selectedVisitor || !followUpDate) return;
+    if (!selectedVisitor || !followUpDate) {
+      return;
+    }
 
     createNoteMutation.mutate({
       visitor_session_id: selectedVisitor.sessionId,
@@ -549,7 +550,9 @@ export default function VisitorProfiles() {
 
   // Handle add note
   const handleAddNote = () => {
-    if (!selectedVisitor || !newNote.trim()) return;
+    if (!selectedVisitor || !newNote.trim()) {
+      return;
+    }
 
     createNoteMutation.mutate({
       visitor_session_id: selectedVisitor.sessionId,
@@ -563,7 +566,9 @@ export default function VisitorProfiles() {
 
   // Check for notification triggers
   React.useEffect(() => {
-    if (!allVisitors.length || !notificationRules.length) return;
+    if (!allVisitors.length || !notificationRules.length) {
+      return;
+    }
 
     const activeRules = notificationRules.filter((r) => r.is_active);
 
@@ -635,7 +640,7 @@ export default function VisitorProfiles() {
   }, [allVisitors, notificationRules]);
 
   const filteredVisitors = useMemo(() => {
-    let filtered = allVisitors.filter((v) => {
+    const filtered = allVisitors.filter((v) => {
       const days = parseInt(dateRange);
       const matchesDate = (v.daysAgo || 0) <= days;
       const matchesSearch =
@@ -647,22 +652,36 @@ export default function VisitorProfiles() {
 
       // Apply segment filters if active
       if (segmentFilters) {
-        if (segmentFilters.industries?.length && !segmentFilters.industries.includes(v.industry))
+        if (segmentFilters.industries?.length && !segmentFilters.industries.includes(v.industry)) {
           return false;
-        if (segmentFilters.tiers?.length && !segmentFilters.tiers.includes(v.scoreData?.tier))
+        }
+        if (segmentFilters.tiers?.length && !segmentFilters.tiers.includes(v.scoreData?.tier)) {
           return false;
-        if (segmentFilters.countries?.length && !segmentFilters.countries.includes(v.country))
+        }
+        if (segmentFilters.countries?.length && !segmentFilters.countries.includes(v.country)) {
           return false;
-        if (segmentFilters.devices?.length && !segmentFilters.devices.includes(v.device))
+        }
+        if (segmentFilters.devices?.length && !segmentFilters.devices.includes(v.device)) {
           return false;
-        if (segmentFilters.min_pages && v.pagesViewed < segmentFilters.min_pages) return false;
-        if (segmentFilters.min_score && v.leadScore < segmentFilters.min_score) return false;
+        }
+        if (segmentFilters.min_pages && v.pagesViewed < segmentFilters.min_pages) {
+          return false;
+        }
+        if (segmentFilters.min_score && v.leadScore < segmentFilters.min_score) {
+          return false;
+        }
         if (segmentFilters.min_time_minutes) {
           const timeMinutes = parseInt(v.timeOnSite.split('m')[0]);
-          if (timeMinutes < segmentFilters.min_time_minutes) return false;
+          if (timeMinutes < segmentFilters.min_time_minutes) {
+            return false;
+          }
         }
-        if (segmentFilters.is_return_visitor && v.visitCount <= 1) return false;
-        if (segmentFilters.days_ago_max && v.daysAgo > segmentFilters.days_ago_max) return false;
+        if (segmentFilters.is_return_visitor && v.visitCount <= 1) {
+          return false;
+        }
+        if (segmentFilters.days_ago_max && v.daysAgo > segmentFilters.days_ago_max) {
+          return false;
+        }
       }
 
       return matchesDate && matchesSearch && matchesTier;

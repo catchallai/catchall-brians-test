@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
@@ -12,7 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Plus, Trash2, Edit2, Play, Power } from 'lucide-react';
+import { Plus, Trash2, Edit2, Power } from 'lucide-react';
 import ConfirmDialog from '@/components/ui/ConfirmDialog';
 
 export default function AutomationRuleBuilder() {
@@ -88,7 +88,9 @@ export default function AutomationRuleBuilder() {
   };
 
   const handleSave = async () => {
-    if (!formData.name || !formData.trigger_value) return;
+    if (!formData.name || !formData.trigger_value) {
+      return;
+    }
 
     if (editingRule) {
       updateMutation.mutate({ id: editingRule.id, data: formData });

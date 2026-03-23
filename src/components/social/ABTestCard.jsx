@@ -1,9 +1,7 @@
-import React from 'react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
-import { FlaskConical, Trophy, BarChart3, Play, Square } from 'lucide-react';
+import { FlaskConical, Trophy, Play, Square } from 'lucide-react';
 
 const statusColors = {
   draft: 'bg-gray-100 text-gray-700',

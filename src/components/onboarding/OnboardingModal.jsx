@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -7,8 +7,6 @@ import {
   Target,
   Search,
   Share2,
-  Mail,
-  Zap,
   CheckCircle,
   ArrowRight,
   ArrowLeft,

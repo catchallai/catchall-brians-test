@@ -1,13 +1,11 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
   TrendingUp,
   TrendingDown,
-  DollarSign,
   Users,
-  Building2,
   Sparkles,
   Loader2,
   X,
@@ -19,8 +17,6 @@ import {
 import {
   BarChart,
   Bar,
-  LineChart,
-  Line,
   RadarChart,
   Radar,
   PolarGrid,
@@ -155,7 +151,9 @@ Provide:
     }) || [];
 
   const parseNumber = (str) => {
-    if (!str) return 0;
+    if (!str) {
+      return 0;
+    }
     const num = parseFloat(str.replace(/[^0-9.-]/g, ''));
     return isNaN(num) ? 0 : num;
   };

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -18,7 +18,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Card } from '@/components/ui/card';
-import { Save, Image, Upload } from 'lucide-react';
+import { Save, Upload } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 
 export default function CustomBlockEditor({ open, onClose, onSave }) {
@@ -31,7 +31,9 @@ export default function CustomBlockEditor({ open, onClose, onSave }) {
 
   const handleUploadThumbnail = async (e) => {
     const file = e.target.files?.[0];
-    if (!file) return;
+    if (!file) {
+      return;
+    }
 
     setIsUploading(true);
     try {

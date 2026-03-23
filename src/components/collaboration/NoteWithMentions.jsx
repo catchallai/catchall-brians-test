@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
@@ -23,7 +23,9 @@ export default function NoteWithMentions({ entityType, entityId, businessId, onN
   });
 
   const handleAddNote = async () => {
-    if (!noteText.trim()) return;
+    if (!noteText.trim()) {
+      return;
+    }
 
     const userData = await base44.auth.me();
 

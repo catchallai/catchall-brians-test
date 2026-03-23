@@ -1,11 +1,10 @@
-import React, { useState, useRef } from 'react';
+import { useState, useRef } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Upload, Download, Image, Video, FileText, X, Loader2, ExternalLink } from 'lucide-react';
+import { Upload, Download, Image, Video, FileText, Loader2, ExternalLink } from 'lucide-react';
 
 export default function FolderContentModal({ folder, open, onClose }) {
   const [isDragging, setIsDragging] = useState(false);
@@ -76,7 +75,9 @@ export default function FolderContentModal({ folder, open, onClose }) {
   };
 
   const uploadFiles = async (files) => {
-    if (!files.length || !folder) return;
+    if (!files.length || !folder) {
+      return;
+    }
 
     setUploading(true);
 
@@ -157,22 +158,34 @@ export default function FolderContentModal({ folder, open, onClose }) {
   };
 
   const formatSize = (bytes) => {
-    if (!bytes) return '0 KB';
+    if (!bytes) {
+      return '0 KB';
+    }
     const kb = bytes / 1024;
-    if (kb < 1024) return `${kb.toFixed(1)} KB`;
+    if (kb < 1024) {
+      return `${kb.toFixed(1)} KB`;
+    }
     const mb = kb / 1024;
-    if (mb < 1024) return `${mb.toFixed(1)} MB`;
+    if (mb < 1024) {
+      return `${mb.toFixed(1)} MB`;
+    }
     const gb = mb / 1024;
     return `${gb.toFixed(1)} GB`;
   };
 
   const getFileIcon = (type) => {
-    if (type === 'image') return Image;
-    if (type === 'video') return Video;
+    if (type === 'image') {
+      return Image;
+    }
+    if (type === 'video') {
+      return Video;
+    }
     return FileText;
   };
 
-  if (!folder) return null;
+  if (!folder) {
+    return null;
+  }
 
   return (
     <Dialog open={open} onOpenChange={onClose}>

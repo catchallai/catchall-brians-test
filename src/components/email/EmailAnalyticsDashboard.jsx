@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -6,8 +6,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   LineChart,
   Line,
-  BarChart,
-  Bar,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -26,7 +24,9 @@ export default function EmailAnalyticsDashboard({ businessId }) {
   const { data: emailCampaigns = [] } = useQuery({
     queryKey: ['email-campaigns', businessId],
     queryFn: async () => {
-      if (!businessId) return [];
+      if (!businessId) {
+        return [];
+      }
       return await base44.entities.EmailCampaign.list('-created_date', 500);
     },
     enabled: !!businessId,
@@ -35,7 +35,9 @@ export default function EmailAnalyticsDashboard({ businessId }) {
   const { data: emailLogs = [] } = useQuery({
     queryKey: ['email-logs', businessId],
     queryFn: async () => {
-      if (!businessId) return [];
+      if (!businessId) {
+        return [];
+      }
       return await base44.entities.EmailLog.list('-created_date', 10000);
     },
     enabled: !!businessId,

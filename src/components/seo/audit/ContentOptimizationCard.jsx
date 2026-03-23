@@ -1,18 +1,14 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
 import {
   FileText,
   Target,
-  TrendingUp,
   AlertCircle,
   CheckCircle,
   ChevronDown,
   ChevronUp,
   Lightbulb,
-  Hash,
 } from 'lucide-react';
 
 export default function ContentOptimizationCard({ data, keywords = [] }) {
@@ -78,14 +74,22 @@ export default function ContentOptimizationCard({ data, keywords = [] }) {
   };
 
   const getScoreColor = (score) => {
-    if (score >= 80) return 'text-emerald-600 dark:text-emerald-400';
-    if (score >= 60) return 'text-amber-600 dark:text-amber-400';
+    if (score >= 80) {
+      return 'text-emerald-600 dark:text-emerald-400';
+    }
+    if (score >= 60) {
+      return 'text-amber-600 dark:text-amber-400';
+    }
     return 'text-red-600 dark:text-red-400';
   };
 
   const getScoreBg = (score) => {
-    if (score >= 80) return 'bg-emerald-100 dark:bg-emerald-900/30';
-    if (score >= 60) return 'bg-amber-100 dark:bg-amber-900/30';
+    if (score >= 80) {
+      return 'bg-emerald-100 dark:bg-emerald-900/30';
+    }
+    if (score >= 60) {
+      return 'bg-amber-100 dark:bg-amber-900/30';
+    }
     return 'bg-red-100 dark:bg-red-900/30';
   };
 

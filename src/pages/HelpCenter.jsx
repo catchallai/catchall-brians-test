@@ -1,12 +1,11 @@
 import React, { useState, useMemo } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import {
   Search,
@@ -26,20 +25,11 @@ import {
   ArrowLeft,
   Globe,
   Radio,
-  FileText,
-  MapPin,
-  Newspaper,
-  Calendar,
   Settings,
-  Activity,
   PenTool,
   TrendingUp,
-  Megaphone,
-  Building2,
   Phone,
   MessageSquare,
-  Clock,
-  CheckCircle2,
   Lightbulb,
   PlayCircle,
   FileQuestion,
@@ -47,11 +37,7 @@ import {
   Star,
   Eye,
   Package,
-  DollarSign,
   Presentation,
-  FileSearch,
-  AlertTriangle,
-  User,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
@@ -2598,7 +2584,9 @@ export default function HelpCenter() {
   };
 
   const handleAskAI = async () => {
-    if (!aiQuestion.trim()) return;
+    if (!aiQuestion.trim()) {
+      return;
+    }
 
     setIsAskingAI(true);
     try {
@@ -3018,7 +3006,9 @@ export default function HelpCenter() {
                         onClick={() => {
                           setSelectedCategory(cat.id);
                           const firstArticle = articlesByCategory[cat.id]?.[0];
-                          if (firstArticle) setSelectedArticle(firstArticle);
+                          if (firstArticle) {
+                            setSelectedArticle(firstArticle);
+                          }
                         }}
                       >
                         <CardContent className="p-4">
@@ -3119,7 +3109,9 @@ export default function HelpCenter() {
                   const videosInCategory = VIDEO_TUTORIALS.filter(
                     (v) => v.category === cat.id
                   ).length;
-                  if (videosInCategory === 0) return null;
+                  if (videosInCategory === 0) {
+                    return null;
+                  }
                   return (
                     <Button
                       key={cat.id}

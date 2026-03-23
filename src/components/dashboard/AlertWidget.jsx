@@ -1,4 +1,3 @@
-import React from 'react';
 import { AlertCircle, CheckCircle2, AlertTriangle, Info } from 'lucide-react';
 
 const alertIcons = {
@@ -32,7 +31,9 @@ const iconColors = {
 export default function AlertWidget({ alerts = [] }) {
   const AlertIcon = alertIcons[alerts[0]?.type] || Info;
 
-  if (alerts.length === 0) return null;
+  if (alerts.length === 0) {
+    return null;
+  }
 
   return (
     <div className="space-y-2">

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -18,7 +18,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import {
   Clock,
   Play,
-  Pause,
   Trash2,
   Plus,
   Mail,
@@ -28,7 +27,6 @@ import {
   Archive,
   Loader2,
   CheckCircle,
-  XCircle,
 } from 'lucide-react';
 import { format, addDays, addWeeks, addMonths } from 'date-fns';
 
@@ -225,8 +223,12 @@ function TaskModal({ open, onClose, task, reports, onSave, isLoading }) {
 
   const getNextRun = (schedule) => {
     const now = new Date();
-    if (schedule === 'daily') return addDays(now, 1);
-    if (schedule === 'weekly') return addWeeks(now, 1);
+    if (schedule === 'daily') {
+      return addDays(now, 1);
+    }
+    if (schedule === 'weekly') {
+      return addWeeks(now, 1);
+    }
     return addMonths(now, 1);
   };
 

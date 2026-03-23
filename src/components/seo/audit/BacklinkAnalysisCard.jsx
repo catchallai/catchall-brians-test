@@ -1,17 +1,6 @@
-import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
-import {
-  Link2,
-  TrendingUp,
-  TrendingDown,
-  AlertTriangle,
-  CheckCircle,
-  ExternalLink,
-  Shield,
-  Users,
-} from 'lucide-react';
+import { Link2, TrendingUp, ExternalLink, Users } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 
 export default function BacklinkAnalysisCard({ data, backlinks = [], competitors = [] }) {

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -13,7 +13,9 @@ export default function DocumentVersionHistory({ documentId }) {
   const { data: versions = [] } = useQuery({
     queryKey: ['document-versions', documentId],
     queryFn: async () => {
-      if (!documentId) return [];
+      if (!documentId) {
+        return [];
+      }
       return await base44.entities.DocumentVersion.filter(
         {
           document_id: documentId,
@@ -25,14 +27,18 @@ export default function DocumentVersionHistory({ documentId }) {
   });
 
   const formatBytes = (bytes) => {
-    if (!bytes) return '0 B';
+    if (!bytes) {
+      return '0 B';
+    }
     const k = 1024;
     const sizes = ['B', 'KB', 'MB', 'GB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i];
   };
 
-  if (!versions.length) return null;
+  if (!versions.length) {
+    return null;
+  }
 
   return (
     <>

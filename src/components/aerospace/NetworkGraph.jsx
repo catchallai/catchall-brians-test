@@ -1,6 +1,5 @@
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Network } from 'lucide-react';
 
 export default function NetworkGraph({ companies }) {
@@ -101,7 +100,9 @@ export default function NetworkGraph({ companies }) {
               {edges.map((edge, idx) => {
                 const source = nodes.find((n) => n.id === edge.source);
                 const target = nodes.find((n) => n.id === edge.target);
-                if (!source || !target) return null;
+                if (!source || !target) {
+                  return null;
+                }
 
                 return (
                   <line

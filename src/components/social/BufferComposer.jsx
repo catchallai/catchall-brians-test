@@ -1,11 +1,10 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { appendHashtagToCaption } from '@/utils/appendHashtagToCaption';
 import { base44 } from '@/api/base44Client';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import {
@@ -21,7 +20,6 @@ import {
   Facebook,
   Instagram,
   Youtube,
-  Hash,
   Send,
   CheckCircle2,
   Globe,
@@ -138,7 +136,9 @@ export default function BufferComposer({ hashtagPool = [], onSuccess }) {
 
   const handleImageUpload = async (e) => {
     const file = e.target.files?.[0];
-    if (!file) return;
+    if (!file) {
+      return;
+    }
     setUploading(true);
     const { file_url } = await base44.integrations.Core.UploadFile({ file });
     setForm((f) => ({ ...f, image_url: file_url, video_url: '', media_type: 'image' }));
@@ -147,7 +147,9 @@ export default function BufferComposer({ hashtagPool = [], onSuccess }) {
 
   const handleVideoUpload = async (e) => {
     const file = e.target.files?.[0];
-    if (!file) return;
+    if (!file) {
+      return;
+    }
     setUploading(true);
     const { file_url } = await base44.integrations.Core.UploadFile({ file });
     setForm((f) => ({ ...f, video_url: file_url, image_url: '', media_type: 'video' }));
@@ -167,7 +169,9 @@ export default function BufferComposer({ hashtagPool = [], onSuccess }) {
   const addHashtag = (tag) => {
     setForm((f) => {
       const result = appendHashtagToCaption(f.caption, tag, f.hashtags);
-      if (!result) return f;
+      if (!result) {
+        return f;
+      }
       return { ...f, ...result };
     });
     setHashtagInput('');

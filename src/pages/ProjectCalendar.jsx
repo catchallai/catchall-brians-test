@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { Card } from '@/components/ui/card';
@@ -11,15 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import {
-  Calendar,
-  ChevronLeft,
-  ChevronRight,
-  Download,
-  Filter,
-  List,
-  CalendarDays,
-} from 'lucide-react';
+import { Calendar, ChevronLeft, ChevronRight, Download, List } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 
@@ -64,11 +56,13 @@ export default function ProjectCalendar() {
 
   // Calendar events
   const events = useMemo(() => {
-    let allEvents = [];
+    const allEvents = [];
 
     // Add project start/end dates
     projects.forEach((project) => {
-      if (selectedProject !== 'all' && project.id !== selectedProject) return;
+      if (selectedProject !== 'all' && project.id !== selectedProject) {
+        return;
+      }
 
       if (project.start_date) {
         allEvents.push({
@@ -99,8 +93,12 @@ export default function ProjectCalendar() {
     // Add task due dates
     tasks.forEach((task) => {
       const project = projects.find((p) => p.id === task.project_id);
-      if (selectedProject !== 'all' && task.project_id !== selectedProject) return;
-      if (selectedAssignee !== 'all' && task.assigned_to !== selectedAssignee) return;
+      if (selectedProject !== 'all' && task.project_id !== selectedProject) {
+        return;
+      }
+      if (selectedAssignee !== 'all' && task.assigned_to !== selectedAssignee) {
+        return;
+      }
 
       if (task.due_date) {
         allEvents.push({
@@ -120,7 +118,9 @@ export default function ProjectCalendar() {
     // Add milestones
     milestones.forEach((milestone) => {
       const project = projects.find((p) => p.id === milestone.project_id);
-      if (selectedProject !== 'all' && milestone.project_id !== selectedProject) return;
+      if (selectedProject !== 'all' && milestone.project_id !== selectedProject) {
+        return;
+      }
 
       if (milestone.due_date) {
         allEvents.push({

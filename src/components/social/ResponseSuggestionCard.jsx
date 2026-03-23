@@ -1,19 +1,9 @@
-import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useState } from 'react';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
-import {
-  MessageSquare,
-  Copy,
-  Check,
-  Sparkles,
-  Send,
-  ThumbsUp,
-  ThumbsDown,
-  Minus,
-  Loader2,
-} from 'lucide-react';
+import { Copy, Check, Sparkles, Send, ThumbsUp, ThumbsDown, Minus, Loader2 } from 'lucide-react';
 
 const platformConfig = {
   twitter: { color: 'bg-gray-900 text-white', icon: '𝕏' },

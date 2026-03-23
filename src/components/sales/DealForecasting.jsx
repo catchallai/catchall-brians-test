@@ -1,8 +1,6 @@
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
-  LineChart,
-  Line,
   BarChart,
   Bar,
   XAxis,
@@ -21,8 +19,12 @@ const STAGE_ORDER = ['lead', 'qualified', 'proposal', 'negotiation', 'won', 'los
 
 export default function DealForecasting({ deals }) {
   const formatCurrency = (value) => {
-    if (value >= 1000000) return `$${(value / 1000000).toFixed(1)}M`;
-    if (value >= 1000) return `$${(value / 1000).toFixed(0)}K`;
+    if (value >= 1000000) {
+      return `$${(value / 1000000).toFixed(1)}M`;
+    }
+    if (value >= 1000) {
+      return `$${(value / 1000).toFixed(0)}K`;
+    }
     return `$${value}`;
   };
 

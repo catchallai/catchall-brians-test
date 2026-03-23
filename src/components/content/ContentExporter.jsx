@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
@@ -9,7 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Download, FileText, Globe, Share2, Loader2 } from 'lucide-react';
+import { Download, FileText, Globe, Loader2 } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { useToast } from '@/components/ui/toast-provider';
 
@@ -69,7 +69,9 @@ export default function ContentExporter({ article, open, onClose }) {
     }
   };
 
-  if (!article) return null;
+  if (!article) {
+    return null;
+  }
 
   return (
     <Dialog open={open} onOpenChange={onClose}>

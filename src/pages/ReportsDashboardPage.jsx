@@ -1,4 +1,3 @@
-import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -10,9 +9,7 @@ import {
   Clock,
   CheckCircle2,
   XCircle,
-  TrendingUp,
   Calendar,
-  Mail,
   FileText,
   Plus,
 } from 'lucide-react';

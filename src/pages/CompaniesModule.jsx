@@ -1,9 +1,8 @@
-import React, { useState, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -15,8 +14,6 @@ import {
   ChevronLeft,
   ChevronRight,
   Download,
-  Globe,
-  MapPin,
   Users,
   Eye,
   Upload,
@@ -29,7 +26,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import EmptyState from '@/components/ui/EmptyState';
 import ContactsSidebar from '@/components/crm/ContactsSidebar';
 import CompanyModal from '@/components/modals/CompanyModal';
@@ -77,7 +74,7 @@ export default function CompaniesModule() {
 
   const createMutation = useMutation({
     mutationFn: async (data) => {
-      let companyData = { ...data };
+      const companyData = { ...data };
 
       // If no website provided, find it automatically
       if (!companyData.website && companyData.name) {
@@ -204,7 +201,9 @@ export default function CompaniesModule() {
       try {
         const companyData = {};
         Object.keys(row).forEach((key) => {
-          if (row[key]) companyData[key] = row[key];
+          if (row[key]) {
+            companyData[key] = row[key];
+          }
         });
 
         if (!companyData.name) {
@@ -245,10 +244,18 @@ export default function CompaniesModule() {
   };
 
   const formatRevenue = (value) => {
-    if (!value) return null;
-    if (value >= 1000000000) return `$${(value / 1000000000).toFixed(1)}B`;
-    if (value >= 1000000) return `$${(value / 1000000).toFixed(1)}M`;
-    if (value >= 1000) return `$${(value / 1000).toFixed(0)}K`;
+    if (!value) {
+      return null;
+    }
+    if (value >= 1000000000) {
+      return `$${(value / 1000000000).toFixed(1)}B`;
+    }
+    if (value >= 1000000) {
+      return `$${(value / 1000000).toFixed(1)}M`;
+    }
+    if (value >= 1000) {
+      return `$${(value / 1000).toFixed(0)}K`;
+    }
     return `$${value}`;
   };
 

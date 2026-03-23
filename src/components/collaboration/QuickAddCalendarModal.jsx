@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -20,7 +20,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Calendar, CheckSquare, Target } from 'lucide-react';
+import { CheckSquare, Target } from 'lucide-react';
 
 export default function QuickAddCalendarModal({ open, onClose }) {
   const [activeTab, setActiveTab] = useState('task');
@@ -99,12 +99,16 @@ export default function QuickAddCalendarModal({ open, onClose }) {
   };
 
   const handleCreateTask = () => {
-    if (!taskData.title || !taskData.project_id || !taskData.due_date) return;
+    if (!taskData.title || !taskData.project_id || !taskData.due_date) {
+      return;
+    }
     createTaskMutation.mutate(taskData);
   };
 
   const handleCreateMilestone = () => {
-    if (!milestoneData.name || !milestoneData.project_id || !milestoneData.due_date) return;
+    if (!milestoneData.name || !milestoneData.project_id || !milestoneData.due_date) {
+      return;
+    }
     createMilestoneMutation.mutate(milestoneData);
   };
 

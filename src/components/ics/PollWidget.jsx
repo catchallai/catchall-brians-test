@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import {
   Dialog,
@@ -37,7 +37,9 @@ export default function PollWidget({ channelId, user, onPollCreated }) {
   }, [channelId]);
 
   const createPoll = async () => {
-    if (!pollQuestion || pollOptions.filter((o) => o.trim()).length < 2) return;
+    if (!pollQuestion || pollOptions.filter((o) => o.trim()).length < 2) {
+      return;
+    }
 
     try {
       const formattedOptions = pollOptions
@@ -70,7 +72,9 @@ export default function PollWidget({ channelId, user, onPollCreated }) {
   const vote = async (pollId, optionId) => {
     try {
       const poll = polls.find((p) => p.id === pollId);
-      if (!poll) return;
+      if (!poll) {
+        return;
+      }
 
       const updatedOptions = poll.options.map((opt) => {
         if (opt.id === optionId) {

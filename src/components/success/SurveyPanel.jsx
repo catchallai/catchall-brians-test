@@ -1,7 +1,6 @@
-import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ThumbsUp, ThumbsDown, Minus, MessageSquare, Star } from 'lucide-react';
+import { ThumbsUp, ThumbsDown, Minus, Star } from 'lucide-react';
 
 const npsColors = {
   promoter: { bg: 'bg-emerald-100', text: 'text-emerald-700', icon: ThumbsUp },

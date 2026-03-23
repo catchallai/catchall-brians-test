@@ -1,4 +1,3 @@
-import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -11,7 +10,9 @@ export default function EmailTrackingPanel({ contactId }) {
   const { data: emailLogs = [], isLoading } = useQuery({
     queryKey: ['email-logs', contactId],
     queryFn: async () => {
-      if (!contactId) return [];
+      if (!contactId) {
+        return [];
+      }
       const logs = await base44.entities.EmailLog.filter(
         { contact_id: contactId },
         '-created_date',

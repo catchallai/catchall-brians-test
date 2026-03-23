@@ -4,10 +4,8 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useSearchParams, Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
 import {
   Plus,
-  Search,
   FileText,
   ArrowLeft,
   ChevronRight,
@@ -62,7 +60,9 @@ export default function SpaceDetail() {
   const { data: space, isLoading: spaceLoading } = useQuery({
     queryKey: ['space', spaceId],
     queryFn: async () => {
-      if (!spaceId) return null;
+      if (!spaceId) {
+        return null;
+      }
       const spaces = await base44.entities.Space.list();
       return spaces.find((s) => s.id === spaceId) || null;
     },
@@ -72,7 +72,9 @@ export default function SpaceDetail() {
   const { data: pages = [] } = useQuery({
     queryKey: ['space-pages', spaceId],
     queryFn: async () => {
-      if (!spaceId) return [];
+      if (!spaceId) {
+        return [];
+      }
       const allPages = await base44.entities.WikiPage.list();
       return allPages.filter((p) => p.space_id === spaceId && !p.template);
     },
@@ -82,7 +84,9 @@ export default function SpaceDetail() {
   const { data: folders = [] } = useQuery({
     queryKey: ['space-folders', spaceId],
     queryFn: async () => {
-      if (!spaceId) return [];
+      if (!spaceId) {
+        return [];
+      }
       const allFolders = await base44.entities.WikiPageFolder.list();
       return allFolders.filter((f) => f.space_id === spaceId);
     },
@@ -106,10 +110,14 @@ export default function SpaceDetail() {
   });
 
   const handleDragEnd = (result) => {
-    if (!result.destination) return;
+    if (!result.destination) {
+      return;
+    }
 
     const { source, destination } = result;
-    if (source.index === destination.index) return;
+    if (source.index === destination.index) {
+      return;
+    }
 
     const sourceParentId = source.droppableId === 'root' ? null : source.droppableId;
     const destParentId = destination.droppableId === 'root' ? null : destination.droppableId;
@@ -140,8 +148,12 @@ export default function SpaceDetail() {
     }
   };
 
-  if (spaceLoading) return <div className="p-6">Loading...</div>;
-  if (!space) return <div className="p-6 text-center">Space not found</div>;
+  if (spaceLoading) {
+    return <div className="p-6">Loading...</div>;
+  }
+  if (!space) {
+    return <div className="p-6 text-center">Space not found</div>;
+  }
 
   const colorClasses = {
     violet: 'bg-violet-500',

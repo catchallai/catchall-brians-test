@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -6,8 +6,6 @@ import { Checkbox } from '@/components/ui/checkbox';
 import {
   BarChart,
   Bar,
-  LineChart,
-  Line,
   RadarChart,
   PolarGrid,
   PolarAngleAxis,
@@ -23,7 +21,6 @@ import {
 import {
   TrendingUp,
   Users,
-  MessageSquare,
   Calendar,
   Target,
   Sparkles,
@@ -60,7 +57,9 @@ export default function CompetitorBenchmark({ competitors, yourAccounts, onAnaly
 
   // Prepare comparison data
   const getComparisonData = () => {
-    if (!selectedCompetitors.length) return [];
+    if (!selectedCompetitors.length) {
+      return [];
+    }
 
     return competitors
       .filter((c) => selectedCompetitors.includes(c.id))
@@ -86,7 +85,9 @@ export default function CompetitorBenchmark({ competitors, yourAccounts, onAnaly
 
   // Radar chart data for overall performance
   const getRadarData = () => {
-    if (!benchmarkData?.performance_comparison) return [];
+    if (!benchmarkData?.performance_comparison) {
+      return [];
+    }
 
     return Object.entries(benchmarkData.performance_comparison).map(([metric, values]) => ({
       metric,

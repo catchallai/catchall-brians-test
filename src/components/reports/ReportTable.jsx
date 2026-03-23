@@ -22,14 +22,20 @@ export default function ReportTable({ data, columns, onExport }) {
   };
 
   const sortedData = React.useMemo(() => {
-    if (!sortConfig.key) return data;
+    if (!sortConfig.key) {
+      return data;
+    }
 
     return [...data].sort((a, b) => {
       const aVal = a[sortConfig.key];
       const bVal = b[sortConfig.key];
 
-      if (aVal === null || aVal === undefined) return 1;
-      if (bVal === null || bVal === undefined) return -1;
+      if (aVal === null || aVal === undefined) {
+        return 1;
+      }
+      if (bVal === null || bVal === undefined) {
+        return -1;
+      }
 
       if (typeof aVal === 'number' && typeof bVal === 'number') {
         return sortConfig.direction === 'asc' ? aVal - bVal : bVal - aVal;
@@ -41,7 +47,9 @@ export default function ReportTable({ data, columns, onExport }) {
   }, [data, sortConfig]);
 
   const getSortIcon = (key) => {
-    if (sortConfig.key !== key) return <ArrowUpDown className="w-3 h-3 text-gray-300" />;
+    if (sortConfig.key !== key) {
+      return <ArrowUpDown className="w-3 h-3 text-gray-300" />;
+    }
     return sortConfig.direction === 'asc' ? (
       <ArrowUp className="w-3 h-3 text-violet-600" />
     ) : (
@@ -50,7 +58,9 @@ export default function ReportTable({ data, columns, onExport }) {
   };
 
   const formatValue = (value, key) => {
-    if (value === null || value === undefined) return '-';
+    if (value === null || value === undefined) {
+      return '-';
+    }
     if (
       key.includes('revenue') ||
       key.includes('value') ||

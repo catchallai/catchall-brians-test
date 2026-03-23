@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Trash2, GripVertical, Sparkles, Image as ImageIcon, Video, Link } from 'lucide-react';
+import { Trash2, GripVertical, Sparkles, Video } from 'lucide-react';
 import MediaEmbedModal from './MediaEmbedModal';
 
 export default function SlideEditor({ slide, branding, onChange, onDelete, onAIEnhance }) {

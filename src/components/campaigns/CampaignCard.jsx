@@ -1,4 +1,3 @@
-import React from 'react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
@@ -39,9 +38,15 @@ export default function CampaignCard({ campaign, leadsCount, dealsCount, revenue
   const leadsProgress = campaign.target_leads > 0 ? (leadsCount / campaign.target_leads) * 100 : 0;
 
   const formatCurrency = (value) => {
-    if (!value) return '$0';
-    if (value >= 1000000) return `$${(value / 1000000).toFixed(1)}M`;
-    if (value >= 1000) return `$${(value / 1000).toFixed(0)}K`;
+    if (!value) {
+      return '$0';
+    }
+    if (value >= 1000000) {
+      return `$${(value / 1000000).toFixed(1)}M`;
+    }
+    if (value >= 1000) {
+      return `$${(value / 1000).toFixed(0)}K`;
+    }
     return `$${value.toLocaleString()}`;
   };
 

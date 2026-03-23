@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -19,7 +19,7 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Trash2, CheckCircle, AlertCircle, Clock } from 'lucide-react';
+import { Plus, Trash2, CheckCircle, Clock } from 'lucide-react';
 
 export default function TaskAssignment({ entityType, entityId }) {
   const [showModal, setShowModal] = useState(false);
@@ -40,7 +40,9 @@ export default function TaskAssignment({ entityType, entityId }) {
   const { data: tasks = [] } = useQuery({
     queryKey: ['tasks', entityType, entityId],
     queryFn: async () => {
-      if (!entityId) return [];
+      if (!entityId) {
+        return [];
+      }
       return await base44.entities.Task.filter(
         {
           entity_type: entityType,
@@ -98,7 +100,9 @@ export default function TaskAssignment({ entityType, entityId }) {
   });
 
   const handleSaveTask = () => {
-    if (!formData.title.trim() || !formData.assigned_to) return;
+    if (!formData.title.trim() || !formData.assigned_to) {
+      return;
+    }
     createTaskMutation.mutate(formData);
   };
 
@@ -127,7 +131,9 @@ export default function TaskAssignment({ entityType, entityId }) {
   };
 
   const isOverdue = (dueDate) => {
-    if (!dueDate) return false;
+    if (!dueDate) {
+      return false;
+    }
     return new Date(dueDate) < new Date();
   };
 

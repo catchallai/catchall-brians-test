@@ -45,7 +45,9 @@ function TagFormModal({ open, onClose, tag }) {
   });
 
   const handleSave = () => {
-    if (!name.trim()) return;
+    if (!name.trim()) {
+      return;
+    }
     saveMutation.mutate({ name: name.trim(), color, description });
   };
 
@@ -233,7 +235,9 @@ export default function SocialTags() {
                   </button>
                   <button
                     onClick={() => {
-                      if (confirm(`Delete tag "${tag.name}"?`)) deleteMutation.mutate(tag.id);
+                      if (confirm(`Delete tag "${tag.name}"?`)) {
+                        deleteMutation.mutate(tag.id);
+                      }
                     }}
                     className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
                   >

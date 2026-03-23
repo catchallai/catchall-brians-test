@@ -1,7 +1,7 @@
-import React from 'react';
-
 export default function EnhancedTooltip({ active, payload, label, formatter }) {
-  if (!active || !payload?.length) return null;
+  if (!active || !payload?.length) {
+    return null;
+  }
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-100 dark:border-gray-700 p-3 min-w-[160px]">

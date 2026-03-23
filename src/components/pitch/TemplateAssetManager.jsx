@@ -1,9 +1,8 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Upload, X, FileText, Image } from 'lucide-react';
+import { Upload, X, FileText } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 
 export default function TemplateAssetManager({ customFonts = [], customAssets = [], onChange }) {
@@ -11,7 +10,9 @@ export default function TemplateAssetManager({ customFonts = [], customAssets = 
 
   const handleUploadFont = async (e) => {
     const file = e.target.files?.[0];
-    if (!file) return;
+    if (!file) {
+      return;
+    }
 
     setIsUploading(true);
     try {
@@ -31,7 +32,9 @@ export default function TemplateAssetManager({ customFonts = [], customAssets = 
 
   const handleUploadAsset = async (e) => {
     const file = e.target.files?.[0];
-    if (!file) return;
+    if (!file) {
+      return;
+    }
 
     setIsUploading(true);
     try {

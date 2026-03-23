@@ -1,11 +1,14 @@
-import React from 'react';
 import { Globe, Search, Link2, TrendingUp, ArrowUp, ArrowDown } from 'lucide-react';
 
 export default function SEOOverviewStats({ websites, keywords, backlinks }) {
   // Normalize SEO scores - handle both 0-1 and 0-100 formats
   const normalizeScore = (score) => {
-    if (!score) return 0;
-    if (score > 0 && score <= 1) return Math.round(score * 100);
+    if (!score) {
+      return 0;
+    }
+    if (score > 0 && score <= 1) {
+      return Math.round(score * 100);
+    }
     return Math.round(score);
   };
 
@@ -28,9 +31,15 @@ export default function SEOOverviewStats({ websites, keywords, backlinks }) {
   const activeBacklinks = backlinks.filter((b) => b.status === 'active').length;
 
   const formatNumber = (num) => {
-    if (!num) return '0';
-    if (num >= 1000000) return `${(num / 1000000).toFixed(1)}M`;
-    if (num >= 1000) return `${(num / 1000).toFixed(1)}K`;
+    if (!num) {
+      return '0';
+    }
+    if (num >= 1000000) {
+      return `${(num / 1000000).toFixed(1)}M`;
+    }
+    if (num >= 1000) {
+      return `${(num / 1000).toFixed(1)}K`;
+    }
     return num.toString();
   };
 

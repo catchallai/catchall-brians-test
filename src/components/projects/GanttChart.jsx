@@ -1,4 +1,3 @@
-import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 
@@ -19,7 +18,9 @@ export default function GanttChart({ tasks = [] }) {
   }
 
   const getTaskPosition = (task) => {
-    if (!task.due_date) return { left: 0, width: 0 };
+    if (!task.due_date) {
+      return { left: 0, width: 0 };
+    }
 
     const taskDate = new Date(task.due_date);
     const daysFromStart = Math.ceil((taskDate - startDate) / (1000 * 60 * 60 * 24));

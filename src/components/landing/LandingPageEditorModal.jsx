@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -122,8 +122,9 @@ export default function LandingPageEditorModal({ open, onClose, page, onSave, is
     if (
       (direction === 'up' && index === 0) ||
       (direction === 'down' && index === formData.sections.length - 1)
-    )
+    ) {
       return;
+    }
 
     const newSections = [...formData.sections];
     const targetIndex = direction === 'up' ? index - 1 : index + 1;
@@ -215,7 +216,9 @@ export default function LandingPageEditorModal({ open, onClose, page, onSave, is
                   value={formData.title}
                   onChange={(e) => {
                     setFormData({ ...formData, title: e.target.value });
-                    if (errors.title) setErrors({ ...errors, title: '' });
+                    if (errors.title) {
+                      setErrors({ ...errors, title: '' });
+                    }
                   }}
                   placeholder="My Landing Page"
                   className={errors.title ? 'border-red-500' : ''}
@@ -236,7 +239,9 @@ export default function LandingPageEditorModal({ open, onClose, page, onSave, is
                       ...formData,
                       slug: e.target.value.toLowerCase().replace(/\s+/g, '-'),
                     });
-                    if (errors.slug) setErrors({ ...errors, slug: '' });
+                    if (errors.slug) {
+                      setErrors({ ...errors, slug: '' });
+                    }
                   }}
                   placeholder="my-landing-page"
                   className={errors.slug ? 'border-red-500' : ''}

@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { CheckCircle, AlertCircle, Clock, Plus, Trash2 } from 'lucide-react';
+import { CheckCircle, AlertCircle, Clock, Plus } from 'lucide-react';
 
 export default function CSMTaskManager({ csmFilter = 'all' }) {
   const [showForm, setShowForm] = useState(false);

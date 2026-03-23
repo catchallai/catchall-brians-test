@@ -1,4 +1,3 @@
-import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { TrendingDown } from 'lucide-react';
 
@@ -20,16 +19,24 @@ export default function SalesFunnel({ deals }) {
   const maxCount = Math.max(...stageCounts.map((s) => s.count), 1);
 
   const formatCurrency = (value) => {
-    if (value >= 1000000) return `$${(value / 1000000).toFixed(1)}M`;
-    if (value >= 1000) return `$${(value / 1000).toFixed(0)}K`;
+    if (value >= 1000000) {
+      return `$${(value / 1000000).toFixed(1)}M`;
+    }
+    if (value >= 1000) {
+      return `$${(value / 1000).toFixed(0)}K`;
+    }
     return `$${value}`;
   };
 
   // Calculate conversion rates
   const conversionRates = stageCounts.map((stage, idx) => {
-    if (idx === 0) return 100;
+    if (idx === 0) {
+      return 100;
+    }
     const prevCount = stageCounts[idx - 1].count;
-    if (prevCount === 0) return 0;
+    if (prevCount === 0) {
+      return 0;
+    }
     return Math.round((stage.count / prevCount) * 100);
   });
 

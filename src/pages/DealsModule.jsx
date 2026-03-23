@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { base44 } from '@/api/base44Client';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Plus, ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react';
 import {
@@ -35,7 +35,9 @@ export default function DealsModule() {
   const paginatedDeals = deals.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
   const formatDate = (dateString) => {
-    if (!dateString) return '-';
+    if (!dateString) {
+      return '-';
+    }
     const date = new Date(dateString);
     return date.toLocaleDateString('en-US', {
       month: 'short',
@@ -48,7 +50,9 @@ export default function DealsModule() {
   };
 
   const formatCurrency = (amount) => {
-    if (!amount) return '-';
+    if (!amount) {
+      return '-';
+    }
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD',

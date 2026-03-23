@@ -1,10 +1,11 @@
-import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Phone, PhoneOff, Video } from 'lucide-react';
+import { PhoneOff, Video } from 'lucide-react';
 
 export default function IncomingCallNotification({ call, onAccept, onDecline, darkMode }) {
-  if (!call) return null;
+  if (!call) {
+    return null;
+  }
 
   const caller = call.participants?.find((p) => p.email === call.started_by);
 

@@ -19,7 +19,6 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
-import { Skeleton } from '@/components/ui/skeleton';
 import { Mail, Send, Loader } from 'lucide-react';
 import { useToast } from '@/components/ui/toast-provider';
 
@@ -39,7 +38,9 @@ export default function EmailContactModal({ open, onClose, contact, businessId }
   const { data: templates = [], isLoading: templatesLoading } = useQuery({
     queryKey: ['email-templates', businessId],
     queryFn: async () => {
-      if (!businessId) return [];
+      if (!businessId) {
+        return [];
+      }
       return await base44.entities.EmailTemplate.filter(
         { business_id: businessId },
         '-created_date',
@@ -53,9 +54,13 @@ export default function EmailContactModal({ open, onClose, contact, businessId }
   const senderEmails = React.useMemo(() => {
     const emails = new Set();
     templates.forEach((t) => {
-      if (t.sender_email) emails.add(t.sender_email);
+      if (t.sender_email) {
+        emails.add(t.sender_email);
+      }
     });
-    if (user?.email) emails.add(user.email);
+    if (user?.email) {
+      emails.add(user.email);
+    }
     return Array.from(emails);
   }, [templates, user?.email]);
 

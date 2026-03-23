@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -13,7 +13,6 @@ import {
   Users,
   DollarSign,
   TrendingUp,
-  Globe,
   Loader2,
   Plus,
   ExternalLink,
@@ -487,7 +486,9 @@ Include all major public and private aerospace companies. For private companies,
   };
 
   const importFromCompetitors = async () => {
-    if (competitors.length === 0) return;
+    if (competitors.length === 0) {
+      return;
+    }
 
     setIsScanning(true);
     try {
@@ -495,7 +496,9 @@ Include all major public and private aerospace companies. For private companies,
       const existingNames = companies.map((c) => c.company_name.toLowerCase());
 
       for (const competitor of competitors) {
-        if (existingNames.includes(competitor.name.toLowerCase())) continue;
+        if (existingNames.includes(competitor.name.toLowerCase())) {
+          continue;
+        }
 
         const response = await base44.integrations.Core.InvokeLLM({
           prompt: `Analyze if "${competitor.name}" (website: ${competitor.website || 'unknown'}) is an aerospace or aviation company. 
@@ -573,7 +576,9 @@ If this is NOT an aerospace/aviation company, return is_aerospace: false.`,
   };
 
   const addSpecificCompany = async () => {
-    if (!newCompanyName.trim()) return;
+    if (!newCompanyName.trim()) {
+      return;
+    }
 
     setIsAddingCompany(true);
     try {
@@ -846,7 +851,9 @@ Use current internet data to provide the most accurate and recent information.`,
     try {
       let updated = 0;
       for (const company of companies) {
-        if (company.logo_url) continue; // Skip if already has logo
+        if (company.logo_url) {
+          continue;
+        } // Skip if already has logo
 
         try {
           const response = await base44.integrations.Core.InvokeLLM({
@@ -1071,10 +1078,14 @@ For well-known companies like Boeing, Lockheed Martin, SpaceX, etc., find their 
       c.ticker_symbol?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesType = companyTypeFilter === 'all' || c.company_type === companyTypeFilter;
 
-    if (!matchesSearch || !matchesType) return false;
+    if (!matchesSearch || !matchesType) {
+      return false;
+    }
 
     // Advanced filters
-    if (!advancedFilters) return true;
+    if (!advancedFilters) {
+      return true;
+    }
 
     // Company type
     if (advancedFilters.company_type !== 'all' && c.company_type !== advancedFilters.company_type) {
@@ -1085,7 +1096,9 @@ For well-known companies like Boeing, Lockheed Martin, SpaceX, etc., find their 
     if (advancedFilters.revenue_growth_min) {
       const growth =
         parseFloat(c.financial_highlights?.revenue_growth?.replace(/[^0-9.-]/g, '')) || 0;
-      if (growth < parseFloat(advancedFilters.revenue_growth_min)) return false;
+      if (growth < parseFloat(advancedFilters.revenue_growth_min)) {
+        return false;
+      }
     }
 
     // Employee count
@@ -1110,7 +1123,9 @@ For well-known companies like Boeing, Lockheed Martin, SpaceX, etc., find their 
         .split(',')
         .map((k) => k.trim());
       const rdFocus = (c.rd_focus || []).join(' ').toLowerCase();
-      if (!keywords.some((kw) => rdFocus.includes(kw))) return false;
+      if (!keywords.some((kw) => rdFocus.includes(kw))) {
+        return false;
+      }
     }
 
     // Contract value
@@ -1123,7 +1138,9 @@ For well-known companies like Boeing, Lockheed Martin, SpaceX, etc., find their 
         const value = parseFloat(contract.value?.replace(/[^0-9.-]/g, '')) || 0;
         return value >= minValue;
       });
-      if (!hasLargeContract) return false;
+      if (!hasLargeContract) {
+        return false;
+      }
     }
 
     // Incident severity (exclude)
@@ -1131,7 +1148,9 @@ For well-known companies like Boeing, Lockheed Martin, SpaceX, etc., find their 
       const hasExcludedSeverity = c.incidents.some((inc) =>
         advancedFilters.incident_severity.includes(inc.severity)
       );
-      if (hasExcludedSeverity) return false;
+      if (hasExcludedSeverity) {
+        return false;
+      }
     }
 
     return true;

@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from 'react';
-import TemplateEditor from '@/components/email/TemplateEditor';
+import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -15,7 +14,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, Sparkles, Eye, Code, Palette, Copy, Check } from 'lucide-react';
+import { Loader2, Sparkles, Eye, Code, Check } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 
 const LAYOUTS = [
@@ -87,7 +86,9 @@ export default function EmailTemplateModal({ open, onClose, template, onSave, is
   };
 
   const handleGenerate = async () => {
-    if (!generatePrompt.trim()) return;
+    if (!generatePrompt.trim()) {
+      return;
+    }
     setIsGenerating(true);
 
     const result = await base44.integrations.Core.InvokeLLM({

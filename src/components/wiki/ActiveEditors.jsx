@@ -1,4 +1,3 @@
-import React from 'react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Users, Eye, Edit3 } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -7,7 +6,9 @@ export default function ActiveEditors({ editors = [] }) {
   const activeEditors = editors.filter((e) => e.is_editing);
   const viewers = editors.filter((e) => !e.is_editing);
 
-  if (editors.length === 0) return null;
+  if (editors.length === 0) {
+    return null;
+  }
 
   return (
     <TooltipProvider>

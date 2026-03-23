@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -104,7 +104,9 @@ export default function ReportShareModal({ report, open, onClose }) {
   });
 
   const handleShare = () => {
-    if (!email.trim()) return;
+    if (!email.trim()) {
+      return;
+    }
 
     shareMutation.mutate({
       report_id: report.id,

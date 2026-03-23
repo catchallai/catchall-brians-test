@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Play, Pause, Users, Mail, Phone, Target } from 'lucide-react';
+import { Plus, Play, Pause, Mail, Phone, Target } from 'lucide-react';
 import EmptyState from '@/components/ui/EmptyState';
 import SequenceModal from '@/components/modals/SequenceModal';
 

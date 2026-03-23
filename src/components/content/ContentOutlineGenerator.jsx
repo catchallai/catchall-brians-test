@@ -5,7 +5,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Textarea } from '@/components/ui/textarea';
 import {
   Select,
   SelectContent,
@@ -18,7 +17,6 @@ import {
   Loader2,
   Sparkles,
   Target,
-  Hash,
   ListOrdered,
   Clock,
   BookOpen,
@@ -35,7 +33,9 @@ export default function ContentOutlineGenerator({ keywords, selectedTopic }) {
   const [copied, setCopied] = useState(false);
 
   const generateOutline = async () => {
-    if (!topic.trim()) return;
+    if (!topic.trim()) {
+      return;
+    }
     setIsGenerating(true);
 
     const result = await base44.integrations.Core.InvokeLLM({
@@ -149,7 +149,9 @@ export default function ContentOutlineGenerator({ keywords, selectedTopic }) {
   };
 
   const copyOutline = () => {
-    if (!outline) return;
+    if (!outline) {
+      return;
+    }
 
     let text = `# ${outline.title_options?.[0] || topic}\n\n`;
     text += `## Introduction\n${outline.introduction?.hook}\n\n`;

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { base44 } from '@/api/base44Client';
@@ -13,7 +13,9 @@ export default function BulkOwnerAssignment({ selectedIds, contacts, teamMembers
   const toast = useToast();
 
   const handleAssignOwner = async () => {
-    if (!selectedOwner) return;
+    if (!selectedOwner) {
+      return;
+    }
     setAssigning(true);
 
     try {

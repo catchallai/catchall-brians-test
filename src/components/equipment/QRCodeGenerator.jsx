@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { QrCode, Download, Loader2 } from 'lucide-react';
+import { Download, Loader2 } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
@@ -24,7 +24,9 @@ export default function QRCodeGenerator({ equipment, open, onClose }) {
   }, [equipment, open]);
 
   const generateQRCode = async () => {
-    if (!equipment) return;
+    if (!equipment) {
+      return;
+    }
 
     setGenerating(true);
     try {
@@ -62,7 +64,9 @@ export default function QRCodeGenerator({ equipment, open, onClose }) {
     a.click();
   };
 
-  if (!equipment) return null;
+  if (!equipment) {
+    return null;
+  }
 
   return (
     <Dialog open={open} onOpenChange={onClose}>

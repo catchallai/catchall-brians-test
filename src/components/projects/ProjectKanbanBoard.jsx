@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -69,7 +69,9 @@ export default function ProjectKanbanBoard({ tasks, onTaskClick, onStatusChange,
   }, [tasks]);
 
   const handleDragEnd = (result) => {
-    if (!result.destination) return;
+    if (!result.destination) {
+      return;
+    }
 
     const taskId = result.draggableId;
     const newStatus = result.destination.droppableId;
@@ -81,7 +83,9 @@ export default function ProjectKanbanBoard({ tasks, onTaskClick, onStatusChange,
   };
 
   const isOverdue = (dueDate) => {
-    if (!dueDate) return false;
+    if (!dueDate) {
+      return false;
+    }
     return (
       new Date(dueDate) < new Date() &&
       new Date(dueDate).toDateString() !== new Date().toDateString()
@@ -89,7 +93,9 @@ export default function ProjectKanbanBoard({ tasks, onTaskClick, onStatusChange,
   };
 
   const isDueToday = (dueDate) => {
-    if (!dueDate) return false;
+    if (!dueDate) {
+      return false;
+    }
     return new Date(dueDate).toDateString() === new Date().toDateString();
   };
 

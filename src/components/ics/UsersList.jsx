@@ -1,9 +1,9 @@
-import React, { useState, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
-import { Search, MessageSquare, Phone } from 'lucide-react';
+import { Search, MessageSquare } from 'lucide-react';
 import PresenceIndicator from './PresenceIndicator';
 
 export default function UsersList({
@@ -17,7 +17,9 @@ export default function UsersList({
   const [searchTerm, setSearchTerm] = useState('');
 
   const filteredUsers = useMemo(() => {
-    if (!searchTerm.trim()) return users;
+    if (!searchTerm.trim()) {
+      return users;
+    }
 
     const term = searchTerm.toLowerCase();
     return users.filter(

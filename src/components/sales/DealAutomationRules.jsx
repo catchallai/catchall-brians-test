@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import {
@@ -53,7 +53,9 @@ export default function DealAutomationRules({ businessId }) {
   const { data: rules = [] } = useQuery({
     queryKey: ['automation-rules', businessId],
     queryFn: async () => {
-      if (!businessId) return [];
+      if (!businessId) {
+        return [];
+      }
       const automationRules = await base44.entities.AutomationRule.filter({
         business_id: businessId,
         entity_type: 'deal',
@@ -108,7 +110,9 @@ export default function DealAutomationRules({ businessId }) {
   });
 
   const handleSaveRule = () => {
-    if (!formData.name || !formData.trigger_type || !formData.action_type) return;
+    if (!formData.name || !formData.trigger_type || !formData.action_type) {
+      return;
+    }
 
     if (editingRule) {
       updateRuleMutation.mutate({ id: editingRule.id, data: formData });

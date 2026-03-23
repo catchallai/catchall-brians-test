@@ -1,4 +1,3 @@
-import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -9,7 +8,6 @@ import {
   Users,
   Target,
   Link2,
-  Globe,
   MapPin,
   Search,
   Mail,
@@ -19,7 +17,6 @@ import {
   Activity,
   Zap,
   Trash2,
-  AlertTriangle,
 } from 'lucide-react';
 
 const ICON_MAP = {

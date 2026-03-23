@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -9,18 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import {
-  Loader2,
-  Calendar,
-  Sparkles,
-  Clock,
-  Hash,
-  Image,
-  Video,
-  FileText,
-  Plus,
-  Check,
-} from 'lucide-react';
+import { Loader2, Calendar, Sparkles, Clock, Image, Video, FileText, Check } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { format, addDays, startOfWeek, addWeeks } from 'date-fns';
 

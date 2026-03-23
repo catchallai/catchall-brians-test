@@ -1,7 +1,6 @@
-import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useState } from 'react';
+import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ArrowRight, DollarSign } from 'lucide-react';
 
 const STAGES = [
   { id: 'lead', label: 'Lead', color: 'bg-gray-50 dark:bg-gray-800' },

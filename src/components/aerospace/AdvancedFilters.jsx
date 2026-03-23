@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -72,8 +72,12 @@ export default function AdvancedFilters({ onApply, onSaveAsAlert }) {
   };
 
   const activeFilterCount = Object.entries(filters).filter(([key, value]) => {
-    if (key === 'company_type' && value === 'all') return false;
-    if (Array.isArray(value)) return value.length > 0;
+    if (key === 'company_type' && value === 'all') {
+      return false;
+    }
+    if (Array.isArray(value)) {
+      return value.length > 0;
+    }
     return value !== '';
   }).length;
 

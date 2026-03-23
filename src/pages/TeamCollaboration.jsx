@@ -6,7 +6,6 @@ import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import {
-  Users,
   Briefcase,
   CalendarDays,
   Calendar,
@@ -17,7 +16,6 @@ import {
   Clock,
   AlertCircle,
   UserPlus,
-  Folder,
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
@@ -42,7 +40,9 @@ export default function TeamCollaboration() {
   const { data: tasks = [] } = useQuery({
     queryKey: ['my-tasks'],
     queryFn: async () => {
-      if (!user) return [];
+      if (!user) {
+        return [];
+      }
       const allTasks = await base44.entities.Task.list('-due_date', 10);
       return allTasks.filter(
         (t) => t.assigned_to?.includes(user.email) && t.status !== 'completed'

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useSearchParams } from 'react-router-dom';
@@ -7,12 +7,11 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Plus, Edit2, Trash2, CheckCircle2, Circle, ArrowLeft } from 'lucide-react';
+import { Plus, Trash2, CheckCircle2, Circle, ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import TaskModal from '@/components/modals/TaskModal.jsx';
 import MilestoneModal from '@/components/modals/MilestoneModal.jsx';
-import DependencyManager from '@/components/projects/DependencyManager.jsx';
 import ActivityLog from '@/components/projects/ActivityLog.jsx';
 import ResourcePlanner from '@/components/projects/ResourcePlanner.jsx';
 import TimeTracker from '@/components/projects/TimeTracker.jsx';
@@ -34,7 +33,9 @@ export default function ProjectDetail() {
   const { data: project, isLoading: projectLoading } = useQuery({
     queryKey: ['project', projectId],
     queryFn: async () => {
-      if (!projectId) return null;
+      if (!projectId) {
+        return null;
+      }
       const projects = await base44.entities.Project.list();
       return projects.find((p) => p.id === projectId) || null;
     },
@@ -44,7 +45,9 @@ export default function ProjectDetail() {
   const { data: tasks = [] } = useQuery({
     queryKey: ['project-tasks', projectId],
     queryFn: async () => {
-      if (!projectId) return [];
+      if (!projectId) {
+        return [];
+      }
       return await base44.entities.Task.filter({ project_id: projectId }, '-created_date');
     },
     enabled: !!projectId,
@@ -53,7 +56,9 @@ export default function ProjectDetail() {
   const { data: milestones = [] } = useQuery({
     queryKey: ['project-milestones', projectId],
     queryFn: async () => {
-      if (!projectId) return [];
+      if (!projectId) {
+        return [];
+      }
       return await base44.entities.ProjectMilestone.filter({ project_id: projectId }, 'due_date');
     },
     enabled: !!projectId,
@@ -67,7 +72,9 @@ export default function ProjectDetail() {
   const { data: dependencies = [] } = useQuery({
     queryKey: ['task-dependencies', projectId],
     queryFn: async () => {
-      if (!projectId) return [];
+      if (!projectId) {
+        return [];
+      }
       return await base44.entities.TaskDependency.list();
     },
     enabled: !!projectId,
@@ -76,7 +83,9 @@ export default function ProjectDetail() {
   const { data: timeLogs = [] } = useQuery({
     queryKey: ['time-logs', projectId],
     queryFn: async () => {
-      if (!projectId) return [];
+      if (!projectId) {
+        return [];
+      }
       const allLogs = await base44.entities.TimeLog.list('-date', 200);
       return allLogs.filter((log) => tasks.some((t) => t.id === log.task_id));
     },
@@ -136,13 +145,16 @@ export default function ProjectDetail() {
     },
   });
 
-  if (projectLoading)
+  if (projectLoading) {
     return (
       <div className="p-6">
         <Skeleton className="h-96" />
       </div>
     );
-  if (!project) return <div className="p-6 text-center">Project not found</div>;
+  }
+  if (!project) {
+    return <div className="p-6 text-center">Project not found</div>;
+  }
 
   const statusColors = {
     planning: 'bg-blue-100 text-blue-800',

@@ -1,4 +1,3 @@
-import React from 'react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -38,7 +37,7 @@ export default function PageExportMenu({ page }) {
     let markdown = `# ${page.title}\n\n`;
 
     // Simple HTML to Markdown conversion
-    let text = page.content
+    const text = page.content
       .replace(/<h1>/g, '# ')
       .replace(/<h2>/g, '## ')
       .replace(/<h3>/g, '### ')

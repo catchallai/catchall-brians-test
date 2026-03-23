@@ -1,4 +1,3 @@
-import React from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -32,7 +31,9 @@ export default function ActivityFeed({ entityType, entityId }) {
   const { data: activities = [], isLoading } = useQuery({
     queryKey: ['activities', entityType, entityId],
     queryFn: async () => {
-      if (!entityId) return [];
+      if (!entityId) {
+        return [];
+      }
       return await base44.entities.Activity.filter(
         {
           entity_type: entityType,

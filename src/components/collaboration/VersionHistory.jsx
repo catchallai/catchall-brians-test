@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -62,7 +62,9 @@ export default function VersionHistory({ project, user }) {
   });
 
   const groupedVersions = versions.reduce((acc, v) => {
-    if (!acc[v.content_title]) acc[v.content_title] = [];
+    if (!acc[v.content_title]) {
+      acc[v.content_title] = [];
+    }
     acc[v.content_title].push(v);
     return acc;
   }, {});

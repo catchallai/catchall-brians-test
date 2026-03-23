@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent } from '@/components/ui/card';
@@ -23,7 +23,6 @@ import {
   Bookmark,
   BookmarkCheck,
   Trash2,
-  X,
   RefreshCw,
 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
@@ -75,7 +74,9 @@ export default function WebCrawler() {
   });
 
   const crawlWeb = async () => {
-    if (keywords.length === 0) return;
+    if (keywords.length === 0) {
+      return;
+    }
 
     setCrawling(true);
 

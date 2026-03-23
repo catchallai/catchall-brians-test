@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
@@ -12,20 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import {
-  Plus,
-  Search,
-  FileText,
-  Filter,
-  ChevronRight,
-  X,
-  Tag,
-  CheckCircle2,
-  Clock,
-  RotateCcw,
-  ShieldCheck,
-  XCircle,
-} from 'lucide-react';
+import { Plus, Search, ChevronRight, X } from 'lucide-react';
 import ApprovalWorkflowPanel from './ApprovalWorkflowPanel';
 
 const STATUS_CONFIG = {

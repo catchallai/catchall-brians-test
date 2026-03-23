@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import {
@@ -8,19 +8,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import {
-  Search,
-  CheckCircle2,
-  XCircle,
-  RotateCcw,
-  Send,
-  Eye,
-  ThumbsUp,
-  Clock,
-  Calendar,
-} from 'lucide-react';
-import { format, formatDistanceToNow } from 'date-fns';
+import { Search, CheckCircle2, XCircle, RotateCcw, Send, Eye, ThumbsUp, Clock } from 'lucide-react';
+import { formatDistanceToNow } from 'date-fns';
 
 const ACTION_ICONS = {
   approved: { icon: CheckCircle2, color: 'text-green-500 bg-green-50' },

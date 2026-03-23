@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -6,18 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import {
-  Building2,
-  Plus,
-  Search,
-  Users,
-  Edit2,
-  Trash2,
-  Globe,
-  Mail,
-  Phone,
-  MapPin,
-} from 'lucide-react';
+import { Building2, Plus, Search, Edit2, Trash2, Globe, Mail, Phone, MapPin } from 'lucide-react';
 import BusinessModal from '@/components/business/BusinessModal';
 import EmptyState from '@/components/ui/EmptyState';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';

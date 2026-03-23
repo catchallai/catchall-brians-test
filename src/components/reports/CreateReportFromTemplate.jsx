@@ -1,10 +1,9 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
   Select,
@@ -13,7 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Loader2, Calendar, Users, Mail } from 'lucide-react';
+import { Loader2, Calendar, Mail } from 'lucide-react';
 
 const METRIC_LABELS = {
   // SEO
@@ -132,7 +131,9 @@ export default function CreateReportFromTemplate({
     });
   };
 
-  if (!template) return null;
+  if (!template) {
+    return null;
+  }
 
   const Icon = template.icon;
 

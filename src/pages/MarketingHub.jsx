@@ -1,15 +1,9 @@
-import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Skeleton } from '@/components/ui/skeleton';
 import {
   TrendingUp,
-  Users,
-  Mail,
   Target,
   Link2,
   FlaskConical,
@@ -17,12 +11,8 @@ import {
   FileText,
   Bell,
   RefreshCw,
-  Plus,
   BarChart3,
   DollarSign,
-  Percent,
-  ArrowUpRight,
-  ArrowDownRight,
 } from 'lucide-react';
 import LeadScoringPanel from '@/components/marketing/LeadScoringPanel';
 import UTMTrackingPanel from '@/components/marketing/UTMTrackingPanel';
@@ -42,7 +32,9 @@ export default function MarketingHub() {
   const { data: contacts = [] } = useQuery({
     queryKey: ['contacts', user?.current_business_id],
     queryFn: async () => {
-      if (!user?.current_business_id) return [];
+      if (!user?.current_business_id) {
+        return [];
+      }
       return await base44.entities.Contact.filter(
         { business_id: user.current_business_id },
         '-created_date',
@@ -55,7 +47,9 @@ export default function MarketingHub() {
   const { data: deals = [] } = useQuery({
     queryKey: ['deals', user?.current_business_id],
     queryFn: async () => {
-      if (!user?.current_business_id) return [];
+      if (!user?.current_business_id) {
+        return [];
+      }
       return await base44.entities.Deal.filter(
         { business_id: user.current_business_id },
         '-created_date',

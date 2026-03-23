@@ -1,4 +1,3 @@
-import React from 'react';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
@@ -29,8 +28,12 @@ export default function SectionEditor({ type, content, onChange }) {
   };
 
   const getDefaultItem = () => {
-    if (type === 'features') return { title: '', description: '', icon: 'star' };
-    if (type === 'testimonials') return { name: '', text: '', avatar: '' };
+    if (type === 'features') {
+      return { title: '', description: '', icon: 'star' };
+    }
+    if (type === 'testimonials') {
+      return { name: '', text: '', avatar: '' };
+    }
     return {};
   };
 

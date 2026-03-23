@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import {
@@ -11,17 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import {
-  Mail,
-  Eye,
-  MousePointer,
-  Reply,
-  AlertCircle,
-  Search,
-  TrendingUp,
-  Users,
-  Clock,
-} from 'lucide-react';
+import { Mail, Eye, MousePointer, Reply, AlertCircle, Search } from 'lucide-react';
 import EmptyState from '@/components/ui/EmptyState';
 import { format } from 'date-fns';
 

@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState, useMemo } from 'react';
+import { useRef, useEffect, useState, useMemo } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -9,7 +9,6 @@ import {
   RotateCcw,
   TrendingUp,
   Users,
-  Target,
   Sparkles,
   Eye,
 } from 'lucide-react';
@@ -56,7 +55,9 @@ export default function CompetitorNetworkMap({
   // Animate rotation
   useEffect(() => {
     if (!isAnimating) {
-      if (animationRef.current) cancelAnimationFrame(animationRef.current);
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current);
+      }
       return;
     }
 
@@ -67,12 +68,16 @@ export default function CompetitorNetworkMap({
     animationRef.current = requestAnimationFrame(animate);
 
     return () => {
-      if (animationRef.current) cancelAnimationFrame(animationRef.current);
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current);
+      }
     };
   }, [isAnimating]);
 
   useEffect(() => {
-    if (!competitors || competitors.length === 0) return;
+    if (!competitors || competitors.length === 0) {
+      return;
+    }
 
     const centerX = dimensions.width / 2;
     const centerY = dimensions.height / 2;
@@ -150,7 +155,9 @@ export default function CompetitorNetworkMap({
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    if (!canvas || nodes.length === 0) return;
+    if (!canvas || nodes.length === 0) {
+      return;
+    }
 
     const ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, dimensions.width, dimensions.height);
@@ -349,7 +356,9 @@ export default function CompetitorNetworkMap({
 
     if (isClick && hitNode && !hitNode.isCenter) {
       setSelectedNode(hitNode.id);
-      if (onSelectCompetitor) onSelectCompetitor(hitNode.competitor);
+      if (onSelectCompetitor) {
+        onSelectCompetitor(hitNode.competitor);
+      }
     } else if (!isClick) {
       setHoveredNode(hitNode?.id || null);
       canvas.style.cursor = hitNode && !hitNode.isCenter ? 'pointer' : 'default';
@@ -563,8 +572,12 @@ function getCompetitorColor(index) {
 }
 
 function formatNumber(num) {
-  if (num >= 1000000) return `${(num / 1000000).toFixed(1)}M`;
-  if (num >= 1000) return `${(num / 1000).toFixed(1)}K`;
+  if (num >= 1000000) {
+    return `${(num / 1000000).toFixed(1)}M`;
+  }
+  if (num >= 1000) {
+    return `${(num / 1000).toFixed(1)}K`;
+  }
   return num.toString();
 }
 

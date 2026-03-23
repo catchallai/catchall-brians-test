@@ -10,7 +10,6 @@ import {
   Phone,
   Mail,
   Briefcase,
-  MapPin,
   Tag,
   Activity,
   DollarSign,
@@ -18,7 +17,6 @@ import {
   Building2,
   ExternalLink,
   AlertCircle,
-  Paperclip,
   CheckSquare,
   Loader2,
 } from 'lucide-react';
@@ -80,7 +78,9 @@ export default function ContactDetailPanel({ contactId, onClose }) {
   const { data: company } = useQuery({
     queryKey: ['company', contact?.company_id],
     queryFn: async () => {
-      if (!contact?.company_id) return null;
+      if (!contact?.company_id) {
+        return null;
+      }
       const companies = await base44.entities.Company.filter({ id: contact.company_id });
       return companies[0];
     },
@@ -96,7 +96,9 @@ export default function ContactDetailPanel({ contactId, onClose }) {
     );
   }
 
-  if (!contact) return null;
+  if (!contact) {
+    return null;
+  }
 
   const handleCreateTask = async () => {
     if (!taskTitle.trim()) {

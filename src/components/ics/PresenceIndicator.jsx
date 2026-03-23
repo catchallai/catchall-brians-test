@@ -1,4 +1,3 @@
-import React from 'react';
 import { Circle, Phone } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
@@ -15,7 +14,9 @@ const statusLabels = {
 };
 
 export default function PresenceIndicator({ presence, size = 'sm', showCustomStatus = false }) {
-  if (!presence) return null;
+  if (!presence) {
+    return null;
+  }
 
   const sizeClass = size === 'sm' ? 'w-2 h-2' : size === 'md' ? 'w-3 h-3' : 'w-4 h-4';
   const dotSize = size === 'sm' ? 'w-2 h-2' : size === 'md' ? 'w-3 h-3' : 'w-4 h-4';

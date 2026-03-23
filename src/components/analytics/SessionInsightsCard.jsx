@@ -1,7 +1,7 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Route, Target, MousePointer, ArrowRight, TrendingUp, AlertCircle } from 'lucide-react';
+import { Route, Target, ArrowRight, TrendingUp, AlertCircle } from 'lucide-react';
 
 export default function SessionInsightsCard() {
   // Common user paths through SyberJet website

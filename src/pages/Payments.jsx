@@ -1,9 +1,9 @@
-import React, { useState, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import {
   Select,
@@ -49,7 +49,9 @@ export default function Payments() {
   const { data: payments = [], isLoading: loadingPayments } = useQuery({
     queryKey: ['payments', user?.current_business_id],
     queryFn: async () => {
-      if (!user?.current_business_id) return [];
+      if (!user?.current_business_id) {
+        return [];
+      }
       return await base44.entities.Payment.filter(
         { business_id: user.current_business_id },
         '-created_date',
@@ -62,7 +64,9 @@ export default function Payments() {
   const { data: invoices = [], isLoading: loadingInvoices } = useQuery({
     queryKey: ['invoices', user?.current_business_id],
     queryFn: async () => {
-      if (!user?.current_business_id) return [];
+      if (!user?.current_business_id) {
+        return [];
+      }
       return await base44.entities.Invoice.filter(
         { business_id: user.current_business_id },
         '-created_date',
@@ -75,7 +79,9 @@ export default function Payments() {
   const { data: contacts = [] } = useQuery({
     queryKey: ['contacts', user?.current_business_id],
     queryFn: async () => {
-      if (!user?.current_business_id) return [];
+      if (!user?.current_business_id) {
+        return [];
+      }
       return await base44.entities.Contact.filter({ business_id: user.current_business_id });
     },
     enabled: !!user?.current_business_id,

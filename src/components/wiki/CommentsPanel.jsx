@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -22,7 +21,9 @@ export default function CommentsPanel({ pageId, spaceId, user }) {
 
   // Real-time subscription
   useEffect(() => {
-    if (!pageId) return;
+    if (!pageId) {
+      return;
+    }
 
     const unsubscribe = base44.entities.WikiPageComment.subscribe((event) => {
       if (event.data?.page_id === pageId) {
@@ -50,7 +51,9 @@ export default function CommentsPanel({ pageId, spaceId, user }) {
   });
 
   const handleSubmit = () => {
-    if (!newComment.trim()) return;
+    if (!newComment.trim()) {
+      return;
+    }
 
     createCommentMutation.mutate({
       page_id: pageId,

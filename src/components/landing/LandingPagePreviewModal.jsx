@@ -1,10 +1,11 @@
-import React from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 
 export default function LandingPagePreviewModal({ open, onClose, page }) {
-  if (!page) return null;
+  if (!page) {
+    return null;
+  }
 
   const renderSection = (section) => {
     const { type, content } = section;

@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { ChevronRight, Folder, FolderOpen, FileText, Plus, MoreVertical } from 'lucide-react';
+import { ChevronRight, Folder, FolderOpen, FileText, MoreVertical } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import {
