@@ -318,7 +318,6 @@ const DEFAULT_FORM = {
   title: '',
   caption: '',
   image_url: '',
-  image_urls: [],
   video_url: '',
   media_type: 'none',
   scheduled_date: todayLocal(),
@@ -355,7 +354,6 @@ const arraysEqual = (left = [], right = []) =>
 
 const hasFormChanges = (current, initial) =>
   DIRTY_FIELDS.some((field) => current[field] !== initial[field]) ||
-  !arraysEqual(current.image_urls, initial.image_urls) ||
   !arraysEqual(current.platforms, initial.platforms) ||
   !arraysEqual(current.hashtags, initial.hashtags) ||
   !arraysEqual(current.recurrence_days, initial.recurrence_days);
@@ -388,7 +386,7 @@ export default function CalendarPostModal({
   const [navigationPrompt, setNavigationPrompt] = useState(null);
   const [mediaLibraryOpen, setMediaLibraryOpen] = useState(false);
   const [mediaLibrarySearch, setMediaLibrarySearch] = useState('');
-  const [selectedLibraryAssets, setSelectedLibraryAssets] = useState([]);
+  const [selectedLibraryAsset, setSelectedLibraryAsset] = useState('');
   const fileInputRef = useRef();
   const videoInputRef = useRef();
   const initialFormDataRef = useRef({ ...DEFAULT_FORM });
@@ -403,13 +401,12 @@ export default function CalendarPostModal({
       setNavigationPrompt(null);
       setMediaLibraryOpen(false);
       setMediaLibrarySearch('');
-      setSelectedLibraryAssets([]);
+      setSelectedLibraryAsset('');
       if (post) {
         const initial = {
           title: post.title || '',
           caption: post.caption || '',
-          image_url: post.image_url || '',
-          image_urls: post.image_urls || (post.image_url ? [post.image_url] : []),
+          image_url: post.image_url || post.image_urls?.[0] || '',
           video_url: post.video_url || '',
           media_type: post.media_type || 'none',
           scheduled_date: post.scheduled_date || todayLocal(),
@@ -457,7 +454,6 @@ export default function CalendarPostModal({
     setFormData((f) => ({
       ...f,
       image_url: file_url,
-      image_urls: [file_url],
       video_url: '',
       media_type: 'image',
     }));
@@ -475,7 +471,6 @@ export default function CalendarPostModal({
       ...f,
       video_url: file_url,
       image_url: '',
-      image_urls: [],
       media_type: 'video',
     }));
     setUploading(false);
@@ -525,9 +520,7 @@ export default function CalendarPostModal({
   const handleMediaLibraryOpen = () => {
     setMediaMenuTarget(null);
     setMediaLibrarySearch('');
-    setSelectedLibraryAssets(
-      formData.image_urls || (formData.image_url ? [formData.image_url] : [])
-    );
+    setSelectedLibraryAsset(formData.image_url || '');
     setMediaLibraryOpen(true);
   };
 
@@ -574,22 +567,16 @@ export default function CalendarPostModal({
     return matchesSearch;
   });
 
-  const toggleLibraryAsset = (assetUrl) => {
-    setSelectedLibraryAssets((current) =>
-      current.includes(assetUrl)
-        ? current.filter((url) => url !== assetUrl)
-        : [...current, assetUrl]
-    );
+  const selectLibraryAsset = (assetUrl) => {
+    setSelectedLibraryAsset((current) => (current === assetUrl ? '' : assetUrl));
   };
 
   const applySelectedLibraryAssets = () => {
-    const nextImages = selectedLibraryAssets.filter(Boolean);
     setFormData((f) => ({
       ...f,
-      image_url: nextImages[0] || '',
-      image_urls: nextImages,
+      image_url: selectedLibraryAsset || '',
       video_url: '',
-      media_type: nextImages.length > 0 ? 'image' : 'none',
+      media_type: selectedLibraryAsset ? 'image' : 'none',
     }));
     setMediaLibraryOpen(false);
   };
@@ -598,24 +585,8 @@ export default function CalendarPostModal({
     setFormData((f) => ({
       ...f,
       image_url: '',
-      image_urls: [],
       media_type: 'none',
     }));
-  };
-
-  const removeSelectedImage = (imageToRemove) => {
-    setFormData((f) => {
-      const nextImages = (f.image_urls?.length > 0 ? f.image_urls : [f.image_url])
-        .filter(Boolean)
-        .filter((imageUrl) => imageUrl !== imageToRemove);
-
-      return {
-        ...f,
-        image_url: nextImages[0] || '',
-        image_urls: nextImages,
-        media_type: nextImages.length > 0 ? 'image' : 'none',
-      };
-    });
   };
 
   const mediaMenuItems = [
@@ -865,44 +836,13 @@ export default function CalendarPostModal({
 
               {/* Media drop zone / preview */}
               <div className="px-6 pb-2">
-                {formData.image_urls?.length > 0 || formData.image_url ? (
+                {formData.image_url ? (
                   <div className="relative mt-2">
-                    <div className="flex gap-3 overflow-x-auto pb-2">
-                      {(formData.image_urls?.length > 0
-                        ? formData.image_urls
-                        : [formData.image_url]
-                      )
-                        .filter(Boolean)
-                        .map((imageUrl, index) => (
-                          <div
-                            key={`${imageUrl}-${index}`}
-                            className="relative w-36 flex-shrink-0 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm"
-                          >
-                            <img
-                              src={imageUrl}
-                              alt={`Selected media ${index + 1}`}
-                              className="h-36 w-full object-cover"
-                            />
-                            <div className="border-t border-gray-100 px-3 py-2">
-                              <p className="truncate text-xs font-medium text-gray-600">
-                                Image {index + 1}
-                              </p>
-                            </div>
-                            <button
-                              type="button"
-                              onClick={() => removeSelectedImage(imageUrl)}
-                              className="absolute right-2 top-2 rounded-full bg-black/60 p-1 text-white transition-colors hover:bg-black/80"
-                            >
-                              <X className="h-3.5 w-3.5" />
-                            </button>
-                          </div>
-                        ))}
-                    </div>
-                    {(formData.image_urls?.length || 0) > 1 && (
-                      <div className="mt-1 text-xs font-medium text-gray-500">
-                        {formData.image_urls.length} separate image files selected
-                      </div>
-                    )}
+                    <img
+                      src={formData.image_url}
+                      alt="Selected media"
+                      className="rounded-xl max-h-40 object-cover"
+                    />
                     <button
                       onClick={clearSelectedImages}
                       className="absolute top-2 right-2 bg-black/60 hover:bg-black/80 text-white rounded-full p-1"
@@ -1271,11 +1211,9 @@ export default function CalendarPostModal({
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Images className="w-5 h-5 text-violet-600" />
-              Select Media Library Images
+              Select Media Library Image
             </DialogTitle>
-            <DialogDescription>
-              Choose one or many images to attach to this social post.
-            </DialogDescription>
+            <DialogDescription>Choose one image to attach to this social post.</DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4 overflow-hidden">
@@ -1302,13 +1240,13 @@ export default function CalendarPostModal({
               ) : (
                 <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
                   {imageAssets.map((asset) => {
-                    const checked = selectedLibraryAssets.includes(asset.file_url);
+                    const checked = selectedLibraryAsset === asset.file_url;
 
                     return (
                       <button
                         key={asset.id}
                         type="button"
-                        onClick={() => toggleLibraryAsset(asset.file_url)}
+                        onClick={() => selectLibraryAsset(asset.file_url)}
                         className={`overflow-hidden rounded-xl border bg-white text-left transition-all ${
                           checked
                             ? 'border-violet-500 ring-2 ring-violet-200'
@@ -1343,8 +1281,7 @@ export default function CalendarPostModal({
 
           <DialogFooter className="items-center justify-between gap-3 sm:justify-between">
             <div className="text-sm text-gray-500">
-              {selectedLibraryAssets.length} image{selectedLibraryAssets.length === 1 ? '' : 's'}{' '}
-              selected
+              {selectedLibraryAsset ? '1 image selected' : 'No image selected'}
             </div>
             <div className="flex items-center gap-2">
               <Button variant="outline" onClick={() => setMediaLibraryOpen(false)}>
@@ -1352,10 +1289,10 @@ export default function CalendarPostModal({
               </Button>
               <Button
                 onClick={applySelectedLibraryAssets}
-                disabled={selectedLibraryAssets.length === 0}
+                disabled={!selectedLibraryAsset}
                 className="bg-violet-600 hover:bg-violet-700"
               >
-                Use Selected Images
+                Use Selected Image
               </Button>
             </div>
           </DialogFooter>
