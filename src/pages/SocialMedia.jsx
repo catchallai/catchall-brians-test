@@ -2538,7 +2538,7 @@ Find 5 recent posts with: post_url (direct link to post), content, post_date, li
         open={showComposeModal}
         onClose={() => setShowComposeModal(false)}
         accounts={socialAccounts}
-        onSchedule={(posts) => bulkScheduleMutation.mutate(posts)}
+        onSchedule={(posts) => bulkScheduleMutation.mutateAsync(posts)}
         onAdapt={async (content, platforms, hashtags) => {
           const result = await adaptContentMutation.mutateAsync({ content, platforms, hashtags });
           return result;

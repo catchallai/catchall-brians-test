@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -7,9 +7,11 @@ import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Loader2, Sparkles, Calendar, Send, X, AlertCircle } from 'lucide-react';
+import { Loader2, Sparkles, Calendar, X, AlertCircle } from 'lucide-react';
 import AIPostAssistant from '@/components/social/AIPostAssistant';
 import { toLocalISOString } from '@/utils/date';
+import useUnsavedChangesGuard from '@/components/hooks/useUnsavedChangesGuard';
+import ConfirmDialog from '@/components/ui/ConfirmDialog';
 
 // Remove the function from here and import from utils
 
@@ -70,6 +72,15 @@ export default function ComposePostModal({
   const [scheduleError, setScheduleError] = useState('');
   const [activeTab, setActiveTab] = useState('compose');
 
+  const isDirty =
+    masterContent !== '' ||
+    selectedAccounts.length > 0 ||
+    Object.keys(platformContent).length > 0 ||
+    hashtags.length > 0 ||
+    scheduledTime !== '';
+
+  const { guardedClose, discardDialogProps } = useUnsavedChangesGuard({ isDirty, onClose });
+
   useEffect(() => {
     if (open) {
       setMasterContent('');
@@ -83,7 +94,9 @@ export default function ComposePostModal({
 
   // Group accounts by platform
   const accountsByPlatform = accounts.reduce((acc, account) => {
-    if (!acc[account.platform]) acc[account.platform] = [];
+    if (!acc[account.platform]) {
+      acc[account.platform] = [];
+    }
     acc[account.platform].push(account);
     return acc;
   }, {});
@@ -119,7 +132,9 @@ export default function ComposePostModal({
   };
 
   const handleAdaptContent = async () => {
-    if (!masterContent.trim() || selectedAccounts.length === 0) return;
+    if (!masterContent.trim() || selectedAccounts.length === 0) {
+      return;
+    }
 
     const platforms = [
       ...new Set(selectedAccounts.map((id) => accounts.find((a) => a.id === id)?.platform)),
@@ -132,7 +147,7 @@ export default function ComposePostModal({
     }
   };
 
-  const handleSchedule = () => {
+  const handleSchedule = async () => {
     if (scheduledTime && new Date(scheduledTime) <= new Date()) {
       setScheduleError('Scheduled time must be in the future.');
       return;
@@ -154,7 +169,8 @@ export default function ComposePostModal({
       };
     });
 
-    onSchedule(posts);
+    await onSchedule(posts);
+    guardedClose({ open: false, bypass: true });
   };
 
   const selectedPlatforms = [
@@ -162,7 +178,7 @@ export default function ComposePostModal({
   ].filter(Boolean);
 
   return (
-    <Dialog open={open} onOpenChange={onClose}>
+    <Dialog open={open} onOpenChange={guardedClose}>
       <DialogContent className="sm:max-w-2xl max-h-[85vh] overflow-hidden flex flex-col">
         <DialogHeader>
           <DialogTitle>Compose Post</DialogTitle>
@@ -245,7 +261,9 @@ export default function ComposePostModal({
                 <div className="space-y-3 max-h-[200px] overflow-y-auto">
                   {PLATFORMS.map((platform) => {
                     const platformAccounts = accountsByPlatform[platform.id] || [];
-                    if (platformAccounts.length === 0) return null;
+                    if (platformAccounts.length === 0) {
+                      return null;
+                    }
 
                     return (
                       <div key={platform.id} className="space-y-2">
@@ -282,7 +300,7 @@ export default function ComposePostModal({
             </div>
 
             <div className="flex justify-end gap-2 pt-4">
-              <Button variant="outline" onClick={onClose}>
+              <Button variant="outline" onClick={() => guardedClose(false)}>
                 Cancel
               </Button>
               <Button
@@ -434,6 +452,7 @@ export default function ComposePostModal({
           </TabsContent>
         </Tabs>
       </DialogContent>
+      <ConfirmDialog {...discardDialogProps} />
     </Dialog>
   );
 }
