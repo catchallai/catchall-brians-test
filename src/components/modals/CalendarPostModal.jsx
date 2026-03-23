@@ -364,6 +364,7 @@ export default function CalendarPostModal({
   const [scheduleError, setScheduleError] = useState('');
   const [requireApproval, setRequireApproval] = useState(true);
   const [isEmojiPickerOpen, setIsEmojiPickerOpen] = useState(false);
+  const dialogContentRef = useRef(null);
   const fileInputRef = useRef();
   const videoInputRef = useRef();
   const captionRef = useRef(null);
@@ -590,6 +591,7 @@ export default function CalendarPostModal({
   return (
     <Dialog open={open} onOpenChange={guardedClose}>
       <DialogContent
+        ref={dialogContentRef}
         className="p-0 max-w-5xl w-full max-h-[92vh] overflow-hidden rounded-2xl bg-white dark:bg-gray-900"
         style={{ gap: 0 }}
       >
@@ -834,6 +836,7 @@ export default function CalendarPostModal({
                       </button>
                     </PopoverTrigger>
                     <PopoverContent
+                      container={dialogContentRef.current}
                       align="start"
                       side="top"
                       onFocusOutside={(event) => {
