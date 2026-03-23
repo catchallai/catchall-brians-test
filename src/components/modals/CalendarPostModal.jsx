@@ -12,8 +12,8 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Switch } from '@/components/ui/switch';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Switch } from '@/components/ui/switch';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import {
@@ -54,6 +54,7 @@ import {
   Search,
   Images,
 } from 'lucide-react';
+import EmojiPicker from 'emoji-picker-react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import PostComments from '../social/PostComments';
@@ -387,11 +388,18 @@ export default function CalendarPostModal({
   const [mediaLibraryOpen, setMediaLibraryOpen] = useState(false);
   const [mediaLibrarySearch, setMediaLibrarySearch] = useState('');
   const [selectedLibraryAsset, setSelectedLibraryAsset] = useState('');
+  const [isEmojiPickerOpen, setIsEmojiPickerOpen] = useState(false);
+  const dialogContentRef = useRef(null);
   const fileInputRef = useRef();
   const videoInputRef = useRef();
+  const captionRef = useRef(null);
+  const captionSelectionRef = useRef({ start: null, end: null });
   const initialFormDataRef = useRef({ ...DEFAULT_FORM });
 
   useEffect(() => {
+    setIsEmojiPickerOpen(false);
+    captionSelectionRef.current = { start: null, end: null };
+
     if (open) {
       setActiveTab('compose');
       setShowBestTimes(false);
@@ -689,6 +697,74 @@ export default function CalendarPostModal({
     });
   };
 
+  const updateCaptionSelection = (target) => {
+    if (!target) {
+      return;
+    }
+
+    if (target !== captionRef.current || document.activeElement !== target) {
+      return;
+    }
+
+    captionSelectionRef.current = {
+      start: target.selectionStart ?? null,
+      end: target.selectionEnd ?? target.selectionStart ?? null,
+    };
+  };
+
+  const getCaptionInsertionContext = (caption) => {
+    const textarea = captionRef.current;
+    const currentCaption = textarea?.value ?? caption;
+    const hasLiveSelection =
+      textarea === captionRef.current && document.activeElement === captionRef.current;
+    const hasStoredSelection =
+      Number.isInteger(captionSelectionRef.current.start) &&
+      Number.isInteger(captionSelectionRef.current.end);
+    const fallbackPosition = currentCaption.length;
+    const start = hasLiveSelection
+      ? (textarea.selectionStart ?? fallbackPosition)
+      : hasStoredSelection
+        ? captionSelectionRef.current.start
+        : fallbackPosition;
+    const end = hasLiveSelection
+      ? (textarea.selectionEnd ?? start)
+      : hasStoredSelection
+        ? captionSelectionRef.current.end
+        : start;
+
+    return { currentCaption, start, end };
+  };
+
+  const handleEmojiSelect = ({ emoji }) => {
+    let nextCaretPosition = 0;
+    setFormData((f) => {
+      const { currentCaption, start, end } = getCaptionInsertionContext(f.caption);
+      const nextCaption = currentCaption.slice(0, start) + emoji + currentCaption.slice(end);
+
+      nextCaretPosition = start + emoji.length;
+      captionSelectionRef.current = {
+        start: nextCaretPosition,
+        end: nextCaretPosition,
+      };
+
+      return {
+        ...f,
+        caption: nextCaption,
+        hashtags: /#\w+/.test(nextCaption) ? f.hashtags : [],
+      };
+    });
+    setIsEmojiPickerOpen(false);
+
+    requestAnimationFrame(() => {
+      const nextTextarea = captionRef.current;
+      if (!nextTextarea) {
+        return;
+      }
+      nextTextarea.focus();
+      nextTextarea.setSelectionRange(nextCaretPosition, nextCaretPosition);
+    });
+  };
+
   const isViewer = currentUser?.social_media_role === 'viewer';
   const isAdmin =
     currentUser?.role === 'admin' ||
@@ -700,6 +776,7 @@ export default function CalendarPostModal({
   return (
     <Dialog open={open} onOpenChange={guardedClose}>
       <DialogContent
+        ref={dialogContentRef}
         className="p-0 max-w-5xl w-full max-h-[92vh] overflow-hidden rounded-2xl bg-white dark:bg-gray-900"
         style={{ gap: 0 }}
       >
@@ -818,9 +895,11 @@ export default function CalendarPostModal({
                   {activePlatform.letter}
                 </div>
                 <Textarea
+                  ref={captionRef}
                   value={formData.caption}
                   onChange={(e) => {
                     const newCaption = e.target.value;
+                    updateCaptionSelection(e.target);
                     setFormData((f) => ({
                       ...f,
                       caption: newCaption,
@@ -829,6 +908,9 @@ export default function CalendarPostModal({
                       hashtags: /#\w+/.test(newCaption) ? f.hashtags : [],
                     }));
                   }}
+                  onSelect={(e) => updateCaptionSelection(e.target)}
+                  onKeyUp={(e) => updateCaptionSelection(e.target)}
+                  onClick={(e) => updateCaptionSelection(e.target)}
                   placeholder="Start writing your post here..."
                   className="border-0 shadow-none focus-visible:ring-0 resize-none text-[15px] text-gray-800 dark:text-gray-200 bg-transparent p-0 min-h-[120px] leading-relaxed"
                 />
@@ -957,9 +1039,39 @@ export default function CalendarPostModal({
                       {renderMediaMenuContent()}
                     </PopoverContent>
                   </Popover>
-                  <button className="p-1.5 text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors">
-                    <Smile className="w-5 h-5" />
-                  </button>
+                  <Popover open={isEmojiPickerOpen} onOpenChange={setIsEmojiPickerOpen}>
+                    <PopoverTrigger asChild>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (document.activeElement === captionRef.current) {
+                            updateCaptionSelection(captionRef.current);
+                          }
+                        }}
+                        className="p-1.5 text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+                      >
+                        <Smile className="w-5 h-5" />
+                      </button>
+                    </PopoverTrigger>
+                    <PopoverContent
+                      container={dialogContentRef.current}
+                      align="start"
+                      side="top"
+                      onFocusOutside={(event) => {
+                        if (event.target === captionRef.current) {
+                          event.preventDefault();
+                        }
+                      }}
+                      className="w-auto p-0 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900"
+                    >
+                      <EmojiPicker
+                        onEmojiClick={handleEmojiSelect}
+                        lazyLoadEmojis
+                        previewConfig={{ showPreview: false }}
+                        skinTonesDisabled
+                      />
+                    </PopoverContent>
+                  </Popover>
                   <button className="p-1.5 text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors">
                     <Hash className="w-5 h-5" />
                   </button>
