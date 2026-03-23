@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import { useState, useRef } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Plus } from 'lucide-react';
 import {
@@ -11,6 +11,7 @@ import {
 } from '@dnd-kit/core';
 import { SortableContext, useSortable, rectSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import PostStatusChip from './PostStatusChip';
 
 function SortableGridItem({ id, post, position, onAddPost, onEditPost }) {
   const { setNodeRef, transform, transition, isDragging, listeners, attributes } = useSortable({
@@ -73,6 +74,10 @@ function SortableGridItem({ id, post, position, onAddPost, onEditPost }) {
       onClick={handleClick}
       title="Click to edit · Double-click to preview · Drag to reorder"
     >
+      {/* Status chip in upper left */}
+      <div className="absolute top-2 left-2 z-10">
+        <PostStatusChip status={post.status} />
+      </div>
       {post.image_url ? (
         <img
           src={post.image_url}
@@ -88,7 +93,6 @@ function SortableGridItem({ id, post, position, onAddPost, onEditPost }) {
           </p>
         </div>
       )}
-
       {/* Hover overlay */}
       <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-all flex items-end">
         <div className="w-full p-2 opacity-0 group-hover:opacity-100 transition-all">
@@ -120,8 +124,12 @@ export default function NineGridEditor({
 
   // Sort posts by scheduled_date ascending, fill into slots left-to-right
   const sortedPosts = [...posts].sort((a, b) => {
-    if (!a.scheduled_date) return 1;
-    if (!b.scheduled_date) return -1;
+    if (!a.scheduled_date) {
+      return 1;
+    }
+    if (!b.scheduled_date) {
+      return -1;
+    }
     return new Date(a.scheduled_date) - new Date(b.scheduled_date);
   });
 
@@ -149,7 +157,9 @@ export default function NineGridEditor({
       // Update scheduled dates based on new position
       const today = new Date();
       const updatedSlots = newSlots.map((post, idx) => {
-        if (!post) return null;
+        if (!post) {
+          return null;
+        }
         const newDate = new Date(today);
         newDate.setDate(newDate.getDate() + idx);
         return {

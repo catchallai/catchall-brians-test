@@ -1,4 +1,3 @@
-import React from 'react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -115,6 +114,7 @@ export default function CalendarPostCard({
           )}
         </div>
 
+        {/* TODO: Replace with <PostStatusChip /> component  */}
         {/* Status Badge */}
         <div className="absolute top-2 left-2 flex flex-col gap-1">
           <Badge className={`${statusColors[post.status]} text-xs`}>
