@@ -1,9 +1,21 @@
 import { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { appendHashtagToCaption } from '@/utils/appendHashtagToCaption';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { createPageUrl } from '@/utils';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Input } from '@/components/ui/input';
 import {
   Select,
   SelectContent,
@@ -20,6 +32,7 @@ import {
   Link2,
   Plus,
   ChevronDown,
+  ChevronUp,
   Sparkles,
   Maximize2,
   Calendar,
@@ -34,6 +47,12 @@ import {
   FileText,
   ChevronRight,
   ShieldCheck,
+  Video,
+  Cloud,
+  HardDrive,
+  FolderOpen,
+  Search,
+  Images,
 } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
@@ -299,6 +318,7 @@ const DEFAULT_FORM = {
   title: '',
   caption: '',
   image_url: '',
+  image_urls: [],
   video_url: '',
   media_type: 'none',
   scheduled_date: todayLocal(),
@@ -335,6 +355,7 @@ const arraysEqual = (left = [], right = []) =>
 
 const hasFormChanges = (current, initial) =>
   DIRTY_FIELDS.some((field) => current[field] !== initial[field]) ||
+  !arraysEqual(current.image_urls, initial.image_urls) ||
   !arraysEqual(current.platforms, initial.platforms) ||
   !arraysEqual(current.hashtags, initial.hashtags) ||
   !arraysEqual(current.recurrence_days, initial.recurrence_days);
@@ -351,6 +372,7 @@ export default function CalendarPostModal({
     queryKey: ['current-user'],
     queryFn: () => base44.auth.me(),
   });
+  const navigate = useNavigate();
 
   const [formData, setFormData] = useState({ ...DEFAULT_FORM });
   const [uploading, setUploading] = useState(false);
@@ -361,6 +383,12 @@ export default function CalendarPostModal({
   const [showBestTimes, setShowBestTimes] = useState(false);
   const [scheduleError, setScheduleError] = useState('');
   const [requireApproval, setRequireApproval] = useState(true);
+  const [mediaMenuTarget, setMediaMenuTarget] = useState(null);
+  const [connectPrompt, setConnectPrompt] = useState(null);
+  const [navigationPrompt, setNavigationPrompt] = useState(null);
+  const [mediaLibraryOpen, setMediaLibraryOpen] = useState(false);
+  const [mediaLibrarySearch, setMediaLibrarySearch] = useState('');
+  const [selectedLibraryAssets, setSelectedLibraryAssets] = useState([]);
   const fileInputRef = useRef();
   const videoInputRef = useRef();
   const initialFormDataRef = useRef({ ...DEFAULT_FORM });
@@ -370,11 +398,18 @@ export default function CalendarPostModal({
       setActiveTab('compose');
       setShowBestTimes(false);
       setRequireApproval(true);
+      setMediaMenuTarget(null);
+      setConnectPrompt(null);
+      setNavigationPrompt(null);
+      setMediaLibraryOpen(false);
+      setMediaLibrarySearch('');
+      setSelectedLibraryAssets([]);
       if (post) {
         const initial = {
           title: post.title || '',
           caption: post.caption || '',
           image_url: post.image_url || '',
+          image_urls: post.image_urls || (post.image_url ? [post.image_url] : []),
           video_url: post.video_url || '',
           media_type: post.media_type || 'none',
           scheduled_date: post.scheduled_date || todayLocal(),
@@ -406,6 +441,12 @@ export default function CalendarPostModal({
 
   const { guardedClose, discardDialogProps } = useUnsavedChangesGuard({ isDirty, onClose });
 
+  const { data: mediaAssets = [], isLoading: isMediaLibraryLoading } = useQuery({
+    queryKey: ['media-assets'],
+    queryFn: () => base44.entities.MediaAsset.list('-created_date', 500),
+    enabled: mediaLibraryOpen,
+  });
+
   const handleImageUpload = async (e) => {
     const file = e.target.files?.[0];
     if (!file) {
@@ -416,6 +457,7 @@ export default function CalendarPostModal({
     setFormData((f) => ({
       ...f,
       image_url: file_url,
+      image_urls: [file_url],
       video_url: '',
       media_type: 'image',
     }));
@@ -433,6 +475,7 @@ export default function CalendarPostModal({
       ...f,
       video_url: file_url,
       image_url: '',
+      image_urls: [],
       media_type: 'video',
     }));
     setUploading(false);
@@ -452,6 +495,177 @@ export default function CalendarPostModal({
       handleImageUpload(syntheticEvent);
     }
   };
+
+  const triggerImageUpload = () => {
+    setMediaMenuTarget(null);
+    fileInputRef.current?.click();
+  };
+
+  const triggerVideoUpload = () => {
+    setMediaMenuTarget(null);
+    videoInputRef.current?.click();
+  };
+
+  const openRouteFromComposer = (route, promptCopy) => {
+    setMediaMenuTarget(null);
+    if (isDirty) {
+      setNavigationPrompt({
+        route,
+        title: promptCopy?.title || 'Leave Composer?',
+        description:
+          promptCopy?.description ||
+          'You have unsaved post changes. Continue and leave this composer anyway?',
+      });
+      return;
+    }
+    onClose?.();
+    navigate(route);
+  };
+
+  const handleMediaLibraryOpen = () => {
+    setMediaMenuTarget(null);
+    setMediaLibrarySearch('');
+    setSelectedLibraryAssets(
+      formData.image_urls || (formData.image_url ? [formData.image_url] : [])
+    );
+    setMediaLibraryOpen(true);
+  };
+
+  const openIntegrationSettings = (providerKey) => {
+    setConnectPrompt(null);
+    const providerLabel = providerKey === 'dropbox' ? 'Dropbox' : 'Google Drive';
+    openRouteFromComposer(`${createPageUrl('Settings')}?tab=integrations&provider=${providerKey}`, {
+      title: `Open ${providerLabel} Setup?`,
+      description: `You have unsaved post changes. Continue to Settings to manage ${providerLabel} integrations?`,
+    });
+  };
+
+  const handleCloudMediaSource = (providerKey) => {
+    setMediaMenuTarget(null);
+    // Dropbox/Google Drive connection state is not modeled in the current app yet.
+    // Route users into the existing integrations settings flow until cloud media support is added.
+    setConnectPrompt(providerKey);
+  };
+
+  const confirmNavigation = () => {
+    if (!navigationPrompt?.route) {
+      return;
+    }
+    const route = navigationPrompt.route;
+    setNavigationPrompt(null);
+    onClose?.();
+    navigate(route);
+  };
+
+  const imageAssets = mediaAssets.filter((asset) => {
+    if (asset.file_type && asset.file_type !== 'image') {
+      return false;
+    }
+    if (!asset.file_url) {
+      return false;
+    }
+
+    const matchesSearch =
+      !mediaLibrarySearch ||
+      asset.name?.toLowerCase().includes(mediaLibrarySearch.toLowerCase()) ||
+      asset.category?.toLowerCase().includes(mediaLibrarySearch.toLowerCase()) ||
+      asset.tags?.some((tag) => tag.toLowerCase().includes(mediaLibrarySearch.toLowerCase()));
+
+    return matchesSearch;
+  });
+
+  const toggleLibraryAsset = (assetUrl) => {
+    setSelectedLibraryAssets((current) =>
+      current.includes(assetUrl)
+        ? current.filter((url) => url !== assetUrl)
+        : [...current, assetUrl]
+    );
+  };
+
+  const applySelectedLibraryAssets = () => {
+    const nextImages = selectedLibraryAssets.filter(Boolean);
+    setFormData((f) => ({
+      ...f,
+      image_url: nextImages[0] || '',
+      image_urls: nextImages,
+      video_url: '',
+      media_type: nextImages.length > 0 ? 'image' : 'none',
+    }));
+    setMediaLibraryOpen(false);
+  };
+
+  const clearSelectedImages = () => {
+    setFormData((f) => ({
+      ...f,
+      image_url: '',
+      image_urls: [],
+      media_type: 'none',
+    }));
+  };
+
+  const removeSelectedImage = (imageToRemove) => {
+    setFormData((f) => {
+      const nextImages = (f.image_urls?.length > 0 ? f.image_urls : [f.image_url])
+        .filter(Boolean)
+        .filter((imageUrl) => imageUrl !== imageToRemove);
+
+      return {
+        ...f,
+        image_url: nextImages[0] || '',
+        image_urls: nextImages,
+        media_type: nextImages.length > 0 ? 'image' : 'none',
+      };
+    });
+  };
+
+  const mediaMenuItems = [
+    {
+      section: 'My Media',
+      items: [
+        { label: 'Upload Image(s)', icon: ImageIcon, onSelect: triggerImageUpload },
+        { label: 'Upload Video', icon: Video, onSelect: triggerVideoUpload },
+        { label: 'Dropbox', icon: Cloud, onSelect: () => handleCloudMediaSource('dropbox') },
+        {
+          label: 'Google Drive',
+          icon: HardDrive,
+          onSelect: () => handleCloudMediaSource('google-drive'),
+        },
+      ],
+    },
+    {
+      section: 'Shared Media',
+      items: [{ label: 'Media Library', icon: FolderOpen, onSelect: handleMediaLibraryOpen }],
+    },
+  ];
+
+  const renderMediaMenuContent = () => (
+    <div className="py-2">
+      {mediaMenuItems.map((section, index) => (
+        <div key={section.section}>
+          {index > 0 && <div className="my-2 border-t border-gray-100" />}
+          <div className="px-4 pb-1 pt-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-gray-400">
+            {section.section}
+          </div>
+          <div className="space-y-0.5 px-2 pb-2">
+            {section.items.map((item) => {
+              const Icon = item.icon;
+              return (
+                <button
+                  key={item.label}
+                  type="button"
+                  onClick={item.onSelect}
+                  className="flex w-full items-center gap-3 rounded-lg px-2.5 py-2.5 text-left text-[15px] font-medium text-gray-700 transition-colors hover:bg-gray-50 hover:text-gray-900"
+                >
+                  <Icon className="h-4 w-4 text-gray-500" />
+                  <span>{item.label}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
 
   const togglePlatform = (id) => {
     setFormData((f) => {
@@ -651,21 +865,46 @@ export default function CalendarPostModal({
 
               {/* Media drop zone / preview */}
               <div className="px-6 pb-2">
-                {formData.image_url ? (
-                  <div className="relative inline-block mt-2">
-                    <img
-                      src={formData.image_url}
-                      alt="Preview"
-                      className="rounded-xl max-h-40 object-cover"
-                    />
+                {formData.image_urls?.length > 0 || formData.image_url ? (
+                  <div className="relative mt-2">
+                    <div className="flex gap-3 overflow-x-auto pb-2">
+                      {(formData.image_urls?.length > 0
+                        ? formData.image_urls
+                        : [formData.image_url]
+                      )
+                        .filter(Boolean)
+                        .map((imageUrl, index) => (
+                          <div
+                            key={`${imageUrl}-${index}`}
+                            className="relative w-36 flex-shrink-0 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm"
+                          >
+                            <img
+                              src={imageUrl}
+                              alt={`Selected media ${index + 1}`}
+                              className="h-36 w-full object-cover"
+                            />
+                            <div className="border-t border-gray-100 px-3 py-2">
+                              <p className="truncate text-xs font-medium text-gray-600">
+                                Image {index + 1}
+                              </p>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => removeSelectedImage(imageUrl)}
+                              className="absolute right-2 top-2 rounded-full bg-black/60 p-1 text-white transition-colors hover:bg-black/80"
+                            >
+                              <X className="h-3.5 w-3.5" />
+                            </button>
+                          </div>
+                        ))}
+                    </div>
+                    {(formData.image_urls?.length || 0) > 1 && (
+                      <div className="mt-1 text-xs font-medium text-gray-500">
+                        {formData.image_urls.length} separate image files selected
+                      </div>
+                    )}
                     <button
-                      onClick={() =>
-                        setFormData((f) => ({
-                          ...f,
-                          image_url: '',
-                          media_type: 'none',
-                        }))
-                      }
+                      onClick={clearSelectedImages}
                       className="absolute top-2 right-2 bg-black/60 hover:bg-black/80 text-white rounded-full p-1"
                     >
                       <X className="w-3.5 h-3.5" />
@@ -705,9 +944,29 @@ export default function CalendarPostModal({
                         <ImageIcon className="w-7 h-7 text-gray-300" />
                         <p className="text-sm text-gray-400">
                           Drag &amp; drop or{' '}
-                          <span className="text-blue-500 font-medium underline cursor-pointer">
-                            select a file
-                          </span>
+                          <Popover
+                            open={mediaMenuTarget === 'dropzone'}
+                            onOpenChange={(open) => setMediaMenuTarget(open ? 'dropzone' : null)}
+                          >
+                            <PopoverTrigger asChild>
+                              <button
+                                type="button"
+                                onClick={(e) => e.stopPropagation()}
+                                className="text-blue-500 font-medium underline cursor-pointer"
+                              >
+                                select a file
+                              </button>
+                            </PopoverTrigger>
+                            <PopoverContent
+                              align="center"
+                              side="bottom"
+                              sideOffset={12}
+                              className="w-[250px] rounded-xl border border-gray-200 bg-white p-0 shadow-[0_18px_40px_rgba(15,23,42,0.12)]"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              {renderMediaMenuContent()}
+                            </PopoverContent>
+                          </Popover>
                         </p>
                       </>
                     )}
@@ -732,13 +991,32 @@ export default function CalendarPostModal({
               {/* Toolbar */}
               <div className="flex items-center justify-between px-6 py-2.5 border-t border-gray-100 dark:border-gray-800 mt-1">
                 <div className="flex items-center gap-1">
-                  <button
-                    onClick={() => fileInputRef.current?.click()}
-                    className="flex items-center gap-1 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg px-2 py-1.5 text-sm transition-colors"
+                  <Popover
+                    open={mediaMenuTarget === 'toolbar'}
+                    onOpenChange={(open) => setMediaMenuTarget(open ? 'toolbar' : null)}
                   >
-                    <Plus className="w-4 h-4" />
-                    <ChevronDown className="w-3 h-3" />
-                  </button>
+                    <PopoverTrigger asChild>
+                      <button
+                        type="button"
+                        className="flex items-center gap-1 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg px-2 py-1.5 text-sm transition-colors"
+                      >
+                        <Plus className="w-4 h-4" />
+                        {mediaMenuTarget === 'toolbar' ? (
+                          <ChevronUp className="w-3 h-3" />
+                        ) : (
+                          <ChevronDown className="w-3 h-3" />
+                        )}
+                      </button>
+                    </PopoverTrigger>
+                    <PopoverContent
+                      align="start"
+                      side="top"
+                      sideOffset={10}
+                      className="w-[250px] rounded-xl border border-gray-200 bg-white p-0 shadow-[0_18px_40px_rgba(15,23,42,0.12)]"
+                    >
+                      {renderMediaMenuContent()}
+                    </PopoverContent>
+                  </Popover>
                   <button className="p-1.5 text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors">
                     <Smile className="w-5 h-5" />
                   </button>
@@ -974,6 +1252,125 @@ export default function CalendarPostModal({
           </div>
         </div>
       </DialogContent>
+      <ConfirmDialog
+        open={!!connectPrompt}
+        onClose={() => setConnectPrompt(null)}
+        onConfirm={() => openIntegrationSettings(connectPrompt)}
+        title={connectPrompt === 'dropbox' ? 'Connect Dropbox First' : 'Connect Google Drive First'}
+        description={
+          connectPrompt === 'dropbox'
+            ? "Dropbox isn't connected in this workspace yet. Open Settings to review the current integrations setup before using Dropbox media here."
+            : "Google Drive isn't connected in this workspace yet. Open Settings to review the current integrations setup before using Drive media here."
+        }
+        confirmLabel="Open Settings"
+        cancelLabel="Not Now"
+        variant="default"
+      />
+      <Dialog open={mediaLibraryOpen} onOpenChange={setMediaLibraryOpen}>
+        <DialogContent className="max-w-4xl max-h-[85vh] overflow-hidden rounded-2xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Images className="w-5 h-5 text-violet-600" />
+              Select Media Library Images
+            </DialogTitle>
+            <DialogDescription>
+              Choose one or many images to attach to this social post.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 overflow-hidden">
+            <div className="relative">
+              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+              <Input
+                value={mediaLibrarySearch}
+                onChange={(e) => setMediaLibrarySearch(e.target.value)}
+                placeholder="Search media library images"
+                className="pl-9"
+              />
+            </div>
+
+            <div className="max-h-[50vh] overflow-y-auto rounded-xl border border-gray-200 bg-gray-50 p-3">
+              {isMediaLibraryLoading ? (
+                <div className="flex items-center justify-center py-16 text-sm text-gray-500">
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Loading media library...
+                </div>
+              ) : imageAssets.length === 0 ? (
+                <div className="py-16 text-center text-sm text-gray-500">
+                  No image assets found in the Media Library.
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
+                  {imageAssets.map((asset) => {
+                    const checked = selectedLibraryAssets.includes(asset.file_url);
+
+                    return (
+                      <button
+                        key={asset.id}
+                        type="button"
+                        onClick={() => toggleLibraryAsset(asset.file_url)}
+                        className={`overflow-hidden rounded-xl border bg-white text-left transition-all ${
+                          checked
+                            ? 'border-violet-500 ring-2 ring-violet-200'
+                            : 'border-gray-200 hover:border-gray-300'
+                        }`}
+                      >
+                        <div className="relative aspect-square bg-gray-100">
+                          <img
+                            src={asset.file_url}
+                            alt={asset.name || 'Media asset'}
+                            className="h-full w-full object-cover"
+                          />
+                          <div className="absolute left-2 top-2 rounded-md bg-white/90 p-1 shadow-sm">
+                            <Checkbox checked={checked} className="pointer-events-none" />
+                          </div>
+                        </div>
+                        <div className="p-2.5">
+                          <p className="truncate text-sm font-medium text-gray-800">
+                            {asset.name || 'Untitled image'}
+                          </p>
+                          <p className="mt-1 truncate text-xs text-gray-500">
+                            {asset.category || asset.file_type || 'Image'}
+                          </p>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          </div>
+
+          <DialogFooter className="items-center justify-between gap-3 sm:justify-between">
+            <div className="text-sm text-gray-500">
+              {selectedLibraryAssets.length} image{selectedLibraryAssets.length === 1 ? '' : 's'}{' '}
+              selected
+            </div>
+            <div className="flex items-center gap-2">
+              <Button variant="outline" onClick={() => setMediaLibraryOpen(false)}>
+                Cancel
+              </Button>
+              <Button
+                onClick={applySelectedLibraryAssets}
+                disabled={selectedLibraryAssets.length === 0}
+                className="bg-violet-600 hover:bg-violet-700"
+              >
+                Use Selected Images
+              </Button>
+            </div>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      <ConfirmDialog
+        open={!!navigationPrompt}
+        onClose={() => setNavigationPrompt(null)}
+        onConfirm={confirmNavigation}
+        title={navigationPrompt?.title}
+        description={navigationPrompt?.description}
+        confirmLabel="Continue"
+        cancelLabel="Stay Here"
+        variant="default"
+      />
       <ConfirmDialog {...discardDialogProps} />
     </Dialog>
   );

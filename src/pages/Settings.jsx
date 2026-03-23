@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -40,8 +41,9 @@ import AIToggleSettings from '@/components/settings/AIToggleSettings';
 import HubSpotSync from '@/components/settings/HubSpotSync';
 
 export default function Settings() {
+  const [searchParams] = useSearchParams();
   const [saving, setSaving] = useState(false);
-  const [activeTab, setActiveTab] = useState('profile');
+  const [activeTab, setActiveTab] = useState(searchParams.get('tab') || 'profile');
   const queryClient = useQueryClient();
   const toast = useToast();
   const { theme, setTheme } = useTheme();
@@ -49,11 +51,6 @@ export default function Settings() {
   const { data: user, isLoading } = useQuery({
     queryKey: ['current-user'],
     queryFn: () => base44.auth.me(),
-  });
-
-  const { data: socialAccounts = [] } = useQuery({
-    queryKey: ['social-accounts'],
-    queryFn: () => base44.entities.SocialAccount.list('-created_date', 50),
   });
 
   const [profile, setProfile] = useState({
@@ -104,6 +101,13 @@ export default function Settings() {
     }
   }, [user]);
 
+  React.useEffect(() => {
+    const requestedTab = searchParams.get('tab');
+    if (requestedTab) {
+      setActiveTab(requestedTab);
+    }
+  }, [searchParams]);
+
   const saveMutation = useMutation({
     mutationFn: async (data) => {
       await base44.auth.updateMe(data);
@@ -117,9 +121,8 @@ export default function Settings() {
 
   const handleSave = async () => {
     setSaving(true);
-    const { full_name, email, ...otherProfile } = profile;
     await saveMutation.mutateAsync({
-      ...otherProfile,
+      ...profile,
       notification_settings: notifications,
       preferences: preferences,
     });
