@@ -569,6 +569,7 @@ export default function CalendarPostModal({
         hashtags: /#\w+/.test(nextCaption) ? f.hashtags : [],
       };
     });
+    setIsEmojiPickerOpen(false);
 
     requestAnimationFrame(() => {
       const nextTextarea = captionRef.current;
