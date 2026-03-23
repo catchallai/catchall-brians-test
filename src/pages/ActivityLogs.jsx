@@ -1,7 +1,6 @@
-import React, { useState, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
   Select,
@@ -16,13 +15,10 @@ import {
   Search,
   Clock,
   Plus,
-  Minus,
   Edit2,
   Trash2,
   Download,
   FileUp,
-  LogIn,
-  LogOut,
   Mail,
   Link as LinkIcon,
 } from 'lucide-react';
@@ -98,7 +94,9 @@ export default function ActivityLogs() {
   const { data: activities = [], isLoading } = useQuery({
     queryKey: ['activity-logs', user?.current_business_id],
     queryFn: async () => {
-      if (!user?.current_business_id) return [];
+      if (!user?.current_business_id) {
+        return [];
+      }
       return await base44.entities.Activity.filter(
         { business_id: user.current_business_id },
         '-created_date',

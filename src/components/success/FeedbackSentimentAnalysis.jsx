@@ -1,9 +1,9 @@
-import React, { useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { MessageSquare, ThumbsUp, ThumbsDown, Minus, TrendingUp, TrendingDown } from 'lucide-react';
+import { MessageSquare, ThumbsUp, ThumbsDown, Minus } from 'lucide-react';
 import {
   BarChart,
   Bar,
@@ -121,7 +121,9 @@ export default function FeedbackSentimentAnalysis({ surveys, interactions }) {
   // NPS Score calculation
   const npsScore = useMemo(() => {
     const npsResponses = surveys.filter((s) => s.survey_type === 'nps' && s.nps_category);
-    if (npsResponses.length === 0) return null;
+    if (npsResponses.length === 0) {
+      return null;
+    }
 
     const promoters = npsResponses.filter((s) => s.nps_category === 'promoter').length;
     const detractors = npsResponses.filter((s) => s.nps_category === 'detractor').length;

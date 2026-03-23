@@ -1,18 +1,6 @@
-import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Link2, TrendingUp, Users, DollarSign } from 'lucide-react';
-import {
-  PieChart,
-  Pie,
-  Cell,
-  ResponsiveContainer,
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
-} from 'recharts';
+import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip } from 'recharts';
 
 const COLORS = ['#8b5cf6', '#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#6366f1'];
 
@@ -20,7 +8,9 @@ export default function UTMTrackingPanel({ utmData, contacts }) {
   // Aggregate by source
   const bySource = utmData.reduce((acc, item) => {
     const source = item.utm_source || 'direct';
-    if (!acc[source]) acc[source] = { count: 0, conversions: 0, value: 0 };
+    if (!acc[source]) {
+      acc[source] = { count: 0, conversions: 0, value: 0 };
+    }
     acc[source].count++;
     if (item.converted) {
       acc[source].conversions++;
@@ -42,9 +32,13 @@ export default function UTMTrackingPanel({ utmData, contacts }) {
   // Aggregate by campaign
   const byCampaign = utmData.reduce((acc, item) => {
     const campaign = item.utm_campaign || 'none';
-    if (!acc[campaign]) acc[campaign] = { count: 0, conversions: 0 };
+    if (!acc[campaign]) {
+      acc[campaign] = { count: 0, conversions: 0 };
+    }
     acc[campaign].count++;
-    if (item.converted) acc[campaign].conversions++;
+    if (item.converted) {
+      acc[campaign].conversions++;
+    }
     return acc;
   }, {});
 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -73,7 +73,9 @@ export default function DocuTrace() {
   const { data: documents = [], isLoading } = useQuery({
     queryKey: ['tracked-documents', user?.current_business_id],
     queryFn: async () => {
-      if (!user?.current_business_id) return [];
+      if (!user?.current_business_id) {
+        return [];
+      }
       return await base44.entities.TrackedDocument.filter(
         { business_id: user.current_business_id },
         '-created_date',
@@ -86,7 +88,9 @@ export default function DocuTrace() {
   const { data: contacts = [] } = useQuery({
     queryKey: ['contacts', user?.current_business_id],
     queryFn: async () => {
-      if (!user?.current_business_id) return [];
+      if (!user?.current_business_id) {
+        return [];
+      }
       return await base44.entities.Contact.filter(
         { business_id: user.current_business_id },
         'first_name',
@@ -99,7 +103,9 @@ export default function DocuTrace() {
   const { data: deals = [] } = useQuery({
     queryKey: ['deals', user?.current_business_id],
     queryFn: async () => {
-      if (!user?.current_business_id) return [];
+      if (!user?.current_business_id) {
+        return [];
+      }
       return await base44.entities.Deal.filter(
         { business_id: user.current_business_id },
         'title',

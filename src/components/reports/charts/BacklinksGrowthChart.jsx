@@ -1,4 +1,3 @@
-import React from 'react';
 import {
   AreaChart,
   Area,
@@ -9,7 +8,7 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 import { Badge } from '@/components/ui/badge';
-import { TrendingUp, TrendingDown, Link2 } from 'lucide-react';
+import { TrendingUp, Link2 } from 'lucide-react';
 import { format, eachWeekOfInterval } from 'date-fns';
 
 export default function BacklinksGrowthChart({ dateRange, backlinks = [] }) {

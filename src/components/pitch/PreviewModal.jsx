@@ -19,9 +19,15 @@ export default function PreviewModal({ open, onClose, slides, branding, deckTitl
   };
 
   const handleKeyDown = (e) => {
-    if (e.key === 'ArrowRight') nextSlide();
-    if (e.key === 'ArrowLeft') prevSlide();
-    if (e.key === 'Escape') onClose();
+    if (e.key === 'ArrowRight') {
+      nextSlide();
+    }
+    if (e.key === 'ArrowLeft') {
+      prevSlide();
+    }
+    if (e.key === 'Escape') {
+      onClose();
+    }
   };
 
   React.useEffect(() => {
@@ -32,7 +38,9 @@ export default function PreviewModal({ open, onClose, slides, branding, deckTitl
   }, [open, currentSlide]);
 
   const slide = slides[currentSlide];
-  if (!slide) return null;
+  if (!slide) {
+    return null;
+  }
 
   return (
     <Dialog open={open} onOpenChange={onClose}>

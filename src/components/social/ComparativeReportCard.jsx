@@ -1,10 +1,6 @@
-import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import {
   ArrowUp,
-  ArrowDown,
-  Minus,
   CheckCircle,
   AlertTriangle,
   Target,
@@ -15,7 +11,9 @@ import {
 } from 'lucide-react';
 
 export default function ComparativeReportCard({ report, yourBrandName, competitorName }) {
-  if (!report?.comparative_data) return null;
+  if (!report?.comparative_data) {
+    return null;
+  }
 
   const { comparative_data } = report;
   const yourMetrics = comparative_data.your_metrics || {};
@@ -60,18 +58,34 @@ export default function ComparativeReportCard({ report, yourBrandName, competito
   ];
 
   const formatValue = (value, format) => {
-    if (value == null) return '—';
-    if (format === 'percent') return `${value.toFixed(1)}%`;
-    if (format === 'score') return `${value}/100`;
-    if (value >= 1000000) return `${(value / 1000000).toFixed(1)}M`;
-    if (value >= 1000) return `${(value / 1000).toFixed(1)}K`;
+    if (value == null) {
+      return '—';
+    }
+    if (format === 'percent') {
+      return `${value.toFixed(1)}%`;
+    }
+    if (format === 'score') {
+      return `${value}/100`;
+    }
+    if (value >= 1000000) {
+      return `${(value / 1000000).toFixed(1)}M`;
+    }
+    if (value >= 1000) {
+      return `${(value / 1000).toFixed(1)}K`;
+    }
     return value.toLocaleString();
   };
 
   const getComparison = (yours, theirs) => {
-    if (yours == null || theirs == null) return 'neutral';
-    if (yours > theirs) return 'winning';
-    if (yours < theirs) return 'losing';
+    if (yours == null || theirs == null) {
+      return 'neutral';
+    }
+    if (yours > theirs) {
+      return 'winning';
+    }
+    if (yours < theirs) {
+      return 'losing';
+    }
     return 'neutral';
   };
 

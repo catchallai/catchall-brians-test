@@ -1,4 +1,3 @@
-import React from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -9,7 +8,6 @@ import {
   Users,
   Building2,
   Target,
-  FileText,
   Mail,
   Calendar,
   Zap,
@@ -17,12 +15,8 @@ import {
   ArrowRight,
   DollarSign,
   Activity,
-  Clock,
-  Phone,
-  UserPlus,
   Award,
   BarChart3,
-  AlertCircle,
 } from 'lucide-react';
 
 export default function CRMDashboard() {

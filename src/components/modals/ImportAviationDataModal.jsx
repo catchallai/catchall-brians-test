@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import {
@@ -10,7 +10,7 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Upload, FileText, Check, AlertCircle, Loader2 } from 'lucide-react';
+import { Upload, FileText, Check, Loader2 } from 'lucide-react';
 import Papa from 'papaparse';
 
 export default function ImportAviationDataModal({ open, onClose }) {
@@ -55,7 +55,9 @@ export default function ImportAviationDataModal({ open, onClose }) {
   };
 
   const handleImport = () => {
-    if (!csvData) return;
+    if (!csvData) {
+      return;
+    }
     setStep(2);
     importMutation.mutate(csvData);
   };

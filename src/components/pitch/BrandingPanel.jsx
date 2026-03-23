@@ -1,15 +1,15 @@
-import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Palette, Upload, Image as ImageIcon } from 'lucide-react';
+import { Palette, Image as ImageIcon } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 
 export default function BrandingPanel({ branding, onChange }) {
   const handleUploadLogo = async (e) => {
     const file = e.target.files?.[0];
-    if (!file) return;
+    if (!file) {
+      return;
+    }
 
     try {
       const { file_url } = await base44.integrations.Core.UploadFile({ file });

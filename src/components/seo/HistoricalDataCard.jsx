@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Select,
@@ -18,7 +18,6 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  Legend,
   Area,
   AreaChart,
 } from 'recharts';
@@ -97,7 +96,9 @@ export default function HistoricalDataCard({ keywords, keywordHistory, websites 
   }, [keywordHistory, selectedKeyword, timeRange]);
 
   const trendData = useMemo(() => {
-    if (chartData.length < 2) return { change: 0, direction: 'stable' };
+    if (chartData.length < 2) {
+      return { change: 0, direction: 'stable' };
+    }
     const first = chartData[0]?.position || 0;
     const last = chartData[chartData.length - 1]?.position || 0;
     const change = first - last;
@@ -108,7 +109,9 @@ export default function HistoricalDataCard({ keywords, keywordHistory, websites 
   }, [chartData]);
 
   const scoreTrendData = useMemo(() => {
-    if (scoreHistory.length < 2) return { change: 0, direction: 'stable' };
+    if (scoreHistory.length < 2) {
+      return { change: 0, direction: 'stable' };
+    }
     const first = scoreHistory[0]?.score || 0;
     const last = scoreHistory[scoreHistory.length - 1]?.score || 0;
     const change = last - first;

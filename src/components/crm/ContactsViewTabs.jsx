@@ -1,5 +1,3 @@
-import React from 'react';
-
 const TABS = [
   { id: 'all', label: 'All contacts', icon: '👥' },
   { id: 'open-opportunities', label: 'Open opportunities', icon: '🎯' },

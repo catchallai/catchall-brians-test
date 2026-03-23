@@ -44,7 +44,9 @@ export default function BusinessSelector({ user }) {
     }
   }, [businesses, user]);
 
-  if (isLoading || businesses.length === 0) return null;
+  if (isLoading || businesses.length === 0) {
+    return null;
+  }
 
   return (
     <div className="flex items-center gap-2">

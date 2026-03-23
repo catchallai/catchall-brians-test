@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Plus, X, Settings, LayoutGrid } from 'lucide-react';
+import { X, LayoutGrid } from 'lucide-react';
 import { WIDGET_TYPES, getAllCategories } from './WidgetLibrary';
 
 export default function DashboardCustomizer({ open, onClose, currentWidgets = [], onSave }) {
@@ -54,7 +54,9 @@ export default function DashboardCustomizer({ open, onClose, currentWidgets = []
             <div className="flex flex-wrap gap-2 mb-4">
               {selectedWidgets.map((widgetId) => {
                 const widget = Object.values(WIDGET_TYPES).find((w) => w.id === widgetId);
-                if (!widget) return null;
+                if (!widget) {
+                  return null;
+                }
                 return (
                   <Badge key={widgetId} variant="secondary" className="gap-1">
                     {widget.name}

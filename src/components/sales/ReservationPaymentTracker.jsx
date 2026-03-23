@@ -1,7 +1,6 @@
-import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { DollarSign, AlertCircle, CheckCircle } from 'lucide-react';
+import { AlertCircle } from 'lucide-react';
 
 export default function ReservationPaymentTracker({ reservations = [] }) {
   const withPayment = reservations.filter((r) => r.payment_status);

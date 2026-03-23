@@ -1,4 +1,3 @@
-import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Trash2, Download, X, CheckSquare } from 'lucide-react';
@@ -12,7 +11,9 @@ export default function BulkActions({
   onExport,
   isAllSelected,
 }) {
-  if (selectedCount === 0) return null;
+  if (selectedCount === 0) {
+    return null;
+  }
 
   return (
     <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 glass-card rounded-2xl shadow-xl px-4 py-3 flex items-center gap-4">

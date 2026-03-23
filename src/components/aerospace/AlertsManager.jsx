@@ -124,7 +124,9 @@ export default function AlertsManager({ initialFilters = null }) {
   };
 
   const addKeyword = () => {
-    if (!newKeyword.trim()) return;
+    if (!newKeyword.trim()) {
+      return;
+    }
     const keywords = alertForm.criteria.keywords || [];
     setAlertForm((prev) => ({
       ...prev,
@@ -397,7 +399,9 @@ export default function AlertsManager({ initialFilters = null }) {
                 <Label className="mb-2 block">Filter Criteria</Label>
                 <div className="text-xs space-y-1">
                   {Object.entries(alertForm.criteria).map(([key, value]) => {
-                    if (!value || (Array.isArray(value) && value.length === 0)) return null;
+                    if (!value || (Array.isArray(value) && value.length === 0)) {
+                      return null;
+                    }
                     return (
                       <div key={key} className="flex justify-between">
                         <span className="font-medium">{key.replace(/_/g, ' ')}:</span>

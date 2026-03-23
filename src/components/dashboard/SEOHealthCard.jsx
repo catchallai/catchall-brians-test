@@ -1,16 +1,18 @@
-import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Search, TrendingUp, TrendingDown, Link2, Globe, Target } from 'lucide-react';
+import { Search, TrendingUp, Target } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 
 export default function SEOHealthCard({ websites, keywords, backlinks }) {
   // Normalize SEO scores - handle both 0-1 and 0-100 formats
   const normalizeScore = (score) => {
-    if (!score) return 0;
+    if (!score) {
+      return 0;
+    }
     // If score is between 0-1, convert to 0-100
-    if (score > 0 && score <= 1) return Math.round(score * 100);
+    if (score > 0 && score <= 1) {
+      return Math.round(score * 100);
+    }
     return Math.round(score);
   };
 

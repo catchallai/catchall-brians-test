@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Plus, Search, Ticket, AlertCircle, Clock, CheckCircle2, Edit } from 'lucide-react';
+import { Plus, Search, Edit } from 'lucide-react';
 import ContactsSidebar from '@/components/crm/ContactsSidebar';
 import TicketModal from '@/components/modals/TicketModal';
 import { base44 } from '@/api/base44Client';
@@ -14,7 +14,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { format } from 'date-fns';
 import Pagination from '@/components/ui-custom/Pagination';
 
@@ -108,9 +108,15 @@ export default function TicketsModule() {
   };
 
   const getTabCount = (tab) => {
-    if (tab === 'all') return tickets.length;
-    if (tab === 'my_open_tickets') return tickets.filter((t) => t.status !== 'Closed').length;
-    if (tab === 'unassigned') return tickets.filter((t) => !t.owner_name).length;
+    if (tab === 'all') {
+      return tickets.length;
+    }
+    if (tab === 'my_open_tickets') {
+      return tickets.filter((t) => t.status !== 'Closed').length;
+    }
+    if (tab === 'unassigned') {
+      return tickets.filter((t) => !t.owner_name).length;
+    }
     return 0;
   };
 

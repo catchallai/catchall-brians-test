@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { Video, Link, Upload, Youtube, Globe } from 'lucide-react';
+import { Upload, Youtube, Globe } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 
 export default function MediaEmbedModal({ open, onClose, onEmbed }) {
@@ -20,7 +20,9 @@ export default function MediaEmbedModal({ open, onClose, onEmbed }) {
 
   const handleUpload = async (e) => {
     const file = e.target.files?.[0];
-    if (!file) return;
+    if (!file) {
+      return;
+    }
 
     setIsUploading(true);
     try {
@@ -36,7 +38,9 @@ export default function MediaEmbedModal({ open, onClose, onEmbed }) {
   };
 
   const handleEmbed = () => {
-    if (!url) return;
+    if (!url) {
+      return;
+    }
 
     let type = embedType;
     // Auto-detect YouTube

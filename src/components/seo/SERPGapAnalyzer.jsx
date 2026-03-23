@@ -1,23 +1,10 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
-import {
-  Search,
-  Loader2,
-  TrendingUp,
-  Target,
-  AlertTriangle,
-  CheckCircle,
-  XCircle,
-  ArrowRight,
-  Plus,
-  Sparkles,
-  Users,
-} from 'lucide-react';
+import { Search, Loader2, Target, Plus, Sparkles, Users } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 export default function SERPGapAnalyzer({ websites = [], onAddKeyword }) {
@@ -35,7 +22,9 @@ export default function SERPGapAnalyzer({ websites = [], onAddKeyword }) {
   };
 
   const findCompetitors = async () => {
-    if (!yourDomain) return;
+    if (!yourDomain) {
+      return;
+    }
     setFindingCompetitors(true);
 
     const result = await base44.integrations.Core.InvokeLLM({
@@ -83,7 +72,9 @@ export default function SERPGapAnalyzer({ websites = [], onAddKeyword }) {
   };
 
   const runAnalysis = async () => {
-    if (!yourDomain || !competitors.some((c) => c)) return;
+    if (!yourDomain || !competitors.some((c) => c)) {
+      return;
+    }
 
     setAnalyzing(true);
 
@@ -225,15 +216,25 @@ export default function SERPGapAnalyzer({ websites = [], onAddKeyword }) {
   };
 
   const formatNumber = (num) => {
-    if (!num) return '0';
-    if (num >= 1000000) return `${(num / 1000000).toFixed(1)}M`;
-    if (num >= 1000) return `${(num / 1000).toFixed(0)}K`;
+    if (!num) {
+      return '0';
+    }
+    if (num >= 1000000) {
+      return `${(num / 1000000).toFixed(1)}M`;
+    }
+    if (num >= 1000) {
+      return `${(num / 1000).toFixed(0)}K`;
+    }
     return num.toString();
   };
 
   const getDifficultyColor = (diff) => {
-    if (diff <= 30) return 'bg-emerald-100 text-emerald-700';
-    if (diff <= 60) return 'bg-amber-100 text-amber-700';
+    if (diff <= 30) {
+      return 'bg-emerald-100 text-emerald-700';
+    }
+    if (diff <= 60) {
+      return 'bg-amber-100 text-amber-700';
+    }
     return 'bg-red-100 text-red-700';
   };
 

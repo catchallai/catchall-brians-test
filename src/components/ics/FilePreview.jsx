@@ -1,19 +1,31 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Download, Play, File, FileText, FileImage, FileVideo } from 'lucide-react';
+import { Download, File, FileText, FileImage, FileVideo } from 'lucide-react';
 
 const getFileIcon = (type) => {
-  if (type.startsWith('image/')) return FileImage;
-  if (type.startsWith('video/')) return FileVideo;
-  if (type.includes('pdf') || type.includes('text')) return FileText;
+  if (type.startsWith('image/')) {
+    return FileImage;
+  }
+  if (type.startsWith('video/')) {
+    return FileVideo;
+  }
+  if (type.includes('pdf') || type.includes('text')) {
+    return FileText;
+  }
   return File;
 };
 
 const getFileCategory = (type) => {
-  if (type.startsWith('image/')) return 'image';
-  if (type.startsWith('video/')) return 'video';
-  if (type.startsWith('audio/')) return 'audio';
+  if (type.startsWith('image/')) {
+    return 'image';
+  }
+  if (type.startsWith('video/')) {
+    return 'video';
+  }
+  if (type.startsWith('audio/')) {
+    return 'audio';
+  }
   return 'file';
 };
 

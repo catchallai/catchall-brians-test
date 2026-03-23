@@ -1,8 +1,7 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Plus, Search, Filter, FileText, Pin, Edit, Trash2, Calendar, User } from 'lucide-react';
-import EmptyState from '@/components/ui/EmptyState';
+import { Plus, Search, Pin, Edit, Trash2, Calendar, User } from 'lucide-react';
 import ContactsSidebar from '@/components/crm/ContactsSidebar';
 import NoteModal from '@/components/modals/NoteModal';
 import { base44 } from '@/api/base44Client';
@@ -101,8 +100,12 @@ export default function NotesModule() {
 
   // Sort: pinned first, then by date
   const sortedNotes = [...filteredNotes].sort((a, b) => {
-    if (a.is_pinned && !b.is_pinned) return -1;
-    if (!a.is_pinned && b.is_pinned) return 1;
+    if (a.is_pinned && !b.is_pinned) {
+      return -1;
+    }
+    if (!a.is_pinned && b.is_pinned) {
+      return 1;
+    }
     return new Date(b.created_date) - new Date(a.created_date);
   });
 

@@ -1,4 +1,3 @@
-import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -12,7 +11,9 @@ export default function ContentVersionHistory({ articleId, open, onClose, onRest
   const { data: versions = [], isLoading } = useQuery({
     queryKey: ['content-versions', articleId],
     queryFn: async () => {
-      if (!articleId) return [];
+      if (!articleId) {
+        return [];
+      }
       return await base44.entities.ContentVersion.filter(
         { article_id: articleId },
         '-version_number'
@@ -24,7 +25,9 @@ export default function ContentVersionHistory({ articleId, open, onClose, onRest
   const { data: article } = useQuery({
     queryKey: ['article', articleId],
     queryFn: async () => {
-      if (!articleId) return null;
+      if (!articleId) {
+        return null;
+      }
       const articles = await base44.entities.GeneratedArticle.filter({ id: articleId });
       return articles[0];
     },

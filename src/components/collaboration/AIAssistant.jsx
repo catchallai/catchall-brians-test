@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -143,7 +143,9 @@ Provide:
   };
 
   const postSummaryToComments = () => {
-    if (!analysis) return;
+    if (!analysis) {
+      return;
+    }
 
     let summary = `📊 **AI Project Analysis**\n\n`;
     summary += `**Health Score:** ${analysis.health?.score}/100\n\n`;

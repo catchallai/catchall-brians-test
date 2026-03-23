@@ -1,4 +1,3 @@
-import React from 'react';
 import { Card } from '@/components/ui/card';
 import { FileText, ChevronRight } from 'lucide-react';
 import { Link } from 'react-router-dom';

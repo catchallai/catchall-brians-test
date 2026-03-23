@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { validateForm, sanitizeObject } from '@/components/utils/validation';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -195,7 +195,9 @@ export default function ContactModal({
   };
 
   const handleCreateTask = async () => {
-    if (!taskTitle.trim()) return;
+    if (!taskTitle.trim()) {
+      return;
+    }
     setCreatingTask(true);
     try {
       await base44.entities.Task.create({

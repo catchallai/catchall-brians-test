@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -14,7 +14,6 @@ import {
   Mail,
   Phone,
   ExternalLink,
-  Edit2,
   Trash2,
   Heart,
 } from 'lucide-react';
@@ -123,8 +122,9 @@ export default function ContractorManagement() {
       !scheduleData.project_name ||
       !scheduleData.start_date ||
       !scheduleData.end_date
-    )
+    ) {
       return;
+    }
 
     scheduleMutation.mutate({
       contractor_id: selectedContractor.id,

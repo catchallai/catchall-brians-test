@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import {
   ScatterChart,
   Scatter,
@@ -10,9 +10,7 @@ import {
   ZAxis,
   Legend,
   Cell,
-  ReferenceLine,
 } from 'recharts';
-import EnhancedTooltip from './EnhancedTooltip';
 
 const COLORS = ['#8b5cf6', '#06b6d4', '#f59e0b', '#10b981', '#ef4444', '#ec4899'];
 
@@ -40,7 +38,9 @@ export default function ScatterPlotChart({
 
   // Calculate trend line
   const calculateTrendLine = (points) => {
-    if (points.length < 2) return null;
+    if (points.length < 2) {
+      return null;
+    }
     const n = points.length;
     const sumX = points.reduce((a, p) => a + p[xKey], 0);
     const sumY = points.reduce((a, p) => a + p[yKey], 0);
@@ -60,7 +60,9 @@ export default function ScatterPlotChart({
   };
 
   const CustomTooltip = ({ active, payload }) => {
-    if (!active || !payload?.length) return null;
+    if (!active || !payload?.length) {
+      return null;
+    }
     const point = payload[0].payload;
 
     return (

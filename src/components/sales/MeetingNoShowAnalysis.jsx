@@ -1,4 +1,3 @@
-import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { AlertCircle } from 'lucide-react';
@@ -20,7 +19,9 @@ export default function MeetingNoShowAnalysis({ bookings = [] }) {
         patterns[attendee] = { total: 0, noShows: 0 };
       }
       patterns[attendee].total++;
-      if (b.status === 'no_show') patterns[attendee].noShows++;
+      if (b.status === 'no_show') {
+        patterns[attendee].noShows++;
+      }
     });
     return Object.entries(patterns)
       .map(([email, data]) => ({

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import {
@@ -8,8 +8,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Checkbox } from '@/components/ui/checkbox';
-import { CheckSquare, Trash2, UserPlus, Calendar } from 'lucide-react';
+import { CheckSquare, Trash2, UserPlus } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
@@ -41,7 +40,9 @@ export default function BulkTaskOperations({ tasks = [], selectedTasks = [], onS
     },
   });
 
-  if (selectedTasks.length === 0) return null;
+  if (selectedTasks.length === 0) {
+    return null;
+  }
 
   return (
     <Card className="glass-card border-violet-200 dark:border-violet-800">
@@ -76,7 +77,9 @@ export default function BulkTaskOperations({ tasks = [], selectedTasks = [], onS
             size="sm"
             onClick={() => {
               const assignee = prompt('Enter assignee email:');
-              if (assignee) bulkUpdateMutation.mutate({ assigned_to: assignee });
+              if (assignee) {
+                bulkUpdateMutation.mutate({ assigned_to: assignee });
+              }
             }}
           >
             <UserPlus className="w-4 h-4 mr-2" />

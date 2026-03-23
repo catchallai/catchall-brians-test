@@ -1,4 +1,3 @@
-import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -6,8 +5,6 @@ import { WIDGET_TYPES } from './WidgetLibrary';
 import {
   LineChart,
   Line,
-  BarChart,
-  Bar,
   PieChart,
   Pie,
   Cell,
@@ -15,7 +12,6 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
-  Legend,
   ResponsiveContainer,
 } from 'recharts';
 
@@ -24,7 +20,9 @@ const COLORS = ['#8b5cf6', '#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#ec4899'
 export default function WidgetRenderer({ widgetId, data, isLoading }) {
   const widget = Object.values(WIDGET_TYPES).find((w) => w.id === widgetId);
 
-  if (!widget) return null;
+  if (!widget) {
+    return null;
+  }
 
   const Icon = widget.icon;
 

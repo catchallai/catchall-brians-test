@@ -143,7 +143,9 @@ export function useWebRTC(roomId, user, participants) {
   }, []);
 
   const startRecording = useCallback(async () => {
-    if (!localStream) return null;
+    if (!localStream) {
+      return null;
+    }
 
     try {
       const recordedChunks = [];

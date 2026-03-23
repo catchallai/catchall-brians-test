@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Send, Plus, Paperclip, Image, Mic } from 'lucide-react';
+import { Send, Plus, Image, Mic } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import FileUploader from './FileUploader';
@@ -30,7 +30,9 @@ export default function MessageInput({ onSendMessage, onTyping, darkMode }) {
 
   const handleSend = (e) => {
     e.preventDefault();
-    if (!message.trim() && attachedFiles.length === 0) return;
+    if (!message.trim() && attachedFiles.length === 0) {
+      return;
+    }
 
     onSendMessage({
       content: message || (attachedFiles.length > 0 ? 'Shared files' : ''),

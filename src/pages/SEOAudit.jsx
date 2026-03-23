@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -51,7 +51,9 @@ export default function SEOAudit() {
   const { data: websites = [], isLoading: loadingWebsites } = useQuery({
     queryKey: ['websites', user?.current_business_id],
     queryFn: async () => {
-      if (!user?.current_business_id) return [];
+      if (!user?.current_business_id) {
+        return [];
+      }
       return await base44.entities.Website.filter(
         { business_id: user.current_business_id },
         '-created_date',
@@ -64,7 +66,9 @@ export default function SEOAudit() {
   const { data: audits = [], isLoading: loadingAudits } = useQuery({
     queryKey: ['seo-audits', user?.current_business_id],
     queryFn: async () => {
-      if (!user?.current_business_id) return [];
+      if (!user?.current_business_id) {
+        return [];
+      }
       return await base44.entities.SEOAudit.filter(
         { business_id: user.current_business_id },
         '-created_date',
@@ -77,7 +81,9 @@ export default function SEOAudit() {
   const { data: keywords = [] } = useQuery({
     queryKey: ['keywords-audit', user?.current_business_id],
     queryFn: async () => {
-      if (!user?.current_business_id) return [];
+      if (!user?.current_business_id) {
+        return [];
+      }
       return await base44.entities.Keyword.filter(
         { business_id: user.current_business_id },
         '-created_date',
@@ -90,7 +96,9 @@ export default function SEOAudit() {
   const { data: backlinks = [] } = useQuery({
     queryKey: ['backlinks-audit', user?.current_business_id],
     queryFn: async () => {
-      if (!user?.current_business_id) return [];
+      if (!user?.current_business_id) {
+        return [];
+      }
       return await base44.entities.Backlink.filter(
         { business_id: user.current_business_id },
         '-created_date',

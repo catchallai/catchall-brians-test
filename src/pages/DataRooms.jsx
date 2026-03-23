@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
@@ -15,15 +15,12 @@ import {
   Plus,
   Send,
   Eye,
-  Link2,
   Trash2,
   Edit,
   FileText,
-  Clock,
   Mail,
   Calendar,
   Copy,
-  ExternalLink,
 } from 'lucide-react';
 
 export default function DataRooms() {

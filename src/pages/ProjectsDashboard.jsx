@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -17,14 +17,7 @@ import {
   PieChart,
   Pie,
   Cell,
-  LineChart,
-  Line,
   Legend,
-  RadarChart,
-  PolarGrid,
-  PolarAngleAxis,
-  PolarRadiusAxis,
-  Radar,
 } from 'recharts';
 import {
   TrendingUp,
@@ -32,13 +25,10 @@ import {
   CheckCircle,
   Clock,
   DollarSign,
-  Users,
   Target,
-  Calendar,
   ArrowRight,
   Sparkles,
   Brain,
-  TrendingDown,
   Lightbulb,
 } from 'lucide-react';
 
@@ -47,7 +37,9 @@ const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
 // Calculate Project Health Score (0-100)
 const calculateHealthScore = (project, tasks) => {
   const projectTasks = tasks.filter((t) => t.project_id === project.id);
-  if (projectTasks.length === 0) return 50;
+  if (projectTasks.length === 0) {
+    return 50;
+  }
 
   let score = 100;
 
@@ -91,9 +83,15 @@ const calculateHealthScore = (project, tasks) => {
 };
 
 const getHealthColor = (score) => {
-  if (score >= 80) return { bg: 'bg-green-100', text: 'text-green-800', ring: 'ring-green-500' };
-  if (score >= 60) return { bg: 'bg-yellow-100', text: 'text-yellow-800', ring: 'ring-yellow-500' };
-  if (score >= 40) return { bg: 'bg-orange-100', text: 'text-orange-800', ring: 'ring-orange-500' };
+  if (score >= 80) {
+    return { bg: 'bg-green-100', text: 'text-green-800', ring: 'ring-green-500' };
+  }
+  if (score >= 60) {
+    return { bg: 'bg-yellow-100', text: 'text-yellow-800', ring: 'ring-yellow-500' };
+  }
+  if (score >= 40) {
+    return { bg: 'bg-orange-100', text: 'text-orange-800', ring: 'ring-orange-500' };
+  }
   return { bg: 'bg-red-100', text: 'text-red-800', ring: 'ring-red-500' };
 };
 
@@ -274,7 +272,9 @@ Keep insights concise, actionable, and data-driven.`,
     // At-risk projects (low completion rate or blocked tasks)
     const atRiskProjects = projects
       .filter((project) => {
-        if (project.status === 'completed') return false;
+        if (project.status === 'completed') {
+          return false;
+        }
         const projectTasks = tasks.filter((t) => t.project_id === project.id);
         const projectBlocked = projectTasks.filter((t) => t.status === 'blocked').length;
         const projectCompleted = projectTasks.filter((t) => t.status === 'done').length;

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
@@ -16,13 +16,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Bell, Trash2, CheckCircle2, Circle, Filter, Settings, Volume2, Moon } from 'lucide-react';
+import { Bell, Trash2, CheckCircle2, Circle, Moon } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
 import NotificationPreferences from './NotificationPreferences';
 
 const typeColors = {
@@ -48,7 +44,9 @@ export default function NotificationCenter({ user }) {
   // Check if in Do Not Disturb window
   useEffect(() => {
     const checkDND = async () => {
-      if (!user?.email) return;
+      if (!user?.email) {
+        return;
+      }
       try {
         const prefs = await base44.entities.NotificationPreference.filter({
           user_email: user.email,
@@ -75,7 +73,9 @@ export default function NotificationCenter({ user }) {
             endMin
           );
 
-          if (startDate > endDate) endDate.setDate(endDate.getDate() + 1);
+          if (startDate > endDate) {
+            endDate.setDate(endDate.getDate() + 1);
+          }
 
           setDndActive(now >= startDate && now <= endDate);
         }
@@ -92,9 +92,13 @@ export default function NotificationCenter({ user }) {
   const { data: notifications = [] } = useQuery({
     queryKey: ['notifications', user?.email, showRead],
     queryFn: async () => {
-      if (!user) return [];
+      if (!user) {
+        return [];
+      }
       const query = { user_email: user.email };
-      if (!showRead) query.is_read = false;
+      if (!showRead) {
+        query.is_read = false;
+      }
       return await base44.entities.Notification.filter(query, '-created_date', 50);
     },
     enabled: !!user && isOpen,

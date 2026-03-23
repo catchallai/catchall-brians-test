@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
@@ -13,7 +13,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Loader2, Sparkles, Send, Calendar } from 'lucide-react';
+import { Loader2, Sparkles, Send } from 'lucide-react';
 
 export default function ComposeOutreachModal({ open, onClose, journalist, journalists }) {
   const [selectedJournalist, setSelectedJournalist] = useState('');
@@ -40,7 +40,9 @@ export default function ComposeOutreachModal({ open, onClose, journalist, journa
 
   const generateEmail = async () => {
     const j = journalists.find((jr) => jr.id === selectedJournalist);
-    if (!j) return;
+    if (!j) {
+      return;
+    }
 
     setIsGenerating(true);
     try {

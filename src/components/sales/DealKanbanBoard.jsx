@@ -29,14 +29,22 @@ function DealCard({ deal, contact, onClick, onEdit }) {
   };
 
   const formatCurrency = (value) => {
-    if (!value) return '$0';
-    if (value >= 1000000) return `$${(value / 1000000).toFixed(1)}M`;
-    if (value >= 1000) return `$${(value / 1000).toFixed(0)}K`;
+    if (!value) {
+      return '$0';
+    }
+    if (value >= 1000000) {
+      return `$${(value / 1000000).toFixed(1)}M`;
+    }
+    if (value >= 1000) {
+      return `$${(value / 1000).toFixed(0)}K`;
+    }
     return `$${value.toLocaleString()}`;
   };
 
   const formatDate = (dateString) => {
-    if (!dateString) return null;
+    if (!dateString) {
+      return null;
+    }
     try {
       return format(new Date(dateString), 'MMM d');
     } catch {
@@ -151,9 +159,15 @@ export default function DealKanbanBoard({
   );
 
   const formatCurrency = (value) => {
-    if (!value) return '$0';
-    if (value >= 1000000) return `$${(value / 1000000).toFixed(1)}M`;
-    if (value >= 1000) return `$${(value / 1000).toFixed(0)}K`;
+    if (!value) {
+      return '$0';
+    }
+    if (value >= 1000000) {
+      return `$${(value / 1000000).toFixed(1)}M`;
+    }
+    if (value >= 1000) {
+      return `$${(value / 1000).toFixed(0)}K`;
+    }
     return `$${value.toLocaleString()}`;
   };
 

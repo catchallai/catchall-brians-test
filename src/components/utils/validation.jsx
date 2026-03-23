@@ -22,7 +22,9 @@ export const isValidPhone = (phone) => {
 
 // Sanitize HTML/script tags
 export const sanitizeInput = (input) => {
-  if (typeof input !== 'string') return input;
+  if (typeof input !== 'string') {
+    return input;
+  }
   return input
     .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
     .replace(/<[^>]*>/g, '')

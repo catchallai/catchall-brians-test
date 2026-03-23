@@ -1,11 +1,10 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   TrendingUp,
-  TrendingDown,
   Sparkles,
   Target,
   Link2,
@@ -142,8 +141,12 @@ Be specific and data-driven in your predictions.`,
   };
 
   const getDirectionIcon = (direction) => {
-    if (direction === 'up') return <ArrowUp className="w-4 h-4 text-emerald-500" />;
-    if (direction === 'down') return <ArrowDown className="w-4 h-4 text-red-500" />;
+    if (direction === 'up') {
+      return <ArrowUp className="w-4 h-4 text-emerald-500" />;
+    }
+    if (direction === 'down') {
+      return <ArrowDown className="w-4 h-4 text-red-500" />;
+    }
     return <Minus className="w-4 h-4 text-gray-400" />;
   };
 

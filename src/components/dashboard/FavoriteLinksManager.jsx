@@ -1,10 +1,9 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import {
   Select,
@@ -32,14 +31,11 @@ import {
   Zap,
   Globe,
   Share2,
-  HelpCircle,
   Radio,
   MapPin,
-  Newspaper,
   FileText,
   BarChart3,
   PenTool,
-  Activity,
   TrendingUp,
   Smartphone,
   Settings,
@@ -86,7 +82,9 @@ export default function FavoriteLinksManager({ favorites = [], onUpdate }) {
 
   const addFavorite = () => {
     const pageInfo = AVAILABLE_PAGES.find((p) => p.page === selectedPage);
-    if (!pageInfo) return;
+    if (!pageInfo) {
+      return;
+    }
 
     const newFavorite = {
       page: pageInfo.page,

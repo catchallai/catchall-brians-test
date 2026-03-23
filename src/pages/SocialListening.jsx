@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -26,12 +26,10 @@ import {
   Radio,
   Filter,
   Bell,
-  Users,
   Globe,
   Sparkles,
   MessagesSquare,
   Brain,
-  Settings2,
 } from 'lucide-react';
 import ListeningKeywordCard from '@/components/social/ListeningKeywordCard';
 import ListeningMentionCard from '@/components/social/ListeningMentionCard';
@@ -520,7 +518,9 @@ For each anomaly found, provide:
     if (aiAnalysis.anomalies?.length > 0) {
       for (const anomaly of aiAnalysis.anomalies) {
         // Skip if below threshold
-        if (anomaly.impact_score < thresholds.impact && anomaly.severity === 'low') continue;
+        if (anomaly.impact_score < thresholds.impact && anomaly.severity === 'low') {
+          continue;
+        }
 
         const relatedMention =
           anomaly.related_mention_index !== undefined &&
@@ -680,9 +680,15 @@ Prioritize finding older historical discussions from 2009-2015 as well as recent
 
   // Filter mentions
   const filteredMentions = mentions.filter((m) => {
-    if (selectedKeyword && m.listening_id !== selectedKeyword.id) return false;
-    if (platformFilter !== 'all' && m.platform !== platformFilter) return false;
-    if (sentimentFilter !== 'all' && m.sentiment !== sentimentFilter) return false;
+    if (selectedKeyword && m.listening_id !== selectedKeyword.id) {
+      return false;
+    }
+    if (platformFilter !== 'all' && m.platform !== platformFilter) {
+      return false;
+    }
+    if (sentimentFilter !== 'all' && m.sentiment !== sentimentFilter) {
+      return false;
+    }
     return true;
   });
 
@@ -1017,7 +1023,9 @@ Prioritize finding older historical discussions from 2009-2015 as well as recent
             onDismiss={(id) => dismissAlertMutation.mutate(id)}
             onViewMention={(mentionId) => {
               const mention = mentions.find((m) => m.id === mentionId);
-              if (mention) setSelectedMention(mention);
+              if (mention) {
+                setSelectedMention(mention);
+              }
             }}
           />
         </TabsContent>

@@ -1,4 +1,3 @@
-import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -29,8 +28,12 @@ export default function PerformanceMonitor({ performances = [] }) {
   const avgCLS = performances.reduce((sum, p) => sum + (p.cls || 0), 0) / performances.length;
 
   const getScoreColor = (score) => {
-    if (score >= 75) return 'text-emerald-600 bg-emerald-100';
-    if (score >= 50) return 'text-yellow-600 bg-yellow-100';
+    if (score >= 75) {
+      return 'text-emerald-600 bg-emerald-100';
+    }
+    if (score >= 50) {
+      return 'text-yellow-600 bg-yellow-100';
+    }
     return 'text-red-600 bg-red-100';
   };
 

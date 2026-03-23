@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -9,10 +9,14 @@ export default function CampaignPreview({ open, onClose, template, sampleContact
   const [showHtml, setShowHtml] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  if (!template) return null;
+  if (!template) {
+    return null;
+  }
 
   const renderWithVariables = (text, contact) => {
-    if (!text) return '';
+    if (!text) {
+      return '';
+    }
     let result = text;
 
     const variables = {

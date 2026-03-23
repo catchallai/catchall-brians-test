@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { createPageUrl } from '@/utils';
 import { BarChart2, CalendarDays, Search, Users, Mail, Zap } from 'lucide-react';

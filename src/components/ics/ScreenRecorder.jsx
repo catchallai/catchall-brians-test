@@ -54,7 +54,9 @@ export class ScreenRecorder {
   }
 
   stopRecording() {
-    if (!this.mediaRecorder || this.mediaRecorder.state === 'inactive') return null;
+    if (!this.mediaRecorder || this.mediaRecorder.state === 'inactive') {
+      return null;
+    }
 
     this.mediaRecorder.stop();
     this.isRecording = false;

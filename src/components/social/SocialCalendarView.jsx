@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -69,15 +69,23 @@ const statusBadges = {
 const HOURS = Array.from({ length: 24 }, (_, i) => i);
 
 function formatHour(h) {
-  if (h === 0) return '12 AM';
-  if (h === 12) return '12 PM';
+  if (h === 0) {
+    return '12 AM';
+  }
+  if (h === 12) {
+    return '12 PM';
+  }
   return h < 12 ? `${h} AM` : `${h - 12} PM`;
 }
 
 function getPostHour(post) {
-  if (!post.scheduled_time) return null;
+  if (!post.scheduled_time) {
+    return null;
+  }
   const match = post.scheduled_time.match(/^(\d{1,2}):(\d{2})/);
-  if (match) return parseInt(match[1]);
+  if (match) {
+    return parseInt(match[1]);
+  }
   return null;
 }
 
@@ -111,7 +119,9 @@ function DayView({
     if (scrollRef.current && isToday) {
       const targetHour = Math.max(nowHour - 1, 0);
       const hourEl = scrollRef.current.querySelector(`[data-hour="${targetHour}"]`);
-      if (hourEl) hourEl.scrollIntoView({ block: 'start', behavior: 'smooth' });
+      if (hourEl) {
+        hourEl.scrollIntoView({ block: 'start', behavior: 'smooth' });
+      }
     }
   }, [isToday, day]);
 
@@ -121,7 +131,9 @@ function DayView({
   posts.forEach((post) => {
     const h = getPostHour(post);
     if (h !== null) {
-      if (!postsByHour[h]) postsByHour[h] = [];
+      if (!postsByHour[h]) {
+        postsByHour[h] = [];
+      }
       postsByHour[h].push(post);
     } else {
       untimedPosts.push(post);
@@ -224,7 +236,9 @@ function DayView({
       {/* Hourly rows */}
       {HOURS.map((hour) => {
         // #6 Skip overnight hours if collapsed
-        if (!showOvernight && OVERNIGHT_HOURS.includes(hour)) return null;
+        if (!showOvernight && OVERNIGHT_HOURS.includes(hour)) {
+          return null;
+        }
 
         const hourPosts = postsByHour[hour] || [];
         const isCurrentHour = isToday && hour === nowHour;
@@ -309,7 +323,9 @@ function DayView({
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
-                            if (confirm('Delete this post?')) deletePostMutation.mutate(post.id);
+                            if (confirm('Delete this post?')) {
+                              deletePostMutation.mutate(post.id);
+                            }
                           }}
                           className="opacity-0 group-hover/post:opacity-100 transition-opacity p-0.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded"
                         >
@@ -377,7 +393,9 @@ function WeekView({
     if (scrollRef.current) {
       const targetHour = Math.max(nowHour - 1, 0);
       const hourEl = scrollRef.current.querySelector(`[data-week-hour="${targetHour}"]`);
-      if (hourEl) hourEl.scrollIntoView({ block: 'start', behavior: 'smooth' });
+      if (hourEl) {
+        hourEl.scrollIntoView({ block: 'start', behavior: 'smooth' });
+      }
     }
   }, []);
 
@@ -492,7 +510,9 @@ function WeekView({
 
       {/* Hourly grid */}
       {HOURS.map((hour) => {
-        if (!showOvernight && OVERNIGHT_HOURS.includes(hour)) return null;
+        if (!showOvernight && OVERNIGHT_HOURS.includes(hour)) {
+          return null;
+        }
         const isCurrentHour = hour === nowHour;
 
         return (
@@ -635,15 +655,25 @@ export default function SocialCalendarView({
   useEffect(() => {
     const handler = (e) => {
       const tag = e.target.tagName;
-      if (['INPUT', 'TEXTAREA', 'SELECT'].includes(tag) || e.target.isContentEditable) return;
+      if (['INPUT', 'TEXTAREA', 'SELECT'].includes(tag) || e.target.isContentEditable) {
+        return;
+      }
       if (e.key === 'ArrowLeft') {
-        if (viewType === 'day') onMonthChange(addDays(currentMonth, -1));
-        else if (viewType === 'week') onMonthChange(addDays(currentMonth, -7));
-        else onMonthChange(subMonths(currentMonth, 1));
+        if (viewType === 'day') {
+          onMonthChange(addDays(currentMonth, -1));
+        } else if (viewType === 'week') {
+          onMonthChange(addDays(currentMonth, -7));
+        } else {
+          onMonthChange(subMonths(currentMonth, 1));
+        }
       } else if (e.key === 'ArrowRight') {
-        if (viewType === 'day') onMonthChange(addDays(currentMonth, 1));
-        else if (viewType === 'week') onMonthChange(addDays(currentMonth, 7));
-        else onMonthChange(addMonths(currentMonth, 1));
+        if (viewType === 'day') {
+          onMonthChange(addDays(currentMonth, 1));
+        } else if (viewType === 'week') {
+          onMonthChange(addDays(currentMonth, 7));
+        } else {
+          onMonthChange(addMonths(currentMonth, 1));
+        }
       } else if (e.key === 't' || e.key === 'T') {
         onMonthChange(new Date());
       } else if (e.key === 'd' || e.key === 'D') {
@@ -688,7 +718,9 @@ export default function SocialCalendarView({
 
   const getPostsForDay = (day) => {
     return posts.filter((post) => {
-      if (!post.scheduled_date) return false;
+      if (!post.scheduled_date) {
+        return false;
+      }
       return isSameDay(new Date(post.scheduled_date), day);
     });
   };
@@ -897,8 +929,9 @@ export default function SocialCalendarView({
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
-                                if (confirm('Delete this post?'))
+                                if (confirm('Delete this post?')) {
                                   deletePostMutation.mutate(post.id);
+                                }
                               }}
                               className="opacity-0 group-hover/post:opacity-100 transition-opacity p-0.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded"
                             >

@@ -1,7 +1,5 @@
-import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { TrendingUp, TrendingDown } from 'lucide-react';
 
 export default function WinLossAnalysis({ deals = [] }) {
   const closedDeals = deals.filter((d) => ['closed_won', 'closed_lost'].includes(d.stage));

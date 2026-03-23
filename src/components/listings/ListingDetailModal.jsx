@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -8,7 +8,6 @@ import {
   MapPin,
   Phone,
   Star,
-  Globe,
   Clock,
   CheckCircle,
   AlertTriangle,
@@ -17,8 +16,6 @@ import {
   Send,
   Loader2,
   Building2,
-  Image,
-  MessageSquare,
   FileText,
 } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
@@ -51,7 +48,9 @@ export default function ListingDetailModal({ open, onClose, listing, onUpdate })
   const [fixNotes, setFixNotes] = useState('');
   const [submitSuccess, setSubmitSuccess] = useState(false);
 
-  if (!listing) return null;
+  if (!listing) {
+    return null;
+  }
 
   const status = statusConfig[listing.status] || statusConfig.pending;
   const StatusIcon = status.icon;

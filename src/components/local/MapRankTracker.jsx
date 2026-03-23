@@ -1,9 +1,8 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import {
   Select,
@@ -12,17 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import {
-  Grid3X3,
-  MapPin,
-  Target,
-  TrendingUp,
-  Plus,
-  RefreshCw,
-  Loader2,
-  CheckCircle,
-  AlertCircle,
-} from 'lucide-react';
+import { Grid3X3, MapPin, Target, RefreshCw, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
 
 export default function MapRankTracker({ rankings, profiles }) {
@@ -82,8 +71,12 @@ Calculate average rank and percentage in top 3.`,
   const getProfile = (id) => profiles.find((p) => p.id === id);
 
   const getRankColor = (rank) => {
-    if (rank <= 3) return 'bg-emerald-500 text-white';
-    if (rank <= 10) return 'bg-amber-500 text-white';
+    if (rank <= 3) {
+      return 'bg-emerald-500 text-white';
+    }
+    if (rank <= 10) {
+      return 'bg-amber-500 text-white';
+    }
     return 'bg-red-500 text-white';
   };
 

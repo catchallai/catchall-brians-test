@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -15,8 +15,8 @@ import {
 } from '@/components/ui/select';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Clock, Zap, ArrowRight, Trash, Plus, Calendar as CalendarIcon } from 'lucide-react';
-import { format, addHours, addDays } from 'date-fns';
+import { Clock, Zap, ArrowRight, Trash, Plus } from 'lucide-react';
+import { format, addDays } from 'date-fns';
 
 export default function PostQueueManager() {
   const [showModal, setShowModal] = useState(false);
@@ -196,7 +196,9 @@ export default function PostQueueManager() {
                         size="sm"
                         variant="ghost"
                         onClick={() => {
-                          if (confirm('Remove from queue?')) deleteMutation.mutate(item.id);
+                          if (confirm('Remove from queue?')) {
+                            deleteMutation.mutate(item.id);
+                          }
                         }}
                         className="text-red-500 hover:text-red-700"
                       >
@@ -214,7 +216,9 @@ export default function PostQueueManager() {
           open={showModal}
           onOpenChange={(open) => {
             setShowModal(open);
-            if (!open) resetForm();
+            if (!open) {
+              resetForm();
+            }
           }}
         >
           <DialogContent className="max-w-2xl">

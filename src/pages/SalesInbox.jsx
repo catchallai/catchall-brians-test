@@ -1,26 +1,21 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Mail,
   Search,
   Flag,
   Reply,
-  CheckCircle,
   Circle,
-  User,
-  Clock,
   Paperclip,
   Star,
   Archive,
-  Trash2,
   ListTodo,
   MoreVertical,
 } from 'lucide-react';
@@ -127,7 +122,9 @@ export default function SalesInbox() {
   };
 
   const handleSendReply = () => {
-    if (!replyContent.trim()) return;
+    if (!replyContent.trim()) {
+      return;
+    }
     sendReplyMutation.mutate({
       emailId: selectedEmail.id,
       content: replyContent,

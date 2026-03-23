@@ -1,31 +1,20 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { base44 } from '@/api/base44Client';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Progress } from '@/components/ui/progress';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
-  MapPin,
   Star,
   Building2,
-  Phone,
-  Clock,
-  Image,
-  FileText,
   TrendingUp,
   AlertCircle,
   CheckCircle,
   Plus,
   RefreshCw,
-  Sparkles,
-  Grid3X3,
   MessageSquare,
-  ThumbsUp,
-  ThumbsDown,
-  Send,
   Eye,
 } from 'lucide-react';
 import GBPOptimizationCard from '@/components/local/GBPOptimizationCard';

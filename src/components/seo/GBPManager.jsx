@@ -1,25 +1,15 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Progress } from '@/components/ui/progress';
 import {
   MapPin,
   Star,
-  MessageSquare,
-  Image,
-  Clock,
-  Phone,
-  Globe,
   Loader2,
   CheckCircle,
-  AlertTriangle,
-  TrendingUp,
-  Calendar,
   ThumbsUp,
   ThumbsDown,
   RefreshCw,
@@ -167,8 +157,12 @@ export default function GBPManager({ listing, onUpdate }) {
   };
 
   const getScoreColor = (score) => {
-    if (score >= 80) return 'text-emerald-600';
-    if (score >= 60) return 'text-amber-600';
+    if (score >= 80) {
+      return 'text-emerald-600';
+    }
+    if (score >= 60) {
+      return 'text-amber-600';
+    }
     return 'text-red-600';
   };
 

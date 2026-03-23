@@ -13,7 +13,9 @@ export function usePresence(user) {
   // Initialize and update user's presence
   const updatePresence = useCallback(
     async (status = 'online', inCall = false, callId = null, customStatus = null) => {
-      if (!user?.email) return;
+      if (!user?.email) {
+        return;
+      }
 
       try {
         // Check if presence record exists
@@ -74,7 +76,7 @@ export function usePresence(user) {
       presenceRecords.forEach((record) => {
         // Check if status or DND has expired
         const now = new Date();
-        let activeStatus = record.status;
+        const activeStatus = record.status;
         let customStatus = record.custom_status;
         let statusEmoji = record.status_emoji;
         let dndEnabled = record.dnd_enabled;
@@ -109,7 +111,9 @@ export function usePresence(user) {
 
   // Initialize presence on mount
   useEffect(() => {
-    if (!user?.email) return;
+    if (!user?.email) {
+      return;
+    }
 
     const initialize = async () => {
       setIsLoading(true);
@@ -164,7 +168,9 @@ export function usePresence(user) {
 
   // Subscribe to presence changes
   useEffect(() => {
-    if (!user?.email) return;
+    if (!user?.email) {
+      return;
+    }
 
     const unsubscribe = base44.entities.Presence.subscribe((event) => {
       if (event.type === 'create' || event.type === 'update') {

@@ -1,4 +1,3 @@
-import React from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import {
@@ -18,7 +17,9 @@ export default function ApprovalMetricsTab({ posts, currentUser, statusLabels })
   const approverStats = {};
   posts.forEach((post) => {
     (post.workflow_history || []).forEach((entry) => {
-      if (!entry.by_email) return;
+      if (!entry.by_email) {
+        return;
+      }
       if (!approverStats[entry.by_email]) {
         approverStats[entry.by_email] = {
           name: entry.by_name || entry.by_email,
@@ -28,10 +29,15 @@ export default function ApprovalMetricsTab({ posts, currentUser, statusLabels })
           reviews: 0,
         };
       }
-      if (entry.action === 'approved') approverStats[entry.by_email].approvals++;
-      if (entry.action === 'rejected') approverStats[entry.by_email].rejections++;
-      if (entry.action === 'submitted_for_review' || entry.action === 'submitted_for_approval')
+      if (entry.action === 'approved') {
+        approverStats[entry.by_email].approvals++;
+      }
+      if (entry.action === 'rejected') {
+        approverStats[entry.by_email].rejections++;
+      }
+      if (entry.action === 'submitted_for_review' || entry.action === 'submitted_for_approval') {
         approverStats[entry.by_email].reviews++;
+      }
     });
   });
   const approvers = Object.values(approverStats).sort(
@@ -45,7 +51,9 @@ export default function ApprovalMetricsTab({ posts, currentUser, statusLabels })
       const submitEvent = (p.workflow_history || []).find(
         (e) => e.action === 'submitted_for_review'
       );
-      if (!submitEvent) return null;
+      if (!submitEvent) {
+        return null;
+      }
       return differenceInHours(parseISO(p.approved_date), parseISO(submitEvent.timestamp));
     })
     .filter(Boolean);
@@ -60,8 +68,9 @@ export default function ApprovalMetricsTab({ posts, currentUser, statusLabels })
     ['pending_review', 'pending_approval', 'changes_requested'].includes(p.status)
   ).length;
   const overdueCount = posts.filter((p) => {
-    if (!p.review_due_date || ['approved', 'published', 'rejected'].includes(p.status))
+    if (!p.review_due_date || ['approved', 'published', 'rejected'].includes(p.status)) {
       return false;
+    }
     return new Date(p.review_due_date) < new Date();
   }).length;
 

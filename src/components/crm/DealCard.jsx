@@ -1,6 +1,4 @@
-import React from 'react';
 import { Card } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Calendar, DollarSign, Percent } from 'lucide-react';
 import { format } from 'date-fns';
 

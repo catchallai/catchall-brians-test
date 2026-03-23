@@ -20,7 +20,9 @@ export function useDebouncedCallback(callback, delay = 300) {
   const [timer, setTimer] = useState(null);
 
   const debouncedCallback = (...args) => {
-    if (timer) clearTimeout(timer);
+    if (timer) {
+      clearTimeout(timer);
+    }
 
     setTimer(
       setTimeout(() => {

@@ -1,10 +1,10 @@
-import React, { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { Send, AtSign, Smile, Loader2, MessageSquare, Reply } from 'lucide-react';
+import { Send, AtSign, Loader2, MessageSquare, Reply } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 
 // Simple @mention detection: finds @word patterns
@@ -14,12 +14,15 @@ function parseMentions(text) {
   let lastIdx = 0;
   let match;
   while ((match = regex.exec(text)) !== null) {
-    if (match.index > lastIdx)
+    if (match.index > lastIdx) {
       parts.push({ type: 'text', value: text.slice(lastIdx, match.index) });
+    }
     parts.push({ type: 'mention', value: match[0] });
     lastIdx = match.index + match[0].length;
   }
-  if (lastIdx < text.length) parts.push({ type: 'text', value: text.slice(lastIdx) });
+  if (lastIdx < text.length) {
+    parts.push({ type: 'text', value: text.slice(lastIdx) });
+  }
   return parts;
 }
 
@@ -152,7 +155,9 @@ export default function PostCommentThread({ post, currentUser }) {
     .slice(0, 5);
 
   const handleSubmit = () => {
-    if (!text.trim()) return;
+    if (!text.trim()) {
+      return;
+    }
     mutation.mutate({
       action: 'comment',
       by_email: currentUser?.email,

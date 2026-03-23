@@ -7,7 +7,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Select,
   SelectContent,
@@ -18,7 +17,6 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import {
-  Plus,
   Search,
   Upload,
   Image,
@@ -41,7 +39,6 @@ import EmptyState from '@/components/ui/EmptyState';
 import { useToast } from '@/components/ui/toast-provider';
 import BulkAssetActions from '@/components/assets/BulkAssetActions';
 import FolderManager from '@/components/assets/FolderManager';
-import ImageOptimizer from '@/components/assets/ImageOptimizer';
 
 const FILE_TYPES = [
   { id: 'logo', label: 'Logos', icon: Star },
@@ -107,7 +104,9 @@ export default function MediaLibrary() {
 
   const handleFileUpload = async (e) => {
     const file = e.target.files?.[0];
-    if (!file) return;
+    if (!file) {
+      return;
+    }
 
     // File size validation
     if (file.size > MAX_FILE_SIZE) {
@@ -148,8 +147,12 @@ export default function MediaLibrary() {
   };
 
   const formatFileSize = (bytes) => {
-    if (bytes < 1024) return bytes + ' B';
-    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+    if (bytes < 1024) {
+      return bytes + ' B';
+    }
+    if (bytes < 1024 * 1024) {
+      return (bytes / 1024).toFixed(1) + ' KB';
+    }
     return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
   };
 
@@ -165,7 +168,9 @@ export default function MediaLibrary() {
   };
 
   const handleSave = async () => {
-    if (!newAsset.file_url || !newAsset.name) return;
+    if (!newAsset.file_url || !newAsset.name) {
+      return;
+    }
 
     const asset = await createMutation.mutateAsync(newAsset);
 

@@ -10,7 +10,9 @@ export default function RelatedPagesPanel({ currentPage }) {
   const { data: allPages = [] } = useQuery({
     queryKey: ['space-pages', currentPage?.space_id],
     queryFn: async () => {
-      if (!currentPage) return [];
+      if (!currentPage) {
+        return [];
+      }
       const pages = await base44.entities.WikiPage.list();
       return pages.filter((p) => p.space_id === currentPage.space_id && p.id !== currentPage.id);
     },
@@ -19,7 +21,9 @@ export default function RelatedPagesPanel({ currentPage }) {
 
   // Find related pages based on tags, content similarity, and links
   const relatedPages = React.useMemo(() => {
-    if (!currentPage || !allPages.length) return [];
+    if (!currentPage || !allPages.length) {
+      return [];
+    }
 
     const scored = allPages.map((page) => {
       let score = 0;
@@ -61,7 +65,9 @@ export default function RelatedPagesPanel({ currentPage }) {
       .map((item) => item.page);
   }, [currentPage, allPages]);
 
-  if (!currentPage || relatedPages.length === 0) return null;
+  if (!currentPage || relatedPages.length === 0) {
+    return null;
+  }
 
   return (
     <Card>

@@ -1,8 +1,8 @@
-import React, { useState, useMemo } from 'react';
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { AlertTriangle, Loader2, Sparkles, FileWarning, ExternalLink } from 'lucide-react';
+import { Loader2, Sparkles, FileWarning } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 
 export default function KeywordCannibalizationCard({ keywords, websites }) {

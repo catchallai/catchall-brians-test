@@ -1,4 +1,3 @@
-import React from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -10,14 +9,12 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
-  Legend,
   ResponsiveContainer,
   PieChart,
   Pie,
   Cell,
 } from 'recharts';
 import FeedbackReviewPanel from '@/components/feedback/FeedbackReviewPanel';
-import FeedbackForm from '@/components/feedback/FeedbackForm';
 
 export default function FeedbackManagement() {
   const { data: feedback = [] } = useQuery({

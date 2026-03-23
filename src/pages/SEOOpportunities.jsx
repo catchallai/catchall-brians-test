@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, Target, Zap, TrendingUp } from 'lucide-react';
+import { Loader2, Target, Zap } from 'lucide-react';
 
 export default function SEOOpportunities() {
   const [selectedWebsite, setSelectedWebsite] = useState(null);

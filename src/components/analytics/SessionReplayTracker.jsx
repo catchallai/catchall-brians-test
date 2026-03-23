@@ -3,8 +3,8 @@ import { base44 } from '@/api/base44Client';
 
 export default function SessionReplayTracker() {
   useEffect(() => {
-    let sessionId = Math.random().toString(36).substring(2) + Date.now().toString(36);
-    let sessionStart = Date.now();
+    const sessionId = Math.random().toString(36).substring(2) + Date.now().toString(36);
+    const sessionStart = Date.now();
     let events = [];
 
     function captureEvent(eventType, data = {}) {
@@ -19,11 +19,15 @@ export default function SessionReplayTracker() {
         ...data,
       });
 
-      if (events.length >= 10) sendBatch();
+      if (events.length >= 10) {
+        sendBatch();
+      }
     }
 
     function sendBatch() {
-      if (events.length === 0) return;
+      if (events.length === 0) {
+        return;
+      }
 
       base44.functions.invoke('trackSession', { events: [...events] }).catch(console.error);
 

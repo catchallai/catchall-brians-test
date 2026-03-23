@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -73,7 +73,9 @@ export default function ReportComments({ report }) {
   });
 
   const handleAddComment = () => {
-    if (!commentText.trim()) return;
+    if (!commentText.trim()) {
+      return;
+    }
 
     addCommentMutation.mutate({
       report_id: report.id,

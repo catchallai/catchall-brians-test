@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -36,7 +36,9 @@ export default function ContactDeduplicationTool({ contacts, onDeduped }) {
   }, [contacts, searchTerm]);
 
   const handleMerge = async () => {
-    if (!mergeCandidate || !mergeTarget) return;
+    if (!mergeCandidate || !mergeTarget) {
+      return;
+    }
     setMerging(true);
 
     try {

@@ -1,19 +1,9 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import {
-  Sparkles,
-  Mail,
-  Phone,
-  CheckCircle,
-  Calendar,
-  Clock,
-  AlertTriangle,
-  Loader2,
-  Send,
-} from 'lucide-react';
-import { format, isPast, isToday, isTomorrow, addDays } from 'date-fns';
+import { Sparkles, Mail, Phone, CheckCircle, Calendar, Clock, Loader2, Send } from 'lucide-react';
+import { format, isPast, isToday, isTomorrow } from 'date-fns';
 
 const followUpTypeIcons = {
   email: Mail,
@@ -52,11 +42,19 @@ export default function FollowUpPanel({
   };
 
   const getTimeLabel = (date) => {
-    if (!date) return '';
+    if (!date) {
+      return '';
+    }
     const d = new Date(date);
-    if (isPast(d) && !isToday(d)) return 'Overdue';
-    if (isToday(d)) return 'Today';
-    if (isTomorrow(d)) return 'Tomorrow';
+    if (isPast(d) && !isToday(d)) {
+      return 'Overdue';
+    }
+    if (isToday(d)) {
+      return 'Today';
+    }
+    if (isTomorrow(d)) {
+      return 'Tomorrow';
+    }
     return format(d, 'MMM d');
   };
 

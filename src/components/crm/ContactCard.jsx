@@ -1,8 +1,7 @@
-import React from 'react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Building2, Mail, Phone, MapPin, Globe, Briefcase } from 'lucide-react';
+import { Mail, Phone, MapPin, Globe } from 'lucide-react';
 
 export default function ContactCard({ contact, company, onClick, isSelected }) {
   const statusColors = {

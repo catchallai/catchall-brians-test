@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -7,9 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
 import { Skeleton } from '@/components/ui/skeleton';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import {
   Search,
   Globe,
@@ -21,12 +19,7 @@ import {
   AlertTriangle,
   XCircle,
   Loader2,
-  RefreshCw,
-  ExternalLink,
   Code,
-  Image,
-  Link2,
-  Clock,
   Target,
   Sparkles,
 } from 'lucide-react';
@@ -159,24 +152,33 @@ export default function SEOTools() {
       for (const check of analysis.checks || []) {
         // Normalize check_type
         let checkType = (check.check_type || '').toLowerCase().replace(/[\s-]/g, '_');
-        if (checkType.includes('technical')) checkType = 'technical';
-        else if (checkType.includes('on') && checkType.includes('page')) checkType = 'on_page';
-        else if (checkType.includes('performance') || checkType.includes('speed'))
+        if (checkType.includes('technical')) {
+          checkType = 'technical';
+        } else if (checkType.includes('on') && checkType.includes('page')) {
+          checkType = 'on_page';
+        } else if (checkType.includes('performance') || checkType.includes('speed')) {
           checkType = 'performance';
-        else if (checkType.includes('mobile')) checkType = 'mobile';
-        else if (checkType.includes('security') || checkType.includes('https'))
+        } else if (checkType.includes('mobile')) {
+          checkType = 'mobile';
+        } else if (checkType.includes('security') || checkType.includes('https')) {
           checkType = 'security';
-        else if (checkType.includes('content')) checkType = 'content';
-        else if (!validTypes.includes(checkType)) checkType = 'technical';
+        } else if (checkType.includes('content')) {
+          checkType = 'content';
+        } else if (!validTypes.includes(checkType)) {
+          checkType = 'technical';
+        }
 
         // Normalize status
         let status = (check.status || '').toLowerCase();
-        if (status.includes('pass') || status.includes('good') || status.includes('ok'))
+        if (status.includes('pass') || status.includes('good') || status.includes('ok')) {
           status = 'pass';
-        else if (status.includes('warn')) status = 'warning';
-        else if (status.includes('fail') || status.includes('error') || status.includes('bad'))
+        } else if (status.includes('warn')) {
+          status = 'warning';
+        } else if (status.includes('fail') || status.includes('error') || status.includes('bad')) {
           status = 'fail';
-        else if (!validStatuses.includes(status)) status = 'warning';
+        } else if (!validStatuses.includes(status)) {
+          status = 'warning';
+        }
 
         await base44.entities.SEOCheck.create({
           website_id: website.id,
@@ -232,7 +234,9 @@ export default function SEOTools() {
   const addKeywordMutation = useMutation({
     mutationFn: async (keywordData) => {
       const website = websites[0];
-      if (!website) return;
+      if (!website) {
+        return;
+      }
 
       await base44.entities.Keyword.create({
         keyword: keywordData.keyword,
@@ -339,7 +343,9 @@ export default function SEOTools() {
                       {(() => {
                         const score = currentWebsite?.seo_score || 0;
                         // If score is between 0-1, convert to 0-100
-                        if (score > 0 && score <= 1) return Math.round(score * 100);
+                        if (score > 0 && score <= 1) {
+                          return Math.round(score * 100);
+                        }
                         // If score is already 0-100, use as is
                         return Math.round(score);
                       })()}

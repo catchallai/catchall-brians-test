@@ -1,12 +1,10 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Select,
   SelectContent,
@@ -15,7 +13,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
-import { FileBarChart, Plus, Search, Share2, Filter, Sparkles, BarChart3 } from 'lucide-react';
+import { Search, Share2, Sparkles } from 'lucide-react';
 import ReportTemplates, { REPORT_TEMPLATES } from '@/components/reports/ReportTemplates';
 import ReportList from '@/components/reports/ReportList';
 import ReportCustomizer from '@/components/reports/ReportCustomizer';
@@ -25,7 +23,6 @@ import ShareReportModal from '@/components/reports/ShareReportModal';
 
 import DesignIssuesReportModal from '@/components/reports/DesignIssuesReportModal';
 import ReportExporter from '@/components/reports/ReportExporter';
-import ScheduledReports from '@/components/reports/ScheduledReports';
 import ReportBrandingSettings from '@/components/reports/ReportBrandingSettings';
 import ReportVersionHistory from '@/components/reports/ReportVersionHistory';
 import EnhancedScheduleModal from '@/components/reports/EnhancedScheduleModal';
@@ -524,7 +521,9 @@ export default function Reports() {
           open={showComments}
           onOpenChange={(open) => {
             setShowComments(open);
-            if (!open) setCommentingReport(null);
+            if (!open) {
+              setCommentingReport(null);
+            }
           }}
         >
           <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">

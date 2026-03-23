@@ -1,23 +1,14 @@
-import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import {
   Lightbulb,
-  TrendingUp,
   Calendar,
-  Target,
-  AlertTriangle,
   Newspaper,
   Megaphone,
   BarChart3,
   ArrowUp,
-  ArrowDown,
-  Minus,
   ExternalLink,
-  Clock,
   Sparkles,
-  CheckCircle,
 } from 'lucide-react';
 
 const confidenceColors = {
@@ -27,11 +18,17 @@ const confidenceColors = {
 };
 
 export default function CompetitorInsightsPanel({ competitor }) {
-  if (!competitor) return null;
+  if (!competitor) {
+    return null;
+  }
 
   const getConfidenceLevel = (score) => {
-    if (score >= 70) return 'high';
-    if (score >= 40) return 'medium';
+    if (score >= 70) {
+      return 'high';
+    }
+    if (score >= 40) {
+      return 'medium';
+    }
     return 'low';
   };
 

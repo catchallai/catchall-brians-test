@@ -5,7 +5,6 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Plus, Target, BarChart3, Zap, Search, Layout, List as ListIcon } from 'lucide-react';
-import DealCard from '@/components/crm/DealCard';
 import DealModal from '@/components/modals/DealModal';
 import DealDetailModal from '@/components/crm/DealDetailModal';
 import PipelineModal from '@/components/modals/PipelineModal';
@@ -234,8 +233,12 @@ export default function Deals() {
   };
 
   const formatCurrency = (value) => {
-    if (value >= 1000000) return `$${(value / 1000000).toFixed(1)}M`;
-    if (value >= 1000) return `$${(value / 1000).toFixed(0)}K`;
+    if (value >= 1000000) {
+      return `$${(value / 1000000).toFixed(1)}M`;
+    }
+    if (value >= 1000) {
+      return `$${(value / 1000).toFixed(0)}K`;
+    }
     return `$${value}`;
   };
 

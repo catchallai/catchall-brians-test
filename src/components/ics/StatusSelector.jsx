@@ -1,7 +1,6 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card } from '@/components/ui/card';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { PREDEFINED_STATUSES, DEFAULT_EMOJIS } from './statusConfig';
 import { X, Bell, BellOff } from 'lucide-react';
@@ -45,11 +44,17 @@ export default function StatusSelector({ currentStatus, onStatusChange }) {
     const now = new Date();
     const expiryDate = new Date(now);
 
-    if (duration === '30m') expiryDate.setMinutes(expiryDate.getMinutes() + 30);
-    else if (duration === '1h') expiryDate.setHours(expiryDate.getHours() + 1);
-    else if (duration === '2h') expiryDate.setHours(expiryDate.getHours() + 2);
-    else if (duration === '4h') expiryDate.setHours(expiryDate.getHours() + 4);
-    else if (duration === '1d') expiryDate.setDate(expiryDate.getDate() + 1);
+    if (duration === '30m') {
+      expiryDate.setMinutes(expiryDate.getMinutes() + 30);
+    } else if (duration === '1h') {
+      expiryDate.setHours(expiryDate.getHours() + 1);
+    } else if (duration === '2h') {
+      expiryDate.setHours(expiryDate.getHours() + 2);
+    } else if (duration === '4h') {
+      expiryDate.setHours(expiryDate.getHours() + 4);
+    } else if (duration === '1d') {
+      expiryDate.setDate(expiryDate.getDate() + 1);
+    }
 
     return duration === 'clear' ? null : expiryDate.toISOString();
   };
@@ -140,8 +145,12 @@ export default function StatusSelector({ currentStatus, onStatusChange }) {
                     placeholder="What's your status?"
                     maxLength={50}
                     onKeyDown={(e) => {
-                      if (e.key === 'Enter') handleCustomStatus();
-                      if (e.key === 'Escape') setShowCustomInput(false);
+                      if (e.key === 'Enter') {
+                        handleCustomStatus();
+                      }
+                      if (e.key === 'Escape') {
+                        setShowCustomInput(false);
+                      }
                     }}
                     autoFocus
                   />

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -36,7 +36,9 @@ export default function CustomFieldManager({ entityType, businessId }) {
   const { data: fields = [], isLoading } = useQuery({
     queryKey: ['custom-fields', entityType, businessId],
     queryFn: async () => {
-      if (!businessId) return [];
+      if (!businessId) {
+        return [];
+      }
       return await base44.entities.CustomField.filter(
         {
           entity_type: entityType,
@@ -111,7 +113,9 @@ export default function CustomFieldManager({ entityType, businessId }) {
   };
 
   const handleSave = () => {
-    if (!formData.label.trim()) return;
+    if (!formData.label.trim()) {
+      return;
+    }
 
     if (editingField) {
       updateMutation.mutate({
@@ -129,7 +133,9 @@ export default function CustomFieldManager({ entityType, businessId }) {
     }
   };
 
-  if (isLoading) return <div className="text-gray-500">Loading fields...</div>;
+  if (isLoading) {
+    return <div className="text-gray-500">Loading fields...</div>;
+  }
 
   return (
     <Card className="glass-card">

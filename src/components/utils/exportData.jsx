@@ -1,6 +1,8 @@
 // Export to CSV
 export const exportToCSV = (data, filename, columns) => {
-  if (!data || data.length === 0) return;
+  if (!data || data.length === 0) {
+    return;
+  }
 
   const headers = columns ? columns.map((c) => c.label) : Object.keys(data[0]);
   const keys = columns ? columns.map((c) => c.key) : Object.keys(data[0]);
@@ -11,8 +13,12 @@ export const exportToCSV = (data, filename, columns) => {
       keys
         .map((key) => {
           let value = row[key];
-          if (value === null || value === undefined) value = '';
-          if (typeof value === 'object') value = JSON.stringify(value);
+          if (value === null || value === undefined) {
+            value = '';
+          }
+          if (typeof value === 'object') {
+            value = JSON.stringify(value);
+          }
           // Escape quotes and wrap in quotes if contains comma
           value = String(value).replace(/"/g, '""');
           if (value.includes(',') || value.includes('\n') || value.includes('"')) {
@@ -50,7 +56,9 @@ const downloadFile = (content, filename, mimeType) => {
 // Parse CSV to array
 export const parseCSV = (csvText) => {
   const lines = csvText.split('\n').filter((line) => line.trim());
-  if (lines.length < 2) return { headers: [], data: [] };
+  if (lines.length < 2) {
+    return { headers: [], data: [] };
+  }
 
   // Detect delimiter (tab or comma)
   const firstLine = lines[0];

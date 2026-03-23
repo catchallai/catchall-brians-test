@@ -1,24 +1,9 @@
-import React, { useState, useCallback } from 'react';
+import { useState } from 'react';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import {
-  GripVertical,
-  X,
-  Maximize2,
-  Minimize2,
-  Settings2,
-  Plus,
-  TrendingUp,
-  Target,
-  Link2,
-  Share2,
-  Eye,
-  Users,
-  PieChart,
-  BarChart2,
-} from 'lucide-react';
+import { GripVertical, X, Maximize2, Minimize2, Plus, BarChart2 } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
@@ -43,7 +28,9 @@ export default function DraggableDashboard({
   const [expandedWidget, setExpandedWidget] = useState(null);
 
   const handleDragEnd = (result) => {
-    if (!result.destination) return;
+    if (!result.destination) {
+      return;
+    }
 
     const items = Array.from(activeWidgetIds);
     const [reorderedItem] = items.splice(result.source.index, 1);
@@ -147,7 +134,9 @@ export default function DraggableDashboard({
             >
               {activeWidgetIds.map((widgetId, index) => {
                 const widget = availableWidgets.find((w) => w.id === widgetId);
-                if (!widget) return null;
+                if (!widget) {
+                  return null;
+                }
 
                 const size = getWidgetSize(widgetId);
                 const isExpanded = expandedWidget === widgetId;

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { base44 } from '@/api/base44Client';
@@ -6,11 +6,10 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
+import { Tabs, TabsContent } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import {
   Bell,
@@ -21,7 +20,6 @@ import {
   Users,
   Target,
   MessageSquare,
-  Calendar,
   BarChart3,
   Send,
   Image,
@@ -31,20 +29,14 @@ import {
   Instagram,
   Phone,
   Mail,
-  Building2,
   DollarSign,
   Clock,
   CheckCircle,
   AlertTriangle,
   ChevronRight,
   Home,
-  Radio,
   FileText,
-  Settings,
   Loader2,
-  RefreshCw,
-  Smartphone,
-  Zap,
   Eye,
   Heart,
   Share2,

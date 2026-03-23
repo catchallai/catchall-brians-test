@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -17,23 +17,8 @@ import {
   AlertTriangle,
   Target,
   Calendar,
-  DollarSign,
   ArrowRight,
-  CheckCircle,
-  Clock,
 } from 'lucide-react';
-import {
-  BarChart,
-  Bar,
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  Cell,
-} from 'recharts';
 
 const riskColors = {
   low: 'bg-emerald-100 text-emerald-700',
@@ -46,9 +31,15 @@ export default function SalesForecastCard({ forecast, onGenerate, isGenerating }
   const [period, setPeriod] = useState('this_month');
 
   const probabilityColor = (prob) => {
-    if (prob >= 80) return '#10b981';
-    if (prob >= 60) return '#3b82f6';
-    if (prob >= 40) return '#f59e0b';
+    if (prob >= 80) {
+      return '#10b981';
+    }
+    if (prob >= 60) {
+      return '#3b82f6';
+    }
+    if (prob >= 40) {
+      return '#f59e0b';
+    }
     return '#ef4444';
   };
 

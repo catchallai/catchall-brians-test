@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
@@ -12,7 +12,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Plus, MoreVertical, Calendar, User, ArrowUpDown } from 'lucide-react';
+import { Plus, MoreVertical, Calendar, ArrowUpDown } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -84,8 +84,12 @@ export default function TableView({ project, tasks, user }) {
   const sortedTasks = [...tasks].sort((a, b) => {
     const aVal = a[sortBy];
     const bVal = b[sortBy];
-    if (!aVal) return 1;
-    if (!bVal) return -1;
+    if (!aVal) {
+      return 1;
+    }
+    if (!bVal) {
+      return -1;
+    }
     if (sortOrder === 'asc') {
       return aVal > bVal ? 1 : -1;
     }

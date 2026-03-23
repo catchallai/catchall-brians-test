@@ -1,7 +1,5 @@
-import React from 'react';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Button } from '@/components/ui/button';
-import { Bell, Trash2, CheckCheck } from 'lucide-react';
+import { Bell } from 'lucide-react';
 import NotificationCenter from '@/components/notifications/NotificationCenter';
 
 export default function NotificationsView({ user, darkMode }) {

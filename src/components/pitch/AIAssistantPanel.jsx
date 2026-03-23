@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Sparkles, RefreshCw, Image, BarChart3, Wand2, Loader2 } from 'lucide-react';
@@ -15,7 +15,9 @@ export default function AIAssistantPanel({ slide, companyName, industry, onApply
   }, [slide?.id]);
 
   const generateSuggestions = async () => {
-    if (!slide) return;
+    if (!slide) {
+      return;
+    }
 
     setIsLoading(true);
     try {

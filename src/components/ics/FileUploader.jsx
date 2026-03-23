@@ -1,5 +1,4 @@
-import React, { useRef, useState } from 'react';
-import { Button } from '@/components/ui/button';
+import { useRef, useState } from 'react';
 import { Paperclip, X, Upload } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 
@@ -10,7 +9,9 @@ export default function FileUploader({ onFilesSelected, maxFiles = 5 }) {
 
   const handleFileSelect = async (e) => {
     const files = Array.from(e.target.files || []);
-    if (files.length === 0) return;
+    if (files.length === 0) {
+      return;
+    }
 
     if (uploadedFiles.length + files.length > maxFiles) {
       alert(`Maximum ${maxFiles} files allowed`);

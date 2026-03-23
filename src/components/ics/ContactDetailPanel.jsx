@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -14,7 +14,6 @@ import {
   Mail,
   Briefcase,
   Calendar,
-  Link as LinkIcon,
 } from 'lucide-react';
 import PresenceIndicator from './PresenceIndicator';
 
@@ -34,7 +33,9 @@ export default function ContactDetailPanel({
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState(null);
 
-  if (!isOpen || !contact) return null;
+  if (!isOpen || !contact) {
+    return null;
+  }
 
   const handleEditToggle = () => {
     if (isEditing) {

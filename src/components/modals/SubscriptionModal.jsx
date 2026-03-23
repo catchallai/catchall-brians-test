@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -65,10 +65,15 @@ export default function SubscriptionModal({ open, onClose, onSave, subscription,
         const frequency = field === 'billing_frequency' ? value : updated.billing_frequency;
 
         let mrr = 0;
-        if (frequency === 'monthly') mrr = amount;
-        else if (frequency === 'quarterly') mrr = amount / 3;
-        else if (frequency === 'annually') mrr = amount / 12;
-        else if (frequency === 'weekly') mrr = amount * 4.33;
+        if (frequency === 'monthly') {
+          mrr = amount;
+        } else if (frequency === 'quarterly') {
+          mrr = amount / 3;
+        } else if (frequency === 'annually') {
+          mrr = amount / 12;
+        } else if (frequency === 'weekly') {
+          mrr = amount * 4.33;
+        }
 
         updated.mrr = mrr;
         updated.arr = mrr * 12;

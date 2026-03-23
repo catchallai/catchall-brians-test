@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Type } from 'lucide-react';
 
@@ -30,17 +30,23 @@ export default function TopAnchorsCard({ backlinks }) {
 
     backlinks.forEach((b) => {
       const anchor = (b.anchor_text || '').toLowerCase();
-      if (!anchor) return;
+      if (!anchor) {
+        return;
+      }
 
-      if (anchor.includes('http') || anchor.includes('www.')) naked++;
-      else if (
+      if (anchor.includes('http') || anchor.includes('www.')) {
+        naked++;
+      } else if (
         ['click here', 'read more', 'learn more', 'visit', 'website'].some((g) =>
           anchor.includes(g)
         )
-      )
+      ) {
         generic++;
-      else if (anchor.length < 20) exact++;
-      else partial++;
+      } else if (anchor.length < 20) {
+        exact++;
+      } else {
+        partial++;
+      }
     });
 
     return [

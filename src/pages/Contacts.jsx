@@ -1,5 +1,4 @@
 import React, { useState, useMemo } from 'react';
-import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -30,18 +29,15 @@ import {
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
   DropdownMenuTrigger,
   DropdownMenuCheckboxItem,
 } from '@/components/ui/dropdown-menu';
-import ContactCard from '@/components/crm/ContactCard';
 import ContactModal from '@/components/modals/ContactModal';
 import ContactDetailPanel from '@/components/crm/ContactDetailPanel';
 import ContactsSidebar from '@/components/crm/ContactsSidebar';
 import ContactsViewTabs from '@/components/crm/ContactsViewTabs';
 import EmptyState from '@/components/ui/EmptyState';
 import Pagination from '@/components/ui-custom/Pagination';
-import BulkActions from '@/components/ui/BulkActions';
 import ImportDialog from '@/components/ui/ImportDialog';
 import ConfirmDialog from '@/components/ui/ConfirmDialog';
 import ContactBulkActionsPanel from '@/components/crm/ContactBulkActionsPanel';
@@ -261,10 +257,14 @@ export default function Contacts() {
       const getFieldValue = (row, ...fieldNames) => {
         for (const name of fieldNames) {
           // Try exact match
-          if (row[name]) return row[name];
+          if (row[name]) {
+            return row[name];
+          }
           // Try case-insensitive match
           const key = Object.keys(row).find((k) => k.toLowerCase() === name.toLowerCase());
-          if (key && row[key]) return row[key];
+          if (key && row[key]) {
+            return row[key];
+          }
         }
         return '';
       };
@@ -643,28 +643,34 @@ export default function Contacts() {
   };
 
   const filteredContacts = useMemo(() => {
-    let filtered = contacts.filter((contact) => {
+    const filtered = contacts.filter((contact) => {
       // Filter by tab
       if (activeTab === 'open-opportunities') {
         const hasOpenOpportunity = opportunities.some(
           (opp) =>
             opp.contact_id === contact.id && !['closed', 'not_interested'].includes(opp.stage)
         );
-        if (!hasOpenOpportunity) return false;
+        if (!hasOpenOpportunity) {
+          return false;
+        }
       } else if (activeTab === 'need-follow-up') {
         const hasNeedFollowUp = opportunities.some(
           (opp) =>
             opp.contact_id === contact.id &&
             ['no_response', 'new_lead', 'email_list', 'media_inquiry'].includes(opp.stage)
         );
-        if (!hasNeedFollowUp) return false;
+        if (!hasNeedFollowUp) {
+          return false;
+        }
       } else if (activeTab === 'in-progress') {
         const hasInProgress = opportunities.some(
           (opp) =>
             opp.contact_id === contact.id &&
             ['contacted', 'reservation_request'].includes(opp.stage)
         );
-        if (!hasInProgress) return false;
+        if (!hasInProgress) {
+          return false;
+        }
       }
 
       const matchesSearch =

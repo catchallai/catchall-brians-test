@@ -1,11 +1,9 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
   Select,
@@ -18,21 +16,15 @@ import {
   Plus,
   Search,
   Users,
-  UserPlus,
   Target,
   CheckCircle,
-  XCircle,
   MessageSquare,
-  TrendingUp,
   Sparkles,
   Loader2,
-  Radio,
-  RefreshCw,
 } from 'lucide-react';
 import SocialLeadCard from '@/components/social/SocialLeadCard';
 import SocialLeadModal from '@/components/modals/SocialLeadModal';
 import ContactModal from '@/components/modals/ContactModal';
-import ActivityModal from '@/components/modals/ActivityModal';
 import EmptyState from '@/components/ui/EmptyState';
 
 export default function SocialLeads() {

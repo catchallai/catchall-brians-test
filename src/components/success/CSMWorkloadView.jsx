@@ -1,9 +1,8 @@
-import React from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Users, AlertTriangle, CheckCircle, TrendingUp } from 'lucide-react';
+import { Users, AlertTriangle, CheckCircle } from 'lucide-react';
 
 export default function CSMWorkloadView() {
   const { data: workloads = [] } = useQuery({

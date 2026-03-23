@@ -1,11 +1,12 @@
-import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
-import { DollarSign, Target, TrendingUp, AlertCircle } from 'lucide-react';
+import { DollarSign, Target, TrendingUp } from 'lucide-react';
 
 export default function QuotaProgressTracker({ quota, forecast }) {
-  if (!quota) return null;
+  if (!quota) {
+    return null;
+  }
 
   const achievement = (quota.current_revenue / quota.revenue_target) * 100;
   const daysLeft = quota.period_end
@@ -17,11 +18,15 @@ export default function QuotaProgressTracker({ quota, forecast }) {
   const willMeetQuota = projectedRevenue >= quota.revenue_target;
 
   const getRiskLevel = () => {
-    if (achievement >= 100)
+    if (achievement >= 100) {
       return { level: 'On Track', color: 'bg-green-100 text-green-700', icon: '✓' };
-    if (achievement >= 75) return { level: 'Good', color: 'bg-blue-100 text-blue-700', icon: '→' };
-    if (achievement >= 50)
+    }
+    if (achievement >= 75) {
+      return { level: 'Good', color: 'bg-blue-100 text-blue-700', icon: '→' };
+    }
+    if (achievement >= 50) {
       return { level: 'At Risk', color: 'bg-amber-100 text-amber-700', icon: '⚠' };
+    }
     return { level: 'Critical', color: 'bg-red-100 text-red-700', icon: '!' };
   };
 

@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
@@ -16,10 +16,8 @@ import { Input } from '@/components/ui/input';
 import {
   CheckCircle2,
   XCircle,
-  Clock,
   Send,
   UserPlus,
-  AlertCircle,
   ThumbsUp,
   RotateCcw,
   Loader2,
@@ -29,8 +27,6 @@ import {
   Eye,
   ShieldCheck,
   Megaphone,
-  Circle,
-  ImageOff,
 } from 'lucide-react';
 import { formatDistanceToNow, format } from 'date-fns';
 import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
@@ -63,7 +59,9 @@ const STAGE_ORDER = [
 ];
 
 function getStageIndex(status) {
-  if (status === 'changes_requested') return 1; // maps to pending_review stage
+  if (status === 'changes_requested') {
+    return 1;
+  } // maps to pending_review stage
   return WORKFLOW_STAGES.findIndex((s) => s.key === status);
 }
 
@@ -149,7 +147,9 @@ export default function PostApprovalPanel({ post, onUpdate }) {
       queryClient.invalidateQueries({ queryKey: ['calendar-posts'] });
       queryClient.invalidateQueries({ queryKey: ['calendar-posts-all'] });
       setNote('');
-      if (onUpdate) onUpdate(variables);
+      if (onUpdate) {
+        onUpdate(variables);
+      }
     },
   });
 
@@ -206,7 +206,9 @@ export default function PostApprovalPanel({ post, onUpdate }) {
     );
 
   const handleReject = () => {
-    if (!note.trim()) return alert('Please provide a reason for rejection.');
+    if (!note.trim()) {
+      return alert('Please provide a reason for rejection.');
+    }
     // Media is NOT deleted — stays in version history, not transferred to Approved Media Database
     updateMutation.mutate(
       addWorkflowEvent('rejected', {

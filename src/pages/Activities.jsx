@@ -3,7 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Select,
   SelectContent,
@@ -35,7 +35,9 @@ export default function Activities() {
   const { data: allActivities = [], isLoading } = useQuery({
     queryKey: ['activities', user?.current_business_id],
     queryFn: async () => {
-      if (!user?.current_business_id) return [];
+      if (!user?.current_business_id) {
+        return [];
+      }
       return await base44.entities.Activity.filter(
         { business_id: user.current_business_id },
         '-created_date',
@@ -58,7 +60,9 @@ export default function Activities() {
   const { data: allContacts = [] } = useQuery({
     queryKey: ['contacts', user?.current_business_id],
     queryFn: async () => {
-      if (!user?.current_business_id) return [];
+      if (!user?.current_business_id) {
+        return [];
+      }
       return await base44.entities.Contact.filter(
         { business_id: user.current_business_id },
         '-created_date',
@@ -73,7 +77,9 @@ export default function Activities() {
   const { data: allDeals = [] } = useQuery({
     queryKey: ['deals', user?.current_business_id],
     queryFn: async () => {
-      if (!user?.current_business_id) return [];
+      if (!user?.current_business_id) {
+        return [];
+      }
       return await base44.entities.Deal.filter(
         { business_id: user.current_business_id },
         '-created_date',

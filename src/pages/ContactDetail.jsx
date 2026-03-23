@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
@@ -33,11 +33,9 @@ import {
   X,
 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Sheet, SheetContent } from '@/components/ui/sheet';
 import ContactModal from '@/components/modals/ContactModal';
 import EmailContactModal from '@/components/modals/EmailContactModal';
 import EmailTrackingPanel from '@/components/crm/EmailTrackingPanel';
-import ActivityFeed from '@/components/collaboration/ActivityFeed';
 
 const urlParams = new URLSearchParams(window.location.search);
 const contactId = urlParams.get('id');
@@ -63,7 +61,9 @@ export default function ContactDetail() {
   } = useQuery({
     queryKey: ['contact', contactId],
     queryFn: async () => {
-      if (!contactId) return null;
+      if (!contactId) {
+        return null;
+      }
       const result = await base44.entities.Contact.filter({ id: contactId });
       return result[0];
     },
@@ -73,7 +73,9 @@ export default function ContactDetail() {
   const { data: companies = [] } = useQuery({
     queryKey: ['companies', user?.current_business_id],
     queryFn: async () => {
-      if (!user?.current_business_id) return [];
+      if (!user?.current_business_id) {
+        return [];
+      }
       return await base44.entities.Company.filter({ business_id: user.current_business_id });
     },
     enabled: !!user?.current_business_id,
@@ -82,7 +84,9 @@ export default function ContactDetail() {
   const { data: activities = [] } = useQuery({
     queryKey: ['activities', contact?.id],
     queryFn: async () => {
-      if (!contact?.id) return [];
+      if (!contact?.id) {
+        return [];
+      }
       return await base44.entities.Activity.filter(
         {
           entity_type: 'contact',
@@ -98,7 +102,9 @@ export default function ContactDetail() {
   const { data: notes = [], refetch: refetchNotes } = useQuery({
     queryKey: ['contact-notes', contact?.id],
     queryFn: async () => {
-      if (!contact?.id) return [];
+      if (!contact?.id) {
+        return [];
+      }
       return await base44.entities.ContactNote.filter({ contact_id: contact.id }, '-created_date');
     },
     enabled: !!contact?.id,
@@ -821,7 +827,9 @@ export default function ContactDetail() {
               />
               <Button
                 onClick={async () => {
-                  if (!newNote.trim()) return;
+                  if (!newNote.trim()) {
+                    return;
+                  }
                   await base44.entities.ContactNote.create({
                     contact_id: contact.id,
                     note: newNote,

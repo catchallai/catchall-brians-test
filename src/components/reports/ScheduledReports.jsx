@@ -1,7 +1,6 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
@@ -88,7 +87,9 @@ export default function ScheduledReports({ reports = [] }) {
 
   const handleCreateSchedule = () => {
     const reportToSchedule = reports.find((r) => r.id === selectedReport);
-    if (!reportToSchedule) return;
+    if (!reportToSchedule) {
+      return;
+    }
 
     createScheduleMutation.mutate({
       report_id: selectedReport,

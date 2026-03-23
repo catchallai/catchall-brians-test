@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import { useState, useRef } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -37,7 +37,9 @@ export default function ImportDialog({
 
   const handleFileChange = async (e) => {
     const selectedFile = e.target.files?.[0];
-    if (!selectedFile) return;
+    if (!selectedFile) {
+      return;
+    }
 
     setFile(selectedFile);
     setErrors([]);
@@ -115,7 +117,9 @@ export default function ImportDialog({
   };
 
   const handleImport = async () => {
-    if (!parsedData) return;
+    if (!parsedData) {
+      return;
+    }
     setIsImporting(true);
     try {
       const result = await onImport(parsedData.data);

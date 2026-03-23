@@ -1,8 +1,7 @@
-import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Mail, ExternalLink, Globe, Users, TrendingUp } from 'lucide-react';
+import { Mail, ExternalLink, Users, TrendingUp } from 'lucide-react';
 
 export default function JournalistCard({ journalist, onContact }) {
   return (

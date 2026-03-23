@@ -1,4 +1,3 @@
-import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -6,17 +5,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import {
-  DollarSign,
-  Calendar,
-  Percent,
-  User,
-  Building2,
-  Activity,
-  FileText,
-  Edit,
-  Trash2,
-} from 'lucide-react';
+import { Calendar, Percent, User, Building2, Activity, FileText, Edit, Trash2 } from 'lucide-react';
 import { format } from 'date-fns';
 
 export default function DealDetailModal({ open, onClose, dealId, onEdit, onDelete }) {
@@ -32,7 +21,9 @@ export default function DealDetailModal({ open, onClose, dealId, onEdit, onDelet
   const { data: contact } = useQuery({
     queryKey: ['contact', deal?.contact_id],
     queryFn: async () => {
-      if (!deal?.contact_id) return null;
+      if (!deal?.contact_id) {
+        return null;
+      }
       const contacts = await base44.entities.Contact.filter({ id: deal.contact_id });
       return contacts[0];
     },
@@ -42,7 +33,9 @@ export default function DealDetailModal({ open, onClose, dealId, onEdit, onDelet
   const { data: company } = useQuery({
     queryKey: ['company', deal?.company_id],
     queryFn: async () => {
-      if (!deal?.company_id) return null;
+      if (!deal?.company_id) {
+        return null;
+      }
       const companies = await base44.entities.Company.filter({ id: deal.company_id });
       return companies[0];
     },
@@ -65,7 +58,9 @@ export default function DealDetailModal({ open, onClose, dealId, onEdit, onDelet
     );
   }
 
-  if (!deal) return null;
+  if (!deal) {
+    return null;
+  }
 
   const formatCurrency = (value) => {
     return new Intl.NumberFormat('en-US', {

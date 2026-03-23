@@ -10,14 +10,10 @@ import {
   Mail,
   Send,
   FileText,
-  Users,
   Eye,
   MousePointer,
-  AlertCircle,
   Loader2,
-  CheckCircle,
   BarChart3,
-  TrendingUp,
   List,
   Grid3x3,
 } from 'lucide-react';
@@ -202,7 +198,9 @@ export default function EmailMarketing() {
   const { data: contacts = [] } = useQuery({
     queryKey: ['contacts', user?.current_business_id],
     queryFn: async () => {
-      if (!user?.current_business_id) return [];
+      if (!user?.current_business_id) {
+        return [];
+      }
       return await base44.entities.Contact.filter(
         { business_id: user.current_business_id },
         '-created_date',

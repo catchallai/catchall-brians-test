@@ -27,9 +27,15 @@ export default function HealthTrendsChart({ healthScores }) {
 
       grouped[date].total++;
       grouped[date].avgScore += score.health_score || 0;
-      if (score.health_status === 'healthy') grouped[date].healthy++;
-      if (score.health_status === 'at_risk') grouped[date].at_risk++;
-      if (score.health_status === 'critical') grouped[date].critical++;
+      if (score.health_status === 'healthy') {
+        grouped[date].healthy++;
+      }
+      if (score.health_status === 'at_risk') {
+        grouped[date].at_risk++;
+      }
+      if (score.health_status === 'critical') {
+        grouped[date].critical++;
+      }
     });
 
     return Object.values(grouped)

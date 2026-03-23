@@ -1,9 +1,8 @@
-import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { AlertTriangle, TrendingDown, Users, DollarSign } from 'lucide-react';
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
+import { AlertTriangle } from 'lucide-react';
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 
 const RISK_COLORS = {
   high: '#ef4444',
@@ -32,28 +31,42 @@ export default function ChurnRiskAnalytics({
 
     // Health score factor (40% weight)
     if (health) {
-      if (health.health_status === 'critical') riskScore += 40;
-      else if (health.health_status === 'at_risk') riskScore += 25;
-      else if (health.health_score < 60) riskScore += 15;
+      if (health.health_status === 'critical') {
+        riskScore += 40;
+      } else if (health.health_status === 'at_risk') {
+        riskScore += 25;
+      } else if (health.health_score < 60) {
+        riskScore += 15;
+      }
     } else {
       riskScore += 30; // No health data is risky
     }
 
     // Onboarding factor (20% weight)
     if (onboarding) {
-      if (onboarding.status === 'stalled') riskScore += 20;
-      else if (onboarding.progress_percentage < 50) riskScore += 15;
+      if (onboarding.status === 'stalled') {
+        riskScore += 20;
+      } else if (onboarding.progress_percentage < 50) {
+        riskScore += 15;
+      }
     }
 
     // Interaction frequency (25% weight)
-    if (recentInteractions.length === 0) riskScore += 25;
-    else if (recentInteractions.length === 1) riskScore += 15;
-    else if (recentInteractions.length === 2) riskScore += 10;
+    if (recentInteractions.length === 0) {
+      riskScore += 25;
+    } else if (recentInteractions.length === 1) {
+      riskScore += 15;
+    } else if (recentInteractions.length === 2) {
+      riskScore += 10;
+    }
 
     // Negative sentiment (15% weight)
     const negativeSentiment = recentInteractions.filter((i) => i.sentiment === 'negative').length;
-    if (negativeSentiment > 1) riskScore += 15;
-    else if (negativeSentiment === 1) riskScore += 10;
+    if (negativeSentiment > 1) {
+      riskScore += 15;
+    } else if (negativeSentiment === 1) {
+      riskScore += 10;
+    }
 
     return {
       score: Math.min(riskScore, 100),

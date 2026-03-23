@@ -1,4 +1,3 @@
-import React from 'react';
 import {
   RadarChart,
   PolarGrid,
@@ -19,7 +18,9 @@ export default function RadarComparisonChart({
   height = 300,
 }) {
   const CustomTooltip = ({ active, payload }) => {
-    if (!active || !payload?.length) return null;
+    if (!active || !payload?.length) {
+      return null;
+    }
 
     return (
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-100 dark:border-gray-700 p-3">

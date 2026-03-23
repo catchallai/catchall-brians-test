@@ -1,8 +1,7 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Folder, FolderPlus, Image, Video, Film, HardDrive, Trash2 } from 'lucide-react';
@@ -56,7 +55,9 @@ export default function MediaFolderManager() {
   };
 
   const createCustomFolder = () => {
-    if (!customFolderName.trim()) return;
+    if (!customFolderName.trim()) {
+      return;
+    }
     createMutation.mutate({
       name: customFolderName,
       folder_type: 'Custom',
@@ -65,11 +66,17 @@ export default function MediaFolderManager() {
   };
 
   const formatSize = (bytes) => {
-    if (!bytes) return '0 KB';
+    if (!bytes) {
+      return '0 KB';
+    }
     const kb = bytes / 1024;
-    if (kb < 1024) return `${kb.toFixed(1)} KB`;
+    if (kb < 1024) {
+      return `${kb.toFixed(1)} KB`;
+    }
     const mb = kb / 1024;
-    if (mb < 1024) return `${mb.toFixed(1)} MB`;
+    if (mb < 1024) {
+      return `${mb.toFixed(1)} MB`;
+    }
     const gb = mb / 1024;
     return `${gb.toFixed(1)} GB`;
   };
@@ -203,7 +210,9 @@ export default function MediaFolderManager() {
               value={customFolderName}
               onChange={(e) => setCustomFolderName(e.target.value)}
               onKeyDown={(e) => {
-                if (e.key === 'Enter') createCustomFolder();
+                if (e.key === 'Enter') {
+                  createCustomFolder();
+                }
               }}
             />
             <Button

@@ -1,10 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useQueryClient, useMutation } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import {
   Select,
   SelectContent,
@@ -12,32 +10,21 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import {
   CheckCircle2,
-  XCircle,
-  Clock,
   Eye,
-  Send,
-  RotateCcw,
-  AlertTriangle,
-  ThumbsUp,
-  Loader2,
   Search,
   Image,
   Video,
   FileText,
-  ChevronLeft,
-  ChevronRight,
   Timer,
   Bell,
-  Paperclip,
   MessageSquare,
   Calendar,
   ShieldCheck,
   ImageOff,
 } from 'lucide-react';
-import { formatDistanceToNow, format, differenceInSeconds, isPast, parseISO } from 'date-fns';
+import { format, differenceInSeconds, parseISO } from 'date-fns';
 import PostApprovalPanel from '@/components/social/PostApprovalPanel';
 import PostCommentThread from '@/components/social/approvals/PostCommentThread';
 import PostActivityFeed from '@/components/social/approvals/PostActivityFeed';
@@ -57,7 +44,9 @@ function DeadlineTimer({ dueDate }) {
     return () => clearInterval(t);
   }, []);
 
-  if (!dueDate) return null;
+  if (!dueDate) {
+    return null;
+  }
   const deadline = parseISO(dueDate + 'T23:59:59');
   const secsLeft = differenceInSeconds(deadline, now);
   const overdue = secsLeft < 0;

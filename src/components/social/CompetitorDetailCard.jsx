@@ -1,10 +1,11 @@
-import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { TrendingUp, Calendar, Target, Lightbulb } from 'lucide-react';
+import { TrendingUp, Calendar, Target } from 'lucide-react';
 
 export default function CompetitorDetailCard({ competitor }) {
-  if (!competitor) return null;
+  if (!competitor) {
+    return null;
+  }
 
   return (
     <div className="space-y-4">

@@ -1,8 +1,7 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { ChevronLeft, ChevronRight, Calendar as CalendarIcon } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import {
   startOfMonth,
   endOfMonth,
@@ -28,15 +27,23 @@ export default function ActivityCalendarView({ activities, onActivityClick, onDa
 
   const getActivitiesForDay = (day) => {
     return activities.filter((activity) => {
-      if (!activity.due_date) return false;
+      if (!activity.due_date) {
+        return false;
+      }
       return isSameDay(new Date(activity.due_date), day);
     });
   };
 
   const getActivityColor = (activity) => {
-    if (activity.completed) return 'bg-gray-200 text-gray-600';
-    if (activity.priority === 'high') return 'bg-red-100 text-red-700';
-    if (activity.priority === 'medium') return 'bg-amber-100 text-amber-700';
+    if (activity.completed) {
+      return 'bg-gray-200 text-gray-600';
+    }
+    if (activity.priority === 'high') {
+      return 'bg-red-100 text-red-700';
+    }
+    if (activity.priority === 'medium') {
+      return 'bg-amber-100 text-amber-700';
+    }
     return 'bg-blue-100 text-blue-700';
   };
 

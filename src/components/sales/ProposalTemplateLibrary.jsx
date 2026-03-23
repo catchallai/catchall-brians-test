@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Copy, Plus, FileText } from 'lucide-react';
+import { Copy, FileText } from 'lucide-react';
 
 const DEFAULT_TEMPLATES = [
   {

@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import { useState } from 'react';
 import {
   AreaChart,
   Area,
@@ -9,7 +9,6 @@ import {
   ResponsiveContainer,
   Legend,
   Brush,
-  ReferenceLine,
 } from 'recharts';
 import { Button } from '@/components/ui/button';
 import { ZoomIn, ZoomOut, RotateCcw } from 'lucide-react';

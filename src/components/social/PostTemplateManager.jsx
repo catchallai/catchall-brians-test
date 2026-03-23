@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -15,7 +15,7 @@ import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Plus, Edit, Trash, FileText, X } from 'lucide-react';
+import { Plus, Edit, Trash, FileText } from 'lucide-react';
 
 export default function PostTemplateManager({ onUseTemplate }) {
   const [showModal, setShowModal] = useState(false);
@@ -159,7 +159,9 @@ export default function PostTemplateManager({ onUseTemplate }) {
                         variant="ghost"
                         size="icon"
                         onClick={() => {
-                          if (confirm('Delete this template?')) deleteMutation.mutate(template.id);
+                          if (confirm('Delete this template?')) {
+                            deleteMutation.mutate(template.id);
+                          }
                         }}
                         className="h-8 w-8 text-red-500 hover:text-red-700"
                       >
@@ -202,7 +204,9 @@ export default function PostTemplateManager({ onUseTemplate }) {
           open={showModal}
           onOpenChange={(open) => {
             setShowModal(open);
-            if (!open) resetForm();
+            if (!open) {
+              resetForm();
+            }
           }}
         >
           <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">

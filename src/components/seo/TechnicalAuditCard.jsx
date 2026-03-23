@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -17,7 +17,6 @@ import {
   Bot,
   ChevronDown,
   ChevronUp,
-  ExternalLink,
   Wrench,
 } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
@@ -264,21 +263,29 @@ export default function TechnicalAuditCard({ website, onAuditComplete, onAuditSa
   };
 
   const getScoreColor = (score) => {
-    if (score >= 80) return 'text-emerald-500';
-    if (score >= 60) return 'text-amber-500';
+    if (score >= 80) {
+      return 'text-emerald-500';
+    }
+    if (score >= 60) {
+      return 'text-amber-500';
+    }
     return 'text-red-500';
   };
 
   const getStatusIcon = (status) => {
-    if (status === 'passed' || status === 'good')
+    if (status === 'passed' || status === 'good') {
       return <CheckCircle className="w-4 h-4 text-emerald-500" />;
-    if (status === 'warning' || status === 'needs_improvement')
+    }
+    if (status === 'warning' || status === 'needs_improvement') {
       return <AlertTriangle className="w-4 h-4 text-amber-500" />;
+    }
     return <XCircle className="w-4 h-4 text-red-500" />;
   };
 
   const countIssues = (severity) => {
-    if (!auditResults?.categories) return 0;
+    if (!auditResults?.categories) {
+      return 0;
+    }
     let count = 0;
     Object.values(auditResults.categories).forEach((cat) => {
       if (cat.issues) {
@@ -372,7 +379,9 @@ export default function TechnicalAuditCard({ website, onAuditComplete, onAuditSa
             <div className="space-y-2">
               {Object.entries(auditResults.categories || {}).map(([key, category]) => {
                 const config = issueCategories[key];
-                if (!config) return null;
+                if (!config) {
+                  return null;
+                }
                 const Icon = config.icon;
                 const isExpanded = expandedCategories[key];
                 const hasIssues = category.issues?.length > 0;

@@ -202,7 +202,8 @@ function BestTimeSuggestions({ platforms, onApply }) {
     const todayDay = today.getDay();
     let daysUntil = (targetDay - todayDay + 7) % 7;
     if (daysUntil === 0) {
-      daysUntil = 7; // Push to next week if same day
+      // Push to next week if same day
+      daysUntil = 7;
     }
     const next = new Date(today);
     next.setDate(today.getDate() + daysUntil);

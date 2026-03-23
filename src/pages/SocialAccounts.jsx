@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
@@ -197,7 +197,9 @@ function ConnectChannelModal({ open, onClose, onConnected }) {
   };
 
   const isFormValid = () => {
-    if (selected?.setupType === 'oauth') return true;
+    if (selected?.setupType === 'oauth') {
+      return true;
+    }
     return !!credentials.account_name;
   };
 
@@ -535,7 +537,9 @@ export default function SocialAccounts() {
                   </div>
                   <button
                     onClick={() => {
-                      if (confirm('Disconnect this channel?')) deleteMutation.mutate(account.id);
+                      if (confirm('Disconnect this channel?')) {
+                        deleteMutation.mutate(account.id);
+                      }
                     }}
                     className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
                   >

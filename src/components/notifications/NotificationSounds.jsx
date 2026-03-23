@@ -88,7 +88,9 @@ export const playNotificationSound = (soundType = 'bell') => {
 
 // Check if in do-not-disturb time
 export const isInDND = (dndStartTime, dndEndTime) => {
-  if (!dndStartTime || !dndEndTime) return false;
+  if (!dndStartTime || !dndEndTime) {
+    return false;
+  }
 
   const now = new Date();
   const [startHour, startMin] = dndStartTime.split(':').map(Number);

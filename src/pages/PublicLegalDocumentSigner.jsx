@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
@@ -23,7 +23,9 @@ export default function PublicLegalDocumentSigner() {
   } = useQuery({
     queryKey: ['legal-document', token],
     queryFn: async () => {
-      if (!token) return null;
+      if (!token) {
+        return null;
+      }
       const docs = await base44.entities.LegalDocument.filter({ tracking_code: token });
       const doc = docs?.[0];
 

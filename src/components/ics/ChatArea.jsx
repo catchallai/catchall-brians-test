@@ -1,13 +1,10 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { Phone, Video, Search, MoreVertical, Clock, FileText, BarChart3 } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
+import { Phone, Video, MoreVertical, FileText, BarChart3 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import MessageInput from './MessageInput';
 import FilePreview from './FilePreview';
-import PresenceIndicator from './PresenceIndicator';
 import VideoCallInterface from './VideoCallInterface';
 import CollaborativeDocumentEditor from './CollaborativeDocumentEditor';
 import PollWidget from './PollWidget';

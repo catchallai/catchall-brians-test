@@ -1,4 +1,3 @@
-import React from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -47,7 +46,9 @@ export default function CompetitorDetailModal({
   yourBrandName,
   onUpdateTier,
 }) {
-  if (!competitor) return null;
+  if (!competitor) {
+    return null;
+  }
 
   const totalFollowers =
     competitor.social_accounts?.reduce((sum, a) => sum + (a.followers || 0), 0) || 0;

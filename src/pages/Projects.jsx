@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
@@ -28,9 +28,6 @@ import {
 import EmptyState from '@/components/ui/EmptyState';
 import ProjectModal from '@/components/modals/ProjectModal';
 import TaskModal from '@/components/modals/TaskModal';
-import { Link } from 'react-router-dom';
-import { createPageUrl } from '@/utils';
-import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import ProjectKanbanBoard from '@/components/projects/ProjectKanbanBoard';
 import ProjectTimeline from '@/components/projects/ProjectTimeline';
 
@@ -141,7 +138,9 @@ export default function Projects() {
   };
 
   const handleDragEnd = (result) => {
-    if (!result.destination) return;
+    if (!result.destination) {
+      return;
+    }
 
     const { draggableId, destination } = result;
     const taskId = draggableId;

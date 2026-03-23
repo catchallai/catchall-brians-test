@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -12,7 +12,9 @@ export default function ArchivedList({ channels, darkMode, onSelectChannel }) {
   const queryClient = useQueryClient();
 
   const filteredChannels = useMemo(() => {
-    if (!searchTerm.trim()) return channels;
+    if (!searchTerm.trim()) {
+      return channels;
+    }
     const term = searchTerm.toLowerCase();
     return channels.filter(
       (c) => c.name?.toLowerCase().includes(term) || c.description?.toLowerCase().includes(term)

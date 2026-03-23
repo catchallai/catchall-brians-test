@@ -1,15 +1,16 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Copy, Check, Code, FileCode, Braces } from 'lucide-react';
 
 export default function FormEmbedCode({ open, onClose, form }) {
   const [copied, setCopied] = useState(null);
 
-  if (!form) return null;
+  if (!form) {
+    return null;
+  }
 
   const apiEndpoint = `${window.location.origin}/api/formSubmit`;
   const formId = form.id;

@@ -1,9 +1,7 @@
-import React from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Trophy, TrendingUp, Users } from 'lucide-react';
+import { Trophy } from 'lucide-react';
 
 export default function ExecutiveScorecard() {
   const { data: scorecards = [] } = useQuery({

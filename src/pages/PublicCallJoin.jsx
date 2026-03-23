@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Video, Mic, AlertCircle, Video as VideoIcon, Loader } from 'lucide-react';
+import { AlertCircle, Video as VideoIcon, Loader } from 'lucide-react';
 
 export default function PublicCallJoin() {
   const { callId } = useParams();

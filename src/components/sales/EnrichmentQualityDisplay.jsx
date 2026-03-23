@@ -1,18 +1,25 @@
-import React from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Zap } from 'lucide-react';
 
 const getQualityGrade = (score) => {
-  if (score >= 90) return { grade: 'A', color: 'bg-green-100 text-green-700', label: 'Excellent' };
-  if (score >= 75) return { grade: 'B', color: 'bg-blue-100 text-blue-700', label: 'Good' };
-  if (score >= 60) return { grade: 'C', color: 'bg-yellow-100 text-yellow-700', label: 'Fair' };
+  if (score >= 90) {
+    return { grade: 'A', color: 'bg-green-100 text-green-700', label: 'Excellent' };
+  }
+  if (score >= 75) {
+    return { grade: 'B', color: 'bg-blue-100 text-blue-700', label: 'Good' };
+  }
+  if (score >= 60) {
+    return { grade: 'C', color: 'bg-yellow-100 text-yellow-700', label: 'Fair' };
+  }
   return { grade: 'D', color: 'bg-red-100 text-red-700', label: 'Poor' };
 };
 
 export default function EnrichmentQualityDisplay({ lead }) {
-  if (!lead) return null;
+  if (!lead) {
+    return null;
+  }
 
   const quality = getQualityGrade(lead.enrichment_score || 0);
   const hasEmail = !!lead.email;

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -10,7 +10,7 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Mail, FileText, Target, Clock, Zap, X } from 'lucide-react';
+import { X } from 'lucide-react';
 
 const ACTION_CONFIG_FIELDS = {
   send_email: {
@@ -153,7 +153,9 @@ export default function NodeEditor({ node, nodeIndex, onUpdate, onClose, teamMem
       <CardContent className="space-y-4">
         {fields.map((field) => {
           const shouldShow = !field.condition || field.condition(config);
-          if (!shouldShow) return null;
+          if (!shouldShow) {
+            return null;
+          }
 
           return (
             <div key={field.key} className="space-y-2">

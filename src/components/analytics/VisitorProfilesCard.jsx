@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import {
@@ -12,7 +11,6 @@ import {
   MousePointer,
   ChevronRight,
   Building2,
-  Briefcase,
   Sparkles,
   TrendingUp,
   Info,
@@ -325,7 +323,7 @@ export default function VisitorProfilesCard() {
     ];
 
     const visitors = [];
-    let sessionNum = 8900;
+    const sessionNum = 8900;
 
     // Generate ~1,100 for 30 days, ~2,000 for 60 days, ~2,800 for 90 days
     // This represents ~3-4% identification rate of ~32K monthly visitors

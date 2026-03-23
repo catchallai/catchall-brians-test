@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from 'react';
-import DataRoomDocumentPicker from './DataRoomDocumentPicker';
+import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import {
@@ -21,7 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { FileText, Trash2 } from 'lucide-react';
+import { FileText } from 'lucide-react';
 
 export default function DataRoomModal({ open, onClose, onSave, dataRoom }) {
   const [formData, setFormData] = useState({

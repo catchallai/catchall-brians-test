@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
@@ -15,7 +15,6 @@ import {
 import {
   Plus,
   X,
-  ChevronRight,
   Target,
   Megaphone,
   Globe,
@@ -25,7 +24,6 @@ import {
   LayoutGrid,
   Loader2,
 } from 'lucide-react';
-import { format } from 'date-fns';
 
 const STATUS_CONFIG = {
   draft: { label: 'Draft', color: 'bg-gray-100 text-gray-600' },

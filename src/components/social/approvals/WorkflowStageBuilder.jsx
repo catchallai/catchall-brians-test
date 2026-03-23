@@ -9,20 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import {
-  Plus,
-  Trash2,
-  ChevronDown,
-  ChevronUp,
-  GripVertical,
-  Settings,
-  CheckCircle2,
-  Eye,
-  ShieldCheck,
-  Users,
-  ArrowRight,
-  Save,
-} from 'lucide-react';
+import { Plus, Trash2, GripVertical, Settings, CheckCircle2, ArrowRight, Save } from 'lucide-react';
 
 const DEFAULT_WORKFLOWS = [
   {

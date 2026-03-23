@@ -1,4 +1,3 @@
-import React from 'react';
 import {
   BarChart3,
   TrendingUp,
@@ -9,7 +8,6 @@ import {
   PieChart,
   LineChart,
   Activity,
-  FileText,
   Mail,
   Share2,
 } from 'lucide-react';

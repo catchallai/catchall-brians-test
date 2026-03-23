@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -79,13 +79,17 @@ export default function CreateTemplateModal({ open, onClose, onSave, isLoading }
   };
 
   const handleSubmit = () => {
-    if (!formData.name) return;
+    if (!formData.name) {
+      return;
+    }
     onSave(formData);
     setFormData({ name: '', description: '', category: 'custom', icon: 'FileText', metrics: [] });
   };
 
   const groupedMetrics = AVAILABLE_METRICS.reduce((acc, metric) => {
-    if (!acc[metric.category]) acc[metric.category] = [];
+    if (!acc[metric.category]) {
+      acc[metric.category] = [];
+    }
     acc[metric.category].push(metric);
     return acc;
   }, {});

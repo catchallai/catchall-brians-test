@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
@@ -38,7 +38,9 @@ export default function Keywords() {
   const { data: keywords = [], isLoading } = useQuery({
     queryKey: ['keywords', user?.current_business_id],
     queryFn: async () => {
-      if (!user?.current_business_id) return [];
+      if (!user?.current_business_id) {
+        return [];
+      }
       return await base44.entities.Keyword.filter(
         { business_id: user.current_business_id },
         '-created_date',
@@ -51,7 +53,9 @@ export default function Keywords() {
   const { data: websites = [] } = useQuery({
     queryKey: ['websites', user?.current_business_id],
     queryFn: async () => {
-      if (!user?.current_business_id) return [];
+      if (!user?.current_business_id) {
+        return [];
+      }
       return await base44.entities.Website.filter(
         { business_id: user.current_business_id },
         '-created_date',
@@ -98,7 +102,9 @@ export default function Keywords() {
   });
 
   const handleBulkDelete = () => {
-    if (selectedIds.length === 0) return;
+    if (selectedIds.length === 0) {
+      return;
+    }
     if (confirm(`Delete ${selectedIds.length} keywords?`)) {
       bulkDeleteMutation.mutate(selectedIds);
     }

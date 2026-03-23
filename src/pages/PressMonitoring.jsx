@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -31,7 +31,7 @@ import {
   TrendingDown,
   Minus,
 } from 'lucide-react';
-import { formatDistanceToNow, format } from 'date-fns';
+import { format } from 'date-fns';
 
 const publicationTypes = [
   { value: 'newspaper', label: 'Newspaper' },
@@ -107,7 +107,9 @@ export default function PressMonitoring() {
   });
 
   const scanForMentions = async () => {
-    if (sources.length === 0 || keywords.length === 0) return;
+    if (sources.length === 0 || keywords.length === 0) {
+      return;
+    }
 
     setScanning(true);
 

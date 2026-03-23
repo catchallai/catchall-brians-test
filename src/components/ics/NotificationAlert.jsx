@@ -1,9 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Card } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { AlertCircle, MessageSquare, AtSign, X } from 'lucide-react';
+import { MessageSquare, AtSign, X } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 
 export default function NotificationAlert({ channelId, user, onNotificationClick, onDismiss }) {
@@ -38,7 +37,9 @@ export default function NotificationAlert({ channelId, user, onNotificationClick
     }
   };
 
-  if (recentNotifications.length === 0) return null;
+  if (recentNotifications.length === 0) {
+    return null;
+  }
 
   return (
     <div className="fixed bottom-6 right-6 space-y-3 max-w-sm z-50">

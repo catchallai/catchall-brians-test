@@ -20,7 +20,6 @@ import {
   ChevronRight,
   User,
   Loader2,
-  AlertTriangle,
   ShieldCheck,
   MessageSquare,
 } from 'lucide-react';

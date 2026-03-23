@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -21,7 +21,9 @@ export default function Inbox() {
   const { data: assignments = [] } = useQuery({
     queryKey: ['task-assignments', user?.email],
     queryFn: async () => {
-      if (!user?.email) return [];
+      if (!user?.email) {
+        return [];
+      }
       return await base44.entities.TaskAssignment.filter(
         { assigned_to: user.email },
         '-created_date'
@@ -33,7 +35,9 @@ export default function Inbox() {
   const { data: tasks = [] } = useQuery({
     queryKey: ['my-tasks'],
     queryFn: async () => {
-      if (!user?.email) return [];
+      if (!user?.email) {
+        return [];
+      }
       return await base44.entities.Task.filter({ assigned_to: user.email });
     },
     enabled: !!user?.email,
@@ -42,7 +46,9 @@ export default function Inbox() {
   const { data: issues = [] } = useQuery({
     queryKey: ['my-issues'],
     queryFn: async () => {
-      if (!user?.email) return [];
+      if (!user?.email) {
+        return [];
+      }
       return await base44.entities.Issue.filter({ assigned_to: user.email });
     },
     enabled: !!user?.email,
@@ -69,8 +75,12 @@ export default function Inbox() {
   ).length;
 
   const filteredAssignments = assignments.filter((a) => {
-    if (filter === 'unread') return !a.is_read;
-    if (filter === 'read') return a.is_read;
+    if (filter === 'unread') {
+      return !a.is_read;
+    }
+    if (filter === 'read') {
+      return a.is_read;
+    }
     return true;
   });
 

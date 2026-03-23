@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Search, Eye, Clock, CheckCircle2, Calendar, ArrowRight } from 'lucide-react';
+import { Search, Eye, CheckCircle2, Calendar } from 'lucide-react';
 import { format, formatDistanceToNow } from 'date-fns';
 import PostApprovalPanel from '@/components/social/PostApprovalPanel';
 

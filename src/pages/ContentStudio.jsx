@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/components/ui/toast-provider';
@@ -16,15 +16,10 @@ import {
   Wand2,
   Sparkles,
   Target,
-  TrendingUp,
-  Plus,
   Search,
   Filter,
   Zap,
   BookOpen,
-  PenTool,
-  CheckCircle,
-  Clock,
   ArrowRight,
   Star,
   Loader2,
@@ -40,7 +35,6 @@ import ArticleGeneratorModal from '@/components/content/ArticleGeneratorModal';
 import BrandVoiceSettings from '@/components/content/BrandVoiceSettings';
 import CRMContentGenerator from '@/components/content/CRMContentGenerator';
 import ShareToSocialModal from '@/components/content/ShareToSocialModal';
-import PlagiarismChecker from '@/components/content/PlagiarismChecker';
 import ContentVersionHistory from '@/components/content/ContentVersionHistory';
 import ContentExporter from '@/components/content/ContentExporter';
 

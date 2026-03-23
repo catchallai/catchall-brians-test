@@ -23,8 +23,6 @@ import {
   Clock,
   Phone,
   AlertCircle,
-  X,
-  Edit2,
   Copy,
   Trash2,
 } from 'lucide-react';
@@ -118,7 +116,9 @@ export default function WorkflowBuilder() {
   const { data: workflow } = useQuery({
     queryKey: ['workflow', workflowId],
     queryFn: async () => {
-      if (!workflowId) return null;
+      if (!workflowId) {
+        return null;
+      }
       const wf = await base44.entities.DealWorkflow.filter({ id: workflowId });
       if (wf[0]) {
         setWorkflowName(wf[0].name);

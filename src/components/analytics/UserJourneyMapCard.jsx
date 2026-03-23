@@ -20,8 +20,6 @@ import {
   AlertTriangle,
   Lightbulb,
   Target,
-  MousePointer,
-  Eye,
   Clock,
   CheckCircle,
   XCircle,

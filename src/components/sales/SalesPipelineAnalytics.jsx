@@ -1,9 +1,7 @@
-import React, { useState, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import {
-  LineChart,
-  Line,
   BarChart,
   Bar,
   PieChart,
@@ -13,11 +11,9 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
-  Legend,
   ResponsiveContainer,
 } from 'recharts';
-import { TrendingUp, TrendingDown, Settings, Download } from 'lucide-react';
-import { format, subDays, eachDayOfInterval } from 'date-fns';
+import { Download } from 'lucide-react';
 
 export default function SalesPipelineAnalytics({ deals, onExport }) {
   const [timeRange, setTimeRange] = useState('30days');
@@ -141,8 +137,12 @@ export default function SalesPipelineAnalytics({ deals, onExport }) {
   const COLORS = ['#3b82f6', '#8b5cf6', '#ec4899', '#f59e0b'];
 
   const formatCurrency = (value) => {
-    if (value >= 1000000) return `$${(value / 1000000).toFixed(1)}M`;
-    if (value >= 1000) return `$${(value / 1000).toFixed(0)}K`;
+    if (value >= 1000000) {
+      return `$${(value / 1000000).toFixed(1)}M`;
+    }
+    if (value >= 1000) {
+      return `$${(value / 1000).toFixed(0)}K`;
+    }
     return `$${value}`;
   };
 

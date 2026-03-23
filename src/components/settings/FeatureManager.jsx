@@ -1,8 +1,6 @@
-import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -25,10 +23,7 @@ import {
   BarChart3,
   PenTool,
   TrendingUp,
-  FlaskConical,
   UserPlus,
-  RefreshCw,
-  Bell,
   Loader2,
   Sparkles,
   Rocket,
@@ -401,7 +396,9 @@ export default function FeatureManager() {
 
   const isFeatureEnabled = (featureKey) => {
     const setting = featureSettings.find((f) => f.feature_key === featureKey);
-    if (setting) return setting.enabled;
+    if (setting) {
+      return setting.enabled;
+    }
     return FEATURES[featureKey]?.default || false;
   };
 

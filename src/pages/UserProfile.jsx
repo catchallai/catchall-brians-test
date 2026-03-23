@@ -23,11 +23,9 @@ import {
   Crown,
   Calendar,
   TrendingUp,
-  Upload,
   Smile,
   Clock,
   Volume2,
-  VolumeX,
   Moon,
   Sun,
 } from 'lucide-react';

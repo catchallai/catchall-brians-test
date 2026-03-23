@@ -1,8 +1,7 @@
-import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Calendar, Clock, CheckCircle2, AlertCircle } from 'lucide-react';
-import { format, isToday, isTomorrow, isPast, isFuture } from 'date-fns';
+import { Calendar } from 'lucide-react';
+import { format, isToday, isTomorrow, isFuture } from 'date-fns';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 
@@ -32,8 +31,12 @@ export default function ContentCalendarCard({ posts, brands }) {
 
   const getDateLabel = (date) => {
     const d = new Date(date);
-    if (isToday(d)) return 'Today';
-    if (isTomorrow(d)) return 'Tomorrow';
+    if (isToday(d)) {
+      return 'Today';
+    }
+    if (isTomorrow(d)) {
+      return 'Tomorrow';
+    }
     return format(d, 'MMM d');
   };
 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -20,24 +20,16 @@ import {
   Eye,
   Clock,
   ArrowUpRight,
-  Globe,
   Monitor,
   Smartphone,
   Tablet,
   MapPin,
-  BarChart3,
-  PieChart,
-  Calendar,
   RefreshCw,
   Download,
 } from 'lucide-react';
 import {
-  LineChart,
-  Line,
   AreaChart,
   Area,
-  BarChart,
-  Bar,
   PieChart as RePieChart,
   Pie,
   Cell,
@@ -145,7 +137,9 @@ export default function TrafficAnalytics() {
 
   // Calculate percentage changes by comparing first half vs second half of period
   const calculateChange = (data, key) => {
-    if (data.length < 2) return 0;
+    if (data.length < 2) {
+      return 0;
+    }
     const midpoint = Math.floor(data.length / 2);
     const firstHalf = data.slice(0, midpoint);
     const secondHalf = data.slice(midpoint);
@@ -153,7 +147,9 @@ export default function TrafficAnalytics() {
     const firstAvg = firstHalf.reduce((sum, d) => sum + d[key], 0) / firstHalf.length;
     const secondAvg = secondHalf.reduce((sum, d) => sum + d[key], 0) / secondHalf.length;
 
-    if (firstAvg === 0) return 0;
+    if (firstAvg === 0) {
+      return 0;
+    }
     return (((secondAvg - firstAvg) / firstAvg) * 100).toFixed(1);
   };
 

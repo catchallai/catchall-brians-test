@@ -38,7 +38,9 @@ export default function AddListeningModal({ open, onClose, onSave, isLoading, ed
   }, [editingKeyword, open]);
 
   const handleSubmit = () => {
-    if (!keyword.trim()) return;
+    if (!keyword.trim()) {
+      return;
+    }
     onSave({
       id: editingKeyword?.id,
       keyword: keyword.trim().replace(/^[#@]/, ''),

@@ -1,10 +1,10 @@
-import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { TrendingUp, TrendingDown } from 'lucide-react';
 
 export default function QuotaTrendsChart({ currentQuota, previousQuotas = [] }) {
-  if (!currentQuota) return null;
+  if (!currentQuota) {
+    return null;
+  }
 
   const prevQuota = previousQuotas[0];
   const quotaChange = prevQuota

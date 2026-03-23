@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Loader2, Sparkles, Copy, Check } from 'lucide-react';
@@ -15,7 +15,9 @@ export default function AIPostAssistant({
   const [copiedIndex, setCopiedIndex] = useState(null);
 
   const generateSuggestions = async () => {
-    if (!imageUrl && !currentCaption) return;
+    if (!imageUrl && !currentCaption) {
+      return;
+    }
 
     setIsLoading(true);
     try {

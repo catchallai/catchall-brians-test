@@ -1,4 +1,3 @@
-import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   LineChart,
@@ -10,9 +9,8 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  Legend,
 } from 'recharts';
-import { TrendingUp, Users, DollarSign } from 'lucide-react';
+import { Users, DollarSign } from 'lucide-react';
 
 export default function TrendCharts({ company }) {
   // Generate simulated historical data based on growth metrics

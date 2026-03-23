@@ -710,7 +710,9 @@ export function useRBAC() {
   const { data: permissions = [] } = useQuery({
     queryKey: ['role-permissions', user?.role],
     queryFn: async () => {
-      if (!user?.role) return [];
+      if (!user?.role) {
+        return [];
+      }
       const perms = await base44.entities.RolePermission.filter({ role: user.role });
       return perms;
     },
@@ -719,12 +721,18 @@ export function useRBAC() {
   });
 
   const getPermission = (section, action = 'can_view') => {
-    if (!user?.role) return false;
-    if (user.role === 'admin') return true; // Admins have full access
+    if (!user?.role) {
+      return false;
+    }
+    if (user.role === 'admin') {
+      return true;
+    } // Admins have full access
 
     // Check if custom permission exists
     const customPerm = permissions.find((p) => p.section === section);
-    if (customPerm) return customPerm[action] || false;
+    if (customPerm) {
+      return customPerm[action] || false;
+    }
 
     // Fall back to defaults
     const defaultPerms = DEFAULT_PERMISSIONS[user.role]?.[section];

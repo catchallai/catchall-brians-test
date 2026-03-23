@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -17,11 +17,9 @@ import {
 } from '@/components/ui/select';
 import {
   Plus,
-  Search,
   Loader2,
   RefreshCw,
   TrendingUp,
-  TrendingDown,
   MessageSquare,
   Heart,
   Share2,
@@ -31,27 +29,18 @@ import {
   ThumbsUp,
   ThumbsDown,
   Minus,
-  Calendar,
   Target,
   Lightbulb,
   FlaskConical,
-  CalendarDays,
-  Pencil,
   Trash2,
-  FileText,
-  Clock,
   Activity,
 } from 'lucide-react';
 import SocialAccountCard from '@/components/seo/SocialAccountCard';
 import ContentInsightsCard from '@/components/social/ContentInsightsCard';
 import CompetitorCard from '@/components/social/CompetitorCard';
-import ScheduledPostCard from '@/components/social/ScheduledPostCard';
-import ContentCalendar from '@/components/social/ContentCalendar';
 import ABTestCard from '@/components/social/ABTestCard';
 import TrendAnalysisCard from '@/components/social/TrendAnalysisCard';
-import CompetitorDetailCard from '@/components/social/CompetitorDetailCard';
 import CompetitorDetailModal from '@/components/social/CompetitorDetailModal';
-import CompetitorReportCard from '@/components/social/CompetitorReportCard';
 import CompetitorReportModal from '@/components/modals/CompetitorReportModal';
 import CompetitorNetworkMap from '@/components/social/CompetitorNetworkMap';
 import SchedulePostModal from '@/components/modals/SchedulePostModal';
@@ -1631,7 +1620,9 @@ Find 5 recent posts with: post_url (direct link to post), content, post_date, li
   });
 
   const getAccountPosts = (accountId) => {
-    if (!accountId) return [];
+    if (!accountId) {
+      return [];
+    }
     return socialPosts.filter((p) => p.social_account_id === accountId);
   };
   const getAccountInsights = (accountId) =>

@@ -1,4 +1,3 @@
-import React from 'react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { Phone, Mail, Calendar, CheckSquare, FileText } from 'lucide-react';

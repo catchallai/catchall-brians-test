@@ -1,24 +1,19 @@
 import React from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import {
   Users,
   Building2,
-  DollarSign,
   Target,
   Search,
   TrendingUp,
-  MessageSquare,
   Calendar,
   Mail,
   Radio,
   Globe,
-  Zap,
-  ArrowRight,
 } from 'lucide-react';
 
 const PipelineCard = React.lazy(() => import('@/components/dashboard/PipelineCard'));
@@ -162,8 +157,12 @@ export default function Dashboard() {
   ).length;
 
   const formatCurrency = (value) => {
-    if (value >= 1000000) return `$${(value / 1000000).toFixed(1)}M`;
-    if (value >= 1000) return `$${(value / 1000).toFixed(0)}K`;
+    if (value >= 1000000) {
+      return `$${(value / 1000000).toFixed(1)}M`;
+    }
+    if (value >= 1000) {
+      return `$${(value / 1000).toFixed(0)}K`;
+    }
     return `$${value.toLocaleString()}`;
   };
 
@@ -217,8 +216,12 @@ export default function Dashboard() {
   // Get time-based greeting
   const getGreeting = () => {
     const hour = new Date().getHours();
-    if (hour < 12) return 'Good morning';
-    if (hour < 18) return 'Good afternoon';
+    if (hour < 12) {
+      return 'Good morning';
+    }
+    if (hour < 18) {
+      return 'Good afternoon';
+    }
     return 'Good evening';
   };
 

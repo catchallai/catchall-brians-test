@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { MessageCircle, X } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { MessageCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { base44 } from '@/api/base44Client';
@@ -14,7 +14,9 @@ export default function ChatBubble() {
   });
 
   useEffect(() => {
-    if (!user?.email) return;
+    if (!user?.email) {
+      return;
+    }
 
     // Subscribe to new messages
     const unsubscribe = base44.entities.Message?.subscribe?.((event) => {

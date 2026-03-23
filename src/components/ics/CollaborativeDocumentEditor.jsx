@@ -1,11 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import {
   Dialog,
   DialogContent,
@@ -85,7 +83,9 @@ export default function CollaborativeDocumentEditor({
   };
 
   const addCollaborator = async (email) => {
-    if (!selectedDoc || selectedDoc.collaborators?.includes(email)) return;
+    if (!selectedDoc || selectedDoc.collaborators?.includes(email)) {
+      return;
+    }
     try {
       const updated = await base44.entities.Document.update(selectedDoc.id, {
         collaborators: [...(selectedDoc.collaborators || []), email],
@@ -100,7 +100,9 @@ export default function CollaborativeDocumentEditor({
   const removeDocument = async (docId) => {
     try {
       await base44.entities.Document.delete(docId);
-      if (selectedDoc?.id === docId) setSelectedDoc(null);
+      if (selectedDoc?.id === docId) {
+        setSelectedDoc(null);
+      }
       await loadDocuments();
     } catch (err) {
       console.error('Failed to delete document:', err);

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent } from '@/components/ui/card';
@@ -20,11 +20,6 @@ import {
   Search,
   Image,
   Play,
-  Facebook,
-  Linkedin,
-  Twitter,
-  Instagram,
-  Globe,
   RefreshCw,
 } from 'lucide-react';
 import { format } from 'date-fns';
@@ -271,7 +266,9 @@ export default function AllChannels() {
   };
 
   const handleDelete = (post) => {
-    if (confirm('Delete this post?')) deleteMutation.mutate(post.id);
+    if (confirm('Delete this post?')) {
+      deleteMutation.mutate(post.id);
+    }
   };
 
   const handleApprove = (post) => {
@@ -303,7 +300,9 @@ export default function AllChannels() {
   };
 
   const filtered = posts.filter((p) => {
-    if (!search) return true;
+    if (!search) {
+      return true;
+    }
     const q = search.toLowerCase();
     return (
       p.caption?.toLowerCase().includes(q) ||

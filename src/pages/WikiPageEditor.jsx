@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useSearchParams, useNavigate } from 'react-router-dom';
@@ -9,14 +9,11 @@ import {
   Save,
   Sparkles,
   Clock,
-  FileText,
   MessageSquare,
-  Eye,
   Star,
   Link2,
   Copy,
   Calendar as CalendarIcon,
-  Upload,
 } from 'lucide-react';
 import PageExportMenu from '@/components/wiki/PageExportMenu';
 import RelatedPagesPanel from '@/components/wiki/RelatedPagesPanel';
@@ -93,7 +90,9 @@ export default function WikiPageEditor() {
   const { data: space } = useQuery({
     queryKey: ['space', spaceId],
     queryFn: async () => {
-      if (!spaceId) return null;
+      if (!spaceId) {
+        return null;
+      }
       const spaces = await base44.entities.Space.list();
       return spaces.find((s) => s.id === spaceId) || null;
     },
@@ -103,7 +102,9 @@ export default function WikiPageEditor() {
   const { data: page } = useQuery({
     queryKey: ['wiki-page', pageId],
     queryFn: async () => {
-      if (!pageId) return null;
+      if (!pageId) {
+        return null;
+      }
       const pages = await base44.entities.WikiPage.list();
       return pages.find((p) => p.id === pageId) || null;
     },
@@ -113,7 +114,9 @@ export default function WikiPageEditor() {
   const { data: allPages = [] } = useQuery({
     queryKey: ['space-pages', spaceId],
     queryFn: async () => {
-      if (!spaceId) return [];
+      if (!spaceId) {
+        return [];
+      }
       const pages = await base44.entities.WikiPage.list();
       return pages.filter((p) => p.space_id === spaceId && p.id !== pageId);
     },
@@ -123,7 +126,9 @@ export default function WikiPageEditor() {
   const { data: templates = [] } = useQuery({
     queryKey: ['wiki-templates', spaceId],
     queryFn: async () => {
-      if (!spaceId) return [];
+      if (!spaceId) {
+        return [];
+      }
       const pages = await base44.entities.WikiPage.list();
       return pages.filter((p) => p.space_id === spaceId && p.template === true);
     },
@@ -164,7 +169,9 @@ export default function WikiPageEditor() {
 
   // Track user presence
   useEffect(() => {
-    if (!pageId || !user) return;
+    if (!pageId || !user) {
+      return;
+    }
 
     let presenceId = null;
 
@@ -199,7 +206,9 @@ export default function WikiPageEditor() {
   const { data: bookmarks = [] } = useQuery({
     queryKey: ['user-bookmarks', user?.email],
     queryFn: async () => {
-      if (!user) return [];
+      if (!user) {
+        return [];
+      }
       const allBookmarks = await base44.entities.WikiPageBookmark.list();
       return allBookmarks.filter((b) => b.user_email === user.email);
     },
@@ -222,7 +231,9 @@ export default function WikiPageEditor() {
   };
 
   const duplicatePage = async () => {
-    if (!page) return;
+    if (!page) {
+      return;
+    }
     const duplicated = await base44.entities.WikiPage.create({
       space_id: spaceId,
       title: `${page.title} (Copy)`,
@@ -290,7 +301,9 @@ export default function WikiPageEditor() {
   };
 
   const generateSummary = async () => {
-    if (!content) return;
+    if (!content) {
+      return;
+    }
     setGeneratingSummary(true);
     try {
       const plainText = content.replace(/<[^>]*>/g, '');
@@ -324,7 +337,9 @@ export default function WikiPageEditor() {
     setShowTemplateSelector(false);
   };
 
-  if (!space) return <div className="p-6">Loading...</div>;
+  if (!space) {
+    return <div className="p-6">Loading...</div>;
+  }
 
   const colorClasses = {
     violet: 'bg-violet-500',

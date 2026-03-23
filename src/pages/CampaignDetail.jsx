@@ -1,23 +1,12 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import {
-  ArrowLeft,
-  Edit,
-  Users,
-  Target,
-  DollarSign,
-  Calendar,
-  Search,
-  Link2,
-  TrendingUp,
-  TrendingDown,
-} from 'lucide-react';
+import { ArrowLeft, Edit, Users, Target, DollarSign, Calendar, TrendingUp } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { format } from 'date-fns';
@@ -125,7 +114,9 @@ export default function CampaignDetail() {
     campaign.target_revenue > 0 ? (totalRevenue / campaign.target_revenue) * 100 : 0;
 
   const formatCurrency = (value) => {
-    if (!value) return '$0';
+    if (!value) {
+      return '$0';
+    }
     return `$${value.toLocaleString()}`;
   };
 
