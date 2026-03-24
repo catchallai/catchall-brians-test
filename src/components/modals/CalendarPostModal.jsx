@@ -2,20 +2,11 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { appendHashtagToCaption } from '@/utils/appendHashtagToCaption';
 import { createPageUrl } from '@/utils';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Switch } from '@/components/ui/switch';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Input } from '@/components/ui/input';
 import {
   Select,
   SelectContent,
@@ -51,8 +42,6 @@ import {
   Cloud,
   HardDrive,
   FolderOpen,
-  Search,
-  Images,
 } from 'lucide-react';
 import EmojiPicker from 'emoji-picker-react';
 import { base44 } from '@/api/base44Client';
@@ -63,6 +52,7 @@ import Tooltip from '@/components/ui-custom/Tooltip';
 import { todayLocal } from '@/utils/date';
 import useUnsavedChangesGuard from '@/components/hooks/useUnsavedChangesGuard';
 import ConfirmDialog from '@/components/ui/ConfirmDialog';
+import MediaLibraryModal from './MediaLibraryModal';
 
 const PLATFORMS = [
   {
@@ -383,9 +373,10 @@ export default function CalendarPostModal({
   const [scheduleError, setScheduleError] = useState('');
   const [requireApproval, setRequireApproval] = useState(true);
   const [mediaMenuTarget, setMediaMenuTarget] = useState(null);
+  const [pendingPicker, setPendingPicker] = useState(null);
   const [connectPrompt, setConnectPrompt] = useState(null);
   const [navigationPrompt, setNavigationPrompt] = useState(null);
-  const [mediaLibraryOpen, setMediaLibraryOpen] = useState(false);
+  const [isMediaLibraryOpen, setIsMediaLibraryOpen] = useState(false);
   const [mediaLibrarySearch, setMediaLibrarySearch] = useState('');
   const [selectedLibraryAsset, setSelectedLibraryAsset] = useState('');
   const [isEmojiPickerOpen, setIsEmojiPickerOpen] = useState(false);
@@ -395,6 +386,8 @@ export default function CalendarPostModal({
   const captionRef = useRef(null);
   const captionSelectionRef = useRef({ start: null, end: null });
   const initialFormDataRef = useRef({ ...DEFAULT_FORM });
+  const fileDialogLockRef = useRef(false);
+  const fileDialogReleaseTimeoutRef = useRef(null);
 
   useEffect(() => {
     setIsEmojiPickerOpen(false);
@@ -405,9 +398,10 @@ export default function CalendarPostModal({
       setShowBestTimes(false);
       setRequireApproval(true);
       setMediaMenuTarget(null);
+      setPendingPicker(null);
       setConnectPrompt(null);
       setNavigationPrompt(null);
-      setMediaLibraryOpen(false);
+      setIsMediaLibraryOpen(false);
       setMediaLibrarySearch('');
       setSelectedLibraryAsset('');
       if (post) {
@@ -449,12 +443,72 @@ export default function CalendarPostModal({
   const { data: mediaAssets = [], isLoading: isMediaLibraryLoading } = useQuery({
     queryKey: ['media-assets'],
     queryFn: () => base44.entities.MediaAsset.list('-created_date', 500),
-    enabled: mediaLibraryOpen,
+    enabled: isMediaLibraryOpen,
   });
+
+  const releaseFileDialogLock = () => {
+    fileDialogLockRef.current = false;
+    if (fileDialogReleaseTimeoutRef.current) {
+      clearTimeout(fileDialogReleaseTimeoutRef.current);
+      fileDialogReleaseTimeoutRef.current = null;
+    }
+  };
+
+  useEffect(() => {
+    if (mediaMenuTarget || !pendingPicker) {
+      return;
+    }
+
+    const nextInputRef = pendingPicker === 'video' ? videoInputRef : fileInputRef;
+    resetFileInput(nextInputRef);
+
+    const frameId = requestAnimationFrame(() => {
+      if (fileDialogLockRef.current) {
+        setPendingPicker(null);
+        return;
+      }
+
+      fileDialogLockRef.current = true;
+      nextInputRef.current?.click();
+      setPendingPicker(null);
+    });
+
+    return () => cancelAnimationFrame(frameId);
+  }, [mediaMenuTarget, pendingPicker]);
+
+  useEffect(() => {
+    const handleWindowFocus = () => {
+      if (!fileDialogLockRef.current) {
+        return;
+      }
+
+      fileDialogReleaseTimeoutRef.current = setTimeout(() => {
+        releaseFileDialogLock();
+      }, 300);
+    };
+
+    window.addEventListener('focus', handleWindowFocus);
+    return () => {
+      window.removeEventListener('focus', handleWindowFocus);
+      if (fileDialogReleaseTimeoutRef.current) {
+        clearTimeout(fileDialogReleaseTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  const resetFileInput = (inputRef) => {
+    if (inputRef.current) {
+      inputRef.current.value = '';
+    }
+  };
 
   const handleImageUpload = async (e) => {
     const file = e.target.files?.[0];
     if (!file) {
+      releaseFileDialogLock();
+      if (e.target) {
+        e.target.value = '';
+      }
       return;
     }
     setUploading(true);
@@ -466,11 +520,19 @@ export default function CalendarPostModal({
       media_type: 'image',
     }));
     setUploading(false);
+    releaseFileDialogLock();
+    if (e.target) {
+      e.target.value = '';
+    }
   };
 
   const handleVideoUpload = async (e) => {
     const file = e.target.files?.[0];
     if (!file) {
+      releaseFileDialogLock();
+      if (e.target) {
+        e.target.value = '';
+      }
       return;
     }
     setUploading(true);
@@ -482,6 +544,10 @@ export default function CalendarPostModal({
       media_type: 'video',
     }));
     setUploading(false);
+    releaseFileDialogLock();
+    if (e.target) {
+      e.target.value = '';
+    }
   };
 
   const handleDrop = (e) => {
@@ -499,14 +565,21 @@ export default function CalendarPostModal({
     }
   };
 
+  const handleDropzoneClick = (e) => {
+    if (e.target.closest('button')) {
+      return;
+    }
+    triggerImageUpload();
+  };
+
   const triggerImageUpload = () => {
     setMediaMenuTarget(null);
-    fileInputRef.current?.click();
+    setPendingPicker('image');
   };
 
   const triggerVideoUpload = () => {
     setMediaMenuTarget(null);
-    videoInputRef.current?.click();
+    setPendingPicker('video');
   };
 
   const openRouteFromComposer = (route, promptCopy) => {
@@ -529,7 +602,7 @@ export default function CalendarPostModal({
     setMediaMenuTarget(null);
     setMediaLibrarySearch('');
     setSelectedLibraryAsset(formData.image_url || '');
-    setMediaLibraryOpen(true);
+    setIsMediaLibraryOpen(true);
   };
 
   const openIntegrationSettings = (providerKey) => {
@@ -586,7 +659,7 @@ export default function CalendarPostModal({
       video_url: '',
       media_type: selectedLibraryAsset ? 'image' : 'none',
     }));
-    setMediaLibraryOpen(false);
+    setIsMediaLibraryOpen(false);
   };
 
   const clearSelectedImages = () => {
@@ -632,7 +705,10 @@ export default function CalendarPostModal({
                 <button
                   key={item.label}
                   type="button"
-                  onClick={item.onSelect}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    item.onSelect();
+                  }}
                   className="flex w-full items-center gap-3 rounded-lg px-2.5 py-2.5 text-left text-[15px] font-medium text-gray-700 transition-colors hover:bg-gray-50 hover:text-gray-900"
                 >
                   <Icon className="h-4 w-4 text-gray-500" />
@@ -779,6 +855,13 @@ export default function CalendarPostModal({
         ref={dialogContentRef}
         className="p-0 max-w-5xl w-full max-h-[92vh] overflow-hidden rounded-2xl bg-white dark:bg-gray-900"
         style={{ gap: 0 }}
+        onInteractOutside={(event) => {
+          if (isMediaLibraryOpen) {
+            return;
+          }
+          event.preventDefault();
+          guardedClose(false);
+        }}
       >
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-gray-800">
@@ -923,11 +1006,11 @@ export default function CalendarPostModal({
                     <img
                       src={formData.image_url}
                       alt="Selected media"
-                      className="rounded-xl max-h-40 object-cover"
+                      className="rounded-xl max-h-40 w-full object-cover"
                     />
                     <button
                       onClick={clearSelectedImages}
-                      className="absolute top-2 right-2 bg-black/60 hover:bg-black/80 text-white rounded-full p-1"
+                      className="absolute right-1.5 top-1.5 bg-black/60 hover:bg-black/80 text-white rounded-full p-1 shadow-sm"
                     >
                       <X className="w-3.5 h-3.5" />
                     </button>
@@ -947,7 +1030,7 @@ export default function CalendarPostModal({
                           media_type: 'none',
                         }))
                       }
-                      className="absolute top-2 right-2 bg-black/60 hover:bg-black/80 text-white rounded-full p-1"
+                      className="absolute right-1.5 top-1.5 bg-black/60 hover:bg-black/80 text-white rounded-full p-1 shadow-sm"
                     >
                       <X className="w-3.5 h-3.5" />
                     </button>
@@ -956,8 +1039,8 @@ export default function CalendarPostModal({
                   <div
                     onDrop={handleDrop}
                     onDragOver={(e) => e.preventDefault()}
+                    onClick={handleDropzoneClick}
                     className="mt-2 border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-xl p-4 flex flex-col items-center gap-2 cursor-pointer hover:border-violet-300 hover:bg-violet-50/30 dark:hover:bg-violet-900/10 transition-colors"
-                    onClick={() => fileInputRef.current?.click()}
                   >
                     {uploading ? (
                       <Loader2 className="w-6 h-6 animate-spin text-violet-500" />
@@ -984,6 +1067,8 @@ export default function CalendarPostModal({
                               side="bottom"
                               sideOffset={12}
                               className="w-[250px] rounded-xl border border-gray-200 bg-white p-0 shadow-[0_18px_40px_rgba(15,23,42,0.12)]"
+                              onCloseAutoFocus={(e) => e.preventDefault()}
+                              onPointerDown={(e) => e.stopPropagation()}
                               onClick={(e) => e.stopPropagation()}
                             >
                               {renderMediaMenuContent()}
@@ -1035,6 +1120,7 @@ export default function CalendarPostModal({
                       side="top"
                       sideOffset={10}
                       className="w-[250px] rounded-xl border border-gray-200 bg-white p-0 shadow-[0_18px_40px_rgba(15,23,42,0.12)]"
+                      onCloseAutoFocus={(e) => e.preventDefault()}
                     >
                       {renderMediaMenuContent()}
                     </PopoverContent>
@@ -1317,99 +1403,19 @@ export default function CalendarPostModal({
         confirmLabel="Open Settings"
         cancelLabel="Not Now"
         variant="default"
+        dismissible
       />
-      <Dialog open={mediaLibraryOpen} onOpenChange={setMediaLibraryOpen}>
-        <DialogContent className="max-w-4xl max-h-[85vh] overflow-hidden rounded-2xl">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Images className="w-5 h-5 text-violet-600" />
-              Select Media Library Image
-            </DialogTitle>
-            <DialogDescription>Choose one image to attach to this social post.</DialogDescription>
-          </DialogHeader>
-
-          <div className="space-y-4 overflow-hidden">
-            <div className="relative">
-              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-              <Input
-                value={mediaLibrarySearch}
-                onChange={(e) => setMediaLibrarySearch(e.target.value)}
-                placeholder="Search media library images"
-                className="pl-9"
-              />
-            </div>
-
-            <div className="max-h-[50vh] overflow-y-auto rounded-xl border border-gray-200 bg-gray-50 p-3">
-              {isMediaLibraryLoading ? (
-                <div className="flex items-center justify-center py-16 text-sm text-gray-500">
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Loading media library...
-                </div>
-              ) : imageAssets.length === 0 ? (
-                <div className="py-16 text-center text-sm text-gray-500">
-                  No image assets found in the Media Library.
-                </div>
-              ) : (
-                <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
-                  {imageAssets.map((asset) => {
-                    const checked = selectedLibraryAsset === asset.file_url;
-
-                    return (
-                      <button
-                        key={asset.id}
-                        type="button"
-                        onClick={() => selectLibraryAsset(asset.file_url)}
-                        className={`overflow-hidden rounded-xl border bg-white text-left transition-all ${
-                          checked
-                            ? 'border-violet-500 ring-2 ring-violet-200'
-                            : 'border-gray-200 hover:border-gray-300'
-                        }`}
-                      >
-                        <div className="relative aspect-square bg-gray-100">
-                          <img
-                            src={asset.file_url}
-                            alt={asset.name || 'Media asset'}
-                            className="h-full w-full object-cover"
-                          />
-                          <div className="absolute left-2 top-2 rounded-md bg-white/90 p-1 shadow-sm">
-                            <Checkbox checked={checked} className="pointer-events-none" />
-                          </div>
-                        </div>
-                        <div className="p-2.5">
-                          <p className="truncate text-sm font-medium text-gray-800">
-                            {asset.name || 'Untitled image'}
-                          </p>
-                          <p className="mt-1 truncate text-xs text-gray-500">
-                            {asset.category || asset.file_type || 'Image'}
-                          </p>
-                        </div>
-                      </button>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-          </div>
-
-          <DialogFooter className="items-center justify-between gap-3 sm:justify-between">
-            <div className="text-sm text-gray-500">
-              {selectedLibraryAsset ? '1 image selected' : 'No image selected'}
-            </div>
-            <div className="flex items-center gap-2">
-              <Button variant="outline" onClick={() => setMediaLibraryOpen(false)}>
-                Cancel
-              </Button>
-              <Button
-                onClick={applySelectedLibraryAssets}
-                disabled={!selectedLibraryAsset}
-                className="bg-violet-600 hover:bg-violet-700"
-              >
-                Use Selected Image
-              </Button>
-            </div>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <MediaLibraryModal
+        open={isMediaLibraryOpen}
+        onOpenChange={setIsMediaLibraryOpen}
+        searchValue={mediaLibrarySearch}
+        onSearchChange={setMediaLibrarySearch}
+        isLoading={isMediaLibraryLoading}
+        imageAssets={imageAssets}
+        selectedAssetUrl={selectedLibraryAsset}
+        onSelectAsset={selectLibraryAsset}
+        onApply={applySelectedLibraryAssets}
+      />
       <ConfirmDialog
         open={!!navigationPrompt}
         onClose={() => setNavigationPrompt(null)}

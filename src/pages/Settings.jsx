@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -105,7 +105,7 @@ export default function Settings() {
     show_tooltips: true,
   });
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (user) {
       setProfile({
         full_name: user.full_name || '',
@@ -126,7 +126,7 @@ export default function Settings() {
     }
   }, [user]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     setActiveTab(getValidSettingsTab(searchParams.get('tab')));
   }, [searchParams]);
 
