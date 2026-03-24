@@ -12,11 +12,15 @@ import {
 import { SortableContext, useSortable, rectSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import PostStatusChip from './PostStatusChip';
+import { PostStatus } from '@/types/enums';
 
 function SortableGridItem({ id, post, position, onAddPost, onEditPost }) {
+  // disable dragging for empty slots and published posts
+  const isDisabled = !post || post.status === PostStatus.PUBLISHED;
+
   const { setNodeRef, transform, transition, isDragging, listeners, attributes } = useSortable({
     id,
-    disabled: !post,
+    disabled: isDisabled,
   });
 
   const style = {
@@ -68,11 +72,15 @@ function SortableGridItem({ id, post, position, onAddPost, onEditPost }) {
     <div
       ref={setNodeRef}
       style={style}
-      className="aspect-square rounded-xl overflow-hidden relative group shadow-md hover:shadow-xl transition-all cursor-grab active:cursor-grabbing"
+      className={`aspect-square rounded-xl overflow-hidden relative group shadow-md hover:shadow-xl transition-all ${isDisabled ? 'cursor-pointer' : 'cursor-grab active:cursor-grabbing'}`}
       {...listeners}
       {...attributes}
       onClick={handleClick}
-      title="Click to edit · Double-click to preview · Drag to reorder"
+      title={
+        isDisabled
+          ? 'Click to edit · Double-click to preview'
+          : 'Click to edit · Double-click to preview · Drag to reorder'
+      }
     >
       {/* Status chip in upper left */}
       <div className="absolute top-2 left-2 z-10">
