@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Plus } from 'lucide-react';
 import {
@@ -157,19 +157,25 @@ export default function NineGridEditor({
 
   const handleDragEnd = (event) => {
     const { active, over } = event;
-    const activeId = parseInt(active.id);
-    const overId = parseInt(over.id);
+    // If dropped outside of any droppable area, or dropped back to original position, reset and exit
+    if (!over || !active) {
+      setActiveId(null);
+      return;
+    }
+
+    const activeIndex = parseInt(active.id);
+    const overIndex = parseInt(over.id);
 
     // Prevent dragging published posts
-    if (gridSlots[overId] && gridSlots[overId].status === PostStatus.PUBLISHED) {
+    if (gridSlots[overIndex] && gridSlots[overIndex].status === PostStatus.PUBLISHED) {
       toast.error('Published posts cannot be reordered.');
-
+      setActiveId(null);
       return;
     }
 
     if (over && active.id !== over.id) {
-      const oldIndex = activeId;
-      const newIndex = overId;
+      const oldIndex = activeIndex;
+      const newIndex = overIndex;
       const newSlots = [...gridSlots];
       [newSlots[oldIndex], newSlots[newIndex]] = [newSlots[newIndex], newSlots[oldIndex]];
 
@@ -193,7 +199,6 @@ export default function NineGridEditor({
       onPostsChange(updatedSlots.filter((p) => p !== null)); // async backend save
     }
     setActiveId(null);
-    setLocalSlots(null);
   };
 
   const handleAddPost = (position) => {

@@ -465,16 +465,19 @@ export default function SocialCalendar() {
           <>
             <NineGridEditor
               posts={filteredPosts}
-              onPostsChange={(updatedPosts) => {
-                // Update order in DB based on new grid positions and date
-                updatedPosts.forEach((post, idx) => {
-                  if (post && post.id) {
-                    updateMutation.mutate({
-                      id: post.id,
-                      data: { order: idx, scheduled_date: post.scheduled_date },
-                    });
-                  }
-                });
+              onPostsChange={async (updatedPosts) => {
+                // Batch update: await all updates, then invalidate query once
+                await Promise.all(
+                  updatedPosts.map((post, idx) =>
+                    post && post.id
+                      ? updateMutation.mutateAsync({
+                          id: post.id,
+                          data: { order: idx, scheduled_date: post.scheduled_date },
+                        })
+                      : Promise.resolve()
+                  )
+                );
+                queryClient.invalidateQueries({ queryKey: ['calendar-posts'] });
               }}
               onEditPost={(post, isPreview) => {
                 setSelectedPost(post);
