@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -39,9 +40,35 @@ import DataManagement from '@/components/settings/DataManagement';
 import AIToggleSettings from '@/components/settings/AIToggleSettings';
 import HubSpotSync from '@/components/settings/HubSpotSync';
 
+const SETTINGS_TABS = [
+  'profile',
+  'notifications',
+  'appearance',
+  'preferences',
+  'features',
+  'autosync',
+  'integrations',
+  'rbac',
+  'users',
+  'data',
+  'ai',
+];
+
+const getValidSettingsTab = (tab) => (SETTINGS_TABS.includes(tab) ? tab : 'profile');
+
+const buildProfileUpdatePayload = (profile) => ({
+  timezone: profile.timezone,
+  language: profile.language,
+  job_title: profile.job_title,
+  company: profile.company,
+  phone: profile.phone,
+  bio: profile.bio,
+});
+
 export default function Settings() {
+  const [searchParams] = useSearchParams();
   const [saving, setSaving] = useState(false);
-  const [activeTab, setActiveTab] = useState('profile');
+  const [activeTab, setActiveTab] = useState(getValidSettingsTab(searchParams.get('tab')));
   const queryClient = useQueryClient();
   const toast = useToast();
   const { theme, setTheme } = useTheme();
@@ -49,11 +76,6 @@ export default function Settings() {
   const { data: user, isLoading } = useQuery({
     queryKey: ['current-user'],
     queryFn: () => base44.auth.me(),
-  });
-
-  const { data: socialAccounts = [] } = useQuery({
-    queryKey: ['social-accounts'],
-    queryFn: () => base44.entities.SocialAccount.list('-created_date', 50),
   });
 
   const [profile, setProfile] = useState({
@@ -83,7 +105,7 @@ export default function Settings() {
     show_tooltips: true,
   });
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (user) {
       setProfile({
         full_name: user.full_name || '',
@@ -104,6 +126,10 @@ export default function Settings() {
     }
   }, [user]);
 
+  useEffect(() => {
+    setActiveTab(getValidSettingsTab(searchParams.get('tab')));
+  }, [searchParams]);
+
   const saveMutation = useMutation({
     mutationFn: async (data) => {
       await base44.auth.updateMe(data);
@@ -117,13 +143,15 @@ export default function Settings() {
 
   const handleSave = async () => {
     setSaving(true);
-    const { full_name, email, ...otherProfile } = profile;
-    await saveMutation.mutateAsync({
-      ...otherProfile,
-      notification_settings: notifications,
-      preferences: preferences,
-    });
-    setSaving(false);
+    try {
+      await saveMutation.mutateAsync({
+        ...buildProfileUpdatePayload(profile),
+        notification_settings: notifications,
+        preferences,
+      });
+    } finally {
+      setSaving(false);
+    }
   };
 
   if (isLoading) {

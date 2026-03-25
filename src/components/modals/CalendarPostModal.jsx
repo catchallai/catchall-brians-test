@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { appendHashtagToCaption } from '@/utils/appendHashtagToCaption';
+import { createPageUrl } from '@/utils';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -21,6 +23,7 @@ import {
   Link2,
   Plus,
   ChevronDown,
+  ChevronUp,
   Sparkles,
   Maximize2,
   Calendar,
@@ -35,6 +38,10 @@ import {
   FileText,
   ChevronRight,
   ShieldCheck,
+  Video,
+  Cloud,
+  HardDrive,
+  FolderOpen,
 } from 'lucide-react';
 import EmojiPicker from 'emoji-picker-react';
 import { base44 } from '@/api/base44Client';
@@ -45,6 +52,7 @@ import Tooltip from '@/components/ui-custom/Tooltip';
 import { todayLocal } from '@/utils/date';
 import useUnsavedChangesGuard from '@/components/hooks/useUnsavedChangesGuard';
 import ConfirmDialog from '@/components/ui/ConfirmDialog';
+import MediaLibraryModal from './MediaLibraryModal';
 
 const PLATFORMS = [
   {
@@ -353,6 +361,7 @@ export default function CalendarPostModal({
     queryKey: ['current-user'],
     queryFn: () => base44.auth.me(),
   });
+  const navigate = useNavigate();
 
   const [formData, setFormData] = useState({ ...DEFAULT_FORM });
   const [uploading, setUploading] = useState(false);
@@ -363,6 +372,13 @@ export default function CalendarPostModal({
   const [showBestTimes, setShowBestTimes] = useState(false);
   const [scheduleError, setScheduleError] = useState('');
   const [requireApproval, setRequireApproval] = useState(true);
+  const [mediaMenuTarget, setMediaMenuTarget] = useState(null);
+  const [pendingPicker, setPendingPicker] = useState(null);
+  const [connectPrompt, setConnectPrompt] = useState(null);
+  const [navigationPrompt, setNavigationPrompt] = useState(null);
+  const [isMediaLibraryOpen, setIsMediaLibraryOpen] = useState(false);
+  const [mediaLibrarySearch, setMediaLibrarySearch] = useState('');
+  const [selectedLibraryAsset, setSelectedLibraryAsset] = useState('');
   const [isEmojiPickerOpen, setIsEmojiPickerOpen] = useState(false);
   const dialogContentRef = useRef(null);
   const fileInputRef = useRef();
@@ -370,6 +386,8 @@ export default function CalendarPostModal({
   const captionRef = useRef(null);
   const captionSelectionRef = useRef({ start: null, end: null });
   const initialFormDataRef = useRef({ ...DEFAULT_FORM });
+  const fileDialogLockRef = useRef(false);
+  const fileDialogReleaseTimeoutRef = useRef(null);
 
   useEffect(() => {
     setIsEmojiPickerOpen(false);
@@ -379,11 +397,18 @@ export default function CalendarPostModal({
       setActiveTab('compose');
       setShowBestTimes(false);
       setRequireApproval(true);
+      setMediaMenuTarget(null);
+      setPendingPicker(null);
+      setConnectPrompt(null);
+      setNavigationPrompt(null);
+      setIsMediaLibraryOpen(false);
+      setMediaLibrarySearch('');
+      setSelectedLibraryAsset('');
       if (post) {
         const initial = {
           title: post.title || '',
           caption: post.caption || '',
-          image_url: post.image_url || '',
+          image_url: post.image_url || post.image_urls?.[0] || '',
           video_url: post.video_url || '',
           media_type: post.media_type || 'none',
           scheduled_date: post.scheduled_date || todayLocal(),
@@ -415,9 +440,75 @@ export default function CalendarPostModal({
 
   const { guardedClose, discardDialogProps } = useUnsavedChangesGuard({ isDirty, onClose });
 
+  const { data: mediaAssets = [], isLoading: isMediaLibraryLoading } = useQuery({
+    queryKey: ['media-assets'],
+    queryFn: () => base44.entities.MediaAsset.list('-created_date', 500),
+    enabled: isMediaLibraryOpen,
+  });
+
+  const releaseFileDialogLock = () => {
+    fileDialogLockRef.current = false;
+    if (fileDialogReleaseTimeoutRef.current) {
+      clearTimeout(fileDialogReleaseTimeoutRef.current);
+      fileDialogReleaseTimeoutRef.current = null;
+    }
+  };
+
+  useEffect(() => {
+    if (mediaMenuTarget || !pendingPicker) {
+      return;
+    }
+
+    const nextInputRef = pendingPicker === 'video' ? videoInputRef : fileInputRef;
+    resetFileInput(nextInputRef);
+
+    const frameId = requestAnimationFrame(() => {
+      if (fileDialogLockRef.current) {
+        setPendingPicker(null);
+        return;
+      }
+
+      fileDialogLockRef.current = true;
+      nextInputRef.current?.click();
+      setPendingPicker(null);
+    });
+
+    return () => cancelAnimationFrame(frameId);
+  }, [mediaMenuTarget, pendingPicker]);
+
+  useEffect(() => {
+    const handleWindowFocus = () => {
+      if (!fileDialogLockRef.current) {
+        return;
+      }
+
+      fileDialogReleaseTimeoutRef.current = setTimeout(() => {
+        releaseFileDialogLock();
+      }, 300);
+    };
+
+    window.addEventListener('focus', handleWindowFocus);
+    return () => {
+      window.removeEventListener('focus', handleWindowFocus);
+      if (fileDialogReleaseTimeoutRef.current) {
+        clearTimeout(fileDialogReleaseTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  const resetFileInput = (inputRef) => {
+    if (inputRef.current) {
+      inputRef.current.value = '';
+    }
+  };
+
   const handleImageUpload = async (e) => {
     const file = e.target.files?.[0];
     if (!file) {
+      releaseFileDialogLock();
+      if (e.target) {
+        e.target.value = '';
+      }
       return;
     }
     setUploading(true);
@@ -429,11 +520,19 @@ export default function CalendarPostModal({
       media_type: 'image',
     }));
     setUploading(false);
+    releaseFileDialogLock();
+    if (e.target) {
+      e.target.value = '';
+    }
   };
 
   const handleVideoUpload = async (e) => {
     const file = e.target.files?.[0];
     if (!file) {
+      releaseFileDialogLock();
+      if (e.target) {
+        e.target.value = '';
+      }
       return;
     }
     setUploading(true);
@@ -445,6 +544,10 @@ export default function CalendarPostModal({
       media_type: 'video',
     }));
     setUploading(false);
+    releaseFileDialogLock();
+    if (e.target) {
+      e.target.value = '';
+    }
   };
 
   const handleDrop = (e) => {
@@ -461,6 +564,163 @@ export default function CalendarPostModal({
       handleImageUpload(syntheticEvent);
     }
   };
+
+  const handleDropzoneClick = (e) => {
+    if (e.target.closest('button')) {
+      return;
+    }
+    triggerImageUpload();
+  };
+
+  const triggerImageUpload = () => {
+    setMediaMenuTarget(null);
+    setPendingPicker('image');
+  };
+
+  const triggerVideoUpload = () => {
+    setMediaMenuTarget(null);
+    setPendingPicker('video');
+  };
+
+  const openRouteFromComposer = (route, promptCopy) => {
+    setMediaMenuTarget(null);
+    if (isDirty) {
+      setNavigationPrompt({
+        route,
+        title: promptCopy?.title || 'Leave Composer?',
+        description:
+          promptCopy?.description ||
+          'You have unsaved post changes. Continue and leave this composer anyway?',
+      });
+      return;
+    }
+    onClose?.();
+    navigate(route);
+  };
+
+  const handleMediaLibraryOpen = () => {
+    setMediaMenuTarget(null);
+    setMediaLibrarySearch('');
+    setSelectedLibraryAsset(formData.image_url || '');
+    setIsMediaLibraryOpen(true);
+  };
+
+  const openIntegrationSettings = (providerKey) => {
+    setConnectPrompt(null);
+    const providerLabel = providerKey === 'dropbox' ? 'Dropbox' : 'Google Drive';
+    openRouteFromComposer(`${createPageUrl('Settings')}?tab=integrations`, {
+      title: `Open ${providerLabel} Setup?`,
+      description: `You have unsaved post changes. Continue to Settings to manage ${providerLabel} integrations?`,
+    });
+  };
+
+  const handleCloudMediaSource = (providerKey) => {
+    setMediaMenuTarget(null);
+    // Dropbox/Google Drive connection state is not modeled in the current app yet.
+    // Route users into the existing integrations settings flow until cloud media support is added.
+    setConnectPrompt(providerKey);
+  };
+
+  const confirmNavigation = () => {
+    if (!navigationPrompt?.route) {
+      return;
+    }
+    const route = navigationPrompt.route;
+    setNavigationPrompt(null);
+    onClose?.();
+    navigate(route);
+  };
+
+  const imageAssets = mediaAssets.filter((asset) => {
+    if (asset.file_type && asset.file_type !== 'image') {
+      return false;
+    }
+    if (!asset.file_url) {
+      return false;
+    }
+
+    const matchesSearch =
+      !mediaLibrarySearch ||
+      asset.name?.toLowerCase().includes(mediaLibrarySearch.toLowerCase()) ||
+      asset.category?.toLowerCase().includes(mediaLibrarySearch.toLowerCase()) ||
+      asset.tags?.some((tag) => tag.toLowerCase().includes(mediaLibrarySearch.toLowerCase()));
+
+    return matchesSearch;
+  });
+
+  const selectLibraryAsset = (assetUrl) => {
+    setSelectedLibraryAsset((current) => (current === assetUrl ? '' : assetUrl));
+  };
+
+  const applySelectedLibraryAssets = () => {
+    setFormData((f) => ({
+      ...f,
+      image_url: selectedLibraryAsset || '',
+      video_url: '',
+      media_type: selectedLibraryAsset ? 'image' : 'none',
+    }));
+    setIsMediaLibraryOpen(false);
+  };
+
+  const clearSelectedImages = () => {
+    setFormData((f) => ({
+      ...f,
+      image_url: '',
+      media_type: 'none',
+    }));
+  };
+
+  const mediaMenuItems = [
+    {
+      section: 'My Media',
+      items: [
+        { label: 'Upload Image', icon: ImageIcon, onSelect: triggerImageUpload },
+        { label: 'Upload Video', icon: Video, onSelect: triggerVideoUpload },
+        { label: 'Dropbox', icon: Cloud, onSelect: () => handleCloudMediaSource('dropbox') },
+        {
+          label: 'Google Drive',
+          icon: HardDrive,
+          onSelect: () => handleCloudMediaSource('google-drive'),
+        },
+      ],
+    },
+    {
+      section: 'Shared Media',
+      items: [{ label: 'Media Library', icon: FolderOpen, onSelect: handleMediaLibraryOpen }],
+    },
+  ];
+
+  const renderMediaMenuContent = () => (
+    <div className="py-2">
+      {mediaMenuItems.map((section, index) => (
+        <div key={section.section}>
+          {index > 0 && <div className="my-2 border-t border-gray-100" />}
+          <div className="px-4 pb-1 pt-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-gray-400">
+            {section.section}
+          </div>
+          <div className="space-y-0.5 px-2 pb-2">
+            {section.items.map((item) => {
+              const Icon = item.icon;
+              return (
+                <button
+                  key={item.label}
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    item.onSelect();
+                  }}
+                  className="flex w-full items-center gap-3 rounded-lg px-2.5 py-2.5 text-left text-[15px] font-medium text-gray-700 transition-colors hover:bg-gray-50 hover:text-gray-900"
+                >
+                  <Icon className="h-4 w-4 text-gray-500" />
+                  <span>{item.label}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
 
   const togglePlatform = (id) => {
     setFormData((f) => {
@@ -595,6 +855,13 @@ export default function CalendarPostModal({
         ref={dialogContentRef}
         className="p-0 max-w-5xl w-full max-h-[92vh] overflow-hidden rounded-2xl bg-white dark:bg-gray-900"
         style={{ gap: 0 }}
+        onInteractOutside={(event) => {
+          if (isMediaLibraryOpen) {
+            return;
+          }
+          event.preventDefault();
+          guardedClose(false);
+        }}
       >
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-gray-800">
@@ -735,21 +1002,15 @@ export default function CalendarPostModal({
               {/* Media drop zone / preview */}
               <div className="px-6 pb-2">
                 {formData.image_url ? (
-                  <div className="relative inline-block mt-2">
+                  <div className="relative mt-2">
                     <img
                       src={formData.image_url}
-                      alt="Preview"
-                      className="rounded-xl max-h-40 object-cover"
+                      alt="Selected media"
+                      className="rounded-xl max-h-40 w-full object-cover"
                     />
                     <button
-                      onClick={() =>
-                        setFormData((f) => ({
-                          ...f,
-                          image_url: '',
-                          media_type: 'none',
-                        }))
-                      }
-                      className="absolute top-2 right-2 bg-black/60 hover:bg-black/80 text-white rounded-full p-1"
+                      onClick={clearSelectedImages}
+                      className="absolute right-1.5 top-1.5 bg-black/60 hover:bg-black/80 text-white rounded-full p-1 shadow-sm"
                     >
                       <X className="w-3.5 h-3.5" />
                     </button>
@@ -769,7 +1030,7 @@ export default function CalendarPostModal({
                           media_type: 'none',
                         }))
                       }
-                      className="absolute top-2 right-2 bg-black/60 hover:bg-black/80 text-white rounded-full p-1"
+                      className="absolute right-1.5 top-1.5 bg-black/60 hover:bg-black/80 text-white rounded-full p-1 shadow-sm"
                     >
                       <X className="w-3.5 h-3.5" />
                     </button>
@@ -778,8 +1039,8 @@ export default function CalendarPostModal({
                   <div
                     onDrop={handleDrop}
                     onDragOver={(e) => e.preventDefault()}
+                    onClick={handleDropzoneClick}
                     className="mt-2 border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-xl p-4 flex flex-col items-center gap-2 cursor-pointer hover:border-violet-300 hover:bg-violet-50/30 dark:hover:bg-violet-900/10 transition-colors"
-                    onClick={() => fileInputRef.current?.click()}
                   >
                     {uploading ? (
                       <Loader2 className="w-6 h-6 animate-spin text-violet-500" />
@@ -788,9 +1049,31 @@ export default function CalendarPostModal({
                         <ImageIcon className="w-7 h-7 text-gray-300" />
                         <p className="text-sm text-gray-400">
                           Drag &amp; drop or{' '}
-                          <span className="text-blue-500 font-medium underline cursor-pointer">
-                            select a file
-                          </span>
+                          <Popover
+                            open={mediaMenuTarget === 'dropzone'}
+                            onOpenChange={(open) => setMediaMenuTarget(open ? 'dropzone' : null)}
+                          >
+                            <PopoverTrigger asChild>
+                              <button
+                                type="button"
+                                onClick={(e) => e.stopPropagation()}
+                                className="text-blue-500 font-medium underline cursor-pointer"
+                              >
+                                select a file
+                              </button>
+                            </PopoverTrigger>
+                            <PopoverContent
+                              align="center"
+                              side="bottom"
+                              sideOffset={12}
+                              className="w-[250px] rounded-xl border border-gray-200 bg-white p-0 shadow-[0_18px_40px_rgba(15,23,42,0.12)]"
+                              onCloseAutoFocus={(e) => e.preventDefault()}
+                              onPointerDown={(e) => e.stopPropagation()}
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              {renderMediaMenuContent()}
+                            </PopoverContent>
+                          </Popover>
                         </p>
                       </>
                     )}
@@ -815,13 +1098,33 @@ export default function CalendarPostModal({
               {/* Toolbar */}
               <div className="flex items-center justify-between px-6 py-2.5 border-t border-gray-100 dark:border-gray-800 mt-1">
                 <div className="flex items-center gap-1">
-                  <button
-                    onClick={() => fileInputRef.current?.click()}
-                    className="flex items-center gap-1 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg px-2 py-1.5 text-sm transition-colors"
+                  <Popover
+                    open={mediaMenuTarget === 'toolbar'}
+                    onOpenChange={(open) => setMediaMenuTarget(open ? 'toolbar' : null)}
                   >
-                    <Plus className="w-4 h-4" />
-                    <ChevronDown className="w-3 h-3" />
-                  </button>
+                    <PopoverTrigger asChild>
+                      <button
+                        type="button"
+                        className="flex items-center gap-1 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg px-2 py-1.5 text-sm transition-colors"
+                      >
+                        <Plus className="w-4 h-4" />
+                        {mediaMenuTarget === 'toolbar' ? (
+                          <ChevronUp className="w-3 h-3" />
+                        ) : (
+                          <ChevronDown className="w-3 h-3" />
+                        )}
+                      </button>
+                    </PopoverTrigger>
+                    <PopoverContent
+                      align="start"
+                      side="top"
+                      sideOffset={10}
+                      className="w-[250px] rounded-xl border border-gray-200 bg-white p-0 shadow-[0_18px_40px_rgba(15,23,42,0.12)]"
+                      onCloseAutoFocus={(e) => e.preventDefault()}
+                    >
+                      {renderMediaMenuContent()}
+                    </PopoverContent>
+                  </Popover>
                   <Popover open={isEmojiPickerOpen} onOpenChange={setIsEmojiPickerOpen}>
                     <PopoverTrigger asChild>
                       <button
@@ -1087,6 +1390,42 @@ export default function CalendarPostModal({
           </div>
         </div>
       </DialogContent>
+      <ConfirmDialog
+        open={!!connectPrompt}
+        onClose={() => setConnectPrompt(null)}
+        onConfirm={() => openIntegrationSettings(connectPrompt)}
+        title={connectPrompt === 'dropbox' ? 'Connect Dropbox First' : 'Connect Google Drive First'}
+        description={
+          connectPrompt === 'dropbox'
+            ? "Dropbox isn't connected in this workspace yet. Open Settings to review the current integrations setup before using Dropbox media here."
+            : "Google Drive isn't connected in this workspace yet. Open Settings to review the current integrations setup before using Drive media here."
+        }
+        confirmLabel="Open Settings"
+        cancelLabel="Not Now"
+        variant="default"
+        dismissible
+      />
+      <MediaLibraryModal
+        open={isMediaLibraryOpen}
+        onOpenChange={setIsMediaLibraryOpen}
+        searchValue={mediaLibrarySearch}
+        onSearchChange={setMediaLibrarySearch}
+        isLoading={isMediaLibraryLoading}
+        imageAssets={imageAssets}
+        selectedAssetUrl={selectedLibraryAsset}
+        onSelectAsset={selectLibraryAsset}
+        onApply={applySelectedLibraryAssets}
+      />
+      <ConfirmDialog
+        open={!!navigationPrompt}
+        onClose={() => setNavigationPrompt(null)}
+        onConfirm={confirmNavigation}
+        title={navigationPrompt?.title}
+        description={navigationPrompt?.description}
+        confirmLabel="Continue"
+        cancelLabel="Stay Here"
+        variant="default"
+      />
       <ConfirmDialog {...discardDialogProps} />
     </Dialog>
   );
