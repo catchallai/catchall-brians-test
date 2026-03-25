@@ -10,6 +10,26 @@ import {
 } from '@/components/ui/dialog';
 import { Loader2, Images, Search, Check } from 'lucide-react';
 
+interface ImageAsset {
+  id: string;
+  file_url: string;
+  name?: string;
+  category?: string;
+  file_type?: string;
+}
+
+interface MediaLibraryModalProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  searchValue: string;
+  onSearchChange: (value: string) => void;
+  isLoading: boolean;
+  imageAssets: ImageAsset[];
+  selectedAssetUrl: string | null;
+  onSelectAsset: (url: string) => void;
+  onApply: () => void;
+}
+
 export default function MediaLibraryModal({
   open,
   onOpenChange,
@@ -20,7 +40,7 @@ export default function MediaLibraryModal({
   selectedAssetUrl,
   onSelectAsset,
   onApply,
-}) {
+}: MediaLibraryModalProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl max-h-[85vh] overflow-hidden rounded-2xl">

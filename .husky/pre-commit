@@ -7,7 +7,8 @@ if [ "$CI" = "true" ]; then
 fi
 
 # Early exit if only .husky/pre-commit is staged
-ONLY_HUSKY_STAGED=$(git diff --cached --name-only --diff-filter=ACM | grep -v '^$' | grep -v '.husky/pre-commit')
+# Use ACMR to include renamed files; || true prevents grep from exiting with code 1 on empty input
+ONLY_HUSKY_STAGED=$(git diff --cached --name-only --diff-filter=ACMR | grep -v '^$' | grep -v '.husky/pre-commit' || true)
 if [ -z "$ONLY_HUSKY_STAGED" ]; then
   echo "Only .husky/pre-commit is staged. Skipping checks."
   exit 0
@@ -19,9 +20,9 @@ NC='\033[0m' # No Color
 
 echo "Running Before Takeoff Checklist ✈️"
 
-# Get staged files
-STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.(js|jsx|ts|tsx|css|md|json)$' | grep -vE '(^|/)\\.prettierignore$|(^|/)(node_modules|dist|build)(/|$)|(^|/)\\.env(\..*)?$|(^|/)\\.vscode(/|$)|.*\.log$|.*\.generated\..*|.*\.min\..*')
-ESLINT_FILES=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.(js|jsx|ts|tsx)$')
+# Get staged files (ACMR includes renamed files)
+STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACMR | grep -E '\.(js|jsx|ts|tsx|css|md|json)$' | grep -vE '(^|/)\\.prettierignore$|(^|/)(node_modules|dist|build)(/|$)|(^|/)\\.env(\..*)?$|(^|/)\\.vscode(/|$)|.*\.log$|.*\.generated\..*|.*\.min\..*' || true)
+ESLINT_FILES=$(git diff --cached --name-only --diff-filter=ACMR | grep -E '\.(js|jsx|ts|tsx)$' || true)
 
 echo "Staged files for Prettier: $STAGED_FILES"
 echo "Staged files for ESLint: $ESLINT_FILES"
@@ -55,7 +56,7 @@ if [ -n "$ESLINT_FILES" ]; then
 
   # Temporarily disable exit-on-error
   set +e
-  ESLINT_OUTPUT=$(git diff --cached --name-only --diff-filter=ACM -z \
+  ESLINT_OUTPUT=$(git diff --cached --name-only --diff-filter=ACMR -z \
   | grep -zE '\.(js|jsx|ts|tsx)$' \
   | xargs -0 npx eslint --max-warnings=0 2>&1)
   ESLINT_EXIT_CODE=$?
