@@ -466,10 +466,13 @@ export default function SocialCalendar() {
             <NineGridEditor
               posts={filteredPosts}
               onPostsChange={(updatedPosts) => {
-                // Update order in DB based on new grid positions
+                // Update order in DB based on new grid positions and date
                 updatedPosts.forEach((post, idx) => {
                   if (post && post.id) {
-                    updateMutation.mutate({ id: post.id, data: { order: idx } });
+                    updateMutation.mutate({
+                      id: post.id,
+                      data: { order: idx, scheduled_date: post.scheduled_date },
+                    });
                   }
                 });
               }}

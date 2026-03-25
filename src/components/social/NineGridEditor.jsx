@@ -13,6 +13,7 @@ import { SortableContext, useSortable, rectSortingStrategy } from '@dnd-kit/sort
 import { CSS } from '@dnd-kit/utilities';
 import PostStatusChip from './PostStatusChip';
 import { PostStatus } from '@/types/enums';
+import { useToast } from '@/components/ui/toast-provider';
 
 function SortableGridItem({ id, post, position, onAddPost, onEditPost }) {
   // disable dragging for empty slots and published posts
@@ -127,8 +128,8 @@ export default function NineGridEditor({
 }) {
   const [activeId, setActiveId] = useState(null);
   const [localSlots, setLocalSlots] = useState(null); // optimistic local state
-
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 4 } }));
+  const toast = useToast();
 
   // Sort posts by scheduled_date ascending, fill into slots left-to-right
   const sortedPosts = [...posts].sort((a, b) => {
@@ -156,9 +157,19 @@ export default function NineGridEditor({
 
   const handleDragEnd = (event) => {
     const { active, over } = event;
+    const activeId = parseInt(active.id);
+    const overId = parseInt(over.id);
+
+    // Prevent dragging published posts
+    if (gridSlots[overId] && gridSlots[overId].status === PostStatus.PUBLISHED) {
+      toast.error('Published posts cannot be reordered.');
+
+      return;
+    }
+
     if (over && active.id !== over.id) {
-      const oldIndex = parseInt(active.id);
-      const newIndex = parseInt(over.id);
+      const oldIndex = activeId;
+      const newIndex = overId;
       const newSlots = [...gridSlots];
       [newSlots[oldIndex], newSlots[newIndex]] = [newSlots[newIndex], newSlots[oldIndex]];
 
@@ -176,7 +187,9 @@ export default function NineGridEditor({
         };
       });
 
+      // TODO: What happens if the backend rejects the update? We should ideally revert to previous state and show an error toast
       setLocalSlots(updatedSlots); // instant UI update
+      // TODO: We could optimize by only sending changed posts to backend instead of all 9
       onPostsChange(updatedSlots.filter((p) => p !== null)); // async backend save
     }
     setActiveId(null);
