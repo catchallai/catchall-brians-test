@@ -130,6 +130,13 @@ export default function SocialCalendar() {
     },
   });
 
+  const reorderMutation = useMutation({
+    mutationFn: ({ id, data }) => base44.entities.CalendarPost.update(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['calendar-posts'] });
+    },
+  });
+
   const deleteMutation = useMutation({
     mutationFn: (id) => base44.entities.CalendarPost.delete(id),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['calendar-posts'] }),
@@ -224,7 +231,7 @@ export default function SocialCalendar() {
       await Promise.all(
         updatedPosts.map((post, idx) =>
           post && post.id
-            ? updateMutation.mutateAsync({
+            ? reorderMutation.mutateAsync({
                 id: post.id,
                 data: { order: idx, scheduled_date: post.scheduled_date },
               })
@@ -233,6 +240,7 @@ export default function SocialCalendar() {
       );
     } catch (error) {
       console.error('Failed to update nine-grid post ordering', error);
+      throw error; // rethrow to trigger toast error in NineGridEditor
     } finally {
       // Always refetch to reconcile UI with server state
       queryClient.invalidateQueries({ queryKey: ['calendar-posts'] });
