@@ -1,0 +1,31 @@
+{
+  "name": "HashtagPool",
+  "type": "object",
+  "properties": {
+    "hashtag": {
+      "type": "string",
+      "description": "Hashtag without #"
+    },
+    "hashtags": {
+      "type": "string",
+      "description": "Space-separated hashtag content of the pool (e.g. #marketing #brand #social)"
+    },
+    "category": {
+      "type": "string",
+      "description": "Category for organization (pipe-separated for multi-category, e.g. brand | campaign)"
+    },
+    "usage_count": {
+      "type": "number",
+      "default": 0,
+      "description": "Times used"
+    },
+    "is_favorite": {
+      "type": "boolean",
+      "default": false,
+      "description": "Marked as favorite"
+    }
+  },
+  "required": [
+    "hashtag"
+  ]
+}
