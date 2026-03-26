@@ -17,7 +17,6 @@ import {
   FolderPlus,
   MoreVertical,
   Star,
-  StarOff,
   ChevronDown,
 } from 'lucide-react';
 import {
@@ -83,11 +82,11 @@ export default function HashtagManager() {
       return;
     }
     const nonFavoriteCategories = newPoolCategories.filter((c) => c !== 'favorites');
-    const category = nonFavoriteCategories[0] ?? null;
     const isFavorite = newPoolIsFavorite || newPoolCategories.includes('favorites');
     addMutation.mutate({
       hashtag: newHashtag.trim(),
-      category,
+      category: nonFavoriteCategories.join(' | ') || null,
+      hashtags: newPoolHashtags.trim(),
       is_favorite: isFavorite,
       usage_count: 0,
     });
@@ -157,15 +156,6 @@ export default function HashtagManager() {
       h.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
-
-  const categoryColors = {
-    brand: 'bg-violet-100 text-violet-700 border-violet-200',
-    product: 'bg-blue-100 text-blue-700 border-blue-200',
-    campaign: 'bg-pink-100 text-pink-700 border-pink-200',
-    trending: 'bg-amber-100 text-amber-700 border-amber-200',
-    industry: 'bg-emerald-100 text-emerald-700 border-emerald-200',
-    location: 'bg-cyan-100 text-cyan-700 border-cyan-200',
-  };
 
   if (isLoading) {
     return (
@@ -481,7 +471,7 @@ export default function HashtagManager() {
             </CardContent>
           </Card>
 
-          {/* Hashtags Grid */}
+          {/* Hashtag Pools List */}
           <Card className="border-0 shadow-sm rounded-2xl">
             <CardHeader className="pb-2">
               <CardTitle className="text-base font-semibold flex items-center justify-between">
@@ -494,68 +484,79 @@ export default function HashtagManager() {
                         ? 'Uncategorized'
                         : `${selectedCategory} Hashtags`}
                 </span>
-                <Badge variant="secondary">{filteredHashtags.length} hashtags</Badge>
+                <Badge variant="secondary">{filteredHashtags.length} pools</Badge>
               </CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-0">
               {filteredHashtags.length === 0 ? (
                 <div className="text-center py-12">
                   <Hash className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-                  <p className="text-gray-500">No hashtags found</p>
-                  <p className="text-sm text-gray-400 mt-1">Add your first hashtag above</p>
+                  <p className="text-gray-500">No hashtag pools found</p>
+                  <p className="text-sm text-gray-400 mt-1">Create your first pool above</p>
                 </div>
               ) : (
-                <div className="flex flex-wrap gap-2">
-                  {filteredHashtags.map((hashtag) => (
-                    <div
-                      key={hashtag.id}
-                      className={`group relative flex items-center gap-2 px-3 py-2 rounded-full border transition-all hover:shadow-md ${
-                        hashtag.category && categoryColors[hashtag.category]
-                          ? categoryColors[hashtag.category]
-                          : 'bg-gray-100 text-gray-700 border-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700'
-                      }`}
-                    >
-                      <button
-                        onClick={() => toggleFavorite(hashtag)}
-                        className="opacity-0 group-hover:opacity-100 transition-opacity"
+                <div>
+                  {filteredHashtags.map((pool) => {
+                    const displayCategories = pool.category
+                      ? pool.category
+                          .split(' | ')
+                          .map((/** @type {string} */ c) => c.trim())
+                          .filter(Boolean)
+                      : [];
+                    return (
+                      <div
+                        key={pool.id}
+                        className="group flex items-start gap-3 px-6 py-4 border-b last:border-b-0"
                       >
-                        {hashtag.is_favorite ? (
-                          <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
-                        ) : (
-                          <StarOff className="w-3.5 h-3.5 text-gray-400" />
-                        )}
-                      </button>
+                        <button onClick={() => toggleFavorite(pool)} className="mt-0.5 shrink-0">
+                          {pool.is_favorite ? (
+                            <Star className="w-4 h-4 text-amber-500 fill-amber-500" />
+                          ) : (
+                            <Star className="w-4 h-4 text-gray-300 hover:text-amber-400 transition-colors" />
+                          )}
+                        </button>
 
-                      <span className="font-medium text-sm">#{hashtag.hashtag}</span>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="font-bold text-violet-600">{pool.hashtag}</span>
+                            {displayCategories.length > 0 && (
+                              <span className="text-sm text-gray-400">
+                                {displayCategories.join(' | ')}
+                              </span>
+                            )}
+                          </div>
+                          {pool.hashtags && (
+                            <p className="text-sm text-gray-700 dark:text-gray-300 mt-1 leading-relaxed">
+                              {pool.hashtags}
+                            </p>
+                          )}
+                        </div>
 
-                      {hashtag.usage_count > 0 && (
-                        <Badge variant="secondary" className="text-xs px-1.5 py-0">
-                          {hashtag.usage_count}
-                        </Badge>
-                      )}
-
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <button className="opacity-0 group-hover:opacity-100 transition-opacity">
-                            <MoreVertical className="w-3.5 h-3.5 text-gray-400" />
-                          </button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => copyToClipboard(`#${hashtag.hashtag}`)}>
-                            <Copy className="w-4 h-4 mr-2" />
-                            Copy
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            onClick={() => deleteMutation.mutate(hashtag.id)}
-                            className="text-red-600"
-                          >
-                            <Trash2 className="w-4 h-4 mr-2" />
-                            Delete
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </div>
-                  ))}
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <button className="mt-0.5 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                              <MoreVertical className="w-4 h-4 text-gray-400" />
+                            </button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem
+                              onClick={() => copyToClipboard(pool.hashtags || pool.hashtag)}
+                            >
+                              <Copy className="w-4 h-4 mr-2" />
+                              Copy
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() => deleteMutation.mutate(pool.id)}
+                              className="text-red-600"
+                            >
+                              <Trash2 className="w-4 h-4 mr-2" />
+                              Delete
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
+                    );
+                  })}
                 </div>
               )}
             </CardContent>
