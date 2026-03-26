@@ -116,7 +116,13 @@ export default function HashtagManager() {
     tags.forEach((tag) => {
       addMutation.mutate({
         hashtag: tag,
-        category: selectedCategory === 'all' ? null : selectedCategory,
+        category:
+          selectedCategory === 'all' ||
+          selectedCategory === 'uncategorized' ||
+          selectedCategory === 'favorites'
+            ? null
+            : selectedCategory,
+        is_favorite: selectedCategory === 'favorites',
         usage_count: 0,
       });
     });
@@ -142,18 +148,26 @@ export default function HashtagManager() {
     setTimeout(() => setCopiedAll(false), 2000);
   };
 
-  // Get unique categories
-  const categories = [...new Set(hashtags.map((h) => h.category).filter(Boolean))];
+  // Get unique individual categories by splitting pipe-separated values
+  const splitCategories = (/** @type {string|null|undefined} */ cat) =>
+    cat
+      ? cat
+          .split(' | ')
+          .map((/** @type {string} */ c) => c.trim())
+          .filter(Boolean)
+      : [];
+  const categories = [...new Set(hashtags.flatMap((h) => splitCategories(h.category)))];
   const allCategories = [...new Set([...categories, ...customCategories])];
 
   const filteredHashtags = hashtags.filter((h) => {
     const matchesSearch =
       !searchQuery || h.hashtag.toLowerCase().includes(searchQuery.toLowerCase());
+    const poolCategories = splitCategories(h.category);
     const matchesCategory =
       selectedCategory === 'all' ||
       (selectedCategory === 'favorites' && h.is_favorite) ||
-      (selectedCategory === 'uncategorized' && !h.category) ||
-      h.category === selectedCategory;
+      (selectedCategory === 'uncategorized' && poolCategories.length === 0) ||
+      poolCategories.includes(selectedCategory);
     return matchesSearch && matchesCategory;
   });
 
@@ -257,7 +271,7 @@ export default function HashtagManager() {
                   {cat}
                 </span>
                 <Badge variant="secondary" className="text-xs">
-                  {hashtags.filter((h) => h.category === cat).length}
+                  {hashtags.filter((h) => splitCategories(h.category).includes(cat)).length}
                 </Badge>
               </button>
             ))}
@@ -367,7 +381,6 @@ export default function HashtagManager() {
                     </PopoverTrigger>
                     <PopoverContent className="w-[--radix-popover-trigger-width] p-1" align="start">
                       {[
-                        { value: 'uncategorized', label: 'Uncategorized' },
                         { value: 'favorites', label: '★ Favorites' },
                         ...allCategories.map((cat) => ({ value: cat, label: cat })),
                       ].map(({ value, label }) => (
