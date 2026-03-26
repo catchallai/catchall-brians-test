@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Plus } from 'lucide-react';
 import {
@@ -14,6 +14,7 @@ import { CSS } from '@dnd-kit/utilities';
 import PostStatusChip from './PostStatusChip';
 import { PostStatus } from '@/types/enums';
 import { useToast } from '@/components/ui/toast-provider';
+import COPY from '@/lib/copy';
 
 function SortableGridItem({ id, post, position, onAddPost, onEditPost }) {
   // disable dragging for empty slots and published posts
@@ -168,7 +169,7 @@ export default function NineGridEditor({
 
     // Prevent dragging published posts
     if (gridSlots[overIndex] && gridSlots[overIndex].status === PostStatus.PUBLISHED) {
-      toast.error('Published posts cannot be reordered.');
+      toast.error(COPY.socialCalendar.toasts.error.publishedPost);
       setActiveId(null);
       return;
     }
@@ -193,10 +194,14 @@ export default function NineGridEditor({
         };
       });
 
-      // TODO: What happens if the backend rejects the update? We should ideally revert to previous state and show an error toast
-      setLocalSlots(updatedSlots); // instant UI update
+      // Optimistically update UI
+      const prevSlots = localSlots || baseSlots;
+      setLocalSlots(updatedSlots);
       // TODO: We could optimize by only sending changed posts to backend instead of all 9
-      onPostsChange(updatedSlots.filter((p) => p !== null)); // async backend save
+      Promise.resolve(onPostsChange(updatedSlots.filter((p) => p !== null))).catch((err) => {
+        setLocalSlots(prevSlots); // revert to previous state
+        toast.error(COPY.socialCalendar.toasts.error.reorderPosts);
+      });
     }
     setActiveId(null);
   };

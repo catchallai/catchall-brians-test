@@ -218,6 +218,27 @@ export default function SocialCalendar() {
     queryFn: () => base44.auth.me(),
   });
 
+  // Batch update: await all updates, then invalidate query once
+  const handleOnPostsChange = async (updatedPosts) => {
+    try {
+      await Promise.all(
+        updatedPosts.map((post, idx) =>
+          post && post.id
+            ? updateMutation.mutateAsync({
+                id: post.id,
+                data: { order: idx, scheduled_date: post.scheduled_date },
+              })
+            : Promise.resolve()
+        )
+      );
+    } catch (error) {
+      console.error('Failed to update nine-grid post ordering', error);
+    } finally {
+      // Always refetch to reconcile UI with server state
+      queryClient.invalidateQueries({ queryKey: ['calendar-posts'] });
+    }
+  };
+
   const isViewer = user?.social_media_role === 'viewer';
   const canEdit = !isViewer;
   const dateRange = `${format(startOfMonth(currentMonth), 'MMM d, yyyy')} - ${format(endOfMonth(currentMonth), 'MMM d, yyyy')}`;
@@ -465,20 +486,7 @@ export default function SocialCalendar() {
           <>
             <NineGridEditor
               posts={filteredPosts}
-              onPostsChange={async (updatedPosts) => {
-                // Batch update: await all updates, then invalidate query once
-                await Promise.all(
-                  updatedPosts.map((post, idx) =>
-                    post && post.id
-                      ? updateMutation.mutateAsync({
-                          id: post.id,
-                          data: { order: idx, scheduled_date: post.scheduled_date },
-                        })
-                      : Promise.resolve()
-                  )
-                );
-                queryClient.invalidateQueries({ queryKey: ['calendar-posts'] });
-              }}
+              onPostsChange={handleOnPostsChange}
               onEditPost={(post, isPreview) => {
                 setSelectedPost(post);
                 setShowModal(true);
