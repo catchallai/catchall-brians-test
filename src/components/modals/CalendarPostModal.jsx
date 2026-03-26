@@ -762,7 +762,7 @@ export default function CalendarPostModal({
     setShowBestTimes(false);
   };
 
-  const addHashtag = (tag) => {
+  const _addHashtag = (tag) => {
     setFormData((f) => {
       const existingHashtags = Array.isArray(f.hashtags) ? f.hashtags : [];
       const result = appendHashtagToCaption(f.caption, tag, existingHashtags);
@@ -770,6 +770,25 @@ export default function CalendarPostModal({
         return f;
       }
       return { ...f, ...result };
+    });
+  };
+
+  const addHashtagPool = (pool) => {
+    const content = pool.hashtags || '';
+    if (!content.trim()) {
+      return;
+    }
+    setFormData((f) => {
+      let caption = f.caption;
+      let hashtags = Array.isArray(f.hashtags) ? [...f.hashtags] : [];
+      for (const token of content.trim().split(/\s+/)) {
+        const result = appendHashtagToCaption(caption, token, hashtags);
+        if (result) {
+          caption = result.caption;
+          hashtags = result.hashtags;
+        }
+      }
+      return { ...f, caption, hashtags };
     });
   };
 
@@ -1180,10 +1199,10 @@ export default function CalendarPostModal({
                   {hashtagPool.slice(0, 10).map((h) => (
                     <button
                       key={h.id}
-                      onClick={() => addHashtag(h.hashtag)}
+                      onClick={() => addHashtagPool(h)}
                       className="text-xs text-violet-600 bg-violet-50 hover:bg-violet-100 border border-violet-200 rounded-full px-2 py-0.5 transition-colors"
                     >
-                      #{h.hashtag}
+                      {h.hashtag}
                     </button>
                   ))}
                 </div>
