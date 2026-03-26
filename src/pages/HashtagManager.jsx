@@ -56,7 +56,13 @@ export default function HashtagManager() {
 
   const addMutation = useMutation({
     mutationFn: (data) => base44.entities.HashtagPool.create(data),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['hashtag-pool'] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['hashtag-pool'] });
+      setNewHashtag('');
+      setNewPoolHashtags('');
+      setNewPoolCategories([]);
+      setNewPoolIsFavorite(false);
+    },
   });
 
   const deleteMutation = useMutation({
@@ -84,16 +90,12 @@ export default function HashtagManager() {
     const nonFavoriteCategories = newPoolCategories.filter((c) => c !== 'favorites');
     const isFavorite = newPoolIsFavorite || newPoolCategories.includes('favorites');
     addMutation.mutate({
-      hashtag: newHashtag.trim(),
+      hashtag: newHashtag.trim().replace(/^#+/, ''),
       category: nonFavoriteCategories.join(' | ') || null,
       hashtags: newPoolHashtags.trim(),
       is_favorite: isFavorite,
       usage_count: 0,
     });
-    setNewHashtag('');
-    setNewPoolHashtags('');
-    setNewPoolCategories([]);
-    setNewPoolIsFavorite(false);
   };
 
   const confirmNewCategory = () => {
@@ -153,7 +155,7 @@ export default function HashtagManager() {
     cat
       ? cat
           .split(' | ')
-          .map((/** @type {string} */ c) => c.trim())
+          .map((/** @type {string} */ c) => c.trim().toLowerCase())
           .filter(Boolean)
       : [];
   const categories = [...new Set(hashtags.flatMap((h) => splitCategories(h.category)))];
