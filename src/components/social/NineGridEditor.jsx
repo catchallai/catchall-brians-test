@@ -11,6 +11,7 @@ import {
 } from '@dnd-kit/core';
 import { SortableContext, useSortable, rectSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { parseISO } from 'date-fns';
 import PostStatusChip from './PostStatusChip';
 
 function SortableGridItem({ id, post, position, onAddPost, onEditPost }) {
@@ -98,7 +99,7 @@ function SortableGridItem({ id, post, position, onAddPost, onEditPost }) {
         <div className="w-full p-2 opacity-0 group-hover:opacity-100 transition-all">
           {post.scheduled_date && (
             <p className="text-white text-xs font-medium bg-black/50 rounded px-1.5 py-0.5 inline-block">
-              {new Date(post.scheduled_date).toLocaleDateString('en-US', {
+              {parseISO(post.scheduled_date).toLocaleDateString('en-US', {
                 month: 'short',
                 day: 'numeric',
               })}

@@ -10,6 +10,7 @@ import {
   eachDayOfInterval,
   isSameMonth,
   isSameDay,
+  parseISO,
   addMonths,
   subMonths,
   startOfWeek,
@@ -721,7 +722,7 @@ export default function SocialCalendarView({
       if (!post.scheduled_date) {
         return false;
       }
-      return isSameDay(new Date(post.scheduled_date), day);
+      return isSameDay(parseISO(post.scheduled_date), day);
     });
   };
 
