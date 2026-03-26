@@ -1,5 +1,12 @@
 const COPY = {
   socialCalendar: {
+    nineGridTitle: '9-Grid Layout',
+    nineGridDescription:
+      'Posts auto-sort by date · Click empty to create · Click post to edit · Double-click to preview',
+    addPost: 'Add Post',
+    clickToCreate: 'Click to create',
+    hoverPostHelperText: 'Click to edit · Double-click to preview · Drag to reorder',
+    hoverPublishedPostHelperText: 'Click to edit · Double-click to preview',
     toasts: {
       error: {
         reorderPosts: 'Failed to update post order. Please try again.',

@@ -15,6 +15,7 @@ import PostStatusChip from './PostStatusChip';
 import { PostStatus } from '@/types/enums';
 import { useToast } from '@/components/ui/toast-provider';
 import COPY from '@/lib/copy';
+import { set } from 'date-fns';
 
 function SortableGridItem({ id, post, position, onAddPost, onEditPost }) {
   // disable dragging for empty slots and published posts
@@ -63,8 +64,12 @@ function SortableGridItem({ id, post, position, onAddPost, onEditPost }) {
       >
         <div className="text-center">
           <Plus className="w-8 h-8 text-gray-400 dark:text-gray-500 group-hover:text-violet-500 transition-colors mx-auto mb-2" />
-          <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Add Post</p>
-          <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">Click to create</p>
+          <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
+            {COPY.socialCalendar.addPost}
+          </p>
+          <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">
+            {COPY.socialCalendar.clickToCreate}
+          </p>
         </div>
       </div>
     );
@@ -80,8 +85,8 @@ function SortableGridItem({ id, post, position, onAddPost, onEditPost }) {
       onClick={handleClick}
       title={
         isDisabled
-          ? 'Click to edit · Double-click to preview'
-          : 'Click to edit · Double-click to preview · Drag to reorder'
+          ? COPY.socialCalendar.hoverPublishedPostHelperText
+          : COPY.socialCalendar.hoverPostHelperText
       }
     >
       {/* Status chip in upper left */}
@@ -161,6 +166,7 @@ export default function NineGridEditor({
     // If dropped outside of any droppable area, or dropped back to original position, reset and exit
     if (!over || !active) {
       setActiveId(null);
+      setLocalSlots(null);
       return;
     }
 
@@ -171,6 +177,7 @@ export default function NineGridEditor({
     if (gridSlots[overIndex] && gridSlots[overIndex].status === PostStatus.PUBLISHED) {
       toast.error(COPY.socialCalendar.toasts.error.publishedPost);
       setActiveId(null);
+      setLocalSlots(null);
       return;
     }
 
@@ -228,10 +235,11 @@ export default function NineGridEditor({
       <CardContent className="p-6">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">9-Grid Layout</h3>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+              {COPY.socialCalendar.nineGridTitle}
+            </h3>
             <p className="text-sm text-gray-500 dark:text-gray-400">
-              Posts auto-sort by date · Click empty to create · Click post to edit · Double-click to
-              preview
+              {COPY.socialCalendar.nineGridDescription}
             </p>
           </div>
         </div>
