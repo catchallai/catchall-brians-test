@@ -130,6 +130,13 @@ export default function SocialCalendar() {
     },
   });
 
+  const reorderMutation = useMutation({
+    mutationFn: ({ id, data }) => base44.entities.CalendarPost.update(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['calendar-posts'] });
+    },
+  });
+
   const deleteMutation = useMutation({
     mutationFn: (id) => base44.entities.CalendarPost.delete(id),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['calendar-posts'] }),
@@ -217,6 +224,28 @@ export default function SocialCalendar() {
     queryKey: ['current-user'],
     queryFn: () => base44.auth.me(),
   });
+
+  // Batch update: await all updates, then invalidate query once
+  const handleOnPostsChange = async (updatedPosts) => {
+    try {
+      await Promise.all(
+        updatedPosts.map((post, idx) =>
+          post && post.id
+            ? reorderMutation.mutateAsync({
+                id: post.id,
+                data: { order: idx, scheduled_date: post.scheduled_date },
+              })
+            : Promise.resolve()
+        )
+      );
+    } catch (error) {
+      console.error('Failed to update nine-grid post ordering', error);
+      throw error; // rethrow to trigger toast error in NineGridEditor
+    } finally {
+      // Always refetch to reconcile UI with server state
+      queryClient.invalidateQueries({ queryKey: ['calendar-posts'] });
+    }
+  };
 
   const isViewer = user?.social_media_role === 'viewer';
   const canEdit = !isViewer;
@@ -465,14 +494,7 @@ export default function SocialCalendar() {
           <>
             <NineGridEditor
               posts={filteredPosts}
-              onPostsChange={(updatedPosts) => {
-                // Update order in DB based on new grid positions
-                updatedPosts.forEach((post, idx) => {
-                  if (post && post.id) {
-                    updateMutation.mutate({ id: post.id, data: { order: idx } });
-                  }
-                });
-              }}
+              onPostsChange={handleOnPostsChange}
               onEditPost={(post, isPreview) => {
                 setSelectedPost(post);
                 setShowModal(true);

@@ -12,11 +12,18 @@ import {
 import { SortableContext, useSortable, rectSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import PostStatusChip from './PostStatusChip';
+import { PostStatus } from '@/types/enums';
+import { useToast } from '@/components/ui/toast-provider';
+import COPY from '@/lib/copy';
+import { set } from 'date-fns';
 
 function SortableGridItem({ id, post, position, onAddPost, onEditPost }) {
+  // disable dragging for empty slots and published posts
+  const isDisabled = !post || post.status === PostStatus.PUBLISHED;
+
   const { setNodeRef, transform, transition, isDragging, listeners, attributes } = useSortable({
     id,
-    disabled: !post,
+    disabled: isDisabled,
   });
 
   const style = {
@@ -57,8 +64,12 @@ function SortableGridItem({ id, post, position, onAddPost, onEditPost }) {
       >
         <div className="text-center">
           <Plus className="w-8 h-8 text-gray-400 dark:text-gray-500 group-hover:text-violet-500 transition-colors mx-auto mb-2" />
-          <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Add Post</p>
-          <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">Click to create</p>
+          <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
+            {COPY.socialCalendar.addPost}
+          </p>
+          <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">
+            {COPY.socialCalendar.clickToCreate}
+          </p>
         </div>
       </div>
     );
@@ -68,11 +79,15 @@ function SortableGridItem({ id, post, position, onAddPost, onEditPost }) {
     <div
       ref={setNodeRef}
       style={style}
-      className="aspect-square rounded-xl overflow-hidden relative group shadow-md hover:shadow-xl transition-all cursor-grab active:cursor-grabbing"
+      className={`aspect-square rounded-xl overflow-hidden relative group shadow-md hover:shadow-xl transition-all ${isDisabled ? 'cursor-pointer' : 'cursor-grab active:cursor-grabbing'}`}
       {...listeners}
       {...attributes}
       onClick={handleClick}
-      title="Click to edit · Double-click to preview · Drag to reorder"
+      title={
+        isDisabled
+          ? COPY.socialCalendar.hoverPublishedPostHelperText
+          : COPY.socialCalendar.hoverPostHelperText
+      }
     >
       {/* Status chip in upper left */}
       <div className="absolute top-2 left-2 z-10">
@@ -119,8 +134,8 @@ export default function NineGridEditor({
 }) {
   const [activeId, setActiveId] = useState(null);
   const [localSlots, setLocalSlots] = useState(null); // optimistic local state
-
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 4 } }));
+  const toast = useToast();
 
   // Sort posts by scheduled_date ascending, fill into slots left-to-right
   const sortedPosts = [...posts].sort((a, b) => {
@@ -148,9 +163,27 @@ export default function NineGridEditor({
 
   const handleDragEnd = (event) => {
     const { active, over } = event;
+    // If dropped outside of any droppable area, or dropped back to original position, reset and exit
+    if (!over || !active) {
+      setActiveId(null);
+      setLocalSlots(null);
+      return;
+    }
+
+    const activeIndex = parseInt(active.id);
+    const overIndex = parseInt(over.id);
+
+    // Prevent dragging published posts
+    if (gridSlots[overIndex] && gridSlots[overIndex].status === PostStatus.PUBLISHED) {
+      toast.error(COPY.socialCalendar.toasts.error.publishedPost);
+      setActiveId(null);
+      setLocalSlots(null);
+      return;
+    }
+
     if (over && active.id !== over.id) {
-      const oldIndex = parseInt(active.id);
-      const newIndex = parseInt(over.id);
+      const oldIndex = activeIndex;
+      const newIndex = overIndex;
       const newSlots = [...gridSlots];
       [newSlots[oldIndex], newSlots[newIndex]] = [newSlots[newIndex], newSlots[oldIndex]];
 
@@ -168,11 +201,16 @@ export default function NineGridEditor({
         };
       });
 
-      setLocalSlots(updatedSlots); // instant UI update
-      onPostsChange(updatedSlots.filter((p) => p !== null)); // async backend save
+      // Optimistically update UI
+      const prevSlots = localSlots || baseSlots;
+      setLocalSlots(updatedSlots);
+      // TODO: We could optimize by only sending changed posts to backend instead of all 9
+      Promise.resolve(onPostsChange(updatedSlots.filter((p) => p !== null))).catch((err) => {
+        setLocalSlots(prevSlots); // revert to previous state
+        toast.error(COPY.socialCalendar.toasts.error.reorderPosts);
+      });
     }
     setActiveId(null);
-    setLocalSlots(null);
   };
 
   const handleAddPost = (position) => {
@@ -197,10 +235,11 @@ export default function NineGridEditor({
       <CardContent className="p-6">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">9-Grid Layout</h3>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+              {COPY.socialCalendar.nineGridTitle}
+            </h3>
             <p className="text-sm text-gray-500 dark:text-gray-400">
-              Posts auto-sort by date · Click empty to create · Click post to edit · Double-click to
-              preview
+              {COPY.socialCalendar.nineGridDescription}
             </p>
           </div>
         </div>
