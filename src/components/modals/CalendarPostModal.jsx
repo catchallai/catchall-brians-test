@@ -84,6 +84,11 @@ const BEST_TIMES = {
     { day: 'Friday', time: '09:00', label: 'Fri 9am' },
     { day: 'Tuesday', time: '10:00', label: 'Tue 10am' },
   ],
+  YouTube: [
+    { day: 'Wednesday', time: '09:00', label: 'Wed 9am' },
+    { day: 'Friday', time: '09:00', label: 'Fri 9am' },
+    { day: 'Tuesday', time: '10:00', label: 'Tue 10am' },
+  ],
 };
 
 const DAYS_OF_WEEK = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -855,7 +860,8 @@ export default function CalendarPostModal({
         className="p-0 max-w-5xl w-full max-h-[92vh] overflow-hidden rounded-2xl bg-white dark:bg-gray-900"
         style={{ gap: 0 }}
         onInteractOutside={(event) => {
-          if (isMediaLibraryOpen) {
+          if (isMediaLibraryOpen || showDeleteConfirm) {
+            event.preventDefault();
             return;
           }
           event.preventDefault();
@@ -963,13 +969,15 @@ export default function CalendarPostModal({
                       : COPY.calendarPostModal.whereToPost}
                   </Label>
                   <div className="flex flex-wrap gap-2">
-                    {PLATFORMS.map(({ id, icon: Icon }) => {
+                    {PLATFORMS.map(({ id, label, icon: Icon }) => {
                       const active = formData.platforms.includes(id);
                       return (
                         <button
                           key={id}
                           disabled={isPostPublished}
                           onClick={() => togglePlatform(id)}
+                          aria-label={label}
+                          title={label}
                           className={`flex items-center gap-1.5 p-2.5 rounded-full text-sm font-medium border transition-all ${
                             active
                               ? 'bg-violet-600 text-white border-violet-600'
@@ -1360,7 +1368,7 @@ export default function CalendarPostModal({
             {isPostPublished ? (
               <button
                 onClick={() => handleDeletePost()}
-                disabled={isLoading || !formData.caption}
+                disabled={isLoading}
                 className="flex items-center gap-1.5 text-sm text-white font-medium disabled:opacity-40 transition-colors bg-red-600 hover:bg-red-700 border border-red-600 hover:border-red-700 rounded-xl px-3 py-2"
               >
                 {isLoading ? (
