@@ -1025,8 +1025,8 @@ export default function CalendarPostModal({
               <div className="px-6 pb-2">
                 {hasSelectedMedia ? (
                   <div className="mt-2">
-                    <div className="flex flex-wrap gap-4">
-                      <div className="relative h-44 w-[177px] max-w-full overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+                    <div className="flex flex-wrap gap-3">
+                      <div className="relative h-[89px] w-[144px] max-w-full overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
                         {formData.image_url ? (
                           <img
                             src={formData.image_url}
@@ -1044,9 +1044,9 @@ export default function CalendarPostModal({
                         <button
                           type="button"
                           onClick={clearSelectedMedia}
-                          className="absolute left-1/2 top-1/2 z-10 flex h-12 w-12 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-2 border-red-400 bg-white/95 text-red-500 shadow-md transition-colors hover:bg-red-50"
+                          className="absolute right-2 top-2 z-10 flex h-7 w-7 items-center justify-center rounded-full border border-red-200 bg-white/95 text-red-500 shadow-sm transition-colors hover:bg-red-50"
                         >
-                          <X className="h-5 w-5" />
+                          <X className="h-3.5 w-3.5" />
                         </button>
                       </div>
 
@@ -1059,13 +1059,13 @@ export default function CalendarPostModal({
                             type="button"
                             onDrop={handleDrop}
                             onDragOver={(e) => e.preventDefault()}
-                            className="flex h-44 w-[177px] max-w-full items-center justify-center rounded-2xl border-2 border-dashed border-gray-300 bg-white text-blue-600 transition-colors hover:border-violet-300 hover:bg-violet-50/30"
+                            className="flex h-[89px] w-[144px] max-w-full items-center justify-center rounded-2xl border-2 border-dashed border-gray-300 bg-white text-blue-600 transition-colors hover:border-violet-300 hover:bg-violet-50/30"
                           >
                             {uploading ? (
-                              <Loader2 className="h-8 w-8 animate-spin text-violet-500" />
+                              <Loader2 className="h-6 w-6 animate-spin text-violet-500" />
                             ) : (
-                              <span className="flex h-16 w-16 items-center justify-center rounded-full border-2 border-blue-500 bg-white shadow-sm">
-                                <Plus className="h-8 w-8" />
+                              <span className="flex h-11 w-11 items-center justify-center rounded-full border-2 border-blue-500 bg-white shadow-sm">
+                                <Plus className="h-5 w-5" />
                               </span>
                             )}
                           </button>
