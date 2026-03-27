@@ -120,7 +120,10 @@ const PLATFORMS = [
 ];
 
 function PlatformPreviewPanel({ platform, caption, imageUrl, videoUrl }) {
-  const p = PLATFORMS.find((pl) => pl.id === platform) || PLATFORMS[3];
+  const p =
+    PLATFORMS.find((pl) => pl.id === platform) ??
+    PLATFORMS.find((pl) => pl.id === COPY.calendarPostModal.defaultPlatform) ??
+    PLATFORMS[0];
   const overLimit = caption.length > p.limit;
   const truncated = caption.length > p.limit ? caption.slice(0, p.limit) + '…' : caption;
 
@@ -742,9 +745,15 @@ export default function CalendarPostModal({
   };
 
   const handleSubmit = async (status) => {
-    if (status !== 'draft') {
+    // Allow posts in the past to keep their scheduled time when editing their contents
+    if (
+      status !== PostStatus.DRAFT ||
+      status !== PostStatus.UNUSED ||
+      status !== PostStatus.PUBLISHED
+    ) {
       const scheduledAt = new Date(`${formData.scheduled_date}T${formData.scheduled_time}`);
       if (isNaN(scheduledAt.getTime()) || scheduledAt <= new Date()) {
+        // TODO: This error needs to reset after closing the modal
         setScheduleError('Scheduled time must be in the future.');
         return;
       }
@@ -850,7 +859,10 @@ export default function CalendarPostModal({
     currentUser?.role === 'admin' ||
     currentUser?.social_media_role === 'admin' ||
     currentUser?.social_media_role === 'approver';
-  const activePlatform = PLATFORMS.find((p) => p.id === previewPlatform) || PLATFORMS[3];
+  const activePlatform =
+    PLATFORMS.find((p) => p.id === previewPlatform) ??
+    PLATFORMS.find((p) => p.id === COPY.calendarPostModal.defaultPlatform) ??
+    PLATFORMS[0];
   const overLimit = formData.caption.length > activePlatform.limit;
 
   return (
