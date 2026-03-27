@@ -4,7 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Facebook, Instagram, Linkedin, Twitter, Youtube, Edit2, Calendar } from 'lucide-react';
-import { format } from 'date-fns';
+import { format, parseISO } from 'date-fns';
 
 const PLATFORM_ICONS = {
   facebook: Facebook,
@@ -136,7 +136,7 @@ export default function PlatformPreviewCard({ platform, posts, onEditPost }) {
                       {post.status}
                     </Badge>
                     <span className="text-xs text-gray-500">
-                      {format(new Date(post.scheduled_date), 'MMM d, yyyy')}
+                      {format(parseISO(post.scheduled_date), 'MMM d, yyyy')}
                     </span>
                   </div>
                   {post.caption && (
