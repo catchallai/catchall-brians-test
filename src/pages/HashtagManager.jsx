@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { CATEGORY_FILTER } from '@/constants/hashtagManager';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -17,7 +18,7 @@ import {
   FolderPlus,
   MoreVertical,
   Star,
-  StarOff,
+  ChevronDown,
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -28,9 +29,9 @@ import {
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 
 export default function HashtagManager() {
-  const [newHashtag, setNewHashtag] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [showCategoryModal, setShowCategoryModal] = useState(false);
@@ -38,8 +39,20 @@ export default function HashtagManager() {
   const [bulkInput, setBulkInput] = useState('');
   const [showBulkModal, setShowBulkModal] = useState(false);
   const [copiedAll, setCopiedAll] = useState(false);
+
+  // New pool form state
+  const [newHashtag, setNewHashtag] = useState('');
+  const [newPoolHashtags, setNewPoolHashtags] = useState('');
+  const [newPoolCategories, setNewPoolCategories] = useState(/** @type {string[]} */ ([]));
+  const [newPoolIsFavorite, setNewPoolIsFavorite] = useState(false);
+  const [customCategories, setCustomCategories] = useState(/** @type {string[]} */ ([]));
+  const [showNewCategoryInput, setShowNewCategoryInput] = useState(false);
+  const [pendingNewCategory, setPendingNewCategory] = useState('');
+  const [deletingPoolId, setDeletingPoolId] = useState(/** @type {string|null} */ (null));
   const queryClient = useQueryClient();
 
+  // TODO: Add a TypeScript type for the HashtagPool object shape so the UI has
+  // a known structure to rely on rather than inferring it from runtime data.
   const { data: hashtags = [], isLoading } = useQuery({
     queryKey: ['hashtag-pool'],
     queryFn: () => base44.entities.HashtagPool.list('-usage_count', 200),
@@ -50,6 +63,9 @@ export default function HashtagManager() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['hashtag-pool'] });
       setNewHashtag('');
+      setNewPoolHashtags('');
+      setNewPoolCategories([]);
+      setNewPoolIsFavorite(false);
     },
   });
 
@@ -63,19 +79,49 @@ export default function HashtagManager() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['hashtag-pool'] }),
   });
 
-  const handleAddHashtag = () => {
-    if (!newHashtag.trim()) {
+  const togglePoolCategory = (cat) => {
+    if (cat === CATEGORY_FILTER.FAVORITES) {
+      setNewPoolIsFavorite((prev) => !prev);
       return;
     }
-    const cleanTag = newHashtag.replace('#', '').trim();
-    if (hashtags.some((h) => h.hashtag.toLowerCase() === cleanTag.toLowerCase())) {
-      return; // Already exists
+    setNewPoolCategories((prev) =>
+      prev.includes(cat) ? prev.filter((c) => c !== cat) : [...prev, cat]
+    );
+  };
+
+  const handleAddHashtag = () => {
+    if (!newHashtag.trim() || !newPoolHashtags.trim()) {
+      return;
     }
+    // Discard any uncommitted new-category input
+    setShowNewCategoryInput(false);
+    setPendingNewCategory('');
+    const nonFavoriteCategories = newPoolCategories.filter((c) => c !== CATEGORY_FILTER.FAVORITES);
+    const isFavorite = newPoolIsFavorite || newPoolCategories.includes(CATEGORY_FILTER.FAVORITES);
+    // Normalize each token to start with #
+    const normalizedHashtags = newPoolHashtags
+      .trim()
+      .split(/\s+/)
+      .map((w) => (w.startsWith('#') ? w : `#${w}`))
+      .join(' ');
     addMutation.mutate({
-      hashtag: cleanTag,
-      category: selectedCategory === 'all' ? null : selectedCategory,
+      hashtag: newHashtag.trim().replace(/^#+/, ''),
+      category: nonFavoriteCategories.join(' | ') || null,
+      hashtags: normalizedHashtags,
+      is_favorite: isFavorite,
       usage_count: 0,
     });
+  };
+
+  const confirmNewCategory = () => {
+    const name = pendingNewCategory.trim().toLowerCase();
+    if (!name) {
+      return;
+    }
+    setCustomCategories((prev) => [...new Set([...prev, name])]);
+    setNewPoolCategories((prev) => [...new Set([...prev, name])]);
+    setShowNewCategoryInput(false);
+    setPendingNewCategory('');
   };
 
   const handleBulkAdd = () => {
@@ -87,7 +133,13 @@ export default function HashtagManager() {
     tags.forEach((tag) => {
       addMutation.mutate({
         hashtag: tag,
-        category: selectedCategory === 'all' ? null : selectedCategory,
+        category:
+          selectedCategory === CATEGORY_FILTER.ALL ||
+          selectedCategory === CATEGORY_FILTER.UNCATEGORIZED ||
+          selectedCategory === CATEGORY_FILTER.FAVORITES
+            ? null
+            : selectedCategory,
+        is_favorite: selectedCategory === CATEGORY_FILTER.FAVORITES,
         usage_count: 0,
       });
     });
@@ -113,28 +165,28 @@ export default function HashtagManager() {
     setTimeout(() => setCopiedAll(false), 2000);
   };
 
-  // Get unique categories
-  const categories = [...new Set(hashtags.map((h) => h.category).filter(Boolean))];
+  // Get unique individual categories by splitting pipe-separated values
+  const splitCategories = (/** @type {string|null|undefined} */ cat) =>
+    cat
+      ? cat
+          .split(' | ')
+          .map((/** @type {string} */ c) => c.trim().toLowerCase())
+          .filter(Boolean)
+      : [];
+  const categories = [...new Set(hashtags.flatMap((h) => splitCategories(h.category)))];
+  const allCategories = [...new Set([...categories, ...customCategories])];
 
   const filteredHashtags = hashtags.filter((h) => {
     const matchesSearch =
       !searchQuery || h.hashtag.toLowerCase().includes(searchQuery.toLowerCase());
+    const poolCategories = splitCategories(h.category);
     const matchesCategory =
-      selectedCategory === 'all' ||
-      (selectedCategory === 'favorites' && h.is_favorite) ||
-      (selectedCategory === 'uncategorized' && !h.category) ||
-      h.category === selectedCategory;
+      selectedCategory === CATEGORY_FILTER.ALL ||
+      (selectedCategory === CATEGORY_FILTER.FAVORITES && h.is_favorite) ||
+      (selectedCategory === CATEGORY_FILTER.UNCATEGORIZED && poolCategories.length === 0) ||
+      poolCategories.includes(selectedCategory);
     return matchesSearch && matchesCategory;
   });
-
-  const categoryColors = {
-    brand: 'bg-violet-100 text-violet-700 border-violet-200',
-    product: 'bg-blue-100 text-blue-700 border-blue-200',
-    campaign: 'bg-pink-100 text-pink-700 border-pink-200',
-    trending: 'bg-amber-100 text-amber-700 border-amber-200',
-    industry: 'bg-emerald-100 text-emerald-700 border-emerald-200',
-    location: 'bg-cyan-100 text-cyan-700 border-cyan-200',
-  };
 
   if (isLoading) {
     return (
@@ -221,7 +273,8 @@ export default function HashtagManager() {
 
             <div className="border-t my-3" />
 
-            {categories.map((cat) => (
+            {/* TODO: Add a delete control per category row so users can remove categories they no longer need */}
+            {allCategories.map((cat) => (
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
@@ -236,7 +289,7 @@ export default function HashtagManager() {
                   {cat}
                 </span>
                 <Badge variant="secondary" className="text-xs">
-                  {hashtags.filter((h) => h.category === cat).length}
+                  {hashtags.filter((h) => splitCategories(h.category).includes(cat)).length}
                 </Badge>
               </button>
             ))}
@@ -262,36 +315,17 @@ export default function HashtagManager() {
 
         {/* Main Content */}
         <div className="lg:col-span-3 space-y-4">
-          {/* Add & Search */}
+          {/* Search */}
           <Card className="border-0 shadow-sm rounded-2xl">
             <CardContent className="p-4">
-              <div className="flex flex-col sm:flex-row gap-3">
-                <div className="relative flex-1">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                  <Input
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Search hashtags..."
-                    className="pl-10"
-                  />
-                </div>
-                <div className="flex gap-2">
-                  <Input
-                    value={newHashtag}
-                    onChange={(e) => setNewHashtag(e.target.value)}
-                    placeholder="Add new hashtag"
-                    className="w-48"
-                    onKeyDown={(e) => e.key === 'Enter' && handleAddHashtag()}
-                  />
-                  <Button
-                    onClick={handleAddHashtag}
-                    disabled={!newHashtag.trim() || addMutation.isPending}
-                    className="gap-2 bg-violet-600 hover:bg-violet-700"
-                  >
-                    <Plus className="w-4 h-4" />
-                    Add
-                  </Button>
-                </div>
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <Input
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search hashtags..."
+                  className="pl-10 w-full"
+                />
               </div>
             </CardContent>
           </Card>
@@ -328,7 +362,146 @@ export default function HashtagManager() {
             </Card>
           </div>
 
-          {/* Hashtags Grid */}
+          {/* Create New Hashtag Pool */}
+          <Card className="border-0 shadow-sm rounded-2xl">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base font-semibold">Create New Hashtag Pool</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="flex gap-3">
+                <div className="flex-[3]">
+                  <Input
+                    value={newHashtag}
+                    onChange={(e) => setNewHashtag(e.target.value)}
+                    placeholder="Hashtag pool name..."
+                  />
+                </div>
+                <div className="flex-[2]">
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <button className="flex h-9 w-full items-center justify-between rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm">
+                        {newPoolCategories.length === 0 ? (
+                          <span className="text-muted-foreground">Add to category...</span>
+                        ) : (
+                          <span className="flex flex-wrap gap-1">
+                            {newPoolCategories.map((cat) => (
+                              <span
+                                key={cat}
+                                className="bg-violet-100 text-violet-700 text-xs px-1.5 py-0.5 rounded capitalize"
+                              >
+                                {cat === 'favorites' ? '★ Favorites' : cat}
+                              </span>
+                            ))}
+                          </span>
+                        )}
+                        <ChevronDown className="h-4 w-4 opacity-50 shrink-0 ml-1" />
+                      </button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[--radix-popover-trigger-width] p-1" align="start">
+                      {allCategories
+                        .map((cat) => ({ value: cat, label: cat }))
+                        .map(({ value, label }) => (
+                          <button
+                            key={value}
+                            onClick={() => togglePoolCategory(value)}
+                            className="flex items-center gap-2 w-full px-2 py-1.5 text-sm rounded hover:bg-accent capitalize"
+                          >
+                            <span
+                              className={`flex h-4 w-4 items-center justify-center rounded border ${
+                                newPoolCategories.includes(value)
+                                  ? 'bg-violet-600 border-violet-600 text-white'
+                                  : 'border-input'
+                              }`}
+                            >
+                              {newPoolCategories.includes(value) && <Check className="h-3 w-3" />}
+                            </span>
+                            {label}
+                          </button>
+                        ))}
+                      <div className="border-t mt-1 pt-1">
+                        <button
+                          onClick={() => setShowNewCategoryInput(true)}
+                          className="flex items-center gap-2 w-full px-2 py-1.5 text-sm rounded hover:bg-accent text-violet-600 font-medium"
+                        >
+                          <Plus className="h-4 w-4" />
+                          New Category
+                        </button>
+                      </div>
+                    </PopoverContent>
+                  </Popover>
+                </div>
+              </div>
+
+              {showNewCategoryInput && (
+                <div className="flex gap-2">
+                  <Input
+                    value={pendingNewCategory}
+                    onChange={(e) => setPendingNewCategory(e.target.value)}
+                    placeholder="New category name..."
+                    className="flex-1"
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        confirmNewCategory();
+                      }
+                      if (e.key === 'Escape') {
+                        setShowNewCategoryInput(false);
+                        setPendingNewCategory('');
+                      }
+                    }}
+                    autoFocus
+                  />
+                  <Button
+                    size="sm"
+                    onClick={confirmNewCategory}
+                    className="bg-violet-600 hover:bg-violet-700"
+                  >
+                    Add
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => {
+                      setShowNewCategoryInput(false);
+                      setPendingNewCategory('');
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              )}
+
+              <Textarea
+                value={newPoolHashtags}
+                onChange={(e) => setNewPoolHashtags(e.target.value)}
+                placeholder="e.g. #marketing #brand #social (# will be added automatically)"
+                rows={4}
+              />
+
+              <div className="flex items-center justify-end gap-3">
+                <button
+                  onClick={() => togglePoolCategory('favorites')}
+                  className="flex items-center gap-2 text-sm text-gray-600 hover:text-amber-500 transition-colors"
+                >
+                  <Star
+                    className={`w-4 h-4 transition-colors ${
+                      newPoolIsFavorite ? 'text-amber-500 fill-amber-500' : 'text-gray-400'
+                    }`}
+                  />
+                  Add to favorites
+                </button>
+                <Button
+                  onClick={handleAddHashtag}
+                  disabled={!newHashtag.trim() || !newPoolHashtags.trim() || addMutation.isPending}
+                  className="gap-2 bg-violet-600 hover:bg-violet-700"
+                >
+                  <Plus className="w-4 h-4" />
+                  Add
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Hashtag Pools List */}
           <Card className="border-0 shadow-sm rounded-2xl">
             <CardHeader className="pb-2">
               <CardTitle className="text-base font-semibold flex items-center justify-between">
@@ -341,74 +514,114 @@ export default function HashtagManager() {
                         ? 'Uncategorized'
                         : `${selectedCategory} Hashtags`}
                 </span>
-                <Badge variant="secondary">{filteredHashtags.length} hashtags</Badge>
+                <Badge variant="secondary">{filteredHashtags.length} pools</Badge>
               </CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-0">
               {filteredHashtags.length === 0 ? (
                 <div className="text-center py-12">
                   <Hash className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-                  <p className="text-gray-500">No hashtags found</p>
-                  <p className="text-sm text-gray-400 mt-1">Add your first hashtag above</p>
+                  <p className="text-gray-500">No hashtag pools found</p>
+                  <p className="text-sm text-gray-400 mt-1">Create your first pool above</p>
                 </div>
               ) : (
-                <div className="flex flex-wrap gap-2">
-                  {filteredHashtags.map((hashtag) => (
-                    <div
-                      key={hashtag.id}
-                      className={`group relative flex items-center gap-2 px-3 py-2 rounded-full border transition-all hover:shadow-md ${
-                        hashtag.category && categoryColors[hashtag.category]
-                          ? categoryColors[hashtag.category]
-                          : 'bg-gray-100 text-gray-700 border-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700'
-                      }`}
-                    >
-                      <button
-                        onClick={() => toggleFavorite(hashtag)}
-                        className="opacity-0 group-hover:opacity-100 transition-opacity"
+                <div>
+                  {filteredHashtags.map((pool) => {
+                    const displayCategories = pool.category
+                      ? pool.category
+                          .split(' | ')
+                          .map((/** @type {string} */ c) => c.trim())
+                          .filter(Boolean)
+                      : [];
+                    return (
+                      <div
+                        key={pool.id}
+                        className="group flex items-start gap-3 px-6 py-4 border-b last:border-b-0"
                       >
-                        {hashtag.is_favorite ? (
-                          <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
-                        ) : (
-                          <StarOff className="w-3.5 h-3.5 text-gray-400" />
-                        )}
-                      </button>
+                        <button onClick={() => toggleFavorite(pool)} className="mt-0.5 shrink-0">
+                          {pool.is_favorite ? (
+                            <Star className="w-4 h-4 text-amber-500 fill-amber-500" />
+                          ) : (
+                            <Star className="w-4 h-4 text-gray-300 hover:text-amber-400 transition-colors" />
+                          )}
+                        </button>
 
-                      <span className="font-medium text-sm">#{hashtag.hashtag}</span>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="font-bold text-violet-600">{pool.hashtag}</span>
+                            {displayCategories.length > 0 && (
+                              <span className="text-sm text-gray-400">
+                                {displayCategories.join(' | ')}
+                              </span>
+                            )}
+                          </div>
+                          {pool.hashtags && (
+                            <p className="text-sm text-gray-700 dark:text-gray-300 mt-1 leading-relaxed">
+                              {pool.hashtags}
+                            </p>
+                          )}
+                        </div>
 
-                      {hashtag.usage_count > 0 && (
-                        <Badge variant="secondary" className="text-xs px-1.5 py-0">
-                          {hashtag.usage_count}
-                        </Badge>
-                      )}
-
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <button className="opacity-0 group-hover:opacity-100 transition-opacity">
-                            <MoreVertical className="w-3.5 h-3.5 text-gray-400" />
-                          </button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => copyToClipboard(`#${hashtag.hashtag}`)}>
-                            <Copy className="w-4 h-4 mr-2" />
-                            Copy
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            onClick={() => deleteMutation.mutate(hashtag.id)}
-                            className="text-red-600"
-                          >
-                            <Trash2 className="w-4 h-4 mr-2" />
-                            Delete
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </div>
-                  ))}
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <button className="mt-0.5 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                              <MoreVertical className="w-4 h-4 text-gray-400" />
+                            </button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            {/* TODO: Add an Edit option here to allow updating the pool's name and hashtags in-place */}
+                            <DropdownMenuItem
+                              onClick={() => copyToClipboard(pool.hashtags || pool.hashtag)}
+                            >
+                              <Copy className="w-4 h-4 mr-2" />
+                              Copy
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() => setDeletingPoolId(pool.id)}
+                              className="text-red-600"
+                            >
+                              <Trash2 className="w-4 h-4 mr-2" />
+                              Delete
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
+                    );
+                  })}
                 </div>
               )}
             </CardContent>
           </Card>
         </div>
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={!!deletingPoolId} onOpenChange={(open) => !open && setDeletingPoolId(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete Hashtag Pool</DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-gray-600 mt-2">
+            Are you sure you want to delete this hashtag pool? This action cannot be undone.
+          </p>
+          <div className="flex justify-end gap-3 mt-4">
+            <Button variant="outline" onClick={() => setDeletingPoolId(null)}>
+              Cancel
+            </Button>
+            <Button
+              className="bg-red-600 hover:bg-red-700"
+              onClick={() => {
+                if (deletingPoolId) {
+                  deleteMutation.mutate(deletingPoolId);
+                }
+                setDeletingPoolId(null);
+              }}
+            >
+              Delete
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Bulk Add Modal */}
       <Dialog open={showBulkModal} onOpenChange={setShowBulkModal}>
