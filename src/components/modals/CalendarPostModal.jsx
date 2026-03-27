@@ -662,10 +662,11 @@ export default function CalendarPostModal({
     setIsMediaLibraryOpen(false);
   };
 
-  const clearSelectedImages = () => {
+  const clearSelectedMedia = () => {
     setFormData((f) => ({
       ...f,
       image_url: '',
+      video_url: '',
       media_type: 'none',
     }));
   };
@@ -721,6 +722,8 @@ export default function CalendarPostModal({
       ))}
     </div>
   );
+
+  const hasSelectedMedia = Boolean(formData.image_url || formData.video_url);
 
   const togglePlatform = (id) => {
     setFormData((f) => {
@@ -1020,39 +1023,65 @@ export default function CalendarPostModal({
 
               {/* Media drop zone / preview */}
               <div className="px-6 pb-2">
-                {formData.image_url ? (
-                  <div className="relative mt-2">
-                    <img
-                      src={formData.image_url}
-                      alt="Selected media"
-                      className="rounded-xl max-h-40 w-full object-cover"
-                    />
-                    <button
-                      onClick={clearSelectedImages}
-                      className="absolute right-1.5 top-1.5 bg-black/60 hover:bg-black/80 text-white rounded-full p-1 shadow-sm"
-                    >
-                      <X className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                ) : formData.video_url ? (
-                  <div className="relative mt-2">
-                    <video
-                      src={formData.video_url}
-                      controls
-                      className="rounded-xl max-h-40 w-full"
-                    />
-                    <button
-                      onClick={() =>
-                        setFormData((f) => ({
-                          ...f,
-                          video_url: '',
-                          media_type: 'none',
-                        }))
-                      }
-                      className="absolute right-1.5 top-1.5 bg-black/60 hover:bg-black/80 text-white rounded-full p-1 shadow-sm"
-                    >
-                      <X className="w-3.5 h-3.5" />
-                    </button>
+                {hasSelectedMedia ? (
+                  <div className="mt-2">
+                    <div className="flex flex-wrap gap-4">
+                      <div className="relative h-44 w-[177px] max-w-full overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+                        {formData.image_url ? (
+                          <img
+                            src={formData.image_url}
+                            alt="Selected media"
+                            className="h-full w-full object-cover"
+                          />
+                        ) : (
+                          <video
+                            src={formData.video_url}
+                            controls
+                            className="h-full w-full object-cover"
+                          />
+                        )}
+
+                        <button
+                          type="button"
+                          onClick={clearSelectedMedia}
+                          className="absolute left-1/2 top-1/2 z-10 flex h-12 w-12 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-2 border-red-400 bg-white/95 text-red-500 shadow-md transition-colors hover:bg-red-50"
+                        >
+                          <X className="h-5 w-5" />
+                        </button>
+                      </div>
+
+                      <Popover
+                        open={mediaMenuTarget === 'filled-dropzone'}
+                        onOpenChange={(open) => setMediaMenuTarget(open ? 'filled-dropzone' : null)}
+                      >
+                        <PopoverTrigger asChild>
+                          <button
+                            type="button"
+                            onDrop={handleDrop}
+                            onDragOver={(e) => e.preventDefault()}
+                            className="flex h-44 w-[177px] max-w-full items-center justify-center rounded-2xl border-2 border-dashed border-gray-300 bg-white text-blue-600 transition-colors hover:border-violet-300 hover:bg-violet-50/30"
+                          >
+                            {uploading ? (
+                              <Loader2 className="h-8 w-8 animate-spin text-violet-500" />
+                            ) : (
+                              <span className="flex h-16 w-16 items-center justify-center rounded-full border-2 border-blue-500 bg-white shadow-sm">
+                                <Plus className="h-8 w-8" />
+                              </span>
+                            )}
+                          </button>
+                        </PopoverTrigger>
+                        <PopoverContent
+                          align="start"
+                          side="bottom"
+                          sideOffset={12}
+                          className="w-[250px] rounded-xl border border-gray-200 bg-white p-0 shadow-[0_18px_40px_rgba(15,23,42,0.12)]"
+                          onCloseAutoFocus={(e) => e.preventDefault()}
+                          onPointerDown={(e) => e.stopPropagation()}
+                        >
+                          {renderMediaMenuContent()}
+                        </PopoverContent>
+                      </Popover>
+                    </div>
                   </div>
                 ) : (
                   <div
@@ -1096,22 +1125,22 @@ export default function CalendarPostModal({
                         </p>
                       </>
                     )}
-                    <input
-                      ref={fileInputRef}
-                      type="file"
-                      accept="image/*"
-                      className="hidden"
-                      onChange={handleImageUpload}
-                    />
-                    <input
-                      ref={videoInputRef}
-                      type="file"
-                      accept="video/*"
-                      className="hidden"
-                      onChange={handleVideoUpload}
-                    />
                   </div>
                 )}
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleImageUpload}
+                />
+                <input
+                  ref={videoInputRef}
+                  type="file"
+                  accept="video/*"
+                  className="hidden"
+                  onChange={handleVideoUpload}
+                />
               </div>
 
               {/* Toolbar */}
