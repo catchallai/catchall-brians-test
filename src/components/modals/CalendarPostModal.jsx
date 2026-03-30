@@ -394,6 +394,7 @@ export default function CalendarPostModal({
     if (open) {
       setActiveTab('compose');
       setShowBestTimes(false);
+      setScheduleError('');
       setRequireApproval(true);
       setMediaMenuTarget(null);
       setPendingPicker(null);
@@ -745,23 +746,31 @@ export default function CalendarPostModal({
   };
 
   const handleSubmit = async (status) => {
-    // Allow posts in the past to keep their scheduled time when editing their contents
-    if (
-      status !== PostStatus.DRAFT ||
-      status !== PostStatus.UNUSED ||
-      status !== PostStatus.PUBLISHED
-    ) {
+    // Statuses not actively moving toward publishing can keep a past scheduled time
+    const mustTimeBeInFuture = ![
+      PostStatus.DRAFT,
+      PostStatus.PUBLISHED,
+      PostStatus.UNUSED,
+      PostStatus.REJECTED,
+      PostStatus.ARCHIVED,
+    ].includes(status);
+
+    if (mustTimeBeInFuture) {
       const scheduledAt = new Date(`${formData.scheduled_date}T${formData.scheduled_time}`);
       if (isNaN(scheduledAt.getTime()) || scheduledAt <= new Date()) {
-        // TODO: This error needs to reset after closing the modal
         setScheduleError('Scheduled time must be in the future.');
         return;
       }
     }
     setScheduleError('');
+    // Published posts keep their status unless approval is required
     // If admin requires approval, override to pending_approval
-    const finalStatus =
-      isAdmin && requireApproval && status === 'approved' ? 'pending_approval' : status;
+    let finalStatus = status;
+    if (isPostPublished && !requireApproval) {
+      finalStatus = PostStatus.PUBLISHED;
+    } else if (isAdmin && requireApproval && status === 'approved') {
+      finalStatus = 'pending_approval';
+    }
     await onSave({
       ...formData,
       status: finalStatus,
