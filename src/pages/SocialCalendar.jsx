@@ -18,7 +18,16 @@ import {
   PenSquare,
 } from 'lucide-react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
-import { format, startOfMonth, endOfMonth, addMonths, subMonths, parseISO } from 'date-fns';
+import {
+  format,
+  startOfMonth,
+  endOfMonth,
+  addMonths,
+  subMonths,
+  parseISO,
+  startOfWeek,
+  endOfWeek,
+} from 'date-fns';
 import CalendarPostCard from '@/components/social/CalendarPostCard';
 import CalendarPostModal from '@/components/modals/CalendarPostModal';
 import SocialCalendarView from '@/components/social/SocialCalendarView';
@@ -98,14 +107,23 @@ export default function SocialCalendar() {
       }
       const postDate = parseISO(p.scheduled_date);
       // Expand window to cover week/day navigation that goes beyond the current month boundary
-      const windowStart = startOfMonth(currentMonth);
-      const windowEnd = endOfMonth(currentMonth);
+      const windowStart = startOfWeek(startOfMonth(currentMonth));
+      const windowEnd = endOfWeek(endOfMonth(currentMonth));
       const inRange = postDate >= windowStart && postDate <= windowEnd;
       const matchesPlatform = platformFilter === 'all' || p.platforms?.includes(platformFilter);
       const matchesStatus = statusFilter === 'all' || p.status === statusFilter;
       return inRange && matchesPlatform && matchesStatus;
     })
     .sort((a, b) => (a.order || 0) - (b.order || 0));
+
+  // Strict month-only filter for the 9-grid view (no week spillover)
+  const filteredPostsForLayoutView = filteredPosts.filter((post) => {
+    if (!post.scheduled_date) {
+      return false;
+    }
+    const day = parseISO(post.scheduled_date);
+    return day >= startOfMonth(currentMonth) && day <= endOfMonth(currentMonth);
+  });
 
   const createMutation = useMutation({
     mutationFn: (data) => base44.entities.CalendarPost.create(data),
@@ -502,7 +520,7 @@ export default function SocialCalendar() {
         {viewMode === 'nine-grid' && (
           <>
             <NineGridEditor
-              posts={filteredPosts}
+              posts={filteredPostsForLayoutView}
               onPostsChange={handleOnPostsChange}
               onEditPost={(post) => {
                 setSelectedPost(post);
