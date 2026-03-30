@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Star, MoreVertical, Copy, Trash2, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Star, MoreVertical, Copy, Trash2, ChevronLeft, ChevronRight, Check } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import {
@@ -140,15 +140,17 @@ export default function HashtagPoolSelector({
                 key={pool.id}
                 onClick={() => handlePillClick(pool, i)}
                 className={[
-                  'shrink-0 text-xs px-3 py-1 rounded-full transition-colors font-medium',
+                  'shrink-0 inline-flex items-center text-xs px-3 py-1 rounded-full border transition-colors font-medium',
                   isActive
-                    ? 'bg-violet-600 text-white font-bold'
+                    ? isToggled
+                      ? 'bg-violet-600 border-violet-600 text-white font-bold'
+                      : 'bg-gray-100 border-gray-100 text-gray-500'
                     : isToggled
                       ? 'border border-violet-500 text-violet-600 bg-white'
                       : 'border border-gray-200 text-gray-500 bg-white hover:border-gray-300',
                 ].join(' ')}
               >
-                {!isActive && isToggled && <span className="mr-1">✓</span>}
+                {isToggled && <Check className="mr-1 h-3 w-3" />}
                 {pool.hashtag}
               </button>
             );
