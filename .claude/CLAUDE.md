@@ -17,11 +17,20 @@ Pre-commit hooks (Husky + lint-staged) run Prettier and ESLint on staged `.js/.j
 
 ## Local Setup
 
-Create a `.env` file with `VITE_BASE44_APP_ID`, `VITE_BASE44_BACKEND_URL`, and `VITE_BASE44_ACCESS_TOKEN`. Then `npm i && npm run dev`.
+Create a `.env` file with the following variables:
 
-## Architecture
+- `VITE_BASE44_APP_ID`: The Base44 application ID for this frontend.  
+  Example: `VITE_BASE44_APP_ID=your-base44-app-id`
+- `VITE_BASE44_BACKEND_URL`: The Base44 backend HTTP(S) URL that the app should call.  
+  Example: `VITE_BASE44_BACKEND_URL=https://api.your-backend.example.com`
+- `VITE_BASE44_ACCESS_TOKEN`: A secret API/access token used by the frontend to authenticate with the Base44 backend.  
+  Example: `VITE_BASE44_ACCESS_TOKEN=your-base44-access-token`
 
-**Stack:** React 18 + Vite (SWC) + Base44 SDK + Tailwind CSS + shadcn/ui + React Query v5
+Then run `npm i && npm run dev`.
+
+- `/src/base44/entities/` — entity schema definitions (Contact, Company, Deal, etc.)
+- `/src/base44/functions/` — serverless functions (Deno runtime), authenticated via `createClientFromRequest(req)`
+  **Stack:** React 18 + Vite (SWC) + Base44 SDK + Tailwind CSS + shadcn/ui + React Query v5
 
 ### Backend (Base44)
 
