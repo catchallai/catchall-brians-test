@@ -16,7 +16,6 @@ import PostStatusChip from './PostStatusChip';
 import { PostStatus } from '@/types/enums';
 import { useToast } from '@/components/ui/toast-provider';
 import COPY from '@/lib/copy';
-import { set } from 'date-fns';
 
 function SortableGridItem({ id, post, position, onAddPost, onEditPost }) {
   // disable dragging for empty slots and published posts
@@ -111,7 +110,7 @@ function SortableGridItem({ id, post, position, onAddPost, onEditPost }) {
       )}
       {/* Hover overlay */}
       <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-all flex items-end">
-        <div className="w-full p-2 opacity-0 group-hover:opacity-100 transition-all">
+        <div className="w-full p-2">
           {post.scheduled_date && (
             <p className="text-white text-xs font-medium bg-black/50 rounded px-1.5 py-0.5 inline-block">
               {parseISO(post.scheduled_date).toLocaleDateString('en-US', {
@@ -138,20 +137,14 @@ export default function NineGridEditor({
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 4 } }));
   const toast = useToast();
 
-  // Sort posts by scheduled_date ascending, fill into slots left-to-right
-  const sortedPosts = [...posts].sort((a, b) => {
-    if (!a.scheduled_date) {
-      return 1;
-    }
-    if (!b.scheduled_date) {
-      return -1;
-    }
-    return new Date(a.scheduled_date) - new Date(b.scheduled_date);
-  });
-
+  // Place each post into its grid tile based on post.order (0-8).
+  // Posts without a valid order or with an order outside the grid range are skipped.
   const baseSlots = Array(9).fill(null);
-  sortedPosts.slice(0, 9).forEach((post, i) => {
-    baseSlots[i] = post;
+  posts.forEach((post) => {
+    const idx = post.order ?? -1;
+    if (idx >= 0 && idx < 9) {
+      baseSlots[idx] = post;
+    }
   });
 
   // Use local optimistic slots while dragging, otherwise use computed slots
@@ -188,17 +181,14 @@ export default function NineGridEditor({
       const newSlots = [...gridSlots];
       [newSlots[oldIndex], newSlots[newIndex]] = [newSlots[newIndex], newSlots[oldIndex]];
 
-      // Update scheduled dates based on new position
-      const today = new Date();
+      // Update order to reflect new tile positions, preserve scheduled dates
       const updatedSlots = newSlots.map((post, idx) => {
         if (!post) {
           return null;
         }
-        const newDate = new Date(today);
-        newDate.setDate(newDate.getDate() + idx);
         return {
           ...post,
-          scheduled_date: newDate.toISOString().split('T')[0],
+          order: idx,
         };
       });
 
@@ -206,7 +196,7 @@ export default function NineGridEditor({
       const prevSlots = localSlots || baseSlots;
       setLocalSlots(updatedSlots);
       // TODO: We could optimize by only sending changed posts to backend instead of all 9
-      Promise.resolve(onPostsChange(updatedSlots.filter((p) => p !== null))).catch((err) => {
+      Promise.resolve(onPostsChange(updatedSlots.filter((p) => p !== null))).catch((_err) => {
         setLocalSlots(prevSlots); // revert to previous state
         toast.error(COPY.socialCalendar.toasts.error.reorderPosts);
       });
@@ -262,7 +252,7 @@ export default function NineGridEditor({
                   id={String(index)}
                   post={post}
                   position={index}
-                  onAddPost={handleAddPost}
+                  onAddPost={() => handleAddPost(index)}
                   onEditPost={handleEditPost}
                 />
               ))}

@@ -18,15 +18,7 @@ import {
   PenSquare,
 } from 'lucide-react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
-import {
-  format,
-  startOfMonth,
-  endOfMonth,
-  startOfWeek,
-  endOfWeek,
-  addMonths,
-  subMonths,
-} from 'date-fns';
+import { format, startOfMonth, endOfMonth, addMonths, subMonths, parseISO } from 'date-fns';
 import CalendarPostCard from '@/components/social/CalendarPostCard';
 import CalendarPostModal from '@/components/modals/CalendarPostModal';
 import SocialCalendarView from '@/components/social/SocialCalendarView';
@@ -77,7 +69,6 @@ export default function SocialCalendar() {
   const [calendarViewType, setCalendarViewType] = useState('month');
   const [platformFilter, setPlatformFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
-  const [nineGridPosts, setNineGridPosts] = useState(Array(9).fill(null));
   const [galleryPosts, setGalleryPosts] = useState([]);
   const queryClient = useQueryClient();
 
@@ -101,10 +92,10 @@ export default function SocialCalendar() {
 
   const filteredPosts = posts
     .filter((p) => {
-      const postDate = new Date(p.scheduled_date);
+      const postDate = parseISO(p.scheduled_date);
       // Expand window to cover week/day navigation that goes beyond the current month boundary
-      const windowStart = startOfWeek(startOfMonth(currentMonth));
-      const windowEnd = endOfWeek(endOfMonth(currentMonth));
+      const windowStart = startOfMonth(currentMonth);
+      const windowEnd = endOfMonth(currentMonth);
       const inRange = postDate >= windowStart && postDate <= windowEnd;
       const matchesPlatform = platformFilter === 'all' || p.platforms?.includes(platformFilter);
       const matchesStatus = statusFilter === 'all' || p.status === statusFilter;
@@ -156,21 +147,11 @@ export default function SocialCalendar() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['hashtag-pool'] }),
   });
 
-  const publishNowMutation = useMutation({
-    mutationFn: async (postId) => {
-      const response = await base44.functions.invoke('autoPostToSocial', { postId });
-      return response.data;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['calendar-posts'] });
-    },
-  });
-
   const handleSave = async (data) => {
-    if (selectedPost) {
+    if (selectedPost?.id) {
       await updateMutation.mutateAsync({ id: selectedPost.id, data });
     } else {
-      await createMutation.mutateAsync({ ...data, order: filteredPosts.length });
+      await createMutation.mutateAsync({ ...data, order: data.order ?? filteredPosts.length });
     }
   };
 
@@ -195,6 +176,7 @@ export default function SocialCalendar() {
   };
 
   const handleDelete = (post) => {
+    // eslint-disable-next-line no-alert
     if (confirm('Delete this post?')) {
       deleteMutation.mutate(post.id);
     }
@@ -202,6 +184,7 @@ export default function SocialCalendar() {
 
   const handleApproveAll = async () => {
     if (!approverName.trim()) {
+      // eslint-disable-next-line no-alert
       alert('Please enter approver name');
       return;
     }
@@ -229,11 +212,11 @@ export default function SocialCalendar() {
   const handleOnPostsChange = async (updatedPosts) => {
     try {
       await Promise.all(
-        updatedPosts.map((post, idx) =>
+        updatedPosts.map((post) =>
           post && post.id
             ? reorderMutation.mutateAsync({
                 id: post.id,
-                data: { order: idx, scheduled_date: post.scheduled_date },
+                data: { order: post.order, scheduled_date: post.scheduled_date },
               })
             : Promise.resolve()
         )
@@ -495,12 +478,15 @@ export default function SocialCalendar() {
             <NineGridEditor
               posts={filteredPosts}
               onPostsChange={handleOnPostsChange}
-              onEditPost={(post, isPreview) => {
+              onEditPost={(post) => {
                 setSelectedPost(post);
                 setShowModal(true);
               }}
               onAddPost={(position, suggestedDate) => {
-                setSelectedPost(suggestedDate ? { scheduled_date: suggestedDate } : null);
+                setSelectedPost({
+                  order: position,
+                  ...(suggestedDate ? { scheduled_date: suggestedDate } : {}),
+                });
                 setShowModal(true);
               }}
             />
