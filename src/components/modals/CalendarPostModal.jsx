@@ -27,7 +27,6 @@ import {
   Sparkles,
   Maximize2,
   Calendar,
-  CheckCircle2,
   Eye,
   MessageSquare,
   GitBranch,
@@ -42,6 +41,12 @@ import {
   Cloud,
   HardDrive,
   FolderOpen,
+  Twitter,
+  Linkedin,
+  Facebook,
+  Instagram,
+  Youtube,
+  Trash,
 } from 'lucide-react';
 import EmojiPicker from 'emoji-picker-react';
 import { base44 } from '@/api/base44Client';
@@ -53,37 +58,9 @@ import { todayLocal } from '@/utils/date';
 import useUnsavedChangesGuard from '@/components/hooks/useUnsavedChangesGuard';
 import ConfirmDialog from '@/components/ui/ConfirmDialog';
 import MediaLibraryModal from './MediaLibraryModal';
-
-const PLATFORMS = [
-  {
-    id: 'Facebook',
-    color: 'bg-blue-600',
-    letter: 'f',
-    label: 'Facebook',
-    limit: 63206,
-  },
-  {
-    id: 'Instagram',
-    color: 'bg-gradient-to-br from-pink-500 to-purple-600',
-    letter: 'IG',
-    label: 'Instagram',
-    limit: 2200,
-  },
-  {
-    id: 'LinkedIn',
-    color: 'bg-blue-700',
-    letter: 'in',
-    label: 'LinkedIn',
-    limit: 3000,
-  },
-  {
-    id: 'Twitter',
-    color: 'bg-black',
-    letter: 'X',
-    label: 'Twitter / X',
-    limit: 280,
-  },
-];
+import { PostStatus } from '@/types/enums';
+import COPY from '@/lib/copy';
+import { Label } from '@/components/ui/label';
 
 // Best times by platform based on general audience activity research
 const BEST_TIMES = {
@@ -107,40 +84,53 @@ const BEST_TIMES = {
     { day: 'Friday', time: '09:00', label: 'Fri 9am' },
     { day: 'Tuesday', time: '10:00', label: 'Tue 10am' },
   ],
+  YouTube: [
+    { day: 'Wednesday', time: '09:00', label: 'Wed 9am' },
+    { day: 'Friday', time: '09:00', label: 'Fri 9am' },
+    { day: 'Tuesday', time: '10:00', label: 'Tue 10am' },
+  ],
 };
 
 const DAYS_OF_WEEK = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
-function PlatformAvatar({ platform, active, onClick }) {
-  return (
-    <button
-      onClick={onClick}
-      title={platform.label}
-      className={`relative w-11 h-11 rounded-full flex items-center justify-center text-white text-xs font-bold border-2 transition-all ${platform.color} ${
-        active
-          ? 'border-violet-500 ring-2 ring-violet-300 scale-110'
-          : 'border-white opacity-60 hover:opacity-90'
-      }`}
-    >
-      {platform.letter}
-      {active && (
-        <span className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-violet-500 rounded-full flex items-center justify-center">
-          <CheckCircle2 className="w-2.5 h-2.5 text-white" />
-        </span>
-      )}
-    </button>
-  );
-}
+const PLATFORMS = [
+  { id: 'Twitter', label: 'X (Twitter)', icon: Twitter, color: 'bg-black text-white', limit: 280 },
+  {
+    id: 'LinkedIn',
+    label: 'LinkedIn',
+    icon: Linkedin,
+    color: 'bg-blue-700 text-white',
+    limit: 3000,
+  },
+  {
+    id: 'Facebook',
+    label: 'Facebook',
+    icon: Facebook,
+    color: 'bg-blue-600 text-white',
+    limit: 63206,
+  },
+  {
+    id: 'Instagram',
+    label: 'Instagram',
+    icon: Instagram,
+    color: 'bg-pink-600 text-white',
+    limit: 2200,
+  },
+  { id: 'YouTube', label: 'YouTube', icon: Youtube, color: 'bg-red-600 text-white', limit: 5000 },
+];
 
 function PlatformPreviewPanel({ platform, caption, imageUrl, videoUrl }) {
-  const p = PLATFORMS.find((pl) => pl.id === platform) || PLATFORMS[3];
+  const p =
+    PLATFORMS.find((pl) => pl.id === platform) ??
+    PLATFORMS.find((pl) => pl.id === PLATFORMS[0].id) ??
+    PLATFORMS[0];
   const overLimit = caption.length > p.limit;
   const truncated = caption.length > p.limit ? caption.slice(0, p.limit) + '…' : caption;
 
   return (
     <div className="flex flex-col h-full">
       <p className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-4 flex items-center gap-2">
-        {p.label} Preview
+        {p.label} {COPY.calendarPostModal.preview}
       </p>
 
       {!caption && !imageUrl && !videoUrl ? (
@@ -156,7 +146,7 @@ function PlatformPreviewPanel({ platform, caption, imageUrl, videoUrl }) {
               <div className="bg-gray-200 dark:bg-gray-700 rounded h-24 mt-2" />
             </div>
           </div>
-          <p className="text-sm text-gray-400 mt-2">See your post's preview here</p>
+          <p className="text-sm text-gray-400 mt-2">{COPY.calendarPostModal.seePreviewHere}</p>
         </div>
       ) : (
         <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden shadow-sm">
@@ -164,11 +154,13 @@ function PlatformPreviewPanel({ platform, caption, imageUrl, videoUrl }) {
             <div
               className={`w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold ${p.color}`}
             >
-              {p.letter}
+              <p.icon className="w-4 h-4" />
             </div>
             <div>
-              <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">Your Account</p>
-              <p className="text-xs text-gray-400">Just now</p>
+              <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">
+                {COPY.calendarPostModal.yourAccount}
+              </p>
+              <p className="text-xs text-gray-400">{COPY.calendarPostModal.justNow}</p>
             </div>
           </div>
           {imageUrl && (
@@ -181,7 +173,7 @@ function PlatformPreviewPanel({ platform, caption, imageUrl, videoUrl }) {
             <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap line-clamp-6">
               {truncated || (
                 <span className="text-gray-300 dark:text-gray-600 italic">
-                  Your caption will appear here…
+                  {COPY.calendarPostModal.captionPreviewPlaceholder}
                 </span>
               )}
             </p>
@@ -225,7 +217,7 @@ function BestTimeSuggestions({ platforms, onApply }) {
       <div className="flex items-center gap-1.5 text-xs text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg px-3 py-2">
         <Zap className="w-3.5 h-3.5 text-amber-500 flex-shrink-0" />
         <span>
-          Best times for <strong>{primaryPlatform}</strong> based on typical audience activity:
+          {COPY.calendarPostModal.bestTimesForPlatform.replace('{platform}', primaryPlatform)}
         </span>
       </div>
       <div className="grid grid-cols-3 gap-2">
@@ -238,7 +230,9 @@ function BestTimeSuggestions({ platforms, onApply }) {
             <div className="font-semibold text-gray-700 dark:text-gray-300 group-hover:text-violet-700 dark:group-hover:text-violet-400">
               {s.label}
             </div>
-            <div className="text-gray-400 group-hover:text-violet-500 mt-0.5">Apply →</div>
+            <div className="text-gray-400 group-hover:text-violet-500 mt-0.5">
+              {COPY.calendarPostModal.apply}
+            </div>
           </button>
         ))}
       </div>
@@ -266,12 +260,12 @@ function RecurringSchedulePanel({ formData, setFormData }) {
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="daily">Daily</SelectItem>
-            <SelectItem value="weekly">Weekly</SelectItem>
-            <SelectItem value="monthly">Monthly</SelectItem>
+            <SelectItem value="daily">{COPY.calendarPostModal.daily}</SelectItem>
+            <SelectItem value="weekly">{COPY.calendarPostModal.weekly}</SelectItem>
+            <SelectItem value="monthly">{COPY.calendarPostModal.monthly}</SelectItem>
           </SelectContent>
         </Select>
-        <span className="text-xs text-gray-400">repeat</span>
+        <span className="text-xs text-gray-400">{COPY.calendarPostModal.repeat}</span>
       </div>
 
       {formData.recurrence_type === 'weekly' && (
@@ -293,7 +287,9 @@ function RecurringSchedulePanel({ formData, setFormData }) {
       )}
 
       <div>
-        <label className="text-xs text-gray-500 mb-1 block">End date (optional)</label>
+        <label className="text-xs text-gray-500 mb-1 block">
+          {COPY.calendarPostModal.endDateOptional}
+        </label>
         <input
           type="date"
           value={formData.recurrence_end_date || ''}
@@ -380,6 +376,7 @@ export default function CalendarPostModal({
   const [mediaLibrarySearch, setMediaLibrarySearch] = useState('');
   const [selectedLibraryAsset, setSelectedLibraryAsset] = useState('');
   const [isEmojiPickerOpen, setIsEmojiPickerOpen] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const dialogContentRef = useRef(null);
   const fileInputRef = useRef();
   const videoInputRef = useRef();
@@ -388,6 +385,7 @@ export default function CalendarPostModal({
   const initialFormDataRef = useRef({ ...DEFAULT_FORM });
   const fileDialogLockRef = useRef(false);
   const fileDialogReleaseTimeoutRef = useRef(null);
+  const isPostPublished = post?.status === PostStatus.PUBLISHED;
 
   useEffect(() => {
     setIsEmojiPickerOpen(false);
@@ -396,6 +394,7 @@ export default function CalendarPostModal({
     if (open) {
       setActiveTab('compose');
       setShowBestTimes(false);
+      setScheduleError('');
       setRequireApproval(true);
       setMediaMenuTarget(null);
       setPendingPicker(null);
@@ -740,8 +739,26 @@ export default function CalendarPostModal({
     });
   };
 
+  const handleDeletePost = () => {
+    setShowDeleteConfirm(true);
+  };
+
+  const confirmDeletePost = () => {
+    // TODO: implement actual post deletion
+    setShowDeleteConfirm(false);
+  };
+
   const handleSubmit = async (status) => {
-    if (status !== 'draft') {
+    // Statuses not actively moving toward publishing can keep a past scheduled time
+    const mustTimeBeInFuture = ![
+      PostStatus.DRAFT,
+      PostStatus.PUBLISHED,
+      PostStatus.UNUSED,
+      PostStatus.REJECTED,
+      PostStatus.ARCHIVED,
+    ].includes(status);
+
+    if (mustTimeBeInFuture) {
       const scheduledAt = new Date(`${formData.scheduled_date}T${formData.scheduled_time}`);
       if (isNaN(scheduledAt.getTime()) || scheduledAt <= new Date()) {
         setScheduleError('Scheduled time must be in the future.');
@@ -749,9 +766,14 @@ export default function CalendarPostModal({
       }
     }
     setScheduleError('');
+    // Published posts keep their status unless approval is required
     // If admin requires approval, override to pending_approval
-    const finalStatus =
-      isAdmin && requireApproval && status === 'approved' ? 'pending_approval' : status;
+    let finalStatus = status;
+    if (isPostPublished && !requireApproval) {
+      finalStatus = PostStatus.PUBLISHED;
+    } else if (isAdmin && requireApproval && status === PostStatus.APPROVED) {
+      finalStatus = PostStatus.PENDING_APPROVAL;
+    }
     await onSave({
       ...formData,
       status: finalStatus,
@@ -868,7 +890,10 @@ export default function CalendarPostModal({
     currentUser?.role === 'admin' ||
     currentUser?.social_media_role === 'admin' ||
     currentUser?.social_media_role === 'approver';
-  const activePlatform = PLATFORMS.find((p) => p.id === previewPlatform) || PLATFORMS[3];
+  const activePlatform =
+    PLATFORMS.find((p) => p.id === previewPlatform) ??
+    PLATFORMS.find((p) => p.id === PLATFORMS[0].id) ??
+    PLATFORMS[0];
   const overLimit = formData.caption.length > activePlatform.limit;
 
   return (
@@ -878,7 +903,8 @@ export default function CalendarPostModal({
         className="p-0 max-w-5xl w-full max-h-[92vh] overflow-hidden rounded-2xl bg-white dark:bg-gray-900"
         style={{ gap: 0 }}
         onInteractOutside={(event) => {
-          if (isMediaLibraryOpen) {
+          if (isMediaLibraryOpen || showDeleteConfirm) {
+            event.preventDefault();
             return;
           }
           event.preventDefault();
@@ -889,10 +915,10 @@ export default function CalendarPostModal({
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-gray-800">
           <div className="flex items-center gap-3">
             <h2 className="text-lg font-bold text-gray-900 dark:text-white">
-              {post ? 'Edit Post' : 'Create Post'}
+              {post ? COPY.calendarPostModal.editPost : COPY.calendarPostModal.createPost}
             </h2>
             <button className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400 border border-gray-200 dark:border-gray-700 rounded-full px-2.5 py-1 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
-              🏷 Tags <ChevronDown className="w-3 h-3" />
+              🏷 {COPY.calendarPostModal.tags} <ChevronDown className="w-3 h-3" />
             </button>
           </div>
           <div className="flex items-center gap-2">
@@ -902,7 +928,7 @@ export default function CalendarPostModal({
               className="gap-1.5 text-gray-600 dark:text-gray-400 text-sm"
               onClick={() => {}}
             >
-              <Sparkles className="w-4 h-4" /> AI Assistant
+              <Sparkles className="w-4 h-4" /> {COPY.calendarPostModal.aiAssistant}
             </Button>
             <Button
               variant={showPreview ? 'default' : 'outline'}
@@ -910,7 +936,7 @@ export default function CalendarPostModal({
               className={`gap-1.5 text-sm ${showPreview ? 'bg-blue-600 hover:bg-blue-700 text-white' : ''}`}
               onClick={() => setShowPreview((v) => !v)}
             >
-              <Eye className="w-4 h-4" /> Preview
+              <Eye className="w-4 h-4" /> {COPY.calendarPostModal.preview}
             </Button>
             <button className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors text-gray-400">
               <Maximize2 className="w-4 h-4" />
@@ -928,9 +954,9 @@ export default function CalendarPostModal({
         {post && (
           <div className="flex border-b border-gray-100 dark:border-gray-800 px-6 bg-white dark:bg-gray-900">
             {[
-              { id: 'compose', label: 'Compose', icon: ImageIcon },
-              { id: 'approval', label: 'Approval Workflow', icon: GitBranch },
-              { id: 'comments', label: 'Team Feedback', icon: MessageSquare },
+              { id: 'compose', label: COPY.calendarPostModal.compose, icon: ImageIcon },
+              { id: 'approval', label: COPY.calendarPostModal.approvalWorkflow, icon: GitBranch },
+              { id: 'comments', label: COPY.calendarPostModal.teamFeedback, icon: MessageSquare },
             ].map((tab) => (
               <button
                 key={tab.id}
@@ -979,26 +1005,38 @@ export default function CalendarPostModal({
             >
               {/* Platform Avatars */}
               <div className="flex items-center gap-3 px-6 pt-5 pb-4">
-                {PLATFORMS.map((pl) => (
-                  <PlatformAvatar
-                    key={pl.id}
-                    platform={pl}
-                    active={formData.platforms.includes(pl.id)}
-                    onClick={() => togglePlatform(pl.id)}
-                  />
-                ))}
-                <span className="text-xs text-gray-400 ml-1">
-                  Where would you like to share this post?
-                </span>
+                <div>
+                  <Label className="text-gray-400 mb-4 block">
+                    {isPostPublished
+                      ? COPY.calendarPostModal.whereHasPosted
+                      : COPY.calendarPostModal.whereToPost}
+                  </Label>
+                  <div className="flex flex-wrap gap-2">
+                    {PLATFORMS.map(({ id, label, icon: Icon }) => {
+                      const active = formData.platforms.includes(id);
+                      return (
+                        <button
+                          key={id}
+                          disabled={isPostPublished}
+                          onClick={() => togglePlatform(id)}
+                          aria-label={label}
+                          title={label}
+                          className={`flex items-center gap-1.5 p-2.5 rounded-full text-sm font-medium border transition-all ${
+                            active
+                              ? 'bg-violet-600 text-white border-violet-600'
+                              : 'bg-white text-gray-600 border-gray-200 hover:border-violet-400'
+                          } disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:border-gray-200`}
+                        >
+                          <Icon className="w-4 h-4" />
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
               </div>
 
               {/* Caption area */}
               <div className="px-6 flex gap-3 flex-1">
-                <div
-                  className={`w-9 h-9 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0 mt-0.5 ${activePlatform.color}`}
-                >
-                  {activePlatform.letter}
-                </div>
                 <Textarea
                   ref={captionRef}
                   value={formData.caption}
@@ -1016,7 +1054,7 @@ export default function CalendarPostModal({
                   onSelect={(e) => updateCaptionSelection(e.target)}
                   onKeyUp={(e) => updateCaptionSelection(e.target)}
                   onClick={(e) => updateCaptionSelection(e.target)}
-                  placeholder="Start writing your post here..."
+                  placeholder={COPY.calendarPostModal.captionPlaceholder}
                   className="border-0 shadow-none focus-visible:ring-0 resize-none text-[15px] text-gray-800 dark:text-gray-200 bg-transparent p-0 min-h-[120px] leading-relaxed"
                 />
               </div>
@@ -1096,7 +1134,7 @@ export default function CalendarPostModal({
                       <>
                         <ImageIcon className="w-7 h-7 text-gray-300" />
                         <p className="text-sm text-gray-400">
-                          Drag &amp; drop or{' '}
+                          {COPY.calendarPostModal.dragAndDrop}{' '}
                           <Popover
                             open={mediaMenuTarget === 'dropzone'}
                             onOpenChange={(open) => setMediaMenuTarget(open ? 'dropzone' : null)}
@@ -1107,7 +1145,7 @@ export default function CalendarPostModal({
                                 onClick={(e) => e.stopPropagation()}
                                 className="text-blue-500 font-medium underline cursor-pointer"
                               >
-                                select a file
+                                {COPY.calendarPostModal.selectAFile}
                               </button>
                             </PopoverTrigger>
                             <PopoverContent
@@ -1243,7 +1281,7 @@ export default function CalendarPostModal({
                   <div className="flex items-center gap-2">
                     <Repeat className="w-4 h-4 text-gray-400" />
                     <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                      Recurring Post
+                      {COPY.calendarPostModal.recurringPost}
                     </span>
                   </div>
                   <Switch
@@ -1271,11 +1309,11 @@ export default function CalendarPostModal({
                         onClick={() => setPreviewPlatform(pl.id)}
                         className={`px-3 py-2 text-xs font-medium border-b-2 transition-colors ${
                           previewPlatform === pl.id
-                            ? 'border-blue-500 text-blue-600 dark:text-blue-400'
+                            ? 'border-violet-500 text-violet-600 dark:text-violet-400'
                             : 'border-transparent text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'
                         }`}
                       >
-                        {pl.id === 'Twitter' ? 'Twitter / X' : pl.id}
+                        {pl.id === 'Twitter' ? COPY.calendarPostModal.twitterDisplayName : pl.id}
                       </button>
                     ))}
                   </div>
@@ -1294,18 +1332,20 @@ export default function CalendarPostModal({
               <div className="border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 px-5 py-4 space-y-4">
                 <div className="flex items-center justify-between">
                   <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide flex items-center gap-1.5">
-                    <Clock className="w-3.5 h-3.5" /> Schedule
+                    <Clock className="w-3.5 h-3.5" /> {COPY.calendarPostModal.schedule}
                   </p>
-                  <button
-                    onClick={() => setShowBestTimes((v) => !v)}
-                    className="flex items-center gap-1 text-xs text-amber-600 hover:text-amber-700 font-medium"
-                  >
-                    <Zap className="w-3.5 h-3.5" />
-                    Best Times
-                    <ChevronRight
-                      className={`w-3 h-3 transition-transform ${showBestTimes ? 'rotate-90' : ''}`}
-                    />
-                  </button>
+                  {!isPostPublished && (
+                    <button
+                      onClick={() => setShowBestTimes((v) => !v)}
+                      className="flex items-center gap-1 text-xs text-amber-600 hover:text-amber-700 font-medium"
+                    >
+                      <Zap className="w-3.5 h-3.5" />
+                      {COPY.calendarPostModal.bestTimes}
+                      <ChevronRight
+                        className={`w-3 h-3 transition-transform ${showBestTimes ? 'rotate-90' : ''}`}
+                      />
+                    </button>
+                  )}
                 </div>
 
                 {showBestTimes && (
@@ -1315,10 +1355,11 @@ export default function CalendarPostModal({
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">
-                      Date
+                      {COPY.calendarPostModal.date}
                     </label>
                     <input
                       type="date"
+                      disabled={isPostPublished}
                       value={formData.scheduled_date}
                       min={todayLocal()}
                       onChange={(e) => {
@@ -1328,15 +1369,16 @@ export default function CalendarPostModal({
                           scheduled_date: e.target.value,
                         }));
                       }}
-                      className="w-full text-sm border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-lg px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-violet-400"
+                      className="w-full text-sm border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-lg px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-violet-400 disabled:opacity-70 disabled:cursor-not-allowed disabled:bg-gray-100 dark:disabled:bg-gray-900"
                     />
                   </div>
                   <div>
                     <label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">
-                      Time
+                      {COPY.calendarPostModal.time}
                     </label>
                     <input
                       type="time"
+                      disabled={isPostPublished}
                       value={formData.scheduled_time}
                       onChange={(e) => {
                         setScheduleError('');
@@ -1345,7 +1387,7 @@ export default function CalendarPostModal({
                           scheduled_time: e.target.value,
                         }));
                       }}
-                      className="w-full text-sm border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-lg px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-violet-400"
+                      className="w-full text-sm border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-lg px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-violet-400 disabled:opacity-70 disabled:cursor-not-allowed disabled:bg-gray-100 dark:disabled:bg-gray-900"
                     />
                   </div>
                 </div>
@@ -1353,7 +1395,7 @@ export default function CalendarPostModal({
 
                 {/* Approval toggle */}
                 <Tooltip
-                  content="You do not have permission to change this setting. Please contact an admin for assistance."
+                  content={COPY.calendarPostModal.approvalPermissionTooltip}
                   disableHover={isAdmin}
                 >
                   <div className="border rounded-xl overflow-hidden px-4 py-3 text-sm select-none cursor-default transition-colors bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700">
@@ -1365,22 +1407,22 @@ export default function CalendarPostModal({
                         <span
                           className={`font-medium ${requireApproval ? 'text-emerald-700 dark:text-emerald-400' : 'text-amber-600 dark:text-amber-400'}`}
                         >
-                          Requires Approval
+                          {COPY.calendarPostModal.requiresApproval}
                         </span>
                       </div>
                       <Switch
                         checked={requireApproval}
                         onCheckedChange={setRequireApproval}
                         disabled={!isAdmin}
-                        aria-label="Requires Approval"
+                        aria-label={COPY.calendarPostModal.requiresApproval}
                       />
                     </div>
                     <div
                       className={`mt-2 px-0 py-2.5 text-xs rounded ${requireApproval ? 'text-emerald-700 dark:text-emerald-400' : 'text-amber-600 dark:text-amber-400'}`}
                     >
                       {requireApproval
-                        ? 'This post will be sent for team approval before going live.'
-                        : 'This post will be scheduled without requiring approval.'}
+                        ? COPY.calendarPostModal.approvalEnabled
+                        : COPY.calendarPostModal.approvalDisabled}
                     </div>
                   </div>
                 </Tooltip>
@@ -1392,18 +1434,33 @@ export default function CalendarPostModal({
         {/* Footer */}
         <div className="flex items-center justify-between px-6 py-3.5 border-t border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900">
           <div className="flex items-center gap-3">
-            <button
-              onClick={() => handleSubmit('draft')}
-              disabled={isLoading || !formData.caption}
-              className="flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-100 font-medium disabled:opacity-40 transition-colors border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2 hover:bg-gray-50 dark:hover:bg-gray-800"
-            >
-              {isLoading ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
-              ) : (
-                <FileText className="w-4 h-4" />
-              )}
-              Save Draft
-            </button>
+            {isPostPublished ? (
+              <button
+                onClick={() => handleDeletePost()}
+                disabled={isLoading}
+                className="flex items-center gap-1.5 text-sm text-white font-medium disabled:opacity-40 transition-colors bg-red-600 hover:bg-red-700 border border-red-600 hover:border-red-700 rounded-xl px-3 py-2"
+              >
+                {isLoading ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Trash className="w-4 h-4" />
+                )}
+                {COPY.calendarPostModal.deletePost}
+              </button>
+            ) : (
+              <button
+                onClick={() => handleSubmit('draft')}
+                disabled={isLoading || !formData.caption}
+                className="flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-100 font-medium disabled:opacity-40 transition-colors border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2 hover:bg-gray-50 dark:hover:bg-gray-800"
+              >
+                {isLoading ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <FileText className="w-4 h-4" />
+                )}
+                {COPY.calendarPostModal.saveDraft}
+              </button>
+            )}
           </div>
           <div className="flex items-center gap-2">
             {/* Submit for review (editors) */}
@@ -1415,7 +1472,7 @@ export default function CalendarPostModal({
                 className="flex items-center gap-1.5 text-sm rounded-xl"
               >
                 <Send className="w-4 h-4" />
-                Submit for Review
+                {COPY.calendarPostModal.submitForReview}
               </Button>
             )}
 
@@ -1433,7 +1490,11 @@ export default function CalendarPostModal({
             >
               {isLoading && <Loader2 className="w-4 h-4 animate-spin" />}
               {requireApproval ? <Send className="w-4 h-4" /> : <Calendar className="w-4 h-4" />}
-              {requireApproval ? 'Send for Approval' : 'Schedule Post'}
+              {requireApproval
+                ? COPY.calendarPostModal.sendForApproval
+                : isPostPublished
+                  ? COPY.calendarPostModal.updatePost
+                  : COPY.calendarPostModal.schedulePost}
             </Button>
           </div>
         </div>
@@ -1442,14 +1503,18 @@ export default function CalendarPostModal({
         open={!!connectPrompt}
         onClose={() => setConnectPrompt(null)}
         onConfirm={() => openIntegrationSettings(connectPrompt)}
-        title={connectPrompt === 'dropbox' ? 'Connect Dropbox First' : 'Connect Google Drive First'}
+        title={
+          connectPrompt === 'dropbox'
+            ? COPY.calendarPostModal.connectDropboxTitle
+            : COPY.calendarPostModal.connectDriveTitle
+        }
         description={
           connectPrompt === 'dropbox'
-            ? "Dropbox isn't connected in this workspace yet. Open Settings to review the current integrations setup before using Dropbox media here."
-            : "Google Drive isn't connected in this workspace yet. Open Settings to review the current integrations setup before using Drive media here."
+            ? COPY.calendarPostModal.connectDropboxDescription
+            : COPY.calendarPostModal.connectDriveDescription
         }
-        confirmLabel="Open Settings"
-        cancelLabel="Not Now"
+        confirmLabel={COPY.calendarPostModal.openSettings}
+        cancelLabel={COPY.calendarPostModal.notNow}
         variant="default"
         dismissible
       />
@@ -1475,6 +1540,19 @@ export default function CalendarPostModal({
         variant="default"
       />
       <ConfirmDialog {...discardDialogProps} />
+      <ConfirmDialog
+        open={showDeleteConfirm}
+        onClose={() => setShowDeleteConfirm(false)}
+        onConfirm={confirmDeletePost}
+        title={COPY.calendarPostModal.deleteConfirmTitle}
+        description={COPY.calendarPostModal.deleteConfirmDescription.replace(
+          '{platforms}',
+          formData.platforms.join(', ')
+        )}
+        confirmLabel={COPY.calendarPostModal.delete}
+        cancelLabel={COPY.calendarPostModal.cancel}
+        variant="destructive"
+      />
     </Dialog>
   );
 }
