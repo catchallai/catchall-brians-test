@@ -7,13 +7,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ```bash
 npm run dev          # Start Vite dev server at http://localhost:5173
 npm run build        # Production build
-npm run lint         # ESLint check (strict: max-warnings=0)
+npm run lint         # ESLint check (warnings allowed; --max-warnings=0 only enforced in pre-commit hook)
 npm run lint:fix     # Auto-fix ESLint issues
 npm run typecheck    # TypeScript type checking via tsc
 npm run format       # Format all files with Prettier
 ```
 
-Pre-commit hooks (Husky + lint-staged) run Prettier and ESLint on staged `.js/.jsx/.ts/.tsx` files. Commits are blocked if checks fail.
+Pre-commit hooks (Husky) run `npx prettier --check` on staged `.js/.jsx/.ts/.tsx/.css/.md/.json` files and `npx eslint --max-warnings=0` on `.js/.jsx/.ts/.tsx`. Commits are blocked if checks fail.
 To bypass: `git commit --no-verify` or `HUSKY=0 git commit`.
 
 ## Local Setup
@@ -22,7 +22,7 @@ Create a `.env` file with the following variables:
 
 - `VITE_BASE44_APP_ID`: The Base44 application ID for this frontend.
 - `VITE_BASE44_BACKEND_URL`: The Base44 backend HTTP(S) URL that the app should call.
-- `VITE_BASE44_ACCESS_TOKEN`: A secret API/access token used by the frontend to authenticate with the Base44 backend.
+- `VITE_BASE44_ACCESS_TOKEN`: (Local development only) Used on localhost to bypass the normal login flow. **Do not use in production** — `VITE_` vars are embedded in the client bundle and are not secret. In production, auth comes from the login flow / `access_token` URL param (see `/src/lib/app-params.js`).
 
 Then run `npm i && npm run dev`.
 
