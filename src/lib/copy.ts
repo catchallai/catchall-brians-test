@@ -85,6 +85,12 @@ const COPY = {
     whereToPost: 'Where would you like to share this post?',
     whereHasPosted: 'Posted to these platforms:',
   },
+  hashtagManager: {
+    searchPlaceholder: 'Search hashtags...',
+    addToFavorites: 'Add to Favorites',
+    noPoolsFound: 'No hashtag pools found',
+    createFirstPool: 'Create your first pool above',
+  },
 };
 
 export default COPY;
