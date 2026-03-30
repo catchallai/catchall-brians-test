@@ -16,8 +16,7 @@ const COPY = {
   },
   socialCalendar: {
     nineGridTitle: '9-Grid Layout',
-    nineGridDescription:
-      'Posts auto-sort by date · Click empty to create · Click post to edit · Double-click to preview',
+    nineGridDescription: 'Click empty to create · Click post to edit · Double-click to preview',
     addPost: 'Add Post',
     clickToCreate: 'Click to create',
     hoverPostHelperText: 'Click to edit · Double-click to preview · Drag to reorder',
