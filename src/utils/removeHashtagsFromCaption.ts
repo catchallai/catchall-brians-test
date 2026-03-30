@@ -24,11 +24,24 @@ export function removeHashtagsFromCaption(caption: string, hashtags: string): st
 
   let result = caption;
   for (const tag of tags) {
-    // Remove the tag whether it appears with a leading space, at the start, or after a newline.
-    result = result.replace(new RegExp(`(?:^|\\s)${escapeRegex(tag)}(?=\\s|$)`, 'gi'), '');
+    result = result.replace(new RegExp(`${escapeRegex(tag)}(?=\\s|$)`, 'gi'), '');
   }
 
-  // Collapse runs of 3+ newlines down to 2 and trim trailing whitespace.
+  const lines = result.split('\n');
+  const lastLine = lines[lines.length - 1] ?? '';
+  const remainingHashtags = lastLine.split(/\s+/).filter((t) => t.startsWith('#'));
+
+  if (remainingHashtags.length > 0) {
+    const body = lines
+      .slice(0, -1)
+      .join('\n')
+      .replace(/\n{3,}/g, '\n\n')
+      .replace(/\s+$/, '');
+    const normalizedHashtagLine = remainingHashtags.join(' ');
+    return body ? `${body}\n\n${normalizedHashtagLine}` : normalizedHashtagLine;
+  }
+
+  // No hashtags remain; collapse runs of 3+ newlines down to 2 and trim trailing whitespace.
   return result.replace(/\n{3,}/g, '\n\n').trimEnd();
 }
 

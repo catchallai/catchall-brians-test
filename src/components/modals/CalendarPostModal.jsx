@@ -407,6 +407,7 @@ export default function CalendarPostModal({
       setIsMediaLibraryOpen(false);
       setMediaLibrarySearch('');
       setSelectedLibraryAsset('');
+      setToggledPoolIds(new Set());
       if (post) {
         const initial = {
           title: post.title || '',
@@ -783,10 +784,26 @@ export default function CalendarPostModal({
         .split(/\s+/)
         .filter(Boolean)
         .map((t) => t.replace(/^#/, ''));
+      const remainingPoolIds = new Set([...toggledPoolIds].filter((id) => id !== pool.id));
+      const retainedTags = new Set(
+        hashtagPool
+          .filter((p) => remainingPoolIds.has(p.id))
+          .flatMap((p) =>
+            (p.hashtags || '')
+              .split(/\s+/)
+              .filter(Boolean)
+              .map((t) => t.replace(/^#/, ''))
+          )
+      );
+      const tagsToRemove = poolTags.filter((t) => !retainedTags.has(t));
       setFormData((f) => ({
         ...f,
-        caption: removeHashtagsFromCaption(f.caption, pool.hashtags || ''),
-        hashtags: Array.isArray(f.hashtags) ? f.hashtags.filter((h) => !poolTags.includes(h)) : [],
+        caption: tagsToRemove.length
+          ? removeHashtagsFromCaption(f.caption, tagsToRemove.join(' '))
+          : f.caption,
+        hashtags: Array.isArray(f.hashtags)
+          ? f.hashtags.filter((h) => !tagsToRemove.includes(h))
+          : [],
       }));
       setToggledPoolIds((prev) => {
         const next = new Set(prev);

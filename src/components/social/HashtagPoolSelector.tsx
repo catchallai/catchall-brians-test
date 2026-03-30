@@ -99,9 +99,13 @@ export default function HashtagPoolSelector({
     favoriteMutation.mutate({ id: pool.id, data: { is_favorite: !pool.is_favorite } });
   };
 
-  const handleCopy = (pool: HashtagPool) => {
-    navigator.clipboard.writeText(pool.hashtags ?? '');
-    toast.success(SELECTOR_COPY.toasts.success.copy);
+  const handleCopy = async (pool: HashtagPool) => {
+    try {
+      await navigator.clipboard.writeText(pool.hashtags ?? '');
+      toast.success(SELECTOR_COPY.toasts.success.copy);
+    } catch {
+      toast.error(SELECTOR_COPY.toasts.error.copy);
+    }
   };
 
   const handleDelete = (pool: HashtagPool) => {
@@ -178,7 +182,10 @@ export default function HashtagPoolSelector({
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <button className="shrink-0 p-0.5 rounded text-gray-400 hover:text-gray-600 transition-colors">
+              <button
+                className="shrink-0 p-0.5 rounded text-gray-400 hover:text-gray-600 transition-colors"
+                aria-label="Hashtag pool actions"
+              >
                 <MoreVertical className="w-4 h-4" />
               </button>
             </DropdownMenuTrigger>

@@ -9,6 +9,7 @@ const COPY = {
         },
         error: {
           delete: 'Failed to delete hashtag pool. Please try again.',
+          copy: 'Failed to copy hashtags to clipboard.',
         },
       },
     },
