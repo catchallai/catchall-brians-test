@@ -1,4 +1,19 @@
 const COPY = {
+  createPost: {
+    hashtagPoolSelector: {
+      copy: 'Copy',
+      delete: 'Delete',
+      toasts: {
+        success: {
+          copy: 'Hashtags copied to clipboard',
+        },
+        error: {
+          delete: 'Failed to delete hashtag pool. Please try again.',
+          copy: 'Failed to copy hashtags to clipboard.',
+        },
+      },
+    },
+  },
   socialCalendar: {
     nineGridTitle: '9-Grid Layout',
     nineGridDescription:
