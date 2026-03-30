@@ -28,13 +28,19 @@ DialogOverlay.displayName = DialogPrimitive.Overlay.displayName;
 
 const DialogContent = React.forwardRef(
   (
-    { className, children, hideCloseButton = false, hideFullscreenButton = false, ...props },
+    {
+      className,
+      children,
+      hideCloseButton = false,
+      hideFullscreenButton = false,
+      windowControls = true,
+      ...props
+    },
     ref
   ) => {
     const [isFullscreen, setIsFullscreen] = React.useState(false);
-    const hasCustomChrome = /(^|\s)p-0(\s|$)/.test(className ?? '');
-    const showCloseButton = !hideCloseButton && !hasCustomChrome;
-    const showFullscreenButton = !hideFullscreenButton && !hasCustomChrome;
+    const showCloseButton = windowControls && !hideCloseButton;
+    const showFullscreenButton = windowControls && !hideFullscreenButton;
     const showWindowControls = showCloseButton || showFullscreenButton;
 
     return (
@@ -58,7 +64,7 @@ const DialogContent = React.forwardRef(
                 <button
                   type="button"
                   onClick={() => setIsFullscreen((current) => !current)}
-                  className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                  className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   aria-label={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
                   title={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
                 >
@@ -69,7 +75,7 @@ const DialogContent = React.forwardRef(
                 <DialogPrimitive.Close asChild>
                   <button
                     type="button"
-                    className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                    className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                     aria-label="Close"
                     title="Close"
                   >

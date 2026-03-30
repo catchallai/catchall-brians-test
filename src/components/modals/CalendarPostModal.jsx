@@ -947,6 +947,7 @@ export default function CalendarPostModal({
             ? 'inset-0 h-screen max-h-screen max-w-none translate-x-0 translate-y-0 rounded-none sm:rounded-none'
             : 'max-w-5xl max-h-[92vh] rounded-2xl'
         }`}
+        windowControls={false}
         style={{ gap: 0 }}
         onInteractOutside={(event) => {
           if (isMediaLibraryOpen || showDeleteConfirm) {
@@ -996,6 +997,8 @@ export default function CalendarPostModal({
             <button
               onClick={() => guardedClose(false)}
               className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors text-gray-400"
+              aria-label="Close"
+              title="Close"
             >
               <X className="w-4 h-4" />
             </button>
