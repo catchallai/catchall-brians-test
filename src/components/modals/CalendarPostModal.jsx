@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { appendHashtagToCaption } from '@/utils/appendHashtagToCaption';
+import { removeHashtagsFromCaption } from '@/utils/removeHashtagsFromCaption';
+import HashtagPoolSelector from '@/components/social/HashtagPoolSelector';
 import { createPageUrl } from '@/utils';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -364,6 +366,7 @@ export default function CalendarPostModal({
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({ ...DEFAULT_FORM });
+  const [toggledPoolIds, setToggledPoolIds] = useState(new Set());
   const [uploading, setUploading] = useState(false);
   const [previewPlatform, setPreviewPlatform] = useState('Twitter');
   const [showPreview, setShowPreview] = useState(true);
@@ -773,23 +776,42 @@ export default function CalendarPostModal({
     });
   };
 
-  const addHashtagPool = (pool) => {
-    const content = pool.hashtags || '';
-    if (!content.trim()) {
-      return;
-    }
-    setFormData((f) => {
-      let caption = f.caption;
-      let hashtags = Array.isArray(f.hashtags) ? [...f.hashtags] : [];
-      for (const token of content.trim().split(/\s+/)) {
-        const result = appendHashtagToCaption(caption, token, hashtags);
-        if (result) {
-          caption = result.caption;
-          hashtags = result.hashtags;
-        }
+  const handleTogglePool = (pool) => {
+    const isToggled = toggledPoolIds.has(pool.id);
+    if (isToggled) {
+      const poolTags = (pool.hashtags || '')
+        .split(/\s+/)
+        .filter(Boolean)
+        .map((t) => t.replace(/^#/, ''));
+      setFormData((f) => ({
+        ...f,
+        caption: removeHashtagsFromCaption(f.caption, pool.hashtags || ''),
+        hashtags: Array.isArray(f.hashtags) ? f.hashtags.filter((h) => !poolTags.includes(h)) : [],
+      }));
+      setToggledPoolIds((prev) => {
+        const next = new Set(prev);
+        next.delete(pool.id);
+        return next;
+      });
+    } else {
+      const content = pool.hashtags || '';
+      if (!content.trim()) {
+        return;
       }
-      return { ...f, caption, hashtags };
-    });
+      setFormData((f) => {
+        let caption = f.caption;
+        let hashtags = Array.isArray(f.hashtags) ? [...f.hashtags] : [];
+        for (const token of content.trim().split(/\s+/)) {
+          const result = appendHashtagToCaption(caption, token, hashtags);
+          if (result) {
+            caption = result.caption;
+            hashtags = result.hashtags;
+          }
+        }
+        return { ...f, caption, hashtags };
+      });
+      setToggledPoolIds((prev) => new Set([...prev, pool.id]));
+    }
   };
 
   const updateCaptionSelection = (target) => {
@@ -1193,19 +1215,13 @@ export default function CalendarPostModal({
                 </div>
               </div>
 
-              {/* Hashtag pool quick-add */}
+              {/* Hashtag pool selector */}
               {hashtagPool.length > 0 && (
-                <div className="px-6 pb-2 flex flex-wrap gap-1">
-                  {hashtagPool.slice(0, 10).map((h) => (
-                    <button
-                      key={h.id}
-                      onClick={() => addHashtagPool(h)}
-                      className="text-xs text-violet-600 bg-violet-50 hover:bg-violet-100 border border-violet-200 rounded-full px-2 py-0.5 transition-colors"
-                    >
-                      {h.hashtag}
-                    </button>
-                  ))}
-                </div>
+                <HashtagPoolSelector
+                  pools={hashtagPool}
+                  toggledPoolIds={toggledPoolIds}
+                  onToggle={handleTogglePool}
+                />
               )}
 
               {/* Recurring toggle */}
