@@ -146,8 +146,8 @@ export default function HashtagPoolSelector({
                       ? 'bg-violet-600 border-violet-600 text-white font-bold'
                       : 'bg-gray-100 border-gray-100 text-gray-500'
                     : isToggled
-                      ? 'border border-violet-500 text-violet-600 bg-white'
-                      : 'border border-gray-200 text-gray-500 bg-white hover:border-gray-300',
+                      ? 'border-violet-500 text-violet-600 bg-white'
+                      : 'border-gray-200 text-gray-500 bg-white hover:border-gray-300',
                 ].join(' ')}
               >
                 {isToggled && <Check className="mr-1 h-3 w-3" />}
