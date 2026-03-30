@@ -92,6 +92,10 @@ export default function SocialCalendar() {
 
   const filteredPosts = posts
     .filter((p) => {
+      // Skip posts without a scheduled date since they won't appear on the calendar
+      if (!p.scheduled_date) {
+        return false;
+      }
       const postDate = parseISO(p.scheduled_date);
       // Expand window to cover week/day navigation that goes beyond the current month boundary
       const windowStart = startOfMonth(currentMonth);
@@ -147,11 +151,33 @@ export default function SocialCalendar() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['hashtag-pool'] }),
   });
 
+  /**
+   * Save handler for CalendarPostModal.
+   * - Existing posts (selectedPost has an id): update in place.
+   * - New posts: determine grid order, then create.
+   *   - If created from a specific 9-grid tile, use that tile's position as the order.
+   *   - Otherwise (e.g. calendar "Add Post" button, templates), scan the current month's
+   *     posts for the first unused grid slot (0-8) and assign that as the order.
+   */
   const handleSave = async (data) => {
     if (selectedPost?.id) {
       await updateMutation.mutateAsync({ id: selectedPost.id, data });
     } else {
-      await createMutation.mutateAsync({ ...data, order: data.order ?? filteredPosts.length });
+      let order;
+      if (selectedPost?.order !== undefined && selectedPost?.order !== null) {
+        // Explicit tile position (e.g. clicked an empty 9-grid tile)
+        order = selectedPost.order;
+      } else {
+        // Find the first available grid slot (0-8) not occupied by an existing post this month
+        const usedOrders = new Set(
+          filteredPosts.map((post) => post.order).filter((o) => typeof o === 'number')
+        );
+        order = 0;
+        while (order < 9 && usedOrders.has(order)) {
+          order++;
+        }
+      }
+      await createMutation.mutateAsync({ ...data, order });
     }
   };
 
