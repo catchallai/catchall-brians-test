@@ -12,7 +12,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Hash, Star, Copy, Trash2, MoreVertical, Search } from 'lucide-react';
+import { Hash, Star, Copy, Check, Trash2, MoreVertical, Search } from 'lucide-react';
 import { CATEGORY_FILTER } from '@/constants/hashtagManager';
 import COPY from '@/lib/copy';
 import type { HashtagPool } from '@/types/hashtags';
@@ -32,6 +32,7 @@ const splitCategories = (cat: string | null | undefined): string[] =>
 export function AllHashtagsSection({ selectedCategory }: AllHashtagsSectionProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [deletingPoolId, setDeletingPoolId] = useState<string | null>(null);
+  const [copiedAll, setCopiedAll] = useState(false);
   const queryClient = useQueryClient();
 
   const { data: hashtags = [] } = useQuery<HashtagPool[]>({
@@ -75,13 +76,30 @@ export function AllHashtagsSection({ selectedCategory }: AllHashtagsSectionProps
     return matchesSearch && matchesCategory;
   });
 
+  const copyAll = () => {
+    navigator.clipboard.writeText(filteredHashtags.map((h) => `#${h.hashtag}`).join(' '));
+    setCopiedAll(true);
+    setTimeout(() => setCopiedAll(false), 2000);
+  };
+
   return (
     <>
       <Card className="border-0 shadow-sm rounded-2xl">
         <CardHeader className="pb-2">
           <CardTitle className="text-base font-semibold flex items-center justify-between">
             <span>{sectionTitle}</span>
-            <Badge variant="secondary">{filteredHashtags.length} pools</Badge>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={copyAll}
+                className="gap-1.5 h-7 px-2 text-xs"
+              >
+                {copiedAll ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                {copiedAll ? 'Copied!' : 'Copy All'}
+              </Button>
+              <Badge variant="secondary">{filteredHashtags.length} pools</Badge>
+            </div>
           </CardTitle>
           {/* Search bar — directly below the section title */}
           <div className="relative mt-2">

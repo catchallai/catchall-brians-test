@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Plus, Copy, Check } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { CategoriesSidebar } from '@/components/hashtags/CategoriesSidebar';
 import { CreateHashtagPoolSection } from '@/components/hashtags/CreateHashtagPoolSection';
 import { AllHashtagsSection } from '@/components/hashtags/AllHashtagsSection';
@@ -29,7 +29,6 @@ export default function HashtagManager() {
   const [newCategory, setNewCategory] = useState({ name: '', color: 'violet' });
   const [bulkInput, setBulkInput] = useState('');
   const [showBulkModal, setShowBulkModal] = useState(false);
-  const [copiedAll, setCopiedAll] = useState(false);
   const queryClient = useQueryClient();
 
   const { data: hashtags = [], isLoading } = useQuery({
@@ -65,25 +64,6 @@ export default function HashtagManager() {
     setShowBulkModal(false);
   };
 
-  const copyAllHashtags = () => {
-    const toExport =
-      selectedCategory === CATEGORY_FILTER.ALL
-        ? hashtags
-        : hashtags.filter((h) => {
-            const cats = splitCategories(h.category);
-            if (selectedCategory === CATEGORY_FILTER.FAVORITES) {
-              return h.is_favorite;
-            }
-            if (selectedCategory === CATEGORY_FILTER.UNCATEGORIZED) {
-              return cats.length === 0;
-            }
-            return cats.includes(selectedCategory);
-          });
-    navigator.clipboard.writeText(toExport.map((h) => `#${h.hashtag}`).join(' '));
-    setCopiedAll(true);
-    setTimeout(() => setCopiedAll(false), 2000);
-  };
-
   const categories = [...new Set(hashtags.flatMap((h) => splitCategories(h.category)))];
 
   if (isLoading) {
@@ -110,10 +90,6 @@ export default function HashtagManager() {
           <Button variant="outline" onClick={() => setShowBulkModal(true)} className="gap-2">
             <Plus className="w-4 h-4" />
             Bulk Add
-          </Button>
-          <Button variant="outline" onClick={copyAllHashtags} className="gap-2">
-            {copiedAll ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-            {copiedAll ? 'Copied!' : 'Copy All'}
           </Button>
         </div>
       </div>
