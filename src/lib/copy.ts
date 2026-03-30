@@ -69,7 +69,6 @@ const COPY = {
     twitterDisplayName: 'Twitter / X',
     whereToPost: 'Where would you like to share this post?',
     whereHasPosted: 'Posted to these platforms:',
-    defaultPlatform: 'Twitter',
   },
 };
 

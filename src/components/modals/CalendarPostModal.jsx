@@ -60,7 +60,7 @@ import ConfirmDialog from '@/components/ui/ConfirmDialog';
 import MediaLibraryModal from './MediaLibraryModal';
 import { PostStatus } from '@/types/enums';
 import COPY from '@/lib/copy';
-import { Label } from '../ui/label';
+import { Label } from '@/components/ui/label';
 
 // Best times by platform based on general audience activity research
 const BEST_TIMES = {
@@ -122,7 +122,7 @@ const PLATFORMS = [
 function PlatformPreviewPanel({ platform, caption, imageUrl, videoUrl }) {
   const p =
     PLATFORMS.find((pl) => pl.id === platform) ??
-    PLATFORMS.find((pl) => pl.id === COPY.calendarPostModal.defaultPlatform) ??
+    PLATFORMS.find((pl) => pl.id === PLATFORMS[0].id) ??
     PLATFORMS[0];
   const overLimit = caption.length > p.limit;
   const truncated = caption.length > p.limit ? caption.slice(0, p.limit) + '…' : caption;
@@ -768,8 +768,8 @@ export default function CalendarPostModal({
     let finalStatus = status;
     if (isPostPublished && !requireApproval) {
       finalStatus = PostStatus.PUBLISHED;
-    } else if (isAdmin && requireApproval && status === 'approved') {
-      finalStatus = 'pending_approval';
+    } else if (isAdmin && requireApproval && status === PostStatus.APPROVED) {
+      finalStatus = PostStatus.PENDING_APPROVAL;
     }
     await onSave({
       ...formData,
@@ -870,7 +870,7 @@ export default function CalendarPostModal({
     currentUser?.social_media_role === 'approver';
   const activePlatform =
     PLATFORMS.find((p) => p.id === previewPlatform) ??
-    PLATFORMS.find((p) => p.id === COPY.calendarPostModal.defaultPlatform) ??
+    PLATFORMS.find((p) => p.id === PLATFORMS[0].id) ??
     PLATFORMS[0];
   const overLimit = formData.caption.length > activePlatform.limit;
 
