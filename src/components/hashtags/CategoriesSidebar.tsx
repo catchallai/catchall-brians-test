@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Hash, Star, Folder, FolderPlus } from 'lucide-react';
 import { CATEGORY_FILTER } from '@/constants/hashtagManager';
 import type { HashtagPool } from '@/types/hashtags';
+import { splitCategories } from '@/utils/hashtags';
 
 interface CategoriesSidebarProps {
   selectedCategory: string;
@@ -13,14 +14,6 @@ interface CategoriesSidebarProps {
   onAddCategory: () => void;
   customCategories: string[];
 }
-
-const splitCategories = (cat: string | null | undefined): string[] =>
-  cat
-    ? cat
-        .split(' | ')
-        .map((c) => c.trim().toLowerCase())
-        .filter(Boolean)
-    : [];
 
 export function CategoriesSidebar({
   selectedCategory,
@@ -41,7 +34,13 @@ export function CategoriesSidebar({
       <CardHeader className="pb-3">
         <CardTitle className="text-base font-semibold flex items-center justify-between">
           Categories
-          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={onAddCategory}>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8"
+            onClick={onAddCategory}
+            aria-label="Add category"
+          >
             <FolderPlus className="w-4 h-4" />
           </Button>
         </CardTitle>

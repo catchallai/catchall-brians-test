@@ -9,19 +9,12 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Plus, Check, ChevronDown, Star } from 'lucide-react';
 import COPY from '@/lib/copy';
 import type { HashtagPool } from '@/types/hashtags';
+import { normalizeCategoryName, splitCategories } from '@/utils/hashtags';
 
 interface CreateHashtagPoolSectionProps {
   customCategories: string[];
   onNewCategoryAdded: (cat: string) => void;
 }
-
-const splitCategories = (cat: string | null | undefined): string[] =>
-  cat
-    ? cat
-        .split(' | ')
-        .map((c) => c.trim().toLowerCase())
-        .filter(Boolean)
-    : [];
 
 export function CreateHashtagPoolSection({
   customCategories,
@@ -61,7 +54,7 @@ export function CreateHashtagPoolSection({
   };
 
   const confirmNewCategory = () => {
-    const name = pendingNewCategory.trim().toLowerCase();
+    const name = normalizeCategoryName(pendingNewCategory);
     if (!name) return;
     onNewCategoryAdded(name);
     setNewPoolCategories((prev) => [...new Set([...prev, name])]);

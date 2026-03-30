@@ -13,20 +13,13 @@ import { Plus } from 'lucide-react';
 import { CategoriesSidebar } from '@/components/hashtags/CategoriesSidebar';
 import { CreateHashtagPoolSection } from '@/components/hashtags/CreateHashtagPoolSection';
 import { AllHashtagsSection } from '@/components/hashtags/AllHashtagsSection';
-
-const splitCategories = (cat) =>
-  cat
-    ? cat
-        .split(' | ')
-        .map((c) => c.trim().toLowerCase())
-        .filter(Boolean)
-    : [];
+import { normalizeCategoryName, splitCategories } from '@/utils/hashtags';
 
 export default function HashtagManager() {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [customCategories, setCustomCategories] = useState(/** @type {string[]} */ ([]));
   const [showCategoryModal, setShowCategoryModal] = useState(false);
-  const [newCategory, setNewCategory] = useState({ name: '', color: 'violet' });
+  const [newCategoryName, setNewCategoryName] = useState('');
   const [bulkInput, setBulkInput] = useState('');
   const [showBulkModal, setShowBulkModal] = useState(false);
   const queryClient = useQueryClient();
@@ -65,6 +58,18 @@ export default function HashtagManager() {
   };
 
   const categories = [...new Set(hashtags.flatMap((h) => splitCategories(h.category)))];
+
+  const saveCategory = () => {
+    const normalizedCategory = normalizeCategoryName(newCategoryName);
+    if (!normalizedCategory) {
+      return;
+    }
+
+    setCustomCategories((prev) => [...new Set([...prev, normalizedCategory])]);
+    setSelectedCategory(normalizedCategory);
+    setShowCategoryModal(false);
+    setNewCategoryName('');
+  };
 
   if (isLoading) {
     return (
@@ -138,7 +143,7 @@ export default function HashtagManager() {
           <CreateHashtagPoolSection
             customCategories={customCategories}
             onNewCategoryAdded={(cat) =>
-              setCustomCategories((prev) => [...new Set([...prev, cat])])
+              setCustomCategories((prev) => [...new Set([...prev, normalizeCategoryName(cat)])])
             }
           />
 
@@ -175,7 +180,15 @@ export default function HashtagManager() {
       </Dialog>
 
       {/* Add Category Modal */}
-      <Dialog open={showCategoryModal} onOpenChange={setShowCategoryModal}>
+      <Dialog
+        open={showCategoryModal}
+        onOpenChange={(open) => {
+          setShowCategoryModal(open);
+          if (!open) {
+            setNewCategoryName('');
+          }
+        }}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Add Category</DialogTitle>
@@ -184,9 +197,14 @@ export default function HashtagManager() {
             <div className="space-y-2">
               <Label>Category Name</Label>
               <Input
-                value={newCategory.name}
-                onChange={(e) => setNewCategory({ ...newCategory, name: e.target.value })}
+                value={newCategoryName}
+                onChange={(e) => setNewCategoryName(e.target.value)}
                 placeholder="e.g., brand, campaign, product"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    saveCategory();
+                  }
+                }}
               />
             </div>
             <p className="text-sm text-gray-500">
@@ -194,14 +212,18 @@ export default function HashtagManager() {
               editing them.
             </p>
             <div className="flex justify-end gap-3">
-              <Button variant="outline" onClick={() => setShowCategoryModal(false)}>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setShowCategoryModal(false);
+                  setNewCategoryName('');
+                }}
+              >
                 Cancel
               </Button>
               <Button
-                onClick={() => {
-                  setShowCategoryModal(false);
-                  setNewCategory({ name: '', color: 'violet' });
-                }}
+                onClick={saveCategory}
+                disabled={!newCategoryName.trim()}
                 className="bg-violet-600 hover:bg-violet-700"
               >
                 Save Category

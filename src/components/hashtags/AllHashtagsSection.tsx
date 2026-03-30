@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Skeleton } from '@/components/ui/skeleton';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,29 +17,31 @@ import { Hash, Star, Copy, Check, Trash2, MoreVertical, Search } from 'lucide-re
 import { CATEGORY_FILTER } from '@/constants/hashtagManager';
 import COPY from '@/lib/copy';
 import type { HashtagPool } from '@/types/hashtags';
+import { splitCategories } from '@/utils/hashtags';
 
 interface AllHashtagsSectionProps {
   selectedCategory: string;
 }
 
-const splitCategories = (cat: string | null | undefined): string[] =>
-  cat
-    ? cat
-        .split(' | ')
-        .map((c) => c.trim().toLowerCase())
-        .filter(Boolean)
-    : [];
-
 export function AllHashtagsSection({ selectedCategory }: AllHashtagsSectionProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [deletingPoolId, setDeletingPoolId] = useState<string | null>(null);
   const [copiedAll, setCopiedAll] = useState(false);
+  const copyResetTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const queryClient = useQueryClient();
 
-  const { data: hashtags = [] } = useQuery<HashtagPool[]>({
+  const { data: hashtags = [], isLoading } = useQuery<HashtagPool[]>({
     queryKey: ['hashtag-pool'],
     queryFn: () => base44.entities.HashtagPool.list('-usage_count', 200),
   });
+
+  useEffect(() => {
+    return () => {
+      if (copyResetTimeoutRef.current) {
+        clearTimeout(copyResetTimeoutRef.current);
+      }
+    };
+  }, []);
 
   const deleteMutation = useMutation({
     mutationFn: (id: string) => base44.entities.HashtagPool.delete(id),
@@ -76,10 +79,17 @@ export function AllHashtagsSection({ selectedCategory }: AllHashtagsSectionProps
     return matchesSearch && matchesCategory;
   });
 
-  const copyAll = () => {
-    navigator.clipboard.writeText(filteredHashtags.map((h) => `#${h.hashtag}`).join(' '));
-    setCopiedAll(true);
-    setTimeout(() => setCopiedAll(false), 2000);
+  const copyAll = async () => {
+    try {
+      await navigator.clipboard.writeText(filteredHashtags.map((h) => `#${h.hashtag}`).join(' '));
+      setCopiedAll(true);
+      if (copyResetTimeoutRef.current) {
+        clearTimeout(copyResetTimeoutRef.current);
+      }
+      copyResetTimeoutRef.current = setTimeout(() => setCopiedAll(false), 2000);
+    } catch (error) {
+      console.error('Failed to copy hashtags', error);
+    }
   };
 
   return (
@@ -113,7 +123,13 @@ export function AllHashtagsSection({ selectedCategory }: AllHashtagsSectionProps
           </div>
         </CardHeader>
         <CardContent className="p-0">
-          {filteredHashtags.length === 0 ? (
+          {isLoading ? (
+            <div className="space-y-3 px-6 py-4">
+              <Skeleton className="h-16 rounded-xl" />
+              <Skeleton className="h-16 rounded-xl" />
+              <Skeleton className="h-16 rounded-xl" />
+            </div>
+          ) : filteredHashtags.length === 0 ? (
             <div className="text-center py-12">
               <Hash className="w-12 h-12 text-gray-300 mx-auto mb-3" />
               <p className="text-gray-500">{COPY.hashtagManager.noPoolsFound}</p>
@@ -133,7 +149,11 @@ export function AllHashtagsSection({ selectedCategory }: AllHashtagsSectionProps
                     key={pool.id}
                     className="group flex items-start gap-3 px-6 py-4 border-b last:border-b-0"
                   >
-                    <button onClick={() => toggleFavorite(pool)} className="mt-0.5 shrink-0">
+                    <button
+                      onClick={() => toggleFavorite(pool)}
+                      className="mt-0.5 shrink-0"
+                      aria-label={pool.is_favorite ? 'Remove from favorites' : 'Add to favorites'}
+                    >
                       {pool.is_favorite ? (
                         <Star className="w-4 h-4 text-amber-500 fill-amber-500" />
                       ) : (
@@ -159,14 +179,17 @@ export function AllHashtagsSection({ selectedCategory }: AllHashtagsSectionProps
 
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <button className="mt-0.5 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button
+                          className="mt-0.5 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                          aria-label={`Actions for ${pool.hashtag}`}
+                        >
                           <MoreVertical className="w-4 h-4 text-gray-400" />
                         </button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem
                           onClick={() =>
-                            navigator.clipboard.writeText(pool.hashtags || pool.hashtag)
+                            navigator.clipboard.writeText(pool.hashtags || `#${pool.hashtag}`)
                           }
                         >
                           <Copy className="w-4 h-4 mr-2" />
