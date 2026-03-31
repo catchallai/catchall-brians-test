@@ -187,12 +187,13 @@ export default function SocialCalendar() {
         // Explicit tile position (e.g. clicked an empty layout tile)
         order = selectedPost.order;
       } else {
-        // Find the first available layout slot (0-8) not occupied by an existing post this month
+        // Find the first available layout slot not occupied by an existing post this month.
+        // No upper-bound cap — the grid expands dynamically when higher slots are occupied.
         const usedOrders = new Set(
           filteredPosts.map((post) => post.order).filter((o) => typeof o === 'number')
         );
         order = 0;
-        while (order < 9 && usedOrders.has(order)) {
+        while (usedOrders.has(order)) {
           order++;
         }
       }
