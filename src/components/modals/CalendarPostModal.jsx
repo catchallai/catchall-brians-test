@@ -1032,7 +1032,10 @@ export default function CalendarPostModal({
         {/* Body */}
         <div
           className="flex overflow-hidden"
-          style={{ maxHeight: isFullscreen ? 'calc(100vh - 140px)' : 'calc(92vh - 140px)' }}
+          style={{
+            maxHeight: isFullscreen ? '' : 'calc(92vh - 140px)',
+            height: isFullscreen ? 'calc(100vh - 140px)' : '',
+          }}
         >
           {/* Approval tab */}
           {activeTab === 'approval' && post && (

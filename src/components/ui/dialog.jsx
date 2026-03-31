@@ -43,19 +43,33 @@ const DialogContent = React.forwardRef(
     const showFullscreenButton = windowControls && !hideFullscreenButton;
     const showWindowControls = showCloseButton || showFullscreenButton;
 
+    // Reset fullscreen state when dialog closes
+    React.useEffect(() => {
+      if (props.open === false || props.open === undefined) {
+        setIsFullscreen(false);
+      }
+    }, [props.open]);
+
+    // Compose className so fullscreen always wins
+    const baseClass =
+      'fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-background p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg';
+    const windowControlsClass = showWindowControls ? 'pr-20 sm:pr-24' : '';
+    // Place consumer className before fullscreen so fullscreen always overrides
+    const composedClassName = cn(
+      baseClass,
+      windowControlsClass,
+      className,
+      isFullscreen &&
+        'inset-0 h-screen max-h-screen w-screen max-w-none translate-x-0 translate-y-0 rounded-none sm:rounded-none'
+    );
+
     return (
       <DialogPortal>
         <DialogOverlay />
         <DialogPrimitive.Content
           ref={ref}
           data-fullscreen={isFullscreen ? 'true' : 'false'}
-          className={cn(
-            'fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-background p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg',
-            showWindowControls && 'pr-20 sm:pr-24',
-            isFullscreen &&
-              'inset-0 h-screen max-h-screen w-screen max-w-none translate-x-0 translate-y-0 rounded-none sm:rounded-none',
-            className
-          )}
+          className={composedClassName}
           {...props}
         >
           {showWindowControls && (
