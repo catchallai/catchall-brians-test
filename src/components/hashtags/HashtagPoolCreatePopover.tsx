@@ -29,7 +29,6 @@ export function HashtagPoolCreatePopover({
   const [poolHashtags, setPoolHashtags] = useState('');
   const [categories, setCategories] = useState<string[]>([]);
   const [isFavorite, setIsFavorite] = useState(false);
-  const [isCategoryOpen, setIsCategoryOpen] = useState(false);
   const [showNewCategoryInput, setShowNewCategoryInput] = useState(false);
   const [pendingNewCategory, setPendingNewCategory] = useState('');
   const [localCategories, setLocalCategories] = useState<string[]>([]);
@@ -109,12 +108,12 @@ export function HashtagPoolCreatePopover({
             <Input
               value={poolName}
               onChange={(e) => setPoolName(e.target.value)}
-              placeholder="Pool name..."
+              placeholder={COPY.hashtagManager.poolNamePlaceholder}
               className="h-8 text-sm"
             />
           </div>
           <div className="flex-[2]">
-            <Popover open={isCategoryOpen} onOpenChange={setIsCategoryOpen}>
+            <Popover>
               <PopoverTrigger asChild>
                 <button className="flex h-8 w-full items-center justify-between rounded-md border border-input bg-transparent px-2 py-1 text-sm shadow-sm">
                   {!hasSelections ? (

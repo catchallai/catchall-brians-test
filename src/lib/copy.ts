@@ -102,6 +102,7 @@ const COPY = {
     newCategory: 'New Category',
     hashtagsPlaceholder: 'e.g. #marketing #brand #social (# will be added automatically)',
     addPool: 'Add',
+    poolNamePlaceholder: 'Pool name...',
   },
 };
 
