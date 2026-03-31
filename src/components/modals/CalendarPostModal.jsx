@@ -339,13 +339,7 @@ const DIRTY_FIELDS = [
   'auto_post',
 ];
 
-const arraysEqual = (left = [], right = []) =>
-  left.length === right.length && left.every((value, index) => value === right[index]);
-
-const normalizeHashtag = (tag) => tag.replace(/^#/, '').trim().toLowerCase();
-
-const extractHashtags = (value = '') =>
-  Array.from(value.matchAll(/#([A-Za-z0-9_]+)/g), (match) => normalizeHashtag(match[1]));
+import { arraysEqual, normalizeHashtag, extractHashtags } from '@/utils/hashtagUtils';
 
 const hasFormChanges = (current, initial) =>
   DIRTY_FIELDS.some((field) => current[field] !== initial[field]) ||
