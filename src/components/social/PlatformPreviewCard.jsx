@@ -55,7 +55,7 @@ export default function PlatformPreviewCard({ platform, posts, onEditPost }) {
           </div>
         </CardHeader>
         <CardContent className="p-4">
-          {/* 9-Grid Thumbnail Preview */}
+          {/* Layout Thumbnail Preview */}
           <div className="grid grid-cols-3 gap-2">
             {Array.from({ length: 9 }).map((_, index) => {
               const post = platformPosts[index];

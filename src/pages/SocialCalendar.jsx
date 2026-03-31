@@ -44,6 +44,7 @@ import PostQueueManager from '@/components/social/PostQueueManager';
 import OptimalTimeAnalyzer from '@/components/social/OptimalTimeAnalyzer';
 import QuickPostModal from '@/components/social/QuickPostModal';
 import BufferComposer from '@/components/social/BufferComposer';
+import COPY from '@/lib/copy';
 
 const CALENDAR_PLATFORMS = [
   'all',
@@ -116,7 +117,7 @@ export default function SocialCalendar() {
     })
     .sort((a, b) => (a.order || 0) - (b.order || 0));
 
-  // Strict month-only filter for the 9-grid view (no week spillover)
+  // Strict month-only filter for the layout view (no week spillover)
   const filteredPostsForLayoutView = filteredPosts.filter((post) => {
     if (!post.scheduled_date) {
       return false;
@@ -172,10 +173,10 @@ export default function SocialCalendar() {
   /**
    * Save handler for CalendarPostModal.
    * - Existing posts (selectedPost has an id): update in place.
-   * - New posts: determine grid order, then create.
-   *   - If created from a specific 9-grid tile, use that tile's position as the order.
+   * - New posts: determine layout order, then create.
+   *   - If created from a specific layout tile, use that tile's position as the order.
    *   - Otherwise (e.g. calendar "Add Post" button, templates), scan the current month's
-   *     posts for the first unused grid slot (0-8) and assign that as the order.
+   *     posts for the first unused layout slot (0-8) and assign that as the order.
    */
   const handleSave = async (data) => {
     if (selectedPost?.id) {
@@ -183,10 +184,10 @@ export default function SocialCalendar() {
     } else {
       let order;
       if (selectedPost?.order !== undefined && selectedPost?.order !== null) {
-        // Explicit tile position (e.g. clicked an empty 9-grid tile)
+        // Explicit tile position (e.g. clicked an empty layout tile)
         order = selectedPost.order;
       } else {
-        // Find the first available grid slot (0-8) not occupied by an existing post this month
+        // Find the first available layout slot (0-8) not occupied by an existing post this month
         const usedOrders = new Set(
           filteredPosts.map((post) => post.order).filter((o) => typeof o === 'number')
         );
@@ -296,8 +297,10 @@ export default function SocialCalendar() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Social Calendar</h1>
-          <p className="text-gray-500 mt-1">Plan and preview upcoming social media posts</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+            {COPY.socialCalendar.socialCalendar}
+          </h1>
+          <p className="text-gray-500 mt-1">{COPY.socialCalendar.socialCalendarDescription}</p>
         </div>
         <div className="flex items-center gap-3">
           {user && (
@@ -314,7 +317,7 @@ export default function SocialCalendar() {
               className={`gap-1.5 px-4 ${viewMode === 'composer' ? 'bg-white dark:bg-gray-600 shadow-sm text-violet-700 dark:text-violet-300 font-semibold' : 'text-gray-600 dark:text-gray-300 hover:text-gray-900'}`}
             >
               <PenSquare className="w-4 h-4" />
-              Compose
+              {COPY.socialCalendar.compose}
             </Button>
             <Button
               variant="ghost"
@@ -323,7 +326,7 @@ export default function SocialCalendar() {
               className={`gap-1.5 px-4 ${viewMode === 'nine-grid' ? 'bg-white dark:bg-gray-600 shadow-sm text-violet-700 dark:text-violet-300 font-semibold' : 'text-gray-600 dark:text-gray-300 hover:text-gray-900'}`}
             >
               <LayoutGrid className="w-4 h-4" />
-              9-Grid
+              {COPY.socialCalendar.layout}
             </Button>
             <Button
               variant="ghost"
@@ -332,7 +335,7 @@ export default function SocialCalendar() {
               className={`gap-1.5 px-4 ${viewMode === 'calendar' ? 'bg-white dark:bg-gray-600 shadow-sm text-violet-700 dark:text-violet-300 font-semibold' : 'text-gray-600 dark:text-gray-300 hover:text-gray-900'}`}
             >
               <CalendarDays className="w-4 h-4" />
-              Calendar
+              {COPY.socialCalendar.calendar}
             </Button>
             <Button
               variant="ghost"
@@ -341,7 +344,7 @@ export default function SocialCalendar() {
               className={`gap-1.5 px-4 ${viewMode === 'platform-grid' ? 'bg-white dark:bg-gray-600 shadow-sm text-violet-700 dark:text-violet-300 font-semibold' : 'text-gray-600 dark:text-gray-300 hover:text-gray-900'}`}
             >
               <LayoutGrid className="w-4 h-4" />
-              Platforms
+              {COPY.socialCalendar.platforms}
             </Button>
             <Button
               variant="ghost"
@@ -350,13 +353,13 @@ export default function SocialCalendar() {
               className={`gap-1.5 px-4 ${viewMode === 'grid' ? 'bg-white dark:bg-gray-600 shadow-sm text-violet-700 dark:text-violet-300 font-semibold' : 'text-gray-600 dark:text-gray-300 hover:text-gray-900'}`}
             >
               <LayoutGrid className="w-4 h-4" />
-              Grid
+              {COPY.socialCalendar.grid}
             </Button>
           </div>
           {user?.social_media_role === 'admin' && (
             <Button onClick={() => setShowQuickPost(true)} variant="outline" className="gap-2">
               <Zap className="w-4 h-4" />
-              Quick Post
+              {COPY.socialCalendar.quickPost}
             </Button>
           )}
           {canEdit && (
@@ -367,18 +370,18 @@ export default function SocialCalendar() {
                 className="gap-2"
               >
                 <Plus className="w-4 h-4" />
-                Templates
+                {COPY.socialCalendar.templates}
               </Button>
               <Button onClick={() => setShowBulkModal(true)} variant="outline" className="gap-2">
                 <Plus className="w-4 h-4" />
-                Bulk Schedule
+                {COPY.socialCalendar.bulkSchedule}
               </Button>
               <Button
                 onClick={() => setShowModal(true)}
                 className="gap-2 bg-violet-600 hover:bg-violet-700"
               >
                 <Plus className="w-4 h-4" />
-                Add Post
+                {COPY.socialCalendar.addPost}
               </Button>
             </>
           )}
@@ -516,7 +519,7 @@ export default function SocialCalendar() {
           </>
         )}
 
-        {/* 9-Grid View */}
+        {/* Layout View */}
         {viewMode === 'nine-grid' && (
           <>
             <NineGridEditor

@@ -137,18 +137,60 @@ export default function NineGridEditor({
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 4 } }));
   const toast = useToast();
 
-  // Place each post into its grid tile based on post.order (0-8).
+  // Dynamic grid sizing: start at 9 tiles (3 rows), add a row when any of the
+  // last 3 slots are occupied, shrink when the last row is empty (minimum 9).
+  // Derives size from localSlots (optimistic) when active, otherwise from posts.
+  const MIN_SLOTS = 9;
+  const COLS = 3;
+
+  // Calculate the total number of grid slots needed based on occupied positions.
+  // Finds the highest occupied index, rounds up to full rows, then adds one
+  // extra row so there are always empty tiles available after the last post.
+  // Returns at least MIN_SLOTS (9) to guarantee a minimum 3-row grid.
+  const computeSlotCount = (source) => {
+    let max = -1;
+    source.forEach((item, i) => {
+      if (item) {
+        const idx = item.order ?? i;
+        if (idx > max) {
+          max = idx;
+        }
+      }
+    });
+    const rows = Math.ceil((max + 1) / COLS);
+    return Math.max(MIN_SLOTS, (rows + 1) * COLS);
+  };
+
+  // Place each post into its grid tile based on post.order.
   // Posts without a valid order or with an order outside the grid range are skipped.
-  const baseSlots = Array(9).fill(null);
+  const baseSlotCount = computeSlotCount(posts);
+  const baseSlots = Array(baseSlotCount).fill(null);
   posts.forEach((post) => {
     const idx = post.order ?? -1;
-    if (idx >= 0 && idx < 9) {
+    if (idx >= 0 && idx < baseSlotCount) {
       baseSlots[idx] = post;
     }
   });
 
-  // Use local optimistic slots while dragging, otherwise use computed slots
-  const gridSlots = localSlots || baseSlots;
+  // Use local optimistic slots while dragging, otherwise use computed slots.
+  // If localSlots exists but is shorter/longer than needed, resize it.
+  let gridSlots;
+  if (localSlots) {
+    const needed = computeSlotCount(localSlots);
+    if (localSlots.length !== needed) {
+      const resized = Array(needed).fill(null);
+      localSlots.forEach((slot, i) => {
+        if (i < needed) {
+          resized[i] = slot;
+        }
+      });
+      gridSlots = resized;
+    } else {
+      gridSlots = localSlots;
+    }
+  } else {
+    gridSlots = baseSlots;
+  }
 
   const handleDragStart = (event) => {
     setActiveId(event.active.id);
@@ -227,10 +269,10 @@ export default function NineGridEditor({
         <div className="flex items-center justify-between mb-6">
           <div>
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-              {COPY.socialCalendar.nineGridTitle}
+              {COPY.socialCalendar.layout}
             </h3>
             <p className="text-sm text-gray-500 dark:text-gray-400">
-              {COPY.socialCalendar.nineGridDescription}
+              {COPY.socialCalendar.layoutDescription}
             </p>
           </div>
         </div>
@@ -245,7 +287,7 @@ export default function NineGridEditor({
             items={gridSlots.map((_, i) => String(i))}
             strategy={rectSortingStrategy}
           >
-            <div className="grid grid-cols-3 gap-4">
+            <div className={`grid grid-cols-${COLS} gap-4`}>
               {gridSlots.map((post, index) => (
                 <SortableGridItem
                   key={index}
