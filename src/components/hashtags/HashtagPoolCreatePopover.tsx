@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -6,13 +6,14 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Plus, Check, ChevronDown, Star } from 'lucide-react';
+import { toast } from 'sonner';
 import COPY from '@/lib/copy';
 import type { HashtagPool } from '@/types/hashtags';
 import { normalizeCategoryName, splitCategories } from '@/utils/hashtags';
 
 interface HashtagPoolCreatePopoverProps {
   /** Rendered as PopoverTrigger asChild — the caller controls the button style */
-  trigger: React.ReactNode;
+  trigger: ReactNode;
   /** Pass dialogContentRef.current when used inside a Dialog to avoid z-index issues */
   container?: HTMLElement | null;
   /** Forward to PopoverContent to prevent accidental close (e.g. caption focus guard) */
@@ -41,6 +42,7 @@ export function HashtagPoolCreatePopover({
 
   const mutation = useMutation({
     mutationFn: (data: Omit<HashtagPool, 'id'>) => base44.entities.HashtagPool.create(data),
+    onError: () => toast.error(COPY.hashtagManager.createPoolError),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['hashtag-pool'] });
       setPoolName('');
@@ -138,7 +140,7 @@ export function HashtagPoolCreatePopover({
                   <ChevronDown className="h-3 w-3 opacity-50 shrink-0 ml-1" />
                 </button>
               </PopoverTrigger>
-              <PopoverContent className="w-48 p-1" align="start">
+              <PopoverContent container={container} className="w-48 p-1" align="start">
                 {/* Favorites */}
                 <button
                   onClick={() => setIsFavorite((prev) => !prev)}

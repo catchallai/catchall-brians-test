@@ -106,6 +106,7 @@ const COPY = {
     newCategoryPlaceholder: 'New category name...',
     newCategoryAdd: 'Add',
     newCategoryCancel: 'Cancel',
+    createPoolError: 'Failed to create hashtag pool. Please try again.',
   },
 };
 
