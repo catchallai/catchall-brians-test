@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { appendHashtagToCaption } from '@/utils/appendHashtagToCaption';
 import { removeHashtagsFromCaption } from '@/utils/removeHashtagsFromCaption';
@@ -342,6 +342,11 @@ const DIRTY_FIELDS = [
 const arraysEqual = (left = [], right = []) =>
   left.length === right.length && left.every((value, index) => value === right[index]);
 
+const normalizeHashtag = (tag) => tag.replace(/^#/, '').trim().toLowerCase();
+
+const extractHashtags = (value = '') =>
+  Array.from(value.matchAll(/#([A-Za-z0-9_]+)/g), (match) => normalizeHashtag(match[1]));
+
 const hasFormChanges = (current, initial) =>
   DIRTY_FIELDS.some((field) => current[field] !== initial[field]) ||
   !arraysEqual(current.platforms, initial.platforms) ||
@@ -363,7 +368,6 @@ export default function CalendarPostModal({
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({ ...DEFAULT_FORM });
-  const [toggledPoolIds, setToggledPoolIds] = useState(new Set());
   const [uploading, setUploading] = useState(false);
   const [previewPlatform, setPreviewPlatform] = useState('Twitter');
   const [showPreview, setShowPreview] = useState(true);
@@ -391,6 +395,30 @@ export default function CalendarPostModal({
   const fileDialogLockRef = useRef(false);
   const fileDialogReleaseTimeoutRef = useRef(null);
   const isPostPublished = post?.status === PostStatus.PUBLISHED;
+  const activeHashtags = useMemo(() => {
+    const trackedHashtags = Array.isArray(formData.hashtags) ? formData.hashtags : [];
+    // Caption hashtags are already normalized by extractHashtags; tracked tags are not.
+    return new Set([
+      ...trackedHashtags.map(normalizeHashtag).filter(Boolean),
+      ...extractHashtags(formData.caption),
+    ]);
+  }, [formData.caption, formData.hashtags]);
+  const toggledPoolIds = useMemo(
+    () =>
+      new Set(
+        hashtagPool
+          .filter((pool) => {
+            const poolTags = (pool.hashtags || '')
+              .split(/\s+/)
+              .map(normalizeHashtag)
+              .filter(Boolean);
+
+            return poolTags.length > 0 && poolTags.every((tag) => activeHashtags.has(tag));
+          })
+          .map((pool) => pool.id)
+      ),
+    [activeHashtags, hashtagPool]
+  );
 
   useEffect(() => {
     setIsEmojiPickerOpen(false);
@@ -409,7 +437,6 @@ export default function CalendarPostModal({
       setIsMediaLibraryOpen(false);
       setMediaLibrarySearch('');
       setSelectedLibraryAsset('');
-      setToggledPoolIds(new Set());
       if (post) {
         const initial = {
           title: post.title || '',
@@ -808,36 +835,31 @@ export default function CalendarPostModal({
   const handleTogglePool = (pool) => {
     const isToggled = toggledPoolIds.has(pool.id);
     if (isToggled) {
+      // Normalize every comparison so mixed-case tracked tags untoggle cleanly.
       const poolTags = (pool.hashtags || '')
         .split(/\s+/)
         .filter(Boolean)
-        .map((t) => t.replace(/^#/, ''));
+        .map(normalizeHashtag)
+        .filter(Boolean);
       const remainingPoolIds = new Set([...toggledPoolIds].filter((id) => id !== pool.id));
       const retainedTags = new Set(
         hashtagPool
           .filter((p) => remainingPoolIds.has(p.id))
           .flatMap((p) =>
-            (p.hashtags || '')
-              .split(/\s+/)
-              .filter(Boolean)
-              .map((t) => t.replace(/^#/, ''))
+            (p.hashtags || '').split(/\s+/).filter(Boolean).map(normalizeHashtag).filter(Boolean)
           )
       );
       const tagsToRemove = poolTags.filter((t) => !retainedTags.has(t));
+      const tagsToRemoveSet = new Set(tagsToRemove);
       setFormData((f) => ({
         ...f,
         caption: tagsToRemove.length
           ? removeHashtagsFromCaption(f.caption, tagsToRemove.join(' '))
           : f.caption,
         hashtags: Array.isArray(f.hashtags)
-          ? f.hashtags.filter((h) => !tagsToRemove.includes(h))
+          ? f.hashtags.filter((h) => !tagsToRemoveSet.has(normalizeHashtag(h)))
           : [],
       }));
-      setToggledPoolIds((prev) => {
-        const next = new Set(prev);
-        next.delete(pool.id);
-        return next;
-      });
     } else {
       const content = pool.hashtags || '';
       if (!content.trim()) {
@@ -855,7 +877,6 @@ export default function CalendarPostModal({
         }
         return { ...f, caption, hashtags };
       });
-      setToggledPoolIds((prev) => new Set([...prev, pool.id]));
     }
   };
 
