@@ -64,6 +64,7 @@ import MediaLibraryModal from './MediaLibraryModal';
 import { PostStatus } from '@/types/enums';
 import COPY from '@/lib/copy';
 import { Label } from '@/components/ui/label';
+import { HashtagPoolCreatePopover } from '@/components/hashtags/HashtagPoolCreatePopover';
 
 // Best times by platform based on general audience activity research
 const BEST_TIMES = {
@@ -1320,9 +1321,22 @@ export default function CalendarPostModal({
                       />
                     </PopoverContent>
                   </Popover>
-                  <button className="p-1.5 text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors">
-                    <Hash className="w-5 h-5" />
-                  </button>
+                  <HashtagPoolCreatePopover
+                    trigger={
+                      <button
+                        type="button"
+                        className="p-1.5 text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+                      >
+                        <Hash className="w-5 h-5" />
+                      </button>
+                    }
+                    container={dialogContentRef.current}
+                    onFocusOutside={(event) => {
+                      if (event.target === captionRef.current) {
+                        event.preventDefault();
+                      }
+                    }}
+                  />
                   <button className="p-1.5 text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors">
                     <Link2 className="w-5 h-5" />
                   </button>
