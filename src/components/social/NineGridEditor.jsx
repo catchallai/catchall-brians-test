@@ -149,11 +149,10 @@ export default function NineGridEditor({
   // Returns at least MIN_SLOTS (9) to guarantee a minimum 3-row grid.
   const computeSlotCount = (source) => {
     let max = -1;
-    source.forEach((item, i) => {
-      if (item) {
-        const idx = item.order ?? i;
-        if (idx > max) {
-          max = idx;
+    source.forEach((item) => {
+      if (item && typeof item.order === 'number' && item.order >= 0) {
+        if (item.order > max) {
+          max = item.order;
         }
       }
     });
@@ -287,7 +286,8 @@ export default function NineGridEditor({
             items={gridSlots.map((_, i) => String(i))}
             strategy={rectSortingStrategy}
           >
-            <div className={`grid grid-cols-${COLS} gap-4`}>
+            {/* Use grid-cols-${COLS} if we ever want to adjust column count */}
+            <div className="grid grid-cols-3 gap-4">
               {gridSlots.map((post, index) => (
                 <SortableGridItem
                   key={index}
