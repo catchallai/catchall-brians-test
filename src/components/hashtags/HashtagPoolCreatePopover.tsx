@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react';
+import { useState, type ReactElement } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -12,12 +12,12 @@ import type { HashtagPool } from '@/types/hashtags';
 import { normalizeCategoryName, splitCategories } from '@/utils/hashtags';
 
 interface HashtagPoolCreatePopoverProps {
-  /** Rendered as PopoverTrigger asChild — the caller controls the button style */
-  trigger: ReactNode;
+  /** Rendered as PopoverTrigger asChild — must be a single React element */
+  trigger: ReactElement;
   /** Pass dialogContentRef.current when used inside a Dialog to avoid z-index issues */
   container?: HTMLElement | null;
   /** Forward to PopoverContent to prevent accidental close (e.g. caption focus guard) */
-  onFocusOutside?: (event: CustomEvent) => void;
+  onFocusOutside?: (event: Event) => void;
 }
 
 export function HashtagPoolCreatePopover({
@@ -43,7 +43,13 @@ export function HashtagPoolCreatePopover({
   const mutation = useMutation({
     mutationFn: (data: Omit<HashtagPool, 'id'>) => base44.entities.HashtagPool.create(data),
     onError: () => toast.error(COPY.hashtagManager.createPoolError),
-    onSuccess: () => {
+    onSuccess: (createdPool: HashtagPool) => {
+      // Optimistically prepend so the new pool is immediately visible regardless
+      // of sort/limit in parent page queries (e.g. list('-usage_count', 50)).
+      queryClient.setQueryData<HashtagPool[]>(['hashtag-pool'], (old = []) => [
+        createdPool,
+        ...old,
+      ]);
       queryClient.invalidateQueries({ queryKey: ['hashtag-pool'] });
       setPoolName('');
       setPoolHashtags('');
