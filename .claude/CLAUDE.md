@@ -85,6 +85,10 @@ Query client defaults (`/src/lib/query-client.js`): `refetchOnWindowFocus: false
 
 ## Code Conventions
 
+- **Enums:** All TypeScript enums belong in `/src/types/enums.ts`. When writing or encountering enum-like values (finite sets of named string/number constants), add them there rather than defining them inline or in component files.
+- **UI copy:** All user-facing strings (labels, button text, placeholder text, toast messages, helper text, etc.) belong in `/src/lib/copy.ts` under the relevant nested key. Never hard-code UI strings directly in components — add them to `COPY` and reference them from there.
+- **Utilities:** Before writing a new utility function, check `/src/utils/` for an existing one that covers the need. New general-purpose utilities go in `/src/utils/index.ts` (or a dedicated file if focused on a specific domain, matching the existing pattern).
+
 - **Imports:** Use `@/` path alias (maps to `src/`), e.g. `@/components/ui/button`
 - **Mixed JS/TS:** Most files are `.jsx`; new utilities may use `.ts/.tsx`. TypeScript has `checkJs: true`.
 - **Types:** `/src/types/` — TypeScript type definitions live here.
