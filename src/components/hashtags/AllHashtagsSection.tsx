@@ -154,11 +154,9 @@ export function AllHashtagsSection({ selectedCategory }: AllHashtagsSectionProps
                       className="mt-0.5 shrink-0"
                       aria-label={pool.is_favorite ? 'Remove from favorites' : 'Add to favorites'}
                     >
-                      {pool.is_favorite ? (
-                        <Star className="w-4 h-4 text-amber-500 fill-amber-500" />
-                      ) : (
-                        <Star className="w-4 h-4 text-gray-300 hover:text-amber-400 transition-colors" />
-                      )}
+                      <Star
+                        className={`w-4 h-4 ${pool.is_favorite ? 'text-amber-500 fill-amber-500' : 'text-gray-300 hover:text-amber-400 transition-colors'}`}
+                      />
                     </button>
 
                     <div className="flex-1 min-w-0">
@@ -200,7 +198,7 @@ export function AllHashtagsSection({ selectedCategory }: AllHashtagsSectionProps
                           className="text-red-600"
                         >
                           <Trash2 className="w-4 h-4 mr-2" />
-                          Delete
+                          {COPY.hashtagManager.delete}
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
@@ -215,14 +213,12 @@ export function AllHashtagsSection({ selectedCategory }: AllHashtagsSectionProps
       <Dialog open={!!deletingPoolId} onOpenChange={(open) => !open && setDeletingPoolId(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Delete Hashtag Pool</DialogTitle>
+            <DialogTitle>{COPY.hashtagManager.deletePoolTitle}</DialogTitle>
           </DialogHeader>
-          <p className="text-sm text-gray-600 mt-2">
-            Are you sure you want to delete this hashtag pool? This action cannot be undone.
-          </p>
+          <p className="text-sm text-gray-600 mt-2">{COPY.hashtagManager.deletePoolConfirm}</p>
           <div className="flex justify-end gap-3 mt-4">
             <Button variant="outline" onClick={() => setDeletingPoolId(null)}>
-              Cancel
+              {COPY.hashtagManager.cancel}
             </Button>
             <Button
               className="bg-red-600 hover:bg-red-700"
@@ -231,7 +227,7 @@ export function AllHashtagsSection({ selectedCategory }: AllHashtagsSectionProps
                 setDeletingPoolId(null);
               }}
             >
-              Delete
+              {COPY.hashtagManager.delete}
             </Button>
           </div>
         </DialogContent>

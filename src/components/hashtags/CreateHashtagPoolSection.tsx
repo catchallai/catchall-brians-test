@@ -85,7 +85,9 @@ export function CreateHashtagPoolSection({
   return (
     <Card className="border-0 shadow-sm rounded-2xl">
       <CardHeader className="pb-3">
-        <CardTitle className="text-base font-semibold">Create New Hashtag Pool</CardTitle>
+        <CardTitle className="text-base font-semibold">
+          {COPY.hashtagManager.createPoolTitle}
+        </CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
         <div className="flex gap-3">
@@ -168,7 +170,7 @@ export function CreateHashtagPoolSection({
                     className="flex items-center gap-2 w-full px-2 py-1.5 text-sm rounded hover:bg-accent text-violet-600 font-medium"
                   >
                     <Plus className="h-4 w-4" />
-                    New Category
+                    {COPY.hashtagManager.newCategory}
                   </button>
                 </div>
               </PopoverContent>
@@ -215,7 +217,7 @@ export function CreateHashtagPoolSection({
         <Textarea
           value={newPoolHashtags}
           onChange={(e) => setNewPoolHashtags(e.target.value)}
-          placeholder="e.g. #marketing #brand #social (# will be added automatically)"
+          placeholder={COPY.hashtagManager.hashtagsPlaceholder}
           rows={4}
         />
 
@@ -226,7 +228,7 @@ export function CreateHashtagPoolSection({
             className="gap-2 bg-violet-600 hover:bg-violet-700"
           >
             <Plus className="w-4 h-4" />
-            Add
+            {COPY.hashtagManager.addPool}
           </Button>
         </div>
       </CardContent>

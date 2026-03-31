@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Hash, Star, Folder, FolderPlus } from 'lucide-react';
 import { CATEGORY_FILTER } from '@/constants/hashtagManager';
+import COPY from '@/lib/copy';
 import type { HashtagPool } from '@/types/hashtags';
 import { splitCategories } from '@/utils/hashtags';
 
@@ -33,7 +34,7 @@ export function CategoriesSidebar({
     <Card className="border-0 shadow-sm rounded-2xl h-fit">
       <CardHeader className="pb-3">
         <CardTitle className="text-base font-semibold flex items-center justify-between">
-          Categories
+          {COPY.hashtagManager.categoriesTitle}
           <Button
             variant="ghost"
             size="icon"
@@ -56,7 +57,7 @@ export function CategoriesSidebar({
         >
           <span className="flex items-center gap-2">
             <Hash className="w-4 h-4" />
-            All Hashtags
+            {COPY.hashtagManager.allHashtags}
           </span>
           <Badge variant="secondary" className="text-xs">
             {hashtags.length}
@@ -73,7 +74,7 @@ export function CategoriesSidebar({
         >
           <span className="flex items-center gap-2">
             <Star className="w-4 h-4" />
-            Favorites
+            {COPY.hashtagManager.favorites}
           </span>
           <Badge variant="secondary" className="text-xs">
             {hashtags.filter((h) => h.is_favorite).length}
@@ -112,7 +113,7 @@ export function CategoriesSidebar({
         >
           <span className="flex items-center gap-2">
             <Folder className="w-4 h-4" />
-            Uncategorized
+            {COPY.hashtagManager.uncategorized}
           </span>
           <Badge variant="secondary" className="text-xs">
             {hashtags.filter((h) => !h.category).length}

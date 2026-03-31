@@ -90,6 +90,19 @@ const COPY = {
     addToFavorites: 'Add to Favorites',
     noPoolsFound: 'No hashtag pools found',
     createFirstPool: 'Create your first pool above',
+    delete: 'Delete',
+    cancel: 'Cancel',
+    deletePoolTitle: 'Delete Hashtag Pool',
+    deletePoolConfirm:
+      'Are you sure you want to delete this hashtag pool? This action cannot be undone.',
+    categoriesTitle: 'Categories',
+    allHashtags: 'All Hashtags',
+    favorites: 'Favorites',
+    uncategorized: 'Uncategorized',
+    createPoolTitle: 'Create New Hashtag Pool',
+    newCategory: 'New Category',
+    hashtagsPlaceholder: 'e.g. #marketing #brand #social (# will be added automatically)',
+    addPool: 'Add',
   },
 };
 
