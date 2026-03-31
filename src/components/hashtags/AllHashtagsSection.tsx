@@ -81,7 +81,9 @@ export function AllHashtagsSection({ selectedCategory }: AllHashtagsSectionProps
 
   const copyAll = async () => {
     try {
-      await navigator.clipboard.writeText(filteredHashtags.map((h) => `#${h.hashtag}`).join(' '));
+      await navigator.clipboard.writeText(
+        filteredHashtags.map((h) => h.hashtags || `#${h.hashtag}`).join(' ')
+      );
       setCopiedAll(true);
       if (copyResetTimeoutRef.current) {
         clearTimeout(copyResetTimeoutRef.current);
