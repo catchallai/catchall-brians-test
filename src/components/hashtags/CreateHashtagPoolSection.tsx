@@ -9,7 +9,12 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Plus, Check, ChevronDown, Star } from 'lucide-react';
 import COPY from '@/lib/copy';
 import type { HashtagPool } from '@/types/hashtags';
-import { normalizeCategoryName, splitCategories } from '@/utils/hashtags';
+import {
+  normalizeCategoryName,
+  normalizeHashtagInput,
+  splitCategories,
+  toggleArrayItem,
+} from '@/utils/hashtags';
 
 interface CreateHashtagPoolSectionProps {
   customCategories: string[];
@@ -48,9 +53,7 @@ export function CreateHashtagPoolSection({
   const allCategories = [...new Set([...categories, ...customCategories])];
 
   const toggleCategory = (cat: string) => {
-    setNewPoolCategories((prev) =>
-      prev.includes(cat) ? prev.filter((c) => c !== cat) : [...prev, cat]
-    );
+    setNewPoolCategories((prev) => toggleArrayItem(prev, cat));
   };
 
   const confirmNewCategory = () => {
@@ -66,15 +69,10 @@ export function CreateHashtagPoolSection({
     if (!newHashtag.trim() || !newPoolHashtags.trim()) return;
     setShowNewCategoryInput(false);
     setPendingNewCategory('');
-    const normalizedHashtags = newPoolHashtags
-      .trim()
-      .split(/\s+/)
-      .map((w) => (w.startsWith('#') ? w : `#${w}`))
-      .join(' ');
     addMutation.mutate({
       hashtag: newHashtag.trim().replace(/^#+/, ''),
       category: newPoolCategories.join(' | ') || null,
-      hashtags: normalizedHashtags,
+      hashtags: normalizeHashtagInput(newPoolHashtags),
       is_favorite: newPoolIsFavorite,
       usage_count: 0,
     });

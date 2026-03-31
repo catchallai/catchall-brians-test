@@ -102,6 +102,11 @@ const COPY = {
     newCategory: 'New Category',
     hashtagsPlaceholder: 'e.g. #marketing #brand #social (# will be added automatically)',
     addPool: 'Add',
+    poolNamePlaceholder: 'Pool name...',
+    newCategoryPlaceholder: 'New category name...',
+    newCategoryAdd: 'Add',
+    newCategoryCancel: 'Cancel',
+    createPoolError: 'Failed to create hashtag pool. Please try again.',
   },
 };
 
