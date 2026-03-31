@@ -22,7 +22,9 @@ Deno.serve(async (req) => {
       // Build UTC datetime from scheduled_date + scheduled_time (HH:MM)
       const time = post.scheduled_time || '00:00';
       const [hours, minutes] = time.split(':').map(Number);
-      const scheduledAt = new Date(`${post.scheduled_date}T${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:00Z`);
+      const scheduledAt = new Date(
+        `${post.scheduled_date}T${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:00Z`
+      );
 
       return scheduledAt <= now;
     });
