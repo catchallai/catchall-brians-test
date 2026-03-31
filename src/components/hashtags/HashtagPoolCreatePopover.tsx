@@ -9,7 +9,12 @@ import { Plus, Check, ChevronDown, Star } from 'lucide-react';
 import { toast } from 'sonner';
 import COPY from '@/lib/copy';
 import type { HashtagPool } from '@/types/hashtags';
-import { normalizeCategoryName, splitCategories } from '@/utils/hashtags';
+import {
+  normalizeCategoryName,
+  normalizeHashtagInput,
+  splitCategories,
+  toggleArrayItem,
+} from '@/utils/hashtags';
 
 interface HashtagPoolCreatePopoverProps {
   /** Rendered as PopoverTrigger asChild — must be a single React element */
@@ -66,7 +71,7 @@ export function HashtagPoolCreatePopover({
   const allCategories = [...new Set([...existingCategories, ...localCategories])];
 
   const toggleCategory = (cat: string) => {
-    setCategories((prev) => (prev.includes(cat) ? prev.filter((c) => c !== cat) : [...prev, cat]));
+    setCategories((prev) => toggleArrayItem(prev, cat));
   };
 
   const confirmNewCategory = () => {
@@ -82,15 +87,10 @@ export function HashtagPoolCreatePopover({
     if (!poolName.trim() || !poolHashtags.trim()) return;
     setShowNewCategoryInput(false);
     setPendingNewCategory('');
-    const normalizedHashtags = poolHashtags
-      .trim()
-      .split(/\s+/)
-      .map((w) => (w.startsWith('#') ? w : `#${w}`))
-      .join(' ');
     mutation.mutate({
       hashtag: poolName.trim().replace(/^#+/, ''),
       category: categories.join(' | ') || null,
-      hashtags: normalizedHashtags,
+      hashtags: normalizeHashtagInput(poolHashtags),
       is_favorite: isFavorite,
       usage_count: 0,
     });
@@ -127,20 +127,22 @@ export function HashtagPoolCreatePopover({
                   {!hasSelections ? (
                     <span className="text-muted-foreground text-xs truncate">Category...</span>
                   ) : (
-                    <span className="flex flex-wrap gap-0.5 overflow-hidden">
+                    <span className="flex items-center gap-0.5 min-w-0 overflow-hidden">
                       {isFavorite && (
-                        <span className="bg-amber-100 text-amber-700 text-xs px-1 py-0.5 rounded">
+                        <span className="bg-amber-100 text-amber-700 text-xs px-1 py-0.5 rounded shrink-0">
                           ★
                         </span>
                       )}
-                      {categories.map((cat) => (
-                        <span
-                          key={cat}
-                          className="bg-violet-100 text-violet-700 text-xs px-1 py-0.5 rounded capitalize"
-                        >
-                          {cat}
+                      {categories.length === 1 && (
+                        <span className="bg-violet-100 text-violet-700 text-xs px-1 py-0.5 rounded capitalize truncate">
+                          {categories[0]}
                         </span>
-                      ))}
+                      )}
+                      {categories.length > 1 && (
+                        <span className="bg-violet-100 text-violet-700 text-xs px-1 py-0.5 rounded shrink-0">
+                          {isFavorite ? `+${categories.length}` : `${categories.length} cats`}
+                        </span>
+                      )}
                     </span>
                   )}
                   <ChevronDown className="h-3 w-3 opacity-50 shrink-0 ml-1" />
