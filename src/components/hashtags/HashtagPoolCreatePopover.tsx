@@ -196,7 +196,7 @@ export function HashtagPoolCreatePopover({
             <Input
               value={pendingNewCategory}
               onChange={(e) => setPendingNewCategory(e.target.value)}
-              placeholder="New category name..."
+              placeholder={COPY.hashtagManager.newCategoryPlaceholder}
               className="flex-1 h-8 text-sm"
               onKeyDown={(e) => {
                 if (e.key === 'Enter') confirmNewCategory();
@@ -212,7 +212,7 @@ export function HashtagPoolCreatePopover({
               onClick={confirmNewCategory}
               className="h-8 bg-violet-600 hover:bg-violet-700"
             >
-              Add
+              {COPY.hashtagManager.newCategoryAdd}
             </Button>
             <Button
               size="sm"
@@ -223,7 +223,7 @@ export function HashtagPoolCreatePopover({
                 setPendingNewCategory('');
               }}
             >
-              Cancel
+              {COPY.hashtagManager.newCategoryCancel}
             </Button>
           </div>
         )}
