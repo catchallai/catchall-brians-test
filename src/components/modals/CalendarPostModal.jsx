@@ -28,6 +28,7 @@ import {
   ChevronUp,
   Sparkles,
   Maximize2,
+  Minimize2,
   Calendar,
   Eye,
   MessageSquare,
@@ -366,6 +367,7 @@ export default function CalendarPostModal({
   const [uploading, setUploading] = useState(false);
   const [previewPlatform, setPreviewPlatform] = useState('Twitter');
   const [showPreview, setShowPreview] = useState(true);
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const [activeTab, setActiveTab] = useState('compose');
 
   const [showBestTimes, setShowBestTimes] = useState(false);
@@ -396,6 +398,7 @@ export default function CalendarPostModal({
 
     if (open) {
       setActiveTab('compose');
+      setIsFullscreen(false);
       setShowBestTimes(false);
       setScheduleError('');
       setRequireApproval(true);
@@ -939,7 +942,12 @@ export default function CalendarPostModal({
     <Dialog open={open} onOpenChange={guardedClose}>
       <DialogContent
         ref={dialogContentRef}
-        className="p-0 max-w-5xl w-full max-h-[92vh] overflow-hidden rounded-2xl bg-white dark:bg-gray-900"
+        className={`p-0 w-full overflow-hidden bg-white dark:bg-gray-900 ${
+          isFullscreen
+            ? 'inset-0 h-screen max-h-screen max-w-none translate-x-0 translate-y-0 rounded-none sm:rounded-none'
+            : 'max-w-5xl max-h-[92vh] rounded-2xl'
+        }`}
+        windowControls={false}
         style={{ gap: 0 }}
         onInteractOutside={(event) => {
           if (isMediaLibraryOpen || showDeleteConfirm) {
@@ -977,12 +985,20 @@ export default function CalendarPostModal({
             >
               <Eye className="w-4 h-4" /> {COPY.calendarPostModal.preview}
             </Button>
-            <button className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors text-gray-400">
-              <Maximize2 className="w-4 h-4" />
+            <button
+              type="button"
+              onClick={() => setIsFullscreen((current) => !current)}
+              className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors text-gray-400"
+              aria-label={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
+              title={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
+            >
+              {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
             </button>
             <button
               onClick={() => guardedClose(false)}
               className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors text-gray-400"
+              aria-label="Close"
+              title="Close"
             >
               <X className="w-4 h-4" />
             </button>
@@ -1014,7 +1030,13 @@ export default function CalendarPostModal({
         )}
 
         {/* Body */}
-        <div className="flex overflow-hidden" style={{ maxHeight: 'calc(92vh - 140px)' }}>
+        <div
+          className="flex overflow-hidden"
+          style={{
+            maxHeight: isFullscreen ? '' : 'calc(92vh - 140px)',
+            height: isFullscreen ? 'calc(100vh - 140px)' : '',
+          }}
+        >
           {/* Approval tab */}
           {activeTab === 'approval' && post && (
             <div className="flex-1 overflow-y-auto p-6">

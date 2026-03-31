@@ -132,7 +132,7 @@ export default function TicketModal({ open, onClose, onSave, ticket, isLoading }
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto" windowControls={false}>
         <DialogHeader>
           <DialogTitle className="text-xl font-semibold">Create Ticket</DialogTitle>
           <Button variant="ghost" size="icon" className="absolute right-4 top-4" onClick={onClose}>
