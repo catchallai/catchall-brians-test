@@ -125,6 +125,52 @@ const PLATFORMS = [
   { id: 'YouTube', label: 'YouTube', icon: Youtube, color: 'bg-red-600 text-white', limit: 5000 },
 ];
 
+function renderWithLinks(text) {
+  const linkRegex = /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)|(https?:\/\/\S+)/g;
+  const parts = [];
+  let lastIndex = 0;
+  let key = 0;
+  let match;
+
+  while ((match = linkRegex.exec(text)) !== null) {
+    if (match.index > lastIndex) {
+      parts.push(text.slice(lastIndex, match.index));
+    }
+    if (match[1] && match[2]) {
+      parts.push(
+        <a
+          key={key++}
+          href={match[2]}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-blue-500 underline"
+        >
+          {match[1]}
+        </a>
+      );
+    } else {
+      parts.push(
+        <a
+          key={key++}
+          href={match[3]}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-blue-500 underline"
+        >
+          {match[3]}
+        </a>
+      );
+    }
+    lastIndex = linkRegex.lastIndex;
+  }
+
+  if (lastIndex < text.length) {
+    parts.push(text.slice(lastIndex));
+  }
+
+  return parts;
+}
+
 function PlatformPreviewPanel({ platform, caption, imageUrl, videoUrl }) {
   const p =
     PLATFORMS.find((pl) => pl.id === platform) ??
@@ -177,7 +223,9 @@ function PlatformPreviewPanel({ platform, caption, imageUrl, videoUrl }) {
           )}
           <div className="p-3">
             <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap line-clamp-6">
-              {truncated || (
+              {truncated ? (
+                renderWithLinks(truncated)
+              ) : (
                 <span className="text-gray-300 dark:text-gray-600 italic">
                   {COPY.calendarPostModal.captionPreviewPlaceholder}
                 </span>
@@ -959,7 +1007,7 @@ export default function CalendarPostModal({
       return;
     }
     const finalUrl = shortenUrl(linkUrl.trim());
-    const text = linkDisplayText.trim() ? `${linkDisplayText.trim()}: ${finalUrl}` : finalUrl;
+    const text = linkDisplayText.trim() ? `[${linkDisplayText.trim()}](${finalUrl})` : finalUrl;
     let nextCaretPosition = 0;
     setFormData((f) => {
       const { currentCaption, start, end } = getCaptionInsertionContext(f.caption);
@@ -1410,7 +1458,7 @@ export default function CalendarPostModal({
                       }}
                     >
                       <p className="text-sm font-semibold mb-3">{COPY.linkInserter.title}</p>
-                      <div className="flex flex-col gap-2">
+                      <div className="flex flex-col gap-3">
                         <div>
                           <Label className="text-xs text-gray-500 mb-1 block">
                             {COPY.linkInserter.urlLabel}
@@ -1430,9 +1478,9 @@ export default function CalendarPostModal({
                               }
                             }}
                           />
-                          {linkUrlError && (
-                            <p className="text-xs text-red-500 mt-1">{linkUrlError}</p>
-                          )}
+                          <p className="text-xs text-red-500 mt-1 min-h-[2rem]">
+                            {linkUrlError ?? ''}
+                          </p>
                         </div>
                         <div>
                           <Label className="text-xs text-gray-500 mb-1 block">
