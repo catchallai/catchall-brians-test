@@ -1013,7 +1013,7 @@ export default function CalendarPostModal({
       return;
     }
     const finalUrl = shortenUrl(linkUrl.trim());
-    const text = linkDisplayText.trim() ? `${linkDisplayText.trim()}: ${finalUrl}` : finalUrl;
+    const text = linkDisplayText.trim() ? `[${linkDisplayText.trim()}](${finalUrl})` : finalUrl;
     let nextCaretPosition = 0;
     setFormData((f) => {
       const { currentCaption, start, end } = getCaptionInsertionContext(f.caption);
