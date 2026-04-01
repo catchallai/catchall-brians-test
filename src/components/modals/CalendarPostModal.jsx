@@ -436,6 +436,7 @@ export default function CalendarPostModal({
   const [isEmojiPickerOpen, setIsEmojiPickerOpen] = useState(false);
   const [isLinkPopoverOpen, setIsLinkPopoverOpen] = useState(false);
   const [linkUrl, setLinkUrl] = useState('');
+  const [linkDisplayText, setLinkDisplayText] = useState('');
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const dialogContentRef = useRef(null);
   const fileInputRef = useRef();
@@ -475,6 +476,7 @@ export default function CalendarPostModal({
     setIsEmojiPickerOpen(false);
     setIsLinkPopoverOpen(false);
     setLinkUrl('');
+    setLinkDisplayText('');
     captionSelectionRef.current = { start: null, end: null };
 
     if (open) {
@@ -1011,7 +1013,7 @@ export default function CalendarPostModal({
       return;
     }
     const finalUrl = shortenUrl(linkUrl.trim());
-    const text = finalUrl;
+    const text = linkDisplayText.trim() ? `${linkDisplayText.trim()}: ${finalUrl}` : finalUrl;
     let nextCaretPosition = 0;
     setFormData((f) => {
       const { currentCaption, start, end } = getCaptionInsertionContext(f.caption);
@@ -1022,6 +1024,7 @@ export default function CalendarPostModal({
     });
     setIsLinkPopoverOpen(false);
     setLinkUrl('');
+    setLinkDisplayText('');
     requestAnimationFrame(() => {
       const nextTextarea = captionRef.current;
       if (!nextTextarea) {
@@ -1431,6 +1434,7 @@ export default function CalendarPostModal({
                     onOpenChange={(open) => {
                       if (!open) {
                         setLinkUrl('');
+                        setLinkDisplayText('');
                       }
                       setIsLinkPopoverOpen(open);
                     }}
@@ -1485,6 +1489,25 @@ export default function CalendarPostModal({
                           <p className="text-xs text-red-500 mt-1 min-h-[2rem]">
                             {linkUrlError ?? ''}
                           </p>
+                        </div>
+                        <div>
+                          <Label className="text-xs text-gray-500 mb-1 block">
+                            {COPY.linkInserter.displayTextLabel}
+                          </Label>
+                          <Input
+                            value={linkDisplayText}
+                            onChange={(e) => setLinkDisplayText(e.target.value)}
+                            placeholder={COPY.linkInserter.displayTextPlaceholder}
+                            className="h-8 text-sm"
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter' && !linkUrlError && linkUrl.trim().length > 0) {
+                                handleLinkInsert();
+                              }
+                              if (e.key === 'Escape') {
+                                setIsLinkPopoverOpen(false);
+                              }
+                            }}
+                          />
                         </div>
                         <div className="flex justify-end pt-1">
                           <Button
