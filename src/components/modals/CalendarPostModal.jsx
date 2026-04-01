@@ -64,6 +64,8 @@ import MediaLibraryModal from './MediaLibraryModal';
 import { PostStatus } from '@/types/enums';
 import COPY from '@/lib/copy';
 import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
+import { isValidUrl, shortenUrl } from '@/utils/url';
 import { HashtagPoolCreatePopover } from '@/components/hashtags/HashtagPoolCreatePopover';
 
 // Best times by platform based on general audience activity research
@@ -380,6 +382,9 @@ export default function CalendarPostModal({
   const [mediaLibrarySearch, setMediaLibrarySearch] = useState('');
   const [selectedLibraryAsset, setSelectedLibraryAsset] = useState('');
   const [isEmojiPickerOpen, setIsEmojiPickerOpen] = useState(false);
+  const [isLinkPopoverOpen, setIsLinkPopoverOpen] = useState(false);
+  const [linkUrl, setLinkUrl] = useState('');
+  const [linkDisplayText, setLinkDisplayText] = useState('');
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const dialogContentRef = useRef(null);
   const fileInputRef = useRef();
@@ -417,6 +422,9 @@ export default function CalendarPostModal({
 
   useEffect(() => {
     setIsEmojiPickerOpen(false);
+    setIsLinkPopoverOpen(false);
+    setLinkUrl('');
+    setLinkDisplayText('');
     captionSelectionRef.current = { start: null, end: null };
 
     if (open) {
@@ -943,6 +951,36 @@ export default function CalendarPostModal({
     });
   };
 
+  const linkUrlError =
+    linkUrl.trim().length > 0 && !isValidUrl(linkUrl.trim()) ? COPY.linkInserter.urlError : null;
+
+  const handleLinkInsert = () => {
+    if (!isValidUrl(linkUrl.trim())) {
+      return;
+    }
+    const finalUrl = shortenUrl(linkUrl.trim());
+    const text = linkDisplayText.trim() ? `${linkDisplayText.trim()}: ${finalUrl}` : finalUrl;
+    let nextCaretPosition = 0;
+    setFormData((f) => {
+      const { currentCaption, start, end } = getCaptionInsertionContext(f.caption);
+      const nextCaption = currentCaption.slice(0, start) + text + currentCaption.slice(end);
+      nextCaretPosition = start + text.length;
+      captionSelectionRef.current = { start: nextCaretPosition, end: nextCaretPosition };
+      return { ...f, caption: nextCaption };
+    });
+    setIsLinkPopoverOpen(false);
+    setLinkUrl('');
+    setLinkDisplayText('');
+    requestAnimationFrame(() => {
+      const nextTextarea = captionRef.current;
+      if (!nextTextarea) {
+        return;
+      }
+      nextTextarea.focus();
+      nextTextarea.setSelectionRange(nextCaretPosition, nextCaretPosition);
+    });
+  };
+
   const isViewer = currentUser?.social_media_role === 'viewer';
   const isAdmin =
     currentUser?.role === 'admin' ||
@@ -1337,9 +1375,97 @@ export default function CalendarPostModal({
                       }
                     }}
                   />
-                  <button className="p-1.5 text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors">
-                    <Link2 className="w-5 h-5" />
-                  </button>
+                  <Popover
+                    open={isLinkPopoverOpen}
+                    onOpenChange={(open) => {
+                      if (!open) {
+                        setLinkUrl('');
+                        setLinkDisplayText('');
+                      }
+                      setIsLinkPopoverOpen(open);
+                    }}
+                  >
+                    <PopoverTrigger asChild>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (document.activeElement === captionRef.current) {
+                            updateCaptionSelection(captionRef.current);
+                          }
+                        }}
+                        className="p-1.5 text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+                      >
+                        <Link2 className="w-5 h-5" />
+                      </button>
+                    </PopoverTrigger>
+                    <PopoverContent
+                      container={dialogContentRef.current}
+                      align="start"
+                      side="top"
+                      className="w-72 p-3"
+                      onFocusOutside={(event) => {
+                        if (event.target === captionRef.current) {
+                          event.preventDefault();
+                        }
+                      }}
+                    >
+                      <p className="text-sm font-semibold mb-3">{COPY.linkInserter.title}</p>
+                      <div className="flex flex-col gap-2">
+                        <div>
+                          <Label className="text-xs text-gray-500 mb-1 block">
+                            {COPY.linkInserter.urlLabel}
+                          </Label>
+                          <Input
+                            value={linkUrl}
+                            onChange={(e) => setLinkUrl(e.target.value)}
+                            placeholder={COPY.linkInserter.urlPlaceholder}
+                            className="h-8 text-sm"
+                            autoFocus
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter' && !linkUrlError && linkUrl.trim().length > 0) {
+                                handleLinkInsert();
+                              }
+                              if (e.key === 'Escape') {
+                                setIsLinkPopoverOpen(false);
+                              }
+                            }}
+                          />
+                          {linkUrlError && (
+                            <p className="text-xs text-red-500 mt-1">{linkUrlError}</p>
+                          )}
+                        </div>
+                        <div>
+                          <Label className="text-xs text-gray-500 mb-1 block">
+                            {COPY.linkInserter.displayTextLabel}
+                          </Label>
+                          <Input
+                            value={linkDisplayText}
+                            onChange={(e) => setLinkDisplayText(e.target.value)}
+                            placeholder={COPY.linkInserter.displayTextPlaceholder}
+                            className="h-8 text-sm"
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter' && !linkUrlError && linkUrl.trim().length > 0) {
+                                handleLinkInsert();
+                              }
+                              if (e.key === 'Escape') {
+                                setIsLinkPopoverOpen(false);
+                              }
+                            }}
+                          />
+                        </div>
+                        <div className="flex justify-end pt-1">
+                          <Button
+                            size="sm"
+                            onClick={handleLinkInsert}
+                            disabled={!linkUrl.trim().length || !!linkUrlError}
+                            className="bg-violet-600 hover:bg-violet-700"
+                          >
+                            {COPY.linkInserter.insert}
+                          </Button>
+                        </div>
+                      </div>
+                    </PopoverContent>
+                  </Popover>
                 </div>
                 <div className="flex items-center gap-3">
                   <span
