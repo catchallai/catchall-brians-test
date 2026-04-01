@@ -98,8 +98,6 @@ const COPY = {
     title: 'Insert Link',
     urlLabel: 'URL',
     urlPlaceholder: 'https://example.com',
-    displayTextLabel: 'Display text',
-    displayTextPlaceholder: 'Display text (optional)',
     insert: 'Insert',
     urlError: 'Please enter a valid URL starting with http:// or https://',
   },
