@@ -12,12 +12,10 @@ import { removeHashtagsFromCaption } from '@/utils/removeHashtagsFromCaption';
  * @returns {{ activeHashtags: Set<string>, toggledPoolIds: Set<string>, handleTogglePool: Function }}
  */
 export function useHashtagPoolToggle({ hashtagPool, form, setForm }) {
+  // Only derive activeHashtags from caption content
   const activeHashtags = useMemo(() => {
-    const trackedTags = (Array.isArray(form.hashtags) ? form.hashtags : [])
-      .map(normalizeHashtag)
-      .filter(Boolean);
-    return new Set([...trackedTags, ...extractHashtags(form.caption)]);
-  }, [form.caption, form.hashtags]);
+    return new Set(extractHashtags(form.caption));
+  }, [form.caption]);
 
   const toggledPoolIds = useMemo(
     () =>

@@ -61,8 +61,15 @@ export function CategoriesSidebar({
           <Button
             variant="ghost"
             size="icon"
-            className="h-10 w-10" // 25% larger than h-8 w-8
-            onClick={() => setShowNewCategoryInput((v) => !v)}
+            className="h-10 w-10"
+            onClick={() => {
+              if (typeof onAddCategory === 'function' && onAddCategory.length === 0) {
+                // External handler (e.g., open modal)
+                onAddCategory();
+              } else {
+                setShowNewCategoryInput((v) => !v);
+              }
+            }}
             aria-label="Add category"
           >
             <FolderPlus className="w-5 h-5" />
