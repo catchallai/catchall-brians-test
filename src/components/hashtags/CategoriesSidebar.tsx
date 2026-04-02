@@ -3,7 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Hash, Star, Folder, FolderPlus } from 'lucide-react';
+import { Hash, Star, Folder, FolderPlus, Folders } from 'lucide-react';
 import { CATEGORY_FILTER } from '@/constants/hashtagManager';
 import COPY from '@/lib/copy';
 import type { HashtagPool } from '@/types/hashtags';
@@ -34,7 +34,12 @@ export function CategoriesSidebar({
     <Card className="shadow-sm rounded-2xl h-fit">
       <CardHeader className="pb-3">
         <CardTitle className="text-base font-semibold flex items-center justify-between">
-          {COPY.hashtagManager.categoriesTitle}
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center">
+              <Folders className="w-4 h-4 text-white" />
+            </div>
+            {COPY.hashtagManager.categoriesTitle}
+          </div>
           <Button
             variant="ghost"
             size="icon"

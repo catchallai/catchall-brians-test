@@ -33,6 +33,7 @@ import CalendarPostModal from '@/components/modals/CalendarPostModal';
 import SocialCalendarView from '@/components/social/SocialCalendarView';
 import { AllHashtagsSection } from '@/components/hashtags/AllHashtagsSection';
 import { CreateHashtagPoolSection } from '@/components/hashtags/CreateHashtagPoolSection';
+import { CategoriesSidebar } from '@/components/hashtags/CategoriesSidebar';
 import NineGridEditor from '@/components/social/NineGridEditor';
 import PostGallery from '@/components/social/PostGallery';
 import TeamManager from '@/components/social/TeamManager';
@@ -81,6 +82,10 @@ export default function SocialCalendar() {
   const [platformFilter, setPlatformFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
   const [galleryPosts, setGalleryPosts] = useState([]);
+  const [hashtagCategory, setHashtagCategory] = useState('all');
+  const [customHashtagCategories, setCustomHashtagCategories] = useState(
+    /** @type {string[]} */ ([])
+  );
   const queryClient = useQueryClient();
 
   // Update expired post statuses every time this page is visited
@@ -590,11 +595,22 @@ export default function SocialCalendar() {
           <div className="space-y-6">
             <PostQueueManager />
             <CalendarNotifications />
-            <CreateHashtagPoolSection customCategories={[]} onNewCategoryAdded={() => {}} />
-            <AllHashtagsSection selectedCategory="all" />
+            <CreateHashtagPoolSection
+              customCategories={customHashtagCategories}
+              onNewCategoryAdded={(cat) =>
+                setCustomHashtagCategories((prev) => [...new Set([...prev, cat])])
+              }
+            />
+            <AllHashtagsSection selectedCategory={hashtagCategory} />
           </div>
           <div className="space-y-6">
             <OptimalTimeAnalyzer />
+            <CategoriesSidebar
+              selectedCategory={hashtagCategory}
+              onSelectCategory={setHashtagCategory}
+              onAddCategory={() => {}}
+              customCategories={customHashtagCategories}
+            />
             <TeamManager />
           </div>
         </div>
