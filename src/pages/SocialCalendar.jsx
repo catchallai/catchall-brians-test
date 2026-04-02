@@ -14,12 +14,23 @@ import {
   CheckCircle,
   LayoutGrid,
   CalendarDays,
+  ChevronLeft,
+  ChevronRight,
   ChevronsUpDown,
   Zap,
   PenSquare,
 } from 'lucide-react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
-import { format, startOfMonth, endOfMonth, parseISO, startOfWeek, endOfWeek } from 'date-fns';
+import {
+  format,
+  startOfMonth,
+  endOfMonth,
+  addMonths,
+  subMonths,
+  parseISO,
+  startOfWeek,
+  endOfWeek,
+} from 'date-fns';
 import CalendarPostCard from '@/components/social/CalendarPostCard';
 import CalendarPostModal from '@/components/modals/CalendarPostModal';
 import SocialCalendarView from '@/components/social/SocialCalendarView';
@@ -439,6 +450,22 @@ export default function SocialCalendar() {
                         onClick={() => setCurrentMonth(startOfMonth(new Date()))}
                       >
                         Today
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8"
+                        onClick={() => setCurrentMonth(subMonths(currentMonth, 1))}
+                      >
+                        <ChevronLeft className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8"
+                        onClick={() => setCurrentMonth(addMonths(currentMonth, 1))}
+                      >
+                        <ChevronRight className="h-4 w-4" />
                       </Button>
                     </div>
                   </div>
