@@ -81,9 +81,12 @@ export function CreateHashtagPoolSection({
   const hasSelections = newPoolIsFavorite || newPoolCategories.length > 0;
 
   return (
-    <Card className="border-0 shadow-sm rounded-2xl">
+    <Card className="shadow-sm rounded-2xl">
       <CardHeader className="pb-3">
-        <CardTitle className="text-base font-semibold">
+        <CardTitle className="text-base font-semibold flex items-center gap-2">
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
+            <Plus className="w-4 h-4 text-white" />
+          </div>
           {COPY.hashtagManager.createPoolTitle}
         </CardTitle>
       </CardHeader>

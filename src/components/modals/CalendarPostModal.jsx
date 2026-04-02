@@ -1,7 +1,6 @@
-import { useState, useEffect, useRef, useMemo } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { appendHashtagToCaption } from '@/utils/appendHashtagToCaption';
-import { removeHashtagsFromCaption } from '@/utils/removeHashtagsFromCaption';
+import { useHashtagPoolToggle } from '@/components/hooks/useHashtagPoolToggle';
 import HashtagPoolSelector from '@/components/social/HashtagPoolSelector';
 import { createPageUrl } from '@/utils';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
@@ -394,7 +393,7 @@ const DIRTY_FIELDS = [
   'auto_post',
 ];
 
-import { arraysEqual, normalizeHashtag, extractHashtags } from '@/utils/hashtagUtils';
+import { arraysEqual } from '@/utils/hashtagUtils';
 
 const hasFormChanges = (current, initial) =>
   DIRTY_FIELDS.some((field) => current[field] !== initial[field]) ||
@@ -447,30 +446,15 @@ export default function CalendarPostModal({
   const fileDialogLockRef = useRef(false);
   const fileDialogReleaseTimeoutRef = useRef(null);
   const isPostPublished = post?.status === PostStatus.PUBLISHED;
-  const activeHashtags = useMemo(() => {
-    const trackedHashtags = Array.isArray(formData.hashtags) ? formData.hashtags : [];
-    // Caption hashtags are already normalized by extractHashtags; tracked tags are not.
-    return new Set([
-      ...trackedHashtags.map(normalizeHashtag).filter(Boolean),
-      ...extractHashtags(formData.caption),
-    ]);
-  }, [formData.caption, formData.hashtags]);
-  const toggledPoolIds = useMemo(
-    () =>
-      new Set(
-        hashtagPool
-          .filter((pool) => {
-            const poolTags = (pool.hashtags || '')
-              .split(/\s+/)
-              .map(normalizeHashtag)
-              .filter(Boolean);
-
-            return poolTags.length > 0 && poolTags.every((tag) => activeHashtags.has(tag));
-          })
-          .map((pool) => pool.id)
-      ),
-    [activeHashtags, hashtagPool]
-  );
+  const {
+    activeHashtags: _activeHashtags,
+    toggledPoolIds,
+    handleTogglePool,
+  } = useHashtagPoolToggle({
+    hashtagPool,
+    form: formData,
+    setForm: setFormData,
+  });
 
   useEffect(() => {
     setIsEmojiPickerOpen(false);
@@ -885,54 +869,6 @@ export default function CalendarPostModal({
       }
       return { ...f, ...result };
     });
-  };
-
-  const handleTogglePool = (pool) => {
-    const isToggled = toggledPoolIds.has(pool.id);
-    if (isToggled) {
-      // Normalize every comparison so mixed-case tracked tags untoggle cleanly.
-      const poolTags = (pool.hashtags || '')
-        .split(/\s+/)
-        .filter(Boolean)
-        .map(normalizeHashtag)
-        .filter(Boolean);
-      const remainingPoolIds = new Set([...toggledPoolIds].filter((id) => id !== pool.id));
-      const retainedTags = new Set(
-        hashtagPool
-          .filter((p) => remainingPoolIds.has(p.id))
-          .flatMap((p) =>
-            (p.hashtags || '').split(/\s+/).filter(Boolean).map(normalizeHashtag).filter(Boolean)
-          )
-      );
-      const tagsToRemove = poolTags.filter((t) => !retainedTags.has(t));
-      const tagsToRemoveSet = new Set(tagsToRemove);
-      setFormData((f) => ({
-        ...f,
-        caption: tagsToRemove.length
-          ? removeHashtagsFromCaption(f.caption, tagsToRemove.join(' '))
-          : f.caption,
-        hashtags: Array.isArray(f.hashtags)
-          ? f.hashtags.filter((h) => !tagsToRemoveSet.has(normalizeHashtag(h)))
-          : [],
-      }));
-    } else {
-      const content = pool.hashtags || '';
-      if (!content.trim()) {
-        return;
-      }
-      setFormData((f) => {
-        let caption = f.caption;
-        let hashtags = Array.isArray(f.hashtags) ? [...f.hashtags] : [];
-        for (const token of content.trim().split(/\s+/)) {
-          const result = appendHashtagToCaption(caption, token, hashtags);
-          if (result) {
-            caption = result.caption;
-            hashtags = result.hashtags;
-          }
-        }
-        return { ...f, caption, hashtags };
-      });
-    }
   };
 
   const updateCaptionSelection = (target) => {
