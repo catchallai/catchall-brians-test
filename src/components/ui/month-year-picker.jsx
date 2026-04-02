@@ -12,8 +12,9 @@ import {
 } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
 
+// Copilot suggestion: Use a neutral year (2000) for MONTHS to avoid magic numbers
 const MONTHS = Array.from({ length: 12 }, (_, index) =>
-  format(new Date(2026, index, 1), 'MMM').toUpperCase()
+  format(new Date(2000, index, 1), 'MMM').toUpperCase()
 );
 
 export function MonthYearPicker({ value, onSelect, className }) {
@@ -26,23 +27,29 @@ export function MonthYearPicker({ value, onSelect, className }) {
     setDisplayYear(selectedMonth.getFullYear());
   }, [selectedMonthKey]);
 
+  // Copilot suggestion: Expand availableYears to always include displayYear
   const availableYears = useMemo(() => {
-    const startYear = currentYear - 10;
-    const endYear = currentYear + 10;
+    const startYear = Math.min(currentYear - 10, displayYear);
+    const endYear = Math.max(currentYear + 10, displayYear);
     return Array.from({ length: endYear - startYear + 1 }, (_, index) => startYear + index);
-  }, [currentYear]);
+  }, [currentYear, displayYear]);
 
   const monthDates = useMemo(
     () => MONTHS.map((_, index) => startOfMonth(setMonth(new Date(displayYear, 0, 1), index))),
     [displayYear]
   );
 
+  // Copilot suggestion: Clamp shiftYear to availableYears range
   const shiftYear = (direction) => {
-    setDisplayYear((year) =>
-      direction < 0
-        ? subYears(new Date(year, 0, 1), 1).getFullYear()
-        : addYears(new Date(year, 0, 1), 1).getFullYear()
-    );
+    setDisplayYear((year) => {
+      const nextYear =
+        direction < 0
+          ? subYears(new Date(year, 0, 1), 1).getFullYear()
+          : addYears(new Date(year, 0, 1), 1).getFullYear();
+      const minYear = availableYears[0];
+      const maxYear = availableYears[availableYears.length - 1];
+      return Math.min(Math.max(nextYear, minYear), maxYear);
+    });
   };
 
   return (

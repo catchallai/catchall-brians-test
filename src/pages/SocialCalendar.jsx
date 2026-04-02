@@ -421,7 +421,10 @@ export default function SocialCalendar() {
                           className="h-9 gap-2 rounded-full border-gray-200 px-3 text-left text-sm font-medium text-gray-600 shadow-sm hover:border-violet-300 hover:text-violet-700"
                         >
                           <Calendar className="h-4 w-4 text-violet-500" />
-                          {dateRange}
+                          {/* Copilot suggestion: Truncate dateRange for responsive header */}
+                          <span className="truncate max-w-[8rem] sm:max-w-[12rem]">
+                            {dateRange}
+                          </span>
                           <ChevronsUpDown className="h-3.5 w-3.5 text-gray-400" />
                         </Button>
                       </PopoverTrigger>
