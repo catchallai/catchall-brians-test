@@ -5,10 +5,19 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Loader2 } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { ProjectType, PROJECT_TYPE_OPTIONS } from '@/types/enums';
 
 export default function ProjectModal({ open, onClose, onSave, isLoading }) {
   const [formData, setFormData] = useState({
     name: '',
+    project_type: ProjectType.PROJECT,
     description: '',
     due_date: '',
     goals: '',
@@ -35,6 +44,24 @@ export default function ProjectModal({ open, onClose, onSave, isLoading }) {
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               placeholder="e.g., Q1 SEO Campaign"
             />
+          </div>
+          <div>
+            <Label>Project Type</Label>
+            <Select
+              value={formData.project_type}
+              onValueChange={(value) => setFormData({ ...formData, project_type: value })}
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {PROJECT_TYPE_OPTIONS.map(({ value, label }) => (
+                  <SelectItem key={value} value={value}>
+                    {label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           <div>
             <Label>Description</Label>
