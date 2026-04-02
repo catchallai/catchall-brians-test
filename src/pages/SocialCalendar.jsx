@@ -421,7 +421,6 @@ export default function SocialCalendar() {
                           className="h-9 gap-2 rounded-full border-gray-200 px-3 text-left text-sm font-medium text-gray-600 shadow-sm hover:border-violet-300 hover:text-violet-700"
                         >
                           <Calendar className="h-4 w-4 text-violet-500" />
-                          {/* Copilot suggestion: Truncate dateRange for responsive header */}
                           <span className="truncate max-w-[8rem] sm:max-w-[12rem]">
                             {dateRange}
                           </span>

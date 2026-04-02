@@ -11,8 +11,6 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
-
-// Copilot suggestion: Use a neutral year (2000) for MONTHS to avoid magic numbers
 const MONTHS = Array.from({ length: 12 }, (_, index) =>
   format(new Date(2000, index, 1), 'MMM').toUpperCase()
 );
@@ -27,19 +25,18 @@ export function MonthYearPicker({ value, onSelect, className }) {
     setDisplayYear(selectedMonth.getFullYear());
   }, [selectedMonthKey]);
 
-  // Copilot suggestion: Expand availableYears to always include displayYear
+  // Limit availableYears to currentYear-10 to currentYear+10
   const availableYears = useMemo(() => {
-    const startYear = Math.min(currentYear - 10, displayYear);
-    const endYear = Math.max(currentYear + 10, displayYear);
+    const startYear = currentYear - 10;
+    const endYear = currentYear + 10;
     return Array.from({ length: endYear - startYear + 1 }, (_, index) => startYear + index);
-  }, [currentYear, displayYear]);
+  }, [currentYear]);
 
   const monthDates = useMemo(
     () => MONTHS.map((_, index) => startOfMonth(setMonth(new Date(displayYear, 0, 1), index))),
     [displayYear]
   );
 
-  // Copilot suggestion: Clamp shiftYear to availableYears range
   const shiftYear = (direction) => {
     setDisplayYear((year) => {
       const nextYear =
@@ -52,6 +49,8 @@ export function MonthYearPicker({ value, onSelect, className }) {
     });
   };
 
+  const minYear = availableYears[0];
+  const maxYear = availableYears[availableYears.length - 1];
   return (
     <div className={cn('w-[280px] rounded-xl bg-white p-3 select-none', className)}>
       <div className="mb-3 flex items-center justify-between">
@@ -62,6 +61,7 @@ export function MonthYearPicker({ value, onSelect, className }) {
           className="h-8 w-8"
           aria-label="Previous year"
           onClick={() => shiftYear(-1)}
+          disabled={displayYear === minYear}
         >
           <ChevronLeft className="h-4 w-4" />
         </Button>
@@ -89,6 +89,7 @@ export function MonthYearPicker({ value, onSelect, className }) {
           className="h-8 w-8"
           aria-label="Next year"
           onClick={() => shiftYear(1)}
+          disabled={displayYear === maxYear}
         >
           <ChevronRight className="h-4 w-4" />
         </Button>
