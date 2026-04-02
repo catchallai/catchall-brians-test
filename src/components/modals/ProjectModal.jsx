@@ -13,18 +13,20 @@ import {
 import { Loader2, X } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
+import { ProjectType } from '@/types/enums';
 
 export default function ProjectModal({
   open,
   onClose,
   project,
   companies,
-  contacts,
+  contacts: _contacts,
   onSave,
   isLoading,
 }) {
   const [formData, setFormData] = useState({
     name: '',
+    project_type: ProjectType.PROJECT,
     description: '',
     status: 'planning',
     priority: 'medium',
@@ -42,6 +44,7 @@ export default function ProjectModal({
     if (project) {
       setFormData({
         name: project.name || '',
+        project_type: project.project_type || ProjectType.PROJECT,
         description: project.description || '',
         status: project.status || 'planning',
         priority: project.priority || 'medium',
@@ -56,6 +59,7 @@ export default function ProjectModal({
     } else {
       setFormData({
         name: '',
+        project_type: ProjectType.PROJECT,
         description: '',
         status: 'planning',
         priority: 'medium',
@@ -99,6 +103,25 @@ export default function ProjectModal({
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               placeholder="e.g., Q1 SEO Campaign"
             />
+          </div>
+
+          <div>
+            <Label>Project Type</Label>
+            <Select
+              value={formData.project_type}
+              onValueChange={(value) => setFormData({ ...formData, project_type: value })}
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={ProjectType.PROJECT}>Project</SelectItem>
+                <SelectItem value={ProjectType.PHOTO_VIDEO_SHOOT}>Photo/Video Shoot</SelectItem>
+                <SelectItem value={ProjectType.GRAPHIC_DESIGN}>Graphic Design</SelectItem>
+                <SelectItem value={ProjectType.PHOTO_VIDEO}>Photo Video</SelectItem>
+                <SelectItem value={ProjectType.PDF_DOCUMENT}>PDF/Document</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           <div>

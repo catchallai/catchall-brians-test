@@ -1,3 +1,11 @@
+export enum ProjectType {
+  PROJECT = 'project',
+  PHOTO_VIDEO_SHOOT = 'photo_video_shoot',
+  GRAPHIC_DESIGN = 'graphic_design',
+  PHOTO_VIDEO = 'photo_video',
+  PDF_DOCUMENT = 'pdf_document',
+}
+
 export enum PostStatus {
   DRAFT = 'draft',
   PENDING_REVIEW = 'pending_review',
