@@ -94,6 +94,15 @@ const COPY = {
     whereToPost: 'Where would you like to share this post?',
     whereHasPosted: 'Posted to these platforms:',
   },
+  linkInserter: {
+    title: 'Insert Link',
+    urlLabel: 'URL',
+    urlPlaceholder: 'https://example.com',
+    displayTextLabel: 'Display text',
+    displayTextPlaceholder: 'Display text (optional)',
+    insert: 'Insert',
+    urlError: 'Please enter a valid URL starting with http:// or https://',
+  },
   hashtagManager: {
     searchPlaceholder: 'Search hashtags...',
     addToFavorites: 'Add to Favorites',
