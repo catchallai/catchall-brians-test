@@ -96,10 +96,15 @@ export function AllHashtagsSection({ selectedCategory }: AllHashtagsSectionProps
 
   return (
     <>
-      <Card className="border-0 shadow-sm rounded-2xl">
+      <Card className="shadow-sm rounded-2xl">
         <CardHeader className="pb-2">
           <CardTitle className="text-base font-semibold flex items-center justify-between">
-            <span>{sectionTitle}</span>
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-pink-500 to-rose-500 flex items-center justify-center">
+                <Hash className="w-4 h-4 text-white" />
+              </div>
+              <span>{sectionTitle}</span>
+            </div>
             <div className="flex items-center gap-2">
               <Button
                 variant="ghost"

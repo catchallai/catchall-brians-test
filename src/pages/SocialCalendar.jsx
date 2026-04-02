@@ -31,7 +31,8 @@ import {
 import CalendarPostCard from '@/components/social/CalendarPostCard';
 import CalendarPostModal from '@/components/modals/CalendarPostModal';
 import SocialCalendarView from '@/components/social/SocialCalendarView';
-import HashtagPoolCard from '@/components/social/HashtagPoolCard';
+import { AllHashtagsSection } from '@/components/hashtags/AllHashtagsSection';
+import { CreateHashtagPoolSection } from '@/components/hashtags/CreateHashtagPoolSection';
 import NineGridEditor from '@/components/social/NineGridEditor';
 import PostGallery from '@/components/social/PostGallery';
 import TeamManager from '@/components/social/TeamManager';
@@ -154,20 +155,6 @@ export default function SocialCalendar() {
   const deleteMutation = useMutation({
     mutationFn: (id) => base44.entities.CalendarPost.delete(id),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['calendar-posts'] }),
-  });
-
-  const addHashtagMutation = useMutation({
-    mutationFn: (hashtag) =>
-      base44.entities.HashtagPool.create({ hashtag: hashtag.replace('#', '') }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['hashtag-pool'] });
-      setNewHashtag('');
-    },
-  });
-
-  const deleteHashtagMutation = useMutation({
-    mutationFn: (id) => base44.entities.HashtagPool.delete(id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['hashtag-pool'] }),
   });
 
   /**
@@ -603,12 +590,8 @@ export default function SocialCalendar() {
           <div className="space-y-6">
             <PostQueueManager />
             <CalendarNotifications />
-            <HashtagPoolCard
-              hashtags={hashtagPool}
-              onAdd={(hashtag) => addHashtagMutation.mutate(hashtag)}
-              onDelete={(id) => deleteHashtagMutation.mutate(id)}
-              isAddLoading={addHashtagMutation.isPending}
-            />
+            <CreateHashtagPoolSection customCategories={[]} onNewCategoryAdded={() => {}} />
+            <AllHashtagsSection selectedCategory="all" />
           </div>
           <div className="space-y-6">
             <OptimalTimeAnalyzer />

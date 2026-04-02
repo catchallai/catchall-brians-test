@@ -31,7 +31,7 @@ export function CategoriesSidebar({
   const allCategories = [...new Set([...categories, ...customCategories])];
 
   return (
-    <Card className="border-0 shadow-sm rounded-2xl h-fit">
+    <Card className="shadow-sm rounded-2xl h-fit">
       <CardHeader className="pb-3">
         <CardTitle className="text-base font-semibold flex items-center justify-between">
           {COPY.hashtagManager.categoriesTitle}
