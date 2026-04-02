@@ -6,6 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { MonthYearPicker } from '@/components/ui/month-year-picker';
 import {
   Plus,
   Calendar,
@@ -14,6 +16,7 @@ import {
   CalendarDays,
   ChevronLeft,
   ChevronRight,
+  ChevronsUpDown,
   Zap,
   PenSquare,
 } from 'lucide-react';
@@ -74,6 +77,7 @@ export default function SocialCalendar() {
   const [selectedPost, setSelectedPost] = useState(null);
   const [showTemplateModal, setShowTemplateModal] = useState(false);
   const [showQuickPost, setShowQuickPost] = useState(false);
+  const [showDatePicker, setShowDatePicker] = useState(false);
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [approverName, setApproverName] = useState('');
   const [showApprovalSection, setShowApprovalSection] = useState(false);
@@ -272,6 +276,15 @@ export default function SocialCalendar() {
   const canEdit = !isViewer;
   const dateRange = `${format(startOfMonth(currentMonth), 'MMM d, yyyy')} - ${format(endOfMonth(currentMonth), 'MMM d, yyyy')}`;
 
+  const handleJumpToDate = (date) => {
+    if (!date) {
+      return;
+    }
+
+    setCurrentMonth(startOfMonth(date));
+    setShowDatePicker(false);
+  };
+
   if (isLoading) {
     return (
       <div className="p-6 lg:p-8 space-y-6 min-h-screen">
@@ -394,33 +407,62 @@ export default function SocialCalendar() {
         {viewMode !== 'composer' && (
           <Card className="glass-card rounded-2xl mb-6">
             <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
+              <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                <div className="flex items-center gap-4 min-w-0">
                   <img
                     src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6925162397800755912704a9/3da4d00f2_catchall.jpg"
                     alt="CatchAll"
                     className="h-8 object-contain"
                   />
-                  <div className="border-l pl-4">
+                  <div className="border-l pl-4 min-w-0">
                     <h2 className="font-bold text-gray-900">Social Calendar</h2>
-                    <p className="text-sm text-gray-500">{dateRange}</p>
+                    <div className="mt-1 flex flex-col gap-2 sm:flex-row sm:items-center">
+                      <Popover open={showDatePicker} onOpenChange={setShowDatePicker}>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="h-9 gap-2 rounded-full border-gray-200 px-3 text-left text-sm font-medium text-gray-600 shadow-sm hover:border-violet-300 hover:text-violet-700"
+                          >
+                            <Calendar className="h-4 w-4 text-violet-500" />
+                            <span className="truncate max-w-[8rem] sm:max-w-[12rem]">
+                              {dateRange}
+                            </span>
+                            <ChevronsUpDown className="h-3.5 w-3.5 text-gray-400" />
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <MonthYearPicker value={currentMonth} onSelect={handleJumpToDate} />
+                        </PopoverContent>
+                      </Popover>
+                      <div className="flex items-center gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="h-8 px-3 text-xs"
+                          onClick={() => setCurrentMonth(startOfMonth(new Date()))}
+                        >
+                          Today
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8"
+                          onClick={() => setCurrentMonth(subMonths(currentMonth, 1))}
+                        >
+                          <ChevronLeft className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8"
+                          onClick={() => setCurrentMonth(addMonths(currentMonth, 1))}
+                        >
+                          <ChevronRight className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
                   </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => setCurrentMonth(subMonths(currentMonth, 1))}
-                  >
-                    <ChevronLeft className="w-4 h-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => setCurrentMonth(addMonths(currentMonth, 1))}
-                  >
-                    <ChevronRight className="w-4 h-4" />
-                  </Button>
                 </div>
               </div>
             </CardContent>
