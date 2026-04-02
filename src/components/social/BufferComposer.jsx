@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { appendHashtagToCaption } from '@/utils/appendHashtagToCaption';
+import { useHashtagPoolToggle } from '@/components/hooks/useHashtagPoolToggle';
+import HashtagPoolSelector from '@/components/social/HashtagPoolSelector';
 import { base44 } from '@/api/base44Client';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
@@ -118,10 +119,15 @@ export default function BufferComposer({ hashtagPool = [], onSuccess }) {
   const queryClient = useQueryClient();
   const [form, setForm] = useState({ ...DEFAULT_FORM });
   const [uploading, setUploading] = useState(false);
-  const [hashtagInput, setHashtagInput] = useState('');
   const [previewPlatform, setPreviewPlatform] = useState('Twitter');
   const [saved, setSaved] = useState(false);
   const [scheduleError, setScheduleError] = useState('');
+
+  const { _activeHashtags, toggledPoolIds, handleTogglePool } = useHashtagPoolToggle({
+    hashtagPool,
+    form,
+    setForm,
+  });
 
   const createMutation = useMutation({
     mutationFn: (data) => base44.entities.CalendarPost.create(data),
@@ -166,17 +172,6 @@ export default function BufferComposer({ hashtagPool = [], onSuccess }) {
     setPreviewPlatform(id);
   };
 
-  const addHashtag = (tag) => {
-    setForm((f) => {
-      const result = appendHashtagToCaption(f.caption, tag, f.hashtags);
-      if (!result) {
-        return f;
-      }
-      return { ...f, ...result };
-    });
-    setHashtagInput('');
-  };
-
   const handleSubmit = (status = 'draft') => {
     if (status !== 'draft') {
       const scheduledAt = new Date(`${form.scheduled_date}T${form.scheduled_time}`);
@@ -209,7 +204,7 @@ export default function BufferComposer({ hashtagPool = [], onSuccess }) {
             Publish to
           </Label>
           <div className="flex flex-wrap gap-2">
-            {PLATFORMS.map(({ id, label, icon: Icon }) => {
+            {PLATFORMS.map(({ id, label: _label, icon: Icon }) => {
               const active = form.platforms.includes(id);
               return (
                 <button
@@ -307,44 +302,18 @@ export default function BufferComposer({ hashtagPool = [], onSuccess }) {
             rows={5}
             className={`resize-none ${overLimit ? 'border-red-400 focus-visible:ring-red-400' : ''}`}
           />
-          <div className="flex items-center justify-between">
-            <div className="flex gap-2">
-              {/* Hashtag quick-add */}
-              <input
-                value={hashtagInput}
-                onChange={(e) => setHashtagInput(e.target.value)}
-                onKeyDown={(e) =>
-                  e.key === 'Enter' && (e.preventDefault(), addHashtag(hashtagInput))
-                }
-                placeholder="#hashtag"
-                className="text-sm border border-gray-200 rounded-lg px-2 py-1 w-28 focus:outline-none focus:ring-1 focus:ring-violet-400"
-              />
-              <button
-                onClick={() => addHashtag(hashtagInput)}
-                className="text-xs text-violet-600 hover:text-violet-800 font-medium px-2 py-1 border border-violet-200 rounded-lg hover:bg-violet-50 transition-colors"
-              >
-                + Add
-              </button>
-            </div>
+          <div className="flex justify-end">
             <span className={`text-xs font-medium ${overLimit ? 'text-red-500' : 'text-gray-400'}`}>
               {form.caption.length} / {activePlatformLimit}
             </span>
           </div>
 
           {/* Hashtag Pool */}
-          {hashtagPool.length > 0 && (
-            <div className="flex flex-wrap gap-1 pt-1">
-              {hashtagPool.slice(0, 12).map((h) => (
-                <button
-                  key={h.id}
-                  onClick={() => addHashtag(h.hashtag)}
-                  className="text-xs text-violet-600 bg-violet-50 hover:bg-violet-100 border border-violet-200 rounded-full px-2 py-0.5 transition-colors"
-                >
-                  #{h.hashtag}
-                </button>
-              ))}
-            </div>
-          )}
+          <HashtagPoolSelector
+            pools={hashtagPool}
+            toggledPoolIds={toggledPoolIds}
+            onToggle={handleTogglePool}
+          />
         </div>
 
         {/* Schedule & Title */}

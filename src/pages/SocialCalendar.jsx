@@ -34,7 +34,9 @@ import {
 import CalendarPostCard from '@/components/social/CalendarPostCard';
 import CalendarPostModal from '@/components/modals/CalendarPostModal';
 import SocialCalendarView from '@/components/social/SocialCalendarView';
-import HashtagPoolCard from '@/components/social/HashtagPoolCard';
+import { AllHashtagsSection } from '@/components/hashtags/AllHashtagsSection';
+import { CreateHashtagPoolSection } from '@/components/hashtags/CreateHashtagPoolSection';
+import { CategoriesSidebar } from '@/components/hashtags/CategoriesSidebar';
 import NineGridEditor from '@/components/social/NineGridEditor';
 import PostGallery from '@/components/social/PostGallery';
 import TeamManager from '@/components/social/TeamManager';
@@ -84,6 +86,10 @@ export default function SocialCalendar() {
   const [platformFilter, setPlatformFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
   const [galleryPosts, setGalleryPosts] = useState([]);
+  const [hashtagCategory, setHashtagCategory] = useState('all');
+  const [customHashtagCategories, setCustomHashtagCategories] = useState(
+    /** @type {string[]} */ ([])
+  );
   const queryClient = useQueryClient();
 
   // Update expired post statuses every time this page is visited
@@ -101,7 +107,7 @@ export default function SocialCalendar() {
 
   const { data: hashtagPool = [] } = useQuery({
     queryKey: ['hashtag-pool'],
-    queryFn: () => base44.entities.HashtagPool.list('-usage_count', 50),
+    queryFn: () => base44.entities.HashtagPool.list('-usage_count', 200),
   });
 
   const filteredPosts = posts
@@ -158,20 +164,6 @@ export default function SocialCalendar() {
   const deleteMutation = useMutation({
     mutationFn: (id) => base44.entities.CalendarPost.delete(id),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['calendar-posts'] }),
-  });
-
-  const addHashtagMutation = useMutation({
-    mutationFn: (hashtag) =>
-      base44.entities.HashtagPool.create({ hashtag: hashtag.replace('#', '') }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['hashtag-pool'] });
-      setNewHashtag('');
-    },
-  });
-
-  const deleteHashtagMutation = useMutation({
-    mutationFn: (id) => base44.entities.HashtagPool.delete(id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['hashtag-pool'] }),
   });
 
   /**
@@ -412,68 +404,70 @@ export default function SocialCalendar() {
 
       <div>
         {/* Calendar Header */}
-        <Card className="glass-card rounded-2xl mb-6">
-          <CardContent className="p-4">
-            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-              <div className="flex items-center gap-4 min-w-0">
-                <img
-                  src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6925162397800755912704a9/3da4d00f2_catchall.jpg"
-                  alt="CatchAll"
-                  className="h-8 object-contain"
-                />
-                <div className="border-l pl-4 min-w-0">
-                  <h2 className="font-bold text-gray-900">Social Calendar</h2>
-                  <div className="mt-1 flex flex-col gap-2 sm:flex-row sm:items-center">
-                    <Popover open={showDatePicker} onOpenChange={setShowDatePicker}>
-                      <PopoverTrigger asChild>
+        {viewMode !== 'composer' && (
+          <Card className="glass-card rounded-2xl mb-6">
+            <CardContent className="p-4">
+              <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                <div className="flex items-center gap-4 min-w-0">
+                  <img
+                    src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6925162397800755912704a9/3da4d00f2_catchall.jpg"
+                    alt="CatchAll"
+                    className="h-8 object-contain"
+                  />
+                  <div className="border-l pl-4 min-w-0">
+                    <h2 className="font-bold text-gray-900">Social Calendar</h2>
+                    <div className="mt-1 flex flex-col gap-2 sm:flex-row sm:items-center">
+                      <Popover open={showDatePicker} onOpenChange={setShowDatePicker}>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="h-9 gap-2 rounded-full border-gray-200 px-3 text-left text-sm font-medium text-gray-600 shadow-sm hover:border-violet-300 hover:text-violet-700"
+                          >
+                            <Calendar className="h-4 w-4 text-violet-500" />
+                            <span className="truncate max-w-[8rem] sm:max-w-[12rem]">
+                              {dateRange}
+                            </span>
+                            <ChevronsUpDown className="h-3.5 w-3.5 text-gray-400" />
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <MonthYearPicker value={currentMonth} onSelect={handleJumpToDate} />
+                        </PopoverContent>
+                      </Popover>
+                      <div className="flex items-center gap-2">
                         <Button
                           variant="outline"
                           size="sm"
-                          className="h-9 gap-2 rounded-full border-gray-200 px-3 text-left text-sm font-medium text-gray-600 shadow-sm hover:border-violet-300 hover:text-violet-700"
+                          className="h-8 px-3 text-xs"
+                          onClick={() => setCurrentMonth(startOfMonth(new Date()))}
                         >
-                          <Calendar className="h-4 w-4 text-violet-500" />
-                          <span className="truncate max-w-[8rem] sm:max-w-[12rem]">
-                            {dateRange}
-                          </span>
-                          <ChevronsUpDown className="h-3.5 w-3.5 text-gray-400" />
+                          Today
                         </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0" align="start">
-                        <MonthYearPicker value={currentMonth} onSelect={handleJumpToDate} />
-                      </PopoverContent>
-                    </Popover>
-                    <div className="flex items-center gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="h-8 px-3 text-xs"
-                        onClick={() => setCurrentMonth(startOfMonth(new Date()))}
-                      >
-                        Today
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8"
-                        onClick={() => setCurrentMonth(subMonths(currentMonth, 1))}
-                      >
-                        <ChevronLeft className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8"
-                        onClick={() => setCurrentMonth(addMonths(currentMonth, 1))}
-                      >
-                        <ChevronRight className="h-4 w-4" />
-                      </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8"
+                          onClick={() => setCurrentMonth(subMonths(currentMonth, 1))}
+                        >
+                          <ChevronLeft className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8"
+                          onClick={() => setCurrentMonth(addMonths(currentMonth, 1))}
+                        >
+                          <ChevronRight className="h-4 w-4" />
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Composer View (Buffer-style) */}
         {viewMode === 'composer' && (
@@ -645,15 +639,29 @@ export default function SocialCalendar() {
           <div className="space-y-6">
             <PostQueueManager />
             <CalendarNotifications />
-            <HashtagPoolCard
-              hashtags={hashtagPool}
-              onAdd={(hashtag) => addHashtagMutation.mutate(hashtag)}
-              onDelete={(id) => deleteHashtagMutation.mutate(id)}
-              isAddLoading={addHashtagMutation.isPending}
+            <CreateHashtagPoolSection
+              customCategories={customHashtagCategories}
+              onNewCategoryAdded={(cat) =>
+                setCustomHashtagCategories((prev) => [...new Set([...prev, cat])])
+              }
             />
+            <AllHashtagsSection selectedCategory={hashtagCategory} />
           </div>
           <div className="space-y-6">
             <OptimalTimeAnalyzer />
+            <CategoriesSidebar
+              selectedCategory={hashtagCategory}
+              onSelectCategory={setHashtagCategory}
+              customCategories={customHashtagCategories}
+              onAddCategory={(cat) => {
+                setCustomHashtagCategories((prev) => {
+                  if (prev.includes(cat)) {
+                    return prev;
+                  }
+                  return [...prev, cat];
+                });
+              }}
+            />
             <TeamManager />
           </div>
         </div>
