@@ -6,6 +6,14 @@ export enum ProjectType {
   PDF_DOCUMENT = 'pdf_document',
 }
 
+export const PROJECT_TYPE_OPTIONS: { value: ProjectType; label: string }[] = [
+  { value: ProjectType.PROJECT, label: 'Project' },
+  { value: ProjectType.PHOTO_VIDEO_SHOOT, label: 'Photo/Video Shoot' },
+  { value: ProjectType.GRAPHIC_DESIGN, label: 'Graphic Design' },
+  { value: ProjectType.PHOTO_VIDEO, label: 'Photo Video' },
+  { value: ProjectType.PDF_DOCUMENT, label: 'PDF/Document' },
+];
+
 export enum PostStatus {
   DRAFT = 'draft',
   PENDING_REVIEW = 'pending_review',

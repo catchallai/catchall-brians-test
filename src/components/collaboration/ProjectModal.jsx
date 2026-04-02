@@ -12,7 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { ProjectType } from '@/types/enums';
+import { ProjectType, PROJECT_TYPE_OPTIONS } from '@/types/enums';
 
 export default function ProjectModal({ open, onClose, onSave, isLoading }) {
   const [formData, setFormData] = useState({
@@ -55,11 +55,11 @@ export default function ProjectModal({ open, onClose, onSave, isLoading }) {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value={ProjectType.PROJECT}>Project</SelectItem>
-                <SelectItem value={ProjectType.PHOTO_VIDEO_SHOOT}>Photo/Video Shoot</SelectItem>
-                <SelectItem value={ProjectType.GRAPHIC_DESIGN}>Graphic Design</SelectItem>
-                <SelectItem value={ProjectType.PHOTO_VIDEO}>Photo Video</SelectItem>
-                <SelectItem value={ProjectType.PDF_DOCUMENT}>PDF/Document</SelectItem>
+                {PROJECT_TYPE_OPTIONS.map(({ value, label }) => (
+                  <SelectItem key={value} value={value}>
+                    {label}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>

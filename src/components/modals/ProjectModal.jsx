@@ -13,7 +13,7 @@ import {
 import { Loader2, X } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
-import { ProjectType } from '@/types/enums';
+import { ProjectType, PROJECT_TYPE_OPTIONS } from '@/types/enums';
 
 export default function ProjectModal({
   open,
@@ -115,11 +115,11 @@ export default function ProjectModal({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value={ProjectType.PROJECT}>Project</SelectItem>
-                <SelectItem value={ProjectType.PHOTO_VIDEO_SHOOT}>Photo/Video Shoot</SelectItem>
-                <SelectItem value={ProjectType.GRAPHIC_DESIGN}>Graphic Design</SelectItem>
-                <SelectItem value={ProjectType.PHOTO_VIDEO}>Photo Video</SelectItem>
-                <SelectItem value={ProjectType.PDF_DOCUMENT}>PDF/Document</SelectItem>
+                {PROJECT_TYPE_OPTIONS.map(({ value, label }) => (
+                  <SelectItem key={value} value={value}>
+                    {label}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
