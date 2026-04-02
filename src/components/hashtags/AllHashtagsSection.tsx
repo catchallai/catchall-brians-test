@@ -65,7 +65,7 @@ export function AllHashtagsSection({ selectedCategory }: AllHashtagsSectionProps
         ? 'Favorite Hashtags'
         : selectedCategory === CATEGORY_FILTER.UNCATEGORIZED
           ? 'Uncategorized'
-          : `${selectedCategory} Hashtags`;
+          : `${selectedCategory.replace(/\b\w/g, (c) => c.toUpperCase())} Hashtags`;
 
   const filteredHashtags = hashtags.filter((h) => {
     const matchesSearch =

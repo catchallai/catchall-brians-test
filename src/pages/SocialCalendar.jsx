@@ -103,7 +103,7 @@ export default function SocialCalendar() {
 
   const { data: hashtagPool = [] } = useQuery({
     queryKey: ['hashtag-pool'],
-    queryFn: () => base44.entities.HashtagPool.list('-usage_count', 50),
+    queryFn: () => base44.entities.HashtagPool.list('-usage_count', 200),
   });
 
   const filteredPosts = posts
@@ -610,8 +610,15 @@ export default function SocialCalendar() {
             <CategoriesSidebar
               selectedCategory={hashtagCategory}
               onSelectCategory={setHashtagCategory}
-              onAddCategory={() => {}}
               customCategories={customHashtagCategories}
+              onAddCategory={(cat) => {
+                setCustomHashtagCategories((prev) => {
+                  if (prev.includes(cat)) {
+                    return prev;
+                  }
+                  return [...prev, cat];
+                });
+              }}
             />
             <TeamManager />
           </div>
