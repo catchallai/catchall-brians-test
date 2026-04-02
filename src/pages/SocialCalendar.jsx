@@ -391,39 +391,41 @@ export default function SocialCalendar() {
 
       <div>
         {/* Calendar Header */}
-        <Card className="glass-card rounded-2xl mb-6">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <img
-                  src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6925162397800755912704a9/3da4d00f2_catchall.jpg"
-                  alt="CatchAll"
-                  className="h-8 object-contain"
-                />
-                <div className="border-l pl-4">
-                  <h2 className="font-bold text-gray-900">Social Calendar</h2>
-                  <p className="text-sm text-gray-500">{dateRange}</p>
+        {viewMode !== 'composer' && (
+          <Card className="glass-card rounded-2xl mb-6">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <img
+                    src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6925162397800755912704a9/3da4d00f2_catchall.jpg"
+                    alt="CatchAll"
+                    className="h-8 object-contain"
+                  />
+                  <div className="border-l pl-4">
+                    <h2 className="font-bold text-gray-900">Social Calendar</h2>
+                    <p className="text-sm text-gray-500">{dateRange}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setCurrentMonth(subMonths(currentMonth, 1))}
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setCurrentMonth(addMonths(currentMonth, 1))}
+                  >
+                    <ChevronRight className="w-4 h-4" />
+                  </Button>
                 </div>
               </div>
-              <div className="flex items-center gap-2">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setCurrentMonth(subMonths(currentMonth, 1))}
-                >
-                  <ChevronLeft className="w-4 h-4" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setCurrentMonth(addMonths(currentMonth, 1))}
-                >
-                  <ChevronRight className="w-4 h-4" />
-                </Button>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Composer View (Buffer-style) */}
         {viewMode === 'composer' && (
