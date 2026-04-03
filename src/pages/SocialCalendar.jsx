@@ -3,7 +3,6 @@ import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -309,11 +308,6 @@ export default function SocialCalendar() {
           <p className="text-gray-500 mt-1">{COPY.socialCalendar.socialCalendarDescription}</p>
         </div>
         <div className="flex items-center gap-3">
-          {user && (
-            <Badge variant="outline" className="text-xs">
-              {user.social_media_role || 'editor'}
-            </Badge>
-          )}
           {/* View Toggle */}
           <div className="flex bg-gray-200 dark:bg-gray-700 rounded-lg p-1">
             <Button
