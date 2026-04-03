@@ -72,6 +72,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
@@ -80,12 +81,27 @@ import {
 const queryClient = new QueryClient();
 
 const formatSocialMediaRole = (role) => {
-  if (!role) {
-    return 'editor';
-  }
-
   return role.replace(/_/g, ' ');
 };
+
+function SocialMediaRoleDropdownSection({ user }) {
+  const role = user?.social_media_role || user?.role;
+
+  if (!role) {
+    return null;
+  }
+
+  return (
+    <>
+      <DropdownMenuLabel>
+        <Badge variant="outline" className="text-xs">
+          {formatSocialMediaRole(role)}
+        </Badge>
+      </DropdownMenuLabel>
+      <DropdownMenuSeparator />
+    </>
+  );
+}
 
 const navigation = [
   { name: 'Brand Dashboard', icon: LayoutDashboard, page: 'Dashboard' },
@@ -900,15 +916,7 @@ function LayoutContent({ children, currentPageName }) {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48">
-                <DropdownMenuItem
-                  disabled
-                  className="opacity-100 focus:bg-transparent focus:text-inherit"
-                >
-                  <Badge variant="outline" className="text-xs">
-                    {formatSocialMediaRole(user?.social_media_role)}
-                  </Badge>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
+                <SocialMediaRoleDropdownSection user={user} />
                 <DropdownMenuItem asChild>
                   <Link to={createPageUrl('UserProfile')} className="cursor-pointer">
                     <UserCircle className="w-4 h-4 mr-2" />
@@ -951,15 +959,7 @@ function LayoutContent({ children, currentPageName }) {
                   </button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-48">
-                  <DropdownMenuItem
-                    disabled
-                    className="opacity-100 focus:bg-transparent focus:text-inherit"
-                  >
-                    <Badge variant="outline" className="text-xs">
-                      {formatSocialMediaRole(user?.social_media_role)}
-                    </Badge>
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
+                  <SocialMediaRoleDropdownSection user={user} />
                   <DropdownMenuItem asChild>
                     <Link to={createPageUrl('UserProfile')} className="cursor-pointer">
                       <UserCircle className="w-4 h-4 mr-2" />
@@ -1040,15 +1040,7 @@ function LayoutContent({ children, currentPageName }) {
                   </button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-56">
-                  <DropdownMenuItem
-                    disabled
-                    className="opacity-100 focus:bg-transparent focus:text-inherit"
-                  >
-                    <Badge variant="outline" className="text-xs">
-                      {formatSocialMediaRole(user?.social_media_role)}
-                    </Badge>
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
+                  <SocialMediaRoleDropdownSection user={user} />
                   <DropdownMenuItem onClick={handleLogout}>
                     <LogOut className="w-4 h-4 mr-2" />
                     Logout
