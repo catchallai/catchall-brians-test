@@ -16,7 +16,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { ProjectType } from '@/types/enums';
+import { ProjectType, PROJECT_TYPE_OPTIONS } from '@/types/enums';
 
 const EMPTY_FORM = {
   name: '',
@@ -33,14 +33,6 @@ const EMPTY_FORM = {
   team_members: [],
   project_type_data: {},
 };
-
-const PROJECT_TYPE_OPTIONS = [
-  { value: ProjectType.PROJECT, label: 'Project' },
-  { value: ProjectType.PHOTO_VIDEO_SHOOT, label: 'Photo/Video Shoot' },
-  { value: ProjectType.GRAPHIC_DESIGN, label: 'Graphic Design' },
-  { value: ProjectType.PHOTO_VIDEO, label: 'Photo Video' },
-  { value: ProjectType.PDF_DOCUMENT, label: 'PDF/Document' },
-];
 
 const TYPE_DEFAULTS = {
   [ProjectType.PROJECT]: {},
@@ -136,9 +128,9 @@ function buildInitialFormData(project) {
     status: project?.status || 'planning',
     priority: project?.priority || 'medium',
     company_id: project?.company_id || '',
-    budget: project?.budget || '',
-    budget_spent: project?.budget_spent || 0,
-    progress: project?.progress || 0,
+    budget: project?.budget ?? '',
+    budget_spent: project?.budget_spent ?? 0,
+    progress: project?.progress ?? 0,
     start_date: project?.start_date || '',
     end_date: project?.end_date || '',
     team_members: Array.isArray(project?.team_members) ? project.team_members : [],
@@ -146,8 +138,25 @@ function buildInitialFormData(project) {
   };
 }
 
+function sortForComparison(value) {
+  if (Array.isArray(value)) {
+    return value.map(sortForComparison);
+  }
+
+  if (value && typeof value === 'object') {
+    return Object.keys(value)
+      .sort()
+      .reduce((accumulator, key) => {
+        accumulator[key] = sortForComparison(value[key]);
+        return accumulator;
+      }, {});
+  }
+
+  return value;
+}
+
 function normalizeFormDataForCompare(formData) {
-  return {
+  return sortForComparison({
     ...formData,
     team_members: [...formData.team_members],
     project_type_data: {
@@ -156,7 +165,7 @@ function normalizeFormDataForCompare(formData) {
         ? [...formData.project_type_data.use_case]
         : formData.project_type_data?.use_case,
     },
-  };
+  });
 }
 
 function FilePlaceholderField({ label }) {
@@ -175,9 +184,22 @@ function FilePlaceholderField({ label }) {
 }
 
 function GoogleFontField({ value, onChange }) {
+  useEffect(() => {
+    const stylesheetId = 'project-modal-google-fonts-stylesheet';
+
+    if (document.getElementById(stylesheetId)) {
+      return;
+    }
+
+    const link = document.createElement('link');
+    link.id = stylesheetId;
+    link.rel = 'stylesheet';
+    link.href = GOOGLE_FONTS_STYLESHEET_HREF;
+    document.head.appendChild(link);
+  }, []);
+
   return (
     <div className="space-y-3">
-      <link rel="stylesheet" href={GOOGLE_FONTS_STYLESHEET_HREF} />
       <div>
         <Label>Google Font</Label>
         <Select
@@ -324,12 +346,19 @@ export default function ProjectModal({
   };
 
   const handleSubmit = () => {
+    const normalizedProjectTypeData = normalizeProjectTypeData(
+      formData.project_type,
+      formData.project_type_data
+    );
+    const isPhotoVideoShoot = formData.project_type === ProjectType.PHOTO_VIDEO_SHOOT;
+    const shootStartDate = normalizedProjectTypeData.shoot_start_at?.split('T')[0] || '';
+    const shootEndDate = normalizedProjectTypeData.shoot_end_at?.split('T')[0] || '';
+
     onSave({
       ...formData,
-      project_type_data: normalizeProjectTypeData(
-        formData.project_type,
-        formData.project_type_data
-      ),
+      start_date: isPhotoVideoShoot ? shootStartDate : formData.start_date,
+      end_date: isPhotoVideoShoot ? shootEndDate : formData.end_date,
+      project_type_data: normalizedProjectTypeData,
     });
   };
 
@@ -826,9 +855,9 @@ export default function ProjectModal({
           setPendingProjectType(null);
         }}
         onConfirm={confirmProjectTypeChange}
-        title="Discard changes?"
-        description="You have unsaved changes. Switching project types will replace the custom fields for this project type."
-        confirmLabel="Discard and Switch"
+        title="Switch project type?"
+        description="You have unsaved changes. Switching project types will keep the shared project fields, but it will replace the custom fields for the current project type."
+        confirmLabel="Switch Project Type"
         cancelLabel="Keep Editing"
         variant="destructive"
       />
