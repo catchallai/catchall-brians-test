@@ -53,6 +53,7 @@ const TYPE_DEFAULTS = {
     summary_field: '',
   },
   [ProjectType.GRAPHIC_DESIGN]: {
+    google_font_family: '',
     caption_copy_text: '',
     hex_codes_colors: '',
     summary_field: '',
@@ -61,11 +62,31 @@ const TYPE_DEFAULTS = {
     summary_field: '',
   },
   [ProjectType.PDF_DOCUMENT]: {
+    google_font_family: '',
     copy_text: '',
     hex_codes_colors: '',
     summary_field: '',
   },
 };
+
+const GOOGLE_FONT_OPTIONS = [
+  'Inter',
+  'Roboto',
+  'Open Sans',
+  'Lato',
+  'Montserrat',
+  'Poppins',
+  'Playfair Display',
+  'Merriweather',
+  'Oswald',
+  'Raleway',
+  'Nunito',
+  'Work Sans',
+];
+
+const GOOGLE_FONTS_STYLESHEET_HREF = `https://fonts.googleapis.com/css2?${GOOGLE_FONT_OPTIONS.map(
+  (fontName) => `family=${encodeURIComponent(fontName).replace(/%20/g, '+')}:wght@400;500;600`
+).join('&')}&display=swap`;
 
 const USE_CASE_OPTIONS = [
   { value: 'social_media', label: 'Social Media' },
@@ -144,6 +165,45 @@ function FilePlaceholderField({ label }) {
           Click or drag and drop files/folders here
         </p>
         <p className="mt-1 text-xs text-gray-500">{FILE_PLACEHOLDER_HELPER}</p>
+      </div>
+    </div>
+  );
+}
+
+function GoogleFontField({ value, onChange }) {
+  return (
+    <div className="space-y-3">
+      <link rel="stylesheet" href={GOOGLE_FONTS_STYLESHEET_HREF} />
+      <div>
+        <Label>Google Font</Label>
+        <Select
+          value={value || 'none'}
+          onValueChange={(nextValue) => onChange(nextValue === 'none' ? '' : nextValue)}
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="Select a Google Font" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="none">None</SelectItem>
+            {GOOGLE_FONT_OPTIONS.map((fontName) => (
+              <SelectItem key={fontName} value={fontName}>
+                <span style={{ fontFamily: `'${fontName}', sans-serif` }}>{fontName}</span>
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div className="rounded-md border border-gray-200 bg-white px-4 py-3 text-sm text-gray-700 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-200">
+        <p className="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">Preview</p>
+        <p
+          className="mt-2 text-base"
+          style={value ? { fontFamily: `'${value}', sans-serif` } : undefined}
+        >
+          {value
+            ? `The quick brown fox jumps over the lazy dog in ${value}.`
+            : 'Select a Google Font to preview it here.'}
+        </p>
       </div>
     </div>
   );
@@ -430,6 +490,10 @@ export default function ProjectModal({
             </div>
 
             <FilePlaceholderField label="Brand Guidelines" />
+            <GoogleFontField
+              value={formData.project_type_data.google_font_family || ''}
+              onChange={(value) => updateProjectTypeField('google_font_family', value)}
+            />
             <FilePlaceholderField label="Fonts" />
 
             <div>
@@ -510,6 +574,10 @@ export default function ProjectModal({
               />
             </div>
 
+            <GoogleFontField
+              value={formData.project_type_data.google_font_family || ''}
+              onChange={(value) => updateProjectTypeField('google_font_family', value)}
+            />
             <FilePlaceholderField label="Fonts" />
 
             <div>
