@@ -28,6 +28,8 @@ const EMPTY_FORM = {
   budget: '',
   budget_spent: 0,
   progress: 0,
+  start_date: '',
+  end_date: '',
   team_members: [],
   project_type_data: {},
 };
@@ -137,6 +139,8 @@ function buildInitialFormData(project) {
     budget: project?.budget || '',
     budget_spent: project?.budget_spent || 0,
     progress: project?.progress || 0,
+    start_date: project?.start_date || '',
+    end_date: project?.end_date || '',
     team_members: Array.isArray(project?.team_members) ? project.team_members : [],
     project_type_data: normalizeProjectTypeData(projectType, project?.project_type_data),
   };
@@ -415,7 +419,7 @@ export default function ProjectModal({
 
             <div className="space-y-2">
               <Label>Use Case</Label>
-              <div className="grid gap-2 rounded-md border border-gray-200 p-3 dark:border-gray-800">
+              <div className="grid grid-cols-1 gap-x-4 gap-y-2 rounded-md border border-gray-200 p-3 sm:grid-cols-2 lg:grid-cols-3 dark:border-gray-800">
                 {USE_CASE_OPTIONS.map((option) => {
                   const isChecked = (formData.project_type_data.use_case || []).includes(
                     option.value
@@ -747,6 +751,28 @@ export default function ProjectModal({
                 />
               </div>
             </div>
+
+            {formData.project_type !== ProjectType.PHOTO_VIDEO_SHOOT && (
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label>Start Date</Label>
+                  <Input
+                    type="date"
+                    value={formData.start_date}
+                    onChange={(e) => updateFormField('start_date', e.target.value)}
+                  />
+                </div>
+
+                <div>
+                  <Label>End Date</Label>
+                  <Input
+                    type="date"
+                    value={formData.end_date}
+                    onChange={(e) => updateFormField('end_date', e.target.value)}
+                  />
+                </div>
+              </div>
+            )}
 
             <div>
               <Label>Team Members</Label>
