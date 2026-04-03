@@ -28,8 +28,6 @@ const EMPTY_FORM = {
   budget: '',
   budget_spent: 0,
   progress: 0,
-  start_date: '',
-  end_date: '',
   team_members: [],
   project_type_data: {},
 };
@@ -118,8 +116,6 @@ function buildInitialFormData(project) {
     budget: project?.budget || '',
     budget_spent: project?.budget_spent || 0,
     progress: project?.progress || 0,
-    start_date: project?.start_date || '',
-    end_date: project?.end_date || '',
     team_members: Array.isArray(project?.team_members) ? project.team_members : [],
     project_type_data: normalizeProjectTypeData(projectType, project?.project_type_data),
   };
@@ -275,11 +271,9 @@ export default function ProjectModal({
 
   const openMapsLink = () => {
     const location = formData.project_type_data.location_text?.trim();
-    if (!location) {
-      return;
-    }
-
-    const url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(location)}`;
+    const url = location
+      ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(location)}`
+      : 'https://www.google.com/maps';
     window.open(url, '_blank', 'noopener,noreferrer');
   };
 
@@ -323,20 +317,23 @@ export default function ProjectModal({
                 <Input
                   value={formData.project_type_data.location_text || ''}
                   onChange={(e) => updateProjectTypeField('location_text', e.target.value)}
-                  placeholder="Type an address or shoot location"
+                  placeholder="Type an address, location, or pasted pin details"
                 />
                 <Button
                   type="button"
                   variant="outline"
                   onClick={openMapsLink}
-                  disabled={!formData.project_type_data.location_text?.trim()}
                   className="shrink-0 gap-2"
                 >
                   <MapPin className="h-4 w-4" />
-                  Open in Maps
+                  Open Google Maps
                   <ExternalLink className="h-3 w-3" />
                 </Button>
               </div>
+              <p className="text-xs text-gray-500">
+                Type a location directly, or open Google Maps to drop a pin and paste the location
+                here.
+              </p>
             </div>
 
             <div>
@@ -683,28 +680,6 @@ export default function ProjectModal({
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label>Start Date</Label>
-                <Input
-                  type="date"
-                  value={formData.start_date}
-                  onChange={(e) => updateFormField('start_date', e.target.value)}
-                />
-              </div>
-
-              <div>
-                <Label>End Date</Label>
-                <Input
-                  type="date"
-                  value={formData.end_date}
-                  onChange={(e) => updateFormField('end_date', e.target.value)}
-                />
-              </div>
-            </div>
-
-            {renderProjectTypeFields()}
-
             <div>
               <Label>Team Members</Label>
               <div className="flex gap-2 mb-2">
@@ -733,6 +708,8 @@ export default function ProjectModal({
                 ))}
               </div>
             </div>
+
+            {renderProjectTypeFields()}
 
             <div className="flex justify-end gap-2 pt-4">
               <Button variant="outline" onClick={() => guardedClose(false)}>
