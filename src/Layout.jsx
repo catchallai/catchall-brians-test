@@ -81,15 +81,13 @@ import {
 const queryClient = new QueryClient();
 
 const formatSocialMediaRole = (role) => {
-  if (!role) {
-    return 'editor';
-  }
-
   return role.replace(/_/g, ' ');
 };
 
 function SocialMediaRoleDropdownSection({ user }) {
-  if (!user) {
+  const role = user?.social_media_role || user?.role;
+
+  if (!role) {
     return null;
   }
 
@@ -97,7 +95,7 @@ function SocialMediaRoleDropdownSection({ user }) {
     <>
       <DropdownMenuLabel>
         <Badge variant="outline" className="text-xs">
-          {formatSocialMediaRole(user.social_media_role)}
+          {formatSocialMediaRole(role)}
         </Badge>
       </DropdownMenuLabel>
       <DropdownMenuSeparator />
