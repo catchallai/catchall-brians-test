@@ -55,6 +55,8 @@ const COPY = {
     dragAndDrop: 'Drag & drop or',
     selectAFile: 'select a file',
     recurringPost: 'Recurring Post',
+    recurringEnabled: 'Configure a recurring schedule for this post below.',
+    recurringDisabled: 'This post will be scheduled once.',
     repeat: 'repeat',
     daily: 'Daily',
     weekly: 'Weekly',

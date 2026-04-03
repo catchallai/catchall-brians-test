@@ -1476,25 +1476,6 @@ export default function CalendarPostModal({
                   onToggle={handleTogglePool}
                 />
               )}
-
-              {/* Recurring toggle */}
-              <div className="px-6 pb-3 border-t border-gray-100 dark:border-gray-800 pt-3">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-2">
-                    <Repeat className="w-4 h-4 text-gray-400" />
-                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                      {COPY.calendarPostModal.recurringPost}
-                    </span>
-                  </div>
-                  <Switch
-                    checked={formData.is_recurring}
-                    onCheckedChange={(v) => setFormData((f) => ({ ...f, is_recurring: v }))}
-                  />
-                </div>
-                {formData.is_recurring && (
-                  <RecurringSchedulePanel formData={formData} setFormData={setFormData} />
-                )}
-              </div>
             </div>
           )}
 
@@ -1595,6 +1576,36 @@ export default function CalendarPostModal({
                 </div>
                 {scheduleError && <p className="text-xs text-red-500 mt-1">{scheduleError}</p>}
 
+                {/* Recurring toggle */}
+                <div className="border rounded-xl overflow-hidden px-4 py-3 text-sm select-none cursor-default transition-colors bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700">
+                  <div className="flex items-center justify-between w-full">
+                    <div className="flex items-center gap-2">
+                      <Repeat
+                        className={`w-4 h-4 ${formData.is_recurring ? 'text-violet-600' : 'text-amber-600'}`}
+                      />
+                      <span
+                        className={`font-medium ${formData.is_recurring ? 'text-violet-700 dark:text-violet-400' : 'text-amber-600 dark:text-amber-400'}`}
+                      >
+                        {COPY.calendarPostModal.recurringPost}
+                      </span>
+                    </div>
+                    <Switch
+                      checked={formData.is_recurring}
+                      onCheckedChange={(v) => setFormData((f) => ({ ...f, is_recurring: v }))}
+                    />
+                  </div>
+                  <div
+                    className={`mt-2 px-0 py-2.5 text-xs rounded ${formData.is_recurring ? 'text-violet-700 dark:text-violet-400' : 'text-amber-600 dark:text-amber-400'}`}
+                  >
+                    {formData.is_recurring
+                      ? COPY.calendarPostModal.recurringEnabled
+                      : COPY.calendarPostModal.recurringDisabled}
+                  </div>
+                  {formData.is_recurring && (
+                    <RecurringSchedulePanel formData={formData} setFormData={setFormData} />
+                  )}
+                </div>
+
                 {/* Approval toggle */}
                 <Tooltip
                   content={COPY.calendarPostModal.approvalPermissionTooltip}
@@ -1636,7 +1647,7 @@ export default function CalendarPostModal({
         {/* Footer */}
         <div className="flex items-center justify-between px-6 py-3.5 border-t border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900">
           <div className="flex items-center gap-3">
-            {isPostPublished ? (
+            {isPostPublished && (
               <button
                 onClick={() => handleDeletePost()}
                 disabled={isLoading}
@@ -1649,11 +1660,16 @@ export default function CalendarPostModal({
                 )}
                 {COPY.calendarPostModal.deletePost}
               </button>
-            ) : (
-              <button
+            )}
+          </div>
+          <div className="flex items-center gap-2">
+            {/* Save draft */}
+            {!isPostPublished && (
+              <Button
+                variant="outline"
                 onClick={() => handleSubmit('draft')}
                 disabled={isLoading || !formData.caption}
-                className="flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-100 font-medium disabled:opacity-40 transition-colors border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2 hover:bg-gray-50 dark:hover:bg-gray-800"
+                className="bg-gray-800 hover:bg-black text-white rounded-xl px-5 py-2 text-sm font-semibold disabled:opacity-40 transition-colors flex items-center gap-2 border-0"
               >
                 {isLoading ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
@@ -1661,10 +1677,9 @@ export default function CalendarPostModal({
                   <FileText className="w-4 h-4" />
                 )}
                 {COPY.calendarPostModal.saveDraft}
-              </button>
+              </Button>
             )}
-          </div>
-          <div className="flex items-center gap-2">
+
             {/* Submit for review (editors) */}
             {!isAdmin && !isViewer && (
               <Button
