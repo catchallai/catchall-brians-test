@@ -784,7 +784,6 @@ export default function SocialCalendarView({
           getPostsForDay={getPostsForDay}
           onAddPost={onAddPost}
           onEditPost={onEditPost}
-          deletePostMutation={deletePostMutation}
           updatePostMutation={updatePostMutation}
           draggedPost={draggedPost}
           setDraggedPost={setDraggedPost}
