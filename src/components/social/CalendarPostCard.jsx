@@ -1,9 +1,23 @@
+import { useState } from 'react';
+import { format, parseISO } from 'date-fns';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Pencil, Trash2, Image, Play, Send, Zap } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import PostStatusChip from '@/components/social/PostStatusChip';
+import Tooltip from '@/components/ui-custom/Tooltip';
+
+/** @type {Record<string, string>} */
+const platformColors = {
+  twitter: 'bg-gray-900',
+  linkedin: 'bg-blue-600',
+  facebook: 'bg-blue-500',
+  instagram: 'bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400',
+  youtube: 'bg-red-600',
+  tiktok: 'bg-black',
+};
 
 export default function CalendarPostCard({
   post,
@@ -13,6 +27,7 @@ export default function CalendarPostCard({
   showDeleteButton = false,
 }) {
   const queryClient = useQueryClient();
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
 
   const publishNowMutation = useMutation({
     mutationFn: async () => {
@@ -23,16 +38,10 @@ export default function CalendarPostCard({
       queryClient.invalidateQueries({ queryKey: ['calendar-posts'] });
     },
   });
-  const statusColors = {
-    draft: 'bg-gray-100 text-gray-700',
-    pending_approval: 'bg-amber-100 text-amber-700',
-    approved: 'bg-emerald-100 text-emerald-700',
-    published: 'bg-blue-100 text-blue-700',
-  };
 
   return (
     <Card className="overflow-hidden border-0 shadow-sm hover:shadow-md transition-all group">
-      {/* Media with Title Overlay */}
+      {/* Media */}
       <div className="relative aspect-square bg-gray-100">
         {post.video_url ? (
           <div className="relative w-full h-full">
@@ -51,23 +60,52 @@ export default function CalendarPostCard({
           </div>
         )}
 
-        {/* Title Overlay */}
+        {/* Title overlay — full width, no platform dots competing */}
         {post.title && (
           <div className="absolute inset-0 flex items-end">
             <div className="w-full bg-gradient-to-t from-black/70 via-black/40 to-transparent p-3">
-              <h3 className="text-white font-bold text-sm leading-tight uppercase tracking-wide">
-                {post.title}
-              </h3>
+              <Tooltip content={post.title} side="top">
+                <h3 className="text-white font-bold text-sm leading-tight uppercase tracking-wide truncate">
+                  {post.title}
+                </h3>
+              </Tooltip>
             </div>
           </div>
         )}
 
-        {/* Brand Watermark */}
-        <div className="absolute bottom-2 right-2">
-          <span className="text-white/80 text-xs font-semibold tracking-wider">CATCHALL</span>
+        {/* Top-left: status chip, auto-post badge, platform dots */}
+        <div className="absolute top-2 left-2 flex flex-col gap-1 items-start">
+          <PostStatusChip status={post.status} />
+          {post.auto_post && (
+            <Badge className="bg-emerald-100 text-emerald-700 text-xs flex items-center gap-1">
+              <Zap className="w-2.5 h-2.5" />
+              Auto-Post
+            </Badge>
+          )}
+          {post.platforms && post.platforms.length > 0 && (
+            <div className="flex items-center gap-1 bg-black/45 backdrop-blur-sm rounded-full px-1.5 py-1">
+              {post.platforms.map((/** @type {string} */ platform) => {
+                const key = platform.toLowerCase();
+                return (
+                  <Tooltip key={platform} content={platform} side="top">
+                    <div
+                      className={`w-2.5 h-2.5 rounded-full ${platformColors[key] || 'bg-gray-400'}`}
+                    />
+                  </Tooltip>
+                );
+              })}
+            </div>
+          )}
         </div>
 
-        {/* Edit/Delete/Publish Buttons */}
+        {/* Scheduled date chip — bottom right */}
+        {post.scheduled_date && (
+          <div className="absolute bottom-2 right-2 bg-black/50 text-white text-xs font-semibold px-2 py-0.5 rounded-full">
+            {format(parseISO(post.scheduled_date), 'MMM d')}
+          </div>
+        )}
+
+        {/* Top-right: action buttons */}
         <div
           className={`absolute top-2 right-2 flex gap-1 transition-opacity ${showDeleteButton ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}
         >
@@ -106,7 +144,7 @@ export default function CalendarPostCard({
               className="h-7 w-7 bg-white/90 hover:bg-white text-red-600"
               onClick={(e) => {
                 e.stopPropagation();
-                onDelete(post);
+                setConfirmingDelete(true);
               }}
             >
               <Trash2 className="w-3 h-3" />
@@ -114,24 +152,36 @@ export default function CalendarPostCard({
           )}
         </div>
 
-        {/* TODO: Replace with <PostStatusChip /> component  */}
-        {/* Status Badge */}
-        <div className="absolute top-2 left-2 flex flex-col gap-1">
-          <Badge className={`${statusColors[post.status]} text-xs`}>
-            {post.status?.replace('_', ' ')}
-          </Badge>
-          {post.auto_post && (
-            <Badge className="bg-emerald-100 text-emerald-700 text-xs flex items-center gap-1">
-              <Zap className="w-2.5 h-2.5" />
-              Auto-Post
-            </Badge>
-          )}
-          <Badge className="bg-violet-100 text-violet-700 text-xs">
-            {post.platforms && post.platforms.length > 0
-              ? post.platforms.join(', ')
-              : 'No platform'}
-          </Badge>
-        </div>
+        {/* Inline delete confirmation overlay */}
+        {confirmingDelete && (
+          <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-black/60 backdrop-blur-sm">
+            <p className="text-white text-sm font-semibold">Delete this post?</p>
+            <div className="flex gap-2">
+              <Button
+                size="sm"
+                variant="outline"
+                className="border-white/30 text-white bg-transparent hover:bg-white/10"
+                onClick={(/** @type {React.MouseEvent} */ e) => {
+                  e.stopPropagation();
+                  setConfirmingDelete(false);
+                }}
+              >
+                Cancel
+              </Button>
+              <Button
+                size="sm"
+                className="bg-red-500 hover:bg-red-600 text-white border-0"
+                onClick={(/** @type {React.MouseEvent} */ e) => {
+                  e.stopPropagation();
+                  onDelete(post);
+                  setConfirmingDelete(false);
+                }}
+              >
+                Delete
+              </Button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Caption */}

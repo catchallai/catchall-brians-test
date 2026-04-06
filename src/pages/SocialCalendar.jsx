@@ -95,6 +95,7 @@ export default function SocialCalendar() {
   const [platformFilter, setPlatformFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
   const [showFilters, setShowFilters] = useState(false);
+  const [gridSortOrder, setGridSortOrder] = useState('date_desc');
   const [galleryPosts, setGalleryPosts] = useState([]);
   const [hashtagCategory, setHashtagCategory] = useState('all');
   const [customHashtagCategories, setCustomHashtagCategories] = useState(
@@ -144,6 +145,17 @@ export default function SocialCalendar() {
     }
     const day = parseISO(post.scheduled_date);
     return day >= startOfMonth(currentMonth) && day <= endOfMonth(currentMonth);
+  });
+
+  const gridPosts = [...filteredPosts].sort((a, b) => {
+    if (gridSortOrder === 'date_asc') {
+      return new Date(a.scheduled_date).getTime() - new Date(b.scheduled_date).getTime();
+    }
+    if (gridSortOrder === 'date_desc') {
+      return new Date(b.scheduled_date).getTime() - new Date(a.scheduled_date).getTime();
+    }
+    // 'order' — default, matches existing filteredPosts sort
+    return (a.order || 0) - (b.order || 0);
   });
 
   const createMutation = useMutation({
@@ -670,37 +682,117 @@ export default function SocialCalendar() {
         )}
 
         {/* Grid View */}
-        {viewMode === 'grid' &&
-          (filteredPosts.length === 0 ? (
-            <Card className="glass-card rounded-2xl">
-              <CardContent className="py-16 text-center">
-                <Calendar className="w-12 h-12 mx-auto mb-4 text-gray-300" />
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">No posts scheduled</h3>
-                <p className="text-gray-500 mb-4">Add your first post to the calendar</p>
-                <Button onClick={() => setShowModal(true)} className="gap-2">
-                  <Plus className="w-4 h-4" />
-                  Add Post
-                </Button>
-              </CardContent>
-            </Card>
-          ) : (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-              {filteredPosts.map((post) => (
-                <div key={post.id} className="flex flex-col">
-                  <CalendarPostCard
-                    post={post}
-                    onEdit={handleEdit}
-                    onDelete={handleDelete}
-                    compact
-                    showDeleteButton={true}
-                  />
-                  {post.caption && (
-                    <p className="text-xs text-gray-600 mt-2 line-clamp-3 px-1">{post.caption}</p>
-                  )}
-                </div>
-              ))}
+        {viewMode === 'grid' && (
+          <>
+            {/* Toolbar */}
+            <div className="flex justify-end items-center gap-2 mb-4">
+              {(() => {
+                const activeFilterCount =
+                  (platformFilter !== 'all' ? 1 : 0) + (statusFilter !== 'all' ? 1 : 0);
+                return (
+                  <Button
+                    variant={showFilters || activeFilterCount > 0 ? 'default' : 'outline'}
+                    onClick={() => setShowFilters(!showFilters)}
+                    aria-expanded={showFilters}
+                    aria-controls="grid-filter-panel"
+                    className="gap-2"
+                  >
+                    <Filter className="w-4 h-4" />
+                    Filters{activeFilterCount > 0 ? ` (${activeFilterCount})` : ''}
+                  </Button>
+                );
+              })()}
             </div>
-          ))}
+
+            {/* Filter + Sort panel */}
+            {showFilters && (
+              <Card id="grid-filter-panel" className="p-4 space-y-4 mb-3">
+                <div className="flex items-center justify-between">
+                  <h3 className="font-semibold">Filter Options</h3>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      setPlatformFilter('all');
+                      setStatusFilter('all');
+                    }}
+                  >
+                    <X className="w-4 h-4 mr-1" />
+                    Clear
+                  </Button>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <Select value={platformFilter} onValueChange={setPlatformFilter}>
+                    <SelectTrigger aria-label="Platform">
+                      <SelectValue placeholder="All Platforms" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {CALENDAR_PLATFORMS.map((p) => (
+                        <SelectItem key={p} value={p}>
+                          {p === 'all' ? 'All Platforms' : p}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Select value={statusFilter} onValueChange={setStatusFilter}>
+                    <SelectTrigger aria-label="Status">
+                      <SelectValue placeholder="All Statuses" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {CALENDAR_STATUSES.map((s) => (
+                        <SelectItem key={s} value={s} className="capitalize">
+                          {s === 'all' ? 'All Statuses' : s.replace(/_/g, ' ')}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Select value={gridSortOrder} onValueChange={setGridSortOrder}>
+                    <SelectTrigger aria-label="Sort By">
+                      <SelectValue placeholder="Sort By" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="date_desc">Date (Newest)</SelectItem>
+                      <SelectItem value="date_asc">Date (Oldest)</SelectItem>
+                      <SelectItem value="order">Default Order</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </Card>
+            )}
+
+            {/* Grid */}
+            {gridPosts.length === 0 ? (
+              <Card className="glass-card rounded-2xl">
+                <CardContent className="py-16 text-center">
+                  <Calendar className="w-12 h-12 mx-auto mb-4 text-gray-300" />
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">No posts scheduled</h3>
+                  <p className="text-gray-500 mb-4">Add your first post to the calendar</p>
+                  <Button onClick={() => setShowModal(true)} className="gap-2">
+                    <Plus className="w-4 h-4" />
+                    Add Post
+                  </Button>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                {gridPosts.map((post) => (
+                  <div key={post.id} className="flex flex-col">
+                    <CalendarPostCard
+                      post={post}
+                      onEdit={handleEdit}
+                      onDelete={handleDelete}
+                      compact
+                      showDeleteButton={true}
+                    />
+                    {post.caption && (
+                      <p className="text-xs text-gray-600 mt-2 line-clamp-3 px-1">{post.caption}</p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </>
+        )}
 
         {/* Enhanced Features Grid */}
         <div className="grid lg:grid-cols-2 gap-6 mt-6">
