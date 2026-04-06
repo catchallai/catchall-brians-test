@@ -154,6 +154,14 @@ export default function SocialCalendar() {
     if (gridSortOrder === 'date_desc') {
       return new Date(b.scheduled_date).getTime() - new Date(a.scheduled_date).getTime();
     }
+    if (gridSortOrder === 'status') {
+      return (a.status || '').localeCompare(b.status || '');
+    }
+    if (gridSortOrder === 'platform') {
+      const pa = (a.platforms?.[0] || '').toLowerCase();
+      const pb = (b.platforms?.[0] || '').toLowerCase();
+      return pa.localeCompare(pb);
+    }
     // 'order' — default, matches existing filteredPosts sort
     return (a.order || 0) - (b.order || 0);
   });
@@ -686,6 +694,18 @@ export default function SocialCalendar() {
           <>
             {/* Toolbar */}
             <div className="flex justify-end items-center gap-2 mb-4">
+              <Select value={gridSortOrder} onValueChange={setGridSortOrder}>
+                <SelectTrigger className="w-44" aria-label="Sort By">
+                  <SelectValue placeholder="Sort by…" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="date_desc">Newest first</SelectItem>
+                  <SelectItem value="date_asc">Oldest first</SelectItem>
+                  <SelectItem value="status">By status</SelectItem>
+                  <SelectItem value="platform">By platform</SelectItem>
+                  <SelectItem value="order">Default order</SelectItem>
+                </SelectContent>
+              </Select>
               {(() => {
                 const activeFilterCount =
                   (platformFilter !== 'all' ? 1 : 0) + (statusFilter !== 'all' ? 1 : 0);
@@ -704,11 +724,11 @@ export default function SocialCalendar() {
               })()}
             </div>
 
-            {/* Filter + Sort panel */}
+            {/* Filter panel */}
             {showFilters && (
               <Card id="grid-filter-panel" className="p-4 space-y-4 mb-3">
                 <div className="flex items-center justify-between">
-                  <h3 className="font-semibold">Filter Options</h3>
+                  <h3 className="font-semibold">Filters</h3>
                   <Button
                     variant="ghost"
                     size="sm"
@@ -721,7 +741,7 @@ export default function SocialCalendar() {
                     Clear
                   </Button>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <Select value={platformFilter} onValueChange={setPlatformFilter}>
                     <SelectTrigger aria-label="Platform">
                       <SelectValue placeholder="All Platforms" />
@@ -744,16 +764,6 @@ export default function SocialCalendar() {
                           {s === 'all' ? 'All Statuses' : s.replace(/_/g, ' ')}
                         </SelectItem>
                       ))}
-                    </SelectContent>
-                  </Select>
-                  <Select value={gridSortOrder} onValueChange={setGridSortOrder}>
-                    <SelectTrigger aria-label="Sort By">
-                      <SelectValue placeholder="Sort By" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="date_desc">Date (Newest)</SelectItem>
-                      <SelectItem value="date_asc">Date (Oldest)</SelectItem>
-                      <SelectItem value="order">Default Order</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
