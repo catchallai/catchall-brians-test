@@ -538,6 +538,11 @@ export default function SocialCalendar() {
                 </button>
               ))}
             </div>
+            <div className="mb-4">
+              <h3 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
+                {format(currentMonth, 'MMMM yyyy')}
+              </h3>
+            </div>
             <SocialCalendarView
               posts={filteredPosts}
               currentMonth={currentMonth}

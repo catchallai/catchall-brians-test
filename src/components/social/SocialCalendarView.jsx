@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
 import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ChevronLeft, ChevronRight, Plus, Trash2 } from 'lucide-react';
 import {
@@ -102,7 +101,6 @@ function DayView({
   updatePostMutation,
   draggedPost,
   setDraggedPost,
-  platformColors,
   platformBorderColors,
   statusColors,
   statusBadges,
@@ -324,7 +322,8 @@ function DayView({
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
-                            if (confirm('Delete this post?')) {
+                            // eslint-disable-next-line no-alert
+                            if (window.confirm('Delete this post?')) {
                               deletePostMutation.mutate(post.id);
                             }
                           }}
@@ -375,7 +374,6 @@ function WeekView({
   getPostsForDay,
   onAddPost,
   onEditPost,
-  deletePostMutation,
   updatePostMutation,
   draggedPost,
   setDraggedPost,
@@ -630,7 +628,6 @@ export default function SocialCalendarView({
   posts = [],
   onAddPost,
   onEditPost,
-  onDeletePost,
   currentMonth,
   onMonthChange,
   onViewTypeChange,
@@ -752,66 +749,6 @@ export default function SocialCalendarView({
 
   return (
     <Card className="border-0 shadow-sm bg-white dark:bg-gray-800 rounded-2xl overflow-hidden">
-      {/* Header */}
-      <div className="flex items-center justify-between p-5 border-b-2 border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-800/50">
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => onMonthChange(new Date())}
-            className="px-4 font-semibold"
-          >
-            Today
-          </Button>
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => {
-              if (viewType === 'day') {
-                onMonthChange(addDays(currentMonth, -1));
-              } else if (viewType === 'week') {
-                onMonthChange(addDays(currentMonth, -7));
-              } else {
-                onMonthChange(subMonths(currentMonth, 1));
-              }
-            }}
-            className="h-9 w-9"
-          >
-            <ChevronLeft className="w-4 h-4" />
-          </Button>
-          <h3 className="font-bold text-xl text-gray-900 dark:text-white min-w-[200px] text-center">
-            {viewType === 'day'
-              ? format(currentMonth, 'EEEE, MMMM d, yyyy')
-              : viewType === 'week'
-                ? `Week of ${format(startOfWeek(currentMonth), 'MMM d, yyyy')}`
-                : format(currentMonth, 'MMMM yyyy')}
-          </h3>
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => {
-              if (viewType === 'day') {
-                onMonthChange(addDays(currentMonth, 1));
-              } else if (viewType === 'week') {
-                onMonthChange(addDays(currentMonth, 7));
-              } else {
-                onMonthChange(addMonths(currentMonth, 1));
-              }
-            }}
-            className="h-9 w-9"
-          >
-            <ChevronRight className="w-4 h-4" />
-          </Button>
-        </div>
-        <Button
-          size="lg"
-          onClick={onAddPost}
-          className="gap-2 bg-violet-600 hover:bg-violet-700 font-semibold"
-        >
-          <Plus className="w-5 h-5" /> Add Post
-        </Button>
-      </div>
-
       {/* Week Days Header — month view only */}
       {viewType === 'month' && (
         <div className="grid grid-cols-7 border-b-2 border-gray-200 dark:border-gray-600">
@@ -837,7 +774,6 @@ export default function SocialCalendarView({
           updatePostMutation={updatePostMutation}
           draggedPost={draggedPost}
           setDraggedPost={setDraggedPost}
-          platformColors={platformColors}
           platformBorderColors={platformBorderColors}
           statusColors={statusColors}
           statusBadges={statusBadges}
@@ -930,7 +866,8 @@ export default function SocialCalendarView({
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
-                                if (confirm('Delete this post?')) {
+                                // eslint-disable-next-line no-alert
+                                if (window.confirm('Delete this post?')) {
                                   deletePostMutation.mutate(post.id);
                                 }
                               }}
