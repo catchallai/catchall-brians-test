@@ -24,6 +24,7 @@ import {
   Send,
   CheckCircle2,
   Globe,
+  FileText,
 } from 'lucide-react';
 import { todayLocal } from '@/utils/date';
 
@@ -371,12 +372,15 @@ export default function BufferComposer({ hashtagPool = [], onSuccess }) {
         {/* Actions */}
         <div className="flex gap-3 pt-2">
           <Button
-            variant="outline"
-            className="flex-1 gap-2"
+            className="flex-1 gap-2 bg-gray-700 text-white hover:bg-gray-800 hover:text-white"
             onClick={() => handleSubmit('draft')}
             disabled={createMutation.isPending || !form.caption}
           >
-            {createMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+            {createMutation.isPending ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <FileText className="w-4 h-4" />
+            )}
             Save Draft
           </Button>
           <Button
