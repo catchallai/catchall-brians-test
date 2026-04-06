@@ -497,7 +497,7 @@ function WeekView({
       {!showOvernight && (
         <button
           onClick={() => setShowOvernight(true)}
-          className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-gray-400 hover:text-gray-600 bg-gray-50 dark:bg-gray-900/30 border-b border-gray-300 dark:border-gray-700 transition-colors"
+          className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-gray-400 hover:text-gray-600 dark:text-gray-400 dark:hover:text-gray-300 bg-gray-50 dark:bg-gray-900/30 border-b border-gray-300 dark:border-gray-700 transition-colors"
         >
           <ChevronRight className="w-3 h-3" />
           Show overnight (1–5 AM)
@@ -614,7 +614,7 @@ function WeekView({
       {showOvernight && (
         <button
           onClick={() => setShowOvernight(false)}
-          className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-gray-400 hover:text-gray-600 bg-gray-50 dark:bg-gray-900/30 border-t border-gray-100 transition-colors"
+          className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-gray-400 hover:text-gray-600 dark:text-gray-400 dark:hover:text-gray-300 bg-gray-50 dark:bg-gray-900/30 border-t border-gray-300 dark:border-gray-700 transition-colors"
         >
           <ChevronLeft className="w-3 h-3" />
           Hide overnight hours
