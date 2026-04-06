@@ -1666,10 +1666,9 @@ export default function CalendarPostModal({
             {/* Save draft */}
             {!isPostPublished && (
               <Button
-                variant="outline"
                 onClick={() => handleSubmit('draft')}
                 disabled={isLoading || !formData.caption}
-                className="bg-gray-700 hover:bg-gray-800 hover:text-white text-white rounded-xl px-5 py-2 text-sm font-semibold disabled:opacity-40 transition-colors flex items-center gap-2 border-0"
+                className="bg-gray-700 hover:bg-gray-800 hover:text-white text-white rounded-xl px-5 py-2 text-sm font-semibold disabled:opacity-40 transition-colors flex items-center gap-2"
               >
                 {isLoading ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
