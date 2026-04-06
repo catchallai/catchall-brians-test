@@ -520,14 +520,22 @@ export default function SocialCalendar() {
         {viewMode === 'calendar' && (
           <>
             <div className="flex justify-end items-center gap-2 mb-4">
-              <Button
-                variant={showFilters ? 'default' : 'outline'}
-                onClick={() => setShowFilters(!showFilters)}
-                className="gap-2"
-              >
-                <Filter className="w-4 h-4" />
-                Filters
-              </Button>
+              {(() => {
+                const activeFilterCount =
+                  (platformFilter !== 'all' ? 1 : 0) + (statusFilter !== 'all' ? 1 : 0);
+                return (
+                  <Button
+                    variant={showFilters || activeFilterCount > 0 ? 'default' : 'outline'}
+                    onClick={() => setShowFilters(!showFilters)}
+                    aria-expanded={showFilters}
+                    aria-controls="calendar-filter-panel"
+                    className="gap-2"
+                  >
+                    <Filter className="w-4 h-4" />
+                    Filters{activeFilterCount > 0 ? ` (${activeFilterCount})` : ''}
+                  </Button>
+                );
+              })()}
               <div className="flex bg-gray-200 dark:bg-gray-700 rounded-lg p-1">
                 <Button
                   variant="ghost"
@@ -556,7 +564,7 @@ export default function SocialCalendar() {
               </div>
             </div>
             {showFilters && (
-              <Card className="p-4 space-y-4 mb-3">
+              <Card id="calendar-filter-panel" className="p-4 space-y-4 mb-3">
                 <div className="flex items-center justify-between">
                   <h3 className="font-semibold">Filter Options</h3>
                   <Button
@@ -573,7 +581,7 @@ export default function SocialCalendar() {
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <Select value={platformFilter} onValueChange={setPlatformFilter}>
-                    <SelectTrigger>
+                    <SelectTrigger aria-label="Platform">
                       <SelectValue placeholder="All Platforms" />
                     </SelectTrigger>
                     <SelectContent>
@@ -585,7 +593,7 @@ export default function SocialCalendar() {
                     </SelectContent>
                   </Select>
                   <Select value={statusFilter} onValueChange={setStatusFilter}>
-                    <SelectTrigger>
+                    <SelectTrigger aria-label="Status">
                       <SelectValue placeholder="All Statuses" />
                     </SelectTrigger>
                     <SelectContent>
