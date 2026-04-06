@@ -8,13 +8,6 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { MonthYearPicker } from '@/components/ui/month-year-picker';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import {
   Plus,
   Calendar,
   CheckCircle,
@@ -25,9 +18,6 @@ import {
   ChevronsUpDown,
   Zap,
   PenSquare,
-  Search,
-  Filter,
-  X,
 } from 'lucide-react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import {
@@ -92,8 +82,6 @@ export default function SocialCalendar() {
   const [showApprovalSection, setShowApprovalSection] = useState(false);
   const [viewMode, setViewMode] = useState('composer');
   const [calendarViewType, setCalendarViewType] = useState('month');
-  const [calendarSearchTerm, setCalendarSearchTerm] = useState('');
-  const [showCalendarFilters, setShowCalendarFilters] = useState(false);
   const [platformFilter, setPlatformFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
   const [galleryPosts, setGalleryPosts] = useState([]);
@@ -134,13 +122,7 @@ export default function SocialCalendar() {
       const inRange = postDate >= windowStart && postDate <= windowEnd;
       const matchesPlatform = platformFilter === 'all' || p.platforms?.includes(platformFilter);
       const matchesStatus = statusFilter === 'all' || p.status === statusFilter;
-      const searchValue = calendarSearchTerm.trim().toLowerCase();
-      const matchesSearch =
-        !searchValue ||
-        [p.title, p.caption, ...(p.platforms || []), ...(p.hashtags || [])]
-          .filter(Boolean)
-          .some((value) => String(value).toLowerCase().includes(searchValue));
-      return inRange && matchesPlatform && matchesStatus && matchesSearch;
+      return inRange && matchesPlatform && matchesStatus;
     })
     .sort((a, b) => (a.order || 0) - (b.order || 0));
 
@@ -493,77 +475,6 @@ export default function SocialCalendar() {
         {/* Calendar View */}
         {viewMode === 'calendar' && (
           <>
-            <div className="space-y-4 mb-4">
-              <div className="flex flex-col sm:flex-row gap-4">
-                <div className="relative flex-1">
-                  <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-                  <Input
-                    placeholder="Search calendar posts..."
-                    value={calendarSearchTerm}
-                    onChange={(e) => setCalendarSearchTerm(e.target.value)}
-                    className="pl-10"
-                  />
-                </div>
-                <Button
-                  variant={showCalendarFilters ? 'default' : 'outline'}
-                  onClick={() => setShowCalendarFilters(!showCalendarFilters)}
-                  className="gap-2"
-                >
-                  <Filter className="w-4 h-4" />
-                  Filters
-                </Button>
-              </div>
-
-              {showCalendarFilters && (
-                <Card className="p-4 space-y-4">
-                  <div className="flex items-center justify-between">
-                    <h3 className="font-semibold">Filter Options</h3>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => {
-                        setPlatformFilter('all');
-                        setStatusFilter('all');
-                      }}
-                    >
-                      <X className="w-4 h-4 mr-1" />
-                      Clear
-                    </Button>
-                  </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <Select value={platformFilter} onValueChange={setPlatformFilter}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Platform" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {CALENDAR_PLATFORMS.map((platform) => (
-                          <SelectItem key={platform} value={platform}>
-                            {platform === 'all' ? 'All Platforms' : platform}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <Select value={statusFilter} onValueChange={setStatusFilter}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Status" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {CALENDAR_STATUSES.map((status) => (
-                          <SelectItem key={status} value={status}>
-                            {status === 'all'
-                              ? 'All Status'
-                              : status
-                                  .replace(/_/g, ' ')
-                                  .replace(/\b\w/g, (char) => char.toUpperCase())}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </Card>
-              )}
-            </div>
-
             <div className="flex justify-end mb-4">
               <div className="flex bg-gray-200 dark:bg-gray-700 rounded-lg p-1">
                 <Button
@@ -591,6 +502,41 @@ export default function SocialCalendar() {
                   Month
                 </Button>
               </div>
+            </div>
+            {/* Platform & status filter chips */}
+            <div className="flex gap-2 flex-wrap items-center mb-3">
+              <span className="text-xs text-gray-500 dark:text-gray-400 font-medium">
+                Platform:
+              </span>
+              {CALENDAR_PLATFORMS.map((p) => (
+                <button
+                  key={p}
+                  onClick={() => setPlatformFilter(p)}
+                  className={`text-xs px-3 py-1 rounded-full border transition-colors ${
+                    platformFilter === p
+                      ? 'bg-violet-600 text-white border-violet-600'
+                      : 'text-gray-600 dark:text-gray-300 border-gray-300 dark:border-gray-600 hover:border-violet-400 dark:hover:border-violet-500'
+                  }`}
+                >
+                  {p === 'all' ? 'All' : p}
+                </button>
+              ))}
+              <span className="text-xs text-gray-500 dark:text-gray-400 font-medium ml-2">
+                Status:
+              </span>
+              {CALENDAR_STATUSES.map((s) => (
+                <button
+                  key={s}
+                  onClick={() => setStatusFilter(s)}
+                  className={`text-xs px-3 py-1 rounded-full border transition-colors capitalize ${
+                    statusFilter === s
+                      ? 'bg-violet-600 text-white border-violet-600'
+                      : 'text-gray-600 dark:text-gray-300 border-gray-300 dark:border-gray-600 hover:border-violet-400 dark:hover:border-violet-500'
+                  }`}
+                >
+                  {s === 'all' ? 'All' : s.replace(/_/g, ' ')}
+                </button>
+              ))}
             </div>
             <SocialCalendarView
               posts={filteredPosts}
