@@ -2,6 +2,13 @@ import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent } from '@/components/ui/card';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -18,6 +25,8 @@ import {
   ChevronsUpDown,
   Zap,
   PenSquare,
+  Filter,
+  X,
 } from 'lucide-react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import {
@@ -85,6 +94,7 @@ export default function SocialCalendar() {
   const [calendarViewType, setCalendarViewType] = useState('month');
   const [platformFilter, setPlatformFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [showFilters, setShowFilters] = useState(false);
   const [galleryPosts, setGalleryPosts] = useState([]);
   const [hashtagCategory, setHashtagCategory] = useState('all');
   const [customHashtagCategories, setCustomHashtagCategories] = useState(
@@ -509,7 +519,15 @@ export default function SocialCalendar() {
         {/* Calendar View */}
         {viewMode === 'calendar' && (
           <>
-            <div className="flex justify-end mb-4">
+            <div className="flex justify-end items-center gap-2 mb-4">
+              <Button
+                variant={showFilters ? 'default' : 'outline'}
+                onClick={() => setShowFilters(!showFilters)}
+                className="gap-2"
+              >
+                <Filter className="w-4 h-4" />
+                Filters
+              </Button>
               <div className="flex bg-gray-200 dark:bg-gray-700 rounded-lg p-1">
                 <Button
                   variant="ghost"
@@ -537,41 +555,50 @@ export default function SocialCalendar() {
                 </Button>
               </div>
             </div>
-            {/* Platform & status filter chips */}
-            <div className="flex gap-2 flex-wrap items-center mb-3">
-              <span className="text-xs text-gray-500 dark:text-gray-400 font-medium">
-                Platform:
-              </span>
-              {CALENDAR_PLATFORMS.map((p) => (
-                <button
-                  key={p}
-                  onClick={() => setPlatformFilter(p)}
-                  className={`text-xs px-3 py-1 rounded-full border transition-colors ${
-                    platformFilter === p
-                      ? 'bg-violet-600 text-white border-violet-600'
-                      : 'text-gray-600 dark:text-gray-300 border-gray-300 dark:border-gray-600 hover:border-violet-400 dark:hover:border-violet-500'
-                  }`}
-                >
-                  {p === 'all' ? 'All' : p}
-                </button>
-              ))}
-              <span className="text-xs text-gray-500 dark:text-gray-400 font-medium ml-2">
-                Status:
-              </span>
-              {CALENDAR_STATUSES.map((s) => (
-                <button
-                  key={s}
-                  onClick={() => setStatusFilter(s)}
-                  className={`text-xs px-3 py-1 rounded-full border transition-colors capitalize ${
-                    statusFilter === s
-                      ? 'bg-violet-600 text-white border-violet-600'
-                      : 'text-gray-600 dark:text-gray-300 border-gray-300 dark:border-gray-600 hover:border-violet-400 dark:hover:border-violet-500'
-                  }`}
-                >
-                  {s === 'all' ? 'All' : s.replace(/_/g, ' ')}
-                </button>
-              ))}
-            </div>
+            {showFilters && (
+              <Card className="p-4 space-y-4 mb-3">
+                <div className="flex items-center justify-between">
+                  <h3 className="font-semibold">Filter Options</h3>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      setPlatformFilter('all');
+                      setStatusFilter('all');
+                    }}
+                  >
+                    <X className="w-4 h-4 mr-1" />
+                    Clear
+                  </Button>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <Select value={platformFilter} onValueChange={setPlatformFilter}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="All Platforms" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {CALENDAR_PLATFORMS.map((p) => (
+                        <SelectItem key={p} value={p}>
+                          {p === 'all' ? 'All Platforms' : p}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Select value={statusFilter} onValueChange={setStatusFilter}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="All Statuses" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {CALENDAR_STATUSES.map((s) => (
+                        <SelectItem key={s} value={s} className="capitalize">
+                          {s === 'all' ? 'All Statuses' : s.replace(/_/g, ' ')}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </Card>
+            )}
             <div className="mb-4">
               <h3 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
                 {format(currentMonth, 'MMMM yyyy')}
