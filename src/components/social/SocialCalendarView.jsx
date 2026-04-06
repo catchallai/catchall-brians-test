@@ -220,7 +220,7 @@ function DayView({
       {!showOvernight && (
         <button
           onClick={() => setShowOvernight(true)}
-          className="w-full flex items-center gap-2 px-4 py-2 text-xs text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 bg-gray-50 dark:bg-gray-900/30 border-b border-gray-100 dark:border-gray-700 transition-colors"
+          className="w-full flex items-center gap-2 px-4 py-2 text-xs text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 bg-gray-50 dark:bg-gray-900/30 border-b border-gray-300 dark:border-gray-700 transition-colors"
         >
           <ChevronRight className="w-3 h-3" />
           <span>
@@ -247,7 +247,7 @@ function DayView({
           <div
             key={hour}
             data-hour={hour}
-            className={`flex border-b border-gray-100 dark:border-gray-700 min-h-[80px] group/hour relative cursor-pointer transition-colors ${
+            className={`flex border-b border-gray-300 dark:border-gray-700 min-h-[80px] group/hour relative cursor-pointer transition-colors ${
               isDragTarget
                 ? 'bg-violet-100 dark:bg-violet-900/40 ring-2 ring-inset ring-violet-400'
                 : isCurrentHour
@@ -260,7 +260,7 @@ function DayView({
             onDrop={(e) => handleHourDrop(e, hour)}
           >
             <div
-              className={`w-20 flex-shrink-0 px-3 pt-3 text-xs font-medium border-r border-gray-100 dark:border-gray-700 ${isCurrentHour ? 'text-violet-600 dark:text-violet-400 font-bold' : 'text-gray-400 dark:text-gray-500'}`}
+              className={`w-20 flex-shrink-0 px-3 pt-3 text-xs font-medium border-r border-gray-300 dark:border-gray-700 ${isCurrentHour ? 'text-violet-600 dark:text-violet-400 font-bold' : 'text-gray-400 dark:text-gray-500'}`}
             >
               {formatHour(hour)}
             </div>
@@ -359,7 +359,7 @@ function DayView({
       {showOvernight && (
         <button
           onClick={() => setShowOvernight(false)}
-          className="w-full flex items-center gap-2 px-4 py-2 text-xs text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 bg-gray-50 dark:bg-gray-900/30 border-t border-gray-100 dark:border-gray-700 transition-colors"
+          className="w-full flex items-center gap-2 px-4 py-2 text-xs text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 bg-gray-50 dark:bg-gray-900/30 border-t border-gray-300 dark:border-gray-700 transition-colors"
         >
           <ChevronLeft className="w-3 h-3" />
           <span>Hide overnight hours</span>
@@ -443,7 +443,7 @@ function WeekView({
           return (
             <div
               key={i}
-              className={`flex-1 text-center py-2 border-l border-gray-100 dark:border-gray-700 ${isToday ? 'bg-violet-50 dark:bg-violet-900/20' : ''}`}
+              className={`flex-1 text-center py-2 border-l border-gray-300 dark:border-gray-700 ${isToday ? 'bg-violet-50 dark:bg-violet-900/20' : ''}`}
             >
               <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">
                 {format(day, 'EEE')}
@@ -470,7 +470,7 @@ function WeekView({
           return (
             <div
               key={i}
-              className="flex-1 border-l border-gray-100 dark:border-gray-700 px-1 py-1 flex flex-wrap gap-1"
+              className="flex-1 border-l border-gray-300 dark:border-gray-700 px-1 py-1 flex flex-wrap gap-1"
             >
               {untimedPosts.map((post) => (
                 <div
@@ -497,7 +497,7 @@ function WeekView({
       {!showOvernight && (
         <button
           onClick={() => setShowOvernight(true)}
-          className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-gray-400 hover:text-gray-600 bg-gray-50 dark:bg-gray-900/30 border-b border-gray-100 dark:border-gray-700 transition-colors"
+          className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-gray-400 hover:text-gray-600 bg-gray-50 dark:bg-gray-900/30 border-b border-gray-300 dark:border-gray-700 transition-colors"
         >
           <ChevronRight className="w-3 h-3" />
           Show overnight (1–5 AM)
@@ -518,11 +518,11 @@ function WeekView({
           <div
             key={hour}
             data-week-hour={hour}
-            className="flex border-b border-gray-100 dark:border-gray-700 min-h-[64px] relative"
+            className="flex border-b border-gray-300 dark:border-gray-700 min-h-[64px] relative"
           >
             {/* Hour label */}
             <div
-              className={`w-16 flex-shrink-0 px-2 pt-1.5 text-xs font-medium border-r border-gray-100 dark:border-gray-700 flex-none ${
+              className={`w-16 flex-shrink-0 px-2 pt-1.5 text-xs font-medium border-r border-gray-300 dark:border-gray-700 flex-none ${
                 isCurrentHour
                   ? 'text-violet-600 dark:text-violet-400 font-bold'
                   : 'text-gray-400 dark:text-gray-500'
@@ -541,7 +541,7 @@ function WeekView({
               return (
                 <div
                   key={dayIdx}
-                  className={`flex-1 border-l border-gray-100 dark:border-gray-700 px-1 py-1 relative cursor-pointer group/cell transition-colors ${
+                  className={`flex-1 border-l border-gray-300 dark:border-gray-700 px-1 py-1 relative cursor-pointer group/cell transition-colors ${
                     isDragTarget
                       ? 'bg-violet-100 dark:bg-violet-900/40 ring-1 ring-inset ring-violet-400'
                       : isToday
@@ -966,7 +966,7 @@ export default function SocialCalendarView({
       )}
 
       {/* Legend */}
-      <div className="flex items-center justify-between p-4 border-t border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
+      <div className="flex items-center justify-between p-4 border-t border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
         <div className="flex gap-4 flex-wrap">
           {Object.entries(platformColors)
             .slice(0, 5)
