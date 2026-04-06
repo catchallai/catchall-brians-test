@@ -26,6 +26,7 @@ import {
   endOfMonth,
   addMonths,
   subMonths,
+  addDays,
   parseISO,
   startOfWeek,
   endOfWeek,
@@ -273,7 +274,40 @@ export default function SocialCalendar() {
 
   const isViewer = user?.social_media_role === 'viewer';
   const canEdit = !isViewer;
-  const dateRange = `${format(startOfMonth(currentMonth), 'MMM d, yyyy')} - ${format(endOfMonth(currentMonth), 'MMM d, yyyy')}`;
+  const isCalendarView = viewMode === 'calendar';
+  const dateRange =
+    isCalendarView && calendarViewType === 'day'
+      ? format(currentMonth, 'MMM d, yyyy')
+      : isCalendarView && calendarViewType === 'week'
+        ? `${format(startOfWeek(currentMonth), 'MMM d, yyyy')} - ${format(endOfWeek(currentMonth), 'MMM d, yyyy')}`
+        : `${format(startOfMonth(currentMonth), 'MMM d, yyyy')} - ${format(endOfMonth(currentMonth), 'MMM d, yyyy')}`;
+
+  const navigateCalendarPeriod = (direction) => {
+    const step = direction === 'next' ? 1 : -1;
+
+    if (isCalendarView) {
+      if (calendarViewType === 'day') {
+        setCurrentMonth(addDays(currentMonth, step));
+        return;
+      }
+
+      if (calendarViewType === 'week') {
+        setCurrentMonth(addDays(currentMonth, step * 7));
+        return;
+      }
+    }
+
+    setCurrentMonth(step > 0 ? addMonths(currentMonth, 1) : subMonths(currentMonth, 1));
+  };
+
+  const handleGoToToday = () => {
+    if (isCalendarView) {
+      setCurrentMonth(new Date());
+      return;
+    }
+
+    setCurrentMonth(startOfMonth(new Date()));
+  };
 
   const handleJumpToDate = (date) => {
     if (!date) {
@@ -434,7 +468,7 @@ export default function SocialCalendar() {
                           variant="outline"
                           size="sm"
                           className="h-8 px-3 text-xs"
-                          onClick={() => setCurrentMonth(startOfMonth(new Date()))}
+                          onClick={handleGoToToday}
                         >
                           Today
                         </Button>
@@ -442,7 +476,7 @@ export default function SocialCalendar() {
                           variant="ghost"
                           size="icon"
                           className="h-8 w-8"
-                          onClick={() => setCurrentMonth(subMonths(currentMonth, 1))}
+                          onClick={() => navigateCalendarPeriod('prev')}
                         >
                           <ChevronLeft className="h-4 w-4" />
                         </Button>
@@ -450,7 +484,7 @@ export default function SocialCalendar() {
                           variant="ghost"
                           size="icon"
                           className="h-8 w-8"
-                          onClick={() => setCurrentMonth(addMonths(currentMonth, 1))}
+                          onClick={() => navigateCalendarPeriod('next')}
                         >
                           <ChevronRight className="h-4 w-4" />
                         </Button>
@@ -537,6 +571,11 @@ export default function SocialCalendar() {
                   {s === 'all' ? 'All' : s.replace(/_/g, ' ')}
                 </button>
               ))}
+            </div>
+            <div className="mb-4">
+              <h3 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
+                {format(currentMonth, 'MMMM yyyy')}
+              </h3>
             </div>
             <SocialCalendarView
               posts={filteredPosts}
