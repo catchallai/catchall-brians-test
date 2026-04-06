@@ -248,10 +248,7 @@ export default function SocialCalendar() {
   };
 
   const handleDelete = (post) => {
-    // eslint-disable-next-line no-alert
-    if (confirm('Delete this post?')) {
-      deleteMutation.mutate(post.id);
-    }
+    deleteMutation.mutate(post.id);
   };
 
   const handleApproveAll = async () => {
