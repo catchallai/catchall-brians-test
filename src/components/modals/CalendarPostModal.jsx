@@ -1666,10 +1666,9 @@ export default function CalendarPostModal({
             {/* Save draft */}
             {!isPostPublished && (
               <Button
-                variant="outline"
                 onClick={() => handleSubmit('draft')}
                 disabled={isLoading || !formData.caption}
-                className="bg-gray-800 hover:bg-black text-white rounded-xl px-5 py-2 text-sm font-semibold disabled:opacity-40 transition-colors flex items-center gap-2 border-0"
+                className="bg-gray-700 hover:bg-gray-800 hover:text-white text-white rounded-xl px-5 py-2 text-sm font-semibold disabled:opacity-40 transition-colors flex items-center gap-2"
               >
                 {isLoading ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
@@ -1703,7 +1702,7 @@ export default function CalendarPostModal({
               disabled={
                 isLoading || isViewer || !formData.caption || formData.platforms.length === 0
               }
-              className="bg-gray-800 hover:bg-black text-white rounded-xl px-5 py-2 text-sm font-semibold disabled:opacity-40 transition-colors flex items-center gap-2"
+              className="bg-violet-600 hover:bg-violet-700 text-white rounded-xl px-5 py-2 text-sm font-semibold disabled:opacity-40 transition-colors flex items-center gap-2"
             >
               {isLoading && <Loader2 className="w-4 h-4 animate-spin" />}
               {requireApproval ? <Send className="w-4 h-4" /> : <Calendar className="w-4 h-4" />}
