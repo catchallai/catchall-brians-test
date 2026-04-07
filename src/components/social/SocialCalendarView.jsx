@@ -956,6 +956,10 @@ export default function SocialCalendarView({
             <span className="text-xs text-gray-600 dark:text-gray-400 font-medium">Draft</span>
           </div>
           <div className="flex items-center gap-1.5">
+            <div className="w-3 h-3 rounded border-2 border-blue-300 dark:border-blue-600 bg-blue-50 dark:bg-blue-900/30" />
+            <span className="text-xs text-gray-600 dark:text-gray-400 font-medium">Scheduled</span>
+          </div>
+          <div className="flex items-center gap-1.5">
             <div className="w-3 h-3 rounded border-2 border-amber-300 dark:border-amber-600 bg-amber-50 dark:bg-amber-900/30" />
             <span className="text-xs text-gray-600 dark:text-gray-400 font-medium">Pending</span>
           </div>
