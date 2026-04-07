@@ -122,6 +122,7 @@ function PostCard({ post, onEdit, onDelete, onApprove, onReject, showApprovalAct
                     <span
                       key={pl}
                       title={pl}
+                      aria-label={pl}
                       className={`w-5 h-5 rounded-full text-white text-[9px] font-bold flex items-center justify-center flex-shrink-0 ${PLATFORM_COLORS[pl] || 'bg-gray-400'}`}
                     >
                       {(() => {

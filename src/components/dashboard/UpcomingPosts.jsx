@@ -7,6 +7,7 @@ import { createPageUrl } from '@/utils';
 import moment from 'moment';
 import {
   FacebookIcon,
+  InstagramIcon,
   LinkedInIcon,
   TwitterIcon,
   YouTubeIcon,
@@ -15,6 +16,7 @@ import { TikTokIcon } from '@/components/icons/TikTokIcon';
 
 const platformIcons = {
   facebook: FacebookIcon,
+  instagram: InstagramIcon,
   twitter: TwitterIcon,
   linkedin: LinkedInIcon,
   tiktok: TikTokIcon,
@@ -97,7 +99,12 @@ export default function UpcomingPosts({ posts = [], brands = [] }) {
                   <div className="flex items-center gap-2 mt-1">
                     <div className="flex gap-1">
                       {post.platforms?.slice(0, 3).map((platform, idx) => (
-                        <span key={idx} className="inline-flex items-center justify-center">
+                        <span
+                          key={idx}
+                          className="inline-flex items-center justify-center"
+                          aria-label={platform}
+                          title={platform}
+                        >
                           {(() => {
                             const PlatformIcon = platformIcons[platform];
                             return PlatformIcon ? (

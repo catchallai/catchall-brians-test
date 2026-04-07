@@ -334,14 +334,24 @@ export default function CompetitorDetailModal({
                           </div>
                           <div className="flex gap-1">
                             {exec.linkedin && (
-                              <a href={exec.linkedin} target="_blank" rel="noopener noreferrer">
+                              <a
+                                href={exec.linkedin}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                aria-label={`${exec.name} LinkedIn`}
+                              >
                                 <Badge variant="outline" className="cursor-pointer">
                                   <LinkedInIcon className="w-3.5 h-3.5" />
                                 </Badge>
                               </a>
                             )}
                             {exec.twitter && (
-                              <a href={exec.twitter} target="_blank" rel="noopener noreferrer">
+                              <a
+                                href={exec.twitter}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                aria-label={`${exec.name} X/Twitter`}
+                              >
                                 <Badge variant="outline" className="cursor-pointer">
                                   <TwitterIcon className="w-3.5 h-3.5" />
                                 </Badge>

@@ -52,6 +52,7 @@ export default function PostScreenshot({
   const [showFullscreen, setShowFullscreen] = useState(false);
   const style = platformStyles[platform] || platformStyles.twitter;
   const PlatformIcon = style.icon;
+  const platformLabel = platform.charAt(0).toUpperCase() + platform.slice(1);
 
   // Render a mock social media post preview
   const PostPreview = ({ fullSize = false }) => (
@@ -146,8 +147,9 @@ export default function PostScreenshot({
         <DialogContent className="max-w-lg">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <span className="text-xl">{style.icon}</span>
+              <PlatformIcon className="w-5 h-5" />
               Post Preview
+              <span className="sr-only">{platformLabel}</span>
             </DialogTitle>
           </DialogHeader>
           <PostPreview fullSize />

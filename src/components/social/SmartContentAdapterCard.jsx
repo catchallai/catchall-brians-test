@@ -142,7 +142,12 @@ export default function SmartContentAdapterCard({ onAdapt, isAdapting }) {
             <Tabs defaultValue={PLATFORMS[0]}>
               <TabsList className="grid grid-cols-3 lg:grid-cols-6 w-full">
                 {PLATFORMS.map((platform) => (
-                  <TabsTrigger key={platform} value={platform} className="text-xs">
+                  <TabsTrigger
+                    key={platform}
+                    value={platform}
+                    className="text-xs"
+                    aria-label={platform}
+                  >
                     {(() => {
                       const PlatformIcon = PLATFORM_ICONS[platform];
                       return PlatformIcon ? (
