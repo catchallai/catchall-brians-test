@@ -1,13 +1,21 @@
 // src/components/ui/PlatformBadges.tsx
+import COPY from '@/lib/copy';
 import { PLATFORM_MAP } from '@/constants/platforms';
 import type { PlatformId } from '@/types/enums';
 
 interface PlatformBadgesProps {
   platforms: string[];
   size?: 'sm' | 'md' | 'lg';
+  /**
+   * Maximum icons to show before overflow pill (sm/md only).
+   * When overflow occurs, shows (maxVisible - 1) icons + "+N" pill.
+   * Defaults to 4. Ignored for size="lg" which always shows all platforms.
+   */
   maxVisible?: number;
   className?: string;
 }
+
+const DEFAULT_MAX_VISIBLE = 4;
 
 const sizeConfig = {
   sm: { px: 14, radius: 3, gap: 'gap-0.5', iconSize: 9 },
@@ -27,7 +35,17 @@ export function PlatformBadges({
       <div className={`flex flex-wrap gap-1 ${className}`}>
         {platforms.map((platformId) => {
           const platform = PLATFORM_MAP[platformId as PlatformId];
-          if (!platform) return null;
+          if (!platform) {
+            return (
+              <span
+                key={platformId}
+                className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium bg-gray-400 text-white"
+                aria-label={platformId}
+              >
+                {platformId}
+              </span>
+            );
+          }
           const Icon = platform.icon;
           return (
             <span
@@ -45,8 +63,7 @@ export function PlatformBadges({
     );
   }
 
-  const defaultMax = 4;
-  const limit = maxVisible ?? defaultMax;
+  const limit = maxVisible ?? DEFAULT_MAX_VISIBLE;
   const visible = platforms.length > limit ? platforms.slice(0, limit - 1) : platforms;
   const overflow = platforms.length > limit ? platforms.length - (limit - 1) : 0;
   const { px, radius, gap, iconSize } = sizeConfig[size];
@@ -94,7 +111,7 @@ export function PlatformBadges({
             paddingInline: 4,
           }}
         >
-          +{overflow}
+          {COPY.platformBadges.overflow(overflow)}
         </span>
       )}
     </div>

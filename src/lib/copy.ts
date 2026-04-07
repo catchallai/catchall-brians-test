@@ -105,6 +105,9 @@ const COPY = {
     insert: 'Insert',
     urlError: 'Please enter a valid URL starting with http:// or https://',
   },
+  platformBadges: {
+    overflow: (count: number) => `+${count}`,
+  },
   hashtagManager: {
     searchPlaceholder: 'Search hashtags...',
     addToFavorites: 'Add to Favorites',
