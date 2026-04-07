@@ -88,9 +88,9 @@ export default function PlatformGridView({ posts = [], onAddPost, onEditPost, on
                   )}
                   {!post.image_url && !post.video_url && (
                     <div
-                      className={`aspect-square ${config.color} flex items-center justify-center text-white text-6xl opacity-20`}
+                      className={`aspect-square ${platformBg} flex items-center justify-center opacity-20`}
                     >
-                      {config.icon}
+                      {PlatformIcon && <PlatformIcon size={64} color="white" />}
                     </div>
                   )}
 
@@ -174,7 +174,7 @@ export default function PlatformGridView({ posts = [], onAddPost, onEditPost, on
 
             {platformPostsList.length === 0 && (
               <div className="text-center py-12 text-gray-400 dark:text-gray-500">
-                <p className="text-lg mb-2">No posts scheduled for {config.name}</p>
+                <p className="text-lg mb-2">No posts scheduled for {platformLabel}</p>
                 <Button variant="outline" onClick={onAddPost} className="gap-2 mt-4">
                   <Plus className="w-4 h-4" />
                   Create First Post

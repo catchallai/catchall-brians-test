@@ -72,7 +72,7 @@ export default function SocialLeadCard({ lead, contact, company, deal, mention, 
             </div>
 
             <div className="flex items-center gap-2 mb-2">
-              <Badge className={`${config.color} text-xs border-0`}>{lead.platform}</Badge>
+              <Badge className={`${platformColor} text-xs border-0`}>{lead.platform}</Badge>
               <span className="text-xs text-gray-500 flex items-center gap-1">
                 <InteractionIcon className="w-3 h-3" />
                 {lead.interaction_type}

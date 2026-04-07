@@ -80,7 +80,13 @@ export default function ContentCalendarCard({ posts, brands }) {
                 >
                   {(() => {
                     const p = PLATFORM_MAP_LOWER[post.platform];
-                    if (!p) return null;
+                    if (!p) {
+                      return (
+                        <span className="text-white text-xs font-bold uppercase">
+                          {post.platform?.[0] || '?'}
+                        </span>
+                      );
+                    }
                     const Icon = p.icon;
                     return <Icon size={16} color="white" />;
                   })()}

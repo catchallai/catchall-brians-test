@@ -52,7 +52,7 @@ export default function SocialAccountCard({
           <div className="flex items-center justify-between">
             <div>
               <h4 className="font-semibold text-gray-900">@{account.account_name}</h4>
-              <Badge className={`${config.color} text-xs mt-1 border-0`}>{account.platform}</Badge>
+              <Badge className={`${platformBg} text-white text-xs mt-1 border-0`}>{account.platform}</Badge>
             </div>
             <div className="flex items-center gap-1">
               {onEdit && (
