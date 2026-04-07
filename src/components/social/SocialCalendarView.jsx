@@ -18,25 +18,7 @@ import {
 } from 'date-fns';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-
-const platformColors = {
-  twitter: 'bg-gray-900',
-  linkedin: 'bg-blue-600',
-  facebook: 'bg-blue-500',
-  instagram: 'bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400',
-  youtube: 'bg-red-600',
-  tiktok: 'bg-black',
-};
-
-// Solid left-border colors per platform (for suggestion #8)
-const platformBorderColors = {
-  twitter: 'border-l-gray-800',
-  linkedin: 'border-l-blue-600',
-  facebook: 'border-l-blue-500',
-  instagram: 'border-l-pink-500',
-  youtube: 'border-l-red-600',
-  tiktok: 'border-l-black',
-};
+import { PlatformBadges } from '@/components/ui/PlatformBadges';
 
 const statusColors = {
   draft: 'border-gray-300 bg-gray-50 dark:bg-gray-800 dark:border-gray-600',
@@ -44,6 +26,14 @@ const statusColors = {
   pending_approval: 'border-amber-300 bg-amber-50 dark:bg-amber-900/20 dark:border-amber-600',
   approved: 'border-emerald-300 bg-emerald-50 dark:bg-emerald-900/20 dark:border-emerald-600',
   published: 'border-violet-300 bg-violet-50 dark:bg-violet-900/20 dark:border-violet-600',
+};
+
+const statusBorderColors = {
+  draft: 'border-l-gray-300',
+  scheduled: 'border-l-blue-300',
+  pending_approval: 'border-l-amber-300',
+  approved: 'border-l-emerald-300',
+  published: 'border-l-violet-300',
 };
 
 const statusBadges = {
@@ -101,7 +91,6 @@ function DayView({
   updatePostMutation,
   draggedPost,
   setDraggedPost,
-  platformBorderColors,
   statusColors,
   statusBadges,
 }) {
@@ -194,7 +183,7 @@ function DayView({
         <div className="flex-1 px-3 py-2 flex flex-wrap gap-2">
           {untimedPosts.map((post) => {
             const statusInfo = statusBadges[post.status] || statusBadges.draft;
-            const borderColor = platformBorderColors[post.platforms?.[0]] || 'border-l-gray-400';
+            const borderColor = statusBorderColors[post.status] || 'border-l-gray-300';
             return (
               <div
                 key={post.id}
@@ -282,9 +271,7 @@ function DayView({
 
               {hourPosts.map((post) => {
                 const statusInfo = statusBadges[post.status] || statusBadges.draft;
-                // #8 Platform color left border
-                const borderColor =
-                  platformBorderColors[post.platforms?.[0]] || 'border-l-gray-400';
+                const borderColor = statusBorderColors[post.status] || 'border-l-gray-300';
                 return (
                   <div
                     key={post.id}
@@ -300,12 +287,7 @@ function DayView({
                         className="flex items-center gap-2 min-w-0 flex-1 cursor-pointer"
                         onClick={() => onEditPost(post)}
                       >
-                        {/* #8: show platform name instead of tiny dot since border carries color */}
-                        {post.platforms?.[0] && (
-                          <span className="text-xs text-gray-500 dark:text-gray-400 capitalize flex-shrink-0">
-                            {post.platforms[0]}
-                          </span>
-                        )}
+                        <PlatformBadges platforms={post.platforms ?? []} size="lg" />
                         <span className="truncate text-gray-800 dark:text-gray-200 font-semibold">
                           {post.title || post.caption?.slice(0, 40) || 'Untitled'}
                         </span>
@@ -569,8 +551,7 @@ function WeekView({
 
                   <div className="flex flex-col gap-0.5" onClick={(e) => e.stopPropagation()}>
                     {dayHourPosts.slice(0, 2).map((post) => {
-                      const borderColor =
-                        platformBorderColors[post.platforms?.[0]] || 'border-l-gray-400';
+                      const borderColor = statusBorderColors[post.status] || 'border-l-gray-300';
                       return (
                         <div
                           key={post.id}
@@ -582,9 +563,18 @@ function WeekView({
                           onMouseEnter={(e) => showPopover(post, e)}
                           onMouseLeave={hidePopover}
                           onClick={() => onEditPost(post)}
-                          className={`text-xs px-1.5 py-1 rounded border-l-2 ${borderColor} cursor-pointer truncate ${statusColors[post.status] || statusColors.draft} ${draggedPost?.id === post.id ? 'opacity-50' : ''}`}
+                          className={`text-xs px-1.5 py-1 rounded border-l-2 ${borderColor} cursor-pointer ${statusColors[post.status] || statusColors.draft} ${draggedPost?.id === post.id ? 'opacity-50' : ''}`}
                         >
-                          {post.title || post.caption?.slice(0, 16) || 'Untitled'}
+                          <div className="flex items-center justify-between gap-1 min-w-0">
+                            <span className="truncate flex-1">
+                              {post.title || post.caption?.slice(0, 16) || 'Untitled'}
+                            </span>
+                            <PlatformBadges
+                              platforms={post.platforms ?? []}
+                              size="sm"
+                              maxVisible={3}
+                            />
+                          </div>
                         </div>
                       );
                     })}
@@ -774,7 +764,6 @@ export default function SocialCalendarView({
           updatePostMutation={updatePostMutation}
           draggedPost={draggedPost}
           setDraggedPost={setDraggedPost}
-          platformBorderColors={platformBorderColors}
           statusColors={statusColors}
           statusBadges={statusBadges}
         />
@@ -848,11 +837,7 @@ export default function SocialCalendarView({
                             className="flex items-center gap-2 min-w-0 flex-1 cursor-pointer"
                             onClick={() => onEditPost(post)}
                           >
-                            {post.platforms?.[0] && (
-                              <div
-                                className={`w-3 h-3 rounded-full flex-shrink-0 ${platformColors[String(post.platforms[0]).toLowerCase()] || 'bg-gray-400'}`}
-                              />
-                            )}
+                            <PlatformBadges platforms={post.platforms ?? []} size="sm" />
                             <span className="truncate text-gray-800 dark:text-gray-200 font-semibold">
                               {post.title || post.caption?.slice(0, 18) || 'Untitled'}
                               {post.caption?.length > 18 && !post.title ? '...' : ''}
@@ -924,17 +909,7 @@ export default function SocialCalendarView({
             </p>
           )}
           <div className="flex items-center gap-2 mb-3 flex-wrap">
-            {hoveredPost.platforms?.map((p) => (
-              <span
-                key={p}
-                className="flex items-center gap-1 text-xs text-gray-600 dark:text-gray-400"
-              >
-                <div
-                  className={`w-2.5 h-2.5 rounded-full ${platformColors[String(p).toLowerCase()] || 'bg-gray-400'}`}
-                />
-                {p}
-              </span>
-            ))}
+            <PlatformBadges platforms={hoveredPost.platforms ?? []} size="lg" />
           </div>
           {(hoveredPost.scheduled_date || hoveredPost.scheduled_time) && (
             <p className="text-xs text-gray-400 dark:text-gray-500 mb-3">
@@ -966,19 +941,7 @@ export default function SocialCalendarView({
       )}
 
       {/* Legend */}
-      <div className="flex items-center justify-between p-4 border-t border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
-        <div className="flex gap-4 flex-wrap">
-          {Object.entries(platformColors)
-            .slice(0, 5)
-            .map(([platform, color]) => (
-              <div key={platform} className="flex items-center gap-1.5">
-                <div className={`w-3 h-3 rounded-full ${color}`} />
-                <span className="text-xs text-gray-600 dark:text-gray-400 capitalize font-medium">
-                  {platform}
-                </span>
-              </div>
-            ))}
-        </div>
+      <div className="flex items-center justify-end p-4 border-t border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
         <div className="flex gap-3">
           <div className="flex items-center gap-1.5">
             <div className="w-3 h-3 rounded border-2 border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700" />
