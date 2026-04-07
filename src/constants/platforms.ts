@@ -1,5 +1,11 @@
 // src/constants/platforms.ts
-import { Twitter, Linkedin, Facebook, Instagram, Youtube } from 'lucide-react';
+import {
+  FacebookIcon,
+  InstagramIcon,
+  LinkedInIcon,
+  TwitterIcon,
+  YouTubeIcon,
+} from '@/components/icons/BrandIcons';
 import { TikTokIcon } from '@/components/icons/TikTokIcon';
 import type { PlatformId } from '@/types/enums';
 
@@ -7,7 +13,7 @@ export const PLATFORMS = [
   {
     id: 'Twitter',
     label: 'X',
-    icon: Twitter,
+    icon: TwitterIcon,
     bg: '#000000',
     tailwind: 'bg-black',
     tailwindGradient: '',
@@ -16,7 +22,7 @@ export const PLATFORMS = [
   {
     id: 'LinkedIn',
     label: 'LinkedIn',
-    icon: Linkedin,
+    icon: LinkedInIcon,
     bg: '#0a66c2',
     tailwind: 'bg-blue-700',
     tailwindGradient: '',
@@ -25,7 +31,7 @@ export const PLATFORMS = [
   {
     id: 'Facebook',
     label: 'Facebook',
-    icon: Facebook,
+    icon: FacebookIcon,
     bg: '#1877f2',
     tailwind: 'bg-blue-600',
     tailwindGradient: '',
@@ -34,7 +40,7 @@ export const PLATFORMS = [
   {
     id: 'Instagram',
     label: 'Instagram',
-    icon: Instagram,
+    icon: InstagramIcon,
     bg: '#e1306c',
     tailwind: 'bg-pink-600',
     tailwindGradient: 'bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400',
@@ -43,7 +49,7 @@ export const PLATFORMS = [
   {
     id: 'YouTube',
     label: 'YouTube',
-    icon: Youtube,
+    icon: YouTubeIcon,
     bg: '#ff0000',
     tailwind: 'bg-red-600',
     tailwindGradient: '',

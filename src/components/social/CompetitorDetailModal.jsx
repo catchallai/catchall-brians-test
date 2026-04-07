@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { LinkedInIcon, TwitterIcon } from '@/components/icons/BrandIcons';
 import {
   TrendingUp,
   Calendar,
@@ -334,15 +335,15 @@ export default function CompetitorDetailModal({
                           <div className="flex gap-1">
                             {exec.linkedin && (
                               <a href={exec.linkedin} target="_blank" rel="noopener noreferrer">
-                                <Badge variant="outline" className="cursor-pointer text-xs">
-                                  in
+                                <Badge variant="outline" className="cursor-pointer">
+                                  <LinkedInIcon className="w-3.5 h-3.5" />
                                 </Badge>
                               </a>
                             )}
                             {exec.twitter && (
                               <a href={exec.twitter} target="_blank" rel="noopener noreferrer">
-                                <Badge variant="outline" className="cursor-pointer text-xs">
-                                  𝕏
+                                <Badge variant="outline" className="cursor-pointer">
+                                  <TwitterIcon className="w-3.5 h-3.5" />
                                 </Badge>
                               </a>
                             )}

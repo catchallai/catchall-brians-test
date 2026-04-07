@@ -3,16 +3,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import {
-  Sparkles,
-  Loader2,
-  TrendingUp,
-  Mail,
-  Phone,
-  Linkedin,
-  Globe,
-  MessageSquare,
-} from 'lucide-react';
+import { LinkedInIcon } from '@/components/icons/BrandIcons';
+import { Sparkles, Loader2, TrendingUp, Mail, Phone, Globe, MessageSquare } from 'lucide-react';
 
 const scoreColors = (score) => {
   if (score >= 80) {
@@ -28,7 +20,7 @@ const scoreColors = (score) => {
 };
 
 const sourceIcons = {
-  linkedin: Linkedin,
+  linkedin: LinkedInIcon,
   email: Mail,
   call: Phone,
   website: Globe,

@@ -12,6 +12,12 @@ import {
 } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Loader2, Sparkles, Copy, Check, RefreshCw, Send } from 'lucide-react';
+import {
+  FacebookIcon,
+  InstagramIcon,
+  LinkedInIcon,
+  TwitterIcon,
+} from '@/components/icons/BrandIcons';
 
 const CONTENT_TYPES = [
   { id: 'social_post', label: 'Social Media Post', icon: '📱' },
@@ -25,6 +31,13 @@ const TONES = [
   { id: 'humorous', label: 'Humorous' },
   { id: 'urgent', label: 'Urgent/FOMO' },
   { id: 'inspirational', label: 'Inspirational' },
+];
+
+const SOCIAL_PLATFORM_OPTIONS = [
+  { id: 'twitter', label: 'Twitter', icon: TwitterIcon },
+  { id: 'linkedin', label: 'LinkedIn', icon: LinkedInIcon },
+  { id: 'facebook', label: 'Facebook', icon: FacebookIcon },
+  { id: 'instagram', label: 'Instagram', icon: InstagramIcon },
 ];
 
 export default function ContentGeneratorCard({
@@ -145,10 +158,14 @@ export default function ContentGeneratorCard({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="twitter">𝕏 Twitter</SelectItem>
-                  <SelectItem value="linkedin">in LinkedIn</SelectItem>
-                  <SelectItem value="facebook">f Facebook</SelectItem>
-                  <SelectItem value="instagram">📷 Instagram</SelectItem>
+                  {SOCIAL_PLATFORM_OPTIONS.map((option) => (
+                    <SelectItem key={option.id} value={option.id}>
+                      <span className="inline-flex items-center gap-2">
+                        <option.icon className="w-4 h-4" />
+                        {option.label}
+                      </span>
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>

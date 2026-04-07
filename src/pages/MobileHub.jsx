@@ -12,6 +12,12 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sh
 import { Tabs, TabsContent } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import {
+  FacebookIcon,
+  InstagramIcon,
+  LinkedInIcon,
+  TwitterIcon,
+} from '@/components/icons/BrandIcons';
+import {
   Bell,
   Search,
   Plus,
@@ -23,10 +29,6 @@ import {
   BarChart3,
   Send,
   Image,
-  Twitter,
-  Linkedin,
-  Facebook,
-  Instagram,
   Phone,
   Mail,
   DollarSign,
@@ -152,10 +154,10 @@ export default function MobileHub() {
   }).length;
 
   const platformIcons = {
-    twitter: Twitter,
-    linkedin: Linkedin,
-    facebook: Facebook,
-    instagram: Instagram,
+    twitter: TwitterIcon,
+    linkedin: LinkedInIcon,
+    facebook: FacebookIcon,
+    instagram: InstagramIcon,
   };
 
   const getPlatformColor = (platform) => {

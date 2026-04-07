@@ -57,18 +57,25 @@ import AnomalyDetectionCard from '@/components/social/AnomalyDetectionCard';
 import SmartContentAdapterCard from '@/components/social/SmartContentAdapterCard';
 import CompetitorBenchmark from '@/components/social/CompetitorBenchmark';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import {
+  FacebookIcon,
+  InstagramIcon,
+  LinkedInIcon,
+  TwitterIcon,
+  YouTubeIcon,
+} from '@/components/icons/BrandIcons';
 
 const PLATFORMS = [
-  { id: 'twitter', label: 'X (Twitter)', icon: '𝕏', color: 'bg-gray-900 text-white' },
-  { id: 'linkedin', label: 'LinkedIn', icon: 'in', color: 'bg-blue-600 text-white' },
-  { id: 'facebook', label: 'Facebook', icon: 'f', color: 'bg-blue-500 text-white' },
+  { id: 'twitter', label: 'X (Twitter)', icon: TwitterIcon, color: 'bg-gray-900 text-white' },
+  { id: 'linkedin', label: 'LinkedIn', icon: LinkedInIcon, color: 'bg-blue-600 text-white' },
+  { id: 'facebook', label: 'Facebook', icon: FacebookIcon, color: 'bg-blue-500 text-white' },
   {
     id: 'instagram',
     label: 'Instagram',
-    icon: 'IG',
+    icon: InstagramIcon,
     color: 'bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400 text-white',
   },
-  { id: 'youtube', label: 'YouTube', icon: '▶', color: 'bg-red-600 text-white' },
+  { id: 'youtube', label: 'YouTube', icon: YouTubeIcon, color: 'bg-red-600 text-white' },
 ];
 
 const sentimentConfig = {
@@ -2173,7 +2180,10 @@ Find 5 recent posts with: post_url (direct link to post), content, post_date, li
                 <SelectContent>
                   {PLATFORMS.map((p) => (
                     <SelectItem key={p.id} value={p.id}>
-                      <span className="mr-2">{p.icon}</span> {p.label}
+                      <span className="inline-flex items-center gap-2">
+                        <p.icon className="w-4 h-4" />
+                        {p.label}
+                      </span>
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -2235,7 +2245,10 @@ Find 5 recent posts with: post_url (direct link to post), content, post_date, li
                   <SelectContent>
                     {PLATFORMS.map((p) => (
                       <SelectItem key={p.id} value={p.id}>
-                        <span className="mr-2">{p.icon}</span> {p.label}
+                        <span className="inline-flex items-center gap-2">
+                          <p.icon className="w-4 h-4" />
+                          {p.label}
+                        </span>
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -2309,9 +2322,13 @@ Find 5 recent posts with: post_url (direct link to post), content, post_date, li
           <DialogHeader>
             <DialogTitle className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <span className="text-xl">
-                  {PLATFORMS.find((p) => p.id === selectedAccount?.platform)?.icon}
-                </span>
+                {selectedAccount?.platform &&
+                  (() => {
+                    const PlatformIcon = PLATFORMS.find(
+                      (p) => p.id === selectedAccount.platform
+                    )?.icon;
+                    return PlatformIcon ? <PlatformIcon className="w-5 h-5" /> : null;
+                  })()}
                 @{selectedAccount?.account_name}
               </div>
               {selectedAccount && (

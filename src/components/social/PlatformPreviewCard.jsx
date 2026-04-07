@@ -3,15 +3,22 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Facebook, Instagram, Linkedin, Twitter, Youtube, Edit2, Calendar } from 'lucide-react';
+import { Edit2, Calendar } from 'lucide-react';
+import {
+  FacebookIcon,
+  InstagramIcon,
+  LinkedInIcon,
+  TwitterIcon,
+  YouTubeIcon,
+} from '@/components/icons/BrandIcons';
 import { format, parseISO } from 'date-fns';
 
 const PLATFORM_ICONS = {
-  facebook: Facebook,
-  instagram: Instagram,
-  linkedin: Linkedin,
-  twitter: Twitter,
-  youtube: Youtube,
+  facebook: FacebookIcon,
+  instagram: InstagramIcon,
+  linkedin: LinkedInIcon,
+  twitter: TwitterIcon,
+  youtube: YouTubeIcon,
 };
 
 const PLATFORM_COLORS = {

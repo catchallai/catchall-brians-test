@@ -12,8 +12,24 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Wand2, Copy, Check, Loader2 } from 'lucide-react';
+import {
+  FacebookIcon,
+  InstagramIcon,
+  LinkedInIcon,
+  TwitterIcon,
+  YouTubeIcon,
+} from '@/components/icons/BrandIcons';
+import { TikTokIcon } from '@/components/icons/TikTokIcon';
 
 const PLATFORMS = ['twitter', 'linkedin', 'facebook', 'instagram', 'youtube', 'tiktok'];
+const PLATFORM_ICONS = {
+  twitter: TwitterIcon,
+  linkedin: LinkedInIcon,
+  facebook: FacebookIcon,
+  instagram: InstagramIcon,
+  youtube: YouTubeIcon,
+  tiktok: TikTokIcon,
+};
 const AUDIENCES = ['b2b', 'b2c', 'enterprise', 'startup', 'general', 'technical', 'casual'];
 const TONES = ['professional', 'casual', 'humorous', 'inspiring', 'educational', 'promotional'];
 
@@ -127,7 +143,14 @@ export default function SmartContentAdapterCard({ onAdapt, isAdapting }) {
               <TabsList className="grid grid-cols-3 lg:grid-cols-6 w-full">
                 {PLATFORMS.map((platform) => (
                   <TabsTrigger key={platform} value={platform} className="text-xs">
-                    {platform === 'twitter' ? '𝕏' : platform.slice(0, 2).toUpperCase()}
+                    {(() => {
+                      const PlatformIcon = PLATFORM_ICONS[platform];
+                      return PlatformIcon ? (
+                        <PlatformIcon className="w-4 h-4" />
+                      ) : (
+                        platform.slice(0, 2).toUpperCase()
+                      );
+                    })()}
                   </TabsTrigger>
                 ))}
               </TabsList>

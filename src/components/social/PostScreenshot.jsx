@@ -2,37 +2,44 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Maximize2 } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import {
+  FacebookIcon,
+  InstagramIcon,
+  LinkedInIcon,
+  TwitterIcon,
+  YouTubeIcon,
+} from '@/components/icons/BrandIcons';
 
 const platformStyles = {
   twitter: {
     bg: 'bg-black',
     text: 'text-white',
     accent: 'text-blue-400',
-    icon: '𝕏',
+    icon: TwitterIcon,
   },
   linkedin: {
     bg: 'bg-white',
     text: 'text-gray-900',
     accent: 'text-blue-600',
-    icon: 'in',
+    icon: LinkedInIcon,
   },
   facebook: {
     bg: 'bg-white',
     text: 'text-gray-900',
     accent: 'text-blue-500',
-    icon: 'f',
+    icon: FacebookIcon,
   },
   instagram: {
     bg: 'bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400',
     text: 'text-white',
     accent: 'text-pink-300',
-    icon: 'IG',
+    icon: InstagramIcon,
   },
   youtube: {
     bg: 'bg-white',
     text: 'text-gray-900',
     accent: 'text-red-600',
-    icon: '▶',
+    icon: YouTubeIcon,
   },
 };
 
@@ -44,6 +51,7 @@ export default function PostScreenshot({
 }) {
   const [showFullscreen, setShowFullscreen] = useState(false);
   const style = platformStyles[platform] || platformStyles.twitter;
+  const PlatformIcon = style.icon;
 
   // Render a mock social media post preview
   const PostPreview = ({ fullSize = false }) => (
@@ -66,7 +74,7 @@ export default function PostScreenshot({
           </p>
         </div>
         <div className="ml-auto">
-          <span className={`${fullSize ? 'text-2xl' : 'text-lg'}`}>{style.icon}</span>
+          <PlatformIcon className={fullSize ? 'w-7 h-7' : 'w-5 h-5'} />
         </div>
       </div>
 
