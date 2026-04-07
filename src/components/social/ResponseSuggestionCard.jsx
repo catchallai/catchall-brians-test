@@ -4,17 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { Copy, Check, Sparkles, Send, ThumbsUp, ThumbsDown, Minus, Loader2 } from 'lucide-react';
-
-const platformConfig = {
-  twitter: { color: 'bg-gray-900 text-white', icon: '𝕏' },
-  linkedin: { color: 'bg-blue-600 text-white', icon: 'in' },
-  facebook: { color: 'bg-blue-500 text-white', icon: 'f' },
-  instagram: {
-    color: 'bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400 text-white',
-    icon: 'IG',
-  },
-  youtube: { color: 'bg-red-600 text-white', icon: '▶' },
-};
+import { PLATFORM_MAP_LOWER } from '@/constants/platforms';
 
 const sentimentConfig = {
   positive: { icon: ThumbsUp, color: 'text-emerald-500', bg: 'bg-emerald-100' },
@@ -32,7 +22,9 @@ export default function ResponseSuggestionCard({
   const [editedResponse, setEditedResponse] = useState(mention.suggested_response || '');
   const [showEdit, setShowEdit] = useState(false);
 
-  const platform = platformConfig[mention.platform] || platformConfig.twitter;
+  const platformEntry = PLATFORM_MAP_LOWER[mention.platform];
+  const PlatformIcon = platformEntry?.icon;
+  const platformBg = platformEntry?.tailwindGradient || platformEntry?.tailwind || 'bg-gray-400';
   const sentiment = sentimentConfig[mention.sentiment] || sentimentConfig.neutral;
   const SentimentIcon = sentiment.icon;
 
@@ -57,9 +49,9 @@ export default function ResponseSuggestionCard({
         {/* Original mention */}
         <div className="flex items-start gap-3 mb-4">
           <div
-            className={`w-8 h-8 rounded-lg ${platform.color} flex items-center justify-center text-sm font-bold flex-shrink-0`}
+            className={`w-8 h-8 rounded-lg ${platformBg} flex items-center justify-center flex-shrink-0`}
           >
-            {platform.icon}
+            {PlatformIcon && <PlatformIcon size={14} color="white" />}
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1">

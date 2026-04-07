@@ -12,46 +12,15 @@ import AIPostAssistant from '@/components/social/AIPostAssistant';
 import { toLocalISOString } from '@/utils/date';
 import useUnsavedChangesGuard from '@/components/hooks/useUnsavedChangesGuard';
 import ConfirmDialog from '@/components/ui/ConfirmDialog';
+import { PLATFORMS as PLATFORM_CONFIGS } from '@/constants/platforms';
 
-// Remove the function from here and import from utils
-
-const PLATFORMS = [
-  {
-    id: 'twitter',
-    label: 'X (Twitter)',
-    icon: '𝕏',
-    maxChars: 280,
-    color: 'bg-gray-900 text-white',
-  },
-  {
-    id: 'linkedin',
-    label: 'LinkedIn',
-    icon: 'in',
-    maxChars: 3000,
-    color: 'bg-blue-600 text-white',
-  },
-  {
-    id: 'facebook',
-    label: 'Facebook',
-    icon: 'f',
-    maxChars: 63206,
-    color: 'bg-blue-500 text-white',
-  },
-  {
-    id: 'instagram',
-    label: 'Instagram',
-    icon: 'IG',
-    maxChars: 2200,
-    color: 'bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400 text-white',
-  },
-  {
-    id: 'youtube',
-    label: 'YouTube',
-    icon: '▶',
-    maxChars: 5000,
-    color: 'bg-red-600 text-white',
-  },
-];
+const PLATFORMS = PLATFORM_CONFIGS.filter((p) => p.id !== 'TikTok').map((p) => ({
+  id: p.id.toLowerCase(),
+  label: p.id === 'Twitter' ? 'X (Twitter)' : p.label,
+  icon: p.icon,
+  maxChars: p.limit,
+  color: `${p.tailwindGradient || p.tailwind} text-white`,
+}));
 
 export default function ComposePostModal({
   open,
@@ -269,9 +238,12 @@ export default function ComposePostModal({
                       <div key={platform.id} className="space-y-2">
                         <div className="flex items-center gap-2">
                           <span
-                            className={`w-6 h-6 rounded ${platform.color} flex items-center justify-center text-xs font-bold`}
+                            className={`w-6 h-6 rounded ${platform.color} flex items-center justify-center`}
                           >
-                            {platform.icon}
+                            {(() => {
+                              const Icon = platform.icon;
+                              return <Icon size={12} color="white" />;
+                            })()}
                           </span>
                           <span className="text-sm font-medium">{platform.label}</span>
                           <span className="text-xs text-gray-400">
@@ -336,9 +308,12 @@ export default function ComposePostModal({
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center gap-2">
                         <span
-                          className={`w-8 h-8 rounded-lg ${platform.color} flex items-center justify-center font-bold`}
+                          className={`w-8 h-8 rounded-lg ${platform.color} flex items-center justify-center`}
                         >
-                          {platform.icon}
+                          {(() => {
+                            const Icon = platform.icon;
+                            return <Icon size={14} color="white" />;
+                          })()}
                         </span>
                         <span className="font-medium">{platform.label}</span>
                       </div>

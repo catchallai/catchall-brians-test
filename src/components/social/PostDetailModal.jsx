@@ -4,23 +4,12 @@ import { Card } from '@/components/ui/card';
 import { Heart, MessageSquare, Share2, Calendar, ExternalLink } from 'lucide-react';
 import { format } from 'date-fns';
 import PostScreenshot from './PostScreenshot';
+import { PLATFORM_MAP_LOWER } from '@/constants/platforms';
 
 const sentimentConfig = {
   positive: { color: 'text-emerald-600', bg: 'bg-emerald-100' },
   neutral: { color: 'text-gray-600', bg: 'bg-gray-100' },
   negative: { color: 'text-red-600', bg: 'bg-red-100' },
-};
-
-const platformConfig = {
-  twitter: { color: 'bg-gray-900 text-white', icon: '𝕏', name: 'X (Twitter)' },
-  linkedin: { color: 'bg-blue-600 text-white', icon: 'in', name: 'LinkedIn' },
-  facebook: { color: 'bg-blue-500 text-white', icon: 'f', name: 'Facebook' },
-  instagram: {
-    color: 'bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400 text-white',
-    icon: 'IG',
-    name: 'Instagram',
-  },
-  youtube: { color: 'bg-red-600 text-white', icon: '▶', name: 'YouTube' },
 };
 
 export default function PostDetailModal({ open, onClose, post, accountName }) {
@@ -29,7 +18,11 @@ export default function PostDetailModal({ open, onClose, post, accountName }) {
   }
 
   const sentiment = sentimentConfig[post.sentiment] || sentimentConfig.neutral;
-  const platform = platformConfig[post.platform] || platformConfig.twitter;
+  const platformEntry = PLATFORM_MAP_LOWER[post.platform];
+  const PlatformIcon = platformEntry?.icon;
+  const platformBg =
+    platformEntry?.tailwindGradient || platformEntry?.tailwind || 'bg-gray-400';
+  const platformLabel = platformEntry?.label || post.platform || 'Unknown';
   const totalEngagement = (post.likes || 0) + (post.comments || 0) + (post.shares || 0);
 
   return (
@@ -38,9 +31,9 @@ export default function PostDetailModal({ open, onClose, post, accountName }) {
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <span
-              className={`w-8 h-8 rounded-lg ${platform.color} flex items-center justify-center text-sm font-bold`}
+              className={`w-8 h-8 rounded-lg ${platformBg} flex items-center justify-center`}
             >
-              {platform.icon}
+              {PlatformIcon && <PlatformIcon size={16} color="white" />}
             </span>
             Post from @{accountName}
           </DialogTitle>
@@ -52,7 +45,7 @@ export default function PostDetailModal({ open, onClose, post, accountName }) {
 
           {/* Meta info */}
           <div className="flex items-center gap-2 flex-wrap">
-            <Badge className={platform.color}>{platform.name}</Badge>
+            <Badge className={`${platformBg} text-white`}>{platformLabel}</Badge>
             <Badge className={`${sentiment.bg} ${sentiment.color} border-0`}>
               {post.sentiment} sentiment
             </Badge>
@@ -125,7 +118,7 @@ export default function PostDetailModal({ open, onClose, post, accountName }) {
             className="flex items-center justify-center gap-2 w-full py-2.5 px-4 rounded-lg bg-violet-600 hover:bg-violet-700 text-white font-medium transition-colors"
           >
             <ExternalLink className="w-4 h-4" />
-            View on {platform.name}
+            View on {platformLabel}
           </a>
         </div>
       </DialogContent>

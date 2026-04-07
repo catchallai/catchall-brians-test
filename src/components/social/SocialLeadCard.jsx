@@ -14,13 +14,15 @@ import {
   TrendingUp,
 } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
+import { PLATFORM_MAP_LOWER } from '@/constants/platforms';
 
-const platformConfig = {
-  twitter: { color: 'bg-sky-100 text-sky-700', icon: '𝕏' },
-  linkedin: { color: 'bg-blue-100 text-blue-700', icon: 'in' },
-  facebook: { color: 'bg-indigo-100 text-indigo-700', icon: 'f' },
-  instagram: { color: 'bg-pink-100 text-pink-700', icon: '📷' },
-  youtube: { color: 'bg-red-100 text-red-700', icon: '▶' },
+// Light muted color theme — intentional for lead cards (not the social calendar)
+const LEAD_CARD_PLATFORM_COLORS = {
+  twitter: 'bg-sky-100 text-sky-700',
+  linkedin: 'bg-blue-100 text-blue-700',
+  facebook: 'bg-indigo-100 text-indigo-700',
+  instagram: 'bg-pink-100 text-pink-700',
+  youtube: 'bg-red-100 text-red-700',
 };
 
 const statusColors = {
@@ -43,7 +45,10 @@ const interactionIcons = {
 };
 
 export default function SocialLeadCard({ lead, contact, company, deal, mention, onClick }) {
-  const config = platformConfig[lead.platform] || platformConfig.twitter;
+  const platformEntry = PLATFORM_MAP_LOWER[lead.platform];
+  const PlatformIcon = platformEntry?.icon;
+  const platformColor =
+    LEAD_CARD_PLATFORM_COLORS[lead.platform] || 'bg-gray-100 text-gray-700';
   const InteractionIcon = interactionIcons[lead.interaction_type] || MessageSquare;
 
   return (
@@ -54,9 +59,9 @@ export default function SocialLeadCard({ lead, contact, company, deal, mention, 
       <CardContent className="p-4">
         <div className="flex items-start gap-3">
           <div
-            className={`w-10 h-10 rounded-xl ${config.color} flex items-center justify-center text-lg font-bold shrink-0`}
+            className={`w-10 h-10 rounded-xl ${platformColor} flex items-center justify-center shrink-0`}
           >
-            {config.icon}
+            {PlatformIcon && <PlatformIcon size={18} />}
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center justify-between mb-1">
@@ -67,7 +72,7 @@ export default function SocialLeadCard({ lead, contact, company, deal, mention, 
             </div>
 
             <div className="flex items-center gap-2 mb-2">
-              <Badge className={`${config.color} text-xs border-0`}>{lead.platform}</Badge>
+              <Badge className={`${platformColor} text-xs border-0`}>{lead.platform}</Badge>
               <span className="text-xs text-gray-500 flex items-center gap-1">
                 <InteractionIcon className="w-3 h-3" />
                 {lead.interaction_type}

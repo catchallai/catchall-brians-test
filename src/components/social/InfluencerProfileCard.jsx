@@ -15,19 +15,7 @@ import {
   UserPlus,
 } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-
-const platformConfig = {
-  twitter: { color: 'bg-gray-900', icon: '𝕏', name: 'X (Twitter)' },
-  linkedin: { color: 'bg-blue-600', icon: 'in', name: 'LinkedIn' },
-  facebook: { color: 'bg-blue-500', icon: 'f', name: 'Facebook' },
-  instagram: {
-    color: 'bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400',
-    icon: 'IG',
-    name: 'Instagram',
-  },
-  youtube: { color: 'bg-red-600', icon: '▶', name: 'YouTube' },
-  tiktok: { color: 'bg-black', icon: '♪', name: 'TikTok' },
-};
+import { PLATFORM_MAP_LOWER } from '@/constants/platforms';
 
 export default function InfluencerProfileCard({ mention, onClose }) {
   const [loading, setLoading] = useState(false);
@@ -123,7 +111,9 @@ export default function InfluencerProfileCard({ mention, onClose }) {
     }
   }, [mention]);
 
-  const platform = platformConfig[mention?.platform] || platformConfig.twitter;
+  const platformEntry = PLATFORM_MAP_LOWER[mention?.platform];
+  const PlatformIcon = platformEntry?.icon;
+  const platformBg = platformEntry?.tailwindGradient || platformEntry?.tailwind || 'bg-gray-400';
 
   const formatNumber = (num) => {
     if (!num) {
@@ -144,9 +134,9 @@ export default function InfluencerProfileCard({ mention, onClose }) {
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <div
-              className={`w-6 h-6 rounded ${platform.color} flex items-center justify-center text-white text-xs font-bold`}
+              className={`w-6 h-6 rounded ${platformBg} flex items-center justify-center`}
             >
-              {platform.icon}
+              {PlatformIcon && <PlatformIcon size={12} color="white" />}
             </div>
             Influencer Profile
           </DialogTitle>

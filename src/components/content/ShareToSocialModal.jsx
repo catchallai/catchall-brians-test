@@ -10,52 +10,26 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent } from '@/components/ui/card';
-import {
-  Loader2,
-  Twitter,
-  Linkedin,
-  Facebook,
-  Instagram,
-  Calendar,
-  Clock,
-  Send,
-  Wand2,
-  Copy,
-  Check,
-} from 'lucide-react';
+import { Loader2, Calendar, Clock, Send, Wand2, Copy, Check } from 'lucide-react';
 import { useToast } from '@/components/ui/toast-provider';
 import { format } from 'date-fns';
+import { PLATFORMS as PLATFORM_CONFIGS } from '@/constants/platforms';
 
-const PLATFORMS = [
-  {
-    id: 'twitter',
-    name: 'Twitter/X',
-    icon: Twitter,
-    color: 'bg-sky-100 text-sky-700',
-    maxLength: 280,
-  },
-  {
-    id: 'linkedin',
-    name: 'LinkedIn',
-    icon: Linkedin,
-    color: 'bg-blue-100 text-blue-700',
-    maxLength: 3000,
-  },
-  {
-    id: 'facebook',
-    name: 'Facebook',
-    icon: Facebook,
-    color: 'bg-indigo-100 text-indigo-700',
-    maxLength: 2000,
-  },
-  {
-    id: 'instagram',
-    name: 'Instagram',
-    icon: Instagram,
-    color: 'bg-pink-100 text-pink-700',
-    maxLength: 2200,
-  },
-];
+// Light muted color theme — intentional for this content-sharing context (not the social calendar)
+const PLATFORM_LIGHT_COLORS = {
+  Twitter: 'bg-sky-100 text-sky-700',
+  LinkedIn: 'bg-blue-100 text-blue-700',
+  Facebook: 'bg-indigo-100 text-indigo-700',
+  Instagram: 'bg-pink-100 text-pink-700',
+};
+
+const PLATFORMS = PLATFORM_CONFIGS.filter((p) => p.id in PLATFORM_LIGHT_COLORS).map((p) => ({
+  id: p.id.toLowerCase(),
+  name: p.id === 'Twitter' ? 'Twitter/X' : p.label,
+  icon: p.icon,
+  color: PLATFORM_LIGHT_COLORS[p.id],
+  maxLength: p.limit,
+}));
 
 export default function ShareToSocialModal({ open, onClose, article, brief }) {
   const [selectedPlatforms, setSelectedPlatforms] = useState(['linkedin', 'twitter']);

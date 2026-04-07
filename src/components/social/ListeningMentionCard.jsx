@@ -16,19 +16,10 @@ import {
   AlertTriangle,
 } from 'lucide-react';
 import { format } from 'date-fns';
+import { PLATFORM_MAP_LOWER } from '@/constants/platforms';
 
-const platformConfig = {
-  twitter: { color: 'bg-gray-900 text-white', icon: '𝕏' },
-  linkedin: { color: 'bg-blue-600 text-white', icon: 'in' },
-  facebook: { color: 'bg-blue-500 text-white', icon: 'f' },
-  instagram: {
-    color: 'bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400 text-white',
-    icon: 'IG',
-  },
-  youtube: { color: 'bg-red-600 text-white', icon: '▶' },
-  tiktok: { color: 'bg-black text-white', icon: '♪' },
-  reddit: { color: 'bg-orange-500 text-white', icon: 'R' },
-};
+// Reddit is a listening-only platform not in the social posting config
+const REDDIT_CONFIG = { tailwind: 'bg-orange-500', tailwindGradient: '', label: 'Reddit' };
 
 const sentimentConfig = {
   positive: { color: 'bg-emerald-100 text-emerald-700', border: 'border-emerald-200' },
@@ -44,7 +35,12 @@ const impactConfig = {
 };
 
 export default function ListeningMentionCard({ mention, onClick }) {
-  const platform = platformConfig[mention.platform] || platformConfig.twitter;
+  const platformEntry =
+    PLATFORM_MAP_LOWER[mention.platform] ||
+    (mention.platform === 'reddit' ? REDDIT_CONFIG : null);
+  const PlatformIcon = platformEntry && 'icon' in platformEntry ? platformEntry.icon : null;
+  const platformBg =
+    platformEntry?.tailwindGradient || platformEntry?.tailwind || 'bg-gray-400';
   const sentiment = sentimentConfig[mention.sentiment] || sentimentConfig.neutral;
   const impact = impactConfig[mention.business_impact];
 
@@ -68,9 +64,15 @@ export default function ListeningMentionCard({ mention, onClick }) {
     >
       <div className="flex items-start gap-3">
         <div
-          className={`w-10 h-10 rounded-lg ${platform.color} flex items-center justify-center text-lg font-bold flex-shrink-0`}
+          className={`w-10 h-10 rounded-lg ${platformBg} flex items-center justify-center flex-shrink-0`}
         >
-          {platform.icon}
+          {PlatformIcon ? (
+            <PlatformIcon size={20} color="white" />
+          ) : (
+            <span className="text-white text-xs font-bold uppercase">
+              {mention.platform?.[0] || '?'}
+            </span>
+          )}
         </div>
         <div className="flex-1 min-w-0">
           {/* Header */}

@@ -4,14 +4,7 @@ import { Calendar } from 'lucide-react';
 import { format, isToday, isTomorrow, isFuture } from 'date-fns';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
-
-const platformColors = {
-  twitter: 'bg-gray-900 text-white',
-  linkedin: 'bg-blue-600 text-white',
-  facebook: 'bg-blue-500 text-white',
-  instagram: 'bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400 text-white',
-  youtube: 'bg-red-600 text-white',
-};
+import { PLATFORM_MAP_LOWER } from '@/constants/platforms';
 
 export default function ContentCalendarCard({ posts, brands }) {
   const upcomingPosts = posts
@@ -83,9 +76,20 @@ export default function ContentCalendarCard({ posts, brands }) {
                 className="flex items-center gap-3 p-2 rounded-lg bg-gray-50 dark:bg-gray-800/50 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
               >
                 <div
-                  className={`w-8 h-8 rounded-lg ${platformColors[post.platform] || 'bg-gray-500 text-white'} flex items-center justify-center text-xs font-bold flex-shrink-0`}
+                  className={`w-8 h-8 rounded-lg ${PLATFORM_MAP_LOWER[post.platform]?.tailwindGradient || PLATFORM_MAP_LOWER[post.platform]?.tailwind || 'bg-gray-500'} flex items-center justify-center flex-shrink-0`}
                 >
-                  {post.platform?.[0]?.toUpperCase() || 'P'}
+                  {(() => {
+                    const p = PLATFORM_MAP_LOWER[post.platform];
+                    if (!p) {
+                      return (
+                        <span className="text-white text-xs font-bold uppercase">
+                          {post.platform?.[0] || '?'}
+                        </span>
+                      );
+                    }
+                    const Icon = p.icon;
+                    return <Icon size={16} color="white" />;
+                  })()}
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-gray-900 dark:text-white truncate">

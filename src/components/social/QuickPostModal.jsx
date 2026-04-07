@@ -3,23 +3,17 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import {
-  Twitter,
-  Linkedin,
-  Facebook,
-  Instagram,
-  Loader2,
-  CheckCircle,
-  AlertCircle,
-} from 'lucide-react';
+import { Loader2, CheckCircle, AlertCircle } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
+import { PLATFORMS as PLATFORM_CONFIGS } from '@/constants/platforms';
 
-const PLATFORMS = [
-  { name: 'Twitter', icon: Twitter, color: 'bg-gray-900' },
-  { name: 'LinkedIn', icon: Linkedin, color: 'bg-blue-600' },
-  { name: 'Facebook', icon: Facebook, color: 'bg-blue-500' },
-  { name: 'Instagram', icon: Instagram, color: 'bg-gradient-to-br from-purple-600 to-orange-400' },
-];
+const PLATFORMS = PLATFORM_CONFIGS.filter((p) =>
+  ['Twitter', 'LinkedIn', 'Facebook', 'Instagram'].includes(p.id)
+).map((p) => ({
+  ...p,
+  name: p.id,
+  color: p.tailwindGradient || p.tailwind,
+}));
 
 export default function QuickPostModal({ open, onClose }) {
   const [content, setContent] = useState('');
