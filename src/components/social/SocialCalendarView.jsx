@@ -29,11 +29,11 @@ const statusColors = {
 };
 
 const statusBorderColors = {
-  draft: 'border-l-gray-300',
-  scheduled: 'border-l-blue-300',
-  pending_approval: 'border-l-amber-300',
-  approved: 'border-l-emerald-300',
-  published: 'border-l-violet-300',
+  draft: 'border-l-gray-400 dark:border-l-gray-500',
+  scheduled: 'border-l-blue-400 dark:border-l-blue-500',
+  pending_approval: 'border-l-amber-400 dark:border-l-amber-500',
+  approved: 'border-l-emerald-400 dark:border-l-emerald-500',
+  published: 'border-l-violet-400 dark:border-l-violet-500',
 };
 
 const statusBadges = {
@@ -93,6 +93,7 @@ function DayView({
   setDraggedPost,
   statusColors,
   statusBadges,
+  statusBorderColors,
 }) {
   const isToday = isSameDay(day, new Date());
   const now = new Date();
@@ -766,6 +767,7 @@ export default function SocialCalendarView({
           setDraggedPost={setDraggedPost}
           statusColors={statusColors}
           statusBadges={statusBadges}
+          statusBorderColors={statusBorderColors}
         />
       ) : viewType === 'week' ? (
         <WeekView
