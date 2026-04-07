@@ -58,6 +58,7 @@ import PostQueueManager from '@/components/social/PostQueueManager';
 import OptimalTimeAnalyzer from '@/components/social/OptimalTimeAnalyzer';
 import QuickPostModal from '@/components/social/QuickPostModal';
 import BufferComposer from '@/components/social/BufferComposer';
+import { PostStatus } from '@/types/enums';
 import COPY from '@/lib/copy';
 
 const CALENDAR_PLATFORMS = [
@@ -70,14 +71,13 @@ const CALENDAR_PLATFORMS = [
   'TikTok',
 ];
 
-// TODO: Replace with a shared Enum once a single source of truth for statuses is established
 const CALENDAR_STATUSES = [
   'all',
-  'draft',
-  'scheduled',
-  'pending_approval',
-  'approved',
-  'published',
+  PostStatus.DRAFT,
+  PostStatus.SCHEDULED,
+  PostStatus.PENDING_APPROVAL,
+  PostStatus.APPROVED,
+  PostStatus.PUBLISHED,
 ];
 
 export default function SocialCalendar() {
