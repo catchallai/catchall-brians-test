@@ -90,6 +90,7 @@ Query client defaults (`/src/lib/query-client.js`): `refetchOnWindowFocus: false
 - **Utilities:** Before writing a new utility function, check `/src/utils/` for an existing one that covers the need. New general-purpose utilities go in `/src/utils/index.ts` (or a dedicated file if focused on a specific domain, matching the existing pattern).
 
 - **Imports:** Use `@/` path alias (maps to `src/`), e.g. `@/components/ui/button`
+- **Shared components:** Always build UI elements as shared, reusable components in `/src/components/`. Check for an existing component before building a new one. Embedding UI logic directly in a page or feature-specific component is not the preferred pattern.
 - **Mixed JS/TS:** Most files are `.jsx`; new utilities may use `.ts/.tsx`. TypeScript has `checkJs: true`.
 - **Types:** `/src/types/` — TypeScript type definitions live here.
 - **Constants:** `/src/constants/` — project constants live here.
