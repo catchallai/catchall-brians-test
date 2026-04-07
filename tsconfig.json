@@ -22,12 +22,6 @@
     "checkJs": true,
     "types": []
   },
-  "include": [
-    "src",
-    "base44/functions",
-    "src/components/**/*.js",
-    "src/pages/**/*.jsx",
-    "src/Layout.jsx"
-  ],
-  "exclude": ["node_modules", "dist", "src/vite-plugins", "src/components/ui", "src/api", "src/lib"]
+  "include": ["src", "base44/functions", "src/pages/**/*.jsx", "src/Layout.jsx"],
+  "exclude": ["node_modules", "dist", "src/vite-plugins", "src/api", "src/lib"]
 }

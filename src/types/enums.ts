@@ -26,3 +26,5 @@ export enum PostStatus {
   PUBLISHED = 'published',
   ARCHIVED = 'archived',
 }
+
+export type PlatformId = 'Twitter' | 'LinkedIn' | 'Facebook' | 'Instagram' | 'YouTube' | 'TikTok';

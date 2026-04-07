@@ -43,13 +43,9 @@ import {
   Cloud,
   HardDrive,
   FolderOpen,
-  Twitter,
-  Linkedin,
-  Facebook,
-  Instagram,
-  Youtube,
   Trash,
 } from 'lucide-react';
+import { PLATFORMS as PLATFORM_CONFIGS } from '@/constants/platforms';
 import EmojiPicker from 'emoji-picker-react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
@@ -98,31 +94,11 @@ const BEST_TIMES = {
 
 const DAYS_OF_WEEK = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
-const PLATFORMS = [
-  { id: 'Twitter', label: 'X (Twitter)', icon: Twitter, color: 'bg-black text-white', limit: 280 },
-  {
-    id: 'LinkedIn',
-    label: 'LinkedIn',
-    icon: Linkedin,
-    color: 'bg-blue-700 text-white',
-    limit: 3000,
-  },
-  {
-    id: 'Facebook',
-    label: 'Facebook',
-    icon: Facebook,
-    color: 'bg-blue-600 text-white',
-    limit: 63206,
-  },
-  {
-    id: 'Instagram',
-    label: 'Instagram',
-    icon: Instagram,
-    color: 'bg-pink-600 text-white',
-    limit: 2200,
-  },
-  { id: 'YouTube', label: 'YouTube', icon: Youtube, color: 'bg-red-600 text-white', limit: 5000 },
-];
+// Derive PLATFORMS from shared config, adding the modal-specific color class
+const PLATFORMS = PLATFORM_CONFIGS.map((p) => ({
+  ...p,
+  color: `${p.tailwind} text-white`,
+}));
 
 function renderWithLinks(text) {
   const linkRegex = /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)|(https?:\/\/\S+)/g;

@@ -8,16 +8,7 @@ import { base44 } from '@/api/base44Client';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import PostStatusChip from '@/components/social/PostStatusChip';
 import Tooltip from '@/components/ui-custom/Tooltip';
-
-/** @type {Record<string, string>} */
-const platformColors = {
-  twitter: 'bg-gray-900',
-  linkedin: 'bg-blue-600',
-  facebook: 'bg-blue-500',
-  instagram: 'bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400',
-  youtube: 'bg-red-600',
-  tiktok: 'bg-black',
-};
+import { PlatformBadges } from '@/components/ui/PlatformBadges';
 
 export default function CalendarPostCard({
   post,
@@ -83,17 +74,8 @@ export default function CalendarPostCard({
             </Badge>
           )}
           {post.platforms && post.platforms.length > 0 && (
-            <div className="flex items-center gap-1 bg-black/45 backdrop-blur-sm rounded-full px-1.5 py-1">
-              {post.platforms.map((/** @type {string} */ platform) => {
-                const key = platform.toLowerCase();
-                return (
-                  <Tooltip key={platform} content={platform} side="top">
-                    <div
-                      className={`w-2.5 h-2.5 rounded-full ${platformColors[key] || 'bg-gray-400'}`}
-                    />
-                  </Tooltip>
-                );
-              })}
+            <div className="bg-black/45 backdrop-blur-sm rounded-full px-1.5 py-1">
+              <PlatformBadges platforms={post.platforms} size="sm" />
             </div>
           )}
         </div>
