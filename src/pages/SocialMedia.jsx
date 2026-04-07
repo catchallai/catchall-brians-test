@@ -1338,7 +1338,6 @@ For each platform, create highly optimized versions:
 - Facebook: Conversational, community-focused, questions encouraged
 - Instagram: Visual language, emoji-rich, hashtag-optimized, storytelling
 - YouTube: Description style, SEO keywords, strong CTA, timestamps if relevant
-- TikTok: Gen-Z friendly, trend-aware, hook in first 3 seconds
 
 Also provide platform-specific insights explaining the adaptation choices.
 
@@ -1352,7 +1351,6 @@ Tone: ${tone}`,
             facebook: { type: 'string' },
             instagram: { type: 'string' },
             youtube: { type: 'string' },
-            tiktok: { type: 'string' },
             insights: {
               type: 'object',
               properties: {
@@ -1361,7 +1359,6 @@ Tone: ${tone}`,
                 facebook: { type: 'string' },
                 instagram: { type: 'string' },
                 youtube: { type: 'string' },
-                tiktok: { type: 'string' },
               },
             },
           },

@@ -12,14 +12,12 @@ import {
   TwitterIcon,
   YouTubeIcon,
 } from '@/components/icons/BrandIcons';
-import { TikTokIcon } from '@/components/icons/TikTokIcon';
 
 const platformIcons = {
   facebook: FacebookIcon,
   instagram: InstagramIcon,
   twitter: TwitterIcon,
   linkedin: LinkedInIcon,
-  tiktok: TikTokIcon,
   youtube: YouTubeIcon,
 };
 

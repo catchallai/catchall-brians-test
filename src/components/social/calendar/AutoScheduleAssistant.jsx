@@ -16,7 +16,7 @@ import {
   AlertCircle,
 } from 'lucide-react';
 
-const PLATFORMS = ['Instagram', 'Twitter', 'LinkedIn', 'Facebook', 'TikTok'];
+const PLATFORMS = ['Instagram', 'Twitter', 'LinkedIn', 'Facebook', 'YouTube'];
 
 export default function AutoScheduleAssistant({ campaignBriefId, onSuccess }) {
   const [selectedPlatforms, setSelectedPlatforms] = useState(['Instagram', 'LinkedIn']);

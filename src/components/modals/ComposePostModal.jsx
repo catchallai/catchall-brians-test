@@ -14,7 +14,7 @@ import useUnsavedChangesGuard from '@/components/hooks/useUnsavedChangesGuard';
 import ConfirmDialog from '@/components/ui/ConfirmDialog';
 import { PLATFORMS as PLATFORM_CONFIGS } from '@/constants/platforms';
 
-const PLATFORMS = PLATFORM_CONFIGS.filter((p) => p.id !== 'TikTok').map((p) => ({
+const PLATFORMS = PLATFORM_CONFIGS.map((p) => ({
   id: p.id.toLowerCase(),
   label: p.id === 'Twitter' ? 'X (Twitter)' : p.label,
   icon: p.icon,

@@ -27,4 +27,4 @@ export enum PostStatus {
   ARCHIVED = 'archived',
 }
 
-export type PlatformId = 'Twitter' | 'LinkedIn' | 'Facebook' | 'Instagram' | 'YouTube' | 'TikTok';
+export type PlatformId = 'Twitter' | 'LinkedIn' | 'Facebook' | 'Instagram' | 'YouTube';

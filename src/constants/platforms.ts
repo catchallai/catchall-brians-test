@@ -6,7 +6,6 @@ import {
   TwitterIcon,
   YouTubeIcon,
 } from '@/components/icons/BrandIcons';
-import { TikTokIcon } from '@/components/icons/TikTokIcon';
 import type { PlatformId } from '@/types/enums';
 
 export const PLATFORMS = [
@@ -55,15 +54,6 @@ export const PLATFORMS = [
     tailwindGradient: '',
     limit: 5000,
   },
-  {
-    id: 'TikTok',
-    label: 'TikTok',
-    icon: TikTokIcon,
-    bg: '#010101',
-    tailwind: 'bg-black',
-    tailwindGradient: '',
-    limit: 2200,
-  },
 ] as const;
 
 export const PLATFORM_MAP = Object.fromEntries(PLATFORMS.map((p) => [p.id, p])) as Record<
@@ -71,7 +61,7 @@ export const PLATFORM_MAP = Object.fromEntries(PLATFORMS.map((p) => [p.id, p])) 
   (typeof PLATFORMS)[number]
 >;
 
-/** Lowercase-keyed lookup — use for data where platform IDs are stored lowercase ('twitter', 'youtube', 'tiktok'). */
+/** Lowercase-keyed lookup — use for data where platform IDs are stored lowercase ('twitter', 'youtube'). */
 export const PLATFORM_MAP_LOWER = Object.fromEntries(
   PLATFORMS.map((p) => [p.id.toLowerCase(), p])
 ) as Record<string, (typeof PLATFORMS)[number]>;

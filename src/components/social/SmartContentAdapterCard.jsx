@@ -19,16 +19,14 @@ import {
   TwitterIcon,
   YouTubeIcon,
 } from '@/components/icons/BrandIcons';
-import { TikTokIcon } from '@/components/icons/TikTokIcon';
 
-const PLATFORMS = ['twitter', 'linkedin', 'facebook', 'instagram', 'youtube', 'tiktok'];
+const PLATFORMS = ['twitter', 'linkedin', 'facebook', 'instagram', 'youtube'];
 const PLATFORM_ICONS = {
   twitter: TwitterIcon,
   linkedin: LinkedInIcon,
   facebook: FacebookIcon,
   instagram: InstagramIcon,
   youtube: YouTubeIcon,
-  tiktok: TikTokIcon,
 };
 const AUDIENCES = ['b2b', 'b2c', 'enterprise', 'startup', 'general', 'technical', 'casual'];
 const TONES = ['professional', 'casual', 'humorous', 'inspiring', 'educational', 'promotional'];
