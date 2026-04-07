@@ -29,3 +29,4 @@ docs
 *.sw?
 
 .env
+.superpowers/
