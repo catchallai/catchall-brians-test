@@ -9,6 +9,13 @@ import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import {
+  FacebookIcon,
+  InstagramIcon,
+  LinkedInIcon,
+  TwitterIcon,
+  YouTubeIcon,
+} from '@/components/icons/BrandIcons';
+import {
   Image,
   Video,
   X,
@@ -16,11 +23,6 @@ import {
   Zap,
   Calendar,
   Clock,
-  Twitter,
-  Linkedin,
-  Facebook,
-  Instagram,
-  Youtube,
   Send,
   CheckCircle2,
   Globe,
@@ -29,29 +31,41 @@ import {
 import { todayLocal } from '@/utils/date';
 
 const PLATFORMS = [
-  { id: 'Twitter', label: 'X (Twitter)', icon: Twitter, color: 'bg-black text-white', limit: 280 },
+  {
+    id: 'Twitter',
+    label: 'X (Twitter)',
+    icon: TwitterIcon,
+    color: 'bg-black text-white',
+    limit: 280,
+  },
   {
     id: 'LinkedIn',
     label: 'LinkedIn',
-    icon: Linkedin,
+    icon: LinkedInIcon,
     color: 'bg-blue-700 text-white',
     limit: 3000,
   },
   {
     id: 'Facebook',
     label: 'Facebook',
-    icon: Facebook,
+    icon: FacebookIcon,
     color: 'bg-blue-600 text-white',
     limit: 63206,
   },
   {
     id: 'Instagram',
     label: 'Instagram',
-    icon: Instagram,
+    icon: InstagramIcon,
     color: 'bg-pink-600 text-white',
     limit: 2200,
   },
-  { id: 'YouTube', label: 'YouTube', icon: Youtube, color: 'bg-red-600 text-white', limit: 5000 },
+  {
+    id: 'YouTube',
+    label: 'YouTube',
+    icon: YouTubeIcon,
+    color: 'bg-red-600 text-white',
+    limit: 5000,
+  },
 ];
 
 const DEFAULT_FORM = {

@@ -68,7 +68,6 @@ const CALENDAR_PLATFORMS = [
   'LinkedIn',
   'Twitter',
   'YouTube',
-  'TikTok',
 ];
 
 const CALENDAR_STATUSES = [

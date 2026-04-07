@@ -174,7 +174,6 @@ The letter should be professional, legally sound, and include all necessary elem
     'Instagram',
     'Twitter/X',
     'LinkedIn',
-    'TikTok',
     'Amazon',
     'eBay',
     'Etsy',

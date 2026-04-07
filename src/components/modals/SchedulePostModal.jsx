@@ -13,13 +13,19 @@ import {
 } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Loader2, Sparkles, X } from 'lucide-react';
+import {
+  FacebookIcon,
+  InstagramIcon,
+  LinkedInIcon,
+  TwitterIcon,
+} from '@/components/icons/BrandIcons';
 import { toLocalISOString } from '@/utils/date';
 
 const PLATFORMS = [
-  { id: 'twitter', label: 'X (Twitter)', icon: '𝕏', maxLength: 280 },
-  { id: 'linkedin', label: 'LinkedIn', icon: 'in', maxLength: 3000 },
-  { id: 'facebook', label: 'Facebook', icon: 'f', maxLength: 63206 },
-  { id: 'instagram', label: 'Instagram', icon: '📷', maxLength: 2200 },
+  { id: 'twitter', label: 'X (Twitter)', icon: TwitterIcon, maxLength: 280 },
+  { id: 'linkedin', label: 'LinkedIn', icon: LinkedInIcon, maxLength: 3000 },
+  { id: 'facebook', label: 'Facebook', icon: FacebookIcon, maxLength: 63206 },
+  { id: 'instagram', label: 'Instagram', icon: InstagramIcon, maxLength: 2200 },
 ];
 
 export default function SchedulePostModal({
@@ -130,7 +136,10 @@ export default function SchedulePostModal({
                 <SelectContent>
                   {PLATFORMS.map((p) => (
                     <SelectItem key={p.id} value={p.id}>
-                      <span className="mr-2">{p.icon}</span> {p.label}
+                      <span className="inline-flex items-center gap-2">
+                        <p.icon className="w-4 h-4" />
+                        {p.label}
+                      </span>
                     </SelectItem>
                   ))}
                 </SelectContent>

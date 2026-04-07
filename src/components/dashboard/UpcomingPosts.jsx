@@ -5,14 +5,20 @@ import { Calendar, Clock, Image, Video, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import moment from 'moment';
+import {
+  FacebookIcon,
+  InstagramIcon,
+  LinkedInIcon,
+  TwitterIcon,
+  YouTubeIcon,
+} from '@/components/icons/BrandIcons';
 
 const platformIcons = {
-  instagram: '📸',
-  facebook: '📘',
-  twitter: '𝕏',
-  linkedin: '💼',
-  tiktok: '🎵',
-  youtube: '▶️',
+  facebook: FacebookIcon,
+  instagram: InstagramIcon,
+  twitter: TwitterIcon,
+  linkedin: LinkedInIcon,
+  youtube: YouTubeIcon,
 };
 
 export default function UpcomingPosts({ posts = [], brands = [] }) {
@@ -91,8 +97,20 @@ export default function UpcomingPosts({ posts = [], brands = [] }) {
                   <div className="flex items-center gap-2 mt-1">
                     <div className="flex gap-1">
                       {post.platforms?.slice(0, 3).map((platform, idx) => (
-                        <span key={idx} className="text-xs">
-                          {platformIcons[platform] || '📱'}
+                        <span
+                          key={idx}
+                          className="inline-flex items-center justify-center"
+                          aria-label={platform}
+                          title={platform}
+                        >
+                          {(() => {
+                            const PlatformIcon = platformIcons[platform];
+                            return PlatformIcon ? (
+                              <PlatformIcon className="w-3.5 h-3.5 text-gray-600" />
+                            ) : (
+                              <span className="text-xs">•</span>
+                            );
+                          })()}
                         </span>
                       ))}
                     </div>

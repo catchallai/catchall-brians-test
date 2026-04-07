@@ -143,8 +143,6 @@ Create 3-4 posts per platform per week.`,
         return 'bg-sky-100 text-sky-700 dark:bg-sky-900/30 dark:text-sky-400';
       case 'facebook':
         return 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400';
-      case 'tiktok':
-        return 'bg-gray-800 text-white dark:bg-gray-700';
       default:
         return 'bg-gray-100 text-gray-700';
     }
@@ -181,7 +179,6 @@ Create 3-4 posts per platform per week.`,
                 <SelectItem value="twitter">Twitter</SelectItem>
                 <SelectItem value="linkedin">LinkedIn</SelectItem>
                 <SelectItem value="facebook">Facebook</SelectItem>
-                <SelectItem value="tiktok">TikTok</SelectItem>
               </SelectContent>
             </Select>
             <Button onClick={generateCalendar} disabled={isGenerating} size="sm" className="gap-2">

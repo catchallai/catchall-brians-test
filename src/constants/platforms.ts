@@ -1,13 +1,17 @@
 // src/constants/platforms.ts
-import { Twitter, Linkedin, Facebook, Instagram, Youtube } from 'lucide-react';
-import { TikTokIcon } from '@/components/icons/TikTokIcon';
-import type { PlatformId } from '@/types/enums';
+import {
+  FacebookIcon,
+  InstagramIcon,
+  LinkedInIcon,
+  TwitterIcon,
+  YouTubeIcon,
+} from '@/components/icons/BrandIcons';
 
 export const PLATFORMS = [
   {
     id: 'Twitter',
     label: 'X',
-    icon: Twitter,
+    icon: TwitterIcon,
     bg: '#000000',
     tailwind: 'bg-black',
     tailwindGradient: '',
@@ -16,7 +20,7 @@ export const PLATFORMS = [
   {
     id: 'LinkedIn',
     label: 'LinkedIn',
-    icon: Linkedin,
+    icon: LinkedInIcon,
     bg: '#0a66c2',
     tailwind: 'bg-blue-700',
     tailwindGradient: '',
@@ -25,7 +29,7 @@ export const PLATFORMS = [
   {
     id: 'Facebook',
     label: 'Facebook',
-    icon: Facebook,
+    icon: FacebookIcon,
     bg: '#1877f2',
     tailwind: 'bg-blue-600',
     tailwindGradient: '',
@@ -34,7 +38,7 @@ export const PLATFORMS = [
   {
     id: 'Instagram',
     label: 'Instagram',
-    icon: Instagram,
+    icon: InstagramIcon,
     bg: '#e1306c',
     tailwind: 'bg-pink-600',
     tailwindGradient: 'bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400',
@@ -43,29 +47,20 @@ export const PLATFORMS = [
   {
     id: 'YouTube',
     label: 'YouTube',
-    icon: Youtube,
+    icon: YouTubeIcon,
     bg: '#ff0000',
     tailwind: 'bg-red-600',
     tailwindGradient: '',
     limit: 5000,
   },
-  {
-    id: 'TikTok',
-    label: 'TikTok',
-    icon: TikTokIcon,
-    bg: '#010101',
-    tailwind: 'bg-black',
-    tailwindGradient: '',
-    limit: 2200,
-  },
 ] as const;
 
 export const PLATFORM_MAP = Object.fromEntries(PLATFORMS.map((p) => [p.id, p])) as Record<
-  PlatformId,
+  string,
   (typeof PLATFORMS)[number]
 >;
 
-/** Lowercase-keyed lookup — use for data where platform IDs are stored lowercase ('twitter', 'youtube', 'tiktok'). */
+/** Lowercase-keyed lookup — use for data where platform IDs are stored lowercase ('twitter', 'youtube'). */
 export const PLATFORM_MAP_LOWER = Object.fromEntries(
   PLATFORMS.map((p) => [p.id.toLowerCase(), p])
 ) as Record<string, (typeof PLATFORMS)[number]>;

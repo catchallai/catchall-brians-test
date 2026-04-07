@@ -24,6 +24,13 @@ import {
 } from 'lucide-react';
 import { format } from 'date-fns';
 import CalendarPostModal from '@/components/modals/CalendarPostModal';
+import {
+  FacebookIcon,
+  InstagramIcon,
+  LinkedInIcon,
+  TwitterIcon,
+  YouTubeIcon,
+} from '@/components/icons/BrandIcons';
 
 const PLATFORM_COLORS = {
   Facebook: 'bg-blue-600',
@@ -33,12 +40,12 @@ const PLATFORM_COLORS = {
   YouTube: 'bg-red-600',
 };
 
-const PLATFORM_LETTERS = {
-  Facebook: 'f',
-  Instagram: 'IG',
-  LinkedIn: 'in',
-  Twitter: 'X',
-  YouTube: '▶',
+const PLATFORM_ICONS = {
+  Facebook: FacebookIcon,
+  Instagram: InstagramIcon,
+  LinkedIn: LinkedInIcon,
+  Twitter: TwitterIcon,
+  YouTube: YouTubeIcon,
 };
 
 const STATUS_CONFIG = {
@@ -115,9 +122,13 @@ function PostCard({ post, onEdit, onDelete, onApprove, onReject, showApprovalAct
                     <span
                       key={pl}
                       title={pl}
+                      aria-label={pl}
                       className={`w-5 h-5 rounded-full text-white text-[9px] font-bold flex items-center justify-center flex-shrink-0 ${PLATFORM_COLORS[pl] || 'bg-gray-400'}`}
                     >
-                      {PLATFORM_LETTERS[pl] || pl[0]}
+                      {(() => {
+                        const PlatformIcon = PLATFORM_ICONS[pl];
+                        return PlatformIcon ? <PlatformIcon className="w-3 h-3" /> : pl[0];
+                      })()}
                     </span>
                   ))}
                 </div>
@@ -407,12 +418,13 @@ export default function AllChannels() {
             <p className="text-sm font-semibold text-gray-500">By Platform:</p>
             {PLATFORMS.map((pl) => {
               const count = filtered.filter((p) => (p.platforms || []).includes(pl)).length;
+              const PlatformIcon = PLATFORM_ICONS[pl];
               return (
                 <div key={pl} className="flex items-center gap-2">
                   <span
                     className={`w-6 h-6 rounded-full text-white text-[9px] font-bold flex items-center justify-center ${PLATFORM_COLORS[pl] || 'bg-gray-400'}`}
                   >
-                    {PLATFORM_LETTERS[pl]}
+                    {PlatformIcon ? <PlatformIcon className="w-3.5 h-3.5" /> : pl[0]}
                   </span>
                   <span className="text-sm font-medium text-gray-700">{pl}</span>
                   <Badge variant="outline" className="text-xs px-1.5 py-0">

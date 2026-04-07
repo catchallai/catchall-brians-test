@@ -6,6 +6,7 @@ import { createPageUrl } from '@/utils';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { LinkedInIcon } from '@/components/icons/BrandIcons';
 import {
   Select,
   SelectContent,
@@ -17,7 +18,6 @@ import {
   ArrowLeft,
   Mail,
   Phone,
-  Linkedin,
   Calendar,
   Building2,
   BriefcaseIcon,
@@ -42,7 +42,6 @@ const contactId = urlParams.get('id');
 
 export default function ContactDetail() {
   const [showEditModal, setShowEditModal] = useState(false);
-  const [showActivityPanel, setShowActivityPanel] = useState(false);
   const [showEmailModal, setShowEmailModal] = useState(false);
   const [showAddCompanyModal, setShowAddCompanyModal] = useState(false);
   const [taskTitle, setTaskTitle] = useState('');
@@ -256,7 +255,7 @@ export default function ContactDetail() {
               )}
               {contact.linkedin_url && (
                 <div className="flex items-center gap-3">
-                  <Linkedin className="w-5 h-5 text-gray-400" />
+                  <LinkedInIcon className="w-5 h-5 text-gray-400" />
                   <a
                     href={contact.linkedin_url}
                     target="_blank"

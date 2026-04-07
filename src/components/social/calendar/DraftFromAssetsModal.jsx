@@ -15,7 +15,7 @@ import {
 import { Loader2, Copy, Image as ImageIcon, AlertCircle } from 'lucide-react';
 import { todayLocal } from '@/utils/date';
 
-const PLATFORMS = ['Instagram', 'Twitter', 'LinkedIn', 'Facebook', 'TikTok'];
+const PLATFORMS = ['Instagram', 'Twitter', 'LinkedIn', 'Facebook', 'YouTube'];
 
 export default function DraftFromAssetsModal({ open, onOpenChange, onSuccess, campaignBriefId }) {
   const [selectedCopy, setSelectedCopy] = useState(null);

@@ -12,6 +12,13 @@ import { Separator } from '@/components/ui/separator';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
+  FacebookIcon,
+  InstagramIcon,
+  LinkedInIcon,
+  TwitterIcon,
+  YouTubeIcon,
+} from '@/components/icons/BrandIcons';
+import {
   User,
   Bell,
   Link2,
@@ -28,11 +35,6 @@ import {
   AlertTriangle,
   Lightbulb,
   Target,
-  Twitter,
-  Linkedin,
-  Facebook,
-  Instagram,
-  Youtube,
   Trash2,
   Plus,
 } from 'lucide-react';
@@ -369,40 +371,45 @@ function NotificationSettings({ user, queryClient, toast }) {
   );
 }
 
-function IntegrationSettings({ user, socialAccounts, queryClient, toast }) {
+function IntegrationSettings({
+  user: _user,
+  socialAccounts,
+  queryClient: _queryClient,
+  toast: _toast,
+}) {
   const integrations = [
     {
       id: 'twitter',
       name: 'X (Twitter)',
-      icon: Twitter,
+      icon: TwitterIcon,
       color: 'bg-gray-900',
       connected: socialAccounts.some((a) => a.platform === 'twitter'),
     },
     {
       id: 'linkedin',
       name: 'LinkedIn',
-      icon: Linkedin,
+      icon: LinkedInIcon,
       color: 'bg-blue-600',
       connected: socialAccounts.some((a) => a.platform === 'linkedin'),
     },
     {
       id: 'facebook',
       name: 'Facebook',
-      icon: Facebook,
+      icon: FacebookIcon,
       color: 'bg-blue-500',
       connected: socialAccounts.some((a) => a.platform === 'facebook'),
     },
     {
       id: 'instagram',
       name: 'Instagram',
-      icon: Instagram,
+      icon: InstagramIcon,
       color: 'bg-gradient-to-br from-purple-600 to-orange-400',
       connected: socialAccounts.some((a) => a.platform === 'instagram'),
     },
     {
       id: 'youtube',
       name: 'YouTube',
-      icon: Youtube,
+      icon: YouTubeIcon,
       color: 'bg-red-600',
       connected: socialAccounts.some((a) => a.platform === 'youtube'),
     },

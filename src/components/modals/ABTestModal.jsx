@@ -14,12 +14,18 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Loader2, Sparkles, X } from 'lucide-react';
+import {
+  FacebookIcon,
+  InstagramIcon,
+  LinkedInIcon,
+  TwitterIcon,
+} from '@/components/icons/BrandIcons';
 
 const PLATFORMS = [
-  { id: 'twitter', label: 'X (Twitter)', icon: '𝕏' },
-  { id: 'linkedin', label: 'LinkedIn', icon: 'in' },
-  { id: 'facebook', label: 'Facebook', icon: 'f' },
-  { id: 'instagram', label: 'Instagram', icon: '📷' },
+  { id: 'twitter', label: 'X (Twitter)', icon: TwitterIcon },
+  { id: 'linkedin', label: 'LinkedIn', icon: LinkedInIcon },
+  { id: 'facebook', label: 'Facebook', icon: FacebookIcon },
+  { id: 'instagram', label: 'Instagram', icon: InstagramIcon },
 ];
 
 export default function ABTestModal({
@@ -138,7 +144,10 @@ export default function ABTestModal({
                 <SelectContent>
                   {PLATFORMS.map((p) => (
                     <SelectItem key={p.id} value={p.id}>
-                      <span className="mr-2">{p.icon}</span> {p.label}
+                      <span className="inline-flex items-center gap-2">
+                        <p.icon className="w-4 h-4" />
+                        {p.label}
+                      </span>
                     </SelectItem>
                   ))}
                 </SelectContent>
