@@ -1,6 +1,6 @@
 // src/components/ui/PlatformBadges.tsx
 import COPY from '@/lib/copy';
-import { PLATFORM_MAP } from '@/constants/platforms';
+import { PLATFORM_MAP, PLATFORM_MAP_LOWER } from '@/constants/platforms';
 import type { PlatformId } from '@/types/enums';
 
 interface PlatformBadgesProps {
@@ -30,11 +30,15 @@ export function PlatformBadges({
 }: PlatformBadgesProps) {
   if (!platforms || platforms.length === 0) return null;
 
+  /** Case-insensitive lookup: handles both 'Twitter' (calendar) and 'twitter' (listening). */
+  const lookup = (id: string) =>
+    PLATFORM_MAP[id as PlatformId] ?? PLATFORM_MAP_LOWER[id.toLowerCase()];
+
   if (size === 'lg') {
     return (
       <div className={`flex flex-wrap gap-1 ${className}`}>
         {platforms.map((platformId) => {
-          const platform = PLATFORM_MAP[platformId as PlatformId];
+          const platform = lookup(platformId);
           if (!platform) {
             return (
               <span
@@ -71,7 +75,7 @@ export function PlatformBadges({
   return (
     <div className={`flex items-center ${gap} ${className}`}>
       {visible.map((platformId) => {
-        const platform = PLATFORM_MAP[platformId as PlatformId];
+        const platform = lookup(platformId);
         if (!platform) {
           return (
             <div
@@ -79,6 +83,7 @@ export function PlatformBadges({
               style={{ width: px, height: px, borderRadius: radius }}
               className="bg-gray-400 flex-shrink-0"
               aria-label={platformId}
+              role="img"
             />
           );
         }
