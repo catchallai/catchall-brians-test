@@ -4,17 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Users, ExternalLink, Star, TrendingUp, Eye } from 'lucide-react';
 import InfluencerProfileCard from './InfluencerProfileCard';
-
-const platformConfig = {
-  twitter: { color: 'bg-gray-900 text-white', icon: '𝕏' },
-  linkedin: { color: 'bg-blue-600 text-white', icon: 'in' },
-  facebook: { color: 'bg-blue-500 text-white', icon: 'f' },
-  instagram: {
-    color: 'bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400 text-white',
-    icon: 'IG',
-  },
-  youtube: { color: 'bg-red-600 text-white', icon: '▶' },
-};
+import { PLATFORM_MAP_LOWER } from '@/constants/platforms';
 
 export default function InfluencersPanel({ mentions, onViewMention }) {
   const [selectedInfluencer, setSelectedInfluencer] = useState(null);
@@ -60,7 +50,9 @@ export default function InfluencersPanel({ mentions, onViewMention }) {
       </CardHeader>
       <CardContent className="space-y-3">
         {influencers.map((mention) => {
-          const platform = platformConfig[mention.platform] || platformConfig.twitter;
+          const platformEntry = PLATFORM_MAP_LOWER[mention.platform];
+          const PlatformIcon = platformEntry?.icon;
+          const platformBg = platformEntry?.tailwindGradient || platformEntry?.tailwind || 'bg-gray-400';
 
           return (
             <div
@@ -71,9 +63,9 @@ export default function InfluencersPanel({ mentions, onViewMention }) {
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2">
                   <div
-                    className={`w-6 h-6 rounded ${platform.color} flex items-center justify-center text-xs font-bold`}
+                    className={`w-6 h-6 rounded ${platformBg} flex items-center justify-center`}
                   >
-                    {platform.icon}
+                    {PlatformIcon && <PlatformIcon size={12} color="white" />}
                   </div>
                   <span className="font-medium text-gray-900">@{mention.author}</span>
                 </div>

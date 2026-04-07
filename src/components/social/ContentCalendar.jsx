@@ -14,15 +14,7 @@ import {
   startOfWeek,
   endOfWeek,
 } from 'date-fns';
-
-const platformColors = {
-  twitter: 'bg-gray-900 text-white border-gray-700',
-  linkedin: 'bg-blue-600 text-white border-blue-500',
-  facebook: 'bg-blue-500 text-white border-blue-400',
-  instagram:
-    'bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400 text-white border-pink-400',
-  youtube: 'bg-red-600 text-white border-red-500',
-};
+import { PLATFORMS, PLATFORM_MAP_LOWER } from '@/constants/platforms';
 
 export default function ContentCalendar({ posts, onAddPost, onEditPost }) {
   const [currentMonth, setCurrentMonth] = useState(new Date());
@@ -109,7 +101,7 @@ export default function ContentCalendar({ posts, onAddPost, onEditPost }) {
                   <div
                     key={post.id}
                     onClick={() => onEditPost(post)}
-                    className={`text-xs p-1 rounded cursor-pointer truncate border ${platformColors[post.platform]}`}
+                    className={`text-xs p-1 rounded cursor-pointer truncate text-white border border-white/20 ${PLATFORM_MAP_LOWER[post.platform]?.tailwindGradient || PLATFORM_MAP_LOWER[post.platform]?.tailwind || 'bg-gray-500'}`}
                   >
                     {format(new Date(post.scheduled_time), 'HH:mm')} - {post.content?.slice(0, 15)}
                     ...
@@ -128,12 +120,19 @@ export default function ContentCalendar({ posts, onAddPost, onEditPost }) {
 
       {/* Legend */}
       <div className="flex gap-3 mt-4 pt-4 border-t flex-wrap">
-        {Object.entries(platformColors).map(([platform, colors]) => (
-          <div key={platform} className="flex items-center gap-1">
-            <div className={`w-3 h-3 rounded ${colors.split(' ')[0]}`} />
-            <span className="text-xs text-gray-500 capitalize">{platform}</span>
-          </div>
-        ))}
+        {PLATFORMS.map((p) => {
+          const Icon = p.icon;
+          return (
+            <div key={p.id} className="flex items-center gap-1">
+              <div
+                className={`w-4 h-4 rounded flex items-center justify-center ${p.tailwindGradient || p.tailwind}`}
+              >
+                <Icon size={9} color="white" />
+              </div>
+              <span className="text-xs text-gray-500">{p.label}</span>
+            </div>
+          );
+        })}
       </div>
     </Card>
   );
