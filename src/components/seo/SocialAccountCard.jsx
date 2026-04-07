@@ -10,17 +10,7 @@ import {
   Sparkles,
   Loader2,
 } from 'lucide-react';
-
-const platformConfig = {
-  twitter: { color: 'bg-gray-900 text-white', icon: '𝕏' },
-  linkedin: { color: 'bg-blue-600 text-white', icon: 'in' },
-  facebook: { color: 'bg-blue-500 text-white', icon: 'f' },
-  instagram: {
-    color: 'bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400 text-white',
-    icon: 'IG',
-  },
-  youtube: { color: 'bg-red-600 text-white', icon: '▶' },
-};
+import { PLATFORM_MAP_LOWER } from '@/constants/platforms';
 
 export default function SocialAccountCard({
   account,
@@ -30,7 +20,9 @@ export default function SocialAccountCard({
   onAnalyze,
   isAnalyzing,
 }) {
-  const config = platformConfig[account.platform] || platformConfig.twitter;
+  const platformEntry = PLATFORM_MAP_LOWER[account.platform];
+  const PlatformIcon = platformEntry?.icon;
+  const platformBg = platformEntry?.tailwindGradient || platformEntry?.tailwind || 'bg-gray-400';
 
   const formatNumber = (num) => {
     if (!num) {
@@ -52,9 +44,9 @@ export default function SocialAccountCard({
     >
       <div className="flex items-start gap-3">
         <div
-          className={`w-12 h-12 rounded-xl ${config.color} flex items-center justify-center text-lg font-bold`}
+          className={`w-12 h-12 rounded-xl ${platformBg} flex items-center justify-center`}
         >
-          {config.icon}
+          {PlatformIcon && <PlatformIcon size={22} color="white" />}
         </div>
         <div className="flex-1">
           <div className="flex items-center justify-between">

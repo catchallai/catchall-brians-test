@@ -3,19 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Plus, Edit2, Trash2, Calendar } from 'lucide-react';
 import { format } from 'date-fns';
-
-const platformConfig = {
-  twitter: { name: 'Twitter', color: 'bg-gray-900', icon: '𝕏' },
-  linkedin: { name: 'LinkedIn', color: 'bg-blue-600', icon: '💼' },
-  facebook: { name: 'Facebook', color: 'bg-blue-500', icon: '👍' },
-  instagram: {
-    name: 'Instagram',
-    color: 'bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400',
-    icon: '📷',
-  },
-  youtube: { name: 'YouTube', color: 'bg-red-600', icon: '▶️' },
-  tiktok: { name: 'TikTok', color: 'bg-black', icon: '🎵' },
-};
+import { PLATFORM_MAP, PLATFORM_MAP_LOWER } from '@/constants/platforms';
 
 export default function PlatformGridView({ posts = [], onAddPost, onEditPost, onDeletePost }) {
   // Expand posts to individual platform posts
@@ -43,11 +31,12 @@ export default function PlatformGridView({ posts = [], onAddPost, onEditPost, on
   return (
     <div className="space-y-6">
       {Object.entries(groupedByPlatform).map(([platform, platformPostsList]) => {
-        const config = platformConfig[platform] || {
-          name: 'No Platform',
-          color: 'bg-gray-400',
-          icon: '📝',
-        };
+        const platformEntry =
+          PLATFORM_MAP[platform] ?? PLATFORM_MAP_LOWER[platform?.toLowerCase()];
+        const PlatformIcon = platformEntry?.icon;
+        const platformBg =
+          platformEntry?.tailwindGradient || platformEntry?.tailwind || 'bg-gray-400';
+        const platformLabel = platformEntry?.label || platform || 'No Platform';
 
         return (
           <Card key={platform} className="p-6 border-2">
@@ -55,12 +44,14 @@ export default function PlatformGridView({ posts = [], onAddPost, onEditPost, on
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
                 <div
-                  className={`w-12 h-12 rounded-xl ${config.color} flex items-center justify-center text-2xl text-white shadow-lg`}
+                  className={`w-12 h-12 rounded-xl ${platformBg} flex items-center justify-center shadow-lg`}
                 >
-                  {config.icon}
+                  {PlatformIcon && <PlatformIcon size={24} color="white" />}
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold text-gray-900 dark:text-white">{config.name}</h3>
+                  <h3 className="text-xl font-bold text-gray-900 dark:text-white">
+                    {platformLabel}
+                  </h3>
                   <p className="text-sm text-gray-500 dark:text-gray-400">
                     {platformPostsList.length} posts scheduled
                   </p>
@@ -68,7 +59,7 @@ export default function PlatformGridView({ posts = [], onAddPost, onEditPost, on
               </div>
               <Button onClick={onAddPost} className="gap-2">
                 <Plus className="w-4 h-4" />
-                Add {config.name} Post
+                Add {platformLabel} Post
               </Button>
             </div>
 

@@ -3,17 +3,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Calendar, Clock, Sparkles, Trash2, Edit } from 'lucide-react';
 import { format } from 'date-fns';
-
-const platformConfig = {
-  twitter: { color: 'bg-gray-900 text-white', icon: '𝕏' },
-  linkedin: { color: 'bg-blue-600 text-white', icon: 'in' },
-  facebook: { color: 'bg-blue-500 text-white', icon: 'f' },
-  instagram: {
-    color: 'bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400 text-white',
-    icon: 'IG',
-  },
-  youtube: { color: 'bg-red-600 text-white', icon: '▶' },
-};
+import { PLATFORM_MAP_LOWER } from '@/constants/platforms';
 
 const statusColors = {
   draft: 'bg-gray-100 text-gray-700',
@@ -23,16 +13,18 @@ const statusColors = {
 };
 
 export default function ScheduledPostCard({ post, onEdit, onDelete }) {
-  const config = platformConfig[post.platform] || platformConfig.twitter;
+  const platformEntry = PLATFORM_MAP_LOWER[post.platform];
+  const PlatformIcon = platformEntry?.icon;
+  const platformBg = platformEntry?.tailwindGradient || platformEntry?.tailwind || 'bg-gray-400';
 
   return (
     <Card className="p-4 border-0 shadow-sm">
       <div className="flex items-start justify-between mb-3">
         <div className="flex items-center gap-2">
           <div
-            className={`w-8 h-8 rounded-lg ${config.color} flex items-center justify-center text-sm font-bold`}
+            className={`w-8 h-8 rounded-lg ${platformBg} flex items-center justify-center`}
           >
-            {config.icon}
+            {PlatformIcon && <PlatformIcon size={14} color="white" />}
           </div>
           <div>
             <Badge className={`${statusColors[post.status]} text-xs border-0`}>{post.status}</Badge>
