@@ -1,6 +1,7 @@
 // src/constants/platforms.ts
 import { Twitter, Linkedin, Facebook, Instagram, Youtube } from 'lucide-react';
 import { TikTokIcon } from '@/components/icons/TikTokIcon';
+import type { PlatformId } from '@/types/enums';
 
 export const PLATFORMS = [
   {
@@ -53,6 +54,7 @@ export const PLATFORMS = [
   },
 ] as const;
 
-export const PLATFORM_MAP = Object.fromEntries(PLATFORMS.map((p) => [p.id, p]));
-
-export type PlatformId = (typeof PLATFORMS)[number]['id'];
+export const PLATFORM_MAP = Object.fromEntries(PLATFORMS.map((p) => [p.id, p])) as Record<
+  PlatformId,
+  (typeof PLATFORMS)[number]
+>;
