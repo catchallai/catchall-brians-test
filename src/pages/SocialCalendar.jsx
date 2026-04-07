@@ -58,6 +58,7 @@ import PostQueueManager from '@/components/social/PostQueueManager';
 import OptimalTimeAnalyzer from '@/components/social/OptimalTimeAnalyzer';
 import QuickPostModal from '@/components/social/QuickPostModal';
 import BufferComposer from '@/components/social/BufferComposer';
+import { PostStatus } from '@/types/enums';
 import COPY from '@/lib/copy';
 
 const CALENDAR_PLATFORMS = [
@@ -70,14 +71,13 @@ const CALENDAR_PLATFORMS = [
   'TikTok',
 ];
 
-// TODO: Replace with a shared Enum once a single source of truth for statuses is established
 const CALENDAR_STATUSES = [
   'all',
-  'draft',
-  'scheduled',
-  'pending_approval',
-  'approved',
-  'published',
+  PostStatus.DRAFT,
+  PostStatus.SCHEDULED,
+  PostStatus.PENDING_APPROVAL,
+  PostStatus.APPROVED,
+  PostStatus.PUBLISHED,
 ];
 
 export default function SocialCalendar() {
@@ -90,7 +90,32 @@ export default function SocialCalendar() {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [approverName, setApproverName] = useState('');
   const [showApprovalSection, setShowApprovalSection] = useState(false);
-  const [viewMode, setViewMode] = useState('composer');
+  const VALID_VIEW_MODES = ['composer', 'nine-grid', 'calendar', 'platform-grid', 'grid'];
+  const DEFAULT_VIEW_MODE = 'composer';
+  const STORAGE_KEY = 'socialCalendar.viewMode';
+  const getStoredViewMode = () => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      return VALID_VIEW_MODES.includes(saved) ? saved : DEFAULT_VIEW_MODE;
+    } catch {
+      return DEFAULT_VIEW_MODE;
+    }
+  };
+  const persistViewMode = (mode) => {
+    try {
+      localStorage.setItem(STORAGE_KEY, mode);
+    } catch {
+      // Ignore storage failures and keep the selected mode in component state only.
+    }
+  };
+  const [viewMode, setViewMode] = useState(() => getStoredViewMode());
+  const handleSetViewMode = (mode) => {
+    if (!VALID_VIEW_MODES.includes(mode)) {
+      return;
+    }
+    setViewMode(mode);
+    persistViewMode(mode);
+  };
   const [calendarViewType, setCalendarViewType] = useState('month');
   const [platformFilter, setPlatformFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
@@ -374,7 +399,7 @@ export default function SocialCalendar() {
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => setViewMode('composer')}
+              onClick={() => handleSetViewMode('composer')}
               className={`gap-1.5 px-4 ${viewMode === 'composer' ? 'bg-white dark:bg-gray-600 shadow-sm text-violet-700 dark:text-violet-300 font-semibold' : 'text-gray-600 dark:text-gray-300 hover:text-gray-900'}`}
             >
               <PenSquare className="w-4 h-4" />
@@ -383,7 +408,7 @@ export default function SocialCalendar() {
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => setViewMode('nine-grid')}
+              onClick={() => handleSetViewMode('nine-grid')}
               className={`gap-1.5 px-4 ${viewMode === 'nine-grid' ? 'bg-white dark:bg-gray-600 shadow-sm text-violet-700 dark:text-violet-300 font-semibold' : 'text-gray-600 dark:text-gray-300 hover:text-gray-900'}`}
             >
               <LayoutGrid className="w-4 h-4" />
@@ -392,7 +417,7 @@ export default function SocialCalendar() {
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => setViewMode('calendar')}
+              onClick={() => handleSetViewMode('calendar')}
               className={`gap-1.5 px-4 ${viewMode === 'calendar' ? 'bg-white dark:bg-gray-600 shadow-sm text-violet-700 dark:text-violet-300 font-semibold' : 'text-gray-600 dark:text-gray-300 hover:text-gray-900'}`}
             >
               <CalendarDays className="w-4 h-4" />
@@ -401,7 +426,7 @@ export default function SocialCalendar() {
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => setViewMode('platform-grid')}
+              onClick={() => handleSetViewMode('platform-grid')}
               className={`gap-1.5 px-4 ${viewMode === 'platform-grid' ? 'bg-white dark:bg-gray-600 shadow-sm text-violet-700 dark:text-violet-300 font-semibold' : 'text-gray-600 dark:text-gray-300 hover:text-gray-900'}`}
             >
               <LayoutGrid className="w-4 h-4" />
@@ -410,7 +435,7 @@ export default function SocialCalendar() {
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => setViewMode('grid')}
+              onClick={() => handleSetViewMode('grid')}
               className={`gap-1.5 px-4 ${viewMode === 'grid' ? 'bg-white dark:bg-gray-600 shadow-sm text-violet-700 dark:text-violet-300 font-semibold' : 'text-gray-600 dark:text-gray-300 hover:text-gray-900'}`}
             >
               <LayoutGrid className="w-4 h-4" />

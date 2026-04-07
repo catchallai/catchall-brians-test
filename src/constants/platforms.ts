@@ -65,7 +65,7 @@ export const PLATFORM_MAP = Object.fromEntries(PLATFORMS.map((p) => [p.id, p])) 
   (typeof PLATFORMS)[number]
 >;
 
-/** Lowercase-keyed lookup — use for social listening data where platform IDs are lowercase ('twitter', 'youtube', 'tiktok'). */
+/** Lowercase-keyed lookup — use for data where platform IDs are stored lowercase ('twitter', 'youtube', 'tiktok'). */
 export const PLATFORM_MAP_LOWER = Object.fromEntries(
   PLATFORMS.map((p) => [p.id.toLowerCase(), p])
 ) as Record<string, (typeof PLATFORMS)[number]>;

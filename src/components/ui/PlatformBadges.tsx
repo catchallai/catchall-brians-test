@@ -30,6 +30,7 @@ export function PlatformBadges({
 }: PlatformBadgesProps) {
   if (!platforms || platforms.length === 0) return null;
 
+  /** Case-insensitive lookup: handles both 'Twitter' (calendar) and 'twitter' (listening). */
   const lookup = (id: string) =>
     PLATFORM_MAP[id as PlatformId] ?? PLATFORM_MAP_LOWER[id.toLowerCase()];
 
@@ -82,6 +83,7 @@ export function PlatformBadges({
               style={{ width: px, height: px, borderRadius: radius }}
               className="bg-gray-400 flex-shrink-0"
               aria-label={platformId}
+              role="img"
             />
           );
         }
