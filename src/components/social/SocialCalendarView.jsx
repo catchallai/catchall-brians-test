@@ -26,6 +26,7 @@ const statusColors = {
   pending_approval: 'border-amber-300 bg-amber-50 dark:bg-amber-900/20 dark:border-amber-600',
   approved: 'border-emerald-300 bg-emerald-50 dark:bg-emerald-900/20 dark:border-emerald-600',
   published: 'border-violet-300 bg-violet-50 dark:bg-violet-900/20 dark:border-violet-600',
+  unused: 'border-red-300 bg-red-50 dark:bg-red-900/20 dark:border-red-600',
 };
 
 const statusBorderColors = {
@@ -34,6 +35,7 @@ const statusBorderColors = {
   pending_approval: 'border-l-amber-400 dark:border-l-amber-500',
   approved: 'border-l-emerald-400 dark:border-l-emerald-500',
   published: 'border-l-violet-400 dark:border-l-violet-500',
+  unused: 'border-l-red-400 dark:border-l-red-500',
 };
 
 const statusBadges = {
@@ -53,6 +55,10 @@ const statusBadges = {
   published: {
     label: 'Published',
     class: 'bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-300',
+  },
+  unused: {
+    label: 'Unused',
+    class: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300',
   },
 };
 
@@ -960,6 +966,10 @@ export default function SocialCalendarView({
           <div className="flex items-center gap-1.5">
             <div className="w-3 h-3 rounded border-2 border-violet-300 dark:border-violet-600 bg-violet-50 dark:bg-violet-900/30" />
             <span className="text-xs text-gray-600 dark:text-gray-400 font-medium">Published</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <div className="w-3 h-3 rounded border-2 border-red-300 dark:border-red-600 bg-red-50 dark:bg-red-900/30" />
+            <span className="text-xs text-gray-600 dark:text-gray-400 font-medium">Unused</span>
           </div>
         </div>
       </div>
