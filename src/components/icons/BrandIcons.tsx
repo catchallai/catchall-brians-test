@@ -1,16 +1,15 @@
-import type { ReactNode } from 'react';
+import type { ReactNode, SVGProps } from 'react';
 
-interface BrandIconProps {
+interface BrandIconProps extends Omit<SVGProps<SVGSVGElement>, 'children'> {
   size?: number;
   color?: string;
-  className?: string;
 }
 
 function BaseBrandIcon({
   size = 24,
   color = 'currentColor',
-  className,
   children,
+  ...props
 }: BrandIconProps & { children: ReactNode }) {
   return (
     <svg
@@ -18,8 +17,7 @@ function BaseBrandIcon({
       height={size}
       viewBox="0 0 24 24"
       fill={color}
-      className={className}
-      aria-hidden="true"
+      {...props}
     >
       {children}
     </svg>

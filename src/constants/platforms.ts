@@ -6,7 +6,6 @@ import {
   TwitterIcon,
   YouTubeIcon,
 } from '@/components/icons/BrandIcons';
-import type { PlatformId } from '@/types/enums';
 
 export const PLATFORMS = [
   {
@@ -57,7 +56,7 @@ export const PLATFORMS = [
 ] as const;
 
 export const PLATFORM_MAP = Object.fromEntries(PLATFORMS.map((p) => [p.id, p])) as Record<
-  PlatformId,
+  string,
   (typeof PLATFORMS)[number]
 >;
 
