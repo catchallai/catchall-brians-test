@@ -91,14 +91,30 @@ export default function SocialCalendar() {
   const [approverName, setApproverName] = useState('');
   const [showApprovalSection, setShowApprovalSection] = useState(false);
   const VALID_VIEW_MODES = ['composer', 'nine-grid', 'calendar', 'platform-grid', 'grid'];
+  const DEFAULT_VIEW_MODE = 'composer';
   const STORAGE_KEY = 'socialCalendar.viewMode';
-  const [viewMode, setViewMode] = useState(() => {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    return VALID_VIEW_MODES.includes(saved) ? saved : 'composer';
-  });
+  const getStoredViewMode = () => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      return VALID_VIEW_MODES.includes(saved) ? saved : DEFAULT_VIEW_MODE;
+    } catch {
+      return DEFAULT_VIEW_MODE;
+    }
+  };
+  const persistViewMode = (mode) => {
+    try {
+      localStorage.setItem(STORAGE_KEY, mode);
+    } catch {
+      // Ignore storage failures and keep the selected mode in component state only.
+    }
+  };
+  const [viewMode, setViewMode] = useState(() => getStoredViewMode());
   const handleSetViewMode = (mode) => {
+    if (!VALID_VIEW_MODES.includes(mode)) {
+      return;
+    }
     setViewMode(mode);
-    localStorage.setItem(STORAGE_KEY, mode);
+    persistViewMode(mode);
   };
   const [calendarViewType, setCalendarViewType] = useState('month');
   const [platformFilter, setPlatformFilter] = useState('all');
