@@ -3,19 +3,12 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Hash, AtSign, Search, TrendingUp, Loader2, Trash2, Pencil } from 'lucide-react';
+import { PlatformBadges } from '@/components/ui/PlatformBadges';
 
 const typeConfig = {
   keyword: { icon: Search, color: 'bg-blue-100 text-blue-700' },
   hashtag: { icon: Hash, color: 'bg-violet-100 text-violet-700' },
   mention: { icon: AtSign, color: 'bg-pink-100 text-pink-700' },
-};
-
-const platformColors = {
-  twitter: 'bg-gray-900 text-white',
-  linkedin: 'bg-blue-600 text-white',
-  facebook: 'bg-blue-500 text-white',
-  instagram: 'bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400 text-white',
-  youtube: 'bg-red-600 text-white',
 };
 
 export default function ListeningKeywordCard({
@@ -51,17 +44,8 @@ export default function ListeningKeywordCard({
               {keyword.type === 'hashtag' ? '#' : keyword.type === 'mention' ? '@' : ''}
               {keyword.keyword}
             </h4>
-            <div className="flex gap-1 mt-1">
-              {keyword.platforms?.slice(0, 3).map((p) => (
-                <Badge key={p} className={`${platformColors[p]} text-xs border-0`}>
-                  {p}
-                </Badge>
-              ))}
-              {keyword.platforms?.length > 3 && (
-                <Badge variant="outline" className="text-xs">
-                  +{keyword.platforms.length - 3}
-                </Badge>
-              )}
+            <div className="mt-1">
+              <PlatformBadges platforms={keyword.platforms ?? []} size="sm" maxVisible={4} />
             </div>
           </div>
         </div>

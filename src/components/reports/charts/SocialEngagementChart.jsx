@@ -1,13 +1,7 @@
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { Badge } from '@/components/ui/badge';
 import { format, eachWeekOfInterval } from 'date-fns';
-
-const platformColors = {
-  twitter: '#1DA1F2',
-  facebook: '#4267B2',
-  instagram: '#E4405F',
-  linkedin: '#0077B5',
-};
+import { PLATFORM_MAP } from '@/constants/platforms';
 
 export default function SocialEngagementChart({ dateRange, mentions = [] }) {
   // Generate mock data
@@ -27,10 +21,10 @@ export default function SocialEngagementChart({ dateRange, mentions = [] }) {
 
   // Platform breakdown
   const platformData = [
-    { name: 'Twitter', value: 35, color: platformColors.twitter },
-    { name: 'Instagram', value: 28, color: platformColors.instagram },
-    { name: 'LinkedIn', value: 22, color: platformColors.linkedin },
-    { name: 'Facebook', value: 15, color: platformColors.facebook },
+    { name: 'Twitter', value: 35, color: PLATFORM_MAP.Twitter.bg },
+    { name: 'Instagram', value: 28, color: PLATFORM_MAP.Instagram.bg },
+    { name: 'LinkedIn', value: 22, color: PLATFORM_MAP.LinkedIn.bg },
+    { name: 'Facebook', value: 15, color: PLATFORM_MAP.Facebook.bg },
   ];
 
   const totalEngagement = data.reduce((sum, d) => sum + d.likes + d.comments + d.shares, 0);
