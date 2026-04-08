@@ -64,6 +64,8 @@ import { Input } from '@/components/ui/input';
 import { isValidHttpUrl, shortenUrl } from '@/utils/url';
 import { HashtagPoolCreatePopover } from '@/components/hashtags/HashtagPoolCreatePopover';
 import { coercePostTagIds } from '@/utils/tags';
+import { TagSelector } from '@/components/social/tags/TagSelector';
+import { useTagsQuery } from '@/components/social/tags/useTagsQuery';
 
 // Best times by platform based on general audience activity research
 const BEST_TIMES = {
@@ -426,6 +428,8 @@ export default function CalendarPostModal({
   const fileDialogLockRef = useRef(false);
   const fileDialogReleaseTimeoutRef = useRef(null);
   const isPostPublished = post?.status === PostStatus.PUBLISHED;
+  const { data: allTags = [] } = useTagsQuery();
+  const selectedTags = allTags.filter((t) => formData.tag_ids.includes(t.id));
   const {
     activeHashtags: _activeHashtags,
     toggledPoolIds,
@@ -988,9 +992,14 @@ export default function CalendarPostModal({
             <h2 className="text-lg font-bold text-gray-900 dark:text-white">
               {post ? COPY.calendarPostModal.editPost : COPY.calendarPostModal.createPost}
             </h2>
-            <button className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400 border border-gray-200 dark:border-gray-700 rounded-full px-2.5 py-1 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
-              🏷 {COPY.calendarPostModal.tags} <ChevronDown className="w-3 h-3" />
-            </button>
+            <div className="min-w-[140px] max-w-[260px]">
+              <TagSelector
+                value={selectedTags}
+                onChange={(tags) => setFormData((f) => ({ ...f, tag_ids: tags.map((t) => t.id) }))}
+                allowCreate
+                disabled={isPostPublished}
+              />
+            </div>
           </div>
           <div className="flex items-center gap-2">
             <Button

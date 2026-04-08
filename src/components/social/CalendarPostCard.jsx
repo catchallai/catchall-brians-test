@@ -9,6 +9,8 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import PostStatusChip from '@/components/social/PostStatusChip';
 import Tooltip from '@/components/ui-custom/Tooltip';
 import { PlatformBadges } from '@/components/ui/PlatformBadges';
+import { TagPill } from '@/components/social/tags/TagPill';
+import { useTagsQuery } from '@/components/social/tags/useTagsQuery';
 
 export default function CalendarPostCard({
   post,
@@ -19,6 +21,9 @@ export default function CalendarPostCard({
 }) {
   const queryClient = useQueryClient();
   const [confirmingDelete, setConfirmingDelete] = useState(false);
+  const { data: allTags = [] } = useTagsQuery();
+  const postTagIds = post.tag_ids || [];
+  const postTags = allTags.filter((t) => postTagIds.includes(t.id));
 
   const publishNowMutation = useMutation({
     mutationFn: async () => {
@@ -170,6 +175,20 @@ export default function CalendarPostCard({
       {!compact && post.caption && (
         <div className="p-3 bg-white">
           <p className="text-xs text-gray-600 line-clamp-3">{post.caption}</p>
+        </div>
+      )}
+
+      {/* Tags */}
+      {!compact && postTags.length > 0 && (
+        <div className="px-3 pb-3 bg-white flex flex-wrap gap-1">
+          {postTags.slice(0, 3).map((tag) => (
+            <TagPill key={tag.id} tag={tag} size="sm" />
+          ))}
+          {postTags.length > 3 && (
+            <Badge variant="secondary" className="text-xs px-1.5 py-0.5">
+              +{postTags.length - 3}
+            </Badge>
+          )}
         </div>
       )}
     </Card>

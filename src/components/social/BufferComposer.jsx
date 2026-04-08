@@ -29,6 +29,9 @@ import {
   FileText,
 } from 'lucide-react';
 import { todayLocal } from '@/utils/date';
+import COPY from '@/lib/copy';
+import { TagSelector } from '@/components/social/tags/TagSelector';
+import { useTagsQuery } from '@/components/social/tags/useTagsQuery';
 
 const PLATFORMS = [
   {
@@ -144,6 +147,8 @@ export default function BufferComposer({ hashtagPool = [], onSuccess }) {
     form,
     setForm,
   });
+  const { data: allTags = [] } = useTagsQuery();
+  const selectedTags = allTags.filter((t) => form.tag_ids.includes(t.id));
 
   const createMutation = useMutation({
     mutationFn: (data) => base44.entities.CalendarPost.create(data),
@@ -329,6 +334,18 @@ export default function BufferComposer({ hashtagPool = [], onSuccess }) {
             pools={hashtagPool}
             toggledPoolIds={toggledPoolIds}
             onToggle={handleTogglePool}
+          />
+        </div>
+
+        {/* Tags */}
+        <div className="space-y-1.5">
+          <Label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+            {COPY.bufferComposer.tags}
+          </Label>
+          <TagSelector
+            value={selectedTags}
+            onChange={(tags) => setForm((f) => ({ ...f, tag_ids: tags.map((t) => t.id) }))}
+            allowCreate
           />
         </div>
 
