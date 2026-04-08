@@ -44,6 +44,7 @@ import {
   HardDrive,
   FolderOpen,
   Trash,
+  TriangleAlert,
 } from 'lucide-react';
 import { PLATFORMS as PLATFORM_CONFIGS } from '@/constants/platforms';
 import EmojiPicker from 'emoji-picker-react';
@@ -473,13 +474,12 @@ export default function CalendarPostModal({
         };
         initialFormDataRef.current = initial;
         setFormData(initial);
-        if (post.platforms?.[0]) {
-          setPreviewPlatform(post.platforms[0]);
-        }
+        setPreviewPlatform(post.platforms?.[0] ?? 'Twitter');
       } else {
         const initial = { ...DEFAULT_FORM, scheduled_date: todayLocal() };
         initialFormDataRef.current = initial;
         setFormData(initial);
+        setPreviewPlatform('Twitter');
       }
     }
   }, [post, open]);
@@ -1093,23 +1093,34 @@ export default function CalendarPostModal({
                       : COPY.calendarPostModal.whereToPost}
                   </Label>
                   <div className="flex flex-wrap gap-2">
-                    {PLATFORMS.map(({ id, label, icon: Icon }) => {
+                    {PLATFORMS.map(({ id, label, icon: Icon, limit }) => {
                       const active = formData.platforms.includes(id);
+                      const platformOverLimit = active && formData.caption.length > limit;
                       return (
-                        <button
+                        <Tooltip
                           key={id}
-                          disabled={isPostPublished}
-                          onClick={() => togglePlatform(id)}
-                          aria-label={label}
-                          title={label}
-                          className={`flex items-center gap-1.5 p-2.5 rounded-full text-sm font-medium border transition-all ${
-                            active
-                              ? 'bg-violet-600 text-white border-violet-600'
-                              : 'bg-white text-gray-600 border-gray-200 hover:border-violet-400'
-                          } disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:border-gray-200`}
+                          content="Exceeded character limit"
+                          disableHover={!platformOverLimit}
                         >
-                          <Icon className="w-4 h-4" />
-                        </button>
+                          <div className="relative">
+                            <button
+                              disabled={isPostPublished}
+                              onClick={() => togglePlatform(id)}
+                              aria-label={label}
+                              title={label}
+                              className={`flex items-center gap-1.5 p-2.5 rounded-full text-sm font-medium border transition-all ${
+                                active
+                                  ? 'bg-violet-600 text-white border-violet-600'
+                                  : 'bg-white text-gray-600 border-gray-200 hover:border-violet-400'
+                              } disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:border-gray-200`}
+                            >
+                              <Icon className="w-4 h-4" />
+                            </button>
+                            {platformOverLimit && (
+                              <TriangleAlert className="absolute -top-2.5 -right-2.5 w-5 h-5 text-red-500" />
+                            )}
+                          </div>
+                        </Tooltip>
                       );
                     })}
                   </div>
