@@ -31,6 +31,11 @@ const COPY = {
     quickPost: 'Quick Post',
     templates: 'Templates',
     bulkSchedule: 'Bulk Schedule',
+    tagFilter: 'Tags',
+    tagFilterPlaceholder: 'Filter by tags',
+    noPostsMatchingFilters: 'No posts match the active filters',
+    noPostsMatchingFiltersHint: 'Try removing some filters to see posts',
+    clearFilters: 'Clear filters',
     toasts: {
       error: {
         reorderPosts: 'Failed to update post order. Please try again.',

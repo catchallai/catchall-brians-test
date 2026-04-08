@@ -42,6 +42,8 @@ import {
 } from 'date-fns';
 import CalendarPostCard from '@/components/social/CalendarPostCard';
 import CalendarPostModal from '@/components/modals/CalendarPostModal';
+import { TagSelector } from '@/components/social/tags/TagSelector';
+import { useTagsQuery } from '@/components/social/tags/useTagsQuery';
 import SocialCalendarView from '@/components/social/SocialCalendarView';
 import { AllHashtagsSection } from '@/components/hashtags/AllHashtagsSection';
 import { CreateHashtagPoolSection } from '@/components/hashtags/CreateHashtagPoolSection';
@@ -61,14 +63,7 @@ import BufferComposer from '@/components/social/BufferComposer';
 import { PostStatus } from '@/types/enums';
 import COPY from '@/lib/copy';
 
-const CALENDAR_PLATFORMS = [
-  'all',
-  'Facebook',
-  'Instagram',
-  'LinkedIn',
-  'Twitter',
-  'YouTube',
-];
+const CALENDAR_PLATFORMS = ['all', 'Facebook', 'Instagram', 'LinkedIn', 'Twitter', 'YouTube'];
 
 const CALENDAR_STATUSES = [
   'all',
@@ -118,6 +113,7 @@ export default function SocialCalendar() {
   const [calendarViewType, setCalendarViewType] = useState('month');
   const [platformFilter, setPlatformFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [activeTagIds, setActiveTagIds] = useState(/** @type {string[]} */ ([]));
   const [showFilters, setShowFilters] = useState(false);
   const [gridSortOrder, setGridSortOrder] = useState('date_desc');
   const [galleryPosts, setGalleryPosts] = useState([]);
@@ -145,6 +141,9 @@ export default function SocialCalendar() {
     queryFn: () => base44.entities.HashtagPool.list('-usage_count', 200),
   });
 
+  const { data: allTags = [] } = useTagsQuery();
+  const selectedTagOptions = allTags.filter((t) => activeTagIds.includes(t.id));
+
   const filteredPosts = posts
     .filter((p) => {
       // Skip posts without a scheduled date since they won't appear on the calendar
@@ -158,7 +157,9 @@ export default function SocialCalendar() {
       const inRange = postDate >= windowStart && postDate <= windowEnd;
       const matchesPlatform = platformFilter === 'all' || p.platforms?.includes(platformFilter);
       const matchesStatus = statusFilter === 'all' || p.status === statusFilter;
-      return inRange && matchesPlatform && matchesStatus;
+      const matchesTag =
+        activeTagIds.length === 0 || (p.tag_ids || []).some((id) => activeTagIds.includes(id));
+      return inRange && matchesPlatform && matchesStatus && matchesTag;
     })
     .sort((a, b) => (a.order || 0) - (b.order || 0));
 
@@ -189,6 +190,19 @@ export default function SocialCalendar() {
     // 'order' — default, matches existing filteredPosts sort
     return (a.order || 0) - (b.order || 0);
   });
+
+  const activeFilterCount =
+    (platformFilter !== 'all' ? 1 : 0) +
+    (statusFilter !== 'all' ? 1 : 0) +
+    (activeTagIds.length > 0 ? 1 : 0);
+
+  const hasActiveFilters = activeFilterCount > 0;
+
+  const clearAllFilters = () => {
+    setPlatformFilter('all');
+    setStatusFilter('all');
+    setActiveTagIds([]);
+  };
 
   const createMutation = useMutation({
     mutationFn: (data) => base44.entities.CalendarPost.create(data),
@@ -561,22 +575,16 @@ export default function SocialCalendar() {
         {viewMode === 'calendar' && (
           <>
             <div className="flex justify-end items-center gap-2 mb-4">
-              {(() => {
-                const activeFilterCount =
-                  (platformFilter !== 'all' ? 1 : 0) + (statusFilter !== 'all' ? 1 : 0);
-                return (
-                  <Button
-                    variant={showFilters || activeFilterCount > 0 ? 'default' : 'outline'}
-                    onClick={() => setShowFilters(!showFilters)}
-                    aria-expanded={showFilters}
-                    aria-controls="calendar-filter-panel"
-                    className="gap-2"
-                  >
-                    <Filter className="w-4 h-4" />
-                    Filters{activeFilterCount > 0 ? ` (${activeFilterCount})` : ''}
-                  </Button>
-                );
-              })()}
+              <Button
+                variant={showFilters || hasActiveFilters ? 'default' : 'outline'}
+                onClick={() => setShowFilters(!showFilters)}
+                aria-expanded={showFilters}
+                aria-controls="calendar-filter-panel"
+                className="gap-2"
+              >
+                <Filter className="w-4 h-4" />
+                Filters{activeFilterCount > 0 ? ` (${activeFilterCount})` : ''}
+              </Button>
               <div className="flex bg-gray-200 dark:bg-gray-700 rounded-lg p-1">
                 <Button
                   variant="ghost"
@@ -608,14 +616,7 @@ export default function SocialCalendar() {
               <Card id="calendar-filter-panel" className="p-4 space-y-4 mb-3">
                 <div className="flex items-center justify-between">
                   <h3 className="font-semibold">Filter Options</h3>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => {
-                      setPlatformFilter('all');
-                      setStatusFilter('all');
-                    }}
-                  >
+                  <Button variant="ghost" size="sm" onClick={clearAllFilters}>
                     <X className="w-4 h-4 mr-1" />
                     Clear
                   </Button>
@@ -646,6 +647,16 @@ export default function SocialCalendar() {
                     </SelectContent>
                   </Select>
                 </div>
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground mb-1.5 block">
+                    {COPY.socialCalendar.tagFilter}
+                  </label>
+                  <TagSelector
+                    value={selectedTagOptions}
+                    onChange={(tags) => setActiveTagIds(tags.map((t) => t.id))}
+                    placeholder={COPY.socialCalendar.tagFilterPlaceholder}
+                  />
+                </div>
               </Card>
             )}
             <div className="mb-4">
@@ -653,6 +664,14 @@ export default function SocialCalendar() {
                 {format(currentMonth, 'MMMM yyyy')}
               </h3>
             </div>
+            {filteredPosts.length === 0 && hasActiveFilters && (
+              <div className="flex items-center justify-between gap-3 px-4 py-3 mb-3 rounded-lg bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 text-sm text-amber-800 dark:text-amber-200">
+                <span>{COPY.socialCalendar.noPostsMatchingFilters}</span>
+                <Button variant="ghost" size="sm" onClick={clearAllFilters} className="shrink-0">
+                  {COPY.socialCalendar.clearFilters}
+                </Button>
+              </div>
+            )}
             <SocialCalendarView
               posts={filteredPosts}
               currentMonth={currentMonth}
@@ -727,22 +746,16 @@ export default function SocialCalendar() {
                   <SelectItem value="order">Default order</SelectItem>
                 </SelectContent>
               </Select>
-              {(() => {
-                const activeFilterCount =
-                  (platformFilter !== 'all' ? 1 : 0) + (statusFilter !== 'all' ? 1 : 0);
-                return (
-                  <Button
-                    variant={showFilters || activeFilterCount > 0 ? 'default' : 'outline'}
-                    onClick={() => setShowFilters(!showFilters)}
-                    aria-expanded={showFilters}
-                    aria-controls="grid-filter-panel"
-                    className="gap-2"
-                  >
-                    <Filter className="w-4 h-4" />
-                    Filters{activeFilterCount > 0 ? ` (${activeFilterCount})` : ''}
-                  </Button>
-                );
-              })()}
+              <Button
+                variant={showFilters || hasActiveFilters ? 'default' : 'outline'}
+                onClick={() => setShowFilters(!showFilters)}
+                aria-expanded={showFilters}
+                aria-controls="grid-filter-panel"
+                className="gap-2"
+              >
+                <Filter className="w-4 h-4" />
+                Filters{activeFilterCount > 0 ? ` (${activeFilterCount})` : ''}
+              </Button>
             </div>
 
             {/* Filter panel */}
@@ -750,14 +763,7 @@ export default function SocialCalendar() {
               <Card id="grid-filter-panel" className="p-4 space-y-4 mb-3">
                 <div className="flex items-center justify-between">
                   <h3 className="font-semibold">Filters</h3>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => {
-                      setPlatformFilter('all');
-                      setStatusFilter('all');
-                    }}
-                  >
+                  <Button variant="ghost" size="sm" onClick={clearAllFilters}>
                     <X className="w-4 h-4 mr-1" />
                     Clear
                   </Button>
@@ -788,6 +794,16 @@ export default function SocialCalendar() {
                     </SelectContent>
                   </Select>
                 </div>
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground mb-1.5 block">
+                    {COPY.socialCalendar.tagFilter}
+                  </label>
+                  <TagSelector
+                    value={selectedTagOptions}
+                    onChange={(tags) => setActiveTagIds(tags.map((t) => t.id))}
+                    placeholder={COPY.socialCalendar.tagFilterPlaceholder}
+                  />
+                </div>
               </Card>
             )}
 
@@ -796,12 +812,31 @@ export default function SocialCalendar() {
               <Card className="glass-card rounded-2xl">
                 <CardContent className="py-16 text-center">
                   <Calendar className="w-12 h-12 mx-auto mb-4 text-gray-300" />
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">No posts scheduled</h3>
-                  <p className="text-gray-500 mb-4">Add your first post to the calendar</p>
-                  <Button onClick={() => setShowModal(true)} className="gap-2">
-                    <Plus className="w-4 h-4" />
-                    Add Post
-                  </Button>
+                  {hasActiveFilters ? (
+                    <>
+                      <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                        {COPY.socialCalendar.noPostsMatchingFilters}
+                      </h3>
+                      <p className="text-gray-500 mb-4">
+                        {COPY.socialCalendar.noPostsMatchingFiltersHint}
+                      </p>
+                      <Button variant="outline" onClick={clearAllFilters} className="gap-2">
+                        <X className="w-4 h-4" />
+                        {COPY.socialCalendar.clearFilters}
+                      </Button>
+                    </>
+                  ) : (
+                    <>
+                      <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                        No posts scheduled
+                      </h3>
+                      <p className="text-gray-500 mb-4">Add your first post to the calendar</p>
+                      <Button onClick={() => setShowModal(true)} className="gap-2">
+                        <Plus className="w-4 h-4" />
+                        Add Post
+                      </Button>
+                    </>
+                  )}
                 </CardContent>
               </Card>
             ) : (
