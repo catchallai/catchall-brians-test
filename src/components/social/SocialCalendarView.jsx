@@ -377,6 +377,7 @@ function WeekView({
   setDraggedPost,
   showPopover,
   hidePopover,
+  STATUS_CONFIG,
 }) {
   const scrollRef = useRef(null);
   const [showOvernight, setShowOvernight] = useState(false);
@@ -795,6 +796,7 @@ export default function SocialCalendarView({
           setDraggedPost={setDraggedPost}
           showPopover={showPopover}
           hidePopover={hidePopover}
+          STATUS_CONFIG={STATUS_CONFIG}
         />
       ) : (
         <div className="grid grid-cols-7">
