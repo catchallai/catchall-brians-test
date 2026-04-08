@@ -106,7 +106,6 @@ function DayView({
   updatePostMutation,
   draggedPost,
   setDraggedPost,
-  STATUS_CONFIG,
 }) {
   const isToday = isSameDay(day, new Date());
   const now = new Date();
@@ -377,7 +376,6 @@ function WeekView({
   setDraggedPost,
   showPopover,
   hidePopover,
-  STATUS_CONFIG,
 }) {
   const scrollRef = useRef(null);
   const [showOvernight, setShowOvernight] = useState(false);
@@ -783,7 +781,6 @@ export default function SocialCalendarView({
           updatePostMutation={updatePostMutation}
           draggedPost={draggedPost}
           setDraggedPost={setDraggedPost}
-          STATUS_CONFIG={STATUS_CONFIG}
         />
       ) : viewType === 'week' ? (
         <WeekView
@@ -796,7 +793,6 @@ export default function SocialCalendarView({
           setDraggedPost={setDraggedPost}
           showPopover={showPopover}
           hidePopover={hidePopover}
-          STATUS_CONFIG={STATUS_CONFIG}
         />
       ) : (
         <div className="grid grid-cols-7">
