@@ -12,13 +12,7 @@ function BaseBrandIcon({
   ...props
 }: BrandIconProps & { children: ReactNode }) {
   return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 24 24"
-      fill={color}
-      {...props}
-    >
+    <svg width={size} height={size} viewBox="0 0 24 24" fill={color} {...props}>
       {children}
     </svg>
   );

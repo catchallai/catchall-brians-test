@@ -47,8 +47,7 @@ const interactionIcons = {
 export default function SocialLeadCard({ lead, contact, company, deal, mention, onClick }) {
   const platformEntry = PLATFORM_MAP_LOWER[lead.platform];
   const PlatformIcon = platformEntry?.icon;
-  const platformColor =
-    LEAD_CARD_PLATFORM_COLORS[lead.platform] || 'bg-gray-100 text-gray-700';
+  const platformColor = LEAD_CARD_PLATFORM_COLORS[lead.platform] || 'bg-gray-100 text-gray-700';
   const InteractionIcon = interactionIcons[lead.interaction_type] || MessageSquare;
 
   return (

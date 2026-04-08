@@ -10,7 +10,6 @@ import PostStatusChip from '@/components/social/PostStatusChip';
 import Tooltip from '@/components/ui-custom/Tooltip';
 import { PlatformBadges } from '@/components/ui/PlatformBadges';
 import { TagPill } from '@/components/social/tags/TagPill';
-import { useTagsQuery } from '@/components/social/tags/useTagsQuery';
 
 export default function CalendarPostCard({
   post,
@@ -18,10 +17,10 @@ export default function CalendarPostCard({
   onDelete,
   compact = false,
   showDeleteButton = false,
+  allTags = [],
 }) {
   const queryClient = useQueryClient();
   const [confirmingDelete, setConfirmingDelete] = useState(false);
-  const { data: allTags = [] } = useTagsQuery();
   const postTagIds = post.tag_ids || [];
   const postTags = allTags.filter((t) => postTagIds.includes(t.id));
 

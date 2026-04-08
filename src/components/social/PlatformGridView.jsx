@@ -31,8 +31,7 @@ export default function PlatformGridView({ posts = [], onAddPost, onEditPost, on
   return (
     <div className="space-y-6">
       {Object.entries(groupedByPlatform).map(([platform, platformPostsList]) => {
-        const platformEntry =
-          PLATFORM_MAP[platform] ?? PLATFORM_MAP_LOWER[platform?.toLowerCase()];
+        const platformEntry = PLATFORM_MAP[platform] ?? PLATFORM_MAP_LOWER[platform?.toLowerCase()];
         const PlatformIcon = platformEntry?.icon;
         const platformBg =
           platformEntry?.tailwindGradient || platformEntry?.tailwind || 'bg-gray-400';

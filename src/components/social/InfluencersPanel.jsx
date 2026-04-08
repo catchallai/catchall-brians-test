@@ -52,7 +52,8 @@ export default function InfluencersPanel({ mentions, onViewMention }) {
         {influencers.map((mention) => {
           const platformEntry = PLATFORM_MAP_LOWER[mention.platform];
           const PlatformIcon = platformEntry?.icon;
-          const platformBg = platformEntry?.tailwindGradient || platformEntry?.tailwind || 'bg-gray-400';
+          const platformBg =
+            platformEntry?.tailwindGradient || platformEntry?.tailwind || 'bg-gray-400';
 
           return (
             <div
@@ -62,9 +63,7 @@ export default function InfluencersPanel({ mentions, onViewMention }) {
             >
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2">
-                  <div
-                    className={`w-6 h-6 rounded ${platformBg} flex items-center justify-center`}
-                  >
+                  <div className={`w-6 h-6 rounded ${platformBg} flex items-center justify-center`}>
                     {PlatformIcon && <PlatformIcon size={12} color="white" />}
                   </div>
                   <span className="font-medium text-gray-900">@{mention.author}</span>

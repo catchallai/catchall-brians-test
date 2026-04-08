@@ -43,16 +43,16 @@ export default function SocialAccountCard({
       onClick={onClick}
     >
       <div className="flex items-start gap-3">
-        <div
-          className={`w-12 h-12 rounded-xl ${platformBg} flex items-center justify-center`}
-        >
+        <div className={`w-12 h-12 rounded-xl ${platformBg} flex items-center justify-center`}>
           {PlatformIcon && <PlatformIcon size={22} color="white" />}
         </div>
         <div className="flex-1">
           <div className="flex items-center justify-between">
             <div>
               <h4 className="font-semibold text-gray-900">@{account.account_name}</h4>
-              <Badge className={`${platformBg} text-white text-xs mt-1 border-0`}>{account.platform}</Badge>
+              <Badge className={`${platformBg} text-white text-xs mt-1 border-0`}>
+                {account.platform}
+              </Badge>
             </div>
             <div className="flex items-center gap-1">
               {onEdit && (

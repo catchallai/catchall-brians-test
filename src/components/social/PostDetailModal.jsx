@@ -20,8 +20,7 @@ export default function PostDetailModal({ open, onClose, post, accountName }) {
   const sentiment = sentimentConfig[post.sentiment] || sentimentConfig.neutral;
   const platformEntry = PLATFORM_MAP_LOWER[post.platform];
   const PlatformIcon = platformEntry?.icon;
-  const platformBg =
-    platformEntry?.tailwindGradient || platformEntry?.tailwind || 'bg-gray-400';
+  const platformBg = platformEntry?.tailwindGradient || platformEntry?.tailwind || 'bg-gray-400';
   const platformLabel = platformEntry?.label || post.platform || 'Unknown';
   const totalEngagement = (post.likes || 0) + (post.comments || 0) + (post.shares || 0);
 
@@ -30,9 +29,7 @@ export default function PostDetailModal({ open, onClose, post, accountName }) {
       <DialogContent className="sm:max-w-xl">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <span
-              className={`w-8 h-8 rounded-lg ${platformBg} flex items-center justify-center`}
-            >
+            <span className={`w-8 h-8 rounded-lg ${platformBg} flex items-center justify-center`}>
               {PlatformIcon && <PlatformIcon size={16} color="white" />}
             </span>
             Post from @{accountName}
