@@ -95,6 +95,7 @@ const COPY = {
     twitterDisplayName: 'Twitter / X',
     whereToPost: 'Where would you like to share this post?',
     whereHasPosted: 'Posted to these platforms:',
+    exceededCharLimit: 'Exceeded limit of {limit} characters for {platform}',
   },
   linkInserter: {
     title: 'Insert Link',
