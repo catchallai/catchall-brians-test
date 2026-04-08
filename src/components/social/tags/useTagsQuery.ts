@@ -5,6 +5,6 @@ import type { TagOption } from '@/types/tags';
 export function useTagsQuery() {
   return useQuery<TagOption[]>({
     queryKey: ['social-tags'],
-    queryFn: () => base44.entities.SocialTag.list('-created_date', 100),
+    queryFn: () => base44.entities.SocialTag.list('-created_date'),
   });
 }
