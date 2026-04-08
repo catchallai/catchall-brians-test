@@ -191,10 +191,10 @@ function PlatformPreviewPanel({ platform, caption, imageUrl, videoUrl }) {
             </div>
           </div>
           {imageUrl && (
-            <img src={imageUrl} alt="Preview" className="w-full object-cover max-h-48" />
+            <img src={imageUrl} alt="Preview" className="w-full object-cover aspect-[1.91/1]" />
           )}
           {videoUrl && !imageUrl && (
-            <video src={videoUrl} className="w-full max-h-48 object-cover" muted />
+            <video src={videoUrl} className="w-full aspect-[1.91/1] object-cover" muted />
           )}
           <div className="p-3">
             <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap line-clamp-6">
