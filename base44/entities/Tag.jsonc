@@ -1,0 +1,33 @@
+{
+  "name": "Tag",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Display name of the tag",
+    },
+    "slug": {
+      "type": "string",
+      "description": "Lowercase, trimmed, hyphenated slug; unique by normalized name",
+    },
+    "color": {
+      "type": "string",
+      "description": "Hex or named color for the tag",
+    },
+    "description": {
+      "type": "string",
+      "description": "Optional description of the tag",
+    },
+    "is_archived": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether the tag is archived",
+    },
+    "usage_count": {
+      "type": "number",
+      "default": 0,
+      "description": "Number of times the tag has been used",
+    },
+  },
+  "required": ["name", "slug"],
+}
