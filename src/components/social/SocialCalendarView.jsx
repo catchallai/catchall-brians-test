@@ -212,7 +212,9 @@ function DayView({
                 <span className="text-gray-800 dark:text-gray-200 font-medium">
                   {post.title || post.caption?.slice(0, 20) || 'Untitled'}
                 </span>
-                <Badge className={`text-xs px-1 ${statusInfo.badgeClass}`}>{statusInfo.label}</Badge>
+                <Badge className={`text-xs px-1 ${statusInfo.badgeClass}`}>
+                  {statusInfo.label}
+                </Badge>
               </div>
             );
           })}
@@ -565,7 +567,9 @@ function WeekView({
 
                   <div className="flex flex-col gap-0.5" onClick={(e) => e.stopPropagation()}>
                     {dayHourPosts.slice(0, 2).map((post) => {
-                      const borderColor = (STATUS_CONFIG[post.status] || STATUS_CONFIG.draft).borderClass || 'border-l-gray-300';
+                      const borderColor =
+                        (STATUS_CONFIG[post.status] || STATUS_CONFIG.draft).borderClass ||
+                        'border-l-gray-300';
                       return (
                         <div
                           key={post.id}
@@ -778,9 +782,7 @@ export default function SocialCalendarView({
           updatePostMutation={updatePostMutation}
           draggedPost={draggedPost}
           setDraggedPost={setDraggedPost}
-          statusColors={statusColors}
-          statusBadges={statusBadges}
-          statusBorderColors={statusBorderColors}
+          STATUS_CONFIG={STATUS_CONFIG}
         />
       ) : viewType === 'week' ? (
         <WeekView
@@ -914,7 +916,9 @@ export default function SocialCalendarView({
             {(() => {
               const si = STATUS_CONFIG[hoveredPost.status] || STATUS_CONFIG.draft;
               return (
-                <Badge className={`text-xs px-1.5 flex-shrink-0 ${si.badgeClass}`}>{si.label}</Badge>
+                <Badge className={`text-xs px-1.5 flex-shrink-0 ${si.badgeClass}`}>
+                  {si.label}
+                </Badge>
               );
             })()}
           </div>
@@ -961,7 +965,9 @@ export default function SocialCalendarView({
           {Object.entries(STATUS_CONFIG).map(([key, cfg]) => (
             <div key={key} className="flex items-center gap-1.5">
               <div className={`w-3 h-3 rounded border-2 ${cfg.legendBorder} ${cfg.legendBg}`} />
-              <span className="text-xs text-gray-600 dark:text-gray-400 font-medium">{cfg.label}</span>
+              <span className="text-xs text-gray-600 dark:text-gray-400 font-medium">
+                {cfg.label}
+              </span>
             </div>
           ))}
         </div>
