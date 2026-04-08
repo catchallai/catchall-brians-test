@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react';
+import type { KeyboardEvent } from 'react';
 import { Check, Plus, Tag } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import {
@@ -25,6 +26,7 @@ interface TagSelectorProps {
   allowCreate?: boolean;
   disabled?: boolean;
   placeholder?: string;
+  ariaLabel?: string;
 }
 
 export function TagSelector({
@@ -33,6 +35,7 @@ export function TagSelector({
   allowCreate = false,
   disabled = false,
   placeholder,
+  ariaLabel,
 }: TagSelectorProps) {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState('');
@@ -49,7 +52,7 @@ export function TagSelector({
   const hasExactMatch = allTags.some((t) => t.name.toLowerCase() === search.trim().toLowerCase());
 
   const handleOpenChange = (next: boolean) => {
-    if (disabled) return;
+    if (disabled && next) return;
     setOpen(next);
     if (!next) setSearch('');
   };
@@ -82,7 +85,7 @@ export function TagSelector({
     }
   }, [search, value, onChange, createTag, isCreating]);
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Backspace' && !search && value.length > 0) {
       onChange(value.slice(0, -1));
     }
@@ -98,6 +101,7 @@ export function TagSelector({
           role="combobox"
           aria-expanded={open}
           aria-haspopup="listbox"
+          aria-label={ariaLabel || SELECTOR_COPY.placeholder}
           tabIndex={disabled ? -1 : 0}
           onKeyDown={(e) => {
             if (!disabled && (e.key === 'Enter' || e.key === ' ')) setOpen(true);

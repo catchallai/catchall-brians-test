@@ -24,6 +24,7 @@ export function TagPill({ tag, onRemove, size = 'default', className }: TagPillP
       {onRemove && (
         <button
           type="button"
+          aria-label="Remove tag"
           onPointerDown={(e) => e.stopPropagation()}
           onClick={(e) => {
             e.stopPropagation();

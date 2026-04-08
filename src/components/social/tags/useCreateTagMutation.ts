@@ -14,10 +14,10 @@ export function useCreateTagMutation() {
   const queryClient = useQueryClient();
   return useMutation<TagOption, Error, string>({
     mutationFn: async (name: string): Promise<TagOption> => {
-      const raw = await base44.entities.SocialTag.create({
-        name: name.trim(),
-        slug: slugify(name),
-      });
+      const slug = slugify(name);
+      const payload: Record<string, any> = { name: name.trim() };
+      if (slug) payload.slug = slug;
+      const raw = await base44.entities.SocialTag.create(payload);
       return {
         id: raw.id,
         name: raw.name,
