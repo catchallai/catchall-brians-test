@@ -1096,30 +1096,31 @@ export default function CalendarPostModal({
                     {PLATFORMS.map(({ id, label, icon: Icon, limit }) => {
                       const active = formData.platforms.includes(id);
                       const platformOverLimit = active && formData.caption.length > limit;
+                      const tooltipContent = COPY.calendarPostModal.exceededCharLimit
+                        .replace('{limit}', String(limit))
+                        .replace('{platform}', label);
                       return (
                         <Tooltip
                           key={id}
-                          content="Exceeded character limit"
+                          content={tooltipContent}
                           disableHover={!platformOverLimit}
                         >
-                          <div className="relative">
-                            <button
-                              disabled={isPostPublished}
-                              onClick={() => togglePlatform(id)}
-                              aria-label={label}
-                              title={label}
-                              className={`flex items-center gap-1.5 p-2.5 rounded-full text-sm font-medium border transition-all ${
-                                active
-                                  ? 'bg-violet-600 text-white border-violet-600'
-                                  : 'bg-white text-gray-600 border-gray-200 hover:border-violet-400'
-                              } disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:border-gray-200`}
-                            >
-                              <Icon className="w-4 h-4" />
-                            </button>
+                          <button
+                            disabled={isPostPublished}
+                            onClick={() => togglePlatform(id)}
+                            aria-label={label}
+                            title={label}
+                            className={`relative flex items-center gap-1.5 p-2.5 rounded-full text-sm font-medium border transition-all ${
+                              active
+                                ? 'bg-violet-600 text-white border-violet-600'
+                                : 'bg-white text-gray-600 border-gray-200 hover:border-violet-400'
+                            } disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:border-gray-200`}
+                          >
+                            <Icon className="w-4 h-4" />
                             {platformOverLimit && (
                               <TriangleAlert className="absolute -top-2.5 -right-2.5 w-5 h-5 text-red-500" />
                             )}
-                          </div>
+                          </button>
                         </Tooltip>
                       );
                     })}
