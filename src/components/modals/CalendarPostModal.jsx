@@ -191,10 +191,10 @@ function PlatformPreviewPanel({ platform, caption, imageUrl, videoUrl }) {
             </div>
           </div>
           {imageUrl && (
-            <img src={imageUrl} alt="Preview" className="w-full object-cover max-h-48" />
+            <img src={imageUrl} alt="Preview" className="w-full object-cover aspect-[1.91/1]" />
           )}
           {videoUrl && !imageUrl && (
-            <video src={videoUrl} className="w-full max-h-48 object-cover" muted />
+            <video src={videoUrl} className="w-full aspect-[1.91/1] object-cover" muted />
           )}
           <div className="p-3">
             <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap line-clamp-6">
@@ -962,7 +962,7 @@ export default function CalendarPostModal({
     <Dialog open={open} onOpenChange={guardedClose}>
       <DialogContent
         ref={dialogContentRef}
-        className={`p-0 w-full overflow-hidden bg-white dark:bg-gray-900 ${
+        className={`p-0 w-full overflow-hidden flex flex-col bg-white dark:bg-gray-900 ${
           isFullscreen
             ? 'inset-0 h-screen max-h-screen max-w-none translate-x-0 translate-y-0 rounded-none sm:rounded-none'
             : 'max-w-5xl max-h-[92vh] rounded-2xl'
@@ -1050,16 +1050,10 @@ export default function CalendarPostModal({
         )}
 
         {/* Body */}
-        <div
-          className="flex overflow-hidden"
-          style={{
-            maxHeight: isFullscreen ? '' : 'calc(92vh - 140px)',
-            height: isFullscreen ? 'calc(100vh - 140px)' : '',
-          }}
-        >
+        <div className="flex flex-1 overflow-y-auto">
           {/* Approval tab */}
           {activeTab === 'approval' && post && (
-            <div className="flex-1 overflow-y-auto p-6">
+            <div className="flex-1 p-6">
               <PostApprovalPanel
                 post={post}
                 onUpdate={(updatedPost) => {
@@ -1074,7 +1068,7 @@ export default function CalendarPostModal({
 
           {/* Comments tab */}
           {activeTab === 'comments' && post && (
-            <div className="flex-1 overflow-y-auto p-6">
+            <div className="flex-1 p-6">
               <PostComments postId={post.id} currentUser={currentUser} />
             </div>
           )}
@@ -1082,7 +1076,7 @@ export default function CalendarPostModal({
           {/* LEFT: Composer */}
           {(activeTab === 'compose' || !post) && (
             <div
-              className={`flex flex-col overflow-y-auto ${showPreview ? 'w-[58%]' : 'w-full'} border-r border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900`}
+              className={`flex flex-col ${showPreview ? 'w-[58%]' : 'w-full'} border-r border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900`}
             >
               {/* Platform Avatars */}
               <div className="flex items-center gap-3 px-6 pt-5 pb-4">
@@ -1457,7 +1451,7 @@ export default function CalendarPostModal({
 
           {/* RIGHT: Preview + Scheduling */}
           {(activeTab === 'compose' || !post) && showPreview && (
-            <div className="flex-1 flex flex-col bg-gray-50 dark:bg-gray-950 overflow-y-auto">
+            <div className="flex-1 flex flex-col bg-gray-50 dark:bg-gray-950">
               {/* Platform preview tabs — only when at least one platform is selected */}
               {formData.platforms.length > 0 && (
                 <>
