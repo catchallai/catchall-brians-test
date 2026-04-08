@@ -352,6 +352,7 @@ const DEFAULT_FORM = {
   recurrence_end_date: '',
   recurrence_days: [],
   auto_post: false,
+  tag_ids: [],
 };
 
 const DIRTY_FIELDS = [
@@ -376,7 +377,8 @@ const hasFormChanges = (current, initial) =>
   DIRTY_FIELDS.some((field) => current[field] !== initial[field]) ||
   !arraysEqual(current.platforms, initial.platforms) ||
   !arraysEqual(current.hashtags, initial.hashtags) ||
-  !arraysEqual(current.recurrence_days, initial.recurrence_days);
+  !arraysEqual(current.recurrence_days, initial.recurrence_days) ||
+  !arraysEqual(current.tag_ids, initial.tag_ids);
 
 export default function CalendarPostModal({
   open,
@@ -471,6 +473,7 @@ export default function CalendarPostModal({
           recurrence_end_date: post.recurrence_end_date || '',
           recurrence_days: post.recurrence_days || [],
           auto_post: post.auto_post || false,
+          tag_ids: post.tag_ids || [],
         };
         initialFormDataRef.current = initial;
         setFormData(initial);
