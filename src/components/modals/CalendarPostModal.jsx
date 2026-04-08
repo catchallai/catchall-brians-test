@@ -962,7 +962,7 @@ export default function CalendarPostModal({
     <Dialog open={open} onOpenChange={guardedClose}>
       <DialogContent
         ref={dialogContentRef}
-        className={`p-0 w-full overflow-y-auto bg-white dark:bg-gray-900 ${
+        className={`p-0 w-full overflow-hidden flex flex-col bg-white dark:bg-gray-900 ${
           isFullscreen
             ? 'inset-0 h-screen max-h-screen max-w-none translate-x-0 translate-y-0 rounded-none sm:rounded-none'
             : 'max-w-5xl max-h-[92vh] rounded-2xl'
@@ -1050,7 +1050,7 @@ export default function CalendarPostModal({
         )}
 
         {/* Body */}
-        <div className="flex">
+        <div className="flex flex-1 overflow-y-auto">
           {/* Approval tab */}
           {activeTab === 'approval' && post && (
             <div className="flex-1 p-6">
