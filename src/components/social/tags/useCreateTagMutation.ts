@@ -21,6 +21,8 @@ export function useCreateTagMutation() {
         name: trimmedName,
         slug,
       };
+      // Entity name is 'Tag' — must match useTagsQuery and SocialTags.jsx so all callers
+      // share the same Base44 entity and the ['social-tags'] cache key stays in sync.
       const raw = await base44.entities.Tag.create(payload);
       return {
         id: raw.id,

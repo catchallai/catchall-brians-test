@@ -109,6 +109,9 @@ export default function SocialCalendar() {
     }
     setViewMode(mode);
     persistViewMode(mode);
+    // Collapse the filter panel when switching views so the new view doesn't inherit
+    // the previous view's open filter state (showFilters is shared across views).
+    setShowFilters(false);
   };
   const [calendarViewType, setCalendarViewType] = useState('month');
   const [platformFilter, setPlatformFilter] = useState('all');
@@ -289,6 +292,17 @@ export default function SocialCalendar() {
     deleteMutation.mutate(post.id);
   };
 
+  // Month-scoped posts for bulk approval: filtered by date range only, never by
+  // platform/status/tags. Using filteredPosts here would silently skip posts that
+  // don't match the active tag or platform filter, leading to partial approvals.
+  const monthPosts = posts.filter((p) => {
+    if (!p.scheduled_date) {
+      return false;
+    }
+    const postDate = parseISO(p.scheduled_date);
+    return postDate >= startOfMonth(currentMonth) && postDate <= endOfMonth(currentMonth);
+  });
+
   const handleApproveAll = async () => {
     if (!approverName.trim()) {
       // eslint-disable-next-line no-alert
@@ -296,7 +310,7 @@ export default function SocialCalendar() {
       return;
     }
     const today = new Date().toISOString().split('T')[0];
-    for (const post of filteredPosts.filter(
+    for (const post of monthPosts.filter(
       (p) => p.status !== 'approved' && p.status !== 'published'
     )) {
       await base44.entities.CalendarPost.update(post.id, {

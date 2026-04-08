@@ -121,6 +121,10 @@ const COPY = {
     loading: 'Loading…',
     createTag: (name: string) => `Create tag "${name}"`,
   },
+  tagPill: {
+    // Tag-specific label so screen readers can distinguish between multiple pills.
+    removeLabel: (name: string) => `Remove tag ${name}`,
+  },
   platformBadges: {
     overflow: (count: number) => `+${count}`,
   },

@@ -1,6 +1,7 @@
 import { X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { TagOption } from '@/types/tags';
+import COPY from '@/lib/copy';
 
 interface TagPillProps {
   tag: TagOption;
@@ -24,7 +25,7 @@ export function TagPill({ tag, onRemove, size = 'default', className }: TagPillP
       {onRemove && (
         <button
           type="button"
-          aria-label="Remove tag"
+          aria-label={COPY.tagPill.removeLabel(tag.name)}
           onPointerDown={(e) => e.stopPropagation()}
           onClick={(e) => {
             e.stopPropagation();

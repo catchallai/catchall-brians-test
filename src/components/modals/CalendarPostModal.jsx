@@ -66,6 +66,9 @@ import { HashtagPoolCreatePopover } from '@/components/hashtags/HashtagPoolCreat
 import { coercePostTagIds } from '@/utils/tags';
 import { TagSelector } from '@/components/social/tags/TagSelector';
 import { useTagsQuery } from '@/components/social/tags/useTagsQuery';
+// arraysEqual is order-sensitive (for platforms/hashtags); setsEqual is used for tag_ids
+// because the server does not guarantee array order on those fields.
+import { arraysEqual, setsEqual } from '@/utils/hashtagUtils';
 
 // Best times by platform based on general audience activity research
 const BEST_TIMES = {
@@ -374,14 +377,14 @@ const DIRTY_FIELDS = [
   'auto_post',
 ];
 
-import { arraysEqual } from '@/utils/hashtagUtils';
-
 const hasFormChanges = (current, initial) =>
   DIRTY_FIELDS.some((field) => current[field] !== initial[field]) ||
   !arraysEqual(current.platforms, initial.platforms) ||
   !arraysEqual(current.hashtags, initial.hashtags) ||
   !arraysEqual(current.recurrence_days, initial.recurrence_days) ||
-  !arraysEqual(current.tag_ids, initial.tag_ids);
+  // tag_ids uses set equality because the server does not guarantee insertion order;
+  // positional comparison would produce false dirty state on re-open with no changes.
+  !setsEqual(current.tag_ids, initial.tag_ids);
 
 export default function CalendarPostModal({
   open,
