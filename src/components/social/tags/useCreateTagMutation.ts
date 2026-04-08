@@ -17,7 +17,9 @@ export function useCreateTagMutation() {
       const slug = slugify(name);
       const payload: Record<string, any> = { name: name.trim() };
       if (slug) payload.slug = slug;
-      const raw = await base44.entities.SocialTag.create(payload);
+      // Entity name is 'Tag' — must match useTagsQuery and SocialTags.jsx so all callers
+      // share the same Base44 entity and the ['social-tags'] cache key stays in sync.
+      const raw = await base44.entities.Tag.create(payload);
       return {
         id: raw.id,
         name: raw.name,
