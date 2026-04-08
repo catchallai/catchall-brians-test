@@ -106,6 +106,13 @@ const COPY = {
     insert: 'Insert',
     urlError: 'Please enter a valid URL starting with http:// or https://',
   },
+  tagSelector: {
+    placeholder: 'Add tags…',
+    searchPlaceholder: 'Search tags…',
+    noResults: 'No tags found.',
+    loading: 'Loading…',
+    createTag: (name: string) => `Create tag "${name}"`,
+  },
   platformBadges: {
     overflow: (count: number) => `+${count}`,
   },
