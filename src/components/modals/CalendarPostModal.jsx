@@ -63,6 +63,7 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { isValidHttpUrl, shortenUrl } from '@/utils/url';
 import { HashtagPoolCreatePopover } from '@/components/hashtags/HashtagPoolCreatePopover';
+import { coercePostTagIds } from '@/utils/tags';
 
 // Best times by platform based on general audience activity research
 const BEST_TIMES = {
@@ -352,7 +353,7 @@ const DEFAULT_FORM = {
   recurrence_end_date: '',
   recurrence_days: [],
   auto_post: false,
-  tag_ids: [],
+  tag_ids: /** @type {string[]} */ ([]),
 };
 
 const DIRTY_FIELDS = [
@@ -473,7 +474,7 @@ export default function CalendarPostModal({
           recurrence_end_date: post.recurrence_end_date || '',
           recurrence_days: post.recurrence_days || [],
           auto_post: post.auto_post || false,
-          tag_ids: post.tag_ids || [],
+          tag_ids: coercePostTagIds(post.tag_ids),
         };
         initialFormDataRef.current = initial;
         setFormData(initial);
