@@ -21,7 +21,7 @@ export function useCreateTagMutation() {
         name: trimmedName,
         slug,
       };
-      const raw = await base44.entities.SocialTag.create(payload);
+      const raw = await base44.entities.Tag.create(payload);
       return {
         id: raw.id,
         name: raw.name,
