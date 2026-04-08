@@ -1,7 +1,7 @@
 export type TagOption = {
   id: string;
   name: string;
-  slug?: string;
-  color?: string;
-  description?: string;
+  slug?: string | null;
+  color?: string | null;
+  description?: string | null;
 };
