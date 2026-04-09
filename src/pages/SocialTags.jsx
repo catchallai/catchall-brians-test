@@ -8,7 +8,7 @@ import ConfirmDialog from '@/components/ui/ConfirmDialog';
 import { Tag, Pencil, Trash2, Check, GripVertical, Archive, ArchiveRestore } from 'lucide-react';
 import { TAG_COLORS } from '@/constants/tags';
 import COPY from '@/lib/copy';
-import { DndContext, useDraggable, useDroppable } from '@dnd-kit/core';
+import { DndContext, useDraggable, useDroppable, closestCenter } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
 import { toast } from 'sonner';
 
@@ -384,7 +384,7 @@ export default function SocialTags() {
 
   return (
     <div className="p-6 lg:p-8 min-h-screen bg-gray-50 dark:bg-gray-900">
-      <DndContext onDragEnd={handleDragEnd}>
+      <DndContext onDragEnd={handleDragEnd} collisionDetection={closestCenter}>
         <div className="max-w-5xl mx-auto">
           <div className="flex gap-6 items-start">
             {/* Left: Persistent new tag form */}
