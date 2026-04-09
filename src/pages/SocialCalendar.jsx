@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent } from '@/components/ui/card';
@@ -116,7 +117,18 @@ export default function SocialCalendar() {
   const [calendarViewType, setCalendarViewType] = useState('month');
   const [platformFilter, setPlatformFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
-  const [activeTagIds, setActiveTagIds] = useState(/** @type {string[]} */ ([]));
+  const [searchParams, setSearchParams] = useSearchParams();
+  const activeTagIds = (searchParams.get('tags') ?? '').split(',').filter(Boolean);
+  const setActiveTagIds = (ids) => {
+    setSearchParams((p) => {
+      if (ids.length === 0) {
+        p.delete('tags');
+      } else {
+        p.set('tags', ids.join(','));
+      }
+      return p;
+    });
+  };
   const [showFilters, setShowFilters] = useState(false);
   const [gridSortOrder, setGridSortOrder] = useState('date_desc');
   const [galleryPosts, setGalleryPosts] = useState([]);
