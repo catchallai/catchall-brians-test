@@ -563,7 +563,9 @@ export default function CalendarPostModal({
   }, [post, open]);
 
   const isCropDirty =
-    Object.keys(platformTransformOps).length > 0 || Object.keys(platformTilts).length > 0;
+    Object.keys(platformCropBoxes).length > 0 ||
+    Object.values(platformTransformOps).some((ops) => ops.length > 0) ||
+    Object.values(platformTilts).some((tilt) => tilt !== 0);
   const isDirty = hasFormChanges(formData, initialFormDataRef.current) || isCropDirty;
 
   const { guardedClose, discardDialogProps } = useUnsavedChangesGuard({ isDirty, onClose });
@@ -1836,6 +1838,17 @@ export default function CalendarPostModal({
                 initialTransformOps={platformTransformOps[cropTargetPlatform] ?? []}
                 initialTiltDeg={platformTilts[cropTargetPlatform] ?? 0}
                 onSave={(url, cropBox, transformOps, tiltDeg) => {
+                  const prevCropBox = platformCropBoxes[cropTargetPlatform] ?? null;
+                  const prevTransformOps = platformTransformOps[cropTargetPlatform] ?? [];
+                  const prevTiltDeg = platformTilts[cropTargetPlatform] ?? 0;
+                  const unchanged =
+                    tiltDeg === prevTiltDeg &&
+                    JSON.stringify(transformOps) === JSON.stringify(prevTransformOps) &&
+                    JSON.stringify(cropBox) === JSON.stringify(prevCropBox);
+                  if (unchanged) {
+                    setIsCropOpen(false);
+                    return;
+                  }
                   setPlatformCrops((prev) => ({
                     ...prev,
                     [cropTargetPlatform]: /** @type {string} */ (url),
