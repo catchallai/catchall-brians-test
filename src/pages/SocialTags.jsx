@@ -152,7 +152,7 @@ function DroppableTab({ id, label, count, isActive, onClick }) {
         isActive
           ? 'border-blue-500 text-blue-600'
           : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400'
-      } ${isOver ? 'bg-amber-50 dark:bg-amber-900/20 border-amber-400 !text-amber-700' : ''}`}
+      } ${isOver ? 'bg-amber-50 dark:bg-amber-900/20 border-amber-300 !text-amber-700' : ''}`}
     >
       {label}
       <span
@@ -168,10 +168,10 @@ function DroppableTab({ id, label, count, isActive, onClick }) {
   );
 }
 
-function DraggableTagRow({ tag, onEdit, onDelete, isDeletePending }) {
+function DraggableTagRow({ tag, activeTab, onEdit, onDelete, isDeletePending }) {
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: tag.id,
-    data: { tag },
+    data: { tagId: tag.id, currentTab: activeTab },
   });
   const style = transform ? { transform: CSS.Translate.toString(transform) } : undefined;
 
@@ -366,6 +366,7 @@ export default function SocialTags() {
                 <DraggableTagRow
                   key={tag.id}
                   tag={tag}
+                  activeTab={activeTab}
                   onEdit={openEdit}
                   onDelete={setTagToDelete}
                   isDeletePending={deleteMutation.isPending}
