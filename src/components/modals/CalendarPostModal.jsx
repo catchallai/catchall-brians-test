@@ -449,17 +449,17 @@ export default function CalendarPostModal({
   const [isCropOpen, setIsCropOpen] = useState(false);
   /** @type {[string|null, (v: string|null) => void]} */
   const [cropTargetPlatform, setCropTargetPlatform] = useState(/** @type {string|null} */ (null));
-  /** @type {[Record<string,string>, (v: Record<string,string>) => void]} */
+  /** @type {[Record<string,string>, (v: Record<string,string> | ((prev: Record<string,string>) => Record<string,string>)) => void]} */
   const [platformCrops, setPlatformCrops] = useState(/** @type {Record<string,string>} */ ({}));
-  /** @type {[Record<string,{x:number,y:number,w:number,h:number}>, (v: Record<string,{x:number,y:number,w:number,h:number}>) => void]} */
+  /** @type {[Record<string,{x:number,y:number,w:number,h:number}>, (v: Record<string,{x:number,y:number,w:number,h:number}> | ((prev: Record<string,{x:number,y:number,w:number,h:number}>) => Record<string,{x:number,y:number,w:number,h:number}>)) => void]} */
   const [platformCropBoxes, setPlatformCropBoxes] = useState(
     /** @type {Record<string,{x:number,y:number,w:number,h:number}>} */ ({})
   );
-  /** @type {[Record<string,import('./ImageCropPanel').TransformOp[]>, (v: Record<string,import('./ImageCropPanel').TransformOp[]>) => void]} */
+  /** @type {[Record<string,import('./ImageCropPanel').TransformOp[]>, (v: Record<string,import('./ImageCropPanel').TransformOp[]> | ((prev: Record<string,import('./ImageCropPanel').TransformOp[]>) => Record<string,import('./ImageCropPanel').TransformOp[]>)) => void]} */
   const [platformTransformOps, setPlatformTransformOps] = useState(
     /** @type {Record<string,import('./ImageCropPanel').TransformOp[]>} */ ({})
   );
-  /** @type {[Record<string,number>, (v: Record<string,number>) => void]} */
+  /** @type {[Record<string,number>, (v: Record<string,number> | ((prev: Record<string,number>) => Record<string,number>)) => void]} */
   const [platformTilts, setPlatformTilts] = useState(/** @type {Record<string,number>} */ ({}));
 
   /** Clears all per-platform crop state. Call whenever the source image is replaced. */
@@ -1810,17 +1810,17 @@ export default function CalendarPostModal({
                 initialTransformOps={platformTransformOps[cropTargetPlatform] ?? []}
                 initialTiltDeg={platformTilts[cropTargetPlatform] ?? 0}
                 onSave={(url, cropBox, transformOps, tiltDeg) => {
-                  setPlatformCrops({
-                    ...platformCrops,
+                  setPlatformCrops((prev) => ({
+                    ...prev,
                     [cropTargetPlatform]: /** @type {string} */ (url),
-                  });
+                  }));
                   if (cropBox)
-                    setPlatformCropBoxes({ ...platformCropBoxes, [cropTargetPlatform]: cropBox });
-                  setPlatformTransformOps({
-                    ...platformTransformOps,
+                    setPlatformCropBoxes((prev) => ({ ...prev, [cropTargetPlatform]: cropBox }));
+                  setPlatformTransformOps((prev) => ({
+                    ...prev,
                     [cropTargetPlatform]: transformOps,
-                  });
-                  setPlatformTilts({ ...platformTilts, [cropTargetPlatform]: tiltDeg });
+                  }));
+                  setPlatformTilts((prev) => ({ ...prev, [cropTargetPlatform]: tiltDeg }));
                   setIsCropOpen(false);
                   toast.success(
                     COPY.calendarPostModal.cropApplied.replace('{platform}', cropTargetPlatform)

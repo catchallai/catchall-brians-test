@@ -170,7 +170,12 @@ export default function ImageCropPanel({
   const originalImgRef = useRef<HTMLImageElement | null>(null);
   const [naturalSize, setNaturalSize] = useState<{ w: number; h: number } | null>(null);
   const [cropBox, setCropBox] = useState<CropBox | null>(null);
-  const [isCustom, setIsCustom] = useState(false);
+  const isCustom =
+    cropBox === null
+      ? false
+      : !(PLATFORM_CROP_PRESETS[platform] ?? []).some(
+          (p) => Math.abs(cropBox.w / cropBox.h - p.ratio) / p.ratio < 0.02
+        );
   const [saving, setSaving] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
   const [transformOps, setTransformOps] = useState<TransformOp[]>(initialTransformOps);
@@ -256,8 +261,6 @@ export default function ImageCropPanel({
         setNaturalSize({ w, h });
         const box = initialCropBox ?? computeInitialCropBox(w, h, aspectRatio);
         setCropBox(box);
-        const diff = Math.abs(box.w / box.h - aspectRatio) / aspectRatio;
-        setIsCustom(diff > 0.02);
         setImageLoaded(true);
       };
       if (rendered.complete) {
@@ -312,7 +315,7 @@ export default function ImageCropPanel({
     ctx.drawImage(img, -drawW / 2, -drawH / 2, drawW, drawH);
     ctx.restore();
 
-    // Dark overlay (same rotation so it perfectly covers the image)
+    // Light overlay (same rotation so it perfectly covers the image)
     ctx.save();
     ctx.translate(centerX, centerY);
     ctx.rotate(rad);
@@ -617,11 +620,6 @@ export default function ImageCropPanel({
 
     const newBox = clampBox({ x, y, w, h }, nat.w, nat.h);
     setCropBox(newBox);
-
-    // Check if still matches preset ratio (within 2%)
-    const newRatio = newBox.w / newBox.h;
-    const diff = Math.abs(newRatio - aspectRatio) / aspectRatio;
-    setIsCustom(dragMode.current !== 'move' && diff > 0.02);
   };
 
   /** Ends the current drag/resize operation. */
@@ -680,8 +678,6 @@ export default function ImageCropPanel({
       setNaturalSize({ w: outW, h: outH });
       const box = cropBox ? remapBox(cropBox) : computeInitialCropBox(outW, outH, aspectRatio);
       setCropBox(box);
-      const diff = Math.abs(box.w / box.h - aspectRatio) / aspectRatio;
-      setIsCustom(diff > 0.02);
     };
 
     if (newRendered.complete) finalize();
@@ -763,7 +759,6 @@ export default function ImageCropPanel({
     const natH = orig.naturalHeight;
     setNaturalSize({ w: natW, h: natH });
     setCropBox(computeInitialCropBox(natW, natH, aspectRatio));
-    setIsCustom(false);
   };
 
   const instructionsText = COPY.calendarPostModal.cropInstructions
@@ -832,7 +827,6 @@ export default function ImageCropPanel({
                         setCropBox(
                           computeInitialCropBox(naturalSize.w, naturalSize.h, preset.ratio)
                         );
-                        setIsCustom(false);
                       }}
                       className={`flex items-center justify-between w-full px-2.5 py-1.5 rounded-lg text-xs transition-colors ${
                         active
