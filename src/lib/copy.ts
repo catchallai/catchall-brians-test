@@ -154,6 +154,17 @@ const COPY = {
     newCategoryCancel: 'Cancel',
     createPoolError: 'Failed to create hashtag pool. Please try again.',
   },
+  general: {
+    close: 'Close',
+    cancel: 'Cancel',
+    save: 'Save',
+    delete: 'Delete',
+    edit: 'Edit',
+    update: 'Update',
+    confirm: 'Confirm',
+    yes: 'Yes',
+    no: 'No',
+  },
 };
 
 export default COPY;

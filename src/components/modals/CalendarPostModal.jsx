@@ -218,6 +218,7 @@ function PlatformPreviewPanel({
                     type="button"
                     onClick={onCropClick}
                     className="absolute right-2 top-2 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-violet-200 text-violet-500 shadow-sm transition-colors hover:bg-violet-300"
+                    aria-label={COPY.calendarPostModal.cropTitle}
                   >
                     <Crop className="h-4 w-4" />
                   </button>
@@ -1809,39 +1810,21 @@ export default function CalendarPostModal({
                 initialTransformOps={platformTransformOps[cropTargetPlatform] ?? []}
                 initialTiltDeg={platformTilts[cropTargetPlatform] ?? 0}
                 onSave={(url, cropBox, transformOps, tiltDeg) => {
-                  /** @type {Record<string, string>} */
-                  const nextCrops = { ...platformCrops };
-                  /** @type {Record<string, {x:number,y:number,w:number,h:number}>} */
-                  const nextBoxes = { ...platformCropBoxes };
-                  /** @type {Record<string, import('./ImageCropPanel').TransformOp[]>} */
-                  const nextOps = { ...platformTransformOps };
-                  /** @type {Record<string, number>} */
-                  const nextTilts = { ...platformTilts };
-                  if (url === null) {
-                    delete nextCrops[cropTargetPlatform];
-                    delete nextBoxes[cropTargetPlatform];
-                    delete nextOps[cropTargetPlatform];
-                    delete nextTilts[cropTargetPlatform];
-                  } else {
-                    nextCrops[cropTargetPlatform] = url;
-                    if (cropBox) nextBoxes[cropTargetPlatform] = cropBox;
-                    nextOps[cropTargetPlatform] = transformOps;
-                    nextTilts[cropTargetPlatform] = tiltDeg;
-                  }
-                  setPlatformCrops(nextCrops);
-                  setPlatformCropBoxes(nextBoxes);
-                  setPlatformTransformOps(nextOps);
-                  setPlatformTilts(nextTilts);
+                  setPlatformCrops({
+                    ...platformCrops,
+                    [cropTargetPlatform]: /** @type {string} */ (url),
+                  });
+                  if (cropBox)
+                    setPlatformCropBoxes({ ...platformCropBoxes, [cropTargetPlatform]: cropBox });
+                  setPlatformTransformOps({
+                    ...platformTransformOps,
+                    [cropTargetPlatform]: transformOps,
+                  });
+                  setPlatformTilts({ ...platformTilts, [cropTargetPlatform]: tiltDeg });
                   setIsCropOpen(false);
-                  if (url) {
-                    toast.success(
-                      COPY.calendarPostModal.cropApplied.replace('{platform}', cropTargetPlatform)
-                    );
-                  } else {
-                    toast.success(
-                      COPY.calendarPostModal.cropReset.replace('{platform}', cropTargetPlatform)
-                    );
-                  }
+                  toast.success(
+                    COPY.calendarPostModal.cropApplied.replace('{platform}', cropTargetPlatform)
+                  );
                 }}
                 onClose={() => setIsCropOpen(false)}
               />

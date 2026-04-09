@@ -36,6 +36,7 @@ export default [
       'no-unused-vars': 'off',
       'no-console': ['warn', { allow: ['warn', 'error'] }],
       eqeqeq: ['error', 'always'],
+      // Disabling because AI seems to like writing single-line if statements without curly braces
       curly: 'off',
       'no-debugger': 'error',
       'no-alert': 'error',

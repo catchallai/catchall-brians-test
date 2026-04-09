@@ -30,7 +30,7 @@ interface ImageCropPanelProps {
   initialTransformOps?: TransformOp[];
   initialTiltDeg?: number;
   onSave: (
-    url: string | null,
+    url: string,
     cropBox: CropBox | null,
     transformOps: TransformOp[],
     tiltDeg: number
@@ -785,6 +785,7 @@ export default function ImageCropPanel({
           type="button"
           onClick={onClose}
           className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors text-gray-400"
+          aria-label={COPY.general.close}
         >
           <X className="h-4 w-4" />
         </button>
@@ -871,6 +872,7 @@ export default function ImageCropPanel({
                   type="button"
                   role="switch"
                   aria-checked={showSafeZones}
+                  aria-label={COPY.calendarPostModal.cropSafeZones}
                   onClick={() => {
                     const next = !showSafeZones;
                     setShowSafeZones(next);
@@ -955,6 +957,7 @@ export default function ImageCropPanel({
                     onClick={() => applyTransform(type)}
                     disabled={saving || !imageLoaded}
                     className="flex-1 flex items-center justify-center py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-40 text-gray-900 dark:text-gray-100 transition-colors"
+                    aria-label={label}
                   >
                     <Icon className="h-4 w-4" />
                   </button>
