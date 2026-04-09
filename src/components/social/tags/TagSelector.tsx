@@ -192,7 +192,11 @@ export function TagSelector({
             value={search}
             onValueChange={(val) => {
               setSearch(val);
-              if (!val.trim()) {
+              const wouldShowCreate =
+                allowCreate &&
+                !!val.trim() &&
+                !allTags.some((t) => t.name.toLowerCase() === val.trim().toLowerCase());
+              if (!wouldShowCreate) {
                 setIsCreateExpanded(false);
                 setCreateColor(TAG_COLORS[0]);
               }
