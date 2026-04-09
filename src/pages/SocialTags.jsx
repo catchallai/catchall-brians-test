@@ -202,7 +202,7 @@ function DraggableTagRow({ tag, activeTab, onEdit, onDelete, isDeletePending }) 
         )}
       </div>
       <div className="flex items-center gap-3">
-        {tag.usage_count !== null && tag.usage_count !== undefined && (
+        {tag.usage_count > 0 && (
           <span className="text-xs text-gray-400 tabular-nums">
             {COPY.socialTags.postCount(tag.usage_count)}
           </span>

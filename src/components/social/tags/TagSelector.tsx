@@ -64,10 +64,12 @@ export function TagSelector({
   const selectedIds = new Set(value.map((t) => t.id));
 
   const filteredTags = allTags.filter(
-    (t) => !search || t.name.toLowerCase().includes(search.toLowerCase())
+    (t) => !t.is_archived && (!search || t.name.toLowerCase().includes(search.toLowerCase()))
   );
 
-  const hasExactMatch = allTags.some((t) => t.name.toLowerCase() === search.trim().toLowerCase());
+  const hasExactMatch = allTags.some(
+    (t) => !t.is_archived && t.name.toLowerCase() === search.trim().toLowerCase()
+  );
 
   const handleOpenChange = (next: boolean) => {
     if (disabled && next) return;

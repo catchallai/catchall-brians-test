@@ -123,7 +123,7 @@ const COPY = {
     createError: 'Failed to create tag. Please try again.',
     deleteSuccess: (name: string) => `Tag "${name}" deleted.`,
     deleteError: 'Failed to delete tag. Please try again.',
-    atLimit: 'Posts can have at most 10 tags.',
+    atLimit: 'Posts can only have 10 tags.',
     deleteTagLabel: (name: string) => `Delete tag ${name}`,
     colorLabel: 'Color',
     createWithColor: 'Create',

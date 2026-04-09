@@ -377,14 +377,15 @@ const DIRTY_FIELDS = [
   'auto_post',
 ];
 
-const hasFormChanges = (current, initial) =>
+const hasFormChanges = (current, initial, { includeTags = true } = {}) =>
   DIRTY_FIELDS.some((field) => current[field] !== initial[field]) ||
   !arraysEqual(current.platforms, initial.platforms) ||
   !arraysEqual(current.hashtags, initial.hashtags) ||
   !arraysEqual(current.recurrence_days, initial.recurrence_days) ||
   // tag_ids uses set equality because the server does not guarantee insertion order;
   // positional comparison would produce false dirty state on re-open with no changes.
-  !setsEqual(current.tag_ids, initial.tag_ids);
+  // Tags auto-persist on existing posts, so they're excluded from the dirty check there.
+  (includeTags && !setsEqual(current.tag_ids, initial.tag_ids));
 
 export default function CalendarPostModal({
   open,
@@ -436,7 +437,16 @@ export default function CalendarPostModal({
   const queryClient = useQueryClient();
   const tagAutosaveMutation = useMutation({
     mutationFn: ({ id, tag_ids }) => base44.entities.CalendarPost.update(id, { tag_ids }),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['calendar-posts'] }),
+    onSuccess: (_, { id, tag_ids }) => {
+      // Update the cache directly rather than invalidating — invalidating triggers a refetch
+      // which provides a new `post` prop reference and re-initialises the modal mid-edit.
+      queryClient.setQueriesData({ queryKey: ['calendar-posts'] }, (old) => {
+        if (!Array.isArray(old)) {
+          return old;
+        }
+        return old.map((p) => (p.id === id ? { ...p, tag_ids } : p));
+      });
+    },
   });
   const {
     activeHashtags: _activeHashtags,
@@ -498,9 +508,11 @@ export default function CalendarPostModal({
         setPreviewPlatform('Twitter');
       }
     }
-  }, [post, open]);
+    // Depend on post?.id rather than post so that background cache updates (new object
+    // reference, same ID) don't re-initialise the form while the user is editing.
+  }, [post?.id, open]);
 
-  const isDirty = hasFormChanges(formData, initialFormDataRef.current);
+  const isDirty = hasFormChanges(formData, initialFormDataRef.current, { includeTags: !post?.id });
 
   const { guardedClose, discardDialogProps } = useUnsavedChangesGuard({ isDirty, onClose });
 
