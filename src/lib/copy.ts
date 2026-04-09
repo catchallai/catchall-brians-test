@@ -136,6 +136,7 @@ const COPY = {
     archivedTab: 'Archived',
     archiveSuccess: (name: string) => `"${name}" archived`,
     unarchiveSuccess: (name: string) => `"${name}" unarchived`,
+    archiveError: 'Failed to update tag. Please try again.',
     duplicateNameError: 'A tag with this name already exists.',
     noActiveTags: 'No active tags.',
     noArchivedTags: 'No archived tags.',

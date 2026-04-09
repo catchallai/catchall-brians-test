@@ -250,21 +250,20 @@ export default function SocialTags() {
 
   const archiveMutation = useMutation({
     mutationFn: ({ id, is_archived }) => base44.entities.SocialTag.update(id, { is_archived }),
-    onSuccess: (_, { is_archived, id }) => {
+    onSuccess: (_, { is_archived, name }) => {
       queryClient.invalidateQueries({ queryKey: ['social-tags'] });
-      const tag = tags.find((t) => t.id === id);
-      if (tag) {
-        toast.success(
-          is_archived
-            ? COPY.socialTags.archiveSuccess(tag.name)
-            : COPY.socialTags.unarchiveSuccess(tag.name)
-        );
-      }
+      setActiveTab(is_archived ? 'archived' : 'active');
+      toast.success(
+        is_archived ? COPY.socialTags.archiveSuccess(name) : COPY.socialTags.unarchiveSuccess(name)
+      );
+    },
+    onError: () => {
+      toast.error(COPY.socialTags.archiveError);
     },
   });
 
   const handleDragEnd = ({ active, over }) => {
-    if (!over) {
+    if (!over || archiveMutation.isPending) {
       return;
     }
     const tag = tags.find((t) => t.id === active.id);
@@ -275,8 +274,7 @@ export default function SocialTags() {
     if (Boolean(tag.is_archived) === droppingOnArchived) {
       return;
     }
-    archiveMutation.mutate({ id: tag.id, is_archived: droppingOnArchived });
-    setActiveTab(droppingOnArchived ? 'archived' : 'active');
+    archiveMutation.mutate({ id: tag.id, is_archived: droppingOnArchived, name: tag.name });
   };
 
   const openNew = () => {
