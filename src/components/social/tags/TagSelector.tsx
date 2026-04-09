@@ -15,6 +15,7 @@ import { cn } from '@/lib/utils';
 import { TagPill } from './TagPill';
 import { useTagsQuery } from './useTagsQuery';
 import { useCreateTagMutation } from './useCreateTagMutation';
+import { toast } from 'sonner';
 import COPY from '@/lib/copy';
 import type { TagOption } from '@/types/tags';
 
@@ -81,7 +82,7 @@ export function TagSelector({
       onChange([...value, newTag]);
       setSearch('');
     } catch {
-      // create failed; user can retry
+      toast.error(SELECTOR_COPY.createError);
     }
   }, [search, value, onChange, createTag, isCreating]);
 

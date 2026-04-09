@@ -21,9 +21,7 @@ export function useCreateTagMutation() {
         name: trimmedName,
         slug,
       };
-      // Entity name is 'Tag' — must match useTagsQuery and SocialTags.jsx so all callers
-      // share the same Base44 entity and the ['social-tags'] cache key stays in sync.
-      const raw = await base44.entities.Tag.create(payload);
+      const raw = await base44.entities.SocialTag.create(payload);
       return {
         id: raw.id,
         name: raw.name,
@@ -32,8 +30,8 @@ export function useCreateTagMutation() {
         description: raw.description,
       };
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['social-tags'] });
+    onSuccess: (newTag) => {
+      queryClient.setQueryData<TagOption[]>(['social-tags'], (old = []) => [...old, newTag]);
     },
   });
 }

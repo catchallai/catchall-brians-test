@@ -37,7 +37,7 @@ function TagFormModal({ open, onClose, tag }) {
 
   const saveMutation = useMutation({
     mutationFn: (data) =>
-      tag ? base44.entities.Tag.update(tag.id, data) : base44.entities.Tag.create(data),
+      tag ? base44.entities.SocialTag.update(tag.id, data) : base44.entities.SocialTag.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['social-tags'] });
       onClose();
@@ -137,16 +137,13 @@ export default function SocialTags() {
   const [showModal, setShowModal] = useState(false);
   const [editingTag, setEditingTag] = useState(null);
 
-  // Entity name is 'Tag' (matches base44/entities/Tag.jsonc and useTagsQuery).
-  // Must stay in sync with useTagsQuery so the shared ['social-tags'] cache key
-  // reflects the same entity on both the management page and the tag selector.
   const { data: tags = [], isLoading } = useQuery({
     queryKey: ['social-tags'],
-    queryFn: () => base44.entities.Tag.list('-created_date', 100),
+    queryFn: () => base44.entities.SocialTag.list('-created_date', 100),
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (id) => base44.entities.Tag.delete(id),
+    mutationFn: (id) => base44.entities.SocialTag.delete(id),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['social-tags'] }),
   });
 

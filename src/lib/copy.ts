@@ -120,6 +120,7 @@ const COPY = {
     noResults: 'No tags found.',
     loading: 'Loading…',
     createTag: (name: string) => `Create tag "${name}"`,
+    createError: 'Failed to create tag. Please try again.',
   },
   tagPill: {
     // Tag-specific label so screen readers can distinguish between multiple pills.
