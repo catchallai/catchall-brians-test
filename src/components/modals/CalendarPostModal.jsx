@@ -1473,7 +1473,7 @@ export default function CalendarPostModal({
               )}
 
               {/* Tags */}
-              <div className="space-y-2">
+              <div className="px-6 pb-2 space-y-2">
                 <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                   {COPY.calendarPostModal.tags}
                 </label>
