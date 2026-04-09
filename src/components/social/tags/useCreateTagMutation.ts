@@ -1,20 +1,13 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import type { TagOption } from '@/types/tags';
-
-function slugify(name: string): string {
-  return name
-    .toLowerCase()
-    .trim()
-    .replace(/\s+/g, '-')
-    .replace(/[^a-z0-9-]/g, '');
-}
+import { slugifyTag } from '@/utils/tags';
 
 export function useCreateTagMutation() {
   const queryClient = useQueryClient();
   return useMutation<TagOption, Error, string>({
     mutationFn: async (name: string): Promise<TagOption> => {
-      const slug = slugify(name);
+      const slug = slugifyTag(name);
       const payload: Record<string, any> = { name: name.trim() };
       if (slug) payload.slug = slug;
       // Entity name is 'Tag' — must match useTagsQuery and SocialTags.jsx so all callers
