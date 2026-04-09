@@ -16,7 +16,6 @@ dist
 dist-ssr
 *.local
 docs
-!docs/superpowers/
 
 # Editor directories and files
 .vscode/*
