@@ -61,14 +61,7 @@ import BufferComposer from '@/components/social/BufferComposer';
 import { PostStatus } from '@/types/enums';
 import COPY from '@/lib/copy';
 
-const CALENDAR_PLATFORMS = [
-  'all',
-  'Facebook',
-  'Instagram',
-  'LinkedIn',
-  'Twitter',
-  'YouTube',
-];
+const CALENDAR_PLATFORMS = ['all', 'Facebook', 'Instagram', 'LinkedIn', 'Twitter', 'YouTube'];
 
 const CALENDAR_STATUSES = [
   'all',
@@ -82,7 +75,9 @@ const CALENDAR_STATUSES = [
 export default function SocialCalendar() {
   const [showModal, setShowModal] = useState(false);
   const [showBulkModal, setShowBulkModal] = useState(false);
-  const [selectedPost, setSelectedPost] = useState(null);
+  const [selectedPost, setSelectedPost] = useState(
+    /** @type {Record<string, any> | null} */ (null)
+  );
   const [showTemplateModal, setShowTemplateModal] = useState(false);
   const [showQuickPost, setShowQuickPost] = useState(false);
   const [showDatePicker, setShowDatePicker] = useState(false);
@@ -200,7 +195,8 @@ export default function SocialCalendar() {
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, data }) => base44.entities.CalendarPost.update(id, data),
+    mutationFn: (/** @type {{ id: any, data: any }} */ { id, data }) =>
+      base44.entities.CalendarPost.update(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['calendar-posts'] });
       setShowModal(false);
@@ -230,7 +226,32 @@ export default function SocialCalendar() {
    */
   const handleSave = async (data) => {
     if (selectedPost?.id) {
-      await updateMutation.mutateAsync({ id: selectedPost.id, data });
+      let updateData = data;
+
+      // If rescheduled to a different month, drop the old order and assign the
+      // next available slot in the target month (left-to-right, top-to-bottom).
+      if (selectedPost.scheduled_date && data.scheduled_date) {
+        const oldMonth = format(parseISO(selectedPost.scheduled_date), 'yyyy-MM');
+        const newMonth = format(parseISO(data.scheduled_date), 'yyyy-MM');
+        if (oldMonth !== newMonth) {
+          const targetStart = startOfMonth(parseISO(data.scheduled_date));
+          const targetEnd = endOfMonth(parseISO(data.scheduled_date));
+          const usedOrders = new Set(
+            posts
+              .filter((p) => {
+                if (!p.scheduled_date || p.id === selectedPost.id) return false;
+                const d = parseISO(p.scheduled_date);
+                return d >= targetStart && d <= targetEnd && typeof p.order === 'number';
+              })
+              .map((p) => p.order)
+          );
+          let nextOrder = 0;
+          while (usedOrders.has(nextOrder)) nextOrder++;
+          updateData = { ...data, order: nextOrder };
+        }
+      }
+
+      await updateMutation.mutateAsync({ id: selectedPost.id, data: updateData });
     } else {
       let order;
       if (selectedPost?.order !== undefined && selectedPost?.order !== null) {
