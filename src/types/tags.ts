@@ -4,4 +4,5 @@ export type TagOption = {
   slug?: string | null;
   color?: string | null;
   description?: string | null;
+  is_archived?: boolean | null;
 };

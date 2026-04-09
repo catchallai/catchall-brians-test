@@ -127,7 +127,7 @@ export function TagSelector({
         if (selectedIds.has(tag.id)) {
           onChange(value.filter((t) => t.id !== tag.id));
         }
-        toast.success(`Tag "${tag.name}" deleted.`);
+        toast.success(SELECTOR_COPY.deleteSuccess(tag.name));
       } catch {
         toast.error(SELECTOR_COPY.deleteError);
       }
