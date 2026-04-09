@@ -217,7 +217,7 @@ function PlatformPreviewPanel({
                   <button
                     type="button"
                     onClick={onCropClick}
-                    className="absolute right-2 top-2 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-white/20 text-white shadow-sm transition-colors hover:bg-white/30"
+                    className="absolute right-2 top-2 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-violet-200 text-violet-500 shadow-sm transition-colors hover:bg-violet-300"
                   >
                     <Crop className="h-4 w-4" />
                   </button>

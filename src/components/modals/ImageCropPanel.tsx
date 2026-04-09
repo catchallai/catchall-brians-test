@@ -222,9 +222,12 @@ export default function ImageCropPanel({
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
+    const dpr = window.devicePixelRatio || 1;
     const { w: natW, h: natH } = naturalSize;
-    const canvasW = canvas.width;
-    const canvasH = canvas.height;
+    // Work in CSS pixels so mouse coords and drawing coords stay in the same space
+    const canvasW = canvas.width / dpr;
+    const canvasH = canvas.height / dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     const scale = Math.min(canvasW / natW, canvasH / natH);
     scaleRef.current = scale;
 
@@ -405,8 +408,11 @@ export default function ImageCropPanel({
     if (!canvas) return;
     const ro = new ResizeObserver(() => {
       const rect = canvas.getBoundingClientRect();
-      canvas.width = rect.width;
-      canvas.height = rect.height;
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = rect.width * dpr;
+      canvas.height = rect.height * dpr;
+      canvas.style.width = `${rect.width}px`;
+      canvas.style.height = `${rect.height}px`;
       drawCanvas();
     });
     ro.observe(canvas);
