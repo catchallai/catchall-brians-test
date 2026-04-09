@@ -1,5 +1,5 @@
 {
-  "name": "Tag",
+  "name": "SocialTag",
   "type": "object",
   "properties": {
     "name": {

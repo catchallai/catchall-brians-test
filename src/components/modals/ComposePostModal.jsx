@@ -13,6 +13,8 @@ import { toLocalISOString } from '@/utils/date';
 import useUnsavedChangesGuard from '@/components/hooks/useUnsavedChangesGuard';
 import ConfirmDialog from '@/components/ui/ConfirmDialog';
 import { PLATFORMS as PLATFORM_CONFIGS } from '@/constants/platforms';
+import { TagSelector } from '@/components/social/tags/TagSelector';
+import COPY from '@/lib/copy';
 
 const PLATFORMS = PLATFORM_CONFIGS.map((p) => ({
   id: p.id.toLowerCase(),
@@ -37,6 +39,7 @@ export default function ComposePostModal({
   const [platformContent, setPlatformContent] = useState({});
   const [hashtags, setHashtags] = useState([]);
   const [hashtagInput, setHashtagInput] = useState('');
+  const [selectedTags, setSelectedTags] = useState([]);
   const [scheduledTime, setScheduledTime] = useState('');
   const [scheduleError, setScheduleError] = useState('');
   const [activeTab, setActiveTab] = useState('compose');
@@ -46,6 +49,7 @@ export default function ComposePostModal({
     selectedAccounts.length > 0 ||
     Object.keys(platformContent).length > 0 ||
     hashtags.length > 0 ||
+    selectedTags.length > 0 ||
     scheduledTime !== '';
 
   const { guardedClose, discardDialogProps } = useUnsavedChangesGuard({ isDirty, onClose });
@@ -56,6 +60,7 @@ export default function ComposePostModal({
       setSelectedAccounts([]);
       setPlatformContent({});
       setHashtags([]);
+      setSelectedTags([]);
       setScheduledTime('');
       setActiveTab('compose');
     }
@@ -135,7 +140,7 @@ export default function ComposePostModal({
         scheduled_time: scheduledTime || new Date().toISOString(),
         status: scheduledTime ? 'scheduled' : 'draft',
         ai_optimized: !!platformContent[account.platform],
-        tag_ids: [],
+        tag_ids: selectedTags.map((t) => t.id),
       };
     });
 
@@ -218,6 +223,12 @@ export default function ComposePostModal({
                   ))}
                 </div>
               )}
+            </div>
+
+            {/* Tags */}
+            <div className="space-y-2">
+              <Label>{COPY.calendarPostModal.tags}</Label>
+              <TagSelector value={selectedTags} onChange={setSelectedTags} allowCreate />
             </div>
 
             {/* Account Selection */}

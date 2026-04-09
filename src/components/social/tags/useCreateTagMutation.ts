@@ -1,14 +1,15 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import type { TagOption } from '@/types/tags';
 import { slugifyTag } from '@/utils/tags';
+import type { TagOption } from '@/types/tags';
 
 export function useCreateTagMutation() {
   const queryClient = useQueryClient();
   return useMutation<TagOption, Error, string>({
     mutationFn: async (name: string): Promise<TagOption> => {
-      const slug = slugifyTag(name);
-      const payload: Record<string, any> = { name: name.trim() };
+      const trimmedName = name.trim();
+      const slug = slugifyTag(trimmedName);
+      const payload: Record<string, any> = { name: trimmedName };
       if (slug) payload.slug = slug;
       // Entity name is 'Tag' — must match useTagsQuery and SocialTags.jsx so all callers
       // share the same Base44 entity and the ['social-tags'] cache key stays in sync.

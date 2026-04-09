@@ -106,6 +106,9 @@ const COPY = {
     insert: 'Insert',
     urlError: 'Please enter a valid URL starting with http:// or https://',
   },
+  bufferComposer: {
+    tags: 'Tags',
+  },
   tagSelector: {
     placeholder: 'Add tags…',
     searchPlaceholder: 'Search tags…',

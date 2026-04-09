@@ -112,10 +112,14 @@ export function TagSelector({
           role="combobox"
           aria-expanded={open}
           aria-haspopup="listbox"
-          aria-label={ariaLabel || SELECTOR_COPY.placeholder}
+          aria-label={ariaLabel || placeholder || SELECTOR_COPY.placeholder}
+          aria-disabled={disabled}
           tabIndex={disabled ? -1 : 0}
           onKeyDown={(e) => {
-            if (!disabled && (e.key === 'Enter' || e.key === ' ')) setOpen(true);
+            if (!disabled && (e.key === 'Enter' || e.key === ' ')) {
+              e.preventDefault();
+              setOpen(true);
+            }
           }}
           className={cn(
             'flex min-h-9 w-full flex-wrap items-center gap-1.5 rounded-md border border-input bg-transparent px-3 py-1.5 text-sm shadow-sm cursor-pointer select-none',
