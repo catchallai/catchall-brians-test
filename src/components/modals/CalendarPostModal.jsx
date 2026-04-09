@@ -1000,20 +1000,6 @@ export default function CalendarPostModal({
             <h2 className="text-lg font-bold text-gray-900 dark:text-white">
               {post ? COPY.calendarPostModal.editPost : COPY.calendarPostModal.createPost}
             </h2>
-            <div className="min-w-[140px] max-w-[260px]">
-              <TagSelector
-                value={selectedTags}
-                onChange={(tags) => {
-                  const tag_ids = tags.map((t) => t.id);
-                  setFormData((f) => ({ ...f, tag_ids }));
-                  if (post?.id) {
-                    tagAutosaveMutation.mutate({ id: post.id, tag_ids });
-                  }
-                }}
-                allowCreate
-                disabled={isPostPublished}
-              />
-            </div>
           </div>
           <div className="flex items-center gap-2">
             <Button
@@ -1485,6 +1471,25 @@ export default function CalendarPostModal({
                   onToggle={handleTogglePool}
                 />
               )}
+
+              {/* Tags */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  {COPY.calendarPostModal.tags}
+                </label>
+                <TagSelector
+                  value={selectedTags}
+                  onChange={(tags) => {
+                    const tag_ids = tags.map((t) => t.id);
+                    setFormData((f) => ({ ...f, tag_ids }));
+                    if (post?.id) {
+                      tagAutosaveMutation.mutate({ id: post.id, tag_ids });
+                    }
+                  }}
+                  allowCreate
+                  disabled={isPostPublished}
+                />
+              </div>
             </div>
           )}
 
