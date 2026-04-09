@@ -44,7 +44,9 @@ import {
 import CalendarPostCard from '@/components/social/CalendarPostCard';
 import CalendarPostModal from '@/components/modals/CalendarPostModal';
 import { TagSelector } from '@/components/social/tags/TagSelector';
+import { TagPill } from '@/components/social/tags/TagPill';
 import { useTagsQuery } from '@/components/social/tags/useTagsQuery';
+import { HoverCard, HoverCardTrigger, HoverCardContent } from '@/components/ui/hover-card';
 import SocialCalendarView from '@/components/social/SocialCalendarView';
 import { AllHashtagsSection } from '@/components/hashtags/AllHashtagsSection';
 import { CreateHashtagPoolSection } from '@/components/hashtags/CreateHashtagPoolSection';
@@ -872,21 +874,51 @@ export default function SocialCalendar() {
               </Card>
             ) : (
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-                {gridPosts.map((post) => (
-                  <div key={post.id} className="flex flex-col">
-                    <CalendarPostCard
-                      post={post}
-                      onEdit={handleEdit}
-                      onDelete={handleDelete}
-                      compact
-                      showDeleteButton={true}
-                      allTags={allTags}
-                    />
-                    {post.caption && (
-                      <p className="text-xs text-gray-600 mt-2 line-clamp-3 px-1">{post.caption}</p>
-                    )}
-                  </div>
-                ))}
+                {gridPosts.map((post) => {
+                  const postTags = allTags.filter((t) => (post.tag_ids || []).includes(t.id));
+                  const visibleTags = postTags.slice(0, 3);
+                  const overflowTags = postTags.slice(3);
+                  return (
+                    <div key={post.id} className="flex flex-col">
+                      <CalendarPostCard
+                        post={post}
+                        onEdit={handleEdit}
+                        onDelete={handleDelete}
+                        compact
+                        showDeleteButton={true}
+                        allTags={allTags}
+                      />
+                      {post.caption && (
+                        <p className="text-xs text-gray-600 mt-2 line-clamp-3 px-1">
+                          {post.caption}
+                        </p>
+                      )}
+                      {postTags.length > 0 && (
+                        <div className="flex flex-wrap gap-1 mt-1.5 px-1">
+                          {visibleTags.map((tag) => (
+                            <TagPill key={tag.id} tag={tag} size="sm" />
+                          ))}
+                          {overflowTags.length > 0 && (
+                            <HoverCard openDelay={100} closeDelay={100}>
+                              <HoverCardTrigger asChild>
+                                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600 cursor-default">
+                                  +{overflowTags.length}
+                                </span>
+                              </HoverCardTrigger>
+                              <HoverCardContent align="start" className="w-auto max-w-xs p-3">
+                                <div className="flex flex-wrap gap-1.5">
+                                  {overflowTags.map((tag) => (
+                                    <TagPill key={tag.id} tag={tag} size="sm" />
+                                  ))}
+                                </div>
+                              </HoverCardContent>
+                            </HoverCard>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             )}
           </>

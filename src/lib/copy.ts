@@ -163,6 +163,8 @@ const COPY = {
     noActiveTags: 'No active tags.',
     noArchivedTags: 'No archived tags.',
     postCount: (n: number) => `${n} post${n === 1 ? '' : 's'}`,
+    archiveLabel: 'Archive',
+    unarchiveLabel: 'Unarchive',
   },
   platformBadges: {
     overflow: (count: number) => `+${count}`,

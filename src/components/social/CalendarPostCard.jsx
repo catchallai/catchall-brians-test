@@ -177,10 +177,9 @@ export default function CalendarPostCard({
         </div>
       )}
 
-      {/* Tags — rendered in all view modes (compact and default).
-          The only call site (SocialCalendar.jsx) always passes compact={true}, so the
-          previous !compact guard permanently hid tags in the calendar view. */}
-      {postTags.length > 0 && (
+      {/* Tags — only shown in non-compact (non-grid) views. The grid view renders
+          tags below the caption in SocialCalendar.jsx for correct visual placement. */}
+      {!compact && postTags.length > 0 && (
         <div className="px-3 pb-3 bg-white flex flex-wrap gap-1">
           {postTags.slice(0, 3).map((tag) => (
             <TagPill key={tag.id} tag={tag} size="sm" />
