@@ -1,5 +1,5 @@
 {
-  "name": "Tag",
+  "name": "SocialTag",
   "type": "object",
   "properties": {
     "name": {
@@ -12,7 +12,7 @@
     },
     "color": {
       "type": "string",
-      "description": "Hex or named color for the tag",
+      "description": "Hex color for the tag pill",
     },
     "description": {
       "type": "string",
@@ -21,12 +21,12 @@
     "is_archived": {
       "type": "boolean",
       "default": false,
-      "description": "Whether the tag is archived",
+      "description": "Whether the tag is archived and hidden from selectors",
     },
     "usage_count": {
       "type": "number",
       "default": 0,
-      "description": "Number of times the tag has been used",
+      "description": "Number of posts this tag has been applied to",
     },
   },
   "required": ["name", "slug"],
