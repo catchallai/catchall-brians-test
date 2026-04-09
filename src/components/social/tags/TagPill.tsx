@@ -3,6 +3,14 @@ import { cn } from '@/lib/utils';
 import type { TagOption } from '@/types/tags';
 import COPY from '@/lib/copy';
 
+/**
+ * TagPill renders a colored pill UI for a tag, with an optional remove button.
+ * Used in tag selection and display surfaces to show selected tags.
+ * @param tag TagOption object to display
+ * @param onRemove Optional callback to remove the tag
+ * @param size Pill size ('sm' or 'default')
+ * @param className Additional CSS classes
+ */
 interface TagPillProps {
   tag: TagOption;
   onRemove?: () => void;
