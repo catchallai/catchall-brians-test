@@ -454,9 +454,9 @@ export default function CalendarPostModal({
   const [platformCropBoxes, setPlatformCropBoxes] = useState(
     /** @type {Record<string,{x:number,y:number,w:number,h:number}>} */ ({})
   );
-  /** @type {[Record<string,string>, (v: Record<string,string>) => void]} */
-  const [platformTransformedUrls, setPlatformTransformedUrls] = useState(
-    /** @type {Record<string,string>} */ ({})
+  /** @type {[Record<string,import('./ImageCropPanel').TransformOp[]>, (v: Record<string,import('./ImageCropPanel').TransformOp[]>) => void]} */
+  const [platformTransformOps, setPlatformTransformOps] = useState(
+    /** @type {Record<string,import('./ImageCropPanel').TransformOp[]>} */ ({})
   );
   /** @type {[Record<string,number>, (v: Record<string,number>) => void]} */
   const [platformTilts, setPlatformTilts] = useState(/** @type {Record<string,number>} */ ({}));
@@ -465,7 +465,7 @@ export default function CalendarPostModal({
   const clearCropState = () => {
     setPlatformCrops({});
     setPlatformCropBoxes({});
-    setPlatformTransformedUrls({});
+    setPlatformTransformOps({});
     setPlatformTilts({});
     setIsCropOpen(false);
   };
@@ -535,7 +535,7 @@ export default function CalendarPostModal({
         setPreviewPlatform(post.platforms?.[0] ?? 'Twitter');
         setPlatformCrops(post.platform_image_urls ?? {});
         setPlatformCropBoxes({});
-        setPlatformTransformedUrls({});
+        setPlatformTransformOps({});
       } else {
         const initial = { ...DEFAULT_FORM, scheduled_date: todayLocal() };
         initialFormDataRef.current = initial;
@@ -543,7 +543,7 @@ export default function CalendarPostModal({
         setPreviewPlatform('Twitter');
         setPlatformCrops({});
         setPlatformCropBoxes({});
-        setPlatformTransformedUrls({});
+        setPlatformTransformOps({});
       }
     }
   }, [post, open]);
@@ -1806,31 +1806,31 @@ export default function CalendarPostModal({
                   (PLATFORMS.find((p) => p.id === cropTargetPlatform) ?? PLATFORMS[0]).cropLabel
                 }
                 initialCropBox={platformCropBoxes[cropTargetPlatform] ?? null}
-                initialTransformedUrl={platformTransformedUrls[cropTargetPlatform] ?? null}
+                initialTransformOps={platformTransformOps[cropTargetPlatform] ?? []}
                 initialTiltDeg={platformTilts[cropTargetPlatform] ?? 0}
-                onSave={(url, cropBox, transformedUrl, tiltDeg) => {
+                onSave={(url, cropBox, transformOps, tiltDeg) => {
                   /** @type {Record<string, string>} */
                   const nextCrops = { ...platformCrops };
                   /** @type {Record<string, {x:number,y:number,w:number,h:number}>} */
                   const nextBoxes = { ...platformCropBoxes };
-                  /** @type {Record<string, string>} */
-                  const nextTransformed = { ...platformTransformedUrls };
+                  /** @type {Record<string, import('./ImageCropPanel').TransformOp[]>} */
+                  const nextOps = { ...platformTransformOps };
                   /** @type {Record<string, number>} */
                   const nextTilts = { ...platformTilts };
                   if (url === null) {
                     delete nextCrops[cropTargetPlatform];
                     delete nextBoxes[cropTargetPlatform];
-                    delete nextTransformed[cropTargetPlatform];
+                    delete nextOps[cropTargetPlatform];
                     delete nextTilts[cropTargetPlatform];
                   } else {
                     nextCrops[cropTargetPlatform] = url;
                     if (cropBox) nextBoxes[cropTargetPlatform] = cropBox;
-                    if (transformedUrl) nextTransformed[cropTargetPlatform] = transformedUrl;
+                    nextOps[cropTargetPlatform] = transformOps;
                     nextTilts[cropTargetPlatform] = tiltDeg;
                   }
                   setPlatformCrops(nextCrops);
                   setPlatformCropBoxes(nextBoxes);
-                  setPlatformTransformedUrls(nextTransformed);
+                  setPlatformTransformOps(nextOps);
                   setPlatformTilts(nextTilts);
                   setIsCropOpen(false);
                   if (url) {

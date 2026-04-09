@@ -14,18 +14,25 @@ interface CropBox {
 
 type DragMode = 'move' | 'nw' | 'n' | 'ne' | 'e' | 'se' | 's' | 'sw' | 'w' | null;
 
+/**
+ * An ordered list of 90°-rotation / flip operations applied to the original image.
+ * Stored instead of a baked data URL — the list is tiny (0–N strings) and is
+ * re-applied from the original on demand, so no large image data ever lives in state.
+ */
+export type TransformOp = 'rotateLeft' | 'rotateRight' | 'flipH' | 'flipV';
+
 interface ImageCropPanelProps {
   imageUrl: string;
   platform: string;
   aspectRatio: number;
   cropLabel: string;
   initialCropBox?: CropBox | null;
-  initialTransformedUrl?: string | null;
+  initialTransformOps?: TransformOp[];
   initialTiltDeg?: number;
   onSave: (
     url: string | null,
     cropBox: CropBox | null,
-    transformedUrl: string | null,
+    transformOps: TransformOp[],
     tiltDeg: number
   ) => void;
   onClose: () => void;
@@ -153,21 +160,20 @@ export default function ImageCropPanel({
   aspectRatio,
   cropLabel,
   initialCropBox = null,
-  initialTransformedUrl = null,
+  initialTransformOps = [],
   initialTiltDeg = 0,
   onSave,
   onClose,
 }: ImageCropPanelProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const imgRef = useRef<HTMLImageElement | null>(null);
+  const originalImgRef = useRef<HTMLImageElement | null>(null);
   const [naturalSize, setNaturalSize] = useState<{ w: number; h: number } | null>(null);
   const [cropBox, setCropBox] = useState<CropBox | null>(null);
   const [isCustom, setIsCustom] = useState(false);
   const [saving, setSaving] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
-  const [transformedDataUrl, setTransformedDataUrl] = useState<string | null>(
-    initialTransformedUrl ?? null
-  );
+  const [transformOps, setTransformOps] = useState<TransformOp[]>(initialTransformOps);
   const [showSafeZones, setShowSafeZones] = useState<boolean>(() => {
     try {
       const stored = localStorage.getItem('cropShowSafeZones');
@@ -190,24 +196,78 @@ export default function ImageCropPanel({
     drawH: 0,
   });
 
-  // Load image and get natural dimensions
+  /**
+   * Applies an ordered list of transform ops to an HTMLImageElement by rendering
+   * each op in sequence to an offscreen canvas. Returns an HTMLImageElement sized
+   * to the final dimensions, loaded synchronously from a data URL.
+   * This is cheap — canvas ops on a single image take <1 ms even at 4K.
+   */
+  function applyOpsToImage(src: HTMLImageElement, ops: TransformOp[]): HTMLImageElement {
+    if (ops.length === 0) return src;
+    let current: HTMLImageElement = src;
+    let curW = src.naturalWidth;
+    let curH = src.naturalHeight;
+
+    for (const op of ops) {
+      const isRotation = op === 'rotateLeft' || op === 'rotateRight';
+      const outW = isRotation ? curH : curW;
+      const outH = isRotation ? curW : curH;
+      const offscreen = document.createElement('canvas');
+      offscreen.width = outW;
+      offscreen.height = outH;
+      const ctx = offscreen.getContext('2d')!;
+      ctx.save();
+      if (op === 'rotateLeft') {
+        ctx.translate(0, curW);
+        ctx.rotate(-Math.PI / 2);
+      } else if (op === 'rotateRight') {
+        ctx.translate(curH, 0);
+        ctx.rotate(Math.PI / 2);
+      } else if (op === 'flipH') {
+        ctx.translate(curW, 0);
+        ctx.scale(-1, 1);
+      } else {
+        ctx.translate(0, curH);
+        ctx.scale(1, -1);
+      }
+      ctx.drawImage(current, 0, 0);
+      ctx.restore();
+      const next = new Image();
+      next.src = offscreen.toDataURL('image/jpeg', 0.92);
+      current = next;
+      curW = outW;
+      curH = outH;
+    }
+    return current;
+  }
+
+  // Load original image, re-apply stored transform ops, then set up crop box.
   useEffect(() => {
     const img = new Image();
     img.crossOrigin = 'anonymous';
     img.onload = () => {
-      imgRef.current = img;
-      const natW = img.naturalWidth;
-      const natH = img.naturalHeight;
-      setNaturalSize({ w: natW, h: natH });
-      const box = initialCropBox ?? computeInitialCropBox(natW, natH, aspectRatio);
-      setCropBox(box);
-      const restoredRatio = box.w / box.h;
-      const diff = Math.abs(restoredRatio - aspectRatio) / aspectRatio;
-      setIsCustom(diff > 0.02);
-      setImageLoaded(true);
+      originalImgRef.current = img;
+      const rendered = applyOpsToImage(img, initialTransformOps);
+      // applyOpsToImage returns synchronously-loaded Images (data URLs load sync)
+      const finalize = (el: HTMLImageElement) => {
+        imgRef.current = el;
+        const w = el.naturalWidth || img.naturalWidth;
+        const h = el.naturalHeight || img.naturalHeight;
+        setNaturalSize({ w, h });
+        const box = initialCropBox ?? computeInitialCropBox(w, h, aspectRatio);
+        setCropBox(box);
+        const diff = Math.abs(box.w / box.h - aspectRatio) / aspectRatio;
+        setIsCustom(diff > 0.02);
+        setImageLoaded(true);
+      };
+      if (rendered.complete) {
+        finalize(rendered);
+      } else {
+        rendered.onload = () => finalize(rendered);
+      }
     };
-    img.src = initialTransformedUrl ?? imageUrl;
-  }, [imageUrl, aspectRatio, initialTransformedUrl]);
+    img.src = imageUrl;
+  }, [imageUrl, aspectRatio]);
 
   /**
    * Redraws the canvas: renders the image rotated by `tiltDeg`, applies the white
@@ -570,46 +630,34 @@ export default function ImageCropPanel({
     dragStart.current = null;
   };
 
+  // Prevent drag state from getting stuck if mouseup happens outside the canvas
+  useEffect(() => {
+    const handleWindowMouseUp = () => {
+      if (dragMode.current) {
+        handleMouseUp();
+      }
+    };
+    window.addEventListener('mouseup', handleWindowMouseUp);
+    return () => {
+      window.removeEventListener('mouseup', handleWindowMouseUp);
+    };
+  }, []);
+
   /**
-   * Bakes a 90° rotation or mirror flip into the image by rendering to an offscreen
-   * canvas, then remaps the current crop box to its new position in the transformed image
-   * so the visible crop region stays visually consistent after the operation.
+   * Appends one transform op to the list, re-renders the image from the original,
+   * and remaps the crop box to its new position in the transformed image.
    */
-  const applyTransform = (type: 'rotateLeft' | 'rotateRight' | 'flipH' | 'flipV') => {
-    const img = imgRef.current;
-    if (!img || !naturalSize) return;
+  const applyTransform = (type: TransformOp) => {
+    const orig = originalImgRef.current;
+    if (!orig || !naturalSize) return;
     const { w: natW, h: natH } = naturalSize;
 
-    const isRotation = type === 'rotateLeft' || type === 'rotateRight';
-    const outW = isRotation ? natH : natW;
-    const outH = isRotation ? natW : natH;
+    const nextOps = [...transformOps, type];
+    const newRendered = applyOpsToImage(orig, nextOps);
 
-    const offscreen = document.createElement('canvas');
-    offscreen.width = outW;
-    offscreen.height = outH;
-    const ctx = offscreen.getContext('2d')!;
-
-    ctx.save();
-    if (type === 'rotateLeft') {
-      ctx.translate(0, natW);
-      ctx.rotate(-Math.PI / 2);
-    } else if (type === 'rotateRight') {
-      ctx.translate(natH, 0);
-      ctx.rotate(Math.PI / 2);
-    } else if (type === 'flipH') {
-      ctx.translate(natW, 0);
-      ctx.scale(-1, 1);
-    } else {
-      ctx.translate(0, natH);
-      ctx.scale(1, -1);
-    }
-    ctx.drawImage(img, 0, 0);
-    ctx.restore();
-
-    // Transform the current crop box to its new position in the transformed image
-    const transformedBox = (() => {
-      if (!cropBox) return null;
-      const { x, y, w, h } = cropBox;
+    // Remap crop box for this single new op
+    const remapBox = (box: CropBox): CropBox => {
+      const { x, y, w, h } = box;
       switch (type) {
         case 'rotateLeft':
           return { x: y, y: natW - x - w, w: h, h: w };
@@ -620,20 +668,24 @@ export default function ImageCropPanel({
         case 'flipV':
           return { x, y: natH - y - h, w, h };
       }
-    })();
+    };
 
-    const newImg = new Image();
-    newImg.onload = () => {
-      imgRef.current = newImg;
+    const isRotation = type === 'rotateLeft' || type === 'rotateRight';
+    const outW = isRotation ? natH : natW;
+    const outH = isRotation ? natW : natH;
+
+    const finalize = () => {
+      imgRef.current = newRendered;
+      setTransformOps(nextOps);
       setNaturalSize({ w: outW, h: outH });
-      const box = transformedBox ?? computeInitialCropBox(outW, outH, aspectRatio);
+      const box = cropBox ? remapBox(cropBox) : computeInitialCropBox(outW, outH, aspectRatio);
       setCropBox(box);
       const diff = Math.abs(box.w / box.h - aspectRatio) / aspectRatio;
       setIsCustom(diff > 0.02);
     };
-    const dataUrl = offscreen.toDataURL();
-    setTransformedDataUrl(dataUrl);
-    newImg.src = dataUrl;
+
+    if (newRendered.complete) finalize();
+    else newRendered.onload = finalize;
   };
 
   /**
@@ -687,7 +739,7 @@ export default function ImageCropPanel({
       });
       const file = new File([blob], 'crop.jpg', { type: 'image/jpeg' });
       const { file_url } = await base44.integrations.Core.UploadFile({ file });
-      onSave(file_url, cropBox, transformedDataUrl, tiltDeg);
+      onSave(file_url, cropBox, transformOps, tiltDeg);
     } catch (_err) {
       // Upload failed — close silently; parent can show error if needed
     } finally {
@@ -702,21 +754,16 @@ export default function ImageCropPanel({
    * until the user explicitly saves again.
    */
   const handleReset = () => {
+    const orig = originalImgRef.current;
+    if (!orig) return;
     setTiltDeg(0);
-    setImageLoaded(false);
-    setTransformedDataUrl(null);
-    const img = new Image();
-    img.crossOrigin = 'anonymous';
-    img.onload = () => {
-      imgRef.current = img;
-      const natW = img.naturalWidth;
-      const natH = img.naturalHeight;
-      setNaturalSize({ w: natW, h: natH });
-      setCropBox(computeInitialCropBox(natW, natH, aspectRatio));
-      setIsCustom(false);
-      setImageLoaded(true);
-    };
-    img.src = imageUrl;
+    setTransformOps([]);
+    imgRef.current = orig;
+    const natW = orig.naturalWidth;
+    const natH = orig.naturalHeight;
+    setNaturalSize({ w: natW, h: natH });
+    setCropBox(computeInitialCropBox(natW, natH, aspectRatio));
+    setIsCustom(false);
   };
 
   const instructionsText = COPY.calendarPostModal.cropInstructions
