@@ -8,19 +8,9 @@ export function useCreateTagMutation() {
   return useMutation<TagOption, Error, string>({
     mutationFn: async (name: string): Promise<TagOption> => {
       const trimmedName = name.trim();
-      if (!trimmedName) {
-        throw new Error('Tag name is required.');
-      }
-
       const slug = slugifyTag(trimmedName);
-      if (!slug) {
-        throw new Error('Tag name must contain letters or numbers to generate a valid slug.');
-      }
-
-      const payload: Record<string, any> = {
-        name: trimmedName,
-        slug,
-      };
+      const payload: Record<string, any> = { name: trimmedName };
+      if (slug) payload.slug = slug;
       const raw = await base44.entities.SocialTag.create(payload);
       return {
         id: raw.id,
