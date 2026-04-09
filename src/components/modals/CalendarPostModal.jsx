@@ -460,6 +460,16 @@ export default function CalendarPostModal({
   );
   /** @type {[Record<string,number>, (v: Record<string,number>) => void]} */
   const [platformTilts, setPlatformTilts] = useState(/** @type {Record<string,number>} */ ({}));
+
+  /** Clears all per-platform crop state. Call whenever the source image is replaced. */
+  const clearCropState = () => {
+    setPlatformCrops({});
+    setPlatformCropBoxes({});
+    setPlatformTransformedUrls({});
+    setPlatformTilts({});
+    setIsCropOpen(false);
+  };
+
   const dialogContentRef = useRef(null);
   const fileInputRef = useRef();
   const videoInputRef = useRef();
@@ -615,6 +625,7 @@ export default function CalendarPostModal({
     }
     setUploading(true);
     const { file_url } = await base44.integrations.Core.UploadFile({ file });
+    clearCropState();
     setFormData((f) => ({
       ...f,
       image_url: file_url,
@@ -639,6 +650,7 @@ export default function CalendarPostModal({
     }
     setUploading(true);
     const { file_url } = await base44.integrations.Core.UploadFile({ file });
+    clearCropState();
     setFormData((f) => ({
       ...f,
       video_url: file_url,
@@ -755,6 +767,7 @@ export default function CalendarPostModal({
   };
 
   const applySelectedLibraryAssets = () => {
+    clearCropState();
     setFormData((f) => ({
       ...f,
       image_url: selectedLibraryAsset || '',
@@ -765,6 +778,7 @@ export default function CalendarPostModal({
   };
 
   const clearSelectedMedia = () => {
+    clearCropState();
     setFormData((f) => ({
       ...f,
       image_url: '',
