@@ -78,6 +78,7 @@ const DEFAULT_FORM = {
   scheduled_time: '09:00',
   platforms: [],
   hashtags: [],
+  tag_ids: [],
   status: 'draft',
   auto_post: false,
 };

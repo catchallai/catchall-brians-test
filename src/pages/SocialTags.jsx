@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
+import ConfirmDialog from '@/components/ui/ConfirmDialog';
 import { Tag, Plus, Pencil, Trash2, X, Check } from 'lucide-react';
 
 const TAG_COLORS = [
@@ -37,7 +38,7 @@ function TagFormModal({ open, onClose, tag }) {
 
   const saveMutation = useMutation({
     mutationFn: (data) =>
-      tag ? base44.entities.SocialTag.update(tag.id, data) : base44.entities.SocialTag.create(data),
+      tag ? base44.entities.Tag.update(tag.id, data) : base44.entities.Tag.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['social-tags'] });
       onClose();
@@ -136,14 +137,18 @@ export default function SocialTags() {
   const queryClient = useQueryClient();
   const [showModal, setShowModal] = useState(false);
   const [editingTag, setEditingTag] = useState(null);
+  const [tagToDelete, setTagToDelete] = useState(null);
 
+  // Entity name is 'Tag' (matches base44/entities/Tag.jsonc and useTagsQuery).
+  // Must stay in sync with useTagsQuery so the shared ['social-tags'] cache key
+  // reflects the same entity on both the management page and the tag selector.
   const { data: tags = [], isLoading } = useQuery({
     queryKey: ['social-tags'],
-    queryFn: () => base44.entities.SocialTag.list('-created_date', 100),
+    queryFn: () => base44.entities.Tag.list('-created_date', 100),
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (id) => base44.entities.SocialTag.delete(id),
+    mutationFn: (id) => base44.entities.Tag.delete(id),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['social-tags'] }),
   });
 
@@ -234,12 +239,9 @@ export default function SocialTags() {
                     <Pencil className="w-3.5 h-3.5" />
                   </button>
                   <button
-                    onClick={() => {
-                      if (confirm(`Delete tag "${tag.name}"?`)) {
-                        deleteMutation.mutate(tag.id);
-                      }
-                    }}
+                    onClick={() => setTagToDelete(tag)}
                     className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                    disabled={deleteMutation.isPending}
                   >
                     <Trash2 className="w-3.5 h-3.5" />
                   </button>
@@ -251,6 +253,15 @@ export default function SocialTags() {
       </div>
 
       <TagFormModal open={showModal} onClose={closeModal} tag={editingTag} />
+      <ConfirmDialog
+        open={!!tagToDelete}
+        onClose={() => setTagToDelete(null)}
+        onConfirm={() => tagToDelete && deleteMutation.mutate(tagToDelete.id)}
+        title="Delete Tag"
+        description={`Are you sure you want to delete "${tagToDelete?.name}"? This action cannot be undone.`}
+        confirmLabel="Delete"
+        isLoading={deleteMutation.isPending}
+      />
     </div>
   );
 }

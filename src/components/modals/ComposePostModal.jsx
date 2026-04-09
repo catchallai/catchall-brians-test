@@ -135,6 +135,7 @@ export default function ComposePostModal({
         scheduled_time: scheduledTime || new Date().toISOString(),
         status: scheduledTime ? 'scheduled' : 'draft',
         ai_optimized: !!platformContent[account.platform],
+        tag_ids: [],
       };
     });
 
