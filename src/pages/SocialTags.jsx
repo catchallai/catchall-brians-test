@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
+import ConfirmDialog from '@/components/ui/ConfirmDialog';
 import { Tag, Plus, Pencil, Trash2, X, Check } from 'lucide-react';
 
 const TAG_COLORS = [
@@ -136,6 +137,7 @@ export default function SocialTags() {
   const queryClient = useQueryClient();
   const [showModal, setShowModal] = useState(false);
   const [editingTag, setEditingTag] = useState(null);
+  const [tagToDelete, setTagToDelete] = useState(null);
 
   // Entity name is 'Tag' (matches base44/entities/Tag.jsonc and useTagsQuery).
   // Must stay in sync with useTagsQuery so the shared ['social-tags'] cache key
@@ -237,13 +239,9 @@ export default function SocialTags() {
                     <Pencil className="w-3.5 h-3.5" />
                   </button>
                   <button
-                    onClick={() => {
-                      // eslint-disable-next-line no-alert
-                      if (confirm(`Delete tag "${tag.name}"?`)) {
-                        deleteMutation.mutate(tag.id);
-                      }
-                    }}
+                    onClick={() => setTagToDelete(tag)}
                     className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                    disabled={deleteMutation.isPending}
                   >
                     <Trash2 className="w-3.5 h-3.5" />
                   </button>
@@ -255,6 +253,15 @@ export default function SocialTags() {
       </div>
 
       <TagFormModal open={showModal} onClose={closeModal} tag={editingTag} />
+      <ConfirmDialog
+        open={!!tagToDelete}
+        onClose={() => setTagToDelete(null)}
+        onConfirm={() => tagToDelete && deleteMutation.mutate(tagToDelete.id)}
+        title="Delete Tag"
+        description={`Are you sure you want to delete "${tagToDelete?.name}"? This action cannot be undone.`}
+        confirmLabel="Delete"
+        isLoading={deleteMutation.isPending}
+      />
     </div>
   );
 }
