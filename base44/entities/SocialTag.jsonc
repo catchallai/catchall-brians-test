@@ -1,0 +1,36 @@
+{
+  "name": "SocialTag",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Tag name"
+    },
+    "color": {
+      "type": "string",
+      "description": "Tag color hex code"
+    },
+    "description": {
+      "type": "string",
+      "description": "Optional tag description"
+    },
+    "post_count": {
+      "type": "number",
+      "default": 0,
+      "description": "Number of posts using this tag"
+    },
+    "is_archived": {
+      "type": "boolean",
+      "default": false,
+      "description": "When true, the tag is archived and should be hidden from tag pickers. Archived tags can still be queried and restored."
+    },
+    "usage_count": {
+      "type": "number",
+      "default": 0,
+      "description": "The number of CalendarPost records that currently have this tag's ID in their tag_ids array."
+    }
+  },
+  "required": [
+    "name"
+  ]
+}

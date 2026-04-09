@@ -1,0 +1,207 @@
+{
+  "name": "CalendarPost",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "Post title/headline overlay"
+    },
+    "caption": {
+      "type": "string",
+      "description": "Post caption/description"
+    },
+    "image_url": {
+      "type": "string",
+      "description": "Post image URL"
+    },
+    "video_url": {
+      "type": "string",
+      "description": "Post video URL"
+    },
+    "media_type": {
+      "type": "string",
+      "enum": [
+        "image",
+        "video",
+        "none"
+      ],
+      "default": "none",
+      "description": "Type of media attached"
+    },
+    "scheduled_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Scheduled publish date"
+    },
+    "scheduled_time": {
+      "type": "string",
+      "description": "Scheduled time (HH:MM)"
+    },
+    "platforms": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Target platforms"
+    },
+    "hashtags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Post hashtags"
+    },
+    "tag_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": [],
+      "description": "The list of SocialTag IDs applied to this post."
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "pending_review",
+        "changes_requested",
+        "pending_approval",
+        "approved",
+        "published",
+        "rejected",
+        "unused"
+      ],
+      "default": "draft",
+      "description": "Post status"
+    },
+    "approved_by": {
+      "type": "string",
+      "description": "Email of approver"
+    },
+    "approved_by_name": {
+      "type": "string",
+      "description": "Name of approver"
+    },
+    "approved_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Approval date"
+    },
+    "rejected_reason": {
+      "type": "string",
+      "description": "Reason for rejection"
+    },
+    "assigned_to_email": {
+      "type": "string",
+      "description": "Email of assigned reviewer"
+    },
+    "assigned_to_name": {
+      "type": "string",
+      "description": "Name of assigned reviewer"
+    },
+    "assigned_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When post was assigned"
+    },
+    "review_due_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Review due date"
+    },
+    "priority": {
+      "type": "string",
+      "enum": [
+        "low",
+        "normal",
+        "high",
+        "urgent"
+      ],
+      "default": "normal",
+      "description": "Post priority"
+    },
+    "order": {
+      "type": "number",
+      "description": "Display order in calendar"
+    },
+    "brand_id": {
+      "type": "string",
+      "description": "Associated brand ID"
+    },
+    "auto_post": {
+      "type": "boolean",
+      "default": false,
+      "description": "Auto-publish at scheduled time"
+    },
+    "is_recurring": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether this is a recurring post"
+    },
+    "recurrence_type": {
+      "type": "string",
+      "enum": [
+        "daily",
+        "weekly",
+        "monthly"
+      ],
+      "description": "Type of recurrence"
+    },
+    "recurrence_end_date": {
+      "type": "string",
+      "format": "date",
+      "description": "When to stop recurring"
+    },
+    "recurrence_days": {
+      "type": "array",
+      "items": {
+        "type": "number"
+      },
+      "description": "Days of week (0-6) for weekly recurrence"
+    },
+    "parent_post_id": {
+      "type": "string",
+      "description": "ID of the original recurring post"
+    },
+    "campaign_brief_id": {
+      "type": "string",
+      "description": "Associated campaign brief ID"
+    },
+    "approved_copy_id": {
+      "type": "string",
+      "description": "ID of approved copy used to create this post"
+    },
+    "approved_template_id": {
+      "type": "string",
+      "description": "ID of approved graphic template used to create this post"
+    },
+    "workflow_history": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "action": {
+            "type": "string"
+          },
+          "by_email": {
+            "type": "string"
+          },
+          "by_name": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "string"
+          },
+          "note": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "History of workflow actions"
+    }
+  },
+  "required": [
+    "caption",
+    "scheduled_date"
+  ]
+}
