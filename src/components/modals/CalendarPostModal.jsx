@@ -548,6 +548,7 @@ export default function CalendarPostModal({
         setPlatformCrops(post.platform_image_urls ?? {});
         setPlatformCropBoxes({});
         setPlatformTransformOps({});
+        setPlatformTilts({});
       } else {
         const initial = { ...DEFAULT_FORM, scheduled_date: todayLocal() };
         initialFormDataRef.current = initial;
@@ -556,11 +557,14 @@ export default function CalendarPostModal({
         setPlatformCrops({});
         setPlatformCropBoxes({});
         setPlatformTransformOps({});
+        setPlatformTilts({});
       }
     }
   }, [post, open]);
 
-  const isDirty = hasFormChanges(formData, initialFormDataRef.current);
+  const isCropDirty =
+    Object.keys(platformTransformOps).length > 0 || Object.keys(platformTilts).length > 0;
+  const isDirty = hasFormChanges(formData, initialFormDataRef.current) || isCropDirty;
 
   const { guardedClose, discardDialogProps } = useUnsavedChangesGuard({ isDirty, onClose });
 
@@ -1762,7 +1766,7 @@ export default function CalendarPostModal({
               {!isPostPublished && (
                 <Button
                   onClick={() => handleSubmit('draft')}
-                  disabled={isLoading || !formData.caption}
+                  disabled={isLoading || !isDirty || !formData.caption}
                   className="bg-gray-700 hover:bg-gray-800 hover:text-white text-white rounded-xl px-5 py-2 text-sm font-semibold disabled:opacity-40 transition-colors flex items-center gap-2"
                 >
                   {isLoading ? (
@@ -1779,7 +1783,9 @@ export default function CalendarPostModal({
                 <Button
                   variant="outline"
                   onClick={() => handleSubmit('pending_review')}
-                  disabled={isLoading || !formData.caption || formData.platforms.length === 0}
+                  disabled={
+                    isLoading || !isDirty || !formData.caption || formData.platforms.length === 0
+                  }
                   className="flex items-center gap-1.5 text-sm rounded-xl"
                 >
                   <Send className="w-4 h-4" />
@@ -1795,7 +1801,11 @@ export default function CalendarPostModal({
                   )
                 }
                 disabled={
-                  isLoading || isViewer || !formData.caption || formData.platforms.length === 0
+                  isLoading ||
+                  isViewer ||
+                  !isDirty ||
+                  !formData.caption ||
+                  formData.platforms.length === 0
                 }
                 className="bg-violet-600 hover:bg-violet-700 text-white rounded-xl px-5 py-2 text-sm font-semibold disabled:opacity-40 transition-colors flex items-center gap-2"
               >
