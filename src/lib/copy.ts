@@ -124,10 +124,20 @@ const COPY = {
     deleteError: 'Failed to delete tag. Please try again.',
     atLimit: 'Posts can have at most 10 tags.',
     deleteTagLabel: (name: string) => `Delete tag ${name}`,
+    colorLabel: 'Color',
+    createWithColor: 'Create',
   },
   tagPill: {
     // Tag-specific label so screen readers can distinguish between multiple pills.
     removeLabel: (name: string) => `Remove tag ${name}`,
+  },
+  socialTags: {
+    activeTab: 'Active',
+    archivedTab: 'Archived',
+    archiveSuccess: (name: string) => `"${name}" archived`,
+    unarchiveSuccess: (name: string) => `"${name}" unarchived`,
+    duplicateNameError: 'A tag with this name already exists.',
+    postCount: (n: number) => `${n} post${n === 1 ? '' : 's'}`,
   },
   platformBadges: {
     overflow: (count: number) => `+${count}`,
