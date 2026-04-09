@@ -20,6 +20,17 @@ import type { TagOption } from '@/types/tags';
 
 const SELECTOR_COPY = COPY.tagSelector;
 
+/**
+ * TagSelector is a controlled multi-select component for tags.
+ * Provides search, create-new-tag, and multi-select UI in a popover.
+ * Used for selecting tags on posts and other entities.
+ * @param value Array of selected TagOption objects
+ * @param onChange Callback when selected tags change
+ * @param allowCreate Allow creating new tags from input
+ * @param disabled Disable the selector
+ * @param placeholder Placeholder text
+ * @param ariaLabel Accessible label for the combobox
+ */
 interface TagSelectorProps {
   value: TagOption[];
   onChange: (tags: TagOption[]) => void;
