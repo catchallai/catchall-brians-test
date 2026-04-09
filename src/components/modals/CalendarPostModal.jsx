@@ -49,7 +49,7 @@ import {
 import { PLATFORMS as PLATFORM_CONFIGS } from '@/constants/platforms';
 import EmojiPicker from 'emoji-picker-react';
 import { base44 } from '@/api/base44Client';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import PostComments from '../social/PostComments';
 import PostApprovalPanel from '../social/PostApprovalPanel';
 import Tooltip from '@/components/ui-custom/Tooltip';
@@ -433,6 +433,11 @@ export default function CalendarPostModal({
   const isPostPublished = post?.status === PostStatus.PUBLISHED;
   const { data: allTags = [] } = useTagsQuery();
   const selectedTags = allTags.filter((t) => formData.tag_ids.includes(t.id));
+  const queryClient = useQueryClient();
+  const tagAutosaveMutation = useMutation({
+    mutationFn: ({ id, tag_ids }) => base44.entities.CalendarPost.update(id, { tag_ids }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['calendar-posts'] }),
+  });
   const {
     activeHashtags: _activeHashtags,
     toggledPoolIds,
@@ -998,7 +1003,13 @@ export default function CalendarPostModal({
             <div className="min-w-[140px] max-w-[260px]">
               <TagSelector
                 value={selectedTags}
-                onChange={(tags) => setFormData((f) => ({ ...f, tag_ids: tags.map((t) => t.id) }))}
+                onChange={(tags) => {
+                  const tag_ids = tags.map((t) => t.id);
+                  setFormData((f) => ({ ...f, tag_ids }));
+                  if (post?.id) {
+                    tagAutosaveMutation.mutate({ id: post.id, tag_ids });
+                  }
+                }}
                 allowCreate
                 disabled={isPostPublished}
               />

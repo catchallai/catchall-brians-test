@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import type { KeyboardEvent } from 'react';
-import { Check, Plus, Tag } from 'lucide-react';
+import { Check, Plus, Tag, Trash2 } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import {
   Command,
@@ -15,11 +15,13 @@ import { cn } from '@/lib/utils';
 import { TagPill } from './TagPill';
 import { useTagsQuery } from './useTagsQuery';
 import { useCreateTagMutation } from './useCreateTagMutation';
+import { useDeleteTagMutation } from './useDeleteTagMutation';
 import { toast } from 'sonner';
 import COPY from '@/lib/copy';
 import type { TagOption } from '@/types/tags';
 
 const SELECTOR_COPY = COPY.tagSelector;
+const MAX_TAGS = 10;
 
 interface TagSelectorProps {
   value: TagOption[];
@@ -43,6 +45,7 @@ export function TagSelector({
 
   const { data: allTags = [], isLoading } = useTagsQuery();
   const { mutateAsync: createTag, isPending: isCreating } = useCreateTagMutation();
+  const { mutateAsync: deleteTag, isPending: isDeleting } = useDeleteTagMutation();
 
   const selectedIds = new Set(value.map((t) => t.id));
 
@@ -63,6 +66,10 @@ export function TagSelector({
       if (value.some((t) => t.id === tag.id)) {
         onChange(value.filter((t) => t.id !== tag.id));
       } else {
+        if (value.length >= MAX_TAGS) {
+          toast.error(SELECTOR_COPY.atLimit);
+          return;
+        }
         onChange([...value, tag]);
       }
     },
@@ -77,6 +84,10 @@ export function TagSelector({
   const handleCreate = useCallback(async () => {
     const name = search.trim();
     if (!name || isCreating) return;
+    if (value.length >= MAX_TAGS) {
+      toast.error(SELECTOR_COPY.atLimit);
+      return;
+    }
     try {
       const newTag = await createTag(name);
       onChange([...value, newTag]);
@@ -86,6 +97,24 @@ export function TagSelector({
     }
   }, [search, value, onChange, createTag, isCreating]);
 
+  const handleDelete = useCallback(
+    async (tag: TagOption, e: React.MouseEvent) => {
+      e.stopPropagation();
+      if (isDeleting) return;
+      try {
+        await deleteTag(tag.id);
+        // Also remove from current selection if it was selected
+        if (selectedIds.has(tag.id)) {
+          onChange(value.filter((t) => t.id !== tag.id));
+        }
+        toast.success(`Tag "${tag.name}" deleted.`);
+      } catch {
+        toast.error(SELECTOR_COPY.deleteError);
+      }
+    },
+    [isDeleting, deleteTag, selectedIds, value, onChange]
+  );
+
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Backspace' && !search && value.length > 0) {
       onChange(value.slice(0, -1));
@@ -94,6 +123,7 @@ export function TagSelector({
 
   const showCreateOption = allowCreate && search.trim() && !hasExactMatch;
   const showEmpty = filteredTags.length === 0 && !showCreateOption;
+  const atLimit = value.length >= MAX_TAGS;
 
   return (
     <Popover open={open} onOpenChange={handleOpenChange}>
@@ -131,10 +161,11 @@ export function TagSelector({
               {placeholder ?? SELECTOR_COPY.placeholder}
             </span>
           )}
+          {atLimit && <span className="ml-auto text-xs text-muted-foreground">10/10</span>}
         </div>
       </PopoverTrigger>
 
-      <PopoverContent className="w-64 p-0" align="start">
+      <PopoverContent className="w-64 p-0" align="start" onWheel={(e) => e.stopPropagation()}>
         <Command shouldFilter={false}>
           <CommandInput
             placeholder={SELECTOR_COPY.searchPlaceholder}
@@ -156,7 +187,7 @@ export function TagSelector({
                         key={tag.id}
                         value={tag.id}
                         onSelect={() => handleSelect(tag)}
-                        className="gap-2"
+                        className="gap-2 group"
                       >
                         <Check
                           className={cn(
@@ -168,7 +199,17 @@ export function TagSelector({
                           className="h-2.5 w-2.5 rounded-full shrink-0"
                           style={{ backgroundColor: tag.color || '#6366f1' }}
                         />
-                        <span className="truncate">{tag.name}</span>
+                        <span className="truncate flex-1">{tag.name}</span>
+                        <button
+                          type="button"
+                          aria-label={SELECTOR_COPY.deleteTagLabel(tag.name)}
+                          onPointerDown={(e) => e.stopPropagation()}
+                          onClick={(e) => handleDelete(tag, e)}
+                          disabled={isDeleting}
+                          className="opacity-0 group-hover:opacity-60 hover:!opacity-100 transition-opacity rounded p-0.5 hover:text-destructive shrink-0"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </button>
                       </CommandItem>
                     ))}
                   </CommandGroup>
@@ -181,7 +222,7 @@ export function TagSelector({
                       <CommandItem
                         value={`__create__:${search}`}
                         onSelect={handleCreate}
-                        disabled={isCreating}
+                        disabled={isCreating || atLimit}
                         className="gap-2"
                       >
                         <Plus className="h-4 w-4 shrink-0" />
