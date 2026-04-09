@@ -1,0 +1,148 @@
+{
+  "name": "CalendarPost",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "Optional post title",
+    },
+    "caption": {
+      "type": "string",
+      "description": "Main post body / caption",
+    },
+    "image_url": {
+      "type": "string",
+      "description": "Primary image URL",
+    },
+    "image_urls": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Additional image URLs (multi-image posts)",
+    },
+    "video_url": {
+      "type": "string",
+      "description": "Video URL",
+    },
+    "media_type": {
+      "type": "string",
+      "description": "Media attachment type: none | image | video",
+    },
+    "scheduled_date": {
+      "type": "string",
+      "description": "ISO date string (YYYY-MM-DD) for when the post is scheduled",
+    },
+    "scheduled_time": {
+      "type": "string",
+      "description": "HH:MM local time for the scheduled post",
+    },
+    "platforms": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Target platforms (e.g. Instagram, Facebook, Twitter)",
+    },
+    "hashtags": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Hashtags attached to the post",
+    },
+    "status": {
+      "type": "string",
+      "description": "Post lifecycle status: draft | pending_review | pending_approval | changes_requested | approved | rejected | published",
+    },
+    "order": {
+      "type": "number",
+      "default": 0,
+      "description": "Layout slot index for the monthly grid view",
+    },
+    "is_recurring": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether this is a recurring post",
+    },
+    "recurrence_type": {
+      "type": "string",
+      "description": "Recurrence cadence: daily | weekly | monthly",
+    },
+    "recurrence_end_date": {
+      "type": "string",
+      "description": "ISO date when recurrence ends",
+    },
+    "recurrence_days": {
+      "type": "array",
+      "items": { "type": "number" },
+      "description": "Days of the week for weekly recurrence (0=Sun … 6=Sat)",
+    },
+    "auto_post": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether the post should be auto-published without manual approval",
+    },
+    "tag_ids": {
+      "type": "array",
+      "items": { "type": "string" },
+      "default": [],
+      "description": "IDs of SocialTag records attached to this post",
+    },
+    "assigned_to_email": {
+      "type": "string",
+      "description": "Email of the user the post is assigned to for review",
+    },
+    "assigned_to_name": {
+      "type": "string",
+      "description": "Display name of the assigned reviewer",
+    },
+    "assigned_date": {
+      "type": "string",
+      "description": "ISO datetime when the post was assigned",
+    },
+    "workflow_history": {
+      "type": "array",
+      "description": "Ordered log of approval workflow events",
+    },
+    "approved_by": {
+      "type": "string",
+      "description": "Email of the approver",
+    },
+    "approved_by_name": {
+      "type": "string",
+      "description": "Display name of the approver",
+    },
+    "approved_date": {
+      "type": "string",
+      "description": "ISO date when the post was approved",
+    },
+    "media_approved": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether the media has been approved for the Approved Media Database",
+    },
+    "rejected_reason": {
+      "type": "string",
+      "description": "Reason given when the post was rejected",
+    },
+    "priority": {
+      "type": "string",
+      "description": "Review priority level",
+    },
+    "review_due_date": {
+      "type": "string",
+      "description": "ISO date by which the post should be reviewed",
+    },
+    "likes": {
+      "type": "number",
+      "default": 0,
+      "description": "Published post engagement: like count",
+    },
+    "comments": {
+      "type": "number",
+      "default": 0,
+      "description": "Published post engagement: comment count",
+    },
+    "shares": {
+      "type": "number",
+      "default": 0,
+      "description": "Published post engagement: share count",
+    },
+  },
+  "required": [],
+}
