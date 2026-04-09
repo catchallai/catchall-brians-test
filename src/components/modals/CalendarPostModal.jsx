@@ -1499,7 +1499,6 @@ export default function CalendarPostModal({
                     }
                   }}
                   allowCreate
-                  disabled={isPostPublished}
                 />
               </div>
             </div>
