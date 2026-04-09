@@ -118,7 +118,10 @@ export default function SocialCalendar() {
   const [platformFilter, setPlatformFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
   const [searchParams, setSearchParams] = useSearchParams();
-  const activeTagIds = (searchParams.get('tags') ?? '').split(',').filter(Boolean);
+  const activeTagIds = (searchParams.get('tags') ?? '')
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean);
   const setActiveTagIds = (ids) => {
     setSearchParams((p) => {
       if (ids.length === 0) {
