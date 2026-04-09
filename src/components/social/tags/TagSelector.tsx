@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react';
+import { TAG_COLORS } from '@/constants/tags';
 import type { KeyboardEvent } from 'react';
 import { Check, Plus, Tag, Trash2 } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -53,6 +54,8 @@ export function TagSelector({
 }: TagSelectorProps) {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState('');
+  const [isCreateExpanded, setIsCreateExpanded] = useState(false);
+  const [createColor, setCreateColor] = useState(TAG_COLORS[0]);
 
   const { data: allTags = [], isLoading } = useTagsQuery();
   const { mutateAsync: createTag, isPending: isCreating } = useCreateTagMutation();
@@ -69,7 +72,11 @@ export function TagSelector({
   const handleOpenChange = (next: boolean) => {
     if (disabled && next) return;
     setOpen(next);
-    if (!next) setSearch('');
+    if (!next) {
+      setSearch('');
+      setIsCreateExpanded(false);
+      setCreateColor(TAG_COLORS[0]);
+    }
   };
 
   const handleSelect = useCallback(
@@ -100,13 +107,15 @@ export function TagSelector({
       return;
     }
     try {
-      const newTag = await createTag({ name });
+      const newTag = await createTag({ name, color: createColor });
       onChange([...value, newTag]);
       setSearch('');
+      setIsCreateExpanded(false);
+      setCreateColor(TAG_COLORS[0]);
     } catch {
       toast.error(SELECTOR_COPY.createError);
     }
-  }, [search, value, onChange, createTag, isCreating]);
+  }, [search, value, onChange, createTag, isCreating, createColor]);
 
   const handleDelete = useCallback(
     async (tag: TagOption, e: React.MouseEvent) => {
@@ -181,7 +190,13 @@ export function TagSelector({
           <CommandInput
             placeholder={SELECTOR_COPY.searchPlaceholder}
             value={search}
-            onValueChange={setSearch}
+            onValueChange={(val) => {
+              setSearch(val);
+              if (!val.trim()) {
+                setIsCreateExpanded(false);
+                setCreateColor(TAG_COLORS[0]);
+              }
+            }}
             onKeyDown={handleKeyDown}
           />
           <CommandList>
@@ -232,7 +247,7 @@ export function TagSelector({
                     <CommandGroup>
                       <CommandItem
                         value={`__create__:${search}`}
-                        onSelect={handleCreate}
+                        onSelect={() => setIsCreateExpanded((prev) => !prev)}
                         disabled={isCreating || atLimit}
                         className="gap-2"
                       >
@@ -240,6 +255,78 @@ export function TagSelector({
                         {SELECTOR_COPY.createTag(search.trim())}
                       </CommandItem>
                     </CommandGroup>
+                    {isCreateExpanded && !atLimit && (
+                      <div className="border-t border-border px-3 py-2.5 space-y-2.5">
+                        {/* Live preview */}
+                        <TagPill
+                          tag={{ id: '__preview__', name: search.trim(), color: createColor }}
+                          size="sm"
+                        />
+                        {/* Color label */}
+                        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                          {SELECTOR_COPY.colorLabel}
+                        </p>
+                        {/* Swatches */}
+                        <div className="flex flex-wrap gap-1.5">
+                          {TAG_COLORS.map((c) => (
+                            <button
+                              key={c}
+                              type="button"
+                              aria-label={c}
+                              onClick={() => setCreateColor(c)}
+                              className={cn(
+                                'w-5 h-5 rounded-full transition-transform hover:scale-110',
+                                createColor === c && 'outline outline-2 outline-offset-1'
+                              )}
+                              style={{
+                                backgroundColor: c,
+                                outlineColor: createColor === c ? c : undefined,
+                              }}
+                            />
+                          ))}
+                          {/* Custom color swatch — rainbow when no custom picked, hex circle when picked */}
+                          <label
+                            className="w-5 h-5 rounded-full cursor-pointer transition-transform hover:scale-110 overflow-hidden relative flex-shrink-0"
+                            title="Custom color"
+                            style={
+                              !TAG_COLORS.includes(createColor)
+                                ? {
+                                    backgroundColor: createColor,
+                                    outline: `2px solid ${createColor}`,
+                                    outlineOffset: '1px',
+                                  }
+                                : {
+                                    background:
+                                      'conic-gradient(red,yellow,lime,cyan,blue,magenta,red)',
+                                    border: '1px solid #e2e8f0',
+                                  }
+                            }
+                          >
+                            <input
+                              type="color"
+                              className="absolute inset-0 opacity-0 w-full h-full cursor-pointer"
+                              value={createColor}
+                              onChange={(e) => setCreateColor(e.target.value)}
+                            />
+                          </label>
+                        </div>
+                        {/* Hex label + Create button */}
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-mono text-muted-foreground flex-1">
+                            {createColor}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={handleCreate}
+                            disabled={isCreating}
+                            className="text-xs font-semibold text-white rounded-md px-3 py-1 transition-opacity disabled:opacity-50"
+                            style={{ backgroundColor: createColor }}
+                          >
+                            {SELECTOR_COPY.createWithColor}
+                          </button>
+                        </div>
+                      </div>
+                    )}
                   </>
                 )}
               </>
