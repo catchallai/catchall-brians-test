@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import { TAG_COLORS } from '@/constants/tags';
-import type { KeyboardEvent } from 'react';
+import type { KeyboardEvent, MouseEvent } from 'react';
 import { Check, Plus, Tag, Trash2 } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import {
@@ -120,7 +120,7 @@ export function TagSelector({
   }, [search, value, onChange, createTag, isCreating, createColor]);
 
   const handleDelete = useCallback(
-    async (tag: TagOption, e: React.MouseEvent) => {
+    async (tag: TagOption, e: MouseEvent) => {
       e.stopPropagation();
       if (isDeleting) return;
       try {

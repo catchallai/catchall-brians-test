@@ -4,145 +4,204 @@
   "properties": {
     "title": {
       "type": "string",
-      "description": "Optional post title",
+      "description": "Post title/headline overlay"
     },
     "caption": {
       "type": "string",
-      "description": "Main post body / caption",
+      "description": "Post caption/description"
     },
     "image_url": {
       "type": "string",
-      "description": "Primary image URL",
-    },
-    "image_urls": {
-      "type": "array",
-      "items": { "type": "string" },
-      "description": "Additional image URLs (multi-image posts)",
+      "description": "Post image URL"
     },
     "video_url": {
       "type": "string",
-      "description": "Video URL",
+      "description": "Post video URL"
     },
     "media_type": {
       "type": "string",
-      "description": "Media attachment type: none | image | video",
+      "enum": [
+        "image",
+        "video",
+        "none"
+      ],
+      "default": "none",
+      "description": "Type of media attached"
     },
     "scheduled_date": {
       "type": "string",
-      "description": "ISO date string (YYYY-MM-DD) for when the post is scheduled",
+      "format": "date",
+      "description": "Scheduled publish date"
     },
     "scheduled_time": {
       "type": "string",
-      "description": "HH:MM local time for the scheduled post",
+      "description": "Scheduled time (HH:MM)"
     },
     "platforms": {
       "type": "array",
-      "items": { "type": "string" },
-      "description": "Target platforms (e.g. Instagram, Facebook, Twitter)",
+      "items": {
+        "type": "string"
+      },
+      "description": "Target platforms"
     },
     "hashtags": {
       "type": "array",
-      "items": { "type": "string" },
-      "description": "Hashtags attached to the post",
+      "items": {
+        "type": "string"
+      },
+      "description": "Post hashtags"
+    },
+    "tag_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": [],
+      "description": "The list of SocialTag IDs applied to this post."
     },
     "status": {
       "type": "string",
-      "description": "Post lifecycle status: draft | pending_review | pending_approval | changes_requested | approved | rejected | published",
+      "enum": [
+        "draft",
+        "pending_review",
+        "changes_requested",
+        "pending_approval",
+        "approved",
+        "published",
+        "rejected",
+        "unused"
+      ],
+      "default": "draft",
+      "description": "Post status"
+    },
+    "approved_by": {
+      "type": "string",
+      "description": "Email of approver"
+    },
+    "approved_by_name": {
+      "type": "string",
+      "description": "Name of approver"
+    },
+    "approved_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Approval date"
+    },
+    "rejected_reason": {
+      "type": "string",
+      "description": "Reason for rejection"
+    },
+    "assigned_to_email": {
+      "type": "string",
+      "description": "Email of assigned reviewer"
+    },
+    "assigned_to_name": {
+      "type": "string",
+      "description": "Name of assigned reviewer"
+    },
+    "assigned_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When post was assigned"
+    },
+    "review_due_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Review due date"
+    },
+    "priority": {
+      "type": "string",
+      "enum": [
+        "low",
+        "normal",
+        "high",
+        "urgent"
+      ],
+      "default": "normal",
+      "description": "Post priority"
     },
     "order": {
       "type": "number",
-      "default": 0,
-      "description": "Layout slot index for the monthly grid view",
+      "description": "Display order in calendar"
     },
-    "is_recurring": {
-      "type": "boolean",
-      "default": false,
-      "description": "Whether this is a recurring post",
-    },
-    "recurrence_type": {
+    "brand_id": {
       "type": "string",
-      "description": "Recurrence cadence: daily | weekly | monthly",
-    },
-    "recurrence_end_date": {
-      "type": "string",
-      "description": "ISO date when recurrence ends",
-    },
-    "recurrence_days": {
-      "type": "array",
-      "items": { "type": "number" },
-      "description": "Days of the week for weekly recurrence (0=Sun … 6=Sat)",
+      "description": "Associated brand ID"
     },
     "auto_post": {
       "type": "boolean",
       "default": false,
-      "description": "Whether the post should be auto-published without manual approval",
+      "description": "Auto-publish at scheduled time"
     },
-    "tag_ids": {
+    "is_recurring": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether this is a recurring post"
+    },
+    "recurrence_type": {
+      "type": "string",
+      "enum": [
+        "daily",
+        "weekly",
+        "monthly"
+      ],
+      "description": "Type of recurrence"
+    },
+    "recurrence_end_date": {
+      "type": "string",
+      "format": "date",
+      "description": "When to stop recurring"
+    },
+    "recurrence_days": {
       "type": "array",
-      "items": { "type": "string" },
-      "default": [],
-      "description": "IDs of SocialTag records attached to this post",
+      "items": {
+        "type": "number"
+      },
+      "description": "Days of week (0-6) for weekly recurrence"
     },
-    "assigned_to_email": {
+    "parent_post_id": {
       "type": "string",
-      "description": "Email of the user the post is assigned to for review",
+      "description": "ID of the original recurring post"
     },
-    "assigned_to_name": {
+    "campaign_brief_id": {
       "type": "string",
-      "description": "Display name of the assigned reviewer",
+      "description": "Associated campaign brief ID"
     },
-    "assigned_date": {
+    "approved_copy_id": {
       "type": "string",
-      "description": "ISO datetime when the post was assigned",
+      "description": "ID of approved copy used to create this post"
+    },
+    "approved_template_id": {
+      "type": "string",
+      "description": "ID of approved graphic template used to create this post"
     },
     "workflow_history": {
       "type": "array",
-      "description": "Ordered log of approval workflow events",
-    },
-    "approved_by": {
-      "type": "string",
-      "description": "Email of the approver",
-    },
-    "approved_by_name": {
-      "type": "string",
-      "description": "Display name of the approver",
-    },
-    "approved_date": {
-      "type": "string",
-      "description": "ISO date when the post was approved",
-    },
-    "media_approved": {
-      "type": "boolean",
-      "default": false,
-      "description": "Whether the media has been approved for the Approved Media Database",
-    },
-    "rejected_reason": {
-      "type": "string",
-      "description": "Reason given when the post was rejected",
-    },
-    "priority": {
-      "type": "string",
-      "description": "Review priority level",
-    },
-    "review_due_date": {
-      "type": "string",
-      "description": "ISO date by which the post should be reviewed",
-    },
-    "likes": {
-      "type": "number",
-      "default": 0,
-      "description": "Published post engagement: like count",
-    },
-    "comments": {
-      "type": "number",
-      "default": 0,
-      "description": "Published post engagement: comment count",
-    },
-    "shares": {
-      "type": "number",
-      "default": 0,
-      "description": "Published post engagement: share count",
-    },
+      "items": {
+        "type": "object",
+        "properties": {
+          "action": {
+            "type": "string"
+          },
+          "by_email": {
+            "type": "string"
+          },
+          "by_name": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "string"
+          },
+          "note": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "History of workflow actions"
+    }
   },
-  "required": [],
+  "required": [
+    "caption",
+    "scheduled_date"
+  ]
 }

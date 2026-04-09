@@ -63,6 +63,7 @@ import QuickPostModal from '@/components/social/QuickPostModal';
 import BufferComposer from '@/components/social/BufferComposer';
 import { PostStatus } from '@/types/enums';
 import COPY from '@/lib/copy';
+import { coercePostTagIds } from '@/utils/tags';
 
 const CALENDAR_PLATFORMS = ['all', 'Facebook', 'Instagram', 'LinkedIn', 'Twitter', 'YouTube'];
 
@@ -176,7 +177,8 @@ export default function SocialCalendar() {
       const matchesPlatform = platformFilter === 'all' || p.platforms?.includes(platformFilter);
       const matchesStatus = statusFilter === 'all' || p.status === statusFilter;
       const matchesTag =
-        activeTagIds.length === 0 || (p.tag_ids || []).some((id) => activeTagIds.includes(id));
+        activeTagIds.length === 0 ||
+        coercePostTagIds(p.tag_ids).some((id) => activeTagIds.includes(id));
       return inRange && matchesPlatform && matchesStatus && matchesTag;
     })
     .sort((a, b) => (a.order || 0) - (b.order || 0));
