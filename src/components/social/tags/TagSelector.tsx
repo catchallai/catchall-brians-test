@@ -100,7 +100,7 @@ export function TagSelector({
       return;
     }
     try {
-      const newTag = await createTag(name);
+      const newTag = await createTag({ name });
       onChange([...value, newTag]);
       setSearch('');
     } catch {

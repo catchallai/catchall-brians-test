@@ -5,12 +5,13 @@ import type { TagOption } from '@/types/tags';
 
 export function useCreateTagMutation() {
   const queryClient = useQueryClient();
-  return useMutation<TagOption, Error, string>({
-    mutationFn: async (name: string): Promise<TagOption> => {
+  return useMutation<TagOption, Error, { name: string; color?: string }>({
+    mutationFn: async ({ name, color }): Promise<TagOption> => {
       const trimmedName = name.trim();
       const slug = slugifyTag(trimmedName);
-      const payload: Record<string, any> = { name: trimmedName };
+      const payload: Record<string, unknown> = { name: trimmedName };
       if (slug) payload.slug = slug;
+      if (color) payload.color = color;
       const raw = await base44.entities.SocialTag.create(payload);
       return {
         id: raw.id,
