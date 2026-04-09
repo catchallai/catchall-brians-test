@@ -137,6 +137,8 @@ const COPY = {
     archiveSuccess: (name: string) => `"${name}" archived`,
     unarchiveSuccess: (name: string) => `"${name}" unarchived`,
     duplicateNameError: 'A tag with this name already exists.',
+    noActiveTags: 'No active tags.',
+    noArchivedTags: 'No archived tags.',
     postCount: (n: number) => `${n} post${n === 1 ? '' : 's'}`,
   },
   platformBadges: {

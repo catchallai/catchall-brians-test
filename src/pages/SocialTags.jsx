@@ -251,7 +251,9 @@ export default function SocialTags() {
           <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 py-16 flex flex-col items-center gap-3 text-center px-6">
             <Tag className="w-7 h-7 text-gray-300" />
             <p className="text-sm text-gray-500">
-              {activeTab === 'active' ? 'No active tags.' : 'No archived tags.'}
+              {activeTab === 'active'
+                ? COPY.socialTags.noActiveTags
+                : COPY.socialTags.noArchivedTags}
             </p>
             {activeTab === 'active' && (
               <Button
