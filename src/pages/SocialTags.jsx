@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import ConfirmDialog from '@/components/ui/ConfirmDialog';
-import { Tag, Plus, Pencil, Trash2, X, Check, GripVertical } from 'lucide-react';
+import { Tag, Plus, Pencil, Trash2, Check, GripVertical } from 'lucide-react';
 import { TAG_COLORS } from '@/constants/tags';
 import COPY from '@/lib/copy';
 import { DndContext, useDraggable, useDroppable } from '@dnd-kit/core';
@@ -57,14 +57,8 @@ function TagFormModal({ open, onClose, tag }) {
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="p-0 max-w-sm rounded-2xl overflow-hidden" style={{ gap: 0 }}>
-        <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
+        <div className="flex items-center px-5 py-4 border-b border-gray-100">
           <h2 className="text-base font-bold text-gray-900">{tag ? 'Edit Tag' : 'New Tag'}</h2>
-          <button
-            onClick={onClose}
-            className="p-1 hover:bg-gray-100 rounded-lg text-gray-400 transition-colors"
-          >
-            <X className="w-4 h-4" />
-          </button>
         </div>
 
         <div className="p-5 space-y-4">
