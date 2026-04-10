@@ -31,6 +31,11 @@ const COPY = {
     quickPost: 'Quick Post',
     templates: 'Templates',
     bulkSchedule: 'Bulk Schedule',
+    tagFilter: 'Tags',
+    tagFilterPlaceholder: 'Filter by tags',
+    noPostsMatchingFilters: 'No posts match the active filters',
+    noPostsMatchingFiltersHint: 'Try removing some filters to see posts',
+    clearFilters: 'Clear filters',
     toasts: {
       error: {
         reorderPosts: 'Failed to update post order. Please try again.',
@@ -136,10 +141,30 @@ const COPY = {
     noResults: 'No tags found.',
     loading: 'Loading…',
     createTag: (name: string) => `Create tag "${name}"`,
+    createError: 'Failed to create tag. Please try again.',
+    deleteSuccess: (name: string) => `Tag "${name}" deleted.`,
+    deleteError: 'Failed to delete tag. Please try again.',
+    atLimit: 'Posts can only have 10 tags.',
+    deleteTagLabel: (name: string) => `Delete tag ${name}`,
+    colorLabel: 'Color',
+    createWithColor: 'Create',
   },
   tagPill: {
     // Tag-specific label so screen readers can distinguish between multiple pills.
     removeLabel: (name: string) => `Remove tag ${name}`,
+  },
+  socialTags: {
+    activeTab: 'Active',
+    archivedTab: 'Archived',
+    archiveSuccess: (name: string) => `"${name}" archived`,
+    unarchiveSuccess: (name: string) => `"${name}" unarchived`,
+    archiveError: 'Failed to update tag. Please try again.',
+    duplicateNameError: 'A tag with this name already exists.',
+    noActiveTags: 'No active tags.',
+    noArchivedTags: 'No archived tags.',
+    postCount: (n: number) => `${n} post${n === 1 ? '' : 's'}`,
+    archiveLabel: 'Archive',
+    unarchiveLabel: 'Unarchive',
   },
   platformBadges: {
     overflow: (count: number) => `+${count}`,

@@ -36,11 +36,9 @@ const impactConfig = {
 
 export default function ListeningMentionCard({ mention, onClick }) {
   const platformEntry =
-    PLATFORM_MAP_LOWER[mention.platform] ||
-    (mention.platform === 'reddit' ? REDDIT_CONFIG : null);
+    PLATFORM_MAP_LOWER[mention.platform] || (mention.platform === 'reddit' ? REDDIT_CONFIG : null);
   const PlatformIcon = platformEntry && 'icon' in platformEntry ? platformEntry.icon : null;
-  const platformBg =
-    platformEntry?.tailwindGradient || platformEntry?.tailwind || 'bg-gray-400';
+  const platformBg = platformEntry?.tailwindGradient || platformEntry?.tailwind || 'bg-gray-400';
   const sentiment = sentimentConfig[mention.sentiment] || sentimentConfig.neutral;
   const impact = impactConfig[mention.business_impact];
 

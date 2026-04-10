@@ -50,7 +50,7 @@ import {
 import { PLATFORMS as PLATFORM_CONFIGS } from '@/constants/platforms';
 import EmojiPicker from 'emoji-picker-react';
 import { base44 } from '@/api/base44Client';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import PostComments from '../social/PostComments';
 import PostApprovalPanel from '../social/PostApprovalPanel';
 import Tooltip from '@/components/ui-custom/Tooltip';
@@ -409,14 +409,15 @@ const DIRTY_FIELDS = [
   'auto_post',
 ];
 
-const hasFormChanges = (current, initial) =>
+const hasFormChanges = (current, initial, { includeTags = true } = {}) =>
   DIRTY_FIELDS.some((field) => current[field] !== initial[field]) ||
   !arraysEqual(current.platforms, initial.platforms) ||
   !arraysEqual(current.hashtags, initial.hashtags) ||
   !arraysEqual(current.recurrence_days, initial.recurrence_days) ||
   // tag_ids uses set equality because the server does not guarantee insertion order;
   // positional comparison would produce false dirty state on re-open with no changes.
-  !setsEqual(current.tag_ids, initial.tag_ids);
+  // Tags auto-persist on existing posts, so they're excluded from the dirty check there.
+  (includeTags && !setsEqual(current.tag_ids, initial.tag_ids));
 
 export default function CalendarPostModal({
   open,
@@ -490,6 +491,20 @@ export default function CalendarPostModal({
   const isPostPublished = post?.status === PostStatus.PUBLISHED;
   const { data: allTags = [] } = useTagsQuery();
   const selectedTags = allTags.filter((t) => formData.tag_ids.includes(t.id));
+  const queryClient = useQueryClient();
+  const tagAutosaveMutation = useMutation({
+    mutationFn: ({ id, tag_ids }) => base44.entities.CalendarPost.update(id, { tag_ids }),
+    onSuccess: (_, { id, tag_ids }) => {
+      // Update the cache directly rather than invalidating — invalidating triggers a refetch
+      // which provides a new `post` prop reference and re-initialises the modal mid-edit.
+      queryClient.setQueriesData({ queryKey: ['calendar-posts'] }, (old) => {
+        if (!Array.isArray(old)) {
+          return old;
+        }
+        return old.map((p) => (p.id === id ? { ...p, tag_ids } : p));
+      });
+    },
+  });
   const {
     activeHashtags: _activeHashtags,
     toggledPoolIds,
@@ -560,13 +575,16 @@ export default function CalendarPostModal({
         setPlatformTilts({});
       }
     }
-  }, [post, open]);
+    // Depend on post?.id rather than post so that background cache updates (new object
+    // reference, same ID) don't re-initialise the form while the user is editing.
+  }, [post?.id, open]);
 
   const isCropDirty =
     Object.keys(platformCropBoxes).length > 0 ||
     Object.values(platformTransformOps).some((ops) => ops.length > 0) ||
     Object.values(platformTilts).some((tilt) => tilt !== 0);
-  const isDirty = hasFormChanges(formData, initialFormDataRef.current) || isCropDirty;
+  const isDirty =
+    hasFormChanges(formData, initialFormDataRef.current, { includeTags: !post?.id }) || isCropDirty;
 
   const { guardedClose, discardDialogProps } = useUnsavedChangesGuard({ isDirty, onClose });
 
@@ -1071,14 +1089,6 @@ export default function CalendarPostModal({
             <h2 className="text-lg font-bold text-gray-900 dark:text-white">
               {post ? COPY.calendarPostModal.editPost : COPY.calendarPostModal.createPost}
             </h2>
-            <div className="min-w-[140px] max-w-[260px]">
-              <TagSelector
-                value={selectedTags}
-                onChange={(tags) => setFormData((f) => ({ ...f, tag_ids: tags.map((t) => t.id) }))}
-                allowCreate
-                disabled={isPostPublished}
-              />
-            </div>
           </div>
           <div className="flex items-center gap-2">
             <Button
@@ -1562,6 +1572,24 @@ export default function CalendarPostModal({
                     onToggle={handleTogglePool}
                   />
                 )}
+
+                {/* Tags */}
+                <div className="px-6 pb-2 space-y-2">
+                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    {COPY.calendarPostModal.tags}
+                  </label>
+                  <TagSelector
+                    value={selectedTags}
+                    onChange={(tags) => {
+                      const tag_ids = tags.map((t) => t.id);
+                      setFormData((f) => ({ ...f, tag_ids }));
+                      if (post?.id) {
+                        tagAutosaveMutation.mutate({ id: post.id, tag_ids });
+                      }
+                    }}
+                    allowCreate
+                  />
+                </div>
               </div>
             )}
 
@@ -1838,6 +1866,17 @@ export default function CalendarPostModal({
                 initialTransformOps={platformTransformOps[cropTargetPlatform] ?? []}
                 initialTiltDeg={platformTilts[cropTargetPlatform] ?? 0}
                 onSave={(url, cropBox, transformOps, tiltDeg) => {
+                  const prevCropBox = platformCropBoxes[cropTargetPlatform] ?? null;
+                  const prevTransformOps = platformTransformOps[cropTargetPlatform] ?? [];
+                  const prevTiltDeg = platformTilts[cropTargetPlatform] ?? 0;
+                  const unchanged =
+                    tiltDeg === prevTiltDeg &&
+                    JSON.stringify(transformOps) === JSON.stringify(prevTransformOps) &&
+                    JSON.stringify(cropBox) === JSON.stringify(prevCropBox);
+                  if (unchanged) {
+                    setIsCropOpen(false);
+                    return;
+                  }
                   setPlatformCrops((prev) => ({
                     ...prev,
                     [cropTargetPlatform]: /** @type {string} */ (url),
