@@ -30,7 +30,6 @@ export const normalizePostMedia = <T extends PostMediaShape>(post: T) => {
   const normalizedImageUrls = hasVideo ? [] : image_urls;
   const hasImages = normalizedImageUrls.length > 0;
   const media_type = hasVideo ? 'video' : hasImages ? 'image' : 'none';
-  const normalizedImageUrls = hasVideo ? [] : image_urls;
   const normalizedImageUrl = hasVideo ? '' : hasImages ? image_urls[0] : '';
   const normalizedVideoUrl = hasVideo ? video_url : '';
 
