@@ -58,6 +58,8 @@ import {
   MessageSquare,
   Key,
   ShieldCheck,
+  Tags,
+  ChartBarStacked,
 } from 'lucide-react';
 import ErrorBoundary from '@/components/ui/ErrorBoundary';
 import KeyboardShortcutsDialog, { useKeyboardShortcuts } from '@/components/ui/KeyboardShortcuts';
@@ -153,15 +155,15 @@ const navigation = [
   { name: 'divider', label: 'Social', collapsible: true },
   { name: 'Social Dashboard', icon: BarChart3, page: 'SocialDashboard' },
   { name: 'Social Calendar', icon: CalendarDays, page: 'SocialCalendar' },
-  { name: 'Social Analytics', icon: Share2, page: 'SocialMedia' },
+  { name: 'Social Analytics', icon: ChartBarStacked, page: 'SocialMedia' },
   { name: 'Social Performance', icon: TrendingUp, page: 'SocialPerformance' },
   { name: 'All Channels', icon: Share2, page: 'AllChannels' },
   { name: 'Social Accounts', icon: Key, page: 'SocialAccounts' },
-  { name: 'Social Tags', icon: Target, page: 'SocialTags' },
   { name: 'Social Listening', icon: Radio, page: 'SocialListening' },
   { name: 'Social Leads', icon: UserCircle, page: 'SocialLeads' },
   { name: 'Social Competitors', icon: Users, page: 'CompetitorAnalysis' },
   { name: 'Hashtag Manager', icon: Target, page: 'HashtagManager' },
+  { name: 'Tag Manager', icon: Tags, page: 'SocialTags' },
   { name: 'divider', label: 'Web', collapsible: true },
   { name: 'Web Dashboard', icon: BarChart3, page: 'WebDashboard' },
   { name: 'Web Analytics', icon: Globe, page: 'TrafficAnalytics' },
