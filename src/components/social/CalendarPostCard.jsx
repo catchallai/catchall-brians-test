@@ -10,7 +10,6 @@ import PostStatusChip from '@/components/social/PostStatusChip';
 import Tooltip from '@/components/ui-custom/Tooltip';
 import { PlatformBadges } from '@/components/ui/PlatformBadges';
 import { TagPill } from '@/components/social/tags/TagPill';
-import { useTagsQuery } from '@/components/social/tags/useTagsQuery';
 
 export default function CalendarPostCard({
   post,
@@ -18,10 +17,10 @@ export default function CalendarPostCard({
   onDelete,
   compact = false,
   showDeleteButton = false,
+  allTags = [],
 }) {
   const queryClient = useQueryClient();
   const [confirmingDelete, setConfirmingDelete] = useState(false);
-  const { data: allTags = [] } = useTagsQuery();
   const postTagIds = post.tag_ids || [];
   const postTags = allTags.filter((t) => postTagIds.includes(t.id));
 
@@ -178,10 +177,9 @@ export default function CalendarPostCard({
         </div>
       )}
 
-      {/* Tags — rendered in all view modes (compact and default).
-          The only call site (SocialCalendar.jsx) always passes compact={true}, so the
-          previous !compact guard permanently hid tags in the calendar view. */}
-      {postTags.length > 0 && (
+      {/* Tags — only shown in non-compact (non-grid) views. The grid view renders
+          tags below the caption in SocialCalendar.jsx for correct visual placement. */}
+      {!compact && postTags.length > 0 && (
         <div className="px-3 pb-3 bg-white flex flex-wrap gap-1">
           {postTags.slice(0, 3).map((tag) => (
             <TagPill key={tag.id} tag={tag} size="sm" />

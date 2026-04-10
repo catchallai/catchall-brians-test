@@ -4,25 +4,24 @@
   "properties": {
     "name": {
       "type": "string",
-      "description": "Tag name"
+      "description": "Display name of the tag"
+    },
+    "slug": {
+      "type": "string",
+      "description": "Lowercase, trimmed, hyphenated slug; unique by normalized name"
     },
     "color": {
       "type": "string",
-      "description": "Tag color hex code"
+      "description": "Hex color for the tag pill"
     },
     "description": {
       "type": "string",
-      "description": "Optional tag description"
-    },
-    "post_count": {
-      "type": "number",
-      "default": 0,
-      "description": "Number of posts using this tag"
+      "description": "Optional description of the tag"
     },
     "is_archived": {
       "type": "boolean",
       "default": false,
-      "description": "When true, the tag is archived and should be hidden from tag pickers. Archived tags can still be queried and restored."
+      "description": "When true, the tag is archived and hidden from tag pickers. Archived tags can still be queried and restored."
     },
     "usage_count": {
       "type": "number",

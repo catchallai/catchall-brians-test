@@ -133,9 +133,7 @@ export default function InfluencerProfileCard({ mention, onClose }) {
       <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <div
-              className={`w-6 h-6 rounded ${platformBg} flex items-center justify-center`}
-            >
+            <div className={`w-6 h-6 rounded ${platformBg} flex items-center justify-center`}>
               {PlatformIcon && <PlatformIcon size={12} color="white" />}
             </div>
             Influencer Profile

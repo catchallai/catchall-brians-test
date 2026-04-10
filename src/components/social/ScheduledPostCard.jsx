@@ -21,9 +21,7 @@ export default function ScheduledPostCard({ post, onEdit, onDelete }) {
     <Card className="p-4 border-0 shadow-sm">
       <div className="flex items-start justify-between mb-3">
         <div className="flex items-center gap-2">
-          <div
-            className={`w-8 h-8 rounded-lg ${platformBg} flex items-center justify-center`}
-          >
+          <div className={`w-8 h-8 rounded-lg ${platformBg} flex items-center justify-center`}>
             {PlatformIcon && <PlatformIcon size={14} color="white" />}
           </div>
           <div>
