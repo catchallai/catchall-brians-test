@@ -1083,76 +1083,80 @@ export default function CalendarPostModal({
           guardedClose(false);
         }}
       >
-        {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-gray-800">
-          <div className="flex items-center gap-3">
-            <h2 className="text-lg font-bold text-gray-900 dark:text-white">
-              {post ? COPY.calendarPostModal.editPost : COPY.calendarPostModal.createPost}
-            </h2>
-          </div>
-          <div className="flex items-center gap-2">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="gap-1.5 text-gray-600 dark:text-gray-400 text-sm"
-              onClick={() => {}}
-            >
-              <Sparkles className="w-4 h-4" /> {COPY.calendarPostModal.aiAssistant}
-            </Button>
-            <Button
-              variant={showPreview ? 'default' : 'outline'}
-              size="sm"
-              className={`gap-1.5 text-sm ${showPreview ? 'bg-blue-600 hover:bg-blue-700 text-white' : ''}`}
-              onClick={() => setShowPreview((v) => !v)}
-            >
-              <Eye className="w-4 h-4" /> {COPY.calendarPostModal.preview}
-            </Button>
-            <button
-              type="button"
-              onClick={() => setIsFullscreen((current) => !current)}
-              className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors text-gray-400"
-              aria-label={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
-              title={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
-            >
-              {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
-            </button>
-            <button
-              onClick={() => guardedClose(false)}
-              className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors text-gray-400"
-              aria-label="Close"
-              title="Close"
-            >
-              <X className="w-4 h-4" />
-            </button>
-          </div>
-        </div>
-
-        {/* Tabs (only for existing posts) */}
-        {post && (
-          <div className="flex border-b border-gray-100 dark:border-gray-800 px-6 bg-white dark:bg-gray-900">
-            {[
-              { id: 'compose', label: COPY.calendarPostModal.compose, icon: ImageIcon },
-              { id: 'approval', label: COPY.calendarPostModal.approvalWorkflow, icon: GitBranch },
-              { id: 'comments', label: COPY.calendarPostModal.teamFeedback, icon: MessageSquare },
-            ].map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-1.5 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
-                  activeTab === tab.id
-                    ? 'border-violet-500 text-violet-600 dark:text-violet-400'
-                    : 'border-transparent text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'
-                }`}
-              >
-                <tab.icon className="w-4 h-4" />
-                {tab.label}
-              </button>
-            ))}
-          </div>
-        )}
-
         {/* Body + Footer wrapper — crop drawer is positioned relative to this */}
         <div className="relative flex flex-col flex-1 min-h-0">
+          {/* Header */}
+          <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-gray-800">
+            <div className="flex items-center gap-3">
+              <h2 className="text-lg font-bold text-gray-900 dark:text-white">
+                {post ? COPY.calendarPostModal.editPost : COPY.calendarPostModal.createPost}
+              </h2>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="gap-1.5 text-gray-600 dark:text-gray-400 text-sm"
+                onClick={() => {}}
+              >
+                <Sparkles className="w-4 h-4" /> {COPY.calendarPostModal.aiAssistant}
+              </Button>
+              <Button
+                variant={showPreview ? 'default' : 'outline'}
+                size="sm"
+                className={`gap-1.5 text-sm ${showPreview ? 'bg-blue-600 hover:bg-blue-700 text-white' : ''}`}
+                onClick={() => setShowPreview((v) => !v)}
+              >
+                <Eye className="w-4 h-4" /> {COPY.calendarPostModal.preview}
+              </Button>
+              <button
+                type="button"
+                onClick={() => setIsFullscreen((current) => !current)}
+                className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors text-gray-400"
+                aria-label={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
+                title={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
+              >
+                {isFullscreen ? (
+                  <Minimize2 className="w-4 h-4" />
+                ) : (
+                  <Maximize2 className="w-4 h-4" />
+                )}
+              </button>
+              <button
+                onClick={() => guardedClose(false)}
+                className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors text-gray-400"
+                aria-label="Close"
+                title="Close"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+
+          {/* Tabs (only for existing posts) */}
+          {post && (
+            <div className="flex border-b border-gray-100 dark:border-gray-800 px-6 bg-white dark:bg-gray-900">
+              {[
+                { id: 'compose', label: COPY.calendarPostModal.compose, icon: ImageIcon },
+                { id: 'approval', label: COPY.calendarPostModal.approvalWorkflow, icon: GitBranch },
+                { id: 'comments', label: COPY.calendarPostModal.teamFeedback, icon: MessageSquare },
+              ].map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`flex items-center gap-1.5 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+                    activeTab === tab.id
+                      ? 'border-violet-500 text-violet-600 dark:text-violet-400'
+                      : 'border-transparent text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'
+                  }`}
+                >
+                  <tab.icon className="w-4 h-4" />
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+          )}
+
           {/* Body */}
           <div className="flex flex-1 overflow-y-auto">
             {/* Approval tab */}
