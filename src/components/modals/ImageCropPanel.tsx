@@ -94,6 +94,38 @@ function clampBox(box: CropBox, natW: number, natH: number): CropBox {
 }
 
 /**
+ * Returns the largest axis-aligned rectangle centred in a (natW × natH) image that is
+ * fully covered by the image after it has been rotated by `rad` radians around its center,
+ * constrained to `aspectRatio` (w/h).
+ *
+ * Derivation: for an axis-aligned w×h box to fit inside a W×H rectangle rotated by θ,
+ * the binding constraints (from the corner that sticks out most) are:
+ *   w·cosθ + h·sinθ ≤ W   (horizontal edges of the rotated image)
+ *   w·sinθ + h·cosθ ≤ H   (vertical edges of the rotated image)
+ * Substituting h = w/r and solving for maximum w:
+ *   w ≤ W / (cosθ + sinθ/r)
+ *   w ≤ H / (sinθ + cosθ/r)
+ * → w = min of the two bounds.
+ */
+function maxCropBoxForTilt(natW: number, natH: number, rad: number, aspectRatio: number): CropBox {
+  const sinA = Math.sin(Math.abs(rad));
+  const cosA = Math.cos(Math.abs(rad));
+  const r = aspectRatio;
+
+  const wFromW = natW / (cosA + sinA / r);
+  const wFromH = natH / (sinA + cosA / r);
+  const w = Math.min(wFromW, wFromH);
+  const h = w / r;
+
+  return {
+    x: (natW - w) / 2,
+    y: (natH - h) / 2,
+    w,
+    h,
+  };
+}
+
+/**
  * Given a pointer position in canvas pixels (relative to the image origin) and the
  * current crop box in natural-image coordinates, returns which drag handle the pointer
  * is over, "move" if it's inside the box, or null if it's outside entirely.
@@ -653,8 +685,21 @@ export default function ImageCropPanel({
         break;
     }
 
-    const newBox = clampBox({ x, y, w, h }, nat.w, nat.h);
-    setCropBox(newBox);
+    const tiltRad = (tiltDeg * Math.PI) / 180;
+    const safeBounds = maxCropBoxForTilt(nat.w, nat.h, tiltRad, aspectRatio);
+    const newBox = clampBox(
+      { x, y, w, h },
+      safeBounds.x + safeBounds.w,
+      safeBounds.y + safeBounds.h
+    );
+    // Also clamp origin so box stays within the safe inscribed rectangle
+    const clamped: CropBox = {
+      x: Math.max(safeBounds.x, Math.min(newBox.x, safeBounds.x + safeBounds.w - newBox.w)),
+      y: Math.max(safeBounds.y, Math.min(newBox.y, safeBounds.y + safeBounds.h - newBox.h)),
+      w: newBox.w,
+      h: newBox.h,
+    };
+    setCropBox(clamped);
   };
 
   /** Ends the current drag/resize operation. */
@@ -940,7 +985,12 @@ export default function ImageCropPanel({
                 <button
                   type="button"
                   title="Click to level"
-                  onClick={() => setTiltDeg(0)}
+                  onClick={() => {
+                    setTiltDeg(0);
+                    if (naturalSize) {
+                      setCropBox(computeInitialCropBox(naturalSize.w, naturalSize.h, aspectRatio));
+                    }
+                  }}
                   className="text-[11px] font-mono text-gray-500 dark:text-gray-400 hover:text-violet-600 dark:hover:text-violet-400 transition-colors tabular-nums w-10 text-center"
                 >
                   {tiltDeg > 0 ? '+' : ''}
@@ -954,7 +1004,15 @@ export default function ImageCropPanel({
                 max={TILT_MAX}
                 step={TILT_STEP}
                 value={tiltDeg}
-                onChange={(e) => setTiltDeg(Number(e.target.value))}
+                onChange={(e) => {
+                  const newTilt = Number(e.target.value);
+                  setTiltDeg(newTilt);
+                  if (naturalSize) {
+                    const rad = (newTilt * Math.PI) / 180;
+                    const safe = maxCropBoxForTilt(naturalSize.w, naturalSize.h, rad, aspectRatio);
+                    setCropBox(safe);
+                  }
+                }}
                 className="w-full accent-violet-600 cursor-pointer"
               />
             </div>
