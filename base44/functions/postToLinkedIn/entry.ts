@@ -1,5 +1,30 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
 
+const normalizePostMedia = (post: {
+  image_url?: string | null;
+  image_urls?: string[] | null;
+  video_url?: string | null;
+}) => {
+  const imageUrls =
+    Array.isArray(post.image_urls) && post.image_urls.length > 0
+      ? post.image_urls.filter(Boolean)
+      : post.image_url
+        ? [post.image_url]
+        : [];
+  const videoUrl = post.video_url || '';
+
+  if (imageUrls.length > 0 && videoUrl) {
+    throw new Error('Posts cannot include both images and a video.');
+  }
+
+  return {
+    image_urls: imageUrls,
+    image_url: imageUrls[0] || '',
+    video_url: videoUrl,
+    media_type: videoUrl ? 'video' : imageUrls.length > 0 ? 'image' : 'none',
+  };
+};
+
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
@@ -9,10 +34,19 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { text, postId } = await req.json();
+    const { text, postId, media } = await req.json();
 
     if (!text) {
       return Response.json({ error: 'Text content required' }, { status: 400 });
+    }
+
+    let normalizedMedia = normalizePostMedia(media || {});
+    if (postId) {
+      const posts = await base44.asServiceRole.entities.CalendarPost.filter({ id: postId });
+      const post = posts[0];
+      if (post) {
+        normalizedMedia = normalizePostMedia(post);
+      }
     }
 
     // Get LinkedIn access token from app connector
@@ -80,6 +114,7 @@ Deno.serve(async (req) => {
       platform: 'LinkedIn',
       id: postUrn,
       url: postUrl,
+      media: normalizedMedia,
     });
   } catch (error) {
     console.error('LinkedIn post error:', error);

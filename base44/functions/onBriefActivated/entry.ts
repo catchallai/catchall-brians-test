@@ -94,6 +94,7 @@ Deno.serve(async (req) => {
             title: copy.title,
             caption: copy.content,
             image_url: template.preview_url,
+            image_urls: template.preview_url ? [template.preview_url] : [],
             video_url: null,
             media_type: 'image',
             scheduled_date: currentDate.toISOString().split('T')[0],

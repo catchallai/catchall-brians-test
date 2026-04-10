@@ -1,5 +1,30 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
 
+const normalizePostMedia = (post: {
+  image_url?: string | null;
+  image_urls?: string[] | null;
+  video_url?: string | null;
+}) => {
+  const imageUrls =
+    Array.isArray(post.image_urls) && post.image_urls.length > 0
+      ? post.image_urls.filter(Boolean)
+      : post.image_url
+        ? [post.image_url]
+        : [];
+  const videoUrl = post.video_url || '';
+
+  if (imageUrls.length > 0 && videoUrl) {
+    throw new Error('Posts cannot include both images and a video.');
+  }
+
+  return {
+    image_urls: imageUrls,
+    image_url: imageUrls[0] || '',
+    video_url: videoUrl,
+    media_type: videoUrl ? 'video' : imageUrls.length > 0 ? 'image' : 'none',
+  };
+};
+
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
@@ -22,6 +47,8 @@ Deno.serve(async (req) => {
     if (!post) {
       return Response.json({ error: 'Post not found' }, { status: 404 });
     }
+
+    const normalizedMedia = normalizePostMedia(post);
 
     const results = [];
     const platforms = post.platforms || [];
@@ -92,6 +119,7 @@ Deno.serve(async (req) => {
           const response = await base44.asServiceRole.functions.invoke('postToLinkedIn', {
             text: post.caption || post.content || '',
             postId: postId,
+            media: normalizedMedia,
           });
 
           if (response.data.success) {

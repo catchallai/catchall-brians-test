@@ -66,6 +66,15 @@ import { HashtagPoolCreatePopover } from '@/components/hashtags/HashtagPoolCreat
 import { coercePostTagIds } from '@/utils/tags';
 import { TagSelector } from '@/components/social/tags/TagSelector';
 import { useTagsQuery } from '@/components/social/tags/useTagsQuery';
+import {
+  getPostImageUrls,
+  normalizePostMedia,
+  validateImageFiles,
+  validateVideoFile,
+  MAX_POST_IMAGE_COUNT,
+  IMAGE_ACCEPT_ATTR,
+  VIDEO_ACCEPT_ATTR,
+} from '@/utils/postMedia';
 // arraysEqual is order-sensitive (for platforms/hashtags); setsEqual is used for tag_ids
 // because the server does not guarantee array order on those fields.
 import { arraysEqual, setsEqual } from '@/utils/hashtagUtils';
@@ -345,6 +354,7 @@ const DEFAULT_FORM = {
   title: '',
   caption: '',
   image_url: '',
+  image_urls: [],
   video_url: '',
   media_type: 'none',
   scheduled_date: todayLocal(),
@@ -379,6 +389,7 @@ const DIRTY_FIELDS = [
 
 const hasFormChanges = (current, initial, { includeTags = true } = {}) =>
   DIRTY_FIELDS.some((field) => current[field] !== initial[field]) ||
+  !arraysEqual(current.image_urls, initial.image_urls) ||
   !arraysEqual(current.platforms, initial.platforms) ||
   !arraysEqual(current.hashtags, initial.hashtags) ||
   !arraysEqual(current.recurrence_days, initial.recurrence_days) ||
@@ -423,6 +434,7 @@ export default function CalendarPostModal({
   const [linkUrl, setLinkUrl] = useState('');
   const [linkDisplayText, setLinkDisplayText] = useState('');
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [mediaError, setMediaError] = useState('');
   const dialogContentRef = useRef(null);
   const fileInputRef = useRef();
   const videoInputRef = useRef();
@@ -464,6 +476,7 @@ export default function CalendarPostModal({
     setLinkUrl('');
     setLinkDisplayText('');
     captionSelectionRef.current = { start: null, end: null };
+    setMediaError('');
 
     if (open) {
       setActiveTab('compose');
@@ -483,6 +496,7 @@ export default function CalendarPostModal({
           title: post.title || '',
           caption: post.caption || '',
           image_url: post.image_url || post.image_urls?.[0] || '',
+          image_urls: getPostImageUrls(post),
           video_url: post.video_url || '',
           media_type: post.media_type || 'none',
           scheduled_date: post.scheduled_date || todayLocal(),
@@ -579,23 +593,52 @@ export default function CalendarPostModal({
   };
 
   const handleImageUpload = async (e) => {
-    const file = e.target.files?.[0];
-    if (!file) {
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0) {
       releaseFileDialogLock();
       if (e.target) {
         e.target.value = '';
       }
       return;
     }
+
+    if (formData.video_url) {
+      setMediaError('Remove the selected video before adding images.');
+      releaseFileDialogLock();
+      if (e.target) {
+        e.target.value = '';
+      }
+      return;
+    }
+
+    const validationError = validateImageFiles(files, formData.image_urls?.length || 0);
+    if (validationError) {
+      setMediaError(validationError);
+      releaseFileDialogLock();
+      if (e.target) {
+        e.target.value = '';
+      }
+      return;
+    }
+
     setUploading(true);
-    const { file_url } = await base44.integrations.Core.UploadFile({ file });
-    setFormData((f) => ({
-      ...f,
-      image_url: file_url,
-      video_url: '',
-      media_type: 'image',
-    }));
-    setUploading(false);
+    setMediaError('');
+    try {
+      const uploads = await Promise.all(
+        files.map((file) => base44.integrations.Core.UploadFile({ file }))
+      );
+      setFormData((f) =>
+        normalizePostMedia({
+          ...f,
+          image_urls: [...(f.image_urls || []), ...uploads.map((item) => item.file_url)],
+          video_url: '',
+        })
+      );
+    } catch (error) {
+      setMediaError(error?.message || 'Failed to upload images.');
+    } finally {
+      setUploading(false);
+    }
     releaseFileDialogLock();
     if (e.target) {
       e.target.value = '';
@@ -611,15 +654,42 @@ export default function CalendarPostModal({
       }
       return;
     }
+
+    if ((formData.image_urls?.length || 0) > 0) {
+      setMediaError('Remove the selected images before adding a video.');
+      releaseFileDialogLock();
+      if (e.target) {
+        e.target.value = '';
+      }
+      return;
+    }
+
+    const validationError = validateVideoFile(file);
+    if (validationError) {
+      setMediaError(validationError);
+      releaseFileDialogLock();
+      if (e.target) {
+        e.target.value = '';
+      }
+      return;
+    }
+
     setUploading(true);
-    const { file_url } = await base44.integrations.Core.UploadFile({ file });
-    setFormData((f) => ({
-      ...f,
-      video_url: file_url,
-      image_url: '',
-      media_type: 'video',
-    }));
-    setUploading(false);
+    setMediaError('');
+    try {
+      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      setFormData((f) =>
+        normalizePostMedia({
+          ...f,
+          video_url: file_url,
+          image_urls: [],
+        })
+      );
+    } catch (error) {
+      setMediaError(error?.message || 'Failed to upload video.');
+    } finally {
+      setUploading(false);
+    }
     releaseFileDialogLock();
     if (e.target) {
       e.target.value = '';
@@ -628,14 +698,19 @@ export default function CalendarPostModal({
 
   const handleDrop = (e) => {
     e.preventDefault();
-    const file = e.dataTransfer.files?.[0];
-    if (!file) {
+    const files = Array.from(e.dataTransfer.files || []);
+    if (files.length === 0) {
       return;
     }
-    const isVideo = file.type.startsWith('video/');
-    const syntheticEvent = { target: { files: [file] } };
-    if (isVideo) {
-      handleVideoUpload(syntheticEvent);
+    const hasVideos = files.some((file) => file.type.startsWith('video/'));
+    const hasImages = files.some((file) => file.type.startsWith('image/'));
+    if (hasVideos && hasImages) {
+      setMediaError('Choose either images or one video, not both at the same time.');
+      return;
+    }
+    const syntheticEvent = { target: { files } };
+    if (hasVideos) {
+      handleVideoUpload({ target: { files: [files[0]] } });
     } else {
       handleImageUpload(syntheticEvent);
     }
@@ -729,22 +804,36 @@ export default function CalendarPostModal({
   };
 
   const applySelectedLibraryAssets = () => {
-    setFormData((f) => ({
-      ...f,
-      image_url: selectedLibraryAsset || '',
-      video_url: '',
-      media_type: selectedLibraryAsset ? 'image' : 'none',
-    }));
+    setMediaError('');
+    setFormData((f) =>
+      normalizePostMedia({
+        ...f,
+        image_urls: selectedLibraryAsset ? [selectedLibraryAsset] : [],
+        video_url: '',
+      })
+    );
     setIsMediaLibraryOpen(false);
   };
 
   const clearSelectedMedia = () => {
-    setFormData((f) => ({
-      ...f,
-      image_url: '',
-      video_url: '',
-      media_type: 'none',
-    }));
+    setMediaError('');
+    setFormData((f) =>
+      normalizePostMedia({
+        ...f,
+        image_urls: [],
+        video_url: '',
+      })
+    );
+  };
+
+  const removeSelectedImage = (imageUrlToRemove) => {
+    setMediaError('');
+    setFormData((f) =>
+      normalizePostMedia({
+        ...f,
+        image_urls: (f.image_urls || []).filter((imageUrl) => imageUrl !== imageUrlToRemove),
+      })
+    );
   };
 
   const mediaMenuItems = [
@@ -778,15 +867,34 @@ export default function CalendarPostModal({
           <div className="space-y-0.5 px-2 pb-2">
             {section.items.map((item) => {
               const Icon = item.icon;
+              const imageSelectionDisabled = Boolean(formData.video_url);
+              const videoSelectionDisabled = Boolean(formData.image_urls?.length);
+              const isDisabled =
+                (item.label === 'Upload Image' ||
+                  item.label === 'Dropbox' ||
+                  item.label === 'Google Drive' ||
+                  item.label === 'Media Library') &&
+                imageSelectionDisabled
+                  ? true
+                  : item.label === 'Upload Video' && videoSelectionDisabled;
               return (
                 <button
                   key={item.label}
                   type="button"
                   onClick={(e) => {
+                    if (isDisabled) {
+                      e.preventDefault();
+                      return;
+                    }
                     e.stopPropagation();
                     item.onSelect();
                   }}
-                  className="flex w-full items-center gap-3 rounded-lg px-2.5 py-2.5 text-left text-[15px] font-medium text-gray-700 transition-colors hover:bg-gray-50 hover:text-gray-900"
+                  disabled={isDisabled}
+                  className={`flex w-full items-center gap-3 rounded-lg px-2.5 py-2.5 text-left text-[15px] font-medium transition-colors ${
+                    isDisabled
+                      ? 'cursor-not-allowed text-gray-300'
+                      : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
+                  }`}
                 >
                   <Icon className="h-4 w-4 text-gray-500" />
                   <span>{item.label}</span>
@@ -799,7 +907,7 @@ export default function CalendarPostModal({
     </div>
   );
 
-  const hasSelectedMedia = Boolean(formData.image_url || formData.video_url);
+  const hasSelectedMedia = Boolean((formData.image_urls?.length || 0) > 0 || formData.video_url);
 
   const togglePlatform = (id) => {
     setFormData((f) => {
@@ -852,7 +960,7 @@ export default function CalendarPostModal({
       finalStatus = PostStatus.PENDING_APPROVAL;
     }
     await onSave({
-      ...formData,
+      ...normalizePostMedia(formData),
       status: finalStatus,
       timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
     });
@@ -1176,29 +1284,44 @@ export default function CalendarPostModal({
                 {hasSelectedMedia ? (
                   <div className="mt-2">
                     <div className="flex flex-wrap gap-3">
-                      <div className="relative h-[89px] w-[144px] max-w-full overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
-                        {formData.image_url ? (
-                          <img
-                            src={formData.image_url}
-                            alt="Selected media"
-                            className="h-full w-full object-cover"
-                          />
-                        ) : (
+                      {formData.video_url ? (
+                        <div className="relative h-[89px] w-[144px] max-w-full overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
                           <video
                             src={formData.video_url}
                             controls
                             className="h-full w-full object-cover"
                           />
-                        )}
 
-                        <button
-                          type="button"
-                          onClick={clearSelectedMedia}
-                          className="absolute right-2 top-2 z-10 flex h-7 w-7 items-center justify-center rounded-full border border-red-200 bg-white/95 text-red-500 shadow-sm transition-colors hover:bg-red-50"
-                        >
-                          <X className="h-3.5 w-3.5" />
-                        </button>
-                      </div>
+                          <button
+                            type="button"
+                            onClick={clearSelectedMedia}
+                            className="absolute right-2 top-2 z-10 flex h-7 w-7 items-center justify-center rounded-full border border-red-200 bg-white/95 text-red-500 shadow-sm transition-colors hover:bg-red-50"
+                          >
+                            <X className="h-3.5 w-3.5" />
+                          </button>
+                        </div>
+                      ) : (
+                        (formData.image_urls || []).map((imageUrl, index) => (
+                          <div
+                            key={`${imageUrl}-${index}`}
+                            className="relative h-[89px] w-[144px] max-w-full overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm"
+                          >
+                            <img
+                              src={imageUrl}
+                              alt={`Selected media ${index + 1}`}
+                              className="h-full w-full object-cover"
+                            />
+
+                            <button
+                              type="button"
+                              onClick={() => removeSelectedImage(imageUrl)}
+                              className="absolute right-2 top-2 z-10 flex h-7 w-7 items-center justify-center rounded-full border border-red-200 bg-white/95 text-red-500 shadow-sm transition-colors hover:bg-red-50"
+                            >
+                              <X className="h-3.5 w-3.5" />
+                            </button>
+                          </div>
+                        ))
+                      )}
 
                       <Popover
                         open={mediaMenuTarget === 'filled-dropzone'}
@@ -1232,6 +1355,17 @@ export default function CalendarPostModal({
                         </PopoverContent>
                       </Popover>
                     </div>
+                    {!!formData.image_urls?.length && (
+                      <p className="mt-2 text-xs text-gray-500">
+                        {formData.image_urls.length}/{MAX_POST_IMAGE_COUNT} images selected.
+                        Video upload is disabled while images are attached.
+                      </p>
+                    )}
+                    {!!formData.video_url && (
+                      <p className="mt-2 text-xs text-gray-500">
+                        1 video selected. Image upload is disabled while a video is attached.
+                      </p>
+                    )}
                   </div>
                 ) : (
                   <div
@@ -1277,17 +1411,25 @@ export default function CalendarPostModal({
                     )}
                   </div>
                 )}
+                {mediaError && <p className="mt-2 text-xs text-red-500">{mediaError}</p>}
+                {!hasSelectedMedia && !mediaError && (
+                  <p className="mt-2 text-xs text-gray-500">
+                    Add up to {MAX_POST_IMAGE_COUNT} images ({IMAGE_ACCEPT_ATTR}) or one video (
+                    {VIDEO_ACCEPT_ATTR}).
+                  </p>
+                )}
                 <input
                   ref={fileInputRef}
                   type="file"
-                  accept="image/*"
+                  accept={IMAGE_ACCEPT_ATTR}
+                  multiple
                   className="hidden"
                   onChange={handleImageUpload}
                 />
                 <input
                   ref={videoInputRef}
                   type="file"
-                  accept="video/*"
+                  accept={VIDEO_ACCEPT_ATTR}
                   className="hidden"
                   onChange={handleVideoUpload}
                 />

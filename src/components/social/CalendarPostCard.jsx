@@ -10,6 +10,7 @@ import PostStatusChip from '@/components/social/PostStatusChip';
 import Tooltip from '@/components/ui-custom/Tooltip';
 import { PlatformBadges } from '@/components/ui/PlatformBadges';
 import { TagPill } from '@/components/social/tags/TagPill';
+import { getPrimaryPostImageUrl } from '@/utils/postMedia';
 
 export default function CalendarPostCard({
   post,
@@ -23,6 +24,7 @@ export default function CalendarPostCard({
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const postTagIds = post.tag_ids || [];
   const postTags = allTags.filter((t) => postTagIds.includes(t.id));
+  const primaryImageUrl = getPrimaryPostImageUrl(post);
 
   const publishNowMutation = useMutation({
     mutationFn: async () => {
@@ -47,8 +49,8 @@ export default function CalendarPostCard({
               </div>
             </div>
           </div>
-        ) : post.image_url ? (
-          <img src={post.image_url} alt={post.title} className="w-full h-full object-cover" />
+        ) : primaryImageUrl ? (
+          <img src={primaryImageUrl} alt={post.title} className="w-full h-full object-cover" />
         ) : (
           <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-200 to-gray-300">
             <Image className="w-12 h-12 text-gray-400" />

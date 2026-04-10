@@ -6,7 +6,15 @@ Deno.serve(async (req) => {
     const user = await base44.auth.me();
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
-    const { copyId, templateId, scheduledDate, scheduledTime, scheduledAt: scheduledAtISO, platforms, campaignBriefId } = await req.json();
+    const {
+      copyId,
+      templateId,
+      scheduledDate,
+      scheduledTime,
+      scheduledAt: scheduledAtISO,
+      platforms,
+      campaignBriefId,
+    } = await req.json();
     if (!copyId || !templateId || !scheduledDate) {
       return Response.json({ error: 'Missing required fields' }, { status: 400 });
     }
@@ -17,6 +25,7 @@ Deno.serve(async (req) => {
       : new Date(`${scheduledDate}T${scheduledTime || '10:00'}:00Z`);
     if (isNaN(scheduledAt.getTime()) || scheduledAt <= new Date()) {
       return Response.json({ error: 'Scheduled time must be in the future' }, { status: 422 });
+    }
 
     // Fetch approved copy and template
     const copies = await base44.entities.ApprovedCopy.filter({ id: copyId });
@@ -30,10 +39,10 @@ Deno.serve(async (req) => {
     const template = templates[0];
 
     // Fetch campaign brief if provided
-    let brief = null;
+    let _brief = null;
     if (campaignBriefId) {
       const briefs = await base44.entities.CampaignBrief.filter({ id: campaignBriefId });
-      brief = briefs[0] || null;
+      _brief = briefs[0] || null;
     }
 
     // Create draft post
@@ -41,6 +50,7 @@ Deno.serve(async (req) => {
       title: copy.title,
       caption: copy.content,
       image_url: template.preview_url,
+      image_urls: template.preview_url ? [template.preview_url] : [],
       video_url: null,
       media_type: 'image',
       scheduled_date: scheduledDate,
@@ -53,18 +63,20 @@ Deno.serve(async (req) => {
       campaign_brief_id: campaignBriefId || null,
       approved_copy_id: copyId,
       approved_template_id: templateId,
-      workflow_history: [{
-        action: 'created_from_approved_assets',
-        by_email: user.email,
-        by_name: user.full_name,
-        timestamp: new Date().toISOString(),
-        note: `Created from approved copy "${copy.title}" and template "${template.title}"`
-      }]
+      workflow_history: [
+        {
+          action: 'created_from_approved_assets',
+          by_email: user.email,
+          by_name: user.full_name,
+          timestamp: new Date().toISOString(),
+          note: `Created from approved copy "${copy.title}" and template "${template.title}"`,
+        },
+      ],
     });
 
     return Response.json({
       success: true,
-      post: newPost
+      post: newPost,
     });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
