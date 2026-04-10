@@ -163,6 +163,10 @@
       "type": "string",
       "description": "ID of the original recurring post"
     },
+    "platform_image_urls": {
+      "type": "object",
+      "description": "Per-platform cropped image URLs, keyed by platform ID (e.g. 'Twitter', 'Instagram')"
+    },
     "campaign_brief_id": {
       "type": "string",
       "description": "Associated campaign brief ID"
