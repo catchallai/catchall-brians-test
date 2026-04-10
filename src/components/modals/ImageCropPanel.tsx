@@ -116,6 +116,64 @@ function maxCropBoxForTilt(natW: number, natH: number, rad: number, aspectRatio:
 }
 
 /**
+ * Clamps a candidate crop box so that all four corners remain within the image when it
+ * is rotated by `tiltDeg` degrees around its center.
+ *
+ * In the image's own rotated frame the valid region for the box center is a simple
+ * axis-aligned rectangle.  We project the center into that frame, clamp each axis
+ * independently (producing a natural diagonal-slide effect at the image edges), and
+ * project back.  The box is also scaled down proportionally if it is too large to fit
+ * at any position.  Reduces to standard axis-aligned clamping when tiltDeg = 0.
+ */
+function clampBoxToRotatedImage(
+  x: number,
+  y: number,
+  w: number,
+  h: number,
+  natW: number,
+  natH: number,
+  tiltDeg: number
+): CropBox {
+  let cw = Math.max(MIN_CROP_PX, w);
+  let ch = Math.max(MIN_CROP_PX, h);
+
+  const rad = (tiltDeg * Math.PI) / 180;
+  const cosT = Math.cos(rad); // ≥ 0 for |tiltDeg| ≤ 90
+  const sinT = Math.sin(rad); // signed
+  const sinA = Math.abs(sinT);
+  const CX = natW / 2;
+  const CY = natH / 2;
+
+  // Scale the box down if its projected extents exceed the image dimensions.
+  //   cw·cosθ + ch·|sinθ| ≤ natW  and  cw·|sinθ| + ch·cosθ ≤ natH
+  const projW = cw * cosT + ch * sinA;
+  const projH = cw * sinA + ch * cosT;
+  if (projW > natW || projH > natH) {
+    const scale = Math.min(natW / projW, natH / projH);
+    cw = Math.max(MIN_CROP_PX, cw * scale);
+    ch = Math.max(MIN_CROP_PX, ch * scale);
+  }
+
+  // Half-extents projected onto the image's own axes.
+  const R = (cw * cosT + ch * sinA) / 2; // ≤ CX after clamping above
+  const S = (cw * sinA + ch * cosT) / 2; // ≤ CY
+
+  // Box center in natural image coords.
+  const cxBox = x + cw / 2;
+  const cyBox = y + ch / 2;
+
+  // Rotate center into image frame, clamp to the valid rectangle, rotate back.
+  const P = (cxBox - CX) * cosT + (cyBox - CY) * sinT;
+  const Q = -(cxBox - CX) * sinT + (cyBox - CY) * cosT;
+  const Pc = Math.max(-(CX - R), Math.min(CX - R, P));
+  const Qc = Math.max(-(CY - S), Math.min(CY - S, Q));
+  const cxNew = CX + Pc * cosT - Qc * sinT;
+  const cyNew = CY + Pc * sinT + Qc * cosT;
+
+  return { x: cxNew - cw / 2, y: cyNew - ch / 2, w: cw, h: ch };
+}
+
+/**
  * Given a pointer position in canvas pixels (relative to the image origin) and the
  * current crop box in natural-image coordinates, returns which drag handle the pointer
  * is over, "move" if it's inside the box, or null if it's outside entirely.
@@ -657,12 +715,7 @@ export default function ImageCropPanel({
         break;
     }
 
-    // Clamp to full image bounds so the box can be freely repositioned
-    const cw = Math.max(MIN_CROP_PX, Math.min(w, nat.w));
-    const ch = Math.max(MIN_CROP_PX, Math.min(h, nat.h));
-    const cx = Math.max(0, Math.min(x, nat.w - cw));
-    const cy = Math.max(0, Math.min(y, nat.h - ch));
-    setCropBox({ x: cx, y: cy, w: cw, h: ch });
+    setCropBox(clampBoxToRotatedImage(x, y, w, h, nat.w, nat.h, tiltDeg));
   };
 
   /** Ends the current drag/resize operation. */
@@ -745,20 +798,16 @@ export default function ImageCropPanel({
       offscreen.height = Math.round(cropBox.h);
       const ctx = offscreen.getContext('2d')!;
       if (tiltDeg !== 0) {
-        // Rotate image around its center, then draw only the crop region
         const { w: natW, h: natH } = naturalSize;
         const rad = (tiltDeg * Math.PI) / 180;
         ctx.save();
-        ctx.translate(offscreen.width / 2, offscreen.height / 2);
+        // Translate so the image center lands at (natW/2 - cropBox.x, natH/2 - cropBox.y)
+        // in output pixels — i.e. the same relative position it has on the canvas preview.
+        // Rotating around that point (the image's own center) matches the preview exactly,
+        // regardless of where the crop box is positioned on the image.
+        ctx.translate(natW / 2 - cropBox.x, natH / 2 - cropBox.y);
         ctx.rotate(rad);
-        // Shift so that cropBox origin maps to (0,0) in the rotated frame
-        ctx.drawImage(
-          imgRef.current,
-          -(cropBox.x + cropBox.w / 2),
-          -(cropBox.y + cropBox.h / 2),
-          natW,
-          natH
-        );
+        ctx.drawImage(imgRef.current, -natW / 2, -natH / 2, natW, natH);
         ctx.restore();
       } else {
         ctx.drawImage(
