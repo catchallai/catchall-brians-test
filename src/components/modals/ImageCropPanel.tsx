@@ -83,16 +83,6 @@ function computeInitialCropBox(naturalW: number, naturalH: number, aspectRatio: 
   };
 }
 
-/** Clamps a crop box so it stays within the image bounds and never shrinks below MIN_CROP_PX. */
-function clampBox(box: CropBox, natW: number, natH: number): CropBox {
-  let { x, y, w, h } = box;
-  w = Math.max(MIN_CROP_PX, Math.min(w, natW));
-  h = Math.max(MIN_CROP_PX, Math.min(h, natH));
-  x = Math.max(0, Math.min(x, natW - w));
-  y = Math.max(0, Math.min(y, natH - h));
-  return { x, y, w, h };
-}
-
 /**
  * Returns the largest axis-aligned rectangle centred in a (natW × natH) image that is
  * fully covered by the image after it has been rotated by `rad` radians around its center,
@@ -555,31 +545,14 @@ export default function ImageCropPanel({
     return { mx: e.clientX - rect.left, my: e.clientY - rect.top };
   };
 
-  /**
-   * Rotates a canvas-space pointer position back by the current tilt angle so that
-   * crop-box hit testing always works in the image's un-rotated coordinate space.
-   */
-  const unrotatePt = (mx: number, my: number) => {
-    const { offsetX, offsetY, drawW, drawH } = imgLayoutRef.current;
-    const cx = offsetX + drawW / 2;
-    const cy = offsetY + drawH / 2;
-    const rad = -(tiltDeg * Math.PI) / 180;
-    const dx = mx - cx;
-    const dy = my - cy;
-    return {
-      mx: cx + dx * Math.cos(rad) - dy * Math.sin(rad),
-      my: cy + dx * Math.sin(rad) + dy * Math.cos(rad),
-    };
-  };
-
   /** Begins a crop-box drag or resize when the pointer lands on a handle or inside the box. */
   const handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
     if (!cropBox || !naturalSize) return;
-    const raw = getCanvasPoint(e);
-    const { mx, my } = unrotatePt(raw.mx, raw.my);
+    const { mx, my } = getCanvasPoint(e);
     const scale = scaleRef.current;
     const { offsetX, offsetY } = imgLayoutRef.current;
 
+    // Crop box is always axis-aligned in canvas space — use raw coords, not un-rotated.
     const relMx = mx - offsetX;
     const relMy = my - offsetY;
     const mode = getHandleAtPoint(relMx, relMy, cropBox, scale);
@@ -596,8 +569,7 @@ export default function ImageCropPanel({
    */
   const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
     if (!cropBox || !naturalSize) return;
-    const raw = getCanvasPoint(e);
-    const { mx, my } = unrotatePt(raw.mx, raw.my);
+    const { mx, my } = getCanvasPoint(e);
     const nat = naturalSize;
     const scale = scaleRef.current;
     const canvas = canvasRef.current!;
@@ -685,21 +657,12 @@ export default function ImageCropPanel({
         break;
     }
 
-    const tiltRad = (tiltDeg * Math.PI) / 180;
-    const safeBounds = maxCropBoxForTilt(nat.w, nat.h, tiltRad, aspectRatio);
-    const newBox = clampBox(
-      { x, y, w, h },
-      safeBounds.x + safeBounds.w,
-      safeBounds.y + safeBounds.h
-    );
-    // Also clamp origin so box stays within the safe inscribed rectangle
-    const clamped: CropBox = {
-      x: Math.max(safeBounds.x, Math.min(newBox.x, safeBounds.x + safeBounds.w - newBox.w)),
-      y: Math.max(safeBounds.y, Math.min(newBox.y, safeBounds.y + safeBounds.h - newBox.h)),
-      w: newBox.w,
-      h: newBox.h,
-    };
-    setCropBox(clamped);
+    // Clamp to full image bounds so the box can be freely repositioned
+    const cw = Math.max(MIN_CROP_PX, Math.min(w, nat.w));
+    const ch = Math.max(MIN_CROP_PX, Math.min(h, nat.h));
+    const cx = Math.max(0, Math.min(x, nat.w - cw));
+    const cy = Math.max(0, Math.min(y, nat.h - ch));
+    setCropBox({ x: cx, y: cy, w: cw, h: ch });
   };
 
   /** Ends the current drag/resize operation. */
@@ -1009,8 +972,9 @@ export default function ImageCropPanel({
                   setTiltDeg(newTilt);
                   if (naturalSize) {
                     const rad = (newTilt * Math.PI) / 180;
-                    const safe = maxCropBoxForTilt(naturalSize.w, naturalSize.h, rad, aspectRatio);
-                    setCropBox(safe);
+                    // Always snap to the maximum safe area so no out-of-bounds pixels
+                    // are ever included — the image effectively zooms to fill as it tilts.
+                    setCropBox(maxCropBoxForTilt(naturalSize.w, naturalSize.h, rad, aspectRatio));
                   }
                 }}
                 className="w-full accent-violet-600 cursor-pointer"
