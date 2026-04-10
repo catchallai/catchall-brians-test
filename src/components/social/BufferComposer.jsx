@@ -328,13 +328,16 @@ export default function BufferComposer({ hashtagPool = [], onSuccess }) {
         <div className="border-2 border-dashed border-gray-200 rounded-xl p-4">
           {(form.image_urls?.length || 0) > 0 ? (
             <div className="space-y-3">
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-3 lg:grid-cols-3">
                 {getPostImageUrls(form).map((imageUrl, index) => (
-                  <div key={`${imageUrl}-${index}`} className="relative">
+                  <div
+                    key={`${imageUrl}-${index}`}
+                    className="relative aspect-[1.91/1] overflow-hidden rounded-lg bg-gray-50"
+                  >
                     <img
                       src={imageUrl}
                       alt={`Preview ${index + 1}`}
-                      className="w-full rounded-lg object-cover h-32 bg-gray-50"
+                      className="h-full w-full object-cover"
                     />
                     <button
                       onClick={() =>
