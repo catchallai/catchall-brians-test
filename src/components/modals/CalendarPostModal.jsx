@@ -1838,17 +1838,6 @@ export default function CalendarPostModal({
                 initialTransformOps={platformTransformOps[cropTargetPlatform] ?? []}
                 initialTiltDeg={platformTilts[cropTargetPlatform] ?? 0}
                 onSave={(url, cropBox, transformOps, tiltDeg) => {
-                  const prevCropBox = platformCropBoxes[cropTargetPlatform] ?? null;
-                  const prevTransformOps = platformTransformOps[cropTargetPlatform] ?? [];
-                  const prevTiltDeg = platformTilts[cropTargetPlatform] ?? 0;
-                  const unchanged =
-                    tiltDeg === prevTiltDeg &&
-                    JSON.stringify(transformOps) === JSON.stringify(prevTransformOps) &&
-                    JSON.stringify(cropBox) === JSON.stringify(prevCropBox);
-                  if (unchanged) {
-                    setIsCropOpen(false);
-                    return;
-                  }
                   setPlatformCrops((prev) => ({
                     ...prev,
                     [cropTargetPlatform]: /** @type {string} */ (url),

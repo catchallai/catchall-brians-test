@@ -4,6 +4,7 @@ import { base44 } from '@/api/base44Client';
 import COPY from '@/lib/copy';
 import Tooltip from '@/components/ui-custom/Tooltip';
 import { PLATFORM_MAP, PLATFORM_CROP_PRESETS, PLATFORM_SAFE_ZONES } from '@/constants/platforms';
+import { JPEG_QUALITY, TILT_MIN, TILT_MAX, TILT_STEP } from '@/constants/media';
 
 interface CropBox {
   x: number;
@@ -168,6 +169,7 @@ export default function ImageCropPanel({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const imgRef = useRef<HTMLImageElement | null>(null);
   const originalImgRef = useRef<HTMLImageElement | null>(null);
+  const initialCropBoxRef = useRef<CropBox | null>(initialCropBox ?? null);
   const [naturalSize, setNaturalSize] = useState<{ w: number; h: number } | null>(null);
   const [cropBox, setCropBox] = useState<CropBox | null>(null);
   const isCustom =
@@ -190,6 +192,26 @@ export default function ImageCropPanel({
 
   const [tiltDeg, setTiltDeg] = useState(initialTiltDeg);
 
+  /** Reduces an op log to a canonical { rotations, flipH, flipV } state so that
+   *  inverse sequences (e.g. rotateRight→rotateLeft, flipH→flipH) compare equal. */
+  const normalizeOps = (ops: TransformOp[]) => {
+    let rot = 0; // 0–3 quarter-turns clockwise
+    let fh = false;
+    let fv = false;
+    for (const op of ops) {
+      if (op === 'rotateRight') rot = (rot + 1) % 4;
+      else if (op === 'rotateLeft') rot = (rot + 3) % 4;
+      else if (op === 'flipH') fh = !fh;
+      else if (op === 'flipV') fv = !fv;
+    }
+    return `${rot}|${fh}|${fv}`;
+  };
+
+  const isCropUnchanged =
+    tiltDeg === initialTiltDeg &&
+    normalizeOps(transformOps) === normalizeOps(initialTransformOps) &&
+    JSON.stringify(cropBox) === JSON.stringify(initialCropBoxRef.current);
+
   // Drag state stored in refs to avoid stale closures in event listeners
   const dragMode = useRef<DragMode>(null);
   const dragStart = useRef<{ mx: number; my: number; box: CropBox } | null>(null);
@@ -209,7 +231,9 @@ export default function ImageCropPanel({
    */
   function applyOpsToImage(src: HTMLImageElement, ops: TransformOp[]): HTMLImageElement {
     if (ops.length === 0) return src;
-    let current: HTMLImageElement = src;
+    // Use canvas-to-canvas drawing for intermediate steps to avoid relying on
+    // async image decoding of intermediate data URLs.
+    let current: HTMLImageElement | HTMLCanvasElement = src;
     let curW = src.naturalWidth;
     let curH = src.naturalHeight;
 
@@ -237,13 +261,15 @@ export default function ImageCropPanel({
       }
       ctx.drawImage(current, 0, 0);
       ctx.restore();
-      const next = new Image();
-      next.src = offscreen.toDataURL('image/jpeg', 0.92);
-      current = next;
+      current = offscreen;
       curW = outW;
       curH = outH;
     }
-    return current;
+
+    // Convert the final canvas to an HTMLImageElement so imgRef typing is consistent.
+    const result = new Image();
+    result.src = (current as HTMLCanvasElement).toDataURL('image/jpeg', JPEG_QUALITY);
+    return result;
   }
 
   // Load original image, re-apply stored transform ops, then set up crop box.
@@ -260,6 +286,7 @@ export default function ImageCropPanel({
         const h = el.naturalHeight || img.naturalHeight;
         setNaturalSize({ w, h });
         const box = initialCropBox ?? computeInitialCropBox(w, h, aspectRatio);
+        initialCropBoxRef.current = box;
         setCropBox(box);
         setImageLoaded(true);
       };
@@ -691,6 +718,10 @@ export default function ImageCropPanel({
    */
   const handleSave = async () => {
     if (!cropBox || !naturalSize || !imgRef.current) return;
+    if (isCropUnchanged) {
+      onClose();
+      return;
+    }
     setSaving(true);
     try {
       const offscreen = document.createElement('canvas');
@@ -730,7 +761,7 @@ export default function ImageCropPanel({
         offscreen.toBlob(
           (b) => (b ? resolve(b) : reject(new Error('toBlob failed'))),
           'image/jpeg',
-          0.92
+          JPEG_QUALITY
         );
       });
       const file = new File([blob], 'crop.jpg', { type: 'image/jpeg' });
@@ -911,9 +942,9 @@ export default function ImageCropPanel({
               </div>
               <input
                 type="range"
-                min={-45}
-                max={45}
-                step={0.5}
+                min={TILT_MIN}
+                max={TILT_MAX}
+                step={TILT_STEP}
                 value={tiltDeg}
                 onChange={(e) => setTiltDeg(Number(e.target.value))}
                 className="w-full accent-violet-600 cursor-pointer"
@@ -960,9 +991,9 @@ export default function ImageCropPanel({
             </div>
             <button
               type="button"
-              className="w-full flex items-center justify-center gap-1.5 rounded-lg bg-violet-600 hover:bg-violet-700 disabled:opacity-40 text-white text-sm font-medium px-4 py-2 transition-colors"
+              className="w-full flex items-center justify-center gap-1.5 rounded-lg bg-violet-600 hover:enabled:bg-violet-700 disabled:opacity-40 text-white text-sm font-medium px-4 py-2 transition-colors"
               onClick={handleSave}
-              disabled={saving || !imageLoaded}
+              disabled={saving || !imageLoaded || isCropUnchanged}
             >
               {saving && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
               {COPY.calendarPostModal.saveCrop}
