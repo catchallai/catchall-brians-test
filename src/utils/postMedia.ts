@@ -13,9 +13,8 @@ type PostMediaShape = {
 };
 
 export const getPostImageUrls = (post?: PostMediaShape | null): string[] => {
-  const urls = Array.isArray(post?.image_urls) ? post.image_urls.filter(Boolean) : [];
-  if (urls.length > 0) {
-    return urls;
+  if (Array.isArray(post?.image_urls)) {
+    return post.image_urls.filter(Boolean);
   }
 
   return post?.image_url ? [post.image_url] : [];
@@ -27,14 +26,15 @@ export const getPrimaryPostImageUrl = (post?: PostMediaShape | null): string =>
 export const normalizePostMedia = <T extends PostMediaShape>(post: T) => {
   const image_urls = getPostImageUrls(post);
   const video_url = post.video_url || '';
-  const hasImages = image_urls.length > 0;
   const hasVideo = Boolean(video_url);
+  const normalizedImageUrls = hasVideo ? [] : image_urls;
+  const hasImages = normalizedImageUrls.length > 0;
   const media_type = hasVideo ? 'video' : hasImages ? 'image' : 'none';
 
   return {
     ...post,
-    image_urls,
-    image_url: hasImages ? image_urls[0] : '',
+    image_urls: normalizedImageUrls,
+    image_url: hasImages ? normalizedImageUrls[0] : '',
     video_url: hasVideo ? video_url : '',
     media_type,
   };

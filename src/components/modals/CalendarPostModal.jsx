@@ -708,11 +708,15 @@ export default function CalendarPostModal({
       setMediaError('Choose either images or one video, not both at the same time.');
       return;
     }
-    const syntheticEvent = { target: { files } };
     if (hasVideos) {
-      handleVideoUpload({ target: { files: [files[0]] } });
+      const videoFiles = files.filter((file) => file.type.startsWith('video/'));
+      if (videoFiles.length > 1) {
+        setMediaError('Only one video can be attached to a post.');
+        return;
+      }
+      handleVideoUpload({ target: { files: [videoFiles[0]] } });
     } else {
-      handleImageUpload(syntheticEvent);
+      handleImageUpload({ target: { files } });
     }
   };
 
@@ -840,19 +844,37 @@ export default function CalendarPostModal({
     {
       section: 'My Media',
       items: [
-        { label: 'Upload Image', icon: ImageIcon, onSelect: triggerImageUpload },
-        { label: 'Upload Video', icon: Video, onSelect: triggerVideoUpload },
-        { label: 'Dropbox', icon: Cloud, onSelect: () => handleCloudMediaSource('dropbox') },
+        {
+          label: 'Upload Image',
+          icon: ImageIcon,
+          mediaKind: 'image',
+          onSelect: triggerImageUpload,
+        },
+        { label: 'Upload Video', icon: Video, mediaKind: 'video', onSelect: triggerVideoUpload },
+        {
+          label: 'Dropbox',
+          icon: Cloud,
+          mediaKind: 'image',
+          onSelect: () => handleCloudMediaSource('dropbox'),
+        },
         {
           label: 'Google Drive',
           icon: HardDrive,
+          mediaKind: 'image',
           onSelect: () => handleCloudMediaSource('google-drive'),
         },
       ],
     },
     {
       section: 'Shared Media',
-      items: [{ label: 'Media Library', icon: FolderOpen, onSelect: handleMediaLibraryOpen }],
+      items: [
+        {
+          label: 'Media Library',
+          icon: FolderOpen,
+          mediaKind: 'image',
+          onSelect: handleMediaLibraryOpen,
+        },
+      ],
     },
   ];
 
@@ -870,13 +892,11 @@ export default function CalendarPostModal({
               const imageSelectionDisabled = Boolean(formData.video_url);
               const videoSelectionDisabled = Boolean(formData.image_urls?.length);
               const isDisabled =
-                (item.label === 'Upload Image' ||
-                  item.label === 'Dropbox' ||
-                  item.label === 'Google Drive' ||
-                  item.label === 'Media Library') &&
-                imageSelectionDisabled
-                  ? true
-                  : item.label === 'Upload Video' && videoSelectionDisabled;
+                item.mediaKind === 'image'
+                  ? imageSelectionDisabled
+                  : item.mediaKind === 'video'
+                    ? videoSelectionDisabled
+                    : false;
               return (
                 <button
                   key={item.label}

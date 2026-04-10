@@ -12,16 +12,14 @@ const normalizePostMedia = (post: {
         ? [post.image_url]
         : [];
   const videoUrl = post.video_url || '';
-
-  if (imageUrls.length > 0 && videoUrl) {
-    throw new Error('Posts cannot include both images and a video.');
-  }
+  const hasVideo = Boolean(videoUrl);
+  const normalizedImageUrls = hasVideo ? [] : imageUrls;
 
   return {
-    image_urls: imageUrls,
-    image_url: imageUrls[0] || '',
-    video_url: videoUrl,
-    media_type: videoUrl ? 'video' : imageUrls.length > 0 ? 'image' : 'none',
+    image_urls: normalizedImageUrls,
+    image_url: normalizedImageUrls[0] || '',
+    video_url: hasVideo ? videoUrl : '',
+    media_type: hasVideo ? 'video' : normalizedImageUrls.length > 0 ? 'image' : 'none',
   };
 };
 

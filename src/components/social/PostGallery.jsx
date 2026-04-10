@@ -10,6 +10,7 @@ function SortableGalleryItem({ id, post, onRemove }) {
   const { setNodeRef, transform, transition, isDragging, listeners, attributes } = useSortable({
     id,
   });
+  const primaryImageUrl = getPrimaryPostImageUrl(post);
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -26,12 +27,8 @@ function SortableGalleryItem({ id, post, onRemove }) {
       {...attributes}
     >
       <div className="w-24 h-24 rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-all cursor-grab active:cursor-grabbing border-2 border-violet-200 dark:border-violet-800">
-        {getPrimaryPostImageUrl(post) ? (
-          <img
-            src={getPrimaryPostImageUrl(post)}
-            alt={post.title}
-            className="w-full h-full object-cover"
-          />
+        {primaryImageUrl ? (
+          <img src={primaryImageUrl} alt={post.title} className="w-full h-full object-cover" />
         ) : post.video_url ? (
           <video src={post.video_url} className="w-full h-full object-cover" muted />
         ) : (

@@ -1,5 +1,7 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
 
+class MediaValidationError extends Error {}
+
 const normalizePostMedia = (post: {
   image_url?: string | null;
   image_urls?: string[] | null;
@@ -14,7 +16,7 @@ const normalizePostMedia = (post: {
   const videoUrl = post.video_url || '';
 
   if (imageUrls.length > 0 && videoUrl) {
-    throw new Error('Posts cannot include both images and a video.');
+    throw new MediaValidationError('Posts cannot include both images and a video.');
   }
 
   return {
@@ -42,11 +44,13 @@ Deno.serve(async (req) => {
 
     let normalizedMedia = normalizePostMedia(media || {});
     if (postId) {
-      const posts = await base44.asServiceRole.entities.CalendarPost.filter({ id: postId });
+      const posts = await base44.entities.CalendarPost.filter({ id: postId });
       const post = posts[0];
-      if (post) {
-        normalizedMedia = normalizePostMedia(post);
+      if (!post) {
+        return Response.json({ error: 'Post not found or not accessible' }, { status: 404 });
       }
+
+      normalizedMedia = normalizePostMedia(post);
     }
 
     // Get LinkedIn access token from app connector
@@ -118,6 +122,17 @@ Deno.serve(async (req) => {
     });
   } catch (error) {
     console.error('LinkedIn post error:', error);
+
+    if (error instanceof MediaValidationError) {
+      return Response.json(
+        {
+          success: false,
+          error: error.message,
+        },
+        { status: 422 }
+      );
+    }
+
     return Response.json(
       {
         success: false,
