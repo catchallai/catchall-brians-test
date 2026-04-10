@@ -353,8 +353,8 @@ export default function BufferComposer({ hashtagPool = [], onSuccess }) {
                 ))}
               </div>
               <p className="text-xs text-gray-500">
-                {getPostImageUrls(form).length}/{MAX_POST_IMAGE_COUNT} images selected. Video
-                upload is disabled while images are attached.
+                {getPostImageUrls(form).length}/{MAX_POST_IMAGE_COUNT} images selected. Video upload
+                is disabled while images are attached.
               </p>
             </div>
           ) : form.video_url ? (

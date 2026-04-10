@@ -1357,8 +1357,8 @@ export default function CalendarPostModal({
                     </div>
                     {!!formData.image_urls?.length && (
                       <p className="mt-2 text-xs text-gray-500">
-                        {formData.image_urls.length}/{MAX_POST_IMAGE_COUNT} images selected.
-                        Video upload is disabled while images are attached.
+                        {formData.image_urls.length}/{MAX_POST_IMAGE_COUNT} images selected. Video
+                        upload is disabled while images are attached.
                       </p>
                     )}
                     {!!formData.video_url && (
