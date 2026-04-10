@@ -59,7 +59,7 @@ import useUnsavedChangesGuard from '@/components/hooks/useUnsavedChangesGuard';
 import ConfirmDialog from '@/components/ui/ConfirmDialog';
 import MediaLibraryModal from './MediaLibraryModal';
 import ImageCropPanel from './ImageCropPanel';
-import { toast } from 'sonner';
+import { useToast } from '@/components/ui/toast-provider';
 import { PostStatus } from '@/types/enums';
 import COPY from '@/lib/copy';
 import { Label } from '@/components/ui/label';
@@ -432,6 +432,7 @@ export default function CalendarPostModal({
     queryFn: () => base44.auth.me(),
   });
   const navigate = useNavigate();
+  const toast = useToast();
 
   const [formData, setFormData] = useState({ ...DEFAULT_FORM });
   const [uploading, setUploading] = useState(false);
