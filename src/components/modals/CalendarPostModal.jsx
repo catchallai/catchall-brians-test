@@ -82,7 +82,7 @@ import {
 // because the server does not guarantee array order on those fields.
 import { arraysEqual, setsEqual } from '@/utils/hashtagUtils';
 import PostStatusChip from '../social/PostStatusChip';
-import getMonthComparison from '@/utils/getMonthComparison';
+import { getMonthComparison } from '@/utils/getMonthComparison';
 
 // Best times by platform based on general audience activity research
 const BEST_TIMES = {
@@ -445,7 +445,7 @@ export default function CalendarPostModal({
   onSave,
   isLoading,
   hashtagPool = [],
-  currentMonth /** @type {Date} */,
+  currentMonth = new Date() /** @type {Date} */,
 }) {
   const { data: currentUser } = useQuery({
     queryKey: ['current-user'],

@@ -2,10 +2,7 @@
  * Helper to compare currentMonth to today.
  * Returns { isSameMonth, isFutureMonth, isPastMonth }
  */
-export default function getMonthComparison(currentMonth: Date, today: Date) {
-  if (!(currentMonth instanceof Date)) {
-    return { isSameMonth: false, isFutureMonth: false, isPastMonth: false };
-  }
+export function getMonthComparison(currentMonth: Date, today: Date) {
   const thisYear = today.getFullYear();
   const thisMonth = today.getMonth();
   const monthYear = currentMonth.getFullYear();
