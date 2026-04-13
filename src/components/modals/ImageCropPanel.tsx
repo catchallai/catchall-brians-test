@@ -1,9 +1,18 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
-import { X, Loader2, RotateCcw, RotateCw, FlipHorizontal, FlipVertical, Info } from 'lucide-react';
+import {
+  ChevronDown,
+  Loader2,
+  RotateCcw,
+  RotateCw,
+  FlipHorizontal,
+  FlipVertical,
+  Info,
+} from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import COPY from '@/lib/copy';
 import Tooltip from '@/components/ui-custom/Tooltip';
 import { PLATFORM_MAP, PLATFORM_CROP_PRESETS, PLATFORM_SAFE_ZONES } from '@/constants/platforms';
+import { JPEG_QUALITY, TILT_MIN, TILT_MAX, TILT_STEP } from '@/constants/media';
 
 interface CropBox {
   x: number;
@@ -74,14 +83,94 @@ function computeInitialCropBox(naturalW: number, naturalH: number, aspectRatio: 
   };
 }
 
-/** Clamps a crop box so it stays within the image bounds and never shrinks below MIN_CROP_PX. */
-function clampBox(box: CropBox, natW: number, natH: number): CropBox {
-  let { x, y, w, h } = box;
-  w = Math.max(MIN_CROP_PX, Math.min(w, natW));
-  h = Math.max(MIN_CROP_PX, Math.min(h, natH));
-  x = Math.max(0, Math.min(x, natW - w));
-  y = Math.max(0, Math.min(y, natH - h));
-  return { x, y, w, h };
+/**
+ * Returns the largest axis-aligned rectangle centred in a (natW × natH) image that is
+ * fully covered by the image after it has been rotated by `rad` radians around its center,
+ * constrained to `aspectRatio` (w/h).
+ *
+ * Derivation: for an axis-aligned w×h box to fit inside a W×H rectangle rotated by θ,
+ * the binding constraints (from the corner that sticks out most) are:
+ *   w·cosθ + h·sinθ ≤ W   (horizontal edges of the rotated image)
+ *   w·sinθ + h·cosθ ≤ H   (vertical edges of the rotated image)
+ * Substituting h = w/r and solving for maximum w:
+ *   w ≤ W / (cosθ + sinθ/r)
+ *   w ≤ H / (sinθ + cosθ/r)
+ * → w = min of the two bounds.
+ */
+function maxCropBoxForTilt(natW: number, natH: number, rad: number, aspectRatio: number): CropBox {
+  const sinA = Math.sin(Math.abs(rad));
+  const cosA = Math.cos(Math.abs(rad));
+  const r = aspectRatio;
+
+  const wFromW = natW / (cosA + sinA / r);
+  const wFromH = natH / (sinA + cosA / r);
+  const w = Math.min(wFromW, wFromH);
+  const h = w / r;
+
+  return {
+    x: (natW - w) / 2,
+    y: (natH - h) / 2,
+    w,
+    h,
+  };
+}
+
+/**
+ * Clamps a candidate crop box so that all four corners remain within the image when it
+ * is rotated by `tiltDeg` degrees around its center.
+ *
+ * In the image's own rotated frame the valid region for the box center is a simple
+ * axis-aligned rectangle.  We project the center into that frame, clamp each axis
+ * independently (producing a natural diagonal-slide effect at the image edges), and
+ * project back.  The box is also scaled down proportionally if it is too large to fit
+ * at any position.  Reduces to standard axis-aligned clamping when tiltDeg = 0.
+ */
+function clampBoxToRotatedImage(
+  x: number,
+  y: number,
+  w: number,
+  h: number,
+  natW: number,
+  natH: number,
+  tiltDeg: number
+): CropBox {
+  let cw = Math.max(MIN_CROP_PX, w);
+  let ch = Math.max(MIN_CROP_PX, h);
+
+  const rad = (tiltDeg * Math.PI) / 180;
+  const cosT = Math.cos(rad); // ≥ 0 for |tiltDeg| ≤ 90
+  const sinT = Math.sin(rad); // signed
+  const sinA = Math.abs(sinT);
+  const CX = natW / 2;
+  const CY = natH / 2;
+
+  // Scale the box down if its projected extents exceed the image dimensions.
+  //   cw·cosθ + ch·|sinθ| ≤ natW  and  cw·|sinθ| + ch·cosθ ≤ natH
+  const projW = cw * cosT + ch * sinA;
+  const projH = cw * sinA + ch * cosT;
+  if (projW > natW || projH > natH) {
+    const scale = Math.min(natW / projW, natH / projH);
+    cw = Math.max(MIN_CROP_PX, cw * scale);
+    ch = Math.max(MIN_CROP_PX, ch * scale);
+  }
+
+  // Half-extents projected onto the image's own axes.
+  const R = (cw * cosT + ch * sinA) / 2; // ≤ CX after clamping above
+  const S = (cw * sinA + ch * cosT) / 2; // ≤ CY
+
+  // Box center in natural image coords.
+  const cxBox = x + cw / 2;
+  const cyBox = y + ch / 2;
+
+  // Rotate center into image frame, clamp to the valid rectangle, rotate back.
+  const P = (cxBox - CX) * cosT + (cyBox - CY) * sinT;
+  const Q = -(cxBox - CX) * sinT + (cyBox - CY) * cosT;
+  const Pc = Math.max(-(CX - R), Math.min(CX - R, P));
+  const Qc = Math.max(-(CY - S), Math.min(CY - S, Q));
+  const cxNew = CX + Pc * cosT - Qc * sinT;
+  const cyNew = CY + Pc * sinT + Qc * cosT;
+
+  return { x: cxNew - cw / 2, y: cyNew - ch / 2, w: cw, h: ch };
 }
 
 /**
@@ -168,6 +257,7 @@ export default function ImageCropPanel({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const imgRef = useRef<HTMLImageElement | null>(null);
   const originalImgRef = useRef<HTMLImageElement | null>(null);
+  const initialCropBoxRef = useRef<CropBox | null>(initialCropBox ?? null);
   const [naturalSize, setNaturalSize] = useState<{ w: number; h: number } | null>(null);
   const [cropBox, setCropBox] = useState<CropBox | null>(null);
   const isCustom =
@@ -190,6 +280,35 @@ export default function ImageCropPanel({
 
   const [tiltDeg, setTiltDeg] = useState(initialTiltDeg);
 
+  /** Reduces an op log to a canonical transform state by composing operations in order.
+   *  Rotations and flips do not commute, so we fold them into a 2×2 matrix instead of
+   *  counting rotations and toggling flips independently. */
+  const normalizeOps = (ops: TransformOp[]) => {
+    type Matrix2D = [number, number, number, number];
+    const multiply = ([a1, b1, c1, d1]: Matrix2D, [a2, b2, c2, d2]: Matrix2D): Matrix2D => [
+      a1 * a2 + b1 * c2,
+      a1 * b2 + b1 * d2,
+      c1 * a2 + d1 * c2,
+      c1 * b2 + d1 * d2,
+    ];
+    const opMatrix = (op: TransformOp): Matrix2D => {
+      if (op === 'rotateRight') return [0, 1, -1, 0];
+      if (op === 'rotateLeft') return [0, -1, 1, 0];
+      if (op === 'flipH') return [-1, 0, 0, 1];
+      return [1, 0, 0, -1]; // flipV
+    };
+    let matrix: Matrix2D = [1, 0, 0, 1];
+    for (const op of ops) {
+      matrix = multiply(opMatrix(op), matrix);
+    }
+    return matrix.join('|');
+  };
+
+  const isCropUnchanged =
+    tiltDeg === initialTiltDeg &&
+    normalizeOps(transformOps) === normalizeOps(initialTransformOps) &&
+    JSON.stringify(cropBox) === JSON.stringify(initialCropBoxRef.current);
+
   // Drag state stored in refs to avoid stale closures in event listeners
   const dragMode = useRef<DragMode>(null);
   const dragStart = useRef<{ mx: number; my: number; box: CropBox } | null>(null);
@@ -209,7 +328,9 @@ export default function ImageCropPanel({
    */
   function applyOpsToImage(src: HTMLImageElement, ops: TransformOp[]): HTMLImageElement {
     if (ops.length === 0) return src;
-    let current: HTMLImageElement = src;
+    // Use canvas-to-canvas drawing for intermediate steps to avoid relying on
+    // async image decoding of intermediate data URLs.
+    let current: HTMLImageElement | HTMLCanvasElement = src;
     let curW = src.naturalWidth;
     let curH = src.naturalHeight;
 
@@ -237,13 +358,15 @@ export default function ImageCropPanel({
       }
       ctx.drawImage(current, 0, 0);
       ctx.restore();
-      const next = new Image();
-      next.src = offscreen.toDataURL('image/jpeg', 0.92);
-      current = next;
+      current = offscreen;
       curW = outW;
       curH = outH;
     }
-    return current;
+
+    // Convert the final canvas to an HTMLImageElement so imgRef typing is consistent.
+    const result = new Image();
+    result.src = (current as HTMLCanvasElement).toDataURL('image/jpeg', JPEG_QUALITY);
+    return result;
   }
 
   // Load original image, re-apply stored transform ops, then set up crop box.
@@ -260,6 +383,7 @@ export default function ImageCropPanel({
         const h = el.naturalHeight || img.naturalHeight;
         setNaturalSize({ w, h });
         const box = initialCropBox ?? computeInitialCropBox(w, h, aspectRatio);
+        initialCropBoxRef.current = box;
         setCropBox(box);
         setImageLoaded(true);
       };
@@ -488,31 +612,14 @@ export default function ImageCropPanel({
     return { mx: e.clientX - rect.left, my: e.clientY - rect.top };
   };
 
-  /**
-   * Rotates a canvas-space pointer position back by the current tilt angle so that
-   * crop-box hit testing always works in the image's un-rotated coordinate space.
-   */
-  const unrotatePt = (mx: number, my: number) => {
-    const { offsetX, offsetY, drawW, drawH } = imgLayoutRef.current;
-    const cx = offsetX + drawW / 2;
-    const cy = offsetY + drawH / 2;
-    const rad = -(tiltDeg * Math.PI) / 180;
-    const dx = mx - cx;
-    const dy = my - cy;
-    return {
-      mx: cx + dx * Math.cos(rad) - dy * Math.sin(rad),
-      my: cy + dx * Math.sin(rad) + dy * Math.cos(rad),
-    };
-  };
-
   /** Begins a crop-box drag or resize when the pointer lands on a handle or inside the box. */
   const handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
     if (!cropBox || !naturalSize) return;
-    const raw = getCanvasPoint(e);
-    const { mx, my } = unrotatePt(raw.mx, raw.my);
+    const { mx, my } = getCanvasPoint(e);
     const scale = scaleRef.current;
     const { offsetX, offsetY } = imgLayoutRef.current;
 
+    // Crop box is always axis-aligned in canvas space — use raw coords, not un-rotated.
     const relMx = mx - offsetX;
     const relMy = my - offsetY;
     const mode = getHandleAtPoint(relMx, relMy, cropBox, scale);
@@ -529,8 +636,7 @@ export default function ImageCropPanel({
    */
   const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
     if (!cropBox || !naturalSize) return;
-    const raw = getCanvasPoint(e);
-    const { mx, my } = unrotatePt(raw.mx, raw.my);
+    const { mx, my } = getCanvasPoint(e);
     const nat = naturalSize;
     const scale = scaleRef.current;
     const canvas = canvasRef.current!;
@@ -618,8 +724,7 @@ export default function ImageCropPanel({
         break;
     }
 
-    const newBox = clampBox({ x, y, w, h }, nat.w, nat.h);
-    setCropBox(newBox);
+    setCropBox(clampBoxToRotatedImage(x, y, w, h, nat.w, nat.h, tiltDeg));
   };
 
   /** Ends the current drag/resize operation. */
@@ -691,6 +796,10 @@ export default function ImageCropPanel({
    */
   const handleSave = async () => {
     if (!cropBox || !naturalSize || !imgRef.current) return;
+    if (isCropUnchanged) {
+      onClose();
+      return;
+    }
     setSaving(true);
     try {
       const offscreen = document.createElement('canvas');
@@ -698,20 +807,16 @@ export default function ImageCropPanel({
       offscreen.height = Math.round(cropBox.h);
       const ctx = offscreen.getContext('2d')!;
       if (tiltDeg !== 0) {
-        // Rotate image around its center, then draw only the crop region
         const { w: natW, h: natH } = naturalSize;
         const rad = (tiltDeg * Math.PI) / 180;
         ctx.save();
-        ctx.translate(offscreen.width / 2, offscreen.height / 2);
+        // Translate so the image center lands at (natW/2 - cropBox.x, natH/2 - cropBox.y)
+        // in output pixels — i.e. the same relative position it has on the canvas preview.
+        // Rotating around that point (the image's own center) matches the preview exactly,
+        // regardless of where the crop box is positioned on the image.
+        ctx.translate(natW / 2 - cropBox.x, natH / 2 - cropBox.y);
         ctx.rotate(rad);
-        // Shift so that cropBox origin maps to (0,0) in the rotated frame
-        ctx.drawImage(
-          imgRef.current,
-          -(cropBox.x + cropBox.w / 2),
-          -(cropBox.y + cropBox.h / 2),
-          natW,
-          natH
-        );
+        ctx.drawImage(imgRef.current, -natW / 2, -natH / 2, natW, natH);
         ctx.restore();
       } else {
         ctx.drawImage(
@@ -730,7 +835,7 @@ export default function ImageCropPanel({
         offscreen.toBlob(
           (b) => (b ? resolve(b) : reject(new Error('toBlob failed'))),
           'image/jpeg',
-          0.92
+          JPEG_QUALITY
         );
       });
       const file = new File([blob], 'crop.jpg', { type: 'image/jpeg' });
@@ -782,7 +887,7 @@ export default function ImageCropPanel({
           className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors text-gray-400"
           aria-label={COPY.general.close}
         >
-          <X className="h-4 w-4" />
+          <ChevronDown className="h-4 w-4" />
         </button>
       </div>
 
@@ -901,7 +1006,12 @@ export default function ImageCropPanel({
                 <button
                   type="button"
                   title="Click to level"
-                  onClick={() => setTiltDeg(0)}
+                  onClick={() => {
+                    setTiltDeg(0);
+                    if (naturalSize) {
+                      setCropBox(computeInitialCropBox(naturalSize.w, naturalSize.h, aspectRatio));
+                    }
+                  }}
                   className="text-[11px] font-mono text-gray-500 dark:text-gray-400 hover:text-violet-600 dark:hover:text-violet-400 transition-colors tabular-nums w-10 text-center"
                 >
                   {tiltDeg > 0 ? '+' : ''}
@@ -911,11 +1021,20 @@ export default function ImageCropPanel({
               </div>
               <input
                 type="range"
-                min={-45}
-                max={45}
-                step={0.5}
+                min={TILT_MIN}
+                max={TILT_MAX}
+                step={TILT_STEP}
                 value={tiltDeg}
-                onChange={(e) => setTiltDeg(Number(e.target.value))}
+                onChange={(e) => {
+                  const newTilt = Number(e.target.value);
+                  setTiltDeg(newTilt);
+                  if (naturalSize) {
+                    const rad = (newTilt * Math.PI) / 180;
+                    // Always snap to the maximum safe area so no out-of-bounds pixels
+                    // are ever included — the image effectively zooms to fill as it tilts.
+                    setCropBox(maxCropBoxForTilt(naturalSize.w, naturalSize.h, rad, aspectRatio));
+                  }
+                }}
                 className="w-full accent-violet-600 cursor-pointer"
               />
             </div>
@@ -960,9 +1079,9 @@ export default function ImageCropPanel({
             </div>
             <button
               type="button"
-              className="w-full flex items-center justify-center gap-1.5 rounded-lg bg-violet-600 hover:bg-violet-700 disabled:opacity-40 text-white text-sm font-medium px-4 py-2 transition-colors"
+              className="w-full flex items-center justify-center gap-1.5 rounded-lg bg-violet-600 hover:enabled:bg-violet-700 disabled:opacity-40 text-white text-sm font-medium px-4 py-2 transition-colors"
               onClick={handleSave}
-              disabled={saving || !imageLoaded}
+              disabled={saving || !imageLoaded || isCropUnchanged}
             >
               {saving && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
               {COPY.calendarPostModal.saveCrop}

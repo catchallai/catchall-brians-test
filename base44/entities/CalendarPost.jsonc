@@ -163,6 +163,33 @@
       "type": "string",
       "description": "ID of the original recurring post"
     },
+    "platform_image_urls": {
+      "type": "object",
+      "description": "Per-platform cropped image URLs, keyed by platform ID (e.g. 'Twitter', 'Instagram')"
+    },
+    "platform_crop_metadata": {
+      "type": "object",
+      "description": "Per-platform crop geometry and transform metadata used to rehydrate the crop editor. Keyed by platform ID.",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "cropBox": {
+            "type": "object",
+            "properties": {
+              "x": { "type": "number" },
+              "y": { "type": "number" },
+              "w": { "type": "number" },
+              "h": { "type": "number" }
+            }
+          },
+          "transformOps": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "tilt": { "type": "number" }
+        }
+      }
+    },
     "campaign_brief_id": {
       "type": "string",
       "description": "Associated campaign brief ID"
