@@ -493,6 +493,7 @@ export default function CalendarPostModal({
   const captionRef = useRef(null);
   const captionSelectionRef = useRef({ start: null, end: null });
   const initialFormDataRef = useRef({ ...DEFAULT_FORM });
+  const initialCropRef = useRef({ boxes: {}, transformOps: {}, tilts: {} });
   const fileDialogLockRef = useRef(false);
   const fileDialogReleaseTimeoutRef = useRef(null);
   const isPostPublished = post?.status === PostStatus.PUBLISHED;
@@ -569,19 +570,25 @@ export default function CalendarPostModal({
         setPreviewPlatform(post.platforms?.[0] ?? 'Twitter');
         setPlatformCrops(post.platform_image_urls ?? {});
         const _meta = post.platform_crop_metadata ?? {};
-        setPlatformCropBoxes(
-          Object.fromEntries(
-            Object.entries(_meta)
-              .filter(([, m]) => m.cropBox)
-              .map(([k, m]) => [k, m.cropBox])
-          )
+        const _initialBoxes = Object.fromEntries(
+          Object.entries(_meta)
+            .filter(([, m]) => m.cropBox)
+            .map(([k, m]) => [k, m.cropBox])
         );
-        setPlatformTransformOps(
-          Object.fromEntries(Object.entries(_meta).map(([k, m]) => [k, m.transformOps ?? []]))
+        const _initialTransformOps = Object.fromEntries(
+          Object.entries(_meta).map(([k, m]) => [k, m.transformOps ?? []])
         );
-        setPlatformTilts(
-          Object.fromEntries(Object.entries(_meta).map(([k, m]) => [k, m.tilt ?? 0]))
+        const _initialTilts = Object.fromEntries(
+          Object.entries(_meta).map(([k, m]) => [k, m.tilt ?? 0])
         );
+        initialCropRef.current = {
+          boxes: _initialBoxes,
+          transformOps: _initialTransformOps,
+          tilts: _initialTilts,
+        };
+        setPlatformCropBoxes(_initialBoxes);
+        setPlatformTransformOps(_initialTransformOps);
+        setPlatformTilts(_initialTilts);
       } else {
         const initial = { ...DEFAULT_FORM, scheduled_date: todayLocal() };
         initialFormDataRef.current = initial;
@@ -591,6 +598,7 @@ export default function CalendarPostModal({
         setPlatformCropBoxes({});
         setPlatformTransformOps({});
         setPlatformTilts({});
+        initialCropRef.current = { boxes: {}, transformOps: {}, tilts: {} };
       }
     }
     // Depend on post?.id rather than post so that background cache updates (new object
@@ -598,9 +606,9 @@ export default function CalendarPostModal({
   }, [post?.id, open]);
 
   const isCropDirty =
-    Object.keys(platformCropBoxes).length > 0 ||
-    Object.values(platformTransformOps).some((ops) => ops.length > 0) ||
-    Object.values(platformTilts).some((tilt) => tilt !== 0);
+    JSON.stringify(platformCropBoxes) !== JSON.stringify(initialCropRef.current.boxes) ||
+    JSON.stringify(platformTransformOps) !== JSON.stringify(initialCropRef.current.transformOps) ||
+    JSON.stringify(platformTilts) !== JSON.stringify(initialCropRef.current.tilts);
   const isDirty =
     hasFormChanges(formData, initialFormDataRef.current, { includeTags: !post?.id }) || isCropDirty;
 
@@ -951,7 +959,14 @@ export default function CalendarPostModal({
       timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
       platform_image_urls: platformCrops,
       platform_crop_metadata: Object.fromEntries(
-        Object.keys(platformCrops).map((platform) => [
+        [
+          ...new Set([
+            ...Object.keys(platformCrops),
+            ...Object.keys(platformCropBoxes),
+            ...Object.keys(platformTransformOps),
+            ...Object.keys(platformTilts),
+          ]),
+        ].map((platform) => [
           platform,
           {
             cropBox: platformCropBoxes[platform] ?? null,
