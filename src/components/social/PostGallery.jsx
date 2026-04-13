@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { X } from 'lucide-react';
@@ -51,7 +50,9 @@ function SortableGalleryItem({ id, post, onRemove }) {
 }
 
 export default function PostGallery({ posts = [], onPostsChange, onDragOver: _onDragOver }) {
-  const [_activeId, setActiveId] = useState(null);
+  // TODO: [WIP] activeId will drive a DragOverlay to render a drag preview.
+  // Uncomment when DragOverlay is implemented.
+  // const [_activeId, setActiveId] = useState(null);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -59,8 +60,8 @@ export default function PostGallery({ posts = [], onPostsChange, onDragOver: _on
     })
   );
 
-  const handleDragStart = (event) => {
-    setActiveId(event.active.id);
+  const handleDragStart = (_event) => {
+    // TODO: [WIP] setActiveId(_event.active.id) — uncomment when DragOverlay is implemented.
   };
 
   const handleDragEnd = (event) => {
@@ -76,7 +77,7 @@ export default function PostGallery({ posts = [], onPostsChange, onDragOver: _on
       onPostsChange(newPosts);
     }
 
-    setActiveId(null);
+    // TODO: [WIP] setActiveId(null) — uncomment when DragOverlay is implemented.
   };
 
   const handleRemove = (postId) => {
