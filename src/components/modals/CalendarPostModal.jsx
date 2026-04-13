@@ -567,14 +567,13 @@ export default function CalendarPostModal({
       const _hh = String(_now.getHours()).padStart(2, '0');
       const _mm = String(_now.getMinutes()).padStart(2, '0');
       const { isSameMonth: _isSameMonth, isFutureMonth: _isFutureMonth } = getMonthComparison(
-        currentMonth,
-        _now
+        _now,
+        currentMonth
       );
       const defaultTime = _isSameMonth ? `${_hh}:${_mm}` : '09:00';
-      const defaultDate =
-        _isFutureMonth && currentMonth instanceof Date
-          ? `${currentMonth.getFullYear()}-${String(currentMonth.getMonth() + 1).padStart(2, '0')}-01`
-          : todayLocal();
+      const defaultDate = _isFutureMonth
+        ? `${currentMonth.getFullYear()}-${String(currentMonth.getMonth() + 1).padStart(2, '0')}-01`
+        : todayLocal();
       if (post) {
         const normalizedMedia = normalizePostMedia(post);
         const initial = {
