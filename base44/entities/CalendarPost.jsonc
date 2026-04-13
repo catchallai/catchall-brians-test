@@ -14,13 +14,6 @@
       "type": "string",
       "description": "Post image URL"
     },
-    "image_urls": {
-      "type": "array",
-      "items": {
-        "type": "string"
-      },
-      "description": "Post image URLs for multi-image posts"
-    },
     "video_url": {
       "type": "string",
       "description": "Post video URL"
@@ -65,6 +58,14 @@
       },
       "default": [],
       "description": "The list of SocialTag IDs applied to this post."
+    },
+    "platform_image_urls": {
+      "type": "object",
+      "description": "Per-platform cropped image URLs, keyed by platform ID (e.g. 'Instagram', 'Twitter')"
+    },
+    "platform_crop_metadata": {
+      "type": "object",
+      "description": "Per-platform crop geometry and transform metadata for rehydrating the crop editor. Keyed by platform ID. Each value is an object with: cropBox (object with x, y, w, h numbers), transformOps (array of strings), and tilt (number)."
     },
     "status": {
       "type": "string",
@@ -169,33 +170,6 @@
     "parent_post_id": {
       "type": "string",
       "description": "ID of the original recurring post"
-    },
-    "platform_image_urls": {
-      "type": "object",
-      "description": "Per-platform cropped image URLs, keyed by platform ID (e.g. 'Twitter', 'Instagram')"
-    },
-    "platform_crop_metadata": {
-      "type": "object",
-      "description": "Per-platform crop geometry and transform metadata used to rehydrate the crop editor. Keyed by platform ID.",
-      "additionalProperties": {
-        "type": "object",
-        "properties": {
-          "cropBox": {
-            "type": "object",
-            "properties": {
-              "x": { "type": "number" },
-              "y": { "type": "number" },
-              "w": { "type": "number" },
-              "h": { "type": "number" }
-            }
-          },
-          "transformOps": {
-            "type": "array",
-            "items": { "type": "string" }
-          },
-          "tilt": { "type": "number" }
-        }
-      }
     },
     "campaign_brief_id": {
       "type": "string",

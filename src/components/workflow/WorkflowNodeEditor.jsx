@@ -32,7 +32,7 @@ export default function WorkflowNodeEditor({ node, onSave, onClose }) {
                 className="w-full mt-1 p-2 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm h-24"
               />
               <p className="text-xs text-gray-500 mt-1">
-                Variables: {{ first_name }}, {{ company }}
+                Variables: {'{{'+'first_name'+'}}'}, {'{{'+'company'+'}}'} 
               </p>
             </div>
           </div>

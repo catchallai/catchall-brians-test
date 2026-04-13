@@ -78,11 +78,6 @@ export default function PresentationMode({
     }
   }, [open]);
 
-  const slide = slides[currentSlide];
-  if (!slide) {
-    return null;
-  }
-
   // Load custom fonts
   useEffect(() => {
     if (branding?.custom_fonts) {
@@ -98,6 +93,11 @@ export default function PresentationMode({
       });
     }
   }, [branding]);
+
+  const slide = slides[currentSlide];
+  if (!slide) {
+    return null;
+  }
 
   const renderContent = (content) => {
     if (!content) {

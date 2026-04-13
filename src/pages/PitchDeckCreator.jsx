@@ -13,6 +13,7 @@ import {
   Eye,
   Loader2,
   Layout,
+  LayoutGrid,
   FileText,
   FolderOpen,
   BookmarkPlus,

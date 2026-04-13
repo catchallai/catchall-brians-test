@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { ChevronRight, Folder, FolderOpen, FileText, MoreVertical } from 'lucide-react';
+import { ChevronRight, Folder, FolderOpen, FileText, MoreVertical, Star } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import {
@@ -18,6 +18,7 @@ export default function FolderTree({
   onDeleteFolder,
   onAddPage,
   currentPageId,
+  bookmarkedPageIds = [],
 }) {
   const [expandedFolders, setExpandedFolders] = useState({});
 
