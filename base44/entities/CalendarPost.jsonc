@@ -14,6 +14,13 @@
       "type": "string",
       "description": "Post image URL"
     },
+    "image_urls": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Post image URLs for multi-image posts"
+    },
     "video_url": {
       "type": "string",
       "description": "Post video URL"

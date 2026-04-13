@@ -32,6 +32,15 @@ import { todayLocal } from '@/utils/date';
 import COPY from '@/lib/copy';
 import { TagSelector } from '@/components/social/tags/TagSelector';
 import { useTagsQuery } from '@/components/social/tags/useTagsQuery';
+import {
+  IMAGE_ACCEPT_ATTR,
+  MAX_POST_IMAGE_COUNT,
+  VIDEO_ACCEPT_ATTR,
+  getPostImageUrls,
+  normalizePostMedia,
+  validateImageFiles,
+  validateVideoFile,
+} from '@/utils/postMedia';
 
 const PLATFORMS = [
   {
@@ -75,6 +84,7 @@ const DEFAULT_FORM = {
   title: '',
   caption: '',
   image_url: '',
+  image_urls: [],
   video_url: '',
   media_type: 'none',
   scheduled_date: todayLocal(),
@@ -141,6 +151,8 @@ export default function BufferComposer({ hashtagPool = [], onSuccess }) {
   const [previewPlatform, setPreviewPlatform] = useState('Twitter');
   const [saved, setSaved] = useState(false);
   const [scheduleError, setScheduleError] = useState('');
+  const [mediaError, setMediaError] = useState('');
+  const [imageFileNames, setImageFileNames] = useState([]);
 
   const { _activeHashtags, toggledPoolIds, handleTogglePool } = useHashtagPoolToggle({
     hashtagPool,
@@ -157,19 +169,58 @@ export default function BufferComposer({ hashtagPool = [], onSuccess }) {
       setSaved(true);
       setTimeout(() => setSaved(false), 2500);
       setForm({ ...DEFAULT_FORM });
+      setMediaError('');
+      setMediaError('');
+      setImageFileNames([]);
       onSuccess?.();
     },
   });
 
   const handleImageUpload = async (e) => {
-    const file = e.target.files?.[0];
-    if (!file) {
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0) {
       return;
     }
+
+    if (form.video_url) {
+      setMediaError('Remove the selected video before adding images.');
+      if (e.target) {
+        e.target.value = '';
+      }
+      return;
+    }
+
+    const validationError = validateImageFiles(files, form.image_urls?.length || 0, imageFileNames);
+    if (validationError) {
+      setMediaError(validationError);
+      if (e.target) {
+        e.target.value = '';
+      }
+      return;
+    }
+
     setUploading(true);
-    const { file_url } = await base44.integrations.Core.UploadFile({ file });
-    setForm((f) => ({ ...f, image_url: file_url, video_url: '', media_type: 'image' }));
-    setUploading(false);
+    setMediaError('');
+    try {
+      const uploads = await Promise.all(
+        files.map((file) => base44.integrations.Core.UploadFile({ file }))
+      );
+      setImageFileNames((current) => [...current, ...files.map((file) => file.name)]);
+      setForm((f) =>
+        normalizePostMedia({
+          ...f,
+          image_urls: [...(f.image_urls || []), ...uploads.map((item) => item.file_url)],
+          video_url: '',
+        })
+      );
+    } catch (error) {
+      setMediaError(error?.message || 'Failed to upload images.');
+    } finally {
+      setUploading(false);
+    }
+    if (e.target) {
+      e.target.value = '';
+    }
   };
 
   const handleVideoUpload = async (e) => {
@@ -177,10 +228,44 @@ export default function BufferComposer({ hashtagPool = [], onSuccess }) {
     if (!file) {
       return;
     }
+
+    if ((form.image_urls?.length || 0) > 0) {
+      setMediaError('Remove the selected images before adding a video.');
+      if (e.target) {
+        e.target.value = '';
+      }
+      return;
+    }
+
+    const validationError = validateVideoFile(file);
+    if (validationError) {
+      setMediaError(validationError);
+      if (e.target) {
+        e.target.value = '';
+      }
+      return;
+    }
+
     setUploading(true);
-    const { file_url } = await base44.integrations.Core.UploadFile({ file });
-    setForm((f) => ({ ...f, video_url: file_url, image_url: '', media_type: 'video' }));
-    setUploading(false);
+    setMediaError('');
+    try {
+      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      setImageFileNames([]);
+      setForm((f) =>
+        normalizePostMedia({
+          ...f,
+          video_url: file_url,
+          image_urls: [],
+        })
+      );
+    } catch (error) {
+      setMediaError(error?.message || 'Failed to upload video.');
+    } finally {
+      setUploading(false);
+    }
+    if (e.target) {
+      e.target.value = '';
+    }
   };
 
   const togglePlatform = (id) => {
@@ -202,7 +287,7 @@ export default function BufferComposer({ hashtagPool = [], onSuccess }) {
       }
     }
     setScheduleError('');
-    createMutation.mutate({ ...form, status });
+    createMutation.mutate({ ...normalizePostMedia(form), status });
   };
 
   const activePlatformLimit = PLATFORMS.find((p) => p.id === previewPlatform)?.limit || 280;
@@ -247,25 +332,61 @@ export default function BufferComposer({ hashtagPool = [], onSuccess }) {
 
         {/* Media Upload */}
         <div className="border-2 border-dashed border-gray-200 rounded-xl p-4">
-          {form.image_url ? (
-            <div className="relative">
-              <img
-                src={form.image_url}
-                alt="Preview"
-                className="w-full rounded-lg object-contain max-h-64 bg-gray-50"
-              />
-              <button
-                onClick={() => setForm((f) => ({ ...f, image_url: '', media_type: 'none' }))}
-                className="absolute top-2 right-2 bg-black/60 hover:bg-black/80 text-white rounded-full p-1 transition-colors"
-              >
-                <X className="w-3.5 h-3.5" />
-              </button>
+          {(form.image_urls?.length || 0) > 0 ? (
+            <div className="space-y-3">
+              <div className="grid grid-cols-2 gap-3 lg:grid-cols-3">
+                {getPostImageUrls(form).map((imageUrl, index) => (
+                  <div
+                    key={`${imageUrl}-${index}`}
+                    className="relative aspect-[1.91/1] overflow-hidden rounded-lg bg-gray-50"
+                  >
+                    <img
+                      src={imageUrl}
+                      alt={`Preview ${index + 1}`}
+                      className="h-full w-full object-cover"
+                    />
+                    <button
+                      onClick={() => {
+                        setMediaError('');
+                        setImageFileNames((current) =>
+                          current.filter((_, currentIndex) => currentIndex !== index)
+                        );
+                        setForm((f) =>
+                          normalizePostMedia({
+                            ...f,
+                            image_urls: getPostImageUrls(f).filter(
+                              (_, currentIndex) => currentIndex !== index
+                            ),
+                          })
+                        );
+                      }}
+                      className="absolute top-2 right-2 bg-black/60 hover:bg-black/80 text-white rounded-full p-1 transition-colors"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+              <p className="text-xs text-gray-500">
+                {getPostImageUrls(form).length}/{MAX_POST_IMAGE_COUNT} images selected. Video upload
+                is disabled while images are attached.
+              </p>
             </div>
           ) : form.video_url ? (
             <div className="relative">
               <video src={form.video_url} controls className="w-full rounded-lg max-h-64" />
               <button
-                onClick={() => setForm((f) => ({ ...f, video_url: '', media_type: 'none' }))}
+                onClick={() => {
+                  setMediaError('');
+                  setImageFileNames([]);
+                  setForm((f) =>
+                    normalizePostMedia({
+                      ...f,
+                      video_url: '',
+                      image_urls: [],
+                    })
+                  );
+                }}
                 className="absolute top-2 right-2 bg-black/60 hover:bg-black/80 text-white rounded-full p-1 transition-colors"
               >
                 <X className="w-3.5 h-3.5" />
@@ -277,29 +398,37 @@ export default function BufferComposer({ hashtagPool = [], onSuccess }) {
               <p className="text-sm text-gray-500">Uploading…</p>
             </div>
           ) : (
-            <div className="flex items-center gap-4 justify-center py-4">
-              <label className="cursor-pointer flex flex-col items-center gap-1.5 p-3 rounded-xl hover:bg-gray-50 transition-colors">
-                <input
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={handleImageUpload}
-                />
-                <Image className="w-6 h-6 text-blue-500" />
-                <span className="text-xs text-gray-500 font-medium">Photo</span>
-              </label>
-              <label className="cursor-pointer flex flex-col items-center gap-1.5 p-3 rounded-xl hover:bg-gray-50 transition-colors">
-                <input
-                  type="file"
-                  accept="video/*"
-                  className="hidden"
-                  onChange={handleVideoUpload}
-                />
-                <Video className="w-6 h-6 text-purple-500" />
-                <span className="text-xs text-gray-500 font-medium">Video</span>
-              </label>
+            <div className="space-y-3">
+              <div className="flex items-center gap-4 justify-center py-4">
+                <label className="cursor-pointer flex flex-col items-center gap-1.5 p-3 rounded-xl hover:bg-gray-50 transition-colors">
+                  <input
+                    type="file"
+                    accept={IMAGE_ACCEPT_ATTR}
+                    multiple
+                    className="hidden"
+                    onChange={handleImageUpload}
+                  />
+                  <Image className="w-6 h-6 text-blue-500" />
+                  <span className="text-xs text-gray-500 font-medium">Photo</span>
+                </label>
+                <label className="cursor-pointer flex flex-col items-center gap-1.5 p-3 rounded-xl hover:bg-gray-50 transition-colors">
+                  <input
+                    type="file"
+                    accept={VIDEO_ACCEPT_ATTR}
+                    className="hidden"
+                    onChange={handleVideoUpload}
+                  />
+                  <Video className="w-6 h-6 text-purple-500" />
+                  <span className="text-xs text-gray-500 font-medium">Video</span>
+                </label>
+              </div>
+              <p className="text-center text-xs text-gray-500">
+                Add up to {MAX_POST_IMAGE_COUNT} images ({IMAGE_ACCEPT_ATTR}) or one video (
+                {VIDEO_ACCEPT_ATTR}).
+              </p>
             </div>
           )}
+          {mediaError && <p className="mt-3 text-xs text-red-500">{mediaError}</p>}
         </div>
 
         {/* Caption */}
