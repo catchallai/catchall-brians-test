@@ -167,6 +167,9 @@ function PlatformPreviewPanel({
   imageAspectRatio = 1.91,
   onCropClick = undefined,
 }) {
+  const [inferredRatio, setInferredRatio] = useState(/** @type {number | null} */ (null));
+  useEffect(() => setInferredRatio(null), [imageUrl]);
+
   const p =
     PLATFORMS.find((pl) => pl.id === platform) ??
     PLATFORMS.find((pl) => pl.id === PLATFORMS[0].id) ??
@@ -216,7 +219,10 @@ function PlatformPreviewPanel({
                 src={imageUrl}
                 alt="Preview"
                 className="w-full object-cover"
-                style={{ aspectRatio: imageAspectRatio }}
+                style={{ aspectRatio: inferredRatio ?? imageAspectRatio }}
+                onLoad={(e) =>
+                  setInferredRatio(e.currentTarget.naturalWidth / e.currentTarget.naturalHeight)
+                }
               />
               {onCropClick && (
                 <Tooltip content={COPY.calendarPostModal.cropTitle}>
@@ -562,9 +568,20 @@ export default function CalendarPostModal({
         setFormData(initial);
         setPreviewPlatform(post.platforms?.[0] ?? 'Twitter');
         setPlatformCrops(post.platform_image_urls ?? {});
-        setPlatformCropBoxes({});
-        setPlatformTransformOps({});
-        setPlatformTilts({});
+        const _meta = post.platform_crop_metadata ?? {};
+        setPlatformCropBoxes(
+          Object.fromEntries(
+            Object.entries(_meta)
+              .filter(([, m]) => m.cropBox)
+              .map(([k, m]) => [k, m.cropBox])
+          )
+        );
+        setPlatformTransformOps(
+          Object.fromEntries(Object.entries(_meta).map(([k, m]) => [k, m.transformOps ?? []]))
+        );
+        setPlatformTilts(
+          Object.fromEntries(Object.entries(_meta).map(([k, m]) => [k, m.tilt ?? 0]))
+        );
       } else {
         const initial = { ...DEFAULT_FORM, scheduled_date: todayLocal() };
         initialFormDataRef.current = initial;
@@ -933,6 +950,16 @@ export default function CalendarPostModal({
       status: finalStatus,
       timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
       platform_image_urls: platformCrops,
+      platform_crop_metadata: Object.fromEntries(
+        Object.keys(platformCrops).map((platform) => [
+          platform,
+          {
+            cropBox: platformCropBoxes[platform] ?? null,
+            transformOps: platformTransformOps[platform] ?? [],
+            tilt: platformTilts[platform] ?? 0,
+          },
+        ])
+      ),
     });
     guardedClose({ open: false, bypass: true });
   };
