@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { X } from 'lucide-react';
@@ -50,11 +51,17 @@ function SortableGalleryItem({ id, post, onRemove }) {
 }
 
 export default function PostGallery({ posts = [], onPostsChange, onDragOver: _onDragOver }) {
+  const [_activeId, setActiveId] = useState(null);
+
   const sensors = useSensors(
     useSensor(PointerSensor, {
       distance: 8,
     })
   );
+
+  const handleDragStart = (event) => {
+    setActiveId(event.active.id);
+  };
 
   const handleDragEnd = (event) => {
     const { active, over } = event;
@@ -68,6 +75,8 @@ export default function PostGallery({ posts = [], onPostsChange, onDragOver: _on
 
       onPostsChange(newPosts);
     }
+
+    setActiveId(null);
   };
 
   const handleRemove = (postId) => {
@@ -97,6 +106,7 @@ export default function PostGallery({ posts = [], onPostsChange, onDragOver: _on
           <DndContext
             sensors={sensors}
             collisionDetection={closestCenter}
+            onDragStart={handleDragStart}
             onDragEnd={handleDragEnd}
           >
             <ScrollArea className="h-32 w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 p-3">

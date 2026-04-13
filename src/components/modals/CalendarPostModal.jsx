@@ -1520,13 +1520,15 @@ export default function CalendarPostModal({
                       </div>
                       {!!formData.image_urls?.length && (
                         <p className="mt-2 text-xs text-gray-500">
-                          {formData.image_urls.length}/{MAX_POST_IMAGE_COUNT} images selected. Video
-                          upload is disabled while images are attached.
+                          {COPY.mediaUpload.imagesSelected(
+                            formData.image_urls.length,
+                            MAX_POST_IMAGE_COUNT
+                          )}
                         </p>
                       )}
                       {!!formData.video_url && (
                         <p className="mt-2 text-xs text-gray-500">
-                          1 video selected. Image upload is disabled while a video is attached.
+                          {COPY.mediaUpload.videoSelected}
                         </p>
                       )}
                     </div>
@@ -1577,8 +1579,11 @@ export default function CalendarPostModal({
                   {mediaError && <p className="mt-2 text-xs text-red-500">{mediaError}</p>}
                   {!hasSelectedMedia && !mediaError && (
                     <p className="mt-2 text-xs text-gray-500">
-                      Add up to {MAX_POST_IMAGE_COUNT} images ({IMAGE_ACCEPT_ATTR}) or one video (
-                      {VIDEO_ACCEPT_ATTR}).
+                      {COPY.mediaUpload.mediaHint(
+                        MAX_POST_IMAGE_COUNT,
+                        IMAGE_ACCEPT_ATTR,
+                        VIDEO_ACCEPT_ATTR
+                      )}
                     </p>
                   )}
                   <input
