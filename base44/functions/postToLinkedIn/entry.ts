@@ -42,6 +42,12 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Text content required' }, { status: 400 });
     }
 
+    const hasProvidedMedia =
+      !!media &&
+      (Array.isArray(media.image_urls) ||
+        'image_url' in media ||
+        'image_urls' in media ||
+        'video_url' in media);
     let normalizedMedia = normalizePostMedia(media || {});
     if (postId) {
       const posts = await base44.entities.CalendarPost.filter({ id: postId });
@@ -50,7 +56,9 @@ Deno.serve(async (req) => {
         return Response.json({ error: 'Post not found or not accessible' }, { status: 404 });
       }
 
-      normalizedMedia = normalizePostMedia(post);
+      if (!hasProvidedMedia) {
+        normalizedMedia = normalizePostMedia(post);
+      }
     }
 
     // Get LinkedIn access token from app connector

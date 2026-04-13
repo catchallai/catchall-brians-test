@@ -562,13 +562,14 @@ export default function CalendarPostModal({
       setCropTargetPlatform(null);
       setImageFileNames([]);
       if (post) {
+        const normalizedMedia = normalizePostMedia(post);
         const initial = {
           title: post.title || '',
           caption: post.caption || '',
-          image_url: post.image_url || post.image_urls?.[0] || '',
-          image_urls: getPostImageUrls(post),
-          video_url: post.video_url || '',
-          media_type: post.media_type || 'none',
+          image_url: normalizedMedia.image_url || '',
+          image_urls: normalizedMedia.image_urls || [],
+          video_url: normalizedMedia.video_url || '',
+          media_type: normalizedMedia.media_type || 'none',
           scheduled_date: post.scheduled_date || todayLocal(),
           scheduled_time: post.scheduled_time || '09:00',
           platforms: post.platforms || [],

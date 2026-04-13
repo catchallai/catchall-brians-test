@@ -169,6 +169,7 @@ export default function BufferComposer({ hashtagPool = [], onSuccess }) {
       setSaved(true);
       setTimeout(() => setSaved(false), 2500);
       setForm({ ...DEFAULT_FORM });
+      setMediaError('');
       setImageFileNames([]);
       onSuccess?.();
     },
@@ -345,6 +346,7 @@ export default function BufferComposer({ hashtagPool = [], onSuccess }) {
                     />
                     <button
                       onClick={() => {
+                        setMediaError('');
                         setImageFileNames((current) =>
                           current.filter((_, currentIndex) => currentIndex !== index)
                         );
@@ -374,6 +376,7 @@ export default function BufferComposer({ hashtagPool = [], onSuccess }) {
               <video src={form.video_url} controls className="w-full rounded-lg max-h-64" />
               <button
                 onClick={() => {
+                  setMediaError('');
                   setImageFileNames([]);
                   setForm((f) =>
                     normalizePostMedia({
