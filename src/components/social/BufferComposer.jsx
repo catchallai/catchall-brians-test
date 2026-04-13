@@ -170,6 +170,7 @@ export default function BufferComposer({ hashtagPool = [], onSuccess }) {
       setTimeout(() => setSaved(false), 2500);
       setForm({ ...DEFAULT_FORM });
       setMediaError('');
+      setMediaError('');
       setImageFileNames([]);
       onSuccess?.();
     },
