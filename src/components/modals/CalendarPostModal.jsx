@@ -557,7 +557,7 @@ export default function CalendarPostModal({
           scheduled_time: post.scheduled_time || '09:00',
           platforms: post.platforms || [],
           hashtags: post.hashtags || [],
-          status: post.status || 'draft',
+          status: post.status || PostStatus.DRAFT,
           order: post.order || 0,
           is_recurring: post.is_recurring || false,
           recurrence_type: post.recurrence_type || 'weekly',
