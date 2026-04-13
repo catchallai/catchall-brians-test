@@ -152,6 +152,7 @@ export default function BufferComposer({ hashtagPool = [], onSuccess }) {
   const [saved, setSaved] = useState(false);
   const [scheduleError, setScheduleError] = useState('');
   const [mediaError, setMediaError] = useState('');
+  const [imageFileNames, setImageFileNames] = useState([]);
 
   const { _activeHashtags, toggledPoolIds, handleTogglePool } = useHashtagPoolToggle({
     hashtagPool,
@@ -168,6 +169,7 @@ export default function BufferComposer({ hashtagPool = [], onSuccess }) {
       setSaved(true);
       setTimeout(() => setSaved(false), 2500);
       setForm({ ...DEFAULT_FORM });
+      setImageFileNames([]);
       onSuccess?.();
     },
   });
@@ -186,7 +188,7 @@ export default function BufferComposer({ hashtagPool = [], onSuccess }) {
       return;
     }
 
-    const validationError = validateImageFiles(files, form.image_urls?.length || 0);
+    const validationError = validateImageFiles(files, form.image_urls?.length || 0, imageFileNames);
     if (validationError) {
       setMediaError(validationError);
       if (e.target) {
@@ -201,6 +203,7 @@ export default function BufferComposer({ hashtagPool = [], onSuccess }) {
       const uploads = await Promise.all(
         files.map((file) => base44.integrations.Core.UploadFile({ file }))
       );
+      setImageFileNames((current) => [...current, ...files.map((file) => file.name)]);
       setForm((f) =>
         normalizePostMedia({
           ...f,
@@ -245,6 +248,7 @@ export default function BufferComposer({ hashtagPool = [], onSuccess }) {
     setMediaError('');
     try {
       const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      setImageFileNames([]);
       setForm((f) =>
         normalizePostMedia({
           ...f,
@@ -340,14 +344,19 @@ export default function BufferComposer({ hashtagPool = [], onSuccess }) {
                       className="h-full w-full object-cover"
                     />
                     <button
-                      onClick={() =>
+                      onClick={() => {
+                        setImageFileNames((current) =>
+                          current.filter((_, currentIndex) => currentIndex !== index)
+                        );
                         setForm((f) =>
                           normalizePostMedia({
                             ...f,
-                            image_urls: getPostImageUrls(f).filter((url) => url !== imageUrl),
+                            image_urls: getPostImageUrls(f).filter(
+                              (_, currentIndex) => currentIndex !== index
+                            ),
                           })
-                        )
-                      }
+                        );
+                      }}
                       className="absolute top-2 right-2 bg-black/60 hover:bg-black/80 text-white rounded-full p-1 transition-colors"
                     >
                       <X className="w-3.5 h-3.5" />
@@ -364,15 +373,16 @@ export default function BufferComposer({ hashtagPool = [], onSuccess }) {
             <div className="relative">
               <video src={form.video_url} controls className="w-full rounded-lg max-h-64" />
               <button
-                onClick={() =>
+                onClick={() => {
+                  setImageFileNames([]);
                   setForm((f) =>
                     normalizePostMedia({
                       ...f,
                       video_url: '',
                       image_urls: [],
                     })
-                  )
-                }
+                  );
+                }}
                 className="absolute top-2 right-2 bg-black/60 hover:bg-black/80 text-white rounded-full p-1 transition-colors"
               >
                 <X className="w-3.5 h-3.5" />

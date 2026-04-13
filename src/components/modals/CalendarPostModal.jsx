@@ -475,6 +475,7 @@ export default function CalendarPostModal({
   const [linkDisplayText, setLinkDisplayText] = useState('');
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [mediaError, setMediaError] = useState('');
+  const [imageFileNames, setImageFileNames] = useState([]);
   const [isCropOpen, setIsCropOpen] = useState(false);
   /** @type {[string|null, (v: string|null) => void]} */
   const [cropTargetPlatform, setCropTargetPlatform] = useState(/** @type {string|null} */ (null));
@@ -559,6 +560,7 @@ export default function CalendarPostModal({
       setSelectedLibraryAsset('');
       setIsCropOpen(false);
       setCropTargetPlatform(null);
+      setImageFileNames([]);
       if (post) {
         const initial = {
           title: post.title || '',
@@ -710,7 +712,11 @@ export default function CalendarPostModal({
       return;
     }
 
-    const validationError = validateImageFiles(files, formData.image_urls?.length || 0);
+    const validationError = validateImageFiles(
+      files,
+      formData.image_urls?.length || 0,
+      imageFileNames
+    );
     if (validationError) {
       setMediaError(validationError);
       releaseFileDialogLock();
@@ -727,6 +733,7 @@ export default function CalendarPostModal({
         files.map((file) => base44.integrations.Core.UploadFile({ file }))
       );
       clearCropState();
+      setImageFileNames((current) => [...current, ...files.map((file) => file.name)]);
       setFormData((f) =>
         normalizePostMedia({
           ...f,
@@ -779,6 +786,7 @@ export default function CalendarPostModal({
     try {
       const { file_url } = await base44.integrations.Core.UploadFile({ file });
       clearCropState();
+      setImageFileNames([]);
       setFormData((f) =>
         normalizePostMedia({
           ...f,
@@ -911,6 +919,7 @@ export default function CalendarPostModal({
   const applySelectedLibraryAssets = () => {
     setMediaError('');
     clearCropState();
+    setImageFileNames([]);
     setFormData((f) =>
       normalizePostMedia({
         ...f,
@@ -933,13 +942,14 @@ export default function CalendarPostModal({
     );
   };
 
-  const removeSelectedImage = (imageUrlToRemove) => {
+  const removeSelectedImage = (imageIndexToRemove) => {
     setMediaError('');
     clearCropState();
+    setImageFileNames((current) => current.filter((_, index) => index !== imageIndexToRemove));
     setFormData((f) =>
       normalizePostMedia({
         ...f,
-        image_urls: (f.image_urls || []).filter((imageUrl) => imageUrl !== imageUrlToRemove),
+        image_urls: (f.image_urls || []).filter((_, index) => index !== imageIndexToRemove),
       })
     );
   };
@@ -1463,7 +1473,7 @@ export default function CalendarPostModal({
 
                               <button
                                 type="button"
-                                onClick={() => removeSelectedImage(imageUrl)}
+                                onClick={() => removeSelectedImage(index)}
                                 className="absolute right-2 top-2 z-10 flex h-7 w-7 items-center justify-center rounded-full border border-red-200 bg-white/95 text-red-500 shadow-sm transition-colors hover:bg-red-50"
                               >
                                 <X className="h-3.5 w-3.5" />

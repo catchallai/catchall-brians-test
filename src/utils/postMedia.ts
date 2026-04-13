@@ -5,6 +5,8 @@ export const MAX_POST_IMAGE_COUNT = 10;
 export const IMAGE_ACCEPT_ATTR = '.jpg,.jpeg,.png,.webp';
 export const VIDEO_ACCEPT_ATTR = '.mp4,.webm,.mov';
 
+const normalizeFileName = (fileName = '') => fileName.trim().toLowerCase();
+
 type PostMediaShape = {
   image_url?: string | null;
   image_urls?: string[] | null;
@@ -42,7 +44,11 @@ export const normalizePostMedia = <T extends PostMediaShape>(post: T) => {
   };
 };
 
-export const validateImageFiles = (files: File[], existingImageCount = 0): string | null => {
+export const validateImageFiles = (
+  files: File[],
+  existingImageCount = 0,
+  existingFileNames: string[] = []
+): string | null => {
   if (files.length === 0) {
     return 'Select at least one image.';
   }
@@ -54,6 +60,22 @@ export const validateImageFiles = (files: File[], existingImageCount = 0): strin
 
   if (existingImageCount + files.length > MAX_POST_IMAGE_COUNT) {
     return `You can attach up to ${MAX_POST_IMAGE_COUNT} images to a post.`;
+  }
+
+  const usedFileNames = new Set(existingFileNames.map(normalizeFileName).filter(Boolean));
+  const batchFileNames = new Set();
+
+  for (const file of files) {
+    const normalizedName = normalizeFileName(file.name);
+    if (!normalizedName) {
+      continue;
+    }
+
+    if (usedFileNames.has(normalizedName) || batchFileNames.has(normalizedName)) {
+      return `An image named "${file.name}" has already been added to this post.`;
+    }
+
+    batchFileNames.add(normalizedName);
   }
 
   return null;
