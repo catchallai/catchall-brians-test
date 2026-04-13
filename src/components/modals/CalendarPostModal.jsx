@@ -390,7 +390,7 @@ const DEFAULT_FORM = {
   scheduled_time: '09:00',
   platforms: [],
   hashtags: [],
-  status: 'draft',
+  status: PostStatus.DRAFT,
   order: 0,
   is_recurring: false,
   recurrence_type: 'weekly',
@@ -1135,7 +1135,7 @@ export default function CalendarPostModal({
               <h2 className="text-lg font-bold text-gray-900 dark:text-white">
                 {post ? COPY.calendarPostModal.editPost : COPY.calendarPostModal.createPost}
               </h2>
-              <PostStatusChip status={post?.status ?? PostStatus.DRAFT} />
+              <PostStatusChip status={formData?.status ?? PostStatus.DRAFT} />
             </div>
             <div className="flex items-center gap-2">
               <Button
