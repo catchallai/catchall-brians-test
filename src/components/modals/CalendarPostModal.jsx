@@ -72,6 +72,7 @@ import { useTagsQuery } from '@/components/social/tags/useTagsQuery';
 // arraysEqual is order-sensitive (for platforms/hashtags); setsEqual is used for tag_ids
 // because the server does not guarantee array order on those fields.
 import { arraysEqual, setsEqual } from '@/utils/hashtagUtils';
+import PostStatusChip from '../social/PostStatusChip';
 
 // Best times by platform based on general audience activity research
 const BEST_TIMES = {
@@ -1134,6 +1135,7 @@ export default function CalendarPostModal({
               <h2 className="text-lg font-bold text-gray-900 dark:text-white">
                 {post ? COPY.calendarPostModal.editPost : COPY.calendarPostModal.createPost}
               </h2>
+              <PostStatusChip status={post?.status ?? PostStatus.DRAFT} />
             </div>
             <div className="flex items-center gap-2">
               <Button
