@@ -933,6 +933,7 @@ export default function CalendarPostModal({
   const clearSelectedMedia = () => {
     setMediaError('');
     clearCropState();
+    setImageFileNames([]);
     setFormData((f) =>
       normalizePostMedia({
         ...f,
