@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useHashtagPoolToggle } from '@/components/hooks/useHashtagPoolToggle';
 import HashtagPoolSelector from '@/components/social/HashtagPoolSelector';
-import { createPageUrl } from '@/utils';
+import { appendHashtagToCaption, createPageUrl } from '@/utils';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -45,6 +45,7 @@ import {
   FolderOpen,
   Trash,
   TriangleAlert,
+  Crop,
 } from 'lucide-react';
 import { PLATFORMS as PLATFORM_CONFIGS } from '@/constants/platforms';
 import EmojiPicker from 'emoji-picker-react';
@@ -57,6 +58,8 @@ import { todayLocal } from '@/utils/date';
 import useUnsavedChangesGuard from '@/components/hooks/useUnsavedChangesGuard';
 import ConfirmDialog from '@/components/ui/ConfirmDialog';
 import MediaLibraryModal from './MediaLibraryModal';
+import ImageCropPanel from './ImageCropPanel';
+import { useToast } from '@/components/ui/toast-provider';
 import { PostStatus } from '@/types/enums';
 import COPY from '@/lib/copy';
 import { Label } from '@/components/ui/label';
@@ -78,6 +81,7 @@ import {
 // arraysEqual is order-sensitive (for platforms/hashtags); setsEqual is used for tag_ids
 // because the server does not guarantee array order on those fields.
 import { arraysEqual, setsEqual } from '@/utils/hashtagUtils';
+import PostStatusChip from '../social/PostStatusChip';
 
 // Best times by platform based on general audience activity research
 const BEST_TIMES = {
@@ -162,7 +166,20 @@ function renderWithLinks(text) {
   return parts;
 }
 
-function PlatformPreviewPanel({ platform, caption, imageUrl, videoUrl }) {
+/**
+ * @param {{ platform: string, caption: string, imageUrl: string, videoUrl: string, imageAspectRatio?: number, onCropClick?: (() => void) | undefined }} props
+ */
+function PlatformPreviewPanel({
+  platform,
+  caption,
+  imageUrl,
+  videoUrl,
+  imageAspectRatio = 1.91,
+  onCropClick = undefined,
+}) {
+  const [inferredRatio, setInferredRatio] = useState(/** @type {number | null} */ (null));
+  useEffect(() => setInferredRatio(null), [imageUrl]);
+
   const p =
     PLATFORMS.find((pl) => pl.id === platform) ??
     PLATFORMS.find((pl) => pl.id === PLATFORMS[0].id) ??
@@ -207,7 +224,29 @@ function PlatformPreviewPanel({ platform, caption, imageUrl, videoUrl }) {
             </div>
           </div>
           {imageUrl && (
-            <img src={imageUrl} alt="Preview" className="w-full object-cover aspect-[1.91/1]" />
+            <div className="relative">
+              <img
+                src={imageUrl}
+                alt="Preview"
+                className="w-full object-cover"
+                style={{ aspectRatio: inferredRatio ?? imageAspectRatio }}
+                onLoad={(e) =>
+                  setInferredRatio(e.currentTarget.naturalWidth / e.currentTarget.naturalHeight)
+                }
+              />
+              {onCropClick && (
+                <Tooltip content={COPY.calendarPostModal.cropTitle}>
+                  <button
+                    type="button"
+                    onClick={onCropClick}
+                    className="absolute right-2 top-2 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-violet-200 text-violet-500 shadow-sm transition-colors hover:bg-violet-300"
+                    aria-label={COPY.calendarPostModal.cropTitle}
+                  >
+                    <Crop className="h-4 w-4" />
+                  </button>
+                </Tooltip>
+              )}
+            </div>
           )}
           {videoUrl && !imageUrl && (
             <video src={videoUrl} className="w-full aspect-[1.91/1] object-cover" muted />
@@ -361,7 +400,7 @@ const DEFAULT_FORM = {
   scheduled_time: '09:00',
   platforms: [],
   hashtags: [],
-  status: 'draft',
+  status: PostStatus.DRAFT,
   order: 0,
   is_recurring: false,
   recurrence_type: 'weekly',
@@ -411,6 +450,7 @@ export default function CalendarPostModal({
     queryFn: () => base44.auth.me(),
   });
   const navigate = useNavigate();
+  const toast = useToast();
 
   const [formData, setFormData] = useState({ ...DEFAULT_FORM });
   const [uploading, setUploading] = useState(false);
@@ -435,12 +475,38 @@ export default function CalendarPostModal({
   const [linkDisplayText, setLinkDisplayText] = useState('');
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [mediaError, setMediaError] = useState('');
+  const [isCropOpen, setIsCropOpen] = useState(false);
+  /** @type {[string|null, (v: string|null) => void]} */
+  const [cropTargetPlatform, setCropTargetPlatform] = useState(/** @type {string|null} */ (null));
+  /** @type {[Record<string,string>, (v: Record<string,string> | ((prev: Record<string,string>) => Record<string,string>)) => void]} */
+  const [platformCrops, setPlatformCrops] = useState(/** @type {Record<string,string>} */ ({}));
+  /** @type {[Record<string,{x:number,y:number,w:number,h:number}>, (v: Record<string,{x:number,y:number,w:number,h:number}> | ((prev: Record<string,{x:number,y:number,w:number,h:number}>) => Record<string,{x:number,y:number,w:number,h:number}>)) => void]} */
+  const [platformCropBoxes, setPlatformCropBoxes] = useState(
+    /** @type {Record<string,{x:number,y:number,w:number,h:number}>} */ ({})
+  );
+  /** @type {[Record<string,import('./ImageCropPanel').TransformOp[]>, (v: Record<string,import('./ImageCropPanel').TransformOp[]> | ((prev: Record<string,import('./ImageCropPanel').TransformOp[]>) => Record<string,import('./ImageCropPanel').TransformOp[]>)) => void]} */
+  const [platformTransformOps, setPlatformTransformOps] = useState(
+    /** @type {Record<string,import('./ImageCropPanel').TransformOp[]>} */ ({})
+  );
+  /** @type {[Record<string,number>, (v: Record<string,number> | ((prev: Record<string,number>) => Record<string,number>)) => void]} */
+  const [platformTilts, setPlatformTilts] = useState(/** @type {Record<string,number>} */ ({}));
+
+  /** Clears all per-platform crop state. Call whenever the source image is replaced. */
+  const clearCropState = () => {
+    setPlatformCrops({});
+    setPlatformCropBoxes({});
+    setPlatformTransformOps({});
+    setPlatformTilts({});
+    setIsCropOpen(false);
+  };
+
   const dialogContentRef = useRef(null);
   const fileInputRef = useRef();
   const videoInputRef = useRef();
   const captionRef = useRef(null);
   const captionSelectionRef = useRef({ start: null, end: null });
   const initialFormDataRef = useRef({ ...DEFAULT_FORM });
+  const initialCropRef = useRef({ boxes: {}, transformOps: {}, tilts: {} });
   const fileDialogLockRef = useRef(false);
   const fileDialogReleaseTimeoutRef = useRef(null);
   const isPostPublished = post?.status === PostStatus.PUBLISHED;
@@ -491,6 +557,8 @@ export default function CalendarPostModal({
       setIsMediaLibraryOpen(false);
       setMediaLibrarySearch('');
       setSelectedLibraryAsset('');
+      setIsCropOpen(false);
+      setCropTargetPlatform(null);
       if (post) {
         const initial = {
           title: post.title || '',
@@ -503,7 +571,7 @@ export default function CalendarPostModal({
           scheduled_time: post.scheduled_time || '09:00',
           platforms: post.platforms || [],
           hashtags: post.hashtags || [],
-          status: post.status || 'draft',
+          status: post.status || PostStatus.DRAFT,
           order: post.order || 0,
           is_recurring: post.is_recurring || false,
           recurrence_type: post.recurrence_type || 'weekly',
@@ -515,18 +583,49 @@ export default function CalendarPostModal({
         initialFormDataRef.current = initial;
         setFormData(initial);
         setPreviewPlatform(post.platforms?.[0] ?? 'Twitter');
+        setPlatformCrops(post.platform_image_urls ?? {});
+        const _meta = post.platform_crop_metadata ?? {};
+        const _initialBoxes = Object.fromEntries(
+          Object.entries(_meta)
+            .filter(([, m]) => m.cropBox)
+            .map(([k, m]) => [k, m.cropBox])
+        );
+        const _initialTransformOps = Object.fromEntries(
+          Object.entries(_meta).map(([k, m]) => [k, m.transformOps ?? []])
+        );
+        const _initialTilts = Object.fromEntries(
+          Object.entries(_meta).map(([k, m]) => [k, m.tilt ?? 0])
+        );
+        initialCropRef.current = {
+          boxes: _initialBoxes,
+          transformOps: _initialTransformOps,
+          tilts: _initialTilts,
+        };
+        setPlatformCropBoxes(_initialBoxes);
+        setPlatformTransformOps(_initialTransformOps);
+        setPlatformTilts(_initialTilts);
       } else {
         const initial = { ...DEFAULT_FORM, scheduled_date: todayLocal() };
         initialFormDataRef.current = initial;
         setFormData(initial);
         setPreviewPlatform('Twitter');
+        setPlatformCrops({});
+        setPlatformCropBoxes({});
+        setPlatformTransformOps({});
+        setPlatformTilts({});
+        initialCropRef.current = { boxes: {}, transformOps: {}, tilts: {} };
       }
     }
     // Depend on post?.id rather than post so that background cache updates (new object
     // reference, same ID) don't re-initialise the form while the user is editing.
   }, [post?.id, open]);
 
-  const isDirty = hasFormChanges(formData, initialFormDataRef.current, { includeTags: !post?.id });
+  const isCropDirty =
+    JSON.stringify(platformCropBoxes) !== JSON.stringify(initialCropRef.current.boxes) ||
+    JSON.stringify(platformTransformOps) !== JSON.stringify(initialCropRef.current.transformOps) ||
+    JSON.stringify(platformTilts) !== JSON.stringify(initialCropRef.current.tilts);
+  const isDirty =
+    hasFormChanges(formData, initialFormDataRef.current, { includeTags: !post?.id }) || isCropDirty;
 
   const { guardedClose, discardDialogProps } = useUnsavedChangesGuard({ isDirty, onClose });
 
@@ -627,6 +726,7 @@ export default function CalendarPostModal({
       const uploads = await Promise.all(
         files.map((file) => base44.integrations.Core.UploadFile({ file }))
       );
+      clearCropState();
       setFormData((f) =>
         normalizePostMedia({
           ...f,
@@ -678,6 +778,7 @@ export default function CalendarPostModal({
     setMediaError('');
     try {
       const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      clearCropState();
       setFormData((f) =>
         normalizePostMedia({
           ...f,
@@ -756,7 +857,7 @@ export default function CalendarPostModal({
   const handleMediaLibraryOpen = () => {
     setMediaMenuTarget(null);
     setMediaLibrarySearch('');
-    setSelectedLibraryAsset(formData.image_url || '');
+    setSelectedLibraryAsset(getPostImageUrls(formData)[0] || '');
     setIsMediaLibraryOpen(true);
   };
 
@@ -809,6 +910,7 @@ export default function CalendarPostModal({
 
   const applySelectedLibraryAssets = () => {
     setMediaError('');
+    clearCropState();
     setFormData((f) =>
       normalizePostMedia({
         ...f,
@@ -821,6 +923,7 @@ export default function CalendarPostModal({
 
   const clearSelectedMedia = () => {
     setMediaError('');
+    clearCropState();
     setFormData((f) =>
       normalizePostMedia({
         ...f,
@@ -832,6 +935,7 @@ export default function CalendarPostModal({
 
   const removeSelectedImage = (imageUrlToRemove) => {
     setMediaError('');
+    clearCropState();
     setFormData((f) =>
       normalizePostMedia({
         ...f,
@@ -980,9 +1084,27 @@ export default function CalendarPostModal({
       finalStatus = PostStatus.PENDING_APPROVAL;
     }
     await onSave({
-      ...normalizePostMedia(formData),
+      ...formData,
       status: finalStatus,
       timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      platform_image_urls: platformCrops,
+      platform_crop_metadata: Object.fromEntries(
+        [
+          ...new Set([
+            ...Object.keys(platformCrops),
+            ...Object.keys(platformCropBoxes),
+            ...Object.keys(platformTransformOps),
+            ...Object.keys(platformTilts),
+          ]),
+        ].map((platform) => [
+          platform,
+          {
+            cropBox: platformCropBoxes[platform] ?? null,
+            transformOps: platformTransformOps[platform] ?? [],
+            tilt: platformTilts[platform] ?? 0,
+          },
+        ])
+      ),
     });
     guardedClose({ open: false, bypass: true });
   };
@@ -1134,773 +1256,861 @@ export default function CalendarPostModal({
           guardedClose(false);
         }}
       >
-        {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-gray-800">
-          <div className="flex items-center gap-3">
-            <h2 className="text-lg font-bold text-gray-900 dark:text-white">
-              {post ? COPY.calendarPostModal.editPost : COPY.calendarPostModal.createPost}
-            </h2>
-          </div>
-          <div className="flex items-center gap-2">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="gap-1.5 text-gray-600 dark:text-gray-400 text-sm"
-              onClick={() => {}}
-            >
-              <Sparkles className="w-4 h-4" /> {COPY.calendarPostModal.aiAssistant}
-            </Button>
-            <Button
-              variant={showPreview ? 'default' : 'outline'}
-              size="sm"
-              className={`gap-1.5 text-sm ${showPreview ? 'bg-blue-600 hover:bg-blue-700 text-white' : ''}`}
-              onClick={() => setShowPreview((v) => !v)}
-            >
-              <Eye className="w-4 h-4" /> {COPY.calendarPostModal.preview}
-            </Button>
-            <button
-              type="button"
-              onClick={() => setIsFullscreen((current) => !current)}
-              className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors text-gray-400"
-              aria-label={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
-              title={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
-            >
-              {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
-            </button>
-            <button
-              onClick={() => guardedClose(false)}
-              className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors text-gray-400"
-              aria-label="Close"
-              title="Close"
-            >
-              <X className="w-4 h-4" />
-            </button>
-          </div>
-        </div>
-
-        {/* Tabs (only for existing posts) */}
-        {post && (
-          <div className="flex border-b border-gray-100 dark:border-gray-800 px-6 bg-white dark:bg-gray-900">
-            {[
-              { id: 'compose', label: COPY.calendarPostModal.compose, icon: ImageIcon },
-              { id: 'approval', label: COPY.calendarPostModal.approvalWorkflow, icon: GitBranch },
-              { id: 'comments', label: COPY.calendarPostModal.teamFeedback, icon: MessageSquare },
-            ].map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-1.5 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
-                  activeTab === tab.id
-                    ? 'border-violet-500 text-violet-600 dark:text-violet-400'
-                    : 'border-transparent text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'
-                }`}
+        {/* Body + Footer wrapper — crop drawer is positioned relative to this */}
+        <div className="relative flex flex-col flex-1 min-h-0">
+          {/* Header */}
+          <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-gray-800">
+            <div className="flex items-center gap-3">
+              <h2 className="text-lg font-bold text-gray-900 dark:text-white">
+                {post ? COPY.calendarPostModal.editPost : COPY.calendarPostModal.createPost}
+              </h2>
+              <PostStatusChip status={formData?.status ?? PostStatus.DRAFT} />
+            </div>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="gap-1.5 text-gray-600 dark:text-gray-400 text-sm"
+                onClick={() => {}}
               >
-                <tab.icon className="w-4 h-4" />
-                {tab.label}
+                <Sparkles className="w-4 h-4" /> {COPY.calendarPostModal.aiAssistant}
+              </Button>
+              <Button
+                variant={showPreview ? 'default' : 'outline'}
+                size="sm"
+                className={`gap-1.5 text-sm ${showPreview ? 'bg-blue-600 hover:bg-blue-700 text-white' : ''}`}
+                onClick={() => setShowPreview((v) => !v)}
+              >
+                <Eye className="w-4 h-4" /> {COPY.calendarPostModal.preview}
+              </Button>
+              <button
+                type="button"
+                onClick={() => setIsFullscreen((current) => !current)}
+                className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors text-gray-400"
+                aria-label={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
+                title={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
+              >
+                {isFullscreen ? (
+                  <Minimize2 className="w-4 h-4" />
+                ) : (
+                  <Maximize2 className="w-4 h-4" />
+                )}
               </button>
-            ))}
+              <button
+                onClick={() => guardedClose(false)}
+                className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors text-gray-400"
+                aria-label="Close"
+                title="Close"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
           </div>
-        )}
 
-        {/* Body */}
-        <div className="flex flex-1 overflow-y-auto">
-          {/* Approval tab */}
-          {activeTab === 'approval' && post && (
-            <div className="flex-1 p-6">
-              <PostApprovalPanel
-                post={post}
-                onUpdate={(updatedPost) => {
-                  // Merge approval changes back into formData so the modal reflects them
-                  if (updatedPost) {
-                    setFormData((f) => ({ ...f, ...updatedPost }));
-                  }
-                }}
-              />
+          {/* Tabs (only for existing posts) */}
+          {post && (
+            <div className="flex border-b border-gray-100 dark:border-gray-800 px-6 bg-white dark:bg-gray-900">
+              {[
+                { id: 'compose', label: COPY.calendarPostModal.compose, icon: ImageIcon },
+                { id: 'approval', label: COPY.calendarPostModal.approvalWorkflow, icon: GitBranch },
+                { id: 'comments', label: COPY.calendarPostModal.teamFeedback, icon: MessageSquare },
+              ].map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`flex items-center gap-1.5 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+                    activeTab === tab.id
+                      ? 'border-violet-500 text-violet-600 dark:text-violet-400'
+                      : 'border-transparent text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'
+                  }`}
+                >
+                  <tab.icon className="w-4 h-4" />
+                  {tab.label}
+                </button>
+              ))}
             </div>
           )}
 
-          {/* Comments tab */}
-          {activeTab === 'comments' && post && (
-            <div className="flex-1 p-6">
-              <PostComments postId={post.id} currentUser={currentUser} />
-            </div>
-          )}
-
-          {/* LEFT: Composer */}
-          {(activeTab === 'compose' || !post) && (
-            <div
-              className={`flex flex-col ${showPreview ? 'w-[58%]' : 'w-full'} border-r border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900`}
-            >
-              {/* Platform Avatars */}
-              <div className="flex items-center gap-3 px-6 pt-5 pb-4">
-                <div>
-                  <Label className="text-gray-400 mb-4 block">
-                    {isPostPublished
-                      ? COPY.calendarPostModal.whereHasPosted
-                      : COPY.calendarPostModal.whereToPost}
-                  </Label>
-                  <div className="flex flex-wrap gap-2">
-                    {PLATFORMS.map(({ id, label, icon: Icon, limit }) => {
-                      const active = formData.platforms.includes(id);
-                      const platformOverLimit = active && formData.caption.length > limit;
-                      const tooltipContent = COPY.calendarPostModal.exceededCharLimit
-                        .replace('{limit}', String(limit))
-                        .replace('{platform}', label);
-                      return (
-                        <Tooltip
-                          key={id}
-                          content={tooltipContent}
-                          disableHover={!platformOverLimit}
-                        >
-                          <button
-                            disabled={isPostPublished}
-                            onClick={() => togglePlatform(id)}
-                            aria-label={label}
-                            title={label}
-                            className={`relative flex items-center gap-1.5 p-2.5 rounded-full text-sm font-medium border transition-all ${
-                              active
-                                ? 'bg-violet-600 text-white border-violet-600'
-                                : 'bg-white text-gray-600 border-gray-200 hover:border-violet-400'
-                            } disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:border-gray-200`}
-                          >
-                            <Icon className="w-4 h-4" />
-                            {platformOverLimit && (
-                              <TriangleAlert className="absolute -top-2.5 -right-2.5 w-5 h-5 text-red-500" />
-                            )}
-                          </button>
-                        </Tooltip>
-                      );
-                    })}
-                  </div>
-                </div>
-              </div>
-
-              {/* Caption area */}
-              <div className="px-6 flex gap-3 flex-1">
-                <Textarea
-                  ref={captionRef}
-                  value={formData.caption}
-                  onChange={(e) => {
-                    const newCaption = e.target.value;
-                    updateCaptionSelection(e.target);
-                    setFormData((f) => ({
-                      ...f,
-                      caption: newCaption,
-                      // Reset tracked hashtags when the caption no longer contains any,
-                      // so the next addHashtag call correctly inserts a blank line.
-                      hashtags: /#\w+/.test(newCaption) ? f.hashtags : [],
-                    }));
+          {/* Body */}
+          <div className="flex flex-1 overflow-y-auto">
+            {/* Approval tab */}
+            {activeTab === 'approval' && post && (
+              <div className="flex-1 p-6">
+                <PostApprovalPanel
+                  post={post}
+                  onUpdate={(updatedPost) => {
+                    // Merge approval changes back into formData so the modal reflects them
+                    if (updatedPost) {
+                      setFormData((f) => ({ ...f, ...updatedPost }));
+                    }
                   }}
-                  onSelect={(e) => updateCaptionSelection(e.target)}
-                  onKeyUp={(e) => updateCaptionSelection(e.target)}
-                  onClick={(e) => updateCaptionSelection(e.target)}
-                  placeholder={COPY.calendarPostModal.captionPlaceholder}
-                  className="border-0 shadow-none focus-visible:ring-0 resize-none text-[15px] text-gray-800 dark:text-gray-200 bg-transparent p-0 min-h-[120px] leading-relaxed"
                 />
               </div>
+            )}
 
-              {/* Media drop zone / preview */}
-              <div className="px-6 pb-2">
-                {hasSelectedMedia ? (
-                  <div className="mt-2">
-                    <div className="flex flex-wrap gap-3">
-                      {formData.video_url ? (
-                        <div className="relative h-[89px] w-[144px] max-w-full overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
-                          <video
-                            src={formData.video_url}
-                            controls
-                            className="h-full w-full object-cover"
-                          />
+            {/* Comments tab */}
+            {activeTab === 'comments' && post && (
+              <div className="flex-1 p-6">
+                <PostComments postId={post.id} currentUser={currentUser} />
+              </div>
+            )}
 
-                          <button
-                            type="button"
-                            onClick={clearSelectedMedia}
-                            className="absolute right-2 top-2 z-10 flex h-7 w-7 items-center justify-center rounded-full border border-red-200 bg-white/95 text-red-500 shadow-sm transition-colors hover:bg-red-50"
+            {/* LEFT: Composer */}
+            {(activeTab === 'compose' || !post) && (
+              <div
+                className={`flex flex-col ${showPreview ? 'w-[58%]' : 'w-full'} border-r border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900`}
+              >
+                {/* Platform Avatars */}
+                <div className="flex items-center gap-3 px-6 pt-5 pb-4">
+                  <div>
+                    <Label className="text-gray-400 mb-4 block">
+                      {isPostPublished
+                        ? COPY.calendarPostModal.whereHasPosted
+                        : COPY.calendarPostModal.whereToPost}
+                    </Label>
+                    <div className="flex flex-wrap gap-2">
+                      {PLATFORMS.map(({ id, label, icon: Icon, limit }) => {
+                        const active = formData.platforms.includes(id);
+                        const platformOverLimit = active && formData.caption.length > limit;
+                        const tooltipContent = COPY.calendarPostModal.exceededCharLimit
+                          .replace('{limit}', String(limit))
+                          .replace('{platform}', label);
+                        return (
+                          <Tooltip
+                            key={id}
+                            content={tooltipContent}
+                            disableHover={!platformOverLimit}
                           >
-                            <X className="h-3.5 w-3.5" />
-                          </button>
-                        </div>
-                      ) : (
-                        (formData.image_urls || []).map((imageUrl, index) => (
-                          <div
-                            key={`${imageUrl}-${index}`}
-                            className="relative h-[89px] w-[144px] max-w-full overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm"
-                          >
-                            <img
-                              src={imageUrl}
-                              alt={`Selected media ${index + 1}`}
+                            <button
+                              disabled={isPostPublished}
+                              onClick={() => togglePlatform(id)}
+                              aria-label={label}
+                              title={label}
+                              className={`relative flex items-center gap-1.5 p-2.5 rounded-full text-sm font-medium border transition-all ${
+                                active
+                                  ? 'bg-violet-600 text-white border-violet-600'
+                                  : 'bg-white text-gray-600 border-gray-200 hover:border-violet-400'
+                              } disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:border-gray-200`}
+                            >
+                              <Icon className="w-4 h-4" />
+                              {platformOverLimit && (
+                                <TriangleAlert className="absolute -top-2.5 -right-2.5 w-5 h-5 text-red-500" />
+                              )}
+                            </button>
+                          </Tooltip>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Caption area */}
+                <div className="px-6 flex gap-3 flex-1">
+                  <Textarea
+                    ref={captionRef}
+                    value={formData.caption}
+                    onChange={(e) => {
+                      const newCaption = e.target.value;
+                      updateCaptionSelection(e.target);
+                      setFormData((f) => ({
+                        ...f,
+                        caption: newCaption,
+                        // Reset tracked hashtags when the caption no longer contains any,
+                        // so the next addHashtag call correctly inserts a blank line.
+                        hashtags: /#\w+/.test(newCaption) ? f.hashtags : [],
+                      }));
+                    }}
+                    onSelect={(e) => updateCaptionSelection(e.target)}
+                    onKeyUp={(e) => updateCaptionSelection(e.target)}
+                    onClick={(e) => updateCaptionSelection(e.target)}
+                    placeholder={COPY.calendarPostModal.captionPlaceholder}
+                    className="border-0 shadow-none focus-visible:ring-0 resize-none text-[15px] text-gray-800 dark:text-gray-200 bg-transparent p-0 min-h-[120px] leading-relaxed"
+                  />
+                </div>
+
+                {/* Media drop zone / preview */}
+                <div className="px-6 pb-2">
+                  {hasSelectedMedia ? (
+                    <div className="mt-2">
+                      <div className="flex flex-wrap gap-3">
+                        {formData.video_url ? (
+                          <div className="relative h-[89px] w-[144px] max-w-full overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+                            <video
+                              src={formData.video_url}
+                              controls
                               className="h-full w-full object-cover"
                             />
 
                             <button
                               type="button"
-                              onClick={() => removeSelectedImage(imageUrl)}
+                              onClick={clearSelectedMedia}
                               className="absolute right-2 top-2 z-10 flex h-7 w-7 items-center justify-center rounded-full border border-red-200 bg-white/95 text-red-500 shadow-sm transition-colors hover:bg-red-50"
                             >
                               <X className="h-3.5 w-3.5" />
                             </button>
                           </div>
-                        ))
-                      )}
+                        ) : (
+                          (formData.image_urls || []).map((imageUrl, index) => (
+                            <div
+                              key={`${imageUrl}-${index}`}
+                              className="relative h-[89px] w-[144px] max-w-full overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm"
+                            >
+                              <img
+                                src={imageUrl}
+                                alt={`Selected media ${index + 1}`}
+                                className="h-full w-full object-cover"
+                              />
 
-                      <Popover
-                        open={mediaMenuTarget === 'filled-dropzone'}
-                        onOpenChange={(open) => setMediaMenuTarget(open ? 'filled-dropzone' : null)}
-                      >
-                        <PopoverTrigger asChild>
-                          <button
-                            type="button"
-                            onDrop={handleDrop}
-                            onDragOver={(e) => e.preventDefault()}
-                            className="flex h-[89px] w-[144px] max-w-full items-center justify-center rounded-2xl border-2 border-dashed border-gray-300 bg-white text-blue-600 transition-colors hover:border-violet-300 hover:bg-violet-50/30"
-                          >
-                            {uploading ? (
-                              <Loader2 className="h-6 w-6 animate-spin text-violet-500" />
-                            ) : (
-                              <span className="flex h-11 w-11 items-center justify-center rounded-full border-2 border-blue-500 bg-white shadow-sm">
-                                <Plus className="h-5 w-5" />
-                              </span>
-                            )}
-                          </button>
-                        </PopoverTrigger>
-                        <PopoverContent
-                          align="start"
-                          side="bottom"
-                          sideOffset={12}
-                          className="w-[250px] rounded-xl border border-gray-200 bg-white p-0 shadow-[0_18px_40px_rgba(15,23,42,0.12)]"
-                          onCloseAutoFocus={(e) => e.preventDefault()}
-                          onPointerDown={(e) => e.stopPropagation()}
-                        >
-                          {renderMediaMenuContent()}
-                        </PopoverContent>
-                      </Popover>
-                    </div>
-                    {!!formData.image_urls?.length && (
-                      <p className="mt-2 text-xs text-gray-500">
-                        {formData.image_urls.length}/{MAX_POST_IMAGE_COUNT} images selected. Video
-                        upload is disabled while images are attached.
-                      </p>
-                    )}
-                    {!!formData.video_url && (
-                      <p className="mt-2 text-xs text-gray-500">
-                        1 video selected. Image upload is disabled while a video is attached.
-                      </p>
-                    )}
-                  </div>
-                ) : (
-                  <div
-                    onDrop={handleDrop}
-                    onDragOver={(e) => e.preventDefault()}
-                    onClick={handleDropzoneClick}
-                    className="mt-2 border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-xl p-4 flex flex-col items-center gap-2 cursor-pointer hover:border-violet-300 hover:bg-violet-50/30 dark:hover:bg-violet-900/10 transition-colors"
-                  >
-                    {uploading ? (
-                      <Loader2 className="w-6 h-6 animate-spin text-violet-500" />
-                    ) : (
-                      <>
-                        <ImageIcon className="w-7 h-7 text-gray-300" />
-                        <p className="text-sm text-gray-400">
-                          {COPY.calendarPostModal.dragAndDrop}{' '}
-                          <Popover
-                            open={mediaMenuTarget === 'dropzone'}
-                            onOpenChange={(open) => setMediaMenuTarget(open ? 'dropzone' : null)}
-                          >
-                            <PopoverTrigger asChild>
                               <button
                                 type="button"
-                                onClick={(e) => e.stopPropagation()}
-                                className="text-blue-500 font-medium underline cursor-pointer"
+                                onClick={() => removeSelectedImage(imageUrl)}
+                                className="absolute right-2 top-2 z-10 flex h-7 w-7 items-center justify-center rounded-full border border-red-200 bg-white/95 text-red-500 shadow-sm transition-colors hover:bg-red-50"
                               >
-                                {COPY.calendarPostModal.selectAFile}
+                                <X className="h-3.5 w-3.5" />
                               </button>
-                            </PopoverTrigger>
-                            <PopoverContent
-                              align="center"
-                              side="bottom"
-                              sideOffset={12}
-                              className="w-[250px] rounded-xl border border-gray-200 bg-white p-0 shadow-[0_18px_40px_rgba(15,23,42,0.12)]"
-                              onCloseAutoFocus={(e) => e.preventDefault()}
-                              onPointerDown={(e) => e.stopPropagation()}
-                              onClick={(e) => e.stopPropagation()}
+                            </div>
+                          ))
+                        )}
+
+                        <Popover
+                          open={mediaMenuTarget === 'filled-dropzone'}
+                          onOpenChange={(open) =>
+                            setMediaMenuTarget(open ? 'filled-dropzone' : null)
+                          }
+                        >
+                          <PopoverTrigger asChild>
+                            <button
+                              type="button"
+                              onDrop={handleDrop}
+                              onDragOver={(e) => e.preventDefault()}
+                              className="flex h-[89px] w-[144px] max-w-full items-center justify-center rounded-2xl border-2 border-dashed border-gray-300 bg-white text-blue-600 transition-colors hover:border-violet-300 hover:bg-violet-50/30"
                             >
-                              {renderMediaMenuContent()}
-                            </PopoverContent>
-                          </Popover>
+                              {uploading ? (
+                                <Loader2 className="h-6 w-6 animate-spin text-violet-500" />
+                              ) : (
+                                <span className="flex h-11 w-11 items-center justify-center rounded-full border-2 border-blue-500 bg-white shadow-sm">
+                                  <Plus className="h-5 w-5" />
+                                </span>
+                              )}
+                            </button>
+                          </PopoverTrigger>
+                          <PopoverContent
+                            align="start"
+                            side="bottom"
+                            sideOffset={12}
+                            className="w-[250px] rounded-xl border border-gray-200 bg-white p-0 shadow-[0_18px_40px_rgba(15,23,42,0.12)]"
+                            onCloseAutoFocus={(e) => e.preventDefault()}
+                            onPointerDown={(e) => e.stopPropagation()}
+                          >
+                            {renderMediaMenuContent()}
+                          </PopoverContent>
+                        </Popover>
+                      </div>
+                      {!!formData.image_urls?.length && (
+                        <p className="mt-2 text-xs text-gray-500">
+                          {formData.image_urls.length}/{MAX_POST_IMAGE_COUNT} images selected. Video
+                          upload is disabled while images are attached.
                         </p>
-                      </>
+                      )}
+                      {!!formData.video_url && (
+                        <p className="mt-2 text-xs text-gray-500">
+                          1 video selected. Image upload is disabled while a video is attached.
+                        </p>
+                      )}
+                    </div>
+                  ) : (
+                    <div
+                      onDrop={handleDrop}
+                      onDragOver={(e) => e.preventDefault()}
+                      onClick={handleDropzoneClick}
+                      className="mt-2 border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-xl p-4 flex flex-col items-center gap-2 cursor-pointer hover:border-violet-300 hover:bg-violet-50/30 dark:hover:bg-violet-900/10 transition-colors"
+                    >
+                      {uploading ? (
+                        <Loader2 className="w-6 h-6 animate-spin text-violet-500" />
+                      ) : (
+                        <>
+                          <ImageIcon className="w-7 h-7 text-gray-300" />
+                          <p className="text-sm text-gray-400">
+                            {COPY.calendarPostModal.dragAndDrop}{' '}
+                            <Popover
+                              open={mediaMenuTarget === 'dropzone'}
+                              onOpenChange={(open) => setMediaMenuTarget(open ? 'dropzone' : null)}
+                            >
+                              <PopoverTrigger asChild>
+                                <button
+                                  type="button"
+                                  onClick={(e) => e.stopPropagation()}
+                                  className="text-blue-500 font-medium underline cursor-pointer"
+                                >
+                                  {COPY.calendarPostModal.selectAFile}
+                                </button>
+                              </PopoverTrigger>
+                              <PopoverContent
+                                align="center"
+                                side="bottom"
+                                sideOffset={12}
+                                className="w-[250px] rounded-xl border border-gray-200 bg-white p-0 shadow-[0_18px_40px_rgba(15,23,42,0.12)]"
+                                onCloseAutoFocus={(e) => e.preventDefault()}
+                                onPointerDown={(e) => e.stopPropagation()}
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                {renderMediaMenuContent()}
+                              </PopoverContent>
+                            </Popover>
+                          </p>
+                        </>
+                      )}
+                    </div>
+                  )}
+                  {mediaError && <p className="mt-2 text-xs text-red-500">{mediaError}</p>}
+                  {!hasSelectedMedia && !mediaError && (
+                    <p className="mt-2 text-xs text-gray-500">
+                      Add up to {MAX_POST_IMAGE_COUNT} images ({IMAGE_ACCEPT_ATTR}) or one video (
+                      {VIDEO_ACCEPT_ATTR}).
+                    </p>
+                  )}
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept={IMAGE_ACCEPT_ATTR}
+                    multiple
+                    className="hidden"
+                    onChange={handleImageUpload}
+                  />
+                  <input
+                    ref={videoInputRef}
+                    type="file"
+                    accept={VIDEO_ACCEPT_ATTR}
+                    className="hidden"
+                    onChange={handleVideoUpload}
+                  />
+                </div>
+
+                {/* Toolbar */}
+                <div className="flex items-center justify-between px-6 py-2.5 border-t border-gray-100 dark:border-gray-800 mt-1">
+                  <div className="flex items-center gap-1">
+                    <Popover
+                      open={mediaMenuTarget === 'toolbar'}
+                      onOpenChange={(open) => setMediaMenuTarget(open ? 'toolbar' : null)}
+                    >
+                      <PopoverTrigger asChild>
+                        <button
+                          type="button"
+                          className="flex items-center gap-1 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg px-2 py-1.5 text-sm transition-colors"
+                        >
+                          <Plus className="w-4 h-4" />
+                          {mediaMenuTarget === 'toolbar' ? (
+                            <ChevronUp className="w-3 h-3" />
+                          ) : (
+                            <ChevronDown className="w-3 h-3" />
+                          )}
+                        </button>
+                      </PopoverTrigger>
+                      <PopoverContent
+                        align="start"
+                        side="top"
+                        sideOffset={10}
+                        className="w-[250px] rounded-xl border border-gray-200 bg-white p-0 shadow-[0_18px_40px_rgba(15,23,42,0.12)]"
+                        onCloseAutoFocus={(e) => e.preventDefault()}
+                      >
+                        {renderMediaMenuContent()}
+                      </PopoverContent>
+                    </Popover>
+                    <Popover open={isEmojiPickerOpen} onOpenChange={setIsEmojiPickerOpen}>
+                      <PopoverTrigger asChild>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (document.activeElement === captionRef.current) {
+                              updateCaptionSelection(captionRef.current);
+                            }
+                          }}
+                          className="p-1.5 text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+                        >
+                          <Smile className="w-5 h-5" />
+                        </button>
+                      </PopoverTrigger>
+                      <PopoverContent
+                        container={dialogContentRef.current}
+                        align="start"
+                        side="top"
+                        onFocusOutside={(event) => {
+                          if (event.target === captionRef.current) {
+                            event.preventDefault();
+                          }
+                        }}
+                        className="w-auto p-0 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900"
+                      >
+                        <EmojiPicker
+                          onEmojiClick={handleEmojiSelect}
+                          lazyLoadEmojis
+                          previewConfig={{ showPreview: false }}
+                          skinTonesDisabled
+                        />
+                      </PopoverContent>
+                    </Popover>
+                    <HashtagPoolCreatePopover
+                      trigger={
+                        <button
+                          type="button"
+                          className="p-1.5 text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+                        >
+                          <Hash className="w-5 h-5" />
+                        </button>
+                      }
+                      container={dialogContentRef.current}
+                      onFocusOutside={(event) => {
+                        if (event.target === captionRef.current) {
+                          event.preventDefault();
+                        }
+                      }}
+                    />
+                    <Popover
+                      open={isLinkPopoverOpen}
+                      onOpenChange={(open) => {
+                        if (!open) {
+                          setLinkUrl('');
+                          setLinkDisplayText('');
+                        }
+                        setIsLinkPopoverOpen(open);
+                      }}
+                    >
+                      <PopoverTrigger asChild>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (document.activeElement === captionRef.current) {
+                              updateCaptionSelection(captionRef.current);
+                            }
+                          }}
+                          className="p-1.5 text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+                          aria-label="Insert link"
+                          title="Insert link"
+                        >
+                          <Link2 className="w-5 h-5" />
+                        </button>
+                      </PopoverTrigger>
+                      <PopoverContent
+                        container={dialogContentRef.current}
+                        align="start"
+                        side="top"
+                        className="w-72 p-3"
+                        onFocusOutside={(event) => {
+                          if (event.target === captionRef.current) {
+                            event.preventDefault();
+                          }
+                        }}
+                      >
+                        <p className="text-sm font-semibold mb-3">{COPY.linkInserter.title}</p>
+                        <div className="flex flex-col gap-3">
+                          <div>
+                            <Label className="text-xs text-gray-500 mb-1 block">
+                              {COPY.linkInserter.urlLabel}
+                            </Label>
+                            <Input
+                              value={linkUrl}
+                              onChange={(e) => setLinkUrl(e.target.value)}
+                              placeholder={COPY.linkInserter.urlPlaceholder}
+                              className="h-8 text-sm"
+                              autoFocus
+                              onKeyDown={(e) => {
+                                if (
+                                  e.key === 'Enter' &&
+                                  !linkUrlError &&
+                                  linkUrl.trim().length > 0
+                                ) {
+                                  handleLinkInsert();
+                                }
+                                if (e.key === 'Escape') {
+                                  setIsLinkPopoverOpen(false);
+                                }
+                              }}
+                            />
+                            <p className="text-xs text-red-500 mt-1 min-h-[2rem]">
+                              {linkUrlError ?? ''}
+                            </p>
+                          </div>
+                          <div>
+                            <Label className="text-xs text-gray-500 mb-1 block">
+                              {COPY.linkInserter.displayTextLabel}
+                            </Label>
+                            <Input
+                              value={linkDisplayText}
+                              onChange={(e) => setLinkDisplayText(e.target.value)}
+                              placeholder={COPY.linkInserter.displayTextPlaceholder}
+                              className="h-8 text-sm"
+                              onKeyDown={(e) => {
+                                if (
+                                  e.key === 'Enter' &&
+                                  !linkUrlError &&
+                                  linkUrl.trim().length > 0
+                                ) {
+                                  handleLinkInsert();
+                                }
+                                if (e.key === 'Escape') {
+                                  setIsLinkPopoverOpen(false);
+                                }
+                              }}
+                            />
+                          </div>
+                          <div className="flex justify-end pt-1">
+                            <Button
+                              size="sm"
+                              onClick={handleLinkInsert}
+                              disabled={!linkUrl.trim().length || !!linkUrlError}
+                              className="bg-violet-600 hover:bg-violet-700"
+                            >
+                              {COPY.linkInserter.insert}
+                            </Button>
+                          </div>
+                        </div>
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span
+                      className={`text-sm font-medium ${overLimit ? 'text-red-500' : 'text-gray-400'}`}
+                    >
+                      {formData.caption.length}/{activePlatform.limit}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Hashtag pool selector */}
+                {hashtagPool.length > 0 && (
+                  <HashtagPoolSelector
+                    pools={hashtagPool}
+                    toggledPoolIds={toggledPoolIds}
+                    onToggle={handleTogglePool}
+                  />
+                )}
+
+                {/* Tags */}
+                <div className="px-6 pb-2 space-y-2">
+                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    {COPY.calendarPostModal.tags}
+                  </label>
+                  <TagSelector
+                    value={selectedTags}
+                    onChange={(tags) => {
+                      const tag_ids = tags.map((t) => t.id);
+                      setFormData((f) => ({ ...f, tag_ids }));
+                      if (post?.id) {
+                        tagAutosaveMutation.mutate({ id: post.id, tag_ids });
+                      }
+                    }}
+                    allowCreate
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* RIGHT: Preview + Scheduling */}
+            {(activeTab === 'compose' || !post) && showPreview && (
+              <div className="flex-1 flex flex-col bg-gray-50 dark:bg-gray-950">
+                {/* Platform preview tabs — only when at least one platform is selected */}
+                {formData.platforms.length > 0 && (
+                  <>
+                    <div className="flex border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
+                      {PLATFORMS.filter((pl) => formData.platforms.includes(pl.id)).map((pl) => (
+                        <button
+                          key={pl.id}
+                          onClick={() => setPreviewPlatform(pl.id)}
+                          className={`px-3 py-2 text-xs font-medium border-b-2 transition-colors ${
+                            previewPlatform === pl.id
+                              ? 'border-violet-500 text-violet-600 dark:text-violet-400'
+                              : 'border-transparent text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'
+                          }`}
+                        >
+                          {pl.id === 'Twitter' ? COPY.calendarPostModal.twitterDisplayName : pl.id}
+                        </button>
+                      ))}
+                    </div>
+                    <div className="p-4 flex-1">
+                      <PlatformPreviewPanel
+                        platform={previewPlatform}
+                        caption={formData.caption}
+                        imageUrl={platformCrops[previewPlatform] ?? formData.image_url}
+                        videoUrl={formData.video_url}
+                        imageAspectRatio={(() => {
+                          const box = platformCropBoxes[previewPlatform];
+                          return box
+                            ? box.w / box.h
+                            : (PLATFORMS.find((p) => p.id === previewPlatform) ?? PLATFORMS[0])
+                                .aspectRatio;
+                        })()}
+                        onCropClick={
+                          formData.image_url
+                            ? () => {
+                                setCropTargetPlatform(previewPlatform);
+                                setIsCropOpen(true);
+                              }
+                            : undefined
+                        }
+                      />
+                    </div>
+                  </>
+                )}
+
+                {/* Scheduling panel */}
+                <div className="border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 px-5 py-4 space-y-4">
+                  <div className="flex items-center justify-between">
+                    <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide flex items-center gap-1.5">
+                      <Clock className="w-3.5 h-3.5" /> {COPY.calendarPostModal.schedule}
+                    </p>
+                    {!isPostPublished && (
+                      <button
+                        onClick={() => setShowBestTimes((v) => !v)}
+                        className="flex items-center gap-1 text-xs text-amber-600 hover:text-amber-700 font-medium"
+                      >
+                        <Zap className="w-3.5 h-3.5" />
+                        {COPY.calendarPostModal.bestTimes}
+                        <ChevronRight
+                          className={`w-3 h-3 transition-transform ${showBestTimes ? 'rotate-90' : ''}`}
+                        />
+                      </button>
                     )}
                   </div>
-                )}
-                {mediaError && <p className="mt-2 text-xs text-red-500">{mediaError}</p>}
-                {!hasSelectedMedia && !mediaError && (
-                  <p className="mt-2 text-xs text-gray-500">
-                    Add up to {MAX_POST_IMAGE_COUNT} images ({IMAGE_ACCEPT_ATTR}) or one video (
-                    {VIDEO_ACCEPT_ATTR}).
-                  </p>
-                )}
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept={IMAGE_ACCEPT_ATTR}
-                  multiple
-                  className="hidden"
-                  onChange={handleImageUpload}
-                />
-                <input
-                  ref={videoInputRef}
-                  type="file"
-                  accept={VIDEO_ACCEPT_ATTR}
-                  className="hidden"
-                  onChange={handleVideoUpload}
-                />
-              </div>
 
-              {/* Toolbar */}
-              <div className="flex items-center justify-between px-6 py-2.5 border-t border-gray-100 dark:border-gray-800 mt-1">
-                <div className="flex items-center gap-1">
-                  <Popover
-                    open={mediaMenuTarget === 'toolbar'}
-                    onOpenChange={(open) => setMediaMenuTarget(open ? 'toolbar' : null)}
-                  >
-                    <PopoverTrigger asChild>
-                      <button
-                        type="button"
-                        className="flex items-center gap-1 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg px-2 py-1.5 text-sm transition-colors"
-                      >
-                        <Plus className="w-4 h-4" />
-                        {mediaMenuTarget === 'toolbar' ? (
-                          <ChevronUp className="w-3 h-3" />
-                        ) : (
-                          <ChevronDown className="w-3 h-3" />
-                        )}
-                      </button>
-                    </PopoverTrigger>
-                    <PopoverContent
-                      align="start"
-                      side="top"
-                      sideOffset={10}
-                      className="w-[250px] rounded-xl border border-gray-200 bg-white p-0 shadow-[0_18px_40px_rgba(15,23,42,0.12)]"
-                      onCloseAutoFocus={(e) => e.preventDefault()}
-                    >
-                      {renderMediaMenuContent()}
-                    </PopoverContent>
-                  </Popover>
-                  <Popover open={isEmojiPickerOpen} onOpenChange={setIsEmojiPickerOpen}>
-                    <PopoverTrigger asChild>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          if (document.activeElement === captionRef.current) {
-                            updateCaptionSelection(captionRef.current);
-                          }
-                        }}
-                        className="p-1.5 text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
-                      >
-                        <Smile className="w-5 h-5" />
-                      </button>
-                    </PopoverTrigger>
-                    <PopoverContent
-                      container={dialogContentRef.current}
-                      align="start"
-                      side="top"
-                      onFocusOutside={(event) => {
-                        if (event.target === captionRef.current) {
-                          event.preventDefault();
-                        }
-                      }}
-                      className="w-auto p-0 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900"
-                    >
-                      <EmojiPicker
-                        onEmojiClick={handleEmojiSelect}
-                        lazyLoadEmojis
-                        previewConfig={{ showPreview: false }}
-                        skinTonesDisabled
-                      />
-                    </PopoverContent>
-                  </Popover>
-                  <HashtagPoolCreatePopover
-                    trigger={
-                      <button
-                        type="button"
-                        className="p-1.5 text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
-                      >
-                        <Hash className="w-5 h-5" />
-                      </button>
-                    }
-                    container={dialogContentRef.current}
-                    onFocusOutside={(event) => {
-                      if (event.target === captionRef.current) {
-                        event.preventDefault();
-                      }
-                    }}
-                  />
-                  <Popover
-                    open={isLinkPopoverOpen}
-                    onOpenChange={(open) => {
-                      if (!open) {
-                        setLinkUrl('');
-                        setLinkDisplayText('');
-                      }
-                      setIsLinkPopoverOpen(open);
-                    }}
-                  >
-                    <PopoverTrigger asChild>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          if (document.activeElement === captionRef.current) {
-                            updateCaptionSelection(captionRef.current);
-                          }
-                        }}
-                        className="p-1.5 text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
-                        aria-label="Insert link"
-                        title="Insert link"
-                      >
-                        <Link2 className="w-5 h-5" />
-                      </button>
-                    </PopoverTrigger>
-                    <PopoverContent
-                      container={dialogContentRef.current}
-                      align="start"
-                      side="top"
-                      className="w-72 p-3"
-                      onFocusOutside={(event) => {
-                        if (event.target === captionRef.current) {
-                          event.preventDefault();
-                        }
-                      }}
-                    >
-                      <p className="text-sm font-semibold mb-3">{COPY.linkInserter.title}</p>
-                      <div className="flex flex-col gap-3">
-                        <div>
-                          <Label className="text-xs text-gray-500 mb-1 block">
-                            {COPY.linkInserter.urlLabel}
-                          </Label>
-                          <Input
-                            value={linkUrl}
-                            onChange={(e) => setLinkUrl(e.target.value)}
-                            placeholder={COPY.linkInserter.urlPlaceholder}
-                            className="h-8 text-sm"
-                            autoFocus
-                            onKeyDown={(e) => {
-                              if (e.key === 'Enter' && !linkUrlError && linkUrl.trim().length > 0) {
-                                handleLinkInsert();
-                              }
-                              if (e.key === 'Escape') {
-                                setIsLinkPopoverOpen(false);
-                              }
-                            }}
-                          />
-                          <p className="text-xs text-red-500 mt-1 min-h-[2rem]">
-                            {linkUrlError ?? ''}
-                          </p>
-                        </div>
-                        <div>
-                          <Label className="text-xs text-gray-500 mb-1 block">
-                            {COPY.linkInserter.displayTextLabel}
-                          </Label>
-                          <Input
-                            value={linkDisplayText}
-                            onChange={(e) => setLinkDisplayText(e.target.value)}
-                            placeholder={COPY.linkInserter.displayTextPlaceholder}
-                            className="h-8 text-sm"
-                            onKeyDown={(e) => {
-                              if (e.key === 'Enter' && !linkUrlError && linkUrl.trim().length > 0) {
-                                handleLinkInsert();
-                              }
-                              if (e.key === 'Escape') {
-                                setIsLinkPopoverOpen(false);
-                              }
-                            }}
-                          />
-                        </div>
-                        <div className="flex justify-end pt-1">
-                          <Button
-                            size="sm"
-                            onClick={handleLinkInsert}
-                            disabled={!linkUrl.trim().length || !!linkUrlError}
-                            className="bg-violet-600 hover:bg-violet-700"
-                          >
-                            {COPY.linkInserter.insert}
-                          </Button>
-                        </div>
-                      </div>
-                    </PopoverContent>
-                  </Popover>
-                </div>
-                <div className="flex items-center gap-3">
-                  <span
-                    className={`text-sm font-medium ${overLimit ? 'text-red-500' : 'text-gray-400'}`}
-                  >
-                    {formData.caption.length}/{activePlatform.limit}
-                  </span>
-                </div>
-              </div>
-
-              {/* Hashtag pool selector */}
-              {hashtagPool.length > 0 && (
-                <HashtagPoolSelector
-                  pools={hashtagPool}
-                  toggledPoolIds={toggledPoolIds}
-                  onToggle={handleTogglePool}
-                />
-              )}
-
-              {/* Tags */}
-              <div className="px-6 pb-2 space-y-2">
-                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                  {COPY.calendarPostModal.tags}
-                </label>
-                <TagSelector
-                  value={selectedTags}
-                  onChange={(tags) => {
-                    const tag_ids = tags.map((t) => t.id);
-                    setFormData((f) => ({ ...f, tag_ids }));
-                    if (post?.id) {
-                      tagAutosaveMutation.mutate({ id: post.id, tag_ids });
-                    }
-                  }}
-                  allowCreate
-                />
-              </div>
-            </div>
-          )}
-
-          {/* RIGHT: Preview + Scheduling */}
-          {(activeTab === 'compose' || !post) && showPreview && (
-            <div className="flex-1 flex flex-col bg-gray-50 dark:bg-gray-950">
-              {/* Platform preview tabs — only when at least one platform is selected */}
-              {formData.platforms.length > 0 && (
-                <>
-                  <div className="flex border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
-                    {PLATFORMS.filter((pl) => formData.platforms.includes(pl.id)).map((pl) => (
-                      <button
-                        key={pl.id}
-                        onClick={() => setPreviewPlatform(pl.id)}
-                        className={`px-3 py-2 text-xs font-medium border-b-2 transition-colors ${
-                          previewPlatform === pl.id
-                            ? 'border-violet-500 text-violet-600 dark:text-violet-400'
-                            : 'border-transparent text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'
-                        }`}
-                      >
-                        {pl.id === 'Twitter' ? COPY.calendarPostModal.twitterDisplayName : pl.id}
-                      </button>
-                    ))}
-                  </div>
-                  <div className="p-4 flex-1">
-                    <PlatformPreviewPanel
-                      platform={previewPlatform}
-                      caption={formData.caption}
-                      imageUrl={formData.image_url}
-                      videoUrl={formData.video_url}
-                    />
-                  </div>
-                </>
-              )}
-
-              {/* Scheduling panel */}
-              <div className="border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 px-5 py-4 space-y-4">
-                <div className="flex items-center justify-between">
-                  <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide flex items-center gap-1.5">
-                    <Clock className="w-3.5 h-3.5" /> {COPY.calendarPostModal.schedule}
-                  </p>
-                  {!isPostPublished && (
-                    <button
-                      onClick={() => setShowBestTimes((v) => !v)}
-                      className="flex items-center gap-1 text-xs text-amber-600 hover:text-amber-700 font-medium"
-                    >
-                      <Zap className="w-3.5 h-3.5" />
-                      {COPY.calendarPostModal.bestTimes}
-                      <ChevronRight
-                        className={`w-3 h-3 transition-transform ${showBestTimes ? 'rotate-90' : ''}`}
-                      />
-                    </button>
+                  {showBestTimes && (
+                    <BestTimeSuggestions platforms={formData.platforms} onApply={applyBestTime} />
                   )}
-                </div>
 
-                {showBestTimes && (
-                  <BestTimeSuggestions platforms={formData.platforms} onApply={applyBestTime} />
-                )}
-
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">
-                      {COPY.calendarPostModal.date}
-                    </label>
-                    <input
-                      type="date"
-                      disabled={isPostPublished}
-                      value={formData.scheduled_date}
-                      min={todayLocal()}
-                      onChange={(e) => {
-                        setScheduleError('');
-                        setFormData((f) => ({
-                          ...f,
-                          scheduled_date: e.target.value,
-                        }));
-                      }}
-                      className="w-full text-sm border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-lg px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-violet-400 disabled:opacity-70 disabled:cursor-not-allowed disabled:bg-gray-100 dark:disabled:bg-gray-900"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">
-                      {COPY.calendarPostModal.time}
-                    </label>
-                    <input
-                      type="time"
-                      disabled={isPostPublished}
-                      value={formData.scheduled_time}
-                      onChange={(e) => {
-                        setScheduleError('');
-                        setFormData((f) => ({
-                          ...f,
-                          scheduled_time: e.target.value,
-                        }));
-                      }}
-                      className="w-full text-sm border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-lg px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-violet-400 disabled:opacity-70 disabled:cursor-not-allowed disabled:bg-gray-100 dark:disabled:bg-gray-900"
-                    />
-                  </div>
-                </div>
-                {scheduleError && <p className="text-xs text-red-500 mt-1">{scheduleError}</p>}
-
-                {/* Recurring toggle */}
-                <div className="border rounded-xl overflow-hidden px-4 py-3 text-sm select-none cursor-default transition-colors bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700">
-                  <div className="flex items-center justify-between w-full">
-                    <div className="flex items-center gap-2">
-                      <Repeat
-                        className={`w-4 h-4 ${formData.is_recurring ? 'text-violet-600' : 'text-amber-600'}`}
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">
+                        {COPY.calendarPostModal.date}
+                      </label>
+                      <input
+                        type="date"
+                        disabled={isPostPublished}
+                        value={formData.scheduled_date}
+                        min={todayLocal()}
+                        onChange={(e) => {
+                          setScheduleError('');
+                          setFormData((f) => ({
+                            ...f,
+                            scheduled_date: e.target.value,
+                          }));
+                        }}
+                        className="w-full text-sm border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-lg px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-violet-400 disabled:opacity-70 disabled:cursor-not-allowed disabled:bg-gray-100 dark:disabled:bg-gray-900"
                       />
-                      <span
-                        className={`font-medium ${formData.is_recurring ? 'text-violet-700 dark:text-violet-400' : 'text-amber-600 dark:text-amber-400'}`}
-                      >
-                        {COPY.calendarPostModal.recurringPost}
-                      </span>
                     </div>
-                    <Switch
-                      checked={formData.is_recurring}
-                      onCheckedChange={(v) => setFormData((f) => ({ ...f, is_recurring: v }))}
-                    />
+                    <div>
+                      <label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">
+                        {COPY.calendarPostModal.time}
+                      </label>
+                      <input
+                        type="time"
+                        disabled={isPostPublished}
+                        value={formData.scheduled_time}
+                        onChange={(e) => {
+                          setScheduleError('');
+                          setFormData((f) => ({
+                            ...f,
+                            scheduled_time: e.target.value,
+                          }));
+                        }}
+                        className="w-full text-sm border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-lg px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-violet-400 disabled:opacity-70 disabled:cursor-not-allowed disabled:bg-gray-100 dark:disabled:bg-gray-900"
+                      />
+                    </div>
                   </div>
-                  <div
-                    className={`mt-2 px-0 py-2.5 text-xs rounded ${formData.is_recurring ? 'text-violet-700 dark:text-violet-400' : 'text-amber-600 dark:text-amber-400'}`}
-                  >
-                    {formData.is_recurring
-                      ? COPY.calendarPostModal.recurringEnabled
-                      : COPY.calendarPostModal.recurringDisabled}
-                  </div>
-                  {formData.is_recurring && (
-                    <RecurringSchedulePanel formData={formData} setFormData={setFormData} />
-                  )}
-                </div>
+                  {scheduleError && <p className="text-xs text-red-500 mt-1">{scheduleError}</p>}
 
-                {/* Approval toggle */}
-                <Tooltip
-                  content={COPY.calendarPostModal.approvalPermissionTooltip}
-                  disableHover={isAdmin}
-                >
+                  {/* Recurring toggle */}
                   <div className="border rounded-xl overflow-hidden px-4 py-3 text-sm select-none cursor-default transition-colors bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700">
                     <div className="flex items-center justify-between w-full">
                       <div className="flex items-center gap-2">
-                        <ShieldCheck
-                          className={`w-4 h-4 ${requireApproval ? 'text-emerald-600' : 'text-amber-600'}`}
+                        <Repeat
+                          className={`w-4 h-4 ${formData.is_recurring ? 'text-violet-600' : 'text-amber-600'}`}
                         />
                         <span
-                          className={`font-medium ${requireApproval ? 'text-emerald-700 dark:text-emerald-400' : 'text-amber-600 dark:text-amber-400'}`}
+                          className={`font-medium ${formData.is_recurring ? 'text-violet-700 dark:text-violet-400' : 'text-amber-600 dark:text-amber-400'}`}
                         >
-                          {COPY.calendarPostModal.requiresApproval}
+                          {COPY.calendarPostModal.recurringPost}
                         </span>
                       </div>
                       <Switch
-                        checked={requireApproval}
-                        onCheckedChange={setRequireApproval}
-                        disabled={!isAdmin}
-                        aria-label={COPY.calendarPostModal.requiresApproval}
+                        checked={formData.is_recurring}
+                        onCheckedChange={(v) => setFormData((f) => ({ ...f, is_recurring: v }))}
                       />
                     </div>
                     <div
-                      className={`mt-2 px-0 py-2.5 text-xs rounded ${requireApproval ? 'text-emerald-700 dark:text-emerald-400' : 'text-amber-600 dark:text-amber-400'}`}
+                      className={`mt-2 px-0 py-2.5 text-xs rounded ${formData.is_recurring ? 'text-violet-700 dark:text-violet-400' : 'text-amber-600 dark:text-amber-400'}`}
                     >
-                      {requireApproval
-                        ? COPY.calendarPostModal.approvalEnabled
-                        : COPY.calendarPostModal.approvalDisabled}
+                      {formData.is_recurring
+                        ? COPY.calendarPostModal.recurringEnabled
+                        : COPY.calendarPostModal.recurringDisabled}
                     </div>
+                    {formData.is_recurring && (
+                      <RecurringSchedulePanel formData={formData} setFormData={setFormData} />
+                    )}
                   </div>
-                </Tooltip>
+
+                  {/* Approval toggle */}
+                  <Tooltip
+                    content={COPY.calendarPostModal.approvalPermissionTooltip}
+                    disableHover={isAdmin}
+                  >
+                    <div className="border rounded-xl overflow-hidden px-4 py-3 text-sm select-none cursor-default transition-colors bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700">
+                      <div className="flex items-center justify-between w-full">
+                        <div className="flex items-center gap-2">
+                          <ShieldCheck
+                            className={`w-4 h-4 ${requireApproval ? 'text-emerald-600' : 'text-amber-600'}`}
+                          />
+                          <span
+                            className={`font-medium ${requireApproval ? 'text-emerald-700 dark:text-emerald-400' : 'text-amber-600 dark:text-amber-400'}`}
+                          >
+                            {COPY.calendarPostModal.requiresApproval}
+                          </span>
+                        </div>
+                        <Switch
+                          checked={requireApproval}
+                          onCheckedChange={setRequireApproval}
+                          disabled={!isAdmin}
+                          aria-label={COPY.calendarPostModal.requiresApproval}
+                        />
+                      </div>
+                      <div
+                        className={`mt-2 px-0 py-2.5 text-xs rounded ${requireApproval ? 'text-emerald-700 dark:text-emerald-400' : 'text-amber-600 dark:text-amber-400'}`}
+                      >
+                        {requireApproval
+                          ? COPY.calendarPostModal.approvalEnabled
+                          : COPY.calendarPostModal.approvalDisabled}
+                      </div>
+                    </div>
+                  </Tooltip>
+                </div>
               </div>
+            )}
+          </div>
+
+          {/* Footer */}
+          <div className="flex items-center justify-between px-6 py-3.5 border-t border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 shrink-0">
+            <div className="flex items-center gap-3">
+              {isPostPublished && (
+                <button
+                  onClick={() => handleDeletePost()}
+                  disabled={isLoading}
+                  className="flex items-center gap-1.5 text-sm text-white font-medium disabled:opacity-40 transition-colors bg-red-600 hover:bg-red-700 border border-red-600 hover:border-red-700 rounded-xl px-3 py-2"
+                >
+                  {isLoading ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Trash className="w-4 h-4" />
+                  )}
+                  {COPY.calendarPostModal.deletePost}
+                </button>
+              )}
+            </div>
+            <div className="flex items-center gap-2">
+              {/* Save draft */}
+              {!isPostPublished && (
+                <Button
+                  onClick={() => handleSubmit('draft')}
+                  disabled={isLoading || !isDirty || !formData.caption}
+                  className="bg-gray-700 hover:bg-gray-800 hover:text-white text-white rounded-xl px-5 py-2 text-sm font-semibold disabled:opacity-40 transition-colors flex items-center gap-2"
+                >
+                  {isLoading ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <FileText className="w-4 h-4" />
+                  )}
+                  {COPY.calendarPostModal.saveDraft}
+                </Button>
+              )}
+
+              {/* Submit for review (editors) */}
+              {!isAdmin && !isViewer && (
+                <Button
+                  variant="outline"
+                  onClick={() => handleSubmit('pending_review')}
+                  disabled={
+                    isLoading || !isDirty || !formData.caption || formData.platforms.length === 0
+                  }
+                  className="flex items-center gap-1.5 text-sm rounded-xl"
+                >
+                  <Send className="w-4 h-4" />
+                  {COPY.calendarPostModal.submitForReview}
+                </Button>
+              )}
+
+              {/* TODO: Only use pending_approval or pending_review, not both. This will streamline the workflow and reduce confusion. */}
+              <Button
+                onClick={() =>
+                  handleSubmit(
+                    isAdmin ? (requireApproval ? 'pending_approval' : 'approved') : 'pending_review'
+                  )
+                }
+                disabled={
+                  isLoading ||
+                  isViewer ||
+                  !isDirty ||
+                  !formData.caption ||
+                  formData.platforms.length === 0
+                }
+                className="bg-violet-600 hover:bg-violet-700 text-white rounded-xl px-5 py-2 text-sm font-semibold disabled:opacity-40 transition-colors flex items-center gap-2"
+              >
+                {isLoading && <Loader2 className="w-4 h-4 animate-spin" />}
+                {requireApproval ? <Send className="w-4 h-4" /> : <Calendar className="w-4 h-4" />}
+                {requireApproval
+                  ? COPY.calendarPostModal.sendForApproval
+                  : isPostPublished
+                    ? COPY.calendarPostModal.updatePost
+                    : COPY.calendarPostModal.schedulePost}
+              </Button>
+            </div>
+          </div>
+
+          {/* CROP PANEL — absolute drawer covering body + footer */}
+          {isCropOpen && formData.image_url && cropTargetPlatform && (
+            <div className="absolute inset-0 z-20 flex flex-col bg-white dark:bg-gray-900 animate-in slide-in-from-bottom duration-200">
+              <ImageCropPanel
+                imageUrl={formData.image_url}
+                platform={cropTargetPlatform}
+                aspectRatio={
+                  (PLATFORMS.find((p) => p.id === cropTargetPlatform) ?? PLATFORMS[0]).aspectRatio
+                }
+                cropLabel={
+                  (PLATFORMS.find((p) => p.id === cropTargetPlatform) ?? PLATFORMS[0]).cropLabel
+                }
+                initialCropBox={platformCropBoxes[cropTargetPlatform] ?? null}
+                initialTransformOps={platformTransformOps[cropTargetPlatform] ?? []}
+                initialTiltDeg={platformTilts[cropTargetPlatform] ?? 0}
+                onSave={(url, cropBox, transformOps, tiltDeg) => {
+                  const prevCropBox = platformCropBoxes[cropTargetPlatform] ?? null;
+                  const prevTransformOps = platformTransformOps[cropTargetPlatform] ?? [];
+                  const prevTiltDeg = platformTilts[cropTargetPlatform] ?? 0;
+                  const unchanged =
+                    tiltDeg === prevTiltDeg &&
+                    JSON.stringify(transformOps) === JSON.stringify(prevTransformOps) &&
+                    JSON.stringify(cropBox) === JSON.stringify(prevCropBox);
+                  if (unchanged) {
+                    setIsCropOpen(false);
+                    return;
+                  }
+                  setPlatformCrops((prev) => ({
+                    ...prev,
+                    [cropTargetPlatform]: /** @type {string} */ (url),
+                  }));
+                  if (cropBox)
+                    setPlatformCropBoxes((prev) => ({ ...prev, [cropTargetPlatform]: cropBox }));
+                  setPlatformTransformOps((prev) => ({
+                    ...prev,
+                    [cropTargetPlatform]: transformOps,
+                  }));
+                  setPlatformTilts((prev) => ({ ...prev, [cropTargetPlatform]: tiltDeg }));
+                  setIsCropOpen(false);
+                  toast.success(
+                    COPY.calendarPostModal.cropApplied.replace('{platform}', cropTargetPlatform)
+                  );
+                }}
+                onClose={() => setIsCropOpen(false)}
+              />
             </div>
           )}
         </div>
-
-        {/* Footer */}
-        <div className="flex items-center justify-between px-6 py-3.5 border-t border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900">
-          <div className="flex items-center gap-3">
-            {isPostPublished && (
-              <button
-                onClick={() => handleDeletePost()}
-                disabled={isLoading}
-                className="flex items-center gap-1.5 text-sm text-white font-medium disabled:opacity-40 transition-colors bg-red-600 hover:bg-red-700 border border-red-600 hover:border-red-700 rounded-xl px-3 py-2"
-              >
-                {isLoading ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                ) : (
-                  <Trash className="w-4 h-4" />
-                )}
-                {COPY.calendarPostModal.deletePost}
-              </button>
-            )}
-          </div>
-          <div className="flex items-center gap-2">
-            {/* Save draft */}
-            {!isPostPublished && (
-              <Button
-                onClick={() => handleSubmit('draft')}
-                disabled={isLoading || !formData.caption}
-                className="bg-gray-700 hover:bg-gray-800 hover:text-white text-white rounded-xl px-5 py-2 text-sm font-semibold disabled:opacity-40 transition-colors flex items-center gap-2"
-              >
-                {isLoading ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                ) : (
-                  <FileText className="w-4 h-4" />
-                )}
-                {COPY.calendarPostModal.saveDraft}
-              </Button>
-            )}
-
-            {/* Submit for review (editors) */}
-            {!isAdmin && !isViewer && (
-              <Button
-                variant="outline"
-                onClick={() => handleSubmit('pending_review')}
-                disabled={isLoading || !formData.caption || formData.platforms.length === 0}
-                className="flex items-center gap-1.5 text-sm rounded-xl"
-              >
-                <Send className="w-4 h-4" />
-                {COPY.calendarPostModal.submitForReview}
-              </Button>
-            )}
-
-            {/* TODO: Only use pending_approval or pending_review, not both. This will streamline the workflow and reduce confusion. */}
-            <Button
-              onClick={() =>
-                handleSubmit(
-                  isAdmin ? (requireApproval ? 'pending_approval' : 'approved') : 'pending_review'
-                )
-              }
-              disabled={
-                isLoading || isViewer || !formData.caption || formData.platforms.length === 0
-              }
-              className="bg-violet-600 hover:bg-violet-700 text-white rounded-xl px-5 py-2 text-sm font-semibold disabled:opacity-40 transition-colors flex items-center gap-2"
-            >
-              {isLoading && <Loader2 className="w-4 h-4 animate-spin" />}
-              {requireApproval ? <Send className="w-4 h-4" /> : <Calendar className="w-4 h-4" />}
-              {requireApproval
-                ? COPY.calendarPostModal.sendForApproval
-                : isPostPublished
-                  ? COPY.calendarPostModal.updatePost
-                  : COPY.calendarPostModal.schedulePost}
-            </Button>
-          </div>
-        </div>
+        {/* end body+footer wrapper */}
       </DialogContent>
       <ConfirmDialog
         open={!!connectPrompt}
