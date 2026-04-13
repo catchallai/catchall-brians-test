@@ -82,6 +82,7 @@ import {
 // because the server does not guarantee array order on those fields.
 import { arraysEqual, setsEqual } from '@/utils/hashtagUtils';
 import PostStatusChip from '../social/PostStatusChip';
+import { getMonthComparison } from '@/utils/getMonthComparison';
 
 // Best times by platform based on general audience activity research
 const BEST_TIMES = {
@@ -444,6 +445,7 @@ export default function CalendarPostModal({
   onSave,
   isLoading,
   hashtagPool = [],
+  currentMonth = new Date() /** @type {Date} */,
 }) {
   const { data: currentUser } = useQuery({
     queryKey: ['current-user'],
@@ -561,6 +563,20 @@ export default function CalendarPostModal({
       setIsCropOpen(false);
       setCropTargetPlatform(null);
       setImageFileNames([]);
+      const _now = new Date();
+      const { isSameMonth: _isSameMonth, isFutureMonth: _isFutureMonth } = getMonthComparison(
+        _now,
+        currentMonth
+      );
+      // Adding 10 minutes to current time to set as default scheduled time for new posts, to avoid confusion about posts appearing as immediately scheduled when the current time is used.
+      // This behavior mimics Sprout.io's default scheduling time for new posts.
+      const _default = new Date(_now.getTime() + 10 * 60 * 1000);
+      const _hh = String(_default.getHours()).padStart(2, '0');
+      const _mm = String(_default.getMinutes()).padStart(2, '0');
+      const defaultTime = _isSameMonth ? `${_hh}:${_mm}` : '09:00';
+      const defaultDate = _isFutureMonth
+        ? `${currentMonth.getFullYear()}-${String(currentMonth.getMonth() + 1).padStart(2, '0')}-01`
+        : todayLocal();
       if (post) {
         const normalizedMedia = normalizePostMedia(post);
         const initial = {
@@ -608,7 +624,11 @@ export default function CalendarPostModal({
         setPlatformTransformOps(_initialTransformOps);
         setPlatformTilts(_initialTilts);
       } else {
-        const initial = { ...DEFAULT_FORM, scheduled_date: todayLocal() };
+        const initial = {
+          ...DEFAULT_FORM,
+          scheduled_date: defaultDate,
+          scheduled_time: defaultTime,
+        };
         initialFormDataRef.current = initial;
         setFormData(initial);
         setPreviewPlatform('Twitter');

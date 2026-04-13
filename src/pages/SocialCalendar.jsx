@@ -1071,6 +1071,7 @@ export default function SocialCalendar() {
         onSave={handleSave}
         isLoading={createMutation.isPending || updateMutation.isPending}
         hashtagPool={hashtagPool}
+        currentMonth={currentMonth}
       />
 
       <BulkScheduleModal open={showBulkModal} onClose={() => setShowBulkModal(false)} />
