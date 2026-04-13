@@ -280,19 +280,28 @@ export default function ImageCropPanel({
 
   const [tiltDeg, setTiltDeg] = useState(initialTiltDeg);
 
-  /** Reduces an op log to a canonical { rotations, flipH, flipV } state so that
-   *  inverse sequences (e.g. rotateRight→rotateLeft, flipH→flipH) compare equal. */
+  /** Reduces an op log to a canonical transform state by composing operations in order.
+   *  Rotations and flips do not commute, so we fold them into a 2×2 matrix instead of
+   *  counting rotations and toggling flips independently. */
   const normalizeOps = (ops: TransformOp[]) => {
-    let rot = 0; // 0–3 quarter-turns clockwise
-    let fh = false;
-    let fv = false;
+    type Matrix2D = [number, number, number, number];
+    const multiply = ([a1, b1, c1, d1]: Matrix2D, [a2, b2, c2, d2]: Matrix2D): Matrix2D => [
+      a1 * a2 + b1 * c2,
+      a1 * b2 + b1 * d2,
+      c1 * a2 + d1 * c2,
+      c1 * b2 + d1 * d2,
+    ];
+    const opMatrix = (op: TransformOp): Matrix2D => {
+      if (op === 'rotateRight') return [0, 1, -1, 0];
+      if (op === 'rotateLeft') return [0, -1, 1, 0];
+      if (op === 'flipH') return [-1, 0, 0, 1];
+      return [1, 0, 0, -1]; // flipV
+    };
+    let matrix: Matrix2D = [1, 0, 0, 1];
     for (const op of ops) {
-      if (op === 'rotateRight') rot = (rot + 1) % 4;
-      else if (op === 'rotateLeft') rot = (rot + 3) % 4;
-      else if (op === 'flipH') fh = !fh;
-      else if (op === 'flipV') fv = !fv;
+      matrix = multiply(opMatrix(op), matrix);
     }
-    return `${rot}|${fh}|${fv}`;
+    return matrix.join('|');
   };
 
   const isCropUnchanged =
