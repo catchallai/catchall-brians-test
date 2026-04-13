@@ -65,7 +65,38 @@
     },
     "platform_crop_metadata": {
       "type": "object",
-      "description": "Per-platform crop geometry and transform metadata for rehydrating the crop editor. Keyed by platform ID. Each value is an object with: cropBox (object with x, y, w, h numbers), transformOps (array of strings), and tilt (number)."
+      "description": "Per-platform crop geometry and transform metadata used to rehydrate the crop editor. Keyed by platform ID.",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "cropBox": {
+            "type": "object",
+            "properties": {
+              "x": {
+                "type": "number"
+              },
+              "y": {
+                "type": "number"
+              },
+              "w": {
+                "type": "number"
+              },
+              "h": {
+                "type": "number"
+              }
+            }
+          },
+          "transformOps": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "tilt": {
+            "type": "number"
+          }
+        }
+      }
     },
     "status": {
       "type": "string",
