@@ -564,12 +564,15 @@ export default function CalendarPostModal({
       setCropTargetPlatform(null);
       setImageFileNames([]);
       const _now = new Date();
-      const _hh = String(_now.getHours()).padStart(2, '0');
-      const _mm = String(_now.getMinutes()).padStart(2, '0');
       const { isSameMonth: _isSameMonth, isFutureMonth: _isFutureMonth } = getMonthComparison(
         _now,
         currentMonth
       );
+      // Adding 10 minutes to current time to set as default scheduled time for new posts, to avoid confusion about posts appearing as immediately scheduled when the current time is used.
+      // This behavior mimics Sprout.io's default scheduling time for new posts.
+      const _default = new Date(_now.getTime() + 10 * 60 * 1000);
+      const _hh = String(_default.getHours()).padStart(2, '0');
+      const _mm = String(_default.getMinutes()).padStart(2, '0');
       const defaultTime = _isSameMonth ? `${_hh}:${_mm}` : '09:00';
       const defaultDate = _isFutureMonth
         ? `${currentMonth.getFullYear()}-${String(currentMonth.getMonth() + 1).padStart(2, '0')}-01`
