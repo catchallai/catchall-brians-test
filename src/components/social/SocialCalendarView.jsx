@@ -321,7 +321,7 @@ function DayView({
                             e.stopPropagation();
                             // eslint-disable-next-line no-alert
                             if (window.confirm('Delete this post?')) {
-                              deletePostMutation.mutate(post.id);
+                              deletePostMutation.mutate(post);
                             }
                           }}
                           className="opacity-0 group-hover/post:opacity-100 transition-opacity p-0.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded"
@@ -639,6 +639,7 @@ export default function SocialCalendarView({
   onMonthChange,
   onViewTypeChange,
   viewType = 'month',
+  currentUser,
 }) {
   const [draggedPost, setDraggedPost] = useState(null);
   const [hoveredPost, setHoveredPost] = useState(null);
@@ -652,8 +653,23 @@ export default function SocialCalendarView({
   });
 
   const deletePostMutation = useMutation({
-    mutationFn: (id) => base44.entities.CalendarPost.delete(id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['calendar-posts'] }),
+    mutationFn: (post) =>
+      base44.entities.CalendarPost.update(post.id, {
+        status: 'deleted',
+        workflow_history: [
+          ...(post.workflow_history || []),
+          {
+            action: 'deleted',
+            by_email: currentUser?.email,
+            by_name: currentUser?.full_name || currentUser?.email,
+            timestamp: new Date().toISOString(),
+          },
+        ],
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['calendar-posts'] });
+      queryClient.invalidateQueries({ queryKey: ['calendar-posts-all'] });
+    },
   });
 
   // Keyboard shortcuts: ←/→ to navigate, T = today, D/W/M = switch view
@@ -867,7 +883,7 @@ export default function SocialCalendarView({
                                 e.stopPropagation();
                                 // eslint-disable-next-line no-alert
                                 if (window.confirm('Delete this post?')) {
-                                  deletePostMutation.mutate(post.id);
+                                  deletePostMutation.mutate(post);
                                 }
                               }}
                               className="opacity-0 group-hover/post:opacity-100 transition-opacity p-0.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded"
@@ -947,7 +963,7 @@ export default function SocialCalendarView({
             <button
               onClick={() => {
                 setHoveredPost(null);
-                deletePostMutation.mutate(hoveredPost.id);
+                deletePostMutation.mutate(hoveredPost);
               }}
               className="text-xs px-3 py-1.5 rounded-lg border border-red-200 hover:bg-red-50 text-red-600 font-medium transition-colors"
             >

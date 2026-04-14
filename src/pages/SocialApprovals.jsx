@@ -69,6 +69,7 @@ const STATUS_LABELS = {
   approved: { label: 'Approved', color: 'bg-green-100 text-green-700' },
   published: { label: 'Published', color: 'bg-violet-100 text-violet-700' },
   rejected: { label: 'Rejected', color: 'bg-red-100 text-red-700' },
+  deleted: { label: 'Deleted', color: 'bg-gray-200 text-gray-500' },
 };
 
 export default function SocialApprovals() {

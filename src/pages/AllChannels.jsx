@@ -12,16 +12,22 @@ import {
   Clock,
   FileText,
   Send,
-  Plus,
-  Pencil,
   Trash2,
   CheckCircle,
   XCircle,
+  RotateCcw,
   Search,
   Image,
   Play,
-  RefreshCw,
+  ArrowUpDown,
 } from 'lucide-react';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { format } from 'date-fns';
 import CalendarPostModal from '@/components/modals/CalendarPostModal';
 import {
@@ -66,15 +72,41 @@ const STATUS_CONFIG = {
     dot: 'bg-orange-500',
   },
   approved: { label: 'Approved', color: 'bg-emerald-100 text-emerald-700', dot: 'bg-emerald-500' },
+  scheduled: { label: 'Scheduled', color: 'bg-blue-100 text-blue-700', dot: 'bg-blue-500' },
   published: { label: 'Published', color: 'bg-violet-100 text-violet-700', dot: 'bg-violet-500' },
   rejected: { label: 'Rejected', color: 'bg-red-100 text-red-700', dot: 'bg-red-500' },
+  deleted: { label: 'Deleted', color: 'bg-gray-200 text-gray-500', dot: 'bg-gray-400' },
 };
 
-function PostCard({ post, onEdit, onDelete, onApprove, onReject, showApprovalActions }) {
+const APPROVAL_STATUSES = ['pending_approval', 'pending_review', 'changes_requested'];
+
+function PostCard({
+  post,
+  onEdit,
+  onDelete,
+  onApprove,
+  onReject,
+  onRequestChanges,
+  showApprovalActions,
+}) {
   const statusCfg = STATUS_CONFIG[post.status] || STATUS_CONFIG.draft;
+  const showActions =
+    showApprovalActions || (!!onApprove && APPROVAL_STATUSES.includes(post.status));
 
   return (
-    <Card className="border border-gray-200 hover:shadow-md transition-all group">
+    <Card
+      className="border border-gray-200 hover:shadow-md transition-all group cursor-pointer"
+      onClick={() => onEdit(post)}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          if (e.target !== e.currentTarget) return;
+          e.preventDefault();
+          onEdit(post);
+        }
+      }}
+    >
       <CardContent className="p-4">
         <div className="flex gap-4">
           {/* Media Thumbnail */}
@@ -142,13 +174,16 @@ function PostCard({ post, onEdit, onDelete, onApprove, onReject, showApprovalAct
 
               {/* Actions */}
               <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                {showApprovalActions && (
+                {showActions && (
                   <>
                     <Button
                       size="sm"
                       variant="ghost"
                       className="h-7 px-2 text-emerald-600 hover:bg-emerald-50 hover:text-emerald-700 text-xs gap-1"
-                      onClick={() => onApprove(post)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onApprove(post);
+                      }}
                     >
                       <CheckCircle className="w-3.5 h-3.5" /> Approve
                     </Button>
@@ -156,25 +191,37 @@ function PostCard({ post, onEdit, onDelete, onApprove, onReject, showApprovalAct
                       size="sm"
                       variant="ghost"
                       className="h-7 px-2 text-red-500 hover:bg-red-50 hover:text-red-600 text-xs gap-1"
-                      onClick={() => onReject(post)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onReject(post);
+                      }}
                     >
                       <XCircle className="w-3.5 h-3.5" /> Reject
                     </Button>
+                    {onRequestChanges &&
+                      ['pending_review', 'pending_approval'].includes(post.status) && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="h-7 px-2 text-orange-700 border-orange-300 hover:bg-orange-50 text-xs gap-1"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onRequestChanges(post);
+                          }}
+                        >
+                          <RotateCcw className="w-3.5 h-3.5" /> Request Changes
+                        </Button>
+                      )}
                   </>
                 )}
                 <Button
                   size="icon"
                   variant="ghost"
-                  className="h-7 w-7"
-                  onClick={() => onEdit(post)}
-                >
-                  <Pencil className="w-3.5 h-3.5 text-gray-400" />
-                </Button>
-                <Button
-                  size="icon"
-                  variant="ghost"
                   className="h-7 w-7 text-red-400 hover:text-red-600 hover:bg-red-50"
-                  onClick={() => onDelete(post)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onDelete(post);
+                  }}
                 >
                   <Trash2 className="w-3.5 h-3.5" />
                 </Button>
@@ -193,6 +240,7 @@ function PostList({
   onDelete,
   onApprove,
   onReject,
+  onRequestChanges,
   showApprovalActions,
   emptyMessage,
   emptyIcon: EmptyIcon,
@@ -215,6 +263,7 @@ function PostList({
           onDelete={onDelete}
           onApprove={onApprove}
           onReject={onReject}
+          onRequestChanges={onRequestChanges}
           showApprovalActions={showApprovalActions}
         />
       ))}
@@ -226,6 +275,8 @@ export default function AllChannels() {
   const [search, setSearch] = useState('');
   const [selectedPost, setSelectedPost] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [sortBy, setSortBy] = useState('created_date');
+  const [sortOrder, setSortOrder] = useState('desc');
   const queryClient = useQueryClient();
 
   const { data: posts = [], isLoading } = useQuery({
@@ -264,7 +315,19 @@ export default function AllChannels() {
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (id) => base44.entities.CalendarPost.delete(id),
+    mutationFn: (post) =>
+      base44.entities.CalendarPost.update(post.id, {
+        status: 'deleted',
+        workflow_history: [
+          ...(post.workflow_history || []),
+          {
+            action: 'deleted',
+            by_email: user?.email,
+            by_name: user?.full_name || user?.email,
+            timestamp: new Date().toISOString(),
+          },
+        ],
+      }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['calendar-posts-all'] });
       queryClient.invalidateQueries({ queryKey: ['calendar-posts'] });
@@ -277,8 +340,9 @@ export default function AllChannels() {
   };
 
   const handleDelete = (post) => {
+    // eslint-disable-next-line no-alert
     if (confirm('Delete this post?')) {
-      deleteMutation.mutate(post.id);
+      deleteMutation.mutate(post);
     }
   };
 
@@ -295,10 +359,18 @@ export default function AllChannels() {
   };
 
   const handleReject = (post) => {
+    // eslint-disable-next-line no-alert
     const reason = prompt('Reason for rejection (optional):') ?? '';
     updateMutation.mutate({
       id: post.id,
       data: { status: 'rejected', rejected_reason: reason },
+    });
+  };
+
+  const handleRequestChanges = (post) => {
+    updateMutation.mutate({
+      id: post.id,
+      data: { status: 'changes_requested' },
     });
   };
 
@@ -310,17 +382,25 @@ export default function AllChannels() {
     }
   };
 
-  const filtered = posts.filter((p) => {
-    if (!search) {
-      return true;
-    }
-    const q = search.toLowerCase();
-    return (
-      p.caption?.toLowerCase().includes(q) ||
-      p.title?.toLowerCase().includes(q) ||
-      (p.platforms || []).some((pl) => pl.toLowerCase().includes(q))
-    );
-  });
+  const filtered = posts
+    .filter((p) => {
+      if (!search) {
+        return true;
+      }
+      const q = search.toLowerCase();
+      return (
+        p.caption?.toLowerCase().includes(q) ||
+        p.title?.toLowerCase().includes(q) ||
+        (p.platforms || []).some((pl) => pl.toLowerCase().includes(q))
+      );
+    })
+    .sort((a, b) => {
+      const rawA = sortBy === 'scheduled_date' ? a.scheduled_date : a.created_date;
+      const rawB = sortBy === 'scheduled_date' ? b.scheduled_date : b.created_date;
+      const tsA = rawA ? new Date(rawA).getTime() : 0;
+      const tsB = rawB ? new Date(rawB).getTime() : 0;
+      return sortOrder === 'desc' ? tsB - tsA : tsA - tsB;
+    });
 
   // Tab buckets
   const approvalPosts = filtered.filter((p) =>
@@ -328,7 +408,8 @@ export default function AllChannels() {
   );
   const queuePosts = filtered.filter((p) => ['approved'].includes(p.status));
   const draftPosts = filtered.filter((p) => ['draft', 'rejected'].includes(p.status));
-  const sentPosts = filtered.filter((p) => ['published'].includes(p.status));
+  const sentPosts = filtered.filter((p) => ['scheduled', 'published'].includes(p.status));
+  const deletedPosts = filtered.filter((p) => p.status === 'deleted');
 
   const PLATFORMS = ['Facebook', 'Instagram', 'LinkedIn', 'Twitter', 'YouTube'];
 
@@ -355,11 +436,18 @@ export default function AllChannels() {
       icon: FileText,
     },
     {
-      label: 'Published',
+      label: 'Scheduled',
       count: sentPosts.length,
       color: 'text-violet-600',
       bg: 'bg-violet-50',
       icon: Send,
+    },
+    {
+      label: 'Deleted',
+      count: deletedPosts.length,
+      color: 'text-red-500',
+      bg: 'bg-red-50',
+      icon: Trash2,
     },
   ];
 
@@ -373,27 +461,19 @@ export default function AllChannels() {
         </div>
         <div className="flex items-center gap-2">
           <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => queryClient.invalidateQueries({ queryKey: ['calendar-posts-all'] })}
-            title="Refresh"
-          >
-            <RefreshCw className="w-4 h-4 text-gray-500" />
-          </Button>
-          <Button
             onClick={() => {
               setSelectedPost(null);
               setShowModal(true);
             }}
             className="bg-violet-600 hover:bg-violet-700 gap-2"
           >
-            <Plus className="w-4 h-4" /> New Post
+            New Post
           </Button>
         </div>
       </div>
 
       {/* Stats Row */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
         {stats.map((s) => (
           <Card key={s.label} className={`border-0 shadow-sm ${s.bg}`}>
             <CardContent className="p-4 flex items-center gap-3">
@@ -437,15 +517,35 @@ export default function AllChannels() {
         </CardContent>
       </Card>
 
-      {/* Search */}
-      <div className="relative mb-4">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-        <Input
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search posts by caption, title, or platform..."
-          className="pl-9 bg-white"
-        />
+      {/* Search + Sort */}
+      <div className="flex gap-2 mb-4">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+          <Input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search posts by caption, title, or platform..."
+            className="pl-9 bg-white"
+          />
+        </div>
+        <Select value={sortBy} onValueChange={setSortBy}>
+          <SelectTrigger className="w-40 bg-white">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="created_date">Created Date</SelectItem>
+            <SelectItem value="scheduled_date">Post Date</SelectItem>
+          </SelectContent>
+        </Select>
+        <Button
+          variant="outline"
+          size="icon"
+          className="bg-white"
+          onClick={() => setSortOrder((o) => (o === 'desc' ? 'asc' : 'desc'))}
+          title={sortOrder === 'desc' ? 'Newest first' : 'Oldest first'}
+        >
+          <ArrowUpDown className="w-4 h-4 text-gray-500" />
+        </Button>
       </div>
 
       {/* Tabs */}
@@ -456,8 +556,16 @@ export default function AllChannels() {
           ))}
         </div>
       ) : (
-        <Tabs defaultValue="approvals">
+        <Tabs defaultValue="all">
           <TabsList className="mb-4 bg-white border border-gray-200">
+            <TabsTrigger value="all" className="gap-2">
+              All
+              {filtered.length > 0 && (
+                <span className="ml-1 w-5 h-5 rounded-full bg-gray-500 text-white text-xs flex items-center justify-center">
+                  {filtered.length}
+                </span>
+              )}
+            </TabsTrigger>
             <TabsTrigger value="approvals" className="gap-2">
               <ShieldCheck className="w-4 h-4" />
               Approvals
@@ -487,14 +595,37 @@ export default function AllChannels() {
             </TabsTrigger>
             <TabsTrigger value="sent" className="gap-2">
               <Send className="w-4 h-4" />
-              Sent
+              Scheduled
               {sentPosts.length > 0 && (
                 <span className="ml-1 w-5 h-5 rounded-full bg-violet-500 text-white text-xs flex items-center justify-center">
                   {sentPosts.length}
                 </span>
               )}
             </TabsTrigger>
+            <TabsTrigger value="deleted" className="gap-2">
+              <Trash2 className="w-4 h-4" />
+              Deleted
+              {deletedPosts.length > 0 && (
+                <span className="ml-1 w-5 h-5 rounded-full bg-red-500 text-white text-xs flex items-center justify-center">
+                  {deletedPosts.length}
+                </span>
+              )}
+            </TabsTrigger>
           </TabsList>
+
+          <TabsContent value="all">
+            <PostList
+              posts={filtered}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+              onApprove={handleApprove}
+              onReject={handleReject}
+              onRequestChanges={handleRequestChanges}
+              showApprovalActions={false}
+              emptyMessage="No posts found"
+              emptyIcon={FileText}
+            />
+          </TabsContent>
 
           <TabsContent value="approvals">
             <div className="mb-3 flex items-center gap-2 text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-4 py-2.5">
@@ -507,6 +638,7 @@ export default function AllChannels() {
               onDelete={handleDelete}
               onApprove={handleApprove}
               onReject={handleReject}
+              onRequestChanges={handleRequestChanges}
               showApprovalActions={true}
               emptyMessage="No posts awaiting approval"
               emptyIcon={ShieldCheck}
@@ -546,7 +678,7 @@ export default function AllChannels() {
           <TabsContent value="sent">
             <div className="mb-3 flex items-center gap-2 text-sm text-violet-700 bg-violet-50 border border-violet-200 rounded-lg px-4 py-2.5">
               <Send className="w-4 h-4 flex-shrink-0" />
-              Posts that have been published to social media channels.
+              Posts that have been scheduled for publishing.
             </div>
             <PostList
               posts={sentPosts}
@@ -555,6 +687,20 @@ export default function AllChannels() {
               showApprovalActions={false}
               emptyMessage="No published posts yet"
               emptyIcon={Send}
+            />
+          </TabsContent>
+
+          <TabsContent value="deleted">
+            <div className="mb-3 flex items-center gap-2 text-sm text-gray-600 bg-gray-50 border border-gray-200 rounded-lg px-4 py-2.5">
+              <Trash2 className="w-4 h-4 flex-shrink-0" />
+              Posts that have been deleted. These are kept for audit history.
+            </div>
+            <PostList
+              posts={deletedPosts}
+              onEdit={handleEdit}
+              showApprovalActions={false}
+              emptyMessage="No deleted posts"
+              emptyIcon={Trash2}
             />
           </TabsContent>
         </Tabs>

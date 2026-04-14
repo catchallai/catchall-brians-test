@@ -25,6 +25,7 @@ export enum PostStatus {
   REJECTED = 'rejected',
   PUBLISHED = 'published',
   ARCHIVED = 'archived',
+  DELETED = 'deleted',
 }
 
 export type PlatformId = 'Twitter' | 'LinkedIn' | 'Facebook' | 'Instagram' | 'YouTube' | 'TikTok';

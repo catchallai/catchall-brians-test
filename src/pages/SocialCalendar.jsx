@@ -173,6 +173,9 @@ export default function SocialCalendar() {
       if (!p.scheduled_date) {
         return false;
       }
+      if (p.status === 'deleted') {
+        return false;
+      }
       const postDate = parseISO(p.scheduled_date);
       // Expand window to cover week/day navigation that goes beyond the current month boundary
       const windowStart = startOfWeek(startOfMonth(currentMonth));
@@ -255,8 +258,23 @@ export default function SocialCalendar() {
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (id) => base44.entities.CalendarPost.delete(id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['calendar-posts'] }),
+    mutationFn: (post) =>
+      base44.entities.CalendarPost.update(post.id, {
+        status: 'deleted',
+        workflow_history: [
+          ...(post.workflow_history || []),
+          {
+            action: 'deleted',
+            by_email: user?.email,
+            by_name: user?.full_name || user?.email,
+            timestamp: new Date().toISOString(),
+          },
+        ],
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['calendar-posts'] });
+      queryClient.invalidateQueries({ queryKey: ['calendar-posts-all'] });
+    },
   });
 
   /**
@@ -336,14 +354,14 @@ export default function SocialCalendar() {
   };
 
   const handleDelete = (post) => {
-    deleteMutation.mutate(post.id);
+    deleteMutation.mutate(post);
   };
 
   // Month-scoped posts for bulk approval: filtered by date range only, never by
   // platform/status/tags. Using filteredPosts here would silently skip posts that
   // don't match the active tag or platform filter, leading to partial approvals.
   const monthPosts = posts.filter((p) => {
-    if (!p.scheduled_date) {
+    if (!p.scheduled_date || p.status === 'deleted') {
       return false;
     }
     const postDate = parseISO(p.scheduled_date);
@@ -741,6 +759,7 @@ export default function SocialCalendar() {
               onEditPost={handleEdit}
               viewType={calendarViewType}
               onViewTypeChange={setCalendarViewType}
+              currentUser={user}
             />
           </>
         )}
