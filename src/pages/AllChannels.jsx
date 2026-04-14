@@ -15,6 +15,7 @@ import {
   Trash2,
   CheckCircle,
   XCircle,
+  RotateCcw,
   Search,
   Image,
   Play,
@@ -77,21 +78,25 @@ const STATUS_CONFIG = {
   deleted: { label: 'Deleted', color: 'bg-gray-200 text-gray-500', dot: 'bg-gray-400' },
 };
 
-function PostCard({ post, onEdit, onDelete, onApprove, onReject, showApprovalActions }) {
+const APPROVAL_STATUSES = ['pending_approval', 'pending_review', 'changes_requested'];
+
+function PostCard({
+  post,
+  onEdit,
+  onDelete,
+  onApprove,
+  onReject,
+  onRequestChanges,
+  showApprovalActions,
+}) {
   const statusCfg = STATUS_CONFIG[post.status] || STATUS_CONFIG.draft;
+  const showActions =
+    showApprovalActions || (!!onApprove && APPROVAL_STATUSES.includes(post.status));
 
   return (
     <Card
       className="border border-gray-200 hover:shadow-md transition-all group cursor-pointer"
       onClick={() => onEdit(post)}
-      role="button"
-      tabIndex={0}
-      onKeyDown={(event) => {
-        if (event.key === 'Enter' || event.key === ' ') {
-          event.preventDefault();
-          onEdit(post);
-        }
-      }}
       role="button"
       tabIndex={0}
       onKeyDown={(e) => {
@@ -168,7 +173,7 @@ function PostCard({ post, onEdit, onDelete, onApprove, onReject, showApprovalAct
 
               {/* Actions */}
               <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                {showApprovalActions && (
+                {showActions && (
                   <>
                     <Button
                       size="sm"
@@ -192,6 +197,20 @@ function PostCard({ post, onEdit, onDelete, onApprove, onReject, showApprovalAct
                     >
                       <XCircle className="w-3.5 h-3.5" /> Reject
                     </Button>
+                    {onRequestChanges &&
+                      ['pending_review', 'pending_approval'].includes(post.status) && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="h-7 px-2 text-orange-700 border-orange-300 hover:bg-orange-50 text-xs gap-1"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onRequestChanges(post);
+                          }}
+                        >
+                          <RotateCcw className="w-3.5 h-3.5" /> Request Changes
+                        </Button>
+                      )}
                   </>
                 )}
                 <Button
@@ -220,6 +239,7 @@ function PostList({
   onDelete,
   onApprove,
   onReject,
+  onRequestChanges,
   showApprovalActions,
   emptyMessage,
   emptyIcon: EmptyIcon,
@@ -242,6 +262,7 @@ function PostList({
           onDelete={onDelete}
           onApprove={onApprove}
           onReject={onReject}
+          onRequestChanges={onRequestChanges}
           showApprovalActions={showApprovalActions}
         />
       ))}
@@ -342,6 +363,13 @@ export default function AllChannels() {
     updateMutation.mutate({
       id: post.id,
       data: { status: 'rejected', rejected_reason: reason },
+    });
+  };
+
+  const handleRequestChanges = (post) => {
+    updateMutation.mutate({
+      id: post.id,
+      data: { status: 'changes_requested' },
     });
   };
 
@@ -589,6 +617,9 @@ export default function AllChannels() {
               posts={filtered}
               onEdit={handleEdit}
               onDelete={handleDelete}
+              onApprove={handleApprove}
+              onReject={handleReject}
+              onRequestChanges={handleRequestChanges}
               showApprovalActions={false}
               emptyMessage="No posts found"
               emptyIcon={FileText}
@@ -606,6 +637,7 @@ export default function AllChannels() {
               onDelete={handleDelete}
               onApprove={handleApprove}
               onReject={handleReject}
+              onRequestChanges={handleRequestChanges}
               showApprovalActions={true}
               emptyMessage="No posts awaiting approval"
               emptyIcon={ShieldCheck}
