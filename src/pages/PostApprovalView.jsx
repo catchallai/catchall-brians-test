@@ -1,0 +1,153 @@
+import { useState } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { Link, useSearchParams } from 'react-router-dom';
+import { base44 } from '@/api/base44Client';
+import { createPageUrl } from '@/utils';
+import { Skeleton } from '@/components/ui/skeleton';
+import { ArrowLeft, ShieldCheck, MessageSquare, Bell, FileText, ImageOff } from 'lucide-react';
+import { format } from 'date-fns';
+import { PLATFORMS } from '@/constants/platforms';
+import COPY from '@/lib/copy';
+import PostApprovalPanel from '@/components/social/PostApprovalPanel';
+import PostCommentThread from '@/components/social/approvals/PostCommentThread';
+import PostActivityFeed from '@/components/social/approvals/PostActivityFeed';
+import WorkflowStageBuilder from '@/components/social/approvals/WorkflowStageBuilder';
+
+export default function PostApprovalView() {
+  const queryClient = useQueryClient();
+  const [searchParams] = useSearchParams();
+  const postId = searchParams.get('id');
+  const [rightPanel, setRightPanel] = useState('approval');
+
+  const { data: currentUser } = useQuery({
+    queryKey: ['current-user'],
+    queryFn: () => base44.auth.me(),
+  });
+
+  const { data: post, isLoading } = useQuery({
+    queryKey: ['calendar-post', postId],
+    queryFn: () => base44.entities.CalendarPost.get(postId),
+    enabled: !!postId,
+  });
+
+  if (isLoading) {
+    return (
+      <div className="p-6 lg:p-8 max-w-4xl mx-auto">
+        <Skeleton className="h-5 w-40 mb-6" />
+        <Skeleton className="h-72 rounded-2xl mb-5" />
+        <Skeleton className="h-10 rounded-xl mb-5" />
+        <Skeleton className="h-64 rounded-2xl" />
+      </div>
+    );
+  }
+
+  if (!post) {
+    return <div className="p-6 lg:p-8 text-center text-gray-500 text-sm">Post not found.</div>;
+  }
+
+  return (
+    <div className="p-6 lg:p-8 min-h-screen bg-gray-50">
+      <div className="max-w-4xl mx-auto space-y-5">
+        <Link
+          to={createPageUrl('AllChannels')}
+          className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-800 transition-colors"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Back to All Channels
+        </Link>
+
+        {/* Post Preview — matches the create-post modal preview style */}
+        {(() => {
+          const platformId = post.platforms?.[0] ?? 'Twitter';
+          const platformCfg = PLATFORMS.find((p) => p.id === platformId) ?? PLATFORMS[0];
+          const PlatformIcon = platformCfg.icon;
+
+          return (
+            <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden shadow-sm">
+              <div className="flex items-center gap-2 px-3 py-2.5 border-b border-gray-100 dark:border-gray-700">
+                <div
+                  className={`w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold ${platformCfg.tailwind}`}
+                >
+                  <PlatformIcon className="w-4 h-4" />
+                </div>
+                <div>
+                  <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">
+                    {COPY.calendarPostModal.yourAccount}
+                  </p>
+                  <p className="text-xs text-gray-400">{COPY.calendarPostModal.justNow}</p>
+                </div>
+              </div>
+              {post.image_url && (
+                <img src={post.image_url} alt="" className="w-full object-cover" />
+              )}
+              {post.video_url && !post.image_url && (
+                <video src={post.video_url} className="w-full aspect-[1.91/1] object-cover" muted />
+              )}
+              <div className="p-3">
+                <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap line-clamp-6">
+                  {post.caption || (
+                    <span className="text-gray-300 dark:text-gray-600 italic">
+                      {COPY.calendarPostModal.captionPreviewPlaceholder}
+                    </span>
+                  )}
+                </p>
+                {post.scheduled_date && (
+                  <p className="text-xs text-gray-400 text-right mt-2">
+                    {format(new Date(post.scheduled_date), 'MMM d, yyyy')}
+                    {post.scheduled_time && ` @ ${post.scheduled_time}`}
+                  </p>
+                )}
+              </div>
+            </div>
+          );
+        })()}
+
+        {/* Rejected media notice */}
+        {post.status === 'rejected' && (post.image_url || post.video_url) && (
+          <div className="flex items-center gap-2 px-4 py-2 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-700">
+            <ImageOff className="w-4 h-4 shrink-0" />
+            Media retained for version history — <strong>not</strong> transferred to the Approved
+            Media Database.
+          </div>
+        )}
+
+        {/* Sub-tab navigation */}
+        <div className="flex gap-1 bg-gray-100 dark:bg-slate-800 rounded-xl p-1">
+          {[
+            { key: 'approval', label: 'Approval', icon: ShieldCheck },
+            { key: 'comments', label: 'Comments', icon: MessageSquare },
+            { key: 'activity', label: 'Activity', icon: Bell },
+            { key: 'workflow', label: 'Workflow', icon: FileText },
+          ].map(({ key, label, icon: Icon }) => (
+            <button
+              key={key}
+              onClick={() => setRightPanel(key)}
+              className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 text-xs font-medium rounded-lg transition-all ${
+                rightPanel === key
+                  ? 'bg-white dark:bg-slate-900 text-violet-700 dark:text-violet-400 shadow-sm'
+                  : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
+              }`}
+            >
+              <Icon className="w-3.5 h-3.5" />
+              {label}
+            </button>
+          ))}
+        </div>
+
+        {/* Panel content */}
+        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-gray-800 p-5 shadow-sm">
+          {rightPanel === 'approval' && (
+            <PostApprovalPanel
+              post={post}
+              readOnly
+              onUpdate={() => queryClient.invalidateQueries({ queryKey: ['calendar-posts-all'] })}
+            />
+          )}
+          {rightPanel === 'comments' && <PostCommentThread post={post} currentUser={currentUser} />}
+          {rightPanel === 'activity' && <PostActivityFeed post={post} />}
+          {rightPanel === 'workflow' && <WorkflowStageBuilder />}
+        </div>
+      </div>
+    </div>
+  );
+}

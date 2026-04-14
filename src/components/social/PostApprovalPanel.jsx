@@ -30,6 +30,7 @@ import {
 } from 'lucide-react';
 import { formatDistanceToNow, format } from 'date-fns';
 import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
+import ApprovalQueueView from '@/components/social/approvals/ApprovalQueueView';
 
 const WORKFLOW_STAGES = [
   { key: 'draft', label: 'Draft', icon: FileText, description: 'Post is being created' },
@@ -49,7 +50,7 @@ const WORKFLOW_STAGES = [
   { key: 'published', label: 'Published', icon: Megaphone, description: 'Live on platforms' },
 ];
 
-const STAGE_ORDER = [
+const _STAGE_ORDER = [
   'draft',
   'pending_review',
   'changes_requested',
@@ -65,14 +66,14 @@ function getStageIndex(status) {
   return WORKFLOW_STAGES.findIndex((s) => s.key === status);
 }
 
-const PRIORITY_COLORS = {
+const _PRIORITY_COLORS = {
   low: 'bg-gray-100 text-gray-500',
   normal: 'bg-blue-100 text-blue-600',
   high: 'bg-orange-100 text-orange-600',
   urgent: 'bg-red-100 text-red-600',
 };
 
-export default function PostApprovalPanel({ post, onUpdate }) {
+export default function PostApprovalPanel({ post, onUpdate, readOnly = false }) {
   const queryClient = useQueryClient();
   const [note, setNote] = useState('');
   const [showHistory, setShowHistory] = useState(false);
@@ -207,6 +208,7 @@ export default function PostApprovalPanel({ post, onUpdate }) {
 
   const handleReject = () => {
     if (!note.trim()) {
+      // eslint-disable-next-line no-alert
       return alert('Please provide a reason for rejection.');
     }
     // Media is NOT deleted — stays in version history, not transferred to Approved Media Database
@@ -346,113 +348,139 @@ export default function PostApprovalPanel({ post, onUpdate }) {
         )}
       </div>
 
-      {/* ── Assignment & Meta ── */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        {/* Assign Reviewer */}
-        {isEditor && (
-          <div className="space-y-1.5">
-            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide flex items-center gap-1.5">
-              <UserPlus className="w-3.5 h-3.5" /> Reviewer
-            </p>
-            {post.assigned_to_email ? (
-              <div className="flex items-center gap-2 p-2.5 bg-blue-50 rounded-xl border border-blue-100">
-                <Avatar className="w-7 h-7">
-                  <AvatarFallback className="text-xs bg-blue-200 text-blue-700">
-                    {post.assigned_to_name?.[0] || post.assigned_to_email?.[0]?.toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-gray-800 truncate">
-                    {post.assigned_to_name || post.assigned_to_email}
-                  </p>
-                  {post.assigned_date && (
-                    <p className="text-xs text-gray-400">
-                      {formatDistanceToNow(new Date(post.assigned_date), { addSuffix: true })}
-                    </p>
-                  )}
-                </div>
-                {isAdmin && (
-                  <button
-                    onClick={() =>
-                      updateMutation.mutate({ assigned_to_email: null, assigned_to_name: null })
-                    }
-                    className="text-xs text-gray-300 hover:text-red-500 transition-colors"
-                  >
-                    ✕
-                  </button>
+      {/* ── Assignment & Meta + Note ── */}
+      {readOnly ? (
+        <ApprovalQueueView
+          reviewer={
+            post.assigned_to_email
+              ? {
+                  name: post.assigned_to_name,
+                  email: post.assigned_to_email,
+                  assignedDate: post.assigned_date,
+                }
+              : null
+          }
+          priority={post.priority}
+          dueDate={post.review_due_date}
+          note={[...(post.workflow_history || [])].reverse().find((e) => e.note)?.note ?? null}
+        />
+      ) : (
+        <>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {/* Assign Reviewer */}
+            {isEditor && (
+              <div className="space-y-1.5">
+                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide flex items-center gap-1.5">
+                  <UserPlus className="w-3.5 h-3.5" /> Reviewer
+                </p>
+                {post.assigned_to_email ? (
+                  <div className="flex items-center gap-2 p-2.5 bg-blue-50 rounded-xl border border-blue-100">
+                    <Avatar className="w-7 h-7">
+                      <AvatarFallback className="text-xs bg-blue-200 text-blue-700">
+                        {post.assigned_to_name?.[0] || post.assigned_to_email?.[0]?.toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-gray-800 truncate">
+                        {post.assigned_to_name || post.assigned_to_email}
+                      </p>
+                      {post.assigned_date && (
+                        <p className="text-xs text-gray-400">
+                          {formatDistanceToNow(new Date(post.assigned_date), { addSuffix: true })}
+                        </p>
+                      )}
+                    </div>
+                    {isAdmin && (
+                      <button
+                        onClick={() =>
+                          updateMutation.mutate({
+                            assigned_to_email: null,
+                            assigned_to_name: null,
+                          })
+                        }
+                        className="text-xs text-gray-300 hover:text-red-500 transition-colors"
+                      >
+                        ✕
+                      </button>
+                    )}
+                  </div>
+                ) : (
+                  <Select onValueChange={handleAssign}>
+                    <SelectTrigger className="text-sm h-9">
+                      <SelectValue placeholder="Assign reviewer…" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {teamMembers.map((u) => (
+                        <SelectItem key={u.id} value={u.email}>
+                          <div className="flex items-center gap-2">
+                            <div className="w-5 h-5 rounded-full bg-violet-100 flex items-center justify-center text-xs text-violet-600 font-medium">
+                              {u.full_name?.[0] || u.email?.[0]?.toUpperCase()}
+                            </div>
+                            <span>{u.full_name || u.email}</span>
+                            <Badge variant="outline" className="text-xs ml-1">
+                              {u.social_media_role || u.role}
+                            </Badge>
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 )}
               </div>
-            ) : (
-              <Select onValueChange={handleAssign}>
-                <SelectTrigger className="text-sm h-9">
-                  <SelectValue placeholder="Assign reviewer…" />
-                </SelectTrigger>
-                <SelectContent>
-                  {teamMembers.map((u) => (
-                    <SelectItem key={u.id} value={u.email}>
-                      <div className="flex items-center gap-2">
-                        <div className="w-5 h-5 rounded-full bg-violet-100 flex items-center justify-center text-xs text-violet-600 font-medium">
-                          {u.full_name?.[0] || u.email?.[0]?.toUpperCase()}
-                        </div>
-                        <span>{u.full_name || u.email}</span>
-                        <Badge variant="outline" className="text-xs ml-1">
-                          {u.social_media_role || u.role}
-                        </Badge>
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+            )}
+
+            {/* Priority */}
+            {isEditor && (
+              <div className="space-y-1.5">
+                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                  Priority
+                </p>
+                <Select
+                  value={post.priority || 'normal'}
+                  onValueChange={(v) => updateMutation.mutate({ priority: v })}
+                >
+                  <SelectTrigger className="text-sm h-9">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="low">Low</SelectItem>
+                    <SelectItem value="normal">Normal</SelectItem>
+                    <SelectItem value="high">High</SelectItem>
+                    <SelectItem value="urgent">Urgent</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+
+            {/* Review Due Date */}
+            {isEditor && (
+              <div className="space-y-1.5">
+                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                  Due Date
+                </p>
+                <Input
+                  type="date"
+                  value={post.review_due_date || ''}
+                  onChange={(e) => updateMutation.mutate({ review_due_date: e.target.value })}
+                  className="text-sm h-9"
+                />
+              </div>
             )}
           </div>
-        )}
 
-        {/* Priority */}
-        {isEditor && (
+          {/* Action Note */}
           <div className="space-y-1.5">
-            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Priority</p>
-            <Select
-              value={post.priority || 'normal'}
-              onValueChange={(v) => updateMutation.mutate({ priority: v })}
-            >
-              <SelectTrigger className="text-sm h-9">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="low">Low</SelectItem>
-                <SelectItem value="normal">Normal</SelectItem>
-                <SelectItem value="high">High</SelectItem>
-                <SelectItem value="urgent">Urgent</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        )}
-
-        {/* Review Due Date */}
-        {isEditor && (
-          <div className="space-y-1.5">
-            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Due Date</p>
-            <Input
-              type="date"
-              value={post.review_due_date || ''}
-              onChange={(e) => updateMutation.mutate({ review_due_date: e.target.value })}
-              className="text-sm h-9"
+            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Note</p>
+            <Textarea
+              value={note}
+              onChange={(e) => setNote(e.target.value)}
+              placeholder="Add a note with your action…"
+              rows={2}
+              className="resize-none text-sm"
             />
           </div>
-        )}
-      </div>
-
-      {/* ── Action Note ── */}
-      <div className="space-y-1.5">
-        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Note</p>
-        <Textarea
-          value={note}
-          onChange={(e) => setNote(e.target.value)}
-          placeholder="Add a note with your action…"
-          rows={2}
-          className="resize-none text-sm"
-        />
-      </div>
+        </>
+      )}
 
       {/* ── Action Buttons ── */}
       <div className="space-y-3">

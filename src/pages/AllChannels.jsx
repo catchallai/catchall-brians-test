@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent } from '@/components/ui/card';
@@ -29,6 +30,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { format } from 'date-fns';
+import { createPageUrl } from '@/utils';
 import CalendarPostModal from '@/components/modals/CalendarPostModal';
 import {
   FacebookIcon,
@@ -79,6 +81,7 @@ const STATUS_CONFIG = {
 };
 
 const APPROVAL_STATUSES = ['pending_approval', 'pending_review', 'changes_requested'];
+const APPROVAL_VIEW_STATUSES = ['pending_approval', 'changes_requested'];
 
 function PostCard({
   post,
@@ -272,6 +275,7 @@ function PostList({
 }
 
 export default function AllChannels() {
+  const navigate = useNavigate();
   const [search, setSearch] = useState('');
   const [selectedPost, setSelectedPost] = useState(null);
   const [showModal, setShowModal] = useState(false);
@@ -335,6 +339,10 @@ export default function AllChannels() {
   });
 
   const handleEdit = (post) => {
+    if (APPROVAL_VIEW_STATUSES.includes(post.status)) {
+      navigate(`${createPageUrl('PostApprovalView')}?id=${post.id}`);
+      return;
+    }
     setSelectedPost(post);
     setShowModal(true);
   };
