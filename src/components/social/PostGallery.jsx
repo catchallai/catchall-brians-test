@@ -50,11 +50,19 @@ function SortableGalleryItem({ id, post, onRemove }) {
 }
 
 export default function PostGallery({ posts = [], onPostsChange, onDragOver: _onDragOver }) {
+  // TODO: [WIP] activeId will drive a DragOverlay to render a drag preview.
+  // Uncomment when DragOverlay is implemented.
+  // const [_activeId, setActiveId] = useState(null);
+
   const sensors = useSensors(
     useSensor(PointerSensor, {
       distance: 8,
     })
   );
+
+  const handleDragStart = (_event) => {
+    // TODO: [WIP] setActiveId(_event.active.id) — uncomment when DragOverlay is implemented.
+  };
 
   const handleDragEnd = (event) => {
     const { active, over } = event;
@@ -68,6 +76,8 @@ export default function PostGallery({ posts = [], onPostsChange, onDragOver: _on
 
       onPostsChange(newPosts);
     }
+
+    // TODO: [WIP] setActiveId(null) — uncomment when DragOverlay is implemented.
   };
 
   const handleRemove = (postId) => {
@@ -97,6 +107,7 @@ export default function PostGallery({ posts = [], onPostsChange, onDragOver: _on
           <DndContext
             sensors={sensors}
             collisionDetection={closestCenter}
+            onDragStart={handleDragStart}
             onDragEnd={handleDragEnd}
           >
             <ScrollArea className="h-32 w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 p-3">

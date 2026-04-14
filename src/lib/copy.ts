@@ -137,6 +137,16 @@ const COPY = {
     addPhoto: 'Add Photo',
     addFromLibrary: 'Add from Library',
     library: 'Library',
+    removeVideoFirst: 'Remove the selected video before adding images.',
+    removeImagesFirst: 'Remove the selected images before adding a video.',
+    failedUploadVideo: 'Failed to upload video.',
+  },
+  mediaUpload: {
+    imagesSelected: (count: number, max: number) =>
+      `${count}/${max} ${count === 1 ? 'image' : 'images'} selected. Video upload is disabled while images are attached.`,
+    videoSelected: '1 video selected. Image upload is disabled while a video is attached.',
+    mediaHint: (maxImages: number, imageFormats: string, videoFormats: string) =>
+      `Add up to ${maxImages} images (${imageFormats}) or one video (${videoFormats}).`,
   },
   tagSelector: {
     placeholder: 'Add tags…',

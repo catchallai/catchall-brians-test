@@ -197,7 +197,6 @@ export default function BufferComposer({ hashtagPool = [], onSuccess }) {
       setTimeout(() => setSaved(false), 2500);
       setForm({ ...DEFAULT_FORM });
       setMediaError('');
-      setMediaError('');
       setImageFileNames([]);
       onSuccess?.();
     },
@@ -210,7 +209,7 @@ export default function BufferComposer({ hashtagPool = [], onSuccess }) {
     }
 
     if (form.video_url) {
-      setMediaError('Remove the selected video before adding images.');
+      setMediaError(COPY.bufferComposer.removeVideoFirst);
       if (e.target) {
         e.target.value = '';
       }
@@ -257,7 +256,7 @@ export default function BufferComposer({ hashtagPool = [], onSuccess }) {
     }
 
     if ((form.image_urls?.length || 0) > 0) {
-      setMediaError('Remove the selected images before adding a video.');
+      setMediaError(COPY.bufferComposer.removeImagesFirst);
       if (e.target) {
         e.target.value = '';
       }
@@ -286,7 +285,7 @@ export default function BufferComposer({ hashtagPool = [], onSuccess }) {
         })
       );
     } catch (error) {
-      setMediaError(error?.message || 'Failed to upload video.');
+      setMediaError(error?.message || COPY.bufferComposer.failedUploadVideo);
     } finally {
       setUploading(false);
     }
@@ -395,8 +394,10 @@ export default function BufferComposer({ hashtagPool = [], onSuccess }) {
                 ))}
               </div>
               <p className="text-xs text-gray-500">
-                {getPostImageUrls(form).length}/{MAX_POST_IMAGE_COUNT} images selected. Video upload
-                is disabled while images are attached.
+                {COPY.mediaUpload.imagesSelected(
+                  getPostImageUrls(form).length,
+                  MAX_POST_IMAGE_COUNT
+                )}
               </p>
               {getPostImageUrls(form).length < MAX_POST_IMAGE_COUNT && (
                 <div className="flex items-center gap-3 pt-1">
@@ -483,8 +484,11 @@ export default function BufferComposer({ hashtagPool = [], onSuccess }) {
                 </button>
               </div>
               <p className="text-center text-xs text-gray-500">
-                Add up to {MAX_POST_IMAGE_COUNT} images ({IMAGE_ACCEPT_ATTR}) or one video (
-                {VIDEO_ACCEPT_ATTR}).
+                {COPY.mediaUpload.mediaHint(
+                  MAX_POST_IMAGE_COUNT,
+                  IMAGE_ACCEPT_ATTR,
+                  VIDEO_ACCEPT_ATTR
+                )}
               </p>
             </div>
           )}
