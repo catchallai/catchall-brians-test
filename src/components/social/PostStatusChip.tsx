@@ -20,6 +20,7 @@ import {
   PencilOff,
   Archive,
   RouteOff,
+  Trash2,
 } from 'lucide-react';
 import { getFormattedStatus } from '../utils/getFormattedStatus'; // Formats status string for display
 import Tooltip from '@/components/ui-custom/Tooltip';
@@ -81,6 +82,11 @@ const STATUS_CONFIG: Record<PostStatus, { color: string; icon: JSX.Element; text
     color: 'border-red-300 dark:border-red-600 bg-red-50 dark:bg-red-900/30',
     icon: <Archive className="w-4 h-4 text-red-700 dark:text-red-300" />,
     text: 'text-red-700 dark:text-red-300',
+  },
+  [PostStatus.DELETED]: {
+    color: 'border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-700',
+    icon: <Trash2 className="w-4 h-4 text-gray-500 dark:text-gray-400" />,
+    text: 'text-gray-500 dark:text-gray-400',
   },
 };
 

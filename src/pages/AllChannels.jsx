@@ -71,6 +71,7 @@ const STATUS_CONFIG = {
     dot: 'bg-orange-500',
   },
   approved: { label: 'Approved', color: 'bg-emerald-100 text-emerald-700', dot: 'bg-emerald-500' },
+  scheduled: { label: 'Scheduled', color: 'bg-blue-100 text-blue-700', dot: 'bg-blue-500' },
   published: { label: 'Published', color: 'bg-violet-100 text-violet-700', dot: 'bg-violet-500' },
   rejected: { label: 'Rejected', color: 'bg-red-100 text-red-700', dot: 'bg-red-500' },
   deleted: { label: 'Deleted', color: 'bg-gray-200 text-gray-500', dot: 'bg-gray-400' },
@@ -83,6 +84,14 @@ function PostCard({ post, onEdit, onDelete, onApprove, onReject, showApprovalAct
     <Card
       className="border border-gray-200 hover:shadow-md transition-all group cursor-pointer"
       onClick={() => onEdit(post)}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onEdit(post);
+        }
+      }}
     >
       <CardContent className="p-4">
         <div className="flex gap-4">
@@ -349,9 +358,11 @@ export default function AllChannels() {
       );
     })
     .sort((a, b) => {
-      const dateA = new Date(sortBy === 'scheduled_date' ? a.scheduled_date : a.created_date);
-      const dateB = new Date(sortBy === 'scheduled_date' ? b.scheduled_date : b.created_date);
-      return sortOrder === 'desc' ? dateB - dateA : dateA - dateB;
+      const rawA = sortBy === 'scheduled_date' ? a.scheduled_date : a.created_date;
+      const rawB = sortBy === 'scheduled_date' ? b.scheduled_date : b.created_date;
+      const tsA = rawA ? new Date(rawA).getTime() : 0;
+      const tsB = rawB ? new Date(rawB).getTime() : 0;
+      return sortOrder === 'desc' ? tsB - tsA : tsA - tsB;
     });
 
   // Tab buckets
@@ -360,7 +371,7 @@ export default function AllChannels() {
   );
   const queuePosts = filtered.filter((p) => ['approved'].includes(p.status));
   const draftPosts = filtered.filter((p) => ['draft', 'rejected'].includes(p.status));
-  const sentPosts = filtered.filter((p) => ['published'].includes(p.status));
+  const sentPosts = filtered.filter((p) => ['scheduled', 'published'].includes(p.status));
   const deletedPosts = filtered.filter((p) => p.status === 'deleted');
 
   const PLATFORMS = ['Facebook', 'Instagram', 'LinkedIn', 'Twitter', 'YouTube'];

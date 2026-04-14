@@ -258,8 +258,23 @@ export default function SocialCalendar() {
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (id) => base44.entities.CalendarPost.delete(id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['calendar-posts'] }),
+    mutationFn: (post) =>
+      base44.entities.CalendarPost.update(post.id, {
+        status: 'deleted',
+        workflow_history: [
+          ...(post.workflow_history || []),
+          {
+            action: 'deleted',
+            by_email: user?.email,
+            by_name: user?.full_name || user?.email,
+            timestamp: new Date().toISOString(),
+          },
+        ],
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['calendar-posts'] });
+      queryClient.invalidateQueries({ queryKey: ['calendar-posts-all'] });
+    },
   });
 
   /**
@@ -339,7 +354,7 @@ export default function SocialCalendar() {
   };
 
   const handleDelete = (post) => {
-    deleteMutation.mutate(post.id);
+    deleteMutation.mutate(post);
   };
 
   // Month-scoped posts for bulk approval: filtered by date range only, never by
