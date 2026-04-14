@@ -482,9 +482,10 @@ export default function CalendarPostModal({
   } = useMediaLibrary((urls) => {
     setMediaError('');
     clearCropState();
-    setImageFileNames([]);
     setFormData((f) => {
-      const combined = [...getPostImageUrls(f), ...urls];
+      const existing = getPostImageUrls(f);
+      const newUrls = urls.filter((url) => !existing.includes(url));
+      const combined = [...existing, ...newUrls];
       return normalizePostMedia({
         ...f,
         image_urls: combined.slice(0, MAX_POST_IMAGE_COUNT),

@@ -56,7 +56,7 @@ export default function MediaLibraryModal({
 
   const description =
     remainingSlots <= 0
-      ? 'You have reached the 10-image limit for this post.'
+      ? `You have reached the ${MAX_POST_IMAGE_COUNT}-image limit for this post.`
       : `Select up to ${remainingSlots} image${remainingSlots !== 1 ? 's' : ''} to add to this post.`;
 
   return (
