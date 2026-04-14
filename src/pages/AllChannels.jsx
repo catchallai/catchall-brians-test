@@ -86,6 +86,14 @@ function PostCard({ post, onEdit, onDelete, onApprove, onReject, showApprovalAct
       onClick={() => onEdit(post)}
       role="button"
       tabIndex={0}
+      onKeyDown={(event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          onEdit(post);
+        }
+      }}
+      role="button"
+      tabIndex={0}
       onKeyDown={(e) => {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
