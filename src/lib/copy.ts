@@ -134,6 +134,9 @@ const COPY = {
   },
   bufferComposer: {
     tags: 'Tags',
+    addPhoto: 'Add Photo',
+    addFromLibrary: 'Add from Library',
+    library: 'Library',
   },
   tagSelector: {
     placeholder: 'Add tags…',
@@ -203,6 +206,13 @@ const COPY = {
     confirm: 'Confirm',
     yes: 'Yes',
     no: 'No',
+  },
+  mediaLibraryModal: {
+    title: 'Select Media Library Images',
+    cancel: 'Cancel',
+    searchPlaceholder: 'Search media library images',
+    loading: 'Loading media library...',
+    empty: 'No image assets found in the Media Library.',
   },
 };
 
