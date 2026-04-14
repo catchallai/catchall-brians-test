@@ -58,8 +58,8 @@ import EmojiPicker from 'emoji-picker-react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useMediaLibrary } from '@/components/hooks/useMediaLibrary';
-import PostComments from '../social/PostComments';
-import PostApprovalPanel from '../social/PostApprovalPanel';
+import PostComments from '@/components/social/PostComments';
+import PostApprovalPanel from '@/components/social/PostApprovalPanel';
 import Tooltip from '@/components/ui-custom/Tooltip';
 import { todayLocal } from '@/utils/date';
 import useUnsavedChangesGuard from '@/components/hooks/useUnsavedChangesGuard';
@@ -86,7 +86,7 @@ import {
   VIDEO_ACCEPT_ATTR,
 } from '@/utils/postMedia';
 import { arraysEqual, setsEqual } from '@/utils/hashtagUtils';
-import PostStatusChip from '../social/PostStatusChip';
+import PostStatusChip from '@/components/social/PostStatusChip';
 import { getMonthComparison } from '@/utils/getMonthComparison';
 import React from 'react';
 
@@ -903,7 +903,7 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
       return;
     }
     if (formData.video_url) {
-      setMediaError('Remove the selected video before adding images.');
+      setMediaError(COPY.calendarPostModal.videoBeforeImages);
       releaseFileDialogLock();
       if (e.target) e.target.value = '';
       return;
@@ -938,7 +938,7 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
         })
       );
     } catch (error: unknown) {
-      setMediaError((error as Error)?.message ?? 'Failed to upload images.');
+      setMediaError((error as Error)?.message ?? COPY.calendarPostModal.uploadImagesFailed);
     } finally {
       setUploading(false);
     }
@@ -954,7 +954,7 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
       return;
     }
     if ((formData.image_urls?.length ?? 0) > 0) {
-      setMediaError('Remove the selected images before adding a video.');
+      setMediaError(COPY.calendarPostModal.imagesBeforeVideo);
       releaseFileDialogLock();
       if (e.target) e.target.value = '';
       return;
@@ -974,7 +974,7 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
       setImageFileNames([]);
       setFormData((f) => normalizePostMedia({ ...f, video_url: file_url, image_urls: [] }));
     } catch (error: unknown) {
-      setMediaError((error as Error)?.message ?? 'Failed to upload video.');
+      setMediaError((error as Error)?.message ?? COPY.calendarPostModal.uploadVideoFailed);
     } finally {
       setUploading(false);
     }
@@ -989,13 +989,13 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
     const hasVideos = files.some((f) => f.type.startsWith('video/'));
     const hasImages = files.some((f) => f.type.startsWith('image/'));
     if (hasVideos && hasImages) {
-      setMediaError('Choose either images or one video, not both at the same time.');
+      setMediaError(COPY.calendarPostModal.mixedMediaDrop);
       return;
     }
     if (hasVideos) {
       const videoFiles = files.filter((f) => f.type.startsWith('video/'));
       if (videoFiles.length > 1) {
-        setMediaError('Only one video can be attached to a post.');
+        setMediaError(COPY.calendarPostModal.oneVideoOnly);
         return;
       }
       handleVideoUpload({
@@ -1205,7 +1205,7 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
     if (mustTimeBeInFuture) {
       const scheduledAt = new Date(`${formData.scheduled_date}T${formData.scheduled_time}`);
       if (isNaN(scheduledAt.getTime()) || scheduledAt <= new Date()) {
-        setScheduleError('Scheduled time must be in the future.');
+        setScheduleError(COPY.calendarPostModal.scheduledTimeInFuture);
         return;
       }
     }
@@ -1214,33 +1214,45 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
     let finalStatus = status;
     if (isPostPublished && !requireApproval) {
       finalStatus = PostStatus.PUBLISHED;
-    } else if (isAdmin && requireApproval && status === PostStatus.APPROVED) {
-      finalStatus = PostStatus.PENDING_APPROVAL;
     }
 
-    await onSave({
-      ...formData,
-      status: finalStatus,
-      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-      platform_image_urls: platformCrops,
-      platform_crop_metadata: Object.fromEntries(
-        [
-          ...new Set([
-            ...Object.keys(platformCrops),
-            ...Object.keys(platformCropBoxes),
-            ...Object.keys(platformTransformOps),
-            ...Object.keys(platformTilts),
-          ]),
-        ].map((platform) => [
-          platform,
-          {
-            cropBox: platformCropBoxes[platform] ?? null,
-            transformOps: platformTransformOps[platform] ?? [],
-            tilt: platformTilts[platform] ?? 0,
-          },
-        ])
-      ),
-    });
+    try {
+      await onSave({
+        ...formData,
+        status: finalStatus,
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        platform_image_urls: platformCrops,
+        platform_crop_metadata: Object.fromEntries(
+          [
+            ...new Set([
+              ...Object.keys(platformCrops),
+              ...Object.keys(platformCropBoxes),
+              ...Object.keys(platformTransformOps),
+              ...Object.keys(platformTilts),
+            ]),
+          ].map((platform) => [
+            platform,
+            {
+              cropBox: platformCropBoxes[platform] ?? null,
+              transformOps: platformTransformOps[platform] ?? [],
+              tilt: platformTilts[platform] ?? 0,
+            },
+          ])
+        ),
+      });
+    } catch (error: unknown) {
+      toast.error((error as Error)?.message ?? COPY.calendarPostModal.saveFailed);
+      return;
+    }
+
+    const successMessages: Partial<Record<PostStatus, string>> = {
+      [PostStatus.DRAFT]: COPY.calendarPostModal.saveSuccessDraft,
+      [PostStatus.SCHEDULED]: COPY.calendarPostModal.saveSuccessScheduled,
+      [PostStatus.PENDING_REVIEW]: COPY.calendarPostModal.saveSuccessPendingReview,
+      [PostStatus.PENDING_APPROVAL]: COPY.calendarPostModal.saveSuccessPendingApproval,
+      [PostStatus.PUBLISHED]: COPY.calendarPostModal.saveSuccessPublished,
+    };
+    toast.success(successMessages[finalStatus] ?? COPY.calendarPostModal.saveSuccessDefault);
 
     if (onClose) {
       // Modal mode: close
@@ -1256,6 +1268,7 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
       clearCropState();
       initialCropRef.current = { boxes: {}, transformOps: {}, tilts: {} };
       setImageFileNames([]);
+      resetMediaLibrary();
     }
   };
 
