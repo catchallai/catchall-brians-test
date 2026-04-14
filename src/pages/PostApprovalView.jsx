@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, useSearchParams } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
@@ -18,6 +18,7 @@ export default function PostApprovalView() {
   const [searchParams] = useSearchParams();
   const postId = searchParams.get('id');
   const [rightPanel, setRightPanel] = useState('approval');
+  const [previewPlatform, setPreviewPlatform] = useState(null);
 
   const { data: currentUser } = useQuery({
     queryKey: ['current-user'],
@@ -29,6 +30,13 @@ export default function PostApprovalView() {
     queryFn: () => base44.entities.CalendarPost.get(postId),
     enabled: !!postId,
   });
+
+  // Default to the post's first platform once data is available
+  useEffect(() => {
+    if (post?.platforms?.length > 0 && !previewPlatform) {
+      setPreviewPlatform(post.platforms[0]);
+    }
+  }, [post, previewPlatform]);
 
   if (isLoading) {
     return (
@@ -56,51 +64,78 @@ export default function PostApprovalView() {
           Back to All Channels
         </Link>
 
-        {/* Post Preview — matches the create-post modal preview style */}
-        {(() => {
-          const platformId = post.platforms?.[0] ?? 'Twitter';
-          const platformCfg = PLATFORMS.find((p) => p.id === platformId) ?? PLATFORMS[0];
-          const PlatformIcon = platformCfg.icon;
+        {/* Post Preview — platform tabs + preview card matching create-post modal */}
+        {post.platforms?.length > 0 &&
+          (() => {
+            const activePlatform = previewPlatform ?? post.platforms[0];
+            const platformCfg = PLATFORMS.find((p) => p.id === activePlatform) ?? PLATFORMS[0];
+            const PlatformIcon = platformCfg.icon;
 
-          return (
-            <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden shadow-sm">
-              <div className="flex items-center gap-2 px-3 py-2.5 border-b border-gray-100 dark:border-gray-700">
-                <div
-                  className={`w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold ${platformCfg.tailwind}`}
-                >
-                  <PlatformIcon className="w-4 h-4" />
+            return (
+              <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden shadow-sm">
+                {/* Platform tabs */}
+                <div className="flex border-b border-gray-200 dark:border-gray-800">
+                  {PLATFORMS.filter((pl) => post.platforms.includes(pl.id)).map((pl) => (
+                    <button
+                      key={pl.id}
+                      onClick={() => setPreviewPlatform(pl.id)}
+                      className={`px-3 py-2 text-xs font-medium border-b-2 transition-colors ${
+                        activePlatform === pl.id
+                          ? 'border-violet-500 text-violet-600 dark:text-violet-400'
+                          : 'border-transparent text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'
+                      }`}
+                    >
+                      {pl.id === 'Twitter' ? COPY.calendarPostModal.twitterDisplayName : pl.id}
+                    </button>
+                  ))}
                 </div>
-                <div>
-                  <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">
-                    {COPY.calendarPostModal.yourAccount}
-                  </p>
-                  <p className="text-xs text-gray-400">{COPY.calendarPostModal.justNow}</p>
+
+                {/* Preview card header */}
+                <div className="flex items-center gap-2 px-3 py-2.5 border-b border-gray-100 dark:border-gray-700">
+                  <div
+                    className={`w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold ${platformCfg.tailwind}`}
+                  >
+                    <PlatformIcon className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">
+                      {COPY.calendarPostModal.yourAccount}
+                    </p>
+                    <p className="text-xs text-gray-400">{COPY.calendarPostModal.justNow}</p>
+                  </div>
                 </div>
-              </div>
-              {post.image_url && (
-                <img src={post.image_url} alt="" className="w-full object-cover" />
-              )}
-              {post.video_url && !post.image_url && (
-                <video src={post.video_url} className="w-full aspect-[1.91/1] object-cover" muted />
-              )}
-              <div className="p-3">
-                <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap line-clamp-6">
-                  {post.caption || (
-                    <span className="text-gray-300 dark:text-gray-600 italic">
-                      {COPY.calendarPostModal.captionPreviewPlaceholder}
-                    </span>
-                  )}
-                </p>
-                {post.scheduled_date && (
-                  <p className="text-xs text-gray-400 text-right mt-2">
-                    {format(new Date(post.scheduled_date), 'MMM d, yyyy')}
-                    {post.scheduled_time && ` @ ${post.scheduled_time}`}
-                  </p>
+
+                {/* Media */}
+                {post.image_url && (
+                  <img src={post.image_url} alt="" className="w-full object-cover" />
                 )}
+                {post.video_url && !post.image_url && (
+                  <video
+                    src={post.video_url}
+                    className="w-full aspect-[1.91/1] object-cover"
+                    muted
+                  />
+                )}
+
+                {/* Caption + date */}
+                <div className="p-3">
+                  <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap line-clamp-6">
+                    {post.caption || (
+                      <span className="text-gray-300 dark:text-gray-600 italic">
+                        {COPY.calendarPostModal.captionPreviewPlaceholder}
+                      </span>
+                    )}
+                  </p>
+                  {post.scheduled_date && (
+                    <p className="text-xs text-gray-400 text-right mt-2">
+                      {format(new Date(post.scheduled_date), 'MMM d, yyyy')}
+                      {post.scheduled_time && ` @ ${post.scheduled_time}`}
+                    </p>
+                  )}
+                </div>
               </div>
-            </div>
-          );
-        })()}
+            );
+          })()}
 
         {/* Rejected media notice */}
         {post.status === 'rejected' && (post.image_url || post.video_url) && (
