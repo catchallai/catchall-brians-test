@@ -101,6 +101,7 @@ function PostCard({
       tabIndex={0}
       onKeyDown={(e) => {
         if (e.key === 'Enter' || e.key === ' ') {
+          if (e.target !== e.currentTarget) return;
           e.preventDefault();
           onEdit(post);
         }
@@ -697,7 +698,6 @@ export default function AllChannels() {
             <PostList
               posts={deletedPosts}
               onEdit={handleEdit}
-              onDelete={handleDelete}
               showApprovalActions={false}
               emptyMessage="No deleted posts"
               emptyIcon={Trash2}
