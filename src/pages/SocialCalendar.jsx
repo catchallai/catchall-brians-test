@@ -62,7 +62,6 @@ import PostTemplateManager from '@/components/social/PostTemplateManager';
 import PostQueueManager from '@/components/social/PostQueueManager';
 import OptimalTimeAnalyzer from '@/components/social/OptimalTimeAnalyzer';
 import QuickPostModal from '@/components/social/QuickPostModal';
-import BufferComposer from '@/components/social/BufferComposer';
 import { PostStatus } from '@/types/enums';
 import COPY from '@/lib/copy';
 import { coercePostTagIds } from '@/utils/tags';
@@ -627,7 +626,14 @@ export default function SocialCalendar() {
         {viewMode === 'composer' && (
           <Card className="glass-card rounded-2xl">
             <CardContent className="p-6">
-              <BufferComposer hashtagPool={hashtagPool} onSuccess={() => {}} />
+              <CalendarPostModal
+                inline
+                onSave={handleSave}
+                onClose={() => {}}
+                isLoading={createMutation.isPending}
+                hashtagPool={hashtagPool}
+                currentMonth={currentMonth}
+              />
             </CardContent>
           </Card>
         )}

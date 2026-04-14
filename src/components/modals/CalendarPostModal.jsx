@@ -392,28 +392,25 @@ function RecurringSchedulePanel({ formData, setFormData }) {
 }
 
 const DEFAULT_FORM = {
-  title: '',
   caption: '',
   image_url: '',
-  image_urls: [],
+  image_urls: /** @type {string[]} */ ([]),
   video_url: '',
   media_type: 'none',
   scheduled_date: todayLocal(),
   scheduled_time: '09:00',
-  platforms: [],
-  hashtags: [],
+  platforms: /** @type {string[]} */ ([]),
+  hashtags: /** @type {string[]} */ ([]),
   status: PostStatus.DRAFT,
   order: 0,
   is_recurring: false,
   recurrence_type: 'weekly',
   recurrence_end_date: '',
-  recurrence_days: [],
-  auto_post: false,
+  recurrence_days: /** @type {string[]} */ ([]),
   tag_ids: /** @type {string[]} */ ([]),
 };
 
 const DIRTY_FIELDS = [
-  'title',
   'caption',
   'image_url',
   'video_url',
@@ -425,7 +422,6 @@ const DIRTY_FIELDS = [
   'is_recurring',
   'recurrence_type',
   'recurrence_end_date',
-  'auto_post',
 ];
 
 const hasFormChanges = (current, initial, { includeTags = true } = {}) =>
@@ -445,8 +441,9 @@ export default function CalendarPostModal({
   post,
   onSave,
   isLoading,
-  hashtagPool = [],
+  hashtagPool = /** @type {any[]} */ ([]),
   currentMonth = new Date() /** @type {Date} */,
+  inline = false,
 }) {
   const { data: currentUser } = useQuery({
     queryKey: ['current-user'],
@@ -602,23 +599,21 @@ export default function CalendarPostModal({
       if (post) {
         const normalizedMedia = normalizePostMedia(post);
         const initial = {
-          title: post.title || '',
           caption: post.caption || '',
           image_url: normalizedMedia.image_url || '',
-          image_urls: normalizedMedia.image_urls || [],
+          image_urls: normalizedMedia.image_urls || /** @type {string[]} */ ([]),
           video_url: normalizedMedia.video_url || '',
           media_type: normalizedMedia.media_type || 'none',
           scheduled_date: post.scheduled_date || todayLocal(),
           scheduled_time: post.scheduled_time || '09:00',
-          platforms: post.platforms || [],
-          hashtags: post.hashtags || [],
+          platforms: post.platforms || /** @type {string[]} */ ([]),
+          hashtags: post.hashtags || /** @type {string[]} */ ([]),
           status: post.status || PostStatus.DRAFT,
           order: post.order || 0,
           is_recurring: post.is_recurring || false,
           recurrence_type: post.recurrence_type || 'weekly',
           recurrence_end_date: post.recurrence_end_date || '',
-          recurrence_days: post.recurrence_days || [],
-          auto_post: post.auto_post || false,
+          recurrence_days: post.recurrence_days || /** @type {string[]} */ ([]),
           tag_ids: coercePostTagIds(post.tag_ids),
         };
         initialFormDataRef.current = initial;
@@ -1119,7 +1114,19 @@ export default function CalendarPostModal({
         ])
       ),
     });
-    guardedClose({ open: false, bypass: true });
+    if (inline) {
+      const reset = { ...DEFAULT_FORM, scheduled_date: todayLocal(), scheduled_time: '09:00' };
+      setFormData(reset);
+      initialFormDataRef.current = reset;
+      setPlatformCrops({});
+      setPlatformCropBoxes({});
+      setPlatformTransformOps({});
+      setPlatformTilts({});
+      initialCropRef.current = { boxes: {}, transformOps: {}, tilts: {} };
+      setImageFileNames([]);
+    } else {
+      guardedClose({ open: false, bypass: true });
+    }
   };
 
   const applyBestTime = (date, time) => {
@@ -1249,28 +1256,8 @@ export default function CalendarPostModal({
     PLATFORMS[0];
   const overLimit = formData.caption.length > activePlatform.limit;
 
-  return (
-    <Dialog open={open} onOpenChange={guardedClose}>
-      <DialogContent
-        ref={dialogContentRef}
-        className={`p-0 w-full overflow-hidden flex flex-col bg-white dark:bg-gray-900 ${
-          isFullscreen
-            ? 'inset-0 h-screen max-h-screen max-w-none translate-x-0 translate-y-0 rounded-none sm:rounded-none'
-            : 'max-w-5xl max-h-[92vh] rounded-2xl'
-        }`}
-        windowControls={false}
-        style={{ gap: 0 }}
-        onInteractOutside={(event) => {
-          if (isMediaLibraryOpen || showDeleteConfirm) {
-            event.preventDefault();
-            return;
-          }
-          event.preventDefault();
-          guardedClose(false);
-        }}
-      >
-        {/* Body + Footer wrapper — crop drawer is positioned relative to this */}
-        <div className="relative flex flex-col flex-1 min-h-0">
+  const composerContent = (
+    <div className="relative flex flex-col flex-1 min-h-0">
           {/* Header */}
           <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-gray-800">
             <div className="flex items-center gap-3">
@@ -1296,27 +1283,31 @@ export default function CalendarPostModal({
               >
                 <Eye className="w-4 h-4" /> {COPY.calendarPostModal.preview}
               </Button>
-              <button
-                type="button"
-                onClick={() => setIsFullscreen((current) => !current)}
-                className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors text-gray-400"
-                aria-label={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
-                title={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
-              >
-                {isFullscreen ? (
-                  <Minimize2 className="w-4 h-4" />
-                ) : (
-                  <Maximize2 className="w-4 h-4" />
-                )}
-              </button>
-              <button
-                onClick={() => guardedClose(false)}
-                className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors text-gray-400"
-                aria-label="Close"
-                title="Close"
-              >
-                <X className="w-4 h-4" />
-              </button>
+              {!inline && (
+                <button
+                  type="button"
+                  onClick={() => setIsFullscreen((current) => !current)}
+                  className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors text-gray-400"
+                  aria-label={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
+                  title={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
+                >
+                  {isFullscreen ? (
+                    <Minimize2 className="w-4 h-4" />
+                  ) : (
+                    <Maximize2 className="w-4 h-4" />
+                  )}
+                </button>
+              )}
+              {!inline && (
+                <button
+                  onClick={() => guardedClose(false)}
+                  className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors text-gray-400"
+                  aria-label="Close"
+                  title="Close"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              )}
             </div>
           </div>
 
@@ -2130,8 +2121,10 @@ export default function CalendarPostModal({
             </div>
           )}
         </div>
-        {/* end body+footer wrapper */}
-      </DialogContent>
+  );
+
+  const subDialogs = (
+    <>
       <ConfirmDialog
         open={!!connectPrompt}
         onClose={() => setConnectPrompt(null)}
@@ -2187,6 +2180,50 @@ export default function CalendarPostModal({
         cancelLabel={COPY.calendarPostModal.cancel}
         variant="destructive"
       />
+    </>
+  );
+
+  // dialog.jsx uses JS forwardRef without type annotations, so TypeScript infers
+  // no props. Cast here to allow passing className, children, etc.
+  const TypedDialogContent = /** @type {React.ComponentType<any>} */ (DialogContent);
+
+  if (inline) {
+    return (
+      <>
+        <div
+          ref={dialogContentRef}
+          className="p-0 w-full overflow-hidden flex flex-col bg-white dark:bg-gray-900"
+        >
+          {composerContent}
+        </div>
+        {subDialogs}
+      </>
+    );
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={guardedClose}>
+      <TypedDialogContent
+        ref={dialogContentRef}
+        className={`p-0 w-full overflow-hidden flex flex-col bg-white dark:bg-gray-900 ${
+          isFullscreen
+            ? 'inset-0 h-screen max-h-screen max-w-none translate-x-0 translate-y-0 rounded-none sm:rounded-none'
+            : 'max-w-5xl max-h-[92vh] rounded-2xl'
+        }`}
+        windowControls={false}
+        style={{ gap: 0 }}
+        onInteractOutside={(/** @type {{ preventDefault: () => void }} */ event) => {
+          if (isMediaLibraryOpen || showDeleteConfirm) {
+            event.preventDefault();
+            return;
+          }
+          event.preventDefault();
+          guardedClose(false);
+        }}
+      >
+        {composerContent}
+      </TypedDialogContent>
+      {subDialogs}
     </Dialog>
   );
 }
