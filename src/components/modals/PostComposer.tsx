@@ -159,6 +159,7 @@ export interface PostComposerRef {
 
 export interface PostComposerProps {
   post?: CalendarPost | null;
+  open?: boolean;
   onSave: (data: SavePayload) => Promise<void>;
   /** When provided, a close button is rendered and clicking it (or saving) calls onClose. */
   onClose?: () => void;
@@ -555,6 +556,7 @@ function RecurringSchedulePanel({ formData, setFormData }: RecurringSchedulePane
 const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function PostComposer(
   {
     post,
+    open,
     onSave,
     onClose,
     isLoading,
@@ -690,7 +692,6 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
 
   // Initialise / reset form when post prop or open state changes
   const effectiveOnClose = onClose ?? (() => {});
-  const isOpenSentinel = Boolean(post?.id ?? 'new');
 
   useEffect(() => {
     setIsEmojiPickerOpen(false);
@@ -784,7 +785,7 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
       setPlatformTilts({});
       initialCropRef.current = { boxes: {}, transformOps: {}, tilts: {} };
     }
-  }, [post?.id, isOpenSentinel]);
+  }, [post?.id, open]);
 
   const isCropDirty =
     JSON.stringify(platformCropBoxes) !== JSON.stringify(initialCropRef.current.boxes) ||

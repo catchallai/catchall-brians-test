@@ -35,6 +35,11 @@ export default function CalendarPostModal({
   const [isFullscreen, setIsFullscreen] = useState(false);
   const composerRef = useRef<PostComposerRef | null>(null);
 
+  const handleClose = () => {
+    onClose();
+    setIsFullscreen(false);
+  };
+
   return (
     <Dialog
       open={open}
@@ -62,8 +67,9 @@ export default function CalendarPostModal({
         <PostComposer
           ref={composerRef}
           post={post}
+          open={open}
           onSave={onSave}
-          onClose={onClose}
+          onClose={handleClose}
           isLoading={isLoading}
           hashtagPool={hashtagPool}
           currentMonth={currentMonth}

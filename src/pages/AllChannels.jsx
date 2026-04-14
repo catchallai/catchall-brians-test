@@ -570,7 +570,17 @@ export default function AllChannels() {
         post={selectedPost}
         onSave={handleSave}
         isLoading={createMutation.isPending || updateMutation.isPending}
-        hashtagPool={/** @type {any} */ (hashtagPool)}
+        hashtagPool={
+          Array.isArray(
+            /** @type {import('@/components/social/HashtagPoolSelector').HashtagPool[]} */ (
+              hashtagPool
+            )
+          )
+            ? /** @type {import('@/components/social/HashtagPoolSelector').HashtagPool[]} */ (
+                hashtagPool
+              )
+            : []
+        }
       />
     </div>
   );

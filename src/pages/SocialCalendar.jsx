@@ -630,7 +630,11 @@ export default function SocialCalendar() {
               <PostComposer
                 onSave={handleSave}
                 isLoading={createMutation.isPending}
-                hashtagPool={/** @type {any} */ (hashtagPool)}
+                hashtagPool={
+                  /** @type {import('@/components/social/HashtagPoolSelector').HashtagPool[]} */ (
+                    hashtagPool
+                  )
+                }
                 currentMonth={currentMonth}
                 hideStatus
               />
