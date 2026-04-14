@@ -43,6 +43,7 @@ import {
 } from 'date-fns';
 import CalendarPostCard from '@/components/social/CalendarPostCard';
 import CalendarPostModal from '@/components/modals/CalendarPostModal';
+import PostComposer from '@/components/modals/PostComposer';
 import { TagSelector } from '@/components/social/tags/TagSelector';
 import { TagPill } from '@/components/social/tags/TagPill';
 import { useTagsQuery } from '@/components/social/tags/useTagsQuery';
@@ -622,17 +623,16 @@ export default function SocialCalendar() {
           </Card>
         )}
 
-        {/* Composer View (Buffer-style) */}
+        {/* Composer View */}
         {viewMode === 'composer' && (
           <Card className="glass-card rounded-2xl">
-            <CardContent className="p-6">
-              <CalendarPostModal
-                inline
+            <CardContent className="p-0">
+              <PostComposer
                 onSave={handleSave}
-                onClose={() => {}}
                 isLoading={createMutation.isPending}
-                hashtagPool={hashtagPool}
+                hashtagPool={/** @type {any} */ (hashtagPool)}
                 currentMonth={currentMonth}
+                hideStatus
               />
             </CardContent>
           </Card>

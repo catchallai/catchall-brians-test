@@ -570,7 +570,7 @@ export default function AllChannels() {
         post={selectedPost}
         onSave={handleSave}
         isLoading={createMutation.isPending || updateMutation.isPending}
-        hashtagPool={hashtagPool}
+        hashtagPool={/** @type {any} */ (hashtagPool)}
       />
     </div>
   );
