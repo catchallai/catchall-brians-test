@@ -43,6 +43,7 @@ import {
 } from 'date-fns';
 import CalendarPostCard from '@/components/social/CalendarPostCard';
 import CalendarPostModal from '@/components/modals/CalendarPostModal';
+import PostComposer from '@/components/modals/PostComposer';
 import { TagSelector } from '@/components/social/tags/TagSelector';
 import { TagPill } from '@/components/social/tags/TagPill';
 import { useTagsQuery } from '@/components/social/tags/useTagsQuery';
@@ -62,7 +63,6 @@ import PostTemplateManager from '@/components/social/PostTemplateManager';
 import PostQueueManager from '@/components/social/PostQueueManager';
 import OptimalTimeAnalyzer from '@/components/social/OptimalTimeAnalyzer';
 import QuickPostModal from '@/components/social/QuickPostModal';
-import BufferComposer from '@/components/social/BufferComposer';
 import { PostStatus } from '@/types/enums';
 import COPY from '@/lib/copy';
 import { coercePostTagIds } from '@/utils/tags';
@@ -641,11 +641,21 @@ export default function SocialCalendar() {
           </Card>
         )}
 
-        {/* Composer View (Buffer-style) */}
+        {/* Composer View */}
         {viewMode === 'composer' && (
           <Card className="glass-card rounded-2xl">
-            <CardContent className="p-6">
-              <BufferComposer hashtagPool={hashtagPool} onSuccess={() => {}} />
+            <CardContent className="p-0">
+              <PostComposer
+                onSave={handleSave}
+                isLoading={createMutation.isPending}
+                hashtagPool={
+                  /** @type {import('@/components/social/HashtagPoolSelector').HashtagPool[]} */ (
+                    hashtagPool
+                  )
+                }
+                currentMonth={currentMonth}
+                hideStatus
+              />
             </CardContent>
           </Card>
         )}
