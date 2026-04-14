@@ -21,7 +21,15 @@ import {
   Image,
   Play,
   RefreshCw,
+  ArrowUpDown,
 } from 'lucide-react';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { format } from 'date-fns';
 import CalendarPostModal from '@/components/modals/CalendarPostModal';
 import {
@@ -68,6 +76,7 @@ const STATUS_CONFIG = {
   approved: { label: 'Approved', color: 'bg-emerald-100 text-emerald-700', dot: 'bg-emerald-500' },
   published: { label: 'Published', color: 'bg-violet-100 text-violet-700', dot: 'bg-violet-500' },
   rejected: { label: 'Rejected', color: 'bg-red-100 text-red-700', dot: 'bg-red-500' },
+  deleted: { label: 'Deleted', color: 'bg-gray-200 text-gray-500', dot: 'bg-gray-400' },
 };
 
 function PostCard({ post, onEdit, onDelete, onApprove, onReject, showApprovalActions }) {
@@ -226,6 +235,8 @@ export default function AllChannels() {
   const [search, setSearch] = useState('');
   const [selectedPost, setSelectedPost] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [sortBy, setSortBy] = useState('created_date');
+  const [sortOrder, setSortOrder] = useState('desc');
   const queryClient = useQueryClient();
 
   const { data: posts = [], isLoading } = useQuery({
@@ -264,7 +275,19 @@ export default function AllChannels() {
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (id) => base44.entities.CalendarPost.delete(id),
+    mutationFn: (post) =>
+      base44.entities.CalendarPost.update(post.id, {
+        status: 'deleted',
+        workflow_history: [
+          ...(post.workflow_history || []),
+          {
+            action: 'deleted',
+            by_email: user?.email,
+            by_name: user?.full_name || user?.email,
+            timestamp: new Date().toISOString(),
+          },
+        ],
+      }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['calendar-posts-all'] });
       queryClient.invalidateQueries({ queryKey: ['calendar-posts'] });
@@ -277,8 +300,9 @@ export default function AllChannels() {
   };
 
   const handleDelete = (post) => {
+    // eslint-disable-next-line no-alert
     if (confirm('Delete this post?')) {
-      deleteMutation.mutate(post.id);
+      deleteMutation.mutate(post);
     }
   };
 
@@ -295,6 +319,7 @@ export default function AllChannels() {
   };
 
   const handleReject = (post) => {
+    // eslint-disable-next-line no-alert
     const reason = prompt('Reason for rejection (optional):') ?? '';
     updateMutation.mutate({
       id: post.id,
@@ -310,17 +335,23 @@ export default function AllChannels() {
     }
   };
 
-  const filtered = posts.filter((p) => {
-    if (!search) {
-      return true;
-    }
-    const q = search.toLowerCase();
-    return (
-      p.caption?.toLowerCase().includes(q) ||
-      p.title?.toLowerCase().includes(q) ||
-      (p.platforms || []).some((pl) => pl.toLowerCase().includes(q))
-    );
-  });
+  const filtered = posts
+    .filter((p) => {
+      if (!search) {
+        return true;
+      }
+      const q = search.toLowerCase();
+      return (
+        p.caption?.toLowerCase().includes(q) ||
+        p.title?.toLowerCase().includes(q) ||
+        (p.platforms || []).some((pl) => pl.toLowerCase().includes(q))
+      );
+    })
+    .sort((a, b) => {
+      const dateA = new Date(sortBy === 'scheduled_date' ? a.scheduled_date : a.created_date);
+      const dateB = new Date(sortBy === 'scheduled_date' ? b.scheduled_date : b.created_date);
+      return sortOrder === 'desc' ? dateB - dateA : dateA - dateB;
+    });
 
   // Tab buckets
   const approvalPosts = filtered.filter((p) =>
@@ -329,6 +360,7 @@ export default function AllChannels() {
   const queuePosts = filtered.filter((p) => ['approved'].includes(p.status));
   const draftPosts = filtered.filter((p) => ['draft', 'rejected'].includes(p.status));
   const sentPosts = filtered.filter((p) => ['published'].includes(p.status));
+  const deletedPosts = filtered.filter((p) => p.status === 'deleted');
 
   const PLATFORMS = ['Facebook', 'Instagram', 'LinkedIn', 'Twitter', 'YouTube'];
 
@@ -355,7 +387,7 @@ export default function AllChannels() {
       icon: FileText,
     },
     {
-      label: 'Published',
+      label: 'Scheduled',
       count: sentPosts.length,
       color: 'text-violet-600',
       bg: 'bg-violet-50',
@@ -437,15 +469,35 @@ export default function AllChannels() {
         </CardContent>
       </Card>
 
-      {/* Search */}
-      <div className="relative mb-4">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-        <Input
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search posts by caption, title, or platform..."
-          className="pl-9 bg-white"
-        />
+      {/* Search + Sort */}
+      <div className="flex gap-2 mb-4">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+          <Input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search posts by caption, title, or platform..."
+            className="pl-9 bg-white"
+          />
+        </div>
+        <Select value={sortBy} onValueChange={setSortBy}>
+          <SelectTrigger className="w-40 bg-white">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="created_date">Created Date</SelectItem>
+            <SelectItem value="scheduled_date">Post Date</SelectItem>
+          </SelectContent>
+        </Select>
+        <Button
+          variant="outline"
+          size="icon"
+          className="bg-white"
+          onClick={() => setSortOrder((o) => (o === 'desc' ? 'asc' : 'desc'))}
+          title={sortOrder === 'desc' ? 'Newest first' : 'Oldest first'}
+        >
+          <ArrowUpDown className="w-4 h-4 text-gray-500" />
+        </Button>
       </div>
 
       {/* Tabs */}
@@ -456,8 +508,16 @@ export default function AllChannels() {
           ))}
         </div>
       ) : (
-        <Tabs defaultValue="approvals">
+        <Tabs defaultValue="all">
           <TabsList className="mb-4 bg-white border border-gray-200">
+            <TabsTrigger value="all" className="gap-2">
+              All
+              {filtered.length > 0 && (
+                <span className="ml-1 w-5 h-5 rounded-full bg-gray-500 text-white text-xs flex items-center justify-center">
+                  {filtered.length}
+                </span>
+              )}
+            </TabsTrigger>
             <TabsTrigger value="approvals" className="gap-2">
               <ShieldCheck className="w-4 h-4" />
               Approvals
@@ -487,14 +547,34 @@ export default function AllChannels() {
             </TabsTrigger>
             <TabsTrigger value="sent" className="gap-2">
               <Send className="w-4 h-4" />
-              Sent
+              Scheduled
               {sentPosts.length > 0 && (
                 <span className="ml-1 w-5 h-5 rounded-full bg-violet-500 text-white text-xs flex items-center justify-center">
                   {sentPosts.length}
                 </span>
               )}
             </TabsTrigger>
+            <TabsTrigger value="deleted" className="gap-2">
+              <Trash2 className="w-4 h-4" />
+              Deleted
+              {deletedPosts.length > 0 && (
+                <span className="ml-1 w-5 h-5 rounded-full bg-gray-400 text-white text-xs flex items-center justify-center">
+                  {deletedPosts.length}
+                </span>
+              )}
+            </TabsTrigger>
           </TabsList>
+
+          <TabsContent value="all">
+            <PostList
+              posts={filtered}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+              showApprovalActions={false}
+              emptyMessage="No posts found"
+              emptyIcon={FileText}
+            />
+          </TabsContent>
 
           <TabsContent value="approvals">
             <div className="mb-3 flex items-center gap-2 text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-4 py-2.5">
@@ -546,7 +626,7 @@ export default function AllChannels() {
           <TabsContent value="sent">
             <div className="mb-3 flex items-center gap-2 text-sm text-violet-700 bg-violet-50 border border-violet-200 rounded-lg px-4 py-2.5">
               <Send className="w-4 h-4 flex-shrink-0" />
-              Posts that have been published to social media channels.
+              Posts that have been scheduled for publishing.
             </div>
             <PostList
               posts={sentPosts}
@@ -555,6 +635,21 @@ export default function AllChannels() {
               showApprovalActions={false}
               emptyMessage="No published posts yet"
               emptyIcon={Send}
+            />
+          </TabsContent>
+
+          <TabsContent value="deleted">
+            <div className="mb-3 flex items-center gap-2 text-sm text-gray-600 bg-gray-50 border border-gray-200 rounded-lg px-4 py-2.5">
+              <Trash2 className="w-4 h-4 flex-shrink-0" />
+              Posts that have been deleted. These are kept for audit history.
+            </div>
+            <PostList
+              posts={deletedPosts}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+              showApprovalActions={false}
+              emptyMessage="No deleted posts"
+              emptyIcon={Trash2}
             />
           </TabsContent>
         </Tabs>

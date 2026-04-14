@@ -173,6 +173,9 @@ export default function SocialCalendar() {
       if (!p.scheduled_date) {
         return false;
       }
+      if (p.status === 'deleted') {
+        return false;
+      }
       const postDate = parseISO(p.scheduled_date);
       // Expand window to cover week/day navigation that goes beyond the current month boundary
       const windowStart = startOfWeek(startOfMonth(currentMonth));
@@ -343,7 +346,7 @@ export default function SocialCalendar() {
   // platform/status/tags. Using filteredPosts here would silently skip posts that
   // don't match the active tag or platform filter, leading to partial approvals.
   const monthPosts = posts.filter((p) => {
-    if (!p.scheduled_date) {
+    if (!p.scheduled_date || p.status === 'deleted') {
       return false;
     }
     const postDate = parseISO(p.scheduled_date);
@@ -741,6 +744,7 @@ export default function SocialCalendar() {
               onEditPost={handleEdit}
               viewType={calendarViewType}
               onViewTypeChange={setCalendarViewType}
+              currentUser={user}
             />
           </>
         )}

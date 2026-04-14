@@ -8,7 +8,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Search, CheckCircle2, XCircle, RotateCcw, Send, Eye, ThumbsUp, Clock } from 'lucide-react';
+import {
+  Search,
+  CheckCircle2,
+  XCircle,
+  RotateCcw,
+  Send,
+  Eye,
+  ThumbsUp,
+  Clock,
+  Trash2,
+} from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 
 const ACTION_ICONS = {
@@ -18,9 +28,10 @@ const ACTION_ICONS = {
   submitted_for_review: { icon: Send, color: 'text-yellow-500 bg-yellow-50' },
   submitted_for_approval: { icon: ThumbsUp, color: 'text-blue-500 bg-blue-50' },
   assigned: { icon: Eye, color: 'text-violet-500 bg-violet-50' },
+  deleted: { icon: Trash2, color: 'text-red-500 bg-red-50' },
 };
 
-export default function ApprovalHistoryTab({ posts, currentUser, statusLabels }) {
+export default function ApprovalHistoryTab({ posts, currentUser: _currentUser, statusLabels }) {
   const [search, setSearch] = useState('');
   const [filterAction, setFilterAction] = useState('all');
 
@@ -97,6 +108,7 @@ export default function ApprovalHistoryTab({ posts, currentUser, statusLabels })
             <SelectItem value="submitted_for_review">Submitted for Review</SelectItem>
             <SelectItem value="submitted_for_approval">Submitted for Approval</SelectItem>
             <SelectItem value="assigned">Assigned</SelectItem>
+            <SelectItem value="deleted">Deleted</SelectItem>
           </SelectContent>
         </Select>
       </div>
