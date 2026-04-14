@@ -2,18 +2,41 @@ import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 
+export interface MediaAsset {
+  id: string;
+  name?: string;
+  file_url?: string;
+  file_type?: string;
+  category?: string;
+  tags?: string[];
+  [key: string]: any;
+}
+
+export interface UseMediaLibraryResult {
+  isMediaLibraryOpen: boolean;
+  setIsMediaLibraryOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  mediaLibrarySearch: string;
+  setMediaLibrarySearch: React.Dispatch<React.SetStateAction<string>>;
+  selectedLibraryAssets: string[];
+  imageAssets: MediaAsset[];
+  isMediaLibraryLoading: boolean;
+  openMediaLibrary: () => void;
+  resetMediaLibrary: () => void;
+  selectLibraryAsset: (assetUrl: string) => void;
+  applySelectedLibraryAssets: () => void;
+}
+
 /**
  * Manages media library modal state, asset fetching, and selection.
  *
- * @param {(urls: string[]) => void} onApply - Called with the selected asset URLs when the user
- *   confirms. The caller is responsible for updating form state, clearing crop state, etc.
+ * @param onApply - Called with the selected asset URLs when the user confirms.
  */
-export function useMediaLibrary(onApply) {
+export function useMediaLibrary(onApply: (urls: string[]) => void): UseMediaLibraryResult {
   const [isMediaLibraryOpen, setIsMediaLibraryOpen] = useState(false);
   const [mediaLibrarySearch, setMediaLibrarySearch] = useState('');
-  const [selectedLibraryAssets, setSelectedLibraryAssets] = useState(/** @type {string[]} */ ([]));
+  const [selectedLibraryAssets, setSelectedLibraryAssets] = useState<string[]>([]);
 
-  const { data: mediaAssets = [], isLoading: isMediaLibraryLoading } = useQuery({
+  const { data: mediaAssets = [], isLoading: isMediaLibraryLoading } = useQuery<MediaAsset[]>({
     queryKey: ['media-assets'],
     queryFn: () => base44.entities.MediaAsset.list('-created_date', 500),
     enabled: isMediaLibraryOpen,
@@ -43,7 +66,7 @@ export function useMediaLibrary(onApply) {
     setSelectedLibraryAssets([]);
   };
 
-  const selectLibraryAsset = (assetUrl) => {
+  const selectLibraryAsset = (assetUrl: string) => {
     setSelectedLibraryAssets((current) =>
       current.includes(assetUrl)
         ? current.filter((url) => url !== assetUrl)
