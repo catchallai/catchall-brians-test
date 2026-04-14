@@ -49,15 +49,16 @@ export default function MediaLibraryModal({
   const selectedCount = selectedAssetUrls.length;
   const isAtSelectionLimit = selectedCount >= remainingSlots;
 
-  const applyLabel =
-    selectedCount === 0
-      ? 'Add Images'
-      : `Add ${selectedCount} Image${selectedCount !== 1 ? 's' : ''}`;
+  const getImageLabel = (count: number) => `Image${count !== 1 ? 's' : ''}`;
+  const getApplyLabel = (count: number) =>
+    count === 0 ? `Add ${getImageLabel(count)}` : `Add ${count} ${getImageLabel(count)}`;
+  const getDescription = (slots: number) =>
+    slots <= 0
+      ? `You have reached the ${MAX_POST_IMAGE_COUNT}-${MAX_POST_IMAGE_COUNT === 1 ? 'image' : 'images'} limit for this post.`
+      : `Select up to ${slots} image${slots !== 1 ? 's' : ''} to add to this post.`;
 
-  const description =
-    remainingSlots <= 0
-      ? 'You have reached the 10-image limit for this post.'
-      : `Select up to ${remainingSlots} image${remainingSlots !== 1 ? 's' : ''} to add to this post.`;
+  const applyLabel = getApplyLabel(selectedCount);
+  const description = getDescription(remainingSlots);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
