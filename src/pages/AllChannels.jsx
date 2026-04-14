@@ -12,15 +12,12 @@ import {
   Clock,
   FileText,
   Send,
-  Plus,
-  Pencil,
   Trash2,
   CheckCircle,
   XCircle,
   Search,
   Image,
   Play,
-  RefreshCw,
   ArrowUpDown,
 } from 'lucide-react';
 import {
@@ -83,7 +80,10 @@ function PostCard({ post, onEdit, onDelete, onApprove, onReject, showApprovalAct
   const statusCfg = STATUS_CONFIG[post.status] || STATUS_CONFIG.draft;
 
   return (
-    <Card className="border border-gray-200 hover:shadow-md transition-all group">
+    <Card
+      className="border border-gray-200 hover:shadow-md transition-all group cursor-pointer"
+      onClick={() => onEdit(post)}
+    >
       <CardContent className="p-4">
         <div className="flex gap-4">
           {/* Media Thumbnail */}
@@ -157,7 +157,10 @@ function PostCard({ post, onEdit, onDelete, onApprove, onReject, showApprovalAct
                       size="sm"
                       variant="ghost"
                       className="h-7 px-2 text-emerald-600 hover:bg-emerald-50 hover:text-emerald-700 text-xs gap-1"
-                      onClick={() => onApprove(post)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onApprove(post);
+                      }}
                     >
                       <CheckCircle className="w-3.5 h-3.5" /> Approve
                     </Button>
@@ -165,7 +168,10 @@ function PostCard({ post, onEdit, onDelete, onApprove, onReject, showApprovalAct
                       size="sm"
                       variant="ghost"
                       className="h-7 px-2 text-red-500 hover:bg-red-50 hover:text-red-600 text-xs gap-1"
-                      onClick={() => onReject(post)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onReject(post);
+                      }}
                     >
                       <XCircle className="w-3.5 h-3.5" /> Reject
                     </Button>
@@ -174,16 +180,11 @@ function PostCard({ post, onEdit, onDelete, onApprove, onReject, showApprovalAct
                 <Button
                   size="icon"
                   variant="ghost"
-                  className="h-7 w-7"
-                  onClick={() => onEdit(post)}
-                >
-                  <Pencil className="w-3.5 h-3.5 text-gray-400" />
-                </Button>
-                <Button
-                  size="icon"
-                  variant="ghost"
                   className="h-7 w-7 text-red-400 hover:text-red-600 hover:bg-red-50"
-                  onClick={() => onDelete(post)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onDelete(post);
+                  }}
                 >
                   <Trash2 className="w-3.5 h-3.5" />
                 </Button>
@@ -412,21 +413,13 @@ export default function AllChannels() {
         </div>
         <div className="flex items-center gap-2">
           <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => queryClient.invalidateQueries({ queryKey: ['calendar-posts-all'] })}
-            title="Refresh"
-          >
-            <RefreshCw className="w-4 h-4 text-gray-500" />
-          </Button>
-          <Button
             onClick={() => {
               setSelectedPost(null);
               setShowModal(true);
             }}
             className="bg-violet-600 hover:bg-violet-700 gap-2"
           >
-            <Plus className="w-4 h-4" /> New Post
+            New Post
           </Button>
         </div>
       </div>
