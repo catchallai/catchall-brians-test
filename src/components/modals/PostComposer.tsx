@@ -133,6 +133,12 @@ export interface PostFormData {
   recurrence_end_date: string;
   recurrence_days: number[];
   tag_ids: string[];
+  // Not rendered in this composer, but included so they are preserved in the save
+  // payload. Dropping them would silently wipe values set by other flows (bulk
+  // schedule, PostQueueManager, auto-population functions) and break CalendarPostCard
+  // display and the checkScheduledPosts auto-publish backend function.
+  title: string;
+  auto_post: boolean;
 }
 
 interface SavePayload extends PostFormData {
@@ -230,6 +236,8 @@ const DEFAULT_FORM: PostFormData = {
   recurrence_end_date: '',
   recurrence_days: [],
   tag_ids: [],
+  title: '',
+  auto_post: false,
 };
 
 const DIRTY_FIELDS: (keyof PostFormData)[] = [
@@ -249,6 +257,27 @@ const DIRTY_FIELDS: (keyof PostFormData)[] = [
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
+
+/**
+ * Computes the default scheduled_date and scheduled_time for a new post.
+ * When composing in the current month: date = today, time = now + 10 min.
+ * When viewing a future month: date = first of that month, time = 09:00.
+ */
+function getDefaultSchedule(currentMonth: Date): {
+  scheduled_date: string;
+  scheduled_time: string;
+} {
+  const now = new Date();
+  const { isSameMonth, isFutureMonth } = getMonthComparison(now, currentMonth);
+  const scheduled_date = isFutureMonth
+    ? `${currentMonth.getFullYear()}-${String(currentMonth.getMonth() + 1).padStart(2, '0')}-01`
+    : todayLocal();
+  const plusTen = new Date(now.getTime() + 10 * 60 * 1000);
+  const hh = String(plusTen.getHours()).padStart(2, '0');
+  const mm = String(plusTen.getMinutes()).padStart(2, '0');
+  const scheduled_time = isSameMonth ? `${hh}:${mm}` : '09:00';
+  return { scheduled_date, scheduled_time };
+}
 
 function renderWithLinks(text: string): ReactNode[] {
   const linkRegex = /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)|(https?:\/\/\S+)/g;
@@ -713,18 +742,8 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
     setCropTargetPlatform(null);
     setImageFileNames([]);
 
-    const _now = new Date();
-    const { isSameMonth: _isSameMonth, isFutureMonth: _isFutureMonth } = getMonthComparison(
-      _now,
-      currentMonth
-    );
-    const _default = new Date(_now.getTime() + 10 * 60 * 1000);
-    const _hh = String(_default.getHours()).padStart(2, '0');
-    const _mm = String(_default.getMinutes()).padStart(2, '0');
-    const defaultTime = _isSameMonth ? `${_hh}:${_mm}` : '09:00';
-    const defaultDate = _isFutureMonth
-      ? `${currentMonth.getFullYear()}-${String(currentMonth.getMonth() + 1).padStart(2, '0')}-01`
-      : todayLocal();
+    const { scheduled_date: defaultDate, scheduled_time: defaultTime } =
+      getDefaultSchedule(currentMonth);
 
     if (post) {
       const normalizedMedia = normalizePostMedia(post);
@@ -745,6 +764,8 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
         recurrence_end_date: post.recurrence_end_date ?? '',
         recurrence_days: post.recurrence_days ?? [],
         tag_ids: coercePostTagIds(post.tag_ids),
+        title: post.title ?? '',
+        auto_post: post.auto_post ?? false,
       };
       initialFormDataRef.current = initial;
       setFormData(initial);
@@ -1228,8 +1249,7 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
       // Standalone mode: reset form so composer is ready for a new post
       const reset: PostFormData = {
         ...DEFAULT_FORM,
-        scheduled_date: todayLocal(),
-        scheduled_time: '09:00',
+        ...getDefaultSchedule(currentMonth),
       };
       setFormData(reset);
       initialFormDataRef.current = reset;
