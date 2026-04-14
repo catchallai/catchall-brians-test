@@ -5,7 +5,7 @@ import { base44 } from '@/api/base44Client';
 import { createPageUrl } from '@/utils';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ArrowLeft, ShieldCheck, MessageSquare, Bell, FileText, ImageOff } from 'lucide-react';
-import { format } from 'date-fns';
+import ApprovalWidget from '@/components/social/approvals/ApprovalWidget';
 import { PLATFORMS } from '@/constants/platforms';
 import COPY from '@/lib/copy';
 import PostApprovalPanel from '@/components/social/PostApprovalPanel';
@@ -117,21 +117,24 @@ export default function PostApprovalView() {
                   />
                 )}
 
-                {/* Caption + date */}
-                <div className="p-3">
-                  <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap line-clamp-6">
+                {/* Caption + widget */}
+                <div className="p-3 flex items-start justify-between gap-4">
+                  <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap line-clamp-6 flex-1">
                     {post.caption || (
                       <span className="text-gray-300 dark:text-gray-600 italic">
                         {COPY.calendarPostModal.captionPreviewPlaceholder}
                       </span>
                     )}
                   </p>
-                  {post.scheduled_date && (
-                    <p className="text-xs text-gray-400 text-right mt-2">
-                      {format(new Date(post.scheduled_date), 'MMM d, yyyy')}
-                      {post.scheduled_time && ` @ ${post.scheduled_time}`}
-                    </p>
-                  )}
+                  <div className="shrink-0">
+                    <ApprovalWidget
+                      viewsCount={8}
+                      approvalsCount={6}
+                      rejectionsCount={2}
+                      dueDate={post.review_due_date}
+                      dueTime={post.scheduled_time}
+                    />
+                  </div>
                 </div>
               </div>
             );
