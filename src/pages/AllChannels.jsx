@@ -393,6 +393,13 @@ export default function AllChannels() {
       bg: 'bg-violet-50',
       icon: Send,
     },
+    {
+      label: 'Deleted',
+      count: deletedPosts.length,
+      color: 'text-red-500',
+      bg: 'bg-red-50',
+      icon: Trash2,
+    },
   ];
 
   return (
@@ -425,7 +432,7 @@ export default function AllChannels() {
       </div>
 
       {/* Stats Row */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
         {stats.map((s) => (
           <Card key={s.label} className={`border-0 shadow-sm ${s.bg}`}>
             <CardContent className="p-4 flex items-center gap-3">
@@ -558,7 +565,7 @@ export default function AllChannels() {
               <Trash2 className="w-4 h-4" />
               Deleted
               {deletedPosts.length > 0 && (
-                <span className="ml-1 w-5 h-5 rounded-full bg-gray-400 text-white text-xs flex items-center justify-center">
+                <span className="ml-1 w-5 h-5 rounded-full bg-red-500 text-white text-xs flex items-center justify-center">
                   {deletedPosts.length}
                 </span>
               )}
