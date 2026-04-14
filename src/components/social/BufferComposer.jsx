@@ -3,6 +3,8 @@ import { useHashtagPoolToggle } from '@/components/hooks/useHashtagPoolToggle';
 import HashtagPoolSelector from '@/components/social/HashtagPoolSelector';
 import { base44 } from '@/api/base44Client';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import MediaLibraryModal from '@/components/modals/MediaLibraryModal';
+import { useMediaLibrary } from '@/components/hooks/useMediaLibrary';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
@@ -27,6 +29,7 @@ import {
   CheckCircle2,
   Globe,
   FileText,
+  FolderOpen,
 } from 'lucide-react';
 import { todayLocal } from '@/utils/date';
 import COPY from '@/lib/copy';
@@ -153,6 +156,30 @@ export default function BufferComposer({ hashtagPool = [], onSuccess }) {
   const [scheduleError, setScheduleError] = useState('');
   const [mediaError, setMediaError] = useState('');
   const [imageFileNames, setImageFileNames] = useState([]);
+  const {
+    isMediaLibraryOpen,
+    setIsMediaLibraryOpen,
+    mediaLibrarySearch,
+    setMediaLibrarySearch,
+    selectedLibraryAssets,
+    imageAssets,
+    isMediaLibraryLoading,
+    openMediaLibrary,
+    selectLibraryAsset,
+    applySelectedLibraryAssets,
+  } = useMediaLibrary((urls) => {
+    setMediaError('');
+    setForm((f) => {
+      const existing = getPostImageUrls(f);
+      const newUrls = urls.filter((url) => !existing.includes(url));
+      const combined = [...existing, ...newUrls];
+      return normalizePostMedia({
+        ...f,
+        image_urls: combined.slice(0, MAX_POST_IMAGE_COUNT),
+        video_url: '',
+      });
+    });
+  });
 
   const { _activeHashtags, toggledPoolIds, handleTogglePool } = useHashtagPoolToggle({
     hashtagPool,
@@ -372,6 +399,29 @@ export default function BufferComposer({ hashtagPool = [], onSuccess }) {
                   MAX_POST_IMAGE_COUNT
                 )}
               </p>
+              {getPostImageUrls(form).length < MAX_POST_IMAGE_COUNT && (
+                <div className="flex items-center gap-3 pt-1">
+                  <label className="cursor-pointer flex items-center gap-1.5 text-xs text-gray-500 font-medium hover:text-gray-700 transition-colors">
+                    <input
+                      type="file"
+                      accept={IMAGE_ACCEPT_ATTR}
+                      multiple
+                      className="hidden"
+                      onChange={handleImageUpload}
+                    />
+                    <Image className="w-3.5 h-3.5 text-blue-500" />
+                    {COPY.bufferComposer.addPhoto}
+                  </label>
+                  <button
+                    type="button"
+                    onClick={openMediaLibrary}
+                    className="flex items-center gap-1.5 text-xs text-gray-500 font-medium hover:text-gray-700 transition-colors"
+                  >
+                    <FolderOpen className="w-3.5 h-3.5 text-violet-500" />
+                    {COPY.bufferComposer.addFromLibrary}
+                  </button>
+                </div>
+              )}
             </div>
           ) : form.video_url ? (
             <div className="relative">
@@ -422,6 +472,16 @@ export default function BufferComposer({ hashtagPool = [], onSuccess }) {
                   <Video className="w-6 h-6 text-purple-500" />
                   <span className="text-xs text-gray-500 font-medium">Video</span>
                 </label>
+                <button
+                  type="button"
+                  onClick={openMediaLibrary}
+                  className="flex flex-col items-center gap-1.5 p-3 rounded-xl hover:bg-gray-50 transition-colors"
+                >
+                  <FolderOpen className="w-6 h-6 text-violet-500" />
+                  <span className="text-xs text-gray-500 font-medium">
+                    {COPY.bufferComposer.library}
+                  </span>
+                </button>
               </div>
               <p className="text-center text-xs text-gray-500">
                 {COPY.mediaUpload.mediaHint(
@@ -627,6 +687,18 @@ export default function BufferComposer({ hashtagPool = [], onSuccess }) {
           </div>
         )}
       </div>
+      <MediaLibraryModal
+        open={isMediaLibraryOpen}
+        onOpenChange={setIsMediaLibraryOpen}
+        searchValue={mediaLibrarySearch}
+        onSearchChange={setMediaLibrarySearch}
+        isLoading={isMediaLibraryLoading}
+        imageAssets={imageAssets}
+        selectedAssetUrls={selectedLibraryAssets}
+        existingImageCount={getPostImageUrls(form).length}
+        onSelectAsset={selectLibraryAsset}
+        onApply={applySelectedLibraryAssets}
+      />
     </div>
   );
 }

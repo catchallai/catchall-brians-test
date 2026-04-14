@@ -51,6 +51,7 @@ import { PLATFORMS as PLATFORM_CONFIGS } from '@/constants/platforms';
 import EmojiPicker from 'emoji-picker-react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMediaLibrary } from '@/components/hooks/useMediaLibrary';
 import PostComments from '../social/PostComments';
 import PostApprovalPanel from '../social/PostApprovalPanel';
 import Tooltip from '@/components/ui-custom/Tooltip';
@@ -468,9 +469,32 @@ export default function CalendarPostModal({
   const [pendingPicker, setPendingPicker] = useState(null);
   const [connectPrompt, setConnectPrompt] = useState(null);
   const [navigationPrompt, setNavigationPrompt] = useState(null);
-  const [isMediaLibraryOpen, setIsMediaLibraryOpen] = useState(false);
-  const [mediaLibrarySearch, setMediaLibrarySearch] = useState('');
-  const [selectedLibraryAsset, setSelectedLibraryAsset] = useState('');
+  const {
+    isMediaLibraryOpen,
+    setIsMediaLibraryOpen,
+    mediaLibrarySearch,
+    setMediaLibrarySearch,
+    selectedLibraryAssets,
+    imageAssets,
+    isMediaLibraryLoading,
+    openMediaLibrary,
+    resetMediaLibrary,
+    selectLibraryAsset,
+    applySelectedLibraryAssets,
+  } = useMediaLibrary((urls) => {
+    setMediaError('');
+    clearCropState();
+    setFormData((f) => {
+      const existing = getPostImageUrls(f);
+      const newUrls = urls.filter((url) => !existing.includes(url));
+      const combined = [...existing, ...newUrls];
+      return normalizePostMedia({
+        ...f,
+        image_urls: combined.slice(0, MAX_POST_IMAGE_COUNT),
+        video_url: '',
+      });
+    });
+  });
   const [isEmojiPickerOpen, setIsEmojiPickerOpen] = useState(false);
   const [isLinkPopoverOpen, setIsLinkPopoverOpen] = useState(false);
   const [linkUrl, setLinkUrl] = useState('');
@@ -557,9 +581,7 @@ export default function CalendarPostModal({
       setPendingPicker(null);
       setConnectPrompt(null);
       setNavigationPrompt(null);
-      setIsMediaLibraryOpen(false);
-      setMediaLibrarySearch('');
-      setSelectedLibraryAsset('');
+      resetMediaLibrary();
       setIsCropOpen(false);
       setCropTargetPlatform(null);
       setImageFileNames([]);
@@ -651,12 +673,6 @@ export default function CalendarPostModal({
     hasFormChanges(formData, initialFormDataRef.current, { includeTags: !post?.id }) || isCropDirty;
 
   const { guardedClose, discardDialogProps } = useUnsavedChangesGuard({ isDirty, onClose });
-
-  const { data: mediaAssets = [], isLoading: isMediaLibraryLoading } = useQuery({
-    queryKey: ['media-assets'],
-    queryFn: () => base44.entities.MediaAsset.list('-created_date', 500),
-    enabled: isMediaLibraryOpen,
-  });
 
   const releaseFileDialogLock = () => {
     fileDialogLockRef.current = false;
@@ -885,9 +901,7 @@ export default function CalendarPostModal({
 
   const handleMediaLibraryOpen = () => {
     setMediaMenuTarget(null);
-    setMediaLibrarySearch('');
-    setSelectedLibraryAsset(getPostImageUrls(formData)[0] || '');
-    setIsMediaLibraryOpen(true);
+    openMediaLibrary();
   };
 
   const openIntegrationSettings = (providerKey) => {
@@ -914,41 +928,6 @@ export default function CalendarPostModal({
     setNavigationPrompt(null);
     onClose?.();
     navigate(route);
-  };
-
-  const imageAssets = mediaAssets.filter((asset) => {
-    if (asset.file_type && asset.file_type !== 'image') {
-      return false;
-    }
-    if (!asset.file_url) {
-      return false;
-    }
-
-    const matchesSearch =
-      !mediaLibrarySearch ||
-      asset.name?.toLowerCase().includes(mediaLibrarySearch.toLowerCase()) ||
-      asset.category?.toLowerCase().includes(mediaLibrarySearch.toLowerCase()) ||
-      asset.tags?.some((tag) => tag.toLowerCase().includes(mediaLibrarySearch.toLowerCase()));
-
-    return matchesSearch;
-  });
-
-  const selectLibraryAsset = (assetUrl) => {
-    setSelectedLibraryAsset((current) => (current === assetUrl ? '' : assetUrl));
-  };
-
-  const applySelectedLibraryAssets = () => {
-    setMediaError('');
-    clearCropState();
-    setImageFileNames([]);
-    setFormData((f) =>
-      normalizePostMedia({
-        ...f,
-        image_urls: selectedLibraryAsset ? [selectedLibraryAsset] : [],
-        video_url: '',
-      })
-    );
-    setIsMediaLibraryOpen(false);
   };
 
   const clearSelectedMedia = () => {
@@ -1025,7 +1004,9 @@ export default function CalendarPostModal({
           <div className="space-y-0.5 px-2 pb-2">
             {section.items.map((item) => {
               const Icon = item.icon;
-              const imageSelectionDisabled = Boolean(formData.video_url);
+              const imageSelectionDisabled =
+                Boolean(formData.video_url) ||
+                (formData.image_urls?.length || 0) >= MAX_POST_IMAGE_COUNT;
               const videoSelectionDisabled = Boolean(formData.image_urls?.length);
               const isDisabled =
                 item.mediaKind === 'image'
@@ -1504,39 +1485,41 @@ export default function CalendarPostModal({
                           ))
                         )}
 
-                        <Popover
-                          open={mediaMenuTarget === 'filled-dropzone'}
-                          onOpenChange={(open) =>
-                            setMediaMenuTarget(open ? 'filled-dropzone' : null)
-                          }
-                        >
-                          <PopoverTrigger asChild>
-                            <button
-                              type="button"
-                              onDrop={handleDrop}
-                              onDragOver={(e) => e.preventDefault()}
-                              className="flex h-[89px] w-[144px] max-w-full items-center justify-center rounded-2xl border-2 border-dashed border-gray-300 bg-white text-blue-600 transition-colors hover:border-violet-300 hover:bg-violet-50/30"
-                            >
-                              {uploading ? (
-                                <Loader2 className="h-6 w-6 animate-spin text-violet-500" />
-                              ) : (
-                                <span className="flex h-11 w-11 items-center justify-center rounded-full border-2 border-blue-500 bg-white shadow-sm">
-                                  <Plus className="h-5 w-5" />
-                                </span>
-                              )}
-                            </button>
-                          </PopoverTrigger>
-                          <PopoverContent
-                            align="start"
-                            side="bottom"
-                            sideOffset={12}
-                            className="w-[250px] rounded-xl border border-gray-200 bg-white p-0 shadow-[0_18px_40px_rgba(15,23,42,0.12)]"
-                            onCloseAutoFocus={(e) => e.preventDefault()}
-                            onPointerDown={(e) => e.stopPropagation()}
+                        {(formData.image_urls?.length || 0) < MAX_POST_IMAGE_COUNT && (
+                          <Popover
+                            open={mediaMenuTarget === 'filled-dropzone'}
+                            onOpenChange={(open) =>
+                              setMediaMenuTarget(open ? 'filled-dropzone' : null)
+                            }
                           >
-                            {renderMediaMenuContent()}
-                          </PopoverContent>
-                        </Popover>
+                            <PopoverTrigger asChild>
+                              <button
+                                type="button"
+                                onDrop={handleDrop}
+                                onDragOver={(e) => e.preventDefault()}
+                                className="flex h-[89px] w-[144px] max-w-full items-center justify-center rounded-2xl border-2 border-dashed border-gray-300 bg-white text-blue-600 transition-colors hover:border-violet-300 hover:bg-violet-50/30"
+                              >
+                                {uploading ? (
+                                  <Loader2 className="h-6 w-6 animate-spin text-violet-500" />
+                                ) : (
+                                  <span className="flex h-11 w-11 items-center justify-center rounded-full border-2 border-blue-500 bg-white shadow-sm">
+                                    <Plus className="h-5 w-5" />
+                                  </span>
+                                )}
+                              </button>
+                            </PopoverTrigger>
+                            <PopoverContent
+                              align="start"
+                              side="bottom"
+                              sideOffset={12}
+                              className="w-[250px] rounded-xl border border-gray-200 bg-white p-0 shadow-[0_18px_40px_rgba(15,23,42,0.12)]"
+                              onCloseAutoFocus={(e) => e.preventDefault()}
+                              onPointerDown={(e) => e.stopPropagation()}
+                            >
+                              {renderMediaMenuContent()}
+                            </PopoverContent>
+                          </Popover>
+                        )}
                       </div>
                       {!!formData.image_urls?.length && (
                         <p className="mt-2 text-xs text-gray-500">
@@ -2175,7 +2158,8 @@ export default function CalendarPostModal({
         onSearchChange={setMediaLibrarySearch}
         isLoading={isMediaLibraryLoading}
         imageAssets={imageAssets}
-        selectedAssetUrl={selectedLibraryAsset}
+        selectedAssetUrls={selectedLibraryAssets}
+        existingImageCount={formData.image_urls?.length || 0}
         onSelectAsset={selectLibraryAsset}
         onApply={applySelectedLibraryAssets}
       />
