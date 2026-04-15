@@ -81,7 +81,11 @@ const STATUS_CONFIG = {
   deleted: { label: 'Deleted', color: 'bg-gray-200 text-gray-500', dot: 'bg-gray-400' },
 };
 
-const APPROVAL_STATUSES = ['pending_approval', 'pending_review', 'changes_requested'];
+const APPROVAL_STATUSES = [
+  PostStatus.PENDING_APPROVAL,
+  PostStatus.PENDING_REVIEW,
+  PostStatus.CHANGES_REQUESTED,
+];
 const APPROVAL_VIEW_STATUSES = [
   PostStatus.PENDING_APPROVAL,
   PostStatus.PENDING_REVIEW,

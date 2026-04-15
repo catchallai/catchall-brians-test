@@ -243,6 +243,8 @@ const COPY = {
     backToAllChannels: 'Back to All Channels',
     mediaRetainedNotice:
       'Media retained for version history — not transferred to the Approved Media Database.',
+    activity: 'Activity',
+    workflow: 'Workflow',
   },
   postCommentThread: {
     rejectionBanner: 'Leave a comment explaining the rejection to submit it.',
