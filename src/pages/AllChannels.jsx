@@ -81,7 +81,7 @@ const STATUS_CONFIG = {
 };
 
 const APPROVAL_STATUSES = ['pending_approval', 'pending_review', 'changes_requested'];
-const APPROVAL_VIEW_STATUSES = ['pending_approval', 'changes_requested'];
+const APPROVAL_VIEW_STATUSES = ['pending_approval', 'pending_review', 'changes_requested'];
 
 function PostCard({
   post,
