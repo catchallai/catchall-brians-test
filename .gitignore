@@ -29,4 +29,4 @@ docs
 *.sw?
 
 .env
-.superpowers/
+.superpowers/.claude/launch.json
