@@ -236,7 +236,10 @@ const COPY = {
     rejectedOrChangesRequested: 'Rejected / Changes Requested',
     noDueDateSet: 'No Due Date Set',
     overdue: 'OVERDUE',
-    leftUntilDeadline: 'left until Deadline',
+    leftUntilDueDate: 'left until Due Date',
+    dueDatePrefix: 'Due Date:',
+    postDatePrefix: 'Post Date:',
+    noPostDateSet: 'No Post Date Set',
   },
   postApprovalView: {
     postNotFound: 'Post not found.',

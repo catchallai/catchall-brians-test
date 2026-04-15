@@ -148,6 +148,8 @@ export default function PostApprovalView() {
                         ).length
                       }
                       dueDate={post.review_due_date}
+                      scheduledDate={post.scheduled_date}
+                      scheduledTime={post.scheduled_time}
                     />
                   </div>
                 </div>
