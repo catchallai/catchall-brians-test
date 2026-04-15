@@ -85,13 +85,13 @@ Query client defaults (`/src/lib/query-client.js`): `refetchOnWindowFocus: false
 
 ## Code Conventions
 
-- **Enums:** All TypeScript enums belong in `/src/types/enums.ts`. When writing or encountering enum-like values (finite sets of named string/number constants), add them there rather than defining them inline or in component files.
-- **UI copy:** All user-facing strings (labels, button text, placeholder text, toast messages, helper text, etc.) belong in `/src/lib/copy.ts` under the relevant nested key. Never hard-code UI strings directly in components — add them to `COPY` and reference them from there.
+- **Enums:** All enum-like values (finite sets of named string/number constants) belong in `/src/types/enums.ts` — never inline in components. This includes pipeline stages, platform lists, roles, status configs, channel lists, audience/tone options, etc. Pair each enum with an `OPTIONS` array for form/select use. When you encounter duplicated constants across files (e.g., `STAGES`, `PLATFORMS`, `ROLES`, `CHANNELS`), extract them to `enums.ts` and import from there.
+- **UI copy:** All user-facing strings belong in `/src/lib/copy.ts` under a nested feature key. This includes: toast messages (`toast.success('...')`), placeholder text, empty-state titles/descriptions, button labels, form labels, helper text, and error messages. Never hard-code these in components. Use template functions in `copy.ts` for strings with dynamic values (e.g., `tagAdded: (count: number) => \`Tag added to ${count} contacts\``).
 - **Utilities:** Before writing a new utility function, check `/src/utils/` for an existing one that covers the need. New general-purpose utilities go in `/src/utils/index.ts` (or a dedicated file if focused on a specific domain, matching the existing pattern).
 
 - **Imports:** Use `@/` path alias (maps to `src/`), e.g. `@/components/ui/button`
 - **Shared components:** Always build UI elements as shared, reusable components in `/src/components/`. Check for an existing component before building a new one. Embedding UI logic directly in a page or feature-specific component is not the preferred pattern.
-- **Mixed JS/TS:** Most files are `.jsx`; new utilities may use `.ts/.tsx`. TypeScript has `checkJs: true`.
+- **Language:** TypeScript (`.ts`/`.tsx`) is the default for all new files. The codebase is migrating from JS to TS incrementally — most existing files are still `.jsx`, but all new components, hooks, utils, and libs should be `.tsx`/`.ts`. TypeScript has `checkJs: true`, so existing JS files get partial type checking. Only use `.js`/`.jsx` when TS doesn't make sense (e.g., config files, Base44 SDK bootstrap).
 - **Types:** `/src/types/` — TypeScript type definitions live here.
 - **Constants:** `/src/constants/` — project constants live here.
 - **UI components:** Use existing shadcn/ui components from `/src/components/ui/`. Radix UI primitives underneath, Lucide icons.
