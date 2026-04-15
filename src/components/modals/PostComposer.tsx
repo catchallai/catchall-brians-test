@@ -752,6 +752,13 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
   // Initialise / reset form when post prop or open state changes
   const effectiveOnClose = onClose ?? (() => {});
 
+  // Reset the active tab only when the modal opens/closes, not when post?.id
+  // changes mid-session — otherwise the Continue-to-Approval flow gets reverted
+  // to "compose" when the newly created post's id is promoted into the prop.
+  useEffect(() => {
+    setActiveTab('compose');
+  }, [open]);
+
   useEffect(() => {
     setIsEmojiPickerOpen(false);
     setIsLinkPopoverOpen(false);
@@ -759,7 +766,6 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
     setLinkDisplayText('');
     captionSelectionRef.current = { start: null, end: null };
     setMediaError('');
-    setActiveTab('compose');
     setShowBestTimes(false);
     setScheduleError('');
     setRequireApproval(true);
