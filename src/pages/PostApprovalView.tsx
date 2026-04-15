@@ -21,7 +21,11 @@ export default function PostApprovalView() {
   const [rightPanel, setRightPanel] = useState('approval');
   const [previewPlatform, setPreviewPlatform] = useState<string | null>(null);
   const [pendingAction, setPendingAction] = useState<string | null>(null);
-  const [inferredRatio, setInferredRatio] = useState<number | null>(null);
+  // Store the inferred natural ratio alongside the URL it came from. The
+  // derived inferredRatio below resolves to null whenever imageSrc differs
+  // from the stored url — so it resets automatically on platform switch AND
+  // when a refetch/mutation changes the cropped URL for the same platform.
+  const [inferred, setInferred] = useState<{ url: string; ratio: number } | null>(null);
 
   const { data: currentUser } = useQuery({
     queryKey: ['current-user'],
@@ -84,15 +88,7 @@ export default function PostApprovalView() {
                   {PLATFORMS.filter((pl) => post.platforms.includes(pl.id)).map((pl) => (
                     <button
                       key={pl.id}
-                      onClick={() => {
-                        // Reset inferredRatio synchronously with the platform
-                        // change so the first render of the new platform's
-                        // preview doesn't briefly paint the new image with the
-                        // previous platform's natural aspect ratio. React
-                        // batches both updates into a single render.
-                        setPreviewPlatform(pl.id);
-                        setInferredRatio(null);
-                      }}
+                      onClick={() => setPreviewPlatform(pl.id)}
                       className={`px-3 py-2 text-xs font-medium border-b-2 transition-colors ${
                         activePlatform === pl.id
                           ? 'border-violet-500 text-violet-600 dark:text-violet-400'
@@ -129,6 +125,11 @@ export default function PostApprovalView() {
                   if (!imageSrc) return null;
                   const box = post.platform_crop_metadata?.[activePlatform]?.cropBox;
                   const fallbackRatio = box ? box.w / box.h : platformCfg.aspectRatio;
+                  // Only trust the stored natural ratio if it belongs to the
+                  // current imageSrc. This handles both platform switches AND
+                  // same-platform URL changes from refetch/mutation.
+                  const inferredRatio =
+                    inferred && inferred.url === imageSrc ? inferred.ratio : null;
                   return (
                     <img
                       src={imageSrc}
@@ -136,9 +137,10 @@ export default function PostApprovalView() {
                       className="w-full object-cover"
                       style={{ aspectRatio: inferredRatio ?? fallbackRatio }}
                       onLoad={(e) =>
-                        setInferredRatio(
-                          e.currentTarget.naturalWidth / e.currentTarget.naturalHeight
-                        )
+                        setInferred({
+                          url: imageSrc,
+                          ratio: e.currentTarget.naturalWidth / e.currentTarget.naturalHeight,
+                        })
                       }
                     />
                   );
