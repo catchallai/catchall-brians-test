@@ -196,26 +196,33 @@ export default function PostCommentThread({ post, currentUser }) {
     },
   });
 
-  // Record a "viewed" event once when the Comments tab mounts (per post)
+  // Record a "viewed" event once when the Comments tab mounts (per post).
+  // Fetches the latest post first to avoid overwriting concurrent changes
+  // (last-write-wins race on workflow_history).
   const hasRecordedView = useRef(null);
   useEffect(() => {
     if (!currentUser?.email || comments.length === 0) return;
     if (hasRecordedView.current === post.id) return;
     hasRecordedView.current = post.id;
 
-    const history = [
-      ...(post.workflow_history || []),
-      {
-        action: 'viewed',
-        by_email: currentUser.email,
-        by_name: currentUser.full_name || currentUser.email,
-        timestamp: new Date().toISOString(),
-      },
-    ];
-    base44.entities.CalendarPost.update(post.id, { workflow_history: history }).then(() => {
-      queryClient.invalidateQueries({ queryKey: ['calendar-post'] });
-    });
-  }, [post.id, post.workflow_history, currentUser, comments.length, queryClient]);
+    base44.entities.CalendarPost.get(post.id)
+      .then((latest) => {
+        const history = [
+          ...(latest.workflow_history || []),
+          {
+            action: 'viewed',
+            by_email: currentUser.email,
+            by_name: currentUser.full_name || currentUser.email,
+            timestamp: new Date().toISOString(),
+          },
+        ];
+        return base44.entities.CalendarPost.update(post.id, { workflow_history: history });
+      })
+      .then(() => {
+        queryClient.invalidateQueries({ queryKey: ['calendar-post'] });
+        queryClient.invalidateQueries({ queryKey: ['calendar-posts-all'] });
+      });
+  }, [post.id, currentUser, comments.length, queryClient]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
