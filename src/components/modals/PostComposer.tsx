@@ -1559,6 +1559,16 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
     }
 
     if (requireApproval) {
+      // Statuses that represent an active review workflow — preserve them when saving edits.
+      const workflowStatuses = new Set([
+        PostStatus.PENDING_REVIEW,
+        PostStatus.PENDING_APPROVAL,
+        PostStatus.CHANGES_REQUESTED,
+      ]);
+      const existingStatus = (savedPost ?? post)?.status as PostStatus | undefined;
+      const saveStatus =
+        existingStatus && workflowStatuses.has(existingStatus) ? existingStatus : PostStatus.DRAFT;
+
       return {
         label: COPY.calendarPostModal.continueToApproval,
         icon: <ChevronRight className="w-4 h-4" />,
@@ -1567,7 +1577,7 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
           if ((savedPost ?? post) && !isDirty) {
             setActiveTab('approval');
           } else {
-            handleSubmit(PostStatus.DRAFT, () => setActiveTab('approval'));
+            handleSubmit(saveStatus, () => setActiveTab('approval'));
           }
         },
       };
@@ -1630,21 +1640,7 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
           </div>
         </div>
 
-<<<<<<< HEAD
-        {/* Tabs (only for existing posts) */}
-<<<<<<< HEAD
-        {post && (
-          <div className="flex border-b border-gray-100 dark:border-gray-800 px-6 bg-white dark:bg-gray-900">
-            {POST_TABS.filter((tab) => tab.enabled).map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-1.5 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
-                  activeTab === tab.id
-=======
-=======
         {/* Tabs (always rendered; some tabs are disabled or hidden until the post exists) */}
->>>>>>> be2a464 (feat(2183): implement email notification & resolve PR comments)
         <div className="flex border-b border-gray-100 dark:border-gray-800 px-6 bg-white dark:bg-gray-900">
           {[
             { id: 'compose', label: COPY.calendarPostModal.compose, icon: ImageIcon },
@@ -1656,7 +1652,7 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
             },
             // Only show Comments tab if post exists, since comments are tied to a post ID and we don't want to create
             // that until the post is saved for the first time
-            ...(post?.id
+            ...((savedPost ?? post)?.id
               ? [
                   {
                     id: 'comments',
@@ -1674,7 +1670,6 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
                 tab.disabled
                   ? 'border-transparent text-gray-300 dark:text-gray-600 cursor-not-allowed'
                   : activeTab === tab.id
->>>>>>> 7216460 (feat(2183): navigate to approval workflow tab from compose tab, add missing statuses to calendar & refine approval flow creation for post)
                     ? 'border-violet-500 text-violet-600 dark:text-violet-400'
                     : 'border-transparent text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'
               }`}
@@ -1690,24 +1685,16 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
           {/* Approval tab */}
           {activeTab === 'approval' && (
             <div className="flex-1 p-6">
-<<<<<<< HEAD
-              <PostApprovalPanel
-                post={post}
-                onUpdate={(updatedPost: Partial<PostFormData> | null) => {
-                  if (updatedPost) setFormData((f) => ({ ...f, ...updatedPost }));
-                }}
-                onPendingAction={(action: string) => {
-                  setPendingApprovalAction(action);
-                  setActiveTab('comments');
-                }}
-              />
-=======
               {(savedPost ?? post) && (
                 <PostApprovalPanel
                   post={(savedPost ?? post)!}
                   hideEditorActions
                   approvalErrors={approvalErrors}
                   onNoteChange={setApprovalNote}
+                  onPendingAction={(action: string) => {
+                    setPendingApprovalAction(action);
+                    setActiveTab('comments');
+                  }}
                   onUpdate={(updatedPost: Record<string, unknown> | null) => {
                     if (!updatedPost) return;
                     setFormData((f) => ({ ...f, ...(updatedPost as Partial<PostFormData>) }));
@@ -1741,15 +1728,14 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
                   }}
                 />
               )}
->>>>>>> 7216460 (feat(2183): navigate to approval workflow tab from compose tab, add missing statuses to calendar & refine approval flow creation for post)
             </div>
           )}
 
           {/* Comments tab */}
-          {activeTab === 'comments' && post && (
+          {activeTab === 'comments' && (savedPost ?? post) && (
             <div className="flex-1 p-6">
               <PostCommentThread
-                post={post}
+                post={savedPost ?? post}
                 currentUser={currentUser}
                 pendingAction={pendingApprovalAction}
                 onPendingActionComplete={() => {
@@ -1762,11 +1748,11 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
             </div>
           )}
 
-          {activeTab === 'team-feedback' && post && (
+          {activeTab === 'team-feedback' && (savedPost ?? post) && (
             <div className="flex-1 p-6">
               <PostComments
-                postId={post.id}
-                post={post}
+                postId={(savedPost ?? post)!.id}
+                post={savedPost ?? post}
                 currentUser={currentUser}
                 pendingAction={pendingApprovalAction}
                 onPendingActionComplete={() => {

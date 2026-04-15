@@ -77,7 +77,7 @@ const _PRIORITY_COLORS = {
 };
 
 /**
- * @param {{ post: any, onUpdate: any, hideEditorActions?: boolean, approvalErrors?: { reviewer?: string, priority?: string, dueDate?: string, readonly?: boolean, onPendingAction?: () => void }, onNoteChange?: (note: string) => void }} props
+ * @param {{ post: any, onUpdate: any, readOnly?: boolean, onPendingAction?: (action: string) => void, hideEditorActions?: boolean, approvalErrors?: { reviewer?: string, priority?: string, dueDate?: string }, onNoteChange?: (note: string) => void }} props
  */
 export default function PostApprovalPanel({
   post,
