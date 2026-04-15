@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import COPY from '@/lib/copy';
 import { todayLocal } from '@/utils/date';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
-
+import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import {
@@ -23,10 +23,12 @@ import {
   ThumbsUp,
   RotateCcw,
   Loader2,
+  ChevronDown,
   FileText,
   Eye,
   ShieldCheck,
   Megaphone,
+  ChevronRight,
 } from 'lucide-react';
 import { formatDistanceToNow, format } from 'date-fns';
 import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
@@ -34,6 +36,7 @@ import ApprovalQueueView from '@/components/social/approvals/ApprovalQueueView';
 
 // checkJs loses prop types for shadcn/ui components exported from .jsx files.
 const TypedInput = /** @type {React.ComponentType<any>} */ (Input);
+const TypedTextarea = /** @type {React.ComponentType<any>} */ (Textarea);
 
 const WORKFLOW_STAGES = [
   { key: 'draft', label: 'Draft', icon: FileText, description: 'Post is being created' },
@@ -85,17 +88,24 @@ export default function PostApprovalPanel({
   hideEditorActions = false,
   approvalErrors = {},
   onNoteChange = undefined,
-  readOnly = false, 
+  readOnly = false,
   onPendingAction,
 }) {
   const queryClient = useQueryClient();
   const [note, setNote] = useState('');
   const [showHistory, setShowHistory] = useState(false);
   const [dueDateError, setDueDateError] = useState('');
+  const [dueDateDraft, setDueDateDraft] = useState(post.review_due_date || '');
   const today = todayLocal();
 
+  // Keep the local draft in sync when the post's due date changes externally
+  // (e.g. on initial load or when a different post is selected).
+  useEffect(() => {
+    setDueDateDraft(post.review_due_date || '');
+  }, [post.review_due_date]);
+
   // Build per-stage who-did-what from workflow_history
-  const stageActors = React.useMemo(() => {
+  const stageActors = useMemo(() => {
     const map = {};
     const history = post.workflow_history || [];
     history.forEach((e) => {
@@ -383,12 +393,13 @@ export default function PostApprovalPanel({
             {isEditor && (
               <div className="space-y-1.5">
                 <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide flex items-center gap-1.5">
-                  <UserPlus className="w-3.5 h-3.5" /> Reviewer <span className="text-red-500">*</span>
+                  <UserPlus className="w-3.5 h-3.5" /> Reviewer{' '}
+                  <span className="text-red-500">*</span>
                 </p>
                 {post.assigned_to_email ? (
-                   <div
-                className={`flex items-center gap-2 p-2.5 bg-blue-50 rounded-xl border ${approvalErrors.reviewer ? 'border-red-300' : 'border-blue-100'}`}
-              >
+                  <div
+                    className={`flex items-center gap-2 p-2.5 bg-blue-50 rounded-xl border ${approvalErrors.reviewer ? 'border-red-300' : 'border-blue-100'}`}
+                  >
                     <Avatar className="w-7 h-7">
                       <AvatarFallback className="text-xs bg-blue-200 text-blue-700">
                         {post.assigned_to_name?.[0] || post.assigned_to_email?.[0]?.toUpperCase()}
@@ -420,9 +431,9 @@ export default function PostApprovalPanel({
                   </div>
                 ) : (
                   <Select onValueChange={handleAssign}>
-                     <SelectTrigger
-                  className={`text-sm h-9 ${approvalErrors.reviewer ? 'border-red-400 focus:ring-red-400' : ''}`}
-                >
+                    <SelectTrigger
+                      className={`text-sm h-9 ${approvalErrors.reviewer ? 'border-red-400 focus:ring-red-400' : ''}`}
+                    >
                       <SelectValue placeholder="Assign reviewer…" />
                     </SelectTrigger>
                     <SelectContent>
@@ -442,25 +453,25 @@ export default function PostApprovalPanel({
                     </SelectContent>
                   </Select>
                 )}
-                 {approvalErrors.reviewer && (
-              <p className="text-xs text-red-500">{approvalErrors.reviewer}</p>
-            )}
+                {approvalErrors.reviewer && (
+                  <p className="text-xs text-red-500">{approvalErrors.reviewer}</p>
+                )}
               </div>
             )}
 
             {/* Priority */}
             {isEditor && (
               <div className="space-y-1.5">
-               <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
-              Priority <span className="text-red-500">*</span>
-            </p>
+                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                  Priority <span className="text-red-500">*</span>
+                </p>
                 <Select
                   value={post.priority || 'normal'}
                   onValueChange={(v) => updateMutation.mutate({ priority: v })}
                 >
                   <SelectTrigger
-                className={`text-sm h-9 ${approvalErrors.priority ? 'border-red-400 focus:ring-red-400' : ''}`}
-              >
+                    className={`text-sm h-9 ${approvalErrors.priority ? 'border-red-400 focus:ring-red-400' : ''}`}
+                  >
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -471,59 +482,65 @@ export default function PostApprovalPanel({
                   </SelectContent>
                 </Select>
                 {approvalErrors.priority && (
-              <p className="text-xs text-red-500">{approvalErrors.priority}</p>
-            )}
+                  <p className="text-xs text-red-500">{approvalErrors.priority}</p>
+                )}
               </div>
             )}
 
-        {/* Review Due Date */}
-        {isEditor && (
-          <div className="space-y-1.5">
-            <div>
-              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
-                Due Date <span className="text-red-500">*</span>
-              </p>
-              <p className="text-xs text-gray-400 mt-0.5">
-                {COPY.calendarPostModal.approvalDueDateHint}
-              </p>
-            </div>
-            <TypedInput
-              type="date"
-              value={post.review_due_date || ''}
-              min={today}
-              onChange={(e) => {
-                const value = e.target.value;
-                if (value && value < today) {
-                  setDueDateError(COPY.calendarPostModal.approvalDueDatePast);
-                  return;
-                }
-                setDueDateError('');
-                // @ts-ignore — checkJs cannot infer useMutation variable types in .jsx files
-                updateMutation.mutate({ review_due_date: value });
-              }}
-              className={`text-sm h-9 ${approvalErrors.dueDate || dueDateError ? 'border-red-400 focus:ring-red-400' : ''}`}
-            />
-            {(approvalErrors.dueDate || dueDateError) && (
-              <p className="text-xs text-red-500">{dueDateError || approvalErrors.dueDate}</p>
+            {/* Review Due Date */}
+            {isEditor && (
+              <div className="space-y-1.5">
+                <div>
+                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                    Due Date <span className="text-red-500">*</span>
+                  </p>
+                  <p className="text-xs text-gray-400 mt-0.5">
+                    {COPY.calendarPostModal.approvalDueDateHint}
+                  </p>
+                </div>
+                <TypedInput
+                  type="date"
+                  value={dueDateDraft}
+                  min={today}
+                  onChange={(e) => {
+                    setDueDateDraft(e.target.value);
+                    if (dueDateError) setDueDateError('');
+                  }}
+                  onBlur={() => {
+                    const value = dueDateDraft;
+                    if (value && value < today) {
+                      setDueDateError(COPY.calendarPostModal.approvalDueDatePast);
+                      return;
+                    }
+                    setDueDateError('');
+                    if (value !== (post.review_due_date || '')) {
+                      // @ts-ignore — checkJs cannot infer useMutation variable types in .jsx files
+                      updateMutation.mutate({ review_due_date: value });
+                    }
+                  }}
+                  className={`text-sm h-9 ${approvalErrors.dueDate || dueDateError ? 'border-red-400 focus:ring-red-400' : ''}`}
+                />
+                {(approvalErrors.dueDate || dueDateError) && (
+                  <p className="text-xs text-red-500">{dueDateError || approvalErrors.dueDate}</p>
+                )}
+              </div>
             )}
           </div>
-        )}
-      </div>
 
-      {/* ── Action Note ── */}
-      <div className="space-y-1.5">
-        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Note</p>
-        <Textarea
-          value={note}
-          onChange={(e) => {
-            setNote(e.target.value);
-            onNoteChange?.(e.target.value);
-          }}
-          placeholder="Add a note to your reviewers (optional)"
-          rows={2}
-          className="resize-none text-sm"
-        />
-      </div>
+          {/* ── Action Note ── */}
+          <div className="space-y-1.5">
+            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Note</p>
+            <TypedTextarea
+              value={note}
+              onChange={(e) => {
+                setNote(e.target.value);
+                onNoteChange?.(e.target.value);
+              }}
+              placeholder="Add a note to your reviewers (optional)"
+              rows={2}
+              className="resize-none text-sm"
+            />
+          </div>
         </>
       )}
 
@@ -644,9 +661,9 @@ export default function PostApprovalPanel({
             className="flex items-center gap-1.5 text-xs font-semibold text-gray-500 uppercase tracking-wide hover:text-gray-700 transition-colors"
           >
             {showHistory ? (
-              <ChevronUp className="w-3.5 h-3.5" />
-            ) : (
               <ChevronDown className="w-3.5 h-3.5" />
+            ) : (
+              <ChevronRight className="w-3.5 h-3.5" />
             )}
             History ({post.workflow_history.length})
           </button>

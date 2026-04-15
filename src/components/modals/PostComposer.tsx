@@ -56,7 +56,6 @@ import EmojiPicker from 'emoji-picker-react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useMediaLibrary } from '@/components/hooks/useMediaLibrary';
-import PostComments from '@/components/social/PostComments';
 import PostApprovalPanel from '@/components/social/PostApprovalPanel';
 import PostCommentThread from '@/components/social/approvals/PostCommentThread';
 import Tooltip from '@/components/ui-custom/Tooltip';
@@ -266,30 +265,6 @@ const DIRTY_FIELDS: (keyof PostFormData)[] = [
   'recurrence_type',
   'recurrence_end_date',
 ];
-
-const SHOW_LEGACY_TEAM_FEEDBACK_TAB = false;
-
-const POST_TABS = [
-  { id: 'compose', label: COPY.calendarPostModal.compose, icon: ImageIcon, enabled: true },
-  {
-    id: 'approval',
-    label: COPY.calendarPostModal.approvalWorkflow,
-    icon: GitBranch,
-    enabled: true,
-  },
-  {
-    id: 'comments',
-    label: COPY.calendarPostModal.comments,
-    icon: MessageSquare,
-    enabled: true,
-  },
-  {
-    id: 'team-feedback',
-    label: COPY.calendarPostModal.teamFeedback,
-    icon: MessageSquare,
-    enabled: SHOW_LEGACY_TEAM_FEEDBACK_TAB,
-  },
-] as const;
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -1735,23 +1710,6 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
           {activeTab === 'comments' && (savedPost ?? post) && (
             <div className="flex-1 p-6">
               <PostCommentThread
-                post={savedPost ?? post}
-                currentUser={currentUser}
-                pendingAction={pendingApprovalAction}
-                onPendingActionComplete={() => {
-                  setPendingApprovalAction(null);
-                  queryClient.invalidateQueries({ queryKey: ['calendar-posts'] });
-                  queryClient.invalidateQueries({ queryKey: ['calendar-posts-all'] });
-                }}
-                onPendingActionCancel={() => setPendingApprovalAction(null)}
-              />
-            </div>
-          )}
-
-          {activeTab === 'team-feedback' && (savedPost ?? post) && (
-            <div className="flex-1 p-6">
-              <PostComments
-                postId={(savedPost ?? post)!.id}
                 post={savedPost ?? post}
                 currentUser={currentUser}
                 pendingAction={pendingApprovalAction}
