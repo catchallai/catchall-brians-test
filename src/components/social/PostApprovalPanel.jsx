@@ -34,14 +34,6 @@ import { formatDistanceToNow, format } from 'date-fns';
 import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 import ApprovalQueueView from '@/components/social/approvals/ApprovalQueueView';
 import ApprovalActionDrawer from '@/components/social/approvals/ApprovalActionDrawer';
-import { CommentActionType } from '@/types/enums';
-
-/** Maps a workflow action string to a CommentActionType for tagging comments. */
-const ACTION_TO_COMMENT_TYPE = {
-  rejected: CommentActionType.REJECTION,
-  approved: CommentActionType.APPROVAL,
-  changes_requested: CommentActionType.REQUEST_CHANGES,
-};
 
 // checkJs loses prop types for shadcn/ui components exported from .jsx files.
 const TypedInput = /** @type {React.ComponentType<any>} */ (Input);
@@ -253,7 +245,7 @@ export default function PostApprovalPanel({
     if (text) {
       history.push({
         action: 'comment',
-        action_type: ACTION_TO_COMMENT_TYPE[action] || CommentActionType.GENERAL,
+        action_type: action,
         by_email: currentUser?.email,
         by_name: currentUser?.full_name || currentUser?.email,
         timestamp: new Date().toISOString(),

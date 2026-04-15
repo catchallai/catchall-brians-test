@@ -4,14 +4,17 @@ import { Loader2, XCircle, CheckCircle2, RotateCcw, X } from 'lucide-react';
 import { PostStatus } from '@/types/enums';
 import COPY from '@/lib/copy';
 
+type ApprovalAction = PostStatus.REJECTED | PostStatus.APPROVED | PostStatus.CHANGES_REQUESTED;
+
 const DRAWER_CONFIG: Record<
-  string,
+  ApprovalAction,
   {
     label: string;
     submitLabel: string;
     placeholder: string;
     icon: typeof XCircle;
     submitClass: string;
+    ringClass: string;
     required: boolean;
   }
 > = {
@@ -45,7 +48,7 @@ const DRAWER_CONFIG: Record<
 };
 
 interface ApprovalActionDrawerProps {
-  actionType: string | null;
+  actionType: ApprovalAction | null;
   onSubmit: (text: string) => void;
   onCancel: () => void;
   isPending: boolean;

@@ -29,17 +29,17 @@ function parseMentions(text) {
 }
 
 const ACTION_TYPE_STYLES = {
-  [CommentActionType.REJECTION]: {
+  [CommentActionType.REJECTED]: {
     badge: COPY.approvalActionDrawer.badge.rejection,
     badgeClass:
       'bg-red-100 text-red-700 border border-red-200 dark:bg-red-900/40 dark:text-red-300 dark:border-red-800',
   },
-  [CommentActionType.APPROVAL]: {
+  [CommentActionType.APPROVED]: {
     badge: COPY.approvalActionDrawer.badge.approval,
     badgeClass:
       'bg-green-100 text-green-700 border border-green-200 dark:bg-green-900/40 dark:text-green-300 dark:border-green-800',
   },
-  [CommentActionType.REQUEST_CHANGES]: {
+  [CommentActionType.CHANGES_REQUESTED]: {
     badge: COPY.approvalActionDrawer.badge.request_changes,
     badgeClass:
       'bg-amber-100 text-amber-700 border border-amber-200 dark:bg-amber-900/40 dark:text-amber-300 dark:border-amber-800',
@@ -143,26 +143,26 @@ export default function PostCommentThread({ post, currentUser }) {
   const { comments, commentActionMap } = useMemo(() => {
     const history = post.workflow_history || [];
     const actionMap = new Map();
-    const ACTION_TYPES = {
-      rejected: CommentActionType.REJECTION,
-      approved: CommentActionType.APPROVAL,
-      changes_requested: CommentActionType.REQUEST_CHANGES,
-    };
+    const ACTION_ACTIONS = new Set([
+      CommentActionType.REJECTED,
+      CommentActionType.APPROVED,
+      CommentActionType.CHANGES_REQUESTED,
+    ]);
 
     for (let i = 0; i < history.length; i++) {
       const entry = history[i];
       if (entry.action !== 'comment') continue;
 
       // Check if the entry already has an action_type field
-      if (entry.action_type && entry.action_type !== CommentActionType.GENERAL) {
+      if (entry.action_type && ACTION_ACTIONS.has(entry.action_type)) {
         actionMap.set(entry.timestamp, entry.action_type);
         continue;
       }
 
       // Look at the next entry — if it's an action from the same user, link them
       const next = history[i + 1];
-      if (next && ACTION_TYPES[next.action] && next.by_email === entry.by_email) {
-        actionMap.set(entry.timestamp, ACTION_TYPES[next.action]);
+      if (next && ACTION_ACTIONS.has(next.action) && next.by_email === entry.by_email) {
+        actionMap.set(entry.timestamp, next.action);
       }
     }
 
