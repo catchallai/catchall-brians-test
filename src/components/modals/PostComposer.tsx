@@ -60,6 +60,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useMediaLibrary } from '@/components/hooks/useMediaLibrary';
 import PostComments from '@/components/social/PostComments';
 import PostApprovalPanel from '@/components/social/PostApprovalPanel';
+import PostCommentThread from '@/components/social/approvals/PostCommentThread';
 import Tooltip from '@/components/ui-custom/Tooltip';
 import { todayLocal } from '@/utils/date';
 import useUnsavedChangesGuard from '@/components/hooks/useUnsavedChangesGuard';
@@ -253,6 +254,30 @@ const DIRTY_FIELDS: (keyof PostFormData)[] = [
   'recurrence_type',
   'recurrence_end_date',
 ];
+
+const SHOW_LEGACY_TEAM_FEEDBACK_TAB = false;
+
+const POST_TABS = [
+  { id: 'compose', label: COPY.calendarPostModal.compose, icon: ImageIcon, enabled: true },
+  {
+    id: 'approval',
+    label: COPY.calendarPostModal.approvalWorkflow,
+    icon: GitBranch,
+    enabled: true,
+  },
+  {
+    id: 'comments',
+    label: COPY.calendarPostModal.comments,
+    icon: MessageSquare,
+    enabled: true,
+  },
+  {
+    id: 'team-feedback',
+    label: COPY.calendarPostModal.teamFeedback,
+    icon: MessageSquare,
+    enabled: SHOW_LEGACY_TEAM_FEEDBACK_TAB,
+  },
+] as const;
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -614,6 +639,7 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
   const [previewPlatform, setPreviewPlatform] = useState('Twitter');
   const [showPreview, setShowPreview] = useState(true);
   const [activeTab, setActiveTab] = useState('compose');
+  const [pendingApprovalAction, setPendingApprovalAction] = useState<string | null>(null);
 
   const [showBestTimes, setShowBestTimes] = useState(false);
   const [scheduleError, setScheduleError] = useState('');
@@ -1436,11 +1462,7 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
         {/* Tabs (only for existing posts) */}
         {post && (
           <div className="flex border-b border-gray-100 dark:border-gray-800 px-6 bg-white dark:bg-gray-900">
-            {[
-              { id: 'compose', label: COPY.calendarPostModal.compose, icon: ImageIcon },
-              { id: 'approval', label: COPY.calendarPostModal.approvalWorkflow, icon: GitBranch },
-              { id: 'comments', label: COPY.calendarPostModal.teamFeedback, icon: MessageSquare },
-            ].map((tab) => (
+            {POST_TABS.filter((tab) => tab.enabled).map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
@@ -1467,6 +1489,10 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
                 onUpdate={(updatedPost: Partial<PostFormData> | null) => {
                   if (updatedPost) setFormData((f) => ({ ...f, ...updatedPost }));
                 }}
+                onPendingAction={(action: string) => {
+                  setPendingApprovalAction(action);
+                  setActiveTab('comments');
+                }}
               />
             </div>
           )}
@@ -1474,7 +1500,34 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
           {/* Comments tab */}
           {activeTab === 'comments' && post && (
             <div className="flex-1 p-6">
-              <PostComments postId={post.id} currentUser={currentUser} />
+              <PostCommentThread
+                post={post}
+                currentUser={currentUser}
+                pendingAction={pendingApprovalAction}
+                onPendingActionComplete={() => {
+                  setPendingApprovalAction(null);
+                  queryClient.invalidateQueries({ queryKey: ['calendar-posts'] });
+                  queryClient.invalidateQueries({ queryKey: ['calendar-posts-all'] });
+                }}
+                onPendingActionCancel={() => setPendingApprovalAction(null)}
+              />
+            </div>
+          )}
+
+          {activeTab === 'team-feedback' && post && (
+            <div className="flex-1 p-6">
+              <PostComments
+                postId={post.id}
+                post={post}
+                currentUser={currentUser}
+                pendingAction={pendingApprovalAction}
+                onPendingActionComplete={() => {
+                  setPendingApprovalAction(null);
+                  queryClient.invalidateQueries({ queryKey: ['calendar-posts'] });
+                  queryClient.invalidateQueries({ queryKey: ['calendar-posts-all'] });
+                }}
+                onPendingActionCancel={() => setPendingApprovalAction(null)}
+              />
             </div>
           )}
 

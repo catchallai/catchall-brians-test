@@ -112,6 +112,7 @@ import Payments from './pages/Payments';
 import PitchDeckAnalyzer from './pages/PitchDeckAnalyzer';
 import PitchDeckCreator from './pages/PitchDeckCreator';
 import PostalMailModule from './pages/PostalMailModule';
+import PostApprovalView from './pages/PostApprovalView';
 import PressMonitoring from './pages/PressMonitoring';
 import ProductsModule from './pages/ProductsModule';
 import ProjectCalendar from './pages/ProjectCalendar';
@@ -236,6 +237,7 @@ export const PAGES = {
   PitchDeckAnalyzer: PitchDeckAnalyzer,
   PitchDeckCreator: PitchDeckCreator,
   PostalMailModule: PostalMailModule,
+  PostApprovalView: PostApprovalView,
   PressMonitoring: PressMonitoring,
   ProductsModule: ProductsModule,
   ProjectCalendar: ProjectCalendar,

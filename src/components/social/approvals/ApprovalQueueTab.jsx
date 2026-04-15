@@ -86,9 +86,9 @@ export default function ApprovalQueueTab({
   const [search, setSearch] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
   const [filterPriority, setFilterPriority] = useState('all');
-  const [photoSwipeIdx, setPhotoSwipeIdx] = useState(0);
-  const [note, setNote] = useState('');
+  const [_photoSwipeIdx, setPhotoSwipeIdx] = useState(0);
   const [rightPanel, setRightPanel] = useState('approval'); // 'approval' | 'comments' | 'activity' | 'workflow'
+  const [pendingAction, setPendingAction] = useState(null);
 
   const queuePosts = posts
     .filter((p) =>
@@ -104,15 +104,14 @@ export default function ApprovalQueueTab({
       return matchSearch && matchStatus && matchPriority;
     });
 
-  const updateMutation = useMutation({
+  const _updateMutation = useMutation({
     mutationFn: ({ id, data }) => base44.entities.CalendarPost.update(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['calendar-posts-all'] });
-      setNote('');
     },
   });
 
-  const addHistoryEntry = (post, action, extra = {}) => {
+  const _addHistoryEntry = (post, action, extra = {}) => {
     const history = post.workflow_history || [];
     return {
       workflow_history: [
@@ -122,7 +121,6 @@ export default function ApprovalQueueTab({
           by_email: currentUser?.email,
           by_name: currentUser?.full_name || currentUser?.email,
           timestamp: new Date().toISOString(),
-          note: note || undefined,
         },
       ],
       ...extra,
@@ -132,10 +130,10 @@ export default function ApprovalQueueTab({
   const isApprover = ['admin', 'approver'].includes(
     currentUser?.social_media_role || currentUser?.role
   );
-  const isEditor =
+  const _isEditor =
     isApprover || ['editor'].includes(currentUser?.social_media_role || currentUser?.role);
 
-  const mediaItems = selectedPost?.image_url ? [selectedPost.image_url] : [];
+  const _mediaItems = selectedPost?.image_url ? [selectedPost.image_url] : [];
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
@@ -198,7 +196,6 @@ export default function ApprovalQueueTab({
                 onClick={() => {
                   onSelectPost(isSelected ? null : post);
                   setPhotoSwipeIdx(0);
-                  setNote('');
                 }}
                 className={`cursor-pointer rounded-2xl border p-4 transition-all ${
                   isSelected
@@ -361,10 +358,23 @@ export default function ApprovalQueueTab({
                   onUpdate={() =>
                     queryClient.invalidateQueries({ queryKey: ['calendar-posts-all'] })
                   }
+                  onPendingAction={(action) => {
+                    setPendingAction(action);
+                    setRightPanel('comments');
+                  }}
                 />
               )}
               {rightPanel === 'comments' && (
-                <PostCommentThread post={selectedPost} currentUser={currentUser} />
+                <PostCommentThread
+                  post={selectedPost}
+                  currentUser={currentUser}
+                  pendingAction={pendingAction}
+                  onPendingActionComplete={() => {
+                    setPendingAction(null);
+                    queryClient.invalidateQueries({ queryKey: ['calendar-posts-all'] });
+                  }}
+                  onPendingActionCancel={() => setPendingAction(null)}
+                />
               )}
               {rightPanel === 'activity' && <PostActivityFeed post={selectedPost} />}
               {rightPanel === 'workflow' && <WorkflowStageBuilder />}

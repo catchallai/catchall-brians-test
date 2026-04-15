@@ -29,3 +29,17 @@ export enum PostStatus {
 }
 
 export type PlatformId = 'Twitter' | 'LinkedIn' | 'Facebook' | 'Instagram' | 'YouTube' | 'TikTok';
+
+export enum PostPriority {
+  LOW = 'low',
+  NORMAL = 'normal',
+  HIGH = 'high',
+  URGENT = 'urgent',
+}
+
+export const POST_PRIORITY_OPTIONS: { value: PostPriority; label: string }[] = [
+  { value: PostPriority.LOW, label: 'Low' },
+  { value: PostPriority.NORMAL, label: 'Normal' },
+  { value: PostPriority.HIGH, label: 'High' },
+  { value: PostPriority.URGENT, label: 'Urgent' },
+];

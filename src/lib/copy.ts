@@ -51,6 +51,7 @@ const COPY = {
     preview: 'Preview',
     compose: 'Compose',
     approvalWorkflow: 'Approval Workflow',
+    comments: 'Comments',
     teamFeedback: 'Team Feedback',
     captionPlaceholder: 'Start writing your post here...',
     seePreviewHere: "See your post's preview here",
@@ -219,6 +220,35 @@ const COPY = {
     newCategoryAdd: 'Add',
     newCategoryCancel: 'Cancel',
     createPoolError: 'Failed to create hashtag pool. Please try again.',
+  },
+  approvalQueueView: {
+    reviewer: 'Reviewer',
+    notAssigned: 'Not assigned',
+    priority: 'Priority',
+    notSet: 'Not set',
+    dueDate: 'Due Date',
+    note: 'Note',
+    noNote: 'No note',
+  },
+  approvalWidget: {
+    views: 'Views',
+    approved: 'Approved',
+    rejectedOrChangesRequested: 'Rejected / Changes Requested',
+    noDueDateSet: 'No Due Date Set',
+    overdue: 'OVERDUE',
+    leftUntilDeadline: 'left until Deadline',
+  },
+  postApprovalView: {
+    postNotFound: 'Post not found.',
+    backToAllChannels: 'Back to All Channels',
+    mediaRetainedNotice:
+      'Media retained for version history — not transferred to the Approved Media Database.',
+    activity: 'Activity',
+    workflow: 'Workflow',
+  },
+  postCommentThread: {
+    rejectionBanner: 'Leave a comment explaining the rejection to submit it.',
+    changesBanner: 'Leave a comment explaining the requested changes to submit it.',
   },
   general: {
     close: 'Close',
