@@ -167,7 +167,7 @@ export default function PostApprovalView() {
         <div className="flex gap-1 bg-gray-100 dark:bg-slate-800 rounded-xl p-1">
           {[
             { key: 'approval', label: COPY.calendarPostModal.approvalWorkflow, icon: ShieldCheck },
-            { key: 'comments', label: COPY.calendarPostModal.teamFeedback, icon: MessageSquare },
+            { key: 'comments', label: COPY.calendarPostModal.comments, icon: MessageSquare },
             { key: 'activity', label: COPY.postApprovalView.activity, icon: Bell },
             { key: 'workflow', label: COPY.postApprovalView.workflow, icon: FileText },
           ].map(({ key, label, icon: Icon }) => (
