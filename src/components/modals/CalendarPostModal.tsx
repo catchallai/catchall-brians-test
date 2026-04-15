@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react';
 import React from 'react';
+import { Maximize2, Minimize2 } from 'lucide-react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import PostComposer, {
   type PostComposerRef,
@@ -73,8 +74,17 @@ export default function CalendarPostModal({
           isLoading={isLoading}
           hashtagPool={hashtagPool}
           currentMonth={currentMonth}
-          isFullscreen={isFullscreen}
-          onFullscreenToggle={() => setIsFullscreen((f) => !f)}
+          headerActions={
+            <button
+              type="button"
+              onClick={() => setIsFullscreen((f) => !f)}
+              className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors text-gray-400"
+              aria-label={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
+              title={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
+            >
+              {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
+            </button>
+          }
         />
       </TypedDialogContent>
     </Dialog>

@@ -86,6 +86,15 @@ function CommentBubble({ comment, currentUser, onReply }) {
   );
 }
 
+/**
+ * @param {{
+ *   post: any,
+ *   currentUser: any,
+ *   pendingAction?: string | null,
+ *   onPendingActionComplete?: () => void,
+ *   onPendingActionCancel?: () => void,
+ * }} props
+ */
 export default function PostCommentThread({
   post,
   currentUser,

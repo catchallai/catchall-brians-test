@@ -159,6 +159,25 @@ export default function SocialCalendar() {
     queryFn: () => base44.entities.CalendarPost.list('-scheduled_date', 100),
   });
 
+  // Open a specific post from a ?postId= deep-link.
+  // Fires once posts are loaded; clears the param so a refresh doesn't re-open it.
+  useEffect(() => {
+    const postId = searchParams.get('postId');
+    if (!postId || isLoading || posts.length === 0) return;
+    const target = posts.find((p) => p.id === postId);
+    if (target) {
+      setSelectedPost(target);
+      setShowModal(true);
+      setSearchParams(
+        (p) => {
+          p.delete('postId');
+          return p;
+        },
+        { replace: true }
+      );
+    }
+  }, [searchParams, posts, isLoading]);
+
   const { data: hashtagPool = [] } = useQuery({
     queryKey: ['hashtag-pool'],
     queryFn: () => base44.entities.HashtagPool.list('-usage_count', 200),
@@ -235,8 +254,6 @@ export default function SocialCalendar() {
     mutationFn: (data) => base44.entities.CalendarPost.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['calendar-posts'] });
-      setShowModal(false);
-      setSelectedPost(null);
     },
   });
 
@@ -245,8 +262,6 @@ export default function SocialCalendar() {
       base44.entities.CalendarPost.update(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['calendar-posts'] });
-      setShowModal(false);
-      setSelectedPost(null);
     },
   });
 
@@ -312,7 +327,7 @@ export default function SocialCalendar() {
         }
       }
 
-      await updateMutation.mutateAsync({ id: selectedPost.id, data: updateData });
+      return await updateMutation.mutateAsync({ id: selectedPost.id, data: updateData });
     } else {
       let order;
       if (selectedPost?.order !== undefined && selectedPost?.order !== null) {
@@ -329,7 +344,14 @@ export default function SocialCalendar() {
           order++;
         }
       }
-      await createMutation.mutateAsync({ ...data, order });
+      const created = await createMutation.mutateAsync({ ...data, order });
+      // Promote the newly created post into selectedPost so subsequent saves in
+      // the same modal session take the update branch instead of creating a
+      // duplicate (e.g. user saves a Draft, then clicks Send for Approval).
+      if (created) {
+        setSelectedPost(created);
+      }
+      return created;
     }
   };
 
