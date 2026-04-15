@@ -371,8 +371,12 @@ function PlatformPreviewPanel({
   imageAspectRatio = 1.91,
   onCropClick,
 }: PlatformPreviewPanelProps) {
-  const [inferredRatio, setInferredRatio] = useState<number | null>(null);
-  useEffect(() => setInferredRatio(null), [imageUrl]);
+  // Store the inferred natural ratio alongside the URL it came from. When the
+  // prop URL changes, the stored URL no longer matches and inferredRatio
+  // derives to null automatically — no effect, no render-phase setState, and
+  // no brief paint with the previous image's ratio.
+  const [inferred, setInferred] = useState<{ url: string; ratio: number } | null>(null);
+  const inferredRatio = inferred?.url === imageUrl ? inferred.ratio : null;
 
   const p =
     PLATFORMS.find((pl) => pl.id === platform) ??
@@ -425,7 +429,10 @@ function PlatformPreviewPanel({
                 className="w-full object-cover"
                 style={{ aspectRatio: inferredRatio ?? imageAspectRatio }}
                 onLoad={(e) =>
-                  setInferredRatio(e.currentTarget.naturalWidth / e.currentTarget.naturalHeight)
+                  setInferred({
+                    url: imageUrl,
+                    ratio: e.currentTarget.naturalWidth / e.currentTarget.naturalHeight,
+                  })
                 }
               />
               {onCropClick && (
