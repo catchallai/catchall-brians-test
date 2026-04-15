@@ -257,8 +257,6 @@ const COPY = {
     workflow: 'Workflow',
   },
   postCommentThread: {
-    rejectionBanner: 'Leave a comment explaining the rejection to submit it.',
-    changesBanner: 'Leave a comment explaining the requested changes to submit it.',
     emptyTitle: 'No comments yet',
     emptySubtitle: 'Leave feedback or notes for the team.',
     inputPlaceholder: 'Add a comment\u2026 use @ to mention someone',

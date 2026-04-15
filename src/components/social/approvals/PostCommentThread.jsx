@@ -69,7 +69,11 @@ function CommentCard({ comment, currentUser, onReply, derivedActionType, isUnrea
         {/* Header: unread dot, name, action badge, timestamp, reply */}
         <div className="flex items-center gap-2 flex-wrap">
           {isUnread && (
-            <span className="w-2 h-2 rounded-full bg-blue-500 shrink-0" aria-label="Unread" />
+            <span
+              className="w-2 h-2 rounded-full bg-blue-500 shrink-0"
+              role="img"
+              aria-label="Unread"
+            />
           )}
           <span className="text-xs font-semibold text-gray-900 dark:text-white">{displayName}</span>
           {actionStyle && (
@@ -222,6 +226,10 @@ export default function PostCommentThread({ post, currentUser }) {
       .then(() => {
         queryClient.invalidateQueries({ queryKey: ['calendar-post'] });
         queryClient.invalidateQueries({ queryKey: ['calendar-posts-all'] });
+      })
+      .catch(() => {
+        // Reset so the next mount can retry
+        hasRecordedView.current = null;
       });
   }, [post.id, currentUser, comments.length, queryClient]);
 
@@ -286,7 +294,7 @@ export default function PostCommentThread({ post, currentUser }) {
     .slice(0, 5);
 
   const handleSubmit = () => {
-    if (!text.trim()) return;
+    if (!text.trim() || !currentUser?.email) return;
 
     const comment = {
       action: 'comment',
@@ -444,7 +452,7 @@ export default function PostCommentThread({ post, currentUser }) {
           <Button
             size="icon"
             onClick={handleSubmit}
-            disabled={!text.trim() || mutation.isPending}
+            disabled={!text.trim() || !currentUser?.email || mutation.isPending}
             className="bg-violet-600 hover:bg-violet-700 rounded-xl h-10 w-10 shrink-0"
           >
             {mutation.isPending ? (
