@@ -4,7 +4,7 @@ import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { Send, AtSign, Loader2, MessageSquare, Reply } from 'lucide-react';
+import { Send, AtSign, Loader2, MessageSquare, Reply, AlertTriangle, XCircle } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 
 // Simple @mention detection: finds @word patterns
@@ -84,7 +84,13 @@ function CommentBubble({ comment, currentUser, onReply }) {
   );
 }
 
-export default function PostCommentThread({ post, currentUser }) {
+export default function PostCommentThread({
+  post,
+  currentUser,
+  pendingAction = null,
+  onPendingActionComplete,
+  onPendingActionCancel,
+}) {
   const queryClient = useQueryClient();
   const [text, setText] = useState('');
   const [replyTo, setReplyTo] = useState(null);
@@ -101,14 +107,24 @@ export default function PostCommentThread({ post, currentUser }) {
   const comments = post.workflow_history?.filter((e) => e.action === 'comment') || [];
 
   const mutation = useMutation({
-    mutationFn: (newComment) =>
-      base44.entities.CalendarPost.update(post.id, {
-        workflow_history: [...(post.workflow_history || []), newComment],
-      }),
-    onSuccess: () => {
+    mutationFn: ({ comment, workflowEvent, statusUpdate }) => {
+      const history = [...(post.workflow_history || []), comment];
+      if (workflowEvent) {
+        history.push(workflowEvent);
+      }
+      return base44.entities.CalendarPost.update(post.id, {
+        workflow_history: history,
+        ...statusUpdate,
+      });
+    },
+    onSuccess: (_, { statusUpdate }) => {
       queryClient.invalidateQueries({ queryKey: ['calendar-posts-all'] });
+      queryClient.invalidateQueries({ queryKey: ['calendar-post'] });
       setText('');
       setReplyTo(null);
+      if (statusUpdate && onPendingActionComplete) {
+        onPendingActionComplete();
+      }
     },
   });
 
@@ -158,7 +174,8 @@ export default function PostCommentThread({ post, currentUser }) {
     if (!text.trim()) {
       return;
     }
-    mutation.mutate({
+
+    const comment = {
       action: 'comment',
       by_email: currentUser?.email,
       by_name: currentUser?.full_name || currentUser?.email,
@@ -166,7 +183,25 @@ export default function PostCommentThread({ post, currentUser }) {
       text: text.trim(),
       reply_to_name: replyTo?.by_name,
       reply_to_id: replyTo?.timestamp,
-    });
+    };
+
+    let workflowEvent = null;
+    let statusUpdate = null;
+
+    if (pendingAction) {
+      workflowEvent = {
+        action: pendingAction,
+        by_email: currentUser?.email,
+        by_name: currentUser?.full_name || currentUser?.email,
+        timestamp: new Date().toISOString(),
+      };
+      statusUpdate =
+        pendingAction === 'rejected'
+          ? { status: 'rejected', rejected_reason: text.trim(), media_approved: false }
+          : { status: 'changes_requested' };
+    }
+
+    mutation.mutate({ comment, workflowEvent, statusUpdate });
   };
 
   return (
@@ -178,6 +213,36 @@ export default function PostCommentThread({ post, currentUser }) {
           {comments.length}
         </Badge>
       </div>
+
+      {/* Pending action banner */}
+      {pendingAction && (
+        <div
+          className={`flex items-center justify-between rounded-lg px-3 py-2 mb-3 text-xs ${
+            pendingAction === 'rejected'
+              ? 'bg-red-50 border border-red-200 text-red-700'
+              : 'bg-orange-50 border border-orange-200 text-orange-700'
+          }`}
+        >
+          <div className="flex items-center gap-1.5">
+            {pendingAction === 'rejected' ? (
+              <XCircle className="w-3.5 h-3.5 shrink-0" />
+            ) : (
+              <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
+            )}
+            <span className="font-medium">
+              {pendingAction === 'rejected'
+                ? 'Leave a comment explaining the rejection to submit it.'
+                : 'Leave a comment explaining the requested changes to submit it.'}
+            </span>
+          </div>
+          <button
+            onClick={onPendingActionCancel}
+            className="text-gray-400 hover:text-gray-600 font-medium ml-2"
+          >
+            Cancel
+          </button>
+        </div>
+      )}
 
       {/* Comment list */}
       <div className="flex-1 overflow-y-auto space-y-3 min-h-0 max-h-64 pr-1">

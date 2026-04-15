@@ -19,6 +19,7 @@ export default function PostApprovalView() {
   const postId = searchParams.get('id');
   const [rightPanel, setRightPanel] = useState('approval');
   const [previewPlatform, setPreviewPlatform] = useState(null);
+  const [pendingAction, setPendingAction] = useState(null);
 
   const { data: currentUser } = useQuery({
     queryKey: ['current-user'],
@@ -191,9 +192,25 @@ export default function PostApprovalView() {
                 queryClient.invalidateQueries({ queryKey: ['calendar-posts-all'] });
                 queryClient.invalidateQueries({ queryKey: ['calendar-post', postId] });
               }}
+              onPendingAction={(action) => {
+                setPendingAction(action);
+                setRightPanel('comments');
+              }}
             />
           )}
-          {rightPanel === 'comments' && <PostCommentThread post={post} currentUser={currentUser} />}
+          {rightPanel === 'comments' && (
+            <PostCommentThread
+              post={post}
+              currentUser={currentUser}
+              pendingAction={pendingAction}
+              onPendingActionComplete={() => {
+                setPendingAction(null);
+                queryClient.invalidateQueries({ queryKey: ['calendar-posts-all'] });
+                queryClient.invalidateQueries({ queryKey: ['calendar-post', postId] });
+              }}
+              onPendingActionCancel={() => setPendingAction(null)}
+            />
+          )}
           {rightPanel === 'activity' && <PostActivityFeed post={post} />}
           {rightPanel === 'workflow' && <WorkflowStageBuilder />}
         </div>

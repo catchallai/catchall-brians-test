@@ -6,10 +6,17 @@ import { Textarea } from '@/components/ui/textarea';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
-import { MessageSquare, Send, CheckCircle, Loader2 } from 'lucide-react';
+import { MessageSquare, Send, CheckCircle, Loader2, AlertTriangle, XCircle } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 
-export default function PostComments({ postId, currentUser }) {
+export default function PostComments({
+  postId,
+  post,
+  currentUser,
+  pendingAction = null,
+  onPendingActionComplete,
+  onPendingActionCancel,
+}) {
   const [newComment, setNewComment] = useState('');
   const queryClient = useQueryClient();
 
@@ -19,11 +26,42 @@ export default function PostComments({ postId, currentUser }) {
     enabled: !!postId,
   });
 
+  const workflowMutation = useMutation({
+    mutationFn: ({ action, commentText }) => {
+      const history = post?.workflow_history || [];
+      const workflowEvent = {
+        action,
+        by_email: currentUser?.email,
+        by_name: currentUser?.full_name || currentUser?.email,
+        timestamp: new Date().toISOString(),
+      };
+      const statusUpdate =
+        action === 'rejected'
+          ? { status: 'rejected', rejected_reason: commentText, media_approved: false }
+          : { status: 'changes_requested' };
+      return base44.entities.CalendarPost.update(post.id, {
+        workflow_history: [...history, workflowEvent],
+        ...statusUpdate,
+      });
+    },
+    onSuccess: () => {
+      if (onPendingActionComplete) {
+        onPendingActionComplete();
+      }
+    },
+  });
+
   const addCommentMutation = useMutation({
     mutationFn: (data) => base44.entities.PostComment.create(data),
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['post-comments', postId] });
       setNewComment('');
+      if (pendingAction && post) {
+        workflowMutation.mutate({
+          action: pendingAction,
+          commentText: variables.comment,
+        });
+      }
     },
   });
 
@@ -64,6 +102,36 @@ export default function PostComments({ postId, currentUser }) {
         <MessageSquare className="w-4 h-4" />
         Team Feedback ({comments.length})
       </div>
+
+      {/* Pending action banner */}
+      {pendingAction && (
+        <div
+          className={`flex items-center justify-between rounded-lg px-3 py-2 text-xs ${
+            pendingAction === 'rejected'
+              ? 'bg-red-50 border border-red-200 text-red-700'
+              : 'bg-orange-50 border border-orange-200 text-orange-700'
+          }`}
+        >
+          <div className="flex items-center gap-1.5">
+            {pendingAction === 'rejected' ? (
+              <XCircle className="w-3.5 h-3.5 shrink-0" />
+            ) : (
+              <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
+            )}
+            <span className="font-medium">
+              {pendingAction === 'rejected'
+                ? 'Leave a comment explaining the rejection to submit it.'
+                : 'Leave a comment explaining the requested changes to submit it.'}
+            </span>
+          </div>
+          <button
+            onClick={onPendingActionCancel}
+            className="text-gray-400 hover:text-gray-600 font-medium ml-2"
+          >
+            Cancel
+          </button>
+        </div>
+      )}
 
       {/* Comments List */}
       <div className="space-y-3 max-h-64 overflow-y-auto">

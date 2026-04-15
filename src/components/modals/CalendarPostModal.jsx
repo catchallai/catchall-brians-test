@@ -461,6 +461,7 @@ export default function CalendarPostModal({
   const [showPreview, setShowPreview] = useState(true);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [activeTab, setActiveTab] = useState('compose');
+  const [pendingApprovalAction, setPendingApprovalAction] = useState(null);
 
   const [showBestTimes, setShowBestTimes] = useState(false);
   const [scheduleError, setScheduleError] = useState('');
@@ -1357,6 +1358,10 @@ export default function CalendarPostModal({
                       setFormData((f) => ({ ...f, ...updatedPost }));
                     }
                   }}
+                  onPendingAction={(action) => {
+                    setPendingApprovalAction(action);
+                    setActiveTab('comments');
+                  }}
                 />
               </div>
             )}
@@ -1364,7 +1369,18 @@ export default function CalendarPostModal({
             {/* Comments tab */}
             {activeTab === 'comments' && post && (
               <div className="flex-1 p-6">
-                <PostComments postId={post.id} currentUser={currentUser} />
+                <PostComments
+                  postId={post.id}
+                  post={post}
+                  currentUser={currentUser}
+                  pendingAction={pendingApprovalAction}
+                  onPendingActionComplete={() => {
+                    setPendingApprovalAction(null);
+                    queryClient.invalidateQueries({ queryKey: ['calendar-posts'] });
+                    queryClient.invalidateQueries({ queryKey: ['calendar-posts-all'] });
+                  }}
+                  onPendingActionCancel={() => setPendingApprovalAction(null)}
+                />
               </div>
             )}
 
