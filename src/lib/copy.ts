@@ -51,6 +51,7 @@ const COPY = {
     preview: 'Preview',
     compose: 'Compose',
     approvalWorkflow: 'Approval Workflow',
+    comments: 'Comments',
     teamFeedback: 'Team Feedback',
     captionPlaceholder: 'Start writing your post here...',
     seePreviewHere: "See your post's preview here",
