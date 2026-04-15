@@ -12,6 +12,7 @@ const DRAWER_CONFIG: Record<
     label: string;
     submitLabel: string;
     placeholder: string;
+    ringClass: string;
     icon: typeof XCircle;
     submitClass: string;
     ringClass: string;
