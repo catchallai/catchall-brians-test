@@ -233,6 +233,18 @@
           },
           "note": {
             "type": "string"
+          },
+          "text": {
+            "type": "string",
+            "description": "Comment body text"
+          },
+          "reply_to_name": {
+            "type": "string",
+            "description": "Name of the user being replied to"
+          },
+          "reply_to_id": {
+            "type": "string",
+            "description": "Timestamp ID of the comment being replied to"
           }
         }
       },
