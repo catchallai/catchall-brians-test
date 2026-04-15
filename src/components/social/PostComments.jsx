@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { MessageSquare, Send, CheckCircle, Loader2, AlertTriangle, XCircle } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
-import { COPY } from '@/lib/copy';
+import COPY from '@/lib/copy';
 
 export default function PostComments({
   postId,
