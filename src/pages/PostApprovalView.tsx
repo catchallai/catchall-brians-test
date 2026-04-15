@@ -21,6 +21,14 @@ export default function PostApprovalView() {
   const [rightPanel, setRightPanel] = useState('approval');
   const [previewPlatform, setPreviewPlatform] = useState<string | null>(null);
   const [pendingAction, setPendingAction] = useState<string | null>(null);
+  const [inferredRatio, setInferredRatio] = useState<number | null>(null);
+
+  // Reset the inferred aspect ratio when switching platforms so we don't
+  // briefly display the previous platform's cropped image with the new
+  // platform's natural ratio.
+  useEffect(() => {
+    setInferredRatio(null);
+  }, [previewPlatform]);
 
   const { data: currentUser } = useQuery({
     queryKey: ['current-user'],
@@ -111,9 +119,29 @@ export default function PostApprovalView() {
                 </div>
 
                 {/* Media */}
-                {post.image_url && (
-                  <img src={post.image_url} alt="" className="w-full object-cover" />
-                )}
+                {(() => {
+                  // Prefer the per-platform cropped URL (produced by ImageCropPanel
+                  // with crop/tilt/flip already baked in). Fall back to the raw
+                  // image_url when the post hasn't been cropped for this platform.
+                  const croppedUrl = post.platform_image_urls?.[activePlatform];
+                  const imageSrc = croppedUrl ?? post.image_url;
+                  if (!imageSrc) return null;
+                  const box = post.platform_crop_metadata?.[activePlatform]?.cropBox;
+                  const fallbackRatio = box ? box.w / box.h : platformCfg.aspectRatio;
+                  return (
+                    <img
+                      src={imageSrc}
+                      alt=""
+                      className="w-full object-cover"
+                      style={{ aspectRatio: inferredRatio ?? fallbackRatio }}
+                      onLoad={(e) =>
+                        setInferredRatio(
+                          e.currentTarget.naturalWidth / e.currentTarget.naturalHeight
+                        )
+                      }
+                    />
+                  );
+                })()}
                 {post.video_url && !post.image_url && (
                   <video
                     src={post.video_url}
