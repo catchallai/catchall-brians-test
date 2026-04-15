@@ -23,13 +23,6 @@ export default function PostApprovalView() {
   const [pendingAction, setPendingAction] = useState<string | null>(null);
   const [inferredRatio, setInferredRatio] = useState<number | null>(null);
 
-  // Reset the inferred aspect ratio when switching platforms so we don't
-  // briefly display the previous platform's cropped image with the new
-  // platform's natural ratio.
-  useEffect(() => {
-    setInferredRatio(null);
-  }, [previewPlatform]);
-
   const { data: currentUser } = useQuery({
     queryKey: ['current-user'],
     queryFn: () => base44.auth.me(),
@@ -91,7 +84,15 @@ export default function PostApprovalView() {
                   {PLATFORMS.filter((pl) => post.platforms.includes(pl.id)).map((pl) => (
                     <button
                       key={pl.id}
-                      onClick={() => setPreviewPlatform(pl.id)}
+                      onClick={() => {
+                        // Reset inferredRatio synchronously with the platform
+                        // change so the first render of the new platform's
+                        // preview doesn't briefly paint the new image with the
+                        // previous platform's natural aspect ratio. React
+                        // batches both updates into a single render.
+                        setPreviewPlatform(pl.id);
+                        setInferredRatio(null);
+                      }}
                       className={`px-3 py-2 text-xs font-medium border-b-2 transition-colors ${
                         activePlatform === pl.id
                           ? 'border-violet-500 text-violet-600 dark:text-violet-400'

@@ -372,7 +372,15 @@ function PlatformPreviewPanel({
   onCropClick,
 }: PlatformPreviewPanelProps) {
   const [inferredRatio, setInferredRatio] = useState<number | null>(null);
-  useEffect(() => setInferredRatio(null), [imageUrl]);
+  // Reset during render (rather than in a useEffect) so the first render after
+  // imageUrl changes already has inferredRatio=null. A post-commit useEffect
+  // here would let one frame paint the new image with the previous image's
+  // natural aspect ratio before the reset landed.
+  const [prevImageUrl, setPrevImageUrl] = useState(imageUrl);
+  if (prevImageUrl !== imageUrl) {
+    setPrevImageUrl(imageUrl);
+    setInferredRatio(null);
+  }
 
   const p =
     PLATFORMS.find((pl) => pl.id === platform) ??
