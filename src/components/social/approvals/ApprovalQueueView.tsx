@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { PostPriority } from '@/types/enums';
 import { UserPlus } from 'lucide-react';
 import { format, formatDistanceToNow } from 'date-fns';
+import COPY from '@/lib/copy';
 
 // shadcn components ship as .jsx without TypeScript types; cast to usable FC signatures
 const TypedAvatar = Avatar as FC<ComponentProps<'span'>>;
@@ -42,7 +43,7 @@ export default function ApprovalQueueView({
         {/* Reviewer */}
         <div className="space-y-1.5">
           <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide flex items-center gap-1.5">
-            <UserPlus className="w-3.5 h-3.5" /> Reviewer
+            <UserPlus className="w-3.5 h-3.5" /> {COPY.approvalQueueView.reviewer}
           </p>
           {reviewer?.email ? (
             <div className="flex items-center gap-2 p-2.5 bg-blue-50 rounded-xl border border-blue-100">
@@ -63,44 +64,50 @@ export default function ApprovalQueueView({
               </div>
             </div>
           ) : (
-            <p className="text-sm text-gray-400 italic">Not assigned</p>
+            <p className="text-sm text-gray-400 italic">{COPY.approvalQueueView.notAssigned}</p>
           )}
         </div>
 
         {/* Priority */}
         <div className="space-y-1.5">
-          <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Priority</p>
+          <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+            {COPY.approvalQueueView.priority}
+          </p>
           {priority ? (
             <Badge variant="default" className={`capitalize ${PRIORITY_COLORS[priority]}`}>
               {priority}
             </Badge>
           ) : (
-            <p className="text-sm text-gray-400 italic">Not set</p>
+            <p className="text-sm text-gray-400 italic">{COPY.approvalQueueView.notSet}</p>
           )}
         </div>
 
         {/* Due Date */}
         <div className="space-y-1.5">
-          <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Due Date</p>
+          <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+            {COPY.approvalQueueView.dueDate}
+          </p>
           {dueDate ? (
             <p className="text-sm text-gray-700">
               {format(new Date(dueDate + 'T00:00:00'), 'MMM d, yyyy')}
             </p>
           ) : (
-            <p className="text-sm text-gray-400 italic">Not set</p>
+            <p className="text-sm text-gray-400 italic">{COPY.approvalQueueView.notSet}</p>
           )}
         </div>
       </div>
 
       {/* Note */}
       <div className="space-y-1.5">
-        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Note</p>
+        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+          {COPY.approvalQueueView.note}
+        </p>
         {note ? (
           <p className="text-sm text-gray-700 bg-gray-50 rounded-lg px-3 py-2 border border-gray-100 whitespace-pre-wrap">
             {note}
           </p>
         ) : (
-          <p className="text-sm text-gray-400 italic">No note</p>
+          <p className="text-sm text-gray-400 italic">{COPY.approvalQueueView.noNote}</p>
         )}
       </div>
     </div>

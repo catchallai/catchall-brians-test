@@ -12,14 +12,15 @@ import PostApprovalPanel from '@/components/social/PostApprovalPanel';
 import PostCommentThread from '@/components/social/approvals/PostCommentThread';
 import PostActivityFeed from '@/components/social/approvals/PostActivityFeed';
 import WorkflowStageBuilder from '@/components/social/approvals/WorkflowStageBuilder';
+import { PostStatus } from '@/types/enums';
 
 export default function PostApprovalView() {
   const queryClient = useQueryClient();
   const [searchParams] = useSearchParams();
   const postId = searchParams.get('id');
   const [rightPanel, setRightPanel] = useState('approval');
-  const [previewPlatform, setPreviewPlatform] = useState(null);
-  const [pendingAction, setPendingAction] = useState(null);
+  const [previewPlatform, setPreviewPlatform] = useState<string | null>(null);
+  const [pendingAction, setPendingAction] = useState<string | null>(null);
 
   const { data: currentUser } = useQuery({
     queryKey: ['current-user'],
@@ -32,7 +33,6 @@ export default function PostApprovalView() {
     enabled: !!postId,
   });
 
-  // Default to the post's first platform once data is available
   useEffect(() => {
     if (post?.platforms?.length > 0 && !previewPlatform) {
       setPreviewPlatform(post.platforms[0]);
@@ -51,7 +51,11 @@ export default function PostApprovalView() {
   }
 
   if (!post) {
-    return <div className="p-6 lg:p-8 text-center text-gray-500 text-sm">Post not found.</div>;
+    return (
+      <div className="p-6 lg:p-8 text-center text-gray-500 text-sm">
+        {COPY.postApprovalView.postNotFound}
+      </div>
+    );
   }
 
   return (
@@ -62,7 +66,7 @@ export default function PostApprovalView() {
           className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-800 transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
-          Back to All Channels
+          {COPY.postApprovalView.backToAllChannels}
         </Link>
 
         {/* Post Preview — platform tabs + preview card matching create-post modal */}
@@ -131,15 +135,16 @@ export default function PostApprovalView() {
                     <ApprovalWidget
                       viewsCount={
                         new Set(
-                          (post.workflow_history || []).map((e) => e.by_email).filter(Boolean)
+                          (post.workflow_history || []).map((e: any) => e.by_email).filter(Boolean)
                         ).size
                       }
                       approvalsCount={
-                        (post.workflow_history || []).filter((e) => e.action === 'approved').length
+                        (post.workflow_history || []).filter((e: any) => e.action === 'approved')
+                          .length
                       }
                       rejectionsCount={
                         (post.workflow_history || []).filter(
-                          (e) => e.action === 'rejected' || e.action === 'changes_requested'
+                          (e: any) => e.action === 'rejected' || e.action === 'changes_requested'
                         ).length
                       }
                       dueDate={post.review_due_date}
@@ -151,19 +156,18 @@ export default function PostApprovalView() {
           })()}
 
         {/* Rejected media notice */}
-        {post.status === 'rejected' && (post.image_url || post.video_url) && (
+        {post.status === PostStatus.REJECTED && (post.image_url || post.video_url) && (
           <div className="flex items-center gap-2 px-4 py-2 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-700">
             <ImageOff className="w-4 h-4 shrink-0" />
-            Media retained for version history — <strong>not</strong> transferred to the Approved
-            Media Database.
+            {COPY.postApprovalView.mediaRetainedNotice}
           </div>
         )}
 
         {/* Sub-tab navigation */}
         <div className="flex gap-1 bg-gray-100 dark:bg-slate-800 rounded-xl p-1">
           {[
-            { key: 'approval', label: 'Approval', icon: ShieldCheck },
-            { key: 'comments', label: 'Comments', icon: MessageSquare },
+            { key: 'approval', label: COPY.calendarPostModal.approvalWorkflow, icon: ShieldCheck },
+            { key: 'comments', label: COPY.calendarPostModal.teamFeedback, icon: MessageSquare },
             { key: 'activity', label: 'Activity', icon: Bell },
             { key: 'workflow', label: 'Workflow', icon: FileText },
           ].map(({ key, label, icon: Icon }) => (
@@ -192,7 +196,7 @@ export default function PostApprovalView() {
                 queryClient.invalidateQueries({ queryKey: ['calendar-posts-all'] });
                 queryClient.invalidateQueries({ queryKey: ['calendar-post', postId] });
               }}
-              onPendingAction={(action) => {
+              onPendingAction={(action: string) => {
                 setPendingAction(action);
                 setRightPanel('comments');
               }}

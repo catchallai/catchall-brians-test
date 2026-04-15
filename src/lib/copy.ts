@@ -221,6 +221,33 @@ const COPY = {
     newCategoryCancel: 'Cancel',
     createPoolError: 'Failed to create hashtag pool. Please try again.',
   },
+  approvalQueueView: {
+    reviewer: 'Reviewer',
+    notAssigned: 'Not assigned',
+    priority: 'Priority',
+    notSet: 'Not set',
+    dueDate: 'Due Date',
+    note: 'Note',
+    noNote: 'No note',
+  },
+  approvalWidget: {
+    views: 'Views',
+    approved: 'Approved',
+    rejectedOrChangesRequested: 'Rejected / Changes Requested',
+    noDueDateSet: 'No Due Date Set',
+    overdue: 'OVERDUE',
+    leftUntilDeadline: 'left until Deadline',
+  },
+  postApprovalView: {
+    postNotFound: 'Post not found.',
+    backToAllChannels: 'Back to All Channels',
+    mediaRetainedNotice:
+      'Media retained for version history — not transferred to the Approved Media Database.',
+  },
+  postCommentThread: {
+    rejectionBanner: 'Leave a comment explaining the rejection to submit it.',
+    changesBanner: 'Leave a comment explaining the requested changes to submit it.',
+  },
   general: {
     close: 'Close',
     cancel: 'Cancel',

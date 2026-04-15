@@ -31,6 +31,7 @@ import {
 } from '@/components/ui/select';
 import { format } from 'date-fns';
 import { createPageUrl } from '@/utils';
+import { PostStatus } from '@/types/enums';
 import CalendarPostModal from '@/components/modals/CalendarPostModal';
 import {
   FacebookIcon,
@@ -81,7 +82,11 @@ const STATUS_CONFIG = {
 };
 
 const APPROVAL_STATUSES = ['pending_approval', 'pending_review', 'changes_requested'];
-const APPROVAL_VIEW_STATUSES = ['pending_approval', 'pending_review', 'changes_requested'];
+const APPROVAL_VIEW_STATUSES = [
+  PostStatus.PENDING_APPROVAL,
+  PostStatus.PENDING_REVIEW,
+  PostStatus.CHANGES_REQUESTED,
+];
 
 function PostCard({
   post,

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Eye, Check, X } from 'lucide-react';
 import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 import { format, parseISO } from 'date-fns';
+import COPY from '@/lib/copy';
 
 interface ApprovalWidgetProps {
   viewsCount: number;
@@ -32,9 +33,9 @@ function DeadlineCountdown({ dueDate }: { dueDate: string }) {
       <p
         className={`text-xs font-mono font-semibold ${overdue ? 'text-red-500' : 'text-gray-500'}`}
       >
-        {overdue ? 'OVERDUE ' : ''}
+        {overdue ? `${COPY.approvalWidget.overdue} ` : ''}
         {String(h).padStart(2, '0')}:{String(m).padStart(2, '0')}:{String(s).padStart(2, '0')}
-        {overdue ? '' : ' left until Deadline'}
+        {overdue ? '' : ` ${COPY.approvalWidget.leftUntilDeadline}`}
       </p>
       <p className="text-xs text-gray-400 mt-0.5">{format(deadline, 'MMM d, yyyy')}</p>
     </div>
@@ -48,12 +49,22 @@ export default function ApprovalWidget({
   dueDate,
 }: ApprovalWidgetProps) {
   const items = [
-    { icon: Eye, count: viewsCount, label: 'Views', color: 'text-gray-400' },
-    { icon: Check, count: approvalsCount, label: 'Approved', color: 'text-emerald-500' },
+    {
+      icon: Eye,
+      count: viewsCount,
+      label: COPY.approvalWidget.views,
+      color: 'text-gray-400',
+    },
+    {
+      icon: Check,
+      count: approvalsCount,
+      label: COPY.approvalWidget.approved,
+      color: 'text-emerald-500',
+    },
     {
       icon: X,
       count: rejectionsCount,
-      label: 'Rejected / Changes Requested',
+      label: COPY.approvalWidget.rejectedOrChangesRequested,
       color: 'text-red-500',
     },
   ];
@@ -79,7 +90,9 @@ export default function ApprovalWidget({
         {dueDate ? (
           <DeadlineCountdown dueDate={dueDate} />
         ) : (
-          <p className="text-xs text-gray-400 text-center mt-1.5">No Due Date Set</p>
+          <p className="text-xs text-gray-400 text-center mt-1.5">
+            {COPY.approvalWidget.noDueDateSet}
+          </p>
         )}
       </div>
     </TooltipProvider>

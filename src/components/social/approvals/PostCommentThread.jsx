@@ -6,6 +6,8 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Send, AtSign, Loader2, MessageSquare, Reply, AlertTriangle, XCircle } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
+import { PostStatus } from '@/types/enums';
+import COPY from '@/lib/copy';
 
 // Simple @mention detection: finds @word patterns
 function parseMentions(text) {
@@ -196,9 +198,9 @@ export default function PostCommentThread({
         timestamp: new Date().toISOString(),
       };
       statusUpdate =
-        pendingAction === 'rejected'
-          ? { status: 'rejected', rejected_reason: text.trim(), media_approved: false }
-          : { status: 'changes_requested' };
+        pendingAction === PostStatus.REJECTED
+          ? { status: PostStatus.REJECTED, rejected_reason: text.trim(), media_approved: false }
+          : { status: PostStatus.CHANGES_REQUESTED };
     }
 
     mutation.mutate({ comment, workflowEvent, statusUpdate });
@@ -218,28 +220,28 @@ export default function PostCommentThread({
       {pendingAction && (
         <div
           className={`flex items-center justify-between rounded-lg px-3 py-2 mb-3 text-xs ${
-            pendingAction === 'rejected'
+            pendingAction === PostStatus.REJECTED
               ? 'bg-red-50 border border-red-200 text-red-700'
               : 'bg-orange-50 border border-orange-200 text-orange-700'
           }`}
         >
           <div className="flex items-center gap-1.5">
-            {pendingAction === 'rejected' ? (
+            {pendingAction === PostStatus.REJECTED ? (
               <XCircle className="w-3.5 h-3.5 shrink-0" />
             ) : (
               <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
             )}
             <span className="font-medium">
-              {pendingAction === 'rejected'
-                ? 'Leave a comment explaining the rejection to submit it.'
-                : 'Leave a comment explaining the requested changes to submit it.'}
+              {pendingAction === PostStatus.REJECTED
+                ? COPY.postCommentThread.rejectionBanner
+                : COPY.postCommentThread.changesBanner}
             </span>
           </div>
           <button
             onClick={onPendingActionCancel}
             className="text-gray-400 hover:text-gray-600 font-medium ml-2"
           >
-            Cancel
+            {COPY.general.cancel}
           </button>
         </div>
       )}
