@@ -142,7 +142,6 @@ export default function PostApprovalView() {
                         ).length
                       }
                       dueDate={post.review_due_date}
-                      dueTime={post.scheduled_time}
                     />
                   </div>
                 </div>

@@ -1,4 +1,4 @@
-import type { ComponentProps } from 'react';
+import type { ComponentProps, FC } from 'react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { PostPriority } from '@/types/enums';
@@ -6,8 +6,8 @@ import { UserPlus } from 'lucide-react';
 import { format, formatDistanceToNow } from 'date-fns';
 
 // shadcn components ship as .jsx without TypeScript types; cast to usable FC signatures
-const TypedAvatar = Avatar as React.FC<ComponentProps<'span'>>;
-const TypedAvatarFallback = AvatarFallback as React.FC<ComponentProps<'span'>>;
+const TypedAvatar = Avatar as FC<ComponentProps<'span'>>;
+const TypedAvatarFallback = AvatarFallback as FC<ComponentProps<'span'>>;
 
 const PRIORITY_COLORS: Record<PostPriority, string> = {
   [PostPriority.LOW]: 'bg-gray-100 text-gray-500',

@@ -1,17 +1,16 @@
 import { useState, useEffect } from 'react';
 import { Eye, Check, X } from 'lucide-react';
 import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
-import { format } from 'date-fns';
+import { format, parseISO } from 'date-fns';
 
 interface ApprovalWidgetProps {
   viewsCount: number;
   approvalsCount: number;
   rejectionsCount: number;
   dueDate?: string | null;
-  dueTime?: string | null;
 }
 
-function DeadlineCountdown({ dueDate, dueTime }: { dueDate: string; dueTime?: string | null }) {
+function DeadlineCountdown({ dueDate }: { dueDate: string }) {
   const [now, setNow] = useState(new Date());
 
   useEffect(() => {
@@ -19,7 +18,7 @@ function DeadlineCountdown({ dueDate, dueTime }: { dueDate: string; dueTime?: st
     return () => clearInterval(t);
   }, []);
 
-  const deadline = dueTime ? new Date(`${dueDate}T${dueTime}`) : new Date(`${dueDate}T23:59:59`);
+  const deadline = parseISO(dueDate + 'T23:59:59');
 
   const secsLeft = Math.floor((deadline.getTime() - now.getTime()) / 1000);
   const overdue = secsLeft < 0;
@@ -27,12 +26,6 @@ function DeadlineCountdown({ dueDate, dueTime }: { dueDate: string; dueTime?: st
   const h = Math.floor(absS / 3600);
   const m = Math.floor((absS % 3600) / 60);
   const s = absS % 60;
-
-  const formattedDate = dueTime
-    ? format(deadline, 'MMM d, yyyy') +
-      ' @ ' +
-      format(deadline, 'hh:mma').replace('AM', 'AM').replace('PM', 'PM')
-    : format(deadline, 'MMM d, yyyy');
 
   return (
     <div className="text-center mt-1.5">
@@ -43,7 +36,7 @@ function DeadlineCountdown({ dueDate, dueTime }: { dueDate: string; dueTime?: st
         {String(h).padStart(2, '0')}:{String(m).padStart(2, '0')}:{String(s).padStart(2, '0')}
         {overdue ? '' : ' left until Deadline'}
       </p>
-      <p className="text-xs text-gray-400 mt-0.5">{formattedDate}</p>
+      <p className="text-xs text-gray-400 mt-0.5">{format(deadline, 'MMM d, yyyy')}</p>
     </div>
   );
 }
@@ -53,7 +46,6 @@ export default function ApprovalWidget({
   approvalsCount,
   rejectionsCount,
   dueDate,
-  dueTime,
 }: ApprovalWidgetProps) {
   const items = [
     { icon: Eye, count: viewsCount, label: 'Views', color: 'text-gray-400' },
@@ -85,7 +77,7 @@ export default function ApprovalWidget({
           ))}
         </div>
         {dueDate ? (
-          <DeadlineCountdown dueDate={dueDate} dueTime={dueTime} />
+          <DeadlineCountdown dueDate={dueDate} />
         ) : (
           <p className="text-xs text-gray-400 text-center mt-1.5">No Due Date Set</p>
         )}
