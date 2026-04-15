@@ -1030,9 +1030,13 @@ export default function ImageCropPanel({
                   setTiltDeg(newTilt);
                   if (naturalSize) {
                     const rad = (newTilt * Math.PI) / 180;
+                    // Preserve whatever ratio the user currently has (preset or
+                    // custom) — tilting shouldn't snap the box back to the
+                    // platform's default aspectRatio.
+                    const ratio = cropBox ? cropBox.w / cropBox.h : aspectRatio;
                     // Always snap to the maximum safe area so no out-of-bounds pixels
                     // are ever included — the image effectively zooms to fill as it tilts.
-                    setCropBox(maxCropBoxForTilt(naturalSize.w, naturalSize.h, rad, aspectRatio));
+                    setCropBox(maxCropBoxForTilt(naturalSize.w, naturalSize.h, rad, ratio));
                   }
                 }}
                 className="w-full accent-violet-600 cursor-pointer"
