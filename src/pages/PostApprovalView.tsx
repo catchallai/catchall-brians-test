@@ -21,6 +21,11 @@ export default function PostApprovalView() {
   const [rightPanel, setRightPanel] = useState('approval');
   const [previewPlatform, setPreviewPlatform] = useState<string | null>(null);
   const [pendingAction, setPendingAction] = useState<string | null>(null);
+  // Store the inferred natural ratio alongside the URL it came from. The
+  // derived inferredRatio below resolves to null whenever imageSrc differs
+  // from the stored url — so it resets automatically on platform switch AND
+  // when a refetch/mutation changes the cropped URL for the same platform.
+  const [inferred, setInferred] = useState<{ url: string; ratio: number } | null>(null);
 
   const { data: currentUser } = useQuery({
     queryKey: ['current-user'],
@@ -111,9 +116,35 @@ export default function PostApprovalView() {
                 </div>
 
                 {/* Media */}
-                {post.image_url && (
-                  <img src={post.image_url} alt="" className="w-full object-cover" />
-                )}
+                {(() => {
+                  // Prefer the per-platform cropped URL (produced by ImageCropPanel
+                  // with crop/tilt/flip already baked in). Fall back to the raw
+                  // image_url when the post hasn't been cropped for this platform.
+                  const croppedUrl = post.platform_image_urls?.[activePlatform];
+                  const imageSrc = croppedUrl ?? post.image_url;
+                  if (!imageSrc) return null;
+                  const box = post.platform_crop_metadata?.[activePlatform]?.cropBox;
+                  const fallbackRatio = box ? box.w / box.h : platformCfg.aspectRatio;
+                  // Only trust the stored natural ratio if it belongs to the
+                  // current imageSrc. This handles both platform switches AND
+                  // same-platform URL changes from refetch/mutation.
+                  const inferredRatio =
+                    inferred && inferred.url === imageSrc ? inferred.ratio : null;
+                  return (
+                    <img
+                      src={imageSrc}
+                      alt=""
+                      className="w-full object-cover"
+                      style={{ aspectRatio: inferredRatio ?? fallbackRatio }}
+                      onLoad={(e) =>
+                        setInferred({
+                          url: imageSrc,
+                          ratio: e.currentTarget.naturalWidth / e.currentTarget.naturalHeight,
+                        })
+                      }
+                    />
+                  );
+                })()}
                 {post.video_url && !post.image_url && (
                   <video
                     src={post.video_url}
