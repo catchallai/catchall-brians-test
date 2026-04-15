@@ -1,12 +1,12 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo, useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { Send, AtSign, Loader2, MessageSquare, Reply, AlertTriangle, XCircle } from 'lucide-react';
-import { formatDistanceToNow } from 'date-fns';
-import { PostStatus } from '@/types/enums';
+import { Send, AtSign, Loader2, MessageSquare, Reply } from 'lucide-react';
+import { formatDistanceToNow, format } from 'date-fns';
+import { CommentActionType } from '@/types/enums';
 import COPY from '@/lib/copy';
 
 // Simple @mention detection: finds @word patterns
@@ -28,59 +28,94 @@ function parseMentions(text) {
   return parts;
 }
 
-function CommentBubble({ comment, currentUser, onReply }) {
-  const isMine = comment.by_email === currentUser?.email;
+const ACTION_TYPE_STYLES = {
+  [CommentActionType.REJECTED]: {
+    badge: COPY.approvalActionDrawer.badge.rejection,
+    badgeClass:
+      'bg-red-100 text-red-700 border border-red-200 dark:bg-red-900/40 dark:text-red-300 dark:border-red-800',
+  },
+  [CommentActionType.APPROVED]: {
+    badge: COPY.approvalActionDrawer.badge.approval,
+    badgeClass:
+      'bg-green-100 text-green-700 border border-green-200 dark:bg-green-900/40 dark:text-green-300 dark:border-green-800',
+  },
+  [CommentActionType.CHANGES_REQUESTED]: {
+    badge: COPY.approvalActionDrawer.badge.request_changes,
+    badgeClass:
+      'bg-amber-100 text-amber-700 border border-amber-200 dark:bg-amber-900/40 dark:text-amber-300 dark:border-amber-800',
+  },
+};
+
+function CommentCard({ comment, currentUser, onReply, derivedActionType, isUnread }) {
   const parts = parseMentions(comment.text || '');
+  const actionStyle = derivedActionType ? ACTION_TYPE_STYLES[derivedActionType] : null;
+  const isReply = !!comment.reply_to_name;
+  const isMine = comment.by_email === currentUser?.email;
+  const displayName = isMine ? 'You' : comment.by_name || comment.by_email;
+  const fullTimestamp = format(new Date(comment.timestamp), "MMM d, yyyy 'at' h:mm a");
 
   return (
-    <div className={`flex gap-2.5 ${isMine ? 'flex-row-reverse' : ''}`}>
+    <div
+      className={`flex gap-3 px-3 py-2.5 rounded-lg transition-colors hover:bg-gray-50 dark:hover:bg-slate-800/50 ${
+        isReply ? 'ml-10' : ''
+      }`}
+    >
       <Avatar className="w-7 h-7 shrink-0 mt-0.5">
-        <AvatarFallback className="text-[10px] bg-violet-100 text-violet-600">
+        <AvatarFallback className="text-[10px] bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300">
           {comment.by_name?.[0]?.toUpperCase() || '?'}
         </AvatarFallback>
       </Avatar>
-      <div className={`max-w-[80%] ${isMine ? 'items-end' : 'items-start'} flex flex-col gap-0.5`}>
-        {comment.reply_to_name && (
-          <div className="flex items-center gap-1 text-xs text-gray-400">
+      <div className="flex-1 min-w-0">
+        {/* Header: unread dot, name, action badge, timestamp, reply */}
+        <div className="flex items-center gap-2 flex-wrap">
+          {isUnread && (
+            <span
+              className="w-2 h-2 rounded-full bg-blue-500 shrink-0"
+              role="img"
+              aria-label="Unread"
+            />
+          )}
+          <span className="text-xs font-semibold text-gray-900 dark:text-white">{displayName}</span>
+          {actionStyle && (
+            <span
+              className={`text-[10px] font-medium px-1.5 py-0.5 rounded ${actionStyle.badgeClass}`}
+            >
+              {actionStyle.badge}
+            </span>
+          )}
+          <span className="text-[10px] text-gray-400 cursor-default" title={fullTimestamp}>
+            {formatDistanceToNow(new Date(comment.timestamp), { addSuffix: true })}
+          </span>
+          {comment.by_email !== currentUser?.email && (
+            <button
+              onClick={() => onReply(comment)}
+              className="text-[10px] text-gray-400 hover:text-violet-600 dark:hover:text-violet-400 font-medium ml-auto"
+            >
+              Reply
+            </button>
+          )}
+        </div>
+
+        {/* Reply context */}
+        {isReply && (
+          <div className="flex items-center gap-1 text-[11px] text-gray-400 mt-0.5">
             <Reply className="w-3 h-3" />
-            Replying to{' '}
             <span className="font-medium text-violet-500">@{comment.reply_to_name}</span>
           </div>
         )}
-        <div
-          className={`rounded-2xl px-3 py-2 text-sm ${
-            isMine
-              ? 'bg-violet-600 text-white rounded-tr-sm'
-              : 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white rounded-tl-sm'
-          }`}
-        >
+
+        {/* Body */}
+        <p className="text-sm text-gray-700 dark:text-gray-300 mt-1 whitespace-pre-wrap">
           {parts.map((p, i) =>
             p.type === 'mention' ? (
-              <span
-                key={i}
-                className={`font-semibold ${isMine ? 'text-violet-200' : 'text-violet-600'}`}
-              >
+              <span key={i} className="font-semibold text-violet-600 dark:text-violet-400">
                 {p.value}
               </span>
             ) : (
               <span key={i}>{p.value}</span>
             )
           )}
-        </div>
-        <div className="flex items-center gap-2 px-1">
-          <span className="text-[10px] text-gray-400">
-            {comment.by_name} ·{' '}
-            {formatDistanceToNow(new Date(comment.timestamp), { addSuffix: true })}
-          </span>
-          {!isMine && (
-            <button
-              onClick={() => onReply(comment)}
-              className="text-[10px] text-violet-500 hover:text-violet-700 font-medium"
-            >
-              Reply
-            </button>
-          )}
-        </div>
+        </p>
       </div>
     </div>
   );
@@ -90,23 +125,15 @@ function CommentBubble({ comment, currentUser, onReply }) {
  * @param {{
  *   post: any,
  *   currentUser: any,
- *   pendingAction?: string | null,
- *   onPendingActionComplete?: () => void,
- *   onPendingActionCancel?: () => void,
  * }} props
  */
-export default function PostCommentThread({
-  post,
-  currentUser,
-  pendingAction = null,
-  onPendingActionComplete,
-  onPendingActionCancel,
-}) {
+export default function PostCommentThread({ post, currentUser }) {
   const queryClient = useQueryClient();
   const [text, setText] = useState('');
   const [replyTo, setReplyTo] = useState(null);
   const [showMentions, setShowMentions] = useState(false);
   const [mentionQuery, setMentionQuery] = useState('');
+  const [mentionIdx, setMentionIdx] = useState(0);
   const inputRef = useRef(null);
   const bottomRef = useRef(null);
 
@@ -115,47 +142,132 @@ export default function PostCommentThread({
     queryFn: () => base44.entities.User.list(),
   });
 
-  const comments = post.workflow_history?.filter((e) => e.action === 'comment') || [];
+  // Build comments list with derived action types.
+  // When a comment is immediately followed by a reject/approve/changes_requested
+  // event from the same user, that comment is associated with that action.
+  const { comments, commentActionMap } = useMemo(() => {
+    const history = post.workflow_history || [];
+    const actionMap = new Map();
+    const ACTION_ACTIONS = new Set([
+      CommentActionType.REJECTED,
+      CommentActionType.APPROVED,
+      CommentActionType.CHANGES_REQUESTED,
+    ]);
+
+    for (let i = 0; i < history.length; i++) {
+      const entry = history[i];
+      if (entry.action !== 'comment') continue;
+
+      // Check if the entry already has an action_type field
+      if (entry.action_type && ACTION_ACTIONS.has(entry.action_type)) {
+        actionMap.set(entry.timestamp, entry.action_type);
+        continue;
+      }
+
+      // Look at the next entry — if it's an action from the same user, link them
+      const next = history[i + 1];
+      if (next && ACTION_ACTIONS.has(next.action) && next.by_email === entry.by_email) {
+        actionMap.set(entry.timestamp, next.action);
+      }
+    }
+
+    return {
+      comments: history.filter((e) => e.action === 'comment'),
+      commentActionMap: actionMap,
+    };
+  }, [post.workflow_history]);
+
+  // Find the current user's last "viewed" event timestamp for unread detection
+  const lastViewedAt = useMemo(() => {
+    const history = post.workflow_history || [];
+    for (let i = history.length - 1; i >= 0; i--) {
+      if (history[i].action === 'viewed' && history[i].by_email === currentUser?.email) {
+        return history[i].timestamp;
+      }
+    }
+    return null;
+  }, [post.workflow_history, currentUser?.email]);
 
   const mutation = useMutation({
-    mutationFn: ({ comment, workflowEvent, statusUpdate }) => {
+    mutationFn: (comment) => {
       const history = [...(post.workflow_history || []), comment];
-      if (workflowEvent) {
-        history.push(workflowEvent);
-      }
-      return base44.entities.CalendarPost.update(post.id, {
-        workflow_history: history,
-        ...statusUpdate,
-      });
+      return base44.entities.CalendarPost.update(post.id, { workflow_history: history });
     },
-    onSuccess: (_, { statusUpdate }) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['calendar-posts-all'] });
       queryClient.invalidateQueries({ queryKey: ['calendar-post'] });
       setText('');
       setReplyTo(null);
-      if (statusUpdate && onPendingActionComplete) {
-        onPendingActionComplete();
-      }
     },
   });
+
+  // Record a "viewed" event once when the Comments tab mounts (per post).
+  // Fetches the latest post first to avoid overwriting concurrent changes
+  // (last-write-wins race on workflow_history).
+  const hasRecordedView = useRef(null);
+  useEffect(() => {
+    if (!currentUser?.email || comments.length === 0) return;
+    if (hasRecordedView.current === post.id) return;
+    hasRecordedView.current = post.id;
+
+    base44.entities.CalendarPost.get(post.id)
+      .then((latest) => {
+        const history = [
+          ...(latest.workflow_history || []),
+          {
+            action: 'viewed',
+            by_email: currentUser.email,
+            by_name: currentUser.full_name || currentUser.email,
+            timestamp: new Date().toISOString(),
+          },
+        ];
+        return base44.entities.CalendarPost.update(post.id, { workflow_history: history });
+      })
+      .then(() => {
+        queryClient.invalidateQueries({ queryKey: ['calendar-post'] });
+        queryClient.invalidateQueries({ queryKey: ['calendar-posts-all'] });
+      })
+      .catch(() => {
+        // Reset so the next mount can retry
+        hasRecordedView.current = null;
+      });
+  }, [post.id, currentUser, comments.length, queryClient]);
+
+  // Auto-focus the textarea when the Comments tab mounts
+  useEffect(() => {
+    inputRef.current?.focus();
+  }, []);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [comments.length]);
 
+  // Auto-resize textarea: grows from 2 rows up to 6 rows
+  const autoResize = useCallback(() => {
+    const el = inputRef.current;
+    if (!el) return;
+    el.style.height = 'auto';
+    const lineHeight = 20; // ~text-sm line height
+    const maxHeight = lineHeight * 6 + 16; // 6 rows + padding
+    el.style.height = `${Math.min(el.scrollHeight, maxHeight)}px`;
+  }, []);
+
   const handleInput = (e) => {
     const val = e.target.value;
     setText(val);
+    autoResize();
     // detect @mention
     const atIdx = val.lastIndexOf('@');
     if (atIdx !== -1 && atIdx === val.length - 1) {
       setShowMentions(true);
       setMentionQuery('');
+      setMentionIdx(0);
     } else if (atIdx !== -1) {
       const afterAt = val.slice(atIdx + 1);
       if (!afterAt.includes(' ')) {
         setShowMentions(true);
         setMentionQuery(afterAt);
+        setMentionIdx(0);
       } else {
         setShowMentions(false);
       }
@@ -182,12 +294,11 @@ export default function PostCommentThread({
     .slice(0, 5);
 
   const handleSubmit = () => {
-    if (!text.trim()) {
-      return;
-    }
+    if (!text.trim() || !currentUser?.email) return;
 
     const comment = {
       action: 'comment',
+      action_type: CommentActionType.GENERAL,
       by_email: currentUser?.email,
       by_name: currentUser?.full_name || currentUser?.email,
       timestamp: new Date().toISOString(),
@@ -196,23 +307,9 @@ export default function PostCommentThread({
       reply_to_id: replyTo?.timestamp,
     };
 
-    let workflowEvent = null;
-    let statusUpdate = null;
-
-    if (pendingAction) {
-      workflowEvent = {
-        action: pendingAction,
-        by_email: currentUser?.email,
-        by_name: currentUser?.full_name || currentUser?.email,
-        timestamp: new Date().toISOString(),
-      };
-      statusUpdate =
-        pendingAction === PostStatus.REJECTED
-          ? { status: PostStatus.REJECTED, rejected_reason: text.trim(), media_approved: false }
-          : { status: PostStatus.CHANGES_REQUESTED };
-    }
-
-    mutation.mutate({ comment, workflowEvent, statusUpdate });
+    mutation.mutate(comment);
+    // Reset textarea height after submit
+    if (inputRef.current) inputRef.current.style.height = 'auto';
   };
 
   return (
@@ -225,53 +322,36 @@ export default function PostCommentThread({
         </Badge>
       </div>
 
-      {/* Pending action banner */}
-      {pendingAction && (
-        <div
-          className={`flex items-center justify-between rounded-lg px-3 py-2 mb-3 text-xs ${
-            pendingAction === PostStatus.REJECTED
-              ? 'bg-red-50 border border-red-200 text-red-700'
-              : 'bg-orange-50 border border-orange-200 text-orange-700'
-          }`}
-        >
-          <div className="flex items-center gap-1.5">
-            {pendingAction === PostStatus.REJECTED ? (
-              <XCircle className="w-3.5 h-3.5 shrink-0" />
-            ) : (
-              <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
-            )}
-            <span className="font-medium">
-              {pendingAction === PostStatus.REJECTED
-                ? COPY.postCommentThread.rejectionBanner
-                : COPY.postCommentThread.changesBanner}
-            </span>
-          </div>
-          <button
-            onClick={onPendingActionCancel}
-            className="text-gray-400 hover:text-gray-600 font-medium ml-2"
-          >
-            {COPY.general.cancel}
-          </button>
-        </div>
-      )}
-
       {/* Comment list */}
-      <div className="flex-1 overflow-y-auto space-y-3 min-h-0 max-h-64 pr-1">
+      <div className="flex-1 overflow-y-auto min-h-0 max-h-64 pr-1 divide-y divide-gray-100 dark:divide-gray-800">
         {comments.length === 0 && (
-          <div className="text-center py-6 text-gray-400 text-sm">
-            No comments yet. Start the conversation!
+          <div className="text-center py-8">
+            <MessageSquare className="w-8 h-8 mx-auto mb-2 text-gray-300 dark:text-gray-600" />
+            <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
+              {COPY.postCommentThread.emptyTitle}
+            </p>
+            <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">
+              {COPY.postCommentThread.emptySubtitle}
+            </p>
           </div>
         )}
         {comments.map((c, i) => (
-          <CommentBubble key={i} comment={c} currentUser={currentUser} onReply={setReplyTo} />
+          <CommentCard
+            key={i}
+            comment={c}
+            currentUser={currentUser}
+            onReply={setReplyTo}
+            derivedActionType={commentActionMap.get(c.timestamp)}
+            isUnread={!!(lastViewedAt && c.timestamp > lastViewedAt)}
+          />
         ))}
         <div ref={bottomRef} />
       </div>
 
       {/* Reply indicator */}
       {replyTo && (
-        <div className="flex items-center justify-between bg-violet-50 dark:bg-violet-900/20 rounded-lg px-3 py-1.5 mt-2 text-xs">
-          <span className="text-violet-700">
+        <div className="flex items-center justify-between bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-1.5 mt-2 text-xs">
+          <span className="text-gray-600 dark:text-gray-300">
             Replying to <strong>{replyTo.by_name}</strong>
           </span>
           <button onClick={() => setReplyTo(null)} className="text-gray-400 hover:text-red-500">
@@ -284,11 +364,15 @@ export default function PostCommentThread({
       <div className="relative mt-3">
         {showMentions && filteredUsers.length > 0 && (
           <div className="absolute bottom-full mb-1 left-0 right-0 bg-white dark:bg-slate-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-lg z-10 overflow-hidden">
-            {filteredUsers.map((u) => (
+            {filteredUsers.map((u, idx) => (
               <button
                 key={u.id}
                 onClick={() => insertMention(u)}
-                className="w-full flex items-center gap-2 px-3 py-2 hover:bg-violet-50 dark:hover:bg-violet-900/30 text-left text-sm"
+                className={`w-full flex items-center gap-2 px-3 py-2 text-left text-sm ${
+                  idx === mentionIdx
+                    ? 'bg-violet-50 dark:bg-violet-900/30'
+                    : 'hover:bg-violet-50 dark:hover:bg-violet-900/30'
+                }`}
               >
                 <Avatar className="w-6 h-6">
                   <AvatarFallback className="text-[10px] bg-violet-100 text-violet-600">
@@ -303,28 +387,72 @@ export default function PostCommentThread({
             ))}
           </div>
         )}
-        <div className="flex gap-2 items-end">
+        <div className="flex gap-2 items-center">
           <div className="flex-1 relative">
             <textarea
               ref={inputRef}
               value={text}
               onChange={handleInput}
               onKeyDown={(e) => {
+                if (showMentions && filteredUsers.length > 0) {
+                  if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    setMentionIdx((prev) => (prev + 1) % filteredUsers.length);
+                    return;
+                  }
+                  if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    setMentionIdx(
+                      (prev) => (prev - 1 + filteredUsers.length) % filteredUsers.length
+                    );
+                    return;
+                  }
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    insertMention(filteredUsers[mentionIdx]);
+                    return;
+                  }
+                  if (e.key === 'Escape') {
+                    e.preventDefault();
+                    setShowMentions(false);
+                    return;
+                  }
+                }
                 if (e.key === 'Enter' && !e.shiftKey) {
                   e.preventDefault();
                   handleSubmit();
                 }
               }}
-              placeholder="Add a comment… use @ to mention someone"
+              placeholder={COPY.postCommentThread.inputPlaceholder}
               rows={2}
               className="w-full resize-none text-sm px-3 py-2 pr-8 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-violet-500 text-gray-900 dark:text-white"
+              style={{ overflow: 'hidden' }}
             />
-            <AtSign className="absolute right-2 bottom-2.5 w-4 h-4 text-gray-300" />
+            <button
+              type="button"
+              onClick={() => {
+                const el = inputRef.current;
+                if (!el) return;
+                // Insert @ at cursor position and trigger mention dropdown
+                const pos = el.selectionStart || text.length;
+                const newText = text.slice(0, pos) + '@' + text.slice(pos);
+                setText(newText);
+                setShowMentions(true);
+                setMentionQuery('');
+                el.focus();
+                // Set cursor after the @
+                requestAnimationFrame(() => el.setSelectionRange(pos + 1, pos + 1));
+              }}
+              className="absolute right-2 bottom-2.5 text-gray-300 hover:text-violet-500 transition-colors"
+              aria-label="Mention someone"
+            >
+              <AtSign className="w-4 h-4" />
+            </button>
           </div>
           <Button
             size="icon"
             onClick={handleSubmit}
-            disabled={!text.trim() || mutation.isPending}
+            disabled={!text.trim() || !currentUser?.email || mutation.isPending}
             className="bg-violet-600 hover:bg-violet-700 rounded-xl h-10 w-10 shrink-0"
           >
             {mutation.isPending ? (

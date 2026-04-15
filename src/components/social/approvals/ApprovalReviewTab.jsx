@@ -1,11 +1,9 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Search, Eye, CheckCircle2, Calendar } from 'lucide-react';
 import { format, formatDistanceToNow } from 'date-fns';
-import { createPageUrl } from '@/utils';
 import PostApprovalPanel from '@/components/social/PostApprovalPanel';
 
 export default function ApprovalReviewTab({
@@ -15,7 +13,6 @@ export default function ApprovalReviewTab({
   onSelectPost,
   statusLabels,
 }) {
-  const navigate = useNavigate();
   const [search, setSearch] = useState('');
 
   const reviewPosts = posts
@@ -162,13 +159,7 @@ export default function ApprovalReviewTab({
               </div>
             )}
             <div className="bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-gray-800 p-5 shadow-sm">
-              <PostApprovalPanel
-                post={selectedPost}
-                onUpdate={() => {}}
-                onPendingAction={() => {
-                  navigate(createPageUrl('PostApprovalView') + '?id=' + selectedPost.id);
-                }}
-              />
+              <PostApprovalPanel post={selectedPost} onUpdate={() => {}} />
             </div>
           </div>
         )}

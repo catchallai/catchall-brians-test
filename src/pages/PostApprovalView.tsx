@@ -4,7 +4,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { createPageUrl } from '@/utils';
 import { Skeleton } from '@/components/ui/skeleton';
-import { ArrowLeft, ShieldCheck, MessageSquare, Bell, FileText, ImageOff } from 'lucide-react';
+import { ArrowLeft, ShieldCheck, MessageSquare, Bell, FileText } from 'lucide-react';
 import ApprovalWidget from '@/components/social/approvals/ApprovalWidget';
 import { PLATFORMS } from '@/constants/platforms';
 import COPY from '@/lib/copy';
@@ -12,7 +12,6 @@ import PostApprovalPanel from '@/components/social/PostApprovalPanel';
 import PostCommentThread from '@/components/social/approvals/PostCommentThread';
 import PostActivityFeed from '@/components/social/approvals/PostActivityFeed';
 import WorkflowStageBuilder from '@/components/social/approvals/WorkflowStageBuilder';
-import { PostStatus } from '@/types/enums';
 
 export default function PostApprovalView() {
   const queryClient = useQueryClient();
@@ -20,7 +19,6 @@ export default function PostApprovalView() {
   const postId = searchParams.get('id');
   const [rightPanel, setRightPanel] = useState('approval');
   const [previewPlatform, setPreviewPlatform] = useState<string | null>(null);
-  const [pendingAction, setPendingAction] = useState<string | null>(null);
   // Store the inferred natural ratio alongside the URL it came from. The
   // derived inferredRatio below resolves to null whenever imageSrc differs
   // from the stored url — so it resets automatically on platform switch AND
@@ -188,14 +186,6 @@ export default function PostApprovalView() {
             );
           })()}
 
-        {/* Rejected media notice */}
-        {post.status === PostStatus.REJECTED && (post.image_url || post.video_url) && (
-          <div className="flex items-center gap-2 px-4 py-2 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-700">
-            <ImageOff className="w-4 h-4 shrink-0" />
-            {COPY.postApprovalView.mediaRetainedNotice}
-          </div>
-        )}
-
         {/* Sub-tab navigation */}
         <div className="flex gap-1 bg-gray-100 dark:bg-slate-800 rounded-xl p-1">
           {[
@@ -229,25 +219,9 @@ export default function PostApprovalView() {
                 queryClient.invalidateQueries({ queryKey: ['calendar-posts-all'] });
                 queryClient.invalidateQueries({ queryKey: ['calendar-post', postId] });
               }}
-              onPendingAction={(action: string) => {
-                setPendingAction(action);
-                setRightPanel('comments');
-              }}
             />
           )}
-          {rightPanel === 'comments' && (
-            <PostCommentThread
-              post={post}
-              currentUser={currentUser}
-              pendingAction={pendingAction}
-              onPendingActionComplete={() => {
-                setPendingAction(null);
-                queryClient.invalidateQueries({ queryKey: ['calendar-posts-all'] });
-                queryClient.invalidateQueries({ queryKey: ['calendar-post', postId] });
-              }}
-              onPendingActionCancel={() => setPendingAction(null)}
-            />
-          )}
+          {rightPanel === 'comments' && <PostCommentThread post={post} currentUser={currentUser} />}
           {rightPanel === 'activity' && <PostActivityFeed post={post} />}
           {rightPanel === 'workflow' && <WorkflowStageBuilder />}
         </div>

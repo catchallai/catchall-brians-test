@@ -88,7 +88,6 @@ export default function ApprovalQueueTab({
   const [filterPriority, setFilterPriority] = useState('all');
   const [_photoSwipeIdx, setPhotoSwipeIdx] = useState(0);
   const [rightPanel, setRightPanel] = useState('approval'); // 'approval' | 'comments' | 'activity' | 'workflow'
-  const [pendingAction, setPendingAction] = useState(null);
 
   const queuePosts = posts
     .filter((p) =>
@@ -358,23 +357,10 @@ export default function ApprovalQueueTab({
                   onUpdate={() =>
                     queryClient.invalidateQueries({ queryKey: ['calendar-posts-all'] })
                   }
-                  onPendingAction={(action) => {
-                    setPendingAction(action);
-                    setRightPanel('comments');
-                  }}
                 />
               )}
               {rightPanel === 'comments' && (
-                <PostCommentThread
-                  post={selectedPost}
-                  currentUser={currentUser}
-                  pendingAction={pendingAction}
-                  onPendingActionComplete={() => {
-                    setPendingAction(null);
-                    queryClient.invalidateQueries({ queryKey: ['calendar-posts-all'] });
-                  }}
-                  onPendingActionCancel={() => setPendingAction(null)}
-                />
+                <PostCommentThread post={selectedPost} currentUser={currentUser} />
               )}
               {rightPanel === 'activity' && <PostActivityFeed post={selectedPost} />}
               {rightPanel === 'workflow' && <WorkflowStageBuilder />}
