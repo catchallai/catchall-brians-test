@@ -36,10 +36,7 @@ function DeadlineCountdown({ dueDate }: { dueDate: string }) {
       <p
         className={`text-xs font-mono font-semibold ${overdue ? 'text-red-500' : 'text-gray-500'}`}
       >
-        {overdue ? `${COPY.approvalWidget.overdue} ` : ''}
-        {String(d).padStart(2, '0')}:{String(h).padStart(2, '0')}:{String(m).padStart(2, '0')}:
-        {String(s).padStart(2, '0')}
-        {overdue ? '' : ` ${COPY.approvalWidget.leftUntilDueDate}`}
+        {`${overdue ? `${COPY.approvalWidget.overdue} ` : ''}${String(d).padStart(2, '0')}:${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}${overdue ? '' : ` ${COPY.approvalWidget.leftUntilDueDate}`}`}
       </p>
       <p className="text-xs text-gray-400 mt-0.5">
         {COPY.approvalWidget.dueDatePrefix}{' '}
