@@ -85,6 +85,7 @@ import {
   VIDEO_ACCEPT_ATTR,
 } from '@/utils/postMedia';
 import { arraysEqual, setsEqual } from '@/utils/hashtagUtils';
+import { escapeHtml } from '@/utils/html';
 import PostStatusChip from '@/components/social/PostStatusChip';
 import { getMonthComparison } from '@/utils/getMonthComparison';
 import React from 'react';
@@ -799,6 +800,15 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
     const { scheduled_date: defaultDate, scheduled_time: defaultTime } =
       getDefaultSchedule(currentMonth);
 
+    setSavedPost(post ?? null);
+    setApprovalMeta({
+      assigned_to_email: post?.assigned_to_email,
+      priority: post?.priority ?? 'normal',
+      review_due_date: post?.review_due_date,
+    });
+    setApprovalErrors({});
+    setApprovalNote('');
+
     if (post) {
       const normalizedMedia = normalizePostMedia(post);
       const initial: PostFormData = {
@@ -1351,10 +1361,10 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
       saveResult?.id
     ) {
       const postLink = `${window.location.origin}/postapprovalview?id=${saveResult.id}`;
-      const truncatedCaption =
+      const rawCaption =
         formData.caption.length > 60 ? `${formData.caption.slice(0, 60)}…` : formData.caption;
       const noteSection = approvalNote
-        ? `<p><strong>Note from author:</strong> ${approvalNote}</p>`
+        ? `<p><strong>Note from author:</strong> ${escapeHtml(approvalNote)}</p>`
         : '';
       const priorityLabel = approvalMeta.priority ?? 'normal';
       const priorityColor: Record<string, string> = {
@@ -1363,16 +1373,16 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
         high: '#EA580C',
         urgent: '#DC2626',
       };
-      const priorityHtml = `<span style="color:${priorityColor[priorityLabel] ?? '#2563EB'};font-weight:600">${priorityLabel.charAt(0).toUpperCase() + priorityLabel.slice(1)}</span>`;
+      const priorityHtml = `<span style="color:${priorityColor[priorityLabel] ?? '#2563EB'};font-weight:600">${escapeHtml(priorityLabel.charAt(0).toUpperCase() + priorityLabel.slice(1))}</span>`;
       base44.integrations.Core.SendEmail({
         to: approvalMeta.assigned_to_email,
-        subject: `Post Review Requested: "${truncatedCaption}"`,
+        subject: `Post Review Requested: "${rawCaption}"`,
         body: `
-          <p>Hi ${savedPost?.assigned_to_name || approvalMeta.assigned_to_email},</p>
-          <p><strong>${currentUser?.full_name || currentUser?.email}</strong> has submitted a post for your review.</p>
+          <p>Hi ${escapeHtml((saveResult as CalendarPost).assigned_to_name || approvalMeta.assigned_to_email || '')},</p>
+          <p><strong>${escapeHtml(currentUser?.full_name || currentUser?.email || '')}</strong> has submitted a post for your review.</p>
           <p><a href="${postLink}">Click here to review the post →</a></p>
           <ul>
-            <li><strong>Due date:</strong> ${approvalMeta.review_due_date ?? 'Not set'}</li>
+            <li><strong>Due date:</strong> ${escapeHtml(approvalMeta.review_due_date ?? 'Not set')}</li>
             <li><strong>Priority:</strong> ${priorityHtml}</li>
           </ul>
           ${noteSection}
