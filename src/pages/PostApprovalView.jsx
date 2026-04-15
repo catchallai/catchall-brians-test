@@ -128,9 +128,19 @@ export default function PostApprovalView() {
                   </p>
                   <div className="shrink-0">
                     <ApprovalWidget
-                      viewsCount={8}
-                      approvalsCount={6}
-                      rejectionsCount={2}
+                      viewsCount={
+                        new Set(
+                          (post.workflow_history || []).map((e) => e.by_email).filter(Boolean)
+                        ).size
+                      }
+                      approvalsCount={
+                        (post.workflow_history || []).filter((e) => e.action === 'approved').length
+                      }
+                      rejectionsCount={
+                        (post.workflow_history || []).filter(
+                          (e) => e.action === 'rejected' || e.action === 'changes_requested'
+                        ).length
+                      }
                       dueDate={post.review_due_date}
                       dueTime={post.scheduled_time}
                     />
@@ -178,7 +188,10 @@ export default function PostApprovalView() {
             <PostApprovalPanel
               post={post}
               readOnly
-              onUpdate={() => queryClient.invalidateQueries({ queryKey: ['calendar-posts-all'] })}
+              onUpdate={() => {
+                queryClient.invalidateQueries({ queryKey: ['calendar-posts-all'] });
+                queryClient.invalidateQueries({ queryKey: ['calendar-post', postId] });
+              }}
             />
           )}
           {rightPanel === 'comments' && <PostCommentThread post={post} currentUser={currentUser} />}

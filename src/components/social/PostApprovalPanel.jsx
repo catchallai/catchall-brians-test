@@ -350,20 +350,33 @@ export default function PostApprovalPanel({ post, onUpdate, readOnly = false }) 
 
       {/* ── Assignment & Meta + Note ── */}
       {readOnly ? (
-        <ApprovalQueueView
-          reviewer={
-            post.assigned_to_email
-              ? {
-                  name: post.assigned_to_name,
-                  email: post.assigned_to_email,
-                  assignedDate: post.assigned_date,
-                }
-              : null
-          }
-          priority={post.priority}
-          dueDate={post.review_due_date}
-          note={[...(post.workflow_history || [])].reverse().find((e) => e.note)?.note ?? null}
-        />
+        <>
+          <ApprovalQueueView
+            reviewer={
+              post.assigned_to_email
+                ? {
+                    name: post.assigned_to_name,
+                    email: post.assigned_to_email,
+                    assignedDate: post.assigned_date,
+                  }
+                : null
+            }
+            priority={post.priority}
+            dueDate={post.review_due_date}
+            note={[...(post.workflow_history || [])].reverse().find((e) => e.note)?.note ?? null}
+          />
+          {/* Action note — kept in readOnly mode so rejection (which requires a note) still works */}
+          <div className="space-y-1.5">
+            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Note</p>
+            <Textarea
+              value={note}
+              onChange={(e) => setNote(e.target.value)}
+              placeholder="Add a note with your action…"
+              rows={2}
+              className="resize-none text-sm"
+            />
+          </div>
+        </>
       ) : (
         <>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

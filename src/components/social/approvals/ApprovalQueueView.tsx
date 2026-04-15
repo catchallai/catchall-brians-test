@@ -83,7 +83,9 @@ export default function ApprovalQueueView({
         <div className="space-y-1.5">
           <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Due Date</p>
           {dueDate ? (
-            <p className="text-sm text-gray-700">{format(new Date(dueDate), 'MMM d, yyyy')}</p>
+            <p className="text-sm text-gray-700">
+              {format(new Date(dueDate + 'T00:00:00'), 'MMM d, yyyy')}
+            </p>
           ) : (
             <p className="text-sm text-gray-400 italic">Not set</p>
           )}
