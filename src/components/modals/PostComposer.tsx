@@ -1726,7 +1726,18 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
           {/* Comments tab */}
           {activeTab === 'comments' && (savedPost ?? post) && (
             <div className="flex-1 p-6">
-              <PostCommentThread post={savedPost ?? post} currentUser={currentUser} />
+              <PostCommentThread
+                post={savedPost ?? post}
+                currentUser={currentUser}
+                onPostUpdated={(updatedPost: CalendarPost) => {
+                  // The modal owns a local copy of the post (savedPost) that
+                  // isn't driven by a react-query subscription, so invalidation
+                  // alone won't update the visible workflow_history. Patch it
+                  // directly with the server response so newly posted comments
+                  // appear immediately.
+                  setSavedPost((s) => (s ? { ...s, ...updatedPost } : updatedPost));
+                }}
+              />
             </div>
           )}
 

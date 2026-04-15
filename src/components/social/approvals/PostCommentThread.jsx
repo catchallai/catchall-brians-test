@@ -125,9 +125,10 @@ function CommentCard({ comment, currentUser, onReply, derivedActionType, isUnrea
  * @param {{
  *   post: any,
  *   currentUser: any,
+ *   onPostUpdated?: (updatedPost: any) => void,
  * }} props
  */
-export default function PostCommentThread({ post, currentUser }) {
+export default function PostCommentThread({ post, currentUser, onPostUpdated }) {
   const queryClient = useQueryClient();
   const [text, setText] = useState('');
   const [replyTo, setReplyTo] = useState(null);
@@ -193,9 +194,21 @@ export default function PostCommentThread({ post, currentUser }) {
       const history = [...(post.workflow_history || []), comment];
       return base44.entities.CalendarPost.update(post.id, { workflow_history: history });
     },
-    onSuccess: () => {
+    onSuccess: (updatedPost) => {
+      // Seed the single-post cache so any subscriber (e.g. PostApprovalView's
+      // useQuery on ['calendar-post', id]) picks it up immediately without a
+      // refetch round-trip.
+      if (updatedPost) {
+        queryClient.setQueryData(['calendar-post', post.id], updatedPost);
+      }
+      // Notify callers that pass `post` from non-query state (e.g. the
+      // PostComposer modal, where `post` comes from local `savedPost` state
+      // that isn't subscribed to the react-query cache).
+      if (updatedPost) {
+        onPostUpdated?.(updatedPost);
+      }
       queryClient.invalidateQueries({ queryKey: ['calendar-posts-all'] });
-      queryClient.invalidateQueries({ queryKey: ['calendar-post'] });
+      queryClient.invalidateQueries({ queryKey: ['calendar-posts'] });
       setText('');
       setReplyTo(null);
     },
