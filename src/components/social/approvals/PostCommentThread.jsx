@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
@@ -30,37 +30,28 @@ function parseMentions(text) {
 
 const ACTION_TYPE_STYLES = {
   [CommentActionType.REJECTION]: {
-    card: 'border-l-[3px] border-red-500 bg-red-50/60 dark:bg-red-950/20',
     badge: COPY.approvalActionDrawer.badge.rejection,
     badgeClass:
       'bg-red-100 text-red-700 border border-red-200 dark:bg-red-900/40 dark:text-red-300 dark:border-red-800',
   },
   [CommentActionType.APPROVAL]: {
-    card: 'border-l-[3px] border-green-500 bg-green-50/60 dark:bg-green-950/20',
     badge: COPY.approvalActionDrawer.badge.approval,
     badgeClass:
       'bg-green-100 text-green-700 border border-green-200 dark:bg-green-900/40 dark:text-green-300 dark:border-green-800',
   },
   [CommentActionType.REQUEST_CHANGES]: {
-    card: 'border-l-[3px] border-amber-500 bg-amber-50/60 dark:bg-amber-950/20',
     badge: COPY.approvalActionDrawer.badge.request_changes,
     badgeClass:
       'bg-amber-100 text-amber-700 border border-amber-200 dark:bg-amber-900/40 dark:text-amber-300 dark:border-amber-800',
   },
 };
 
-function CommentCard({ comment, currentUser, onReply }) {
+function CommentCard({ comment, currentUser, onReply, derivedActionType }) {
   const parts = parseMentions(comment.text || '');
-  const actionStyle = comment.action_type ? ACTION_TYPE_STYLES[comment.action_type] : null;
+  const actionStyle = derivedActionType ? ACTION_TYPE_STYLES[derivedActionType] : null;
 
   return (
-    <div
-      className={`flex gap-3 px-3 py-2.5 rounded-lg transition-colors ${
-        actionStyle
-          ? actionStyle.card
-          : 'border-l-[3px] border-transparent hover:bg-gray-50 dark:hover:bg-slate-800/50'
-      }`}
-    >
+    <div className="flex gap-3 px-3 py-2.5 rounded-lg transition-colors hover:bg-gray-50 dark:hover:bg-slate-800/50">
       <Avatar className="w-7 h-7 shrink-0 mt-0.5">
         <AvatarFallback className="text-[10px] bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300">
           {comment.by_name?.[0]?.toUpperCase() || '?'}
@@ -137,7 +128,40 @@ export default function PostCommentThread({ post, currentUser }) {
     queryFn: () => base44.entities.User.list(),
   });
 
-  const comments = post.workflow_history?.filter((e) => e.action === 'comment') || [];
+  // Build comments list with derived action types.
+  // When a comment is immediately followed by a reject/approve/changes_requested
+  // event from the same user, that comment is associated with that action.
+  const { comments, commentActionMap } = useMemo(() => {
+    const history = post.workflow_history || [];
+    const actionMap = new Map();
+    const ACTION_TYPES = {
+      rejected: CommentActionType.REJECTION,
+      approved: CommentActionType.APPROVAL,
+      changes_requested: CommentActionType.REQUEST_CHANGES,
+    };
+
+    for (let i = 0; i < history.length; i++) {
+      const entry = history[i];
+      if (entry.action !== 'comment') continue;
+
+      // Check if the entry already has an action_type field
+      if (entry.action_type && entry.action_type !== CommentActionType.GENERAL) {
+        actionMap.set(entry.timestamp, entry.action_type);
+        continue;
+      }
+
+      // Look at the next entry — if it's an action from the same user, link them
+      const next = history[i + 1];
+      if (next && ACTION_TYPES[next.action] && next.by_email === entry.by_email) {
+        actionMap.set(entry.timestamp, ACTION_TYPES[next.action]);
+      }
+    }
+
+    return {
+      comments: history.filter((e) => e.action === 'comment'),
+      commentActionMap: actionMap,
+    };
+  }, [post.workflow_history]);
 
   const mutation = useMutation({
     mutationFn: (comment) => {
@@ -229,7 +253,13 @@ export default function PostCommentThread({ post, currentUser }) {
           </div>
         )}
         {comments.map((c, i) => (
-          <CommentCard key={i} comment={c} currentUser={currentUser} onReply={setReplyTo} />
+          <CommentCard
+            key={i}
+            comment={c}
+            currentUser={currentUser}
+            onReply={setReplyTo}
+            derivedActionType={commentActionMap.get(c.timestamp)}
+          />
         ))}
         <div ref={bottomRef} />
       </div>
