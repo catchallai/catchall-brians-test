@@ -30,7 +30,7 @@ import {
   Megaphone,
   ChevronRight,
 } from 'lucide-react';
-import { formatDistanceToNow, format } from 'date-fns';
+import { formatDistanceToNow, format, parseISO } from 'date-fns';
 import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 import ApprovalQueueView from '@/components/social/approvals/ApprovalQueueView';
 import ApprovalActionDrawer from '@/components/social/approvals/ApprovalActionDrawer';
@@ -268,7 +268,7 @@ export default function PostApprovalPanel({
         status: 'approved',
         approved_by: currentUser?.email,
         approved_by_name: currentUser?.full_name || currentUser?.email,
-        approved_date: new Date().toISOString().split('T')[0],
+        approved_date: todayLocal(),
         media_approved: true,
       };
     } else if (action === 'rejected') {
@@ -687,7 +687,7 @@ export default function PostApprovalPanel({
                 <span>
                   Approved by <strong>{post.approved_by_name || post.approved_by}</strong>
                   {post.approved_date &&
-                    ` on ${format(new Date(post.approved_date), 'MMM d, yyyy')}`}
+                    ` on ${format(parseISO(post.approved_date), 'MMM d, yyyy')}`}
                 </span>
               </div>
             )}
