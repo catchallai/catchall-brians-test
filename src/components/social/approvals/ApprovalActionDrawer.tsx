@@ -21,6 +21,7 @@ const DRAWER_CONFIG: Record<
     placeholder: COPY.approvalActionDrawer.placeholder.rejected,
     icon: XCircle,
     submitClass: 'bg-red-600 hover:bg-red-700 text-white',
+    ringClass: 'focus:ring-red-500',
     required: true,
   },
   [PostStatus.APPROVED]: {
@@ -29,6 +30,7 @@ const DRAWER_CONFIG: Record<
     placeholder: COPY.approvalActionDrawer.placeholder.approved,
     icon: CheckCircle2,
     submitClass: 'bg-green-600 hover:bg-green-700 text-white',
+    ringClass: 'focus:ring-green-500',
     required: false,
   },
   [PostStatus.CHANGES_REQUESTED]: {
@@ -37,6 +39,7 @@ const DRAWER_CONFIG: Record<
     placeholder: COPY.approvalActionDrawer.placeholder.changes_requested,
     icon: RotateCcw,
     submitClass: 'bg-amber-600 hover:bg-amber-700 text-white',
+    ringClass: 'focus:ring-amber-500',
     required: true,
   },
 };
@@ -118,7 +121,7 @@ export default function ApprovalActionDrawer({
             handleSubmit();
           }
         }}
-        className="w-full resize-none text-sm px-3 py-2 rounded-xl border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-violet-500 text-gray-900"
+        className={`w-full resize-none text-sm px-3 py-2 rounded-xl border border-gray-200 bg-white focus:outline-none focus:ring-2 ${config.ringClass} text-gray-900`}
       />
 
       <div className="flex items-center gap-2 justify-end">
