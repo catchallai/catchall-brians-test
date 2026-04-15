@@ -159,7 +159,7 @@ export default function SocialCalendar() {
     queryFn: () => base44.entities.CalendarPost.list('-scheduled_date', 100),
   });
 
-  // Open a specific post from a ?postId= deep-link (e.g. from a reviewer email).
+  // Open a specific post from a ?postId= deep-link.
   // Fires once posts are loaded; clears the param so a refresh doesn't re-open it.
   useEffect(() => {
     const postId = searchParams.get('postId');

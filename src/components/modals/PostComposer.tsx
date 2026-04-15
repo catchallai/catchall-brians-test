@@ -1233,6 +1233,15 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
   const confirmDeletePost = () => setShowDeleteConfirm(false); // TODO: implement deletion
 
   const handleSubmit = async (status: PostStatus, afterSave?: (saved: CalendarPost) => void) => {
+    // Resolve the final status up-front so the scheduled-time check below
+    // validates against what will actually be persisted (e.g. re-saving an
+    // already-published post coerces to PUBLISHED, which doesn't require a
+    // future time).
+    let finalStatus = status;
+    if (isPostPublished && !requireApproval) {
+      finalStatus = PostStatus.PUBLISHED;
+    }
+
     const mustTimeBeInFuture = ![
       PostStatus.DRAFT,
       PostStatus.PUBLISHED,
@@ -1246,7 +1255,7 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
       PostStatus.PENDING_REVIEW,
       PostStatus.PENDING_APPROVAL,
       PostStatus.CHANGES_REQUESTED,
-    ].includes(status);
+    ].includes(finalStatus);
 
     if (mustTimeBeInFuture) {
       const scheduledAt = new Date(`${formData.scheduled_date}T${formData.scheduled_time}`);
@@ -1256,11 +1265,6 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
       }
     }
     setScheduleError('');
-
-    let finalStatus = status;
-    if (isPostPublished && !requireApproval) {
-      finalStatus = PostStatus.PUBLISHED;
-    }
 
     // Append a workflow history event when transitioning to pending_review (mirrors
     // what PostApprovalPanel's yellow "Submit for Review" button used to do).
@@ -1338,7 +1342,9 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
       approvalMeta.assigned_to_email &&
       saveResult?.id
     ) {
-      const postLink = `${window.location.origin}/postapprovalview?id=${saveResult.id}`;
+      const postApprovalUrl = new URL(createPageUrl('PostApprovalView'), window.location.origin);
+      postApprovalUrl.searchParams.set('id', saveResult.id);
+      const postLink = postApprovalUrl.toString();
       const rawCaption =
         formData.caption.length > 60 ? `${formData.caption.slice(0, 60)}…` : formData.caption;
       const noteSection = approvalNote
@@ -1634,7 +1640,7 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
               ? [
                   {
                     id: 'comments',
-                    label: COPY.calendarPostModal.teamFeedback,
+                    label: COPY.calendarPostModal.comments,
                     icon: MessageSquare,
                   },
                 ]

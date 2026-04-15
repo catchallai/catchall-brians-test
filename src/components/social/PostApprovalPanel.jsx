@@ -104,6 +104,17 @@ export default function PostApprovalPanel({
     setDueDateDraft(post.review_due_date || '');
   }, [post.review_due_date]);
 
+  // Reset the note (and any stale due-date error) when switching to a different
+  // post so content typed for one post doesn't leak into another's approval
+  // workflow / email. Intentionally omits onNoteChange from deps — we don't
+  // want to wipe the note on parent re-renders if a caller ever passes an
+  // unstable callback identity.
+  useEffect(() => {
+    setNote('');
+    setDueDateError('');
+    onNoteChange?.('');
+  }, [post.id]);
+
   // Build per-stage who-did-what from workflow_history
   const stageActors = useMemo(() => {
     const map = {};
@@ -615,7 +626,7 @@ export default function PostApprovalPanel({
                   size="sm"
                   variant="outline"
                   onClick={handleReject}
-                  disabled={updateMutation.isPending || !note.trim()}
+                  disabled={updateMutation.isPending}
                   className="gap-1.5 text-red-600 border-red-300 hover:bg-red-50"
                 >
                   <XCircle className="w-3.5 h-3.5" /> Reject
