@@ -1240,9 +1240,12 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
       PostStatus.REJECTED,
       PostStatus.ARCHIVED,
       // Approval workflow states don't require a future time — the post isn't
-      // being published yet and the scheduled date may legitimately be in the past.
+      // being published yet and the scheduled date may legitimately be in the past
+      // (e.g. an editor resubmitting a changes-requested post whose original
+      // scheduled date has already passed while it sat in review).
       PostStatus.PENDING_REVIEW,
       PostStatus.PENDING_APPROVAL,
+      PostStatus.CHANGES_REQUESTED,
     ].includes(status);
 
     if (mustTimeBeInFuture) {

@@ -344,7 +344,14 @@ export default function SocialCalendar() {
           order++;
         }
       }
-      return await createMutation.mutateAsync({ ...data, order });
+      const created = await createMutation.mutateAsync({ ...data, order });
+      // Promote the newly created post into selectedPost so subsequent saves in
+      // the same modal session take the update branch instead of creating a
+      // duplicate (e.g. user saves a Draft, then clicks Send for Approval).
+      if (created) {
+        setSelectedPost(created);
+      }
+      return created;
     }
   };
 
