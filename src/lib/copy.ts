@@ -257,6 +257,24 @@ const COPY = {
     rejectionBanner: 'Leave a comment explaining the rejection to submit it.',
     changesBanner: 'Leave a comment explaining the requested changes to submit it.',
   },
+  approvalActionDrawer: {
+    rejectedLabel: 'Reason for Rejection',
+    approvedLabel: 'Approval Note',
+    changesRequestedLabel: 'Changes Requested',
+    rejectedSubmit: 'Reject',
+    approvedSubmit: 'Approve',
+    changesRequestedSubmit: 'Request Changes',
+    placeholder: {
+      rejected: 'Explain why this post is being rejected\u2026',
+      approved: 'Add an approval note (optional)\u2026',
+      changes_requested: 'Describe the changes needed\u2026',
+    },
+    badge: {
+      rejection: 'Rejection',
+      approval: 'Approval',
+      request_changes: 'Changes Requested',
+    },
+  },
   general: {
     close: 'Close',
     cancel: 'Cancel',

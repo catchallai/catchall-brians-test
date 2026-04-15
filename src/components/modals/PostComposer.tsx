@@ -625,7 +625,6 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
   const [previewPlatform, setPreviewPlatform] = useState('Twitter');
   const [showPreview, setShowPreview] = useState(true);
   const [activeTab, setActiveTab] = useState('compose');
-  const [pendingApprovalAction, setPendingApprovalAction] = useState<string | null>(null);
 
   const [showBestTimes, setShowBestTimes] = useState(false);
   const [scheduleError, setScheduleError] = useState('');
@@ -1675,10 +1674,6 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
                   hideEditorActions
                   approvalErrors={approvalErrors}
                   onNoteChange={setApprovalNote}
-                  onPendingAction={(action: string) => {
-                    setPendingApprovalAction(action);
-                    setActiveTab('comments');
-                  }}
                   onUpdate={(updatedPost: Record<string, unknown> | null) => {
                     if (!updatedPost) return;
                     setFormData((f) => ({ ...f, ...(updatedPost as Partial<PostFormData>) }));
@@ -1718,17 +1713,7 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
           {/* Comments tab */}
           {activeTab === 'comments' && (savedPost ?? post) && (
             <div className="flex-1 p-6">
-              <PostCommentThread
-                post={savedPost ?? post}
-                currentUser={currentUser}
-                pendingAction={pendingApprovalAction}
-                onPendingActionComplete={() => {
-                  setPendingApprovalAction(null);
-                  queryClient.invalidateQueries({ queryKey: ['calendar-posts'] });
-                  queryClient.invalidateQueries({ queryKey: ['calendar-posts-all'] });
-                }}
-                onPendingActionCancel={() => setPendingApprovalAction(null)}
-              />
+              <PostCommentThread post={savedPost ?? post} currentUser={currentUser} />
             </div>
           )}
 

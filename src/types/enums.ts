@@ -43,3 +43,10 @@ export const POST_PRIORITY_OPTIONS: { value: PostPriority; label: string }[] = [
   { value: PostPriority.HIGH, label: 'High' },
   { value: PostPriority.URGENT, label: 'Urgent' },
 ];
+
+export enum CommentActionType {
+  REJECTION = 'rejection',
+  APPROVAL = 'approval',
+  REQUEST_CHANGES = 'request_changes',
+  GENERAL = 'general',
+}

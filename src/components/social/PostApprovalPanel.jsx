@@ -33,6 +33,15 @@ import {
 import { formatDistanceToNow, format } from 'date-fns';
 import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 import ApprovalQueueView from '@/components/social/approvals/ApprovalQueueView';
+import ApprovalActionDrawer from '@/components/social/approvals/ApprovalActionDrawer';
+import { CommentActionType } from '@/types/enums';
+
+/** Maps a workflow action string to a CommentActionType for tagging comments. */
+const ACTION_TO_COMMENT_TYPE = {
+  rejected: CommentActionType.REJECTION,
+  approved: CommentActionType.APPROVAL,
+  changes_requested: CommentActionType.REQUEST_CHANGES,
+};
 
 // checkJs loses prop types for shadcn/ui components exported from .jsx files.
 const TypedInput = /** @type {React.ComponentType<any>} */ (Input);
@@ -80,7 +89,7 @@ const _PRIORITY_COLORS = {
 };
 
 /**
- * @param {{ post: any, onUpdate: any, readOnly?: boolean, onPendingAction?: (action: string) => void, hideEditorActions?: boolean, approvalErrors?: { reviewer?: string, priority?: string, dueDate?: string }, onNoteChange?: (note: string) => void }} props
+ * @param {{ post: any, onUpdate: any, readOnly?: boolean, hideEditorActions?: boolean, approvalErrors?: { reviewer?: string, priority?: string, dueDate?: string }, onNoteChange?: (note: string) => void }} props
  */
 export default function PostApprovalPanel({
   post,
@@ -89,13 +98,13 @@ export default function PostApprovalPanel({
   approvalErrors = {},
   onNoteChange = undefined,
   readOnly = false,
-  onPendingAction,
 }) {
   const queryClient = useQueryClient();
   const [note, setNote] = useState('');
   const [showHistory, setShowHistory] = useState(false);
   const [dueDateError, setDueDateError] = useState('');
   const [dueDateDraft, setDueDateDraft] = useState(post.review_due_date || '');
+  const [drawerAction, setDrawerAction] = useState(null);
   const today = todayLocal();
 
   // Keep the local draft in sync when the post's due date changes externally
@@ -112,6 +121,7 @@ export default function PostApprovalPanel({
   useEffect(() => {
     setNote('');
     setDueDateError('');
+    setDrawerAction(null);
     onNoteChange?.('');
   }, [post.id]);
 
@@ -229,28 +239,63 @@ export default function PostApprovalPanel({
       addWorkflowEvent('submitted_for_approval', { status: 'pending_approval' })
     );
 
-  const handleRequestChanges = () => {
-    if (onPendingAction) {
-      onPendingAction('changes_requested');
-    }
-  };
+  const handleRequestChanges = () => setDrawerAction('changes_requested');
+  const handleApprove = () => setDrawerAction('approved');
+  const handleReject = () => setDrawerAction('rejected');
 
-  const handleApprove = () =>
-    updateMutation.mutate(
-      addWorkflowEvent('approved', {
+  const handleDrawerSubmit = (text) => {
+    const action = drawerAction;
+    if (!action) return;
+
+    const history = [...(post.workflow_history || [])];
+
+    // Add tagged comment if text was provided
+    if (text) {
+      history.push({
+        action: 'comment',
+        action_type: ACTION_TO_COMMENT_TYPE[action] || CommentActionType.GENERAL,
+        by_email: currentUser?.email,
+        by_name: currentUser?.full_name || currentUser?.email,
+        timestamp: new Date().toISOString(),
+        text,
+      });
+    }
+
+    // Add workflow event
+    history.push({
+      action,
+      by_email: currentUser?.email,
+      by_name: currentUser?.full_name || currentUser?.email,
+      timestamp: new Date().toISOString(),
+    });
+
+    // Build status update based on action
+    let statusUpdate = {};
+    if (action === 'approved') {
+      statusUpdate = {
         status: 'approved',
         approved_by: currentUser?.email,
         approved_by_name: currentUser?.full_name || currentUser?.email,
         approved_date: new Date().toISOString().split('T')[0],
-        media_approved: true, // media is transferred to Approved Media Database
-      })
-    );
-
-  const handleReject = () => {
-    if (onPendingAction) {
-      onPendingAction('rejected');
+        media_approved: true,
+      };
+    } else if (action === 'rejected') {
+      statusUpdate = {
+        status: 'rejected',
+        rejected_reason: text,
+        media_approved: false,
+      };
+    } else if (action === 'changes_requested') {
+      statusUpdate = { status: 'changes_requested' };
     }
+
+    updateMutation.mutate(
+      { workflow_history: history, ...statusUpdate },
+      { onSuccess: () => setDrawerAction(null) }
+    );
   };
+
+  const handleDrawerCancel = () => setDrawerAction(null);
 
   const teamMembers = allUsers.filter((u) =>
     ['admin', 'editor', 'approver'].includes(u.social_media_role || u.role)
@@ -656,7 +701,15 @@ export default function PostApprovalPanel({
             )}
           </div>
 
-          {updateMutation.isPending && (
+          {/* ── Action Drawer ── */}
+          <ApprovalActionDrawer
+            actionType={drawerAction}
+            onSubmit={handleDrawerSubmit}
+            onCancel={handleDrawerCancel}
+            isPending={updateMutation.isPending}
+          />
+
+          {updateMutation.isPending && !drawerAction && (
             <div className="flex items-center gap-2 text-xs text-gray-400">
               <Loader2 className="w-3.5 h-3.5 animate-spin" /> Saving…
             </div>

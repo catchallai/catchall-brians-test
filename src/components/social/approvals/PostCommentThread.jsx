@@ -4,9 +4,9 @@ import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { Send, AtSign, Loader2, MessageSquare, Reply, AlertTriangle, XCircle } from 'lucide-react';
+import { Send, AtSign, Loader2, MessageSquare, Reply } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
-import { PostStatus } from '@/types/enums';
+import { CommentActionType } from '@/types/enums';
 import COPY from '@/lib/copy';
 
 // Simple @mention detection: finds @word patterns
@@ -28,59 +28,90 @@ function parseMentions(text) {
   return parts;
 }
 
-function CommentBubble({ comment, currentUser, onReply }) {
-  const isMine = comment.by_email === currentUser?.email;
+const ACTION_TYPE_STYLES = {
+  [CommentActionType.REJECTION]: {
+    card: 'border-l-[3px] border-red-500 bg-red-50/60 dark:bg-red-950/20',
+    badge: COPY.approvalActionDrawer.badge.rejection,
+    badgeClass:
+      'bg-red-100 text-red-700 border border-red-200 dark:bg-red-900/40 dark:text-red-300 dark:border-red-800',
+  },
+  [CommentActionType.APPROVAL]: {
+    card: 'border-l-[3px] border-green-500 bg-green-50/60 dark:bg-green-950/20',
+    badge: COPY.approvalActionDrawer.badge.approval,
+    badgeClass:
+      'bg-green-100 text-green-700 border border-green-200 dark:bg-green-900/40 dark:text-green-300 dark:border-green-800',
+  },
+  [CommentActionType.REQUEST_CHANGES]: {
+    card: 'border-l-[3px] border-amber-500 bg-amber-50/60 dark:bg-amber-950/20',
+    badge: COPY.approvalActionDrawer.badge.request_changes,
+    badgeClass:
+      'bg-amber-100 text-amber-700 border border-amber-200 dark:bg-amber-900/40 dark:text-amber-300 dark:border-amber-800',
+  },
+};
+
+function CommentCard({ comment, currentUser, onReply }) {
   const parts = parseMentions(comment.text || '');
+  const actionStyle = comment.action_type ? ACTION_TYPE_STYLES[comment.action_type] : null;
 
   return (
-    <div className={`flex gap-2.5 ${isMine ? 'flex-row-reverse' : ''}`}>
+    <div
+      className={`flex gap-3 px-3 py-2.5 rounded-lg transition-colors ${
+        actionStyle
+          ? actionStyle.card
+          : 'border-l-[3px] border-transparent hover:bg-gray-50 dark:hover:bg-slate-800/50'
+      }`}
+    >
       <Avatar className="w-7 h-7 shrink-0 mt-0.5">
-        <AvatarFallback className="text-[10px] bg-violet-100 text-violet-600">
+        <AvatarFallback className="text-[10px] bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300">
           {comment.by_name?.[0]?.toUpperCase() || '?'}
         </AvatarFallback>
       </Avatar>
-      <div className={`max-w-[80%] ${isMine ? 'items-end' : 'items-start'} flex flex-col gap-0.5`}>
+      <div className="flex-1 min-w-0">
+        {/* Header: name, action badge, timestamp, reply */}
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="text-xs font-semibold text-gray-900 dark:text-white">
+            {comment.by_name || comment.by_email}
+          </span>
+          {actionStyle && (
+            <span
+              className={`text-[10px] font-medium px-1.5 py-0.5 rounded ${actionStyle.badgeClass}`}
+            >
+              {actionStyle.badge}
+            </span>
+          )}
+          <span className="text-[10px] text-gray-400">
+            {formatDistanceToNow(new Date(comment.timestamp), { addSuffix: true })}
+          </span>
+          {comment.by_email !== currentUser?.email && (
+            <button
+              onClick={() => onReply(comment)}
+              className="text-[10px] text-gray-400 hover:text-violet-600 dark:hover:text-violet-400 font-medium ml-auto"
+            >
+              Reply
+            </button>
+          )}
+        </div>
+
+        {/* Reply context */}
         {comment.reply_to_name && (
-          <div className="flex items-center gap-1 text-xs text-gray-400">
+          <div className="flex items-center gap-1 text-[11px] text-gray-400 mt-0.5">
             <Reply className="w-3 h-3" />
-            Replying to{' '}
             <span className="font-medium text-violet-500">@{comment.reply_to_name}</span>
           </div>
         )}
-        <div
-          className={`rounded-2xl px-3 py-2 text-sm ${
-            isMine
-              ? 'bg-violet-600 text-white rounded-tr-sm'
-              : 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white rounded-tl-sm'
-          }`}
-        >
+
+        {/* Body */}
+        <p className="text-sm text-gray-700 dark:text-gray-300 mt-1 whitespace-pre-wrap">
           {parts.map((p, i) =>
             p.type === 'mention' ? (
-              <span
-                key={i}
-                className={`font-semibold ${isMine ? 'text-violet-200' : 'text-violet-600'}`}
-              >
+              <span key={i} className="font-semibold text-violet-600 dark:text-violet-400">
                 {p.value}
               </span>
             ) : (
               <span key={i}>{p.value}</span>
             )
           )}
-        </div>
-        <div className="flex items-center gap-2 px-1">
-          <span className="text-[10px] text-gray-400">
-            {comment.by_name} ·{' '}
-            {formatDistanceToNow(new Date(comment.timestamp), { addSuffix: true })}
-          </span>
-          {!isMine && (
-            <button
-              onClick={() => onReply(comment)}
-              className="text-[10px] text-violet-500 hover:text-violet-700 font-medium"
-            >
-              Reply
-            </button>
-          )}
-        </div>
+        </p>
       </div>
     </div>
   );
@@ -90,18 +121,9 @@ function CommentBubble({ comment, currentUser, onReply }) {
  * @param {{
  *   post: any,
  *   currentUser: any,
- *   pendingAction?: string | null,
- *   onPendingActionComplete?: () => void,
- *   onPendingActionCancel?: () => void,
  * }} props
  */
-export default function PostCommentThread({
-  post,
-  currentUser,
-  pendingAction = null,
-  onPendingActionComplete,
-  onPendingActionCancel,
-}) {
+export default function PostCommentThread({ post, currentUser }) {
   const queryClient = useQueryClient();
   const [text, setText] = useState('');
   const [replyTo, setReplyTo] = useState(null);
@@ -118,24 +140,15 @@ export default function PostCommentThread({
   const comments = post.workflow_history?.filter((e) => e.action === 'comment') || [];
 
   const mutation = useMutation({
-    mutationFn: ({ comment, workflowEvent, statusUpdate }) => {
+    mutationFn: (comment) => {
       const history = [...(post.workflow_history || []), comment];
-      if (workflowEvent) {
-        history.push(workflowEvent);
-      }
-      return base44.entities.CalendarPost.update(post.id, {
-        workflow_history: history,
-        ...statusUpdate,
-      });
+      return base44.entities.CalendarPost.update(post.id, { workflow_history: history });
     },
-    onSuccess: (_, { statusUpdate }) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['calendar-posts-all'] });
       queryClient.invalidateQueries({ queryKey: ['calendar-post'] });
       setText('');
       setReplyTo(null);
-      if (statusUpdate && onPendingActionComplete) {
-        onPendingActionComplete();
-      }
     },
   });
 
@@ -182,12 +195,11 @@ export default function PostCommentThread({
     .slice(0, 5);
 
   const handleSubmit = () => {
-    if (!text.trim()) {
-      return;
-    }
+    if (!text.trim()) return;
 
     const comment = {
       action: 'comment',
+      action_type: CommentActionType.GENERAL,
       by_email: currentUser?.email,
       by_name: currentUser?.full_name || currentUser?.email,
       timestamp: new Date().toISOString(),
@@ -196,23 +208,7 @@ export default function PostCommentThread({
       reply_to_id: replyTo?.timestamp,
     };
 
-    let workflowEvent = null;
-    let statusUpdate = null;
-
-    if (pendingAction) {
-      workflowEvent = {
-        action: pendingAction,
-        by_email: currentUser?.email,
-        by_name: currentUser?.full_name || currentUser?.email,
-        timestamp: new Date().toISOString(),
-      };
-      statusUpdate =
-        pendingAction === PostStatus.REJECTED
-          ? { status: PostStatus.REJECTED, rejected_reason: text.trim(), media_approved: false }
-          : { status: PostStatus.CHANGES_REQUESTED };
-    }
-
-    mutation.mutate({ comment, workflowEvent, statusUpdate });
+    mutation.mutate(comment);
   };
 
   return (
@@ -225,53 +221,23 @@ export default function PostCommentThread({
         </Badge>
       </div>
 
-      {/* Pending action banner */}
-      {pendingAction && (
-        <div
-          className={`flex items-center justify-between rounded-lg px-3 py-2 mb-3 text-xs ${
-            pendingAction === PostStatus.REJECTED
-              ? 'bg-red-50 border border-red-200 text-red-700'
-              : 'bg-orange-50 border border-orange-200 text-orange-700'
-          }`}
-        >
-          <div className="flex items-center gap-1.5">
-            {pendingAction === PostStatus.REJECTED ? (
-              <XCircle className="w-3.5 h-3.5 shrink-0" />
-            ) : (
-              <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
-            )}
-            <span className="font-medium">
-              {pendingAction === PostStatus.REJECTED
-                ? COPY.postCommentThread.rejectionBanner
-                : COPY.postCommentThread.changesBanner}
-            </span>
-          </div>
-          <button
-            onClick={onPendingActionCancel}
-            className="text-gray-400 hover:text-gray-600 font-medium ml-2"
-          >
-            {COPY.general.cancel}
-          </button>
-        </div>
-      )}
-
       {/* Comment list */}
-      <div className="flex-1 overflow-y-auto space-y-3 min-h-0 max-h-64 pr-1">
+      <div className="flex-1 overflow-y-auto min-h-0 max-h-64 pr-1 divide-y divide-gray-100 dark:divide-gray-800">
         {comments.length === 0 && (
           <div className="text-center py-6 text-gray-400 text-sm">
             No comments yet. Start the conversation!
           </div>
         )}
         {comments.map((c, i) => (
-          <CommentBubble key={i} comment={c} currentUser={currentUser} onReply={setReplyTo} />
+          <CommentCard key={i} comment={c} currentUser={currentUser} onReply={setReplyTo} />
         ))}
         <div ref={bottomRef} />
       </div>
 
       {/* Reply indicator */}
       {replyTo && (
-        <div className="flex items-center justify-between bg-violet-50 dark:bg-violet-900/20 rounded-lg px-3 py-1.5 mt-2 text-xs">
-          <span className="text-violet-700">
+        <div className="flex items-center justify-between bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-1.5 mt-2 text-xs">
+          <span className="text-gray-600 dark:text-gray-300">
             Replying to <strong>{replyTo.by_name}</strong>
           </span>
           <button onClick={() => setReplyTo(null)} className="text-gray-400 hover:text-red-500">
