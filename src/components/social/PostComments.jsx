@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { MessageSquare, Send, CheckCircle, Loader2, AlertTriangle, XCircle } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
+import COPY from '@/lib/copy';
 
 export default function PostComments({
   postId,
@@ -100,7 +101,7 @@ export default function PostComments({
     <div className="space-y-4">
       <div className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
         <MessageSquare className="w-4 h-4" />
-        Team Feedback ({comments.length})
+        {COPY.calendarPostModal.teamFeedback} ({comments.length})
       </div>
 
       {/* Pending action banner */}
