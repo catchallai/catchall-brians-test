@@ -142,6 +142,14 @@ export interface PostFormData {
   auto_post: boolean;
 }
 
+interface WorkflowEntry {
+  action: string;
+  by_email?: string;
+  by_name?: string;
+  timestamp?: string;
+  [key: string]: unknown;
+}
+
 interface SavePayload extends PostFormData {
   timezone: string;
   platform_image_urls: Record<string, string>;
@@ -149,10 +157,17 @@ interface SavePayload extends PostFormData {
     string,
     { cropBox: CropBox | null; transformOps: TransformOp[]; tilt: number }
   >;
+  workflow_history?: WorkflowEntry[];
 }
 
 export interface CalendarPost extends Partial<PostFormData> {
   id?: string;
+  workflow_history?: WorkflowEntry[];
+  assigned_to_email?: string | null;
+  assigned_to_name?: string | null;
+  assigned_date?: string;
+  priority?: string;
+  review_due_date?: string;
   platform_image_urls?: Record<string, string>;
   platform_crop_metadata?: Record<
     string,
@@ -167,7 +182,7 @@ export interface PostComposerRef {
 export interface PostComposerProps {
   post?: CalendarPost | null;
   open?: boolean;
-  onSave: (data: SavePayload) => Promise<void>;
+  onSave: (data: SavePayload) => Promise<CalendarPost | void>;
   /** When provided, a close button is rendered and clicking it (or saving) calls onClose. */
   onClose?: () => void;
   isLoading: boolean;
@@ -644,6 +659,23 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
   const [showBestTimes, setShowBestTimes] = useState(false);
   const [scheduleError, setScheduleError] = useState('');
   const [requireApproval, setRequireApproval] = useState(true);
+  const [savedPost, setSavedPost] = useState<CalendarPost | null>(post ?? null);
+  // Tracks approval-specific fields updated via PostApprovalPanel (they aren't in PostFormData).
+  const [approvalMeta, setApprovalMeta] = useState<{
+    assigned_to_email?: string | null;
+    priority?: string | null;
+    review_due_date?: string | null;
+  }>({
+    assigned_to_email: post?.assigned_to_email,
+    // Default to 'normal' to match the select's pre-selected display value.
+    priority: post?.priority ?? 'normal',
+    review_due_date: post?.review_due_date,
+  });
+  const [approvalErrors, setApprovalErrors] = useState<{
+    reviewer?: string;
+    priority?: string;
+    dueDate?: string;
+  }>({});
   const [mediaMenuTarget, setMediaMenuTarget] = useState<string | null>(null);
   const [pendingPicker, setPendingPicker] = useState<'image' | 'video' | null>(null);
   const [connectPrompt, setConnectPrompt] = useState<string | null>(null);
@@ -1219,7 +1251,7 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
 
   const confirmDeletePost = () => setShowDeleteConfirm(false); // TODO: implement deletion
 
-  const handleSubmit = async (status: PostStatus) => {
+  const handleSubmit = async (status: PostStatus, afterSave?: (saved: CalendarPost) => void) => {
     const mustTimeBeInFuture = ![
       PostStatus.DRAFT,
       PostStatus.PUBLISHED,
@@ -1242,10 +1274,28 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
       finalStatus = PostStatus.PUBLISHED;
     }
 
+    // Append a workflow history event when transitioning to pending_review (mirrors
+    // what PostApprovalPanel's yellow "Submit for Review" button used to do).
+    let workflowHistory: WorkflowEntry[] | undefined;
+    if (finalStatus === PostStatus.PENDING_REVIEW) {
+      const existing = (savedPost ?? post)?.workflow_history ?? [];
+      workflowHistory = [
+        ...existing,
+        {
+          action: 'submitted_for_review',
+          by_email: currentUser?.email,
+          by_name: currentUser?.full_name || currentUser?.email,
+          timestamp: new Date().toISOString(),
+        },
+      ];
+    }
+
+    let saveResult: CalendarPost | void;
     try {
-      await onSave({
+      saveResult = await onSave({
         ...formData,
         status: finalStatus,
+        ...(workflowHistory !== undefined && { workflow_history: workflowHistory }),
         timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
         platform_image_urls: platformCrops,
         platform_crop_metadata: Object.fromEntries(
@@ -1279,6 +1329,15 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
       [PostStatus.PUBLISHED]: COPY.calendarPostModal.saveSuccessPublished,
     };
     toast.success(successMessages[finalStatus] ?? COPY.calendarPostModal.saveSuccessDefault);
+
+    if (saveResult) {
+      setSavedPost(saveResult);
+    }
+
+    if (afterSave) {
+      afterSave((saveResult as CalendarPost) ?? { ...formData, status: finalStatus });
+      return;
+    }
 
     if (onClose) {
       // Modal mode: close
@@ -1401,6 +1460,74 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
   const overLimit = formData.caption.length > activePlatform.limit;
 
   // ---------------------------------------------------------------------------
+  // Primary action button (violet) — config varies by tab / approval setting
+  // ---------------------------------------------------------------------------
+  const primaryAction: {
+    label: string;
+    icon: React.ReactNode;
+    onClick: () => void;
+    disabled: boolean;
+  } = (() => {
+    const baseDisabled = isLoading || !formData.caption || formData.platforms.length === 0;
+
+    if (activeTab === 'approval') {
+      const isResubmit = formData.status === PostStatus.CHANGES_REQUESTED;
+      return {
+        label: isResubmit
+          ? COPY.calendarPostModal.resubmitForReview
+          : COPY.calendarPostModal.sendForApproval,
+        icon: <Send className="w-4 h-4" />,
+        disabled: baseDisabled,
+        onClick: () => {
+          const errors: { reviewer?: string; priority?: string; dueDate?: string } = {};
+          if (!approvalMeta.assigned_to_email)
+            errors.reviewer = COPY.calendarPostModal.approvalReviewerRequired;
+          if (!approvalMeta.priority)
+            errors.priority = COPY.calendarPostModal.approvalPriorityRequired;
+          if (!approvalMeta.review_due_date)
+            errors.dueDate = COPY.calendarPostModal.approvalDueDateRequired;
+          if (Object.keys(errors).length > 0) {
+            setApprovalErrors(errors);
+            return;
+          }
+          setApprovalErrors({});
+          handleSubmit(
+            isResubmit
+              ? PostStatus.PENDING_REVIEW
+              : isAdmin && !requireApproval
+                ? PostStatus.APPROVED
+                : PostStatus.PENDING_REVIEW
+          );
+        },
+      };
+    }
+
+    if (requireApproval) {
+      return {
+        label: COPY.calendarPostModal.continueToApproval,
+        icon: <ChevronRight className="w-4 h-4" />,
+        disabled: baseDisabled,
+        onClick: () => {
+          if ((savedPost ?? post) && !isDirty) {
+            setActiveTab('approval');
+          } else {
+            handleSubmit(PostStatus.DRAFT, () => setActiveTab('approval'));
+          }
+        },
+      };
+    }
+
+    return {
+      label: isPostPublished
+        ? COPY.calendarPostModal.updatePost
+        : COPY.calendarPostModal.schedulePost,
+      icon: <Calendar className="w-4 h-4" />,
+      disabled: baseDisabled || !isDirty,
+      onClick: () => handleSubmit(PostStatus.APPROVED),
+    };
+  })();
+
+  // ---------------------------------------------------------------------------
   // Render
   // ---------------------------------------------------------------------------
   return (
@@ -1423,14 +1550,16 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
             >
               <Sparkles className="w-4 h-4" /> {COPY.calendarPostModal.aiAssistant}
             </TypedButton>
-            <TypedButton
-              variant={showPreview ? 'default' : 'outline'}
-              size="sm"
-              className={`gap-1.5 text-sm ${showPreview ? 'bg-blue-600 hover:bg-blue-700 text-white' : ''}`}
-              onClick={() => setShowPreview((v) => !v)}
-            >
-              <Eye className="w-4 h-4" /> {COPY.calendarPostModal.preview}
-            </TypedButton>
+            {activeTab === 'compose' && (
+              <TypedButton
+                variant={showPreview ? 'default' : 'outline'}
+                size="sm"
+                className={`gap-1.5 text-sm ${showPreview ? 'bg-blue-600 hover:bg-blue-700 text-white' : ''}`}
+                onClick={() => setShowPreview((v) => !v)}
+              >
+                <Eye className="w-4 h-4" /> {COPY.calendarPostModal.preview}
+              </TypedButton>
+            )}
             {onFullscreenToggle && (
               <button
                 type="button"
@@ -1460,6 +1589,7 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
         </div>
 
         {/* Tabs (only for existing posts) */}
+<<<<<<< HEAD
         {post && (
           <div className="flex border-b border-gray-100 dark:border-gray-800 px-6 bg-white dark:bg-gray-900">
             {POST_TABS.filter((tab) => tab.enabled).map((tab) => (
@@ -1468,22 +1598,53 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
                 onClick={() => setActiveTab(tab.id)}
                 className={`flex items-center gap-1.5 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
                   activeTab === tab.id
+=======
+        <div className="flex border-b border-gray-100 dark:border-gray-800 px-6 bg-white dark:bg-gray-900">
+          {[
+            { id: 'compose', label: COPY.calendarPostModal.compose, icon: ImageIcon },
+            {
+              id: 'approval',
+              label: COPY.calendarPostModal.approvalWorkflow,
+              icon: GitBranch,
+              disabled: !(savedPost ?? post),
+            },
+            // Only show Comments tab if post exists, since comments are tied to a post ID and we don't want to create
+            // that until the post is saved for the first time
+            ...(post?.id
+              ? [
+                  {
+                    id: 'comments',
+                    label: COPY.calendarPostModal.teamFeedback,
+                    icon: MessageSquare,
+                  },
+                ]
+              : []),
+          ].map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => !tab.disabled && setActiveTab(tab.id)}
+              disabled={tab.disabled}
+              className={`flex items-center gap-1.5 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+                tab.disabled
+                  ? 'border-transparent text-gray-300 dark:text-gray-600 cursor-not-allowed'
+                  : activeTab === tab.id
+>>>>>>> 7216460 (feat(2183): navigate to approval workflow tab from compose tab, add missing statuses to calendar & refine approval flow creation for post)
                     ? 'border-violet-500 text-violet-600 dark:text-violet-400'
                     : 'border-transparent text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'
-                }`}
-              >
-                <tab.icon className="w-4 h-4" />
-                {tab.label}
-              </button>
-            ))}
-          </div>
-        )}
+              }`}
+            >
+              <tab.icon className="w-4 h-4" />
+              {tab.label}
+            </button>
+          ))}
+        </div>
 
         {/* Body */}
         <div className="flex flex-1 overflow-y-auto">
           {/* Approval tab */}
-          {activeTab === 'approval' && post && (
+          {activeTab === 'approval' && (
             <div className="flex-1 p-6">
+<<<<<<< HEAD
               <PostApprovalPanel
                 post={post}
                 onUpdate={(updatedPost: Partial<PostFormData> | null) => {
@@ -1494,6 +1655,46 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
                   setActiveTab('comments');
                 }}
               />
+=======
+              {(savedPost ?? post) && (
+                <PostApprovalPanel
+                  post={(savedPost ?? post)!}
+                  hideEditorActions
+                  approvalErrors={approvalErrors}
+                  onUpdate={(updatedPost: Record<string, unknown> | null) => {
+                    if (!updatedPost) return;
+                    setFormData((f) => ({ ...f, ...(updatedPost as Partial<PostFormData>) }));
+                    // Patch savedPost so that controlled inputs in PostApprovalPanel
+                    // (date, priority, reviewer) reflect the saved value immediately
+                    // rather than reverting to the stale prop on re-render.
+                    setSavedPost((s) =>
+                      s ? { ...s, ...(updatedPost as Partial<CalendarPost>) } : s
+                    );
+                    // Mirror approval-specific fields into approvalMeta so the footer
+                    // button can validate them without re-reading the post from the server.
+                    setApprovalMeta((m) => ({
+                      ...m,
+                      ...('assigned_to_email' in updatedPost && {
+                        assigned_to_email: updatedPost.assigned_to_email as string | null,
+                      }),
+                      ...('priority' in updatedPost && {
+                        priority: updatedPost.priority as string,
+                      }),
+                      ...('review_due_date' in updatedPost && {
+                        review_due_date: updatedPost.review_due_date as string,
+                      }),
+                    }));
+                    // Clear the error for any field that was just updated.
+                    setApprovalErrors((e) => ({
+                      ...e,
+                      ...('assigned_to_email' in updatedPost && { reviewer: undefined }),
+                      ...('priority' in updatedPost && { priority: undefined }),
+                      ...('review_due_date' in updatedPost && { dueDate: undefined }),
+                    }));
+                  }}
+                />
+              )}
+>>>>>>> 7216460 (feat(2183): navigate to approval workflow tab from compose tab, add missing statuses to calendar & refine approval flow creation for post)
             </div>
           )}
 
@@ -1532,7 +1733,7 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
           )}
 
           {/* LEFT: Composer */}
-          {(activeTab === 'compose' || !post) && (
+          {activeTab === 'compose' && (
             <div
               className={`flex flex-col ${showPreview ? 'w-[58%]' : 'w-full'} border-r border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900`}
             >
@@ -1974,7 +2175,7 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
           )}
 
           {/* RIGHT: Preview + Scheduling */}
-          {(activeTab === 'compose' || !post) && showPreview && (
+          {activeTab === 'compose' && showPreview && (
             <div className="flex-1 flex flex-col bg-gray-50 dark:bg-gray-950">
               {formData.platforms.length > 0 && (
                 <>
@@ -2181,48 +2382,18 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
               </TypedButton>
             )}
 
-            {/* Submit for review (editors only) */}
-            {!isAdmin && !isViewer && (
+            {/* Primary action — config computed in primaryAction above the render */}
+            {!isViewer && (
               <TypedButton
-                variant="outline"
-                onClick={() => handleSubmit(PostStatus.PENDING_REVIEW)}
-                disabled={
-                  isLoading || !isDirty || !formData.caption || formData.platforms.length === 0
-                }
-                className="flex items-center gap-1.5 text-sm rounded-xl"
+                onClick={primaryAction.onClick}
+                disabled={primaryAction.disabled}
+                className="bg-violet-600 hover:bg-violet-700 text-white rounded-xl px-5 py-2 text-sm font-semibold disabled:opacity-40 transition-colors flex items-center gap-2"
               >
-                <Send className="w-4 h-4" />
-                {COPY.calendarPostModal.submitForReview}
+                {isLoading && <Loader2 className="w-4 h-4 animate-spin" />}
+                {primaryAction.icon}
+                {primaryAction.label}
               </TypedButton>
             )}
-
-            <TypedButton
-              onClick={() =>
-                handleSubmit(
-                  isAdmin
-                    ? requireApproval
-                      ? PostStatus.PENDING_APPROVAL
-                      : PostStatus.APPROVED
-                    : PostStatus.PENDING_REVIEW
-                )
-              }
-              disabled={
-                isLoading ||
-                isViewer ||
-                !isDirty ||
-                !formData.caption ||
-                formData.platforms.length === 0
-              }
-              className="bg-violet-600 hover:bg-violet-700 text-white rounded-xl px-5 py-2 text-sm font-semibold disabled:opacity-40 transition-colors flex items-center gap-2"
-            >
-              {isLoading && <Loader2 className="w-4 h-4 animate-spin" />}
-              {requireApproval ? <Send className="w-4 h-4" /> : <Calendar className="w-4 h-4" />}
-              {requireApproval
-                ? COPY.calendarPostModal.sendForApproval
-                : isPostPublished
-                  ? COPY.calendarPostModal.updatePost
-                  : COPY.calendarPostModal.schedulePost}
-            </TypedButton>
           </div>
         </div>
 

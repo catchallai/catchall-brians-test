@@ -235,8 +235,6 @@ export default function SocialCalendar() {
     mutationFn: (data) => base44.entities.CalendarPost.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['calendar-posts'] });
-      setShowModal(false);
-      setSelectedPost(null);
     },
   });
 
@@ -245,8 +243,6 @@ export default function SocialCalendar() {
       base44.entities.CalendarPost.update(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['calendar-posts'] });
-      setShowModal(false);
-      setSelectedPost(null);
     },
   });
 
@@ -312,7 +308,7 @@ export default function SocialCalendar() {
         }
       }
 
-      await updateMutation.mutateAsync({ id: selectedPost.id, data: updateData });
+      return await updateMutation.mutateAsync({ id: selectedPost.id, data: updateData });
     } else {
       let order;
       if (selectedPost?.order !== undefined && selectedPost?.order !== null) {
@@ -329,7 +325,7 @@ export default function SocialCalendar() {
           order++;
         }
       }
-      await createMutation.mutateAsync({ ...data, order });
+      return await createMutation.mutateAsync({ ...data, order });
     }
   };
 

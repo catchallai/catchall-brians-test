@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState } from 'react';
+import COPY from '@/lib/copy';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
@@ -29,6 +30,9 @@ import {
 import { formatDistanceToNow, format } from 'date-fns';
 import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 import ApprovalQueueView from '@/components/social/approvals/ApprovalQueueView';
+
+// checkJs loses prop types for shadcn/ui components exported from .jsx files.
+const TypedInput = /** @type {React.ComponentType<any>} */ (Input);
 
 const WORKFLOW_STAGES = [
   { key: 'draft', label: 'Draft', icon: FileText, description: 'Post is being created' },
@@ -71,8 +75,22 @@ const _PRIORITY_COLORS = {
   urgent: 'bg-red-100 text-red-600',
 };
 
-export default function PostApprovalPanel({ post, onUpdate, readOnly = false, onPendingAction }) {
+/**
+ * @param {{ post: any, onUpdate: any, hideEditorActions?: boolean, approvalErrors?: { reviewer?: string, priority?: string, dueDate?: string, readonly?: boolean, onPendingAction?: () => void } }} props
+ */
+export default function PostApprovalPanel({
+  post,
+  onUpdate,
+  hideEditorActions = false,
+  approvalErrors = {},
+  readOnly = false, 
+  onPendingAction,
+}) {
   const queryClient = useQueryClient();
+  const [note, setNote] = useState('');
+  const [showHistory, setShowHistory] = useState(false);
+  const [dueDateError, setDueDateError] = useState('');
+  const today = new Date().toISOString().split('T')[0];
 
   // Build per-stage who-did-what from workflow_history
   const stageActors = React.useMemo(() => {
@@ -168,12 +186,14 @@ export default function PostApprovalPanel({ post, onUpdate, readOnly = false, on
 
   const handleAssign = (userEmail) => {
     const user = allUsers.find((u) => u.email === userEmail);
+    // Status is intentionally not changed here — it transitions to pending_review
+    // only when the user explicitly clicks "Send for Approval" / "Submit for Review".
+    // @ts-ignore — checkJs cannot infer useMutation variable types in .jsx files
     updateMutation.mutate(
       addWorkflowEvent('assigned', {
         assigned_to_email: userEmail,
         assigned_to_name: user?.full_name || userEmail,
         assigned_date: new Date().toISOString(),
-        status: 'pending_review',
       })
     );
   };
@@ -361,10 +381,12 @@ export default function PostApprovalPanel({ post, onUpdate, readOnly = false, on
             {isEditor && (
               <div className="space-y-1.5">
                 <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide flex items-center gap-1.5">
-                  <UserPlus className="w-3.5 h-3.5" /> Reviewer
+                  <UserPlus className="w-3.5 h-3.5" /> Reviewer <span className="text-red-500">*</span>
                 </p>
                 {post.assigned_to_email ? (
-                  <div className="flex items-center gap-2 p-2.5 bg-blue-50 rounded-xl border border-blue-100">
+                   <div
+                className={`flex items-center gap-2 p-2.5 bg-blue-50 rounded-xl border ${approvalErrors.reviewer ? 'border-red-300' : 'border-blue-100'}`}
+              >
                     <Avatar className="w-7 h-7">
                       <AvatarFallback className="text-xs bg-blue-200 text-blue-700">
                         {post.assigned_to_name?.[0] || post.assigned_to_email?.[0]?.toUpperCase()}
@@ -396,7 +418,9 @@ export default function PostApprovalPanel({ post, onUpdate, readOnly = false, on
                   </div>
                 ) : (
                   <Select onValueChange={handleAssign}>
-                    <SelectTrigger className="text-sm h-9">
+                     <SelectTrigger
+                  className={`text-sm h-9 ${approvalErrors.reviewer ? 'border-red-400 focus:ring-red-400' : ''}`}
+                >
                       <SelectValue placeholder="Assign reviewer…" />
                     </SelectTrigger>
                     <SelectContent>
@@ -416,20 +440,25 @@ export default function PostApprovalPanel({ post, onUpdate, readOnly = false, on
                     </SelectContent>
                   </Select>
                 )}
+                 {approvalErrors.reviewer && (
+              <p className="text-xs text-red-500">{approvalErrors.reviewer}</p>
+            )}
               </div>
             )}
 
             {/* Priority */}
             {isEditor && (
               <div className="space-y-1.5">
-                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
-                  Priority
-                </p>
+               <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+              Priority <span className="text-red-500">*</span>
+            </p>
                 <Select
                   value={post.priority || 'normal'}
                   onValueChange={(v) => updateMutation.mutate({ priority: v })}
                 >
-                  <SelectTrigger className="text-sm h-9">
+                  <SelectTrigger
+                className={`text-sm h-9 ${approvalErrors.priority ? 'border-red-400 focus:ring-red-400' : ''}`}
+              >
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -439,132 +468,213 @@ export default function PostApprovalPanel({ post, onUpdate, readOnly = false, on
                     <SelectItem value="urgent">Urgent</SelectItem>
                   </SelectContent>
                 </Select>
+                {approvalErrors.priority && (
+              <p className="text-xs text-red-500">{approvalErrors.priority}</p>
+            )}
               </div>
             )}
 
-            {/* Review Due Date */}
-            {isEditor && (
-              <div className="space-y-1.5">
-                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
-                  Due Date
-                </p>
-                <Input
-                  type="date"
-                  value={post.review_due_date || ''}
-                  onChange={(e) => updateMutation.mutate({ review_due_date: e.target.value })}
-                  className="text-sm h-9"
-                />
-              </div>
+        {/* Review Due Date */}
+        {isEditor && (
+          <div className="space-y-1.5">
+            <div>
+              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                Due Date <span className="text-red-500">*</span>
+              </p>
+              <p className="text-xs text-gray-400 mt-0.5">
+                {COPY.calendarPostModal.approvalDueDateHint}
+              </p>
+            </div>
+            <TypedInput
+              type="date"
+              value={post.review_due_date || ''}
+              min={today}
+              onChange={(e) => {
+                const value = e.target.value;
+                if (value && value < today) {
+                  setDueDateError(COPY.calendarPostModal.approvalDueDatePast);
+                  return;
+                }
+                setDueDateError('');
+                // @ts-ignore — checkJs cannot infer useMutation variable types in .jsx files
+                updateMutation.mutate({ review_due_date: value });
+              }}
+              className={`text-sm h-9 ${approvalErrors.dueDate || dueDateError ? 'border-red-400 focus:ring-red-400' : ''}`}
+            />
+            {(approvalErrors.dueDate || dueDateError) && (
+              <p className="text-xs text-red-500">{dueDateError || approvalErrors.dueDate}</p>
             )}
           </div>
+        )}
+      </div>
+
+      {/* ── Action Note ── */}
+      <div className="space-y-1.5">
+        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Note</p>
+        <Textarea
+          value={note}
+          onChange={(e) => setNote(e.target.value)}
+          placeholder="Add a note to your reviewers (optional)"
+          rows={2}
+          className="resize-none text-sm"
+        />
+      </div>
         </>
       )}
 
       {/* ── Action Buttons ── */}
-      <div className="space-y-3">
-        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Actions</p>
+      {!hideEditorActions && (
+        <div className="space-y-3">
+          <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Actions</p>
 
-        <div className="flex flex-wrap gap-2">
-          {/* Draft → Submit for Review */}
-          {isEditor && post.status === 'draft' && (
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={handleSubmitForReview}
-              disabled={updateMutation.isPending}
-              className="gap-1.5 text-yellow-700 border-yellow-300 hover:bg-yellow-50"
-            >
-              <Send className="w-3.5 h-3.5" /> Submit for Review
-            </Button>
-          )}
-
-          {/* Changes Requested → Resubmit */}
-          {isEditor && post.status === 'changes_requested' && (
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={handleSubmitForReview}
-              disabled={updateMutation.isPending}
-              className="gap-1.5 text-yellow-700 border-yellow-300 hover:bg-yellow-50"
-            >
-              <Send className="w-3.5 h-3.5" /> Resubmit for Review
-            </Button>
-          )}
-
-          {/* In Review → Pass to Approver or Request Changes */}
-          {(isAssignedReviewer || isApprover) && post.status === 'pending_review' && (
-            <>
+          <div className="flex flex-wrap gap-2">
+            {/* Draft → Submit for Review */}
+            {isEditor && post.status === 'draft' && (
               <Button
                 size="sm"
                 variant="outline"
-                onClick={handleSubmitForApproval}
+                onClick={handleSubmitForReview}
                 disabled={updateMutation.isPending}
-                className="gap-1.5 text-blue-700 border-blue-300 hover:bg-blue-50"
+                className="gap-1.5 text-yellow-700 border-yellow-300 hover:bg-yellow-50"
               >
-                <ThumbsUp className="w-3.5 h-3.5" /> Pass to Approver
+                <Send className="w-3.5 h-3.5" /> Submit for Review
               </Button>
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={handleRequestChanges}
-                disabled={updateMutation.isPending}
-                className="gap-1.5 text-orange-700 border-orange-300 hover:bg-orange-50"
-              >
-                <RotateCcw className="w-3.5 h-3.5" /> Request Changes
-              </Button>
-            </>
-          )}
+            )}
 
-          {/* Pending Approval → Approve / Reject / Request Changes */}
-          {isApprover && post.status === 'pending_approval' && (
-            <>
-              <Button
-                size="sm"
-                onClick={handleApprove}
-                disabled={updateMutation.isPending}
-                className="gap-1.5 bg-green-600 hover:bg-green-700 text-white"
-              >
-                <CheckCircle2 className="w-3.5 h-3.5" /> Approve
-              </Button>
+            {/* Changes Requested → Resubmit */}
+            {isEditor && post.status === 'changes_requested' && (
               <Button
                 size="sm"
                 variant="outline"
-                onClick={handleReject}
+                onClick={handleSubmitForReview}
                 disabled={updateMutation.isPending}
-                className="gap-1.5 text-red-600 border-red-300 hover:bg-red-50"
+                className="gap-1.5 text-yellow-700 border-yellow-300 hover:bg-yellow-50"
               >
-                <XCircle className="w-3.5 h-3.5" /> Reject
+                <Send className="w-3.5 h-3.5" /> Resubmit for Review
               </Button>
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={handleRequestChanges}
-                disabled={updateMutation.isPending}
-                className="gap-1.5 text-orange-700 border-orange-300 hover:bg-orange-50"
-              >
-                <RotateCcw className="w-3.5 h-3.5" /> Request Changes
-              </Button>
-            </>
-          )}
+            )}
 
-          {/* Approved info */}
-          {post.status === 'approved' && (
-            <div className="w-full p-3 bg-green-50 rounded-xl border border-green-200 text-sm text-green-700 flex gap-2 items-center">
-              <CheckCircle2 className="w-4 h-4 shrink-0" />
-              <span>
-                Approved by <strong>{post.approved_by_name || post.approved_by}</strong>
-                {post.approved_date && ` on ${format(new Date(post.approved_date), 'MMM d, yyyy')}`}
-              </span>
+            {/* In Review → Pass to Approver or Request Changes */}
+            {(isAssignedReviewer || isApprover) && post.status === 'pending_review' && (
+              <>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={handleSubmitForApproval}
+                  disabled={updateMutation.isPending}
+                  className="gap-1.5 text-blue-700 border-blue-300 hover:bg-blue-50"
+                >
+                  <ThumbsUp className="w-3.5 h-3.5" /> Pass to Approver
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={handleRequestChanges}
+                  disabled={updateMutation.isPending}
+                  className="gap-1.5 text-orange-700 border-orange-300 hover:bg-orange-50"
+                >
+                  <RotateCcw className="w-3.5 h-3.5" /> Request Changes
+                </Button>
+              </>
+            )}
+
+            {/* Pending Approval → Approve / Reject / Request Changes */}
+            {isApprover && post.status === 'pending_approval' && (
+              <>
+                <Button
+                  size="sm"
+                  onClick={handleApprove}
+                  disabled={updateMutation.isPending}
+                  className="gap-1.5 bg-green-600 hover:bg-green-700 text-white"
+                >
+                  <CheckCircle2 className="w-3.5 h-3.5" /> Approve
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={handleReject}
+                  disabled={updateMutation.isPending || !note.trim()}
+                  className="gap-1.5 text-red-600 border-red-300 hover:bg-red-50"
+                >
+                  <XCircle className="w-3.5 h-3.5" /> Reject
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={handleRequestChanges}
+                  disabled={updateMutation.isPending}
+                  className="gap-1.5 text-orange-700 border-orange-300 hover:bg-orange-50"
+                >
+                  <RotateCcw className="w-3.5 h-3.5" /> Request Changes
+                </Button>
+              </>
+            )}
+
+            {/* Approved info */}
+            {post.status === 'approved' && (
+              <div className="w-full p-3 bg-green-50 rounded-xl border border-green-200 text-sm text-green-700 flex gap-2 items-center">
+                <CheckCircle2 className="w-4 h-4 shrink-0" />
+                <span>
+                  Approved by <strong>{post.approved_by_name || post.approved_by}</strong>
+                  {post.approved_date &&
+                    ` on ${format(new Date(post.approved_date), 'MMM d, yyyy')}`}
+                </span>
+              </div>
+            )}
+          </div>
+
+          {updateMutation.isPending && (
+            <div className="flex items-center gap-2 text-xs text-gray-400">
+              <Loader2 className="w-3.5 h-3.5 animate-spin" /> Saving…
             </div>
           )}
         </div>
+      )}
 
-        {updateMutation.isPending && (
-          <div className="flex items-center gap-2 text-xs text-gray-400">
-            <Loader2 className="w-3.5 h-3.5 animate-spin" /> Saving…
-          </div>
-        )}
-      </div>
+      {/* ── Workflow History ── */}
+      {post.workflow_history?.length > 0 && (
+        <div className="space-y-2">
+          <button
+            onClick={() => setShowHistory((v) => !v)}
+            className="flex items-center gap-1.5 text-xs font-semibold text-gray-500 uppercase tracking-wide hover:text-gray-700 transition-colors"
+          >
+            {showHistory ? (
+              <ChevronUp className="w-3.5 h-3.5" />
+            ) : (
+              <ChevronDown className="w-3.5 h-3.5" />
+            )}
+            History ({post.workflow_history.length})
+          </button>
+          {showHistory && (
+            <div className="space-y-3 border-l-2 border-gray-100 pl-4 ml-1 mt-2">
+              {[...post.workflow_history].reverse().map((entry, i) => (
+                <div key={i} className="relative">
+                  <div className="absolute -left-[21px] top-1 w-2.5 h-2.5 rounded-full bg-gray-200 border-2 border-white" />
+                  <div className="text-xs text-gray-500 space-y-0.5">
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <span className="font-semibold text-gray-700">
+                        {entry.by_name || entry.by_email}
+                      </span>
+                      <span className="capitalize text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded-full text-[11px]">
+                        {entry.action?.replace(/_/g, ' ')}
+                      </span>
+                      <span className="text-gray-300">·</span>
+                      <span className="text-gray-400">
+                        {formatDistanceToNow(new Date(entry.timestamp), { addSuffix: true })}
+                      </span>
+                    </div>
+                    {entry.note && (
+                      <p className="text-gray-500 italic bg-gray-50 px-2 py-1 rounded-lg mt-1">
+                        "{entry.note}"
+                      </p>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
