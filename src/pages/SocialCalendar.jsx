@@ -159,6 +159,25 @@ export default function SocialCalendar() {
     queryFn: () => base44.entities.CalendarPost.list('-scheduled_date', 100),
   });
 
+  // Open a specific post from a ?postId= deep-link (e.g. from a reviewer email).
+  // Fires once posts are loaded; clears the param so a refresh doesn't re-open it.
+  useEffect(() => {
+    const postId = searchParams.get('postId');
+    if (!postId || isLoading || posts.length === 0) return;
+    const target = posts.find((p) => p.id === postId);
+    if (target) {
+      setSelectedPost(target);
+      setShowModal(true);
+      setSearchParams(
+        (p) => {
+          p.delete('postId');
+          return p;
+        },
+        { replace: true }
+      );
+    }
+  }, [searchParams, posts, isLoading]);
+
   const { data: hashtagPool = [] } = useQuery({
     queryKey: ['hashtag-pool'],
     queryFn: () => base44.entities.HashtagPool.list('-usage_count', 200),

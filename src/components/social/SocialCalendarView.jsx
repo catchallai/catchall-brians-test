@@ -73,7 +73,7 @@ const STATUS_CONFIG = {
     label: 'Approved',
     badgeClass: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300',
     colorClass: 'border-emerald-300 bg-emerald-50 dark:bg-emerald-900/20 dark:border-emerald-600',
-    borderClass: 'border-l-emerald-400 dark:border-emerald-500',
+    borderClass: 'border-l-emerald-400 dark:border-l-emerald-500',
     legendBg: 'bg-emerald-50 dark:bg-emerald-900/30',
     legendBorder: 'border-emerald-300 dark:border-emerald-600',
   },

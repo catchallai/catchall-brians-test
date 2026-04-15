@@ -32,8 +32,6 @@ import {
   ChevronDown,
   ChevronUp,
   Sparkles,
-  Maximize2,
-  Minimize2,
   Calendar,
   Eye,
   MessageSquare,
@@ -190,10 +188,8 @@ export interface PostComposerProps {
   currentMonth?: Date;
   /** Hides the PostStatusChip in the header. */
   hideStatus?: boolean;
-  /** Passed from CalendarPostModal to render the correct fullscreen icon. */
-  isFullscreen?: boolean;
-  /** When provided, a fullscreen toggle button is rendered. */
-  onFullscreenToggle?: () => void;
+  /** Optional actions rendered in the header row before the close button (e.g. fullscreen toggle). */
+  headerActions?: React.ReactNode;
 }
 
 // ---------------------------------------------------------------------------
@@ -632,8 +628,7 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
     hashtagPool = [],
     currentMonth = new Date(),
     hideStatus = false,
-    isFullscreen = false,
-    onFullscreenToggle,
+    headerActions,
   },
   ref
 ) {
@@ -676,6 +671,7 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
     priority?: string;
     dueDate?: string;
   }>({});
+  const [approvalNote, setApprovalNote] = useState('');
   const [mediaMenuTarget, setMediaMenuTarget] = useState<string | null>(null);
   const [pendingPicker, setPendingPicker] = useState<'image' | 'video' | null>(null);
   const [connectPrompt, setConnectPrompt] = useState<string | null>(null);
@@ -1258,6 +1254,10 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
       PostStatus.UNUSED,
       PostStatus.REJECTED,
       PostStatus.ARCHIVED,
+      // Approval workflow states don't require a future time — the post isn't
+      // being published yet and the scheduled date may legitimately be in the past.
+      PostStatus.PENDING_REVIEW,
+      PostStatus.PENDING_APPROVAL,
     ].includes(status);
 
     if (mustTimeBeInFuture) {
@@ -1286,6 +1286,7 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
           by_email: currentUser?.email,
           by_name: currentUser?.full_name || currentUser?.email,
           timestamp: new Date().toISOString(),
+          note: approvalNote || undefined,
         },
       ];
     }
@@ -1295,6 +1296,15 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
       saveResult = await onSave({
         ...formData,
         status: finalStatus,
+        // Always persist approvalMeta fields so the backend reflects the current UI state,
+        // even if the user never interacted with the select (e.g. priority defaults to 'normal').
+        ...(approvalMeta.priority !== undefined && { priority: approvalMeta.priority }),
+        ...(approvalMeta.assigned_to_email !== undefined && {
+          assigned_to_email: approvalMeta.assigned_to_email,
+        }),
+        ...(approvalMeta.review_due_date !== undefined && {
+          review_due_date: approvalMeta.review_due_date,
+        }),
         ...(workflowHistory !== undefined && { workflow_history: workflowHistory }),
         timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
         platform_image_urls: platformCrops,
@@ -1332,6 +1342,42 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
 
     if (saveResult) {
       setSavedPost(saveResult);
+    }
+
+    // Fire-and-forget email to the reviewer — must not block or surface errors to the user.
+    if (
+      finalStatus === PostStatus.PENDING_REVIEW &&
+      approvalMeta.assigned_to_email &&
+      saveResult?.id
+    ) {
+      const postLink = `${window.location.origin}/postapprovalview?id=${saveResult.id}`;
+      const truncatedCaption =
+        formData.caption.length > 60 ? `${formData.caption.slice(0, 60)}…` : formData.caption;
+      const noteSection = approvalNote
+        ? `<p><strong>Note from author:</strong> ${approvalNote}</p>`
+        : '';
+      const priorityLabel = approvalMeta.priority ?? 'normal';
+      const priorityColor: Record<string, string> = {
+        low: '#6B7280',
+        normal: '#2563EB',
+        high: '#EA580C',
+        urgent: '#DC2626',
+      };
+      const priorityHtml = `<span style="color:${priorityColor[priorityLabel] ?? '#2563EB'};font-weight:600">${priorityLabel.charAt(0).toUpperCase() + priorityLabel.slice(1)}</span>`;
+      base44.integrations.Core.SendEmail({
+        to: approvalMeta.assigned_to_email,
+        subject: `Post Review Requested: "${truncatedCaption}"`,
+        body: `
+          <p>Hi ${savedPost?.assigned_to_name || approvalMeta.assigned_to_email},</p>
+          <p><strong>${currentUser?.full_name || currentUser?.email}</strong> has submitted a post for your review.</p>
+          <p><a href="${postLink}">Click here to review the post →</a></p>
+          <ul>
+            <li><strong>Due date:</strong> ${approvalMeta.review_due_date ?? 'Not set'}</li>
+            <li><strong>Priority:</strong> ${priorityHtml}</li>
+          </ul>
+          ${noteSection}
+        `.trim(),
+      }).catch(() => {});
     }
 
     if (afterSave) {
@@ -1560,21 +1606,7 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
                 <Eye className="w-4 h-4" /> {COPY.calendarPostModal.preview}
               </TypedButton>
             )}
-            {onFullscreenToggle && (
-              <button
-                type="button"
-                onClick={onFullscreenToggle}
-                className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors text-gray-400"
-                aria-label={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
-                title={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
-              >
-                {isFullscreen ? (
-                  <Minimize2 className="w-4 h-4" />
-                ) : (
-                  <Maximize2 className="w-4 h-4" />
-                )}
-              </button>
-            )}
+            {headerActions}
             {onClose && (
               <button
                 onClick={() => guardedClose(false)}
@@ -1588,6 +1620,7 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
           </div>
         </div>
 
+<<<<<<< HEAD
         {/* Tabs (only for existing posts) */}
 <<<<<<< HEAD
         {post && (
@@ -1599,6 +1632,9 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
                 className={`flex items-center gap-1.5 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
                   activeTab === tab.id
 =======
+=======
+        {/* Tabs (always rendered; some tabs are disabled or hidden until the post exists) */}
+>>>>>>> be2a464 (feat(2183): implement email notification & resolve PR comments)
         <div className="flex border-b border-gray-100 dark:border-gray-800 px-6 bg-white dark:bg-gray-900">
           {[
             { id: 'compose', label: COPY.calendarPostModal.compose, icon: ImageIcon },
@@ -1661,6 +1697,7 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
                   post={(savedPost ?? post)!}
                   hideEditorActions
                   approvalErrors={approvalErrors}
+                  onNoteChange={setApprovalNote}
                   onUpdate={(updatedPost: Record<string, unknown> | null) => {
                     if (!updatedPost) return;
                     setFormData((f) => ({ ...f, ...(updatedPost as Partial<PostFormData>) }));

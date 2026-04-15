@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import COPY from '@/lib/copy';
+import { todayLocal } from '@/utils/date';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
@@ -76,13 +77,14 @@ const _PRIORITY_COLORS = {
 };
 
 /**
- * @param {{ post: any, onUpdate: any, hideEditorActions?: boolean, approvalErrors?: { reviewer?: string, priority?: string, dueDate?: string, readonly?: boolean, onPendingAction?: () => void } }} props
+ * @param {{ post: any, onUpdate: any, hideEditorActions?: boolean, approvalErrors?: { reviewer?: string, priority?: string, dueDate?: string, readonly?: boolean, onPendingAction?: () => void }, onNoteChange?: (note: string) => void }} props
  */
 export default function PostApprovalPanel({
   post,
   onUpdate,
   hideEditorActions = false,
   approvalErrors = {},
+  onNoteChange = undefined,
   readOnly = false, 
   onPendingAction,
 }) {
@@ -90,7 +92,7 @@ export default function PostApprovalPanel({
   const [note, setNote] = useState('');
   const [showHistory, setShowHistory] = useState(false);
   const [dueDateError, setDueDateError] = useState('');
-  const today = new Date().toISOString().split('T')[0];
+  const today = todayLocal();
 
   // Build per-stage who-did-what from workflow_history
   const stageActors = React.useMemo(() => {
@@ -513,7 +515,10 @@ export default function PostApprovalPanel({
         <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Note</p>
         <Textarea
           value={note}
-          onChange={(e) => setNote(e.target.value)}
+          onChange={(e) => {
+            setNote(e.target.value);
+            onNoteChange?.(e.target.value);
+          }}
           placeholder="Add a note to your reviewers (optional)"
           rows={2}
           className="resize-none text-sm"
