@@ -19,7 +19,7 @@ const LayoutWrapper = ({ children, currentPageName }) =>
   Layout ? <Layout currentPageName={currentPageName}>{children}</Layout> : <>{children}</>;
 
 const AuthenticatedApp = () => {
-  const { isLoadingAuth, isLoadingPublicSettings, authError, _isAuthenticated, navigateToLogin } =
+  const { isLoadingAuth, isLoadingPublicSettings, authError, isAuthenticated, navigateToLogin } =
     useAuth();
 
   // Show loading spinner while checking app public settings or auth
@@ -40,6 +40,16 @@ const AuthenticatedApp = () => {
       navigateToLogin();
       return null;
     }
+  }
+
+  // If auth finished loading without an error but no user is signed in,
+  // redirect to login. This covers the case where someone follows a deep
+  // link (e.g. the "Review Post" CTA in an approval email) without an
+  // active session — navigateToLogin preserves the current URL so the
+  // login flow returns them to the target page.
+  if (!isAuthenticated) {
+    navigateToLogin();
+    return null;
   }
 
   // Render the main app
