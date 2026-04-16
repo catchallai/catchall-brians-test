@@ -116,6 +116,7 @@ const COPY = {
     approvalPriorityRequired: 'Please select a priority.',
     approvalDueDateRequired: 'Please set a due date.',
     approvalDueDatePast: 'Due date cannot be in the past.',
+    approvalDueDateAfterSchedule: 'Review due date must be before the scheduled post date.',
     approvalDueDateHint: 'Reviewer has until end of this day.',
     updatePost: 'Update Post',
     schedulePost: 'Schedule Post',

@@ -550,6 +550,7 @@ export default function PostApprovalPanel({
                   type="date"
                   value={dueDateDraft}
                   min={today}
+                  max={post.scheduled_date || undefined}
                   onChange={(e) => {
                     setDueDateDraft(e.target.value);
                     if (dueDateError) setDueDateError('');
@@ -558,6 +559,10 @@ export default function PostApprovalPanel({
                     const value = dueDateDraft;
                     if (value && value < today) {
                       setDueDateError(COPY.calendarPostModal.approvalDueDatePast);
+                      return;
+                    }
+                    if (value && post.scheduled_date && value > post.scheduled_date) {
+                      setDueDateError(COPY.calendarPostModal.approvalDueDateAfterSchedule);
                       return;
                     }
                     setDueDateError('');
