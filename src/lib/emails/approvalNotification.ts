@@ -125,8 +125,8 @@ export function renderApprovalNotificationEmail(data: ApprovalEmailData): Approv
   .summary-table td { font-size: 13px; color: #3f3f46; padding: 10px 12px; border-bottom: 1px solid #f4f4f5; vertical-align: middle; }
   .summary-table tr:last-child td { border-bottom: none; }
   .summary-table .post-title { font-weight: 500; color: #18181b; }
-  .priority { display: inline-flex; align-items: center; font-size: 12px; font-weight: 500; }
-  .priority-dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; margin-right: 5px; }
+  .priority { font-size: 12px; font-weight: 500; white-space: nowrap; }
+  .priority-dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; margin-right: 5px; vertical-align: middle; position: relative; top: -1px; }
   .cta-secondary { display: block; text-align: center; font-size: 12px; color: #a1a1aa; }
   .cta-secondary a { color: #71717a; text-decoration: underline; }
   .email-footer { padding: 24px 40px; background: ${PRIMARY_COLOR}; text-align: center; }
