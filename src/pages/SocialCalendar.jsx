@@ -50,9 +50,6 @@ import { TagPill } from '@/components/social/tags/TagPill';
 import { useTagsQuery } from '@/components/social/tags/useTagsQuery';
 import { HoverCard, HoverCardTrigger, HoverCardContent } from '@/components/ui/hover-card';
 import SocialCalendarView from '@/components/social/SocialCalendarView';
-// import { AllHashtagsSection } from '@/components/hashtags/AllHashtagsSection';
-// import { CreateHashtagPoolSection } from '@/components/hashtags/CreateHashtagPoolSection';
-// import { CategoriesSidebar } from '@/components/hashtags/CategoriesSidebar';
 import NineGridEditor from '@/components/social/NineGridEditor';
 import PostGallery from '@/components/social/PostGallery';
 import TeamManager from '@/components/social/TeamManager';
@@ -158,10 +155,6 @@ export default function SocialCalendar() {
   const [showFilters, setShowFilters] = useState(false);
   const [gridSortOrder, setGridSortOrder] = useState('date_desc');
   const [galleryPosts, setGalleryPosts] = useState([]);
-  // const [hashtagCategory, setHashtagCategory] = useState('all');
-  // const [customHashtagCategories, setCustomHashtagCategories] = useState(
-  //   /** @type {string[]} */ ([])
-  // );
   const queryClient = useQueryClient();
 
   // Update expired post statuses every time this page is visited
@@ -1053,31 +1046,9 @@ export default function SocialCalendar() {
           <div className="space-y-6">
             <PostQueueManager />
             <CalendarNotifications />
-            {/* Hiding per Andrew's request to declutter - this already has its own page */}
-            {/* <CreateHashtagPoolSection
-              customCategories={customHashtagCategories}
-              onNewCategoryAdded={(cat) =>
-                setCustomHashtagCategories((prev) => [...new Set([...prev, cat])])
-              }
-            /> */}
-            {/* <AllHashtagsSection selectedCategory={hashtagCategory} /> */}
           </div>
           <div className="space-y-6">
             <OptimalTimeAnalyzer />
-            {/* Hiding per Andrew's request to declutter - this already has its own page */}
-            {/* <CategoriesSidebar
-              selectedCategory={hashtagCategory}
-              onSelectCategory={setHashtagCategory}
-              customCategories={customHashtagCategories}
-              onAddCategory={(cat) => {
-                setCustomHashtagCategories((prev) => {
-                  if (prev.includes(cat)) {
-                    return prev;
-                  }
-                  return [...prev, cat];
-                });
-              }}
-            /> */}
             <TeamManager />
           </div>
         </div>
