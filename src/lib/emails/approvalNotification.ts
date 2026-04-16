@@ -116,8 +116,8 @@ export function renderApprovalNotificationEmail(data: ApprovalEmailData): Approv
   .cta-wrapper { text-align: center; margin-bottom: 28px; }
   .cta-button { display: inline-block; background: ${CTA_COLOR}; color: #ffffff !important; text-decoration: none; font-size: 18px; font-weight: 600; padding: 17px 52px; border-radius: 8px; letter-spacing: 0.01em; }
   .pending-badge-wrapper { text-align: center; margin-bottom: 28px; }
-  .pending-badge { display: inline-flex; align-items: center; gap: 8px; background: #fafafa; border: 1px solid #e4e4e7; border-radius: 6px; padding: 10px 16px; }
-  .pending-badge .count { font-size: 22px; font-weight: 700; color: #18181b; }
+  .pending-badge { display: inline-flex; align-items: center; background: #fafafa; border: 1px solid #e4e4e7; border-radius: 6px; padding: 10px 16px; }
+  .pending-badge .count { font-size: 22px; font-weight: 700; color: #18181b; margin-right: 8px; }
   .pending-badge .label { font-size: 13px; color: #71717a; line-height: 1.3; }
   .table-label { font-size: 12px; font-weight: 600; color: #a1a1aa; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 10px; }
   .summary-table { width: 100%; border-collapse: collapse; margin-bottom: 12px; }
@@ -125,8 +125,8 @@ export function renderApprovalNotificationEmail(data: ApprovalEmailData): Approv
   .summary-table td { font-size: 13px; color: #3f3f46; padding: 10px 12px; border-bottom: 1px solid #f4f4f5; vertical-align: middle; }
   .summary-table tr:last-child td { border-bottom: none; }
   .summary-table .post-title { font-weight: 500; color: #18181b; }
-  .priority { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 500; }
-  .priority-dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; }
+  .priority { display: inline-flex; align-items: center; font-size: 12px; font-weight: 500; }
+  .priority-dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; margin-right: 5px; }
   .cta-secondary { display: block; text-align: center; font-size: 12px; color: #a1a1aa; }
   .cta-secondary a { color: #71717a; text-decoration: underline; }
   .email-footer { padding: 24px 40px; background: ${PRIMARY_COLOR}; text-align: center; }
