@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent } from '@/components/ui/card';
@@ -283,14 +283,26 @@ function PostList({
   );
 }
 
+const VALID_TABS = ['all', 'approvals', 'queue', 'drafts', 'sent', 'deleted'];
+
 export default function AllChannels() {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [search, setSearch] = useState('');
   const [selectedPost, setSelectedPost] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [sortBy, setSortBy] = useState('created_date');
   const [sortOrder, setSortOrder] = useState('desc');
   const queryClient = useQueryClient();
+
+  const tabParam = searchParams.get('tab');
+  const activeTab = tabParam && VALID_TABS.includes(tabParam) ? tabParam : 'all';
+  const setActiveTab = (/** @type {string} */ tab) => {
+    const next = new URLSearchParams(searchParams);
+    if (tab === 'all') next.delete('tab');
+    else next.set('tab', tab);
+    setSearchParams(next, { replace: true });
+  };
 
   const { data: posts = [], isLoading } = useQuery({
     queryKey: ['calendar-posts-all'],
@@ -573,7 +585,7 @@ export default function AllChannels() {
           ))}
         </div>
       ) : (
-        <Tabs defaultValue="all">
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="mb-4 bg-white border border-gray-200">
             <TabsTrigger value="all" className="gap-2">
               All

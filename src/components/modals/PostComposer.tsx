@@ -84,7 +84,11 @@ import {
   VIDEO_ACCEPT_ATTR,
 } from '@/utils/postMedia';
 import { arraysEqual, setsEqual } from '@/utils/hashtagUtils';
-import { escapeHtml } from '@/utils/html';
+import {
+  renderApprovalNotificationEmail,
+  type ApprovalEmailPendingItem,
+} from '@/lib/emails/approvalNotification';
+import { PostPriority } from '@/types/enums';
 import PostStatusChip from '@/components/social/PostStatusChip';
 import { getMonthComparison } from '@/utils/getMonthComparison';
 import React from 'react';
@@ -1354,36 +1358,66 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
       approvalMeta.assigned_to_email &&
       saveResult?.id
     ) {
-      const postApprovalUrl = new URL(createPageUrl('PostApprovalView'), window.location.origin);
-      postApprovalUrl.searchParams.set('id', saveResult.id);
-      const postLink = postApprovalUrl.toString();
-      const rawCaption =
-        formData.caption.length > 60 ? `${formData.caption.slice(0, 60)}…` : formData.caption;
-      const noteSection = approvalNote
-        ? `<p><strong>Note from author:</strong> ${escapeHtml(approvalNote)}</p>`
-        : '';
-      const priorityLabel = approvalMeta.priority ?? 'normal';
-      const priorityColor: Record<string, string> = {
-        low: '#6B7280',
-        normal: '#2563EB',
-        high: '#EA580C',
-        urgent: '#DC2626',
-      };
-      const priorityHtml = `<span style="color:${priorityColor[priorityLabel] ?? '#2563EB'};font-weight:600">${escapeHtml(priorityLabel.charAt(0).toUpperCase() + priorityLabel.slice(1))}</span>`;
-      base44.integrations.Core.SendEmail({
-        to: approvalMeta.assigned_to_email,
-        subject: `Post Review Requested: "${rawCaption}"`,
-        body: `
-          <p>Hi ${escapeHtml((saveResult as CalendarPost).assigned_to_name || approvalMeta.assigned_to_email || '')},</p>
-          <p><strong>${escapeHtml(currentUser?.full_name || currentUser?.email || '')}</strong> has submitted a post for your review.</p>
-          <p><a href="${postLink}">Click here to review the post →</a></p>
-          <ul>
-            <li><strong>Due date:</strong> ${escapeHtml(approvalMeta.review_due_date ?? 'Not set')}</li>
-            <li><strong>Priority:</strong> ${priorityHtml}</li>
-          </ul>
-          ${noteSection}
-        `.trim(),
-      }).catch(() => {});
+      const reviewerEmail = approvalMeta.assigned_to_email;
+      const submittedPostId = saveResult.id;
+      (async () => {
+        try {
+          // Fetch this reviewer's pending queue (includes the post we just saved).
+          const queue: CalendarPost[] = await base44.entities.CalendarPost.filter(
+            {
+              assigned_to_email: reviewerEmail,
+              status: [PostStatus.PENDING_REVIEW, PostStatus.PENDING_APPROVAL],
+            },
+            'review_due_date',
+            10
+          );
+
+          const pendingItems: ApprovalEmailPendingItem[] = queue.map((p) => {
+            const submittedBy = p.workflow_history
+              ?.slice()
+              .reverse()
+              .find((e) => e.action === 'submitted_for_review')?.by_name;
+            const title = (p.caption && p.caption.slice(0, 60)) || p.title || 'Untitled post';
+            return {
+              title,
+              submittedByName: submittedBy ?? '—',
+              dueDate: p.review_due_date ?? null,
+              priority: (p.priority as PostPriority) ?? PostPriority.NORMAL,
+            };
+          });
+
+          const postUrl = (() => {
+            const u = new URL(createPageUrl('PostApprovalView'), window.location.origin);
+            u.searchParams.set('id', submittedPostId);
+            return u.toString();
+          })();
+          const queueUrl = (() => {
+            const u = new URL(createPageUrl('AllChannels'), window.location.origin);
+            u.searchParams.set('tab', 'approvals');
+            return u.toString();
+          })();
+
+          const submittedTitle =
+            (formData.caption && formData.caption.slice(0, 60)) || 'Untitled post';
+
+          const { subject, html } = renderApprovalNotificationEmail({
+            reviewerName: (saveResult as CalendarPost).assigned_to_name || reviewerEmail,
+            submitterName: currentUser?.full_name || currentUser?.email || 'A teammate',
+            postUrl,
+            queueUrl,
+            pendingItems,
+            submittedPostTitle: submittedTitle,
+          });
+
+          await base44.integrations.Core.SendEmail({
+            to: reviewerEmail,
+            subject,
+            body: html,
+          });
+        } catch {
+          // Swallow — notification failure must never break the submit flow.
+        }
+      })();
     }
 
     if (afterSave) {
