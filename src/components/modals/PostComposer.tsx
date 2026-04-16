@@ -1726,7 +1726,25 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
           {/* Comments tab */}
           {activeTab === 'comments' && (savedPost ?? post) && (
             <div className="flex-1 p-6">
-              <PostCommentThread post={savedPost ?? post} currentUser={currentUser} />
+              <PostCommentThread
+                post={savedPost ?? post}
+                currentUser={currentUser}
+                onPostUpdated={(updatedPost: CalendarPost) => {
+                  // The modal owns a local copy of the post (savedPost) that
+                  // isn't driven by a react-query subscription, so invalidation
+                  // alone won't update the visible workflow_history. Patch
+                  // ONLY workflow_history rather than spreading the full server
+                  // response — this prevents a concurrent in-flight update
+                  // (e.g. reviewer/priority/due-date from PostApprovalPanel)
+                  // from being clobbered by a server snapshot that hasn't yet
+                  // reflected that other update.
+                  setSavedPost((s) => {
+                    if (!s) return updatedPost;
+                    if (!('workflow_history' in updatedPost)) return s;
+                    return { ...s, workflow_history: updatedPost.workflow_history };
+                  });
+                }}
+              />
             </div>
           )}
 

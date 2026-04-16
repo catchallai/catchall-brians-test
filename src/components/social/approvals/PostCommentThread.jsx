@@ -125,9 +125,10 @@ function CommentCard({ comment, currentUser, onReply, derivedActionType, isUnrea
  * @param {{
  *   post: any,
  *   currentUser: any,
+ *   onPostUpdated?: (updatedPost: any) => void,
  * }} props
  */
-export default function PostCommentThread({ post, currentUser }) {
+export default function PostCommentThread({ post, currentUser, onPostUpdated }) {
   const queryClient = useQueryClient();
   const [text, setText] = useState('');
   const [replyTo, setReplyTo] = useState(null);
@@ -193,9 +194,30 @@ export default function PostCommentThread({ post, currentUser }) {
       const history = [...(post.workflow_history || []), comment];
       return base44.entities.CalendarPost.update(post.id, { workflow_history: history });
     },
-    onSuccess: () => {
+    onSuccess: (updatedPost) => {
+      if (!updatedPost) {
+        // Still clear UI state even if the server didn't echo the post back,
+        // so the user isn't left staring at their own draft text.
+        setText('');
+        setReplyTo(null);
+        // Invalidate the detail query so PostApprovalView (and any other
+        // subscriber keyed on this post's id) refetches the updated
+        // workflow_history even when the server returned no body.
+        queryClient.invalidateQueries({ queryKey: ['calendar-post', post.id] });
+        queryClient.invalidateQueries({ queryKey: ['calendar-posts-all'] });
+        queryClient.invalidateQueries({ queryKey: ['calendar-posts'] });
+        return;
+      }
+      // Key the cache by the id echoed from the server, not the closure's
+      // post.id — the component may have re-rendered with a different post
+      // while the mutation was in flight.
+      queryClient.setQueryData(['calendar-post', updatedPost.id ?? post.id], updatedPost);
+      // Notify callers that pass `post` from non-query state (e.g. the
+      // PostComposer modal, where `post` comes from local `savedPost` state
+      // that isn't subscribed to the react-query cache).
+      onPostUpdated?.(updatedPost);
       queryClient.invalidateQueries({ queryKey: ['calendar-posts-all'] });
-      queryClient.invalidateQueries({ queryKey: ['calendar-post'] });
+      queryClient.invalidateQueries({ queryKey: ['calendar-posts'] });
       setText('');
       setReplyTo(null);
     },
