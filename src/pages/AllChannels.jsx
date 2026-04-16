@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { AllChannelsTab } from '@/types/enums';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent } from '@/components/ui/card';
@@ -283,7 +284,7 @@ function PostList({
   );
 }
 
-const VALID_TABS = ['all', 'approvals', 'queue', 'drafts', 'sent', 'deleted'];
+const VALID_TABS = new Set(Object.values(AllChannelsTab));
 
 export default function AllChannels() {
   const navigate = useNavigate();
@@ -296,10 +297,10 @@ export default function AllChannels() {
   const queryClient = useQueryClient();
 
   const tabParam = searchParams.get('tab');
-  const activeTab = tabParam && VALID_TABS.includes(tabParam) ? tabParam : 'all';
+  const activeTab = tabParam && VALID_TABS.has(tabParam) ? tabParam : AllChannelsTab.ALL;
   const setActiveTab = (/** @type {string} */ tab) => {
     const next = new URLSearchParams(searchParams);
-    if (tab === 'all') next.delete('tab');
+    if (tab === AllChannelsTab.ALL) next.delete('tab');
     else next.set('tab', tab);
     // Push a history entry so the browser back/forward buttons restore the previous tab.
     setSearchParams(next);

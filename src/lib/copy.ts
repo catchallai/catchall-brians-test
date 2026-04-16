@@ -297,6 +297,15 @@ const COPY = {
     loading: 'Loading media library...',
     empty: 'No image assets found in the Media Library.',
   },
+  authError: {
+    heading: 'Something went wrong',
+    defaultMessage: 'The app failed to load. Please refresh to try again.',
+  },
+  approvalEmail: {
+    untitledPost: 'Untitled post',
+    fallbackSubmitter: 'A teammate',
+    missingValue: '—',
+  },
 };
 
 export default COPY;

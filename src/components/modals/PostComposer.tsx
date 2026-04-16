@@ -65,7 +65,7 @@ import ConfirmDialog from '@/components/ui/ConfirmDialog';
 import MediaLibraryModal from './MediaLibraryModal';
 import ImageCropPanel, { type TransformOp } from './ImageCropPanel';
 import { useToast } from '@/components/ui/toast-provider';
-import { PostStatus } from '@/types/enums';
+import { PostStatus, AllChannelsTab } from '@/types/enums';
 import COPY from '@/lib/copy';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
@@ -1382,10 +1382,11 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
               ?.slice()
               .reverse()
               .find((e) => e.action === 'submitted_for_review')?.by_name;
-            const title = (p.caption && p.caption.slice(0, 60)) || p.title || 'Untitled post';
+            const title =
+              (p.caption && p.caption.slice(0, 60)) || p.title || COPY.approvalEmail.untitledPost;
             return {
               title,
-              submittedByName: submittedBy ?? '—',
+              submittedByName: submittedBy ?? COPY.approvalEmail.missingValue,
               dueDate: p.review_due_date ?? null,
               priority: (p.priority as PostPriority) ?? PostPriority.NORMAL,
             };
@@ -1398,16 +1399,17 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
           })();
           const queueUrl = (() => {
             const u = new URL(createPageUrl('AllChannels'), window.location.origin);
-            u.searchParams.set('tab', 'approvals');
+            u.searchParams.set('tab', AllChannelsTab.APPROVALS);
             return u.toString();
           })();
 
           const submittedTitle =
-            (formData.caption && formData.caption.slice(0, 60)) || 'Untitled post';
+            (formData.caption && formData.caption.slice(0, 60)) || COPY.approvalEmail.untitledPost;
 
           const { subject, html } = renderApprovalNotificationEmail({
             reviewerName: (saveResult as CalendarPost).assigned_to_name || reviewerEmail,
-            submitterName: currentUser?.full_name || currentUser?.email || 'A teammate',
+            submitterName:
+              currentUser?.full_name || currentUser?.email || COPY.approvalEmail.fallbackSubmitter,
             postUrl,
             queueUrl,
             pendingItems,

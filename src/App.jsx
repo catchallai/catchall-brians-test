@@ -10,6 +10,7 @@ import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-route
 import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
+import AuthErrorFallback from '@/components/AuthErrorFallback';
 
 // Routes that should remain reachable without an authenticated session.
 // These are landing pages, public share links, and signer/viewer flows that
@@ -32,16 +33,6 @@ const isPublicRoute = (/** @type {string} */ pathname) => {
   }
   return false;
 };
-
-/** @param {{ error?: { message?: string; type?: string } | null }} props */
-const AuthErrorFallback = ({ error }) => (
-  <div className="flex flex-col items-center justify-center min-h-screen p-8 text-center">
-    <h1 className="text-2xl font-semibold text-slate-900 mb-2">Something went wrong</h1>
-    <p className="text-slate-600 max-w-md">
-      {error?.message || 'The app failed to load. Please refresh to try again.'}
-    </p>
-  </div>
-);
 
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];

@@ -50,3 +50,21 @@ export enum CommentActionType {
   CHANGES_REQUESTED = 'changes_requested',
   GENERAL = 'general',
 }
+
+export enum AllChannelsTab {
+  ALL = 'all',
+  APPROVALS = 'approvals',
+  QUEUE = 'queue',
+  DRAFTS = 'drafts',
+  SENT = 'sent',
+  DELETED = 'deleted',
+}
+
+export const ALL_CHANNELS_TAB_OPTIONS: { value: AllChannelsTab; label: string }[] = [
+  { value: AllChannelsTab.ALL, label: 'All' },
+  { value: AllChannelsTab.APPROVALS, label: 'Approvals' },
+  { value: AllChannelsTab.QUEUE, label: 'Queue' },
+  { value: AllChannelsTab.DRAFTS, label: 'Drafts' },
+  { value: AllChannelsTab.SENT, label: 'Sent' },
+  { value: AllChannelsTab.DELETED, label: 'Deleted' },
+];
