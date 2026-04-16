@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -30,6 +30,7 @@ import {
   X,
 } from 'lucide-react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
+import ConfirmDialog from '@/components/ui/ConfirmDialog';
 import {
   format,
   startOfMonth,
@@ -79,6 +80,11 @@ const CALENDAR_STATUSES = [
 ];
 
 export default function SocialCalendar() {
+  const composerRef = useRef(null);
+  const [composerIsDirty, setComposerIsDirty] = useState(false);
+  const [composerKey, setComposerKey] = useState(0);
+  const [showNewPostConfirm, setShowNewPostConfirm] = useState(false);
+  const [pendingViewMode, setPendingViewMode] = useState(/** @type {string | null} */ (null));
   const [showModal, setShowModal] = useState(false);
   const [showBulkModal, setShowBulkModal] = useState(false);
   const [selectedPost, setSelectedPost] = useState(
@@ -112,6 +118,18 @@ export default function SocialCalendar() {
   const handleSetViewMode = (mode) => {
     if (!VALID_VIEW_MODES.includes(mode)) {
       return;
+    }
+    // Guard: if the composer has unsaved changes and the user is switching
+    // away from it, prompt before discarding.
+    if (viewMode === 'composer' && mode !== 'composer' && composerIsDirty) {
+      setPendingViewMode(mode);
+      return;
+    }
+    // Clear selectedPost when leaving the composer so a post saved on the
+    // compose page doesn't pre-populate the modal when "Add Post" is clicked
+    // on another view.
+    if (viewMode === 'composer' && mode !== 'composer') {
+      setSelectedPost(null);
     }
     setViewMode(mode);
     persistViewMode(mode);
@@ -393,7 +411,7 @@ export default function SocialCalendar() {
   const handleApproveAll = async () => {
     if (!approverName.trim()) {
       // eslint-disable-next-line no-alert
-      alert('Please enter approver name');
+      alert(COPY.socialCalendar.approverNameRequired);
       return;
     }
     const today = new Date().toISOString().split('T')[0];
@@ -577,11 +595,30 @@ export default function SocialCalendar() {
                 {COPY.socialCalendar.bulkSchedule}
               </Button>
               <Button
-                onClick={() => setShowModal(true)}
+                onClick={() => {
+                  if (viewMode === 'composer') {
+                    if (selectedPost?.id) {
+                      // A post was saved on the compose page — "New Post" resets.
+                      if (composerIsDirty) {
+                        setShowNewPostConfirm(true);
+                      } else {
+                        setSelectedPost(null);
+                        setComposerKey((k) => k + 1);
+                      }
+                    } else if (composerRef.current) {
+                      composerRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                  } else {
+                    setSelectedPost(null);
+                    setShowModal(true);
+                  }
+                }}
                 className="gap-2 bg-violet-600 hover:bg-violet-700"
               >
                 <Plus className="w-4 h-4" />
-                {COPY.socialCalendar.addPost}
+                {viewMode === 'composer' && selectedPost?.id
+                  ? COPY.calendarPostModal.newPost
+                  : COPY.socialCalendar.addPost}
               </Button>
             </>
           )}
@@ -609,7 +646,9 @@ export default function SocialCalendar() {
                     className="h-8 object-contain"
                   />
                   <div className="border-l pl-4 min-w-0">
-                    <h2 className="font-bold text-gray-900">Social Calendar</h2>
+                    <h2 className="font-bold text-gray-900">
+                      {COPY.socialCalendar.socialCalendar}
+                    </h2>
                     <div className="mt-1 flex flex-col gap-2 sm:flex-row sm:items-center">
                       <Popover open={showDatePicker} onOpenChange={setShowDatePicker}>
                         <PopoverTrigger asChild>
@@ -665,11 +704,12 @@ export default function SocialCalendar() {
 
         {/* Composer View */}
         {viewMode === 'composer' && (
-          <Card className="glass-card rounded-2xl">
+          <Card ref={composerRef} className="glass-card rounded-2xl">
             <CardContent className="p-0">
               <PostComposer
+                key={composerKey}
                 onSave={handleSave}
-                isLoading={createMutation.isPending}
+                isLoading={createMutation.isPending || updateMutation.isPending}
                 hashtagPool={
                   /** @type {import('@/components/social/HashtagPoolSelector').HashtagPool[]} */ (
                     hashtagPool
@@ -677,6 +717,8 @@ export default function SocialCalendar() {
                 }
                 currentMonth={currentMonth}
                 hideStatus
+                onDirtyChange={setComposerIsDirty}
+                onNewPost={() => setSelectedPost(null)}
               />
             </CardContent>
           </Card>
@@ -734,25 +776,25 @@ export default function SocialCalendar() {
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <Select value={platformFilter} onValueChange={setPlatformFilter}>
-                    <SelectTrigger aria-label="Platform">
-                      <SelectValue placeholder="All Platforms" />
+                    <SelectTrigger aria-label={COPY.socialCalendar.platformLabel}>
+                      <SelectValue placeholder={COPY.socialCalendar.allPlatforms} />
                     </SelectTrigger>
                     <SelectContent>
                       {CALENDAR_PLATFORMS.map((p) => (
                         <SelectItem key={p} value={p}>
-                          {p === 'all' ? 'All Platforms' : p}
+                          {p === 'all' ? COPY.socialCalendar.allPlatforms : p}
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                   <Select value={statusFilter} onValueChange={setStatusFilter}>
-                    <SelectTrigger aria-label="Status">
-                      <SelectValue placeholder="All Statuses" />
+                    <SelectTrigger aria-label={COPY.socialCalendar.statusLabel}>
+                      <SelectValue placeholder={COPY.socialCalendar.allStatuses} />
                     </SelectTrigger>
                     <SelectContent>
                       {CALENDAR_STATUSES.map((s) => (
                         <SelectItem key={s} value={s} className="capitalize">
-                          {s === 'all' ? 'All Statuses' : s.replace(/_/g, ' ')}
+                          {s === 'all' ? COPY.socialCalendar.allStatuses : s.replace(/_/g, ' ')}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -848,14 +890,14 @@ export default function SocialCalendar() {
             <div className="flex justify-end items-center gap-2 mb-4">
               <Select value={gridSortOrder} onValueChange={setGridSortOrder}>
                 <SelectTrigger className="w-44" aria-label="Sort By">
-                  <SelectValue placeholder="Sort by…" />
+                  <SelectValue placeholder={COPY.socialCalendar.sortByPlaceholder} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="date_desc">Newest first</SelectItem>
-                  <SelectItem value="date_asc">Oldest first</SelectItem>
-                  <SelectItem value="status">By status</SelectItem>
-                  <SelectItem value="platform">By platform</SelectItem>
-                  <SelectItem value="order">Default order</SelectItem>
+                  <SelectItem value="date_desc">{COPY.socialCalendar.sortNewest}</SelectItem>
+                  <SelectItem value="date_asc">{COPY.socialCalendar.sortOldest}</SelectItem>
+                  <SelectItem value="status">{COPY.socialCalendar.sortByStatus}</SelectItem>
+                  <SelectItem value="platform">{COPY.socialCalendar.sortByPlatform}</SelectItem>
+                  <SelectItem value="order">{COPY.socialCalendar.sortDefaultOrder}</SelectItem>
                 </SelectContent>
               </Select>
               <Button
@@ -882,25 +924,25 @@ export default function SocialCalendar() {
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <Select value={platformFilter} onValueChange={setPlatformFilter}>
-                    <SelectTrigger aria-label="Platform">
-                      <SelectValue placeholder="All Platforms" />
+                    <SelectTrigger aria-label={COPY.socialCalendar.platformLabel}>
+                      <SelectValue placeholder={COPY.socialCalendar.allPlatforms} />
                     </SelectTrigger>
                     <SelectContent>
                       {CALENDAR_PLATFORMS.map((p) => (
                         <SelectItem key={p} value={p}>
-                          {p === 'all' ? 'All Platforms' : p}
+                          {p === 'all' ? COPY.socialCalendar.allPlatforms : p}
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                   <Select value={statusFilter} onValueChange={setStatusFilter}>
-                    <SelectTrigger aria-label="Status">
-                      <SelectValue placeholder="All Statuses" />
+                    <SelectTrigger aria-label={COPY.socialCalendar.statusLabel}>
+                      <SelectValue placeholder={COPY.socialCalendar.allStatuses} />
                     </SelectTrigger>
                     <SelectContent>
                       {CALENDAR_STATUSES.map((s) => (
                         <SelectItem key={s} value={s} className="capitalize">
-                          {s === 'all' ? 'All Statuses' : s.replace(/_/g, ' ')}
+                          {s === 'all' ? COPY.socialCalendar.allStatuses : s.replace(/_/g, ' ')}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -940,12 +982,14 @@ export default function SocialCalendar() {
                   ) : (
                     <>
                       <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                        No posts scheduled
+                        {COPY.socialCalendar.noPostsScheduled}
                       </h3>
-                      <p className="text-gray-500 mb-4">Add your first post to the calendar</p>
+                      <p className="text-gray-500 mb-4">
+                        {COPY.socialCalendar.noPostsScheduledHint}
+                      </p>
                       <Button onClick={() => setShowModal(true)} className="gap-2">
                         <Plus className="w-4 h-4" />
-                        Add Post
+                        {COPY.socialCalendar.addPost}
                       </Button>
                     </>
                   )}
@@ -1041,14 +1085,14 @@ export default function SocialCalendar() {
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
               <div className="flex-1 w-full sm:w-auto">
                 <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                  Sign Off Approved By
+                  {COPY.socialCalendar.signOffApprovedBy}
                 </label>
                 <div className="border-b-2 border-emerald-400 mt-2 pb-2">
                   {showApprovalSection ? (
                     <Input
                       value={approverName}
                       onChange={(e) => setApproverName(e.target.value)}
-                      placeholder="Enter approver name..."
+                      placeholder={COPY.socialCalendar.approverNamePlaceholder}
                       className="border-0 p-0 h-8 text-lg focus-visible:ring-0 bg-transparent"
                     />
                   ) : (
@@ -1060,7 +1104,7 @@ export default function SocialCalendar() {
               </div>
               <div className="flex-1 w-full sm:w-auto">
                 <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                  Sign Off Date
+                  {COPY.socialCalendar.signOffDate}
                 </label>
                 <div className="border-b-2 border-emerald-400 mt-2 pb-2">
                   <span className="text-lg text-gray-700 dark:text-gray-300 font-medium">
@@ -1082,7 +1126,7 @@ export default function SocialCalendar() {
                       className="gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-3 h-auto text-base font-semibold shadow-lg"
                     >
                       <CheckCircle className="w-5 h-5" />
-                      Approve All Posts
+                      {COPY.socialCalendar.approveAllPosts}
                     </Button>
                     <Button
                       size="lg"
@@ -1090,7 +1134,7 @@ export default function SocialCalendar() {
                       onClick={() => setShowApprovalSection(false)}
                       className="px-4"
                     >
-                      Cancel
+                      {COPY.socialCalendar.cancel}
                     </Button>
                   </div>
                 ) : (
@@ -1100,7 +1144,7 @@ export default function SocialCalendar() {
                     className="gap-2 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white px-8 py-4 h-auto text-lg font-bold shadow-lg hover:shadow-xl transition-all"
                   >
                     <CheckCircle className="w-5 h-5" />
-                    Sign Off Calendar
+                    {COPY.socialCalendar.signOffCalendar}
                   </Button>
                 )}
               </div>
@@ -1108,6 +1152,43 @@ export default function SocialCalendar() {
           </CardContent>
         </Card>
       </div>
+
+      {/* New Post guard — discard unsaved composer changes */}
+      <ConfirmDialog
+        open={showNewPostConfirm}
+        onClose={() => setShowNewPostConfirm(false)}
+        onConfirm={() => {
+          setShowNewPostConfirm(false);
+          setSelectedPost(null);
+          setComposerIsDirty(false);
+          setComposerKey((k) => k + 1);
+        }}
+        title={COPY.socialCalendar.discardChangesTitle}
+        description={COPY.socialCalendar.discardNewPostDescription}
+        confirmLabel={COPY.socialCalendar.discardNewPostConfirm}
+        cancelLabel={COPY.socialCalendar.keepEditing}
+        variant="destructive"
+      />
+
+      {/* View-mode switch guard — discard unsaved composer changes */}
+      <ConfirmDialog
+        open={!!pendingViewMode}
+        onClose={() => setPendingViewMode(null)}
+        onConfirm={() => {
+          const mode = pendingViewMode;
+          setPendingViewMode(null);
+          setComposerIsDirty(false);
+          setSelectedPost(null);
+          setViewMode(mode);
+          persistViewMode(mode);
+          setShowFilters(false);
+        }}
+        title={COPY.socialCalendar.discardChangesTitle}
+        description={COPY.socialCalendar.discardViewSwitchDescription}
+        confirmLabel={COPY.socialCalendar.discardViewSwitchConfirm}
+        cancelLabel={COPY.socialCalendar.keepEditing}
+        variant="destructive"
+      />
 
       {/* Modals */}
       <QuickPostModal open={showQuickPost} onClose={() => setShowQuickPost(false)} />

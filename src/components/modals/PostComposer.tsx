@@ -40,7 +40,6 @@ import {
   Repeat,
   Zap,
   Send,
-  FileText,
   ChevronRight,
   ShieldCheck,
   Video,
@@ -50,6 +49,8 @@ import {
   Trash,
   TriangleAlert,
   Crop,
+  Check,
+  Save,
 } from 'lucide-react';
 import { PLATFORMS as PLATFORM_CONFIGS } from '@/constants/platforms';
 import EmojiPicker from 'emoji-picker-react';
@@ -190,6 +191,13 @@ export interface PostComposerProps {
   hideStatus?: boolean;
   /** Optional actions rendered in the header row before the close button (e.g. fullscreen toggle). */
   headerActions?: React.ReactNode;
+  /** Called when the dirty state changes. Used by the standalone compose page to
+   *  guard view-mode tab switches (Layout, Calendar, etc.) when there are unsaved changes. */
+  onDirtyChange?: (dirty: boolean) => void;
+  /** Called when the standalone composer resets to a blank state after a
+   *  non-draft save (e.g. Schedule Post). The parent should clear selectedPost
+   *  so the next save creates a new post instead of updating the old one. */
+  onNewPost?: () => void;
 }
 
 // ---------------------------------------------------------------------------
@@ -612,6 +620,8 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
     currentMonth = new Date(),
     hideStatus = false,
     headerActions,
+    onDirtyChange,
+    onNewPost,
   },
   ref
 ) {
@@ -636,6 +646,16 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
   const [showBestTimes, setShowBestTimes] = useState(false);
   const [scheduleError, setScheduleError] = useState('');
   const [requireApproval, setRequireApproval] = useState(true);
+  const [draftJustSaved, setDraftJustSaved] = useState(false);
+  const draftSavedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // Clear the "Saved" checkmark timer on unmount (e.g. key-remount from "New
+  // Post") so we don't fire setState on an unmounted component.
+  useEffect(
+    () => () => {
+      if (draftSavedTimerRef.current) clearTimeout(draftSavedTimerRef.current);
+    },
+    []
+  );
   const [savedPost, setSavedPost] = useState<CalendarPost | null>(post ?? null);
   // Tracks approval-specific fields updated via PostApprovalPanel (they aren't in PostFormData).
   const [approvalMeta, setApprovalMeta] = useState<{
@@ -866,10 +886,36 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
   const isDirty =
     hasFormChanges(formData, initialFormDataRef.current, { includeTags: !post?.id }) || isCropDirty;
 
+  // isDirty tracks formData + crop changes (used by Save Draft button).
+  // hasUnsavedState also includes transient fields like approvalNote that
+  // aren't part of formData but would be lost on navigation. Used by the
+  // modal close guard, view-switch guard, and beforeunload listener.
+  const hasUnsavedState = isDirty || !!approvalNote.trim();
+
   const { guardedClose, discardDialogProps } = useUnsavedChangesGuard({
-    isDirty,
+    isDirty: hasUnsavedState,
     onClose: effectiveOnClose,
   });
+
+  // --- Standalone unsaved-changes guards (no-op in modal mode) ---------------
+  // 1. Notify parent so it can guard view-mode tab switches (Compose → Calendar etc.)
+  useEffect(() => {
+    onDirtyChange?.(hasUnsavedState);
+  }, [hasUnsavedState]); // intentionally omits onDirtyChange — see PostApprovalPanel note reset pattern
+
+  // 2. Block browser-level navigation (close tab, refresh, URL bar)
+  const isStandalone = !onClose;
+  useEffect(() => {
+    if (!isStandalone || !hasUnsavedState) return;
+    const handler = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      // returnValue is deprecated in the spec but remains the only way to
+      // trigger the browser's "Leave site?" dialog across all major browsers.
+      (e as any).returnValue = '';
+    };
+    window.addEventListener('beforeunload', handler);
+    return () => window.removeEventListener('beforeunload', handler);
+  }, [isStandalone, hasUnsavedState]);
 
   // Expose requestClose via ref for CalendarPostModal
   useImperativeHandle(
@@ -1391,14 +1437,54 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
       return;
     }
 
+    // Draft saves stay in place — no modal close, no form reset. The user can
+    // continue editing or close manually via the X button. We update the dirty
+    // baselines so isDirty flips to false (re-enables "Save Draft" only after
+    // the next edit) and flash a checkmark on the button for feedback.
+    if (finalStatus === PostStatus.DRAFT) {
+      initialFormDataRef.current = { ...formData, status: finalStatus };
+      initialCropRef.current = {
+        boxes: { ...platformCropBoxes },
+        transformOps: { ...platformTransformOps },
+        tilts: { ...platformTilts },
+      };
+      if (draftSavedTimerRef.current) clearTimeout(draftSavedTimerRef.current);
+      setDraftJustSaved(true);
+      draftSavedTimerRef.current = setTimeout(() => setDraftJustSaved(false), 2000);
+      return;
+    }
+
     if (onClose) {
       // Modal mode: close
       guardedClose({ open: false, bypass: true });
     } else {
-      // Standalone mode: reset form so composer is ready for a new post
+      // Standalone mode (composer page on SocialCalendar). Hybrid behavior:
+      //   - Approval-bound statuses navigate to PostApprovalView so the user
+      //     can monitor the review. This also sidesteps the confusion of the
+      //     approval tab staying populated after "Send for Approval".
+      //   - Settled statuses (Draft, Approved/Published/Scheduled) do a full
+      //     in-place reset so the composer is ready for a new post — clearing
+      //     approval state and the active tab along with formData, not just
+      //     formData as before.
+      const APPROVAL_BOUND: Set<PostStatus> = new Set([
+        PostStatus.PENDING_REVIEW,
+        PostStatus.PENDING_APPROVAL,
+        PostStatus.CHANGES_REQUESTED,
+      ]);
+      const savedId = (saveResult as CalendarPost | undefined)?.id;
+      if (APPROVAL_BOUND.has(finalStatus) && savedId) {
+        const url = new URL(createPageUrl('PostApprovalView'), window.location.origin);
+        url.searchParams.set('id', savedId);
+        url.searchParams.set('origin', 'composer');
+        navigate(url.pathname + url.search);
+        return;
+      }
+      const { scheduled_date: defaultDate, scheduled_time: defaultTime } =
+        getDefaultSchedule(currentMonth);
       const reset: PostFormData = {
         ...DEFAULT_FORM,
-        ...getDefaultSchedule(currentMonth),
+        scheduled_date: defaultDate,
+        scheduled_time: defaultTime,
       };
       setFormData(reset);
       initialFormDataRef.current = reset;
@@ -1406,6 +1492,18 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
       initialCropRef.current = { boxes: {}, transformOps: {}, tilts: {} };
       setImageFileNames([]);
       resetMediaLibrary();
+      // Clear approval state and tab so the next post starts blank — the
+      // partial reset this branch used to do left stale reviewer/priority/
+      // due-date values sitting in the Approval Workflow tab.
+      setSavedPost(null);
+      setApprovalMeta({ priority: 'normal' });
+      setApprovalErrors({});
+      setApprovalNote('');
+      setScheduleError('');
+      setActiveTab('compose');
+      // Tell the parent to clear selectedPost so the next save creates a
+      // new post instead of updating the one we just finished with.
+      onNewPost?.();
     }
   };
 
@@ -2387,14 +2485,22 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
               <TypedButton
                 onClick={() => handleSubmit(PostStatus.DRAFT)}
                 disabled={isLoading || !isDirty || !formData.caption}
-                className="bg-gray-700 hover:bg-gray-800 hover:text-white text-white rounded-xl px-5 py-2 text-sm font-semibold disabled:opacity-40 transition-colors flex items-center gap-2"
+                className={`rounded-xl px-5 py-2 text-sm font-semibold transition-colors flex items-center gap-2 ${
+                  draftJustSaved
+                    ? 'bg-green-600 text-white disabled:opacity-100'
+                    : 'bg-gray-700 hover:bg-gray-800 hover:text-white text-white disabled:opacity-40'
+                }`}
               >
                 {isLoading ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
+                ) : draftJustSaved ? (
+                  <Check className="w-4 h-4" />
                 ) : (
-                  <FileText className="w-4 h-4" />
+                  <Save className="w-4 h-4" />
                 )}
-                {COPY.calendarPostModal.saveDraft}
+                {draftJustSaved
+                  ? COPY.calendarPostModal.draftSaved
+                  : COPY.calendarPostModal.saveDraft}
               </TypedButton>
             )}
 
