@@ -24,6 +24,8 @@ export interface ApprovalEmailData {
   pendingItems: ApprovalEmailPendingItem[];
   /** Title of the just-submitted post, used in the subject line. */
   submittedPostTitle: string;
+  /** Optional unsubscribe link target. Defaults to '#' (placeholder) until the backend flow exists. */
+  unsubscribeUrl?: string;
 }
 
 export interface ApprovalEmailRendered {
@@ -129,6 +131,8 @@ export function renderApprovalNotificationEmail(data: ApprovalEmailData): Approv
   .cta-secondary a { color: #71717a; text-decoration: underline; }
   .email-footer { padding: 24px 40px; background: ${PRIMARY_COLOR}; text-align: center; }
   .email-footer p { font-size: 12px; color: #a1a1aa; line-height: 1.5; }
+  .email-footer .unsubscribe { margin-top: 12px; }
+  .email-footer .unsubscribe a { color: #a1a1aa; text-decoration: underline; }
 </style>
 </head>
 <body>
@@ -167,6 +171,7 @@ export function renderApprovalNotificationEmail(data: ApprovalEmailData): Approv
   </div>
   <div class="email-footer">
     <p>You're receiving this because you're on the approval list for this content. If you believe this is an error, contact your team admin.</p>
+    <p class="unsubscribe">If you'd like to unsubscribe and stop receiving these emails <a href="${escapeHtml(data.unsubscribeUrl ?? '#')}">click here</a>.</p>
   </div>
 </div>
 </body>
