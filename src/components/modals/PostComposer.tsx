@@ -66,7 +66,7 @@ import ConfirmDialog from '@/components/ui/ConfirmDialog';
 import MediaLibraryModal from './MediaLibraryModal';
 import ImageCropPanel, { type TransformOp } from './ImageCropPanel';
 import { useToast } from '@/components/ui/toast-provider';
-import { PostStatus } from '@/types/enums';
+import { PostStatus, PostPriority, AllChannelsTab } from '@/types/enums';
 import COPY from '@/lib/copy';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
@@ -85,7 +85,11 @@ import {
   VIDEO_ACCEPT_ATTR,
 } from '@/utils/postMedia';
 import { arraysEqual, setsEqual } from '@/utils/hashtagUtils';
-import { escapeHtml } from '@/utils/html';
+import {
+  renderApprovalNotificationEmail,
+  APPROVAL_EMAIL_MAX_ROWS,
+  type ApprovalEmailPendingItem,
+} from '@/lib/emails/approvalNotification';
 import PostStatusChip from '@/components/social/PostStatusChip';
 import { getMonthComparison } from '@/utils/getMonthComparison';
 import React from 'react';
@@ -1400,36 +1404,81 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
       approvalMeta.assigned_to_email &&
       saveResult?.id
     ) {
-      const postApprovalUrl = new URL(createPageUrl('PostApprovalView'), window.location.origin);
-      postApprovalUrl.searchParams.set('id', saveResult.id);
-      const postLink = postApprovalUrl.toString();
-      const rawCaption =
-        formData.caption.length > 60 ? `${formData.caption.slice(0, 60)}…` : formData.caption;
-      const noteSection = approvalNote
-        ? `<p><strong>Note from author:</strong> ${escapeHtml(approvalNote)}</p>`
-        : '';
-      const priorityLabel = approvalMeta.priority ?? 'normal';
-      const priorityColor: Record<string, string> = {
-        low: '#6B7280',
-        normal: '#2563EB',
-        high: '#EA580C',
-        urgent: '#DC2626',
-      };
-      const priorityHtml = `<span style="color:${priorityColor[priorityLabel] ?? '#2563EB'};font-weight:600">${escapeHtml(priorityLabel.charAt(0).toUpperCase() + priorityLabel.slice(1))}</span>`;
-      base44.integrations.Core.SendEmail({
-        to: approvalMeta.assigned_to_email,
-        subject: `Post Review Requested: "${rawCaption}"`,
-        body: `
-          <p>Hi ${escapeHtml((saveResult as CalendarPost).assigned_to_name || approvalMeta.assigned_to_email || '')},</p>
-          <p><strong>${escapeHtml(currentUser?.full_name || currentUser?.email || '')}</strong> has submitted a post for your review.</p>
-          <p><a href="${postLink}">Click here to review the post →</a></p>
-          <ul>
-            <li><strong>Due date:</strong> ${escapeHtml(approvalMeta.review_due_date ?? 'Not set')}</li>
-            <li><strong>Priority:</strong> ${priorityHtml}</li>
-          </ul>
-          ${noteSection}
-        `.trim(),
-      }).catch(() => {});
+      const reviewerEmail = approvalMeta.assigned_to_email;
+      const submittedPostId = saveResult.id;
+      (async () => {
+        try {
+          // Fetch this reviewer's pending queue (includes the post we just saved).
+          // Base44's SDK has no count-only endpoint, so we fetch up to PENDING_QUEUE_FETCH_LIMIT
+          // items and derive both the badge count and the "+ N more" overflow from the result.
+          // A reviewer with more than PENDING_QUEUE_FETCH_LIMIT pending items is an extreme edge
+          // case; the count will be accurate up to that limit.
+          const PENDING_QUEUE_FETCH_LIMIT = 100;
+          const queue: CalendarPost[] = await base44.entities.CalendarPost.filter(
+            {
+              assigned_to_email: reviewerEmail,
+              status: [PostStatus.PENDING_REVIEW, PostStatus.PENDING_APPROVAL],
+            },
+            'review_due_date',
+            PENDING_QUEUE_FETCH_LIMIT
+          );
+
+          // Only map up to the renderer's display cap — the rest is discarded
+          // anyway and walking workflow_history for each extra post is wasted work.
+          // queue.length is still used below for the true pendingCount.
+          const pendingItems: ApprovalEmailPendingItem[] = queue
+            .slice(0, APPROVAL_EMAIL_MAX_ROWS)
+            .map((p) => {
+              const submittedBy = p.workflow_history
+                ?.slice()
+                .reverse()
+                .find((e) => e.action === 'submitted_for_review')?.by_name;
+              const title =
+                (p.caption && p.caption.slice(0, 60)) || p.title || COPY.approvalEmail.untitledPost;
+              return {
+                title,
+                submittedByName: submittedBy ?? COPY.approvalEmail.missingValue,
+                dueDate: p.review_due_date ?? null,
+                priority: (p.priority as PostPriority) ?? PostPriority.NORMAL,
+              };
+            });
+
+          const postUrl = (() => {
+            const u = new URL(createPageUrl('PostApprovalView'), window.location.origin);
+            u.searchParams.set('id', submittedPostId);
+            return u.toString();
+          })();
+          const queueUrl = (() => {
+            const u = new URL(createPageUrl('AllChannels'), window.location.origin);
+            u.searchParams.set('tab', AllChannelsTab.APPROVALS);
+            return u.toString();
+          })();
+
+          const submittedTitle =
+            (formData.caption && formData.caption.slice(0, 60)) || COPY.approvalEmail.untitledPost;
+
+          const { subject, html } = renderApprovalNotificationEmail({
+            reviewerName: (saveResult as CalendarPost).assigned_to_name || reviewerEmail,
+            submitterName:
+              currentUser?.full_name || currentUser?.email || COPY.approvalEmail.fallbackSubmitter,
+            postUrl,
+            queueUrl,
+            pendingItems,
+            pendingCount: queue.length,
+            submittedPostTitle: submittedTitle,
+            authorNote: approvalNote.trim() || null,
+          });
+
+          await base44.integrations.Core.SendEmail({
+            to: reviewerEmail,
+            subject,
+            body: html,
+          });
+        } catch (err) {
+          // Don't surface to the user, but log so it's visible in devtools.
+          console.error('[approval-email] failed to send:', err);
+        }
+      })();
     }
 
     if (afterSave) {
