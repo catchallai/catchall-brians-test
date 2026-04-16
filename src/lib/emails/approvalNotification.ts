@@ -26,8 +26,6 @@ export interface ApprovalEmailData {
   submittedPostTitle: string;
   /** Optional free-text note from the submitter. When present, rendered below the subtext. */
   authorNote?: string | null;
-  /** Optional unsubscribe link target. Defaults to '#' (placeholder) until the backend flow exists. */
-  unsubscribeUrl?: string;
 }
 
 export interface ApprovalEmailRendered {
@@ -106,8 +104,11 @@ export function renderApprovalNotificationEmail(data: ApprovalEmailData): Approv
 <title>A new post is waiting for your approval</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f4f4f5; color: #18181b; padding: 40px 20px; }
-  .email-wrapper { max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.04); }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f4f4f5; color: #18181b; padding: 40px 20px; text-align: center; }
+  .email-wrapper, .email-wrapper * { text-align: initial; }
+  .email-header, .cta-wrapper, .pending-badge-wrapper, .cta-secondary, .email-footer { text-align: center; }
+  .email-header .logo-placeholder, .email-header .logo-sub { text-align: center; }
+  .email-wrapper { max-width: 600px; margin: 0 auto 40px; background: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.04); }
   .email-header { padding: 36px 40px; background: ${PRIMARY_COLOR}; text-align: center; }
   .email-header .logo-placeholder { font-size: 20px; font-weight: 700; color: #ffffff; letter-spacing: -0.02em; }
   .email-header .logo-sub { font-size: 12px; color: #a1a1aa; font-weight: 400; margin-top: 4px; }
@@ -137,8 +138,6 @@ export function renderApprovalNotificationEmail(data: ApprovalEmailData): Approv
   .cta-secondary a { color: #71717a; text-decoration: underline; }
   .email-footer { padding: 24px 40px; background: ${PRIMARY_COLOR}; text-align: center; }
   .email-footer p { font-size: 12px; color: #a1a1aa; line-height: 1.5; }
-  .email-footer .unsubscribe { margin-top: 12px; }
-  .email-footer .unsubscribe a { color: #a1a1aa; text-decoration: underline; }
 </style>
 </head>
 <body>
@@ -178,7 +177,6 @@ export function renderApprovalNotificationEmail(data: ApprovalEmailData): Approv
   </div>
   <div class="email-footer">
     <p>You're receiving this because you're on the approval list for this content. If you believe this is an error, contact your team admin.</p>
-    <p class="unsubscribe">If you'd like to unsubscribe and stop receiving these emails <a href="${escapeHtml(data.unsubscribeUrl ?? '#')}">click here</a>.</p>
   </div>
 </div>
 </body>

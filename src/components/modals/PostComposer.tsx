@@ -1410,14 +1410,11 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
             authorNote: approvalNote.trim() || null,
           });
 
-          const response = await base44.functions.invoke('sendResendEmail', {
+          await base44.integrations.Core.SendEmail({
             to: reviewerEmail,
             subject,
-            html,
+            body: html,
           });
-          if (!response?.data?.success) {
-            console.error('[approval-email] sendResendEmail did not succeed:', response?.data);
-          }
         } catch (err) {
           // Don't surface to the user, but log so it's visible in devtools.
           console.error('[approval-email] failed to send:', err);
