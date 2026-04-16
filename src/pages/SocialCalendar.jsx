@@ -123,6 +123,12 @@ export default function SocialCalendar() {
       setPendingViewMode(mode);
       return;
     }
+    // Clear selectedPost when leaving the composer so a post saved on the
+    // compose page doesn't pre-populate the modal when "Add Post" is clicked
+    // on another view.
+    if (viewMode === 'composer' && mode !== 'composer') {
+      setSelectedPost(null);
+    }
     setViewMode(mode);
     persistViewMode(mode);
     // Collapse the filter panel when switching views so the new view doesn't inherit
@@ -591,6 +597,7 @@ export default function SocialCalendar() {
                   if (viewMode === 'composer' && composerRef.current) {
                     composerRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
                   } else {
+                    setSelectedPost(null);
                     setShowModal(true);
                   }
                 }}
@@ -1134,6 +1141,7 @@ export default function SocialCalendar() {
           const mode = pendingViewMode;
           setPendingViewMode(null);
           setComposerIsDirty(false);
+          setSelectedPost(null);
           setViewMode(mode);
           persistViewMode(mode);
           setShowFilters(false);
