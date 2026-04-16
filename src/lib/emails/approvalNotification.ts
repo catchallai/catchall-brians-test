@@ -71,7 +71,7 @@ function renderRow(item: ApprovalEmailPendingItem): string {
       <td>${escapeHtml(formatDueDate(item.dueDate))}</td>
       <td>
         <span class="priority" style="color:${priority.textColor}">
-          <span class="priority-dot" style="background:${priority.dotColor}"></span>${escapeHtml(priority.label)}
+          <span class="priority-dot" style="background:${priority.dotColor};background-color:${priority.dotColor}"></span>${escapeHtml(priority.label)}
         </span>
       </td>
     </tr>`;
@@ -97,21 +97,38 @@ export function renderApprovalNotificationEmail(data: ApprovalEmailData): Approv
   const subject = `Post Review Requested: "${truncate(data.submittedPostTitle, SUBJECT_TITLE_MAX)}"`;
 
   const html = `<!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="x-apple-disable-message-reformatting">
+<meta name="format-detection" content="telephone=no">
 <title>A new post is waiting for your approval</title>
+<!--[if mso]>
+<xml>
+  <o:OfficeDocumentSettings>
+    <o:PixelsPerInch>96</o:PixelsPerInch>
+    <o:AllowPNG/>
+  </o:OfficeDocumentSettings>
+</xml>
+<style>
+  * { font-family: Arial, sans-serif !important; }
+  table { border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
+  .cta-button-td { mso-padding-alt: 17px 52px 17px 52px; }
+</style>
+<![endif]-->
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f4f4f5; color: #18181b; padding: 40px 20px; text-align: center; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; background: #f4f4f5; color: #18181b; padding: 40px 20px; text-align: center; -ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%; }
+  table { border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
   .email-wrapper, .email-wrapper * { text-align: initial; }
   .email-header, .cta-wrapper, .pending-badge-wrapper, .cta-secondary, .email-footer { text-align: center; }
   .email-header .logo-placeholder, .email-header .logo-sub { text-align: center; }
   .email-wrapper { max-width: 600px; margin: 0 auto 40px; background: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.04); }
   .email-header { padding: 36px 40px; background: ${PRIMARY_COLOR}; text-align: center; }
-  .email-header .logo-placeholder { font-size: 20px; font-weight: 700; color: #ffffff; letter-spacing: -0.02em; }
-  .email-header .logo-sub { font-size: 12px; color: #a1a1aa; font-weight: 400; margin-top: 4px; }
+  .email-header .logo-placeholder { font-size: 20px; font-weight: 700; color: #ffffff; letter-spacing: -0.02em; mso-line-height-rule: exactly; line-height: 24px; }
+  .email-header .logo-sub { font-size: 12px; color: #a1a1aa; font-weight: 400; margin-top: 4px; mso-line-height-rule: exactly; line-height: 16px; }
   .email-body { padding: 32px 40px; }
   .greeting { font-size: 15px; color: #3f3f46; margin-bottom: 16px; line-height: 1.5; }
   .headline { font-size: 20px; font-weight: 600; color: #18181b; margin-bottom: 8px; line-height: 1.3; }
@@ -121,11 +138,14 @@ export function renderApprovalNotificationEmail(data: ApprovalEmailData): Approv
   .author-note strong { color: #18181b; }
   .author-note-body { white-space: pre-wrap; }
   .cta-wrapper { text-align: center; margin-bottom: 28px; }
-  .cta-button { display: inline-block; background: ${CTA_COLOR}; color: #ffffff !important; text-decoration: none; font-size: 18px; font-weight: 600; padding: 17px 52px; border-radius: 8px; letter-spacing: 0.01em; }
+  .cta-button-table { margin: 0 auto; }
+  .cta-button-td { background: ${CTA_COLOR}; background-color: ${CTA_COLOR}; border-radius: 8px; padding: 17px 52px; }
+  .cta-button { color: #ffffff !important; text-decoration: none; font-size: 18px; font-weight: 600; letter-spacing: 0.01em; line-height: 1; mso-line-height-rule: exactly; }
   .pending-badge-wrapper { text-align: center; margin-bottom: 28px; }
-  .pending-badge { display: inline-flex; align-items: center; background: #fafafa; border: 1px solid #e4e4e7; border-radius: 6px; padding: 10px 16px; }
-  .pending-badge .count { font-size: 22px; font-weight: 700; color: #18181b; margin-right: 8px; }
-  .pending-badge .label { font-size: 13px; color: #71717a; line-height: 1.3; }
+  .pending-badge { margin: 0 auto; background: #fafafa; background-color: #fafafa; border: 1px solid #e4e4e7; border-radius: 6px; }
+  .pending-badge td { vertical-align: middle; padding: 10px 0; }
+  .pending-badge td.count-cell { font-size: 22px; font-weight: 700; color: #18181b; padding-left: 16px; padding-right: 8px; line-height: 1.2; mso-line-height-rule: exactly; }
+  .pending-badge td.label-cell { font-size: 13px; color: #71717a; line-height: 1.3; padding-right: 16px; mso-line-height-rule: exactly; }
   .table-label { font-size: 12px; font-weight: 600; color: #a1a1aa; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 10px; }
   .summary-table { width: 100%; border-collapse: collapse; margin-bottom: 12px; }
   .summary-table th { text-align: left; font-size: 11px; font-weight: 600; color: #a1a1aa; text-transform: uppercase; letter-spacing: 0.05em; padding: 8px 12px; border-bottom: 1px solid #e4e4e7; }
@@ -152,13 +172,21 @@ export function renderApprovalNotificationEmail(data: ApprovalEmailData): Approv
     <p class="subtext${data.authorNote ? ' has-note' : ''}"><strong>${escapeHtml(data.submitterName)}</strong> submitted an item for your review.</p>
     ${data.authorNote ? `<p class="author-note"><strong>A note has been attached:</strong> <span class="author-note-body">${escapeHtml(data.authorNote)}</span></p>` : ''}
     <div class="cta-wrapper">
-      <a href="${escapeHtml(data.postUrl)}" class="cta-button">Review Post →</a>
+      <table role="presentation" cellpadding="0" cellspacing="0" border="0" class="cta-button-table">
+        <tr>
+          <td class="cta-button-td" align="center" bgcolor="${CTA_COLOR}">
+            <a href="${escapeHtml(data.postUrl)}" class="cta-button">Review Post &rarr;</a>
+          </td>
+        </tr>
+      </table>
     </div>
     <div class="pending-badge-wrapper">
-      <div class="pending-badge">
-        <span class="count">${pendingCount}</span>
-        <span class="label">${pendingCount === 1 ? 'item awaiting' : 'items awaiting'}<br>your approval</span>
-      </div>
+      <table role="presentation" cellpadding="0" cellspacing="0" border="0" class="pending-badge" bgcolor="#fafafa">
+        <tr>
+          <td class="count-cell">${pendingCount}</td>
+          <td class="label-cell">${pendingCount === 1 ? 'item awaiting' : 'items awaiting'}<br>your approval</td>
+        </tr>
+      </table>
     </div>
     <p class="table-label">Your pending queue</p>
     <table class="summary-table">
