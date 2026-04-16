@@ -1409,10 +1409,10 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
             submittedPostTitle: submittedTitle,
           });
 
-          await base44.integrations.Core.SendEmail({
+          await base44.functions.invoke('sendResendEmail', {
             to: reviewerEmail,
             subject,
-            body: html,
+            html,
           });
         } catch {
           // Swallow — notification failure must never break the submit flow.
