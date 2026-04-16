@@ -251,6 +251,7 @@ const COPY = {
   postApprovalView: {
     postNotFound: 'Post not found.',
     backToAllChannels: 'Back to All Channels',
+    backToSocialScheduler: 'Back to Social Scheduler',
     mediaRetainedNotice:
       'Media retained for version history — not transferred to the Approved Media Database.',
     activity: 'Activity',

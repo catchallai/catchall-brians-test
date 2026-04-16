@@ -17,6 +17,7 @@ export default function PostApprovalView() {
   const queryClient = useQueryClient();
   const [searchParams] = useSearchParams();
   const postId = searchParams.get('id');
+  const origin = searchParams.get('origin');
   const [rightPanel, setRightPanel] = useState('approval');
   const [previewPlatform, setPreviewPlatform] = useState<string | null>(null);
   // Store the inferred natural ratio alongside the URL it came from. The
@@ -65,11 +66,15 @@ export default function PostApprovalView() {
     <div className="p-6 lg:p-8 min-h-screen bg-gray-50">
       <div className="max-w-4xl mx-auto space-y-5">
         <Link
-          to={createPageUrl('AllChannels')}
+          to={
+            origin === 'composer' ? createPageUrl('SocialCalendar') : createPageUrl('AllChannels')
+          }
           className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-800 transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
-          {COPY.postApprovalView.backToAllChannels}
+          {origin === 'composer'
+            ? COPY.postApprovalView.backToSocialScheduler
+            : COPY.postApprovalView.backToAllChannels}
         </Link>
 
         {/* Post Preview — platform tabs + preview card matching create-post modal */}

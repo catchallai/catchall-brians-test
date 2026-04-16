@@ -1395,10 +1395,33 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
       // Modal mode: close
       guardedClose({ open: false, bypass: true });
     } else {
-      // Standalone mode: reset form so composer is ready for a new post
+      // Standalone mode (composer page on SocialCalendar). Hybrid behavior:
+      //   - Approval-bound statuses navigate to PostApprovalView so the user
+      //     can monitor the review. This also sidesteps the confusion of the
+      //     approval tab staying populated after "Send for Approval".
+      //   - Settled statuses (Draft, Approved/Published/Scheduled) do a full
+      //     in-place reset so the composer is ready for a new post — clearing
+      //     approval state and the active tab along with formData, not just
+      //     formData as before.
+      const APPROVAL_BOUND: Set<PostStatus> = new Set([
+        PostStatus.PENDING_REVIEW,
+        PostStatus.PENDING_APPROVAL,
+        PostStatus.CHANGES_REQUESTED,
+      ]);
+      const savedId = (saveResult as CalendarPost | undefined)?.id;
+      if (APPROVAL_BOUND.has(finalStatus) && savedId) {
+        const url = new URL(createPageUrl('PostApprovalView'), window.location.origin);
+        url.searchParams.set('id', savedId);
+        url.searchParams.set('origin', 'composer');
+        navigate(url.pathname + url.search);
+        return;
+      }
+      const { scheduled_date: defaultDate, scheduled_time: defaultTime } =
+        getDefaultSchedule(currentMonth);
       const reset: PostFormData = {
         ...DEFAULT_FORM,
-        ...getDefaultSchedule(currentMonth),
+        scheduled_date: defaultDate,
+        scheduled_time: defaultTime,
       };
       setFormData(reset);
       initialFormDataRef.current = reset;
@@ -1406,6 +1429,15 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
       initialCropRef.current = { boxes: {}, transformOps: {}, tilts: {} };
       setImageFileNames([]);
       resetMediaLibrary();
+      // Clear approval state and tab so the next post starts blank — the
+      // partial reset this branch used to do left stale reviewer/priority/
+      // due-date values sitting in the Approval Workflow tab.
+      setSavedPost(null);
+      setApprovalMeta({ priority: 'normal' });
+      setApprovalErrors({});
+      setApprovalNote('');
+      setScheduleError('');
+      setActiveTab('compose');
     }
   };
 
