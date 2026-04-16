@@ -24,6 +24,8 @@ export interface ApprovalEmailData {
   pendingItems: ApprovalEmailPendingItem[];
   /** Title of the just-submitted post, used in the subject line. */
   submittedPostTitle: string;
+  /** Optional free-text note from the submitter. When present, rendered below the subtext. */
+  authorNote?: string | null;
   /** Optional unsubscribe link target. Defaults to '#' (placeholder) until the backend flow exists. */
   unsubscribeUrl?: string;
 }
@@ -113,6 +115,10 @@ export function renderApprovalNotificationEmail(data: ApprovalEmailData): Approv
   .greeting { font-size: 15px; color: #3f3f46; margin-bottom: 16px; line-height: 1.5; }
   .headline { font-size: 20px; font-weight: 600; color: #18181b; margin-bottom: 8px; line-height: 1.3; }
   .subtext { font-size: 14px; color: #71717a; margin-bottom: 28px; line-height: 1.5; }
+  .subtext.has-note { margin-bottom: 16px; }
+  .author-note { font-size: 14px; color: #3f3f46; background: #fafafa; border-left: 3px solid #e4e4e7; padding: 12px 16px; border-radius: 4px; margin-bottom: 28px; line-height: 1.5; }
+  .author-note strong { color: #18181b; }
+  .author-note-body { white-space: pre-wrap; }
   .cta-wrapper { text-align: center; margin-bottom: 28px; }
   .cta-button { display: inline-block; background: ${CTA_COLOR}; color: #ffffff !important; text-decoration: none; font-size: 18px; font-weight: 600; padding: 17px 52px; border-radius: 8px; letter-spacing: 0.01em; }
   .pending-badge-wrapper { text-align: center; margin-bottom: 28px; }
@@ -144,7 +150,8 @@ export function renderApprovalNotificationEmail(data: ApprovalEmailData): Approv
   <div class="email-body">
     <p class="greeting">Hi ${escapeHtml(data.reviewerName)},</p>
     <p class="headline">A new post is waiting for your approval</p>
-    <p class="subtext"><strong>${escapeHtml(data.submitterName)}</strong> submitted an item for your review.</p>
+    <p class="subtext${data.authorNote ? ' has-note' : ''}"><strong>${escapeHtml(data.submitterName)}</strong> submitted an item for your review.</p>
+    ${data.authorNote ? `<p class="author-note"><strong>A note has been attached:</strong> <span class="author-note-body">${escapeHtml(data.authorNote)}</span></p>` : ''}
     <div class="cta-wrapper">
       <a href="${escapeHtml(data.postUrl)}" class="cta-button">Review Post →</a>
     </div>

@@ -1407,6 +1407,7 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
             queueUrl,
             pendingItems,
             submittedPostTitle: submittedTitle,
+            authorNote: approvalNote.trim() || null,
           });
 
           await base44.functions.invoke('sendResendEmail', {
