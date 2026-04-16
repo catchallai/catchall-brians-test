@@ -200,6 +200,10 @@ export default function PostCommentThread({ post, currentUser, onPostUpdated }) 
         // so the user isn't left staring at their own draft text.
         setText('');
         setReplyTo(null);
+        // Invalidate the detail query so PostApprovalView (and any other
+        // subscriber keyed on this post's id) refetches the updated
+        // workflow_history even when the server returned no body.
+        queryClient.invalidateQueries({ queryKey: ['calendar-post', post.id] });
         queryClient.invalidateQueries({ queryKey: ['calendar-posts-all'] });
         queryClient.invalidateQueries({ queryKey: ['calendar-posts'] });
         return;
