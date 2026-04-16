@@ -191,6 +191,9 @@ export interface PostComposerProps {
   hideStatus?: boolean;
   /** Optional actions rendered in the header row before the close button (e.g. fullscreen toggle). */
   headerActions?: React.ReactNode;
+  /** Called when the dirty state changes. Used by the standalone compose page to
+   *  guard view-mode tab switches (Layout, Calendar, etc.) when there are unsaved changes. */
+  onDirtyChange?: (dirty: boolean) => void;
 }
 
 // ---------------------------------------------------------------------------
@@ -613,6 +616,7 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
     currentMonth = new Date(),
     hideStatus = false,
     headerActions,
+    onDirtyChange,
   },
   ref
 ) {
@@ -873,6 +877,23 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
     isDirty,
     onClose: effectiveOnClose,
   });
+
+  // --- Standalone unsaved-changes guards (no-op in modal mode) ---------------
+  // 1. Notify parent so it can guard view-mode tab switches (Compose → Calendar etc.)
+  useEffect(() => {
+    onDirtyChange?.(isDirty);
+  }, [isDirty]); // intentionally omits onDirtyChange — see PostApprovalPanel note reset pattern
+
+  // 2. Block browser-level navigation (close tab, refresh, URL bar)
+  const isStandalone = !onClose;
+  useEffect(() => {
+    if (!isStandalone || !isDirty) return;
+    const handler = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+    };
+    window.addEventListener('beforeunload', handler);
+    return () => window.removeEventListener('beforeunload', handler);
+  }, [isStandalone, isDirty]);
 
   // Expose requestClose via ref for CalendarPostModal
   useImperativeHandle(

@@ -30,6 +30,7 @@ import {
   X,
 } from 'lucide-react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
+import ConfirmDialog from '@/components/ui/ConfirmDialog';
 import {
   format,
   startOfMonth,
@@ -80,6 +81,8 @@ const CALENDAR_STATUSES = [
 
 export default function SocialCalendar() {
   const composerRef = useRef(null);
+  const [composerIsDirty, setComposerIsDirty] = useState(false);
+  const [pendingViewMode, setPendingViewMode] = useState(/** @type {string | null} */ (null));
   const [showModal, setShowModal] = useState(false);
   const [showBulkModal, setShowBulkModal] = useState(false);
   const [selectedPost, setSelectedPost] = useState(
@@ -112,6 +115,12 @@ export default function SocialCalendar() {
   const [viewMode, setViewMode] = useState(() => getStoredViewMode());
   const handleSetViewMode = (mode) => {
     if (!VALID_VIEW_MODES.includes(mode)) {
+      return;
+    }
+    // Guard: if the composer has unsaved changes and the user is switching
+    // away from it, prompt before discarding.
+    if (viewMode === 'composer' && mode !== 'composer' && composerIsDirty) {
+      setPendingViewMode(mode);
       return;
     }
     setViewMode(mode);
@@ -684,6 +693,7 @@ export default function SocialCalendar() {
                 }
                 currentMonth={currentMonth}
                 hideStatus
+                onDirtyChange={setComposerIsDirty}
               />
             </CardContent>
           </Card>
@@ -1115,6 +1125,25 @@ export default function SocialCalendar() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Unsaved composer changes guard */}
+      <ConfirmDialog
+        open={!!pendingViewMode}
+        onClose={() => setPendingViewMode(null)}
+        onConfirm={() => {
+          const mode = pendingViewMode;
+          setPendingViewMode(null);
+          setComposerIsDirty(false);
+          setViewMode(mode);
+          persistViewMode(mode);
+          setShowFilters(false);
+        }}
+        title="Discard changes?"
+        description="You have unsaved changes in the composer. Are you sure you want to switch views without saving?"
+        confirmLabel="Discard Changes"
+        cancelLabel="Keep Editing"
+        variant="destructive"
+      />
 
       {/* Modals */}
       <QuickPostModal open={showQuickPost} onClose={() => setShowQuickPost(false)} />
