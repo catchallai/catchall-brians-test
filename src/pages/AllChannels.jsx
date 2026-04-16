@@ -301,7 +301,8 @@ export default function AllChannels() {
     const next = new URLSearchParams(searchParams);
     if (tab === 'all') next.delete('tab');
     else next.set('tab', tab);
-    setSearchParams(next, { replace: true });
+    // Push a history entry so the browser back/forward buttons restore the previous tab.
+    setSearchParams(next);
   };
 
   const { data: posts = [], isLoading } = useQuery({

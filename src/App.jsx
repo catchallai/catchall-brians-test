@@ -6,10 +6,42 @@ import { queryClientInstance } from '@/lib/query-client';
 import VisualEditAgent from '@/lib/VisualEditAgent';
 import NavigationTracker from '@/lib/NavigationTracker';
 import { pagesConfig } from './pages.config';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
+
+// Routes that should remain reachable without an authenticated session.
+// These are landing pages, public share links, and signer/viewer flows that
+// rely on room-level tokens or public-join settings rather than user auth.
+// Any new public route must be added here explicitly.
+const PUBLIC_ROUTES = new Set([
+  '/PublicCallJoin',
+  '/PublicDataRoom',
+  '/PublicDocumentViewer',
+  '/PublicDocumentViewerWrapper',
+  '/PublicLandingPage',
+  '/PublicLandingPageWrapper',
+  '/PublicLegalDocumentSigner',
+]);
+const isPublicRoute = (/** @type {string} */ pathname) => {
+  // Case-insensitive exact match, tolerating a trailing slash.
+  const normalized = pathname.replace(/\/$/, '').toLowerCase();
+  for (const route of PUBLIC_ROUTES) {
+    if (normalized === route.toLowerCase()) return true;
+  }
+  return false;
+};
+
+/** @param {{ error?: { message?: string; type?: string } | null }} props */
+const AuthErrorFallback = ({ error }) => (
+  <div className="flex flex-col items-center justify-center min-h-screen p-8 text-center">
+    <h1 className="text-2xl font-semibold text-slate-900 mb-2">Something went wrong</h1>
+    <p className="text-slate-600 max-w-md">
+      {error?.message || 'The app failed to load. Please refresh to try again.'}
+    </p>
+  </div>
+);
 
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];
@@ -21,6 +53,8 @@ const LayoutWrapper = ({ children, currentPageName }) =>
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, isAuthenticated, navigateToLogin } =
     useAuth();
+  const location = useLocation();
+  const onPublicRoute = isPublicRoute(location.pathname);
 
   // Show loading spinner while checking app public settings or auth
   if (isLoadingPublicSettings || isLoadingAuth) {
@@ -35,19 +69,24 @@ const AuthenticatedApp = () => {
   if (authError) {
     if (authError.type === 'user_not_registered') {
       return <UserNotRegisteredError />;
-    } else if (authError.type === 'auth_required') {
-      // Redirect to login automatically
+    } else if (authError.type === 'auth_required' && !onPublicRoute) {
+      // Redirect to login automatically (preserves current URL as return target).
       navigateToLogin();
       return null;
+    } else if (authError.type !== 'auth_required') {
+      // Non-auth startup errors (e.g. 'unknown' from a failed public-settings
+      // load) must not be swallowed by the login redirect — surface them so
+      // they're diagnosable instead of masking a real failure as "not signed in".
+      return <AuthErrorFallback error={authError} />;
     }
   }
 
   // If auth finished loading without an error but no user is signed in,
-  // redirect to login. This covers the case where someone follows a deep
-  // link (e.g. the "Review Post" CTA in an approval email) without an
-  // active session — navigateToLogin preserves the current URL so the
-  // login flow returns them to the target page.
-  if (!isAuthenticated) {
+  // redirect to login on routes that require auth. Public pages (landing
+  // pages, share links, signer flows) stay reachable without a session.
+  // navigateToLogin preserves the current URL so email deep links round-trip
+  // through the login flow and return to the target page.
+  if (!isAuthenticated && !onPublicRoute) {
     navigateToLogin();
     return null;
   }

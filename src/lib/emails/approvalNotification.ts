@@ -21,7 +21,14 @@ export interface ApprovalEmailData {
   submitterName: string;
   postUrl: string;
   queueUrl: string;
+  /** Items to display in the queue table (renderer caps at MAX_ROWS). */
   pendingItems: ApprovalEmailPendingItem[];
+  /**
+   * Total pending count for the reviewer. Drives the badge number and the
+   * "+ N more" overflow row. Separate from pendingItems.length so the caller
+   * can pass an accurate total when the item list is capped for display.
+   */
+  pendingCount: number;
   /** Title of the just-submitted post, used in the subject line. */
   submittedPostTitle: string;
   /** Optional free-text note from the submitter. When present, rendered below the subtext. */
@@ -59,7 +66,8 @@ function formatDueDate(iso?: string | null): string {
 }
 
 function truncate(s: string, max: number): string {
-  return s.length > max ? `${s.slice(0, max)}…` : s;
+  // Reserve one char for the ellipsis so the returned string is at most `max` long.
+  return s.length > max ? `${s.slice(0, max - 1)}…` : s;
 }
 
 function renderRow(item: ApprovalEmailPendingItem): string {
@@ -77,9 +85,9 @@ function renderRow(item: ApprovalEmailPendingItem): string {
     </tr>`;
 }
 
-function renderRows(items: ApprovalEmailPendingItem[]): string {
+function renderRows(items: ApprovalEmailPendingItem[], totalCount: number): string {
   const shown = items.slice(0, MAX_ROWS);
-  const overflow = items.length - shown.length;
+  const overflow = Math.max(0, totalCount - shown.length);
   const rows = shown.map(renderRow).join('');
   const overflowRow =
     overflow > 0
@@ -92,8 +100,8 @@ function renderRows(items: ApprovalEmailPendingItem[]): string {
 }
 
 export function renderApprovalNotificationEmail(data: ApprovalEmailData): ApprovalEmailRendered {
-  const pendingCount = data.pendingItems.length;
-  const rowsHtml = renderRows(data.pendingItems);
+  const pendingCount = Math.max(0, data.pendingCount);
+  const rowsHtml = renderRows(data.pendingItems, pendingCount);
   const subject = `Post Review Requested: "${truncate(data.submittedPostTitle, SUBJECT_TITLE_MAX)}"`;
 
   const html = `<!DOCTYPE html>

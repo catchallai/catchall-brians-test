@@ -1363,13 +1363,18 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
       (async () => {
         try {
           // Fetch this reviewer's pending queue (includes the post we just saved).
+          // Base44's SDK has no count-only endpoint, so we fetch up to PENDING_QUEUE_FETCH_LIMIT
+          // items and derive both the badge count and the "+ N more" overflow from the result.
+          // A reviewer with more than PENDING_QUEUE_FETCH_LIMIT pending items is an extreme edge
+          // case; the count will be accurate up to that limit.
+          const PENDING_QUEUE_FETCH_LIMIT = 100;
           const queue: CalendarPost[] = await base44.entities.CalendarPost.filter(
             {
               assigned_to_email: reviewerEmail,
               status: [PostStatus.PENDING_REVIEW, PostStatus.PENDING_APPROVAL],
             },
             'review_due_date',
-            10
+            PENDING_QUEUE_FETCH_LIMIT
           );
 
           const pendingItems: ApprovalEmailPendingItem[] = queue.map((p) => {
@@ -1406,6 +1411,7 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
             postUrl,
             queueUrl,
             pendingItems,
+            pendingCount: queue.length,
             submittedPostTitle: submittedTitle,
             authorNote: approvalNote.trim() || null,
           });
