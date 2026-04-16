@@ -65,7 +65,7 @@ import ConfirmDialog from '@/components/ui/ConfirmDialog';
 import MediaLibraryModal from './MediaLibraryModal';
 import ImageCropPanel, { type TransformOp } from './ImageCropPanel';
 import { useToast } from '@/components/ui/toast-provider';
-import { PostStatus, AllChannelsTab } from '@/types/enums';
+import { PostStatus, PostPriority, AllChannelsTab } from '@/types/enums';
 import COPY from '@/lib/copy';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
@@ -86,9 +86,9 @@ import {
 import { arraysEqual, setsEqual } from '@/utils/hashtagUtils';
 import {
   renderApprovalNotificationEmail,
+  APPROVAL_EMAIL_MAX_ROWS,
   type ApprovalEmailPendingItem,
 } from '@/lib/emails/approvalNotification';
-import { PostPriority } from '@/types/enums';
 import PostStatusChip from '@/components/social/PostStatusChip';
 import { getMonthComparison } from '@/utils/getMonthComparison';
 import React from 'react';
@@ -1377,20 +1377,25 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
             PENDING_QUEUE_FETCH_LIMIT
           );
 
-          const pendingItems: ApprovalEmailPendingItem[] = queue.map((p) => {
-            const submittedBy = p.workflow_history
-              ?.slice()
-              .reverse()
-              .find((e) => e.action === 'submitted_for_review')?.by_name;
-            const title =
-              (p.caption && p.caption.slice(0, 60)) || p.title || COPY.approvalEmail.untitledPost;
-            return {
-              title,
-              submittedByName: submittedBy ?? COPY.approvalEmail.missingValue,
-              dueDate: p.review_due_date ?? null,
-              priority: (p.priority as PostPriority) ?? PostPriority.NORMAL,
-            };
-          });
+          // Only map up to the renderer's display cap — the rest is discarded
+          // anyway and walking workflow_history for each extra post is wasted work.
+          // queue.length is still used below for the true pendingCount.
+          const pendingItems: ApprovalEmailPendingItem[] = queue
+            .slice(0, APPROVAL_EMAIL_MAX_ROWS)
+            .map((p) => {
+              const submittedBy = p.workflow_history
+                ?.slice()
+                .reverse()
+                .find((e) => e.action === 'submitted_for_review')?.by_name;
+              const title =
+                (p.caption && p.caption.slice(0, 60)) || p.title || COPY.approvalEmail.untitledPost;
+              return {
+                title,
+                submittedByName: submittedBy ?? COPY.approvalEmail.missingValue,
+                dueDate: p.review_due_date ?? null,
+                priority: (p.priority as PostPriority) ?? PostPriority.NORMAL,
+              };
+            });
 
           const postUrl = (() => {
             const u = new URL(createPageUrl('PostApprovalView'), window.location.origin);

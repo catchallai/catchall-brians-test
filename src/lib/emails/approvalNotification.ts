@@ -6,7 +6,13 @@ const COMPANY_NAME = 'CatchAll';
 const PRIMARY_COLOR = '#18181b';
 const CTA_COLOR = '#10b981';
 
-const MAX_ROWS = 5;
+/**
+ * Max number of rows rendered in the "Your pending queue" table. Exported so
+ * callers can cap their data prep at the same limit instead of mapping the
+ * entire fetched queue just to have the renderer discard all but the first N.
+ */
+export const APPROVAL_EMAIL_MAX_ROWS = 5;
+const MAX_ROWS = APPROVAL_EMAIL_MAX_ROWS;
 const SUBJECT_TITLE_MAX = 60;
 
 export interface ApprovalEmailPendingItem {

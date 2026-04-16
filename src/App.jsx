@@ -16,7 +16,7 @@ import AuthErrorFallback from '@/components/AuthErrorFallback';
 // These are landing pages, public share links, and signer/viewer flows that
 // rely on room-level tokens or public-join settings rather than user auth.
 // Any new public route must be added here explicitly.
-const PUBLIC_ROUTES = new Set([
+const PUBLIC_ROUTES = [
   '/PublicCallJoin',
   '/PublicDataRoom',
   '/PublicDocumentViewer',
@@ -24,15 +24,17 @@ const PUBLIC_ROUTES = new Set([
   '/PublicLandingPage',
   '/PublicLandingPageWrapper',
   '/PublicLegalDocumentSigner',
-]);
-const isPublicRoute = (/** @type {string} */ pathname) => {
-  // Case-insensitive exact match, tolerating a trailing slash.
-  const normalized = pathname.replace(/\/$/, '').toLowerCase();
-  for (const route of PUBLIC_ROUTES) {
-    if (normalized === route.toLowerCase()) return true;
-  }
-  return false;
-};
+];
+// Precomputed lookup set so isPublicRoute is O(1) and doesn't lowercase per call.
+const PUBLIC_ROUTES_NORMALIZED = new Set(PUBLIC_ROUTES.map((r) => r.toLowerCase()));
+/**
+ * Case-insensitive exact match against PUBLIC_ROUTES, tolerating a trailing slash.
+ *
+ * @param {string} pathname
+ * @returns {boolean}
+ */
+const isPublicRoute = (pathname) =>
+  PUBLIC_ROUTES_NORMALIZED.has(pathname.replace(/\/$/, '').toLowerCase());
 
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];

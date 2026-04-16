@@ -298,7 +298,14 @@ export default function AllChannels() {
 
   const tabParam = searchParams.get('tab');
   const activeTab = tabParam && VALID_TABS.has(tabParam) ? tabParam : AllChannelsTab.ALL;
-  const setActiveTab = (/** @type {string} */ tab) => {
+  // Typed as string (not AllChannelsTab) because Radix's Tabs onValueChange
+  // signature is (value: string) => void; we guard at read time via VALID_TABS
+  // so any stray value simply falls back to AllChannelsTab.ALL.
+  /**
+   * @param {string} tab
+   * @returns {void}
+   */
+  const setActiveTab = (tab) => {
     const next = new URLSearchParams(searchParams);
     if (tab === AllChannelsTab.ALL) next.delete('tab');
     else next.set('tab', tab);
