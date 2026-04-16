@@ -82,6 +82,8 @@ const CALENDAR_STATUSES = [
 export default function SocialCalendar() {
   const composerRef = useRef(null);
   const [composerIsDirty, setComposerIsDirty] = useState(false);
+  const [composerKey, setComposerKey] = useState(0);
+  const [showNewPostConfirm, setShowNewPostConfirm] = useState(false);
   const [pendingViewMode, setPendingViewMode] = useState(/** @type {string | null} */ (null));
   const [showModal, setShowModal] = useState(false);
   const [showBulkModal, setShowBulkModal] = useState(false);
@@ -594,8 +596,18 @@ export default function SocialCalendar() {
               </Button>
               <Button
                 onClick={() => {
-                  if (viewMode === 'composer' && composerRef.current) {
-                    composerRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                  if (viewMode === 'composer') {
+                    if (selectedPost?.id) {
+                      // A post was saved on the compose page — "New Post" resets.
+                      if (composerIsDirty) {
+                        setShowNewPostConfirm(true);
+                      } else {
+                        setSelectedPost(null);
+                        setComposerKey((k) => k + 1);
+                      }
+                    } else if (composerRef.current) {
+                      composerRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
                   } else {
                     setSelectedPost(null);
                     setShowModal(true);
@@ -604,7 +616,9 @@ export default function SocialCalendar() {
                 className="gap-2 bg-violet-600 hover:bg-violet-700"
               >
                 <Plus className="w-4 h-4" />
-                {COPY.socialCalendar.addPost}
+                {viewMode === 'composer' && selectedPost?.id
+                  ? COPY.calendarPostModal.newPost
+                  : COPY.socialCalendar.addPost}
               </Button>
             </>
           )}
@@ -691,6 +705,7 @@ export default function SocialCalendar() {
           <Card ref={composerRef} className="glass-card rounded-2xl">
             <CardContent className="p-0">
               <PostComposer
+                key={composerKey}
                 onSave={handleSave}
                 isLoading={createMutation.isPending}
                 hashtagPool={
@@ -701,6 +716,7 @@ export default function SocialCalendar() {
                 currentMonth={currentMonth}
                 hideStatus
                 onDirtyChange={setComposerIsDirty}
+                onNewPost={() => setSelectedPost(null)}
               />
             </CardContent>
           </Card>
@@ -1133,7 +1149,24 @@ export default function SocialCalendar() {
         </Card>
       </div>
 
-      {/* Unsaved composer changes guard */}
+      {/* New Post guard — discard unsaved composer changes */}
+      <ConfirmDialog
+        open={showNewPostConfirm}
+        onClose={() => setShowNewPostConfirm(false)}
+        onConfirm={() => {
+          setShowNewPostConfirm(false);
+          setSelectedPost(null);
+          setComposerIsDirty(false);
+          setComposerKey((k) => k + 1);
+        }}
+        title="Discard changes?"
+        description="You have unsaved changes. Are you sure you want to start a new post?"
+        confirmLabel="Discard & Start New"
+        cancelLabel="Keep Editing"
+        variant="destructive"
+      />
+
+      {/* View-mode switch guard — discard unsaved composer changes */}
       <ConfirmDialog
         open={!!pendingViewMode}
         onClose={() => setPendingViewMode(null)}

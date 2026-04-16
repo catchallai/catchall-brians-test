@@ -82,6 +82,7 @@ const COPY = {
     deletePost: 'Delete Post',
     saveDraft: 'Save Draft',
     draftSaved: 'Saved',
+    newPost: 'New Post',
     submitForReview: 'Submit for Review',
     sendForApproval: 'Send for Approval',
     approvalReviewerRequired: 'Please assign a reviewer.',

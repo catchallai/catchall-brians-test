@@ -194,6 +194,10 @@ export interface PostComposerProps {
   /** Called when the dirty state changes. Used by the standalone compose page to
    *  guard view-mode tab switches (Layout, Calendar, etc.) when there are unsaved changes. */
   onDirtyChange?: (dirty: boolean) => void;
+  /** Called when the user clicks "New Post" to start fresh. The parent should
+   *  clear any tracked post state (e.g. selectedPost) so the next save creates
+   *  a new post instead of updating the old one. */
+  onNewPost?: () => void;
 }
 
 // ---------------------------------------------------------------------------
@@ -617,6 +621,7 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
     hideStatus = false,
     headerActions,
     onDirtyChange,
+    onNewPost,
   },
   ref
 ) {
@@ -642,6 +647,7 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
   const [scheduleError, setScheduleError] = useState('');
   const [requireApproval, setRequireApproval] = useState(true);
   const [draftJustSaved, setDraftJustSaved] = useState(false);
+  const [showNewPostConfirm, setShowNewPostConfirm] = useState(false);
   const draftSavedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [savedPost, setSavedPost] = useState<CalendarPost | null>(post ?? null);
   // Tracks approval-specific fields updated via PostApprovalPanel (they aren't in PostFormData).
@@ -717,6 +723,34 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
     setPlatformTransformOps({});
     setPlatformTilts({});
     setIsCropOpen(false);
+  };
+
+  /** Reset all form + approval state to a blank "Create Post" starting point. */
+  const resetToNewPost = () => {
+    const { scheduled_date: defaultDate, scheduled_time: defaultTime } =
+      getDefaultSchedule(currentMonth);
+    const reset: PostFormData = {
+      ...DEFAULT_FORM,
+      scheduled_date: defaultDate,
+      scheduled_time: defaultTime,
+    };
+    setFormData(reset);
+    initialFormDataRef.current = reset;
+    clearCropState();
+    initialCropRef.current = { boxes: {}, transformOps: {}, tilts: {} };
+    setImageFileNames([]);
+    resetMediaLibrary();
+    setSavedPost(null);
+    setApprovalMeta({ priority: 'normal' });
+    setApprovalErrors({});
+    setApprovalNote('');
+    setScheduleError('');
+    setActiveTab('compose');
+    setDraftJustSaved(false);
+    setShowNewPostConfirm(false);
+    // Notify parent so it clears selectedPost — otherwise the next save
+    // would update the old post instead of creating a new one.
+    onNewPost?.();
   };
 
   const containerRef = useRef<HTMLDivElement>(null);
@@ -2565,6 +2599,16 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
         variant="default"
       />
       <ConfirmDialog {...discardDialogProps} />
+      <ConfirmDialog
+        open={showNewPostConfirm}
+        onClose={() => setShowNewPostConfirm(false)}
+        onConfirm={resetToNewPost}
+        title="Discard changes?"
+        description="You have unsaved changes. Are you sure you want to start a new post?"
+        confirmLabel="Discard & Start New"
+        cancelLabel="Keep Editing"
+        variant="destructive"
+      />
       <ConfirmDialog
         open={showDeleteConfirm}
         onClose={() => setShowDeleteConfirm(false)}
