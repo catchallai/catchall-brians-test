@@ -2460,11 +2460,11 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
             {!isPostPublished && (
               <TypedButton
                 onClick={() => handleSubmit(PostStatus.DRAFT)}
-                disabled={isLoading || (!isDirty && !draftJustSaved) || !formData.caption}
-                className={`rounded-xl px-5 py-2 text-sm font-semibold disabled:opacity-40 transition-colors flex items-center gap-2 ${
+                disabled={isLoading || !isDirty || !formData.caption}
+                className={`rounded-xl px-5 py-2 text-sm font-semibold transition-colors flex items-center gap-2 ${
                   draftJustSaved
-                    ? 'bg-green-600 hover:bg-green-700 text-white'
-                    : 'bg-gray-700 hover:bg-gray-800 hover:text-white text-white'
+                    ? 'bg-green-600 text-white disabled:opacity-100'
+                    : 'bg-gray-700 hover:bg-gray-800 hover:text-white text-white disabled:opacity-40'
                 }`}
               >
                 {isLoading ? (

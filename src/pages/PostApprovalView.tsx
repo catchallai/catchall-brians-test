@@ -73,7 +73,7 @@ export default function PostApprovalView() {
         >
           <ArrowLeft className="w-4 h-4" />
           {origin === 'composer'
-            ? COPY.postApprovalView.backToSocialScheduler
+            ? COPY.postApprovalView.backToSocialCalendar
             : COPY.postApprovalView.backToAllChannels}
         </Link>
 
