@@ -886,21 +886,27 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
   const isDirty =
     hasFormChanges(formData, initialFormDataRef.current, { includeTags: !post?.id }) || isCropDirty;
 
+  // isDirty tracks formData + crop changes (used by Save Draft button).
+  // hasUnsavedState also includes transient fields like approvalNote that
+  // aren't part of formData but would be lost on navigation. Used by the
+  // modal close guard, view-switch guard, and beforeunload listener.
+  const hasUnsavedState = isDirty || !!approvalNote.trim();
+
   const { guardedClose, discardDialogProps } = useUnsavedChangesGuard({
-    isDirty,
+    isDirty: hasUnsavedState,
     onClose: effectiveOnClose,
   });
 
   // --- Standalone unsaved-changes guards (no-op in modal mode) ---------------
   // 1. Notify parent so it can guard view-mode tab switches (Compose → Calendar etc.)
   useEffect(() => {
-    onDirtyChange?.(isDirty);
-  }, [isDirty]); // intentionally omits onDirtyChange — see PostApprovalPanel note reset pattern
+    onDirtyChange?.(hasUnsavedState);
+  }, [hasUnsavedState]); // intentionally omits onDirtyChange — see PostApprovalPanel note reset pattern
 
   // 2. Block browser-level navigation (close tab, refresh, URL bar)
   const isStandalone = !onClose;
   useEffect(() => {
-    if (!isStandalone || !isDirty) return;
+    if (!isStandalone || !hasUnsavedState) return;
     const handler = (e: BeforeUnloadEvent) => {
       e.preventDefault();
       // returnValue is deprecated in the spec but remains the only way to

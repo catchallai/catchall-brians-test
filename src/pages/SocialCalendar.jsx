@@ -709,7 +709,7 @@ export default function SocialCalendar() {
               <PostComposer
                 key={composerKey}
                 onSave={handleSave}
-                isLoading={createMutation.isPending}
+                isLoading={createMutation.isPending || updateMutation.isPending}
                 hashtagPool={
                   /** @type {import('@/components/social/HashtagPoolSelector').HashtagPool[]} */ (
                     hashtagPool
