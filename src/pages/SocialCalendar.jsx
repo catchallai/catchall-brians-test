@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -79,6 +79,7 @@ const CALENDAR_STATUSES = [
 ];
 
 export default function SocialCalendar() {
+  const composerRef = useRef(null);
   const [showModal, setShowModal] = useState(false);
   const [showBulkModal, setShowBulkModal] = useState(false);
   const [selectedPost, setSelectedPost] = useState(
@@ -577,7 +578,13 @@ export default function SocialCalendar() {
                 {COPY.socialCalendar.bulkSchedule}
               </Button>
               <Button
-                onClick={() => setShowModal(true)}
+                onClick={() => {
+                  if (viewMode === 'composer' && composerRef.current) {
+                    composerRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                  } else {
+                    setShowModal(true);
+                  }
+                }}
                 className="gap-2 bg-violet-600 hover:bg-violet-700"
               >
                 <Plus className="w-4 h-4" />
@@ -665,7 +672,7 @@ export default function SocialCalendar() {
 
         {/* Composer View */}
         {viewMode === 'composer' && (
-          <Card className="glass-card rounded-2xl">
+          <Card ref={composerRef} className="glass-card rounded-2xl">
             <CardContent className="p-0">
               <PostComposer
                 onSave={handleSave}

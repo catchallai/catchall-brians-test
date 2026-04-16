@@ -40,7 +40,6 @@ import {
   Repeat,
   Zap,
   Send,
-  FileText,
   ChevronRight,
   ShieldCheck,
   Video,
@@ -50,6 +49,8 @@ import {
   Trash,
   TriangleAlert,
   Crop,
+  Check,
+  Save,
 } from 'lucide-react';
 import { PLATFORMS as PLATFORM_CONFIGS } from '@/constants/platforms';
 import EmojiPicker from 'emoji-picker-react';
@@ -636,6 +637,8 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
   const [showBestTimes, setShowBestTimes] = useState(false);
   const [scheduleError, setScheduleError] = useState('');
   const [requireApproval, setRequireApproval] = useState(true);
+  const [draftJustSaved, setDraftJustSaved] = useState(false);
+  const draftSavedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [savedPost, setSavedPost] = useState<CalendarPost | null>(post ?? null);
   // Tracks approval-specific fields updated via PostApprovalPanel (they aren't in PostFormData).
   const [approvalMeta, setApprovalMeta] = useState<{
@@ -1388,6 +1391,23 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
 
     if (afterSave) {
       afterSave((saveResult as CalendarPost) ?? { ...formData, status: finalStatus });
+      return;
+    }
+
+    // Draft saves stay in place — no modal close, no form reset. The user can
+    // continue editing or close manually via the X button. We update the dirty
+    // baselines so isDirty flips to false (re-enables "Save Draft" only after
+    // the next edit) and flash a checkmark on the button for feedback.
+    if (finalStatus === PostStatus.DRAFT) {
+      initialFormDataRef.current = { ...formData, status: finalStatus };
+      initialCropRef.current = {
+        boxes: { ...platformCropBoxes },
+        transformOps: { ...platformTransformOps },
+        tilts: { ...platformTilts },
+      };
+      if (draftSavedTimerRef.current) clearTimeout(draftSavedTimerRef.current);
+      setDraftJustSaved(true);
+      draftSavedTimerRef.current = setTimeout(() => setDraftJustSaved(false), 2000);
       return;
     }
 
@@ -2400,15 +2420,23 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
             {!isPostPublished && (
               <TypedButton
                 onClick={() => handleSubmit(PostStatus.DRAFT)}
-                disabled={isLoading || !isDirty || !formData.caption}
-                className="bg-gray-700 hover:bg-gray-800 hover:text-white text-white rounded-xl px-5 py-2 text-sm font-semibold disabled:opacity-40 transition-colors flex items-center gap-2"
+                disabled={isLoading || (!isDirty && !draftJustSaved) || !formData.caption}
+                className={`rounded-xl px-5 py-2 text-sm font-semibold disabled:opacity-40 transition-colors flex items-center gap-2 ${
+                  draftJustSaved
+                    ? 'bg-green-600 hover:bg-green-700 text-white'
+                    : 'bg-gray-700 hover:bg-gray-800 hover:text-white text-white'
+                }`}
               >
                 {isLoading ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
+                ) : draftJustSaved ? (
+                  <Check className="w-4 h-4" />
                 ) : (
-                  <FileText className="w-4 h-4" />
+                  <Save className="w-4 h-4" />
                 )}
-                {COPY.calendarPostModal.saveDraft}
+                {draftJustSaved
+                  ? COPY.calendarPostModal.draftSaved
+                  : COPY.calendarPostModal.saveDraft}
               </TypedButton>
             )}
 

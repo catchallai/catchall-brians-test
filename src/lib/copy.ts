@@ -81,6 +81,7 @@ const COPY = {
       'You do not have permission to change this setting. Please contact an admin for assistance.',
     deletePost: 'Delete Post',
     saveDraft: 'Save Draft',
+    draftSaved: 'Saved',
     submitForReview: 'Submit for Review',
     sendForApproval: 'Send for Approval',
     approvalReviewerRequired: 'Please assign a reviewer.',
