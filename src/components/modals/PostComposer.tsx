@@ -915,7 +915,7 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
     };
     window.addEventListener('beforeunload', handler);
     return () => window.removeEventListener('beforeunload', handler);
-  }, [isStandalone, isDirty]);
+  }, [isStandalone, hasUnsavedState]);
 
   // Expose requestClose via ref for CalendarPostModal
   useImperativeHandle(
