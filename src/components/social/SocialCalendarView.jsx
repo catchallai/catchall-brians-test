@@ -1049,7 +1049,11 @@ export default function SocialCalendarView({
                   idx % 7 === 6 ? 'border-r-0' : ''
                 } hover:bg-gray-50 dark:hover:bg-gray-700/50`}
                 onDragOver={(e) => handleDragOver(e, day)}
-                onDragLeave={() => setDragOverDate(null)}
+                onDragLeave={(e) => {
+                  if (e.relatedTarget instanceof Node && e.currentTarget.contains(e.relatedTarget))
+                    return;
+                  setDragOverDate(null);
+                }}
                 onDrop={(e) => handleDrop(e, day)}
               >
                 <div
@@ -1078,6 +1082,8 @@ export default function SocialCalendarView({
                     return (
                       <div
                         key={post.id}
+                        role="button"
+                        tabIndex={0}
                         draggable={post.status !== 'published'}
                         onDragStart={(e) => handleDragStart(e, post)}
                         onDragEnd={() => {
@@ -1087,6 +1093,12 @@ export default function SocialCalendarView({
                         onMouseEnter={(e) => showPopover(post, e)}
                         onMouseLeave={hidePopover}
                         onClick={() => onEditPost(post)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            onEditPost(post);
+                          }
+                        }}
                         className={`text-sm p-2 rounded-lg border-2 transition-all hover:shadow-md group/post ${
                           post.status === 'published' ? 'cursor-pointer' : 'cursor-move'
                         } ${statusInfo.colorClass || STATUS_CONFIG.draft.colorClass} ${
