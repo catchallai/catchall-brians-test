@@ -21,7 +21,10 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { PlatformBadges } from '@/components/ui/PlatformBadges';
 import PostStatusChip from '@/components/social/PostStatusChip';
+import { useToast } from '@/components/ui/toast-provider';
 import { todayLocal } from '@/utils/date';
+import COPY from '@/lib/copy';
+import { PostStatus } from '@/types/enums';
 
 const STATUS_CONFIG = {
   draft: {
@@ -126,6 +129,17 @@ function formatHour(h) {
   return h < 12 ? `${h} AM` : `${h - 12} PM`;
 }
 
+/** Formats "14:30" → "2:30 PM", "09:00" → "9:00 AM" */
+function formatTime(time) {
+  const match = time?.match(/^(\d{1,2}):(\d{2})/);
+  if (!match) return time;
+  const h = parseInt(match[1]);
+  const m = match[2];
+  const suffix = h >= 12 ? 'PM' : 'AM';
+  const hour12 = h === 0 ? 12 : h > 12 ? h - 12 : h;
+  return `${hour12}:${m} ${suffix}`;
+}
+
 function getPostHour(post) {
   if (!post.scheduled_time) {
     return null;
@@ -216,7 +230,7 @@ function DayPostsDialog({ open, onClose, posts, date, onEditPost }) {
                     </span>
                     {post.scheduled_time && (
                       <span className="text-xs text-gray-400 flex-shrink-0">
-                        {post.scheduled_time}
+                        {formatTime(post.scheduled_time)}
                       </span>
                     )}
                     <PostStatusChip status={post.status} iconOnly />
@@ -342,7 +356,7 @@ function DayView({
           {untimedPosts.map((post) => {
             const statusInfo = STATUS_CONFIG[post.status] || STATUS_CONFIG.draft;
             const borderColor = statusInfo.borderClass || 'border-l-gray-300';
-            const canDrag = post.status !== 'published';
+            const canDrag = post.status !== PostStatus.PUBLISHED;
             return (
               <div
                 key={post.id}
@@ -441,7 +455,7 @@ function DayView({
               {hourPosts.map((post) => {
                 const statusInfo = STATUS_CONFIG[post.status] || STATUS_CONFIG.draft;
                 const borderColor = statusInfo.borderClass || 'border-l-gray-300';
-                const canDrag = post.status !== 'published';
+                const canDrag = post.status !== PostStatus.PUBLISHED;
                 return (
                   <div
                     key={post.id}
@@ -637,7 +651,7 @@ function WeekView({
               {untimedPosts.map((post) => (
                 <div
                   key={post.id}
-                  draggable={post.status !== 'published'}
+                  draggable={post.status !== PostStatus.PUBLISHED}
                   onDragStart={(e) => {
                     setDraggedPost(post);
                     e.dataTransfer.effectAllowed = 'move';
@@ -646,7 +660,7 @@ function WeekView({
                   onMouseEnter={(e) => showPopover(post, e)}
                   onMouseLeave={hidePopover}
                   onClick={() => onEditPost(post)}
-                  className={`text-xs px-1.5 py-0.5 rounded border truncate max-w-full ${post.status === 'published' ? 'cursor-pointer' : 'cursor-move'} ${(STATUS_CONFIG[post.status] || STATUS_CONFIG.draft).colorClass}`}
+                  className={`text-xs px-1.5 py-0.5 rounded border truncate max-w-full ${post.status === PostStatus.PUBLISHED ? 'cursor-pointer' : 'cursor-move'} ${(STATUS_CONFIG[post.status] || STATUS_CONFIG.draft).colorClass}`}
                 >
                   {post.title || post.caption?.slice(0, 12) || 'Untitled'}
                 </div>
@@ -742,7 +756,7 @@ function WeekView({
                       const borderColor =
                         (STATUS_CONFIG[post.status] || STATUS_CONFIG.draft).borderClass ||
                         'border-l-gray-300';
-                      const canDrag = post.status !== 'published';
+                      const canDrag = post.status !== PostStatus.PUBLISHED;
                       return (
                         <div
                           key={post.id}
@@ -829,6 +843,7 @@ export default function SocialCalendarView({
     /** @type {{ date: Date, posts: any[] } | null} */ (null)
   );
   const [hoveredPost, setHoveredPost] = useState(null);
+  const toast = useToast();
   const [popoverPos, setPopoverPos] = useState({ x: 0, y: 0, above: false });
   const popoverTimeoutRef = useRef(null);
   const queryClient = useQueryClient();
@@ -938,17 +953,12 @@ export default function SocialCalendarView({
   };
 
   /** Check if dropping the currently dragged post on `day` would schedule it
-   *  in the past. Past days are always blocked; for today, the post's own
-   *  scheduled_time hour is compared against the current hour. */
+   *  in the past. The month view only changes the date (time is preserved),
+   *  so we only enforce day-level validation — today is always allowed.
+   *  Hour-level checks belong in the week/day views where the user
+   *  explicitly picks a time slot. */
   const isDropInPast = (day) => {
-    const dateStr = format(day, 'yyyy-MM-dd');
-    const today = todayLocal();
-    if (dateStr < today) return true;
-    if (dateStr === today && draggedPost) {
-      const postHour = getPostHour(draggedPost);
-      if (postHour !== null && postHour <= new Date().getHours()) return true;
-    }
-    return false;
+    return format(day, 'yyyy-MM-dd') < todayLocal();
   };
 
   const handleDragOver = (e, day) => {
@@ -968,10 +978,20 @@ export default function SocialCalendarView({
       setDraggedPost(null);
       return;
     }
+    const newDate = format(targetDate, 'yyyy-MM-dd');
     updatePostMutation.mutate({
       id: draggedPost.id,
-      data: { ...draggedPost, scheduled_date: format(targetDate, 'yyyy-MM-dd') },
+      data: { ...draggedPost, scheduled_date: newDate },
     });
+    // Warn if the post's time is already past on the target day — the drop is
+    // allowed (month view only changes date, user can adjust time in the editor)
+    // but the user should know the scheduled time needs updating.
+    if (newDate === todayLocal()) {
+      const postHour = getPostHour(draggedPost);
+      if (postHour !== null && postHour <= new Date().getHours()) {
+        toast.warning(COPY.socialCalendar.draggedToPastTime);
+      }
+    }
     setDraggedPost(null);
   };
 
@@ -1084,7 +1104,7 @@ export default function SocialCalendarView({
                         key={post.id}
                         role="button"
                         tabIndex={0}
-                        draggable={post.status !== 'published'}
+                        draggable={post.status !== PostStatus.PUBLISHED}
                         onDragStart={(e) => handleDragStart(e, post)}
                         onDragEnd={() => {
                           setDraggedPost(null);
@@ -1100,7 +1120,7 @@ export default function SocialCalendarView({
                           }
                         }}
                         className={`text-sm p-2 rounded-lg border-2 transition-all hover:shadow-md group/post ${
-                          post.status === 'published' ? 'cursor-pointer' : 'cursor-move'
+                          post.status === PostStatus.PUBLISHED ? 'cursor-pointer' : 'cursor-move'
                         } ${statusInfo.colorClass || STATUS_CONFIG.draft.colorClass} ${
                           draggedPost?.id === post.id ? 'opacity-50' : ''
                         }`}
