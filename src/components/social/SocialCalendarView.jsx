@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ChevronLeft, ChevronRight, Plus, Trash2 } from 'lucide-react';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { ChevronLeft, ChevronRight, Plus, Trash2, Clock, X } from 'lucide-react';
 import {
   format,
   startOfMonth,
@@ -138,6 +139,97 @@ function getPostHour(post) {
 
 // Overnight hours to collapse by default (#6)
 const OVERNIGHT_HOURS = [1, 2, 3, 4, 5];
+
+/**
+ * Lightweight dialog listing all posts for a given day, grouped by time.
+ * @param {{
+ *   open: boolean,
+ *   onClose: () => void,
+ *   posts: Array<{ id: string, title?: string, caption?: string, status: import('@/types/enums').PostStatus, scheduled_time?: string, platforms?: string[] }>,
+ *   date: Date | null,
+ *   onEditPost: (post: any) => void,
+ * }} props
+ */
+function DayPostsDialog({ open, onClose, posts, date, onEditPost }) {
+  // Group posts by hour, with untimed posts first
+  const grouped = [];
+  const untimed = posts.filter((p) => getPostHour(p) === null);
+  if (untimed.length > 0) {
+    grouped.push({ label: 'All Day', posts: untimed });
+  }
+  const byHour = {};
+  posts.forEach((p) => {
+    const h = getPostHour(p);
+    if (h !== null) {
+      if (!byHour[h]) byHour[h] = [];
+      byHour[h].push(p);
+    }
+  });
+  Object.keys(byHour)
+    .sort((a, b) => Number(a) - Number(b))
+    .forEach((h) => {
+      grouped.push({ label: formatHour(Number(h)), posts: byHour[h] });
+    });
+
+  return (
+    <Dialog open={open} onOpenChange={(next) => !next && onClose()}>
+      <DialogContent className="max-w-md p-0 overflow-hidden" windowControls={false}>
+        <div className="flex items-start justify-between px-5 pt-5 pb-3 border-b border-gray-100 dark:border-gray-800">
+          <div>
+            <h3 className="text-sm font-bold text-gray-900 dark:text-white">
+              {date ? format(date, 'EEEE, MMMM d, yyyy') : ''}
+            </h3>
+            <p className="text-xs text-gray-400 mt-0.5">
+              {posts.length} post{posts.length !== 1 ? 's' : ''}
+            </p>
+          </div>
+          <button
+            onClick={onClose}
+            className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors text-gray-400"
+            aria-label="Close"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+        <div className="max-h-[60vh] overflow-y-auto divide-y divide-gray-100 dark:divide-gray-800">
+          {grouped.map((group) => (
+            <div key={group.label} className="px-5 py-3">
+              <div className="flex items-center gap-1.5 mb-2">
+                <Clock className="w-3 h-3 text-gray-400" />
+                <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                  {group.label}
+                </span>
+              </div>
+              <div className="space-y-1.5">
+                {group.posts.map((post) => (
+                  <button
+                    key={post.id}
+                    onClick={() => {
+                      onClose();
+                      onEditPost(post);
+                    }}
+                    className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-left hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors group"
+                  >
+                    <PlatformBadges platforms={post.platforms ?? []} size="sm" />
+                    <span className="flex-1 truncate text-sm text-gray-800 dark:text-gray-200 font-medium">
+                      {post.title || post.caption?.slice(0, 40) || 'Untitled'}
+                    </span>
+                    {post.scheduled_time && (
+                      <span className="text-xs text-gray-400 flex-shrink-0">
+                        {post.scheduled_time}
+                      </span>
+                    )}
+                    <PostStatusChip status={post.status} iconOnly />
+                  </button>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
 
 function DayView({
   day,
@@ -442,6 +534,7 @@ function WeekView({
   setDraggedPost,
   showPopover,
   hidePopover,
+  onShowDayPosts,
 }) {
   const scrollRef = useRef(null);
   const [showOvernight, setShowOvernight] = useState(false);
@@ -686,7 +779,7 @@ function WeekView({
                     })}
                     {dayHourPosts.length > 2 && (
                       <button
-                        onClick={() => onEditPost(dayHourPosts[0])}
+                        onClick={() => onShowDayPosts(day)}
                         className="text-xs text-violet-600 hover:underline text-left"
                       >
                         +{dayHourPosts.length - 2} more
@@ -732,6 +825,9 @@ export default function SocialCalendarView({
 }) {
   const [draggedPost, setDraggedPost] = useState(null);
   const [dragOverDate, setDragOverDate] = useState(/** @type {string | null} */ (null));
+  const [dayPostsModal, setDayPostsModal] = useState(
+    /** @type {{ date: Date, posts: any[] } | null} */ (null)
+  );
   const [hoveredPost, setHoveredPost] = useState(null);
   const [popoverPos, setPopoverPos] = useState({ x: 0, y: 0, above: false });
   const popoverTimeoutRef = useRef(null);
@@ -908,6 +1004,7 @@ export default function SocialCalendarView({
           setDraggedPost={setDraggedPost}
           showPopover={showPopover}
           hidePopover={hidePopover}
+          onShowDayPosts={(day) => setDayPostsModal({ date: day, posts: getPostsForDay(day) })}
         />
       ) : (
         <div className="grid grid-cols-7">
@@ -993,7 +1090,7 @@ export default function SocialCalendarView({
                             </span>
                           </div>
                           <div className="flex items-center gap-1 flex-shrink-0">
-                            <PostStatusChip status={post.status} />
+                            <PostStatusChip status={post.status} iconOnly />
                           </div>
                         </div>
                       </div>
@@ -1001,7 +1098,7 @@ export default function SocialCalendarView({
                   })}
                   {hasMultiple && (
                     <button
-                      onClick={() => onEditPost(dayPosts[0])}
+                      onClick={() => setDayPostsModal({ date: day, posts: dayPosts })}
                       className="text-sm text-violet-600 dark:text-violet-400 hover:underline w-full text-left font-semibold"
                     >
                       +{dayPosts.length - 2} more
@@ -1069,6 +1166,15 @@ export default function SocialCalendarView({
           </div>
         </div>
       )}
+
+      {/* Day posts modal — shown when clicking "+N more" */}
+      <DayPostsDialog
+        open={!!dayPostsModal}
+        onClose={() => setDayPostsModal(null)}
+        posts={dayPostsModal?.posts ?? []}
+        date={dayPostsModal?.date ?? null}
+        onEditPost={onEditPost}
+      />
 
       {/* Legend */}
       <div className="flex items-center justify-end p-4 border-t border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
