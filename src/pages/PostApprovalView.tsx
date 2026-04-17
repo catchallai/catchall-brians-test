@@ -233,7 +233,7 @@ export default function PostApprovalView() {
           {[
             { key: 'approval', label: COPY.calendarPostModal.approvalWorkflow, icon: ShieldCheck },
             { key: 'comments', label: COPY.calendarPostModal.comments, icon: MessageSquare },
-            { key: 'activity', label: COPY.postApprovalView.activity, icon: Bell },
+            { key: 'activity', label: COPY.calendarPostModal.activity, icon: Bell },
             { key: 'workflow', label: COPY.postApprovalView.workflow, icon: FileText },
           ].map(({ key, label, icon: Icon }) => (
             <button

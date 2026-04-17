@@ -35,6 +35,7 @@ import {
   Calendar,
   Eye,
   MessageSquare,
+  Bell,
   GitBranch,
   Clock,
   Repeat,
@@ -60,6 +61,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useMediaLibrary } from '@/components/hooks/useMediaLibrary';
 import PostApprovalPanel from '@/components/social/PostApprovalPanel';
 import PostCommentThread from '@/components/social/approvals/PostCommentThread';
+import PostActivityFeed from '@/components/social/approvals/PostActivityFeed';
 import Tooltip from '@/components/ui-custom/Tooltip';
 import { todayLocal } from '@/utils/date';
 import useUnsavedChangesGuard from '@/components/hooks/useUnsavedChangesGuard';
@@ -1836,6 +1838,11 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
                     label: COPY.calendarPostModal.comments,
                     icon: MessageSquare,
                   },
+                  {
+                    id: 'activity',
+                    label: COPY.calendarPostModal.activity,
+                    icon: Bell,
+                  },
                 ]
               : []),
           ].map((tab) => (
@@ -1905,7 +1912,7 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
           )}
 
           {/* Comments tab */}
-          {activeTab === 'comments' && (savedPost ?? post) && (
+          {activeTab === 'comments' && (savedPost ?? post)?.id && (
             <div className="flex-1 p-6">
               <PostCommentThread
                 post={savedPost ?? post}
@@ -1926,6 +1933,13 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
                   });
                 }}
               />
+            </div>
+          )}
+
+          {/* Activity tab */}
+          {activeTab === 'activity' && (savedPost ?? post)?.id && (
+            <div className="flex-1 p-6">
+              <PostActivityFeed post={savedPost ?? post} />
             </div>
           )}
 
