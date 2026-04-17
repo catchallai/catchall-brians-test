@@ -62,6 +62,7 @@ import PostCommentThread from '@/components/social/approvals/PostCommentThread';
 import Tooltip from '@/components/ui-custom/Tooltip';
 import { todayLocal } from '@/utils/date';
 import useUnsavedChangesGuard from '@/components/hooks/useUnsavedChangesGuard';
+import { useNavigationGuard } from '@/lib/NavigationGuardContext';
 import ConfirmDialog from '@/components/ui/ConfirmDialog';
 import MediaLibraryModal from './MediaLibraryModal';
 import ImageCropPanel, { type TransformOp } from './ImageCropPanel';
@@ -907,8 +908,21 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
     onDirtyChange?.(hasUnsavedState);
   }, [hasUnsavedState]); // intentionally omits onDirtyChange — see PostApprovalPanel note reset pattern
 
-  // 2. Block browser-level navigation (close tab, refresh, URL bar)
+  // 1b. Register with the global NavigationGuardContext so the Layout sidebar
+  // can check before navigating to a different page (SPA link clicks).
   const isStandalone = !onClose;
+  const navGuard = useNavigationGuard();
+  const hasUnsavedStateRef = useRef(hasUnsavedState);
+  hasUnsavedStateRef.current = hasUnsavedState;
+  useEffect(() => {
+    if (!isStandalone) return;
+    return navGuard.register({
+      shouldBlock: () => hasUnsavedStateRef.current,
+      message: COPY.socialCalendar.discardViewSwitchDescription,
+    });
+  }, [isStandalone, navGuard]);
+
+  // 2. Block browser-level navigation (close tab, refresh, URL bar)
   useEffect(() => {
     if (!isStandalone || !hasUnsavedState) return;
     const handler = (e: BeforeUnloadEvent) => {
@@ -920,6 +934,26 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
     window.addEventListener('beforeunload', handler);
     return () => window.removeEventListener('beforeunload', handler);
   }, [isStandalone, hasUnsavedState]);
+
+  // 3. Block browser back/forward buttons. useBlocker requires createBrowserRouter
+  // (this app uses BrowserRouter), so we intercept popstate manually: push a
+  // duplicate history entry when dirty, catch the back press, and show the
+  // NavigationGuardContext's ConfirmDialog (same dialog as sidebar guards).
+  useEffect(() => {
+    if (!isStandalone || !hasUnsavedState) return;
+    window.history.pushState(null, '', window.location.href);
+    const handler = () => {
+      // Push the URL back to prevent the navigation
+      window.history.pushState(null, '', window.location.href);
+      // Show the styled confirm dialog via context — on confirm, it calls
+      // history.back() which will fire popstate again. By that time the
+      // guard will have been unregistered (hasUnsavedState is false after
+      // discard), so the navigation proceeds.
+      navGuard.guardedBack();
+    };
+    window.addEventListener('popstate', handler);
+    return () => window.removeEventListener('popstate', handler);
+  }, [isStandalone, hasUnsavedState, navGuard]);
 
   // Expose requestClose via ref for CalendarPostModal
   useImperativeHandle(
