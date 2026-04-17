@@ -37,6 +37,8 @@ export interface ApprovalEmailData {
   pendingCount: number;
   /** Title of the just-submitted post, used in the subject line. */
   submittedPostTitle: string;
+  /** Due date of the just-submitted post. Rendered in the subject line (MM/DD/YY) and body headline (Mon Day, Year). */
+  submittedPostDueDate?: string | null;
   /** Optional free-text note from the submitter. When present, rendered below the subtext. */
   authorNote?: string | null;
 }
@@ -59,16 +61,36 @@ const PRIORITY_STYLES: Record<PostPriority, PriorityStyle> = {
   [PostPriority.LOW]: { label: 'Low', dotColor: '#a1a1aa', textColor: '#71717a' },
 };
 
-function formatDueDate(iso?: string | null): string {
-  if (!iso) return '—';
-  // ISO date-only strings (YYYY-MM-DD) parse as UTC midnight, which can
-  // shift a day in western timezones. Parse parts manually for date-only input.
+// ISO date-only strings (YYYY-MM-DD) parse as UTC midnight, which can
+// shift a day in western timezones. Parse parts manually for date-only input.
+function parseDueDate(iso?: string | null): Date | null {
+  if (!iso) return null;
   const dateOnlyMatch = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso);
   const d = dateOnlyMatch
     ? new Date(Number(dateOnlyMatch[1]), Number(dateOnlyMatch[2]) - 1, Number(dateOnlyMatch[3]))
     : new Date(iso);
-  if (Number.isNaN(d.getTime())) return '—';
+  return Number.isNaN(d.getTime()) ? null : d;
+}
+
+function formatDueDate(iso?: string | null): string {
+  const d = parseDueDate(iso);
+  if (!d) return '—';
   return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+}
+
+function formatSubjectDueDate(iso?: string | null): string | null {
+  const d = parseDueDate(iso);
+  if (!d) return null;
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+  const yy = String(d.getFullYear()).slice(-2);
+  return `${mm}/${dd}/${yy}`;
+}
+
+function formatBodyDueDate(iso?: string | null): string | null {
+  const d = parseDueDate(iso);
+  if (!d) return null;
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 }
 
 function truncate(s: string, max: number): string {
@@ -108,7 +130,14 @@ function renderRows(items: ApprovalEmailPendingItem[], totalCount: number): stri
 export function renderApprovalNotificationEmail(data: ApprovalEmailData): ApprovalEmailRendered {
   const pendingCount = Math.max(0, data.pendingCount);
   const rowsHtml = renderRows(data.pendingItems, pendingCount);
-  const subject = `Post Review Requested: "${truncate(data.submittedPostTitle, SUBJECT_TITLE_MAX)}"`;
+  const subjectDueDate = formatSubjectDueDate(data.submittedPostDueDate);
+  const bodyDueDate = formatBodyDueDate(data.submittedPostDueDate);
+  const subject = `Post Review Requested: "${truncate(data.submittedPostTitle, SUBJECT_TITLE_MAX)}"${
+    subjectDueDate ? ` - Due Date: ${subjectDueDate}` : ''
+  }`;
+  const headline = bodyDueDate
+    ? `A new post with a due date of <strong>${escapeHtml(bodyDueDate)}</strong> is waiting for your approval`
+    : 'A new post is waiting for your approval';
 
   const html = `<!DOCTYPE html>
 <html lang="en" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
@@ -182,7 +211,7 @@ export function renderApprovalNotificationEmail(data: ApprovalEmailData): Approv
   </div>
   <div class="email-body">
     <p class="greeting">Hi ${escapeHtml(data.reviewerName)},</p>
-    <p class="headline">A new post is waiting for your approval</p>
+    <p class="headline">${headline}</p>
     <p class="subtext${data.authorNote ? ' has-note' : ''}"><strong>${escapeHtml(data.submitterName)}</strong> submitted an item for your review.</p>
     ${data.authorNote ? `<p class="author-note"><strong>A note has been attached:</strong> <span class="author-note-body">${escapeHtml(data.authorNote)}</span></p>` : ''}
     <div class="cta-wrapper">
