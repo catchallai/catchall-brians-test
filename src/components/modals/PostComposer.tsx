@@ -939,17 +939,23 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
   // (this app uses BrowserRouter), so we intercept popstate manually: push a
   // duplicate history entry when dirty, catch the back press, and show the
   // NavigationGuardContext's ConfirmDialog (same dialog as sidebar guards).
+  const allowPopstateRef = useRef(false);
   useEffect(() => {
     if (!isStandalone || !hasUnsavedState) return;
     window.history.pushState(null, '', window.location.href);
     const handler = () => {
+      // After the user confirms, the context calls our onBeforeNavigate
+      // which sets allowPopstateRef, then calls history.back(). That fires
+      // popstate again — this check lets it through without re-blocking.
+      if (allowPopstateRef.current) {
+        allowPopstateRef.current = false;
+        return;
+      }
       // Push the URL back to prevent the navigation
       window.history.pushState(null, '', window.location.href);
-      // Show the styled confirm dialog via context — on confirm, it calls
-      // history.back() which will fire popstate again. By that time the
-      // guard will have been unregistered (hasUnsavedState is false after
-      // discard), so the navigation proceeds.
-      navGuard.guardedBack();
+      navGuard.guardedBack(() => {
+        allowPopstateRef.current = true;
+      });
     };
     window.addEventListener('popstate', handler);
     return () => window.removeEventListener('popstate', handler);

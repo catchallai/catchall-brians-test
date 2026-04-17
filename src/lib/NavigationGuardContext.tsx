@@ -17,19 +17,20 @@ interface NavigationGuardContextValue {
   register: (guard: NavigationGuard) => () => void;
   /** Check all guards — returns the first blocking message, or null if navigation is allowed. */
   check: () => string | null;
-  /** Attempt a guarded navigation. If a guard blocks, show the confirm dialog.
-   *  If no guard blocks, navigate immediately. */
+  /** Attempt a guarded navigation. If a guard blocks, show the confirm dialog
+   *  and return true. If no guard blocks, return false so the caller can
+   *  perform navigation itself (e.g. let a Link's `to` prop handle it). */
   guardedNavigate: (url: string) => boolean;
-  /** Attempt a guarded back navigation. Returns true if blocked. */
-  guardedBack: () => boolean;
+  /** Attempt a guarded back navigation. If a guard blocks, show the confirm
+   *  dialog and return true. If no guard blocks, return false so the caller
+   *  can perform the back navigation itself.
+   *  `onBeforeNavigate` is called just before `history.back()` on confirm,
+   *  allowing the caller to set a bypass ref so its own popstate handler
+   *  doesn't re-block the confirmed navigation. */
+  guardedBack: (onBeforeNavigate?: () => void) => boolean;
 }
 
-const NavigationGuardContext = createContext<NavigationGuardContextValue>({
-  register: () => () => {},
-  check: () => null,
-  guardedNavigate: () => false,
-  guardedBack: () => false,
-});
+const NavigationGuardContext = createContext<NavigationGuardContextValue | null>(null);
 
 export function NavigationGuardProvider({ children }: { children: ReactNode }) {
   const guardsRef = useRef<Set<NavigationGuard>>(new Set());
@@ -67,20 +68,31 @@ export function NavigationGuardProvider({ children }: { children: ReactNode }) {
     [check]
   );
 
-  const guardedBack = useCallback(() => {
-    const message = check();
-    if (message) {
-      setDialogMessage(message);
-      setPending({ type: 'back' });
-      return true; // blocked
-    }
-    return false;
-  }, [check]);
+  const beforeNavigateRef = useRef<(() => void) | null>(null);
+
+  const guardedBack = useCallback(
+    (onBeforeNavigate?: () => void) => {
+      const message = check();
+      if (message) {
+        setDialogMessage(message);
+        setPending({ type: 'back' });
+        beforeNavigateRef.current = onBeforeNavigate ?? null;
+        return true; // blocked
+      }
+      return false;
+    },
+    [check]
+  );
 
   const handleConfirm = () => {
     const nav = pending;
+    const beforeNavigate = beforeNavigateRef.current;
     setPending(null);
     setDialogMessage('');
+    beforeNavigateRef.current = null;
+    // Call the caller's cleanup before navigating so it can set a bypass
+    // ref to prevent its own popstate handler from re-blocking.
+    beforeNavigate?.();
     if (nav?.type === 'url') {
       navigate(nav.url);
     } else if (nav?.type === 'back') {
@@ -111,5 +123,9 @@ export function NavigationGuardProvider({ children }: { children: ReactNode }) {
 }
 
 export function useNavigationGuard() {
-  return useContext(NavigationGuardContext);
+  const ctx = useContext(NavigationGuardContext);
+  if (!ctx) {
+    throw new Error('useNavigationGuard must be used within a NavigationGuardProvider');
+  }
+  return ctx;
 }
