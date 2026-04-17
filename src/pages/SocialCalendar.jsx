@@ -29,7 +29,6 @@ import {
   Filter,
   X,
 } from 'lucide-react';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
 import ConfirmDialog from '@/components/ui/ConfirmDialog';
 import {
   format,
@@ -57,7 +56,6 @@ import CalendarNotifications from '@/components/social/CalendarNotifications';
 import DraftPostsPlatformAssigner from '@/components/social/DraftPostsPlatformAssigner';
 import PlatformPreviewCard from '@/components/social/PlatformPreviewCard';
 import BulkScheduleModal from '@/components/social/BulkScheduleModal';
-import PostTemplateManager from '@/components/social/PostTemplateManager';
 import PostQueueManager from '@/components/social/PostQueueManager';
 import OptimalTimeAnalyzer from '@/components/social/OptimalTimeAnalyzer';
 import QuickPostModal from '@/components/social/QuickPostModal';
@@ -87,7 +85,6 @@ export default function SocialCalendar() {
   const [selectedPost, setSelectedPost] = useState(
     /** @type {Record<string, any> | null} */ (null)
   );
-  const [showTemplateModal, setShowTemplateModal] = useState(false);
   const [showQuickPost, setShowQuickPost] = useState(false);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [currentMonth, setCurrentMonth] = useState(new Date());
@@ -366,19 +363,6 @@ export default function SocialCalendar() {
     }
   };
 
-  const handleUseTemplate = (template) => {
-    setSelectedPost({
-      title: template.title_template || '',
-      caption: template.caption_template || '',
-      platforms: template.platforms || [],
-      hashtags: template.hashtags || [],
-      media_type: template.media_type || 'none',
-      status: 'draft',
-    });
-    setShowTemplateModal(false);
-    setShowModal(true);
-  };
-
   const handleEdit = (post) => {
     // Always get the freshest version of the post from the fetched list
     const freshPost = posts.find((p) => p.id === post.id) || post;
@@ -575,15 +559,6 @@ export default function SocialCalendar() {
           )}
           {canEdit && (
             <>
-              {/* Hiding Templates for now */}
-              {/* <Button
-                onClick={() => setShowTemplateModal(true)}
-                variant="outline"
-                className="gap-2"
-              >
-                <Plus className="w-4 h-4" />
-                {COPY.socialCalendar.templates}
-              </Button> */}
               <Button onClick={() => setShowBulkModal(true)} variant="outline" className="gap-2">
                 <Plus className="w-4 h-4" />
                 {COPY.socialCalendar.bulkSchedule}
@@ -1181,12 +1156,6 @@ export default function SocialCalendar() {
       />
 
       <BulkScheduleModal open={showBulkModal} onClose={() => setShowBulkModal(false)} />
-
-      <Dialog open={showTemplateModal} onOpenChange={setShowTemplateModal}>
-        <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
-          <PostTemplateManager onUseTemplate={handleUseTemplate} />
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }
