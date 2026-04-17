@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
+import { Switch } from '@/components/ui/switch';
 import { Plus } from 'lucide-react';
 import {
   DndContext,
@@ -11,7 +12,7 @@ import {
 } from '@dnd-kit/core';
 import { SortableContext, useSortable, rectSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { parseISO } from 'date-fns';
+import { parseISO, format } from 'date-fns';
 import PostStatusChip from './PostStatusChip';
 import { PostStatus } from '@/types/enums';
 import { useToast } from '@/components/ui/toast-provider';
@@ -134,6 +135,21 @@ export default function NineGridEditor({
 }) {
   const [activeId, setActiveId] = useState(null);
   const [localSlots, setLocalSlots] = useState(null); // optimistic local state
+  const [swapDates, setSwapDates] = useState(() => {
+    try {
+      return localStorage.getItem('nineGrid.swapDates') === 'true';
+    } catch {
+      return false;
+    }
+  });
+  const handleSwapDatesChange = (checked) => {
+    setSwapDates(checked);
+    try {
+      localStorage.setItem('nineGrid.swapDates', String(checked));
+    } catch {
+      // Ignore storage failures
+    }
+  };
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 4 } }));
   const toast = useToast();
 
@@ -208,7 +224,14 @@ export default function NineGridEditor({
     const activeIndex = parseInt(active.id);
     const overIndex = parseInt(over.id);
 
-    // Prevent dragging published posts
+    // Dropped back to the same position — clear optimistic state and exit
+    if (active.id === over.id) {
+      setActiveId(null);
+      setLocalSlots(null);
+      return;
+    }
+
+    // Prevent dragging onto published posts
     if (gridSlots[overIndex] && gridSlots[overIndex].status === PostStatus.PUBLISHED) {
       toast.error(COPY.socialCalendar.toasts.error.publishedPost);
       setActiveId(null);
@@ -216,31 +239,62 @@ export default function NineGridEditor({
       return;
     }
 
-    if (over && active.id !== over.id) {
+    {
       const oldIndex = activeIndex;
       const newIndex = overIndex;
+
+      // Capture original dates before the swap so we can exchange them
+      const postA = gridSlots[oldIndex]; // the post being dragged
+      const postB = gridSlots[newIndex]; // the post (or null) at the target
+
       const newSlots = [...gridSlots];
       [newSlots[oldIndex], newSlots[newIndex]] = [newSlots[newIndex], newSlots[oldIndex]];
 
-      // Update order to reflect new tile positions, preserve scheduled dates
+      // Update order to reflect new tile positions. When swapDates is on
+      // and both slots hold a post, also exchange their scheduled dates
+      // so the calendar placement follows the grid position.
+      const shouldSwapDates = swapDates && postA && postB;
       const updatedSlots = newSlots.map((post, idx) => {
         if (!post) {
           return null;
         }
-        return {
-          ...post,
-          order: idx,
-        };
+        const base = { ...post, order: idx };
+        if (shouldSwapDates) {
+          if (post.id === postA.id) {
+            base.scheduled_date = postB.scheduled_date;
+            base.scheduled_time = postB.scheduled_time;
+          } else if (post.id === postB.id) {
+            base.scheduled_date = postA.scheduled_date;
+            base.scheduled_time = postA.scheduled_time;
+          }
+        }
+        return base;
       });
+
+      if (shouldSwapDates) {
+        const nameA = postA.title || postA.caption?.slice(0, 20) || COPY.socialCalendar.untitled;
+        const nameB = postB.title || postB.caption?.slice(0, 20) || COPY.socialCalendar.untitled;
+        const dateA = postA.scheduled_date
+          ? format(parseISO(postA.scheduled_date), 'MMM d')
+          : COPY.socialCalendar.unscheduled;
+        const dateB = postB.scheduled_date
+          ? format(parseISO(postB.scheduled_date), 'MMM d')
+          : COPY.socialCalendar.unscheduled;
+        toast.success(COPY.socialCalendar.toasts.success.swappedDates(nameA, dateB, nameB, dateA));
+      }
 
       // Optimistically update UI
       const prevSlots = localSlots || baseSlots;
       setLocalSlots(updatedSlots);
       // TODO: We could optimize by only sending changed posts to backend instead of all 9
-      Promise.resolve(onPostsChange(updatedSlots.filter((p) => p !== null))).catch((_err) => {
-        setLocalSlots(prevSlots); // revert to previous state
-        toast.error(COPY.socialCalendar.toasts.error.reorderPosts);
-      });
+      Promise.resolve(onPostsChange(updatedSlots.filter((p) => p !== null)))
+        .then(() => {
+          setLocalSlots(null); // let server state reconcile
+        })
+        .catch((_err) => {
+          setLocalSlots(prevSlots); // revert to previous state
+          toast.error(COPY.socialCalendar.toasts.error.reorderPosts);
+        });
     }
     setActiveId(null);
   };
@@ -274,6 +328,17 @@ export default function NineGridEditor({
               {COPY.socialCalendar.layoutDescription}
             </p>
           </div>
+          <label className="flex items-center gap-2 cursor-pointer flex-shrink-0">
+            <span className="text-sm text-gray-500 dark:text-gray-400">
+              {COPY.socialCalendar.swapDatesOnDrag}
+            </span>
+            <Switch
+              checked={swapDates}
+              onCheckedChange={handleSwapDatesChange}
+              aria-label={COPY.socialCalendar.swapDatesOnDrag}
+              className="data-[state=checked]:bg-violet-600"
+            />
+          </label>
         </div>
 
         <DndContext
