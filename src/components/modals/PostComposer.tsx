@@ -51,6 +51,7 @@ import {
   Crop,
   Check,
   Save,
+  FileText,
 } from 'lucide-react';
 import { PLATFORMS as PLATFORM_CONFIGS } from '@/constants/platforms';
 import EmojiPicker from 'emoji-picker-react';
@@ -651,6 +652,8 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
   const [scheduleError, setScheduleError] = useState('');
   const [requireApproval, setRequireApproval] = useState(true);
   const [draftJustSaved, setDraftJustSaved] = useState(false);
+  const [showRevertConfirm, setShowRevertConfirm] = useState(false);
+  const revertingToDraftRef = useRef(false);
   const draftSavedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   // Clear the "Saved" checkmark timer on unmount (e.g. key-remount from "New
   // Post") so we don't fire setState on an unmounted component.
@@ -671,6 +674,11 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
     // Default to 'normal' to match the select's pre-selected display value.
     priority: post?.priority ?? 'normal',
     review_due_date: post?.review_due_date,
+  });
+  const initialApprovalMetaRef = useRef({
+    assigned_to_email: post?.assigned_to_email ?? null,
+    priority: post?.priority ?? 'normal',
+    review_due_date: post?.review_due_date ?? null,
   });
   const [approvalErrors, setApprovalErrors] = useState<{
     reviewer?: string;
@@ -812,6 +820,11 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
       getDefaultSchedule(currentMonth);
 
     setSavedPost(post ?? null);
+    initialApprovalMetaRef.current = {
+      assigned_to_email: post?.assigned_to_email ?? null,
+      priority: post?.priority ?? 'normal',
+      review_due_date: post?.review_due_date ?? null,
+    };
     setApprovalMeta({
       assigned_to_email: post?.assigned_to_email,
       priority: post?.priority ?? 'normal',
@@ -890,11 +903,21 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
   const isDirty =
     hasFormChanges(formData, initialFormDataRef.current, { includeTags: !post?.id }) || isCropDirty;
 
+  // Tracks whether approval workflow fields (reviewer, priority, due date)
+  // have changed from their initial values. Used to enable "Resend for
+  // Approval" on published posts even when formData itself hasn't changed.
+  const isApprovalDirty =
+    (approvalMeta.assigned_to_email ?? null) !==
+      (initialApprovalMetaRef.current.assigned_to_email ?? null) ||
+    (approvalMeta.priority ?? 'normal') !== (initialApprovalMetaRef.current.priority ?? 'normal') ||
+    (approvalMeta.review_due_date ?? null) !==
+      (initialApprovalMetaRef.current.review_due_date ?? null);
+
   // isDirty tracks formData + crop changes (used by Save Draft button).
   // hasUnsavedState also includes transient fields like approvalNote that
   // aren't part of formData but would be lost on navigation. Used by the
   // modal close guard, view-switch guard, and beforeunload listener.
-  const hasUnsavedState = isDirty || !!approvalNote.trim();
+  const hasUnsavedState = isDirty || isApprovalDirty || !!approvalNote.trim();
 
   const { guardedClose, discardDialogProps } = useUnsavedChangesGuard({
     isDirty: hasUnsavedState,
@@ -1350,15 +1373,24 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
       saveResult = await onSave({
         ...formData,
         status: finalStatus,
-        // Always persist approvalMeta fields so the backend reflects the current UI state,
-        // even if the user never interacted with the select (e.g. priority defaults to 'normal').
-        ...(approvalMeta.priority !== undefined && { priority: approvalMeta.priority }),
-        ...(approvalMeta.assigned_to_email !== undefined && {
-          assigned_to_email: approvalMeta.assigned_to_email,
-        }),
-        ...(approvalMeta.review_due_date !== undefined && {
-          review_due_date: approvalMeta.review_due_date,
-        }),
+        // When reverting to draft, clear all approval workflow fields.
+        // Otherwise persist approvalMeta so the backend reflects the current UI state.
+        ...(revertingToDraftRef.current
+          ? {
+              assigned_to_email: null,
+              assigned_to_name: null,
+              priority: 'normal',
+              review_due_date: null,
+            }
+          : {
+              ...(approvalMeta.priority !== undefined && { priority: approvalMeta.priority }),
+              ...(approvalMeta.assigned_to_email !== undefined && {
+                assigned_to_email: approvalMeta.assigned_to_email,
+              }),
+              ...(approvalMeta.review_due_date !== undefined && {
+                review_due_date: approvalMeta.review_due_date,
+              }),
+            }),
         ...(workflowHistory !== undefined && { workflow_history: workflowHistory }),
         timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
         platform_image_urls: platformCrops,
@@ -2531,8 +2563,8 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
             )}
           </div>
           <div className="flex items-center gap-2">
-            {/* Save draft */}
-            {!isPostPublished && (
+            {/* Save draft (drafts) / Revert to draft (non-draft, non-published) */}
+            {!isPostPublished && formData.status === PostStatus.DRAFT && (
               <TypedButton
                 onClick={() => handleSubmit(PostStatus.DRAFT)}
                 disabled={isLoading || !isDirty || !formData.caption}
@@ -2554,9 +2586,19 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
                   : COPY.calendarPostModal.saveDraft}
               </TypedButton>
             )}
+            {!isPostPublished && formData.status !== PostStatus.DRAFT && (
+              <TypedButton
+                onClick={() => setShowRevertConfirm(true)}
+                disabled={isLoading || !formData.caption}
+                className="rounded-xl px-5 py-2 text-sm font-semibold transition-colors flex items-center gap-2 bg-gray-700 hover:bg-gray-800 hover:text-white text-white disabled:opacity-40"
+              >
+                <FileText className="w-4 h-4" />
+                {COPY.calendarPostModal.revertToDraft}
+              </TypedButton>
+            )}
 
             {/* Primary action — config computed in primaryAction above the render */}
-            {!isViewer && (
+            {!isViewer && !isPostPublished && (
               <TypedButton
                 onClick={primaryAction.onClick}
                 disabled={primaryAction.disabled}
@@ -2659,6 +2701,36 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
         variant="default"
       />
       <ConfirmDialog {...discardDialogProps} />
+      <ConfirmDialog
+        open={showRevertConfirm}
+        onClose={() => setShowRevertConfirm(false)}
+        onConfirm={async () => {
+          if (revertingToDraftRef.current) return;
+          revertingToDraftRef.current = true;
+          try {
+            await handleSubmit(PostStatus.DRAFT);
+            setShowRevertConfirm(false);
+            // Only clear local state after a successful save so a failed
+            // revert doesn't leave the UI in an inconsistent state.
+            setFormData((f) => ({ ...f, status: PostStatus.DRAFT }));
+            setApprovalMeta({ assigned_to_email: null, priority: 'normal', review_due_date: null });
+            setApprovalErrors({});
+            setApprovalNote('');
+            initialApprovalMetaRef.current = {
+              assigned_to_email: null,
+              priority: 'normal',
+              review_due_date: null,
+            };
+          } finally {
+            revertingToDraftRef.current = false;
+          }
+        }}
+        title={COPY.calendarPostModal.revertToDraftTitle}
+        description={COPY.calendarPostModal.revertToDraftDescription}
+        confirmLabel={COPY.calendarPostModal.revertToDraftConfirm}
+        cancelLabel={COPY.calendarPostModal.cancel}
+        variant="destructive"
+      />
       <ConfirmDialog
         open={showDeleteConfirm}
         onClose={() => setShowDeleteConfirm(false)}

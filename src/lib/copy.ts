@@ -118,6 +118,11 @@ const COPY = {
     deletePost: 'Delete Post',
     saveDraft: 'Save Draft',
     draftSaved: 'Saved',
+    revertToDraft: 'Revert to Draft',
+    revertToDraftTitle: 'Revert to Draft?',
+    revertToDraftDescription:
+      'This will revert the post to draft status, remove the assigned reviewer, reset priority, and clear the due date and note. The post will need to go through the approval workflow again.',
+    revertToDraftConfirm: 'Revert to Draft',
     newPost: 'New Post',
     submitForReview: 'Submit for Review',
     sendForApproval: 'Send for Approval',
@@ -295,6 +300,7 @@ const COPY = {
       'Media retained for version history — not transferred to the Approved Media Database.',
     activity: 'Activity',
     workflow: 'Workflow',
+    editPost: 'Edit Post',
   },
   postCommentThread: {
     emptyTitle: 'No comments yet',
