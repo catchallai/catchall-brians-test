@@ -9,6 +9,7 @@ import { pagesConfig } from './pages.config';
 import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
+import { NavigationGuardProvider } from '@/lib/NavigationGuardContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import AuthErrorFallback from '@/components/AuthErrorFallback';
 
@@ -116,8 +117,10 @@ function App() {
     <AuthProvider>
       <QueryClientProvider client={queryClientInstance}>
         <Router>
-          <NavigationTracker />
-          <AuthenticatedApp />
+          <NavigationGuardProvider>
+            <NavigationTracker />
+            <AuthenticatedApp />
+          </NavigationGuardProvider>
         </Router>
         <Toaster />
         <SonnerToaster />

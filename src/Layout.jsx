@@ -1,5 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
+import { useNavigationGuard } from '@/lib/NavigationGuardContext';
 import { createPageUrl } from '@/utils';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -442,6 +443,22 @@ function SidebarContent({
   setDragOverFavorites,
   isCollapsed,
 }) {
+  const navGuard = useNavigationGuard();
+  const handleLinkClick = (e, url) => {
+    // Don't guard modified clicks (new tab/window) — user isn't leaving the page.
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) {
+      onNavigate?.(e);
+      return;
+    }
+    if (navGuard.guardedNavigate(url)) {
+      // Guard is blocking — prevent the Link's default navigation;
+      // the context renders the confirm dialog and navigates on confirm.
+      e.preventDefault();
+      return;
+    }
+    // Not blocked — let the Link navigate via its `to` prop.
+    onNavigate?.(e);
+  };
   const [collapsedSections, setCollapsedSections] = React.useState({
     'Business Dev': true,
     CRM: true,
@@ -638,7 +655,7 @@ function SidebarContent({
                       >
                         <Link
                           to={createPageUrl(fav.page)}
-                          onClick={onNavigate}
+                          onClick={(e) => handleLinkClick(e, createPageUrl(fav.page))}
                           className="flex items-center gap-2 flex-1"
                         >
                           <FavIcon
@@ -694,7 +711,7 @@ function SidebarContent({
               <Link
                 key={item.name}
                 to={createPageUrl(item.page)}
-                onClick={onNavigate}
+                onClick={(e) => handleLinkClick(e, createPageUrl(item.page))}
                 draggable
                 onDragStart={(e) => {
                   e.dataTransfer.setData(
