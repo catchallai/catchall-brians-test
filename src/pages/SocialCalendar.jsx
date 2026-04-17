@@ -419,7 +419,11 @@ export default function SocialCalendar() {
           post && post.id
             ? reorderMutation.mutateAsync({
                 id: post.id,
-                data: { order: post.order, scheduled_date: post.scheduled_date },
+                data: {
+                  order: post.order,
+                  scheduled_date: post.scheduled_date,
+                  scheduled_time: post.scheduled_time,
+                },
               })
             : Promise.resolve()
         )

@@ -224,7 +224,14 @@ export default function NineGridEditor({
     const activeIndex = parseInt(active.id);
     const overIndex = parseInt(over.id);
 
-    // Prevent dragging published posts
+    // Dropped back to the same position — clear optimistic state and exit
+    if (active.id === over.id) {
+      setActiveId(null);
+      setLocalSlots(null);
+      return;
+    }
+
+    // Prevent dragging onto published posts
     if (gridSlots[overIndex] && gridSlots[overIndex].status === PostStatus.PUBLISHED) {
       toast.error(COPY.socialCalendar.toasts.error.publishedPost);
       setActiveId(null);
@@ -232,7 +239,7 @@ export default function NineGridEditor({
       return;
     }
 
-    if (over && active.id !== over.id) {
+    {
       const oldIndex = activeIndex;
       const newIndex = overIndex;
 
@@ -280,10 +287,14 @@ export default function NineGridEditor({
       const prevSlots = localSlots || baseSlots;
       setLocalSlots(updatedSlots);
       // TODO: We could optimize by only sending changed posts to backend instead of all 9
-      Promise.resolve(onPostsChange(updatedSlots.filter((p) => p !== null))).catch((_err) => {
-        setLocalSlots(prevSlots); // revert to previous state
-        toast.error(COPY.socialCalendar.toasts.error.reorderPosts);
-      });
+      Promise.resolve(onPostsChange(updatedSlots.filter((p) => p !== null)))
+        .then(() => {
+          setLocalSlots(null); // let server state reconcile
+        })
+        .catch((_err) => {
+          setLocalSlots(prevSlots); // revert to previous state
+          toast.error(COPY.socialCalendar.toasts.error.reorderPosts);
+        });
     }
     setActiveId(null);
   };
