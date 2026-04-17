@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ChevronLeft, ChevronRight, Plus, Trash2 } from 'lucide-react';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { ChevronLeft, ChevronRight, Plus, Trash2, Clock, X } from 'lucide-react';
 import {
   format,
   startOfMonth,
@@ -19,6 +20,11 @@ import {
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { PlatformBadges } from '@/components/ui/PlatformBadges';
+import PostStatusChip from '@/components/social/PostStatusChip';
+import { useToast } from '@/components/ui/toast-provider';
+import { todayLocal } from '@/utils/date';
+import COPY from '@/lib/copy';
+import { PostStatus } from '@/types/enums';
 
 const STATUS_CONFIG = {
   draft: {
@@ -123,6 +129,17 @@ function formatHour(h) {
   return h < 12 ? `${h} AM` : `${h - 12} PM`;
 }
 
+/** Formats "14:30" → "2:30 PM", "09:00" → "9:00 AM" */
+function formatTime(time) {
+  const match = time?.match(/^(\d{1,2}):(\d{2})/);
+  if (!match) return time;
+  const h = parseInt(match[1]);
+  const m = match[2];
+  const suffix = h >= 12 ? 'PM' : 'AM';
+  const hour12 = h === 0 ? 12 : h > 12 ? h - 12 : h;
+  return `${hour12}:${m} ${suffix}`;
+}
+
 function getPostHour(post) {
   if (!post.scheduled_time) {
     return null;
@@ -137,6 +154,97 @@ function getPostHour(post) {
 // Overnight hours to collapse by default (#6)
 const OVERNIGHT_HOURS = [1, 2, 3, 4, 5];
 
+/**
+ * Lightweight dialog listing all posts for a given day, grouped by time.
+ * @param {{
+ *   open: boolean,
+ *   onClose: () => void,
+ *   posts: Array<{ id: string, title?: string, caption?: string, status: import('@/types/enums').PostStatus, scheduled_time?: string, platforms?: string[] }>,
+ *   date: Date | null,
+ *   onEditPost: (post: any) => void,
+ * }} props
+ */
+function DayPostsDialog({ open, onClose, posts, date, onEditPost }) {
+  // Group posts by hour, with untimed posts first
+  const grouped = [];
+  const untimed = posts.filter((p) => getPostHour(p) === null);
+  if (untimed.length > 0) {
+    grouped.push({ label: 'All Day', posts: untimed });
+  }
+  const byHour = {};
+  posts.forEach((p) => {
+    const h = getPostHour(p);
+    if (h !== null) {
+      if (!byHour[h]) byHour[h] = [];
+      byHour[h].push(p);
+    }
+  });
+  Object.keys(byHour)
+    .sort((a, b) => Number(a) - Number(b))
+    .forEach((h) => {
+      grouped.push({ label: formatHour(Number(h)), posts: byHour[h] });
+    });
+
+  return (
+    <Dialog open={open} onOpenChange={(next) => !next && onClose()}>
+      <DialogContent className="max-w-md p-0 overflow-hidden" windowControls={false}>
+        <div className="flex items-start justify-between px-5 pt-5 pb-3 border-b border-gray-100 dark:border-gray-800">
+          <div>
+            <h3 className="text-sm font-bold text-gray-900 dark:text-white">
+              {date ? format(date, 'EEEE, MMMM d, yyyy') : ''}
+            </h3>
+            <p className="text-xs text-gray-400 mt-0.5">
+              {posts.length} post{posts.length !== 1 ? 's' : ''}
+            </p>
+          </div>
+          <button
+            onClick={onClose}
+            className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors text-gray-400"
+            aria-label="Close"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+        <div className="max-h-[60vh] overflow-y-auto divide-y divide-gray-100 dark:divide-gray-800">
+          {grouped.map((group) => (
+            <div key={group.label} className="px-5 py-3">
+              <div className="flex items-center gap-1.5 mb-2">
+                <Clock className="w-3 h-3 text-gray-400" />
+                <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                  {group.label}
+                </span>
+              </div>
+              <div className="space-y-1.5">
+                {group.posts.map((post) => (
+                  <button
+                    key={post.id}
+                    onClick={() => {
+                      onClose();
+                      onEditPost(post);
+                    }}
+                    className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-left hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors group"
+                  >
+                    <PlatformBadges platforms={post.platforms ?? []} size="sm" />
+                    <span className="flex-1 truncate text-sm text-gray-800 dark:text-gray-200 font-medium">
+                      {post.title || post.caption?.slice(0, 40) || 'Untitled'}
+                    </span>
+                    {post.scheduled_time && (
+                      <span className="text-xs text-gray-400 flex-shrink-0">
+                        {formatTime(post.scheduled_time)}
+                      </span>
+                    )}
+                    <PostStatusChip status={post.status} iconOnly />
+                  </button>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 function DayView({
   day,
   posts,
@@ -148,6 +256,7 @@ function DayView({
   setDraggedPost,
 }) {
   const isToday = isSameDay(day, new Date());
+  const isPastDay = format(day, 'yyyy-MM-dd') < todayLocal();
   const now = new Date();
   const nowHour = now.getHours();
   const nowMinute = now.getMinutes();
@@ -187,22 +296,32 @@ function DayView({
   };
 
   // #5 Drag-to-reschedule within day view
+  const isHourPast = (hour) => {
+    if (isPastDay) return true;
+    if (isToday && hour <= nowHour) return true;
+    return false;
+  };
+
   const handleHourDragOver = (e, hour) => {
     e.preventDefault();
+    e.dataTransfer.dropEffect = isHourPast(hour) ? 'none' : 'move';
     setDraggingOver(hour);
   };
 
   const handleHourDrop = (e, hour) => {
     e.preventDefault();
     setDraggingOver(null);
-    if (draggedPost) {
-      const timeStr = `${String(hour).padStart(2, '0')}:00`;
-      updatePostMutation.mutate({
-        id: draggedPost.id,
-        data: { ...draggedPost, scheduled_time: timeStr },
-      });
+    if (!draggedPost) return;
+    if (isHourPast(hour)) {
       setDraggedPost(null);
+      return;
     }
+    const timeStr = `${String(hour).padStart(2, '0')}:00`;
+    updatePostMutation.mutate({
+      id: draggedPost.id,
+      data: { ...draggedPost, scheduled_time: timeStr },
+    });
+    setDraggedPost(null);
   };
 
   const visibleOvernightCount = OVERNIGHT_HOURS.reduce(
@@ -237,23 +356,27 @@ function DayView({
           {untimedPosts.map((post) => {
             const statusInfo = STATUS_CONFIG[post.status] || STATUS_CONFIG.draft;
             const borderColor = statusInfo.borderClass || 'border-l-gray-300';
+            const canDrag = post.status !== PostStatus.PUBLISHED;
             return (
               <div
                 key={post.id}
-                draggable
+                draggable={canDrag}
                 onDragStart={(e) => {
+                  if (!canDrag) {
+                    e.preventDefault();
+                    return;
+                  }
                   setDraggedPost(post);
                   e.dataTransfer.effectAllowed = 'move';
                 }}
+                onDragEnd={() => setDraggedPost(null)}
                 onClick={() => onEditPost(post)}
-                className={`text-xs px-2 py-1 rounded-md cursor-pointer border border-l-4 ${borderColor} flex items-center gap-1.5 group/post ${statusInfo.colorClass || STATUS_CONFIG.draft.colorClass} ${draggedPost?.id === post.id ? 'opacity-50' : ''}`}
+                className={`text-xs px-2 py-1 rounded-md border border-l-4 ${borderColor} flex items-center gap-1.5 group/post ${canDrag ? 'cursor-move' : 'cursor-pointer'} ${statusInfo.colorClass || STATUS_CONFIG.draft.colorClass} ${draggedPost?.id === post.id ? 'opacity-50' : ''}`}
               >
                 <span className="text-gray-800 dark:text-gray-200 font-medium">
                   {post.title || post.caption?.slice(0, 20) || 'Untitled'}
                 </span>
-                <Badge className={`text-xs px-1 ${statusInfo.badgeClass}`}>
-                  {statusInfo.label}
-                </Badge>
+                <PostStatusChip status={post.status} />
               </div>
             );
           })}
@@ -286,17 +409,22 @@ function DayView({
         const hourPosts = postsByHour[hour] || [];
         const isCurrentHour = isToday && hour === nowHour;
         const isDragTarget = draggingOver === hour;
+        const hourIsPast = isHourPast(hour);
+        const isDragOverValid = isDragTarget && !hourIsPast;
+        const isDragOverPast = isDragTarget && hourIsPast;
 
         return (
           <div
             key={hour}
             data-hour={hour}
             className={`flex border-b border-gray-300 dark:border-gray-700 min-h-[80px] group/hour relative cursor-pointer transition-colors ${
-              isDragTarget
+              isDragOverValid
                 ? 'bg-violet-100 dark:bg-violet-900/40 ring-2 ring-inset ring-violet-400'
-                : isCurrentHour
-                  ? 'bg-violet-50 dark:bg-violet-900/20'
-                  : 'bg-white dark:bg-gray-800 hover:bg-violet-50/30 dark:hover:bg-violet-900/10'
+                : isDragOverPast
+                  ? 'bg-red-50 dark:bg-red-900/20 ring-2 ring-inset ring-red-300 cursor-not-allowed'
+                  : isCurrentHour
+                    ? 'bg-violet-50 dark:bg-violet-900/20'
+                    : 'bg-white dark:bg-gray-800 hover:bg-violet-50/30 dark:hover:bg-violet-900/10'
             }`}
             onClick={() => handleHourClick(hour)}
             onDragOver={(e) => handleHourDragOver(e, hour)}
@@ -327,19 +455,25 @@ function DayView({
               {hourPosts.map((post) => {
                 const statusInfo = STATUS_CONFIG[post.status] || STATUS_CONFIG.draft;
                 const borderColor = statusInfo.borderClass || 'border-l-gray-300';
+                const canDrag = post.status !== PostStatus.PUBLISHED;
                 return (
                   <div
                     key={post.id}
-                    draggable
+                    draggable={canDrag}
                     onDragStart={(e) => {
+                      if (!canDrag) {
+                        e.preventDefault();
+                        return;
+                      }
                       setDraggedPost(post);
                       e.dataTransfer.effectAllowed = 'move';
                     }}
-                    className={`text-sm p-2 pl-3 rounded-lg cursor-move border border-l-4 ${borderColor} transition-all hover:shadow-md group/post ${statusInfo.colorClass || STATUS_CONFIG.draft.colorClass} ${draggedPost?.id === post.id ? 'opacity-50' : ''}`}
+                    onDragEnd={() => setDraggedPost(null)}
+                    className={`text-sm p-2 pl-3 rounded-lg border border-l-4 ${borderColor} transition-all hover:shadow-md group/post ${canDrag ? 'cursor-move' : 'cursor-pointer'} ${statusInfo.colorClass || STATUS_CONFIG.draft.colorClass} ${draggedPost?.id === post.id ? 'opacity-50' : ''}`}
                   >
                     <div className="flex items-center justify-between gap-2">
                       <div
-                        className="flex items-center gap-2 min-w-0 flex-1 cursor-pointer"
+                        className="flex items-center gap-2 min-w-0 flex-1"
                         onClick={() => onEditPost(post)}
                       >
                         <PlatformBadges platforms={post.platforms ?? []} size="lg" />
@@ -353,9 +487,7 @@ function DayView({
                         )}
                       </div>
                       <div className="flex items-center gap-1 flex-shrink-0">
-                        <Badge className={`text-xs px-1.5 py-0.5 ${statusInfo.class}`}>
-                          {statusInfo.label}
-                        </Badge>
+                        <PostStatusChip status={post.status} />
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
@@ -416,6 +548,7 @@ function WeekView({
   setDraggedPost,
   showPopover,
   hidePopover,
+  onShowDayPosts,
 }) {
   const scrollRef = useRef(null);
   const [showOvernight, setShowOvernight] = useState(false);
@@ -446,17 +579,23 @@ function WeekView({
   const handleDrop = (e, day, hour) => {
     e.preventDefault();
     setDraggingOver(null);
-    if (draggedPost) {
-      updatePostMutation.mutate({
-        id: draggedPost.id,
-        data: {
-          ...draggedPost,
-          scheduled_date: format(day, 'yyyy-MM-dd'),
-          scheduled_time: `${String(hour).padStart(2, '0')}:00`,
-        },
-      });
+    if (!draggedPost) return;
+    const newDate = format(day, 'yyyy-MM-dd');
+    const today = todayLocal();
+    const isPast = newDate < today || (newDate === today && hour <= nowHour);
+    if (isPast) {
       setDraggedPost(null);
+      return;
     }
+    updatePostMutation.mutate({
+      id: draggedPost.id,
+      data: {
+        ...draggedPost,
+        scheduled_date: newDate,
+        scheduled_time: `${String(hour).padStart(2, '0')}:00`,
+      },
+    });
+    setDraggedPost(null);
   };
 
   const visibleOvernightCount = days.reduce((total, day) => {
@@ -512,15 +651,16 @@ function WeekView({
               {untimedPosts.map((post) => (
                 <div
                   key={post.id}
-                  draggable
+                  draggable={post.status !== PostStatus.PUBLISHED}
                   onDragStart={(e) => {
                     setDraggedPost(post);
                     e.dataTransfer.effectAllowed = 'move';
                   }}
+                  onDragEnd={() => setDraggedPost(null)}
                   onMouseEnter={(e) => showPopover(post, e)}
                   onMouseLeave={hidePopover}
                   onClick={() => onEditPost(post)}
-                  className={`text-xs px-1.5 py-0.5 rounded cursor-pointer border truncate max-w-full ${(STATUS_CONFIG[post.status] || STATUS_CONFIG.draft).colorClass}`}
+                  className={`text-xs px-1.5 py-0.5 rounded border truncate max-w-full ${post.status === PostStatus.PUBLISHED ? 'cursor-pointer' : 'cursor-move'} ${(STATUS_CONFIG[post.status] || STATUS_CONFIG.draft).colorClass}`}
                 >
                   {post.title || post.caption?.slice(0, 12) || 'Untitled'}
                 </div>
@@ -570,24 +710,31 @@ function WeekView({
 
             {/* Day columns */}
             {days.map((day, dayIdx) => {
-              const isToday = isSameDay(day, new Date());
+              const isDayToday = isSameDay(day, new Date());
               const dayHourPosts = getPostsForDay(day).filter((p) => getPostHour(p) === hour);
               const isDragTarget = draggingOver?.hour === hour && draggingOver?.dayIdx === dayIdx;
-              const showTimeLine = isToday && isCurrentHour;
+              const isPastDay = format(day, 'yyyy-MM-dd') < todayLocal();
+              const isCellPast = isPastDay || (isDayToday && hour <= nowHour);
+              const isDragOverValid = isDragTarget && !isCellPast;
+              const isDragOverPast = isDragTarget && isCellPast;
+              const showTimeLine = isDayToday && isCurrentHour;
 
               return (
                 <div
                   key={dayIdx}
                   className={`flex-1 border-l border-gray-300 dark:border-gray-700 px-1 py-1 relative cursor-pointer group/cell transition-colors ${
-                    isDragTarget
+                    isDragOverValid
                       ? 'bg-violet-100 dark:bg-violet-900/40 ring-1 ring-inset ring-violet-400'
-                      : isToday
-                        ? 'bg-violet-50/40 dark:bg-violet-900/10'
-                        : 'hover:bg-gray-50 dark:hover:bg-gray-700/30'
+                      : isDragOverPast
+                        ? 'bg-red-50 dark:bg-red-900/20 ring-1 ring-inset ring-red-300 cursor-not-allowed'
+                        : isDayToday
+                          ? 'bg-violet-50/40 dark:bg-violet-900/10'
+                          : 'hover:bg-gray-50 dark:hover:bg-gray-700/30'
                   }`}
                   onClick={() => handleCellClick(day, hour)}
                   onDragOver={(e) => {
                     e.preventDefault();
+                    e.dataTransfer.dropEffect = isCellPast ? 'none' : 'move';
                     setDraggingOver({ hour, dayIdx });
                   }}
                   onDragLeave={() => setDraggingOver(null)}
@@ -609,18 +756,27 @@ function WeekView({
                       const borderColor =
                         (STATUS_CONFIG[post.status] || STATUS_CONFIG.draft).borderClass ||
                         'border-l-gray-300';
+                      const canDrag = post.status !== PostStatus.PUBLISHED;
                       return (
                         <div
                           key={post.id}
-                          draggable
+                          draggable={canDrag}
                           onDragStart={(e) => {
+                            if (!canDrag) {
+                              e.preventDefault();
+                              return;
+                            }
                             setDraggedPost(post);
                             e.dataTransfer.effectAllowed = 'move';
+                          }}
+                          onDragEnd={() => {
+                            setDraggedPost(null);
+                            setDraggingOver(null);
                           }}
                           onMouseEnter={(e) => showPopover(post, e)}
                           onMouseLeave={hidePopover}
                           onClick={() => onEditPost(post)}
-                          className={`text-xs px-1.5 py-1 rounded border-l-2 ${borderColor} cursor-pointer ${(STATUS_CONFIG[post.status] || STATUS_CONFIG.draft).colorClass} ${draggedPost?.id === post.id ? 'opacity-50' : ''}`}
+                          className={`text-xs px-1.5 py-1 rounded border-l-2 ${borderColor} ${canDrag ? 'cursor-move' : 'cursor-pointer'} ${(STATUS_CONFIG[post.status] || STATUS_CONFIG.draft).colorClass} ${draggedPost?.id === post.id ? 'opacity-50' : ''}`}
                         >
                           <div className="flex items-center justify-between gap-1 min-w-0">
                             <span className="truncate flex-1">
@@ -637,7 +793,7 @@ function WeekView({
                     })}
                     {dayHourPosts.length > 2 && (
                       <button
-                        onClick={() => onEditPost(dayHourPosts[0])}
+                        onClick={() => onShowDayPosts(day)}
                         className="text-xs text-violet-600 hover:underline text-left"
                       >
                         +{dayHourPosts.length - 2} more
@@ -682,7 +838,12 @@ export default function SocialCalendarView({
   currentUser,
 }) {
   const [draggedPost, setDraggedPost] = useState(null);
+  const [dragOverDate, setDragOverDate] = useState(/** @type {string | null} */ (null));
+  const [dayPostsModal, setDayPostsModal] = useState(
+    /** @type {{ date: Date, posts: any[] } | null} */ (null)
+  );
   const [hoveredPost, setHoveredPost] = useState(null);
+  const toast = useToast();
   const [popoverPos, setPopoverPos] = useState({ x: 0, y: 0, above: false });
   const popoverTimeoutRef = useRef(null);
   const queryClient = useQueryClient();
@@ -791,21 +952,47 @@ export default function SocialCalendarView({
     e.dataTransfer.effectAllowed = 'move';
   };
 
-  const handleDragOver = (e) => {
+  /** Check if dropping the currently dragged post on `day` would schedule it
+   *  in the past. The month view only changes the date (time is preserved),
+   *  so we only enforce day-level validation — today is always allowed.
+   *  Hour-level checks belong in the week/day views where the user
+   *  explicitly picks a time slot. */
+  const isDropInPast = (day) => {
+    return format(day, 'yyyy-MM-dd') < todayLocal();
+  };
+
+  const handleDragOver = (e, day) => {
     e.preventDefault();
-    e.dataTransfer.dropEffect = 'move';
+    if (day) {
+      e.dataTransfer.dropEffect = isDropInPast(day) ? 'none' : 'move';
+      const dateStr = format(day, 'yyyy-MM-dd');
+      if (dragOverDate !== dateStr) setDragOverDate(dateStr);
+    }
   };
 
   const handleDrop = (e, targetDate) => {
     e.preventDefault();
-    if (draggedPost) {
-      const newDate = format(targetDate, 'yyyy-MM-dd');
-      updatePostMutation.mutate({
-        id: draggedPost.id,
-        data: { ...draggedPost, scheduled_date: newDate },
-      });
+    setDragOverDate(null);
+    if (!draggedPost) return;
+    if (isDropInPast(targetDate)) {
       setDraggedPost(null);
+      return;
     }
+    const newDate = format(targetDate, 'yyyy-MM-dd');
+    updatePostMutation.mutate({
+      id: draggedPost.id,
+      data: { ...draggedPost, scheduled_date: newDate },
+    });
+    // Warn if the post's time is already past on the target day — the drop is
+    // allowed (month view only changes date, user can adjust time in the editor)
+    // but the user should know the scheduled time needs updating.
+    if (newDate === todayLocal()) {
+      const postHour = getPostHour(draggedPost);
+      if (postHour !== null && postHour <= new Date().getHours()) {
+        toast.warning(COPY.socialCalendar.draggedToPastTime);
+      }
+    }
+    setDraggedPost(null);
   };
 
   const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -849,6 +1036,7 @@ export default function SocialCalendarView({
           setDraggedPost={setDraggedPost}
           showPopover={showPopover}
           hidePopover={hidePopover}
+          onShowDayPosts={(day) => setDayPostsModal({ date: day, posts: getPostsForDay(day) })}
         />
       ) : (
         <div className="grid grid-cols-7">
@@ -858,15 +1046,34 @@ export default function SocialCalendarView({
             const isToday = isSameDay(day, new Date());
             const hasMultiple = dayPosts.length > 2;
 
+            const dayStr = format(day, 'yyyy-MM-dd');
+            const isDragOver = draggedPost && dragOverDate === dayStr;
+            const dropWouldBePast = isDragOver && isDropInPast(day);
+            const isDragOverPast = isDragOver && dropWouldBePast;
+            const isDragOverValid = isDragOver && !dropWouldBePast;
+
             return (
               <div
                 key={idx}
-                className={`min-h-[140px] p-3 border-b border-r border-gray-200 dark:border-gray-600 transition-colors ${
-                  isCurrentMonth ? 'bg-white dark:bg-gray-800' : 'bg-gray-100 dark:bg-gray-900/50'
-                } ${isToday ? 'bg-violet-50 dark:bg-violet-900/20 ring-2 ring-inset ring-violet-400' : ''} ${
+                className={`min-h-[140px] p-3 border-b border-r transition-colors ${
+                  isDragOverValid
+                    ? 'border-violet-400 bg-violet-50 dark:bg-violet-900/30 ring-2 ring-inset ring-violet-400'
+                    : isDragOverPast
+                      ? 'border-red-300 bg-red-50 dark:bg-red-900/20 ring-2 ring-inset ring-red-300 cursor-not-allowed'
+                      : `border-gray-200 dark:border-gray-600 ${
+                          isCurrentMonth
+                            ? 'bg-white dark:bg-gray-800'
+                            : 'bg-gray-100 dark:bg-gray-900/50'
+                        }`
+                } ${!isDragOver && isToday ? 'bg-violet-50 dark:bg-violet-900/20 ring-2 ring-inset ring-violet-400' : ''} ${
                   idx % 7 === 6 ? 'border-r-0' : ''
                 } hover:bg-gray-50 dark:hover:bg-gray-700/50`}
-                onDragOver={handleDragOver}
+                onDragOver={(e) => handleDragOver(e, day)}
+                onDragLeave={(e) => {
+                  if (e.relatedTarget instanceof Node && e.currentTarget.contains(e.relatedTarget))
+                    return;
+                  setDragOverDate(null);
+                }}
                 onDrop={(e) => handleDrop(e, day)}
               >
                 <div
@@ -895,19 +1102,31 @@ export default function SocialCalendarView({
                     return (
                       <div
                         key={post.id}
-                        draggable
+                        role="button"
+                        tabIndex={0}
+                        draggable={post.status !== PostStatus.PUBLISHED}
                         onDragStart={(e) => handleDragStart(e, post)}
+                        onDragEnd={() => {
+                          setDraggedPost(null);
+                          setDragOverDate(null);
+                        }}
                         onMouseEnter={(e) => showPopover(post, e)}
                         onMouseLeave={hidePopover}
-                        className={`text-sm p-2 rounded-lg cursor-move border-2 transition-all hover:shadow-md group/post ${
-                          statusInfo.colorClass || STATUS_CONFIG.draft.colorClass
-                        } ${draggedPost?.id === post.id ? 'opacity-50' : ''}`}
+                        onClick={() => onEditPost(post)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            onEditPost(post);
+                          }
+                        }}
+                        className={`text-sm p-2 rounded-lg border-2 transition-all hover:shadow-md group/post ${
+                          post.status === PostStatus.PUBLISHED ? 'cursor-pointer' : 'cursor-move'
+                        } ${statusInfo.colorClass || STATUS_CONFIG.draft.colorClass} ${
+                          draggedPost?.id === post.id ? 'opacity-50' : ''
+                        }`}
                       >
-                        <div className="flex items-center justify-between gap-2 mb-1">
-                          <div
-                            className="flex items-center gap-2 min-w-0 flex-1 cursor-pointer"
-                            onClick={() => onEditPost(post)}
-                          >
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="flex items-center gap-2 min-w-0 flex-1">
                             <PlatformBadges platforms={post.platforms ?? []} size="sm" />
                             <span className="truncate text-gray-800 dark:text-gray-200 font-semibold">
                               {post.title || post.caption?.slice(0, 18) || 'Untitled'}
@@ -915,21 +1134,7 @@ export default function SocialCalendarView({
                             </span>
                           </div>
                           <div className="flex items-center gap-1 flex-shrink-0">
-                            <Badge className={`text-xs px-1.5 py-0.5 ${statusInfo.badgeClass}`}>
-                              {statusInfo.label}
-                            </Badge>
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                // eslint-disable-next-line no-alert
-                                if (window.confirm('Delete this post?')) {
-                                  deletePostMutation.mutate(post);
-                                }
-                              }}
-                              className="opacity-0 group-hover/post:opacity-100 transition-opacity p-0.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded"
-                            >
-                              <Trash2 className="w-3 h-3" />
-                            </button>
+                            <PostStatusChip status={post.status} iconOnly />
                           </div>
                         </div>
                       </div>
@@ -937,7 +1142,7 @@ export default function SocialCalendarView({
                   })}
                   {hasMultiple && (
                     <button
-                      onClick={() => onEditPost(dayPosts[0])}
+                      onClick={() => setDayPostsModal({ date: day, posts: dayPosts })}
                       className="text-sm text-violet-600 dark:text-violet-400 hover:underline w-full text-left font-semibold"
                     >
                       +{dayPosts.length - 2} more
@@ -967,14 +1172,7 @@ export default function SocialCalendarView({
             <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 leading-snug">
               {hoveredPost.title || 'Untitled'}
             </p>
-            {(() => {
-              const si = STATUS_CONFIG[hoveredPost.status] || STATUS_CONFIG.draft;
-              return (
-                <Badge className={`text-xs px-1.5 flex-shrink-0 ${si.badgeClass}`}>
-                  {si.label}
-                </Badge>
-              );
-            })()}
+            <PostStatusChip status={hoveredPost.status} />
           </div>
           {hoveredPost.caption && (
             <p className="text-xs text-gray-500 dark:text-gray-400 mb-3 line-clamp-3">
@@ -1012,6 +1210,15 @@ export default function SocialCalendarView({
           </div>
         </div>
       )}
+
+      {/* Day posts modal — shown when clicking "+N more" */}
+      <DayPostsDialog
+        open={!!dayPostsModal}
+        onClose={() => setDayPostsModal(null)}
+        posts={dayPostsModal?.posts ?? []}
+        date={dayPostsModal?.date ?? null}
+        onEditPost={onEditPost}
+      />
 
       {/* Legend */}
       <div className="flex items-center justify-end p-4 border-t border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">

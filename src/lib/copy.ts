@@ -63,6 +63,8 @@ const COPY = {
       'You have unsaved changes in the composer. Are you sure you want to switch views without saving?',
     discardViewSwitchConfirm: 'Discard Changes',
     keepEditing: 'Keep Editing',
+    draggedToPastTime:
+      "This post's scheduled time is now in the past. Open the post to update the time.",
     toasts: {
       error: {
         reorderPosts: 'Failed to update post order. Please try again.',

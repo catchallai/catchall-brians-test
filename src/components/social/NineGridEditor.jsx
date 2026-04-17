@@ -79,7 +79,7 @@ function SortableGridItem({ id, post, position, onAddPost, onEditPost }) {
     <div
       ref={setNodeRef}
       style={style}
-      className={`aspect-square rounded-xl overflow-hidden relative group shadow-md hover:shadow-xl transition-all ${isDisabled ? 'cursor-pointer' : 'cursor-grab active:cursor-grabbing'}`}
+      className={`aspect-square rounded-xl overflow-hidden relative group shadow-md hover:shadow-xl transition-all ${isDisabled ? 'cursor-pointer' : 'cursor-move'}`}
       {...listeners}
       {...attributes}
       onClick={handleClick}
