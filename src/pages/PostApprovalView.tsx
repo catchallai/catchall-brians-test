@@ -57,7 +57,7 @@ export default function PostApprovalView() {
   const authorEmail = (post?.workflow_history ?? []).find(
     (e: any) => e.action === 'submitted_for_review'
   )?.by_email;
-  const isAuthor = currentUser?.email && currentUser.email === authorEmail;
+  const isAuthor = currentUser?.email === authorEmail;
   const isAdmin = currentUser?.role === 'admin' || currentUser?.social_media_role === 'admin';
   const canEdit = (isAuthor || isAdmin) && post?.status !== 'published';
 

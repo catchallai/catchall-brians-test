@@ -1703,16 +1703,12 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
 
     if (activeTab === 'approval') {
       const isResubmit = formData.status === PostStatus.CHANGES_REQUESTED;
-      const isResend = isPostPublished;
       return {
         label: isResubmit
           ? COPY.calendarPostModal.resubmitForReview
-          : isResend
-            ? COPY.calendarPostModal.resendForApproval
-            : COPY.calendarPostModal.sendForApproval,
+          : COPY.calendarPostModal.sendForApproval,
         icon: <Send className="w-4 h-4" />,
-        disabled:
-          baseDisabled || (isResend && !isDirty && !isApprovalDirty && !approvalNote.trim()),
+        disabled: baseDisabled,
         onClick: () => {
           const errors: { reviewer?: string; priority?: string; dueDate?: string } = {};
           if (!approvalMeta.assigned_to_email)
@@ -2591,7 +2587,7 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
             {!isPostPublished && formData.status !== PostStatus.DRAFT && (
               <TypedButton
                 onClick={() => setShowRevertConfirm(true)}
-                disabled={isLoading}
+                disabled={isLoading || !formData.caption}
                 className="rounded-xl px-5 py-2 text-sm font-semibold transition-colors flex items-center gap-2 bg-gray-700 hover:bg-gray-800 hover:text-white text-white disabled:opacity-40"
               >
                 <FileText className="w-4 h-4" />
@@ -2706,22 +2702,26 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
       <ConfirmDialog
         open={showRevertConfirm}
         onClose={() => setShowRevertConfirm(false)}
-        onConfirm={() => {
-          setShowRevertConfirm(false);
-          // Set the ref so handleSubmit's save payload clears approval fields
+        onConfirm={async () => {
+          if (revertingToDraftRef.current) return;
           revertingToDraftRef.current = true;
-          handleSubmit(PostStatus.DRAFT).finally(() => {
+          try {
+            await handleSubmit(PostStatus.DRAFT);
+            setShowRevertConfirm(false);
+            // Only clear local state after a successful save so a failed
+            // revert doesn't leave the UI in an inconsistent state.
+            setFormData((f) => ({ ...f, status: PostStatus.DRAFT }));
+            setApprovalMeta({ assigned_to_email: null, priority: 'normal', review_due_date: null });
+            setApprovalErrors({});
+            setApprovalNote('');
+            initialApprovalMetaRef.current = {
+              assigned_to_email: null,
+              priority: 'normal',
+              review_due_date: null,
+            };
+          } finally {
             revertingToDraftRef.current = false;
-          });
-          // Clear local approval state so the UI reflects the revert
-          setApprovalMeta({ assigned_to_email: null, priority: 'normal', review_due_date: null });
-          setApprovalErrors({});
-          setApprovalNote('');
-          initialApprovalMetaRef.current = {
-            assigned_to_email: null,
-            priority: 'normal',
-            review_due_date: null,
-          };
+          }
         }}
         title={COPY.calendarPostModal.revertToDraftTitle}
         description={COPY.calendarPostModal.revertToDraftDescription}

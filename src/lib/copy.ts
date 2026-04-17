@@ -117,7 +117,6 @@ const COPY = {
     newPost: 'New Post',
     submitForReview: 'Submit for Review',
     sendForApproval: 'Send for Approval',
-    resendForApproval: 'Resend for Approval',
     approvalReviewerRequired: 'Please assign a reviewer.',
     approvalPriorityRequired: 'Please select a priority.',
     approvalDueDateRequired: 'Please set a due date.',
