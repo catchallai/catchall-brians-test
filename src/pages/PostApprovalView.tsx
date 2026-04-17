@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link, useSearchParams } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { createPageUrl } from '@/utils';
 import { Skeleton } from '@/components/ui/skeleton';
-import { ArrowLeft, ShieldCheck, MessageSquare, Bell, FileText } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { ArrowLeft, ShieldCheck, MessageSquare, Bell, FileText, Pencil } from 'lucide-react';
+import CalendarPostModal from '@/components/modals/CalendarPostModal';
 import ApprovalWidget from '@/components/social/approvals/ApprovalWidget';
 import { PLATFORMS } from '@/constants/platforms';
 import COPY from '@/lib/copy';
@@ -25,6 +27,7 @@ export default function PostApprovalView() {
   // from the stored url — so it resets automatically on platform switch AND
   // when a refetch/mutation changes the cropped URL for the same platform.
   const [inferred, setInferred] = useState<{ url: string; ratio: number } | null>(null);
+  const [showEditModal, setShowEditModal] = useState(false);
 
   const { data: currentUser } = useQuery({
     queryKey: ['current-user'],
@@ -36,6 +39,27 @@ export default function PostApprovalView() {
     queryFn: () => base44.entities.CalendarPost.get(postId),
     enabled: !!postId,
   });
+
+  const updateMutation = useMutation({
+    mutationFn: (data: Record<string, unknown>) =>
+      base44.entities.CalendarPost.update(postId!, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['calendar-post', postId] });
+      queryClient.invalidateQueries({ queryKey: ['calendar-posts'] });
+    },
+  });
+
+  const handleEditSave = async (data: any) => {
+    return await updateMutation.mutateAsync(data);
+  };
+
+  // The author is the user who first submitted the post for review.
+  const authorEmail = (post?.workflow_history ?? []).find(
+    (e: any) => e.action === 'submitted_for_review'
+  )?.by_email;
+  const isAuthor = currentUser?.email && currentUser.email === authorEmail;
+  const isAdmin = currentUser?.role === 'admin' || currentUser?.social_media_role === 'admin';
+  const canEdit = (isAuthor || isAdmin) && post?.status !== 'published';
 
   useEffect(() => {
     if (post?.platforms?.length > 0 && !previewPlatform) {
@@ -65,17 +89,30 @@ export default function PostApprovalView() {
   return (
     <div className="p-6 lg:p-8 min-h-screen bg-gray-50">
       <div className="max-w-4xl mx-auto space-y-5">
-        <Link
-          to={
-            origin === 'composer' ? createPageUrl('SocialCalendar') : createPageUrl('AllChannels')
-          }
-          className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-800 transition-colors"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          {origin === 'composer'
-            ? COPY.postApprovalView.backToSocialCalendar
-            : COPY.postApprovalView.backToAllChannels}
-        </Link>
+        <div className="flex items-center justify-between">
+          <Link
+            to={
+              origin === 'composer' ? createPageUrl('SocialCalendar') : createPageUrl('AllChannels')
+            }
+            className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-800 transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            {origin === 'composer'
+              ? COPY.postApprovalView.backToSocialCalendar
+              : COPY.postApprovalView.backToAllChannels}
+          </Link>
+          {canEdit && (
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-1.5"
+              onClick={() => setShowEditModal(true)}
+            >
+              <Pencil className="w-3.5 h-3.5" />
+              {COPY.postApprovalView.editPost}
+            </Button>
+          )}
+        </div>
 
         {/* Post Preview — platform tabs + preview card matching create-post modal */}
         {post.platforms?.length > 0 &&
@@ -231,6 +268,15 @@ export default function PostApprovalView() {
           {rightPanel === 'workflow' && <WorkflowStageBuilder />}
         </div>
       </div>
+
+      {/* Edit post modal — visible to author and admins */}
+      <CalendarPostModal
+        open={showEditModal}
+        onClose={() => setShowEditModal(false)}
+        post={post}
+        onSave={handleEditSave}
+        isLoading={updateMutation.isPending}
+      />
     </div>
   );
 }
