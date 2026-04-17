@@ -284,7 +284,7 @@ function DayView({
   // #5 Drag-to-reschedule within day view
   const isHourPast = (hour) => {
     if (isPastDay) return true;
-    if (isToday && hour < nowHour) return true;
+    if (isToday && hour <= nowHour) return true;
     return false;
   };
 
@@ -568,7 +568,7 @@ function WeekView({
     if (!draggedPost) return;
     const newDate = format(day, 'yyyy-MM-dd');
     const today = todayLocal();
-    const isPast = newDate < today || (newDate === today && hour < nowHour);
+    const isPast = newDate < today || (newDate === today && hour <= nowHour);
     if (isPast) {
       setDraggedPost(null);
       return;
@@ -700,7 +700,7 @@ function WeekView({
               const dayHourPosts = getPostsForDay(day).filter((p) => getPostHour(p) === hour);
               const isDragTarget = draggingOver?.hour === hour && draggingOver?.dayIdx === dayIdx;
               const isPastDay = format(day, 'yyyy-MM-dd') < todayLocal();
-              const isCellPast = isPastDay || (isDayToday && hour < nowHour);
+              const isCellPast = isPastDay || (isDayToday && hour <= nowHour);
               const isDragOverValid = isDragTarget && !isCellPast;
               const isDragOverPast = isDragTarget && isCellPast;
               const showTimeLine = isDayToday && isCurrentHour;
@@ -937,12 +937,25 @@ export default function SocialCalendarView({
     e.dataTransfer.effectAllowed = 'move';
   };
 
+  /** Check if dropping the currently dragged post on `day` would schedule it
+   *  in the past. Past days are always blocked; for today, the post's own
+   *  scheduled_time hour is compared against the current hour. */
+  const isDropInPast = (day) => {
+    const dateStr = format(day, 'yyyy-MM-dd');
+    const today = todayLocal();
+    if (dateStr < today) return true;
+    if (dateStr === today && draggedPost) {
+      const postHour = getPostHour(draggedPost);
+      if (postHour !== null && postHour <= new Date().getHours()) return true;
+    }
+    return false;
+  };
+
   const handleDragOver = (e, day) => {
     e.preventDefault();
     if (day) {
+      e.dataTransfer.dropEffect = isDropInPast(day) ? 'none' : 'move';
       const dateStr = format(day, 'yyyy-MM-dd');
-      const isPast = dateStr < todayLocal();
-      e.dataTransfer.dropEffect = isPast ? 'none' : 'move';
       if (dragOverDate !== dateStr) setDragOverDate(dateStr);
     }
   };
@@ -951,14 +964,13 @@ export default function SocialCalendarView({
     e.preventDefault();
     setDragOverDate(null);
     if (!draggedPost) return;
-    const newDate = format(targetDate, 'yyyy-MM-dd');
-    if (newDate < todayLocal()) {
+    if (isDropInPast(targetDate)) {
       setDraggedPost(null);
       return;
     }
     updatePostMutation.mutate({
       id: draggedPost.id,
-      data: { ...draggedPost, scheduled_date: newDate },
+      data: { ...draggedPost, scheduled_date: format(targetDate, 'yyyy-MM-dd') },
     });
     setDraggedPost(null);
   };
@@ -1016,9 +1028,9 @@ export default function SocialCalendarView({
 
             const dayStr = format(day, 'yyyy-MM-dd');
             const isDragOver = draggedPost && dragOverDate === dayStr;
-            const isPastDay = dayStr < todayLocal();
-            const isDragOverPast = isDragOver && isPastDay;
-            const isDragOverValid = isDragOver && !isPastDay;
+            const dropWouldBePast = isDragOver && isDropInPast(day);
+            const isDragOverPast = isDragOver && dropWouldBePast;
+            const isDragOverValid = isDragOver && !dropWouldBePast;
 
             return (
               <div
