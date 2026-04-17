@@ -1880,7 +1880,7 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
           )}
 
           {/* Comments tab */}
-          {activeTab === 'comments' && (savedPost ?? post) && (
+          {activeTab === 'comments' && (savedPost ?? post)?.id && (
             <div className="flex-1 p-6">
               <PostCommentThread
                 post={savedPost ?? post}
@@ -1905,7 +1905,7 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
           )}
 
           {/* Activity tab */}
-          {activeTab === 'activity' && (savedPost ?? post) && (
+          {activeTab === 'activity' && (savedPost ?? post)?.id && (
             <div className="flex-1 p-6">
               <PostActivityFeed post={savedPost ?? post} />
             </div>

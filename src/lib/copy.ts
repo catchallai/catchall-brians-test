@@ -294,7 +294,6 @@ const COPY = {
     backToSocialCalendar: 'Back to Social Calendar',
     mediaRetainedNotice:
       'Media retained for version history — not transferred to the Approved Media Database.',
-    activity: 'Activity',
     workflow: 'Workflow',
   },
   postCommentThread: {
