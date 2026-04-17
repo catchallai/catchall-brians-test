@@ -66,7 +66,13 @@ const COPY = {
     draggedToPastTime:
       "This post's scheduled time is now in the past. Open the post to update the time.",
     swapDatesOnDrag: 'Swap dates of posts when dragging',
+    untitled: 'Untitled',
+    unscheduled: 'unscheduled',
     toasts: {
+      success: {
+        swappedDates: (nameA: string, dateB: string, nameB: string, dateA: string) =>
+          `Swapped dates: "${nameA}" → ${dateB}, "${nameB}" → ${dateA}`,
+      },
       error: {
         reorderPosts: 'Failed to update post order. Please try again.',
         publishedPost: 'Published posts cannot be reordered.',

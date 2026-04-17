@@ -272,15 +272,15 @@ export default function NineGridEditor({
       });
 
       if (shouldSwapDates) {
-        const nameA = postA.title || postA.caption?.slice(0, 20) || 'Untitled';
-        const nameB = postB.title || postB.caption?.slice(0, 20) || 'Untitled';
+        const nameA = postA.title || postA.caption?.slice(0, 20) || COPY.socialCalendar.untitled;
+        const nameB = postB.title || postB.caption?.slice(0, 20) || COPY.socialCalendar.untitled;
         const dateA = postA.scheduled_date
           ? format(parseISO(postA.scheduled_date), 'MMM d')
-          : 'unscheduled';
+          : COPY.socialCalendar.unscheduled;
         const dateB = postB.scheduled_date
           ? format(parseISO(postB.scheduled_date), 'MMM d')
-          : 'unscheduled';
-        toast.success(`Swapped dates: "${nameA}" → ${dateB}, "${nameB}" → ${dateA}`);
+          : COPY.socialCalendar.unscheduled;
+        toast.success(COPY.socialCalendar.toasts.success.swappedDates(nameA, dateB, nameB, dateA));
       }
 
       // Optimistically update UI
