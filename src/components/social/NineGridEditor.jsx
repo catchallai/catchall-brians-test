@@ -335,6 +335,7 @@ export default function NineGridEditor({
             <Switch
               checked={swapDates}
               onCheckedChange={handleSwapDatesChange}
+              aria-label={COPY.socialCalendar.swapDatesOnDrag}
               className="data-[state=checked]:bg-violet-600"
             />
           </label>

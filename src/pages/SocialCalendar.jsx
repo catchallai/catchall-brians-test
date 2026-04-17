@@ -273,13 +273,6 @@ export default function SocialCalendar() {
     },
   });
 
-  const reorderMutation = useMutation({
-    mutationFn: ({ id, data }) => base44.entities.CalendarPost.update(id, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['calendar-posts'] });
-    },
-  });
-
   const deleteMutation = useMutation({
     mutationFn: (post) =>
       base44.entities.CalendarPost.update(post.id, {
@@ -417,13 +410,10 @@ export default function SocialCalendar() {
       await Promise.all(
         updatedPosts.map((post) =>
           post && post.id
-            ? reorderMutation.mutateAsync({
-                id: post.id,
-                data: {
-                  order: post.order,
-                  scheduled_date: post.scheduled_date,
-                  scheduled_time: post.scheduled_time,
-                },
+            ? base44.entities.CalendarPost.update(post.id, {
+                order: post.order,
+                scheduled_date: post.scheduled_date,
+                scheduled_time: post.scheduled_time,
               })
             : Promise.resolve()
         )
