@@ -18,14 +18,13 @@ import TechnicalAuditCard from '@/components/seo/TechnicalAuditCard';
 import SEOHistoricalTracker from '@/components/seo/SEOHistoricalTracker';
 import SEOAnomalyDetector from '@/components/seo/SEOAnomalyDetector';
 import LiveDataIntegration from '@/components/seo/LiveDataIntegration';
-import { useToast } from '@/components/ui/toast-provider';
+import { toast } from 'sonner';
 
 export default function SEODashboard() {
   const [showModal, setShowModal] = useState(false);
   const [selectedWebsite, setSelectedWebsite] = useState(null);
   const [analyzingWebsite, setAnalyzingWebsite] = useState(null);
   const queryClient = useQueryClient();
-  const toast = useToast();
 
   const { data: user } = useQuery({
     queryKey: ['current-user'],

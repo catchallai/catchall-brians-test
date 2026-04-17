@@ -6,12 +6,11 @@ import { Switch } from '@/components/ui/switch';
 import { RefreshCw, Clock, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useToast } from '@/components/ui/toast-provider';
+import { toast } from 'sonner';
 
 export default function AutoSyncSettings() {
   const [isManualSyncing, setIsManualSyncing] = useState(false);
   const queryClient = useQueryClient();
-  const toast = useToast();
 
   const { data: settings } = useQuery({
     queryKey: ['feature-settings'],

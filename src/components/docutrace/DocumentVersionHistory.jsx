@@ -4,14 +4,13 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { useToast } from '@/components/ui/toast-provider';
+import { toast } from 'sonner';
 import ConfirmDialog from '@/components/ui/ConfirmDialog';
 import { Clock, Download, Eye, RotateCcw, User, CheckCircle2 } from 'lucide-react';
 
 export default function DocumentVersionHistory({ open, onClose, document }) {
   const [revertVersion, setRevertVersion] = useState(null);
   const queryClient = useQueryClient();
-  const { toast } = useToast();
 
   const versions = document?.versions || [];
   const sortedVersions = [...versions].sort((a, b) => b.version_number - a.version_number);

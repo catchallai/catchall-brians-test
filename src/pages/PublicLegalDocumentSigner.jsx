@@ -7,14 +7,13 @@ import { Label } from '@/components/ui/label';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { AlertCircle, CheckCircle2, FileSignature, XCircle } from 'lucide-react';
-import { useToast } from '@/components/ui/toast-provider';
+import { toast } from 'sonner';
 
 export default function PublicLegalDocumentSigner() {
   const urlParams = new URLSearchParams(window.location.search);
   const token = urlParams.get('token');
   const [signature, setSignature] = useState('');
   const [declining, setDeclining] = useState(false);
-  const { toast } = useToast();
 
   const {
     data: document,

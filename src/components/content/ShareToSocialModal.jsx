@@ -11,7 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent } from '@/components/ui/card';
 import { Loader2, Calendar, Clock, Send, Wand2, Copy, Check } from 'lucide-react';
-import { useToast } from '@/components/ui/toast-provider';
+import { toast } from 'sonner';
 import { format } from 'date-fns';
 import { PLATFORMS as PLATFORM_CONFIGS } from '@/constants/platforms';
 
@@ -44,7 +44,6 @@ export default function ShareToSocialModal({ open, onClose, article, brief }) {
   const [isGenerating, setIsGenerating] = useState(false);
   const [copiedPlatform, setCopiedPlatform] = useState(null);
   const queryClient = useQueryClient();
-  const toast = useToast();
 
   const { data: brands = [] } = useQuery({
     queryKey: ['brands'],

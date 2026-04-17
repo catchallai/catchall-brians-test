@@ -20,7 +20,7 @@ import {
 } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { Mail, Send, Loader } from 'lucide-react';
-import { useToast } from '@/components/ui/toast-provider';
+import { toast } from 'sonner';
 
 export default function EmailContactModal({ open, onClose, contact, businessId }) {
   const [subject, setSubject] = useState('');
@@ -28,7 +28,6 @@ export default function EmailContactModal({ open, onClose, contact, businessId }
   const [selectedTemplate, setSelectedTemplate] = useState('');
   const [senderEmail, setSenderEmail] = useState('');
   const queryClient = useQueryClient();
-  const toast = useToast();
 
   const { data: user } = useQuery({
     queryKey: ['current-user'],

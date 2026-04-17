@@ -38,12 +38,11 @@ import {
   Trash2,
   Plus,
 } from 'lucide-react';
-import { useToast } from '@/components/ui/toast-provider';
+import { toast } from 'sonner';
 
 export default function UserSettings() {
   const [activeTab, setActiveTab] = useState('profile');
   const queryClient = useQueryClient();
-  const toast = useToast();
 
   const { data: user, isLoading: loadingUser } = useQuery({
     queryKey: ['current-user'],

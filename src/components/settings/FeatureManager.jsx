@@ -29,7 +29,7 @@ import {
   Rocket,
   Crown,
 } from 'lucide-react';
-import { useToast } from '@/components/ui/toast-provider';
+import { toast } from 'sonner';
 
 // Feature definitions with tiers
 const FEATURES = {
@@ -338,7 +338,6 @@ const TIER_COLORS = {
 
 export default function FeatureManager() {
   const queryClient = useQueryClient();
-  const toast = useToast();
 
   const { data: featureSettings = [], isLoading } = useQuery({
     queryKey: ['feature-settings'],

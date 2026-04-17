@@ -33,7 +33,7 @@ import BulkActionsPanel from '@/components/crm/BulkActionsPanel';
 import ExportDataMenu from '@/components/crm/ExportDataMenu';
 import EmptyState from '@/components/ui/EmptyState';
 import { useDebounce } from '@/components/hooks/useDebounce';
-import { useToast } from '@/components/ui/toast-provider';
+import { toast } from 'sonner';
 import ConfirmDialog from '@/components/ui/ConfirmDialog';
 import ImportDialog from '@/components/ui/ImportDialog';
 
@@ -47,7 +47,6 @@ export default function Opportunities() {
   const [deleteConfirm, setDeleteConfirm] = useState(null);
   const [showImport, setShowImport] = useState(false);
   const queryClient = useQueryClient();
-  const toast = useToast();
 
   const debouncedSearch = useDebounce(searchTerm, 300);
 

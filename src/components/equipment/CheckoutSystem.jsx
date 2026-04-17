@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { LogIn, LogOut, AlertCircle } from 'lucide-react';
-import { useToast } from '@/components/ui/toast-provider';
+import { toast } from 'sonner';
 
 export default function CheckoutSystem({ equipment }) {
   const [showCheckoutModal, setShowCheckoutModal] = useState(false);
@@ -24,7 +24,6 @@ export default function CheckoutSystem({ equipment }) {
     notes: '',
   });
   const queryClient = useQueryClient();
-  const toast = useToast();
 
   const { data: user } = useQuery({
     queryKey: ['current-user'],

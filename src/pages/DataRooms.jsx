@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Input } from '@/components/ui/input';
-import { useToast } from '@/components/ui/toast-provider';
+import { toast } from 'sonner';
 import DataRoomModal from '@/components/modals/DataRoomModal';
 import ConfirmDialog from '@/components/ui/ConfirmDialog';
 import EmptyState from '@/components/ui/EmptyState';
@@ -30,7 +30,6 @@ export default function DataRooms() {
   const [sendingRoom, setSendingRoom] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const queryClient = useQueryClient();
-  const { toast } = useToast();
 
   const { data: user } = useQuery({
     queryKey: ['current-user'],

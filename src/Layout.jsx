@@ -67,7 +67,6 @@ import { base44 } from '@/api/base44Client';
 import { useQuery, useQueryClient, QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useFeatures, PAGE_FEATURE_MAP } from '@/components/hooks/useFeatures';
 import OnboardingModal from '@/components/onboarding/OnboardingModal';
-import { ToastProvider } from '@/components/ui/toast-provider';
 import ChatBubble from '@/components/chat/ChatBubble';
 import NotificationCenter from '@/components/notifications/NotificationCenter';
 import {
@@ -854,68 +853,110 @@ function LayoutContent({ children, currentPageName }) {
 
   return (
     <ThemeProvider>
-      <ToastProvider>
-        <SessionReplayTracker />
-        {/* Google Analytics */}
-        <script async src="https://www.googletagmanager.com/gtag/js?id=G-15KW7LZW87"></script>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
+      <SessionReplayTracker />
+      {/* Google Analytics */}
+      <script async src="https://www.googletagmanager.com/gtag/js?id=G-15KW7LZW87"></script>
+      <script
+        dangerouslySetInnerHTML={{
+          __html: `
         window.dataLayer = window.dataLayer || [];
         function gtag(){dataLayer.push(arguments);}
         gtag('js', new Date());
         gtag('config', 'G-15KW7LZW87');
       `,
-          }}
-        />
-        <div className="min-h-screen gradient-bg transition-colors duration-300">
-          {/* Mobile Header */}
-          <div className="lg:hidden top-0 left-0 right-0 h-16 glass-topbar z-40 flex items-center gap-3 px-4">
-            <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
-              <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="shrink-0">
-                  <Menu className="w-5 h-5" />
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="left" className="p-0 w-72 dark:bg-gray-900 dark:border-gray-800">
-                <SidebarContent
-                  currentPage={currentPageName}
-                  onNavigate={() => setSidebarOpen(false)}
-                  isEnabled={isEnabled}
-                  user={user}
-                  onAddFavorite={handleAddFavorite}
-                  onRemoveFavorite={handleRemoveFavorite}
-                  dragOverFavorites={dragOverFavorites}
-                  setDragOverFavorites={setDragOverFavorites}
-                  isCollapsed={false}
-                />
-              </SheetContent>
-            </Sheet>
+        }}
+      />
+      <div className="min-h-screen gradient-bg transition-colors duration-300">
+        {/* Mobile Header */}
+        <div className="lg:hidden top-0 left-0 right-0 h-16 glass-topbar z-40 flex items-center gap-3 px-4">
+          <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
+            <SheetTrigger asChild>
+              <Button variant="ghost" size="icon" className="shrink-0">
+                <Menu className="w-5 h-5" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="left" className="p-0 w-72 dark:bg-gray-900 dark:border-gray-800">
+              <SidebarContent
+                currentPage={currentPageName}
+                onNavigate={() => setSidebarOpen(false)}
+                isEnabled={isEnabled}
+                user={user}
+                onAddFavorite={handleAddFavorite}
+                onRemoveFavorite={handleRemoveFavorite}
+                dragOverFavorites={dragOverFavorites}
+                setDragOverFavorites={setDragOverFavorites}
+                isCollapsed={false}
+              />
+            </SheetContent>
+          </Sheet>
 
-            <div className="flex-1 min-w-0">
-              <GlobalSearch />
-            </div>
+          <div className="flex-1 min-w-0">
+            <GlobalSearch />
+          </div>
 
-            <NotificationBell />
+          <NotificationBell />
+          <ThemeToggle />
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" className="rounded-full shrink-0">
+                <Avatar className="w-8 h-8">
+                  {user?.avatar_url ? (
+                    <img
+                      src={user.avatar_url}
+                      alt={user.full_name}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <AvatarFallback className="bg-violet-100 dark:bg-violet-900 text-violet-600 dark:text-violet-300 text-sm">
+                      {user?.full_name?.[0] || user?.email?.[0]?.toUpperCase() || 'U'}
+                    </AvatarFallback>
+                  )}
+                </Avatar>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-48">
+              <SocialMediaRoleDropdownSection user={user} />
+              <DropdownMenuItem asChild>
+                <Link to={createPageUrl('UserProfile')} className="cursor-pointer">
+                  <UserCircle className="w-4 h-4 mr-2" />
+                  Profile
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={handleLogout}>
+                <LogOut className="w-4 h-4 mr-2" />
+                Logout
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+
+        {/* Desktop Top Bar with Search */}
+        <div
+          className={`hidden lg:flex top-0 right-0 h-14 glass-topbar z-30 items-center justify-end px-6 transition-all duration-300 ${
+            sidebarCollapsed ? 'left-16' : 'left-64'
+          }`}
+        >
+          <div className="flex items-center gap-4 ml-auto">
+            <GlobalSearch />
+          </div>
+          <div className="flex items-center gap-2">
+            <NotificationCenter user={user} />
             <ThemeToggle />
-
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="rounded-full shrink-0">
+                <button className="flex items-center gap-2 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg px-2 py-1.5 transition-colors">
                   <Avatar className="w-8 h-8">
-                    {user?.avatar_url ? (
-                      <img
-                        src={user.avatar_url}
-                        alt={user.full_name}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <AvatarFallback className="bg-violet-100 dark:bg-violet-900 text-violet-600 dark:text-violet-300 text-sm">
-                        {user?.full_name?.[0] || user?.email?.[0]?.toUpperCase() || 'U'}
-                      </AvatarFallback>
-                    )}
+                    <AvatarFallback className="bg-violet-100 dark:bg-violet-900 text-violet-600 dark:text-violet-300 text-sm font-medium">
+                      {user?.full_name?.[0] || user?.email?.[0]?.toUpperCase() || 'U'}
+                    </AvatarFallback>
                   </Avatar>
-                </Button>
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-200">
+                    {user?.full_name || 'User'}
+                  </span>
+                  <ChevronDown className="w-4 h-4 text-gray-400" />
+                </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48">
                 <SocialMediaRoleDropdownSection user={user} />
@@ -933,200 +974,156 @@ function LayoutContent({ children, currentPageName }) {
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
+        </div>
 
-          {/* Desktop Top Bar with Search */}
-          <div
-            className={`hidden lg:flex top-0 right-0 h-14 glass-topbar z-30 items-center justify-end px-6 transition-all duration-300 ${
-              sidebarCollapsed ? 'left-16' : 'left-64'
-            }`}
+        {/* Desktop Sidebar */}
+        <aside
+          className={`hidden lg:fixed lg:inset-y-0 lg:flex lg:flex-col glass-sidebar z-30 transition-all duration-300 ${
+            sidebarCollapsed ? 'lg:w-16' : 'lg:w-64'
+          }`}
+        >
+          <SidebarContent
+            currentPage={currentPageName}
+            isEnabled={isEnabled}
+            user={user}
+            onAddFavorite={handleAddFavorite}
+            onRemoveFavorite={handleRemoveFavorite}
+            dragOverFavorites={dragOverFavorites}
+            setDragOverFavorites={setDragOverFavorites}
+            isCollapsed={sidebarCollapsed}
+          />
+
+          {/* Toggle Button */}
+          <button
+            onClick={toggleSidebar}
+            className="absolute -right-3 top-20 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-full p-1.5 shadow-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-all z-50"
+            title={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
           >
-            <div className="flex items-center gap-4 ml-auto">
-              <GlobalSearch />
-            </div>
-            <div className="flex items-center gap-2">
-              <NotificationCenter user={user} />
-              <ThemeToggle />
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <button className="flex items-center gap-2 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg px-2 py-1.5 transition-colors">
-                    <Avatar className="w-8 h-8">
+            <ChevronRight
+              className={`w-4 h-4 text-gray-600 dark:text-gray-300 transition-transform duration-300 ${sidebarCollapsed ? '' : 'rotate-180'}`}
+            />
+          </button>
+
+          {/* User Section */}
+          <div className="p-4 border-t border-gray-100 dark:border-gray-800">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  className={`w-full flex items-center gap-3 p-2 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors ${sidebarCollapsed ? 'justify-center' : ''}`}
+                >
+                  <Avatar className="w-9 h-9">
+                    {user?.avatar_url ? (
+                      <img
+                        src={user.avatar_url}
+                        alt={user.full_name}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
                       <AvatarFallback className="bg-violet-100 dark:bg-violet-900 text-violet-600 dark:text-violet-300 text-sm font-medium">
                         {user?.full_name?.[0] || user?.email?.[0]?.toUpperCase() || 'U'}
                       </AvatarFallback>
-                    </Avatar>
-                    <span className="text-sm font-medium text-gray-700 dark:text-gray-200">
-                      {user?.full_name || 'User'}
-                    </span>
-                    <ChevronDown className="w-4 h-4 text-gray-400" />
-                  </button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-48">
-                  <SocialMediaRoleDropdownSection user={user} />
-                  <DropdownMenuItem asChild>
-                    <Link to={createPageUrl('UserProfile')} className="cursor-pointer">
-                      <UserCircle className="w-4 h-4 mr-2" />
-                      Profile
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={handleLogout}>
-                    <LogOut className="w-4 h-4 mr-2" />
-                    Logout
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-          </div>
-
-          {/* Desktop Sidebar */}
-          <aside
-            className={`hidden lg:fixed lg:inset-y-0 lg:flex lg:flex-col glass-sidebar z-30 transition-all duration-300 ${
-              sidebarCollapsed ? 'lg:w-16' : 'lg:w-64'
-            }`}
-          >
-            <SidebarContent
-              currentPage={currentPageName}
-              isEnabled={isEnabled}
-              user={user}
-              onAddFavorite={handleAddFavorite}
-              onRemoveFavorite={handleRemoveFavorite}
-              dragOverFavorites={dragOverFavorites}
-              setDragOverFavorites={setDragOverFavorites}
-              isCollapsed={sidebarCollapsed}
-            />
-
-            {/* Toggle Button */}
-            <button
-              onClick={toggleSidebar}
-              className="absolute -right-3 top-20 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-full p-1.5 shadow-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-all z-50"
-              title={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-            >
-              <ChevronRight
-                className={`w-4 h-4 text-gray-600 dark:text-gray-300 transition-transform duration-300 ${sidebarCollapsed ? '' : 'rotate-180'}`}
-              />
-            </button>
-
-            {/* User Section */}
-            <div className="p-4 border-t border-gray-100 dark:border-gray-800">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <button
-                    className={`w-full flex items-center gap-3 p-2 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors ${sidebarCollapsed ? 'justify-center' : ''}`}
-                  >
-                    <Avatar className="w-9 h-9">
-                      {user?.avatar_url ? (
-                        <img
-                          src={user.avatar_url}
-                          alt={user.full_name}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <AvatarFallback className="bg-violet-100 dark:bg-violet-900 text-violet-600 dark:text-violet-300 text-sm font-medium">
-                          {user?.full_name?.[0] || user?.email?.[0]?.toUpperCase() || 'U'}
-                        </AvatarFallback>
-                      )}
-                    </Avatar>
-                    {!sidebarCollapsed && (
-                      <>
-                        <div className="flex-1 text-left min-w-0">
-                          <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
-                            {user?.full_name || 'User'}
-                          </p>
-                          <p className="text-xs text-gray-400 dark:text-gray-500 truncate">
-                            {user?.email}
-                          </p>
-                        </div>
-                        <ChevronDown className="w-4 h-4 text-gray-400" />
-                      </>
                     )}
+                  </Avatar>
+                  {!sidebarCollapsed && (
+                    <>
+                      <div className="flex-1 text-left min-w-0">
+                        <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                          {user?.full_name || 'User'}
+                        </p>
+                        <p className="text-xs text-gray-400 dark:text-gray-500 truncate">
+                          {user?.email}
+                        </p>
+                      </div>
+                      <ChevronDown className="w-4 h-4 text-gray-400" />
+                    </>
+                  )}
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <SocialMediaRoleDropdownSection user={user} />
+                <DropdownMenuItem onClick={handleLogout}>
+                  <LogOut className="w-4 h-4 mr-2" />
+                  Logout
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        </aside>
+
+        {/* Main Content */}
+        <main
+          className={`transition-all duration-300 ${sidebarCollapsed ? 'lg:pl-16' : 'lg:pl-64'}`}
+        >
+          <div className="min-h-screen gradient-bg">
+            <ErrorBoundary>{children}</ErrorBoundary>
+          </div>
+        </main>
+
+        {/* Chat Bubble */}
+        <ChatBubble />
+
+        {/* Keyboard Shortcuts Dialog */}
+        <KeyboardShortcutsDialog open={showShortcuts} onClose={() => setShowShortcuts(false)} />
+
+        {/* Name Setup Prompt */}
+        {showNamePrompt && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+            <div className="bg-white dark:bg-slate-800 rounded-2xl p-8 max-w-md w-full mx-4 shadow-lg">
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+                Complete Your Profile
+              </h2>
+              <p className="text-gray-600 dark:text-gray-400 mb-6">
+                Let's get your actual name on file
+              </p>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Full Name
+                  </label>
+                  <input
+                    type="text"
+                    value={pendingName}
+                    onChange={(e) => setPendingName(e.target.value)}
+                    placeholder="Enter your full name"
+                    className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
+                    autoFocus
+                  />
+                </div>
+
+                <div className="flex gap-3 pt-4">
+                  <button
+                    onClick={() => setShowNamePrompt(false)}
+                    className="flex-1 px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors font-medium"
+                  >
+                    Skip for Now
                   </button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56">
-                  <SocialMediaRoleDropdownSection user={user} />
-                  <DropdownMenuItem onClick={handleLogout}>
-                    <LogOut className="w-4 h-4 mr-2" />
-                    Logout
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-          </aside>
-
-          {/* Main Content */}
-          <main
-            className={`transition-all duration-300 ${sidebarCollapsed ? 'lg:pl-16' : 'lg:pl-64'}`}
-          >
-            <div className="min-h-screen gradient-bg">
-              <ErrorBoundary>{children}</ErrorBoundary>
-            </div>
-          </main>
-
-          {/* Chat Bubble */}
-          <ChatBubble />
-
-          {/* Keyboard Shortcuts Dialog */}
-          <KeyboardShortcutsDialog open={showShortcuts} onClose={() => setShowShortcuts(false)} />
-
-          {/* Name Setup Prompt */}
-          {showNamePrompt && (
-            <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-              <div className="bg-white dark:bg-slate-800 rounded-2xl p-8 max-w-md w-full mx-4 shadow-lg">
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-                  Complete Your Profile
-                </h2>
-                <p className="text-gray-600 dark:text-gray-400 mb-6">
-                  Let's get your actual name on file
-                </p>
-
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Full Name
-                    </label>
-                    <input
-                      type="text"
-                      value={pendingName}
-                      onChange={(e) => setPendingName(e.target.value)}
-                      placeholder="Enter your full name"
-                      className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
-                      autoFocus
-                    />
-                  </div>
-
-                  <div className="flex gap-3 pt-4">
-                    <button
-                      onClick={() => setShowNamePrompt(false)}
-                      className="flex-1 px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors font-medium"
-                    >
-                      Skip for Now
-                    </button>
-                    <button
-                      onClick={() => {
-                        if (pendingName.trim()) {
-                          base44.auth.updateMe({ full_name: pendingName });
-                          qClient.invalidateQueries({ queryKey: ['current-user'] });
-                          setShowNamePrompt(false);
-                        }
-                      }}
-                      disabled={!pendingName.trim()}
-                      className="flex-1 px-4 py-2 rounded-lg bg-violet-600 hover:bg-violet-700 disabled:bg-gray-300 text-white transition-colors font-medium"
-                    >
-                      Save Name
-                    </button>
-                  </div>
+                  <button
+                    onClick={() => {
+                      if (pendingName.trim()) {
+                        base44.auth.updateMe({ full_name: pendingName });
+                        qClient.invalidateQueries({ queryKey: ['current-user'] });
+                        setShowNamePrompt(false);
+                      }
+                    }}
+                    disabled={!pendingName.trim()}
+                    className="flex-1 px-4 py-2 rounded-lg bg-violet-600 hover:bg-violet-700 disabled:bg-gray-300 text-white transition-colors font-medium"
+                  >
+                    Save Name
+                  </button>
                 </div>
               </div>
             </div>
-          )}
+          </div>
+        )}
 
-          {/* Onboarding Modal */}
-          <OnboardingModal
-            open={showOnboarding}
-            onClose={handleOnboardingSkip}
-            onComplete={handleOnboardingComplete}
-          />
-        </div>
-      </ToastProvider>
+        {/* Onboarding Modal */}
+        <OnboardingModal
+          open={showOnboarding}
+          onClose={handleOnboardingSkip}
+          onComplete={handleOnboardingComplete}
+        />
+      </div>
     </ThemeProvider>
   );
 }

@@ -14,7 +14,6 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Plus, Trash2, ArrowUp, ArrowDown, Save, AlertCircle } from 'lucide-react';
-import { useToast } from '@/components/ui/use-toast';
 import SectionEditor from './SectionEditor';
 
 const TEMPLATES = [
@@ -37,7 +36,6 @@ const SECTION_TYPES = [
 
 export default function LandingPageEditorModal({ open, onClose, page, onSave, isLoading = false }) {
   const [errors, setErrors] = useState({});
-  const { toast } = useToast();
   const [formData, setFormData] = useState({
     title: '',
     slug: '',

@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/select';
 import { base44 } from '@/api/base44Client';
 import { Loader2 } from 'lucide-react';
-import { useToast } from '@/components/ui/toast-provider';
+import { toast } from 'sonner';
 
 export default function CallLogModal({ open, onClose, onSuccess, isLogCall = false }) {
   const [loading, setLoading] = useState(false);
@@ -21,7 +21,6 @@ export default function CallLogModal({ open, onClose, onSuccess, isLogCall = fal
   const [companies, setCompanies] = useState([]);
   const [searchingContacts, setSearchingContacts] = useState(false);
   const [searchingCompanies, setSearchingCompanies] = useState(false);
-  const toast = useToast();
 
   const [formData, setFormData] = useState({
     first_name: '',

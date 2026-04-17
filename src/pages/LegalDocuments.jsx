@@ -21,7 +21,7 @@ import {
 import LegalDocumentModal from '@/components/modals/LegalDocumentModal';
 import EmptyState from '@/components/ui/EmptyState';
 import ConfirmDialog from '@/components/ui/ConfirmDialog';
-import { useToast } from '@/components/ui/toast-provider';
+import { toast } from 'sonner';
 
 export default function LegalDocuments() {
   const [showModal, setShowModal] = useState(false);
@@ -31,7 +31,6 @@ export default function LegalDocuments() {
   const [statusFilter, setStatusFilter] = useState('all');
   const [sendingDoc, setSendingDoc] = useState(null);
   const queryClient = useQueryClient();
-  const { toast } = useToast();
 
   const { data: user } = useQuery({
     queryKey: ['current-user'],

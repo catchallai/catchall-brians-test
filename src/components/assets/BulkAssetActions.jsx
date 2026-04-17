@@ -11,12 +11,11 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Trash2, Folder, Download } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
-import { useToast } from '@/components/ui/toast-provider';
+import { toast } from 'sonner';
 
 export default function BulkAssetActions({ selectedAssets, onClear, onComplete }) {
   const [showMoveModal, setShowMoveModal] = useState(false);
   const [targetFolder, setTargetFolder] = useState('');
-  const toast = useToast();
 
   const { data: folders = [] } = useQuery({
     queryKey: ['asset-folders'],

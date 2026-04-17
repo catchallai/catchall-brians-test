@@ -35,7 +35,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import QRCodeGenerator from '@/components/equipment/QRCodeGenerator';
 import MaintenanceHistory from '@/components/equipment/MaintenanceHistory';
 import CheckoutSystem from '@/components/equipment/CheckoutSystem';
-import { useToast } from '@/components/ui/toast-provider';
+import { toast } from 'sonner';
 
 export default function EquipmentInventory() {
   const [search, setSearch] = useState('');
@@ -66,7 +66,6 @@ export default function EquipmentInventory() {
   });
 
   const queryClient = useQueryClient();
-  const toast = useToast();
 
   const { data: equipment = [] } = useQuery({
     queryKey: ['equipment'],

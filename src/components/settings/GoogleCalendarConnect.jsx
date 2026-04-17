@@ -4,12 +4,10 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Calendar, CheckCircle2, XCircle, AlertCircle } from 'lucide-react';
-import { useToast } from '@/components/ui/use-toast';
+import { toast } from 'sonner';
 
 export default function GoogleCalendarConnect() {
   const queryClient = useQueryClient();
-  const { toast } = useToast();
-
   const { data: user } = useQuery({
     queryKey: ['current-user'],
     queryFn: () => base44.auth.me(),
@@ -26,10 +24,7 @@ export default function GoogleCalendarConnect() {
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['current-user'] });
-      toast({
-        title: 'Disconnected',
-        description: 'Google Calendar has been disconnected',
-      });
+      toast.success('Google Calendar has been disconnected');
     },
   });
 
@@ -39,12 +34,8 @@ export default function GoogleCalendarConnect() {
       if (response.data.authUrl) {
         window.location.href = response.data.authUrl;
       }
-    } catch (error) {
-      toast({
-        title: 'Error',
-        description: 'Failed to start authorization',
-        variant: 'destructive',
-      });
+    } catch (_error) {
+      toast.error('Failed to start authorization');
     }
   };
 

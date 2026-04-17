@@ -31,7 +31,7 @@ import EmailTrackingPanel from '@/components/crm/EmailTrackingPanel';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
-import { useToast } from '@/components/ui/toast-provider';
+import { toast } from 'sonner';
 
 export default function ContactDetailPanel({ contactId, onClose }) {
   const [showEmailModal, setShowEmailModal] = React.useState(false);
@@ -39,7 +39,6 @@ export default function ContactDetailPanel({ contactId, onClose }) {
   const [taskTitle, setTaskTitle] = React.useState('');
   const [taskDescription, setTaskDescription] = React.useState('');
   const [creatingTask, setCreatingTask] = React.useState(false);
-  const toast = useToast();
 
   const { data: contact, isLoading } = useQuery({
     queryKey: ['contact', contactId],

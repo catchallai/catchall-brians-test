@@ -19,7 +19,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Mail, Tag, CheckCircle2, ListTodo, Loader2 } from 'lucide-react';
-import { useToast } from '@/components/ui/toast-provider';
+import { toast } from 'sonner';
 
 export default function ContactBulkActionsPanel({
   selectedContactIds,
@@ -36,7 +36,6 @@ export default function ContactBulkActionsPanel({
   const [statusData, setStatusData] = useState('prospect');
   const [taskData, setTaskData] = useState({ title: '', description: '', priority: 'medium' });
   const queryClient = useQueryClient();
-  const toast = useToast();
 
   const selectedContacts = contacts.filter((c) => selectedContactIds.includes(c.id));
 

@@ -11,12 +11,11 @@ import {
 } from '@/components/ui/select';
 import { Download, FileText, Globe, Loader2 } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
-import { useToast } from '@/components/ui/toast-provider';
+import { toast } from 'sonner';
 
 export default function ContentExporter({ article, open, onClose }) {
   const [platform, setPlatform] = useState('wordpress');
   const [exporting, setExporting] = useState(false);
-  const toast = useToast();
 
   const PLATFORMS = [
     { id: 'wordpress', label: 'WordPress', icon: Globe },

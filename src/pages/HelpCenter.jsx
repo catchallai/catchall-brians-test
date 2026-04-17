@@ -42,7 +42,7 @@ import {
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import ReactMarkdown from 'react-markdown';
-import { useToast } from '@/components/ui/toast-provider';
+import { toast } from 'sonner';
 
 const CATEGORIES = [
   {
@@ -2535,7 +2535,6 @@ export default function HelpCenter() {
   const [aiQuestion, setAiQuestion] = useState('');
   const [aiAnswer, setAiAnswer] = useState('');
   const [isAskingAI, setIsAskingAI] = useState(false);
-  const toast = useToast();
 
   // Get article from URL if present
   React.useEffect(() => {

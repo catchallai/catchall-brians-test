@@ -9,7 +9,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Plus, Wrench, DollarSign } from 'lucide-react';
-import { useToast } from '@/components/ui/toast-provider';
+import { toast } from 'sonner';
 
 export default function MaintenanceHistory({ equipmentId }) {
   const [showAddModal, setShowAddModal] = useState(false);
@@ -22,7 +22,6 @@ export default function MaintenanceHistory({ equipmentId }) {
     parts_replaced: [],
   });
   const queryClient = useQueryClient();
-  const toast = useToast();
 
   const { data: logs = [] } = useQuery({
     queryKey: ['maintenance-logs', equipmentId],

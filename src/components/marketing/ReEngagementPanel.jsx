@@ -16,7 +16,7 @@ import {
 } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Plus, RefreshCw, Users, Play, Pause, Loader2, UserX, Target } from 'lucide-react';
-import { useToast } from '@/components/ui/toast-provider';
+import { toast } from 'sonner';
 import { differenceInDays } from 'date-fns';
 
 const TARGET_LABELS = {
@@ -38,7 +38,6 @@ export default function ReEngagementPanel({ contacts, deals }) {
     offer_value: '',
   });
   const queryClient = useQueryClient();
-  const toast = useToast();
 
   const { data: campaigns = [] } = useQuery({
     queryKey: ['re-engagement-campaigns'],

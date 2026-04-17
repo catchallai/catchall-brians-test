@@ -17,14 +17,13 @@ import {
   XCircle,
 } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
-import { useToast } from '@/components/ui/toast-provider';
+import { toast } from 'sonner';
 
 export default function HubSpotSync() {
   const [syncing, setSyncing] = useState(false);
   const [syncType, setSyncType] = useState('both');
   const [direction, setDirection] = useState('bidirectional');
   const [results, setResults] = useState(null);
-  const toast = useToast();
 
   const handleSync = async () => {
     setSyncing(true);

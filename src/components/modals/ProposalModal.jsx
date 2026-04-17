@@ -12,7 +12,7 @@ import {
 } from '@/components/ui/select';
 import { Plus, Trash2, FileText, Mail } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
-import { useToast } from '@/components/ui/toast-provider';
+import { toast } from 'sonner';
 
 export default function ProposalModal({
   open,
@@ -23,7 +23,6 @@ export default function ProposalModal({
   onSave,
   isLoading,
 }) {
-  const toast = useToast();
   const [generatingPdf, setGeneratingPdf] = useState(false);
   const [sendingEmail, setSendingEmail] = useState(false);
   const [formData, setFormData] = useState({
