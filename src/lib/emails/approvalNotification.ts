@@ -66,9 +66,24 @@ const PRIORITY_STYLES: Record<PostPriority, PriorityStyle> = {
 function parseDueDate(iso?: string | null): Date | null {
   if (!iso) return null;
   const dateOnlyMatch = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso);
-  const d = dateOnlyMatch
-    ? new Date(Number(dateOnlyMatch[1]), Number(dateOnlyMatch[2]) - 1, Number(dateOnlyMatch[3]))
-    : new Date(iso);
+  if (dateOnlyMatch) {
+    // `new Date(y, m, d)` silently normalizes out-of-range values (e.g. month 13,
+    // day 40), so verify the constructed date round-trips back to the input parts.
+    const year = Number(dateOnlyMatch[1]);
+    const month = Number(dateOnlyMatch[2]);
+    const day = Number(dateOnlyMatch[3]);
+    const d = new Date(year, month - 1, day);
+    if (
+      Number.isNaN(d.getTime()) ||
+      d.getFullYear() !== year ||
+      d.getMonth() !== month - 1 ||
+      d.getDate() !== day
+    ) {
+      return null;
+    }
+    return d;
+  }
+  const d = new Date(iso);
   return Number.isNaN(d.getTime()) ? null : d;
 }
 
@@ -96,6 +111,16 @@ function formatBodyDueDate(iso?: string | null): string | null {
 function truncate(s: string, max: number): string {
   // Reserve one char for the ellipsis so the returned string is at most `max` long.
   return s.length > max ? `${s.slice(0, max - 1)}…` : s;
+}
+
+// Captions flow into the subject line from a textarea, so they can contain CR/LF
+// and other control chars. Newlines in an email subject risk header injection or
+// silent send failures depending on transport.
+function sanitizeSubjectText(s: string): string {
+  return s
+    .replace(/[\r\n\t\v\f\u0000-\u001f\u007f]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
 }
 
 function renderRow(item: ApprovalEmailPendingItem): string {
@@ -132,7 +157,7 @@ export function renderApprovalNotificationEmail(data: ApprovalEmailData): Approv
   const rowsHtml = renderRows(data.pendingItems, pendingCount);
   const subjectDueDate = formatSubjectDueDate(data.submittedPostDueDate);
   const bodyDueDate = formatBodyDueDate(data.submittedPostDueDate);
-  const subject = `Post Review Requested: "${truncate(data.submittedPostTitle, SUBJECT_TITLE_MAX)}"${
+  const subject = `Post Review Requested: "${truncate(sanitizeSubjectText(data.submittedPostTitle), SUBJECT_TITLE_MAX)}"${
     subjectDueDate ? ` - Due Date: ${subjectDueDate}` : ''
   }`;
   const headline = bodyDueDate

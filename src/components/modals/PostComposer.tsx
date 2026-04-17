@@ -1466,7 +1466,8 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
             pendingItems,
             pendingCount: queue.length,
             submittedPostTitle: submittedTitle,
-            submittedPostDueDate: approvalMeta.review_due_date ?? null,
+            submittedPostDueDate:
+              (saveResult as CalendarPost).review_due_date ?? approvalMeta.review_due_date ?? null,
             authorNote: approvalNote.trim() || null,
           });
 
