@@ -65,6 +65,7 @@ const COPY = {
     keepEditing: 'Keep Editing',
     draggedToPastTime:
       "This post's scheduled time is now in the past. Open the post to update the time.",
+    swapDatesOnDrag: 'Swap dates of posts when dragging',
     toasts: {
       error: {
         reorderPosts: 'Failed to update post order. Please try again.',
