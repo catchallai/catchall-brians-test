@@ -1,4 +1,12 @@
-import { createContext, useContext, useCallback, useRef, useState, type ReactNode } from 'react';
+import {
+  createContext,
+  useContext,
+  useCallback,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+} from 'react';
 import { useNavigate } from 'react-router-dom';
 import ConfirmDialog from '@/components/ui/ConfirmDialog';
 import COPY from '@/lib/copy';
@@ -107,7 +115,12 @@ export function NavigationGuardProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <NavigationGuardContext.Provider value={{ register, check, guardedNavigate, guardedBack }}>
+    <NavigationGuardContext.Provider
+      value={useMemo(
+        () => ({ register, check, guardedNavigate, guardedBack }),
+        [register, check, guardedNavigate, guardedBack]
+      )}
+    >
       {children}
       <ConfirmDialog
         open={!!pending}
