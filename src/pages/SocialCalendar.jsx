@@ -29,7 +29,6 @@ import {
   Filter,
   X,
 } from 'lucide-react';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
 import ConfirmDialog from '@/components/ui/ConfirmDialog';
 import {
   format,
@@ -50,9 +49,6 @@ import { TagPill } from '@/components/social/tags/TagPill';
 import { useTagsQuery } from '@/components/social/tags/useTagsQuery';
 import { HoverCard, HoverCardTrigger, HoverCardContent } from '@/components/ui/hover-card';
 import SocialCalendarView from '@/components/social/SocialCalendarView';
-import { AllHashtagsSection } from '@/components/hashtags/AllHashtagsSection';
-import { CreateHashtagPoolSection } from '@/components/hashtags/CreateHashtagPoolSection';
-import { CategoriesSidebar } from '@/components/hashtags/CategoriesSidebar';
 import NineGridEditor from '@/components/social/NineGridEditor';
 import PostGallery from '@/components/social/PostGallery';
 import TeamManager from '@/components/social/TeamManager';
@@ -60,7 +56,6 @@ import CalendarNotifications from '@/components/social/CalendarNotifications';
 import DraftPostsPlatformAssigner from '@/components/social/DraftPostsPlatformAssigner';
 import PlatformPreviewCard from '@/components/social/PlatformPreviewCard';
 import BulkScheduleModal from '@/components/social/BulkScheduleModal';
-import PostTemplateManager from '@/components/social/PostTemplateManager';
 import PostQueueManager from '@/components/social/PostQueueManager';
 import OptimalTimeAnalyzer from '@/components/social/OptimalTimeAnalyzer';
 import QuickPostModal from '@/components/social/QuickPostModal';
@@ -90,7 +85,6 @@ export default function SocialCalendar() {
   const [selectedPost, setSelectedPost] = useState(
     /** @type {Record<string, any> | null} */ (null)
   );
-  const [showTemplateModal, setShowTemplateModal] = useState(false);
   const [showQuickPost, setShowQuickPost] = useState(false);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [currentMonth, setCurrentMonth] = useState(new Date());
@@ -158,10 +152,6 @@ export default function SocialCalendar() {
   const [showFilters, setShowFilters] = useState(false);
   const [gridSortOrder, setGridSortOrder] = useState('date_desc');
   const [galleryPosts, setGalleryPosts] = useState([]);
-  const [hashtagCategory, setHashtagCategory] = useState('all');
-  const [customHashtagCategories, setCustomHashtagCategories] = useState(
-    /** @type {string[]} */ ([])
-  );
   const queryClient = useQueryClient();
 
   // Update expired post statuses every time this page is visited
@@ -373,19 +363,6 @@ export default function SocialCalendar() {
     }
   };
 
-  const handleUseTemplate = (template) => {
-    setSelectedPost({
-      title: template.title_template || '',
-      caption: template.caption_template || '',
-      platforms: template.platforms || [],
-      hashtags: template.hashtags || [],
-      media_type: template.media_type || 'none',
-      status: 'draft',
-    });
-    setShowTemplateModal(false);
-    setShowModal(true);
-  };
-
   const handleEdit = (post) => {
     // Always get the freshest version of the post from the fetched list
     const freshPost = posts.find((p) => p.id === post.id) || post;
@@ -582,14 +559,6 @@ export default function SocialCalendar() {
           )}
           {canEdit && (
             <>
-              <Button
-                onClick={() => setShowTemplateModal(true)}
-                variant="outline"
-                className="gap-2"
-              >
-                <Plus className="w-4 h-4" />
-                {COPY.socialCalendar.templates}
-              </Button>
               <Button onClick={() => setShowBulkModal(true)} variant="outline" className="gap-2">
                 <Plus className="w-4 h-4" />
                 {COPY.socialCalendar.bulkSchedule}
@@ -1052,29 +1021,9 @@ export default function SocialCalendar() {
           <div className="space-y-6">
             <PostQueueManager />
             <CalendarNotifications />
-            <CreateHashtagPoolSection
-              customCategories={customHashtagCategories}
-              onNewCategoryAdded={(cat) =>
-                setCustomHashtagCategories((prev) => [...new Set([...prev, cat])])
-              }
-            />
-            <AllHashtagsSection selectedCategory={hashtagCategory} />
           </div>
           <div className="space-y-6">
             <OptimalTimeAnalyzer />
-            <CategoriesSidebar
-              selectedCategory={hashtagCategory}
-              onSelectCategory={setHashtagCategory}
-              customCategories={customHashtagCategories}
-              onAddCategory={(cat) => {
-                setCustomHashtagCategories((prev) => {
-                  if (prev.includes(cat)) {
-                    return prev;
-                  }
-                  return [...prev, cat];
-                });
-              }}
-            />
             <TeamManager />
           </div>
         </div>
@@ -1207,12 +1156,6 @@ export default function SocialCalendar() {
       />
 
       <BulkScheduleModal open={showBulkModal} onClose={() => setShowBulkModal(false)} />
-
-      <Dialog open={showTemplateModal} onOpenChange={setShowTemplateModal}>
-        <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
-          <PostTemplateManager onUseTemplate={handleUseTemplate} />
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }

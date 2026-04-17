@@ -1,13 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
-import {
-  ChevronDown,
-  Loader2,
-  RotateCcw,
-  RotateCw,
-  FlipHorizontal,
-  FlipVertical,
-  Info,
-} from 'lucide-react';
+import { Loader2, RotateCcw, RotateCw, FlipHorizontal, FlipVertical, Info, X } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import COPY from '@/lib/copy';
 import Tooltip from '@/components/ui-custom/Tooltip';
@@ -887,7 +879,7 @@ export default function ImageCropPanel({
           className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors text-gray-400"
           aria-label={COPY.general.close}
         >
-          <ChevronDown className="h-4 w-4" />
+          <X className="h-4 w-4" />
         </button>
       </div>
 
