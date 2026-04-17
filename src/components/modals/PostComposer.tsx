@@ -937,28 +937,46 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
 
   // 3. Block browser back/forward buttons. useBlocker requires createBrowserRouter
   // (this app uses BrowserRouter), so we intercept popstate manually: push a
-  // duplicate history entry when dirty, catch the back press, and show the
-  // NavigationGuardContext's ConfirmDialog (same dialog as sidebar guards).
-  const allowPopstateRef = useRef(false);
+  // single duplicate history entry while dirty, catch the back press, and
+  // show the NavigationGuardContext's ConfirmDialog. On confirm, we step back
+  // through both the synthetic entry and the real previous entry so the user
+  // actually leaves the page. On cleanup, pop the synthetic entry so back
+  // behavior stays clean after saving.
+  const allowedPopstateStepsRef = useRef(0);
+  const hasSyntheticEntryRef = useRef(false);
   useEffect(() => {
     if (!isStandalone || !hasUnsavedState) return;
     window.history.pushState(null, '', window.location.href);
+    hasSyntheticEntryRef.current = true;
     const handler = () => {
-      // After the user confirms, the context calls our onBeforeNavigate
-      // which sets allowPopstateRef, then calls history.back(). That fires
-      // popstate again — this check lets it through without re-blocking.
-      if (allowPopstateRef.current) {
-        allowPopstateRef.current = false;
+      // Let confirmed navigation steps pass through. The first allowed
+      // popstate lands on the original composer entry; if another step is
+      // still pending, immediately continue back to the previous page.
+      if (allowedPopstateStepsRef.current > 0) {
+        allowedPopstateStepsRef.current -= 1;
+        if (allowedPopstateStepsRef.current > 0) {
+          window.history.back();
+        }
+        hasSyntheticEntryRef.current = false;
         return;
       }
-      // Push the URL back to prevent the navigation
-      window.history.pushState(null, '', window.location.href);
+      // Undo the back navigation without stacking another synthetic entry.
+      window.history.forward();
       navGuard.guardedBack(() => {
-        allowPopstateRef.current = true;
+        // guardedBack calls history.back() once — allow that popstate and
+        // then one more so the user actually leaves the page (2 total:
+        // synthetic entry + original composer entry).
+        allowedPopstateStepsRef.current = 2;
       });
     };
     window.addEventListener('popstate', handler);
-    return () => window.removeEventListener('popstate', handler);
+    return () => {
+      window.removeEventListener('popstate', handler);
+      if (hasSyntheticEntryRef.current) {
+        hasSyntheticEntryRef.current = false;
+        window.history.back();
+      }
+    };
   }, [isStandalone, hasUnsavedState, navGuard]);
 
   // Expose requestClose via ref for CalendarPostModal

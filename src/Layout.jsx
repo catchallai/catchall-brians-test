@@ -445,6 +445,11 @@ function SidebarContent({
 }) {
   const navGuard = useNavigationGuard();
   const handleLinkClick = (e, url) => {
+    // Don't guard modified clicks (new tab/window) — user isn't leaving the page.
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) {
+      onNavigate?.(e);
+      return;
+    }
     if (navGuard.guardedNavigate(url)) {
       // Guard is blocking — prevent the Link's default navigation;
       // the context renders the confirm dialog and navigates on confirm.

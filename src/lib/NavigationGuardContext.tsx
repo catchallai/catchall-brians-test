@@ -90,12 +90,12 @@ export function NavigationGuardProvider({ children }: { children: ReactNode }) {
     setPending(null);
     setDialogMessage('');
     beforeNavigateRef.current = null;
-    // Call the caller's cleanup before navigating so it can set a bypass
-    // ref to prevent its own popstate handler from re-blocking.
-    beforeNavigate?.();
     if (nav?.type === 'url') {
       navigate(nav.url);
     } else if (nav?.type === 'back') {
+      // Call the caller's cleanup before navigating so it can set a bypass
+      // ref to prevent its own popstate handler from re-blocking.
+      beforeNavigate?.();
       window.history.back();
     }
   };
@@ -103,6 +103,7 @@ export function NavigationGuardProvider({ children }: { children: ReactNode }) {
   const handleCancel = () => {
     setPending(null);
     setDialogMessage('');
+    beforeNavigateRef.current = null;
   };
 
   return (
