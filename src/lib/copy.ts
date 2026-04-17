@@ -88,6 +88,7 @@ const COPY = {
     compose: 'Compose',
     approvalWorkflow: 'Approval Workflow',
     comments: 'Comments',
+    activity: 'Activity',
     teamFeedback: 'Team Feedback',
     captionPlaceholder: 'Start writing your post here...',
     seePreviewHere: "See your post's preview here",
