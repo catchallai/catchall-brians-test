@@ -1010,23 +1010,27 @@ export default function SocialCalendarView({
       return;
     }
     const newDate = format(targetDate, 'yyyy-MM-dd');
+    const today = todayLocal();
+    const postHour = getPostHour(draggedPost);
+    // Only promote UNUSED→DRAFT when the resulting date+time is in the future.
+    const isDestInFuture =
+      newDate > today ||
+      (newDate === today && (postHour === null || postHour > new Date().getHours()));
     updatePostMutation.mutate({
       id: draggedPost.id,
       data: {
         ...draggedPost,
         scheduled_date: newDate,
         // Rescheduling an expired post brings it back into the workflow as a draft.
-        ...(draggedPost.status === PostStatus.UNUSED && { status: PostStatus.DRAFT }),
+        ...(draggedPost.status === PostStatus.UNUSED &&
+          isDestInFuture && { status: PostStatus.DRAFT }),
       },
     });
     // Warn if the post's time is already past on the target day — the drop is
     // allowed (month view only changes date, user can adjust time in the editor)
     // but the user should know the scheduled time needs updating.
-    if (newDate === todayLocal()) {
-      const postHour = getPostHour(draggedPost);
-      if (postHour !== null && postHour <= new Date().getHours()) {
-        toast.warning(COPY.socialCalendar.draggedToPastTime);
-      }
+    if (newDate === today && postHour !== null && postHour <= new Date().getHours()) {
+      toast.warning(COPY.socialCalendar.draggedToPastTime);
     }
     setDraggedPost(null);
   };

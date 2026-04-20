@@ -13,6 +13,7 @@ import {
 import { SortableContext, useSortable, rectSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { parseISO, format } from 'date-fns';
+import { todayLocal } from '@/utils/date';
 import PostStatusChip from './PostStatusChip';
 import { PostStatus } from '@/types/enums';
 import { toast } from 'sonner';
@@ -262,14 +263,19 @@ export default function NineGridEditor({
           if (post.id === postA.id) {
             base.scheduled_date = postB.scheduled_date;
             base.scheduled_time = postB.scheduled_time;
-            if (post.status === PostStatus.UNUSED) {
-              base.status = PostStatus.DRAFT;
-              base._statusChanged = true;
-            }
           } else if (post.id === postB.id) {
             base.scheduled_date = postA.scheduled_date;
             base.scheduled_time = postA.scheduled_time;
-            if (post.status === PostStatus.UNUSED) {
+          }
+          if (post.status === PostStatus.UNUSED) {
+            const today = todayLocal();
+            const timeMatch = base.scheduled_time?.match(/^(\d{1,2})/);
+            const hour = timeMatch ? parseInt(timeMatch[1]) : null;
+            // Only promote UNUSED→DRAFT when the resulting date+time is in the future.
+            const isDestInFuture =
+              base.scheduled_date > today ||
+              (base.scheduled_date === today && (hour === null || hour > new Date().getHours()));
+            if (isDestInFuture) {
               base.status = PostStatus.DRAFT;
               base._statusChanged = true;
             }
