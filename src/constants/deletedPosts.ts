@@ -1,0 +1,1 @@
+export const DELETED_POST_RECOVERY_DAYS = 30;
