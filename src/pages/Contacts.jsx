@@ -45,7 +45,7 @@ import ContactDeduplicationTool from '@/components/crm/ContactDeduplicationTool'
 import BulkOwnerAssignment from '@/components/crm/BulkOwnerAssignment';
 import { useDebounce } from '@/components/hooks/useDebounce';
 import { exportToCSV } from '@/components/utils/exportData';
-import { useToast } from '@/components/ui/toast-provider';
+import { toast } from 'sonner';
 import { logActivity, ActivityActions } from '@/components/utils/activityLogger';
 
 const ITEMS_PER_PAGE = 50;
@@ -103,7 +103,6 @@ export default function Contacts() {
         };
   });
   const queryClient = useQueryClient();
-  const toast = useToast();
 
   // Update localStorage whenever columns change
   React.useEffect(() => {

@@ -6,14 +6,13 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { FolderPlus, Folder, ChevronRight } from 'lucide-react';
-import { useToast } from '@/components/ui/toast-provider';
+import { toast } from 'sonner';
 
 export default function FolderManager({ onFolderSelect, currentFolderId }) {
   const [showNewFolderModal, setShowNewFolderModal] = useState(false);
   const [folderName, setFolderName] = useState('');
   const [folderColor, setFolderColor] = useState('#8b5cf6');
   const queryClient = useQueryClient();
-  const toast = useToast();
 
   const { data: folders = [] } = useQuery({
     queryKey: ['asset-folders'],

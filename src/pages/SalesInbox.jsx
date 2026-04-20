@@ -20,7 +20,7 @@ import {
   MoreVertical,
 } from 'lucide-react';
 import { format } from 'date-fns';
-import { useToast } from '@/components/ui/toast-provider';
+import { toast } from 'sonner';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -45,7 +45,6 @@ export default function SalesInbox() {
   const [replyContent, setReplyContent] = useState('');
   const [showTaskModal, setShowTaskModal] = useState(false);
   const queryClient = useQueryClient();
-  const toast = useToast();
 
   const { data: user } = useQuery({
     queryKey: ['current-user'],

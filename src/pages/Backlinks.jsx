@@ -34,7 +34,7 @@ import {
 } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
 import { Progress } from '@/components/ui/progress';
-import { useToast } from '@/components/ui/toast-provider';
+import { toast } from 'sonner';
 import BacklinkItem from '@/components/seo/BacklinkItem';
 import EmptyState from '@/components/ui/EmptyState';
 import BacklinkAnalytics from '@/components/seo/BacklinkAnalytics';
@@ -68,7 +68,6 @@ export default function Backlinks() {
   const [categoryFilter, setCategoryFilter] = useState(null);
   const [showAnalytics, setShowAnalytics] = useState(true);
   const queryClient = useQueryClient();
-  const toast = useToast();
 
   const { data: user } = useQuery({
     queryKey: ['current-user'],

@@ -13,7 +13,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Loader2, UserPlus, Trash2, Edit2 } from 'lucide-react';
-import { useToast } from '@/components/ui/toast-provider';
+import { toast } from 'sonner';
 import {
   Dialog,
   DialogContent,
@@ -44,7 +44,6 @@ export default function UserManagement() {
     department: '',
   });
   const queryClient = useQueryClient();
-  const toast = useToast();
 
   const { data: users = [], isLoading } = useQuery({
     queryKey: ['users'],

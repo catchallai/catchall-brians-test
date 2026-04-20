@@ -3,12 +3,11 @@ import { base44 } from '@/api/base44Client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Loader2, Zap, CheckCircle, AlertCircle } from 'lucide-react';
-import { useToast } from '@/components/ui/toast-provider';
+import { toast } from 'sonner';
 
 export default function DataManagement() {
   const [enriching, setEnriching] = useState(false);
   const [enrichResults, setEnrichResults] = useState(null);
-  const toast = useToast();
 
   const handleEnrichAllCompanies = async () => {
     setEnriching(true);

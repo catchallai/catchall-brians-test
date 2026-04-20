@@ -8,11 +8,10 @@ import {
 import { Folder, Archive, Trash2, Copy } from 'lucide-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { useToast } from '@/components/ui/toast-provider';
+import { toast } from 'sonner';
 
 export default function BulkPageActions({ selectedPages, onClearSelection, folders = [] }) {
   const queryClient = useQueryClient();
-  const toast = useToast();
 
   const bulkUpdateMutation = useMutation({
     mutationFn: async ({ pageIds, data }) => {

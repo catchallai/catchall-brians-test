@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/select';
 import { Bell, ExternalLink, ThumbsUp, ThumbsDown, Minus, Check } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
-import { useToast } from '@/components/ui/toast-provider';
+import { toast } from 'sonner';
 
 const SENTIMENT_ICONS = {
   positive: { icon: ThumbsUp, color: 'text-emerald-500' },
@@ -39,7 +39,6 @@ export default function CompetitorAlertsPanel() {
   const [statusFilter, setStatusFilter] = useState('all');
   const [priorityFilter, setPriorityFilter] = useState('all');
   const queryClient = useQueryClient();
-  const toast = useToast();
 
   const { data: alerts = [] } = useQuery({
     queryKey: ['competitor-alerts'],

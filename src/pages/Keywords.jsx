@@ -17,7 +17,7 @@ import KeywordRankCard from '@/components/seo/KeywordRankCard';
 import KeywordModal from '@/components/modals/KeywordModal';
 import EmptyState from '@/components/ui/EmptyState';
 import LiveDataIntegration from '@/components/seo/LiveDataIntegration';
-import { useToast } from '@/components/ui/toast-provider';
+import { toast } from 'sonner';
 
 export default function Keywords() {
   const [showModal, setShowModal] = useState(false);
@@ -28,7 +28,6 @@ export default function Keywords() {
   const [selectedIds, setSelectedIds] = useState([]);
   const [showLiveData, setShowLiveData] = useState(false);
   const queryClient = useQueryClient();
-  const toast = useToast();
 
   const { data: user } = useQuery({
     queryKey: ['current-user'],

@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useToast } from '@/components/ui/toast-provider';
+import { toast } from 'sonner';
 import {
   User,
   Mail,
@@ -32,7 +32,6 @@ import {
 
 export default function UserProfile() {
   const queryClient = useQueryClient();
-  const toast = useToast();
 
   const { data: user } = useQuery({
     queryKey: ['current-user'],

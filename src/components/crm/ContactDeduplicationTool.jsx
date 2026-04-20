@@ -5,14 +5,13 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { AlertCircle, Merge, X } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
-import { useToast } from '@/components/ui/toast-provider';
+import { toast } from 'sonner';
 
 export default function ContactDeduplicationTool({ contacts, onDeduped }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [mergeCandidate, setMergeCandidate] = useState(null);
   const [mergeTarget, setMergeTarget] = useState(null);
   const [merging, setMerging] = useState(false);
-  const toast = useToast();
 
   const duplicates = useMemo(() => {
     const seen = {};

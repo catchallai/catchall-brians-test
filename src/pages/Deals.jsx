@@ -12,7 +12,7 @@ import EmptyState from '@/components/ui/EmptyState';
 import SalesFunnel from '@/components/crm/SalesFunnel';
 import StageDistribution from '@/components/crm/StageDistribution';
 import ConfirmDialog from '@/components/ui/ConfirmDialog';
-import { useToast } from '@/components/ui/toast-provider';
+import { toast } from 'sonner';
 import DealKanbanBoard from '@/components/sales/DealKanbanBoard';
 import DealForecasting from '@/components/sales/DealForecasting';
 import DealAutomationRules from '@/components/sales/DealAutomationRules';
@@ -67,7 +67,6 @@ export default function Deals() {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStage, setFilterStage] = useState('all');
   const queryClient = useQueryClient();
-  const toast = useToast();
 
   const { data: user } = useQuery({
     queryKey: ['current-user'],

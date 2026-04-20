@@ -4,13 +4,12 @@ import { Button } from '@/components/ui/button';
 import { base44 } from '@/api/base44Client';
 import { useQueryClient } from '@tanstack/react-query';
 import { UserPlus, Loader2 } from 'lucide-react';
-import { useToast } from '@/components/ui/toast-provider';
+import { toast } from 'sonner';
 
 export default function BulkOwnerAssignment({ selectedIds, contacts, teamMembers = [] }) {
   const [selectedOwner, setSelectedOwner] = useState('');
   const [assigning, setAssigning] = useState(false);
   const queryClient = useQueryClient();
-  const toast = useToast();
 
   const handleAssignOwner = async () => {
     if (!selectedOwner) {

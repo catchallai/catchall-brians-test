@@ -69,7 +69,7 @@ import { useNavigationGuard } from '@/lib/NavigationGuardContext';
 import ConfirmDialog from '@/components/ui/ConfirmDialog';
 import MediaLibraryModal from './MediaLibraryModal';
 import ImageCropPanel, { type TransformOp } from './ImageCropPanel';
-import { useToast } from '@/components/ui/toast-provider';
+import { toast } from 'sonner';
 import { PostStatus, PostPriority, AllChannelsTab } from '@/types/enums';
 import COPY from '@/lib/copy';
 import { Label } from '@/components/ui/label';
@@ -638,12 +638,6 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
     queryFn: () => base44.auth.me(),
   });
   const navigate = useNavigate();
-  const toast = useToast() as {
-    success: (msg: string) => void;
-    error: (msg: string) => void;
-    warning: (msg: string) => void;
-    info: (msg: string) => void;
-  };
 
   const [formData, setFormData] = useState<PostFormData>({ ...DEFAULT_FORM });
   const [uploading, setUploading] = useState(false);

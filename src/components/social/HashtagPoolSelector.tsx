@@ -8,7 +8,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { useToast } from '@/components/ui/toast-provider';
+import { toast } from 'sonner';
 import COPY from '@/lib/copy';
 
 const SELECTOR_COPY = COPY.createPost.hashtagPoolSelector;
@@ -38,7 +38,6 @@ export default function HashtagPoolSelector({
 }: HashtagPoolSelectorProps) {
   const [orderedPools, setOrderedPools] = useState<HashtagPool[]>(pools);
   const queryClient = useQueryClient();
-  const toast = useToast();
 
   // Re-sync when the pool list changes (after a delete or external refresh).
   useEffect(() => {

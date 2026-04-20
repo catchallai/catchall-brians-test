@@ -17,7 +17,7 @@ import {
 } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useToast } from '@/components/ui/toast-provider';
+import { toast } from 'sonner';
 import { useTheme } from '@/components/theme/ThemeProvider';
 import {
   User,
@@ -70,7 +70,6 @@ export default function Settings() {
   const [saving, setSaving] = useState(false);
   const [activeTab, setActiveTab] = useState(getValidSettingsTab(searchParams.get('tab')));
   const queryClient = useQueryClient();
-  const toast = useToast();
   const { theme, setTheme } = useTheme();
 
   const { data: user, isLoading } = useQuery({

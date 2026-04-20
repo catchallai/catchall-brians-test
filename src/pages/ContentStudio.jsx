@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useToast } from '@/components/ui/toast-provider';
+import { toast } from 'sonner';
 import { checkRateLimit } from '@/components/utils/validation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -51,7 +51,6 @@ export default function ContentStudio() {
   const [showExportModal, setShowExportModal] = useState(false);
   const [exportingArticle, setExportingArticle] = useState(null);
   const queryClient = useQueryClient();
-  const toast = useToast();
 
   const { data: ideas = [], isLoading } = useQuery({
     queryKey: ['content-ideas'],

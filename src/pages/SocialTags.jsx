@@ -10,7 +10,7 @@ import { TAG_COLORS } from '@/constants/tags';
 import COPY from '@/lib/copy';
 import { DndContext, useDraggable, useDroppable, closestCenter } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
-import { useToast } from '@/components/ui/toast-provider';
+import { toast } from 'sonner';
 
 function TagFormField({ label, children }) {
   return (
@@ -329,7 +329,6 @@ function DraggableTagRow({
 
 export default function SocialTags() {
   const queryClient = useQueryClient();
-  const toast = useToast();
   const [editingTag, setEditingTag] = useState(null);
   const [tagToDelete, setTagToDelete] = useState(null);
   const [activeTab, setActiveTab] = useState('active');

@@ -21,7 +21,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { PlatformBadges } from '@/components/ui/PlatformBadges';
 import PostStatusChip from '@/components/social/PostStatusChip';
-import { useToast } from '@/components/ui/toast-provider';
+import { toast } from 'sonner';
 import { todayLocal } from '@/utils/date';
 import COPY from '@/lib/copy';
 import { PostStatus } from '@/types/enums';
@@ -843,7 +843,6 @@ export default function SocialCalendarView({
     /** @type {{ date: Date, posts: any[] } | null} */ (null)
   );
   const [hoveredPost, setHoveredPost] = useState(null);
-  const toast = useToast();
   const [popoverPos, setPopoverPos] = useState({ x: 0, y: 0, above: false });
   const popoverTimeoutRef = useRef(null);
   const queryClient = useQueryClient();

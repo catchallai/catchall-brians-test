@@ -15,7 +15,7 @@ import {
 } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Plus, UserPlus, Gift, Trophy, Copy, Check, Loader2 } from 'lucide-react';
-import { useToast } from '@/components/ui/toast-provider';
+import { toast } from 'sonner';
 
 const STATUS_COLORS = {
   pending: 'bg-amber-100 text-amber-700',
@@ -32,7 +32,6 @@ export default function ReferralPanel({ referrals, contacts }) {
     reward_value: 10,
   });
   const queryClient = useQueryClient();
-  const toast = useToast();
 
   const createMutation = useMutation({
     mutationFn: (data) => {

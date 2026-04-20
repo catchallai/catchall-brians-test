@@ -5,11 +5,10 @@ import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { AlertCircle, Zap } from 'lucide-react';
-import { useToast } from '@/components/ui/toast-provider';
+import { toast } from 'sonner';
 
 export default function AIToggleSettings() {
   const queryClient = useQueryClient();
-  const toast = useToast();
 
   const { data: aiSettings, isLoading } = useQuery({
     queryKey: ['ai-settings-admin'],

@@ -1,9 +1,8 @@
 import { useEffect, useState, useCallback } from 'react';
 import { base44 } from '@/api/base44Client';
-import { useToast } from '@/components/ui/use-toast';
+import { toast } from 'sonner';
 
 export function useICCNotifications(user, channels, messages) {
-  const { toast } = useToast();
   const [unreadCounts, setUnreadCounts] = useState({});
 
   // Request desktop notification permission
@@ -56,11 +55,11 @@ export function useICCNotifications(user, channels, messages) {
         });
 
         // Show in-app toast
-        toast({
-          title: isMention ? '🔔 You were mentioned!' : '💬 New message',
-          description: `${msg.sender_name}: ${msg.content?.substring(0, 60)}...`,
-          duration: 5000,
-        });
+        toast.info(
+          isMention
+            ? `🔔 ${msg.sender_name} mentioned you: ${msg.content?.substring(0, 60)}...`
+            : `💬 ${msg.sender_name}: ${msg.content?.substring(0, 60)}...`
+        );
 
         // Show desktop notification
         if (Notification.permission === 'granted') {

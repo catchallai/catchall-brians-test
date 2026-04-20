@@ -36,7 +36,7 @@ import {
   CheckSquare,
 } from 'lucide-react';
 import EmptyState from '@/components/ui/EmptyState';
-import { useToast } from '@/components/ui/toast-provider';
+import { toast } from 'sonner';
 import BulkAssetActions from '@/components/assets/BulkAssetActions';
 import FolderManager from '@/components/assets/FolderManager';
 
@@ -70,7 +70,6 @@ export default function MediaLibrary() {
   });
   const [tagInput, setTagInput] = useState('');
   const queryClient = useQueryClient();
-  const toast = useToast();
 
   const { data: assets = [], isLoading } = useQuery({
     queryKey: ['media-assets'],

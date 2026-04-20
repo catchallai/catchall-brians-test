@@ -16,7 +16,7 @@ import {
 } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Plus, Mail, Play, Pause, Trash2, Loader2, Users } from 'lucide-react';
-import { useToast } from '@/components/ui/toast-provider';
+import { toast } from 'sonner';
 
 const STATUS_COLORS = {
   draft: 'bg-gray-100 text-gray-700',
@@ -41,7 +41,6 @@ export default function DripCampaignsPanel({ campaigns, contacts }) {
     emails: [{ delay_days: 0, subject: '', body: '' }],
   });
   const queryClient = useQueryClient();
-  const toast = useToast();
 
   const createMutation = useMutation({
     mutationFn: (data) => base44.entities.EmailDripCampaign.create(data),

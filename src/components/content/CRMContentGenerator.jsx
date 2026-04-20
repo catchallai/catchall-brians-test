@@ -24,7 +24,7 @@ import {
   CheckCircle,
   Filter,
 } from 'lucide-react';
-import { useToast } from '@/components/ui/toast-provider';
+import { toast } from 'sonner';
 
 const CONTENT_ANGLES = [
   {
@@ -61,7 +61,6 @@ export default function CRMContentGenerator({ contacts, companies, deals }) {
   const [additionalContext, setAdditionalContext] = useState('');
   const [generatedIdeas, setGeneratedIdeas] = useState([]);
   const queryClient = useQueryClient();
-  const toast = useToast();
 
   // Segment options based on source
   const segmentOptions = {

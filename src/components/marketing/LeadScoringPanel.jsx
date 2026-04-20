@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Loader2, RefreshCw, Target } from 'lucide-react';
-import { useToast } from '@/components/ui/toast-provider';
+import { toast } from 'sonner';
 
 const GRADE_COLORS = {
   A: 'bg-emerald-100 text-emerald-700 border-emerald-200',
@@ -17,7 +17,6 @@ const GRADE_COLORS = {
 
 export default function LeadScoringPanel({ contacts, leadScores, deals }) {
   const queryClient = useQueryClient();
-  const toast = useToast();
 
   const calculateScoreMutation = useMutation({
     mutationFn: async () => {

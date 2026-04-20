@@ -15,7 +15,7 @@ import { CSS } from '@dnd-kit/utilities';
 import { parseISO, format } from 'date-fns';
 import PostStatusChip from './PostStatusChip';
 import { PostStatus } from '@/types/enums';
-import { useToast } from '@/components/ui/toast-provider';
+import { toast } from 'sonner';
 import COPY from '@/lib/copy';
 
 function SortableGridItem({ id, post, position, onAddPost, onEditPost }) {
@@ -151,7 +151,6 @@ export default function NineGridEditor({
     }
   };
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 4 } }));
-  const toast = useToast();
 
   // Dynamic grid sizing: start at 9 tiles (3 rows), add a row when any of the
   // last 3 slots are occupied, shrink when the last row is empty (minimum 9).

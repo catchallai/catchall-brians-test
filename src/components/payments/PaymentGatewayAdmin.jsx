@@ -25,7 +25,7 @@ import {
   DollarSign,
   TrendingUp,
 } from 'lucide-react';
-import { useToast } from '@/components/ui/toast-provider';
+import { toast } from 'sonner';
 
 const GATEWAY_PROVIDERS = [
   {
@@ -75,7 +75,6 @@ export default function PaymentGatewayAdmin() {
   const [editingGateway, setEditingGateway] = useState(null);
   const [formData, setFormData] = useState({});
   const queryClient = useQueryClient();
-  const toast = useToast();
 
   const { data: user } = useQuery({
     queryKey: ['current-user'],

@@ -15,7 +15,7 @@ import {
 } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Plus, FlaskConical, Trophy, Loader2 } from 'lucide-react';
-import { useToast } from '@/components/ui/toast-provider';
+import { toast } from 'sonner';
 
 export default function ABTestingPanel() {
   const [showModal, setShowModal] = useState(false);
@@ -27,7 +27,6 @@ export default function ABTestingPanel() {
     sample_size: 100,
   });
   const queryClient = useQueryClient();
-  const toast = useToast();
 
   const { data: tests = [] } = useQuery({
     queryKey: ['ab-tests'],
