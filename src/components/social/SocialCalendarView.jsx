@@ -18,6 +18,7 @@ import {
   addDays,
 } from 'date-fns';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { toast as sonnerToast } from 'sonner';
 import { base44 } from '@/api/base44Client';
 import { PlatformBadges } from '@/components/ui/PlatformBadges';
 import PostStatusChip from '@/components/social/PostStatusChip';
@@ -25,6 +26,8 @@ import { useToast } from '@/components/ui/toast-provider';
 import { todayLocal } from '@/utils/date';
 import COPY from '@/lib/copy';
 import { PostStatus } from '@/types/enums';
+import { computePurgeAt } from '@/utils/deletedPostTimer';
+import DeletePostDialog from '@/components/social/deleted-posts/DeletePostDialog';
 
 const STATUS_CONFIG = {
   draft: {
@@ -250,7 +253,7 @@ function DayView({
   posts,
   onAddPost,
   onEditPost,
-  deletePostMutation,
+  onRequestDelete,
   updatePostMutation,
   draggedPost,
   setDraggedPost,
@@ -491,10 +494,7 @@ function DayView({
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
-                            // eslint-disable-next-line no-alert
-                            if (window.confirm('Delete this post?')) {
-                              deletePostMutation.mutate(post);
-                            }
+                            onRequestDelete(post);
                           }}
                           className="opacity-0 group-hover/post:opacity-100 transition-opacity p-0.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded"
                         >
@@ -854,24 +854,46 @@ export default function SocialCalendarView({
   });
 
   const deletePostMutation = useMutation({
-    mutationFn: (post) =>
-      base44.entities.CalendarPost.update(post.id, {
+    mutationFn: (post) => {
+      const now = new Date();
+      return base44.entities.CalendarPost.update(post.id, {
         status: 'deleted',
+        deleted_at: now.toISOString(),
+        deleted_by: currentUser?.email || '',
+        deleted_by_name: currentUser?.full_name || currentUser?.email || '',
+        purge_at: computePurgeAt(now).toISOString(),
         workflow_history: [
           ...(post.workflow_history || []),
           {
             action: 'deleted',
             by_email: currentUser?.email,
             by_name: currentUser?.full_name || currentUser?.email,
-            timestamp: new Date().toISOString(),
+            timestamp: now.toISOString(),
           },
         ],
-      }),
+      });
+    },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['calendar-posts'] });
       queryClient.invalidateQueries({ queryKey: ['calendar-posts-all'] });
+      queryClient.invalidateQueries({ queryKey: ['calendar-posts'] });
+      sonnerToast.success(COPY.deletedPosts.toasts.softDeleted);
+    },
+    onError: () => {
+      sonnerToast.error(COPY.deletedPosts.toasts.softDeleteFailed);
     },
   });
+
+  const [deleteTarget, setDeleteTarget] = useState(null);
+
+  const hasBeenPublished = (post) => post?.status === 'published' || !!post?.published_date;
+
+  const handleConfirmDelete = () => {
+    if (!deleteTarget) return;
+    deletePostMutation.mutate(deleteTarget, {
+      onSuccess: () => setDeleteTarget(null),
+      onError: () => setDeleteTarget(null),
+    });
+  };
 
   // Keyboard shortcuts: ←/→ to navigate, T = today, D/W/M = switch view
   useEffect(() => {
@@ -1020,7 +1042,7 @@ export default function SocialCalendarView({
           posts={getPostsForDay(days[0])}
           onAddPost={onAddPost}
           onEditPost={onEditPost}
-          deletePostMutation={deletePostMutation}
+          onRequestDelete={setDeleteTarget}
           updatePostMutation={updatePostMutation}
           draggedPost={draggedPost}
           setDraggedPost={setDraggedPost}
@@ -1200,8 +1222,9 @@ export default function SocialCalendarView({
             </button>
             <button
               onClick={() => {
+                const target = hoveredPost;
                 setHoveredPost(null);
-                deletePostMutation.mutate(hoveredPost);
+                setDeleteTarget(target);
               }}
               className="text-xs px-3 py-1.5 rounded-lg border border-red-200 hover:bg-red-50 text-red-600 font-medium transition-colors"
             >
@@ -1218,6 +1241,17 @@ export default function SocialCalendarView({
         posts={dayPostsModal?.posts ?? []}
         date={dayPostsModal?.date ?? null}
         onEditPost={onEditPost}
+      />
+
+      <DeletePostDialog
+        open={!!deleteTarget}
+        onOpenChange={(open) => {
+          if (!open) setDeleteTarget(null);
+        }}
+        onConfirm={handleConfirmDelete}
+        platforms={deleteTarget?.platforms || []}
+        hasBeenPublished={hasBeenPublished(deleteTarget)}
+        pending={deletePostMutation.isPending}
       />
 
       {/* Legend */}
