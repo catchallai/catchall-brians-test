@@ -414,6 +414,7 @@ export default function SocialCalendar() {
                 order: post.order,
                 scheduled_date: post.scheduled_date,
                 scheduled_time: post.scheduled_time,
+                status: post.status,
               })
             : Promise.resolve()
         )

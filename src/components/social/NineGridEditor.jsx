@@ -262,9 +262,13 @@ export default function NineGridEditor({
           if (post.id === postA.id) {
             base.scheduled_date = postB.scheduled_date;
             base.scheduled_time = postB.scheduled_time;
+            // Rescheduling an expired post brings it back into the workflow as a draft.
+            if (post.status === 'unused') base.status = 'draft';
           } else if (post.id === postB.id) {
             base.scheduled_date = postA.scheduled_date;
             base.scheduled_time = postA.scheduled_time;
+            // Rescheduling an expired post brings it back into the workflow as a draft.
+            if (post.status === 'unused') base.status = 'draft';
           }
         }
         return base;

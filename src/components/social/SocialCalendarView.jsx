@@ -327,7 +327,12 @@ function DayView({
     const timeStr = `${String(hour).padStart(2, '0')}:00`;
     updatePostMutation.mutate({
       id: draggedPost.id,
-      data: { ...draggedPost, scheduled_time: timeStr },
+      data: {
+        ...draggedPost,
+        scheduled_time: timeStr,
+        // Rescheduling an expired post brings it back into the workflow as a draft.
+        ...(draggedPost.status === 'unused' && { status: 'draft' }),
+      },
     });
     setDraggedPost(null);
   };
@@ -598,6 +603,8 @@ function WeekView({
         ...draggedPost,
         scheduled_date: newDate,
         scheduled_time: `${String(hour).padStart(2, '0')}:00`,
+        // Rescheduling an expired post brings it back into the workflow as a draft.
+        ...(draggedPost.status === 'unused' && { status: 'draft' }),
       },
     });
     setDraggedPost(null);
@@ -1005,7 +1012,12 @@ export default function SocialCalendarView({
     const newDate = format(targetDate, 'yyyy-MM-dd');
     updatePostMutation.mutate({
       id: draggedPost.id,
-      data: { ...draggedPost, scheduled_date: newDate },
+      data: {
+        ...draggedPost,
+        scheduled_date: newDate,
+        // Rescheduling an expired post brings it back into the workflow as a draft.
+        ...(draggedPost.status === 'unused' && { status: 'draft' }),
+      },
     });
     // Warn if the post's time is already past on the target day — the drop is
     // allowed (month view only changes date, user can adjust time in the editor)
