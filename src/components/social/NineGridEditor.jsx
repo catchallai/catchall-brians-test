@@ -277,7 +277,6 @@ export default function NineGridEditor({
               (base.scheduled_date === today && (hour === null || hour > new Date().getHours()));
             if (isDestInFuture) {
               base.status = PostStatus.DRAFT;
-              base._statusChanged = true;
             }
           }
         }

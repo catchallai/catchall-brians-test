@@ -414,19 +414,20 @@ export default function SocialCalendar() {
   const handleOnPostsChange = async (updatedPosts) => {
     try {
       await Promise.all(
-        updatedPosts.map((post) =>
-          post && post.id
-            ? base44.entities.CalendarPost.update(post.id, {
-                order: post.order,
-                scheduled_date: post.scheduled_date,
-                scheduled_time: post.scheduled_time,
-                // Only send status when it was intentionally changed (e.g.
-                // unused→draft) to avoid overwriting server-side status
-                // updates from updateExpiredPostStatuses with stale data.
-                ...(post._statusChanged && { status: post.status }),
-              })
-            : Promise.resolve()
-        )
+        updatedPosts.map((post) => {
+          if (!post?.id) return Promise.resolve();
+          // Only send status when it actually changed (e.g. unused→draft)
+          // to avoid overwriting server-side status updates from
+          // updateExpiredPostStatuses with stale data.
+          const original = posts.find((p) => p.id === post.id);
+          const statusChanged = original && original.status !== post.status;
+          return base44.entities.CalendarPost.update(post.id, {
+            order: post.order,
+            scheduled_date: post.scheduled_date,
+            scheduled_time: post.scheduled_time,
+            ...(statusChanged && { status: post.status }),
+          });
+        })
       );
     } catch (error) {
       console.error('Failed to update nine-grid post ordering', error);
