@@ -27,6 +27,14 @@ Deno.serve(async (req) => {
         `${post.scheduled_date}T${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:00Z`
       );
 
+      if (isNaN(scheduledAt.getTime())) {
+        console.error(
+          `Post ${post.id} has invalid scheduled time: ${post.scheduled_date} ${post.scheduled_time}`
+        );
+        results.errors++;
+        continue;
+      }
+
       let newStatus: string | null = null;
 
       if (scheduledAt <= now) {
