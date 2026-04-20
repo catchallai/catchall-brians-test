@@ -154,10 +154,16 @@ export default function SocialCalendar() {
   const [galleryPosts, setGalleryPosts] = useState([]);
   const queryClient = useQueryClient();
 
-  // Update expired post statuses every time this page is visited
+  // Update expired post statuses every time this page is visited, then
+  // refetch so the UI reflects any status changes the function made.
   useEffect(() => {
-    base44.functions.invoke('updateExpiredPostStatuses', {}).catch(console.error);
-  }, []);
+    base44.functions
+      .invoke('updateExpiredPostStatuses', {})
+      .then(() => {
+        queryClient.invalidateQueries({ queryKey: ['calendar-posts'] });
+      })
+      .catch(console.error);
+  }, [queryClient]);
 
   const startDate = format(startOfMonth(currentMonth), 'yyyy-MM-dd');
   const endDate = format(endOfMonth(currentMonth), 'yyyy-MM-dd');
@@ -414,7 +420,10 @@ export default function SocialCalendar() {
                 order: post.order,
                 scheduled_date: post.scheduled_date,
                 scheduled_time: post.scheduled_time,
-                status: post.status,
+                // Only send status when it was intentionally changed (e.g.
+                // unused→draft) to avoid overwriting server-side status
+                // updates from updateExpiredPostStatuses with stale data.
+                ...(post._statusChanged && { status: post.status }),
               })
             : Promise.resolve()
         )
