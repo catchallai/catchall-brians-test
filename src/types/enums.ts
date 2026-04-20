@@ -16,7 +16,6 @@ export const PROJECT_TYPE_OPTIONS: { value: ProjectType; label: string }[] = [
 
 export enum PostStatus {
   DRAFT = 'draft',
-  PENDING_REVIEW = 'pending_review',
   PENDING_APPROVAL = 'pending_approval',
   CHANGES_REQUESTED = 'changes_requested',
   SCHEDULED = 'scheduled',

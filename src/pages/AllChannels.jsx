@@ -71,11 +71,6 @@ const PLATFORM_ICONS = {
 
 const STATUS_CONFIG = {
   draft: { label: 'Draft', color: 'bg-gray-100 text-gray-700', dot: 'bg-gray-400' },
-  pending_review: {
-    label: 'Pending Review',
-    color: 'bg-yellow-100 text-yellow-700',
-    dot: 'bg-yellow-500',
-  },
   pending_approval: {
     label: 'Pending Approval',
     color: 'bg-amber-100 text-amber-700',
@@ -95,13 +90,13 @@ const STATUS_CONFIG = {
 
 const APPROVAL_STATUSES = [
   PostStatus.PENDING_APPROVAL,
-  PostStatus.PENDING_REVIEW,
   PostStatus.CHANGES_REQUESTED,
+  'pending_review',
 ];
 const APPROVAL_VIEW_STATUSES = [
   PostStatus.PENDING_APPROVAL,
-  PostStatus.PENDING_REVIEW,
   PostStatus.CHANGES_REQUESTED,
+  'pending_review',
 ];
 
 function PostCard({
@@ -231,7 +226,7 @@ function PostCard({
                         <XCircle className="w-3.5 h-3.5" /> Reject
                       </Button>
                       {onRequestChanges &&
-                        ['pending_review', 'pending_approval'].includes(post.status) && (
+                        (post.status === 'pending_approval' || post.status === 'pending_review') && (
                           <Button
                             size="sm"
                             variant="outline"

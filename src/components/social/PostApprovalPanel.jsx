@@ -20,12 +20,10 @@ import {
   XCircle,
   Send,
   UserPlus,
-  ThumbsUp,
   RotateCcw,
   Loader2,
   ChevronDown,
   FileText,
-  Eye,
   ShieldCheck,
   Megaphone,
   ChevronRight,
@@ -42,12 +40,6 @@ const TypedTextarea = /** @type {React.ComponentType<any>} */ (Textarea);
 const WORKFLOW_STAGES = [
   { key: 'draft', label: 'Draft', icon: FileText, description: 'Post is being created' },
   {
-    key: 'pending_review',
-    label: 'In Review',
-    icon: Eye,
-    description: 'Awaiting reviewer feedback',
-  },
-  {
     key: 'pending_approval',
     label: 'Awaiting Approval',
     icon: ShieldCheck,
@@ -57,19 +49,12 @@ const WORKFLOW_STAGES = [
   { key: 'published', label: 'Published', icon: Megaphone, description: 'Live on platforms' },
 ];
 
-const _STAGE_ORDER = [
-  'draft',
-  'pending_review',
-  'changes_requested',
-  'pending_approval',
-  'approved',
-  'published',
-];
+const _STAGE_ORDER = ['draft', 'changes_requested', 'pending_approval', 'approved', 'published'];
 
 function getStageIndex(status) {
-  if (status === 'changes_requested') {
+  if (status === 'changes_requested' || status === 'pending_review') {
     return 1;
-  } // maps to pending_review stage
+  } // maps to pending_approval stage
   return WORKFLOW_STAGES.findIndex((s) => s.key === status);
 }
 
@@ -122,18 +107,15 @@ export default function PostApprovalPanel({
     const map = {};
     const history = post.workflow_history || [];
     history.forEach((e) => {
-      if (e.action === 'submitted_for_review' || e.action === 'resubmitted') {
-        map['pending_review'] = map['pending_review'] || [];
-        map['pending_review'].push({
-          name: e.by_name || e.by_email,
-          action: 'Submitted',
-          time: e.timestamp,
-        });
-      } else if (e.action === 'submitted_for_approval') {
+      if (
+        e.action === 'submitted_for_review' ||
+        e.action === 'resubmitted' ||
+        e.action === 'submitted_for_approval'
+      ) {
         map['pending_approval'] = map['pending_approval'] || [];
         map['pending_approval'].push({
           name: e.by_name || e.by_email,
-          action: 'Reviewed',
+          action: 'Submitted',
           time: e.timestamp,
         });
       } else if (e.action === 'approved') {
@@ -196,8 +178,6 @@ export default function PostApprovalPanel({
   const isAdmin = role === 'admin';
   const isApprover = role === 'admin' || role === 'approver';
   const isEditor = isApprover || role === 'editor';
-  const isAssignedReviewer = post.assigned_to_email === currentUser?.email;
-
   const addWorkflowEvent = (action, extraData = {}) => {
     const history = post.workflow_history || [];
     const newEntry = {
@@ -211,8 +191,8 @@ export default function PostApprovalPanel({
 
   const handleAssign = (userEmail) => {
     const user = allUsers.find((u) => u.email === userEmail);
-    // Status is intentionally not changed here — it transitions to pending_review
-    // only when the user explicitly clicks "Send for Approval" / "Submit for Review".
+    // Status is intentionally not changed here — it transitions to pending_approval
+    // only when the user explicitly clicks "Send for Approval".
     // @ts-ignore — checkJs cannot infer useMutation variable types in .jsx files
     updateMutation.mutate(
       addWorkflowEvent('assigned', {
@@ -222,9 +202,6 @@ export default function PostApprovalPanel({
       })
     );
   };
-
-  const handleSubmitForReview = () =>
-    updateMutation.mutate(addWorkflowEvent('submitted_for_review', { status: 'pending_review' }));
 
   const handleSubmitForApproval = () =>
     updateMutation.mutate(
@@ -316,7 +293,7 @@ export default function PostApprovalPanel({
               <Button
                 size="sm"
                 variant="outline"
-                onClick={handleSubmitForReview}
+                onClick={handleSubmitForApproval}
                 disabled={updateMutation.isPending}
                 className="ml-auto gap-1.5 text-yellow-700 border-yellow-300 hover:bg-yellow-50"
               >
@@ -603,16 +580,16 @@ export default function PostApprovalPanel({
           <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Actions</p>
 
           <div className="flex flex-wrap gap-2">
-            {/* Draft → Submit for Review */}
+            {/* Draft → Submit for Approval */}
             {isEditor && post.status === 'draft' && (
               <Button
                 size="sm"
                 variant="outline"
-                onClick={handleSubmitForReview}
+                onClick={handleSubmitForApproval}
                 disabled={updateMutation.isPending}
                 className="gap-1.5 text-yellow-700 border-yellow-300 hover:bg-yellow-50"
               >
-                <Send className="w-3.5 h-3.5" /> Submit for Review
+                <Send className="w-3.5 h-3.5" /> Submit for Approval
               </Button>
             )}
 
@@ -621,69 +598,46 @@ export default function PostApprovalPanel({
               <Button
                 size="sm"
                 variant="outline"
-                onClick={handleSubmitForReview}
+                onClick={handleSubmitForApproval}
                 disabled={updateMutation.isPending}
                 className="gap-1.5 text-yellow-700 border-yellow-300 hover:bg-yellow-50"
               >
-                <Send className="w-3.5 h-3.5" /> Resubmit for Review
+                <Send className="w-3.5 h-3.5" /> Resubmit for Approval
               </Button>
             )}
 
-            {/* In Review → Pass to Approver or Request Changes */}
-            {(isAssignedReviewer || isApprover) && post.status === 'pending_review' && (
-              <>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={handleSubmitForApproval}
-                  disabled={updateMutation.isPending}
-                  className="gap-1.5 text-blue-700 border-blue-300 hover:bg-blue-50"
-                >
-                  <ThumbsUp className="w-3.5 h-3.5" /> Pass to Approver
-                </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={handleRequestChanges}
-                  disabled={updateMutation.isPending}
-                  className="gap-1.5 text-orange-700 border-orange-300 hover:bg-orange-50"
-                >
-                  <RotateCcw className="w-3.5 h-3.5" /> Request Changes
-                </Button>
-              </>
-            )}
-
             {/* Pending Approval → Approve / Reject / Request Changes */}
-            {isApprover && post.status === 'pending_approval' && (
-              <>
-                <Button
-                  size="sm"
-                  onClick={handleApprove}
-                  disabled={updateMutation.isPending}
-                  className="gap-1.5 bg-green-600 hover:bg-green-700 text-white"
-                >
-                  <CheckCircle2 className="w-3.5 h-3.5" /> Approve
-                </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={handleReject}
-                  disabled={updateMutation.isPending}
-                  className="gap-1.5 text-red-600 border-red-300 hover:bg-red-50"
-                >
-                  <XCircle className="w-3.5 h-3.5" /> Reject
-                </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={handleRequestChanges}
-                  disabled={updateMutation.isPending}
-                  className="gap-1.5 text-orange-700 border-orange-300 hover:bg-orange-50"
-                >
-                  <RotateCcw className="w-3.5 h-3.5" /> Request Changes
-                </Button>
-              </>
-            )}
+            {isApprover &&
+              (post.status === 'pending_approval' || post.status === 'pending_review') && (
+                <>
+                  <Button
+                    size="sm"
+                    onClick={handleApprove}
+                    disabled={updateMutation.isPending}
+                    className="gap-1.5 bg-green-600 hover:bg-green-700 text-white"
+                  >
+                    <CheckCircle2 className="w-3.5 h-3.5" /> Approve
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={handleReject}
+                    disabled={updateMutation.isPending}
+                    className="gap-1.5 text-red-600 border-red-300 hover:bg-red-50"
+                  >
+                    <XCircle className="w-3.5 h-3.5" /> Reject
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={handleRequestChanges}
+                    disabled={updateMutation.isPending}
+                    className="gap-1.5 text-orange-700 border-orange-300 hover:bg-orange-50"
+                  >
+                    <RotateCcw className="w-3.5 h-3.5" /> Request Changes
+                  </Button>
+                </>
+              )}
 
             {/* Approved info */}
             {post.status === 'approved' && (

@@ -38,11 +38,6 @@ const STATUS_CONFIG: Record<PostStatus, { color: string; icon: JSX.Element; text
     icon: <FileText className="w-4 h-4 text-gray-700 dark:text-gray-300" />,
     text: 'text-gray-700 dark:text-gray-300',
   },
-  [PostStatus.PENDING_REVIEW]: {
-    color: 'border-amber-300 dark:border-amber-600 bg-amber-50 dark:bg-amber-900/30',
-    icon: <Clock className="w-4 h-4 text-amber-700 dark:text-amber-300" />,
-    text: 'text-amber-700 dark:text-amber-300',
-  },
   [PostStatus.PENDING_APPROVAL]: {
     color: 'border-amber-300 dark:border-amber-600 bg-amber-50 dark:bg-amber-900/30',
     icon: <Clock className="w-4 h-4 text-amber-700 dark:text-amber-300" />,

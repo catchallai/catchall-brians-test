@@ -43,14 +43,6 @@ const STATUS_CONFIG = {
     legendBg: 'bg-gray-50 dark:bg-gray-700',
     legendBorder: 'border-gray-300 dark:border-gray-600',
   },
-  pending_review: {
-    label: 'Pending Review',
-    badgeClass: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300',
-    colorClass: 'border-yellow-300 bg-yellow-50 dark:bg-yellow-900/20 dark:border-yellow-600',
-    borderClass: 'border-l-yellow-400 dark:border-l-yellow-500',
-    legendBg: 'bg-yellow-50 dark:bg-yellow-900/30',
-    legendBorder: 'border-yellow-300 dark:border-yellow-600',
-  },
   pending_approval: {
     label: 'Pending',
     badgeClass: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300',

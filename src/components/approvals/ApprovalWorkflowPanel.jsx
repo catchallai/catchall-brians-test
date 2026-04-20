@@ -31,11 +31,6 @@ const STAGE_CONFIG = {
     color: 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300',
     icon: Clock,
   },
-  pending_review: {
-    label: 'Content Review',
-    color: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-400',
-    icon: Clock,
-  },
   changes_requested: {
     label: 'Changes Needed',
     color: 'bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-400',
@@ -55,7 +50,7 @@ const STAGE_CONFIG = {
   rejected: { label: 'Rejected', color: 'bg-red-100 text-red-700', icon: XCircle },
 };
 
-const WORKFLOW_STEPS = ['draft', 'pending_review', 'pending_brand_approval', 'approved'];
+const WORKFLOW_STEPS = ['draft', 'pending_brand_approval', 'approved'];
 
 /**
  * Generic reusable approval workflow panel.
@@ -97,27 +92,12 @@ export default function ApprovalWorkflowPanel({ item, entityName, queryKey, curr
     };
   };
 
-  const handleSubmitForReview = () =>
+  const handleSubmitForApproval = () =>
     mutation.mutate(
-      addEvent('submitted_for_review', {
-        status: 'pending_review',
+      addEvent('submitted_for_approval', {
+        status: 'pending_brand_approval',
         submitted_by: currentUser?.email,
         submitted_by_name: currentUser?.full_name,
-      })
-    );
-
-  const handleRequestChanges = () =>
-    mutation.mutate(
-      addEvent('changes_requested', {
-        status: 'changes_requested',
-        rejection_reason: note,
-      })
-    );
-
-  const handleApproveContent = () =>
-    mutation.mutate(
-      addEvent('content_approved', {
-        status: 'pending_brand_approval',
       })
     );
 
@@ -252,45 +232,24 @@ export default function ApprovalWorkflowPanel({ item, entityName, queryKey, curr
         {item.status === 'draft' && isSubmitter && (
           <Button
             size="sm"
-            onClick={handleSubmitForReview}
+            onClick={handleSubmitForApproval}
             className="bg-violet-600 hover:bg-violet-700 text-white gap-1.5"
           >
-            <Send className="w-3.5 h-3.5" /> Submit for Review
+            <Send className="w-3.5 h-3.5" /> Submit for Approval
           </Button>
         )}
         {item.status === 'changes_requested' && isSubmitter && (
           <Button
             size="sm"
-            onClick={handleSubmitForReview}
+            onClick={handleSubmitForApproval}
             className="bg-orange-500 hover:bg-orange-600 text-white gap-1.5"
           >
             <RotateCcw className="w-3.5 h-3.5" /> Resubmit
           </Button>
         )}
 
-        {/* Content reviewer actions */}
-        {item.status === 'pending_review' && isReviewer && (
-          <>
-            <Button
-              size="sm"
-              onClick={handleApproveContent}
-              className="bg-blue-600 hover:bg-blue-700 text-white gap-1.5"
-            >
-              <CheckCircle2 className="w-3.5 h-3.5" /> Approve Content
-            </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={handleRequestChanges}
-              className="text-orange-600 border-orange-200 gap-1.5"
-            >
-              <RotateCcw className="w-3.5 h-3.5" /> Request Changes
-            </Button>
-          </>
-        )}
-
         {/* Brand approver actions */}
-        {item.status === 'pending_brand_approval' && isBrandApprover && (
+        {item.status === 'pending_brand_approval' && (isReviewer || isBrandApprover) && (
           <>
             <Button
               size="sm"

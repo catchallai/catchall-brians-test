@@ -12,7 +12,7 @@ import {
 } from 'lucide-react';
 import { differenceInHours, parseISO } from 'date-fns';
 
-export default function ApprovalMetricsTab({ posts, currentUser, statusLabels }) {
+export default function ApprovalMetricsTab({ posts, statusLabels }) {
   // Compute approver leaderboard from workflow history
   const approverStats = {};
   posts.forEach((post) => {
@@ -49,7 +49,7 @@ export default function ApprovalMetricsTab({ posts, currentUser, statusLabels })
     .filter((p) => p.status === 'approved' && p.approved_date)
     .map((p) => {
       const submitEvent = (p.workflow_history || []).find(
-        (e) => e.action === 'submitted_for_review'
+        (e) => e.action === 'submitted_for_approval' || e.action === 'submitted_for_review'
       );
       if (!submitEvent) {
         return null;
@@ -65,7 +65,7 @@ export default function ApprovalMetricsTab({ posts, currentUser, statusLabels })
   const approved = posts.filter((p) => ['approved', 'published'].includes(p.status)).length;
   const rejected = posts.filter((p) => p.status === 'rejected').length;
   const pending = posts.filter((p) =>
-    ['pending_review', 'pending_approval', 'changes_requested'].includes(p.status)
+    ['pending_approval', 'pending_review', 'changes_requested'].includes(p.status)
   ).length;
   const overdueCount = posts.filter((p) => {
     if (!p.review_due_date || ['approved', 'published', 'rejected'].includes(p.status)) {
