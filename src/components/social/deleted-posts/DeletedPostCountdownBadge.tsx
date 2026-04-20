@@ -14,7 +14,7 @@ const DeletedPostCountdownBadge = ({ purgeAt }: Props) => {
       ? COPY.deletedPosts.countdown.purgePending
       : COPY.deletedPosts.countdown.daysLeft(days);
   const ariaLabel = days <= 0 ? label : COPY.deletedPosts.countdown.ariaLabel(days);
-  const urgent = days <= 3 && days > 0;
+  const urgent = days < 3 && days > 0;
   const className = urgent
     ? 'bg-red-100 text-red-700 border-red-200'
     : 'bg-gray-100 text-gray-700 border-gray-200';

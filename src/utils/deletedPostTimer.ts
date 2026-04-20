@@ -7,7 +7,9 @@ export const computePurgeAt = (deletedAt: Date): Date => {
 };
 
 export const daysUntilPurge = (purgeAt: string, now: Date = new Date()): number => {
-  const diffMs = new Date(purgeAt).getTime() - now.getTime();
+  const purgeMs = new Date(purgeAt).getTime();
+  if (Number.isNaN(purgeMs)) return 0;
+  const diffMs = purgeMs - now.getTime();
   if (diffMs <= 0) return 0;
   return Math.ceil(diffMs / MS_PER_DAY);
 };
