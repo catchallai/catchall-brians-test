@@ -79,6 +79,52 @@ const COPY = {
       },
     },
   },
+  deletedPosts: {
+    tabDescription:
+      'Deleted posts are kept here for 30 days so you can restore a draft copy. After 30 days they are eligible for permanent deletion.',
+    emptyState: 'No deleted posts',
+    restore: 'Restore',
+    deleteForever: 'Delete Forever',
+    countdown: {
+      daysLeft: (days: number) => (days === 1 ? '1 day left' : `${days} days left`),
+      purgePending: 'Purge pending',
+      ariaLabel: (days: number) =>
+        days === 1 ? '1 day until permanent deletion' : `${days} days until permanent deletion`,
+    },
+    dialogs: {
+      deletePublished: {
+        title: 'Delete this post?',
+        bodyLead:
+          'The post will be moved to the Deleted tab. After 30 days it will be eligible for permanent deletion.',
+        bodyUnpublish: (platforms: string) =>
+          `This does NOT remove the post from ${platforms}. To take it down from those platforms, remove it there directly.`,
+        bodyRestore:
+          "You can restore a draft copy from the Deleted tab within 30 days. Restored posts return as drafts in this app only — they won't retain any original engagement.",
+        cancel: 'Cancel',
+        confirm: 'Delete',
+      },
+      deleteDraft: {
+        title: 'Delete this draft?',
+        body: "This draft will be moved to the Deleted tab. You'll have 30 days to restore it before it's permanently deleted.",
+        cancel: 'Cancel',
+        confirm: 'Delete',
+      },
+      permanentDelete: {
+        title: 'Permanently delete this post?',
+        body: "This can't be undone. The post and its history will be removed immediately.",
+        cancel: 'Cancel',
+        confirm: 'Delete Forever',
+      },
+    },
+    toasts: {
+      softDeleted: 'Post moved to Deleted tab',
+      restored: 'Post restored to drafts',
+      permanentlyDeleted: 'Post permanently deleted',
+      softDeleteFailed: "Couldn't delete the post. Please try again.",
+      restoreFailed: "Couldn't restore the post. Please try again.",
+      permanentDeleteFailed: "Couldn't permanently delete the post. Please try again.",
+    },
+  },
   calendarPostModal: {
     editPost: 'Edit Post',
     createPost: 'Create Post',

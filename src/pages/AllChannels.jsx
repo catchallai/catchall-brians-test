@@ -41,6 +41,17 @@ import {
   TwitterIcon,
   YouTubeIcon,
 } from '@/components/icons/BrandIcons';
+import { toast } from 'sonner';
+import COPY from '@/lib/copy';
+import { computePurgeAt } from '@/utils/deletedPostTimer';
+import ConfirmDialog from '@/components/ui/ConfirmDialog';
+import DeletedPostCountdownBadge from '@/components/social/deleted-posts/DeletedPostCountdownBadge';
+import DeletedPostActions from '@/components/social/deleted-posts/DeletedPostActions';
+import {
+  buildDeletePostDescription,
+  getDeletePostTitle,
+  hasBeenPublished,
+} from '@/components/social/deleted-posts/deletePostDescription';
 
 const PLATFORM_COLORS = {
   Facebook: 'bg-blue-600',
@@ -160,7 +171,7 @@ function PostCard({
             </div>
 
             <div className="flex items-center justify-between mt-3">
-              {/* Platform Chips + Schedule */}
+              {/* Platform Chips + Schedule + (countdown if deleted) */}
               <div className="flex items-center gap-2 flex-wrap">
                 <div className="flex gap-1">
                   {(post.platforms || []).map((pl) => (
@@ -183,62 +194,71 @@ function PostCard({
                     {post.scheduled_time ? ` · ${post.scheduled_time}` : ''}
                   </span>
                 )}
+                {post.status === PostStatus.DELETED && post.purge_at && (
+                  <DeletedPostCountdownBadge purgeAt={post.purge_at} />
+                )}
               </div>
 
               {/* Actions */}
-              <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                {showActions && (
-                  <>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      className="h-7 px-2 text-emerald-600 hover:bg-emerald-50 hover:text-emerald-700 text-xs gap-1"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onApprove(post);
-                      }}
-                    >
-                      <CheckCircle className="w-3.5 h-3.5" /> Approve
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      className="h-7 px-2 text-red-500 hover:bg-red-50 hover:text-red-600 text-xs gap-1"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onReject(post);
-                      }}
-                    >
-                      <XCircle className="w-3.5 h-3.5" /> Reject
-                    </Button>
-                    {onRequestChanges &&
-                      ['pending_review', 'pending_approval'].includes(post.status) && (
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="h-7 px-2 text-orange-700 border-orange-300 hover:bg-orange-50 text-xs gap-1"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            onRequestChanges(post);
-                          }}
-                        >
-                          <RotateCcw className="w-3.5 h-3.5" /> Request Changes
-                        </Button>
-                      )}
-                  </>
-                )}
-                <Button
-                  size="icon"
-                  variant="ghost"
-                  className="h-7 w-7 text-red-400 hover:text-red-600 hover:bg-red-50"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onDelete(post);
-                  }}
-                >
-                  <Trash2 className="w-3.5 h-3.5" />
-                </Button>
-              </div>
+              {post.status === PostStatus.DELETED ? (
+                <div className="flex items-center gap-1">
+                  <DeletedPostActions postId={post.id} />
+                </div>
+              ) : (
+                <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  {showActions && (
+                    <>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="h-7 px-2 text-emerald-600 hover:bg-emerald-50 hover:text-emerald-700 text-xs gap-1"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onApprove(post);
+                        }}
+                      >
+                        <CheckCircle className="w-3.5 h-3.5" /> Approve
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="h-7 px-2 text-red-500 hover:bg-red-50 hover:text-red-600 text-xs gap-1"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onReject(post);
+                        }}
+                      >
+                        <XCircle className="w-3.5 h-3.5" /> Reject
+                      </Button>
+                      {onRequestChanges &&
+                        ['pending_review', 'pending_approval'].includes(post.status) && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="h-7 px-2 text-orange-700 border-orange-300 hover:bg-orange-50 text-xs gap-1"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onRequestChanges(post);
+                            }}
+                          >
+                            <RotateCcw className="w-3.5 h-3.5" /> Request Changes
+                          </Button>
+                        )}
+                    </>
+                  )}
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    className="h-7 w-7 text-red-400 hover:text-red-600 hover:bg-red-50"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onDelete(post);
+                    }}
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </Button>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -349,22 +369,32 @@ export default function AllChannels() {
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (post) =>
-      base44.entities.CalendarPost.update(post.id, {
-        status: 'deleted',
+    mutationFn: (post) => {
+      const now = new Date();
+      return base44.entities.CalendarPost.update(post.id, {
+        status: PostStatus.DELETED,
+        deleted_at: now.toISOString(),
+        deleted_by: user?.email || '',
+        deleted_by_name: user?.full_name || user?.email || '',
+        purge_at: computePurgeAt(now).toISOString(),
         workflow_history: [
           ...(post.workflow_history || []),
           {
             action: 'deleted',
             by_email: user?.email,
             by_name: user?.full_name || user?.email,
-            timestamp: new Date().toISOString(),
+            timestamp: now.toISOString(),
           },
         ],
-      }),
+      });
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['calendar-posts-all'] });
       queryClient.invalidateQueries({ queryKey: ['calendar-posts'] });
+      toast.success(COPY.deletedPosts.toasts.softDeleted);
+    },
+    onError: () => {
+      toast.error(COPY.deletedPosts.toasts.softDeleteFailed);
     },
   });
 
@@ -377,11 +407,19 @@ export default function AllChannels() {
     setShowModal(true);
   };
 
+  /** @type {[any, (post: any) => void]} */
+  const [deleteTarget, setDeleteTarget] = useState(null);
+
   const handleDelete = (post) => {
-    // eslint-disable-next-line no-alert
-    if (confirm('Delete this post?')) {
-      deleteMutation.mutate(post);
-    }
+    setDeleteTarget(post);
+  };
+
+  const handleConfirmDelete = () => {
+    if (!deleteTarget) return;
+    deleteMutation.mutate(deleteTarget, {
+      onSuccess: () => setDeleteTarget(null),
+      onError: () => setDeleteTarget(null),
+    });
   };
 
   const handleApprove = (post) => {
@@ -446,8 +484,8 @@ export default function AllChannels() {
   );
   const queuePosts = filtered.filter((p) => ['approved'].includes(p.status));
   const draftPosts = filtered.filter((p) => ['draft', 'rejected'].includes(p.status));
-  const sentPosts = filtered.filter((p) => ['scheduled', 'published'].includes(p.status));
-  const deletedPosts = filtered.filter((p) => p.status === 'deleted');
+  const sentPosts = filtered.filter((p) => ['scheduled', PostStatus.PUBLISHED].includes(p.status));
+  const deletedPosts = filtered.filter((p) => p.status === PostStatus.DELETED);
 
   const PLATFORMS = ['Facebook', 'Instagram', 'LinkedIn', 'Twitter', 'YouTube'];
 
@@ -731,18 +769,33 @@ export default function AllChannels() {
           <TabsContent value="deleted">
             <div className="mb-3 flex items-center gap-2 text-sm text-gray-600 bg-gray-50 border border-gray-200 rounded-lg px-4 py-2.5">
               <Trash2 className="w-4 h-4 flex-shrink-0" />
-              Posts that have been deleted. These are kept for audit history.
+              {COPY.deletedPosts.tabDescription}
             </div>
             <PostList
               posts={deletedPosts}
               onEdit={handleEdit}
               showApprovalActions={false}
-              emptyMessage="No deleted posts"
+              emptyMessage={COPY.deletedPosts.emptyState}
               emptyIcon={Trash2}
             />
           </TabsContent>
         </Tabs>
       )}
+
+      <ConfirmDialog
+        open={!!deleteTarget}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={handleConfirmDelete}
+        title={getDeletePostTitle(deleteTarget)}
+        description={buildDeletePostDescription(deleteTarget)}
+        confirmLabel={
+          hasBeenPublished(deleteTarget)
+            ? COPY.deletedPosts.dialogs.deletePublished.confirm
+            : COPY.deletedPosts.dialogs.deleteDraft.confirm
+        }
+        cancelLabel={COPY.deletedPosts.dialogs.deletePublished.cancel}
+        isLoading={deleteMutation.isPending}
+      />
 
       {/* Modal */}
       <CalendarPostModal

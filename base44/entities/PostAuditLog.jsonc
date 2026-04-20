@@ -1,0 +1,49 @@
+{
+  "name": "PostAuditLog",
+  "type": "object",
+  "properties": {
+    "post_id": {
+      "type": "string",
+      "description": "ID of the post this audit entry refers to. Kept even after the post is hard-deleted."
+    },
+    "action": {
+      "type": "string",
+      "enum": [
+        "post.permanently_deleted"
+      ],
+      "description": "The audited action. Currently only permanent-delete; will expand in Phase 2 for auto_purge."
+    },
+    "user_email": {
+      "type": "string",
+      "description": "Email of the user who performed the action."
+    },
+    "user_name": {
+      "type": "string",
+      "description": "Display name of the user who performed the action."
+    },
+    "source": {
+      "type": "string",
+      "enum": [
+        "ui",
+        "auto_purge"
+      ],
+      "default": "ui",
+      "description": "Where the action originated."
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "UTC timestamp when the action occurred."
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Optional extra context (e.g. post title snapshot, platforms)."
+    }
+  },
+  "required": [
+    "post_id",
+    "action",
+    "user_email",
+    "timestamp"
+  ]
+}
