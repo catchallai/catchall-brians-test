@@ -328,7 +328,6 @@ function DayView({
     updatePostMutation.mutate({
       id: draggedPost.id,
       data: {
-        ...draggedPost,
         scheduled_time: timeStr,
         // Rescheduling an expired post brings it back into the workflow as a draft.
         ...(draggedPost.status === PostStatus.UNUSED && { status: PostStatus.DRAFT }),
@@ -600,7 +599,6 @@ function WeekView({
     updatePostMutation.mutate({
       id: draggedPost.id,
       data: {
-        ...draggedPost,
         scheduled_date: newDate,
         scheduled_time: `${String(hour).padStart(2, '0')}:00`,
         // Rescheduling an expired post brings it back into the workflow as a draft.
@@ -1019,9 +1017,7 @@ export default function SocialCalendarView({
     updatePostMutation.mutate({
       id: draggedPost.id,
       data: {
-        ...draggedPost,
         scheduled_date: newDate,
-        // Rescheduling an expired post brings it back into the workflow as a draft.
         ...(draggedPost.status === PostStatus.UNUSED &&
           isDestInFuture && { status: PostStatus.DRAFT }),
       },
