@@ -262,15 +262,15 @@ export default function NineGridEditor({
           if (post.id === postA.id) {
             base.scheduled_date = postB.scheduled_date;
             base.scheduled_time = postB.scheduled_time;
-            if (post.status === 'unused') {
-              base.status = 'draft';
+            if (post.status === PostStatus.UNUSED) {
+              base.status = PostStatus.DRAFT;
               base._statusChanged = true;
             }
           } else if (post.id === postB.id) {
             base.scheduled_date = postA.scheduled_date;
             base.scheduled_time = postA.scheduled_time;
-            if (post.status === 'unused') {
-              base.status = 'draft';
+            if (post.status === PostStatus.UNUSED) {
+              base.status = PostStatus.DRAFT;
               base._statusChanged = true;
             }
           }

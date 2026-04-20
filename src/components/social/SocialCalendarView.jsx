@@ -331,7 +331,7 @@ function DayView({
         ...draggedPost,
         scheduled_time: timeStr,
         // Rescheduling an expired post brings it back into the workflow as a draft.
-        ...(draggedPost.status === 'unused' && { status: 'draft' }),
+        ...(draggedPost.status === PostStatus.UNUSED && { status: PostStatus.DRAFT }),
       },
     });
     setDraggedPost(null);
@@ -604,7 +604,7 @@ function WeekView({
         scheduled_date: newDate,
         scheduled_time: `${String(hour).padStart(2, '0')}:00`,
         // Rescheduling an expired post brings it back into the workflow as a draft.
-        ...(draggedPost.status === 'unused' && { status: 'draft' }),
+        ...(draggedPost.status === PostStatus.UNUSED && { status: PostStatus.DRAFT }),
       },
     });
     setDraggedPost(null);
@@ -1016,7 +1016,7 @@ export default function SocialCalendarView({
         ...draggedPost,
         scheduled_date: newDate,
         // Rescheduling an expired post brings it back into the workflow as a draft.
-        ...(draggedPost.status === 'unused' && { status: 'draft' }),
+        ...(draggedPost.status === PostStatus.UNUSED && { status: PostStatus.DRAFT }),
       },
     });
     // Warn if the post's time is already past on the target day — the drop is
