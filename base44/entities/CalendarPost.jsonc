@@ -108,7 +108,8 @@
         "approved",
         "published",
         "rejected",
-        "unused"
+        "unused",
+        "deleted"
       ],
       "default": "draft",
       "description": "Post status"
@@ -249,6 +250,24 @@
         }
       },
       "description": "History of workflow actions"
+    },
+    "deleted_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "UTC timestamp when the post was soft-deleted. Null if not deleted."
+    },
+    "deleted_by": {
+      "type": "string",
+      "description": "Email of the user who soft-deleted the post."
+    },
+    "deleted_by_name": {
+      "type": "string",
+      "description": "Display name of the user who soft-deleted the post."
+    },
+    "purge_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "UTC timestamp at which the post will be permanently purged. Stored at soft-delete time as deleted_at + 30 days."
     }
   },
   "required": [
