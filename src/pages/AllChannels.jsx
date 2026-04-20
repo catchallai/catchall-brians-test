@@ -44,9 +44,14 @@ import {
 import { toast } from 'sonner';
 import COPY from '@/lib/copy';
 import { computePurgeAt } from '@/utils/deletedPostTimer';
-import DeletePostDialog from '@/components/social/deleted-posts/DeletePostDialog';
+import ConfirmDialog from '@/components/ui/ConfirmDialog';
 import DeletedPostCountdownBadge from '@/components/social/deleted-posts/DeletedPostCountdownBadge';
 import DeletedPostActions from '@/components/social/deleted-posts/DeletedPostActions';
+import {
+  buildDeletePostDescription,
+  getDeletePostTitle,
+  hasBeenPublished,
+} from '@/components/social/deleted-posts/deletePostDescription';
 
 const PLATFORM_COLORS = {
   Facebook: 'bg-blue-600',
@@ -189,15 +194,15 @@ function PostCard({
                     {post.scheduled_time ? ` · ${post.scheduled_time}` : ''}
                   </span>
                 )}
-                {post.status === 'deleted' && post.purge_at && (
+                {post.status === PostStatus.DELETED && post.purge_at && (
                   <DeletedPostCountdownBadge purgeAt={post.purge_at} />
                 )}
               </div>
 
               {/* Actions */}
-              {post.status === 'deleted' ? (
+              {post.status === PostStatus.DELETED ? (
                 <div className="flex items-center gap-1">
-                  <DeletedPostActions post={post} />
+                  <DeletedPostActions postId={post.id} />
                 </div>
               ) : (
                 <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -367,7 +372,7 @@ export default function AllChannels() {
     mutationFn: (post) => {
       const now = new Date();
       return base44.entities.CalendarPost.update(post.id, {
-        status: 'deleted',
+        status: PostStatus.DELETED,
         deleted_at: now.toISOString(),
         deleted_by: user?.email || '',
         deleted_by_name: user?.full_name || user?.email || '',
@@ -415,11 +420,6 @@ export default function AllChannels() {
       onSuccess: () => setDeleteTarget(null),
       onError: () => setDeleteTarget(null),
     });
-  };
-
-  const hasBeenPublished = (post) => {
-    if (!post) return false;
-    return post.status === 'published' || !!post.published_date;
   };
 
   const handleApprove = (post) => {
@@ -484,8 +484,8 @@ export default function AllChannels() {
   );
   const queuePosts = filtered.filter((p) => ['approved'].includes(p.status));
   const draftPosts = filtered.filter((p) => ['draft', 'rejected'].includes(p.status));
-  const sentPosts = filtered.filter((p) => ['scheduled', 'published'].includes(p.status));
-  const deletedPosts = filtered.filter((p) => p.status === 'deleted');
+  const sentPosts = filtered.filter((p) => ['scheduled', PostStatus.PUBLISHED].includes(p.status));
+  const deletedPosts = filtered.filter((p) => p.status === PostStatus.DELETED);
 
   const PLATFORMS = ['Facebook', 'Instagram', 'LinkedIn', 'Twitter', 'YouTube'];
 
@@ -782,15 +782,19 @@ export default function AllChannels() {
         </Tabs>
       )}
 
-      <DeletePostDialog
+      <ConfirmDialog
         open={!!deleteTarget}
-        onOpenChange={(open) => {
-          if (!open) setDeleteTarget(null);
-        }}
+        onClose={() => setDeleteTarget(null)}
         onConfirm={handleConfirmDelete}
-        platforms={deleteTarget?.platforms || []}
-        hasBeenPublished={hasBeenPublished(deleteTarget)}
-        pending={deleteMutation.isPending}
+        title={getDeletePostTitle(deleteTarget)}
+        description={buildDeletePostDescription(deleteTarget)}
+        confirmLabel={
+          hasBeenPublished(deleteTarget)
+            ? COPY.deletedPosts.dialogs.deletePublished.confirm
+            : COPY.deletedPosts.dialogs.deleteDraft.confirm
+        }
+        cancelLabel={COPY.deletedPosts.dialogs.deletePublished.cancel}
+        isLoading={deleteMutation.isPending}
       />
 
       {/* Modal */}

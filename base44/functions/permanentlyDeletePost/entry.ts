@@ -33,8 +33,8 @@ Deno.serve(async (req) => {
     await base44.entities.PostAuditLog.create({
       post_id: postId,
       action: 'post.permanently_deleted',
-      actor_id: user.email,
-      actor_name: user.full_name || user.email,
+      user_email: user.email,
+      user_name: user.full_name || user.email,
       source: 'ui',
       timestamp: new Date().toISOString(),
       metadata: {

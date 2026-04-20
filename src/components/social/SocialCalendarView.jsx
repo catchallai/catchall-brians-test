@@ -27,7 +27,12 @@ import { todayLocal } from '@/utils/date';
 import COPY from '@/lib/copy';
 import { PostStatus } from '@/types/enums';
 import { computePurgeAt } from '@/utils/deletedPostTimer';
-import DeletePostDialog from '@/components/social/deleted-posts/DeletePostDialog';
+import ConfirmDialog from '@/components/ui/ConfirmDialog';
+import {
+  buildDeletePostDescription,
+  getDeletePostTitle,
+  hasBeenPublished,
+} from '@/components/social/deleted-posts/deletePostDescription';
 
 const STATUS_CONFIG = {
   draft: {
@@ -857,7 +862,7 @@ export default function SocialCalendarView({
     mutationFn: (post) => {
       const now = new Date();
       return base44.entities.CalendarPost.update(post.id, {
-        status: 'deleted',
+        status: PostStatus.DELETED,
         deleted_at: now.toISOString(),
         deleted_by: currentUser?.email || '',
         deleted_by_name: currentUser?.full_name || currentUser?.email || '',
@@ -884,8 +889,6 @@ export default function SocialCalendarView({
   });
 
   const [deleteTarget, setDeleteTarget] = useState(null);
-
-  const hasBeenPublished = (post) => post?.status === 'published' || !!post?.published_date;
 
   const handleConfirmDelete = () => {
     if (!deleteTarget) return;
@@ -1243,15 +1246,19 @@ export default function SocialCalendarView({
         onEditPost={onEditPost}
       />
 
-      <DeletePostDialog
+      <ConfirmDialog
         open={!!deleteTarget}
-        onOpenChange={(open) => {
-          if (!open) setDeleteTarget(null);
-        }}
+        onClose={() => setDeleteTarget(null)}
         onConfirm={handleConfirmDelete}
-        platforms={deleteTarget?.platforms || []}
-        hasBeenPublished={hasBeenPublished(deleteTarget)}
-        pending={deletePostMutation.isPending}
+        title={getDeletePostTitle(deleteTarget)}
+        description={buildDeletePostDescription(deleteTarget)}
+        confirmLabel={
+          hasBeenPublished(deleteTarget)
+            ? COPY.deletedPosts.dialogs.deletePublished.confirm
+            : COPY.deletedPosts.dialogs.deleteDraft.confirm
+        }
+        cancelLabel={COPY.deletedPosts.dialogs.deletePublished.cancel}
+        isLoading={deletePostMutation.isPending}
       />
 
       {/* Legend */}

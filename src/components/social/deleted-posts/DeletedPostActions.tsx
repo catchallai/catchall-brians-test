@@ -1,21 +1,21 @@
 import { useState } from 'react';
 import { RotateCcw, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import PermanentDeleteDialog from './PermanentDeleteDialog';
+import ConfirmDialog from '@/components/ui/ConfirmDialog';
 import { useRestorePost } from '@/components/hooks/useRestorePost';
 import { usePermanentlyDeletePost } from '@/components/hooks/usePermanentlyDeletePost';
 import COPY from '@/lib/copy';
 
-type Post = { id: string };
-
 type Props = {
-  post: Post;
+  postId: string;
 };
 
-const DeletedPostActions = ({ post }: Props) => {
+const DeletedPostActions = ({ postId }: Props) => {
   const [permanentOpen, setPermanentOpen] = useState(false);
   const restore = useRestorePost();
   const permanentDelete = usePermanentlyDeletePost();
+  const mutationPending = restore.isPending || permanentDelete.isPending;
+  const copy = COPY.deletedPosts.dialogs.permanentDelete;
 
   return (
     <>
@@ -26,9 +26,9 @@ const DeletedPostActions = ({ post }: Props) => {
           className="h-7 px-2 text-emerald-600 hover:bg-emerald-50 hover:text-emerald-700 text-xs gap-1"
           onClick={(e) => {
             e.stopPropagation();
-            restore.mutate(post.id);
+            restore.mutate(postId);
           }}
-          disabled={restore.isPending || permanentDelete.isPending}
+          disabled={mutationPending}
         >
           <RotateCcw className="w-3.5 h-3.5" />
           {COPY.deletedPosts.restore}
@@ -39,23 +39,27 @@ const DeletedPostActions = ({ post }: Props) => {
           className="h-7 w-7 text-red-500 hover:text-red-600 hover:bg-red-50"
           onClick={(e) => {
             e.stopPropagation();
-            if (!restore.isPending && !permanentDelete.isPending) setPermanentOpen(true);
+            if (!mutationPending) setPermanentOpen(true);
           }}
-          disabled={restore.isPending || permanentDelete.isPending}
+          disabled={mutationPending}
           aria-label={COPY.deletedPosts.deleteForever}
         >
           <Trash2 className="w-3.5 h-3.5" />
         </Button>
       </div>
-      <PermanentDeleteDialog
+      <ConfirmDialog
         open={permanentOpen}
-        onOpenChange={setPermanentOpen}
+        onClose={() => setPermanentOpen(false)}
         onConfirm={() => {
-          permanentDelete.mutate(post.id, {
+          permanentDelete.mutate(postId, {
             onSuccess: () => setPermanentOpen(false),
           });
         }}
-        pending={permanentDelete.isPending}
+        title={copy.title}
+        description={copy.body}
+        confirmLabel={copy.confirm}
+        cancelLabel={copy.cancel}
+        isLoading={permanentDelete.isPending}
       />
     </>
   );

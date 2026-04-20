@@ -13,11 +13,11 @@
       ],
       "description": "The audited action. Currently only permanent-delete; will expand in Phase 2 for auto_purge."
     },
-    "actor_id": {
+    "user_email": {
       "type": "string",
       "description": "Email of the user who performed the action."
     },
-    "actor_name": {
+    "user_name": {
       "type": "string",
       "description": "Display name of the user who performed the action."
     },
@@ -43,7 +43,7 @@
   "required": [
     "post_id",
     "action",
-    "actor_id",
+    "user_email",
     "timestamp"
   ]
 }
