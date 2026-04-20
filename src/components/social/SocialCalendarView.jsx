@@ -325,12 +325,14 @@ function DayView({
       return;
     }
     const timeStr = `${String(hour).padStart(2, '0')}:00`;
+    const destDate = draggedPost.scheduled_date || todayLocal();
     updatePostMutation.mutate({
       id: draggedPost.id,
       data: {
         scheduled_time: timeStr,
         // Rescheduling an expired post brings it back into the workflow as a draft.
-        ...(draggedPost.status === PostStatus.UNUSED && { status: PostStatus.DRAFT }),
+        ...(draggedPost.status === PostStatus.UNUSED &&
+          isScheduledInFuture(destDate, timeStr) && { status: PostStatus.DRAFT }),
       },
     });
     setDraggedPost(null);
@@ -602,7 +604,10 @@ function WeekView({
         scheduled_date: newDate,
         scheduled_time: `${String(hour).padStart(2, '0')}:00`,
         // Rescheduling an expired post brings it back into the workflow as a draft.
-        ...(draggedPost.status === PostStatus.UNUSED && { status: PostStatus.DRAFT }),
+        ...(draggedPost.status === PostStatus.UNUSED &&
+          isScheduledInFuture(newDate, `${String(hour).padStart(2, '0')}:00`) && {
+            status: PostStatus.DRAFT,
+          }),
       },
     });
     setDraggedPost(null);
@@ -1008,12 +1013,8 @@ export default function SocialCalendarView({
       return;
     }
     const newDate = format(targetDate, 'yyyy-MM-dd');
-    const today = todayLocal();
+    const isDestInFuture = isScheduledInFuture(newDate, draggedPost.scheduled_time);
     const postHour = getPostHour(draggedPost);
-    // Only promote UNUSED→DRAFT when the resulting date+time is in the future.
-    const isDestInFuture =
-      newDate > today ||
-      (newDate === today && (postHour === null || postHour > new Date().getHours()));
     updatePostMutation.mutate({
       id: draggedPost.id,
       data: {
@@ -1025,7 +1026,7 @@ export default function SocialCalendarView({
     // Warn if the post's time is already past on the target day — the drop is
     // allowed (month view only changes date, user can adjust time in the editor)
     // but the user should know the scheduled time needs updating.
-    if (newDate === today && postHour !== null && postHour <= new Date().getHours()) {
+    if (newDate === todayLocal() && postHour !== null && postHour <= new Date().getHours()) {
       toast.warning(COPY.socialCalendar.draggedToPastTime);
     }
     setDraggedPost(null);
