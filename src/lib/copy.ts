@@ -81,7 +81,7 @@ const COPY = {
   },
   deletedPosts: {
     tabDescription:
-      'Deleted posts are kept here for 30 days so you can restore a draft copy. After 30 days they are permanently removed.',
+      'Deleted posts are kept here for 30 days so you can restore a draft copy. After 30 days they are eligible for permanent deletion.',
     emptyState: 'No deleted posts',
     restore: 'Restore',
     deleteForever: 'Delete Forever',
@@ -95,7 +95,7 @@ const COPY = {
       deletePublished: {
         title: 'Delete this post?',
         bodyLead:
-          'The post will be moved to the Deleted tab and permanently removed after 30 days.',
+          'The post will be moved to the Deleted tab. After 30 days it will be eligible for permanent deletion.',
         bodyUnpublish: (platforms: string) =>
           `This does NOT remove the post from ${platforms}. To take it down from those platforms, remove it there directly.`,
         bodyRestore:

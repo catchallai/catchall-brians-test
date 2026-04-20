@@ -4,7 +4,7 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.21';
 // - "approved" posts → "published"
 // - any other non-terminal status → "unused"
 
-const TERMINAL_STATUSES = ['published', 'unused', 'rejected'];
+const TERMINAL_STATUSES = ['published', 'unused', 'rejected', 'deleted'];
 
 Deno.serve(async (req) => {
   try {

@@ -13,10 +13,3 @@ export const daysUntilPurge = (purgeAt: string, now: Date = new Date()): number 
   if (diffMs <= 0) return 0;
   return Math.ceil(diffMs / MS_PER_DAY);
 };
-
-export const formatDaysLeft = (purgeAt: string, now: Date = new Date()): string => {
-  const days = daysUntilPurge(purgeAt, now);
-  if (days <= 0) return 'Purge pending';
-  if (days === 1) return '1 day left';
-  return `${days} days left`;
-};

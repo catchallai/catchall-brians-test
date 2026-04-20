@@ -28,7 +28,7 @@ const DeletedPostActions = ({ post }: Props) => {
             e.stopPropagation();
             restore.mutate(post.id);
           }}
-          disabled={restore.isPending}
+          disabled={restore.isPending || permanentDelete.isPending}
         >
           <RotateCcw className="w-3.5 h-3.5" />
           {COPY.deletedPosts.restore}
@@ -39,8 +39,9 @@ const DeletedPostActions = ({ post }: Props) => {
           className="h-7 w-7 text-red-500 hover:text-red-600 hover:bg-red-50"
           onClick={(e) => {
             e.stopPropagation();
-            setPermanentOpen(true);
+            if (!restore.isPending && !permanentDelete.isPending) setPermanentOpen(true);
           }}
+          disabled={restore.isPending || permanentDelete.isPending}
           aria-label={COPY.deletedPosts.deleteForever}
         >
           <Trash2 className="w-3.5 h-3.5" />
