@@ -23,7 +23,7 @@ import { base44 } from '@/api/base44Client';
 import { PlatformBadges } from '@/components/ui/PlatformBadges';
 import PostStatusChip from '@/components/social/PostStatusChip';
 import { toast } from 'sonner';
-import { todayLocal } from '@/utils/date';
+import { todayLocal, isScheduledInFuture } from '@/utils/date';
 import COPY from '@/lib/copy';
 import { PostStatus } from '@/types/enums';
 import { computePurgeAt } from '@/utils/deletedPostTimer';
@@ -325,9 +325,15 @@ function DayView({
       return;
     }
     const timeStr = `${String(hour).padStart(2, '0')}:00`;
+    const destDate = draggedPost.scheduled_date || todayLocal();
     updatePostMutation.mutate({
       id: draggedPost.id,
-      data: { ...draggedPost, scheduled_time: timeStr },
+      data: {
+        scheduled_time: timeStr,
+        // Rescheduling an expired post brings it back into the workflow as a draft.
+        ...(draggedPost.status === PostStatus.UNUSED &&
+          isScheduledInFuture(destDate, timeStr) && { status: PostStatus.DRAFT }),
+      },
     });
     setDraggedPost(null);
   };
@@ -595,9 +601,13 @@ function WeekView({
     updatePostMutation.mutate({
       id: draggedPost.id,
       data: {
-        ...draggedPost,
         scheduled_date: newDate,
         scheduled_time: `${String(hour).padStart(2, '0')}:00`,
+        // Rescheduling an expired post brings it back into the workflow as a draft.
+        ...(draggedPost.status === PostStatus.UNUSED &&
+          isScheduledInFuture(newDate, `${String(hour).padStart(2, '0')}:00`) && {
+            status: PostStatus.DRAFT,
+          }),
       },
     });
     setDraggedPost(null);
@@ -1003,18 +1013,21 @@ export default function SocialCalendarView({
       return;
     }
     const newDate = format(targetDate, 'yyyy-MM-dd');
+    const isDestInFuture = isScheduledInFuture(newDate, draggedPost.scheduled_time);
+    const postHour = getPostHour(draggedPost);
     updatePostMutation.mutate({
       id: draggedPost.id,
-      data: { ...draggedPost, scheduled_date: newDate },
+      data: {
+        scheduled_date: newDate,
+        ...(draggedPost.status === PostStatus.UNUSED &&
+          isDestInFuture && { status: PostStatus.DRAFT }),
+      },
     });
     // Warn if the post's time is already past on the target day — the drop is
     // allowed (month view only changes date, user can adjust time in the editor)
     // but the user should know the scheduled time needs updating.
-    if (newDate === todayLocal()) {
-      const postHour = getPostHour(draggedPost);
-      if (postHour !== null && postHour <= new Date().getHours()) {
-        toast.warning(COPY.socialCalendar.draggedToPastTime);
-      }
+    if (newDate === todayLocal() && postHour !== null && postHour <= new Date().getHours()) {
+      toast.warning(COPY.socialCalendar.draggedToPastTime);
     }
     setDraggedPost(null);
   };

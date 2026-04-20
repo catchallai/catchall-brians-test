@@ -154,10 +154,16 @@ export default function SocialCalendar() {
   const [galleryPosts, setGalleryPosts] = useState([]);
   const queryClient = useQueryClient();
 
-  // Update expired post statuses every time this page is visited
+  // Update expired post statuses every time this page is visited, then
+  // refetch so the UI reflects any status changes the function made.
   useEffect(() => {
-    base44.functions.invoke('updateExpiredPostStatuses', {}).catch(console.error);
-  }, []);
+    base44.functions
+      .invoke('updateExpiredPostStatuses', {})
+      .then(() => {
+        queryClient.invalidateQueries({ queryKey: ['calendar-posts'] });
+      })
+      .catch(console.error);
+  }, [queryClient]);
 
   const startDate = format(startOfMonth(currentMonth), 'yyyy-MM-dd');
   const endDate = format(endOfMonth(currentMonth), 'yyyy-MM-dd');
@@ -408,15 +414,20 @@ export default function SocialCalendar() {
   const handleOnPostsChange = async (updatedPosts) => {
     try {
       await Promise.all(
-        updatedPosts.map((post) =>
-          post && post.id
-            ? base44.entities.CalendarPost.update(post.id, {
-                order: post.order,
-                scheduled_date: post.scheduled_date,
-                scheduled_time: post.scheduled_time,
-              })
-            : Promise.resolve()
-        )
+        updatedPosts.map((post) => {
+          if (!post?.id) return Promise.resolve();
+          // Only send status when it actually changed (e.g. unused→draft)
+          // to avoid overwriting server-side status updates from
+          // updateExpiredPostStatuses with stale data.
+          const original = posts.find((p) => p.id === post.id);
+          const statusChanged = original && original.status !== post.status;
+          return base44.entities.CalendarPost.update(post.id, {
+            order: post.order,
+            scheduled_date: post.scheduled_date,
+            scheduled_time: post.scheduled_time,
+            ...(statusChanged && { status: post.status }),
+          });
+        })
       );
     } catch (error) {
       console.error('Failed to update nine-grid post ordering', error);

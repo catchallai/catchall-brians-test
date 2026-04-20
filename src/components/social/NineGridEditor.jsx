@@ -13,6 +13,7 @@ import {
 import { SortableContext, useSortable, rectSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { parseISO, format } from 'date-fns';
+import { isScheduledInFuture } from '@/utils/date';
 import PostStatusChip from './PostStatusChip';
 import { PostStatus } from '@/types/enums';
 import { toast } from 'sonner';
@@ -265,6 +266,11 @@ export default function NineGridEditor({
           } else if (post.id === postB.id) {
             base.scheduled_date = postA.scheduled_date;
             base.scheduled_time = postA.scheduled_time;
+          }
+          if (post.status === PostStatus.UNUSED) {
+            if (isScheduledInFuture(base.scheduled_date, base.scheduled_time)) {
+              base.status = PostStatus.DRAFT;
+            }
           }
         }
         return base;
