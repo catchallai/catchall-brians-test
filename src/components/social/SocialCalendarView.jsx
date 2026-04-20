@@ -23,7 +23,7 @@ import { base44 } from '@/api/base44Client';
 import { PlatformBadges } from '@/components/ui/PlatformBadges';
 import PostStatusChip from '@/components/social/PostStatusChip';
 import { toast } from 'sonner';
-import { todayLocal } from '@/utils/date';
+import { todayLocal, isScheduledInFuture } from '@/utils/date';
 import COPY from '@/lib/copy';
 import { PostStatus } from '@/types/enums';
 import { computePurgeAt } from '@/utils/deletedPostTimer';
