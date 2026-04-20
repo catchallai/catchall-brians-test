@@ -132,7 +132,11 @@ export default function ApprovalWorkflowPanel({ item, entityName, queryKey, curr
   const isBrandApprover = currentUser?.email === item.brand_approver_email || isAdmin;
   const isSubmitter = currentUser?.email === item.submitted_by;
 
-  const stepIndex = WORKFLOW_STEPS.indexOf(item.status);
+  const normalizedStatus =
+    item.status === 'changes_requested' || item.status === 'pending_review'
+      ? 'pending_brand_approval'
+      : item.status;
+  const stepIndex = WORKFLOW_STEPS.indexOf(normalizedStatus);
 
   return (
     <div className="space-y-5">

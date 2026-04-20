@@ -1404,9 +1404,14 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
     }
     setScheduleError('');
 
-    // Append a workflow history event when transitioning to pending_approval.
+    // Append a workflow history event only when transitioning *into* pending_approval,
+    // not when the post is already in that state and the user is just saving edits.
+    const previousStatus = (savedPost ?? post)?.status as PostStatus | undefined;
     let workflowHistory: WorkflowEntry[] | undefined;
-    if (finalStatus === PostStatus.PENDING_APPROVAL) {
+    if (
+      finalStatus === PostStatus.PENDING_APPROVAL &&
+      previousStatus !== PostStatus.PENDING_APPROVAL
+    ) {
       const existing = (savedPost ?? post)?.workflow_history ?? [];
       workflowHistory = [
         ...existing,
