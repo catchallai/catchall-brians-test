@@ -14,6 +14,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Plus, Trash2, ArrowUp, ArrowDown, Save, AlertCircle } from 'lucide-react';
+import { toast } from 'sonner';
 import SectionEditor from './SectionEditor';
 
 const TEMPLATES = [
@@ -168,11 +169,7 @@ export default function LandingPageEditorModal({ open, onClose, page, onSave, is
 
   const handleSave = () => {
     if (!validateForm()) {
-      toast?.({
-        title: 'Validation Error',
-        description: 'Please fill in all required fields.',
-        type: 'error',
-      });
+      toast.error('Please fill in all required fields.');
       return;
     }
 
@@ -181,11 +178,7 @@ export default function LandingPageEditorModal({ open, onClose, page, onSave, is
 
   const handlePublish = () => {
     if (!validateForm()) {
-      toast?.({
-        title: 'Validation Error',
-        description: 'Please fill in all required fields.',
-        type: 'error',
-      });
+      toast.error('Please fill in all required fields.');
       return;
     }
 
