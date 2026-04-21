@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { UserRole } from '@/types/enums';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -16,7 +17,7 @@ const DEFAULT_WORKFLOWS = [
     id: 'simple',
     name: 'Simple Approval',
     stages: [
-      { id: '1', name: 'Draft', role: 'editor', action: 'submit' },
+      { id: '1', name: 'Draft', role: UserRole.EDITOR, action: 'submit' },
       { id: '2', name: 'Review', role: 'reviewer', action: 'approve_or_reject' },
       { id: '3', name: 'Approved', role: null, action: null },
     ],
@@ -25,16 +26,16 @@ const DEFAULT_WORKFLOWS = [
     id: 'full',
     name: 'Full Review Cycle',
     stages: [
-      { id: '1', name: 'Draft', role: 'editor', action: 'submit' },
-      { id: '2', name: 'Copy Review', role: 'editor', action: 'approve_or_reject' },
-      { id: '3', name: 'Brand Approval', role: 'approver', action: 'approve_or_reject' },
-      { id: '4', name: 'Final Sign-Off', role: 'admin', action: 'approve_or_reject' },
+      { id: '1', name: 'Draft', role: UserRole.EDITOR, action: 'submit' },
+      { id: '2', name: 'Copy Review', role: UserRole.EDITOR, action: 'approve_or_reject' },
+      { id: '3', name: 'Brand Approval', role: 'reviewer', action: 'approve_or_reject' },
+      { id: '4', name: 'Final Sign-Off', role: UserRole.ADMIN, action: 'approve_or_reject' },
       { id: '5', name: 'Approved', role: null, action: null },
     ],
   },
 ];
 
-const ROLES = ['editor', 'reviewer', 'approver', 'admin'];
+const ROLES = [UserRole.EDITOR, 'reviewer', UserRole.ADMIN];
 const ACTIONS = [
   { value: 'submit', label: 'Submit to next stage' },
   { value: 'approve_or_reject', label: 'Approve or Reject' },
@@ -98,7 +99,7 @@ function StageRow({ stage, idx, onUpdate, onRemove, canRemove }) {
   );
 }
 
-export default function WorkflowStageBuilder({ onSave, onClose }) {
+export default function WorkflowStageBuilder({ onSave }) {
   const [workflows, setWorkflows] = useState(DEFAULT_WORKFLOWS);
   const [activeWorkflow, setActiveWorkflow] = useState(DEFAULT_WORKFLOWS[0]);
   const [isEditing, setIsEditing] = useState(false);
@@ -114,8 +115,8 @@ export default function WorkflowStageBuilder({ onSave, onClose }) {
       id: Date.now().toString(),
       name: 'Custom Workflow',
       stages: [
-        { id: '1', name: 'Draft', role: 'editor', action: 'submit' },
-        { id: '2', name: 'Review', role: 'approver', action: 'approve_or_reject' },
+        { id: '1', name: 'Draft', role: UserRole.EDITOR, action: 'submit' },
+        { id: '2', name: 'Review', role: 'reviewer', action: 'approve_or_reject' },
         { id: '3', name: 'Approved', role: null, action: null },
       ],
     };
@@ -127,7 +128,7 @@ export default function WorkflowStageBuilder({ onSave, onClose }) {
     const newStage = {
       id: Date.now().toString(),
       name: 'New Stage',
-      role: 'approver',
+      role: 'reviewer',
       action: 'approve_or_reject',
     };
     setEditingWorkflow((prev) => ({ ...prev, stages: [...prev.stages, newStage] }));

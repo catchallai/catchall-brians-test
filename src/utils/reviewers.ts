@@ -23,9 +23,8 @@ export function normalizeReviewers(post: LegacyPost | null | undefined): Reviewe
       {
         email: post.assigned_to_email,
         name: post.assigned_to_name || post.assigned_to_email,
-        assigned_date: post.assigned_date || new Date().toISOString(),
+        ...(post.assigned_date && { assigned_date: post.assigned_date }),
         status: ReviewerApprovalStatus.PENDING,
-        responded_date: null,
       },
     ];
   }

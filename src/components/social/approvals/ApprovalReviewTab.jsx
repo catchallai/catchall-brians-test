@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { UserRole } from '@/types/enums';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -25,11 +26,11 @@ export default function ApprovalReviewTab({
         p.title?.toLowerCase().includes(search.toLowerCase())
     );
 
-  const role = currentUser?.social_media_role || currentUser?.role || 'viewer';
-  const isApprover = ['admin', 'approver'].includes(role);
+  const role = currentUser?.social_media_role || currentUser?.role || UserRole.VIEWER;
+  const isAdmin = role === UserRole.ADMIN;
 
   const myQueue = reviewPosts.filter(
-    (p) => normalizeReviewers(p).some((r) => r.email === currentUser?.email) || isApprover
+    (p) => normalizeReviewers(p).some((r) => r.email === currentUser?.email) || isAdmin
   );
 
   return (

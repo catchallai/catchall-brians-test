@@ -70,7 +70,7 @@ import ConfirmDialog from '@/components/ui/ConfirmDialog';
 import MediaLibraryModal from './MediaLibraryModal';
 import ImageCropPanel, { type TransformOp } from './ImageCropPanel';
 import { toast } from 'sonner';
-import { PostStatus, PostPriority, AllChannelsTab } from '@/types/enums';
+import { PostStatus, PostPriority, AllChannelsTab, UserRole } from '@/types/enums';
 import COPY from '@/lib/copy';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
@@ -1454,7 +1454,7 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
               const primary = revs[0] ?? null;
               return {
                 ...(approvalMeta.priority !== undefined && { priority: approvalMeta.priority }),
-                ...(revs.length > 0 && {
+                ...(approvalMeta.reviewers !== undefined && {
                   reviewers: revs,
                   assigned_to_email: primary?.email ?? null,
                   assigned_to_name: primary?.name ?? null,
@@ -1756,11 +1756,9 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
     });
   };
 
-  const isViewer = currentUser?.social_media_role === 'viewer';
+  const isViewer = currentUser?.social_media_role === UserRole.VIEWER;
   const isAdmin =
-    currentUser?.role === 'admin' ||
-    currentUser?.social_media_role === 'admin' ||
-    currentUser?.social_media_role === 'approver';
+    currentUser?.role === UserRole.ADMIN || currentUser?.social_media_role === UserRole.ADMIN;
   const activePlatform =
     PLATFORMS.find((p) => p.id === previewPlatform) ??
     PLATFORMS.find((p) => p.id === PLATFORMS[0].id) ??

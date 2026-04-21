@@ -8,7 +8,7 @@ export enum ReviewerApprovalStatus {
 export interface ReviewerEntry {
   email: string;
   name: string;
-  assigned_date: string;
+  assigned_date?: string;
   status: ReviewerApprovalStatus;
-  responded_date?: string | null;
+  responded_date?: string;
 }

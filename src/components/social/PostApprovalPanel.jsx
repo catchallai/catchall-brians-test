@@ -3,6 +3,7 @@ import COPY from '@/lib/copy';
 import { todayLocal } from '@/utils/date';
 import { normalizeReviewers, allReviewersApproved } from '@/utils/reviewers';
 import { ReviewerApprovalStatus } from '@/types/reviewers';
+import { UserRole } from '@/types/enums';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
@@ -184,9 +185,9 @@ export default function PostApprovalPanel({
     },
   });
 
-  const role = currentUser?.social_media_role || currentUser?.role || 'viewer';
-  const isApprover = role === 'admin' || role === 'approver';
-  const isEditor = isApprover || role === 'editor';
+  const role = currentUser?.social_media_role || currentUser?.role || UserRole.VIEWER;
+  const isAdmin = role === UserRole.ADMIN;
+  const isEditor = isAdmin || role === UserRole.EDITOR;
   const reviewers = normalizeReviewers(post);
   const isAssignedReviewer = reviewers.some((r) => r.email === currentUser?.email);
 
@@ -216,7 +217,6 @@ export default function PostApprovalPanel({
               name: s.name,
               assigned_date: now,
               status: ReviewerApprovalStatus.PENDING,
-              responded_date: null,
             }
     );
     const primary = nextReviewers[0] ?? null;
@@ -304,8 +304,11 @@ export default function PostApprovalPanel({
 
   const handleDrawerCancel = () => setDrawerAction(null);
 
-  const teamMembers = allUsers.filter((u) =>
-    ['admin', 'editor', 'approver'].includes(u.social_media_role || u.role)
+  const teamMembers = useMemo(() => [...allUsers], [allUsers]);
+
+  const teamRoleByEmail = useMemo(
+    () => new Map(teamMembers.map((u) => [u.email, u.social_media_role || u.role || ''])),
+    [teamMembers]
   );
 
   const currentStageIdx = getStageIndex(post.status);
@@ -455,10 +458,7 @@ export default function PostApprovalPanel({
                   value={reviewers.map((r) => ({
                     email: r.email,
                     name: r.name,
-                    role:
-                      teamMembers.find((m) => m.email === r.email)?.social_media_role ||
-                      teamMembers.find((m) => m.email === r.email)?.role ||
-                      '',
+                    role: teamRoleByEmail.get(r.email) || '',
                   }))}
                   onChange={handleReviewersChange}
                   teamMembers={teamMembers.map((u) => ({
@@ -601,37 +601,36 @@ export default function PostApprovalPanel({
             )}
 
             {/* Pending Approval → Approve / Reject / Request Changes */}
-            {isApprover &&
-              (post.status === 'pending_approval' || post.status === 'pending_review') && (
-                <>
-                  <Button
-                    size="sm"
-                    onClick={handleApprove}
-                    disabled={updateMutation.isPending}
-                    className="gap-1.5 bg-green-600 hover:bg-green-700 text-white"
-                  >
-                    <CheckCircle2 className="w-3.5 h-3.5" /> {PANEL_COPY.approve}
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={handleReject}
-                    disabled={updateMutation.isPending}
-                    className="gap-1.5 text-red-600 border-red-300 hover:bg-red-50"
-                  >
-                    <XCircle className="w-3.5 h-3.5" /> {PANEL_COPY.reject}
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={handleRequestChanges}
-                    disabled={updateMutation.isPending}
-                    className="gap-1.5 text-orange-700 border-orange-300 hover:bg-orange-50"
-                  >
-                    <RotateCcw className="w-3.5 h-3.5" /> {PANEL_COPY.requestChanges}
-                  </Button>
-                </>
-              )}
+            {(isAssignedReviewer || isAdmin) && post.status === 'pending_approval' && (
+              <>
+                <Button
+                  size="sm"
+                  onClick={handleApprove}
+                  disabled={updateMutation.isPending}
+                  className="gap-1.5 bg-green-600 hover:bg-green-700 text-white"
+                >
+                  <CheckCircle2 className="w-3.5 h-3.5" /> Approve
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={handleReject}
+                  disabled={updateMutation.isPending}
+                  className="gap-1.5 text-red-600 border-red-300 hover:bg-red-50"
+                >
+                  <XCircle className="w-3.5 h-3.5" /> Reject
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={handleRequestChanges}
+                  disabled={updateMutation.isPending}
+                  className="gap-1.5 text-orange-700 border-orange-300 hover:bg-orange-50"
+                >
+                  <RotateCcw className="w-3.5 h-3.5" /> Request Changes
+                </Button>
+              </>
+            )}
 
             {/* Approved info */}
             {post.status === 'approved' && (

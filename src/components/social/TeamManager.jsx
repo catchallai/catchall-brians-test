@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { UserRole } from '@/types/enums';
 import { base44 } from '@/api/base44Client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -12,19 +13,6 @@ import {
 } from '@/components/ui/select';
 import { Users, Shield, Eye, Edit } from 'lucide-react';
 
-const roleIcons = {
-  admin: Shield,
-  editor: Edit,
-  viewer: Eye,
-};
-
-const roleColors = {
-  admin: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300',
-  approver: 'bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-300',
-  editor: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300',
-  viewer: 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300',
-};
-
 export default function TeamManager() {
   const queryClient = useQueryClient();
 
@@ -33,7 +21,7 @@ export default function TeamManager() {
     queryFn: () => base44.auth.me(),
   });
 
-  const { data: allUsers = [], isLoading } = useQuery({
+  const { data: allUsers = [] } = useQuery({
     queryKey: ['all-users'],
     queryFn: () => base44.entities.User.list(),
   });
@@ -46,7 +34,8 @@ export default function TeamManager() {
     },
   });
 
-  const isAdmin = currentUser?.role === 'admin' || currentUser?.social_media_role === 'admin';
+  const isAdmin =
+    currentUser?.role === UserRole.ADMIN || currentUser?.social_media_role === UserRole.ADMIN;
 
   if (!isAdmin) {
     return null;
@@ -63,7 +52,6 @@ export default function TeamManager() {
       <CardContent>
         <div className="space-y-3">
           {allUsers.map((user) => {
-            const RoleIcon = roleIcons[user.social_media_role || 'editor'];
             return (
               <div
                 key={user.id}
@@ -84,7 +72,7 @@ export default function TeamManager() {
                 </div>
 
                 <div className="flex items-center gap-2">
-                  {user.role === 'admin' && (
+                  {user.role === UserRole.ADMIN && (
                     <Badge
                       variant="outline"
                       className="bg-yellow-50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-300 border-yellow-300 dark:border-yellow-700"
@@ -93,7 +81,7 @@ export default function TeamManager() {
                     </Badge>
                   )}
                   <Select
-                    value={user.social_media_role || 'editor'}
+                    value={user.social_media_role || UserRole.EDITOR}
                     onValueChange={(role) => updateRoleMutation.mutate({ userId: user.id, role })}
                     disabled={user.id === currentUser?.id}
                   >
@@ -101,22 +89,17 @@ export default function TeamManager() {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="admin">
+                      <SelectItem value={UserRole.ADMIN}>
                         <div className="flex items-center gap-2">
                           <Shield className="w-4 h-4" /> Admin
                         </div>
                       </SelectItem>
-                      <SelectItem value="approver">
-                        <div className="flex items-center gap-2">
-                          <Shield className="w-4 h-4 text-violet-500" /> Approver
-                        </div>
-                      </SelectItem>
-                      <SelectItem value="editor">
+                      <SelectItem value={UserRole.EDITOR}>
                         <div className="flex items-center gap-2">
                           <Edit className="w-4 h-4" /> Editor
                         </div>
                       </SelectItem>
-                      <SelectItem value="viewer">
+                      <SelectItem value={UserRole.VIEWER}>
                         <div className="flex items-center gap-2">
                           <Eye className="w-4 h-4" /> Viewer
                         </div>

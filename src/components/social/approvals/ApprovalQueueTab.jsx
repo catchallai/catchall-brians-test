@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { UserRole } from '@/types/enums';
 import { useQueryClient, useMutation } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Badge } from '@/components/ui/badge';
@@ -126,11 +127,9 @@ export default function ApprovalQueueTab({
     };
   };
 
-  const isApprover = ['admin', 'approver'].includes(
-    currentUser?.social_media_role || currentUser?.role
-  );
+  const isAdmin = [UserRole.ADMIN].includes(currentUser?.social_media_role || currentUser?.role);
   const _isEditor =
-    isApprover || ['editor'].includes(currentUser?.social_media_role || currentUser?.role);
+    isAdmin || [UserRole.EDITOR].includes(currentUser?.social_media_role || currentUser?.role);
 
   const _mediaItems = selectedPost?.image_url ? [selectedPost.image_url] : [];
 
