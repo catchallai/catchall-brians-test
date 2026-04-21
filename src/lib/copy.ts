@@ -173,7 +173,7 @@ const COPY = {
     newPost: 'New Post',
     submitForApproval: 'Submit for Approval',
     sendForApproval: 'Send for Approval',
-    approvalReviewerRequired: 'Please assign a reviewer.',
+    approvalReviewerRequired: 'Please assign at least one reviewer.',
     approvalPriorityRequired: 'Please select a priority.',
     approvalDueDateRequired: 'Please set a due date.',
     approvalDueDatePast: 'Due date cannot be in the past.',
@@ -359,7 +359,7 @@ const COPY = {
     history: (count: number) => `History (${count})`,
   },
   approvalQueueView: {
-    reviewer: 'Reviewer',
+    reviewer: 'Reviewers',
     notAssigned: 'Not assigned',
     priority: 'Priority',
     notSet: 'Not set',
@@ -431,6 +431,23 @@ const COPY = {
   authError: {
     heading: 'Something went wrong',
     defaultMessage: 'The app failed to load. Please refresh to try again.',
+  },
+  reviewerPicker: {
+    placeholder: 'Assign reviewers\u2026',
+    searchPlaceholder: 'Search by name or email\u2026',
+    noResults: 'No matching team members.',
+    removeLabel: (name: string) => `Remove ${name}`,
+  },
+  approvalProgress: {
+    allApproved: (count: number) => `All ${count} reviewers approved`,
+    partialApproval: (approved: number, total: number) => `${approved}/${total} reviewers approved`,
+    pendingReview: (count: number) => `${count} reviewer${count === 1 ? '' : 's'} pending`,
+  },
+  reviewerStatus: {
+    pending: 'Pending',
+    approved: 'Approved',
+    rejected: 'Rejected',
+    changes_requested: 'Changes Requested',
   },
   approvalEmail: {
     untitledPost: 'Untitled post',

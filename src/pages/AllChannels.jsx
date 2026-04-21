@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { AllChannelsTab } from '@/types/enums';
+import { normalizeReviewers } from '@/utils/reviewers';
+import { ReviewerApprovalStatus } from '@/types/reviewers';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent } from '@/components/ui/card';
@@ -418,6 +420,12 @@ export default function AllChannels() {
   };
 
   const handleApprove = (post) => {
+    const now = new Date().toISOString();
+    const reviewers = normalizeReviewers(post).map((r) => ({
+      ...r,
+      status: ReviewerApprovalStatus.APPROVED,
+      responded_date: now,
+    }));
     updateMutation.mutate({
       id: post.id,
       data: {
@@ -425,6 +433,7 @@ export default function AllChannels() {
         approved_by: user?.email || '',
         approved_by_name: user?.full_name || '',
         approved_date: new Date().toISOString().split('T')[0],
+        reviewers,
       },
     });
   };

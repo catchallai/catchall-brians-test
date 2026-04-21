@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
+import { normalizeReviewers } from '@/utils/reviewers';
+import { ReviewerApprovalStatus } from '@/types/reviewers';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent } from '@/components/ui/card';
 import {
@@ -394,10 +396,17 @@ export default function SocialCalendar() {
     for (const post of monthPosts.filter(
       (p) => p.status !== 'approved' && p.status !== 'published'
     )) {
+      const now = new Date().toISOString();
+      const reviewers = normalizeReviewers(post).map((r) => ({
+        ...r,
+        status: ReviewerApprovalStatus.APPROVED,
+        responded_date: now,
+      }));
       await base44.entities.CalendarPost.update(post.id, {
         status: 'approved',
         approved_by: approverName,
         approved_date: today,
+        reviewers,
       });
     }
     queryClient.invalidateQueries({ queryKey: ['calendar-posts'] });
