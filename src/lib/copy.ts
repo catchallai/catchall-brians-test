@@ -440,6 +440,8 @@ const COPY = {
   },
   approvalProgress: {
     allApproved: (count: number) => `All ${count} reviewers approved`,
+    approvedBy: (name: string) => `Approved by ${name}`,
+    approvedGeneric: 'Approved',
     partialApproval: (approved: number, total: number) => `${approved}/${total} reviewers approved`,
     pendingReview: (count: number) => `${count} reviewer${count === 1 ? '' : 's'} pending`,
   },

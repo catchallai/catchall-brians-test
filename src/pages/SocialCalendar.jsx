@@ -1,8 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
-import { normalizeReviewers } from '@/utils/reviewers';
-import { ReviewerApprovalStatus } from '@/types/reviewers';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent } from '@/components/ui/card';
 import {
@@ -373,45 +371,6 @@ export default function SocialCalendar() {
 
   const handleDelete = (post) => {
     deleteMutation.mutate(post);
-  };
-
-  // Month-scoped posts for bulk approval: filtered by date range only, never by
-  // platform/status/tags. Using filteredPosts here would silently skip posts that
-  // don't match the active tag or platform filter, leading to partial approvals.
-  const monthPosts = posts.filter((p) => {
-    if (!p.scheduled_date || p.status === 'deleted') {
-      return false;
-    }
-    const postDate = parseISO(p.scheduled_date);
-    return postDate >= startOfMonth(currentMonth) && postDate <= endOfMonth(currentMonth);
-  });
-
-  const handleApproveAll = async () => {
-    if (!approverName.trim()) {
-      // eslint-disable-next-line no-alert
-      alert(COPY.socialCalendar.approverNameRequired);
-      return;
-    }
-    const today = new Date().toISOString().split('T')[0];
-    for (const post of monthPosts.filter(
-      (p) => p.status !== 'approved' && p.status !== 'published'
-    )) {
-      const now = new Date().toISOString();
-      const reviewers = normalizeReviewers(post).map((r) => ({
-        ...r,
-        status: ReviewerApprovalStatus.APPROVED,
-        responded_date: now,
-      }));
-      await base44.entities.CalendarPost.update(post.id, {
-        status: 'approved',
-        approved_by: approverName,
-        approved_date: today,
-        reviewers,
-      });
-    }
-    queryClient.invalidateQueries({ queryKey: ['calendar-posts'] });
-    setShowApprovalSection(false);
-    setApproverName('');
   };
 
   const { data: user } = useQuery({
@@ -1083,9 +1042,9 @@ export default function SocialCalendar() {
               <div className="w-full sm:w-auto">
                 {showApprovalSection ? (
                   <div className="flex gap-3">
+                    {/* This will be implemented later */}
                     <Button
                       size="lg"
-                      onClick={handleApproveAll}
                       className="gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-3 h-auto text-base font-semibold shadow-lg"
                     >
                       <CheckCircle className="w-5 h-5" />

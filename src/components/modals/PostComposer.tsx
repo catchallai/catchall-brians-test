@@ -1511,6 +1511,8 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
           // Fetch the pending queue using assigned_to_email (backward-compat field
           // written from the first reviewer). The queue table in the email is
           // informational, so sharing the same data across all reviewer emails is fine.
+          // TODO: Once the backend supports filtering by the reviewers array, fetch
+          // per-reviewer so each email shows an accurate personal queue.
           const primaryEmail = emailReviewers[0].email;
           const PENDING_QUEUE_FETCH_LIMIT = 100;
           const queue: CalendarPost[] = await base44.entities.CalendarPost.filter(

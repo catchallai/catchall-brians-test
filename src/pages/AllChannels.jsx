@@ -1,8 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { AllChannelsTab } from '@/types/enums';
-import { normalizeReviewers } from '@/utils/reviewers';
-import { ReviewerApprovalStatus } from '@/types/reviewers';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent } from '@/components/ui/card';
@@ -17,9 +15,6 @@ import {
   FileText,
   Send,
   Trash2,
-  CheckCircle,
-  XCircle,
-  RotateCcw,
   Search,
   Image,
   Play,
@@ -90,29 +85,22 @@ const STATUS_CONFIG = {
   deleted: { label: 'Deleted', color: 'bg-gray-200 text-gray-500', dot: 'bg-gray-400' },
 };
 
+<<<<<<< HEAD
 const APPROVAL_STATUSES = [
   PostStatus.PENDING_APPROVAL,
   PostStatus.CHANGES_REQUESTED,
   'pending_review',
 ];
+=======
+>>>>>>> 172dfc1 (fix(2281): remove inline approval shortcuts, admin override bypass, and legacy approved-banner fallback; force all approvals through PostApprovalPanel)
 const APPROVAL_VIEW_STATUSES = [
   PostStatus.PENDING_APPROVAL,
   PostStatus.CHANGES_REQUESTED,
   'pending_review',
 ];
 
-function PostCard({
-  post,
-  onEdit,
-  onDelete,
-  onApprove,
-  onReject,
-  onRequestChanges,
-  showApprovalActions,
-}) {
+function PostCard({ post, onEdit, onDelete }) {
   const statusCfg = STATUS_CONFIG[post.status] || STATUS_CONFIG.draft;
-  const showActions =
-    showApprovalActions || (!!onApprove && APPROVAL_STATUSES.includes(post.status));
 
   return (
     <Card
@@ -203,6 +191,7 @@ function PostCard({
                 </div>
               ) : (
                 <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+<<<<<<< HEAD
                   {showActions && (
                     <>
                       <Button
@@ -243,6 +232,8 @@ function PostCard({
                         )}
                     </>
                   )}
+=======
+>>>>>>> 172dfc1 (fix(2281): remove inline approval shortcuts, admin override bypass, and legacy approved-banner fallback; force all approvals through PostApprovalPanel)
                   <Button
                     size="icon"
                     variant="ghost"
@@ -264,17 +255,7 @@ function PostCard({
   );
 }
 
-function PostList({
-  posts,
-  onEdit,
-  onDelete,
-  onApprove,
-  onReject,
-  onRequestChanges,
-  showApprovalActions,
-  emptyMessage,
-  emptyIcon: EmptyIcon,
-}) {
+function PostList({ posts, onEdit, onDelete, emptyMessage, emptyIcon: EmptyIcon }) {
   if (posts.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-16 text-center">
@@ -286,16 +267,7 @@ function PostList({
   return (
     <div className="space-y-3">
       {posts.map((post) => (
-        <PostCard
-          key={post.id}
-          post={post}
-          onEdit={onEdit}
-          onDelete={onDelete}
-          onApprove={onApprove}
-          onReject={onReject}
-          onRequestChanges={onRequestChanges}
-          showApprovalActions={showApprovalActions}
-        />
+        <PostCard key={post.id} post={post} onEdit={onEdit} onDelete={onDelete} />
       ))}
     </div>
   );
@@ -416,41 +388,6 @@ export default function AllChannels() {
     deleteMutation.mutate(deleteTarget, {
       onSuccess: () => setDeleteTarget(null),
       onError: () => setDeleteTarget(null),
-    });
-  };
-
-  const handleApprove = (post) => {
-    const now = new Date().toISOString();
-    const reviewers = normalizeReviewers(post).map((r) => ({
-      ...r,
-      status: ReviewerApprovalStatus.APPROVED,
-      responded_date: now,
-    }));
-    updateMutation.mutate({
-      id: post.id,
-      data: {
-        status: 'approved',
-        approved_by: user?.email || '',
-        approved_by_name: user?.full_name || '',
-        approved_date: new Date().toISOString().split('T')[0],
-        reviewers,
-      },
-    });
-  };
-
-  const handleReject = (post) => {
-    // eslint-disable-next-line no-alert
-    const reason = prompt('Reason for rejection (optional):') ?? '';
-    updateMutation.mutate({
-      id: post.id,
-      data: { status: 'rejected', rejected_reason: reason },
-    });
-  };
-
-  const handleRequestChanges = (post) => {
-    updateMutation.mutate({
-      id: post.id,
-      data: { status: 'changes_requested' },
     });
   };
 
@@ -698,10 +635,6 @@ export default function AllChannels() {
               posts={filtered}
               onEdit={handleEdit}
               onDelete={handleDelete}
-              onApprove={handleApprove}
-              onReject={handleReject}
-              onRequestChanges={handleRequestChanges}
-              showApprovalActions={false}
               emptyMessage="No posts found"
               emptyIcon={FileText}
             />
@@ -716,10 +649,6 @@ export default function AllChannels() {
               posts={approvalPosts}
               onEdit={handleEdit}
               onDelete={handleDelete}
-              onApprove={handleApprove}
-              onReject={handleReject}
-              onRequestChanges={handleRequestChanges}
-              showApprovalActions={true}
               emptyMessage="No posts awaiting approval"
               emptyIcon={ShieldCheck}
             />
@@ -734,7 +663,6 @@ export default function AllChannels() {
               posts={queuePosts}
               onEdit={handleEdit}
               onDelete={handleDelete}
-              showApprovalActions={false}
               emptyMessage="No posts in the queue"
               emptyIcon={Clock}
             />
@@ -749,7 +677,6 @@ export default function AllChannels() {
               posts={draftPosts}
               onEdit={handleEdit}
               onDelete={handleDelete}
-              showApprovalActions={false}
               emptyMessage="No drafts"
               emptyIcon={FileText}
             />
@@ -764,7 +691,6 @@ export default function AllChannels() {
               posts={sentPosts}
               onEdit={handleEdit}
               onDelete={handleDelete}
-              showApprovalActions={false}
               emptyMessage="No published posts yet"
               emptyIcon={Send}
             />
@@ -778,7 +704,6 @@ export default function AllChannels() {
             <PostList
               posts={deletedPosts}
               onEdit={handleEdit}
-              showApprovalActions={false}
               emptyMessage={COPY.deletedPosts.emptyState}
               emptyIcon={Trash2}
             />

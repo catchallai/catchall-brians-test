@@ -302,7 +302,6 @@ export default function PostApprovalPanel({
       payload.approved_by_name = currentUser?.full_name || currentUser?.email;
       payload.approved_date = todayLocal();
       payload.media_approved = true;
-      // If not all approved yet, post stays in current status — only reviewers array updates.
     } else if (action === PostStatus.REJECTED) {
       payload.status = PostStatus.REJECTED;
       payload.rejected_reason = text;
@@ -588,7 +587,7 @@ export default function PostApprovalPanel({
 
           <div className="flex flex-wrap gap-2">
             {/* Draft → Submit for Approval */}
-            {isEditor && post.status === 'draft' && (
+            {isEditor && post.status === PostStatus.DRAFT && (
               <Button
                 size="sm"
                 variant="outline"
@@ -601,7 +600,7 @@ export default function PostApprovalPanel({
             )}
 
             {/* Changes Requested → Resubmit */}
-            {isEditor && post.status === 'changes_requested' && (
+            {isEditor && post.status === PostStatus.CHANGES_REQUESTED && (
               <Button
                 size="sm"
                 variant="outline"
@@ -614,7 +613,7 @@ export default function PostApprovalPanel({
             )}
 
             {/* Pending Approval → Approve / Reject / Request Changes */}
-            {(isAssignedReviewer || isAdmin) && post.status === 'pending_approval' && (
+            {isAssignedReviewer && post.status === PostStatus.PENDING_APPROVAL && (
               <>
                 <Button
                   size="sm"
@@ -646,11 +645,15 @@ export default function PostApprovalPanel({
             )}
 
             {/* Approved info */}
-            {post.status === 'approved' && (
+            {post.status === PostStatus.APPROVED && (
               <div className="w-full p-3 bg-green-50 rounded-xl border border-green-200 text-sm text-green-700 flex gap-2 items-center">
                 <CheckCircle2 className="w-4 h-4 shrink-0" />
                 <span>
-                  {COPY.approvalProgress.allApproved(reviewers.length)}
+                  {reviewers.length > 0
+                    ? COPY.approvalProgress.allApproved(reviewers.length)
+                    : post.approved_by_name || post.approved_by
+                      ? COPY.approvalProgress.approvedBy(post.approved_by_name || post.approved_by)
+                      : COPY.approvalProgress.approvedGeneric}
                   {post.approved_date &&
                     ` on ${format(parseISO(post.approved_date), 'MMM d, yyyy')}`}
                 </span>
