@@ -9,13 +9,13 @@ interface LegacyPost {
 }
 
 /**
- * Normalizes a post's reviewer data. If the post has a `reviewers` array,
- * returns it. Otherwise, falls back to the legacy single-reviewer fields
- * and constructs a single-element array.
+ * Normalizes a post's reviewer data. If the post has a `reviewers` property
+ * (even if empty), it is treated as authoritative. Only when `reviewers` is
+ * null/undefined does the function fall back to legacy single-reviewer fields.
  */
 export function normalizeReviewers(post: LegacyPost | null | undefined): ReviewerEntry[] {
   if (!post) return [];
-  if (post.reviewers && post.reviewers.length > 0) {
+  if (post.reviewers != null) {
     return post.reviewers;
   }
   if (post.assigned_to_email) {

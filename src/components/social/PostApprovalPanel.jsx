@@ -244,6 +244,19 @@ export default function PostApprovalPanel({
     const action = drawerAction;
     if (!action) return;
 
+    // Skip if this reviewer already has the target status (prevents duplicate events).
+    const currentReviewer = reviewers.find((r) => r.email === currentUser?.email);
+    const targetStatus =
+      action === PostStatus.APPROVED
+        ? ReviewerApprovalStatus.APPROVED
+        : action === PostStatus.REJECTED
+          ? ReviewerApprovalStatus.REJECTED
+          : ReviewerApprovalStatus.CHANGES_REQUESTED;
+    if (currentReviewer?.status === targetStatus) {
+      setDrawerAction(null);
+      return;
+    }
+
     const history = [...(post.workflow_history || [])];
 
     // Add tagged comment if text was provided

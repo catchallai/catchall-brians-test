@@ -1,5 +1,5 @@
 import type { ComponentType } from 'react';
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import type { KeyboardEvent } from 'react';
 import { Check, UserPlus, X } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -65,7 +65,7 @@ export function ReviewerPicker({
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState('');
 
-  const selectedEmails = new Set(value.map((r) => r.email));
+  const selectedEmails = useMemo(() => new Set(value.map((r) => r.email)), [value]);
 
   const filtered = teamMembers.filter((m) => {
     if (!search) return true;
