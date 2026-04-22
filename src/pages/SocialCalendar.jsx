@@ -1044,6 +1044,7 @@ export default function SocialCalendar() {
                   <div className="flex gap-3">
                     {/* This will be implemented later */}
                     <Button
+                      disabled
                       size="lg"
                       className="gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-3 h-auto text-base font-semibold shadow-lg"
                     >

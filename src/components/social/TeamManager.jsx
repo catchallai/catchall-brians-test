@@ -52,6 +52,10 @@ export default function TeamManager() {
       <CardContent>
         <div className="space-y-3">
           {allUsers.map((user) => {
+            // TODO: Remove once we consolidate role and social_media_role and ensure all users have role populated
+            const effectiveRole = Object.values(UserRole).includes(user.social_media_role)
+              ? user.social_media_role
+              : UserRole.EDITOR;
             return (
               <div
                 key={user.id}
@@ -81,7 +85,7 @@ export default function TeamManager() {
                     </Badge>
                   )}
                   <Select
-                    value={user.social_media_role || UserRole.EDITOR}
+                    value={effectiveRole}
                     onValueChange={(role) => updateRoleMutation.mutate({ userId: user.id, role })}
                     disabled={user.id === currentUser?.id}
                   >
@@ -120,10 +124,6 @@ export default function TeamManager() {
             <li>
               <strong>Admin:</strong> Full access — create, edit, delete, assign, approve, manage
               team
-            </li>
-            <li>
-              <strong>Approver:</strong> Review submissions, approve or reject posts, request
-              changes
             </li>
             <li>
               <strong>Editor:</strong> Create &amp; edit posts, submit for review, leave comments

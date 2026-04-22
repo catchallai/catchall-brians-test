@@ -115,7 +115,7 @@ export default function WorkflowStageBuilder({ onSave }) {
       name: 'Custom Workflow',
       stages: [
         { id: '1', name: 'Draft', role: 'editor', action: 'submit' },
-        { id: '2', name: 'Review', role: 'approver', action: 'approve_or_reject' },
+        { id: '2', name: 'Review', role: 'reviewer', action: 'approve_or_reject' },
         { id: '3', name: 'Approved', role: null, action: null },
       ],
     };
@@ -127,7 +127,7 @@ export default function WorkflowStageBuilder({ onSave }) {
     const newStage = {
       id: Date.now().toString(),
       name: 'New Stage',
-      role: 'approver',
+      role: 'reviewer',
       action: 'approve_or_reject',
     };
     setEditingWorkflow((prev) => ({ ...prev, stages: [...prev.stages, newStage] }));
