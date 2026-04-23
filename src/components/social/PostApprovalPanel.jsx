@@ -66,21 +66,12 @@ const WORKFLOW_STAGES = [
   },
 ];
 
-const _STAGE_ORDER = ['draft', 'changes_requested', 'pending_approval', 'approved', 'published'];
-
 function getStageIndex(status) {
   if (status === 'changes_requested' || status === 'pending_review') {
     return 1;
   } // maps to pending_approval stage
   return WORKFLOW_STAGES.findIndex((s) => s.key === status);
 }
-
-const _PRIORITY_COLORS = {
-  low: 'bg-gray-100 text-gray-500',
-  normal: 'bg-blue-100 text-blue-600',
-  high: 'bg-orange-100 text-orange-600',
-  urgent: 'bg-red-100 text-red-600',
-};
 
 /**
  * @param {{ post: any, onUpdate: any, readOnly?: boolean, hideEditorActions?: boolean, approvalErrors?: { reviewer?: string, priority?: string, dueDate?: string }, onNoteChange?: (note: string) => void }} props

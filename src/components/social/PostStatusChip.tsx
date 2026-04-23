@@ -14,13 +14,13 @@
 import {
   Clock,
   CheckCircle,
-  AlertCircle,
   FileText,
   BookCheck,
   PencilOff,
   Archive,
   RouteOff,
   Trash2,
+  CircleOff,
 } from 'lucide-react';
 import { getFormattedStatus } from '../utils/getFormattedStatus'; // Formats status string for display
 import Tooltip from '@/components/ui-custom/Tooltip';
@@ -65,7 +65,7 @@ const STATUS_CONFIG: Record<PostStatus, { color: string; icon: JSX.Element; text
   },
   [PostStatus.REJECTED]: {
     color: 'border-red-300 dark:border-red-600 bg-red-50 dark:bg-red-900/30',
-    icon: <AlertCircle className="w-4 h-4 text-red-700 dark:text-red-300" />,
+    icon: <CircleOff className="w-4 h-4 text-red-700 dark:text-red-300" />,
     text: 'text-red-700 dark:text-red-300',
   },
   [PostStatus.PUBLISHED]: {

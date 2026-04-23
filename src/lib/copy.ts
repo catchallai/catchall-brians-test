@@ -322,7 +322,7 @@ const COPY = {
     heading: 'Approval Workflow',
     stages: {
       draft: { label: 'Draft', description: 'Post is being created' },
-      pendingApproval: { label: 'Awaiting Approval', description: 'Ready for final sign-off' },
+      pendingApproval: { label: 'Awaiting Approval', description: 'Post is under review' },
       approved: { label: 'Approved', description: 'Ready to publish' },
       published: { label: 'Published', description: 'Live on platforms' },
     },
