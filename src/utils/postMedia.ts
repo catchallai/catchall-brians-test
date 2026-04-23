@@ -53,7 +53,9 @@ export const validateImageFiles = (
     return 'Select at least one image.';
   }
 
-  const invalidFile = files.find((file) => !SUPPORTED_IMAGE_TYPES.includes(file.type));
+  const invalidFile = files.find(
+    (file) => !(SUPPORTED_IMAGE_TYPES as readonly string[]).includes(file.type)
+  );
   if (invalidFile) {
     return 'Images must be JPG, JPEG, PNG, or WEBP.';
   }
@@ -86,7 +88,7 @@ export const validateVideoFile = (file?: File | null): string | null => {
     return 'Select a video file.';
   }
 
-  if (!SUPPORTED_VIDEO_TYPES.includes(file.type)) {
+  if (!(SUPPORTED_VIDEO_TYPES as readonly string[]).includes(file.type)) {
     return 'Video must be MP4, WEBM, or MOV.';
   }
 
