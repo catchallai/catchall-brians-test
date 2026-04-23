@@ -91,7 +91,7 @@ export default function ApprovalQueueTab({
 
   const queuePosts = posts
     .filter((p) =>
-      ['pending_review', 'pending_approval', 'changes_requested', 'draft'].includes(p.status)
+      ['pending_approval', 'pending_review', 'changes_requested', 'draft'].includes(p.status)
     )
     .filter((p) => {
       const matchSearch =
@@ -156,7 +156,6 @@ export default function ApprovalQueueTab({
             <SelectContent>
               <SelectItem value="all">All Status</SelectItem>
               <SelectItem value="draft">Draft</SelectItem>
-              <SelectItem value="pending_review">In Review</SelectItem>
               <SelectItem value="changes_requested">Changes Needed</SelectItem>
               <SelectItem value="pending_approval">Pending Approval</SelectItem>
             </SelectContent>

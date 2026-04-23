@@ -20,12 +20,10 @@ import {
   XCircle,
   Send,
   UserPlus,
-  ThumbsUp,
   RotateCcw,
   Loader2,
   ChevronDown,
   FileText,
-  Eye,
   ShieldCheck,
   Megaphone,
   ChevronRight,
@@ -39,46 +37,41 @@ import ApprovalActionDrawer from '@/components/social/approvals/ApprovalActionDr
 const TypedInput = /** @type {React.ComponentType<any>} */ (Input);
 const TypedTextarea = /** @type {React.ComponentType<any>} */ (Textarea);
 
+const PANEL_COPY = COPY.postApprovalPanel;
+
 const WORKFLOW_STAGES = [
-  { key: 'draft', label: 'Draft', icon: FileText, description: 'Post is being created' },
   {
-    key: 'pending_review',
-    label: 'In Review',
-    icon: Eye,
-    description: 'Awaiting reviewer feedback',
+    key: 'draft',
+    label: PANEL_COPY.stages.draft.label,
+    icon: FileText,
+    description: PANEL_COPY.stages.draft.description,
   },
   {
     key: 'pending_approval',
-    label: 'Awaiting Approval',
+    label: PANEL_COPY.stages.pendingApproval.label,
     icon: ShieldCheck,
-    description: 'Ready for final sign-off',
+    description: PANEL_COPY.stages.pendingApproval.description,
   },
-  { key: 'approved', label: 'Approved', icon: CheckCircle2, description: 'Ready to publish' },
-  { key: 'published', label: 'Published', icon: Megaphone, description: 'Live on platforms' },
-];
-
-const _STAGE_ORDER = [
-  'draft',
-  'pending_review',
-  'changes_requested',
-  'pending_approval',
-  'approved',
-  'published',
+  {
+    key: 'approved',
+    label: PANEL_COPY.stages.approved.label,
+    icon: CheckCircle2,
+    description: PANEL_COPY.stages.approved.description,
+  },
+  {
+    key: 'published',
+    label: PANEL_COPY.stages.published.label,
+    icon: Megaphone,
+    description: PANEL_COPY.stages.published.description,
+  },
 ];
 
 function getStageIndex(status) {
-  if (status === 'changes_requested') {
+  if (status === 'changes_requested' || status === 'pending_review') {
     return 1;
-  } // maps to pending_review stage
+  } // maps to pending_approval stage
   return WORKFLOW_STAGES.findIndex((s) => s.key === status);
 }
-
-const _PRIORITY_COLORS = {
-  low: 'bg-gray-100 text-gray-500',
-  normal: 'bg-blue-100 text-blue-600',
-  high: 'bg-orange-100 text-orange-600',
-  urgent: 'bg-red-100 text-red-600',
-};
 
 /**
  * @param {{ post: any, onUpdate: any, readOnly?: boolean, hideEditorActions?: boolean, approvalErrors?: { reviewer?: string, priority?: string, dueDate?: string }, onNoteChange?: (note: string) => void }} props
@@ -122,32 +115,29 @@ export default function PostApprovalPanel({
     const map = {};
     const history = post.workflow_history || [];
     history.forEach((e) => {
-      if (e.action === 'submitted_for_review' || e.action === 'resubmitted') {
-        map['pending_review'] = map['pending_review'] || [];
-        map['pending_review'].push({
-          name: e.by_name || e.by_email,
-          action: 'Submitted',
-          time: e.timestamp,
-        });
-      } else if (e.action === 'submitted_for_approval') {
+      if (
+        e.action === 'submitted_for_review' ||
+        e.action === 'resubmitted' ||
+        e.action === 'submitted_for_approval'
+      ) {
         map['pending_approval'] = map['pending_approval'] || [];
         map['pending_approval'].push({
           name: e.by_name || e.by_email,
-          action: 'Reviewed',
+          action: PANEL_COPY.stageActors.submitted,
           time: e.timestamp,
         });
       } else if (e.action === 'approved') {
         map['approved'] = map['approved'] || [];
         map['approved'].push({
           name: e.by_name || e.by_email,
-          action: 'Approved ✓',
+          action: PANEL_COPY.stageActors.approved,
           time: e.timestamp,
         });
       } else if (e.action === 'rejected') {
         map['rejected'] = map['rejected'] || [];
         map['rejected'].push({
           name: e.by_name || e.by_email,
-          action: 'Rejected',
+          action: PANEL_COPY.stageActors.rejected,
           time: e.timestamp,
           note: e.note,
         });
@@ -155,7 +145,7 @@ export default function PostApprovalPanel({
         map['changes_requested'] = map['changes_requested'] || [];
         map['changes_requested'].push({
           name: e.by_name || e.by_email,
-          action: 'Changes Requested',
+          action: PANEL_COPY.stageActors.changesRequested,
           time: e.timestamp,
           note: e.note,
         });
@@ -163,7 +153,7 @@ export default function PostApprovalPanel({
         map['assigned'] = map['assigned'] || [];
         map['assigned'].push({
           name: e.by_name || e.by_email,
-          action: 'Assigned reviewer',
+          action: PANEL_COPY.stageActors.assignedReviewer,
           time: e.timestamp,
         });
       }
@@ -196,8 +186,6 @@ export default function PostApprovalPanel({
   const isAdmin = role === 'admin';
   const isApprover = role === 'admin' || role === 'approver';
   const isEditor = isApprover || role === 'editor';
-  const isAssignedReviewer = post.assigned_to_email === currentUser?.email;
-
   const addWorkflowEvent = (action, extraData = {}) => {
     const history = post.workflow_history || [];
     const newEntry = {
@@ -211,8 +199,8 @@ export default function PostApprovalPanel({
 
   const handleAssign = (userEmail) => {
     const user = allUsers.find((u) => u.email === userEmail);
-    // Status is intentionally not changed here — it transitions to pending_review
-    // only when the user explicitly clicks "Send for Approval" / "Submit for Review".
+    // Status is intentionally not changed here — it transitions to pending_approval
+    // only when the user explicitly clicks "Send for Approval".
     // @ts-ignore — checkJs cannot infer useMutation variable types in .jsx files
     updateMutation.mutate(
       addWorkflowEvent('assigned', {
@@ -222,9 +210,6 @@ export default function PostApprovalPanel({
       })
     );
   };
-
-  const handleSubmitForReview = () =>
-    updateMutation.mutate(addWorkflowEvent('submitted_for_review', { status: 'pending_review' }));
 
   const handleSubmitForApproval = () =>
     updateMutation.mutate(
@@ -301,13 +286,13 @@ export default function PostApprovalPanel({
     <div className="space-y-6">
       {/* ── Visual Workflow Stepper ── */}
       <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm">
-        <h3 className="text-sm font-semibold text-gray-700 mb-4">Approval Workflow</h3>
+        <h3 className="text-sm font-semibold text-gray-700 mb-4">{PANEL_COPY.heading}</h3>
 
         {isRejected ? (
           <div className="flex items-center gap-3 p-4 bg-red-50 rounded-xl border border-red-200">
             <XCircle className="w-6 h-6 text-red-500 shrink-0" />
             <div>
-              <p className="font-semibold text-red-700">Post Rejected</p>
+              <p className="font-semibold text-red-700">{PANEL_COPY.postRejected}</p>
               {post.rejected_reason && (
                 <p className="text-sm text-red-600 mt-0.5">{post.rejected_reason}</p>
               )}
@@ -316,11 +301,11 @@ export default function PostApprovalPanel({
               <Button
                 size="sm"
                 variant="outline"
-                onClick={handleSubmitForReview}
+                onClick={handleSubmitForApproval}
                 disabled={updateMutation.isPending}
                 className="ml-auto gap-1.5 text-yellow-700 border-yellow-300 hover:bg-yellow-50"
               >
-                <RotateCcw className="w-3.5 h-3.5" /> Resubmit
+                <RotateCcw className="w-3.5 h-3.5" /> {PANEL_COPY.resubmit}
               </Button>
             )}
           </div>
@@ -370,7 +355,7 @@ export default function PostApprovalPanel({
                                     : 'text-gray-400'
                               }`}
                             >
-                              {isChangesOnReview ? 'Changes Needed' : stage.label}
+                              {isChangesOnReview ? PANEL_COPY.changesNeeded : stage.label}
                             </p>
                           </div>
                         </div>
@@ -395,7 +380,7 @@ export default function PostApprovalPanel({
                           </div>
                         )}
                         {actors.length === 0 && (
-                          <p className="text-xs text-gray-400 italic">No activity yet</p>
+                          <p className="text-xs text-gray-400 italic">{PANEL_COPY.noActivityYet}</p>
                         )}
                       </TooltipContent>
                     </Tooltip>
@@ -410,7 +395,7 @@ export default function PostApprovalPanel({
         {!isRejected && (
           <p className="text-xs text-center text-gray-400 mt-4">
             {isChangesRequested
-              ? 'Changes have been requested — update and resubmit.'
+              ? PANEL_COPY.changesRequestedHint
               : WORKFLOW_STAGES[currentStageIdx]?.description || ''}
           </p>
         )}
@@ -441,7 +426,7 @@ export default function PostApprovalPanel({
             {isEditor && (
               <div className="space-y-1.5">
                 <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide flex items-center gap-1.5">
-                  <UserPlus className="w-3.5 h-3.5" /> Reviewer{' '}
+                  <UserPlus className="w-3.5 h-3.5" /> {PANEL_COPY.reviewerLabel}{' '}
                   <span className="text-red-500">*</span>
                 </p>
                 {post.assigned_to_email ? (
@@ -482,7 +467,7 @@ export default function PostApprovalPanel({
                     <SelectTrigger
                       className={`text-sm h-9 ${approvalErrors.reviewer ? 'border-red-400 focus:ring-red-400' : ''}`}
                     >
-                      <SelectValue placeholder="Assign reviewer…" />
+                      <SelectValue placeholder={PANEL_COPY.assignReviewerPlaceholder} />
                     </SelectTrigger>
                     <SelectContent>
                       {teamMembers.map((u) => (
@@ -511,7 +496,7 @@ export default function PostApprovalPanel({
             {isEditor && (
               <div className="space-y-1.5">
                 <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
-                  Priority <span className="text-red-500">*</span>
+                  {PANEL_COPY.priorityLabel} <span className="text-red-500">*</span>
                 </p>
                 <Select
                   value={post.priority || 'normal'}
@@ -523,10 +508,10 @@ export default function PostApprovalPanel({
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="low">Low</SelectItem>
-                    <SelectItem value="normal">Normal</SelectItem>
-                    <SelectItem value="high">High</SelectItem>
-                    <SelectItem value="urgent">Urgent</SelectItem>
+                    <SelectItem value="low">{PANEL_COPY.priorityLow}</SelectItem>
+                    <SelectItem value="normal">{PANEL_COPY.priorityNormal}</SelectItem>
+                    <SelectItem value="high">{PANEL_COPY.priorityHigh}</SelectItem>
+                    <SelectItem value="urgent">{PANEL_COPY.priorityUrgent}</SelectItem>
                   </SelectContent>
                 </Select>
                 {approvalErrors.priority && (
@@ -540,7 +525,7 @@ export default function PostApprovalPanel({
               <div className="space-y-1.5">
                 <div>
                   <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
-                    Due Date <span className="text-red-500">*</span>
+                    {PANEL_COPY.dueDateLabel} <span className="text-red-500">*</span>
                   </p>
                   <p className="text-xs text-gray-400 mt-0.5">
                     {COPY.calendarPostModal.approvalDueDateHint}
@@ -582,14 +567,16 @@ export default function PostApprovalPanel({
 
           {/* ── Action Note ── */}
           <div className="space-y-1.5">
-            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Note</p>
+            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+              {PANEL_COPY.noteLabel}
+            </p>
             <TypedTextarea
               value={note}
               onChange={(e) => {
                 setNote(e.target.value);
                 onNoteChange?.(e.target.value);
               }}
-              placeholder="Add a note to your reviewers (optional)"
+              placeholder={PANEL_COPY.notePlaceholder}
               rows={2}
               className="resize-none text-sm"
             />
@@ -600,19 +587,21 @@ export default function PostApprovalPanel({
       {/* ── Action Buttons ── */}
       {!hideEditorActions && (
         <div className="space-y-3">
-          <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Actions</p>
+          <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+            {PANEL_COPY.actionsLabel}
+          </p>
 
           <div className="flex flex-wrap gap-2">
-            {/* Draft → Submit for Review */}
+            {/* Draft → Submit for Approval */}
             {isEditor && post.status === 'draft' && (
               <Button
                 size="sm"
                 variant="outline"
-                onClick={handleSubmitForReview}
+                onClick={handleSubmitForApproval}
                 disabled={updateMutation.isPending}
                 className="gap-1.5 text-yellow-700 border-yellow-300 hover:bg-yellow-50"
               >
-                <Send className="w-3.5 h-3.5" /> Submit for Review
+                <Send className="w-3.5 h-3.5" /> {PANEL_COPY.submitForApproval}
               </Button>
             )}
 
@@ -621,76 +610,53 @@ export default function PostApprovalPanel({
               <Button
                 size="sm"
                 variant="outline"
-                onClick={handleSubmitForReview}
+                onClick={handleSubmitForApproval}
                 disabled={updateMutation.isPending}
                 className="gap-1.5 text-yellow-700 border-yellow-300 hover:bg-yellow-50"
               >
-                <Send className="w-3.5 h-3.5" /> Resubmit for Review
+                <Send className="w-3.5 h-3.5" /> {PANEL_COPY.resubmitForApproval}
               </Button>
             )}
 
-            {/* In Review → Pass to Approver or Request Changes */}
-            {(isAssignedReviewer || isApprover) && post.status === 'pending_review' && (
-              <>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={handleSubmitForApproval}
-                  disabled={updateMutation.isPending}
-                  className="gap-1.5 text-blue-700 border-blue-300 hover:bg-blue-50"
-                >
-                  <ThumbsUp className="w-3.5 h-3.5" /> Pass to Approver
-                </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={handleRequestChanges}
-                  disabled={updateMutation.isPending}
-                  className="gap-1.5 text-orange-700 border-orange-300 hover:bg-orange-50"
-                >
-                  <RotateCcw className="w-3.5 h-3.5" /> Request Changes
-                </Button>
-              </>
-            )}
-
             {/* Pending Approval → Approve / Reject / Request Changes */}
-            {isApprover && post.status === 'pending_approval' && (
-              <>
-                <Button
-                  size="sm"
-                  onClick={handleApprove}
-                  disabled={updateMutation.isPending}
-                  className="gap-1.5 bg-green-600 hover:bg-green-700 text-white"
-                >
-                  <CheckCircle2 className="w-3.5 h-3.5" /> Approve
-                </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={handleReject}
-                  disabled={updateMutation.isPending}
-                  className="gap-1.5 text-red-600 border-red-300 hover:bg-red-50"
-                >
-                  <XCircle className="w-3.5 h-3.5" /> Reject
-                </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={handleRequestChanges}
-                  disabled={updateMutation.isPending}
-                  className="gap-1.5 text-orange-700 border-orange-300 hover:bg-orange-50"
-                >
-                  <RotateCcw className="w-3.5 h-3.5" /> Request Changes
-                </Button>
-              </>
-            )}
+            {isApprover &&
+              (post.status === 'pending_approval' || post.status === 'pending_review') && (
+                <>
+                  <Button
+                    size="sm"
+                    onClick={handleApprove}
+                    disabled={updateMutation.isPending}
+                    className="gap-1.5 bg-green-600 hover:bg-green-700 text-white"
+                  >
+                    <CheckCircle2 className="w-3.5 h-3.5" /> {PANEL_COPY.approve}
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={handleReject}
+                    disabled={updateMutation.isPending}
+                    className="gap-1.5 text-red-600 border-red-300 hover:bg-red-50"
+                  >
+                    <XCircle className="w-3.5 h-3.5" /> {PANEL_COPY.reject}
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={handleRequestChanges}
+                    disabled={updateMutation.isPending}
+                    className="gap-1.5 text-orange-700 border-orange-300 hover:bg-orange-50"
+                  >
+                    <RotateCcw className="w-3.5 h-3.5" /> {PANEL_COPY.requestChanges}
+                  </Button>
+                </>
+              )}
 
             {/* Approved info */}
             {post.status === 'approved' && (
               <div className="w-full p-3 bg-green-50 rounded-xl border border-green-200 text-sm text-green-700 flex gap-2 items-center">
                 <CheckCircle2 className="w-4 h-4 shrink-0" />
                 <span>
-                  Approved by <strong>{post.approved_by_name || post.approved_by}</strong>
+                  {PANEL_COPY.approvedBy(post.approved_by_name || post.approved_by)}
                   {post.approved_date &&
                     ` on ${format(parseISO(post.approved_date), 'MMM d, yyyy')}`}
                 </span>
@@ -708,7 +674,7 @@ export default function PostApprovalPanel({
 
           {updateMutation.isPending && !drawerAction && (
             <div className="flex items-center gap-2 text-xs text-gray-400">
-              <Loader2 className="w-3.5 h-3.5 animate-spin" /> Saving…
+              <Loader2 className="w-3.5 h-3.5 animate-spin" /> {PANEL_COPY.saving}
             </div>
           )}
         </div>
@@ -726,7 +692,7 @@ export default function PostApprovalPanel({
             ) : (
               <ChevronRight className="w-3.5 h-3.5" />
             )}
-            History ({post.workflow_history.length})
+            {PANEL_COPY.history(post.workflow_history.length)}
           </button>
           {showHistory && (
             <div className="space-y-3 border-l-2 border-gray-100 pl-4 ml-1 mt-2">

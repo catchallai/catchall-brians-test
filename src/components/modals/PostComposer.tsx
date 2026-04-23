@@ -1391,7 +1391,6 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
       // being published yet and the scheduled date may legitimately be in the past
       // (e.g. an editor resubmitting a changes-requested post whose original
       // scheduled date has already passed while it sat in review).
-      PostStatus.PENDING_REVIEW,
       PostStatus.PENDING_APPROVAL,
       PostStatus.CHANGES_REQUESTED,
     ].includes(finalStatus);
@@ -1405,15 +1404,19 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
     }
     setScheduleError('');
 
-    // Append a workflow history event when transitioning to pending_review (mirrors
-    // what PostApprovalPanel's yellow "Submit for Review" button used to do).
+    // Append a workflow history event only when transitioning *into* pending_approval,
+    // not when the post is already in that state and the user is just saving edits.
+    const previousStatus = (savedPost ?? post)?.status as PostStatus | undefined;
     let workflowHistory: WorkflowEntry[] | undefined;
-    if (finalStatus === PostStatus.PENDING_REVIEW) {
+    if (
+      finalStatus === PostStatus.PENDING_APPROVAL &&
+      previousStatus !== PostStatus.PENDING_APPROVAL
+    ) {
       const existing = (savedPost ?? post)?.workflow_history ?? [];
       workflowHistory = [
         ...existing,
         {
-          action: 'submitted_for_review',
+          action: 'submitted_for_approval',
           by_email: currentUser?.email,
           by_name: currentUser?.full_name || currentUser?.email,
           timestamp: new Date().toISOString(),
@@ -1474,7 +1477,6 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
     const successMessages: Partial<Record<PostStatus, string>> = {
       [PostStatus.DRAFT]: COPY.calendarPostModal.saveSuccessDraft,
       [PostStatus.SCHEDULED]: COPY.calendarPostModal.saveSuccessScheduled,
-      [PostStatus.PENDING_REVIEW]: COPY.calendarPostModal.saveSuccessPendingReview,
       [PostStatus.PENDING_APPROVAL]: COPY.calendarPostModal.saveSuccessPendingApproval,
       [PostStatus.PUBLISHED]: COPY.calendarPostModal.saveSuccessPublished,
     };
@@ -1486,7 +1488,7 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
 
     // Fire-and-forget email to the reviewer — must not block or surface errors to the user.
     if (
-      finalStatus === PostStatus.PENDING_REVIEW &&
+      finalStatus === PostStatus.PENDING_APPROVAL &&
       approvalMeta.assigned_to_email &&
       saveResult?.id
     ) {
@@ -1503,7 +1505,7 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
           const queue: CalendarPost[] = await base44.entities.CalendarPost.filter(
             {
               assigned_to_email: reviewerEmail,
-              status: [PostStatus.PENDING_REVIEW, PostStatus.PENDING_APPROVAL],
+              status: [PostStatus.PENDING_APPROVAL],
             },
             'review_due_date',
             PENDING_QUEUE_FETCH_LIMIT
@@ -1518,7 +1520,10 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
               const submittedBy = p.workflow_history
                 ?.slice()
                 .reverse()
-                .find((e) => e.action === 'submitted_for_review')?.by_name;
+                .find(
+                  (e) =>
+                    e.action === 'submitted_for_approval' || e.action === 'submitted_for_review'
+                )?.by_name;
               const title =
                 (p.caption && p.caption.slice(0, 60)) || p.title || COPY.approvalEmail.untitledPost;
               return {
@@ -1604,9 +1609,9 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
       //     approval state and the active tab along with formData, not just
       //     formData as before.
       const APPROVAL_BOUND: Set<PostStatus> = new Set([
-        PostStatus.PENDING_REVIEW,
         PostStatus.PENDING_APPROVAL,
         PostStatus.CHANGES_REQUESTED,
+        'pending_review' as PostStatus,
       ]);
       const savedId = (saveResult as CalendarPost | undefined)?.id;
       if (APPROVAL_BOUND.has(finalStatus) && savedId) {
@@ -1761,7 +1766,7 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
       const isResubmit = formData.status === PostStatus.CHANGES_REQUESTED;
       return {
         label: isResubmit
-          ? COPY.calendarPostModal.resubmitForReview
+          ? COPY.calendarPostModal.resubmitForApproval
           : COPY.calendarPostModal.sendForApproval,
         icon: <Send className="w-4 h-4" />,
         disabled: baseDisabled,
@@ -1779,11 +1784,9 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
           }
           setApprovalErrors({});
           handleSubmit(
-            isResubmit
-              ? PostStatus.PENDING_REVIEW
-              : isAdmin && !requireApproval
-                ? PostStatus.APPROVED
-                : PostStatus.PENDING_REVIEW
+            !isResubmit && isAdmin && !requireApproval
+              ? PostStatus.APPROVED
+              : PostStatus.PENDING_APPROVAL
           );
         },
       };
@@ -1792,9 +1795,9 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
     if (requireApproval) {
       // Statuses that represent an active review workflow — preserve them when saving edits.
       const workflowStatuses = new Set([
-        PostStatus.PENDING_REVIEW,
         PostStatus.PENDING_APPROVAL,
         PostStatus.CHANGES_REQUESTED,
+        'pending_review' as PostStatus,
       ]);
       const existingStatus = (savedPost ?? post)?.status as PostStatus | undefined;
       const saveStatus =

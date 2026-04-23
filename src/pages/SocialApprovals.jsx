@@ -63,7 +63,6 @@ const TABS = [
 
 const STATUS_LABELS = {
   draft: { label: 'Draft', color: 'bg-gray-100 text-gray-600' },
-  pending_review: { label: 'In Review', color: 'bg-yellow-100 text-yellow-700' },
   changes_requested: { label: 'Changes Needed', color: 'bg-orange-100 text-orange-700' },
   pending_approval: { label: 'Pending Approval', color: 'bg-blue-100 text-blue-700' },
   approved: { label: 'Approved', color: 'bg-green-100 text-green-700' },
@@ -88,18 +87,19 @@ export default function SocialApprovals() {
 
   const { data: pendingCopy = [] } = useQuery({
     queryKey: ['pending-copy-count'],
-    queryFn: () => base44.entities.ApprovedCopy.filter({ status: 'pending_review' }),
+    queryFn: () => base44.entities.ApprovedCopy.filter({ status: 'pending_brand_approval' }),
     staleTime: 2 * 60 * 1000,
   });
 
   const { data: pendingTemplates = [] } = useQuery({
     queryKey: ['pending-template-count'],
-    queryFn: () => base44.entities.ApprovedGraphicTemplate.filter({ status: 'pending_review' }),
+    queryFn: () =>
+      base44.entities.ApprovedGraphicTemplate.filter({ status: 'pending_brand_approval' }),
     staleTime: 2 * 60 * 1000,
   });
 
   const pendingPostCount = allPosts.filter((p) =>
-    ['pending_review', 'pending_approval', 'changes_requested'].includes(p.status)
+    ['pending_approval', 'pending_review', 'changes_requested'].includes(p.status)
   ).length;
 
   const totalPending = pendingPostCount + pendingCopy.length + pendingTemplates.length;

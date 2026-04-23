@@ -16,7 +16,7 @@ export default function ApprovalReviewTab({
   const [search, setSearch] = useState('');
 
   const reviewPosts = posts
-    .filter((p) => ['pending_review', 'pending_approval', 'changes_requested'].includes(p.status))
+    .filter((p) => ['pending_approval', 'pending_review', 'changes_requested'].includes(p.status))
     .filter(
       (p) =>
         !search ||
@@ -108,9 +108,11 @@ export default function ApprovalReviewTab({
 
                 {/* Workflow progress */}
                 <div className="flex items-center gap-1 mt-3">
-                  {['draft', 'pending_review', 'pending_approval', 'approved'].map((s, i) => {
-                    const stages = ['draft', 'pending_review', 'pending_approval', 'approved'];
-                    const currentIdx = stages.indexOf(post.status);
+                  {['draft', 'pending_approval', 'approved'].map((s, i) => {
+                    const stages = ['draft', 'pending_approval', 'approved'];
+                    const normalizedStatus =
+                      post.status === 'pending_review' ? 'pending_approval' : post.status;
+                    const currentIdx = stages.indexOf(normalizedStatus);
                     const done = i < currentIdx;
                     const current = i === currentIdx;
                     return (

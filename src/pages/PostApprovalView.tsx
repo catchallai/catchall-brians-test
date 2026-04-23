@@ -55,7 +55,7 @@ export default function PostApprovalView() {
 
   // The author is the user who first submitted the post for review.
   const authorEmail = (post?.workflow_history ?? []).find(
-    (e: any) => e.action === 'submitted_for_review'
+    (e: any) => e.action === 'submitted_for_approval' || e.action === 'submitted_for_review'
   )?.by_email;
   const isAuthor = currentUser?.email === authorEmail;
   const isAdmin = currentUser?.role === 'admin' || currentUser?.social_media_role === 'admin';

@@ -14,13 +14,13 @@
 import {
   Clock,
   CheckCircle,
-  AlertCircle,
   FileText,
   BookCheck,
   PencilOff,
   Archive,
   RouteOff,
   Trash2,
+  CircleOff,
 } from 'lucide-react';
 import { getFormattedStatus } from '../utils/getFormattedStatus'; // Formats status string for display
 import Tooltip from '@/components/ui-custom/Tooltip';
@@ -37,11 +37,6 @@ const STATUS_CONFIG: Record<PostStatus, { color: string; icon: JSX.Element; text
     color: 'border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700',
     icon: <FileText className="w-4 h-4 text-gray-700 dark:text-gray-300" />,
     text: 'text-gray-700 dark:text-gray-300',
-  },
-  [PostStatus.PENDING_REVIEW]: {
-    color: 'border-amber-300 dark:border-amber-600 bg-amber-50 dark:bg-amber-900/30',
-    icon: <Clock className="w-4 h-4 text-amber-700 dark:text-amber-300" />,
-    text: 'text-amber-700 dark:text-amber-300',
   },
   [PostStatus.PENDING_APPROVAL]: {
     color: 'border-amber-300 dark:border-amber-600 bg-amber-50 dark:bg-amber-900/30',
@@ -70,7 +65,7 @@ const STATUS_CONFIG: Record<PostStatus, { color: string; icon: JSX.Element; text
   },
   [PostStatus.REJECTED]: {
     color: 'border-red-300 dark:border-red-600 bg-red-50 dark:bg-red-900/30',
-    icon: <AlertCircle className="w-4 h-4 text-red-700 dark:text-red-300" />,
+    icon: <CircleOff className="w-4 h-4 text-red-700 dark:text-red-300" />,
     text: 'text-red-700 dark:text-red-300',
   },
   [PostStatus.PUBLISHED]: {

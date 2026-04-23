@@ -16,7 +16,6 @@ import ApprovalWorkflowPanel from './ApprovalWorkflowPanel';
 
 const STATUS_CONFIG = {
   draft: { label: 'Draft', color: 'bg-gray-100 text-gray-600' },
-  pending_review: { label: 'In Review', color: 'bg-yellow-100 text-yellow-700' },
   changes_requested: { label: 'Changes Needed', color: 'bg-orange-100 text-orange-700' },
   pending_brand_approval: { label: 'Brand Approval', color: 'bg-blue-100 text-blue-700' },
   approved: { label: 'Approved ✓', color: 'bg-green-100 text-green-700' },
@@ -103,9 +102,7 @@ export default function GraphicTemplatePoolTab({ currentUser }) {
   };
 
   const approvedCount = items.filter((i) => i.status === 'approved').length;
-  const pendingCount = items.filter((i) =>
-    ['pending_review', 'pending_brand_approval'].includes(i.status)
-  ).length;
+  const pendingCount = items.filter((i) => ['pending_brand_approval'].includes(i.status)).length;
 
   return (
     <div className="flex gap-4 h-full">
