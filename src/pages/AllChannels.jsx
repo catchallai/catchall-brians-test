@@ -85,14 +85,6 @@ const STATUS_CONFIG = {
   deleted: { label: 'Deleted', color: 'bg-gray-200 text-gray-500', dot: 'bg-gray-400' },
 };
 
-<<<<<<< HEAD
-const APPROVAL_STATUSES = [
-  PostStatus.PENDING_APPROVAL,
-  PostStatus.CHANGES_REQUESTED,
-  'pending_review',
-];
-=======
->>>>>>> 172dfc1 (fix(2281): remove inline approval shortcuts, admin override bypass, and legacy approved-banner fallback; force all approvals through PostApprovalPanel)
 const APPROVAL_VIEW_STATUSES = [
   PostStatus.PENDING_APPROVAL,
   PostStatus.CHANGES_REQUESTED,
@@ -191,49 +183,6 @@ function PostCard({ post, onEdit, onDelete }) {
                 </div>
               ) : (
                 <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-<<<<<<< HEAD
-                  {showActions && (
-                    <>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        className="h-7 px-2 text-emerald-600 hover:bg-emerald-50 hover:text-emerald-700 text-xs gap-1"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onApprove(post);
-                        }}
-                      >
-                        <CheckCircle className="w-3.5 h-3.5" /> Approve
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        className="h-7 px-2 text-red-500 hover:bg-red-50 hover:text-red-600 text-xs gap-1"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onReject(post);
-                        }}
-                      >
-                        <XCircle className="w-3.5 h-3.5" /> Reject
-                      </Button>
-                      {onRequestChanges &&
-                        (post.status === 'pending_approval' || post.status === 'pending_review') && (
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="h-7 px-2 text-orange-700 border-orange-300 hover:bg-orange-50 text-xs gap-1"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              onRequestChanges(post);
-                            }}
-                          >
-                            <RotateCcw className="w-3.5 h-3.5" /> Request Changes
-                          </Button>
-                        )}
-                    </>
-                  )}
-=======
->>>>>>> 172dfc1 (fix(2281): remove inline approval shortcuts, admin override bypass, and legacy approved-banner fallback; force all approvals through PostApprovalPanel)
                   <Button
                     size="icon"
                     variant="ghost"
