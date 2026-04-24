@@ -661,8 +661,7 @@ export default function PostApprovalPanel({
             )}
 
             {/* Partial approval progress (not yet fully approved) */}
-            {(post.status === PostStatus.PENDING_REVIEW ||
-              post.status === PostStatus.PENDING_APPROVAL) &&
+            {(post.status === 'pending_review' || post.status === PostStatus.PENDING_APPROVAL) &&
               reviewers.length > 1 &&
               reviewers.some((r) => r.status === ReviewerApprovalStatus.APPROVED) && (
                 <div className="w-full p-3 bg-blue-50 rounded-xl border border-blue-200 text-sm text-blue-700 flex gap-2 items-center">
