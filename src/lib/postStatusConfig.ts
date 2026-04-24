@@ -25,23 +25,11 @@ export type PostStatusHue =
   | 'stone'
   | 'neutral-dark';
 
-export type PostStatusBucket =
-  | 'neutral'
-  | 'waiting'
-  | 'attention'
-  | 'ready'
-  | 'time'
-  | 'success'
-  | 'blocked'
-  | 'inactive'
-  | 'destructive';
-
 export type PostStatusConfig = {
   label: string;
   description: string;
   icon: LucideIcon;
   hue: PostStatusHue;
-  bucket: PostStatusBucket;
 };
 
 export type PostStatusStyles = {
@@ -142,70 +130,60 @@ export const POST_STATUS_CONFIG: Record<PostStatus, PostStatusConfig> = {
     description: 'Not yet submitted for approval',
     icon: FileText,
     hue: 'slate',
-    bucket: 'neutral',
   },
   [PostStatus.PENDING_APPROVAL]: {
     label: 'Pending Approval',
     description: 'Waiting for a reviewer to approve or request changes',
     icon: Clock,
     hue: 'amber',
-    bucket: 'waiting',
   },
   [PostStatus.CHANGES_REQUESTED]: {
     label: 'Changes Requested',
     description: 'A reviewer has requested edits before approval',
     icon: MessageSquareWarning,
     hue: 'orange',
-    bucket: 'attention',
   },
   [PostStatus.APPROVED]: {
     label: 'Approved',
     description: 'Approved by a reviewer and ready to schedule or publish',
     icon: CheckCircle2,
     hue: 'green',
-    bucket: 'ready',
   },
   [PostStatus.SCHEDULED]: {
     label: 'Scheduled',
     description: 'Queued to publish at a future date and time',
     icon: CalendarClock,
     hue: 'blue',
-    bucket: 'time',
   },
   [PostStatus.PUBLISHED]: {
     label: 'Published',
     description: 'Live on the connected platform',
     icon: Send,
     hue: 'indigo',
-    bucket: 'success',
   },
   [PostStatus.REJECTED]: {
     label: 'Rejected',
     description: 'Rejected by a reviewer and will not be published',
     icon: XCircle,
     hue: 'red',
-    bucket: 'blocked',
   },
   [PostStatus.UNUSED]: {
     label: 'Unused',
     description: 'No longer part of the active publishing plan',
     icon: CircleSlash,
     hue: 'zinc',
-    bucket: 'inactive',
   },
   [PostStatus.ARCHIVED]: {
     label: 'Archived',
     description: 'Moved to the archive for long-term retention',
     icon: Archive,
     hue: 'stone',
-    bucket: 'inactive',
   },
   [PostStatus.DELETED]: {
     label: 'Deleted',
     description: 'Soft-deleted and awaiting permanent purge',
     icon: Trash2,
     hue: 'neutral-dark',
-    bucket: 'destructive',
   },
 };
 
@@ -216,8 +194,7 @@ export const POST_STATUS_CONFIG: Record<PostStatus, PostStatusConfig> = {
  * coming in with unexpected values).
  */
 export function getPostStatusStyles(status: PostStatus): PostStatusStyles {
-  const config =
-    POST_STATUS_CONFIG[status] ?? POST_STATUS_CONFIG[PostStatus.DRAFT];
+  const config = POST_STATUS_CONFIG[status] ?? POST_STATUS_CONFIG[PostStatus.DRAFT];
   return HUE_STYLES[config.hue];
 }
 
