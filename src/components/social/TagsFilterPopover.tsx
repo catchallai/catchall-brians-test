@@ -36,7 +36,7 @@ export default function TagsFilterPopover(props: TagsFilterPopoverProps) {
         )}
         <ChevronDown className="w-3 h-3 text-slate-400 dark:text-slate-500" aria-hidden="true" />
       </PopoverTrigger>
-      <PopoverContent align="end" className="w-72 p-3">
+      <PopoverContent align="end" className="w-72 p-3 data-[state=closed]:hidden">
         <div className="mb-2 text-xs font-semibold text-slate-900 dark:text-slate-100">
           {COPY.tagsFilter.popoverTitle}
         </div>
