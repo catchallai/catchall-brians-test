@@ -59,6 +59,18 @@ export enum AllChannelsTab {
   DELETED = 'deleted',
 }
 
+export enum UserRole {
+  ADMIN = 'admin',
+  EDITOR = 'editor',
+  VIEWER = 'viewer',
+}
+
+export const USER_ROLE_OPTIONS: { value: UserRole; label: string }[] = [
+  { value: UserRole.ADMIN, label: 'Admin' },
+  { value: UserRole.EDITOR, label: 'Editor' },
+  { value: UserRole.VIEWER, label: 'Viewer' },
+];
+
 export const ALL_CHANNELS_TAB_OPTIONS: { value: AllChannelsTab; label: string }[] = [
   { value: AllChannelsTab.ALL, label: 'All' },
   { value: AllChannelsTab.APPROVALS, label: 'Approvals' },

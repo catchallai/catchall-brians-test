@@ -215,6 +215,24 @@
       "type": "string",
       "description": "ID of approved graphic template used to create this post"
     },
+    "reviewers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "email": { "type": "string" },
+          "name": { "type": "string" },
+          "assigned_date": { "type": "string", "format": "date-time" },
+          "status": {
+            "type": "string",
+            "enum": ["pending", "approved", "rejected", "changes_requested"]
+          },
+          "responded_date": { "type": "string", "format": "date-time" }
+        }
+      },
+      "default": [],
+      "description": "Assigned reviewers with per-reviewer approval tracking"
+    },
     "workflow_history": {
       "type": "array",
       "items": {

@@ -126,14 +126,6 @@ export default function ApprovalQueueTab({
     };
   };
 
-  const isApprover = ['admin', 'approver'].includes(
-    currentUser?.social_media_role || currentUser?.role
-  );
-  const _isEditor =
-    isApprover || ['editor'].includes(currentUser?.social_media_role || currentUser?.role);
-
-  const _mediaItems = selectedPost?.image_url ? [selectedPost.image_url] : [];
-
   return (
     <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
       {/* Left: Queue List */}

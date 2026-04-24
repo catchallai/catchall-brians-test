@@ -30,7 +30,7 @@ const ACTION_CONFIG = {
   submitted_for_approval: {
     icon: ThumbsUp,
     color: 'bg-blue-100 text-blue-600',
-    label: 'sent to approver',
+    label: 'sent for approval',
   },
   assigned: { icon: UserPlus, color: 'bg-violet-100 text-violet-600', label: 'assigned reviewer' },
   viewed: { icon: Eye, color: 'bg-gray-100 text-gray-500', label: 'viewed' },

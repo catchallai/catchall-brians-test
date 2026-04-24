@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import COPY from '@/lib/copy';
 import { todayLocal } from '@/utils/date';
+import { normalizeReviewers, allReviewersApproved } from '@/utils/reviewers';
+import { ReviewerApprovalStatus } from '@/types/reviewers';
+import { UserRole } from '@/types/enums';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import {
   Select,
   SelectContent,
@@ -32,6 +33,8 @@ import { formatDistanceToNow, format, parseISO } from 'date-fns';
 import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 import ApprovalQueueView from '@/components/social/approvals/ApprovalQueueView';
 import ApprovalActionDrawer from '@/components/social/approvals/ApprovalActionDrawer';
+import { ReviewerPicker } from '@/components/social/approvals/ReviewerPicker';
+import { PostStatus } from '@/types/enums';
 
 // checkJs loses prop types for shadcn/ui components exported from .jsx files.
 const TypedInput = /** @type {React.ComponentType<any>} */ (Input);
@@ -182,10 +185,12 @@ export default function PostApprovalPanel({
     },
   });
 
-  const role = currentUser?.social_media_role || currentUser?.role || 'viewer';
-  const isAdmin = role === 'admin';
-  const isApprover = role === 'admin' || role === 'approver';
-  const isEditor = isApprover || role === 'editor';
+  const role = currentUser?.social_media_role || currentUser?.role || UserRole.VIEWER;
+  const isAdmin = role === UserRole.ADMIN;
+  const isEditor = isAdmin || role === UserRole.EDITOR;
+  const reviewers = normalizeReviewers(post);
+  const isAssignedReviewer = reviewers.some((r) => r.email === currentUser?.email);
+
   const addWorkflowEvent = (action, extraData = {}) => {
     const history = post.workflow_history || [];
     const newEntry = {
@@ -197,16 +202,31 @@ export default function PostApprovalPanel({
     return { workflow_history: [...history, newEntry], ...extraData };
   };
 
-  const handleAssign = (userEmail) => {
-    const user = allUsers.find((u) => u.email === userEmail);
-    // Status is intentionally not changed here — it transitions to pending_approval
-    // only when the user explicitly clicks "Send for Approval".
+  const handleReviewersChange = (
+    /** @type {{ email: string; name: string; role: string }[]} */ selectedReviewers
+  ) => {
+    const now = new Date().toISOString();
+    // Preserve per-reviewer status for reviewers that were already assigned.
+    const existingByEmail = Object.fromEntries(reviewers.map((r) => [r.email, r]));
+    const nextReviewers = selectedReviewers.map(
+      (/** @type {{ email: string; name: string }} */ s) =>
+        existingByEmail[s.email]
+          ? existingByEmail[s.email]
+          : {
+              email: s.email,
+              name: s.name,
+              assigned_date: now,
+              status: ReviewerApprovalStatus.PENDING,
+            }
+    );
+    const primary = nextReviewers[0] ?? null;
     // @ts-ignore — checkJs cannot infer useMutation variable types in .jsx files
     updateMutation.mutate(
       addWorkflowEvent('assigned', {
-        assigned_to_email: userEmail,
-        assigned_to_name: user?.full_name || userEmail,
-        assigned_date: new Date().toISOString(),
+        reviewers: nextReviewers,
+        assigned_to_email: primary?.email ?? null,
+        assigned_to_name: primary?.name ?? null,
+        assigned_date: primary ? now : null,
       })
     );
   };
@@ -223,6 +243,19 @@ export default function PostApprovalPanel({
   const handleDrawerSubmit = (text) => {
     const action = drawerAction;
     if (!action) return;
+
+    // Skip if this reviewer already has the target status (prevents duplicate events).
+    const currentReviewer = reviewers.find((r) => r.email === currentUser?.email);
+    const targetStatus =
+      action === PostStatus.APPROVED
+        ? ReviewerApprovalStatus.APPROVED
+        : action === PostStatus.REJECTED
+          ? ReviewerApprovalStatus.REJECTED
+          : ReviewerApprovalStatus.CHANGES_REQUESTED;
+    if (currentReviewer?.status === targetStatus) {
+      setDrawerAction(null);
+      return;
+    }
 
     const history = [...(post.workflow_history || [])];
 
@@ -246,36 +279,48 @@ export default function PostApprovalPanel({
       timestamp: new Date().toISOString(),
     });
 
-    // Build status update based on action
-    let statusUpdate = {};
-    if (action === 'approved') {
-      statusUpdate = {
-        status: 'approved',
-        approved_by: currentUser?.email,
-        approved_by_name: currentUser?.full_name || currentUser?.email,
-        approved_date: todayLocal(),
-        media_approved: true,
-      };
-    } else if (action === 'rejected') {
-      statusUpdate = {
-        status: 'rejected',
-        rejected_reason: text,
-        media_approved: false,
-      };
-    } else if (action === 'changes_requested') {
-      statusUpdate = { status: 'changes_requested' };
+    // Update per-reviewer status in the reviewers array
+    const now = new Date().toISOString();
+    const reviewerStatusMap = {
+      approved: ReviewerApprovalStatus.APPROVED,
+      rejected: ReviewerApprovalStatus.REJECTED,
+      changes_requested: ReviewerApprovalStatus.CHANGES_REQUESTED,
+    };
+    const updatedReviewers = reviewers.map((r) =>
+      r.email === currentUser?.email
+        ? { ...r, status: reviewerStatusMap[action], responded_date: now }
+        : r
+    );
+
+    // Build the full mutation payload
+    /** @type {Record<string, any>} */
+    const payload = { workflow_history: history, reviewers: updatedReviewers };
+
+    if (action === PostStatus.APPROVED && allReviewersApproved(updatedReviewers)) {
+      payload.status = PostStatus.APPROVED;
+      payload.approved_by = currentUser?.email;
+      payload.approved_by_name = currentUser?.full_name || currentUser?.email;
+      payload.approved_date = todayLocal();
+      payload.media_approved = true;
+    } else if (action === PostStatus.REJECTED) {
+      payload.status = PostStatus.REJECTED;
+      payload.rejected_reason = text;
+      payload.media_approved = false;
+    } else if (action === PostStatus.CHANGES_REQUESTED) {
+      payload.status = PostStatus.CHANGES_REQUESTED;
     }
 
-    updateMutation.mutate(
-      { workflow_history: history, ...statusUpdate },
-      { onSuccess: () => setDrawerAction(null) }
-    );
+    // @ts-ignore — checkJs cannot infer useMutation variable types in .jsx files
+    updateMutation.mutate(payload, { onSuccess: () => setDrawerAction(null) });
   };
 
   const handleDrawerCancel = () => setDrawerAction(null);
 
-  const teamMembers = allUsers.filter((u) =>
-    ['admin', 'editor', 'approver'].includes(u.social_media_role || u.role)
+  const teamMembers = useMemo(() => [...allUsers], [allUsers]);
+
+  const teamRoleByEmail = useMemo(
+    () => new Map(teamMembers.map((u) => [u.email, u.social_media_role || u.role || ''])),
+    [teamMembers]
   );
 
   const currentStageIdx = getStageIndex(post.status);
@@ -405,15 +450,7 @@ export default function PostApprovalPanel({
       {readOnly ? (
         <>
           <ApprovalQueueView
-            reviewer={
-              post.assigned_to_email
-                ? {
-                    name: post.assigned_to_name,
-                    email: post.assigned_to_email,
-                    assignedDate: post.assigned_date,
-                  }
-                : null
-            }
+            reviewers={reviewers}
             priority={post.priority}
             dueDate={post.review_due_date}
             note={[...(post.workflow_history || [])].reverse().find((e) => e.note)?.note ?? null}
@@ -422,70 +459,27 @@ export default function PostApprovalPanel({
       ) : (
         <>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {/* Assign Reviewer */}
+            {/* Assign Reviewers */}
             {isEditor && (
-              <div className="space-y-1.5">
+              <div className="space-y-1.5 sm:col-span-2">
                 <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide flex items-center gap-1.5">
-                  <UserPlus className="w-3.5 h-3.5" /> {PANEL_COPY.reviewerLabel}{' '}
+                  <UserPlus className="w-3.5 h-3.5" /> {COPY.postApprovalPanel.reviewerLabel}{' '}
                   <span className="text-red-500">*</span>
                 </p>
-                {post.assigned_to_email ? (
-                  <div
-                    className={`flex items-center gap-2 p-2.5 bg-blue-50 rounded-xl border ${approvalErrors.reviewer ? 'border-red-300' : 'border-blue-100'}`}
-                  >
-                    <Avatar className="w-7 h-7">
-                      <AvatarFallback className="text-xs bg-blue-200 text-blue-700">
-                        {post.assigned_to_name?.[0] || post.assigned_to_email?.[0]?.toUpperCase()}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-gray-800 truncate">
-                        {post.assigned_to_name || post.assigned_to_email}
-                      </p>
-                      {post.assigned_date && (
-                        <p className="text-xs text-gray-400">
-                          {formatDistanceToNow(new Date(post.assigned_date), { addSuffix: true })}
-                        </p>
-                      )}
-                    </div>
-                    {isAdmin && (
-                      <button
-                        onClick={() =>
-                          updateMutation.mutate({
-                            assigned_to_email: null,
-                            assigned_to_name: null,
-                          })
-                        }
-                        className="text-xs text-gray-300 hover:text-red-500 transition-colors"
-                      >
-                        ✕
-                      </button>
-                    )}
-                  </div>
-                ) : (
-                  <Select onValueChange={handleAssign}>
-                    <SelectTrigger
-                      className={`text-sm h-9 ${approvalErrors.reviewer ? 'border-red-400 focus:ring-red-400' : ''}`}
-                    >
-                      <SelectValue placeholder={PANEL_COPY.assignReviewerPlaceholder} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {teamMembers.map((u) => (
-                        <SelectItem key={u.id} value={u.email}>
-                          <div className="flex items-center gap-2">
-                            <div className="w-5 h-5 rounded-full bg-violet-100 flex items-center justify-center text-xs text-violet-600 font-medium">
-                              {u.full_name?.[0] || u.email?.[0]?.toUpperCase()}
-                            </div>
-                            <span>{u.full_name || u.email}</span>
-                            <Badge variant="outline" className="text-xs ml-1">
-                              {u.social_media_role || u.role}
-                            </Badge>
-                          </div>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                )}
+                <ReviewerPicker
+                  value={reviewers.map((r) => ({
+                    email: r.email,
+                    name: r.name,
+                    role: teamRoleByEmail.get(r.email) || '',
+                  }))}
+                  onChange={handleReviewersChange}
+                  teamMembers={teamMembers.map((u) => ({
+                    email: u.email,
+                    name: u.full_name || u.email,
+                    role: u.social_media_role || u.role,
+                  }))}
+                  error={!!approvalErrors.reviewer}
+                />
                 {approvalErrors.reviewer && (
                   <p className="text-xs text-red-500">{approvalErrors.reviewer}</p>
                 )}
@@ -593,7 +587,7 @@ export default function PostApprovalPanel({
 
           <div className="flex flex-wrap gap-2">
             {/* Draft → Submit for Approval */}
-            {isEditor && post.status === 'draft' && (
+            {isEditor && post.status === PostStatus.DRAFT && (
               <Button
                 size="sm"
                 variant="outline"
@@ -606,7 +600,7 @@ export default function PostApprovalPanel({
             )}
 
             {/* Changes Requested → Resubmit */}
-            {isEditor && post.status === 'changes_requested' && (
+            {isEditor && post.status === PostStatus.CHANGES_REQUESTED && (
               <Button
                 size="sm"
                 variant="outline"
@@ -619,49 +613,67 @@ export default function PostApprovalPanel({
             )}
 
             {/* Pending Approval → Approve / Reject / Request Changes */}
-            {isApprover &&
-              (post.status === 'pending_approval' || post.status === 'pending_review') && (
-                <>
-                  <Button
-                    size="sm"
-                    onClick={handleApprove}
-                    disabled={updateMutation.isPending}
-                    className="gap-1.5 bg-green-600 hover:bg-green-700 text-white"
-                  >
-                    <CheckCircle2 className="w-3.5 h-3.5" /> {PANEL_COPY.approve}
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={handleReject}
-                    disabled={updateMutation.isPending}
-                    className="gap-1.5 text-red-600 border-red-300 hover:bg-red-50"
-                  >
-                    <XCircle className="w-3.5 h-3.5" /> {PANEL_COPY.reject}
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={handleRequestChanges}
-                    disabled={updateMutation.isPending}
-                    className="gap-1.5 text-orange-700 border-orange-300 hover:bg-orange-50"
-                  >
-                    <RotateCcw className="w-3.5 h-3.5" /> {PANEL_COPY.requestChanges}
-                  </Button>
-                </>
-              )}
+            {isAssignedReviewer && post.status === PostStatus.PENDING_APPROVAL && (
+              <>
+                <Button
+                  size="sm"
+                  onClick={handleApprove}
+                  disabled={updateMutation.isPending}
+                  className="gap-1.5 bg-green-600 hover:bg-green-700 text-white"
+                >
+                  <CheckCircle2 className="w-3.5 h-3.5" /> {COPY.postApprovalPanel.approve}
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={handleReject}
+                  disabled={updateMutation.isPending}
+                  className="gap-1.5 text-red-600 border-red-300 hover:bg-red-50"
+                >
+                  <XCircle className="w-3.5 h-3.5" /> {COPY.postApprovalPanel.reject}
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={handleRequestChanges}
+                  disabled={updateMutation.isPending}
+                  className="gap-1.5 text-orange-700 border-orange-300 hover:bg-orange-50"
+                >
+                  <RotateCcw className="w-3.5 h-3.5" /> {COPY.postApprovalPanel.requestChanges}
+                </Button>
+              </>
+            )}
 
             {/* Approved info */}
-            {post.status === 'approved' && (
+            {post.status === PostStatus.APPROVED && (
               <div className="w-full p-3 bg-green-50 rounded-xl border border-green-200 text-sm text-green-700 flex gap-2 items-center">
                 <CheckCircle2 className="w-4 h-4 shrink-0" />
                 <span>
-                  {PANEL_COPY.approvedBy(post.approved_by_name || post.approved_by)}
+                  {reviewers.length > 0
+                    ? COPY.approvalProgress.allApproved(reviewers.length)
+                    : post.approved_by_name || post.approved_by
+                      ? COPY.approvalProgress.approvedBy(post.approved_by_name || post.approved_by)
+                      : COPY.approvalProgress.approvedGeneric}
                   {post.approved_date &&
                     ` on ${format(parseISO(post.approved_date), 'MMM d, yyyy')}`}
                 </span>
               </div>
             )}
+
+            {/* Partial approval progress (not yet fully approved) */}
+            {(post.status === 'pending_review' || post.status === PostStatus.PENDING_APPROVAL) &&
+              reviewers.length > 1 &&
+              reviewers.some((r) => r.status === ReviewerApprovalStatus.APPROVED) && (
+                <div className="w-full p-3 bg-blue-50 rounded-xl border border-blue-200 text-sm text-blue-700 flex gap-2 items-center">
+                  <CheckCircle2 className="w-4 h-4 shrink-0" />
+                  <span>
+                    {COPY.approvalProgress.partialApproval(
+                      reviewers.filter((r) => r.status === ReviewerApprovalStatus.APPROVED).length,
+                      reviewers.length
+                    )}
+                  </span>
+                </div>
+              )}
           </div>
 
           {/* ── Action Drawer ── */}

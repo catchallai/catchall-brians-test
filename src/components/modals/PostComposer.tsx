@@ -70,7 +70,7 @@ import ConfirmDialog from '@/components/ui/ConfirmDialog';
 import MediaLibraryModal from './MediaLibraryModal';
 import ImageCropPanel, { type TransformOp } from './ImageCropPanel';
 import { toast } from 'sonner';
-import { PostStatus, PostPriority, AllChannelsTab } from '@/types/enums';
+import { PostStatus, PostPriority, AllChannelsTab, UserRole } from '@/types/enums';
 import COPY from '@/lib/copy';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
@@ -95,6 +95,8 @@ import {
   type ApprovalEmailPendingItem,
 } from '@/lib/emails/approvalNotification';
 import PostStatusChip from '@/components/social/PostStatusChip';
+import { normalizeReviewers } from '@/utils/reviewers';
+import type { ReviewerEntry } from '@/types/reviewers';
 import { getMonthComparison } from '@/utils/getMonthComparison';
 import React from 'react';
 
@@ -165,6 +167,11 @@ interface SavePayload extends PostFormData {
     { cropBox: CropBox | null; transformOps: TransformOp[]; tilt: number }
   >;
   workflow_history?: WorkflowEntry[];
+  reviewers?: ReviewerEntry[];
+  assigned_to_email?: string | null;
+  assigned_to_name?: string | null;
+  priority?: string | null;
+  review_due_date?: string | null;
 }
 
 export interface CalendarPost extends Partial<PostFormData> {
@@ -173,6 +180,7 @@ export interface CalendarPost extends Partial<PostFormData> {
   assigned_to_email?: string | null;
   assigned_to_name?: string | null;
   assigned_date?: string;
+  reviewers?: ReviewerEntry[] | null;
   priority?: string;
   review_due_date?: string;
   platform_image_urls?: Record<string, string>;
@@ -663,18 +671,18 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
   const [savedPost, setSavedPost] = useState<CalendarPost | null>(post ?? null);
   // Tracks approval-specific fields updated via PostApprovalPanel (they aren't in PostFormData).
   const [approvalMeta, setApprovalMeta] = useState<{
-    assigned_to_email?: string | null;
+    reviewers?: ReviewerEntry[] | null;
     priority?: string | null;
     review_due_date?: string | null;
   }>({
-    assigned_to_email: post?.assigned_to_email,
+    reviewers: normalizeReviewers(post),
     // Default to 'normal' to match the select's pre-selected display value.
-    priority: post?.priority ?? 'normal',
+    priority: post?.priority ?? PostPriority.NORMAL,
     review_due_date: post?.review_due_date,
   });
   const initialApprovalMetaRef = useRef({
-    assigned_to_email: post?.assigned_to_email ?? null,
-    priority: post?.priority ?? 'normal',
+    reviewers: normalizeReviewers(post),
+    priority: post?.priority ?? PostPriority.NORMAL,
     review_due_date: post?.review_due_date ?? null,
   });
   const [approvalErrors, setApprovalErrors] = useState<{
@@ -818,13 +826,13 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
 
     setSavedPost(post ?? null);
     initialApprovalMetaRef.current = {
-      assigned_to_email: post?.assigned_to_email ?? null,
-      priority: post?.priority ?? 'normal',
+      reviewers: normalizeReviewers(post),
+      priority: post?.priority ?? PostPriority.NORMAL,
       review_due_date: post?.review_due_date ?? null,
     };
     setApprovalMeta({
-      assigned_to_email: post?.assigned_to_email,
-      priority: post?.priority ?? 'normal',
+      reviewers: normalizeReviewers(post),
+      priority: post?.priority ?? PostPriority.NORMAL,
       review_due_date: post?.review_due_date,
     });
     setApprovalErrors({});
@@ -904,9 +912,10 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
   // have changed from their initial values. Used to enable "Resend for
   // Approval" on published posts even when formData itself hasn't changed.
   const isApprovalDirty =
-    (approvalMeta.assigned_to_email ?? null) !==
-      (initialApprovalMetaRef.current.assigned_to_email ?? null) ||
-    (approvalMeta.priority ?? 'normal') !== (initialApprovalMetaRef.current.priority ?? 'normal') ||
+    JSON.stringify((approvalMeta.reviewers ?? []).map((r) => r.email).sort()) !==
+      JSON.stringify((initialApprovalMetaRef.current.reviewers ?? []).map((r) => r.email).sort()) ||
+    (approvalMeta.priority ?? PostPriority.NORMAL) !==
+      (initialApprovalMetaRef.current.priority ?? PostPriority.NORMAL) ||
     (approvalMeta.review_due_date ?? null) !==
       (initialApprovalMetaRef.current.review_due_date ?? null);
 
@@ -1434,20 +1443,27 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
         // Otherwise persist approvalMeta so the backend reflects the current UI state.
         ...(revertingToDraftRef.current
           ? {
+              reviewers: [],
               assigned_to_email: null,
               assigned_to_name: null,
-              priority: 'normal',
+              priority: PostPriority.NORMAL,
               review_due_date: null,
             }
-          : {
-              ...(approvalMeta.priority !== undefined && { priority: approvalMeta.priority }),
-              ...(approvalMeta.assigned_to_email !== undefined && {
-                assigned_to_email: approvalMeta.assigned_to_email,
-              }),
-              ...(approvalMeta.review_due_date !== undefined && {
-                review_due_date: approvalMeta.review_due_date,
-              }),
-            }),
+          : (() => {
+              const revs = approvalMeta.reviewers ?? [];
+              const primary = revs[0] ?? null;
+              return {
+                ...(approvalMeta.priority !== undefined && { priority: approvalMeta.priority }),
+                ...(approvalMeta.reviewers !== undefined && {
+                  reviewers: revs,
+                  assigned_to_email: primary?.email ?? null,
+                  assigned_to_name: primary?.name ?? null,
+                }),
+                ...(approvalMeta.review_due_date !== undefined && {
+                  review_due_date: approvalMeta.review_due_date,
+                }),
+              };
+            })()),
         ...(workflowHistory !== undefined && { workflow_history: workflowHistory }),
         timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
         platform_image_urls: platformCrops,
@@ -1486,34 +1502,28 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
       setSavedPost(saveResult);
     }
 
-    // Fire-and-forget email to the reviewer — must not block or surface errors to the user.
-    if (
-      finalStatus === PostStatus.PENDING_APPROVAL &&
-      approvalMeta.assigned_to_email &&
-      saveResult?.id
-    ) {
-      const reviewerEmail = approvalMeta.assigned_to_email;
+    // Fire-and-forget emails to all reviewers — must not block or surface errors to the user.
+    const emailReviewers = approvalMeta.reviewers ?? [];
+    if (finalStatus === PostStatus.PENDING_APPROVAL && emailReviewers.length > 0 && saveResult?.id) {
       const submittedPostId = saveResult.id;
       (async () => {
         try {
-          // Fetch this reviewer's pending queue (includes the post we just saved).
-          // Base44's SDK has no count-only endpoint, so we fetch up to PENDING_QUEUE_FETCH_LIMIT
-          // items and derive both the badge count and the "+ N more" overflow from the result.
-          // A reviewer with more than PENDING_QUEUE_FETCH_LIMIT pending items is an extreme edge
-          // case; the count will be accurate up to that limit.
+          // Fetch the pending queue using assigned_to_email (backward-compat field
+          // written from the first reviewer). The queue table in the email is
+          // informational, so sharing the same data across all reviewer emails is fine.
+          // TODO: Once the backend supports filtering by the reviewers array, fetch
+          // per-reviewer so each email shows an accurate personal queue.
+          const primaryEmail = emailReviewers[0].email;
           const PENDING_QUEUE_FETCH_LIMIT = 100;
           const queue: CalendarPost[] = await base44.entities.CalendarPost.filter(
             {
-              assigned_to_email: reviewerEmail,
+              assigned_to_email: primaryEmail,
               status: [PostStatus.PENDING_APPROVAL],
             },
             'review_due_date',
             PENDING_QUEUE_FETCH_LIMIT
           );
 
-          // Only map up to the renderer's display cap — the rest is discarded
-          // anyway and walking workflow_history for each extra post is wasted work.
-          // queue.length is still used below for the true pendingCount.
           const pendingItems: ApprovalEmailPendingItem[] = queue
             .slice(0, APPROVAL_EMAIL_MAX_ROWS)
             .map((p) => {
@@ -1548,27 +1558,35 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
           const submittedTitle =
             (formData.caption && formData.caption.slice(0, 60)) || COPY.approvalEmail.untitledPost;
 
-          const { subject, html } = renderApprovalNotificationEmail({
-            reviewerName: (saveResult as CalendarPost).assigned_to_name || reviewerEmail,
-            submitterName:
-              currentUser?.full_name || currentUser?.email || COPY.approvalEmail.fallbackSubmitter,
-            postUrl,
-            queueUrl,
-            pendingItems,
-            pendingCount: queue.length,
-            submittedPostTitle: submittedTitle,
-            submittedPostDueDate:
-              (saveResult as CalendarPost).review_due_date ?? approvalMeta.review_due_date ?? null,
-            authorNote: approvalNote.trim() || null,
-          });
+          // Send personalized email to each reviewer
+          await Promise.allSettled(
+            emailReviewers.map((reviewer) => {
+              const { subject, html } = renderApprovalNotificationEmail({
+                reviewerName: reviewer.name || reviewer.email,
+                submitterName:
+                  currentUser?.full_name ||
+                  currentUser?.email ||
+                  COPY.approvalEmail.fallbackSubmitter,
+                postUrl,
+                queueUrl,
+                pendingItems,
+                pendingCount: queue.length,
+                submittedPostTitle: submittedTitle,
+                submittedPostDueDate:
+                  (saveResult as CalendarPost).review_due_date ??
+                  approvalMeta.review_due_date ??
+                  null,
+                authorNote: approvalNote.trim() || null,
+              });
 
-          await base44.integrations.Core.SendEmail({
-            to: reviewerEmail,
-            subject,
-            body: html,
-          });
+              return base44.integrations.Core.SendEmail({
+                to: reviewer.email,
+                subject,
+                body: html,
+              });
+            })
+          );
         } catch (err) {
-          // Don't surface to the user, but log so it's visible in devtools.
           console.error('[approval-email] failed to send:', err);
         }
       })();
@@ -1740,11 +1758,9 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
     });
   };
 
-  const isViewer = currentUser?.social_media_role === 'viewer';
+  const isViewer = currentUser?.social_media_role === UserRole.VIEWER;
   const isAdmin =
-    currentUser?.role === 'admin' ||
-    currentUser?.social_media_role === 'admin' ||
-    currentUser?.social_media_role === 'approver';
+    currentUser?.role === UserRole.ADMIN || currentUser?.social_media_role === UserRole.ADMIN;
   const activePlatform =
     PLATFORMS.find((p) => p.id === previewPlatform) ??
     PLATFORMS.find((p) => p.id === PLATFORMS[0].id) ??
@@ -1772,7 +1788,7 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
         disabled: baseDisabled,
         onClick: () => {
           const errors: { reviewer?: string; priority?: string; dueDate?: string } = {};
-          if (!approvalMeta.assigned_to_email)
+          if (!approvalMeta.reviewers?.length)
             errors.reviewer = COPY.calendarPostModal.approvalReviewerRequired;
           if (!approvalMeta.priority)
             errors.priority = COPY.calendarPostModal.approvalPriorityRequired;
@@ -1943,8 +1959,8 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
                     // button can validate them without re-reading the post from the server.
                     setApprovalMeta((m) => ({
                       ...m,
-                      ...('assigned_to_email' in updatedPost && {
-                        assigned_to_email: updatedPost.assigned_to_email as string | null,
+                      ...('reviewers' in updatedPost && {
+                        reviewers: updatedPost.reviewers as ReviewerEntry[],
                       }),
                       ...('priority' in updatedPost && {
                         priority: updatedPost.priority as string,
@@ -1956,7 +1972,7 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
                     // Clear the error for any field that was just updated.
                     setApprovalErrors((e) => ({
                       ...e,
-                      ...('assigned_to_email' in updatedPost && { reviewer: undefined }),
+                      ...('reviewers' in updatedPost && { reviewer: undefined }),
                       ...('priority' in updatedPost && { priority: undefined }),
                       ...('review_due_date' in updatedPost && { dueDate: undefined }),
                     }));
@@ -2782,12 +2798,16 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
             // Only clear local state after a successful save so a failed
             // revert doesn't leave the UI in an inconsistent state.
             setFormData((f) => ({ ...f, status: PostStatus.DRAFT }));
-            setApprovalMeta({ assigned_to_email: null, priority: 'normal', review_due_date: null });
+            setApprovalMeta({
+              reviewers: [],
+              priority: PostPriority.NORMAL,
+              review_due_date: null,
+            });
             setApprovalErrors({});
             setApprovalNote('');
             initialApprovalMetaRef.current = {
-              assigned_to_email: null,
-              priority: 'normal',
+              reviewers: [],
+              priority: PostPriority.NORMAL,
               review_due_date: null,
             };
           } finally {

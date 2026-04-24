@@ -98,7 +98,7 @@ function StageRow({ stage, idx, onUpdate, onRemove, canRemove }) {
   );
 }
 
-export default function WorkflowStageBuilder({ onSave, onClose }) {
+export default function WorkflowStageBuilder({ onSave }) {
   const [workflows, setWorkflows] = useState(DEFAULT_WORKFLOWS);
   const [activeWorkflow, setActiveWorkflow] = useState(DEFAULT_WORKFLOWS[0]);
   const [isEditing, setIsEditing] = useState(false);
@@ -115,7 +115,7 @@ export default function WorkflowStageBuilder({ onSave, onClose }) {
       name: 'Custom Workflow',
       stages: [
         { id: '1', name: 'Draft', role: 'editor', action: 'submit' },
-        { id: '2', name: 'Review', role: 'approver', action: 'approve_or_reject' },
+        { id: '2', name: 'Review', role: 'reviewer', action: 'approve_or_reject' },
         { id: '3', name: 'Approved', role: null, action: null },
       ],
     };
@@ -127,7 +127,7 @@ export default function WorkflowStageBuilder({ onSave, onClose }) {
     const newStage = {
       id: Date.now().toString(),
       name: 'New Stage',
-      role: 'approver',
+      role: 'reviewer',
       action: 'approve_or_reject',
     };
     setEditingWorkflow((prev) => ({ ...prev, stages: [...prev.stages, newStage] }));

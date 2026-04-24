@@ -373,38 +373,6 @@ export default function SocialCalendar() {
     deleteMutation.mutate(post);
   };
 
-  // Month-scoped posts for bulk approval: filtered by date range only, never by
-  // platform/status/tags. Using filteredPosts here would silently skip posts that
-  // don't match the active tag or platform filter, leading to partial approvals.
-  const monthPosts = posts.filter((p) => {
-    if (!p.scheduled_date || p.status === 'deleted') {
-      return false;
-    }
-    const postDate = parseISO(p.scheduled_date);
-    return postDate >= startOfMonth(currentMonth) && postDate <= endOfMonth(currentMonth);
-  });
-
-  const handleApproveAll = async () => {
-    if (!approverName.trim()) {
-      // eslint-disable-next-line no-alert
-      alert(COPY.socialCalendar.approverNameRequired);
-      return;
-    }
-    const today = new Date().toISOString().split('T')[0];
-    for (const post of monthPosts.filter(
-      (p) => p.status !== 'approved' && p.status !== 'published'
-    )) {
-      await base44.entities.CalendarPost.update(post.id, {
-        status: 'approved',
-        approved_by: approverName,
-        approved_date: today,
-      });
-    }
-    queryClient.invalidateQueries({ queryKey: ['calendar-posts'] });
-    setShowApprovalSection(false);
-    setApproverName('');
-  };
-
   const { data: user } = useQuery({
     queryKey: ['current-user'],
     queryFn: () => base44.auth.me(),
@@ -1074,9 +1042,10 @@ export default function SocialCalendar() {
               <div className="w-full sm:w-auto">
                 {showApprovalSection ? (
                   <div className="flex gap-3">
+                    {/* This will be implemented later */}
                     <Button
+                      disabled
                       size="lg"
-                      onClick={handleApproveAll}
                       className="gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-3 h-auto text-base font-semibold shadow-lg"
                     >
                       <CheckCircle className="w-5 h-5" />

@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
+import { UserRole } from '@/types/enums';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Search, Eye, CheckCircle2, Calendar } from 'lucide-react';
 import { format, formatDistanceToNow } from 'date-fns';
+import { normalizeReviewers } from '@/utils/reviewers';
 import PostApprovalPanel from '@/components/social/PostApprovalPanel';
 
 export default function ApprovalReviewTab({
@@ -24,11 +26,11 @@ export default function ApprovalReviewTab({
         p.title?.toLowerCase().includes(search.toLowerCase())
     );
 
-  const role = currentUser?.social_media_role || currentUser?.role || 'viewer';
-  const isApprover = ['admin', 'approver'].includes(role);
+  const role = currentUser?.social_media_role || currentUser?.role || UserRole.VIEWER;
+  const isAdmin = role === UserRole.ADMIN;
 
   const myQueue = reviewPosts.filter(
-    (p) => p.assigned_to_email === currentUser?.email || isApprover
+    (p) => normalizeReviewers(p).some((r) => r.email === currentUser?.email) || isAdmin
   );
 
   return (
@@ -83,16 +85,26 @@ export default function ApprovalReviewTab({
                 </div>
 
                 <div className="flex items-center gap-3 text-xs text-gray-400 flex-wrap">
-                  {post.assigned_to_name && (
-                    <span className="flex items-center gap-1">
-                      <Avatar className="w-4 h-4">
-                        <AvatarFallback className="text-[9px] bg-violet-100 text-violet-600">
-                          {post.assigned_to_name[0]}
-                        </AvatarFallback>
-                      </Avatar>
-                      {post.assigned_to_name}
-                    </span>
-                  )}
+                  {(() => {
+                    const revs = normalizeReviewers(post);
+                    if (revs.length === 0) return null;
+                    const first = revs[0];
+                    return (
+                      <span className="flex items-center gap-1">
+                        <Avatar className="w-4 h-4">
+                          <AvatarFallback className="text-[9px] bg-violet-100 text-violet-600">
+                            {first.name?.[0] || first.email[0].toUpperCase()}
+                          </AvatarFallback>
+                        </Avatar>
+                        {first.name || first.email}
+                        {revs.length > 1 && (
+                          <Badge variant="outline" className="text-[9px] px-1 py-0 ml-0.5">
+                            +{revs.length - 1}
+                          </Badge>
+                        )}
+                      </span>
+                    );
+                  })()}
                   {post.scheduled_date && (
                     <span className="flex items-center gap-1">
                       <Calendar className="w-3 h-3" />
