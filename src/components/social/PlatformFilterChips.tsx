@@ -2,7 +2,7 @@ import { cn } from '@/lib/utils';
 import COPY from '@/lib/copy';
 import { PLATFORMS } from '@/constants/platforms';
 
-type PlatformId = (typeof PLATFORMS)[number]['id'];
+export type PlatformId = (typeof PLATFORMS)[number]['id'];
 
 export type PlatformFilterChipsProps = {
   activeFilters: Set<PlatformId>;
@@ -92,7 +92,7 @@ export default function PlatformFilterChips(props: PlatformFilterChipsProps) {
               isDimmed && 'opacity-60'
             )}
           >
-            <Icon className="w-3.5 h-3.5" />
+            <Icon className="w-3.5 h-3.5" aria-hidden="true" />
           </button>
         );
       })}
