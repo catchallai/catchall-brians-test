@@ -338,7 +338,7 @@ const COPY = {
     noActivityYet: 'No activity yet',
     postRejected: 'Post Rejected',
     resubmit: 'Resubmit',
-    reviewerLabel: 'Reviewer',
+    reviewerLabel: 'Reviewers',
     assignReviewerPlaceholder: 'Assign reviewer\u2026',
     priorityLabel: 'Priority',
     priorityLow: 'Low',

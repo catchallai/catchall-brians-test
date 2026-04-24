@@ -1,4 +1,4 @@
-import type { ComponentType } from 'react';
+import type { ComponentType, WheelEvent } from 'react';
 import { useState, useCallback, useMemo } from 'react';
 import type { KeyboardEvent } from 'react';
 import { Check, UserPlus, X } from 'lucide-react';
@@ -161,7 +161,7 @@ export function ReviewerPicker({
       <TypedPopoverContent
         className="w-72 p-0"
         align="start"
-        onWheel={(e: WheelEvent) => e.stopPropagation()}
+        onWheel={(e: WheelEvent<HTMLDivElement>) => e.stopPropagation()}
       >
         <TypedCommand shouldFilter={false}>
           <TypedCommandInput

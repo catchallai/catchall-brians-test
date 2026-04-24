@@ -463,7 +463,7 @@ export default function PostApprovalPanel({
             {isEditor && (
               <div className="space-y-1.5 sm:col-span-2">
                 <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide flex items-center gap-1.5">
-                  <UserPlus className="w-3.5 h-3.5" /> Reviewers{' '}
+                  <UserPlus className="w-3.5 h-3.5" /> {COPY.postApprovalPanel.reviewerLabel}{' '}
                   <span className="text-red-500">*</span>
                 </p>
                 <ReviewerPicker
@@ -621,7 +621,7 @@ export default function PostApprovalPanel({
                   disabled={updateMutation.isPending}
                   className="gap-1.5 bg-green-600 hover:bg-green-700 text-white"
                 >
-                  <CheckCircle2 className="w-3.5 h-3.5" /> Approve
+                  <CheckCircle2 className="w-3.5 h-3.5" /> {COPY.postApprovalPanel.approve}
                 </Button>
                 <Button
                   size="sm"
@@ -630,7 +630,7 @@ export default function PostApprovalPanel({
                   disabled={updateMutation.isPending}
                   className="gap-1.5 text-red-600 border-red-300 hover:bg-red-50"
                 >
-                  <XCircle className="w-3.5 h-3.5" /> Reject
+                  <XCircle className="w-3.5 h-3.5" /> {COPY.postApprovalPanel.reject}
                 </Button>
                 <Button
                   size="sm"
@@ -639,7 +639,7 @@ export default function PostApprovalPanel({
                   disabled={updateMutation.isPending}
                   className="gap-1.5 text-orange-700 border-orange-300 hover:bg-orange-50"
                 >
-                  <RotateCcw className="w-3.5 h-3.5" /> Request Changes
+                  <RotateCcw className="w-3.5 h-3.5" /> {COPY.postApprovalPanel.requestChanges}
                 </Button>
               </>
             )}
