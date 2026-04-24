@@ -250,8 +250,9 @@ const BEST_TIMES: Record<string, { day: string; time: string; label: string }[]>
 
 const DAYS_OF_WEEK = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
-// Statuses that trigger auto-navigation to PostApprovalView after save in
-// standalone composer mode (see handleSubmit).
+// Statuses representing an active review workflow. Used to (a) auto-navigate
+// to PostApprovalView after save in standalone composer mode and (b) preserve
+// the existing status when saving edits to an in-review post.
 const APPROVAL_BOUND_STATUSES: Set<PostStatus> = new Set([
   PostStatus.PENDING_APPROVAL,
   PostStatus.CHANGES_REQUESTED,
@@ -1523,6 +1524,7 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
               onClick: () => {
                 const url = new URL(createPageUrl('PostApprovalView'), window.location.origin);
                 url.searchParams.set('id', savedId);
+                url.searchParams.set('origin', 'composer');
                 navigate(url.pathname + url.search);
               },
             },
@@ -1839,15 +1841,12 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
     }
 
     if (requireApproval) {
-      // Statuses that represent an active review workflow — preserve them when saving edits.
-      const workflowStatuses = new Set([
-        PostStatus.PENDING_APPROVAL,
-        PostStatus.CHANGES_REQUESTED,
-        'pending_review' as PostStatus,
-      ]);
+      // Preserve an active review-workflow status when saving edits; otherwise fall back to draft.
       const existingStatus = (savedPost ?? post)?.status as PostStatus | undefined;
       const saveStatus =
-        existingStatus && workflowStatuses.has(existingStatus) ? existingStatus : PostStatus.DRAFT;
+        existingStatus && APPROVAL_BOUND_STATUSES.has(existingStatus)
+          ? existingStatus
+          : PostStatus.DRAFT;
 
       return {
         label: COPY.calendarPostModal.continueToApproval,
