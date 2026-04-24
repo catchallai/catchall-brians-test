@@ -5,6 +5,15 @@ export const MAX_POST_IMAGE_COUNT = 10;
 export const IMAGE_ACCEPT_ATTR = '.jpg,.jpeg,.png,.webp';
 export const VIDEO_ACCEPT_ATTR = '.mp4,.webm,.mov';
 
+export type SupportedImageType = (typeof SUPPORTED_IMAGE_TYPES)[number];
+export type SupportedVideoType = (typeof SUPPORTED_VIDEO_TYPES)[number];
+
+export const isSupportedImageType = (type: string): type is SupportedImageType =>
+  (SUPPORTED_IMAGE_TYPES as readonly string[]).includes(type);
+
+export const isSupportedVideoType = (type: string): type is SupportedVideoType =>
+  (SUPPORTED_VIDEO_TYPES as readonly string[]).includes(type);
+
 const normalizeFileName = (fileName = '') => fileName.trim().toLowerCase();
 
 type PostMediaShape = {
@@ -53,7 +62,7 @@ export const validateImageFiles = (
     return 'Select at least one image.';
   }
 
-  const invalidFile = files.find((file) => !SUPPORTED_IMAGE_TYPES.includes(file.type));
+  const invalidFile = files.find((file) => !isSupportedImageType(file.type));
   if (invalidFile) {
     return 'Images must be JPG, JPEG, PNG, or WEBP.';
   }
@@ -86,7 +95,7 @@ export const validateVideoFile = (file?: File | null): string | null => {
     return 'Select a video file.';
   }
 
-  if (!SUPPORTED_VIDEO_TYPES.includes(file.type)) {
+  if (!isSupportedVideoType(file.type)) {
     return 'Video must be MP4, WEBM, or MOV.';
   }
 
