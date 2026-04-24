@@ -1,6 +1,5 @@
 import { cn } from '@/lib/utils';
 import COPY from '@/lib/copy';
-import Tooltip from '@/components/ui-custom/Tooltip';
 import { PostStatus } from '@/types/enums';
 import {
   LEGEND_VISIBLE_STATUSES,
@@ -38,40 +37,40 @@ export default function PostStatusLegend(props: PostStatusLegendProps) {
         const isDimmed = hasAnyActive && !isActive;
 
         return (
-          <Tooltip key={status} content={config.description} side="top">
-            <button
-              type="button"
-              onClick={() => onToggle(status)}
-              aria-pressed={isActive}
-              aria-label={COPY.postStatusLegend.chipAriaLabel(
-                config.label,
-                config.description,
-                count
-              )}
-              className={cn(
-                'inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-xs font-medium transition-all',
-                'focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-offset-white focus-visible:ring-gray-400 dark:focus-visible:ring-offset-gray-900 dark:focus-visible:ring-gray-500',
-                styles.bgClass,
-                styles.borderClass,
-                styles.textClass,
-                isActive && `ring-2 ring-offset-1 ${styles.activeRingClass}`,
-                isDimmed && 'opacity-60'
-              )}
-            >
-              <Icon className={cn('w-3.5 h-3.5', styles.iconClass)} aria-hidden="true" />
-              <span>{config.label}</span>
-              {count > 0 && (
-                <span
-                  className={cn(
-                    'ml-0.5 rounded px-1 text-[10px] font-semibold tabular-nums',
-                    'bg-white/70 dark:bg-black/20'
-                  )}
-                >
-                  {count}
-                </span>
-              )}
-            </button>
-          </Tooltip>
+          <button
+            key={status}
+            type="button"
+            onClick={() => onToggle(status)}
+            aria-pressed={isActive}
+            aria-label={COPY.postStatusLegend.chipAriaLabel(
+              config.label,
+              config.description,
+              count
+            )}
+            title={config.description}
+            className={cn(
+              'inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-xs font-medium transition-all',
+              'focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-offset-white focus-visible:ring-gray-400 dark:focus-visible:ring-offset-gray-900 dark:focus-visible:ring-gray-500',
+              styles.bgClass,
+              styles.borderClass,
+              styles.textClass,
+              isActive && `ring-2 ring-offset-1 ${styles.activeRingClass}`,
+              isDimmed && 'opacity-60'
+            )}
+          >
+            <Icon className={cn('w-3.5 h-3.5', styles.iconClass)} aria-hidden="true" />
+            <span>{config.label}</span>
+            {count > 0 && (
+              <span
+                className={cn(
+                  'ml-0.5 rounded px-1 text-[10px] font-semibold tabular-nums',
+                  'bg-white/70 dark:bg-black/20'
+                )}
+              >
+                {count}
+              </span>
+            )}
+          </button>
         );
       })}
 
