@@ -1,3 +1,4 @@
+import { ChevronDown, Tag as TagIcon } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
 import COPY from '@/lib/copy';
@@ -26,33 +27,14 @@ export default function TagsFilterPopover(props: TagsFilterPopoverProps) {
         )}
         aria-label={COPY.tagsFilter.triggerAriaLabel(count)}
       >
-        <svg
-          className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          viewBox="0 0 24 24"
-          aria-hidden="true"
-        >
-          <path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z" />
-          <circle cx="7" cy="7" r="1" />
-        </svg>
+        <TagIcon className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" aria-hidden="true" />
         <span>{COPY.tagsFilter.triggerLabel}</span>
         {count > 0 && (
           <span className="ml-0.5 rounded bg-slate-100 px-1 text-[10px] font-semibold tabular-nums text-slate-700 dark:bg-slate-700 dark:text-slate-200">
             {count}
           </span>
         )}
-        <svg
-          className="w-3 h-3 text-slate-400"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          viewBox="0 0 24 24"
-          aria-hidden="true"
-        >
-          <path d="M6 9l6 6 6-6" />
-        </svg>
+        <ChevronDown className="w-3 h-3 text-slate-400 dark:text-slate-500" aria-hidden="true" />
       </PopoverTrigger>
       <PopoverContent align="end" className="w-72 p-3">
         <div className="mb-2 text-xs font-semibold text-slate-900 dark:text-slate-100">
