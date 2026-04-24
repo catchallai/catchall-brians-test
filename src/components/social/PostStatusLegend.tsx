@@ -11,12 +11,12 @@ export type PostStatusLegendProps = {
   counts: Partial<Record<PostStatus, number>>;
   activeFilters: Set<PostStatus>;
   onToggle: (status: PostStatus) => void;
-  onClear: () => void;
+  onClearFilters: () => void;
   className?: string;
 };
 
 export default function PostStatusLegend(props: PostStatusLegendProps) {
-  const { counts, activeFilters, onToggle, onClear, className } = props;
+  const { counts, activeFilters, onToggle, onClearFilters, className } = props;
   const hasAnyActive = activeFilters.size > 0;
 
   return (
@@ -77,7 +77,7 @@ export default function PostStatusLegend(props: PostStatusLegendProps) {
       {hasAnyActive && (
         <button
           type="button"
-          onClick={onClear}
+          onClick={onClearFilters}
           className="text-xs font-medium text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 underline-offset-2 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-gray-400 dark:focus-visible:ring-gray-500 rounded"
         >
           {COPY.postStatusLegend.clearFilters}

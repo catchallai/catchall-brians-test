@@ -781,7 +781,7 @@ export default function SocialCalendar() {
               counts={statusCounts}
               activeFilters={statusFilters}
               onToggle={toggleStatusFilter}
-              onClear={clearStatusFilters}
+              onClearFilters={clearStatusFilters}
               className="mb-3"
             />
             <SocialCalendarView
