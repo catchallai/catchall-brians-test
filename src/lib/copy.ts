@@ -79,6 +79,12 @@ const COPY = {
       },
     },
   },
+  postStatusLegend: {
+    groupLabel: 'Filter by post status',
+    clearFilters: 'Clear filters',
+    chipAriaLabel: (label: string, count: number, active: boolean) =>
+      `Filter by ${label}. ${count} post${count === 1 ? '' : 's'}. ${active ? 'Active' : 'Inactive'}.`,
+  },
   deletedPosts: {
     tabDescription:
       'Deleted posts are kept here for 30 days so you can restore a draft copy. After 30 days they are eligible for permanent deletion.',
