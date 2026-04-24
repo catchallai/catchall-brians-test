@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -49,6 +49,7 @@ import { TagPill } from '@/components/social/tags/TagPill';
 import { useTagsQuery } from '@/components/social/tags/useTagsQuery';
 import { HoverCard, HoverCardTrigger, HoverCardContent } from '@/components/ui/hover-card';
 import SocialCalendarView from '@/components/social/SocialCalendarView';
+import PostStatusLegend from '@/components/social/PostStatusLegend';
 import NineGridEditor from '@/components/social/NineGridEditor';
 import PostGallery from '@/components/social/PostGallery';
 import TeamManager from '@/components/social/TeamManager';
@@ -59,20 +60,10 @@ import BulkScheduleModal from '@/components/social/BulkScheduleModal';
 import PostQueueManager from '@/components/social/PostQueueManager';
 import OptimalTimeAnalyzer from '@/components/social/OptimalTimeAnalyzer';
 import QuickPostModal from '@/components/social/QuickPostModal';
-import { PostStatus } from '@/types/enums';
 import COPY from '@/lib/copy';
 import { coercePostTagIds } from '@/utils/tags';
 
 const CALENDAR_PLATFORMS = ['all', 'Facebook', 'Instagram', 'LinkedIn', 'Twitter', 'YouTube'];
-
-const CALENDAR_STATUSES = [
-  'all',
-  PostStatus.DRAFT,
-  PostStatus.SCHEDULED,
-  PostStatus.PENDING_APPROVAL,
-  PostStatus.APPROVED,
-  PostStatus.PUBLISHED,
-];
 
 export default function SocialCalendar() {
   const composerRef = useRef(null);
@@ -133,7 +124,18 @@ export default function SocialCalendar() {
   };
   const [calendarViewType, setCalendarViewType] = useState('month');
   const [platformFilter, setPlatformFilter] = useState('all');
-  const [statusFilter, setStatusFilter] = useState('all');
+  const [statusFilters, setStatusFilters] = useState(() => new Set());
+
+  const toggleStatusFilter = (/** @type {string} */ status) => {
+    setStatusFilters((prev) => {
+      const next = new Set(prev);
+      if (next.has(status)) next.delete(status);
+      else next.add(status);
+      return next;
+    });
+  };
+
+  const clearStatusFilters = () => setStatusFilters(new Set());
   const [searchParams, setSearchParams] = useSearchParams();
   const activeTagIds = (searchParams.get('tags') ?? '')
     .split(',')
@@ -206,7 +208,7 @@ export default function SocialCalendar() {
       if (!p.scheduled_date) {
         return false;
       }
-      if (p.status === 'deleted') {
+      if (p.status === 'deleted' || p.status === 'archived') {
         return false;
       }
       const postDate = parseISO(p.scheduled_date);
@@ -215,13 +217,34 @@ export default function SocialCalendar() {
       const windowEnd = endOfWeek(endOfMonth(currentMonth));
       const inRange = postDate >= windowStart && postDate <= windowEnd;
       const matchesPlatform = platformFilter === 'all' || p.platforms?.includes(platformFilter);
-      const matchesStatus = statusFilter === 'all' || p.status === statusFilter;
+      const matchesStatus = statusFilters.size === 0 || statusFilters.has(p.status);
       const matchesTag =
         activeTagIds.length === 0 ||
         coercePostTagIds(p.tag_ids).some((id) => activeTagIds.includes(id));
       return inRange && matchesPlatform && matchesStatus && matchesTag;
     })
     .sort((a, b) => (a.order || 0) - (b.order || 0));
+
+  const statusCounts = useMemo(() => {
+    const windowStart = startOfWeek(startOfMonth(currentMonth));
+    const windowEnd = endOfWeek(endOfMonth(currentMonth));
+    const counts = /** @type {Record<string, number>} */ ({});
+    for (const p of posts) {
+      if (!p.scheduled_date) continue;
+      if (p.status === 'deleted' || p.status === 'archived') continue;
+      const d = parseISO(p.scheduled_date);
+      if (d < windowStart || d > windowEnd) continue;
+      if (platformFilter !== 'all' && !p.platforms?.includes(platformFilter)) continue;
+      if (
+        activeTagIds.length > 0 &&
+        !coercePostTagIds(p.tag_ids).some((id) => activeTagIds.includes(id))
+      ) {
+        continue;
+      }
+      counts[p.status] = (counts[p.status] ?? 0) + 1;
+    }
+    return counts;
+  }, [posts, currentMonth, platformFilter, activeTagIds]);
 
   // Strict month-only filter for the layout view (no week spillover)
   const filteredPostsForLayoutView = filteredPosts.filter((post) => {
@@ -253,14 +276,14 @@ export default function SocialCalendar() {
 
   const activeFilterCount =
     (platformFilter !== 'all' ? 1 : 0) +
-    (statusFilter !== 'all' ? 1 : 0) +
+    (statusFilters.size > 0 ? 1 : 0) +
     (activeTagIds.length > 0 ? 1 : 0);
 
   const hasActiveFilters = activeFilterCount > 0;
 
   const clearAllFilters = () => {
     setPlatformFilter('all');
-    setStatusFilter('all');
+    setStatusFilters(new Set());
     setActiveTagIds([]);
   };
 
@@ -729,18 +752,6 @@ export default function SocialCalendar() {
                       ))}
                     </SelectContent>
                   </Select>
-                  <Select value={statusFilter} onValueChange={setStatusFilter}>
-                    <SelectTrigger aria-label={COPY.socialCalendar.statusLabel}>
-                      <SelectValue placeholder={COPY.socialCalendar.allStatuses} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {CALENDAR_STATUSES.map((s) => (
-                        <SelectItem key={s} value={s} className="capitalize">
-                          {s === 'all' ? COPY.socialCalendar.allStatuses : s.replace(/_/g, ' ')}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
                 </div>
                 <div>
                   <label className="text-xs font-medium text-muted-foreground mb-1.5 block">
@@ -767,6 +778,13 @@ export default function SocialCalendar() {
                 </Button>
               </div>
             )}
+            <PostStatusLegend
+              counts={statusCounts}
+              activeFilters={statusFilters}
+              onToggle={toggleStatusFilter}
+              onClear={clearStatusFilters}
+              className="mb-3"
+            />
             <SocialCalendarView
               posts={filteredPosts}
               currentMonth={currentMonth}
@@ -873,18 +891,6 @@ export default function SocialCalendar() {
                       {CALENDAR_PLATFORMS.map((p) => (
                         <SelectItem key={p} value={p}>
                           {p === 'all' ? COPY.socialCalendar.allPlatforms : p}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <Select value={statusFilter} onValueChange={setStatusFilter}>
-                    <SelectTrigger aria-label={COPY.socialCalendar.statusLabel}>
-                      <SelectValue placeholder={COPY.socialCalendar.allStatuses} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {CALENDAR_STATUSES.map((s) => (
-                        <SelectItem key={s} value={s} className="capitalize">
-                          {s === 'all' ? COPY.socialCalendar.allStatuses : s.replace(/_/g, ' ')}
                         </SelectItem>
                       ))}
                     </SelectContent>
