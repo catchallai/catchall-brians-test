@@ -83,6 +83,18 @@ const COPY = {
     chipAriaLabel: (label: string, description: string, count: number) =>
       `Filter by ${label}: ${description}. ${count} post${count === 1 ? '' : 's'}.`,
   },
+  platformFilter: {
+    groupLabel: 'Filter by platform',
+    chipAriaLabel: (platformLabel: string) => `Filter by ${platformLabel}`,
+  },
+  tagsFilter: {
+    triggerLabel: 'Tags',
+    triggerAriaLabel: (count: number) =>
+      count === 0
+        ? 'Filter by tags'
+        : `Filter by tags. ${count} tag${count === 1 ? '' : 's'} selected.`,
+    popoverTitle: 'Filter by tags',
+  },
   deletedPosts: {
     tabDescription:
       'Deleted posts are kept here for 30 days so you can restore a draft copy. After 30 days they are eligible for permanent deletion.',
