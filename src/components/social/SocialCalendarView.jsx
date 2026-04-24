@@ -26,6 +26,7 @@ import { toast } from 'sonner';
 import { todayLocal, isScheduledInFuture } from '@/utils/date';
 import COPY from '@/lib/copy';
 import { PostStatus } from '@/types/enums';
+import { getPostStatusStyles } from '@/lib/postStatusConfig';
 import { computePurgeAt } from '@/utils/deletedPostTimer';
 import ConfirmDialog from '@/components/ui/ConfirmDialog';
 import {
@@ -33,89 +34,6 @@ import {
   getDeletePostTitle,
   hasBeenPublished,
 } from '@/components/social/deleted-posts/deletePostDescription';
-
-const STATUS_CONFIG = {
-  draft: {
-    label: 'Draft',
-    badgeClass: 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300',
-    colorClass: 'border-gray-300 bg-gray-50 dark:bg-gray-800 dark:border-gray-600',
-    borderClass: 'border-l-gray-400 dark:border-l-gray-500',
-    legendBg: 'bg-gray-50 dark:bg-gray-700',
-    legendBorder: 'border-gray-300 dark:border-gray-600',
-  },
-  pending_approval: {
-    label: 'Pending',
-    badgeClass: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300',
-    colorClass: 'border-amber-300 bg-amber-50 dark:bg-amber-900/20 dark:border-amber-600',
-    borderClass: 'border-l-amber-400 dark:border-l-amber-500',
-    legendBg: 'bg-amber-50 dark:bg-amber-900/30',
-    legendBorder: 'border-amber-300 dark:border-amber-600',
-  },
-  changes_requested: {
-    label: 'Changes Requested',
-    badgeClass: 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300',
-    colorClass: 'border-orange-300 bg-orange-50 dark:bg-orange-900/20 dark:border-orange-600',
-    borderClass: 'border-l-orange-400 dark:border-l-orange-500',
-    legendBg: 'bg-orange-50 dark:bg-orange-900/30',
-    legendBorder: 'border-orange-300 dark:border-orange-600',
-  },
-  scheduled: {
-    label: 'Scheduled',
-    badgeClass: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300',
-    colorClass: 'border-blue-300 bg-blue-50 dark:bg-blue-900/20 dark:border-blue-600',
-    borderClass: 'border-l-blue-400 dark:border-l-blue-500',
-    legendBg: 'bg-blue-50 dark:bg-blue-900/30',
-    legendBorder: 'border-blue-300 dark:border-blue-600',
-  },
-  unused: {
-    label: 'Unused',
-    badgeClass: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300',
-    colorClass: 'border-red-300 bg-red-50 dark:bg-red-900/20 dark:border-red-600',
-    borderClass: 'border-l-red-400 dark:border-l-red-500',
-    legendBg: 'bg-red-50 dark:bg-red-900/30',
-    legendBorder: 'border-red-300 dark:border-red-600',
-  },
-  approved: {
-    label: 'Approved',
-    badgeClass: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300',
-    colorClass: 'border-emerald-300 bg-emerald-50 dark:bg-emerald-900/20 dark:border-emerald-600',
-    borderClass: 'border-l-emerald-400 dark:border-l-emerald-500',
-    legendBg: 'bg-emerald-50 dark:bg-emerald-900/30',
-    legendBorder: 'border-emerald-300 dark:border-emerald-600',
-  },
-  rejected: {
-    label: 'Rejected',
-    badgeClass: 'bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-300',
-    colorClass: 'border-pink-300 bg-pink-50 dark:bg-pink-900/20 dark:border-pink-600',
-    borderClass: 'border-l-pink-400 dark:border-l-pink-500',
-    legendBg: 'bg-pink-50 dark:bg-pink-900/30',
-    legendBorder: 'border-pink-300 dark:border-pink-600',
-  },
-  published: {
-    label: 'Published',
-    badgeClass: 'bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-300',
-    colorClass: 'border-violet-300 bg-violet-50 dark:bg-violet-900/20 dark:border-violet-600',
-    borderClass: 'border-l-violet-400 dark:border-l-violet-500',
-    legendBg: 'bg-violet-50 dark:bg-violet-900/30',
-    legendBorder: 'border-violet-300 dark:border-violet-600',
-  },
-  archived: {
-    label: 'Archived',
-    badgeClass: 'bg-gray-200 text-gray-500 dark:bg-gray-800 dark:text-gray-400',
-    colorClass: 'border-gray-400 bg-gray-100 dark:bg-gray-900 dark:border-gray-700',
-    borderClass: 'border-l-gray-500 dark:border-l-gray-600',
-    legendBg: 'bg-gray-100 dark:bg-gray-900',
-    legendBorder: 'border-gray-400 dark:border-gray-700',
-  },
-  deleted: {
-    label: 'Deleted',
-    badgeClass: 'bg-black text-white dark:bg-gray-900 dark:text-gray-200',
-    colorClass: 'border-black bg-gray-200 dark:bg-gray-900 dark:border-gray-800',
-    borderClass: 'border-l-black dark:border-l-gray-800',
-    legendBg: 'bg-gray-200 dark:bg-gray-900',
-    legendBorder: 'border-black dark:border-gray-800',
-  },
-};
 
 const HOURS = Array.from({ length: 24 }, (_, i) => i);
 
@@ -360,8 +278,7 @@ function DayView({
         </div>
         <div className="flex-1 px-3 py-2 flex flex-wrap gap-2">
           {untimedPosts.map((post) => {
-            const statusInfo = STATUS_CONFIG[post.status] || STATUS_CONFIG.draft;
-            const borderColor = statusInfo.borderClass || 'border-l-gray-300';
+            const styles = getPostStatusStyles(post.status);
             const canDrag = post.status !== PostStatus.PUBLISHED;
             return (
               <div
@@ -377,7 +294,7 @@ function DayView({
                 }}
                 onDragEnd={() => setDraggedPost(null)}
                 onClick={() => onEditPost(post)}
-                className={`text-xs px-2 py-1 rounded-md border border-l-4 ${borderColor} flex items-center gap-1.5 group/post ${canDrag ? 'cursor-move' : 'cursor-pointer'} ${statusInfo.colorClass || STATUS_CONFIG.draft.colorClass} ${draggedPost?.id === post.id ? 'opacity-50' : ''}`}
+                className={`text-xs px-2 py-1 rounded-md border border-l-4 ${styles.leftBorderClass} flex items-center gap-1.5 group/post ${canDrag ? 'cursor-move' : 'cursor-pointer'} ${styles.bgClass} ${styles.borderClass} ${draggedPost?.id === post.id ? 'opacity-50' : ''}`}
               >
                 <span className="text-gray-800 dark:text-gray-200 font-medium">
                   {post.title || post.caption?.slice(0, 20) || 'Untitled'}
@@ -459,8 +376,7 @@ function DayView({
               )}
 
               {hourPosts.map((post) => {
-                const statusInfo = STATUS_CONFIG[post.status] || STATUS_CONFIG.draft;
-                const borderColor = statusInfo.borderClass || 'border-l-gray-300';
+                const styles = getPostStatusStyles(post.status);
                 const canDrag = post.status !== PostStatus.PUBLISHED;
                 return (
                   <div
@@ -475,7 +391,7 @@ function DayView({
                       e.dataTransfer.effectAllowed = 'move';
                     }}
                     onDragEnd={() => setDraggedPost(null)}
-                    className={`text-sm p-2 pl-3 rounded-lg border border-l-4 ${borderColor} transition-all hover:shadow-md group/post ${canDrag ? 'cursor-move' : 'cursor-pointer'} ${statusInfo.colorClass || STATUS_CONFIG.draft.colorClass} ${draggedPost?.id === post.id ? 'opacity-50' : ''}`}
+                    className={`text-sm p-2 pl-3 rounded-lg border border-l-4 ${styles.leftBorderClass} transition-all hover:shadow-md group/post ${canDrag ? 'cursor-move' : 'cursor-pointer'} ${styles.bgClass} ${styles.borderClass} ${draggedPost?.id === post.id ? 'opacity-50' : ''}`}
                   >
                     <div className="flex items-center justify-between gap-2">
                       <div
@@ -667,7 +583,7 @@ function WeekView({
                   onMouseEnter={(e) => showPopover(post, e)}
                   onMouseLeave={hidePopover}
                   onClick={() => onEditPost(post)}
-                  className={`text-xs px-1.5 py-0.5 rounded border truncate max-w-full ${post.status === PostStatus.PUBLISHED ? 'cursor-pointer' : 'cursor-move'} ${(STATUS_CONFIG[post.status] || STATUS_CONFIG.draft).colorClass}`}
+                  className={`text-xs px-1.5 py-0.5 rounded border truncate max-w-full ${post.status === PostStatus.PUBLISHED ? 'cursor-pointer' : 'cursor-move'} ${getPostStatusStyles(post.status).bgClass} ${getPostStatusStyles(post.status).borderClass}`}
                 >
                   {post.title || post.caption?.slice(0, 12) || 'Untitled'}
                 </div>
@@ -760,9 +676,7 @@ function WeekView({
 
                   <div className="flex flex-col gap-0.5" onClick={(e) => e.stopPropagation()}>
                     {dayHourPosts.slice(0, 2).map((post) => {
-                      const borderColor =
-                        (STATUS_CONFIG[post.status] || STATUS_CONFIG.draft).borderClass ||
-                        'border-l-gray-300';
+                      const styles = getPostStatusStyles(post.status);
                       const canDrag = post.status !== PostStatus.PUBLISHED;
                       return (
                         <div
@@ -783,7 +697,7 @@ function WeekView({
                           onMouseEnter={(e) => showPopover(post, e)}
                           onMouseLeave={hidePopover}
                           onClick={() => onEditPost(post)}
-                          className={`text-xs px-1.5 py-1 rounded border-l-2 ${borderColor} ${canDrag ? 'cursor-move' : 'cursor-pointer'} ${(STATUS_CONFIG[post.status] || STATUS_CONFIG.draft).colorClass} ${draggedPost?.id === post.id ? 'opacity-50' : ''}`}
+                          className={`text-xs px-1.5 py-1 rounded border-l-2 ${styles.leftBorderClass} ${canDrag ? 'cursor-move' : 'cursor-pointer'} ${styles.bgClass} ${styles.borderClass} ${draggedPost?.id === post.id ? 'opacity-50' : ''}`}
                         >
                           <div className="flex items-center justify-between gap-1 min-w-0">
                             <span className="truncate flex-1">
@@ -1127,7 +1041,7 @@ export default function SocialCalendarView({
                 </div>
                 <div className="space-y-1.5">
                   {dayPosts.slice(0, 2).map((post) => {
-                    const statusInfo = STATUS_CONFIG[post.status] || STATUS_CONFIG.draft;
+                    const styles = getPostStatusStyles(post.status);
                     return (
                       <div
                         key={post.id}
@@ -1150,7 +1064,7 @@ export default function SocialCalendarView({
                         }}
                         className={`text-sm p-2 rounded-lg border-2 transition-all hover:shadow-md group/post ${
                           post.status === PostStatus.PUBLISHED ? 'cursor-pointer' : 'cursor-move'
-                        } ${statusInfo.colorClass || STATUS_CONFIG.draft.colorClass} ${
+                        } ${styles.bgClass} ${styles.borderClass} ${
                           draggedPost?.id === post.id ? 'opacity-50' : ''
                         }`}
                       >
@@ -1264,20 +1178,6 @@ export default function SocialCalendarView({
         cancelLabel={COPY.deletedPosts.dialogs.deletePublished.cancel}
         isLoading={deletePostMutation.isPending}
       />
-
-      {/* Legend */}
-      <div className="flex items-center justify-end p-4 border-t border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
-        <div className="flex gap-3">
-          {Object.entries(STATUS_CONFIG).map(([key, cfg]) => (
-            <div key={key} className="flex items-center gap-1.5">
-              <div className={`w-3 h-3 rounded border-2 ${cfg.legendBorder} ${cfg.legendBg}`} />
-              <span className="text-xs text-gray-600 dark:text-gray-400 font-medium">
-                {cfg.label}
-              </span>
-            </div>
-          ))}
-        </div>
-      </div>
     </Card>
   );
 }
