@@ -250,6 +250,7 @@ const COPY = {
     saveSuccessPendingApproval: 'Post sent for approval.',
     saveSuccessPublished: 'Post published.',
     saveSuccessDefault: 'Post saved.',
+    viewPost: 'View Post',
   },
   linkInserter: {
     title: 'Insert Link',
