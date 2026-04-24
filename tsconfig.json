@@ -23,5 +23,17 @@
     "types": []
   },
   "include": ["src", "src/pages/**/*.jsx", "src/Layout.jsx"],
-  "exclude": ["node_modules", "dist", "src/vite-plugins", "src/api"]
+  "exclude": [
+    "node_modules",
+    "dist",
+    "src/vite-plugins",
+    "src/api",
+    "src/lib/app-params.js",
+    "src/lib/AuthContext.jsx",
+    "src/lib/NavigationTracker.jsx",
+    "src/lib/PageNotFound.jsx",
+    "src/lib/VisualEditAgent.jsx",
+    "src/lib/query-client.js",
+    "src/lib/utils.js"
+  ]
 }
