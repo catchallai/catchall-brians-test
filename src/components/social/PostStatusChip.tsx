@@ -36,7 +36,7 @@ export default function PostStatusChip(props: PostStatusChipProps) {
       tabIndex={iconOnly ? 0 : undefined}
       role={iconOnly ? 'img' : undefined}
     >
-      <Icon className={`w-4 h-4 ${styles.iconClass}`} />
+      <Icon className={`w-4 h-4 ${styles.iconClass}`} aria-hidden="true" focusable="false" />
       {!iconOnly && <span>{formattedStatus}</span>}
     </span>
   );
