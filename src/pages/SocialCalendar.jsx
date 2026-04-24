@@ -734,8 +734,7 @@ export default function SocialCalendar() {
               <Card id="calendar-filter-panel" className="p-4 space-y-4 mb-3">
                 <div className="flex items-center justify-between">
                   <h3 className="font-semibold">Filter Options</h3>
-                  <Button variant="ghost" size="sm" onClick={clearAllFilters}>
-                    <X className="w-4 h-4 mr-1" />
+                  <Button variant="outline" size="sm" onClick={clearAllFilters}>
                     Clear
                   </Button>
                 </div>
@@ -877,8 +876,7 @@ export default function SocialCalendar() {
               <Card id="grid-filter-panel" className="p-4 space-y-4 mb-3">
                 <div className="flex items-center justify-between">
                   <h3 className="font-semibold">Filters</h3>
-                  <Button variant="ghost" size="sm" onClick={clearAllFilters}>
-                    <X className="w-4 h-4 mr-1" />
+                  <Button variant="outline" size="sm" onClick={clearAllFilters}>
                     Clear
                   </Button>
                 </div>
