@@ -571,23 +571,26 @@ function WeekView({
               key={i}
               className="flex-1 border-l border-gray-300 dark:border-gray-700 px-1 py-1 flex flex-wrap gap-1"
             >
-              {untimedPosts.map((post) => (
-                <div
-                  key={post.id}
-                  draggable={post.status !== PostStatus.PUBLISHED}
-                  onDragStart={(e) => {
-                    setDraggedPost(post);
-                    e.dataTransfer.effectAllowed = 'move';
-                  }}
-                  onDragEnd={() => setDraggedPost(null)}
-                  onMouseEnter={(e) => showPopover(post, e)}
-                  onMouseLeave={hidePopover}
-                  onClick={() => onEditPost(post)}
-                  className={`text-xs px-1.5 py-0.5 rounded border truncate max-w-full ${post.status === PostStatus.PUBLISHED ? 'cursor-pointer' : 'cursor-move'} ${getPostStatusStyles(post.status).bgClass} ${getPostStatusStyles(post.status).borderClass}`}
-                >
-                  {post.title || post.caption?.slice(0, 12) || 'Untitled'}
-                </div>
-              ))}
+              {untimedPosts.map((post) => {
+                const styles = getPostStatusStyles(post.status);
+                return (
+                  <div
+                    key={post.id}
+                    draggable={post.status !== PostStatus.PUBLISHED}
+                    onDragStart={(e) => {
+                      setDraggedPost(post);
+                      e.dataTransfer.effectAllowed = 'move';
+                    }}
+                    onDragEnd={() => setDraggedPost(null)}
+                    onMouseEnter={(e) => showPopover(post, e)}
+                    onMouseLeave={hidePopover}
+                    onClick={() => onEditPost(post)}
+                    className={`text-xs px-1.5 py-0.5 rounded border truncate max-w-full ${post.status === PostStatus.PUBLISHED ? 'cursor-pointer' : 'cursor-move'} ${styles.bgClass} ${styles.borderClass}`}
+                  >
+                    {post.title || post.caption?.slice(0, 12) || 'Untitled'}
+                  </div>
+                );
+              })}
             </div>
           );
         })}
