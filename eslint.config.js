@@ -7,6 +7,10 @@ import pluginTs from '@typescript-eslint/eslint-plugin';
 import parserTs from '@typescript-eslint/parser';
 
 export default [
+  // Global ignores — keep build output and other generated artifacts out of lint scope
+  {
+    ignores: ['dist/**'],
+  },
   // JS/JSX config (no TS parser)
   {
     files: ['**/*.{js,mjs,cjs,jsx}'],

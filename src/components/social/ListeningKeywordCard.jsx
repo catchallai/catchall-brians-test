@@ -1,5 +1,4 @@
 import { Card } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Hash, AtSign, Search, TrendingUp, Loader2, Trash2, Pencil } from 'lucide-react';
