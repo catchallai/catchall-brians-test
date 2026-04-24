@@ -25,7 +25,7 @@ export default function PostStatusLegend(props: PostStatusLegendProps) {
       role="group"
       aria-label={COPY.postStatusLegend.groupLabel}
       className={cn(
-        'flex flex-wrap items-center gap-2 px-4 py-3 border-b border-gray-200 dark:border-gray-700 bg-gray-50/60 dark:bg-gray-800/40',
+        'flex flex-wrap items-center justify-end gap-2 px-4 py-3 border-b border-gray-200 dark:border-gray-700 bg-gray-50/60 dark:bg-gray-800/40',
         className
       )}
     >
@@ -79,7 +79,7 @@ export default function PostStatusLegend(props: PostStatusLegendProps) {
         <button
           type="button"
           onClick={onClear}
-          className="ml-auto text-xs font-medium text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 underline-offset-2 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-gray-400 dark:focus-visible:ring-gray-500 rounded"
+          className="text-xs font-medium text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 underline-offset-2 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-gray-400 dark:focus-visible:ring-gray-500 rounded"
         >
           {COPY.postStatusLegend.clearFilters}
         </button>
