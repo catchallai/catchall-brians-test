@@ -82,8 +82,8 @@ const COPY = {
   postStatusLegend: {
     groupLabel: 'Filter by post status',
     clearFilters: 'Clear filters',
-    chipAriaLabel: (label: string, count: number, active: boolean) =>
-      `Filter by ${label}. ${count} post${count === 1 ? '' : 's'}. ${active ? 'Active' : 'Inactive'}.`,
+    chipAriaLabel: (label: string, description: string, count: number) =>
+      `Filter by ${label}: ${description}. ${count} post${count === 1 ? '' : 's'}.`,
   },
   deletedPosts: {
     tabDescription:

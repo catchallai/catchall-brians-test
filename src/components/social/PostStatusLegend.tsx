@@ -43,10 +43,14 @@ export default function PostStatusLegend(props: PostStatusLegendProps) {
               type="button"
               onClick={() => onToggle(status)}
               aria-pressed={isActive}
-              aria-label={COPY.postStatusLegend.chipAriaLabel(config.label, count, isActive)}
+              aria-label={COPY.postStatusLegend.chipAriaLabel(
+                config.label,
+                config.description,
+                count
+              )}
               className={cn(
                 'inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-xs font-medium transition-all',
-                'focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-offset-white dark:focus-visible:ring-offset-gray-900',
+                'focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-offset-white focus-visible:ring-gray-400 dark:focus-visible:ring-offset-gray-900 dark:focus-visible:ring-gray-500',
                 styles.bgClass,
                 styles.borderClass,
                 styles.textClass,
@@ -75,7 +79,7 @@ export default function PostStatusLegend(props: PostStatusLegendProps) {
         <button
           type="button"
           onClick={onClear}
-          className="ml-auto text-xs font-medium text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 underline-offset-2 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 rounded"
+          className="ml-auto text-xs font-medium text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 underline-offset-2 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-gray-400 dark:focus-visible:ring-gray-500 rounded"
         >
           {COPY.postStatusLegend.clearFilters}
         </button>
