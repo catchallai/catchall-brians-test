@@ -23,5 +23,5 @@
     "types": []
   },
   "include": ["src", "src/pages/**/*.jsx", "src/Layout.jsx"],
-  "exclude": ["node_modules", "dist", "src/vite-plugins", "src/api", "src/lib"]
+  "exclude": ["node_modules", "dist", "src/vite-plugins", "src/api"]
 }
