@@ -35,6 +35,8 @@ export default function CalendarFilters(props: CalendarFiltersProps) {
     onClearAll,
     className,
   } = props;
+  const hasAnyFiltersActive =
+    activeStatusFilters.size > 0 || activePlatformFilters.size > 0 || activeTagIds.length > 0;
 
   return (
     <div className={cn('flex flex-col', className)}>
@@ -44,6 +46,7 @@ export default function CalendarFilters(props: CalendarFiltersProps) {
         activeFilters={activeStatusFilters}
         onToggle={onToggleStatus}
         onClearFilters={onClearAll}
+        hasAnyFiltersActive={hasAnyFiltersActive}
       />
 
       {/* Row 2: Platform chips + vertical divider + Tags popover, right-aligned with 12px gaps. */}

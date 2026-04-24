@@ -12,12 +12,14 @@ export type PostStatusLegendProps = {
   activeFilters: Set<PostStatus>;
   onToggle: (status: PostStatus) => void;
   onClearFilters: () => void;
+  hasAnyFiltersActive?: boolean;
   className?: string;
 };
 
 export default function PostStatusLegend(props: PostStatusLegendProps) {
-  const { counts, activeFilters, onToggle, onClearFilters, className } = props;
-  const hasAnyActive = activeFilters.size > 0;
+  const { counts, activeFilters, onToggle, onClearFilters, hasAnyFiltersActive, className } = props;
+  const hasAnyActiveStatus = activeFilters.size > 0;
+  const showClearFilters = hasAnyFiltersActive ?? hasAnyActiveStatus;
 
   return (
     <div
@@ -34,7 +36,7 @@ export default function PostStatusLegend(props: PostStatusLegendProps) {
         const Icon = config.icon;
         const count = counts[status] ?? 0;
         const isActive = activeFilters.has(status);
-        const isDimmed = hasAnyActive && !isActive;
+        const isDimmed = hasAnyActiveStatus && !isActive;
 
         return (
           <button
@@ -74,7 +76,7 @@ export default function PostStatusLegend(props: PostStatusLegendProps) {
         );
       })}
 
-      {hasAnyActive && (
+      {showClearFilters && (
         <button
           type="button"
           onClick={onClearFilters}
