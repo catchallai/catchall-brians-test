@@ -188,13 +188,21 @@ export const POST_STATUS_CONFIG: Record<PostStatus, PostStatusConfig> = {
 };
 
 /**
+ * Checks whether a raw status value is one of the known post statuses.
+ */
+function isPostStatus(status: string): status is PostStatus {
+  return status in POST_STATUS_CONFIG;
+}
+
+/**
  * Returns the class-token bundle for a given status. Falls back to the
  * Draft bundle if the status string is unrecognized (defensive — TypeScript
  * prevents drift for known enum members, but this guards against raw data
  * coming in with unexpected values).
  */
-export function getPostStatusStyles(status: PostStatus): PostStatusStyles {
-  const config = POST_STATUS_CONFIG[status] ?? POST_STATUS_CONFIG[PostStatus.DRAFT];
+export function getPostStatusStyles(status: PostStatus | string): PostStatusStyles {
+  const normalizedStatus = isPostStatus(status) ? status : PostStatus.DRAFT;
+  const config = POST_STATUS_CONFIG[normalizedStatus];
   return HUE_STYLES[config.hue];
 }
 

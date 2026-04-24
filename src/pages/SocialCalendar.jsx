@@ -48,6 +48,7 @@ import { useTagsQuery } from '@/components/social/tags/useTagsQuery';
 import { HoverCard, HoverCardTrigger, HoverCardContent } from '@/components/ui/hover-card';
 import SocialCalendarView from '@/components/social/SocialCalendarView';
 import CalendarFilters from '@/components/social/CalendarFilters';
+import { PostStatus } from '@/types/enums';
 import NineGridEditor from '@/components/social/NineGridEditor';
 import PostGallery from '@/components/social/PostGallery';
 import TeamManager from '@/components/social/TeamManager';
@@ -127,9 +128,11 @@ export default function SocialCalendar() {
     });
   };
 
-  const [statusFilters, setStatusFilters] = useState(() => new Set());
+  const [statusFilters, setStatusFilters] = useState(
+    () => /** @type {Set<PostStatus>} */ (new Set())
+  );
 
-  const toggleStatusFilter = (/** @type {string} */ status) => {
+  const toggleStatusFilter = (/** @type {PostStatus} */ status) => {
     setStatusFilters((prev) => {
       const next = new Set(prev);
       if (next.has(status)) next.delete(status);
@@ -139,10 +142,15 @@ export default function SocialCalendar() {
   };
 
   const [searchParams, setSearchParams] = useSearchParams();
-  const activeTagIds = (searchParams.get('tags') ?? '')
-    .split(',')
-    .map((s) => s.trim())
-    .filter(Boolean);
+  const activeTagParam = searchParams.get('tags') ?? '';
+  const activeTagIds = useMemo(
+    () =>
+      activeTagParam
+        .split(',')
+        .map((s) => s.trim())
+        .filter(Boolean),
+    [activeTagParam]
+  );
   const setActiveTagIds = (ids) => {
     setSearchParams((p) => {
       if (ids.length === 0) {
@@ -285,7 +293,7 @@ export default function SocialCalendar() {
 
   const clearAllFilters = () => {
     setPlatformFilters(new Set());
-    setStatusFilters(new Set());
+    setStatusFilters(/** @type {Set<PostStatus>} */ (new Set()));
     setActiveTagIds([]);
   };
 
