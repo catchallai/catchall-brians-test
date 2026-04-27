@@ -86,7 +86,6 @@ export default function ReportsDashboardPage() {
   const pendingTakedowns = takedownRequests.filter(
     (r) => r.status === 'sent' || r.status === 'draft'
   ).length;
-  const resolvedTakedowns = takedownRequests.filter((r) => r.status === 'resolved').length;
 
   return (
     <div className="p-6 lg:p-8 space-y-6 min-h-screen">

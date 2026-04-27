@@ -115,13 +115,6 @@ export default function Dashboard() {
     queryFn: () => base44.auth.me(),
   });
 
-  // Get favorite links from user data
-  const favoriteLinks = user?.favorite_links || [];
-
-  const updateFavoriteLinks = async (newFavorites) => {
-    await base44.auth.updateMe({ favorite_links: newFavorites });
-  };
-
   const isLoading = loadingContacts || loadingDeals || loadingUser;
 
   // Filter out deleted and duplicate contacts (match Contacts module logic)
@@ -146,7 +139,6 @@ export default function Dashboard() {
   ).length;
   const activeCampaigns = campaigns.filter((c) => c.status === 'active').length;
   const scheduledPosts = calendarPosts.filter((p) => p.status === 'scheduled').length;
-  const unreadAlerts = alerts.filter((a) => !a.is_read).length;
 
   const monthlyTraffic = websites.reduce((sum, w) => sum + (w.organic_traffic || 0), 0);
   const totalEngagement = mentions.reduce((sum, m) => sum + (m.engagement_rate || 0), 0);

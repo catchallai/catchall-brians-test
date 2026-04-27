@@ -14,7 +14,7 @@ export default function Reservations() {
   const [editingReservation, setEditingReservation] = useState(null);
   const queryClient = useQueryClient();
 
-  const { data: reservations = [], isLoading } = useQuery({
+  const { data: reservations = [] } = useQuery({
     queryKey: ['sales-reservations'],
     queryFn: () => base44.entities.SalesReservation.list('-created_date', 100),
   });
@@ -31,11 +31,6 @@ export default function Reservations() {
 
   const createReservationMutation = useMutation({
     mutationFn: async (data) => {
-      const wasConfirmed =
-        editingReservation?.status !== 'confirmed' && data.status === 'confirmed';
-      const wasCompleted =
-        editingReservation?.status !== 'completed' && data.status === 'completed';
-
       const reservation = editingReservation
         ? await base44.entities.SalesReservation.update(editingReservation.id, data)
         : await base44.entities.SalesReservation.create(data);

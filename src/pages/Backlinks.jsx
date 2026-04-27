@@ -66,7 +66,7 @@ export default function Backlinks() {
   const [scanStatus, setScanStatus] = useState('idle'); // idle, scanning, complete, error
   const [discoveredBacklinks, setDiscoveredBacklinks] = useState([]);
   const [categoryFilter, setCategoryFilter] = useState(null);
-  const [showAnalytics, setShowAnalytics] = useState(true);
+  const [showAnalytics, _setShowAnalytics] = useState(true);
   const queryClient = useQueryClient();
 
   const { data: user } = useQuery({
@@ -236,7 +236,7 @@ Consider the website's likely industry based on the domain name and generate rel
         setScanStatus('complete');
         toast.success(`Found ${result.backlinks.length} backlinks!`);
       }
-    } catch (error) {
+    } catch (_error) {
       setScanStatus('error');
       toast.error('Failed to scan for backlinks');
     }
@@ -273,7 +273,7 @@ Consider the website's likely industry based on the domain name and generate rel
       setScanStatus('idle');
       setDiscoveredBacklinks([]);
       setScanProgress(0);
-    } catch (error) {
+    } catch (_error) {
       toast.error('Failed to import backlinks');
     }
   };

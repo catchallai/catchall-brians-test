@@ -24,7 +24,6 @@ import {
 
 export default function ICSAdmin() {
   const [searchUser, setSearchUser] = useState('');
-  const [selectedUser, setSelectedUser] = useState(null);
   const queryClient = useQueryClient();
 
   // Verify admin access
@@ -47,11 +46,6 @@ export default function ICSAdmin() {
   const { data: channels = [] } = useQuery({
     queryKey: ['ics-channels'],
     queryFn: () => base44.entities.Channel.list('-created_date', 200),
-  });
-
-  const { data: communications = [] } = useQuery({
-    queryKey: ['ics-communications'],
-    queryFn: () => base44.entities.Communication.list('-created_date', 200),
   });
 
   const { data: notifications = [] } = useQuery({

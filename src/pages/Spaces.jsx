@@ -13,7 +13,7 @@ import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 
 export default function Spaces() {
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, _setSearchTerm] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [editingSpace, setEditingSpace] = useState(null);
   const [showQuickNav, setShowQuickNav] = useState(false);
@@ -30,11 +30,6 @@ export default function Spaces() {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
-
-  const { data: user } = useQuery({
-    queryKey: ['current-user'],
-    queryFn: () => base44.auth.me(),
-  });
 
   const { data: spaces = [], isLoading } = useQuery({
     queryKey: ['spaces'],

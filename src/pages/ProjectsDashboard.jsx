@@ -32,8 +32,6 @@ import {
   Lightbulb,
 } from 'lucide-react';
 
-const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
-
 // Calculate Project Health Score (0-100)
 const calculateHealthScore = (project, tasks) => {
   const projectTasks = tasks.filter((t) => t.project_id === project.id);

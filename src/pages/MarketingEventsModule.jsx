@@ -30,11 +30,6 @@ export default function MarketingEventsModule() {
     queryFn: () => base44.entities.MarketingEvent.list('-start_date'),
   });
 
-  const { data: registrations = [] } = useQuery({
-    queryKey: ['event-registrations'],
-    queryFn: () => base44.entities.EventRegistration.list(),
-  });
-
   const createMutation = useMutation({
     mutationFn: (data) => base44.entities.MarketingEvent.create(data),
     onSuccess: () => {
@@ -89,10 +84,6 @@ export default function MarketingEventsModule() {
       return '🏢';
     }
     return '🔀';
-  };
-
-  const getEventRegistrations = (eventId) => {
-    return registrations.filter((r) => r.event_id === eventId);
   };
 
   return (
@@ -173,7 +164,6 @@ export default function MarketingEventsModule() {
           ) : (
             <div className="grid gap-4">
               {filteredEvents.map((event) => {
-                const eventRegs = getEventRegistrations(event.id);
                 const attendanceRate =
                   event.registration_count > 0
                     ? Math.round((event.attended_count / event.registration_count) * 100)

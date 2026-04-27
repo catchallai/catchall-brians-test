@@ -44,11 +44,6 @@ export default function Projects() {
   const [editingTask, setEditingTask] = useState(null);
   const queryClient = useQueryClient();
 
-  const { data: user } = useQuery({
-    queryKey: ['current-user'],
-    queryFn: () => base44.auth.me(),
-  });
-
   const { data: projects = [], isLoading } = useQuery({
     queryKey: ['projects'],
     queryFn: async () => {
@@ -137,21 +132,6 @@ export default function Projects() {
     setEditingTask(null);
   };
 
-  const handleDragEnd = (result) => {
-    if (!result.destination) {
-      return;
-    }
-
-    const { draggableId, destination } = result;
-    const taskId = draggableId;
-    const newStatus = destination.droppableId;
-
-    updateTaskMutation.mutate({
-      id: taskId,
-      data: { status: newStatus },
-    });
-  };
-
   const filteredProjects = useMemo(() => {
     return projects.filter((project) => {
       const matchesSearch =
@@ -179,25 +159,6 @@ export default function Projects() {
 
   const getCompanyName = (companyId) => {
     return companies.find((c) => c.id === companyId)?.name || 'N/A';
-  };
-
-  const getContactName = (contactId) => {
-    const contact = contacts.find((c) => c.id === contactId);
-    return contact ? `${contact.first_name} ${contact.last_name}` : 'N/A';
-  };
-
-  // Get backlog tasks (no project assigned)
-  const backlogTasks = tasks.filter((t) => !t.project_id);
-  const projectTasks = selectedProject
-    ? tasks.filter((t) => t.project_id === selectedProject.id)
-    : [];
-
-  const tasksByStatus = {
-    backlog: backlogTasks,
-    todo: projectTasks.filter((t) => t.status === 'todo'),
-    in_progress: projectTasks.filter((t) => t.status === 'in_progress'),
-    review: projectTasks.filter((t) => t.status === 'review'),
-    done: projectTasks.filter((t) => t.status === 'done'),
   };
 
   return (

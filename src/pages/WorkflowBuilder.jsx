@@ -113,7 +113,7 @@ export default function WorkflowBuilder() {
   const [triggerType, setTriggerType] = useState('deal_inactive');
   const [selectedNodeIdx, setSelectedNodeIdx] = useState(null);
 
-  const { data: workflow } = useQuery({
+  useQuery({
     queryKey: ['workflow', workflowId],
     queryFn: async () => {
       if (!workflowId) {

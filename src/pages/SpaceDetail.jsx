@@ -39,10 +39,10 @@ export default function SpaceDetail() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const spaceId = searchParams.get('id');
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, _setSearchTerm] = useState('');
   const [selectedPages, setSelectedPages] = useState([]);
   const [showQuickNav, setShowQuickNav] = useState(false);
-  const [showFolderModal, setShowFolderModal] = useState(false);
+  const [_showFolderModal, setShowFolderModal] = useState(false);
   const queryClient = useQueryClient();
 
   // Cmd+K shortcut
@@ -360,7 +360,7 @@ export default function SpaceDetail() {
                 folders={folders}
                 pages={pages}
                 spaceId={spaceId}
-                onAddFolder={(parentId) => setShowFolderModal(true)}
+                onAddFolder={(_parentId) => setShowFolderModal(true)}
                 onDeleteFolder={(folderId) => {
                   if (confirm('Delete this folder and all its contents?')) {
                     base44.entities.WikiPageFolder.delete(folderId);

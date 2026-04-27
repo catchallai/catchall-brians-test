@@ -81,7 +81,7 @@ export default function UserProfile() {
   });
 
   const handleSaveProfile = () => {
-    const { email, ...updateData } = profileData;
+    const { email: _email, ...updateData } = profileData;
     updateProfileMutation.mutate(updateData);
   };
 
@@ -102,7 +102,7 @@ export default function UserProfile() {
         const { file_url } = await base44.integrations.Core.UploadFile({ file });
         updateProfileMutation.mutate({ avatar_url: file_url });
         toast.success('Avatar updated successfully');
-      } catch (error) {
+      } catch (_error) {
         toast.error('Failed to upload avatar');
       }
     }

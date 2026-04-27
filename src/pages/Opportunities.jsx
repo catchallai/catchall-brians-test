@@ -50,11 +50,6 @@ export default function Opportunities() {
 
   const debouncedSearch = useDebounce(searchTerm, 300);
 
-  const { data: user } = useQuery({
-    queryKey: ['current-user'],
-    queryFn: () => base44.auth.me(),
-  });
-
   const { data: opportunities = [], isLoading } = useQuery({
     queryKey: ['opportunities'],
     queryFn: () => base44.entities.Opportunity.list('-created_date', 1000),
@@ -135,25 +130,6 @@ export default function Opportunities() {
       return matchesSearch && matchesStage;
     });
   }, [opportunities, debouncedSearch, stageFilter]);
-
-  const opportunitiesByStage = useMemo(() => {
-    const grouped = {
-      new_lead: [],
-      email_list: [],
-      media_inquiry: [],
-      reservation_request: [],
-      no_response: [],
-      contacted: [],
-      closed: [],
-      not_interested: [],
-    };
-    filteredOpportunities.forEach((opp) => {
-      if (grouped[opp.stage]) {
-        grouped[opp.stage].push(opp);
-      }
-    });
-    return grouped;
-  }, [filteredOpportunities]);
 
   const totalValue = filteredOpportunities.reduce((sum, opp) => sum + (opp.value || 0), 0);
 

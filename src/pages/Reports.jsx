@@ -14,7 +14,7 @@ import {
 } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Search, Share2, Sparkles } from 'lucide-react';
-import ReportTemplates, { REPORT_TEMPLATES } from '@/components/reports/ReportTemplates';
+import ReportTemplates from '@/components/reports/ReportTemplates';
 import ReportList from '@/components/reports/ReportList';
 import ReportCustomizer from '@/components/reports/ReportCustomizer';
 import CreateTemplateModal from '@/components/reports/CreateTemplateModal';
@@ -34,9 +34,7 @@ export default function Reports() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const [filterType, setFilterType] = useState('all');
   const [filterSchedule, setFilterSchedule] = useState('all');
-  const [activeTab, setActiveTab] = useState('reports');
   const [selectedReportIds, setSelectedReportIds] = useState([]);
   const [runningReportId, setRunningReportId] = useState(null);
   const [viewingReport, setViewingReport] = useState(null);
@@ -207,10 +205,6 @@ export default function Reports() {
     createTemplateMutation.mutate(templateData);
   };
 
-  const getTemplateForReport = (report) => {
-    return REPORT_TEMPLATES.find((t) => t.id === report.template_id) || REPORT_TEMPLATES[0];
-  };
-
   const handleSelectReport = (id) => {
     setSelectedReportIds((prev) =>
       prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
@@ -227,7 +221,7 @@ export default function Reports() {
     });
   };
 
-  const handleShare = async ({ reportIds, emails, permission }) => {
+  const handleShare = async ({ reportIds, emails, permission: _permission }) => {
     for (const id of reportIds) {
       const report = reports.find((r) => r.id === id);
       if (report) {

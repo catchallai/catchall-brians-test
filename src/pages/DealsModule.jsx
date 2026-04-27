@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { base44 } from '@/api/base44Client';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Plus, ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react';
 import {
@@ -23,8 +23,6 @@ export default function DealsModule() {
     lastActivityDate: null,
     closeDate: null,
   });
-
-  const queryClient = useQueryClient();
 
   const { data: deals = [], isLoading } = useQuery({
     queryKey: ['deals'],

@@ -81,13 +81,6 @@ export default function Keywords() {
     },
   });
 
-  const deleteMutation = useMutation({
-    mutationFn: (id) => base44.entities.Keyword.delete(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['keywords'] });
-    },
-  });
-
   const bulkDeleteMutation = useMutation({
     mutationFn: async (ids) => {
       for (const id of ids) {

@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { base44 } from '@/api/base44Client';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { Input } from '@/components/ui/input';
 import {
   Select,
@@ -82,7 +82,6 @@ export default function ActivityLogs() {
   const [searchTerm, setSearchTerm] = useState('');
   const [entityTypeFilter, setEntityTypeFilter] = useState('all');
   const [activityTypeFilter, setActivityTypeFilter] = useState('all');
-  const queryClient = useQueryClient();
 
   const debouncedSearch = useDebounce(searchTerm, 300);
 

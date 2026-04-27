@@ -37,7 +37,6 @@ import { exportToCSV } from '@/components/utils/exportData';
 export default function CompaniesModule() {
   const [searchTerm, setSearchTerm] = useState('');
   const [activeTab, setActiveTab] = useState('all');
-  const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(25);
   const [filters, setFilters] = useState({
     industry: null,
@@ -56,11 +55,6 @@ export default function CompaniesModule() {
   const [sortOrder, setSortOrder] = useState('asc');
 
   const queryClient = useQueryClient();
-
-  const { data: user } = useQuery({
-    queryKey: ['current-user'],
-    queryFn: () => base44.auth.me(),
-  });
 
   const { data: allCompanies = [], isLoading } = useQuery({
     queryKey: ['companies'],
@@ -155,7 +149,7 @@ export default function CompaniesModule() {
             };
             img.src = logoUrls[0];
           });
-        } catch (err) {
+        } catch (_err) {
           console.log(`Failed to sync logo for ${company.name}`);
         }
       }
@@ -230,18 +224,10 @@ export default function CompaniesModule() {
 
   const handleFilterChange = (filterName, value) => {
     setFilters((prev) => ({ ...prev, [filterName]: value }));
-    setCurrentPage(1);
   };
 
   const getContactCount = (companyId) =>
     allContacts.filter((c) => c.company_id === companyId).length;
-
-  const getCompanyContacts = (companyId) => allContacts.filter((c) => c.company_id === companyId);
-
-  const getPrimaryContact = (companyId) => {
-    const companyContacts = getCompanyContacts(companyId);
-    return companyContacts.length > 0 ? companyContacts[0] : null;
-  };
 
   const formatRevenue = (value) => {
     if (!value) {

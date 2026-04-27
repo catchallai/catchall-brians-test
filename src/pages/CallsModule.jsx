@@ -1,6 +1,4 @@
 import { useState } from 'react';
-import { base44 } from '@/api/base44Client';
-import { useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -26,7 +24,6 @@ import CallLogModal from '@/components/modals/CallLogModal';
 export default function CallsModule() {
   const [searchTerm, setSearchTerm] = useState('');
   const [activeTab, setActiveTab] = useState('recorded');
-  const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(25);
   const [callModalOpen, setCallModalOpen] = useState(false);
   const [callModalType, setCallModalType] = useState('new');
@@ -38,14 +35,8 @@ export default function CallsModule() {
     notes: null,
   });
 
-  const { data: user } = useQuery({
-    queryKey: ['current-user'],
-    queryFn: () => base44.auth.me(),
-  });
-
   const handleFilterChange = (filterName, value) => {
     setFilters((prev) => ({ ...prev, [filterName]: value }));
-    setCurrentPage(1);
   };
 
   const hasActiveFilters = Object.values(filters).some((v) => v !== null) || searchTerm;

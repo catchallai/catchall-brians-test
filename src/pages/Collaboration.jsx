@@ -42,11 +42,6 @@ export default function Collaboration() {
     queryFn: () => base44.entities.ProjectTask.list('-created_date', 200),
   });
 
-  const { data: comments = [] } = useQuery({
-    queryKey: ['project-comments'],
-    queryFn: () => base44.entities.ProjectComment.list('-created_date', 500),
-  });
-
   const createProjectMutation = useMutation({
     mutationFn: (data) =>
       base44.entities.SEOProject.create({
@@ -62,10 +57,6 @@ export default function Collaboration() {
 
   const projectTasks = selectedProject
     ? tasks.filter((t) => t.project_id === selectedProject.id)
-    : [];
-
-  const projectComments = selectedProject
-    ? comments.filter((c) => c.project_id === selectedProject.id)
     : [];
 
   const stats = {

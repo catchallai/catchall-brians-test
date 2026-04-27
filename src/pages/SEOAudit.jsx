@@ -63,7 +63,7 @@ export default function SEOAudit() {
     enabled: !!user?.current_business_id,
   });
 
-  const { data: audits = [], isLoading: loadingAudits } = useQuery({
+  const { data: audits = [] } = useQuery({
     queryKey: ['seo-audits', user?.current_business_id],
     queryFn: async () => {
       if (!user?.current_business_id) {

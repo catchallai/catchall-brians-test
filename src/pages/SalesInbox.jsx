@@ -46,11 +46,6 @@ export default function SalesInbox() {
   const [showTaskModal, setShowTaskModal] = useState(false);
   const queryClient = useQueryClient();
 
-  const { data: user } = useQuery({
-    queryKey: ['current-user'],
-    queryFn: () => base44.auth.me(),
-  });
-
   const { data: emails = [], isLoading } = useQuery({
     queryKey: ['sales-emails', filterStatus],
     queryFn: async () => {
@@ -63,11 +58,6 @@ export default function SalesInbox() {
         200
       );
     },
-  });
-
-  const { data: contacts = [] } = useQuery({
-    queryKey: ['contacts'],
-    queryFn: () => base44.entities.Contact.list('-created_date', 500),
   });
 
   const updateEmailMutation = useMutation({

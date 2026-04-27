@@ -49,7 +49,7 @@ export default function Activities() {
 
   // Real-time subscription
   React.useEffect(() => {
-    const unsubscribe = base44.entities.Activity.subscribe((event) => {
+    const unsubscribe = base44.entities.Activity.subscribe((_event) => {
       queryClient.invalidateQueries({ queryKey: ['activities'] });
     });
     return unsubscribe;

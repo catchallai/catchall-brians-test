@@ -94,7 +94,6 @@ export default function SocialMedia() {
   const [editingPost, setEditingPost] = useState(null);
   const [editingTest, setEditingTest] = useState(null);
   const [editingAccount, setEditingAccount] = useState(null);
-  const [calendarView, setCalendarView] = useState(false);
   const [newAccount, setNewAccount] = useState({
     platform: 'twitter',
     account_name: '',
@@ -130,7 +129,7 @@ export default function SocialMedia() {
     enabled: !!user,
   });
 
-  const { data: socialPostsRaw = [], isLoading: loadingPosts } = useQuery({
+  const { data: socialPostsRaw = [] } = useQuery({
     queryKey: ['social-posts'],
     queryFn: async () => {
       return await base44.entities.SocialPost.list('-created_date', 500);
@@ -230,11 +229,6 @@ export default function SocialMedia() {
       setShowScheduleModal(false);
       setEditingPost(null);
     },
-  });
-
-  const deleteScheduledPostMutation = useMutation({
-    mutationFn: (id) => base44.entities.ScheduledPost.delete(id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['scheduled-posts'] }),
   });
 
   const bulkScheduleMutation = useMutation({
@@ -1326,7 +1320,7 @@ Be specific, data-driven, and actionable.`,
 
   // Smart content adapter with audience targeting
   const smartAdaptMutation = useMutation({
-    mutationFn: async ({ content, platforms, audience, tone }) => {
+    mutationFn: async ({ content, platforms: _platforms, audience, tone }) => {
       const result = await base44.integrations.Core.InvokeLLM({
         prompt: `Adapt this content for different platforms and a ${audience} audience with a ${tone} tone:
 
@@ -1645,7 +1639,6 @@ Find 5 recent posts with: post_url (direct link to post), content, post_date, li
   // Total posts: sum of posts_count from accounts (stored value) as primary, or count analyzed posts
   const totalPostsFromAccounts = socialAccounts.reduce((sum, a) => sum + (a.posts_count || 0), 0);
   const totalPosts = totalPostsFromAccounts > 0 ? totalPostsFromAccounts : socialPosts.length;
-  const pendingPosts = scheduledPosts.filter((p) => p.status === 'scheduled').length;
 
   const sentimentBreakdown = {
     positive: socialPosts.filter((p) => p.sentiment === 'positive').length,
@@ -1917,7 +1910,7 @@ Find 5 recent posts with: post_url (direct link to post), content, post_date, li
             <AIContentCalendarCard
               socialAccounts={socialAccounts}
               posts={socialPosts}
-              onSchedulePost={(data) => {
+              onSchedulePost={(_data) => {
                 setEditingPost(null);
                 setShowScheduleModal(true);
               }}
@@ -2003,7 +1996,7 @@ Find 5 recent posts with: post_url (direct link to post), content, post_date, li
               return result;
             }}
             isGenerating={generateContentMutation.isPending}
-            onSchedulePost={(data) => {
+            onSchedulePost={(_data) => {
               setEditingPost(null);
               setShowScheduleModal(true);
               // Pre-fill will happen through the modal

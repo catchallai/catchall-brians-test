@@ -15,14 +15,9 @@ export default function LeadEnrichment() {
   const [minScore, setMinScore] = useState(0);
   const queryClient = useQueryClient();
 
-  const { data: enrichedLeads = [], isLoading } = useQuery({
+  const { data: enrichedLeads = [] } = useQuery({
     queryKey: ['enriched-leads'],
     queryFn: () => base44.entities.LeadEnrichment.list('-enrichment_score', 100),
-  });
-
-  const { data: contacts = [] } = useQuery({
-    queryKey: ['contacts'],
-    queryFn: () => base44.entities.Contact.list('-created_date', 200),
   });
 
   const enrichLinkedInMutation = useMutation({

@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -20,8 +19,6 @@ import {
 } from 'recharts';
 
 export default function AccountingDashboard() {
-  const [dateRange, setDateRange] = useState('month');
-
   // Sample data - would come from API
   const revenueData = [
     { month: 'Jan', revenue: 45000, expenses: 28000, profit: 17000 },
@@ -49,7 +46,6 @@ export default function AccountingDashboard() {
     { month: 'Jun', inflow: 72000, outflow: 51000 },
   ];
 
-  const currentMonth = revenueData[revenueData.length - 1];
   const totalRevenue = revenueData.reduce((sum, item) => sum + item.revenue, 0);
   const totalExpenses = revenueData.reduce((sum, item) => sum + item.expenses, 0);
   const totalProfit = totalRevenue - totalExpenses;

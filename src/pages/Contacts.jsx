@@ -56,7 +56,7 @@ export default function Contacts() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showDetailPanel, setShowDetailPanel] = useState(false);
   const [editingContact, setEditingContact] = useState(null);
-  const [selectedContact, setSelectedContact] = useState(null);
+  const [selectedContact, _setSelectedContact] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [currentPage, setCurrentPage] = useState(1);
@@ -64,7 +64,6 @@ export default function Contacts() {
   const [showDeleted, setShowDeleted] = useState(false);
 
   const [activeTab, setActiveTab] = useState('all');
-  const [sidebarFilter, setSidebarFilter] = useState('Contacts');
   const [filters, setFilters] = useState({
     companyName: '',
     email: '',
@@ -124,7 +123,7 @@ export default function Contacts() {
 
   // Real-time subscription for changes
   React.useEffect(() => {
-    const unsubscribe = base44.entities.Contact.subscribe((event) => {
+    const unsubscribe = base44.entities.Contact.subscribe((_event) => {
       queryClient.invalidateQueries({ queryKey: ['contacts'] });
     });
     return unsubscribe;
@@ -172,7 +171,7 @@ export default function Contacts() {
           actor_name: user?.full_name,
           action_url: `/contacts?id=${contact.id}`,
         });
-      } catch (err) {
+      } catch (_err) {
         console.log('Notification creation skipped');
       }
 
@@ -299,11 +298,6 @@ export default function Contacts() {
             .filter((name) => name && name.trim())
         ),
       ];
-
-      // Check for duplicate companies
-      const duplicateCompanies = uniqueCompanyNames.filter(
-        (name) => companyMap[name.toLowerCase()]
-      );
 
       // Create new companies that don't exist
       for (const companyName of uniqueCompanyNames) {
@@ -576,16 +570,6 @@ export default function Contacts() {
     }
   };
 
-  const handleEdit = (contact, viewOnly = false) => {
-    if (viewOnly) {
-      setSelectedContact(contact);
-      setShowDetailPanel(true);
-    } else {
-      setEditingContact(contact);
-      setShowModal(true);
-    }
-  };
-
   const handleExport = async () => {
     const dataToExport =
       selectedIds.length > 0
@@ -753,8 +737,6 @@ export default function Contacts() {
     (currentPage - 1) * ITEMS_PER_PAGE,
     currentPage * ITEMS_PER_PAGE
   );
-
-  const getCompany = (companyId) => companies.find((c) => c.id === companyId);
 
   // Reset page when filters change
   React.useEffect(() => {

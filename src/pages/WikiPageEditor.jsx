@@ -80,7 +80,6 @@ export default function WikiPageEditor() {
   const [changeSummary, setChangeSummary] = useState('');
   const [showSidebar, setShowSidebar] = useState(true);
   const [scheduledPublishDate, setScheduledPublishDate] = useState('');
-  const [showDuplicateDialog, setShowDuplicateDialog] = useState(false);
 
   const { data: user } = useQuery({
     queryKey: ['current-user'],

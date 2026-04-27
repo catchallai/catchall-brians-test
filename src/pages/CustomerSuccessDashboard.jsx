@@ -141,9 +141,7 @@ export default function CustomerSuccessDashboard() {
 
   const healthyCount = filteredHealthScores.filter((h) => h.health_status === 'healthy').length;
   const atRiskCount = filteredHealthScores.filter((h) => h.health_status === 'at_risk').length;
-  const criticalCount = filteredHealthScores.filter((h) => h.health_status === 'critical').length;
 
-  const completedOnboarding = filteredOnboardings.filter((o) => o.status === 'completed').length;
   const avgOnboardingProgress =
     filteredOnboardings.length > 0
       ? Math.round(

@@ -18,7 +18,6 @@ import { createPageUrl } from '@/utils';
 export default function ProjectCalendar() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [viewMode, setViewMode] = useState('month'); // month, week, list
-  const [filterBy, setFilterBy] = useState('all'); // all, project, assignee
   const [selectedAssignee, setSelectedAssignee] = useState('all');
   const [selectedProject, setSelectedProject] = useState('all');
 
@@ -143,7 +142,6 @@ export default function ProjectCalendar() {
     const year = currentDate.getFullYear();
     const month = currentDate.getMonth();
     const firstDay = new Date(year, month, 1);
-    const lastDay = new Date(year, month + 1, 0);
     const startDate = new Date(firstDay);
     startDate.setDate(startDate.getDate() - startDate.getDay());
 

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { base44 } from '@/api/base44Client';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -8,8 +8,6 @@ import { Plus } from 'lucide-react';
 
 export default function ProjectsEnhanced() {
   const [selectedProject, setSelectedProject] = useState(null);
-  const [viewMode, setViewMode] = useState('board');
-  const queryClient = useQueryClient();
 
   const { data: projects = [] } = useQuery({
     queryKey: ['projects'],
@@ -30,11 +28,6 @@ export default function ProjectsEnhanced() {
     enabled: !!selectedProject,
   });
 
-  const { data: workloads = [] } = useQuery({
-    queryKey: ['workloads'],
-    queryFn: () => base44.entities.Workload.list('-week_start', 20),
-  });
-
   const { data: timeLogs = [] } = useQuery({
     queryKey: ['time-logs'],
     queryFn: () => base44.entities.TimeLog.list('-date', 100),
@@ -45,26 +38,6 @@ export default function ProjectsEnhanced() {
     queryFn: () =>
       selectedProject ? base44.entities.Epic.filter({ project_id: selectedProject.id }) : [],
     enabled: !!selectedProject,
-  });
-
-  const createSprintMutation = useMutation({
-    mutationFn: async () => {
-      const startDate = new Date();
-      const endDate = new Date();
-      endDate.setDate(endDate.getDate() + 14);
-
-      return base44.entities.Sprint.create({
-        project_id: selectedProject.id,
-        name: `Sprint ${sprints.length + 1}`,
-        goal: 'Deliver key features and improvements',
-        start_date: startDate.toISOString().split('T')[0],
-        end_date: endDate.toISOString().split('T')[0],
-        capacity: 80,
-      });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['sprints'] });
-    },
   });
 
   if (!selectedProject) {
@@ -111,12 +84,9 @@ export default function ProjectsEnhanced() {
   // Calculate metrics
   const completedTasks = tasks.filter((t) => t.status === 'done').length;
   const inProgressTasks = tasks.filter((t) => t.status === 'in_progress').length;
-  const todoTasks = tasks.filter((t) => t.status === 'todo').length;
   const completionRate = tasks.length > 0 ? ((completedTasks / tasks.length) * 100).toFixed(0) : 0;
 
   const totalBudget = selectedProject.budget || 0;
-  const spentBudget = selectedProject.budget_spent || 0;
-  const budgetPercentage = totalBudget > 0 ? ((spentBudget / totalBudget) * 100).toFixed(0) : 0;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
