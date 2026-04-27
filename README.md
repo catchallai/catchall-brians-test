@@ -67,3 +67,30 @@ For best results, install the Prettier extension in your code editor (recommende
   - Windows/Linux: `Shift + Alt + F`
 - To format on save: Open VS Code settings and enable **Format On Save** (search for "format on save").
 - The extension will use your project's `.prettierrc` settings automatically.
+
+## Editor Integration: Deno Extension (backend functions only)
+
+The `base44/functions/` directory runs on Deno, not Node — so the frontend's TypeScript language server can't typecheck it (you'll see `Cannot find name 'Deno'` and similar). Install the official Deno extension and scope it to `base44/` so it doesn't take over your frontend code:
+
+1. Open the Extensions sidebar (⇧⌘X or Ctrl+Shift+X).
+2. Search for "Deno" by `denoland` and install it.
+3. Add the following to your `.vscode/settings.json` (workspace settings are gitignored, so each developer maintains their own copy):
+
+   ```json
+   {
+     "deno.enable": false,
+     "deno.enablePaths": ["base44"],
+     "deno.config": "base44/deno.json"
+   }
+   ```
+
+4. Reload the window (`⇧⌘P → Developer: Reload Window`). The "Deno" indicator should appear in the status bar when you open a file under `base44/`.
+
+### Backend Typecheck Scripts
+
+Two npm scripts back the same checks the editor runs:
+
+- `npm run typecheck:backend` — runs `deno check` against every `base44/functions/**/entry.ts`. Surfaces pre-existing strict-mode errors as a backlog signal.
+- `npm run check:cron-sync` — verifies the `wallClockToUtc` helper duplicated between `checkScheduledPosts` and `updateExpiredPostStatuses` stays byte-identical (Base44's deployer doesn't bundle relative imports, so the helper can't be extracted yet).
+
+Both are also invoked by the pre-commit hook on staged backend files only — so unrelated commits aren't blocked by pre-existing breakage in files you didn't touch.
