@@ -78,7 +78,7 @@ import { isValidHttpUrl, shortenUrl } from '@/utils/url';
 import { HashtagPoolCreatePopover } from '@/components/hashtags/HashtagPoolCreatePopover';
 import { coercePostTagIds } from '@/utils/tags';
 import { TagSelector } from '@/components/social/tags/TagSelector';
-import { TimezoneSelector } from '@/components/social/TimezoneSelector';
+import TimezoneSelector from '@/components/social/TimezoneSelector';
 import { useTagsQuery } from '@/components/social/tags/useTagsQuery';
 import {
   getPostImageUrls,

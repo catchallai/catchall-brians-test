@@ -11,6 +11,8 @@ import {
 } from '@/components/ui/command';
 import { cn } from '@/lib/utils';
 import COPY from '@/lib/copy';
+import { TIMEZONE_REGIONS } from '@/types/enums';
+import { getUtcOffsetLabel, resolveRegionIana } from '@/utils/date';
 
 // shadcn/ui components are exported from .jsx files and lose their prop types
 // under checkJs / strict TS. Cast to ComponentType<any> so JSX usage compiles.
@@ -24,180 +26,14 @@ const TypedCommandItem = CommandItem as ComponentType<any>;
 
 const SELECTOR_COPY = COPY.calendarPostModal;
 
-/**
- * Curated list of business-friendly timezone regions, mapped to a canonical IANA
- * zone that handles DST correctly. Order roughly west-to-east. Aliases let the
- * popover surface a region as "selected" even when the stored IANA value is a
- * synonym (e.g. America/Vancouver still maps to Pacific Time).
- */
-const TIMEZONE_REGIONS: { iana: string; label: string; aliases?: string[] }[] = [
-  { iana: 'Pacific/Midway', label: 'Samoa Time' },
-  { iana: 'Pacific/Honolulu', label: 'Hawaii Time' },
-  {
-    iana: 'America/Anchorage',
-    label: 'Alaska Time (US & Canada)',
-    aliases: ['America/Juneau', 'America/Nome', 'America/Sitka', 'America/Yakutat'],
-  },
-  {
-    iana: 'America/Los_Angeles',
-    label: 'Pacific Time (US & Canada)',
-    aliases: ['America/Vancouver', 'America/Tijuana', 'US/Pacific'],
-  },
-  { iana: 'America/Phoenix', label: 'Arizona Time (US)' },
-  {
-    iana: 'America/Denver',
-    label: 'Mountain Time (US & Canada)',
-    aliases: ['America/Edmonton', 'America/Boise', 'US/Mountain'],
-  },
-  {
-    iana: 'America/Chicago',
-    label: 'Central Time (US & Canada)',
-    aliases: ['America/Winnipeg', 'America/Mexico_City', 'US/Central'],
-  },
-  { iana: 'America/Bogota', label: 'Colombia Time', aliases: ['America/Lima'] },
-  {
-    iana: 'America/New_York',
-    label: 'Eastern Time (US & Canada)',
-    aliases: ['America/Toronto', 'America/Detroit', 'US/Eastern'],
-  },
-  { iana: 'America/Caracas', label: 'Venezuela Time' },
-  {
-    iana: 'America/Halifax',
-    label: 'Atlantic Time (Canada)',
-    aliases: ['America/Glace_Bay', 'America/Goose_Bay'],
-  },
-  {
-    iana: 'America/Sao_Paulo',
-    label: 'Brasilia Time',
-    aliases: ['America/Argentina/Buenos_Aires', 'America/Montevideo', 'America/Santiago'],
-  },
-  { iana: 'America/St_Johns', label: 'Newfoundland Time (Canada)' },
-  { iana: 'Atlantic/South_Georgia', label: 'South Georgia Time' },
-  { iana: 'Atlantic/Azores', label: 'Azores Time' },
-  {
-    iana: 'Europe/London',
-    label: 'Greenwich Mean Time (UK & Ireland)',
-    aliases: ['Europe/Dublin', 'Europe/Lisbon', 'GB'],
-  },
-  {
-    iana: 'Europe/Paris',
-    label: 'Central European Time',
-    aliases: [
-      'Europe/Berlin',
-      'Europe/Madrid',
-      'Europe/Rome',
-      'Europe/Amsterdam',
-      'Europe/Brussels',
-      'Europe/Vienna',
-      'Europe/Stockholm',
-      'Europe/Warsaw',
-      'Europe/Zurich',
-    ],
-  },
-  {
-    iana: 'Europe/Helsinki',
-    label: 'Eastern European Time',
-    aliases: ['Europe/Athens', 'Europe/Bucharest', 'Africa/Cairo', 'Asia/Jerusalem'],
-  },
-  {
-    iana: 'Europe/Moscow',
-    label: 'Moscow Time',
-    aliases: ['Europe/Istanbul', 'Africa/Nairobi'],
-  },
-  {
-    iana: 'Africa/Lagos',
-    label: 'West Africa Time',
-    aliases: ['Africa/Algiers', 'Africa/Tunis'],
-  },
-  { iana: 'Africa/Johannesburg', label: 'South Africa Time' },
-  { iana: 'Asia/Tehran', label: 'Iran Time' },
-  {
-    iana: 'Asia/Dubai',
-    label: 'Gulf Time (UAE)',
-    aliases: ['Asia/Muscat', 'Asia/Baku', 'Asia/Tbilisi', 'Asia/Yerevan'],
-  },
-  { iana: 'Asia/Kabul', label: 'Afghanistan Time' },
-  {
-    iana: 'Asia/Karachi',
-    label: 'Pakistan Time',
-    aliases: ['Asia/Tashkent', 'Asia/Yekaterinburg'],
-  },
-  { iana: 'Asia/Kolkata', label: 'India Standard Time', aliases: ['Asia/Colombo'] },
-  { iana: 'Asia/Kathmandu', label: 'Nepal Time' },
-  { iana: 'Asia/Dhaka', label: 'Bangladesh Time', aliases: ['Asia/Almaty'] },
-  { iana: 'Asia/Yangon', label: 'Myanmar Time' },
-  {
-    iana: 'Asia/Bangkok',
-    label: 'Indochina Time',
-    aliases: ['Asia/Ho_Chi_Minh', 'Asia/Jakarta'],
-  },
-  {
-    iana: 'Asia/Singapore',
-    label: 'Singapore Time',
-    aliases: ['Asia/Hong_Kong', 'Asia/Manila', 'Asia/Kuala_Lumpur', 'Asia/Taipei'],
-  },
-  {
-    iana: 'Asia/Shanghai',
-    label: 'China Standard Time',
-    aliases: ['Asia/Macau', 'Asia/Urumqi'],
-  },
-  { iana: 'Australia/Perth', label: 'Australian Western Time' },
-  {
-    iana: 'Asia/Tokyo',
-    label: 'Japan Standard Time',
-    aliases: ['Asia/Seoul'],
-  },
-  { iana: 'Australia/Adelaide', label: 'Australian Central Time' },
-  {
-    iana: 'Australia/Sydney',
-    label: 'Australian Eastern Time',
-    aliases: ['Australia/Melbourne', 'Australia/Brisbane', 'Australia/Hobart'],
-  },
-  { iana: 'Pacific/Auckland', label: 'New Zealand Time', aliases: ['Pacific/Fiji'] },
-  { iana: 'UTC', label: 'Coordinated Universal Time', aliases: ['Etc/UTC', 'GMT'] },
-];
-
-/**
- * Returns "UTC", "UTC-5", or "UTC+5:30" for the zone at the given reference date.
- * The reference date matters: zones with DST shift offset across the year, so the
- * label should reflect what the user will actually publish at.
- */
-export function getUtcOffsetLabel(timeZone: string, referenceDate: Date): string {
-  try {
-    const formatter = new Intl.DateTimeFormat('en-US', {
-      timeZone,
-      timeZoneName: 'longOffset',
-    });
-    const offset =
-      formatter.formatToParts(referenceDate).find((p) => p.type === 'timeZoneName')?.value ?? '';
-    if (!offset || offset === 'GMT' || offset === 'GMT+00:00') return 'UTC';
-    const match = offset.match(/^GMT([+-])(\d{1,2}):(\d{2})$/);
-    if (!match) return offset.replace('GMT', 'UTC');
-    const [, sign, hh, mm] = match;
-    const hours = parseInt(hh, 10);
-    return mm === '00' ? `UTC${sign}${hours}` : `UTC${sign}${hours}:${mm}`;
-  } catch {
-    return 'UTC';
-  }
-}
-
-/** Resolves an IANA value to its curated region's canonical IANA, or null. */
-function resolveRegionIana(value: string): string | null {
-  if (!value) return null;
-  const direct = TIMEZONE_REGIONS.find((r) => r.iana === value);
-  if (direct) return direct.iana;
-  const aliased = TIMEZONE_REGIONS.find((r) => r.aliases?.includes(value));
-  return aliased ? aliased.iana : null;
-}
-
-interface TimezoneSelectorProps {
+type TimezoneSelectorProps = {
   value: string;
   onChange: (timezone: string) => void;
   /** Date used to compute the UTC offset label (so DST is reflected accurately). */
   referenceDate?: Date;
   disabled?: boolean;
   className?: string;
-}
+};
 
 /**
  * Searchable timezone picker rendered as a compact globe-icon button. Clicking
@@ -205,7 +41,7 @@ interface TimezoneSelectorProps {
  * (e.g. "Pacific Time (US & Canada)") each backed by a single canonical IANA
  * zone that handles DST correctly.
  */
-export function TimezoneSelector({
+export default function TimezoneSelector({
   value,
   onChange,
   referenceDate,
@@ -312,5 +148,3 @@ export function TimezoneSelector({
     </Popover>
   );
 }
-
-export default TimezoneSelector;

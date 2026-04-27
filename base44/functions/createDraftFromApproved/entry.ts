@@ -12,12 +12,18 @@ Deno.serve(async (req) => {
       scheduledDate,
       scheduledTime,
       scheduledAt: scheduledAtISO,
+      timezone: timezoneFromRequest,
       platforms,
       campaignBriefId,
     } = await req.json();
     if (!copyId || !templateId || !scheduledDate) {
       return Response.json({ error: 'Missing required fields' }, { status: 400 });
     }
+    // Resolve the post's timezone: explicit request param wins, otherwise fall
+    // back to the requesting user's stored zone, then UTC. Without this the
+    // backend cron's wall-clock conversion would silently UTC-default the post,
+    // publishing it at the wrong time for non-UTC users.
+    const timezone = timezoneFromRequest || user.timezone || 'UTC';
     // Prefer an absolute ISO timestamp from the client (which carries the user's local timezone)
     // over constructing one server-side to avoid false rejections in non-UTC timezones.
     const scheduledAt = scheduledAtISO
@@ -55,6 +61,7 @@ Deno.serve(async (req) => {
       media_type: 'image',
       scheduled_date: scheduledDate,
       scheduled_time: scheduledTime || '10:00',
+      timezone,
       platforms: platforms || template.platforms || ['Instagram'],
       hashtags: copy.tags || [],
       status: 'draft',

@@ -1,3 +1,5 @@
+import { TIMEZONE_REGIONS } from '@/types/enums';
+
 /**
  * Converts a given Date object to a local ISO string in the format 'YYYY-MM-DDTHH:mm'.
  * Adjusts for the user's timezone offset to ensure the result reflects local time
@@ -86,4 +88,46 @@ export const isScheduledInFuture = (
 ): boolean => {
   const scheduled = wallClockToUtc(scheduledDate, scheduledTime || '00:00', timeZone);
   return scheduled > new Date();
+};
+
+/**
+ * Returns a short UTC-offset label ("UTC", "UTC-5", "UTC+5:30") for `timeZone`
+ * at the given reference instant. The reference matters because zones with
+ * DST shift offset across the year, so the label should reflect what the
+ * caller will actually publish at — not what offset is in effect right now.
+ *
+ * Falls back to "UTC" if the runtime can't format the zone (older browsers
+ * lacking ES2024 `'longOffset'`, or invalid IANA names).
+ */
+export const getUtcOffsetLabel = (timeZone: string, referenceDate: Date): string => {
+  try {
+    const formatter = new Intl.DateTimeFormat('en-US', {
+      timeZone,
+      timeZoneName: 'longOffset',
+    });
+    const offset =
+      formatter.formatToParts(referenceDate).find((p) => p.type === 'timeZoneName')?.value ?? '';
+    if (!offset || offset === 'GMT' || offset === 'GMT+00:00') return 'UTC';
+    const match = offset.match(/^GMT([+-])(\d{1,2}):(\d{2})$/);
+    if (!match) return offset.replace('GMT', 'UTC');
+    const [, sign, hh, mm] = match;
+    const hours = parseInt(hh, 10);
+    return mm === '00' ? `UTC${sign}${hours}` : `UTC${sign}${hours}:${mm}`;
+  } catch {
+    return 'UTC';
+  }
+};
+
+/**
+ * Resolves any IANA timezone value to its curated `TIMEZONE_REGIONS` entry's
+ * canonical IANA, walking aliases (e.g. `America/Vancouver` → `America/Los_Angeles`).
+ * Returns null when the value isn't a known region or alias — callers should
+ * either render the raw IANA or fall back to a sensible default in that case.
+ */
+export const resolveRegionIana = (value: string): string | null => {
+  if (!value) return null;
+  const direct = TIMEZONE_REGIONS.find((r) => r.iana === value);
+  if (direct) return direct.iana;
+  const aliased = TIMEZONE_REGIONS.find((r) => r.aliases?.includes(value));
+  return aliased ? aliased.iana : null;
 };

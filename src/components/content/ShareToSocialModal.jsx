@@ -104,6 +104,7 @@ Include relevant hashtags and a call-to-action where appropriate.`,
             platforms: [platformId],
             scheduled_date: scheduleDate || format(new Date(), 'yyyy-MM-dd'),
             scheduled_time: scheduleTime,
+            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
             status: scheduleDate ? 'approved' : 'draft',
             brand_id: brands[0]?.id,
           });
