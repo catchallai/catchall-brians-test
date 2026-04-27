@@ -1508,15 +1508,16 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
       [PostStatus.PUBLISHED]: COPY.calendarPostModal.saveSuccessPublished,
     };
     const savedId = (saveResult as CalendarPost | undefined)?.id;
-    // Suppress the View Post action when the composer is about to auto-navigate
-    // to PostApprovalView anyway (standalone + approval-bound statuses) — the
-    // toast button would fire after navigation and confuse the user.
-    const willAutoNavigate = !onClose && APPROVAL_BOUND_STATUSES.has(finalStatus);
+    // Show the View Post action on (a) the first save of a brand-new post and
+    // (b) the moment a post is submitted for approval — both flows take the
+    // user to a state where being able to jump to the post view is useful.
+    const isApprovalSubmission =
+      finalStatus === PostStatus.PENDING_APPROVAL && previousStatus !== PostStatus.PENDING_APPROVAL;
     // TODO: extend this View Post action to other new-post toasts (e.g.
     // ShareToSocialModal, AutoScheduleAssistant) in a follow-up PR.
     toast.success(
       successMessages[finalStatus] ?? COPY.calendarPostModal.saveSuccessDefault,
-      isNewPost && savedId && !willAutoNavigate
+      (isNewPost || isApprovalSubmission) && savedId
         ? {
             duration: 8000,
             action: {
