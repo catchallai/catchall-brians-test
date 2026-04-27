@@ -37,9 +37,7 @@ const COPY = {
     noPostsMatchingFiltersHint: 'Try removing some filters to see posts',
     clearFilters: 'Clear filters',
     allPlatforms: 'All Platforms',
-    allStatuses: 'All Statuses',
     platformLabel: 'Platform',
-    statusLabel: 'Status',
     sortByPlaceholder: 'Sort by…',
     sortNewest: 'Newest first',
     sortOldest: 'Oldest first',
@@ -78,6 +76,12 @@ const COPY = {
         publishedPost: 'Published posts cannot be reordered.',
       },
     },
+  },
+  postStatusLegend: {
+    groupLabel: 'Filter by post status',
+    clearFilters: 'Clear filters',
+    chipAriaLabel: (label: string, description: string, count: number) =>
+      `Filter by ${label}: ${description}. ${count} post${count === 1 ? '' : 's'}.`,
   },
   deletedPosts: {
     tabDescription:
