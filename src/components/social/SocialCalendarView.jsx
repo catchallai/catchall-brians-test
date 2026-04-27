@@ -28,6 +28,7 @@ import COPY from '@/lib/copy';
 import { PostStatus } from '@/types/enums';
 import { getPostStatusStyles } from '@/lib/postStatusConfig';
 import { computePurgeAt } from '@/utils/deletedPostTimer';
+import { getPostCardLabel } from '@/utils/getPostCardLabel';
 import ConfirmDialog from '@/components/ui/ConfirmDialog';
 import {
   buildDeletePostDescription,
@@ -144,7 +145,7 @@ function DayPostsDialog({ open, onClose, posts, date, onEditPost }) {
                   >
                     <PlatformBadges platforms={post.platforms ?? []} size="sm" />
                     <span className="flex-1 truncate text-sm text-gray-800 dark:text-gray-200 font-medium">
-                      {post.title || post.caption?.slice(0, 40) || 'Untitled'}
+                      {getPostCardLabel(post, { maxLen: 40 })}
                     </span>
                     {post.scheduled_time && (
                       <span className="text-xs text-gray-400 flex-shrink-0">
@@ -297,7 +298,7 @@ function DayView({
                 className={`text-xs px-2 py-1 rounded-md border border-l-4 ${styles.leftBorderClass} flex items-center gap-1.5 group/post ${canDrag ? 'cursor-move' : 'cursor-pointer'} ${styles.bgClass} ${styles.borderClass} ${draggedPost?.id === post.id ? 'opacity-50' : ''}`}
               >
                 <span className="text-gray-800 dark:text-gray-200 font-medium">
-                  {post.title || post.caption?.slice(0, 20) || 'Untitled'}
+                  {getPostCardLabel(post, { maxLen: 20 })}
                 </span>
                 <PostStatusChip status={post.status} />
               </div>
@@ -400,7 +401,7 @@ function DayView({
                       >
                         <PlatformBadges platforms={post.platforms ?? []} size="lg" />
                         <span className="truncate text-gray-800 dark:text-gray-200 font-semibold">
-                          {post.title || post.caption?.slice(0, 40) || 'Untitled'}
+                          {getPostCardLabel(post, { maxLen: 40 })}
                         </span>
                         {post.scheduled_time && (
                           <span className="text-xs text-gray-400 dark:text-gray-500 flex-shrink-0">
@@ -587,7 +588,7 @@ function WeekView({
                     onClick={() => onEditPost(post)}
                     className={`text-xs px-1.5 py-0.5 rounded border truncate max-w-full ${post.status === PostStatus.PUBLISHED ? 'cursor-pointer' : 'cursor-move'} ${styles.bgClass} ${styles.borderClass}`}
                   >
-                    {post.title || post.caption?.slice(0, 12) || 'Untitled'}
+                    {getPostCardLabel(post, { maxLen: 20 })}
                   </div>
                 );
               })}
@@ -704,7 +705,7 @@ function WeekView({
                         >
                           <div className="flex items-center justify-between gap-1 min-w-0">
                             <span className="truncate flex-1">
-                              {post.title || post.caption?.slice(0, 16) || 'Untitled'}
+                              {getPostCardLabel(post, { maxLen: 20 })}
                             </span>
                             <PlatformBadges
                               platforms={post.platforms ?? []}
@@ -1075,8 +1076,7 @@ export default function SocialCalendarView({
                           <div className="flex items-center gap-2 min-w-0 flex-1">
                             <PlatformBadges platforms={post.platforms ?? []} size="sm" />
                             <span className="truncate text-gray-800 dark:text-gray-200 font-semibold">
-                              {post.title || post.caption?.slice(0, 18) || 'Untitled'}
-                              {post.caption?.length > 18 && !post.title ? '...' : ''}
+                              {getPostCardLabel(post, { maxLen: 20 })}
                             </span>
                           </div>
                           <div className="flex items-center gap-1 flex-shrink-0">
@@ -1116,7 +1116,7 @@ export default function SocialCalendarView({
         >
           <div className="flex items-start justify-between gap-2 mb-2">
             <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 leading-snug">
-              {hoveredPost.title || 'Untitled'}
+              {getPostCardLabel(hoveredPost, { maxLen: 30, preferTitle: true })}
             </p>
             <PostStatusChip status={hoveredPost.status} />
           </div>
