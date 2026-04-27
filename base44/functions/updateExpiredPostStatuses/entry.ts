@@ -37,17 +37,24 @@ function wallClockToUtc(date: string, time: string, timeZone: string): Date {
   }
   if (zone === 'UTC') return naive;
 
+  // `timeZoneName: 'longOffset'` is ES2024 — older runtimes throw RangeError.
+  // Wrap so callers always get a Date back; on failure we fall through to the
+  // naive UTC interpretation (better than blowing up the cron run).
   const offsetMs = (instant: Date): number => {
-    const fmt = new Intl.DateTimeFormat('en-US', { timeZone: zone, timeZoneName: 'longOffset' });
-    const offsetStr =
-      fmt.formatToParts(instant).find((p) => p.type === 'timeZoneName')?.value ?? 'GMT';
-    if (offsetStr === 'GMT') return 0;
-    const match = offsetStr.match(/^GMT([+-])(\d{1,2})(?::?(\d{2}))?$/);
-    if (!match) return 0;
-    const sign = match[1] === '-' ? -1 : 1;
-    const hh = parseInt(match[2], 10);
-    const mm = parseInt(match[3] ?? '0', 10);
-    return sign * (hh * 60 + mm) * 60 * 1000;
+    try {
+      const fmt = new Intl.DateTimeFormat('en-US', { timeZone: zone, timeZoneName: 'longOffset' });
+      const offsetStr =
+        fmt.formatToParts(instant).find((p) => p.type === 'timeZoneName')?.value ?? 'GMT';
+      if (offsetStr === 'GMT') return 0;
+      const match = offsetStr.match(/^GMT([+-])(\d{1,2})(?::?(\d{2}))?$/);
+      if (!match) return 0;
+      const sign = match[1] === '-' ? -1 : 1;
+      const hh = parseInt(match[2], 10);
+      const mm = parseInt(match[3] ?? '0', 10);
+      return sign * (hh * 60 + mm) * 60 * 1000;
+    } catch {
+      return 0;
+    }
   };
 
   const firstGuess = new Date(naive.getTime() - offsetMs(naive));
