@@ -7,9 +7,11 @@ import pluginTs from '@typescript-eslint/eslint-plugin';
 import parserTs from '@typescript-eslint/parser';
 
 export default [
-  // Global ignores — keep build output and other generated artifacts out of lint scope
+  // Global ignores — keep build output and other generated artifacts out of lint scope.
+  // base44/functions is Deno backend code excluded from the frontend tsconfig (PR #106),
+  // so the typed TS parser cannot resolve those files via parserOptions.project.
   {
-    ignores: ['dist/**'],
+    ignores: ['dist/**', 'base44/functions/**'],
   },
   // JS/JSX config (no TS parser)
   {
