@@ -777,14 +777,6 @@ export default function SocialCalendar() {
                 {format(currentMonth, 'MMMM yyyy')}
               </h3>
             </div>
-            {filteredPosts.length === 0 && hasActiveFilters && (
-              <div className="flex items-center justify-between gap-3 px-4 py-3 mb-3 rounded-lg bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 text-sm text-amber-800 dark:text-amber-200">
-                <span>{COPY.socialCalendar.noPostsMatchingFilters}</span>
-                <Button variant="ghost" size="sm" onClick={clearAllFilters} className="shrink-0">
-                  {COPY.socialCalendar.clearFilters}
-                </Button>
-              </div>
-            )}
             <PostStatusLegend
               counts={statusCounts}
               activeFilters={statusFilters}
