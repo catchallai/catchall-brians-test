@@ -13,7 +13,7 @@ import {
 } from 'lucide-react';
 import { PostStatus } from '@/types/enums';
 
-export type PostStatusHue =
+type PostStatusHue =
   | 'slate'
   | 'amber'
   | 'orange'
@@ -25,14 +25,14 @@ export type PostStatusHue =
   | 'stone'
   | 'neutral-dark';
 
-export type PostStatusConfig = {
+type PostStatusConfig = {
   label: string;
   description: string;
   icon: LucideIcon;
   hue: PostStatusHue;
 };
 
-export type PostStatusStyles = {
+type PostStatusStyles = {
   bgClass: string;
   borderClass: string;
   textClass: string;
