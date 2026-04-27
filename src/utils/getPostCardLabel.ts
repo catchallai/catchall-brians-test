@@ -16,11 +16,23 @@ const ELLIPSIS = '…';
 const segmenter = new Intl.Segmenter(undefined, { granularity: 'grapheme' });
 
 function truncate(text: string, maxLen: number): string {
-  const graphemes = Array.from(segmenter.segment(text), (s) => s.segment);
-  if (graphemes.length <= maxLen) return text;
+  if (maxLen <= 0) return '';
+  // Fast path: char count is an upper bound on grapheme count. When chars fit the
+  // budget, the string definitely fits without truncation, so we can skip the segmenter.
+  if (text.length <= maxLen) return text;
+  // Ellipsis fills a 1-grapheme budget on its own.
+  if (maxLen === 1) return ELLIPSIS;
   // Reserve one grapheme of budget for the ellipsis so the visible length stays ≤ maxLen.
-  const head = graphemes.slice(0, Math.max(maxLen - 1, 1)).join('');
-  return head + ELLIPSIS;
+  const headLimit = maxLen - 1;
+  let graphemeCount = 0;
+  let head = '';
+  for (const { segment } of segmenter.segment(text)) {
+    graphemeCount += 1;
+    if (graphemeCount <= headLimit) head += segment;
+    if (graphemeCount > maxLen) return head + ELLIPSIS;
+  }
+  // Loop completed without exceeding the budget — total graphemes ≤ maxLen.
+  return text;
 }
 
 /**
