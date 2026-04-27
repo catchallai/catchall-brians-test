@@ -17,7 +17,7 @@ import { formatDistanceToNow } from 'date-fns';
 export default function CollaborativeDocumentEditor({
   channelId,
   user,
-  onDocumentSelect,
+  onDocumentSelect: _onDocumentSelect,
   onClose,
 }) {
   const [documents, setDocuments] = useState([]);
@@ -79,21 +79,6 @@ export default function CollaborativeDocumentEditor({
       await loadDocuments();
     } catch (err) {
       console.error('Failed to toggle lock:', err);
-    }
-  };
-
-  const addCollaborator = async (email) => {
-    if (!selectedDoc || selectedDoc.collaborators?.includes(email)) {
-      return;
-    }
-    try {
-      const updated = await base44.entities.Document.update(selectedDoc.id, {
-        collaborators: [...(selectedDoc.collaborators || []), email],
-      });
-      setSelectedDoc(updated);
-      await loadDocuments();
-    } catch (err) {
-      console.error('Failed to add collaborator:', err);
     }
   };
 

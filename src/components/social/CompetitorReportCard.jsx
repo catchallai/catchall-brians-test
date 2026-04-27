@@ -2,9 +2,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
-  TrendingUp,
-  TrendingDown,
-  Minus,
   AlertTriangle,
   AlertCircle,
   CheckCircle,
@@ -19,12 +16,6 @@ const severityConfig = {
   high: { color: 'bg-orange-100 text-orange-700', icon: AlertTriangle },
   medium: { color: 'bg-amber-100 text-amber-700', icon: AlertTriangle },
   low: { color: 'bg-blue-100 text-blue-700', icon: CheckCircle },
-};
-
-const trendIcons = {
-  up: TrendingUp,
-  down: TrendingDown,
-  stable: Minus,
 };
 
 export default function CompetitorReportCard({ report, competitorName, onClick }) {

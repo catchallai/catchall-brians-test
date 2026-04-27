@@ -10,7 +10,7 @@ export default function UsersList({
   users,
   allPresence,
   darkMode,
-  onSelectUser,
+  onSelectUser: _onSelectUser,
   currentUser,
   onViewProfile,
 }) {

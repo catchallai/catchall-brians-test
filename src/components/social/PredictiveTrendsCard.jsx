@@ -141,7 +141,7 @@ Be specific with numbers and actionable recommendations.`,
   };
 
   const chartData =
-    predictions?.engagement_forecast?.map((d, idx) => ({
+    predictions?.engagement_forecast?.map((d, _idx) => ({
       date: format(addDays(new Date(), d.day), 'MMM dd'),
       engagement: d.predicted_engagement,
       confidence: d.confidence,

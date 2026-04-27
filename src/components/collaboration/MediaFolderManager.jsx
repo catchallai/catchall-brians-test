@@ -20,7 +20,6 @@ const FOLDER_TYPES = [
 ];
 
 export default function MediaFolderManager() {
-  const [showCreateModal, setShowCreateModal] = useState(false);
   const [customFolderName, setCustomFolderName] = useState('');
   const [selectedFolder, setSelectedFolder] = useState(null);
   const queryClient = useQueryClient();
@@ -34,7 +33,6 @@ export default function MediaFolderManager() {
     mutationFn: (data) => base44.entities.MediaFolder.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['media-folders'] });
-      setShowCreateModal(false);
       setCustomFolderName('');
     },
   });

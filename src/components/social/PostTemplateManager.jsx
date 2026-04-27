@@ -32,7 +32,7 @@ export default function PostTemplateManager({ onUseTemplate }) {
   });
   const queryClient = useQueryClient();
 
-  const { data: templates = [], isLoading } = useQuery({
+  const { data: templates = [] } = useQuery({
     queryKey: ['post-templates'],
     queryFn: () => base44.entities.PostTemplate.list('-usage_count', 50),
   });

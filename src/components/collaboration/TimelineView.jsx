@@ -10,10 +10,9 @@ const priorityColors = {
   urgent: 'bg-red-500',
 };
 
-export default function TimelineView({ project, tasks, user }) {
+export default function TimelineView({ project: _project, tasks, user: _user }) {
   const [currentDate, setCurrentDate] = useState(new Date());
 
-  const startOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
   const endOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
   const daysInMonth = endOfMonth.getDate();
 
@@ -23,16 +22,6 @@ export default function TimelineView({ project, tasks, user }) {
 
   const nextMonth = () => {
     setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1));
-  };
-
-  const getTasksForDate = (date) => {
-    return tasks.filter((task) => {
-      if (!task.due_date) {
-        return false;
-      }
-      const taskDate = new Date(task.due_date);
-      return taskDate.toDateString() === date.toDateString();
-    });
   };
 
   const getDaysArray = () => {

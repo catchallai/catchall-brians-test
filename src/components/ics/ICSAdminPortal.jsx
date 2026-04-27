@@ -8,12 +8,12 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Users, MessageSquare, Radio, AlertTriangle, Search, RefreshCw, Clock } from 'lucide-react';
 
-export default function ICSAdminPortal({ user, darkMode }) {
+export default function ICSAdminPortal({ user: _user, darkMode }) {
   const [searchUser, setSearchUser] = useState('');
   const queryClient = useQueryClient();
 
   // Fetch data
-  const { data: presences = [], isLoading: loadingPresences } = useQuery({
+  const { data: presences = [] } = useQuery({
     queryKey: ['ics-presences'],
     queryFn: () => base44.entities.Presence.list('-updated_at', 1000),
   });

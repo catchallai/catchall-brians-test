@@ -4,7 +4,12 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { AlertTriangle, Activity, Loader2, Zap } from 'lucide-react';
 
-export default function SEOAnomalyDetector({ websites, keywords, backlinks, onDetectAnomalies }) {
+export default function SEOAnomalyDetector({
+  websites: _websites,
+  keywords: _keywords,
+  backlinks: _backlinks,
+  onDetectAnomalies,
+}) {
   const [anomalies, setAnomalies] = useState(null);
   const [isDetecting, setIsDetecting] = useState(false);
 

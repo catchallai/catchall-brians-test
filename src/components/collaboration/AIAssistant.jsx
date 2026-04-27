@@ -17,7 +17,7 @@ import {
   MessageSquare,
 } from 'lucide-react';
 
-export default function AIAssistant({ project, tasks, comments, user }) {
+export default function AIAssistant({ project, tasks, comments, user: _user }) {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysis, setAnalysis] = useState(null);
   const queryClient = useQueryClient();

@@ -68,7 +68,6 @@ const CATEGORY_PATTERNS = {
 export default function BacklinkCategories({ backlinks, onFilterCategory }) {
   const categorizedBacklinks = useMemo(() => {
     const categories = {};
-    const categorized = [];
 
     backlinks.forEach((bl) => {
       const url = (bl.source_url || '').toLowerCase();

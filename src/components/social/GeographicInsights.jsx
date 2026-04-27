@@ -54,7 +54,7 @@ export default function GeographicInsights({ mentions }) {
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
-        {locationData.map((loc, idx) => {
+        {locationData.map((loc, _idx) => {
           const percentage = totalWithLocation > 0 ? (loc.count / totalWithLocation) * 100 : 0;
           const dominantSentiment =
             loc.positive >= loc.negative && loc.positive >= loc.neutral

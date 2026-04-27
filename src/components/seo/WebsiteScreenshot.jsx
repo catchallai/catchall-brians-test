@@ -27,7 +27,7 @@ export default function WebsiteScreenshot({
     try {
       // Use the LLM to generate a simulated screenshot URL based on the website
       // In production, you'd use a real screenshot service
-      const result = await base44.integrations.Core.InvokeLLM({
+      await base44.integrations.Core.InvokeLLM({
         prompt: `For the website ${url}, provide a realistic placeholder screenshot description. Return a high-quality stock photo URL from unsplash that would represent this type of website (business, tech, ecommerce, etc). Just return a valid unsplash URL.`,
         add_context_from_internet: true,
         response_json_schema: {

@@ -11,7 +11,7 @@ import {
   Lightbulb,
 } from 'lucide-react';
 
-export default function ContentOptimizationCard({ data, keywords = [] }) {
+export default function ContentOptimizationCard({ data, keywords: _keywords = [] }) {
   const [expandedPage, setExpandedPage] = useState(null);
 
   const pages = data?.pages || [

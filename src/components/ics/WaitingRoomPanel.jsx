@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -6,8 +5,6 @@ import { UserPlus, Clock, Check, X } from 'lucide-react';
 import { format } from 'date-fns';
 
 export default function WaitingRoomPanel({ waitingUsers, onAdmitUser, onRejectUser, onAdmitAll }) {
-  const [expandedUser, setExpandedUser] = useState(null);
-
   if (!waitingUsers || waitingUsers.length === 0) {
     return null;
   }

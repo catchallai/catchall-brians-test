@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Loader2, Sparkles, FileWarning } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 
-export default function KeywordCannibalizationCard({ keywords, websites }) {
+export default function KeywordCannibalizationCard({ keywords, websites: _websites }) {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [cannibalization, setCannibalization] = useState(null);
 

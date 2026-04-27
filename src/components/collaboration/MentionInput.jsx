@@ -61,7 +61,6 @@ export default function MentionInput({
   const handleSelectUser = (user) => {
     const lastAtIndex = value.lastIndexOf('@');
     const beforeAt = value.substring(0, lastAtIndex);
-    const afterAt = value.substring(lastAtIndex + 1);
     const restOfText = value.substring(lastAtIndex + 1 + searchTerm.length);
 
     const newText = `${beforeAt}@${user.full_name || user.email} ${restOfText}`;

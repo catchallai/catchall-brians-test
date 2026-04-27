@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Search, Loader2, Target, Plus, Sparkles, Users } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
-export default function SERPGapAnalyzer({ websites = [], onAddKeyword }) {
+export default function SERPGapAnalyzer({ websites: _websites = [], onAddKeyword }) {
   const [yourDomain, setYourDomain] = useState('');
   const [competitors, setCompetitors] = useState(['', '', '']);
   const [analyzing, setAnalyzing] = useState(false);

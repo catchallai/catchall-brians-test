@@ -26,8 +26,6 @@ export default function GoogleTrackingCard({ website, onSaveTracking }) {
     setShowSettings(false);
   };
 
-  const isConnected = website?.ga_tracking_id || website?.gsc_verified;
-
   return (
     <Card className="border-0 shadow-sm">
       <CardHeader className="pb-3">

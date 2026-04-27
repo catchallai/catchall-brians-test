@@ -83,18 +83,6 @@ export default function CompetitorBenchmark({ competitors, yourAccounts, onAnaly
       });
   };
 
-  // Radar chart data for overall performance
-  const getRadarData = () => {
-    if (!benchmarkData?.performance_comparison) {
-      return [];
-    }
-
-    return Object.entries(benchmarkData.performance_comparison).map(([metric, values]) => ({
-      metric,
-      ...values.reduce((acc, v) => ({ ...acc, [v.competitor]: v.score }), {}),
-    }));
-  };
-
   const comparisonData = getComparisonData();
 
   return (

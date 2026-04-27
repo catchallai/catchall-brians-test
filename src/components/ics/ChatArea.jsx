@@ -13,11 +13,11 @@ export default function ChatArea({
   channel,
   user,
   messages,
-  darkMode,
+  darkMode: _darkMode,
   onSendMessage,
   onStartCall,
   onShowProfile,
-  isLoading,
+  isLoading: _isLoading,
   typingUsers = [],
   onTyping,
   activeCall,
@@ -190,7 +190,7 @@ export default function ChatArea({
   );
 }
 
-const MessageBubble = ({ message, isMe, senderPresence }) => {
+const MessageBubble = ({ message, isMe, senderPresence: _senderPresence }) => {
   return (
     <div className={`flex items-end gap-3 ${isMe ? 'flex-row-reverse' : ''}`}>
       {!isMe && (

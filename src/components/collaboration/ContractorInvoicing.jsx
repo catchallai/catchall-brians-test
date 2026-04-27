@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -8,8 +7,6 @@ import { FileText, Plus, Download } from 'lucide-react';
 import { format } from 'date-fns';
 
 export default function ContractorInvoicing() {
-  const [showCreateModal, setShowCreateModal] = useState(false);
-  const [selectedContractor, setSelectedContractor] = useState(null);
   const queryClient = useQueryClient();
 
   const { data: invoices = [] } = useQuery({
@@ -34,8 +31,6 @@ export default function ContractorInvoicing() {
     mutationFn: (data) => base44.entities.ContractorInvoice.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['contractor-invoices'] });
-      setShowCreateModal(false);
-      setSelectedContractor(null);
     },
   });
 
