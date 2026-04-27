@@ -50,11 +50,6 @@ export default function Opportunities() {
 
   const debouncedSearch = useDebounce(searchTerm, 300);
 
-  const { data: _user } = useQuery({
-    queryKey: ['current-user'],
-    queryFn: () => base44.auth.me(),
-  });
-
   const { data: opportunities = [], isLoading } = useQuery({
     queryKey: ['opportunities'],
     queryFn: () => base44.entities.Opportunity.list('-created_date', 1000),

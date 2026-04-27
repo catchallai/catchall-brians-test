@@ -215,11 +215,6 @@ export default function EmailMarketing() {
     queryFn: () => base44.entities.EmailDripCampaign.list('-created_date', 100),
   });
 
-  const { data: _emailLogs = [] } = useQuery({
-    queryKey: ['email-logs'],
-    queryFn: () => base44.entities.EmailLog.list('-created_date', 1000),
-  });
-
   const createTemplateMutation = useMutation({
     mutationFn: (data) => base44.entities.EmailTemplate.create(data),
     onSuccess: () => {

@@ -31,11 +31,6 @@ export default function Spaces() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  const { data: _user } = useQuery({
-    queryKey: ['current-user'],
-    queryFn: () => base44.auth.me(),
-  });
-
   const { data: spaces = [], isLoading } = useQuery({
     queryKey: ['spaces'],
     queryFn: () => base44.entities.Space.list('-created_date'),

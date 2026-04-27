@@ -37,7 +37,6 @@ import { exportToCSV } from '@/components/utils/exportData';
 export default function CompaniesModule() {
   const [searchTerm, setSearchTerm] = useState('');
   const [activeTab, setActiveTab] = useState('all');
-  const [_currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(25);
   const [filters, setFilters] = useState({
     industry: null,
@@ -225,7 +224,6 @@ export default function CompaniesModule() {
 
   const handleFilterChange = (filterName, value) => {
     setFilters((prev) => ({ ...prev, [filterName]: value }));
-    setCurrentPage(1);
   };
 
   const getContactCount = (companyId) =>

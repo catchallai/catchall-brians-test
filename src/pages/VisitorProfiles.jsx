@@ -20,7 +20,6 @@ import {
   DialogTitle,
   DialogFooter,
 } from '@/components/ui/dialog';
-import { Skeleton } from '@/components/ui/skeleton';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import {
@@ -428,9 +427,7 @@ export default function VisitorProfiles() {
   const [showNotificationRules, setShowNotificationRules] = useState(false);
   const [showSegments, setShowSegments] = useState(false);
   const [showSegmentAnalysis, setShowSegmentAnalysis] = useState(false);
-  const [_activeSegment, setActiveSegment] = useState(null);
   const [segmentFilters, setSegmentFilters] = useState(null);
-  const [_showCreateContact, setShowCreateContact] = useState(false);
   const [showScheduleFollowUp, setShowScheduleFollowUp] = useState(false);
   const [newNote, setNewNote] = useState('');
   const [noteType, setNoteType] = useState('general');
@@ -441,13 +438,6 @@ export default function VisitorProfiles() {
   const { data: user } = useQuery({
     queryKey: ['current-user'],
     queryFn: () => base44.auth.me(),
-  });
-
-  // Fetch real visitor sessions
-  const { isLoading } = useQuery({
-    queryKey: ['visitor-sessions'],
-    queryFn: () => base44.entities.VisitorSession.list('-session_start', 200),
-    refetchInterval: 30000, // Refresh every 30 seconds
   });
 
   // Fetch notification rules
@@ -493,7 +483,6 @@ export default function VisitorProfiles() {
     mutationFn: (data) => base44.entities.Contact.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['contacts'] });
-      setShowCreateContact(false);
       alert('Lead created successfully!');
     },
   });
@@ -708,7 +697,6 @@ export default function VisitorProfiles() {
 
   const handleClearSegment = () => {
     setSegmentFilters(null);
-    setActiveSegment(null);
   };
 
   const stats = useMemo(() => {
@@ -783,24 +771,6 @@ export default function VisitorProfiles() {
         return <Info className="w-3 h-3" />;
     }
   };
-
-  if (isLoading) {
-    return (
-      <div className="p-6 space-y-6">
-        <Skeleton className="h-12 w-64" />
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-          {[...Array(5)].map((_, i) => (
-            <Skeleton key={i} className="h-20" />
-          ))}
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-          {[...Array(9)].map((_, i) => (
-            <Skeleton key={i} className="h-48" />
-          ))}
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="p-6 space-y-6">
