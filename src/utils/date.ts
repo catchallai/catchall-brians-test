@@ -26,17 +26,18 @@ export const todayLocal = (): string => toLocalISOString().split('T')[0];
  * Two-pass to handle DST edges: the offset at the naive UTC interpretation
  * may differ from the offset at the actual instant, so we re-evaluate.
  *
- * Falls back to browser-local parsing when `timeZone` is empty or invalid,
- * preserving the prior behaviour for callers that never had a zone.
+ * Falls back to UTC for empty or invalid zones — same as the backend cron.
+ * Earlier versions fell back to browser-local, which produced a frontend ↔
+ * cron disagreement for legacy posts (no `timezone` field) and re-introduced
+ * the UNUSED↔DRAFT flap CS-2274 was meant to prevent.
  */
 export const wallClockToUtc = (date: string, time: string, timeZone?: string | null): Date => {
   const t = time || '00:00';
-  if (!timeZone) return new Date(`${date}T${t}`);
-
+  let zone = timeZone || 'UTC';
   try {
-    new Intl.DateTimeFormat('en-US', { timeZone });
+    new Intl.DateTimeFormat('en-US', { timeZone: zone });
   } catch {
-    return new Date(`${date}T${t}`);
+    zone = 'UTC';
   }
 
   const [hh, mm] = t.split(':').map((n) => parseInt(n, 10));
@@ -45,14 +46,14 @@ export const wallClockToUtc = (date: string, time: string, timeZone?: string | n
     `${date}T${String(hh).padStart(2, '0')}:${String(mm).padStart(2, '0')}:00Z`
   );
   if (Number.isNaN(naive.getTime())) return naive;
-  if (timeZone === 'UTC') return naive;
+  if (zone === 'UTC') return naive;
 
   // `timeZoneName: 'longOffset'` is ES2024 — older runtimes throw RangeError.
   // Wrap so callers always get a Date back; on failure we fall through to the
   // naive UTC interpretation (better than blowing up the scheduling UI).
   const offsetMs = (instant: Date): number => {
     try {
-      const fmt = new Intl.DateTimeFormat('en-US', { timeZone, timeZoneName: 'longOffset' });
+      const fmt = new Intl.DateTimeFormat('en-US', { timeZone: zone, timeZoneName: 'longOffset' });
       const offsetStr =
         fmt.formatToParts(instant).find((p) => p.type === 'timeZoneName')?.value ?? 'GMT';
       if (offsetStr === 'GMT') return 0;
@@ -77,9 +78,9 @@ export const wallClockToUtc = (date: string, time: string, timeZone?: string | n
  * Missing `scheduledTime` is treated as '00:00' (same as the backend).
  *
  * When `timeZone` is provided, the wall-clock is interpreted in that IANA
- * zone — required when comparing against `now` for posts whose `timezone`
- * field differs from the browser's local zone. Without it, the wall-clock
- * is parsed as browser-local (legacy behaviour).
+ * zone. When omitted (e.g. legacy posts without a `timezone` field), it
+ * falls back to UTC — matching the backend cron, so the frontend's
+ * judgement always agrees with what the server will eventually do.
  */
 export const isScheduledInFuture = (
   scheduledDate: string,
