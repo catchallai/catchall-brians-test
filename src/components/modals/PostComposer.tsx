@@ -78,6 +78,7 @@ import { isValidHttpUrl, shortenUrl } from '@/utils/url';
 import { HashtagPoolCreatePopover } from '@/components/hashtags/HashtagPoolCreatePopover';
 import { coercePostTagIds } from '@/utils/tags';
 import { TagSelector } from '@/components/social/tags/TagSelector';
+import { TimezoneSelector } from '@/components/social/TimezoneSelector';
 import { useTagsQuery } from '@/components/social/tags/useTagsQuery';
 import {
   getPostImageUrls,
@@ -134,6 +135,7 @@ export interface PostFormData {
   media_type: 'none' | 'image' | 'video';
   scheduled_date: string;
   scheduled_time: string;
+  timezone: string;
   platforms: string[];
   hashtags: string[];
   status: PostStatus;
@@ -272,6 +274,7 @@ const DEFAULT_FORM: PostFormData = {
   media_type: 'none',
   scheduled_date: todayLocal(),
   scheduled_time: '09:00',
+  timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
   platforms: [],
   hashtags: [],
   status: PostStatus.DRAFT,
@@ -292,6 +295,7 @@ const DIRTY_FIELDS: (keyof PostFormData)[] = [
   'media_type',
   'scheduled_date',
   'scheduled_time',
+  'timezone',
   'status',
   'order',
   'is_recurring',
@@ -857,6 +861,7 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
         media_type: (normalizedMedia.media_type as PostFormData['media_type']) ?? 'none',
         scheduled_date: post.scheduled_date ?? todayLocal(),
         scheduled_time: post.scheduled_time ?? '09:00',
+        timezone: post.timezone ?? Intl.DateTimeFormat().resolvedOptions().timeZone,
         platforms: post.platforms ?? [],
         hashtags: post.hashtags ?? [],
         status: post.status ?? PostStatus.DRAFT,
@@ -1476,7 +1481,7 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
               };
             })()),
         ...(workflowHistory !== undefined && { workflow_history: workflowHistory }),
-        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        timezone: formData.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone,
         platform_image_urls: platformCrops,
         platform_crop_metadata: Object.fromEntries(
           [
@@ -2554,7 +2559,7 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
                 {showBestTimes && (
                   <BestTimeSuggestions platforms={formData.platforms} onApply={applyBestTime} />
                 )}
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-[1fr_1fr_auto] gap-3">
                   <div>
                     <label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">
                       {COPY.calendarPostModal.date}
@@ -2568,7 +2573,7 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
                         setScheduleError('');
                         setFormData((f) => ({ ...f, scheduled_date: e.target.value }));
                       }}
-                      className="w-full text-sm border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-lg px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-violet-400 disabled:opacity-70 disabled:cursor-not-allowed disabled:bg-gray-100 dark:disabled:bg-gray-900"
+                      className="w-full h-[34px] text-sm border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-lg px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-violet-400 disabled:opacity-70 disabled:cursor-not-allowed disabled:bg-gray-100 dark:disabled:bg-gray-900"
                     />
                   </div>
                   <div>
@@ -2583,7 +2588,24 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
                         setScheduleError('');
                         setFormData((f) => ({ ...f, scheduled_time: e.target.value }));
                       }}
-                      className="w-full text-sm border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-lg px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-violet-400 disabled:opacity-70 disabled:cursor-not-allowed disabled:bg-gray-100 dark:disabled:bg-gray-900"
+                      className="w-full h-[34px] text-sm border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-lg px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-violet-400 disabled:opacity-70 disabled:cursor-not-allowed disabled:bg-gray-100 dark:disabled:bg-gray-900"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">
+                      {COPY.calendarPostModal.timezone}
+                    </label>
+                    <TimezoneSelector
+                      value={formData.timezone}
+                      onChange={(tz) => setFormData((f) => ({ ...f, timezone: tz }))}
+                      referenceDate={
+                        formData.scheduled_date
+                          ? new Date(
+                              `${formData.scheduled_date}T${formData.scheduled_time || '00:00'}`
+                            )
+                          : undefined
+                      }
+                      disabled={isPostPublished}
                     />
                   </div>
                 </div>
