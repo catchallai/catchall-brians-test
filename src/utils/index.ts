@@ -3,4 +3,3 @@ export function createPageUrl(pageName: string) {
 }
 
 export { appendHashtagToCaption } from './appendHashtagToCaption';
-export { getPostCardLabel } from './getPostCardLabel';
