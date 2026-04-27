@@ -4,7 +4,7 @@ import { PLATFORMS } from '@/constants/platforms';
 
 export type PlatformId = (typeof PLATFORMS)[number]['id'];
 
-export type PlatformFilterChipsProps = {
+type PlatformFilterChipsProps = {
   activeFilters: Set<PlatformId>;
   onToggle: (platform: PlatformId) => void;
   className?: string;

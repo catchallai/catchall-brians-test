@@ -93,7 +93,7 @@ const COPY = {
       count === 0
         ? 'Filter by tags'
         : `Filter by tags. ${count} tag${count === 1 ? '' : 's'} selected.`,
-    popoverTitle: 'Filter by tags',
+    noResults: 'No tags found',
   },
   deletedPosts: {
     tabDescription:
