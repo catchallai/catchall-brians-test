@@ -106,8 +106,12 @@ fi
 if [ -n "$DENO_FILES" ]; then
   echo "Step 3: Running Deno typecheck on staged backend files..."
 
+  # Mirror the ESLint pipeline: -z keeps paths with whitespace/newlines intact
+  # end-to-end, and xargs chunks if the file list ever exceeds ARG_MAX.
   set +e
-  DENO_OUTPUT=$(npx deno check --config base44/deno.json $DENO_FILES 2>&1)
+  DENO_OUTPUT=$(git diff --cached --name-only --diff-filter=ACMR -z \
+  | grep -zE '^base44/functions/.+\.ts$' \
+  | xargs -0 npx deno check --config base44/deno.json 2>&1)
   DENO_EXIT_CODE=$?
   set -e
 
