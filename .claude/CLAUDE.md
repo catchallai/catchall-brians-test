@@ -9,11 +9,12 @@ npm run dev          # Start Vite dev server at http://localhost:5173
 npm run build        # Production build
 npm run lint         # ESLint check (warnings allowed; --max-warnings=0 only enforced in pre-commit hook)
 npm run lint:fix     # Auto-fix ESLint issues
-npm run typecheck    # TypeScript type checking via tsc
+npm run typecheck    # TypeScript type checking via tsc (frontend, src/)
+npm run typecheck:backend  # Deno typecheck for base44/functions/**/entry.ts
 npm run format       # Format all files with Prettier
 ```
 
-Pre-commit hooks (Husky) run `npx prettier --check` on staged `.js/.jsx/.ts/.tsx/.css/.md/.json` files and `npx eslint --max-warnings=0` on `.js/.jsx/.ts/.tsx`. Commits are blocked if checks fail.
+Pre-commit hooks (Husky) run `npx prettier --check` on staged `.js/.jsx/.ts/.tsx/.css/.md/.json` files, `npx eslint --max-warnings=0` on `.js/.jsx/.ts/.tsx`, and `deno check` on staged `base44/functions/**/*.ts`. Commits are blocked if checks fail.
 To bypass: `git commit --no-verify` or `HUSKY=0 git commit`.
 
 ## Local Setup
