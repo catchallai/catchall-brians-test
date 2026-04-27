@@ -24,13 +24,15 @@ echo "${CYAN}Running Before Takeoff Checklist ✈️${NC}"
 # Get staged files (ACMR includes renamed files)
 STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACMR | grep -E '\.(js|jsx|ts|tsx|css|md|json)$' | grep -vE '(^|/)\\.prettierignore$|(^|/)(node_modules|dist|build)(/|$)|(^|/)\\.env(\..*)?$|(^|/)\\.vscode(/|$)|.*\.log$|.*\.generated\..*|.*\.min\..*' || true)
 ESLINT_FILES=$(git diff --cached --name-only --diff-filter=ACMR | grep -E '\.(js|jsx|ts|tsx)$' || true)
+DENO_FILES=$(git diff --cached --name-only --diff-filter=ACMR | grep -E '^base44/functions/.+\.ts$' || true)
 
 echo "Staged files for Prettier: $STAGED_FILES"
 echo "Staged files for ESLint: $ESLINT_FILES"
+echo "Staged files for Deno typecheck: $DENO_FILES"
 
 # Early exit if nothing to check
-if [ -z "$STAGED_FILES" ] && [ -z "$ESLINT_FILES" ]; then
-  echo "No files to check with Prettier or ESLint. Skipping checks."
+if [ -z "$STAGED_FILES" ] && [ -z "$ESLINT_FILES" ] && [ -z "$DENO_FILES" ]; then
+  echo "No files to check with Prettier, ESLint, or Deno. Skipping checks."
   exit 0
 fi
 
@@ -98,6 +100,45 @@ if [ -n "$ESLINT_FILES" ]; then
   fi
 else
   echo "No files to check with ESLint. Skipping."
+fi
+
+# Step 3: Deno typecheck (backend functions only)
+if [ -n "$DENO_FILES" ]; then
+  echo "Step 3: Running Deno typecheck on staged backend files..."
+
+  # Mirror the ESLint pipeline: -z keeps paths with whitespace/newlines intact
+  # end-to-end, and xargs chunks if the file list ever exceeds ARG_MAX.
+  set +e
+  DENO_OUTPUT=$(git diff --cached --name-only --diff-filter=ACMR -z \
+  | grep -zE '^base44/functions/.+\.ts$' \
+  | xargs -0 npx deno check --config base44/deno.json 2>&1)
+  DENO_EXIT_CODE=$?
+  set -e
+
+  if [ $DENO_EXIT_CODE -eq 0 ]; then
+    echo "${GREEN}Deno typecheck passed ✅${NC}"
+  else
+    echo "${RED}Deno typecheck failed ❌${NC}"
+
+    echo ""
+    echo "🔍 Deno output:"
+    echo "----------------------------------------"
+    echo "$DENO_OUTPUT"
+    echo "----------------------------------------"
+
+    echo ""
+    echo "💡 Note: 'deno check' uses base44/deno.json (strict: false). Pre-existing"
+    echo "    backend errors live behind 'npm run typecheck:backend' — this hook only"
+    echo "    blocks commits that introduce new errors in staged files."
+    echo ""
+    echo "To bypass checks, use one of:"
+    echo "  git commit --no-verify -m 'your message'"
+    echo "  HUSKY=0 git commit -m 'your message'"
+
+    exit 1
+  fi
+else
+  echo "No files to check with Deno. Skipping."
 fi
 
 echo "${CYAN}Before Takeoff Checklist Complete. Commit Cleared for Takeoff 🛫${NC}"

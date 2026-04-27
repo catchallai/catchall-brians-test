@@ -10,6 +10,7 @@
     "lint:fix": "eslint . --fix",
     "typecheck": "tsc -p ./tsconfig.json",
     "check:cron-sync": "sh scripts/check-cron-helper-sync.sh",
+    "typecheck:backend": "deno check --config base44/deno.json 'base44/functions/**/entry.ts'",
     "preview": "vite preview",
     "prepare": "husky",
     "format": "prettier --write ."
@@ -95,6 +96,7 @@
     "@typescript-eslint/parser": "^8.57.1",
     "@vitejs/plugin-react-swc": "^4.3.0",
     "autoprefixer": "^10.4.20",
+    "deno": "^2.7.13",
     "eslint": "^9.19.0",
     "eslint-plugin-react": "^7.37.4",
     "eslint-plugin-react-hooks": "^5.0.0",

@@ -1,0 +1,14 @@
+{
+  "nodeModulesDir": "auto",
+  "compilerOptions": {
+    "strict": false,
+    "noImplicitAny": false,
+    "types": ["./types.d.ts"]
+  },
+  "lint": {
+    "exclude": ["**/*"]
+  },
+  "fmt": {
+    "exclude": ["**/*"]
+  }
+}
