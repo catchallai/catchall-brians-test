@@ -6,10 +6,20 @@ Deno.serve(async (req) => {
     const user = await base44.auth.me();
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
-    const { campaignBriefId, platforms, postCount = 20 } = await req.json();
+    const {
+      campaignBriefId,
+      platforms,
+      postCount = 20,
+      timezone: timezoneFromRequest,
+    } = await req.json();
     if (!campaignBriefId || !platforms?.length) {
       return Response.json({ error: 'Missing campaignBriefId or platforms' }, { status: 400 });
     }
+    // Resolve the post's timezone: explicit request param wins, otherwise fall
+    // back to the requesting user's stored zone, then UTC. Without this the
+    // backend cron's wall-clock conversion would silently UTC-default the post,
+    // publishing it at the wrong time for non-UTC users.
+    const timezone = timezoneFromRequest || user.timezone || 'UTC';
 
     // Fetch campaign brief
     const briefs = await base44.entities.CampaignBrief.filter({ id: campaignBriefId });
@@ -81,6 +91,7 @@ Deno.serve(async (req) => {
           media_type: 'image',
           scheduled_date: scheduledDate.toISOString().split('T')[0],
           scheduled_time: `${String(selectedTime.hour || 10).padStart(2, '0')}:00`,
+          timezone,
           platforms: [platform],
           hashtags: copy.tags || [],
           status: 'draft',

@@ -59,7 +59,7 @@ if [ -n "$ESLINT_FILES" ]; then
   set +e
   ESLINT_OUTPUT=$(git diff --cached --name-only --diff-filter=ACMR -z \
   | grep -zE '\.(js|jsx|ts|tsx)$' \
-  | xargs -0 npx eslint --max-warnings=0 2>&1)
+  | xargs -0 npx eslint --max-warnings=0 --no-warn-ignored 2>&1)
   ESLINT_EXIT_CODE=$?
   set -e
 

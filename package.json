@@ -9,6 +9,7 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "typecheck": "tsc -p ./tsconfig.json",
+    "check:cron-sync": "sh scripts/check-cron-helper-sync.sh",
     "preview": "vite preview",
     "prepare": "husky",
     "format": "prettier --write ."

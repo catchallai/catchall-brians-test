@@ -49,6 +49,7 @@ export default function DraftFromAssetsModal({ open, onOpenChange, onSuccess, ca
         scheduledDate,
         scheduledTime,
         scheduledAt,
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
         platforms: selectedPlatforms,
         campaignBriefId,
       });

@@ -68,6 +68,7 @@ export default function BulkScheduleModal({ open, onClose }) {
       return;
     }
     setScheduleError('');
+    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
     let posts = [];
 
     if (csvData.length > 0) {
@@ -80,6 +81,7 @@ export default function BulkScheduleModal({ open, onClose }) {
         scheduled_date: new Date(startDateLocal.getTime() + index * intervalHours * 60 * 60 * 1000)
           .toISOString()
           .split('T')[0],
+        timezone,
         status: 'scheduled',
         auto_post: row.auto_post === 'true' || row.auto_post === '1',
       }));
@@ -91,6 +93,7 @@ export default function BulkScheduleModal({ open, onClose }) {
         scheduled_date: new Date(startDateLocal.getTime() + index * intervalHours * 60 * 60 * 1000)
           .toISOString()
           .split('T')[0],
+        timezone,
         status: 'scheduled',
         auto_post: false,
       }));

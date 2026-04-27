@@ -242,7 +242,9 @@ function DayView({
         scheduled_time: timeStr,
         // Rescheduling an expired post brings it back into the workflow as a draft.
         ...(draggedPost.status === PostStatus.UNUSED &&
-          isScheduledInFuture(destDate, timeStr) && { status: PostStatus.DRAFT }),
+          isScheduledInFuture(destDate, timeStr, draggedPost.timezone) && {
+            status: PostStatus.DRAFT,
+          }),
       },
     });
     setDraggedPost(null);
@@ -513,7 +515,11 @@ function WeekView({
         scheduled_time: `${String(hour).padStart(2, '0')}:00`,
         // Rescheduling an expired post brings it back into the workflow as a draft.
         ...(draggedPost.status === PostStatus.UNUSED &&
-          isScheduledInFuture(newDate, `${String(hour).padStart(2, '0')}:00`) && {
+          isScheduledInFuture(
+            newDate,
+            `${String(hour).padStart(2, '0')}:00`,
+            draggedPost.timezone
+          ) && {
             status: PostStatus.DRAFT,
           }),
       },
@@ -922,7 +928,11 @@ export default function SocialCalendarView({
       return;
     }
     const newDate = format(targetDate, 'yyyy-MM-dd');
-    const isDestInFuture = isScheduledInFuture(newDate, draggedPost.scheduled_time);
+    const isDestInFuture = isScheduledInFuture(
+      newDate,
+      draggedPost.scheduled_time,
+      draggedPost.timezone
+    );
     const postHour = getPostHour(draggedPost);
     updatePostMutation.mutate({
       id: draggedPost.id,

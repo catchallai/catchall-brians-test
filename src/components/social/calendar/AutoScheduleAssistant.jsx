@@ -61,6 +61,7 @@ export default function AutoScheduleAssistant({ campaignBriefId, onSuccess }) {
         campaignBriefId,
         platforms: selectedPlatforms,
         postCount,
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
       });
       if (res.data?.success) {
         qc.invalidateQueries({ queryKey: ['calendar-posts'] });

@@ -81,6 +81,7 @@ export default function PostQueueManager() {
         hashtags: queueItem.hashtags || [],
         scheduled_date: format(scheduledDate, 'yyyy-MM-dd'),
         scheduled_time: scheduledTime,
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
         status: 'approved',
         auto_post: true,
       });

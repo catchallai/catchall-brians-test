@@ -37,6 +37,10 @@
       "type": "string",
       "description": "Scheduled time (HH:MM)"
     },
+    "timezone": {
+      "type": "string",
+      "description": "IANA timezone the scheduled_date+scheduled_time wall-clock is interpreted in (e.g. America/New_York). Backend schedulers convert to UTC against this zone. Falls back to UTC when absent."
+    },
     "platforms": {
       "type": "array",
       "items": {

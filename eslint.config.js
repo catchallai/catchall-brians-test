@@ -8,10 +8,11 @@ import parserTs from '@typescript-eslint/parser';
 
 export default [
   // Global ignores — keep build output and other generated artifacts out of lint scope.
-  // base44/functions is Deno backend code excluded from the frontend tsconfig (PR #106),
-  // so the typed TS parser cannot resolve those files via parserOptions.project.
+  // base44/ runs on Deno, not Node — it has its own typecheck via `deno check` and
+  // isn't part of the frontend tsconfig, so the type-aware TS parser below would
+  // fail to parse it ("file not found in any of the provided project(s)").
   {
-    ignores: ['dist/**', 'base44/functions/**'],
+    ignores: ['dist/**', 'base44/**'],
   },
   // JS/JSX config (no TS parser)
   {

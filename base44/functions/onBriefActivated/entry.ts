@@ -89,6 +89,14 @@ Deno.serve(async (req) => {
         // Determine scheduled time (default to 10 AM)
         const scheduledTime = '10:00';
 
+        // System-triggered path — there's no live user request. Honor an
+        // explicit timezone on the brief if one was set; otherwise UTC. Marked
+        // explicitly rather than relying on cron-side defaulting so the
+        // assumption stays visible in this code path.
+        // TODO: when CampaignBrief gains a creator-zone or brand-zone hint,
+        //       prefer that over UTC here.
+        const timezone = brief.timezone || 'UTC';
+
         try {
           const newPost = await base44.asServiceRole.entities.CalendarPost.create({
             title: copy.title,
@@ -99,6 +107,7 @@ Deno.serve(async (req) => {
             media_type: 'image',
             scheduled_date: currentDate.toISOString().split('T')[0],
             scheduled_time: scheduledTime,
+            timezone,
             platforms: [platform],
             hashtags: copy.tags || [],
             status: 'draft',

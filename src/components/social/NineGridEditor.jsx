@@ -268,7 +268,7 @@ export default function NineGridEditor({
             base.scheduled_time = postA.scheduled_time;
           }
           if (post.status === PostStatus.UNUSED) {
-            if (isScheduledInFuture(base.scheduled_date, base.scheduled_time)) {
+            if (isScheduledInFuture(base.scheduled_date, base.scheduled_time, base.timezone)) {
               base.status = PostStatus.DRAFT;
             }
           }
