@@ -7,7 +7,7 @@ import {
   getPostStatusStyles,
 } from '@/lib/postStatusConfig';
 
-export type PostStatusLegendProps = {
+type PostStatusLegendProps = {
   counts: Partial<Record<PostStatus, number>>;
   activeFilters: Set<PostStatus>;
   onToggle: (status: PostStatus) => void;
@@ -15,6 +15,18 @@ export type PostStatusLegendProps = {
   className?: string;
 };
 
+/**
+ * Renders the row of post-status chips above the social calendar.
+ *
+ * The component is **both a legend and a filter**: each chip shows its
+ * status's color, icon, and current post count (acting as a legend), and
+ * clicking a chip toggles a multi-select filter on the calendar (acting as
+ * a filter). When at least one chip is active, a "Clear filters" link
+ * appears above the chip row.
+ *
+ * Stateless / controlled — the parent owns the active-filter `Set` and
+ * count map, and supplies the toggle and clear handlers.
+ */
 export default function PostStatusLegend(props: PostStatusLegendProps) {
   const { counts, activeFilters, onToggle, onClear, className } = props;
   const hasAnyActive = activeFilters.size > 0;
