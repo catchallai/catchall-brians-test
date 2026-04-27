@@ -9,8 +9,10 @@ FILE_B="base44/functions/updateExpiredPostStatuses/entry.ts"
 MARKER_BEGIN="SHARED-BEGIN: wallClockToUtc"
 MARKER_END="SHARED-END: wallClockToUtc"
 
-TMP_A=$(mktemp)
-TMP_B=$(mktemp)
+# Portable form — BSD/macOS mktemp requires a template (no default), and `-t`
+# has incompatible semantics between GNU and BSD. Explicit path works on both.
+TMP_A=$(mktemp "${TMPDIR:-/tmp}/cron-sync.XXXXXX")
+TMP_B=$(mktemp "${TMPDIR:-/tmp}/cron-sync.XXXXXX")
 trap 'rm -f "$TMP_A" "$TMP_B"' EXIT
 
 awk "/$MARKER_BEGIN/,/$MARKER_END/" "$FILE_A" > "$TMP_A"
