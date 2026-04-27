@@ -26,7 +26,6 @@ import {
   ChevronsUpDown,
   Zap,
   PenSquare,
-  Filter,
   X,
 } from 'lucide-react';
 import ConfirmDialog from '@/components/ui/ConfirmDialog';
@@ -44,12 +43,11 @@ import {
 import CalendarPostCard from '@/components/social/CalendarPostCard';
 import CalendarPostModal from '@/components/modals/CalendarPostModal';
 import PostComposer from '@/components/modals/PostComposer';
-import { TagSelector } from '@/components/social/tags/TagSelector';
 import { TagPill } from '@/components/social/tags/TagPill';
 import { useTagsQuery } from '@/components/social/tags/useTagsQuery';
 import { HoverCard, HoverCardTrigger, HoverCardContent } from '@/components/ui/hover-card';
 import SocialCalendarView from '@/components/social/SocialCalendarView';
-import PostStatusLegend from '@/components/social/PostStatusLegend';
+import CalendarFilters from '@/components/social/CalendarFilters';
 import { PostStatus } from '@/types/enums';
 import NineGridEditor from '@/components/social/NineGridEditor';
 import PostGallery from '@/components/social/PostGallery';
@@ -63,8 +61,6 @@ import OptimalTimeAnalyzer from '@/components/social/OptimalTimeAnalyzer';
 import QuickPostModal from '@/components/social/QuickPostModal';
 import COPY from '@/lib/copy';
 import { coercePostTagIds } from '@/utils/tags';
-
-const CALENDAR_PLATFORMS = ['all', 'Facebook', 'Instagram', 'LinkedIn', 'Twitter', 'YouTube'];
 
 export default function SocialCalendar() {
   const composerRef = useRef(null);
@@ -119,12 +115,19 @@ export default function SocialCalendar() {
     }
     setViewMode(mode);
     persistViewMode(mode);
-    // Collapse the filter panel when switching views so the new view doesn't inherit
-    // the previous view's open filter state (showFilters is shared across views).
-    setShowFilters(false);
   };
   const [calendarViewType, setCalendarViewType] = useState('month');
-  const [platformFilter, setPlatformFilter] = useState('all');
+  const [platformFilters, setPlatformFilters] = useState(() => new Set());
+
+  const togglePlatformFilter = (platform) => {
+    setPlatformFilters((prev) => {
+      const next = new Set(prev);
+      if (next.has(platform)) next.delete(platform);
+      else next.add(platform);
+      return next;
+    });
+  };
+
   const [statusFilters, setStatusFilters] = useState(
     () => /** @type {Set<PostStatus>} */ (new Set())
   );
@@ -138,7 +141,6 @@ export default function SocialCalendar() {
     });
   };
 
-  const clearStatusFilters = () => setStatusFilters(/** @type {Set<PostStatus>} */ (new Set()));
   const [searchParams, setSearchParams] = useSearchParams();
   const activeTagParam = searchParams.get('tags') ?? '';
   const activeTagIds = useMemo(
@@ -159,7 +161,6 @@ export default function SocialCalendar() {
       return p;
     });
   };
-  const [showFilters, setShowFilters] = useState(false);
   const [gridSortOrder, setGridSortOrder] = useState('date_desc');
   const [galleryPosts, setGalleryPosts] = useState([]);
   const queryClient = useQueryClient();
@@ -208,7 +209,6 @@ export default function SocialCalendar() {
   });
 
   const { data: allTags = [] } = useTagsQuery();
-  const selectedTagOptions = allTags.filter((t) => activeTagIds.includes(t.id));
 
   const filteredPosts = posts
     .filter((p) => {
@@ -224,7 +224,8 @@ export default function SocialCalendar() {
       const windowStart = startOfWeek(startOfMonth(currentMonth));
       const windowEnd = endOfWeek(endOfMonth(currentMonth));
       const inRange = postDate >= windowStart && postDate <= windowEnd;
-      const matchesPlatform = platformFilter === 'all' || p.platforms?.includes(platformFilter);
+      const matchesPlatform =
+        platformFilters.size === 0 || p.platforms?.some((plat) => platformFilters.has(plat));
       const matchesStatus = statusFilters.size === 0 || statusFilters.has(p.status);
       const matchesTag =
         activeTagIds.length === 0 ||
@@ -242,7 +243,8 @@ export default function SocialCalendar() {
       if (p.status === 'deleted' || p.status === 'archived') continue;
       const d = parseISO(p.scheduled_date);
       if (d < windowStart || d > windowEnd) continue;
-      if (platformFilter !== 'all' && !p.platforms?.includes(platformFilter)) continue;
+      if (platformFilters.size > 0 && !p.platforms?.some((plat) => platformFilters.has(plat)))
+        continue;
       if (
         activeTagIds.length > 0 &&
         !coercePostTagIds(p.tag_ids).some((id) => activeTagIds.includes(id))
@@ -252,7 +254,7 @@ export default function SocialCalendar() {
       counts[p.status] = (counts[p.status] ?? 0) + 1;
     }
     return counts;
-  }, [posts, currentMonth, platformFilter, activeTagIds]);
+  }, [posts, currentMonth, platformFilters, activeTagIds]);
 
   // Strict month-only filter for the layout view (no week spillover)
   const filteredPostsForLayoutView = filteredPosts.filter((post) => {
@@ -283,14 +285,14 @@ export default function SocialCalendar() {
   });
 
   const activeFilterCount =
-    (platformFilter !== 'all' ? 1 : 0) +
+    (platformFilters.size > 0 ? 1 : 0) +
     (statusFilters.size > 0 ? 1 : 0) +
     (activeTagIds.length > 0 ? 1 : 0);
 
   const hasActiveFilters = activeFilterCount > 0;
 
   const clearAllFilters = () => {
-    setPlatformFilter('all');
+    setPlatformFilters(new Set());
     setStatusFilters(/** @type {Set<PostStatus>} */ (new Set()));
     setActiveTagIds([]);
   };
@@ -701,16 +703,6 @@ export default function SocialCalendar() {
         {viewMode === 'calendar' && (
           <>
             <div className="flex justify-end items-center gap-2 mb-4">
-              <Button
-                variant={showFilters || hasActiveFilters ? 'default' : 'outline'}
-                onClick={() => setShowFilters(!showFilters)}
-                aria-expanded={showFilters}
-                aria-controls="calendar-filter-panel"
-                className="gap-2"
-              >
-                <Filter className="w-4 h-4" />
-                Filters{activeFilterCount > 0 ? ` (${activeFilterCount})` : ''}
-              </Button>
               <div className="flex bg-gray-200 dark:bg-gray-700 rounded-lg p-1">
                 <Button
                   variant="ghost"
@@ -738,50 +730,21 @@ export default function SocialCalendar() {
                 </Button>
               </div>
             </div>
-            {showFilters && (
-              <Card id="calendar-filter-panel" className="p-4 space-y-4 mb-3">
-                <div className="flex items-center justify-between">
-                  <h3 className="font-semibold">Filter Options</h3>
-                  <Button variant="outline" size="sm" onClick={clearAllFilters}>
-                    Clear
-                  </Button>
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <Select value={platformFilter} onValueChange={setPlatformFilter}>
-                    <SelectTrigger aria-label={COPY.socialCalendar.platformLabel}>
-                      <SelectValue placeholder={COPY.socialCalendar.allPlatforms} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {CALENDAR_PLATFORMS.map((p) => (
-                        <SelectItem key={p} value={p}>
-                          {p === 'all' ? COPY.socialCalendar.allPlatforms : p}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <label className="text-xs font-medium text-muted-foreground mb-1.5 block">
-                    {COPY.socialCalendar.tagFilter}
-                  </label>
-                  <TagSelector
-                    value={selectedTagOptions}
-                    onChange={(tags) => setActiveTagIds(tags.map((t) => t.id))}
-                    placeholder={COPY.socialCalendar.tagFilterPlaceholder}
-                  />
-                </div>
-              </Card>
-            )}
             <div className="mb-4">
               <h3 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
                 {format(currentMonth, 'MMMM yyyy')}
               </h3>
             </div>
-            <PostStatusLegend
-              counts={statusCounts}
-              activeFilters={statusFilters}
-              onToggle={toggleStatusFilter}
-              onClear={clearStatusFilters}
+            <CalendarFilters
+              statusCounts={statusCounts}
+              activeStatusFilters={statusFilters}
+              onToggleStatus={toggleStatusFilter}
+              activePlatformFilters={platformFilters}
+              onTogglePlatform={togglePlatformFilter}
+              activeTagIds={activeTagIds}
+              allTags={allTags}
+              onChangeTagIds={setActiveTagIds}
+              onClearAll={clearAllFilters}
               className="mb-3"
             />
             <SocialCalendarView
@@ -859,53 +822,19 @@ export default function SocialCalendar() {
                   <SelectItem value="order">{COPY.socialCalendar.sortDefaultOrder}</SelectItem>
                 </SelectContent>
               </Select>
-              <Button
-                variant={showFilters || hasActiveFilters ? 'default' : 'outline'}
-                onClick={() => setShowFilters(!showFilters)}
-                aria-expanded={showFilters}
-                aria-controls="grid-filter-panel"
-                className="gap-2"
-              >
-                <Filter className="w-4 h-4" />
-                Filters{activeFilterCount > 0 ? ` (${activeFilterCount})` : ''}
-              </Button>
             </div>
-
-            {/* Filter panel */}
-            {showFilters && (
-              <Card id="grid-filter-panel" className="p-4 space-y-4 mb-3">
-                <div className="flex items-center justify-between">
-                  <h3 className="font-semibold">Filters</h3>
-                  <Button variant="outline" size="sm" onClick={clearAllFilters}>
-                    Clear
-                  </Button>
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <Select value={platformFilter} onValueChange={setPlatformFilter}>
-                    <SelectTrigger aria-label={COPY.socialCalendar.platformLabel}>
-                      <SelectValue placeholder={COPY.socialCalendar.allPlatforms} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {CALENDAR_PLATFORMS.map((p) => (
-                        <SelectItem key={p} value={p}>
-                          {p === 'all' ? COPY.socialCalendar.allPlatforms : p}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <label className="text-xs font-medium text-muted-foreground mb-1.5 block">
-                    {COPY.socialCalendar.tagFilter}
-                  </label>
-                  <TagSelector
-                    value={selectedTagOptions}
-                    onChange={(tags) => setActiveTagIds(tags.map((t) => t.id))}
-                    placeholder={COPY.socialCalendar.tagFilterPlaceholder}
-                  />
-                </div>
-              </Card>
-            )}
+            <CalendarFilters
+              statusCounts={statusCounts}
+              activeStatusFilters={statusFilters}
+              onToggleStatus={toggleStatusFilter}
+              activePlatformFilters={platformFilters}
+              onTogglePlatform={togglePlatformFilter}
+              activeTagIds={activeTagIds}
+              allTags={allTags}
+              onChangeTagIds={setActiveTagIds}
+              onClearAll={clearAllFilters}
+              className="mb-3"
+            />
 
             {/* Grid */}
             {gridPosts.length === 0 ? (
@@ -1108,7 +1037,6 @@ export default function SocialCalendar() {
           setSelectedPost(null);
           setViewMode(mode);
           persistViewMode(mode);
-          setShowFilters(false);
         }}
         title={COPY.socialCalendar.discardChangesTitle}
         description={COPY.socialCalendar.discardViewSwitchDescription}

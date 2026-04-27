@@ -11,7 +11,14 @@ type PostStatusLegendProps = {
   counts: Partial<Record<PostStatus, number>>;
   activeFilters: Set<PostStatus>;
   onToggle: (status: PostStatus) => void;
-  onClear: () => void;
+  onClearFilters: () => void;
+  /**
+   * Optional override for the visibility of the "Clear filters" link.
+   * `CalendarFilters` passes this so the link appears whenever ANY filter
+   * dimension (status, platform, or tags) is active. When omitted, the link's
+   * visibility falls back to the local status-filter state.
+   */
+  hasAnyFiltersActive?: boolean;
   className?: string;
 };
 
@@ -28,8 +35,9 @@ type PostStatusLegendProps = {
  * count map, and supplies the toggle and clear handlers.
  */
 export default function PostStatusLegend(props: PostStatusLegendProps) {
-  const { counts, activeFilters, onToggle, onClear, className } = props;
-  const hasAnyActive = activeFilters.size > 0;
+  const { counts, activeFilters, onToggle, onClearFilters, hasAnyFiltersActive, className } = props;
+  const hasAnyActiveStatus = activeFilters.size > 0;
+  const showClearFilters = hasAnyFiltersActive ?? hasAnyActiveStatus;
 
   return (
     <div
@@ -41,10 +49,10 @@ export default function PostStatusLegend(props: PostStatusLegendProps) {
       {/* Clear filters strip — fixed-height row above the chips so chip layout
           does not shift when the link appears/disappears on toggle. */}
       <div className="flex justify-end items-center px-4 pt-2 h-7">
-        {hasAnyActive && (
+        {showClearFilters && (
           <button
             type="button"
-            onClick={onClear}
+            onClick={onClearFilters}
             className="text-xs font-medium text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 underline-offset-2 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-gray-400 dark:focus-visible:ring-gray-500 rounded"
           >
             {COPY.postStatusLegend.clearFilters}
@@ -63,7 +71,7 @@ export default function PostStatusLegend(props: PostStatusLegendProps) {
           const Icon = config.icon;
           const count = counts[status] ?? 0;
           const isActive = activeFilters.has(status);
-          const isDimmed = hasAnyActive && !isActive;
+          const isDimmed = hasAnyActiveStatus && !isActive;
 
           return (
             <button
