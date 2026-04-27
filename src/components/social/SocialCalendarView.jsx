@@ -1115,7 +1115,7 @@ export default function SocialCalendarView({
           }}
         >
           <div className="flex items-start justify-between gap-2 mb-2">
-            <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 leading-snug">
+            <p className="min-w-0 flex-1 truncate text-sm font-semibold text-gray-900 dark:text-gray-100 leading-snug">
               {getPostCardLabel(hoveredPost, { maxLen: 30, preferTitle: true })}
             </p>
             <PostStatusChip status={hoveredPost.status} />
