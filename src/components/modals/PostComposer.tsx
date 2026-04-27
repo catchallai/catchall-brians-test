@@ -256,7 +256,7 @@ const DAYS_OF_WEEK = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const APPROVAL_BOUND_STATUSES: Set<PostStatus> = new Set([
   PostStatus.PENDING_APPROVAL,
   PostStatus.CHANGES_REQUESTED,
-  'pending_review' as PostStatus,
+  PostStatus.PENDING_REVIEW,
 ]);
 
 const PLATFORMS = PLATFORM_CONFIGS.map((p) => ({
