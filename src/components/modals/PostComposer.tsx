@@ -250,6 +250,15 @@ const BEST_TIMES: Record<string, { day: string; time: string; label: string }[]>
 
 const DAYS_OF_WEEK = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
+// Statuses representing an active review workflow. Used to (a) auto-navigate
+// to PostApprovalView after save in standalone composer mode and (b) preserve
+// the existing status when saving edits to an in-review post.
+const APPROVAL_BOUND_STATUSES: Set<PostStatus> = new Set([
+  PostStatus.PENDING_APPROVAL,
+  PostStatus.CHANGES_REQUESTED,
+  PostStatus.PENDING_REVIEW,
+]);
+
 const PLATFORMS = PLATFORM_CONFIGS.map((p) => ({
   ...p,
   color: `${p.tailwind} text-white`,
@@ -1434,6 +1443,8 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
       ];
     }
 
+    const isNewPost = !(post?.id || savedPost?.id);
+
     let saveResult: CalendarPost | void;
     try {
       saveResult = await onSave({
@@ -1496,7 +1507,31 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
       [PostStatus.PENDING_APPROVAL]: COPY.calendarPostModal.saveSuccessPendingApproval,
       [PostStatus.PUBLISHED]: COPY.calendarPostModal.saveSuccessPublished,
     };
-    toast.success(successMessages[finalStatus] ?? COPY.calendarPostModal.saveSuccessDefault);
+    const savedId = (saveResult as CalendarPost | undefined)?.id;
+    // Show the View Post action on (a) the first save of a brand-new post and
+    // (b) the moment a post is submitted for approval — both flows take the
+    // user to a state where being able to jump to the post view is useful.
+    const isApprovalSubmission =
+      finalStatus === PostStatus.PENDING_APPROVAL && previousStatus !== PostStatus.PENDING_APPROVAL;
+    // TODO: extend this View Post action to other new-post toasts (e.g.
+    // ShareToSocialModal, AutoScheduleAssistant) in a follow-up PR.
+    toast.success(
+      successMessages[finalStatus] ?? COPY.calendarPostModal.saveSuccessDefault,
+      (isNewPost || isApprovalSubmission) && savedId
+        ? {
+            duration: 8000,
+            action: {
+              label: COPY.calendarPostModal.viewPost,
+              onClick: () => {
+                const url = new URL(createPageUrl('PostApprovalView'), window.location.origin);
+                url.searchParams.set('id', savedId);
+                url.searchParams.set('origin', 'composer');
+                navigate(url.pathname + url.search);
+              },
+            },
+          }
+        : undefined
+    );
 
     if (saveResult) {
       setSavedPost(saveResult);
@@ -1504,7 +1539,11 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
 
     // Fire-and-forget emails to all reviewers — must not block or surface errors to the user.
     const emailReviewers = approvalMeta.reviewers ?? [];
-    if (finalStatus === PostStatus.PENDING_APPROVAL && emailReviewers.length > 0 && saveResult?.id) {
+    if (
+      finalStatus === PostStatus.PENDING_APPROVAL &&
+      emailReviewers.length > 0 &&
+      saveResult?.id
+    ) {
       const submittedPostId = saveResult.id;
       (async () => {
         try {
@@ -1626,13 +1665,7 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
       //     in-place reset so the composer is ready for a new post — clearing
       //     approval state and the active tab along with formData, not just
       //     formData as before.
-      const APPROVAL_BOUND: Set<PostStatus> = new Set([
-        PostStatus.PENDING_APPROVAL,
-        PostStatus.CHANGES_REQUESTED,
-        'pending_review' as PostStatus,
-      ]);
-      const savedId = (saveResult as CalendarPost | undefined)?.id;
-      if (APPROVAL_BOUND.has(finalStatus) && savedId) {
+      if (APPROVAL_BOUND_STATUSES.has(finalStatus) && savedId) {
         const url = new URL(createPageUrl('PostApprovalView'), window.location.origin);
         url.searchParams.set('id', savedId);
         url.searchParams.set('origin', 'composer');
@@ -1809,15 +1842,12 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
     }
 
     if (requireApproval) {
-      // Statuses that represent an active review workflow — preserve them when saving edits.
-      const workflowStatuses = new Set([
-        PostStatus.PENDING_APPROVAL,
-        PostStatus.CHANGES_REQUESTED,
-        'pending_review' as PostStatus,
-      ]);
+      // Preserve an active review-workflow status when saving edits; otherwise fall back to draft.
       const existingStatus = (savedPost ?? post)?.status as PostStatus | undefined;
       const saveStatus =
-        existingStatus && workflowStatuses.has(existingStatus) ? existingStatus : PostStatus.DRAFT;
+        existingStatus && APPROVAL_BOUND_STATUSES.has(existingStatus)
+          ? existingStatus
+          : PostStatus.DRAFT;
 
       return {
         label: COPY.calendarPostModal.continueToApproval,
