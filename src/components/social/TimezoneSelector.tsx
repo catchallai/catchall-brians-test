@@ -12,6 +12,8 @@ import {
 import { cn } from '@/lib/utils';
 import COPY from '@/lib/copy';
 
+// shadcn/ui components are exported from .jsx files and lose their prop types
+// under checkJs / strict TS. Cast to ComponentType<any> so JSX usage compiles.
 const TypedPopoverContent = PopoverContent as ComponentType<any>;
 const TypedCommand = Command as ComponentType<any>;
 const TypedCommandInput = CommandInput as ComponentType<any>;

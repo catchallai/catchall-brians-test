@@ -63,7 +63,7 @@ import PostApprovalPanel from '@/components/social/PostApprovalPanel';
 import PostCommentThread from '@/components/social/approvals/PostCommentThread';
 import PostActivityFeed from '@/components/social/approvals/PostActivityFeed';
 import Tooltip from '@/components/ui-custom/Tooltip';
-import { todayLocal, isScheduledInFuture } from '@/utils/date';
+import { todayLocal, isScheduledInFuture, wallClockToUtc } from '@/utils/date';
 import useUnsavedChangesGuard from '@/components/hooks/useUnsavedChangesGuard';
 import { useNavigationGuard } from '@/lib/NavigationGuardContext';
 import ConfirmDialog from '@/components/ui/ConfirmDialog';
@@ -2601,8 +2601,10 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
                       onChange={(tz) => setFormData((f) => ({ ...f, timezone: tz }))}
                       referenceDate={
                         formData.scheduled_date
-                          ? new Date(
-                              `${formData.scheduled_date}T${formData.scheduled_time || '00:00'}`
+                          ? wallClockToUtc(
+                              formData.scheduled_date,
+                              formData.scheduled_time || '00:00',
+                              formData.timezone
                             )
                           : undefined
                       }

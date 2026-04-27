@@ -5,6 +5,13 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
 // is at or before `now`. Posts without a `timezone` field are interpreted as UTC,
 // preserving previous behaviour for unmigrated rows.
 
+// SHARED-BEGIN: wallClockToUtc
+// Duplicated verbatim in:
+//   base44/functions/checkScheduledPosts/entry.ts
+//   base44/functions/updateExpiredPostStatuses/entry.ts
+// Base44's deployer doesn't bundle relative imports across functions, so a
+// shared module isn't viable today. Keep the block between SHARED-BEGIN and
+// SHARED-END byte-identical in both files. `npm run check:cron-sync` enforces it.
 /**
  * Converts a wall-clock date+time in a named IANA zone to its absolute UTC Date.
  * Two-pass to handle DST edges (offset at the naive UTC interpretation may differ
@@ -40,6 +47,7 @@ function wallClockToUtc(date: string, time: string, timeZone: string): Date {
   const firstGuess = new Date(naive.getTime() - offsetMs(naive));
   return new Date(naive.getTime() - offsetMs(firstGuess));
 }
+// SHARED-END: wallClockToUtc
 
 Deno.serve(async (req) => {
   try {
