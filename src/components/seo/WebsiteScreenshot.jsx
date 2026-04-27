@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Camera, RefreshCw, Loader2, ExternalLink, Maximize2 } from 'lucide-react';
-import { base44 } from '@/api/base44Client';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 export default function WebsiteScreenshot({
@@ -25,21 +24,6 @@ export default function WebsiteScreenshot({
     setError(null);
 
     try {
-      // Use the LLM to generate a simulated screenshot URL based on the website
-      // In production, you'd use a real screenshot service
-      await base44.integrations.Core.InvokeLLM({
-        prompt: `For the website ${url}, provide a realistic placeholder screenshot description. Return a high-quality stock photo URL from unsplash that would represent this type of website (business, tech, ecommerce, etc). Just return a valid unsplash URL.`,
-        add_context_from_internet: true,
-        response_json_schema: {
-          type: 'object',
-          properties: {
-            screenshot_url: { type: 'string' },
-            description: { type: 'string' },
-          },
-        },
-      });
-
-      // Generate a screenshot-like preview using a placeholder service
       const screenshotPreview = `https://image.thum.io/get/width/1200/crop/800/${url}`;
 
       setLocalScreenshot(screenshotPreview);
