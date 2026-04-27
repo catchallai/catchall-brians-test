@@ -20,7 +20,6 @@ import { Badge } from '@/components/ui/badge';
 export default function SalesHub() {
   const [showCallLogger, setShowCallLogger] = useState(false);
   const [editingCall, setEditingCall] = useState(null);
-  const [draggedDeal, setDraggedDeal] = useState(null);
   const [filteredDeals, setFilteredDeals] = useState([]);
   const [showAnalytics, setShowAnalytics] = useState(false);
   const queryClient = useQueryClient();
@@ -39,13 +38,6 @@ export default function SalesHub() {
     queryKey: ['deals'],
     queryFn: () => base44.entities.Deal.list('-created_date', 100),
   });
-
-  const PIPELINE_STAGES = [
-    { id: 'lead', label: 'Lead', color: 'bg-gray-50 dark:bg-gray-800/50' },
-    { id: 'qualified', label: 'Qualified', color: 'bg-blue-50 dark:bg-blue-900/20' },
-    { id: 'proposal', label: 'Proposal', color: 'bg-violet-50 dark:bg-violet-900/20' },
-    { id: 'negotiation', label: 'Negotiation', color: 'bg-amber-50 dark:bg-amber-900/20' },
-  ];
 
   const { data: followUps = [] } = useQuery({
     queryKey: ['sales-followups'],
@@ -238,17 +230,6 @@ Consider:
       await Promise.all(followUpPromises);
       return analysis;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['sales-followups'] });
-    },
-  });
-
-  const completeFollowUpMutation = useMutation({
-    mutationFn: (id) =>
-      base44.entities.SalesFollowUp.update(id, {
-        status: 'completed',
-        completed_date: new Date().toISOString(),
-      }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['sales-followups'] });
     },
@@ -638,30 +619,6 @@ Consider:
       return `$${(value / 1000).toFixed(0)}K`;
     }
     return `$${value}`;
-  };
-
-  const handleDragStart = (e, deal) => {
-    setDraggedDeal(deal);
-    e.dataTransfer.effectAllowed = 'move';
-  };
-
-  const handleDragOver = (e) => {
-    e.preventDefault();
-  };
-
-  const handleDrop = async (e, stage) => {
-    e.preventDefault();
-    if (draggedDeal && draggedDeal.stage !== stage) {
-      await base44.entities.Deal.update(draggedDeal.id, { ...draggedDeal, stage });
-      queryClient.invalidateQueries({ queryKey: ['deals'] });
-    }
-    setDraggedDeal(null);
-  };
-
-  const getDealsForStage = (stageId) => deals.filter((d) => d.stage === stageId);
-
-  const getStageValue = (stageId) => {
-    return getDealsForStage(stageId).reduce((sum, d) => sum + (d.value || 0), 0);
   };
 
   const getDealName = (dealId) => {

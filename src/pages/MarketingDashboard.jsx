@@ -38,7 +38,6 @@ export default function MarketingDashboard() {
   const latestMetrics = metrics[metrics.length - 1] || {};
   const totalOrganic = metrics.reduce((sum, m) => sum + (m.organic_revenue || 0), 0);
   const totalSocial = metrics.reduce((sum, m) => sum + (m.social_revenue || 0), 0);
-  const totalRevenue = totalOrganic + totalSocial;
 
   const channelData = [
     { name: 'Organic', value: totalOrganic, fill: '#8b5cf6' },

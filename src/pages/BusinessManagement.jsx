@@ -15,7 +15,6 @@ export default function BusinessManagement() {
   const [showModal, setShowModal] = useState(false);
   const [editingBusiness, setEditingBusiness] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedBusiness, setSelectedBusiness] = useState(null);
   const queryClient = useQueryClient();
 
   const { data: businesses = [], isLoading } = useQuery({

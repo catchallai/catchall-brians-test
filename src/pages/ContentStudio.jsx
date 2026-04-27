@@ -541,7 +541,7 @@ For each idea provide:
           setShowVersionHistory(false);
           setVersionArticleId(null);
         }}
-        onRestore={(version) => {
+        onRestore={(_version) => {
           toast.success('Version restored - feature coming soon');
           setShowVersionHistory(false);
         }}

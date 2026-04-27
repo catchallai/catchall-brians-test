@@ -45,7 +45,7 @@ export default function GoogleCalendarCallback() {
         } else {
           throw new Error('Connection failed');
         }
-      } catch (err) {
+      } catch (_err) {
         setStatus('error');
         setMessage('Failed to connect Google Calendar');
         setTimeout(() => navigate(createPageUrl('Settings')), 3000);

@@ -78,7 +78,13 @@ export default function LandingPageBuilder() {
 
   const duplicatePageMutation = useMutation({
     mutationFn: async (page) => {
-      const { id, created_date, updated_date, created_by, ...pageData } = page;
+      const {
+        id: _id,
+        created_date: _created_date,
+        updated_date: _updated_date,
+        created_by: _created_by,
+        ...pageData
+      } = page;
       return await base44.entities.LandingPage.create({
         ...pageData,
         title: `${page.title} (Copy)`,
@@ -103,7 +109,6 @@ export default function LandingPageBuilder() {
   };
 
   const publishedPages = landingPages.filter((p) => p.status === 'published');
-  const draftPages = landingPages.filter((p) => p.status === 'draft');
   const totalViews = landingPages.reduce((sum, p) => sum + (p.views || 0), 0);
   const totalConversions = landingPages.reduce((sum, p) => sum + (p.conversions || 0), 0);
 

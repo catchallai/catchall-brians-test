@@ -1,4 +1,3 @@
-import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Card } from '@/components/ui/card';
@@ -26,8 +25,6 @@ import ExecutiveMetricCard from '@/components/dashboard/ExecutiveMetricCard';
 import AlertWidget from '@/components/dashboard/AlertWidget';
 
 export default function ExecutiveDashboard() {
-  const [selectedTab, setSelectedTab] = React.useState('overview');
-
   const { data: user } = useQuery({
     queryKey: ['current-user'],
     queryFn: () => base44.auth.me(),

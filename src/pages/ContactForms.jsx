@@ -24,7 +24,6 @@ import EmptyState from '@/components/ui/EmptyState';
 export default function ContactForms() {
   const [showBuilder, setShowBuilder] = useState(false);
   const [editingForm, setEditingForm] = useState(null);
-  const [selectedFormId, setSelectedFormId] = useState(null);
   const [showEmbedCode, setShowEmbedCode] = useState(null);
   const queryClient = useQueryClient();
 

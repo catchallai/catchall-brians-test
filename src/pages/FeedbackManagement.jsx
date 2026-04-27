@@ -22,11 +22,6 @@ export default function FeedbackManagement() {
     queryFn: () => base44.entities.CustomerFeedback.list('-created_date', 200),
   });
 
-  const { data: user } = useQuery({
-    queryKey: ['current-user'],
-    queryFn: () => base44.auth.me(),
-  });
-
   // Calculate stats
   const totalFeedback = feedback.length;
   const newFeedback = feedback.filter((f) => f.status === 'new').length;

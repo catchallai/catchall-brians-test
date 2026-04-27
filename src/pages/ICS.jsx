@@ -26,21 +26,18 @@ import IncomingCallNotification from '@/components/ics/IncomingCallNotification'
 export default function ICS() {
   const [selectedChannel, setSelectedChannel] = useState(null);
   const [activeView, setActiveView] = useState('chat');
-  const [showNewChannel, setShowNewChannel] = useState(false);
+  const [_showNewChannel, setShowNewChannel] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
-  const [showProfile, setShowProfile] = useState(false);
-  const [isInCall, setIsInCall] = useState(false);
-  const [typingByChannel, setTypingByChannel] = useState({});
+  const [_showProfile, setShowProfile] = useState(false);
+  const [_isInCall, setIsInCall] = useState(false);
+  const [typingByChannel, _setTypingByChannel] = useState({});
   const [notificationPrefs, setNotificationPrefs] = useState(null);
-  const [showAdmin, setShowAdmin] = useState(false);
   const [selectedContact, setSelectedContact] = useState(null);
   const [showContactPanel, setShowContactPanel] = useState(false);
-  const [editingOwnProfile, setEditingOwnProfile] = useState(false);
   const [incomingCall, setIncomingCall] = useState(null);
   const [clickedNotification, setClickedNotification] = useState(null);
-  const [newChannelName, setNewChannelName] = useState('');
-  const [newChannelDesc, setNewChannelDesc] = useState('');
-  const [newChannelType, setNewChannelType] = useState('public');
+  const [_newChannelName, setNewChannelName] = useState('');
+  const [_newChannelDesc, setNewChannelDesc] = useState('');
   const messagesEndRef = useRef(null);
   const queryClient = useQueryClient();
 
@@ -49,7 +46,7 @@ export default function ICS() {
     queryFn: () => base44.auth.me(),
   });
 
-  const { userPresence, allPresence, getPresence, updatePresence } = usePresence(user);
+  const { userPresence, allPresence, updatePresence } = usePresence(user);
 
   // Load notification preferences
   const { data: prefsData } = useQuery({
@@ -117,11 +114,7 @@ export default function ICS() {
   });
 
   // Initialize real-time notifications (must come after messages query)
-  const { markAsRead, markChannelAsRead, unreadCounts } = useICCNotifications(
-    user,
-    channels,
-    messages
-  );
+  const { markChannelAsRead, unreadCounts } = useICCNotifications(user, channels, messages);
 
   // Handle notification click - navigate to channel
   useEffect(() => {
@@ -240,7 +233,7 @@ export default function ICS() {
                 icon: '/logo.png',
                 tag: 'new-message',
               });
-            } catch (err) {
+            } catch (_err) {
               console.log('Desktop notifications not supported');
             }
           }
@@ -296,17 +289,6 @@ export default function ICS() {
       queryClient.invalidateQueries({ queryKey: ['active-call'] });
     },
   });
-
-  const handleCreateChannel = () => {
-    createChannelMutation.mutate({
-      name: newChannelName,
-      description: newChannelDesc,
-      type: newChannelType,
-      created_by: user?.email,
-      members: newChannelType === 'private' ? [user?.email] : [],
-      last_activity: new Date().toISOString(),
-    });
-  };
 
   const handleSendMessage = (messageData) => {
     if (!selectedChannel) {
@@ -367,7 +349,7 @@ export default function ICS() {
     });
   };
 
-  const handleAcceptCall = async (callType = 'video') => {
+  const handleAcceptCall = async (_callType = 'video') => {
     if (!incomingCall || !user) {
       return;
     }

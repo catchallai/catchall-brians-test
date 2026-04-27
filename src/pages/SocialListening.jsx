@@ -522,10 +522,6 @@ For each anomaly found, provide:
           continue;
         }
 
-        const relatedMention =
-          anomaly.related_mention_index !== undefined &&
-          analysis.mentions?.[anomaly.related_mention_index];
-
         await base44.entities.ListeningAlert.create({
           listening_id: keyword.id,
           type: anomaly.type || 'anomaly',
@@ -713,7 +709,6 @@ Prioritize finding older historical discussions from 2009-2015 as well as recent
     negative: mentions.filter((m) => m.sentiment === 'negative').length,
   };
   const unreadAlerts = alerts.filter((a) => !a.is_read && !a.is_dismissed).length;
-  const totalForumMentions = forumMentions.length;
 
   return (
     <div className="p-4 sm:p-6 lg:p-8 space-y-4 sm:space-y-6 bg-gray-50 min-h-screen">

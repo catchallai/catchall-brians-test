@@ -215,7 +215,7 @@ export default function EmailMarketing() {
     queryFn: () => base44.entities.EmailDripCampaign.list('-created_date', 100),
   });
 
-  const { data: emailLogs = [] } = useQuery({
+  const { data: _emailLogs = [] } = useQuery({
     queryKey: ['email-logs'],
     queryFn: () => base44.entities.EmailLog.list('-created_date', 1000),
   });
@@ -655,7 +655,7 @@ export default function EmailMarketing() {
                 {emailCampaigns
                   .slice(0, 10)
                   .reverse()
-                  .map((campaign, idx) => {
+                  .map((campaign, _idx) => {
                     const campaignOpenRate =
                       campaign.total_sent > 0
                         ? (campaign.total_opened / campaign.total_sent) * 100

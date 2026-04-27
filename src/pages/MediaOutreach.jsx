@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { base44 } from '@/api/base44Client';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -32,7 +32,6 @@ export default function MediaOutreach() {
   const [showComposeModal, setShowComposeModal] = useState(false);
   const [selectedJournalist, setSelectedJournalist] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const queryClient = useQueryClient();
 
   const { data: journalists = [], isLoading } = useQuery({
     queryKey: ['journalists'],

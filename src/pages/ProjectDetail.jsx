@@ -69,17 +69,6 @@ export default function ProjectDetail() {
     queryFn: () => base44.entities.User.list(),
   });
 
-  const { data: dependencies = [] } = useQuery({
-    queryKey: ['task-dependencies', projectId],
-    queryFn: async () => {
-      if (!projectId) {
-        return [];
-      }
-      return await base44.entities.TaskDependency.list();
-    },
-    enabled: !!projectId,
-  });
-
   const { data: timeLogs = [] } = useQuery({
     queryKey: ['time-logs', projectId],
     queryFn: async () => {

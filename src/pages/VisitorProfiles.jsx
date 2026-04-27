@@ -428,9 +428,9 @@ export default function VisitorProfiles() {
   const [showNotificationRules, setShowNotificationRules] = useState(false);
   const [showSegments, setShowSegments] = useState(false);
   const [showSegmentAnalysis, setShowSegmentAnalysis] = useState(false);
-  const [activeSegment, setActiveSegment] = useState(null);
+  const [_activeSegment, setActiveSegment] = useState(null);
   const [segmentFilters, setSegmentFilters] = useState(null);
-  const [showCreateContact, setShowCreateContact] = useState(false);
+  const [_showCreateContact, setShowCreateContact] = useState(false);
   const [showScheduleFollowUp, setShowScheduleFollowUp] = useState(false);
   const [newNote, setNewNote] = useState('');
   const [noteType, setNoteType] = useState('general');
@@ -444,7 +444,7 @@ export default function VisitorProfiles() {
   });
 
   // Fetch real visitor sessions
-  const { data: sessions, isLoading } = useQuery({
+  const { isLoading } = useQuery({
     queryKey: ['visitor-sessions'],
     queryFn: () => base44.entities.VisitorSession.list('-session_start', 200),
     refetchInterval: 30000, // Refresh every 30 seconds

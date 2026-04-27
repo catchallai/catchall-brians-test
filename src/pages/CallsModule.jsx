@@ -26,7 +26,7 @@ import CallLogModal from '@/components/modals/CallLogModal';
 export default function CallsModule() {
   const [searchTerm, setSearchTerm] = useState('');
   const [activeTab, setActiveTab] = useState('recorded');
-  const [currentPage, setCurrentPage] = useState(1);
+  const [_currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(25);
   const [callModalOpen, setCallModalOpen] = useState(false);
   const [callModalType, setCallModalType] = useState('new');
@@ -38,7 +38,7 @@ export default function CallsModule() {
     notes: null,
   });
 
-  const { data: user } = useQuery({
+  const { data: _user } = useQuery({
     queryKey: ['current-user'],
     queryFn: () => base44.auth.me(),
   });

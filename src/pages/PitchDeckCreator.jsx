@@ -56,7 +56,7 @@ export default function PitchDeckCreator() {
   const [viewMode, setViewMode] = useState('list'); // 'list' or 'editor'
   const queryClient = useQueryClient();
 
-  const { data: decks = [], isLoading } = useQuery({
+  const { data: decks = [] } = useQuery({
     queryKey: ['pitch-decks'],
     queryFn: () => base44.entities.PitchDeck.list('-last_edited', 50),
   });

@@ -2532,7 +2532,7 @@ export default function HelpCenter() {
   const [expandedSections, setExpandedSections] = useState({});
   const [activeTab, setActiveTab] = useState('guides');
   const [videoCategory, setVideoCategory] = useState('all');
-  const [aiQuestion, setAiQuestion] = useState('');
+  const [aiQuestion, _setAiQuestion] = useState('');
   const [aiAnswer, setAiAnswer] = useState('');
   const [isAskingAI, setIsAskingAI] = useState(false);
 
@@ -2593,7 +2593,7 @@ export default function HelpCenter() {
         prompt: `You are a helpful AI assistant for the CatchAll Business Suite platform. Answer the following question based on the platform's features: CRM, SEO tools, social media management, marketing automation, analytics, AI tools, pitch deck creator/analyzer, DMCA takedown generator, equipment inventory, accounting dashboard, and user profiles. Question: ${aiQuestion}`,
       });
       setAiAnswer(response);
-    } catch (error) {
+    } catch (_error) {
       toast.error('Failed to get AI response');
     } finally {
       setIsAskingAI(false);
@@ -2701,35 +2701,37 @@ export default function HelpCenter() {
             <article className="max-w-none">
               <ReactMarkdown
                 components={{
-                  h1: ({ node, ...props }) => (
+                  h1: ({ node: _node, ...props }) => (
                     <h1
                       className="text-3xl font-bold text-gray-900 dark:text-white mb-6 pb-4 border-b border-gray-200 dark:border-gray-700"
                       {...props}
                     />
                   ),
-                  h2: ({ node, ...props }) => (
+                  h2: ({ node: _node, ...props }) => (
                     <h2
                       className="text-xl font-semibold text-gray-900 dark:text-white mt-8 mb-4 flex items-center gap-2"
                       {...props}
                     />
                   ),
-                  h3: ({ node, ...props }) => (
+                  h3: ({ node: _node, ...props }) => (
                     <h3
                       className="text-lg font-semibold text-gray-800 dark:text-gray-200 mt-6 mb-3"
                       {...props}
                     />
                   ),
-                  p: ({ node, ...props }) => (
+                  p: ({ node: _node, ...props }) => (
                     <p
                       className="text-gray-600 dark:text-gray-300 mb-4 leading-relaxed"
                       {...props}
                     />
                   ),
-                  ul: ({ node, ...props }) => <ul className="space-y-2 mb-6 ml-1" {...props} />,
-                  ol: ({ node, ...props }) => (
+                  ul: ({ node: _node, ...props }) => (
+                    <ul className="space-y-2 mb-6 ml-1" {...props} />
+                  ),
+                  ol: ({ node: _node, ...props }) => (
                     <ol className="space-y-3 mb-6 ml-1 list-none counter-reset-item" {...props} />
                   ),
-                  li: ({ node, ordered, ...props }) => (
+                  li: ({ node: _node, ordered, ...props }) => (
                     <li className="flex items-start gap-3 text-gray-600 dark:text-gray-300">
                       <span className="flex-shrink-0 w-6 h-6 rounded-full bg-violet-100 dark:bg-violet-900/40 text-violet-600 dark:text-violet-400 flex items-center justify-center text-xs font-medium mt-0.5">
                         {ordered ? props.index + 1 : '•'}
@@ -2737,10 +2739,10 @@ export default function HelpCenter() {
                       <span className="flex-1" {...props} />
                     </li>
                   ),
-                  strong: ({ node, ...props }) => (
+                  strong: ({ node: _node, ...props }) => (
                     <strong className="font-semibold text-gray-900 dark:text-white" {...props} />
                   ),
-                  table: ({ node, ...props }) => (
+                  table: ({ node: _node, ...props }) => (
                     <div className="overflow-x-auto my-6 rounded-xl border border-gray-200 dark:border-gray-700">
                       <table
                         className="min-w-full divide-y divide-gray-200 dark:divide-gray-700"
@@ -2748,34 +2750,34 @@ export default function HelpCenter() {
                       />
                     </div>
                   ),
-                  thead: ({ node, ...props }) => (
+                  thead: ({ node: _node, ...props }) => (
                     <thead className="bg-gray-50 dark:bg-gray-800" {...props} />
                   ),
-                  th: ({ node, ...props }) => (
+                  th: ({ node: _node, ...props }) => (
                     <th
                       className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider"
                       {...props}
                     />
                   ),
-                  td: ({ node, ...props }) => (
+                  td: ({ node: _node, ...props }) => (
                     <td
                       className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300 border-t border-gray-100 dark:border-gray-700"
                       {...props}
                     />
                   ),
-                  tr: ({ node, ...props }) => (
+                  tr: ({ node: _node, ...props }) => (
                     <tr
                       className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
                       {...props}
                     />
                   ),
-                  blockquote: ({ node, ...props }) => (
+                  blockquote: ({ node: _node, ...props }) => (
                     <blockquote
                       className="border-l-4 border-violet-400 bg-violet-50 dark:bg-violet-900/20 pl-4 py-3 my-4 rounded-r-lg text-gray-700 dark:text-gray-300 italic"
                       {...props}
                     />
                   ),
-                  code: ({ node, inline, ...props }) =>
+                  code: ({ node: _node, inline, ...props }) =>
                     inline ? (
                       <code
                         className="bg-gray-100 dark:bg-gray-800 text-violet-600 dark:text-violet-400 px-1.5 py-0.5 rounded text-sm font-mono"
@@ -2787,10 +2789,10 @@ export default function HelpCenter() {
                         {...props}
                       />
                     ),
-                  hr: ({ node, ...props }) => (
+                  hr: ({ node: _node, ...props }) => (
                     <hr className="my-8 border-gray-200 dark:border-gray-700" {...props} />
                   ),
-                  a: ({ node, ...props }) => (
+                  a: ({ node: _node, ...props }) => (
                     <a
                       className="text-violet-600 dark:text-violet-400 hover:underline font-medium"
                       {...props}

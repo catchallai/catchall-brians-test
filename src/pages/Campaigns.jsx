@@ -101,7 +101,6 @@ export default function Campaigns() {
   });
 
   const activeCampaigns = campaigns.filter((c) => c.status === 'active').length;
-  const totalBudget = campaigns.reduce((sum, c) => sum + (c.budget || 0), 0);
   const totalSpent = campaigns.reduce((sum, c) => sum + (c.spent || 0), 0);
 
   return (

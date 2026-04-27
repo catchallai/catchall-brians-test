@@ -30,7 +30,6 @@ import EmptyState from '@/components/ui/EmptyState';
 export default function SocialLeads() {
   const [showLeadModal, setShowLeadModal] = useState(false);
   const [showContactModal, setShowContactModal] = useState(false);
-  const [showActivityModal, setShowActivityModal] = useState(false);
   const [editingLead, setEditingLead] = useState(null);
   const [convertingLead, setConvertingLead] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -94,14 +93,6 @@ export default function SocialLeads() {
       queryClient.invalidateQueries({ queryKey: ['contacts'] });
       setShowContactModal(false);
       setConvertingLead(null);
-    },
-  });
-
-  const createActivityMutation = useMutation({
-    mutationFn: (data) => base44.entities.Activity.create(data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['activities'] });
-      setShowActivityModal(false);
     },
   });
 
@@ -212,7 +203,7 @@ Return analysis for leads with score >= 40 only.`,
 
       return { newLeads: createdCount };
     },
-    onSuccess: (result) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['social-leads'] });
       queryClient.invalidateQueries({ queryKey: ['notifications'] });
       setIsScanning(false);

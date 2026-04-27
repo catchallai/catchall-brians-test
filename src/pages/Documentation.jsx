@@ -773,7 +773,7 @@ export default function Documentation() {
     let doc = `# CATCHALL: Complete Platform Documentation\n\n`;
     doc += `Generated: ${new Date().toLocaleDateString()}\n\n`;
 
-    Object.entries(sections).forEach(([key, section]) => {
+    Object.entries(sections).forEach(([_key, section]) => {
       doc += `## ${section.title}\n\n`;
       section.pages.forEach((page) => {
         doc += `### ${page.name}\n`;

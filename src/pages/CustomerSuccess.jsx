@@ -24,20 +24,14 @@ import InteractionModal from '@/components/success/InteractionModal';
 import OnboardingModal from '@/components/success/OnboardingModal';
 
 export default function CustomerSuccess() {
-  const [selectedContact, setSelectedContact] = useState(null);
   const [showInteractionModal, setShowInteractionModal] = useState(false);
   const [showOnboardingModal, setShowOnboardingModal] = useState(false);
   const [editingInteraction, setEditingInteraction] = useState(null);
   const queryClient = useQueryClient();
 
-  const { data: contacts = [], isLoading: loadingContacts } = useQuery({
+  const { data: contacts = [] } = useQuery({
     queryKey: ['contacts'],
     queryFn: () => base44.entities.Contact.list('-created_date', 200),
-  });
-
-  const { data: companies = [] } = useQuery({
-    queryKey: ['companies'],
-    queryFn: () => base44.entities.Company.list('-created_date', 100),
   });
 
   const { data: healthScores = [] } = useQuery({

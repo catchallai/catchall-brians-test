@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { base44 } from '@/api/base44Client';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -25,7 +25,6 @@ import GBPProfileModal from '@/components/local/GBPProfileModal';
 export default function LocalSEO() {
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [editingProfile, setEditingProfile] = useState(null);
-  const queryClient = useQueryClient();
 
   const { data: profiles = [], isLoading } = useQuery({
     queryKey: ['gbp-profiles'],

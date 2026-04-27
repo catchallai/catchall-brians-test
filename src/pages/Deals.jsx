@@ -90,7 +90,7 @@ export default function Deals() {
 
   // Real-time subscription
   React.useEffect(() => {
-    const unsubscribe = base44.entities.Deal.subscribe((event) => {
+    const unsubscribe = base44.entities.Deal.subscribe((_event) => {
       queryClient.invalidateQueries({ queryKey: ['deals'] });
     });
     return unsubscribe;
@@ -149,7 +149,7 @@ export default function Deals() {
             actor_name: user?.full_name,
             action_url: `/deals?id=${id}`,
           });
-        } catch (err) {
+        } catch (_err) {
           console.log('Notification creation skipped');
         }
       }
@@ -224,12 +224,6 @@ export default function Deals() {
   };
 
   const getContact = (contactId) => contacts.find((c) => c.id === contactId);
-
-  const getDealsForStage = (stageId) => deals.filter((d) => d.stage === stageId);
-
-  const getStageValue = (stageId) => {
-    return getDealsForStage(stageId).reduce((sum, d) => sum + (d.value || 0), 0);
-  };
 
   const formatCurrency = (value) => {
     if (value >= 1000000) {

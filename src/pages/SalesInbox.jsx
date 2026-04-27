@@ -46,7 +46,7 @@ export default function SalesInbox() {
   const [showTaskModal, setShowTaskModal] = useState(false);
   const queryClient = useQueryClient();
 
-  const { data: user } = useQuery({
+  const { data: _user } = useQuery({
     queryKey: ['current-user'],
     queryFn: () => base44.auth.me(),
   });
@@ -65,7 +65,7 @@ export default function SalesInbox() {
     },
   });
 
-  const { data: contacts = [] } = useQuery({
+  const { data: _contacts = [] } = useQuery({
     queryKey: ['contacts'],
     queryFn: () => base44.entities.Contact.list('-created_date', 500),
   });

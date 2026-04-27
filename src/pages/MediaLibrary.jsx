@@ -138,7 +138,7 @@ export default function MediaLibrary() {
       };
 
       setNewAsset(newAssetData);
-    } catch (error) {
+    } catch (_error) {
       toast.error('Upload failed');
     } finally {
       setUploading(false);
