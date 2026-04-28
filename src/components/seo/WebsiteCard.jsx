@@ -1,5 +1,7 @@
+import { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import ConfirmDialog from '@/components/ui/ConfirmDialog';
 import {
   ExternalLink,
   Settings,
@@ -24,6 +26,8 @@ export default function WebsiteCard({
   onDelete,
   isAnalyzing,
 }) {
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
   const top10Keywords = keywords.filter(
     (k) => k.current_position && k.current_position <= 10
   ).length;
@@ -139,13 +143,7 @@ export default function WebsiteCard({
                 className="h-9 w-9 rounded-xl text-red-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
                 onClick={(e) => {
                   e.stopPropagation();
-                  if (
-                    confirm(
-                      'Delete this website? This will also remove all associated keywords and backlinks.'
-                    )
-                  ) {
-                    onDelete();
-                  }
+                  setShowDeleteConfirm(true);
                 }}
               >
                 <Trash2 className="w-4 h-4" />
@@ -184,6 +182,18 @@ export default function WebsiteCard({
           </div>
         )}
       </CardContent>
+
+      <ConfirmDialog
+        open={showDeleteConfirm}
+        onClose={() => setShowDeleteConfirm(false)}
+        onConfirm={() => {
+          onDelete?.();
+          setShowDeleteConfirm(false);
+        }}
+        title="Delete this website?"
+        description="This will also remove all associated keywords and backlinks."
+        confirmLabel="Delete"
+      />
     </Card>
   );
 }

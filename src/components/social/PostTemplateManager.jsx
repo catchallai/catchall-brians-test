@@ -13,6 +13,7 @@ import {
 } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import ConfirmDialog from '@/components/ui/ConfirmDialog';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Plus, Edit, Trash, FileText } from 'lucide-react';
@@ -20,6 +21,7 @@ import { Plus, Edit, Trash, FileText } from 'lucide-react';
 export default function PostTemplateManager({ onUseTemplate }) {
   const [showModal, setShowModal] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState(null);
+  const [deleteConfirmId, setDeleteConfirmId] = useState(null);
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -158,11 +160,7 @@ export default function PostTemplateManager({ onUseTemplate }) {
                       <Button
                         variant="ghost"
                         size="icon"
-                        onClick={() => {
-                          if (confirm('Delete this template?')) {
-                            deleteMutation.mutate(template.id);
-                          }
-                        }}
+                        onClick={() => setDeleteConfirmId(template.id)}
                         className="h-8 w-8 text-red-500 hover:text-red-700"
                       >
                         <Trash className="w-3 h-3" />
@@ -328,6 +326,18 @@ export default function PostTemplateManager({ onUseTemplate }) {
             </form>
           </DialogContent>
         </Dialog>
+
+        <ConfirmDialog
+          open={!!deleteConfirmId}
+          onClose={() => setDeleteConfirmId(null)}
+          onConfirm={() => {
+            deleteMutation.mutate(deleteConfirmId);
+            setDeleteConfirmId(null);
+          }}
+          title="Delete this template?"
+          description="This action cannot be undone."
+          confirmLabel="Delete"
+        />
       </CardContent>
     </Card>
   );

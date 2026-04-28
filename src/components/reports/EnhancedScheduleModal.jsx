@@ -14,6 +14,7 @@ import {
 } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Calendar, Clock, Mail, AlertCircle } from 'lucide-react';
+import { toast } from 'sonner';
 
 const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 const WEEK_OPTIONS = ['first', 'second', 'third', 'fourth', 'last'];
@@ -88,7 +89,7 @@ export default function EnhancedScheduleModal({ report, open, onClose }) {
 
   const handleSave = () => {
     if (schedule.recipients.length === 0) {
-      alert('Please add at least one recipient');
+      toast.warning('Please add at least one recipient');
       return;
     }
     createScheduleMutation.mutate(schedule);

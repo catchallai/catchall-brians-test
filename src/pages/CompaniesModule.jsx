@@ -33,6 +33,7 @@ import CompanyModal from '@/components/modals/CompanyModal';
 import CompanyDetailPanel from '@/components/crm/CompanyDetailPanel';
 import ImportDialog from '@/components/ui/ImportDialog';
 import { exportToCSV } from '@/components/utils/exportData';
+import { toast } from 'sonner';
 
 export default function CompaniesModule() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -158,7 +159,7 @@ export default function CompaniesModule() {
     },
     onSuccess: (count) => {
       queryClient.invalidateQueries({ queryKey: ['companies'] });
-      alert(`Successfully synced ${count} company logos`);
+      toast.success(`Successfully synced ${count} company logos`);
     },
   });
 
@@ -767,21 +768,17 @@ export default function CompaniesModule() {
           'description',
         ]}
         onImportComplete={(result) => {
-          const messages = [];
+          if (result.successCount > 0) {
+            toast.success(`Successfully imported ${result.successCount} companies`);
+          }
           if (result.duplicateCompanies?.length > 0) {
-            messages.push(
-              `⚠️ ${result.duplicateCompanies.length} duplicate companies skipped: ${result.duplicateCompanies.join(', ')}`
+            toast.warning(
+              `${result.duplicateCompanies.length} duplicate companies skipped: ${result.duplicateCompanies.join(', ')}`
             );
           }
           if (result.failedCompanies?.length > 0) {
-            messages.push(`❌ ${result.failedCompanies.length} companies failed`);
+            toast.error(`${result.failedCompanies.length} companies failed`);
             console.warn('Failed companies:', result.failedCompanies);
-          }
-          if (result.successCount > 0) {
-            messages.push(`✅ Successfully imported ${result.successCount} companies`);
-          }
-          if (messages.length > 0) {
-            alert(messages.join('\n'));
           }
         }}
       />

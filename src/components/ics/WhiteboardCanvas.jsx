@@ -13,7 +13,15 @@ import {
   Image as ImageIcon,
   History,
 } from 'lucide-react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
 export default function WhiteboardCanvas({ isHost, onDataChange, versions = [], onRevert }) {
@@ -26,6 +34,8 @@ export default function WhiteboardCanvas({ isHost, onDataChange, versions = [], 
   const [showVersions, setShowVersions] = useState(false);
   const [startPos, setStartPos] = useState(null);
   const [tempCanvas, setTempCanvas] = useState(null);
+  const [textDialogOpen, setTextDialogOpen] = useState(false);
+  const [textInput, setTextInput] = useState('');
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -167,8 +177,13 @@ export default function WhiteboardCanvas({ isHost, onDataChange, versions = [], 
     if (!isHost) {
       return;
     }
-    const text = prompt('Enter text:');
-    if (!text) {
+    setTextInput('');
+    setTextDialogOpen(true);
+  };
+
+  const submitText = () => {
+    if (!textInput) {
+      setTextDialogOpen(false);
       return;
     }
 
@@ -177,8 +192,9 @@ export default function WhiteboardCanvas({ isHost, onDataChange, versions = [], 
     const fontSize = parseInt(lineWidth) * 5;
     ctx.font = `${fontSize}px Arial`;
     ctx.fillStyle = color;
-    ctx.fillText(text, 50, 50);
+    ctx.fillText(textInput, 50, 50);
     saveState();
+    setTextDialogOpen(false);
   };
 
   const addImage = async (e) => {
@@ -378,6 +394,33 @@ export default function WhiteboardCanvas({ isHost, onDataChange, versions = [], 
         onMouseLeave={stopDrawing}
         className="flex-1 cursor-crosshair bg-white"
       />
+
+      {/* Text Input Dialog */}
+      <Dialog open={textDialogOpen} onOpenChange={setTextDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add Text</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-2">
+            <Label htmlFor="whiteboard-text">Text</Label>
+            <Input
+              id="whiteboard-text"
+              value={textInput}
+              onChange={(e) => setTextInput(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && submitText()}
+              autoFocus
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setTextDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={submitText} disabled={!textInput}>
+              Add
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Version History Dialog */}
       <Dialog open={showVersions} onOpenChange={setShowVersions}>

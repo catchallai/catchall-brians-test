@@ -7,6 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Star, Heart, Award } from 'lucide-react';
+import { toast } from 'sonner';
 
 export default function ContractorRatingSystem() {
   const [showRateModal, setShowRateModal] = useState(false);
@@ -87,7 +88,7 @@ export default function ContractorRatingSystem() {
 
   const handleSubmitRating = () => {
     if (rating.overall === 0) {
-      alert('Please select an overall rating');
+      toast.warning('Please select an overall rating');
       return;
     }
 

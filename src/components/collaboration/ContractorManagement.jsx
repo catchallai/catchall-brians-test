@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import ConfirmDialog from '@/components/ui/ConfirmDialog';
 import TimesheetApproval from './TimesheetApproval';
 import ContractorInvoicing from './ContractorInvoicing';
 import ContractorRatingSystem from './ContractorRatingSystem';
@@ -27,6 +28,7 @@ export default function ContractorManagement() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [showScheduleModal, setShowScheduleModal] = useState(false);
   const [selectedContractor, setSelectedContractor] = useState(null);
+  const [deleteConfirmId, setDeleteConfirmId] = useState(null);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -259,11 +261,7 @@ export default function ContractorManagement() {
                     <Button
                       size="sm"
                       variant="outline"
-                      onClick={() => {
-                        if (confirm('Delete this contractor?')) {
-                          deleteMutation.mutate(contractor.id);
-                        }
-                      }}
+                      onClick={() => setDeleteConfirmId(contractor.id)}
                     >
                       <Trash2 className="w-3 h-3" />
                     </Button>
@@ -517,6 +515,19 @@ export default function ContractorManagement() {
             </div>
           </DialogContent>
         </Dialog>
+
+        <ConfirmDialog
+          open={!!deleteConfirmId}
+          onClose={() => setDeleteConfirmId(null)}
+          onConfirm={() => {
+            deleteMutation.mutate(deleteConfirmId);
+            setDeleteConfirmId(null);
+          }}
+          title="Delete this contractor?"
+          description="This action cannot be undone."
+          confirmLabel="Delete"
+          isLoading={deleteMutation.isPending}
+        />
       </TabsContent>
 
       <TabsContent value="timesheets">

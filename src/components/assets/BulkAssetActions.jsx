@@ -8,6 +8,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import ConfirmDialog from '@/components/ui/ConfirmDialog';
 import { Trash2, Folder, Download } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
@@ -15,6 +16,8 @@ import { toast } from 'sonner';
 
 export default function BulkAssetActions({ selectedAssets, onClear, onComplete }) {
   const [showMoveModal, setShowMoveModal] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [targetFolder, setTargetFolder] = useState('');
 
   const { data: folders = [] } = useQuery({
@@ -27,16 +30,20 @@ export default function BulkAssetActions({ selectedAssets, onClear, onComplete }
     queryFn: () => base44.entities.MediaAsset.list('-created_date'),
   });
 
-  const handleBulkDelete = async () => {
-    if (!confirm(`Delete ${selectedAssets.length} assets?`)) {
-      return;
+  const performBulkDelete = async () => {
+    setIsDeleting(true);
+    try {
+      for (const id of selectedAssets) {
+        await base44.entities.MediaAsset.delete(id);
+      }
+      toast.success('Assets deleted');
+      setShowDeleteConfirm(false);
+      onComplete();
+    } catch (_error) {
+      toast.error('Failed to delete assets');
+    } finally {
+      setIsDeleting(false);
     }
-
-    for (const id of selectedAssets) {
-      await base44.entities.MediaAsset.delete(id);
-    }
-    toast.success('Assets deleted');
-    onComplete();
   };
 
   const handleBulkMove = async () => {
@@ -84,7 +91,7 @@ export default function BulkAssetActions({ selectedAssets, onClear, onComplete }
         <Button
           variant="outline"
           size="sm"
-          onClick={handleBulkDelete}
+          onClick={() => setShowDeleteConfirm(true)}
           className="gap-2 text-red-600"
         >
           <Trash2 className="w-4 h-4" />
@@ -123,6 +130,20 @@ export default function BulkAssetActions({ selectedAssets, onClear, onComplete }
           </div>
         </DialogContent>
       </Dialog>
+
+      <ConfirmDialog
+        open={showDeleteConfirm}
+        onClose={() => {
+          if (!isDeleting) {
+            setShowDeleteConfirm(false);
+          }
+        }}
+        onConfirm={performBulkDelete}
+        title={`Delete ${selectedAssets.length} assets?`}
+        description="This action cannot be undone."
+        confirmLabel="Delete"
+        isLoading={isDeleting}
+      />
     </>
   );
 }

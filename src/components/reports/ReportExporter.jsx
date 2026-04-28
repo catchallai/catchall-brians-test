@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Download, FileText, Table, Mail, Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
 import { base44 } from '@/api/base44Client';
 
 export default function ReportExporter({ report, open, onClose }) {
@@ -57,7 +58,7 @@ export default function ReportExporter({ report, open, onClose }) {
       onClose();
     } catch (error) {
       console.error('Export failed:', error);
-      alert('Export failed. Please try again.');
+      toast.error('Export failed. Please try again.');
     } finally {
       setExporting(false);
     }
@@ -78,11 +79,11 @@ export default function ReportExporter({ report, open, onClose }) {
         `,
       });
 
-      alert('Report emailed successfully!');
+      toast.success('Report emailed successfully!');
       onClose();
     } catch (error) {
       console.error('Email failed:', error);
-      alert('Failed to email report.');
+      toast.error('Failed to email report.');
     } finally {
       setExporting(false);
     }

@@ -1,6 +1,15 @@
 import { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import {
   Select,
   SelectContent,
@@ -11,9 +20,13 @@ import {
 import { CheckSquare, Trash2, UserPlus } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import ConfirmDialog from '@/components/ui/ConfirmDialog';
 
 export default function BulkTaskOperations({ selectedTasks = [], onSelectionChange }) {
   const [bulkStatus, setBulkStatus] = useState('');
+  const [assignDialogOpen, setAssignDialogOpen] = useState(false);
+  const [assigneeEmail, setAssigneeEmail] = useState('');
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const queryClient = useQueryClient();
 
   const bulkUpdateMutation = useMutation({
@@ -37,6 +50,14 @@ export default function BulkTaskOperations({ selectedTasks = [], onSelectionChan
       onSelectionChange([]);
     },
   });
+
+  const submitAssign = () => {
+    if (!assigneeEmail) {
+      return;
+    }
+    bulkUpdateMutation.mutate({ assigned_to: assigneeEmail });
+    setAssignDialogOpen(false);
+  };
 
   if (selectedTasks.length === 0) {
     return null;
@@ -74,10 +95,8 @@ export default function BulkTaskOperations({ selectedTasks = [], onSelectionChan
             variant="outline"
             size="sm"
             onClick={() => {
-              const assignee = prompt('Enter assignee email:');
-              if (assignee) {
-                bulkUpdateMutation.mutate({ assigned_to: assignee });
-              }
+              setAssigneeEmail('');
+              setAssignDialogOpen(true);
             }}
           >
             <UserPlus className="w-4 h-4 mr-2" />
@@ -88,11 +107,7 @@ export default function BulkTaskOperations({ selectedTasks = [], onSelectionChan
             variant="outline"
             size="sm"
             className="text-red-600"
-            onClick={() => {
-              if (confirm(`Delete ${selectedTasks.length} tasks?`)) {
-                bulkDeleteMutation.mutate();
-              }
-            }}
+            onClick={() => setDeleteConfirmOpen(true)}
           >
             <Trash2 className="w-4 h-4 mr-2" />
             Delete
@@ -103,6 +118,52 @@ export default function BulkTaskOperations({ selectedTasks = [], onSelectionChan
           </Button>
         </div>
       </CardContent>
+
+      <Dialog open={assignDialogOpen} onOpenChange={setAssignDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Assign Tasks</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-2">
+            <Label htmlFor="assignee-email">Assignee email</Label>
+            <Input
+              id="assignee-email"
+              type="email"
+              value={assigneeEmail}
+              onChange={(e) => setAssigneeEmail(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && assigneeEmail) {
+                  e.preventDefault();
+                  submitAssign();
+                }
+              }}
+              placeholder="user@example.com"
+              autoFocus
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setAssignDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={submitAssign} disabled={!assigneeEmail}>
+              Assign
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <ConfirmDialog
+        open={deleteConfirmOpen}
+        onClose={() => setDeleteConfirmOpen(false)}
+        onConfirm={() => {
+          bulkDeleteMutation.mutate();
+          setDeleteConfirmOpen(false);
+        }}
+        title={`Delete ${selectedTasks.length} task${selectedTasks.length === 1 ? '' : 's'}?`}
+        description="This action cannot be undone."
+        confirmLabel="Delete"
+        isLoading={bulkDeleteMutation.isPending}
+      />
     </Card>
   );
 }

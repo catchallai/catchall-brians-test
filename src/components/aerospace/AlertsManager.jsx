@@ -17,6 +17,7 @@ import {
 } from '@/components/ui/dialog';
 import { Bell, Plus, Trash2, Edit, Mail, Play, X } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
+import { toast } from 'sonner';
 
 export default function AlertsManager({ initialFilters = null }) {
   const [showCreateDialog, setShowCreateDialog] = useState(false);
@@ -159,7 +160,9 @@ export default function AlertsManager({ initialFilters = null }) {
     mutationFn: () => base44.functions.invoke('checkAerospaceAlerts', {}),
     onSuccess: (response) => {
       queryClient.invalidateQueries({ queryKey: ['aerospace-alerts'] });
-      alert(`Alert check complete! ${response.data.notifications_sent} notifications sent.`);
+      toast.success(
+        `Alert check complete! ${response.data.notifications_sent} notifications sent.`
+      );
     },
   });
 

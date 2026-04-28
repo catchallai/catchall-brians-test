@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Plus, Trash2, Save, Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
 import WorkflowNodeEditor from './WorkflowNodeEditor';
 
 const TRIGGER_TYPES = [
@@ -85,7 +86,7 @@ export default function WorkflowBuilder({ workflow = null }) {
 
   const handleSave = () => {
     if (!name || !nodes.length) {
-      alert('Workflow must have a name and at least one action');
+      toast.warning('Workflow must have a name and at least one action');
       return;
     }
     saveMutation.mutate();

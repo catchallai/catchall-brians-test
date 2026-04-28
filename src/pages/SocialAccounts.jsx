@@ -6,6 +6,8 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
+import ConfirmDialog from '@/components/ui/ConfirmDialog';
+import { toast } from 'sonner';
 import {
   CheckCircle,
   AlertCircle,
@@ -181,7 +183,7 @@ function ConnectChannelModal({ open, onClose, onConnected }) {
           throw new Error(response.data?.error || 'OAuth failed');
         }
       } catch (err) {
-        alert('Connection failed: ' + err.message);
+        toast.error('Connection failed: ' + err.message);
       }
     } else {
       await addMutation.mutateAsync({
@@ -428,6 +430,7 @@ function ConnectChannelModal({ open, onClose, onConnected }) {
 
 export default function SocialAccounts() {
   const [showModal, setShowModal] = useState(false);
+  const [disconnectAccountId, setDisconnectAccountId] = useState(null);
   const queryClient = useQueryClient();
 
   const { data: accounts = [], isLoading } = useQuery({
@@ -536,11 +539,7 @@ export default function SocialAccounts() {
                     </p>
                   </div>
                   <button
-                    onClick={() => {
-                      if (confirm('Disconnect this channel?')) {
-                        deleteMutation.mutate(account.id);
-                      }
-                    }}
+                    onClick={() => setDisconnectAccountId(account.id)}
                     className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
                   >
                     <Trash2 className="w-4 h-4" />
@@ -564,6 +563,19 @@ export default function SocialAccounts() {
         open={showModal}
         onClose={() => setShowModal(false)}
         onConnected={() => setShowModal(false)}
+      />
+
+      <ConfirmDialog
+        open={!!disconnectAccountId}
+        onClose={() => setDisconnectAccountId(null)}
+        onConfirm={() => {
+          deleteMutation.mutate(disconnectAccountId);
+          setDisconnectAccountId(null);
+        }}
+        title="Disconnect this channel?"
+        description="You can reconnect this channel later if needed."
+        confirmLabel="Disconnect"
+        isLoading={deleteMutation.isPending}
       />
     </div>
   );

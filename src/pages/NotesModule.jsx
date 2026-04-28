@@ -4,6 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Plus, Search, Pin, Edit, Trash2, Calendar, User } from 'lucide-react';
 import ContactsSidebar from '@/components/crm/ContactsSidebar';
 import NoteModal from '@/components/modals/NoteModal';
+import ConfirmDialog from '@/components/ui/ConfirmDialog';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
@@ -23,6 +24,7 @@ export default function NotesModule() {
   const [editingNote, setEditingNote] = useState(null);
   const [associatedFilter, setAssociatedFilter] = useState('all');
   const [createdByFilter, setCreatedByFilter] = useState('all');
+  const [deleteConfirmId, setDeleteConfirmId] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 25;
   const queryClient = useQueryClient();
@@ -83,9 +85,7 @@ export default function NotesModule() {
   };
 
   const handleDelete = (noteId) => {
-    if (confirm('Are you sure you want to delete this note?')) {
-      deleteMutation.mutate(noteId);
-    }
+    setDeleteConfirmId(noteId);
   };
 
   const filteredNotes = notes.filter((note) => {
@@ -331,6 +331,19 @@ export default function NotesModule() {
         onSave={handleSave}
         note={editingNote}
         isLoading={createMutation.isPending || updateMutation.isPending}
+      />
+
+      <ConfirmDialog
+        open={!!deleteConfirmId}
+        onClose={() => setDeleteConfirmId(null)}
+        onConfirm={() => {
+          deleteMutation.mutate(deleteConfirmId);
+          setDeleteConfirmId(null);
+        }}
+        title="Delete this note?"
+        description="This action cannot be undone."
+        confirmLabel="Delete"
+        isLoading={deleteMutation.isPending}
       />
     </div>
   );

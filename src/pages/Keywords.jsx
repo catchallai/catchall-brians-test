@@ -17,6 +17,7 @@ import KeywordRankCard from '@/components/seo/KeywordRankCard';
 import KeywordModal from '@/components/modals/KeywordModal';
 import EmptyState from '@/components/ui/EmptyState';
 import LiveDataIntegration from '@/components/seo/LiveDataIntegration';
+import ConfirmDialog from '@/components/ui/ConfirmDialog';
 import { toast } from 'sonner';
 
 export default function Keywords() {
@@ -27,6 +28,7 @@ export default function Keywords() {
   const [positionFilter, setPositionFilter] = useState('all');
   const [selectedIds, setSelectedIds] = useState([]);
   const [showLiveData, setShowLiveData] = useState(false);
+  const [showBulkDeleteConfirm, setShowBulkDeleteConfirm] = useState(false);
   const queryClient = useQueryClient();
 
   const { data: user } = useQuery({
@@ -97,9 +99,7 @@ export default function Keywords() {
     if (selectedIds.length === 0) {
       return;
     }
-    if (confirm(`Delete ${selectedIds.length} keywords?`)) {
-      bulkDeleteMutation.mutate(selectedIds);
-    }
+    setShowBulkDeleteConfirm(true);
   };
 
   const handleExportCSV = () => {
@@ -375,6 +375,20 @@ export default function Keywords() {
         websites={websites}
         onSave={handleSave}
         isLoading={createMutation.isPending || updateMutation.isPending}
+      />
+
+      {/* Bulk Delete Confirm */}
+      <ConfirmDialog
+        open={showBulkDeleteConfirm}
+        onClose={() => setShowBulkDeleteConfirm(false)}
+        onConfirm={() => {
+          bulkDeleteMutation.mutate(selectedIds);
+          setShowBulkDeleteConfirm(false);
+        }}
+        title={`Delete ${selectedIds.length} keywords?`}
+        description="This action cannot be undone."
+        confirmLabel="Delete"
+        isLoading={bulkDeleteMutation.isPending}
       />
     </div>
   );

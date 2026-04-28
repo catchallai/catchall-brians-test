@@ -11,6 +11,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from '@/components/ui/dialog';
+import ConfirmDialog from '@/components/ui/ConfirmDialog';
 import { Briefcase, Plus, Edit2, Trash2, TrendingUp, TrendingDown } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -18,6 +19,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 export default function PortfolioManager({ user, onSelectPortfolio }) {
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
+  const [deleteConfirmId, setDeleteConfirmId] = useState(null);
   const [editingPortfolio, setEditingPortfolio] = useState(null);
   const [newPortfolio, setNewPortfolio] = useState({
     name: '',
@@ -168,9 +170,7 @@ export default function PortfolioManager({ user, onSelectPortfolio }) {
                         className="h-8 w-8 text-red-500 hover:text-red-600"
                         onClick={(e) => {
                           e.stopPropagation();
-                          if (confirm('Delete this portfolio?')) {
-                            deleteMutation.mutate(portfolio.id);
-                          }
+                          setDeleteConfirmId(portfolio.id);
                         }}
                       >
                         <Trash2 className="w-3 h-3" />
@@ -312,6 +312,18 @@ export default function PortfolioManager({ user, onSelectPortfolio }) {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <ConfirmDialog
+        open={!!deleteConfirmId}
+        onClose={() => setDeleteConfirmId(null)}
+        onConfirm={() => {
+          deleteMutation.mutate(deleteConfirmId);
+          setDeleteConfirmId(null);
+        }}
+        title="Delete this portfolio?"
+        description="This action cannot be undone."
+        confirmLabel="Delete"
+      />
     </div>
   );
 }

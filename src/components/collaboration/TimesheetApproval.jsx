@@ -7,6 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { CheckCircle, XCircle, Clock } from 'lucide-react';
+import { toast } from 'sonner';
 import { format } from 'date-fns';
 
 export default function TimesheetApproval() {
@@ -45,7 +46,7 @@ export default function TimesheetApproval() {
 
   const handleReject = (timesheet) => {
     if (!rejectionReason.trim()) {
-      alert('Please provide a rejection reason');
+      toast.warning('Please provide a rejection reason');
       return;
     }
     approveMutation.mutate({
