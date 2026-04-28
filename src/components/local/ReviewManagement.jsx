@@ -38,7 +38,7 @@ const platformColors = {
   tripadvisor: 'bg-emerald-100 text-emerald-700',
 };
 
-export default function ReviewManagement({ reviews, profiles }) {
+export default function ReviewManagement({ reviews }) {
   const [filterStatus, setFilterStatus] = useState('all');
   const [filterPlatform, setFilterPlatform] = useState('all');
   const [respondingTo, setRespondingTo] = useState(null);
@@ -104,8 +104,6 @@ The response should:
     return matchesStatus && matchesPlatform;
   });
 
-  const getProfile = (id) => profiles.find((p) => p.id === id);
-
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-3">
@@ -144,7 +142,6 @@ The response should:
       ) : (
         <div className="space-y-3">
           {filteredReviews.map((review) => {
-            const profile = getProfile(review.profile_id);
             const sentiment = sentimentConfig[review.sentiment] || sentimentConfig.neutral;
             const SentimentIcon = sentiment.icon;
 

@@ -52,10 +52,9 @@ const ENTRY_POINTS = [
   { id: 'search', label: 'Organic Search' },
 ];
 
-export default function UserJourneyMapCard({ trafficData = [], socialAccounts = [], posts = [] }) {
+export default function UserJourneyMapCard() {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [journeyData, setJourneyData] = useState(null);
-  const [selectedPersona, setSelectedPersona] = useState('all');
   const [selectedSegment, setSelectedSegment] = useState('all');
   const [selectedEntryPoint, setSelectedEntryPoint] = useState('all');
   const [showFilters, setShowFilters] = useState(false);

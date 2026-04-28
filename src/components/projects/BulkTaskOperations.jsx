@@ -12,10 +12,8 @@ import { CheckSquare, Trash2, UserPlus } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
-export default function BulkTaskOperations({ tasks = [], selectedTasks = [], onSelectionChange }) {
+export default function BulkTaskOperations({ selectedTasks = [], onSelectionChange }) {
   const [bulkStatus, setBulkStatus] = useState('');
-  const [bulkAssignee, setBulkAssignee] = useState('');
-  const [bulkSprint, setBulkSprint] = useState('');
   const queryClient = useQueryClient();
 
   const bulkUpdateMutation = useMutation({

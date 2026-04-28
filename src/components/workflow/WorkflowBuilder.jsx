@@ -23,7 +23,7 @@ const NODE_TYPES = [
   { value: 'wait', label: '⏱️ Wait' },
 ];
 
-export default function WorkflowBuilder({ workflow = null, onSave = null }) {
+export default function WorkflowBuilder({ workflow = null }) {
   const [name, setName] = useState(workflow?.name || '');
   const [description, setDescription] = useState(workflow?.description || '');
   const [triggerType, setTriggerType] = useState(workflow?.trigger_type || 'health_score');

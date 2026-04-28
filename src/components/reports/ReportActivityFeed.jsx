@@ -46,7 +46,7 @@ export default function ReportActivityFeed({ reportId, limit = 20 }) {
       </CardHeader>
       <CardContent>
         <div className="space-y-3 max-h-96 overflow-y-auto">
-          {activities.map((activity, idx) => {
+          {activities.map((activity) => {
             const config = ACTION_CONFIG[activity.action] || ACTION_CONFIG.updated;
             const Icon = config.icon;
 

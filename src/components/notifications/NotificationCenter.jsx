@@ -37,7 +37,6 @@ export default function NotificationCenter({ user }) {
   const [isOpen, setIsOpen] = useState(false);
   const [filterType, setFilterType] = useState('all');
   const [showRead, setShowRead] = useState(false);
-  const [showPreferences, setShowPreferences] = useState(false);
   const [dndActive, setDndActive] = useState(false);
   const queryClient = useQueryClient();
 
@@ -110,23 +109,6 @@ export default function NotificationCenter({ user }) {
         is_read: true,
         read_at: new Date().toISOString(),
       }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['notifications'] });
-    },
-  });
-
-  const markAllAsReadMutation = useMutation({
-    mutationFn: async () => {
-      const unreadNotifs = notifications.filter((n) => !n.is_read);
-      await Promise.all(
-        unreadNotifs.map((n) =>
-          base44.entities.Notification.update(n.id, {
-            is_read: true,
-            read_at: new Date().toISOString(),
-          })
-        )
-      );
-    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['notifications'] });
     },

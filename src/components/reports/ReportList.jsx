@@ -1,9 +1,7 @@
-import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import { base44 } from '@/api/base44Client';
 import {
   Calendar,
   Clock,
@@ -86,46 +84,6 @@ export default function ReportList({
   onComment,
   runningId,
 }) {
-  const [downloadingId, setDownloadingId] = React.useState(null);
-  const [sendingId, setSendingId] = React.useState(null);
-
-  const handleDownloadPdf = async (report) => {
-    setDownloadingId(report.id);
-    try {
-      const response = await base44.functions.invoke('exportReportPdf', { reportId: report.id });
-      const blob = new Blob([response.data], { type: 'application/pdf' });
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `${report.name || 'report'}.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      a.remove();
-    } catch (error) {
-      console.error('Download failed:', error);
-    }
-    setDownloadingId(null);
-  };
-
-  const handleSendEmail = async (report) => {
-    if (!report.recipients?.length) {
-      alert('No recipients configured for this report');
-      return;
-    }
-    setSendingId(report.id);
-    try {
-      await base44.functions.invoke('exportReportPdf', {
-        reportId: report.id,
-        sendEmail: true,
-        recipients: report.recipients,
-      });
-      alert('Report sent successfully!');
-    } catch (error) {
-      console.error('Send failed:', error);
-    }
-    setSendingId(null);
-  };
   return (
     <div className="space-y-2">
       {reports.map((report) => {

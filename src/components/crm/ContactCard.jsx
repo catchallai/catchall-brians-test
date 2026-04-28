@@ -3,7 +3,7 @@ import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Mail, Phone, MapPin, Globe } from 'lucide-react';
 
-export default function ContactCard({ contact, company, onClick, isSelected }) {
+export default function ContactCard({ contact, onClick }) {
   const statusColors = {
     lead: 'bg-blue-100 text-blue-700 border-blue-200',
     prospect: 'bg-amber-100 text-amber-700 border-amber-200',

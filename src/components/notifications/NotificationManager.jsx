@@ -4,7 +4,6 @@ import { useQuery } from '@tanstack/react-query';
 import { Bell, Check, AlertCircle } from 'lucide-react';
 
 export default function NotificationManager({ user }) {
-  const [notifications, setNotifications] = useState([]);
   const [dndActive, setDndActive] = useState(false);
 
   // Check if DND is active
@@ -61,8 +60,6 @@ export default function NotificationManager({ user }) {
         if (!dndActive && user?.sound_enabled) {
           playNotificationSound();
         }
-
-        setNotifications((prev) => [notification, ...prev.slice(0, 9)]);
       }
     });
 
@@ -99,8 +96,6 @@ export default function NotificationManager({ user }) {
   const markAsRead = async (notificationId) => {
     await base44.entities.Notification.update(notificationId, { is_read: true });
   };
-
-  const unreadCount = fetchedNotifications.filter((n) => !n.is_read).length;
 
   return (
     <div className="space-y-2 max-h-96 overflow-y-auto">

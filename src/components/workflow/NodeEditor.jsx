@@ -127,7 +127,7 @@ const ACTION_CONFIG_FIELDS = {
   },
 };
 
-export default function NodeEditor({ node, nodeIndex, onUpdate, onClose, teamMembers = [] }) {
+export default function NodeEditor({ node, nodeIndex, onUpdate, onClose }) {
   const [config, setConfig] = useState(node?.config || {});
   const actionType = node?.type;
   const fields = ACTION_CONFIG_FIELDS[actionType]?.fields || [];

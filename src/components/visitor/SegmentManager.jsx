@@ -145,9 +145,6 @@ export default function SegmentManager({ open, onClose, onApplySegment, allVisit
     }).length;
   };
 
-  const uniqueIndustries = [...new Set(allVisitors.map((v) => v.industry))];
-  const uniqueCountries = [...new Set(allVisitors.map((v) => v.country))];
-
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">

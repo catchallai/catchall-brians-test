@@ -6,7 +6,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { UserPlus, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 
-export default function BulkOwnerAssignment({ selectedIds, contacts, teamMembers = [] }) {
+export default function BulkOwnerAssignment({ selectedIds, teamMembers = [] }) {
   const [selectedOwner, setSelectedOwner] = useState('');
   const [assigning, setAssigning] = useState(false);
   const queryClient = useQueryClient();
@@ -21,7 +21,6 @@ export default function BulkOwnerAssignment({ selectedIds, contacts, teamMembers
       const owner = teamMembers.find((m) => m.email === selectedOwner);
 
       for (const id of selectedIds) {
-        const contact = contacts.find((c) => c.id === id);
         await base44.entities.Contact.update(id, {
           owner_email: selectedOwner,
           owner_name: owner?.name || selectedOwner,
@@ -31,7 +30,7 @@ export default function BulkOwnerAssignment({ selectedIds, contacts, teamMembers
       queryClient.invalidateQueries({ queryKey: ['contacts'] });
       toast.success(`Assigned ${selectedIds.length} contact(s) to ${owner?.name || selectedOwner}`);
       setSelectedOwner('');
-    } catch (err) {
+    } catch (_err) {
       toast.error('Failed to assign contacts');
     } finally {
       setAssigning(false);

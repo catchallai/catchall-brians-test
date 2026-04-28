@@ -24,12 +24,7 @@ const activityIcons = {
   mention: { icon: MessageSquare, color: 'text-purple-500 bg-purple-50' },
 };
 
-export default function RecentActivityFeed({
-  activities = [],
-  contacts = [],
-  deals = [],
-  mentions = [],
-}) {
+export default function RecentActivityFeed({ contacts = [], deals = [], mentions = [] }) {
   // Generate activity items from real data
   const generateActivities = () => {
     const items = [];

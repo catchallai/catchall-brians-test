@@ -52,7 +52,7 @@ export default function ContactDeduplicationTool({ contacts, onDeduped }) {
       onDeduped?.();
       setMergeCandidate(null);
       setMergeTarget(null);
-    } catch (err) {
+    } catch (_err) {
       toast.error('Failed to merge contacts');
     } finally {
       setMerging(false);

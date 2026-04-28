@@ -14,7 +14,7 @@ export default function ActiveEditors({ editors = [] }) {
     <TooltipProvider>
       <div className="flex items-center gap-2">
         <div className="flex -space-x-2">
-          {editors.slice(0, 3).map((editor, idx) => (
+          {editors.slice(0, 3).map((editor) => (
             <Tooltip key={editor.id}>
               <TooltipTrigger asChild>
                 <div className="relative">

@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/select';
 import { Loader2, CheckCircle } from 'lucide-react';
 
-export default function BatchOperations({ contacts = [], onClose }) {
+export default function BatchOperations({ contacts = [] }) {
   const [selected, setSelected] = useState([]);
   const [action, setAction] = useState('');
   const [csmAssign, setCsmAssign] = useState('');

@@ -10,7 +10,6 @@ import { format } from 'date-fns';
 
 export default function ReportVersionHistory({ report, open, onClose, onRevert }) {
   const [selectedVersion, setSelectedVersion] = useState(null);
-  const [comparing, setComparing] = useState(false);
   const queryClient = useQueryClient();
 
   const { data: versions = [] } = useQuery({

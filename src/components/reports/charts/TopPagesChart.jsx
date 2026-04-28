@@ -1,7 +1,7 @@
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
 
-export default function TopPagesChart({ dateRange }) {
+export default function TopPagesChart() {
   const topPages = [
     { page: '/blog/seo-guide', views: 12500, change: 15, bounce: 32 },
     { page: '/pricing', views: 8900, change: 8, bounce: 28 },

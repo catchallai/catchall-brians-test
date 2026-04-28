@@ -11,7 +11,7 @@ import { Switch } from '@/components/ui/switch';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Plus, PenTool, Trash2, Star, Loader2, X } from 'lucide-react';
 
-export default function BrandVoiceSettings({ brandVoices, websites }) {
+export default function BrandVoiceSettings({ brandVoices }) {
   const [showModal, setShowModal] = useState(false);
   const [editingVoice, setEditingVoice] = useState(null);
   const [formData, setFormData] = useState({

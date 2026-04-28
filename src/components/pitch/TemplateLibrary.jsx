@@ -37,7 +37,7 @@ export default function TemplateLibrary({ open, onClose, onSelect }) {
   const [category, setCategory] = useState('all');
   const queryClient = useQueryClient();
 
-  const { data: templates = [], isLoading } = useQuery({
+  const { data: templates = [] } = useQuery({
     queryKey: ['pitch-deck-templates'],
     queryFn: () => base44.entities.PitchDeckTemplate.list('-usage_count', 100),
   });

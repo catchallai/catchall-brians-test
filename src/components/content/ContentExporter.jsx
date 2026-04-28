@@ -61,7 +61,7 @@ export default function ContentExporter({ article, open, onClose }) {
       });
 
       onClose();
-    } catch (error) {
+    } catch (_error) {
       toast.error('Export failed');
     } finally {
       setExporting(false);

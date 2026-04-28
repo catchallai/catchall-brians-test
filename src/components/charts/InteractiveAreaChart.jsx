@@ -66,7 +66,7 @@ export default function InteractiveAreaChart({
 
   const CustomLegend = ({ payload }) => (
     <div className="flex flex-wrap justify-center gap-4 mt-2">
-      {payload.map((entry, index) => (
+      {payload.map((entry) => (
         <button
           key={entry.dataKey}
           onClick={() => handleLegendClick(entry.dataKey)}

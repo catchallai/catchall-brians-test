@@ -29,7 +29,7 @@ const trendIcons = {
   declining: { icon: TrendingDown, color: 'text-red-500' },
 };
 
-export default function HealthDashboard({ healthScores, contacts, avgHealth }) {
+export default function HealthDashboard({ healthScores, contacts }) {
   const [selectedHealth, setSelectedHealth] = useState(null);
   const [filter, setFilter] = useState('all');
 

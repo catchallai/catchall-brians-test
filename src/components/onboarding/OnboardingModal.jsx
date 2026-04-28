@@ -134,7 +134,7 @@ const ONBOARDING_STEPS = [
   },
 ];
 
-export default function OnboardingModal({ open, onClose, onComplete, completedSteps = [] }) {
+export default function OnboardingModal({ open, onClose, onComplete }) {
   const [currentStep, setCurrentStep] = useState(0);
   const step = ONBOARDING_STEPS[currentStep];
   const progress = ((currentStep + 1) / ONBOARDING_STEPS.length) * 100;

@@ -32,13 +32,6 @@ export default function PeakHoursCard({ data }) {
     return 'bg-violet-700';
   };
 
-  const getTextColor = (value) => {
-    if (value >= 60) {
-      return 'text-white';
-    }
-    return 'text-gray-600 dark:text-gray-400';
-  };
-
   // Find peak hour
   let peakHour = { day: '', hour: 0, value: 0 };
   heatmapData.forEach((dayData) => {

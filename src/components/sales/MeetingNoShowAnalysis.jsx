@@ -8,7 +8,6 @@ export default function MeetingNoShowAnalysis({ bookings = [] }) {
   const cancelled = bookings.filter((b) => b.status === 'cancelled').length;
   const total = bookings.length;
 
-  const noShowRate = total > 0 ? (noShows / total) * 100 : 0;
   const completionRate = total > 0 ? (completed / total) * 100 : 0;
 
   const getAttendeePatterns = () => {

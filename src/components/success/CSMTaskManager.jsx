@@ -1,13 +1,11 @@
-import { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { CheckCircle, AlertCircle, Clock, Plus } from 'lucide-react';
+import { CheckCircle, AlertCircle, Clock } from 'lucide-react';
 
 export default function CSMTaskManager({ csmFilter = 'all' }) {
-  const [showForm, setShowForm] = useState(false);
   const queryClient = useQueryClient();
 
   const { data: tasks = [] } = useQuery({
@@ -18,14 +16,6 @@ export default function CSMTaskManager({ csmFilter = 'all' }) {
   const { data: contacts = [] } = useQuery({
     queryKey: ['contacts'],
     queryFn: () => base44.entities.Contact.list('-created_date', 200),
-  });
-
-  const createTaskMutation = useMutation({
-    mutationFn: (data) => base44.entities.CSMTask.create(data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['csm-tasks'] });
-      setShowForm(false);
-    },
   });
 
   const completeTaskMutation = useMutation({
@@ -66,12 +56,6 @@ export default function CSMTaskManager({ csmFilter = 'all' }) {
             <p className="text-xs text-gray-500">Overdue</p>
           </CardContent>
         </Card>
-        <div className="flex justify-end">
-          <Button onClick={() => setShowForm(true)} className="gap-2">
-            <Plus className="w-4 h-4" />
-            New Task
-          </Button>
-        </div>
       </div>
 
       <div className="space-y-2">
