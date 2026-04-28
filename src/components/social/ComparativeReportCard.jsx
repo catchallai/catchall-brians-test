@@ -58,7 +58,7 @@ export default function ComparativeReportCard({ report, yourBrandName, competito
   ];
 
   const formatValue = (value, format) => {
-    if (value == null) {
+    if (value === null || value === undefined) {
       return '—';
     }
     if (format === 'percent') {
@@ -77,7 +77,7 @@ export default function ComparativeReportCard({ report, yourBrandName, competito
   };
 
   const getComparison = (yours, theirs) => {
-    if (yours == null || theirs == null) {
+    if (yours === null || yours === undefined || theirs === null || theirs === undefined) {
       return 'neutral';
     }
     if (yours > theirs) {

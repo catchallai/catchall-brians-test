@@ -189,7 +189,7 @@ export default function CompetitorInsightsPanel({ competitor }) {
                   suffix: '/100',
                 },
               ]
-                .filter((m) => m.value != null)
+                .filter((m) => m.value !== null && m.value !== undefined)
                 .map((metric, i) => (
                   <div key={i}>
                     <div className="flex justify-between text-sm mb-1">
