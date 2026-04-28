@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import COPY from '@/lib/copy';
 import { todayLocal } from '@/utils/date';
 import { normalizeReviewers, allReviewersApproved } from '@/utils/reviewers';
-import { versionAt } from '@/utils/postVersion';
+import { versionAt } from '@/utils/versionAt';
 import { ReviewerApprovalStatus } from '@/types/reviewers';
 import { UserRole } from '@/types/enums';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';

@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Send, AtSign, Loader2, MessageSquare, Reply } from 'lucide-react';
 import { formatDistanceToNow, format } from 'date-fns';
 import { CommentActionType } from '@/types/enums';
-import { versionAt } from '@/utils/postVersion';
+import { versionAt } from '@/utils/versionAt';
 import COPY from '@/lib/copy';
 
 // Simple @mention detection: finds @word patterns

@@ -20,7 +20,7 @@ import {
   Trash2,
 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
-import { versionAt } from '@/utils/postVersion';
+import { versionAt } from '@/utils/versionAt';
 import COPY from '@/lib/copy';
 
 const ACTION_ICONS = {
