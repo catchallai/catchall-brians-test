@@ -36,6 +36,7 @@ import {
   CheckSquare,
 } from 'lucide-react';
 import EmptyState from '@/components/ui/EmptyState';
+import ConfirmDialog from '@/components/ui/ConfirmDialog';
 import { toast } from 'sonner';
 import BulkAssetActions from '@/components/assets/BulkAssetActions';
 import FolderManager from '@/components/assets/FolderManager';
@@ -69,6 +70,7 @@ export default function MediaLibrary() {
     folder_id: null,
   });
   const [tagInput, setTagInput] = useState('');
+  const [duplicateUploadFile, setDuplicateUploadFile] = useState(null);
   const queryClient = useQueryClient();
 
   const { data: assets = [], isLoading } = useQuery({
@@ -101,30 +103,9 @@ export default function MediaLibrary() {
     setTagInput('');
   };
 
-  const handleFileUpload = async (e) => {
-    const file = e.target.files?.[0];
-    if (!file) {
-      return;
-    }
-
-    // File size validation
-    if (file.size > MAX_FILE_SIZE) {
-      toast.error(`File size exceeds ${MAX_FILE_SIZE / 1024 / 1024}MB limit`);
-      return;
-    }
-
+  const performFileUpload = async (file) => {
     setUploading(true);
-
     try {
-      // Check for duplicates using file name as simple hash
-      const existingAssets = assets.filter((a) => a.name === file.name);
-      if (existingAssets.length > 0) {
-        if (!confirm('An asset with this name already exists. Upload anyway?')) {
-          setUploading(false);
-          return;
-        }
-      }
-
       const { file_url } = await base44.integrations.Core.UploadFile({ file });
 
       // Create audit log
@@ -143,6 +124,28 @@ export default function MediaLibrary() {
     } finally {
       setUploading(false);
     }
+  };
+
+  const handleFileUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) {
+      return;
+    }
+
+    // File size validation
+    if (file.size > MAX_FILE_SIZE) {
+      toast.error(`File size exceeds ${MAX_FILE_SIZE / 1024 / 1024}MB limit`);
+      return;
+    }
+
+    // Check for duplicates using file name as simple hash
+    const existingAssets = assets.filter((a) => a.name === file.name);
+    if (existingAssets.length > 0) {
+      setDuplicateUploadFile(file);
+      return;
+    }
+
+    await performFileUpload(file);
   };
 
   const formatFileSize = (bytes) => {
@@ -712,6 +715,22 @@ export default function MediaLibrary() {
             setSelectedAssets([]);
             queryClient.invalidateQueries({ queryKey: ['media-assets'] });
           }}
+        />
+
+        {/* Duplicate Upload Confirm */}
+        <ConfirmDialog
+          open={!!duplicateUploadFile}
+          onClose={() => setDuplicateUploadFile(null)}
+          onConfirm={() => {
+            const file = duplicateUploadFile;
+            setDuplicateUploadFile(null);
+            if (file) {
+              performFileUpload(file);
+            }
+          }}
+          title="Asset already exists"
+          description="An asset with this name already exists. Upload anyway?"
+          confirmLabel="Upload"
         />
       </div>
     </div>

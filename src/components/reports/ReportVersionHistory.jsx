@@ -7,10 +7,12 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { History, RotateCcw, Eye, Calendar, User } from 'lucide-react';
 import { format } from 'date-fns';
+import ConfirmDialog from '@/components/ui/ConfirmDialog';
 
 export default function ReportVersionHistory({ report, open, onClose, onRevert }) {
   const [selectedVersion, setSelectedVersion] = useState(null);
   const [comparing, setComparing] = useState(false);
+  const [revertConfirm, setRevertConfirm] = useState(null);
   const queryClient = useQueryClient();
 
   const { data: versions = [] } = useQuery({
@@ -50,13 +52,7 @@ export default function ReportVersionHistory({ report, open, onClose, onRevert }
   });
 
   const handleRevert = (version) => {
-    if (
-      confirm(
-        `Revert to version ${version.version_number}? This will create a new version with the old data.`
-      )
-    ) {
-      revertMutation.mutate(version);
-    }
+    setRevertConfirm(version);
   };
 
   return (
@@ -185,6 +181,19 @@ export default function ReportVersionHistory({ report, open, onClose, onRevert }
           )}
         </div>
       </DialogContent>
+      <ConfirmDialog
+        open={!!revertConfirm}
+        onClose={() => setRevertConfirm(null)}
+        onConfirm={() => {
+          revertMutation.mutate(revertConfirm);
+          setRevertConfirm(null);
+        }}
+        title={`Revert to version ${revertConfirm?.version_number}?`}
+        description="This will create a new version with the old data."
+        confirmLabel="Revert"
+        variant="default"
+        isLoading={revertMutation.isPending}
+      />
     </Dialog>
   );
 }

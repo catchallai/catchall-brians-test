@@ -29,12 +29,14 @@ import {
   DialogTitle,
   DialogFooter,
 } from '@/components/ui/dialog';
+import ConfirmDialog from '@/components/ui/ConfirmDialog';
 import { Label } from '@/components/ui/label';
 
 export default function PortfolioDetail({ portfolio, onBack, user }) {
   const [editingNotes, setEditingNotes] = useState(null);
   const [showNoteDialog, setShowNoteDialog] = useState(false);
   const [newTag, setNewTag] = useState('');
+  const [removeCompanyConfirm, setRemoveCompanyConfirm] = useState(null);
   const queryClient = useQueryClient();
 
   const { data: companies = [] } = useQuery({
@@ -408,11 +410,12 @@ ${getNoteForCompany(c.id)?.notes ? `- Notes: ${getNoteForCompany(c.id).notes}` :
                         variant="ghost"
                         size="icon"
                         className="text-red-500"
-                        onClick={() => {
-                          if (confirm(`Remove ${company.company_name} from portfolio?`)) {
-                            removeCompanyMutation.mutate(company.id);
-                          }
-                        }}
+                        onClick={() =>
+                          setRemoveCompanyConfirm({
+                            id: company.id,
+                            name: company.company_name,
+                          })
+                        }
                       >
                         <X className="w-4 h-4" />
                       </Button>
@@ -532,6 +535,22 @@ ${getNoteForCompany(c.id)?.notes ? `- Notes: ${getNoteForCompany(c.id).notes}` :
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <ConfirmDialog
+        open={!!removeCompanyConfirm}
+        onClose={() => setRemoveCompanyConfirm(null)}
+        onConfirm={() => {
+          removeCompanyMutation.mutate(removeCompanyConfirm.id);
+          setRemoveCompanyConfirm(null);
+        }}
+        title={
+          removeCompanyConfirm
+            ? `Remove ${removeCompanyConfirm.name} from portfolio?`
+            : 'Remove from portfolio?'
+        }
+        description="This action cannot be undone."
+        confirmLabel="Remove"
+      />
     </div>
   );
 }

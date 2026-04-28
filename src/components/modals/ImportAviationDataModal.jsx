@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Upload, FileText, Check, Loader2 } from 'lucide-react';
 import Papa from 'papaparse';
+import { toast } from 'sonner';
 
 export default function ImportAviationDataModal({ open, onClose }) {
   const [file, setFile] = useState(null);
@@ -48,7 +49,7 @@ export default function ImportAviationDataModal({ open, onClose }) {
           setFile(selectedFile);
         },
         error: (error) => {
-          alert('Error parsing CSV: ' + error.message);
+          toast.error('Error parsing CSV: ' + error.message);
         },
       });
     }

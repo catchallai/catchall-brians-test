@@ -36,6 +36,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import moment from 'moment';
+import { toast } from 'sonner';
 
 const scheduleLabels = {
   manual: 'Manual',
@@ -110,7 +111,7 @@ export default function ReportList({
 
   const handleSendEmail = async (report) => {
     if (!report.recipients?.length) {
-      alert('No recipients configured for this report');
+      toast.warning('No recipients configured for this report');
       return;
     }
     setSendingId(report.id);
@@ -120,7 +121,7 @@ export default function ReportList({
         sendEmail: true,
         recipients: report.recipients,
       });
-      alert('Report sent successfully!');
+      toast.success('Report sent successfully!');
     } catch (error) {
       console.error('Send failed:', error);
     }

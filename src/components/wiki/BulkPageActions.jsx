@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -5,12 +6,14 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import ConfirmDialog from '@/components/ui/ConfirmDialog';
 import { Folder, Archive, Trash2, Copy } from 'lucide-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { toast } from 'sonner';
 
 export default function BulkPageActions({ selectedPages, onClearSelection, folders = [] }) {
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const queryClient = useQueryClient();
 
   const bulkUpdateMutation = useMutation({
@@ -50,9 +53,7 @@ export default function BulkPageActions({ selectedPages, onClearSelection, folde
   };
 
   const deletePages = () => {
-    if (confirm(`Delete ${selectedPages.length} pages? This cannot be undone.`)) {
-      bulkDeleteMutation.mutate(selectedPages.map((p) => p.id));
-    }
+    setShowDeleteConfirm(true);
   };
 
   const duplicatePages = async () => {
@@ -126,6 +127,18 @@ export default function BulkPageActions({ selectedPages, onClearSelection, folde
           Cancel
         </Button>
       </div>
+
+      <ConfirmDialog
+        open={showDeleteConfirm}
+        onClose={() => setShowDeleteConfirm(false)}
+        onConfirm={() => {
+          bulkDeleteMutation.mutate(selectedPages.map((p) => p.id));
+          setShowDeleteConfirm(false);
+        }}
+        title={`Delete ${selectedPages.length} pages?`}
+        description="This cannot be undone."
+        confirmLabel="Delete"
+      />
     </div>
   );
 }

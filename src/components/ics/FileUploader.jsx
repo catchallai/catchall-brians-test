@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react';
 import { Paperclip, X, Upload } from 'lucide-react';
+import { toast } from 'sonner';
 import { base44 } from '@/api/base44Client';
 
 export default function FileUploader({ onFilesSelected, maxFiles = 5 }) {
@@ -14,7 +15,7 @@ export default function FileUploader({ onFilesSelected, maxFiles = 5 }) {
     }
 
     if (uploadedFiles.length + files.length > maxFiles) {
-      alert(`Maximum ${maxFiles} files allowed`);
+      toast.warning(`Maximum ${maxFiles} files allowed`);
       return;
     }
 
@@ -40,7 +41,7 @@ export default function FileUploader({ onFilesSelected, maxFiles = 5 }) {
       onFilesSelected(uploadedData);
     } catch (error) {
       console.error('Error uploading files:', error);
-      alert('Error uploading files');
+      toast.error('Error uploading files');
     } finally {
       setIsUploading(false);
       if (fileInputRef.current) {

@@ -16,6 +16,7 @@ import DealSearchFilter from '@/components/sales/DealSearchFilter';
 import SalesPipelineAnalytics from '@/components/sales/SalesPipelineAnalytics';
 import DealProgressionRules from '@/components/sales/DealProgressionRules';
 import { Badge } from '@/components/ui/badge';
+import { toast } from 'sonner';
 
 export default function SalesHub() {
   const [showCallLogger, setShowCallLogger] = useState(false);
@@ -763,7 +764,7 @@ Consider:
         onApplyRules={(count) => {
           queryClient.invalidateQueries({ queryKey: ['deals'] });
           if (count > 0) {
-            alert(`${count} deals progressed automatically`);
+            toast.success(`${count} deals progressed automatically`);
           }
         }}
       />
