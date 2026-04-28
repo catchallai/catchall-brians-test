@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Folder, FolderPlus, Image, Video, Film, HardDrive, Trash2 } from 'lucide-react';
+import ConfirmDialog from '@/components/ui/ConfirmDialog';
 import FolderContentModal from './FolderContentModal';
 
 const FOLDER_TYPES = [
@@ -22,6 +23,7 @@ const FOLDER_TYPES = [
 export default function MediaFolderManager() {
   const [customFolderName, setCustomFolderName] = useState('');
   const [selectedFolder, setSelectedFolder] = useState(null);
+  const [deleteConfirmId, setDeleteConfirmId] = useState(null);
   const queryClient = useQueryClient();
 
   const { data: folders = [] } = useQuery({
@@ -142,9 +144,7 @@ export default function MediaFolderManager() {
                       variant="ghost"
                       onClick={(e) => {
                         e.stopPropagation();
-                        if (confirm('Delete this folder?')) {
-                          deleteMutation.mutate(folder.id);
-                        }
+                        setDeleteConfirmId(folder.id);
                       }}
                     >
                       <Trash2 className="w-3 h-3" />
@@ -187,9 +187,7 @@ export default function MediaFolderManager() {
                     variant="ghost"
                     onClick={(e) => {
                       e.stopPropagation();
-                      if (confirm('Delete this folder?')) {
-                        deleteMutation.mutate(folder.id);
-                      }
+                      setDeleteConfirmId(folder.id);
                     }}
                   >
                     <Trash2 className="w-3 h-3" />
@@ -242,6 +240,19 @@ export default function MediaFolderManager() {
         folder={selectedFolder}
         open={!!selectedFolder}
         onClose={() => setSelectedFolder(null)}
+      />
+
+      <ConfirmDialog
+        open={!!deleteConfirmId}
+        onClose={() => setDeleteConfirmId(null)}
+        onConfirm={() => {
+          deleteMutation.mutate(deleteConfirmId);
+          setDeleteConfirmId(null);
+        }}
+        title="Delete this folder?"
+        description="This action cannot be undone."
+        confirmLabel="Delete"
+        isLoading={deleteMutation.isPending}
       />
     </Card>
   );

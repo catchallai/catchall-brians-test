@@ -54,6 +54,7 @@ import {
 import NotificationRulesModal from '../components/visitor/NotificationRulesModal';
 import SegmentManager from '../components/visitor/SegmentManager';
 import SegmentAnalysis from '../components/visitor/SegmentAnalysis';
+import { toast } from 'sonner';
 
 // AI Lead Scoring Engine
 const calculateAILeadScore = (visitor) => {
@@ -483,7 +484,7 @@ export default function VisitorProfiles() {
     mutationFn: (data) => base44.entities.Contact.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['contacts'] });
-      alert('Lead created successfully!');
+      toast.success('Lead created successfully!');
     },
   });
 
@@ -534,7 +535,7 @@ export default function VisitorProfiles() {
 
     setShowScheduleFollowUp(false);
     setFollowUpDate('');
-    alert('Follow-up scheduled successfully!');
+    toast.success('Follow-up scheduled successfully!');
   };
 
   // Handle add note

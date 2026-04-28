@@ -24,6 +24,7 @@ import BulkPageActions from '@/components/wiki/BulkPageActions';
 import QuickNavigationDialog from '@/components/wiki/QuickNavigationDialog';
 import FullTextSearch from '@/components/wiki/FullTextSearch';
 import EmptyState from '@/components/ui/EmptyState';
+import ConfirmDialog from '@/components/ui/ConfirmDialog';
 import { createPageUrl } from '@/utils';
 import {
   DropdownMenu,
@@ -43,6 +44,7 @@ export default function SpaceDetail() {
   const [selectedPages, setSelectedPages] = useState([]);
   const [showQuickNav, setShowQuickNav] = useState(false);
   const [_showFolderModal, setShowFolderModal] = useState(false);
+  const [deleteFolderId, setDeleteFolderId] = useState(null);
   const queryClient = useQueryClient();
 
   // Cmd+K shortcut
@@ -361,12 +363,7 @@ export default function SpaceDetail() {
                 pages={pages}
                 spaceId={spaceId}
                 onAddFolder={(_parentId) => setShowFolderModal(true)}
-                onDeleteFolder={(folderId) => {
-                  if (confirm('Delete this folder and all its contents?')) {
-                    base44.entities.WikiPageFolder.delete(folderId);
-                    queryClient.invalidateQueries({ queryKey: ['space-folders'] });
-                  }
-                }}
+                onDeleteFolder={(folderId) => setDeleteFolderId(folderId)}
                 onAddPage={(folderId) =>
                   navigate(
                     `${createPageUrl('WikiPageEditor')}?spaceId=${spaceId}&folderId=${folderId}`
@@ -408,6 +405,20 @@ export default function SpaceDetail() {
         open={showQuickNav}
         onClose={() => setShowQuickNav(false)}
         spaceId={spaceId}
+      />
+
+      {/* Delete Folder Confirm */}
+      <ConfirmDialog
+        open={!!deleteFolderId}
+        onClose={() => setDeleteFolderId(null)}
+        onConfirm={() => {
+          base44.entities.WikiPageFolder.delete(deleteFolderId);
+          queryClient.invalidateQueries({ queryKey: ['space-folders'] });
+          setDeleteFolderId(null);
+        }}
+        title="Delete this folder?"
+        description="This will delete the folder and all its contents. This action cannot be undone."
+        confirmLabel="Delete"
       />
     </div>
   );

@@ -14,6 +14,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
 import {
   AlertTriangle,
   Shield,
@@ -139,10 +140,10 @@ The letter should be professional, legally sound, and include all necessary elem
         },
       });
 
-      alert('Takedown notice sent successfully!');
+      toast.success('Takedown notice sent successfully!');
     } catch (error) {
       console.error('Error sending request:', error);
-      alert('Failed to send request. Please try again.');
+      toast.error('Failed to send request. Please try again.');
     }
   };
 

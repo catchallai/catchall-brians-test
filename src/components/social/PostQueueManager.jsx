@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import ConfirmDialog from '@/components/ui/ConfirmDialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -20,6 +21,7 @@ import { format, addDays } from 'date-fns';
 
 export default function PostQueueManager() {
   const [showModal, setShowModal] = useState(false);
+  const [removeConfirmId, setRemoveConfirmId] = useState(null);
   const [formData, setFormData] = useState({
     title: '',
     caption: '',
@@ -196,11 +198,7 @@ export default function PostQueueManager() {
                       <Button
                         size="sm"
                         variant="ghost"
-                        onClick={() => {
-                          if (confirm('Remove from queue?')) {
-                            deleteMutation.mutate(item.id);
-                          }
-                        }}
+                        onClick={() => setRemoveConfirmId(item.id)}
                         className="text-red-500 hover:text-red-700"
                       >
                         <Trash className="w-4 h-4" />
@@ -320,6 +318,18 @@ export default function PostQueueManager() {
             </form>
           </DialogContent>
         </Dialog>
+
+        <ConfirmDialog
+          open={!!removeConfirmId}
+          onClose={() => setRemoveConfirmId(null)}
+          onConfirm={() => {
+            deleteMutation.mutate(removeConfirmId);
+            setRemoveConfirmId(null);
+          }}
+          title="Remove from queue?"
+          description="This action cannot be undone."
+          confirmLabel="Remove"
+        />
       </CardContent>
     </Card>
   );

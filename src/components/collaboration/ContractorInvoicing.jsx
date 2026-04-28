@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { FileText, Plus, Download } from 'lucide-react';
+import { toast } from 'sonner';
 import { format } from 'date-fns';
 
 export default function ContractorInvoicing() {
@@ -38,7 +39,7 @@ export default function ContractorInvoicing() {
     const contractorTimesheets = timesheets.filter((t) => t.contractor_id === contractor.id);
 
     if (contractorTimesheets.length === 0) {
-      alert('No approved timesheets for this contractor');
+      toast.warning('No approved timesheets for this contractor');
       return;
     }
 

@@ -492,7 +492,6 @@ Include all major public and private aerospace companies. For private companies,
 
     setIsScanning(true);
     try {
-      let imported = 0;
       const existingNames = companies.map((c) => c.company_name.toLowerCase());
 
       for (const competitor of competitors) {
@@ -563,7 +562,6 @@ If this is NOT an aerospace/aviation company, return is_aerospace: false.`,
             ...response,
             last_scanned: new Date().toISOString(),
           });
-          imported++;
         }
       }
     } catch (error) {
@@ -847,7 +845,6 @@ Use current internet data to provide the most accurate and recent information.`,
   const fetchLogos = async () => {
     setIsScanning(true);
     try {
-      let updated = 0;
       for (const company of companies) {
         if (company.logo_url) {
           continue;
@@ -874,7 +871,6 @@ For well-known companies like Boeing, Lockheed Martin, SpaceX, etc., find their 
               id: company.id,
               data: { logo_url: response.logo_url },
             });
-            updated++;
           }
         } catch (err) {
           console.error(`Failed to fetch logo for ${company.company_name}:`, err);
