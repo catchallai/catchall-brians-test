@@ -172,7 +172,7 @@ export default function Contacts() {
           action_url: `/contacts?id=${contact.id}`,
         });
       } catch (_err) {
-        console.log('Notification creation skipped');
+        console.warn('Notification creation skipped');
       }
 
       return contact;
@@ -519,7 +519,7 @@ export default function Contacts() {
       }
       if (result.failedContacts?.length > 0) {
         messages.push(`❌ ${result.failedContacts.length} contacts failed validation`);
-        console.log('Failed contacts:', result.failedContacts);
+        console.warn('Failed contacts:', result.failedContacts);
       }
       if (result.successCount > 0) {
         messages.push(`✅ Successfully imported ${result.successCount} contacts`);
