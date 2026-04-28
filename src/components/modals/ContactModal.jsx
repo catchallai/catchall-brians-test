@@ -488,7 +488,7 @@ export default function ContactModal({
                       />
                       <Button
                         type="button"
-                        onClick={(e) => {
+                        onClick={() => {
                           const input = document.getElementById('new_email');
                           if (input?.value) {
                             addArrayItem('general_emails', input.value);
@@ -534,7 +534,7 @@ export default function ContactModal({
                       />
                       <Button
                         type="button"
-                        onClick={(e) => {
+                        onClick={() => {
                           const input = document.getElementById('new_phone');
                           if (input?.value) {
                             addArrayItem('general_phones', input.value);
@@ -581,7 +581,7 @@ export default function ContactModal({
                     />
                     <Button
                       type="button"
-                      onClick={(e) => {
+                      onClick={() => {
                         const input = document.getElementById('new_source_url');
                         if (input?.value) {
                           addArrayItem('contact_sources_urls', input.value);
@@ -741,7 +741,7 @@ export default function ContactModal({
                     />
                     <Button
                       type="button"
-                      onClick={(e) => {
+                      onClick={() => {
                         const input = document.getElementById('new_loi_url');
                         if (input?.value) {
                           addArrayItem('loi_source_urls', input.value);

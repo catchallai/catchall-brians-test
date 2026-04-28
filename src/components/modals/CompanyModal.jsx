@@ -93,7 +93,7 @@ export default function CompanyModal({ open, onClose, company, onSave, onDelete,
         setSyncingLogo(false);
       };
       img.src = logoUrls[0];
-    } catch (error) {
+    } catch (_error) {
       setSyncingLogo(false);
     }
   };

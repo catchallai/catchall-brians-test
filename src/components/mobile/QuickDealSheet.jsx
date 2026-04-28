@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { base44 } from '@/api/base44Client';
-import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -25,12 +25,6 @@ export default function QuickDealSheet({ open, onClose, deal = null }) {
   });
 
   const queryClient = useQueryClient();
-
-  const { data: contacts = [] } = useQuery({
-    queryKey: ['contacts-quick'],
-    queryFn: () => base44.entities.Contact.list('-created_date', 50),
-    enabled: open,
-  });
 
   const mutation = useMutation({
     mutationFn: (data) => {

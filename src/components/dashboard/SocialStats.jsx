@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { MessageSquare, TrendingUp, Users, Heart, Share2 } from 'lucide-react';
 
-export default function SocialStats({ mentions = [], accounts = [], posts = [] }) {
+export default function SocialStats({ mentions = [], posts = [] }) {
   const totalMentions = mentions.length;
   const positiveMentions = mentions.filter((m) => m.sentiment === 'positive').length;
   const negativeMentions = mentions.filter((m) => m.sentiment === 'negative').length;

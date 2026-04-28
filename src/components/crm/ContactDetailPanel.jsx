@@ -33,7 +33,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
 
-export default function ContactDetailPanel({ contactId, onClose }) {
+export default function ContactDetailPanel({ contactId }) {
   const [showEmailModal, setShowEmailModal] = React.useState(false);
   const [showTaskModal, setShowTaskModal] = React.useState(false);
   const [taskTitle, setTaskTitle] = React.useState('');
@@ -58,13 +58,6 @@ export default function ContactDetailPanel({ contactId, onClose }) {
   const { data: deals = [] } = useQuery({
     queryKey: ['contact-deals', contactId],
     queryFn: () => base44.entities.Deal.filter({ contact_id: contactId }, '-created_date', 20),
-    enabled: !!contactId,
-  });
-
-  const { data: opportunities = [] } = useQuery({
-    queryKey: ['contact-opportunities', contactId],
-    queryFn: () =>
-      base44.entities.Opportunity.filter({ contact_id: contactId }, '-created_date', 20),
     enabled: !!contactId,
   });
 
@@ -119,7 +112,7 @@ export default function ContactDetailPanel({ contactId, onClose }) {
       setTaskTitle('');
       setTaskDescription('');
       setShowTaskModal(false);
-    } catch (error) {
+    } catch (_error) {
       toast.error('Failed to create task');
     } finally {
       setCreatingTask(false);

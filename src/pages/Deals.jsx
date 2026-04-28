@@ -150,7 +150,7 @@ export default function Deals() {
             action_url: `/deals?id=${id}`,
           });
         } catch (_err) {
-          console.log('Notification creation skipped');
+          console.warn('Notification creation skipped');
         }
       }
 

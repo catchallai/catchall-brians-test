@@ -81,7 +81,7 @@ export default function CompaniesModule() {
             companyData.website = result.data.website;
           }
         } catch (err) {
-          console.log('Website lookup failed:', err);
+          console.warn('Website lookup failed:', err);
         }
       }
 
@@ -93,7 +93,7 @@ export default function CompaniesModule() {
           website: company.website,
         });
       } catch (err) {
-        console.log('Auto-enrichment skipped:', err);
+        console.warn('Auto-enrichment skipped:', err);
       }
       return company;
     },
@@ -151,7 +151,7 @@ export default function CompaniesModule() {
             img.src = logoUrls[0];
           });
         } catch (_err) {
-          console.log(`Failed to sync logo for ${company.name}`);
+          console.warn(`Failed to sync logo for ${company.name}`);
         }
       }
 
@@ -778,7 +778,7 @@ export default function CompaniesModule() {
           }
           if (result.failedCompanies?.length > 0) {
             toast.error(`${result.failedCompanies.length} companies failed`);
-            console.log('Failed companies:', result.failedCompanies);
+            console.warn('Failed companies:', result.failedCompanies);
           }
         }}
       />

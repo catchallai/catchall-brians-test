@@ -226,16 +226,7 @@ export function useWebRTC() {
       }));
     };
 
-    // Handle ICE candidates
-    pc.onicecandidate = (event) => {
-      if (event.candidate) {
-        // In production, send this to signaling server
-        console.log('ICE candidate:', event.candidate);
-      }
-    };
-
     pc.onconnectionstatechange = () => {
-      console.log('Connection state:', pc.connectionState);
       if (pc.connectionState === 'disconnected' || pc.connectionState === 'failed') {
         delete peerConnections.current[participantId];
         setRemoteStreams((prev) => {

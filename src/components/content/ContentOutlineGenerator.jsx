@@ -24,7 +24,7 @@ import {
   CheckCircle,
 } from 'lucide-react';
 
-export default function ContentOutlineGenerator({ keywords, selectedTopic }) {
+export default function ContentOutlineGenerator({ selectedTopic }) {
   const [isGenerating, setIsGenerating] = useState(false);
   const [outline, setOutline] = useState(null);
   const [topic, setTopic] = useState(selectedTopic?.topic || '');

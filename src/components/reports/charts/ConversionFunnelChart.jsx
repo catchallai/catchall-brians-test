@@ -1,6 +1,6 @@
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 
-export default function ConversionFunnelChart({ dateRange }) {
+export default function ConversionFunnelChart() {
   const funnelData = [
     { stage: 'Visitors', value: 10000, color: '#3b82f6', percent: 100 },
     { stage: 'Leads', value: 2500, color: '#8b5cf6', percent: 25 },

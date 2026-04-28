@@ -111,7 +111,7 @@ export default function ProposalModal({
       const url = window.URL.createObjectURL(blob);
       window.open(url, '_blank');
       toast.success('PDF generated successfully');
-    } catch (error) {
+    } catch (_error) {
       toast.error('Failed to generate PDF');
     } finally {
       setGeneratingPdf(false);
@@ -129,7 +129,7 @@ export default function ProposalModal({
       await base44.functions.invoke('emailProposal', { proposalId: proposal.id });
       toast.success('Proposal sent successfully');
       onClose();
-    } catch (error) {
+    } catch (_error) {
       toast.error('Failed to send proposal');
     } finally {
       setSendingEmail(false);

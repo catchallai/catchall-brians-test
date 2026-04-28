@@ -77,11 +77,9 @@ Thank you for considering our proposal!`,
 
 export default function ProposalTemplateLibrary({ onSelectTemplate }) {
   const [templates] = useState(DEFAULT_TEMPLATES);
-  const [selectedTemplate, setSelectedTemplate] = useState(null);
 
   const handleSelect = (template) => {
     onSelectTemplate?.(template);
-    setSelectedTemplate(null);
   };
 
   return (

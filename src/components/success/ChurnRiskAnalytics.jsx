@@ -10,12 +10,7 @@ const RISK_COLORS = {
   low: '#10b981',
 };
 
-export default function ChurnRiskAnalytics({
-  healthScores,
-  onboardings,
-  interactions,
-  opportunities,
-}) {
+export default function ChurnRiskAnalytics({ healthScores, onboardings, interactions }) {
   // Calculate churn risk based on multiple factors
   const calculateChurnRisk = (customer) => {
     let riskScore = 0;

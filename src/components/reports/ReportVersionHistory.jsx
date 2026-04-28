@@ -11,7 +11,6 @@ import ConfirmDialog from '@/components/ui/ConfirmDialog';
 
 export default function ReportVersionHistory({ report, open, onClose, onRevert }) {
   const [selectedVersion, setSelectedVersion] = useState(null);
-  const [comparing, setComparing] = useState(false);
   const [revertConfirm, setRevertConfirm] = useState(null);
   const queryClient = useQueryClient();
 

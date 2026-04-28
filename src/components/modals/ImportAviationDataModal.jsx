@@ -25,7 +25,7 @@ export default function ImportAviationDataModal({ open, onClose }) {
       const response = await base44.functions.invoke('importAviationData', { data });
       return response.data;
     },
-    onSuccess: (result) => {
+    onSuccess: (_result) => {
       setStep(3);
       setTimeout(() => {
         queryClient.invalidateQueries({ queryKey: ['companies'] });

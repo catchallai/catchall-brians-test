@@ -142,7 +142,7 @@ Provide:
   }));
 
   const radarData =
-    companies[0]?.business_segments?.map((segment, idx) => {
+    companies[0]?.business_segments?.map((segment) => {
       const dataPoint = { segment };
       companies.forEach((c) => {
         dataPoint[c.company_name] = c.business_segments?.includes(segment) ? 100 : 0;

@@ -197,7 +197,7 @@ export default function TopicGenerator({ keywords, competitors, contentInsights,
     interactive: { icon: Zap, color: 'text-amber-500', label: 'Interactive Content' },
   };
 
-  const renderTopicCard = (topic, category) => (
+  const renderTopicCard = (topic, _category) => (
     <div
       className="p-4 bg-white border border-gray-100 rounded-lg hover:shadow-md transition-all cursor-pointer"
       onClick={() =>

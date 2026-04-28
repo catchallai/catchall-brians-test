@@ -176,7 +176,7 @@ export default function ReportsDashboard({
   };
 
   // Generate sample data for new chart types
-  const scatterData = keywords.slice(0, 20).map((k, i) => ({
+  const scatterData = keywords.slice(0, 20).map((k) => ({
     x: k.search_volume || Math.random() * 10000,
     y: k.current_position || Math.random() * 50,
     z: k.difficulty || Math.random() * 100,
@@ -202,7 +202,7 @@ export default function ReportsDashboard({
     { subject: 'Social', current: 65, previous: 50 },
   ];
 
-  const renderWidget = (widget, { isExpanded, size }) => {
+  const renderWidget = (widget, { isExpanded }) => {
     const props = {
       dateRange: currentRange,
       websites,

@@ -48,7 +48,7 @@ export default function DocumentVersionHistory({ documentId }) {
         </CardHeader>
 
         <CardContent className="space-y-3">
-          {versions.map((version, idx) => (
+          {versions.map((version) => (
             <div
               key={version.id}
               className="flex items-start justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg"

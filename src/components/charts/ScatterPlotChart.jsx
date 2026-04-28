@@ -22,7 +22,6 @@ export default function ScatterPlotChart({
   xLabel = 'X Axis',
   yLabel = 'Y Axis',
   groupKey,
-  showTrendLine = false,
 }) {
   const [activeGroup, setActiveGroup] = useState(null);
 
@@ -35,29 +34,6 @@ export default function ScatterPlotChart({
         return acc;
       }, {})
     : { all: data };
-
-  // Calculate trend line
-  const calculateTrendLine = (points) => {
-    if (points.length < 2) {
-      return null;
-    }
-    const n = points.length;
-    const sumX = points.reduce((a, p) => a + p[xKey], 0);
-    const sumY = points.reduce((a, p) => a + p[yKey], 0);
-    const sumXY = points.reduce((a, p) => a + p[xKey] * p[yKey], 0);
-    const sumX2 = points.reduce((a, p) => a + p[xKey] ** 2, 0);
-
-    const slope = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX ** 2);
-    const intercept = (sumY - slope * sumX) / n;
-
-    const minX = Math.min(...points.map((p) => p[xKey]));
-    const maxX = Math.max(...points.map((p) => p[xKey]));
-
-    return [
-      { x: minX, y: slope * minX + intercept },
-      { x: maxX, y: slope * maxX + intercept },
-    ];
-  };
 
   const CustomTooltip = ({ active, payload }) => {
     if (!active || !payload?.length) {

@@ -32,20 +32,8 @@ export default function EmailAnalyticsDashboard({ businessId }) {
     enabled: !!businessId,
   });
 
-  const { data: emailLogs = [] } = useQuery({
-    queryKey: ['email-logs', businessId],
-    queryFn: async () => {
-      if (!businessId) {
-        return [];
-      }
-      return await base44.entities.EmailLog.list('-created_date', 10000);
-    },
-    enabled: !!businessId,
-  });
-
   // Filter by time range
   const filteredCampaigns = useMemo(() => {
-    const now = new Date();
     const filterDate = new Date();
 
     switch (timeRange) {
