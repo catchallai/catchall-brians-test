@@ -9,6 +9,9 @@ export default function NotificationAlert({ user, onNotificationClick }) {
   const [recentNotifications, setRecentNotifications] = useState([]);
 
   useEffect(() => {
+    if (!user?.email) {
+      return;
+    }
     loadRecentNotifications();
     const interval = setInterval(loadRecentNotifications, 5000);
     return () => clearInterval(interval);

@@ -1,20 +1,10 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
-import {
-  Download,
-  TrendingUp,
-  TrendingDown,
-  Minus,
-  Globe,
-  Search,
-  Link2,
-  Activity,
-} from 'lucide-react';
+import { TrendingUp, TrendingDown, Minus, Globe, Search, Link2, Activity } from 'lucide-react';
 import moment from 'moment';
 
-export default function ReportViewer({ open, onClose, report, onExport }) {
+export default function ReportViewer({ onClose, report }) {
   if (!report?.report_data) {
     return null;
   }
@@ -40,25 +30,13 @@ export default function ReportViewer({ open, onClose, report, onExport }) {
   };
 
   return (
-    <Dialog open={open} onOpenChange={onClose}>
+    <Dialog open={true} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-2xl max-h-[80vh] overflow-y-auto">
         <DialogHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <DialogTitle>{report.name}</DialogTitle>
-              <p className="text-sm text-gray-500 mt-1">
-                Generated {moment(data.generated_at).format('MMM D, YYYY h:mm A')}
-              </p>
-            </div>
-            <div className="flex gap-2">
-              <Button size="sm" variant="outline" onClick={() => onExport(report, 'pdf')}>
-                <Download className="w-4 h-4 mr-1" /> PDF
-              </Button>
-              <Button size="sm" variant="outline" onClick={() => onExport(report, 'csv')}>
-                <Download className="w-4 h-4 mr-1" /> CSV
-              </Button>
-            </div>
-          </div>
+          <DialogTitle>{report.name}</DialogTitle>
+          <p className="text-sm text-gray-500 mt-1">
+            Generated {moment(data.generated_at).format('MMM D, YYYY h:mm A')}
+          </p>
         </DialogHeader>
 
         <div className="space-y-6 mt-4">

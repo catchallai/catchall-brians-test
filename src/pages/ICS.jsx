@@ -113,7 +113,6 @@ export default function ICS() {
     refetchInterval: 5000,
   });
 
-  // Initialize real-time notifications (must come after messages query)
   const { markChannelAsRead, unreadCounts } = useICCNotifications(user, channels);
 
   // Handle notification click - navigate to channel
