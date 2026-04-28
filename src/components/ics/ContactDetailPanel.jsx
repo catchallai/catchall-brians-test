@@ -28,7 +28,6 @@ export default function ContactDetailPanel({
   onGroupMessage,
   onScheduleCall,
   isOwnProfile,
-  onEditProfile: _onEditProfile,
 }) {
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState(null);

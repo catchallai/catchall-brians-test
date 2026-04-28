@@ -441,12 +441,7 @@ export default function Listings() {
       </div>
 
       {/* GBP Manager */}
-      {selectedGBPListing && (
-        <GBPManager
-          listing={selectedGBPListing}
-          onUpdate={() => queryClient.invalidateQueries({ queryKey: ['listings'] })}
-        />
-      )}
+      {selectedGBPListing && <GBPManager listing={selectedGBPListing} />}
 
       {/* Listings */}
       {filteredListings.length === 0 ? (

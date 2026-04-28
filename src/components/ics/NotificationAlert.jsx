@@ -5,12 +5,7 @@ import { Button } from '@/components/ui/button';
 import { MessageSquare, AtSign, X } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 
-export default function NotificationAlert({
-  channelId: _channelId,
-  user,
-  onNotificationClick,
-  onDismiss: _onDismiss,
-}) {
+export default function NotificationAlert({ user, onNotificationClick }) {
   const [recentNotifications, setRecentNotifications] = useState([]);
 
   useEffect(() => {

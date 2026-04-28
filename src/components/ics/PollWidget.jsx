@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/dialog';
 import { BarChart3, Plus, X } from 'lucide-react';
 
-export default function PollWidget({ channelId, user, onPollCreated: _onPollCreated }) {
+export default function PollWidget({ channelId, user }) {
   const [polls, setPolls] = useState([]);
   const [showCreatePoll, setShowCreatePoll] = useState(false);
   const [pollQuestion, setPollQuestion] = useState('');

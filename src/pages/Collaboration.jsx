@@ -244,9 +244,7 @@ export default function Collaboration() {
                 <TableView project={selectedProject} tasks={projectTasks} user={user} />
               )}
 
-              {viewMode === 'timeline' && (
-                <TimelineView project={selectedProject} tasks={projectTasks} user={user} />
-              )}
+              {viewMode === 'timeline' && <TimelineView tasks={projectTasks} />}
             </div>
           ) : (
             <Card className="glass-card rounded-2xl">

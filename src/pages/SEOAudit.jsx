@@ -78,21 +78,6 @@ export default function SEOAudit() {
     enabled: !!user?.current_business_id,
   });
 
-  const { data: keywords = [] } = useQuery({
-    queryKey: ['keywords-audit', user?.current_business_id],
-    queryFn: async () => {
-      if (!user?.current_business_id) {
-        return [];
-      }
-      return await base44.entities.Keyword.filter(
-        { business_id: user.current_business_id },
-        '-created_date',
-        100
-      );
-    },
-    enabled: !!user?.current_business_id,
-  });
-
   const { data: backlinks = [] } = useQuery({
     queryKey: ['backlinks-audit', user?.current_business_id],
     queryFn: async () => {
@@ -434,7 +419,7 @@ export default function SEOAudit() {
                   </TabsContent>
 
                   <TabsContent value="content">
-                    <ContentOptimizationCard data={audit.content_data} keywords={keywords} />
+                    <ContentOptimizationCard data={audit.content_data} />
                   </TabsContent>
 
                   <TabsContent value="backlinks">

@@ -14,12 +14,7 @@ import {
 import { FileText, Edit2, Lock, Unlock, Users, X } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 
-export default function CollaborativeDocumentEditor({
-  channelId,
-  user,
-  onDocumentSelect: _onDocumentSelect,
-  onClose,
-}) {
+export default function CollaborativeDocumentEditor({ channelId, user, onClose }) {
   const [documents, setDocuments] = useState([]);
   const [selectedDoc, setSelectedDoc] = useState(null);
   const [isEditing, setIsEditing] = useState(false);

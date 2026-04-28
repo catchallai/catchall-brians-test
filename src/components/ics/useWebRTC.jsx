@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 
-export function useWebRTC(_roomId, _user, _participants) {
+export function useWebRTC() {
   const [localStream, setLocalStream] = useState(null);
   const [remoteStreams, setRemoteStreams] = useState({});
   const [isAudioEnabled, setIsAudioEnabled] = useState(true);

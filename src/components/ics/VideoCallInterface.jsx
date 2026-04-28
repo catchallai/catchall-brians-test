@@ -93,7 +93,7 @@ export default function VideoCallInterface({
     muteParticipant,
     unmuteParticipant,
     cleanupConnections,
-  } = useWebRTC(activeCall?.room_id, user, activeCall?.participants);
+  } = useWebRTC();
 
   useEffect(() => {
     if (activeCall) {

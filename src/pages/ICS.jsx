@@ -114,7 +114,7 @@ export default function ICS() {
   });
 
   // Initialize real-time notifications (must come after messages query)
-  const { markChannelAsRead, unreadCounts } = useICCNotifications(user, channels, messages);
+  const { markChannelAsRead, unreadCounts } = useICCNotifications(user, channels);
 
   // Handle notification click - navigate to channel
   useEffect(() => {
@@ -531,11 +531,7 @@ export default function ICS() {
   return (
     <div className="h-screen flex bg-slate-50">
       {/* Real-time notification alert */}
-      <NotificationAlert
-        channelId={selectedChannel?.id}
-        user={user}
-        onNotificationClick={setClickedNotification}
-      />
+      <NotificationAlert user={user} onNotificationClick={setClickedNotification} />
 
       <Sidebar
         activeView={activeView}
@@ -587,27 +583,6 @@ export default function ICS() {
           <UsersList
             users={allUsers}
             allPresence={allPresence}
-            onSelectUser={(selectedUser) => {
-              const dmChannel = channels.find(
-                (c) =>
-                  c.type === 'dm' &&
-                  c.members?.includes(selectedUser.email) &&
-                  c.members?.includes(user?.email)
-              );
-
-              if (dmChannel) {
-                setSelectedChannel(dmChannel);
-              } else {
-                createChannelMutation.mutate({
-                  name: selectedUser.full_name,
-                  type: 'dm',
-                  created_by: user?.email,
-                  members: [user?.email, selectedUser.email],
-                  last_activity: new Date().toISOString(),
-                });
-              }
-              setActiveView('chat');
-            }}
             currentUser={user}
             onViewProfile={(contact) => {
               setSelectedContact(contact);
@@ -680,7 +655,6 @@ export default function ICS() {
           onGroupMessage={() => {}}
           onScheduleCall={() => {}}
           isOwnProfile={true}
-          onEditProfile={() => setShowProfile(true)}
         />
       ) : activeView === 'notifications' ? (
         <NotificationsView user={user} />
@@ -694,7 +668,7 @@ export default function ICS() {
         />
       ) : activeView === 'admin' ? (
         <div className="flex-1 overflow-auto">
-          <ICSAdminPortal user={user} />
+          <ICSAdminPortal />
         </div>
       ) : null}
 

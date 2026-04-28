@@ -493,9 +493,6 @@ For each issue, provide:
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
                 <SEOHistoricalTracker keywords={keywords} keywordHistory={keywordHistory} />
                 <SEOAnomalyDetector
-                  websites={websites}
-                  keywords={keywords}
-                  backlinks={backlinks}
                   onDetectAnomalies={() => detectSEOAnomaliesMutation.mutateAsync()}
                 />
               </div>

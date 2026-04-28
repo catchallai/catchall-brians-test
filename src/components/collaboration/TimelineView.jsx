@@ -10,7 +10,7 @@ const priorityColors = {
   urgent: 'bg-red-500',
 };
 
-export default function TimelineView({ project: _project, tasks, user: _user }) {
+export default function TimelineView({ tasks }) {
   const [currentDate, setCurrentDate] = useState(new Date());
 
   const endOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);

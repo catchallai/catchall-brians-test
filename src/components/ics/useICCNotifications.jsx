@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { base44 } from '@/api/base44Client';
 import { toast } from 'sonner';
 
-export function useICCNotifications(user, channels, _messages) {
+export function useICCNotifications(user, channels) {
   const [unreadCounts, setUnreadCounts] = useState({});
 
   // Request desktop notification permission

@@ -6,14 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Search, MessageSquare } from 'lucide-react';
 import PresenceIndicator from './PresenceIndicator';
 
-export default function UsersList({
-  users,
-  allPresence,
-  darkMode,
-  onSelectUser: _onSelectUser,
-  currentUser,
-  onViewProfile,
-}) {
+export default function UsersList({ users, allPresence, darkMode, currentUser, onViewProfile }) {
   const [searchTerm, setSearchTerm] = useState('');
 
   const filteredUsers = useMemo(() => {

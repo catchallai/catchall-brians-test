@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Users, MessageSquare, Radio, AlertTriangle, Search, RefreshCw, Clock } from 'lucide-react';
 
-export default function ICSAdminPortal({ user: _user, darkMode }) {
+export default function ICSAdminPortal({ darkMode }) {
   const [searchUser, setSearchUser] = useState('');
   const queryClient = useQueryClient();
 

@@ -17,7 +17,7 @@ import {
 } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
-export default function GBPManager({ listing, onUpdate: _onUpdate }) {
+export default function GBPManager({ listing }) {
   const [analyzing, setAnalyzing] = useState(false);
   const [analysis, setAnalysis] = useState(null);
   const [generatingResponse, setGeneratingResponse] = useState(null);

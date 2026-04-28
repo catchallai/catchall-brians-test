@@ -14,7 +14,7 @@ import {
 } from 'lucide-react';
 import moment from 'moment';
 
-export default function ReportViewer({ open, onClose, report, website: _website, onExport }) {
+export default function ReportViewer({ open, onClose, report, onExport }) {
   if (!report?.report_data) {
     return null;
   }

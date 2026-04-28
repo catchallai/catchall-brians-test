@@ -520,10 +520,7 @@ export default function SEOTools() {
 
         {/* SERP Gap Analyzer Tab */}
         <TabsContent value="serpgap">
-          <SERPGapAnalyzer
-            websites={websites}
-            onAddKeyword={(kw) => addKeywordMutation.mutate(kw)}
-          />
+          <SERPGapAnalyzer onAddKeyword={(kw) => addKeywordMutation.mutate(kw)} />
         </TabsContent>
 
         {/* Exploding Topics Tab */}
