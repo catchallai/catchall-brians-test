@@ -226,13 +226,6 @@ export function useWebRTC() {
       }));
     };
 
-    // Handle ICE candidates
-    pc.onicecandidate = (event) => {
-      if (event.candidate) {
-        // In production, send this to signaling server
-      }
-    };
-
     pc.onconnectionstatechange = () => {
       if (pc.connectionState === 'disconnected' || pc.connectionState === 'failed') {
         delete peerConnections.current[participantId];
