@@ -52,12 +52,6 @@ export default function QuickAddCalendarModal({ open, onClose }) {
     queryFn: () => base44.entities.Project.list('-created_date', 100),
   });
 
-  // Fetch team members
-  const { data: user } = useQuery({
-    queryKey: ['current-user'],
-    queryFn: () => base44.auth.me(),
-  });
-
   // Create task mutation
   const createTaskMutation = useMutation({
     mutationFn: (data) => base44.entities.ProjectTask.create(data),

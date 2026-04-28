@@ -5,10 +5,13 @@ import { Button } from '@/components/ui/button';
 import { MessageSquare, AtSign, X } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 
-export default function NotificationAlert({ channelId, user, onNotificationClick, onDismiss }) {
+export default function NotificationAlert({ user, onNotificationClick }) {
   const [recentNotifications, setRecentNotifications] = useState([]);
 
   useEffect(() => {
+    if (!user?.email) {
+      return;
+    }
     loadRecentNotifications();
     const interval = setInterval(loadRecentNotifications, 5000);
     return () => clearInterval(interval);
@@ -47,8 +50,6 @@ export default function NotificationAlert({ channelId, user, onNotificationClick
         const Icon = notif.type === 'mention' ? AtSign : MessageSquare;
         const bgColor =
           notif.type === 'mention' ? 'bg-amber-50 border-amber-200' : 'bg-blue-50 border-blue-200';
-        const badgeColor =
-          notif.type === 'mention' ? 'bg-amber-100 text-amber-800' : 'bg-blue-100 text-blue-800';
 
         return (
           <Card key={notif.id} className={`p-4 border shadow-lg ${bgColor}`}>

@@ -88,8 +88,6 @@ export default function MultiLocationCard({ keywords, keywordHistory }) {
     }));
   }, [keywordHistory]);
 
-  const DeviceIcon = devices.find((d) => d.value === selectedDevice)?.icon || Monitor;
-
   return (
     <Card className="border-0 shadow-sm">
       <CardHeader className="pb-3">

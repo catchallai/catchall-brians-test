@@ -17,7 +17,6 @@ import { Plus, Share2, Trash2, Users } from 'lucide-react';
 
 export default function SharedDashboardBuilder({ businessId }) {
   const [showModal, setShowModal] = useState(false);
-  const [editingDash, setEditingDash] = useState(null);
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -74,7 +73,6 @@ export default function SharedDashboardBuilder({ businessId }) {
 
   const handleModalClose = () => {
     setShowModal(false);
-    setEditingDash(null);
     setFormData({
       name: '',
       description: '',

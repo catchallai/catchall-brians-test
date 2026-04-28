@@ -13,10 +13,10 @@ import { Loader2, Calendar, Sparkles, Clock, Image, Video, FileText, Check } fro
 import { base44 } from '@/api/base44Client';
 import { format, addDays, startOfWeek, addWeeks } from 'date-fns';
 
-export default function AIContentCalendarCard({ socialAccounts = [], posts = [], onSchedulePost }) {
+export default function AIContentCalendarCard({ socialAccounts = [], posts = [] }) {
   const [isGenerating, setIsGenerating] = useState(false);
   const [calendar, setCalendar] = useState(null);
-  const [weekOffset, setWeekOffset] = useState(0);
+  const weekOffset = 0;
   const [selectedPlatform, setSelectedPlatform] = useState('all');
 
   const generateCalendar = async () => {

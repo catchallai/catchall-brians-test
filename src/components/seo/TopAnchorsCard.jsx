@@ -22,8 +22,7 @@ export default function TopAnchorsCard({ backlinks }) {
   }, [backlinks]);
 
   const anchorTypes = useMemo(() => {
-    let branded = 0,
-      exact = 0,
+    let exact = 0,
       partial = 0,
       generic = 0,
       naked = 0;

@@ -10,8 +10,6 @@ export default function NoteWithMentions({ entityType, entityId, businessId, onN
   const [mentions, setMentions] = useState([]);
   const queryClient = useQueryClient();
 
-  const { data: user } = base44.auth.me();
-
   const createActivityMutation = useMutation({
     mutationFn: (data) => base44.entities.Activity.create(data),
     onSuccess: () => {

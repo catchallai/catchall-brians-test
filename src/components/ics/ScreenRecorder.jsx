@@ -10,7 +10,6 @@ export class ScreenRecorder {
       const canvas = document.createElement('canvas');
       canvas.width = 1920;
       canvas.height = 1080;
-      const ctx = canvas.getContext('2d');
 
       const audioContext = new AudioContext();
       const audioDestination = audioContext.createMediaStreamDestination();

@@ -100,12 +100,6 @@ export default function BacklinkAnalysisCard({ data, backlinks = [], competitors
     { domain: 'hubspot.com', da: 92, competitorLinks: 2, type: 'Resource Page' },
   ];
 
-  const qualityColors = {
-    high: 'bg-emerald-500',
-    medium: 'bg-amber-500',
-    low: 'bg-red-500',
-  };
-
   return (
     <Card className="border-0 shadow-sm bg-white dark:bg-gray-800">
       <CardHeader>

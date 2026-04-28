@@ -28,7 +28,6 @@ export default function ContactDetailPanel({
   onGroupMessage,
   onScheduleCall,
   isOwnProfile,
-  onEditProfile,
 }) {
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState(null);
@@ -45,8 +44,6 @@ export default function ContactDetailPanel({
     }
     setIsEditing(!isEditing);
   };
-
-  const contactData = editData || contact;
 
   return (
     <div

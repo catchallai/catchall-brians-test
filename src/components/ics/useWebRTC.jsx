@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 
-export function useWebRTC(roomId, user, participants) {
+export function useWebRTC() {
   const [localStream, setLocalStream] = useState(null);
   const [remoteStreams, setRemoteStreams] = useState({});
   const [isAudioEnabled, setIsAudioEnabled] = useState(true);
@@ -159,7 +159,6 @@ export function useWebRTC(roomId, user, participants) {
       const canvas = document.createElement('canvas');
       canvas.width = 1280;
       canvas.height = 720;
-      const ctx = canvas.getContext('2d');
 
       const combinedStream = new MediaStream([
         ...destination.stream.getAudioTracks(),

@@ -65,22 +65,6 @@ export default function BacklinkAnalytics({ backlinks }) {
     };
   }, [backlinks]);
 
-  // Top Anchors
-  const topAnchors = useMemo(() => {
-    const anchorCounts = {};
-    backlinks.forEach((b) => {
-      if (b.anchor_text) {
-        const anchor = b.anchor_text.toLowerCase().trim();
-        anchorCounts[anchor] = (anchorCounts[anchor] || 0) + 1;
-      }
-    });
-
-    return Object.entries(anchorCounts)
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 6)
-      .map(([text, count]) => ({ text, count }));
-  }, [backlinks]);
-
   // Domain Authority Distribution
   const daDistribution = useMemo(() => {
     const ranges = [

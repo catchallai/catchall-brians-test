@@ -1907,14 +1907,7 @@ Find 5 recent posts with: post_url (direct link to post), content, post_date, li
             />
             <PredictiveTrendsCard socialAccounts={socialAccounts} posts={socialPosts} />
             <CompetitorForecastCard competitors={competitors} yourAccounts={socialAccounts} />
-            <AIContentCalendarCard
-              socialAccounts={socialAccounts}
-              posts={socialPosts}
-              onSchedulePost={(_data) => {
-                setEditingPost(null);
-                setShowScheduleModal(true);
-              }}
-            />
+            <AIContentCalendarCard socialAccounts={socialAccounts} posts={socialPosts} />
           </div>
         </TabsContent>
 

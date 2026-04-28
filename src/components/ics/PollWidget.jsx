@@ -13,12 +13,11 @@ import {
 } from '@/components/ui/dialog';
 import { BarChart3, Plus, X } from 'lucide-react';
 
-export default function PollWidget({ channelId, user, onPollCreated }) {
+export default function PollWidget({ channelId, user }) {
   const [polls, setPolls] = useState([]);
   const [showCreatePoll, setShowCreatePoll] = useState(false);
   const [pollQuestion, setPollQuestion] = useState('');
   const [pollOptions, setPollOptions] = useState(['', '']);
-  const [selectedOptions, setSelectedOptions] = useState(new Set());
 
   const loadPolls = async () => {
     try {
@@ -186,7 +185,6 @@ export default function PollWidget({ channelId, user, onPollCreated }) {
           <p className="text-xs text-gray-500 py-4 text-center">No active polls</p>
         ) : (
           polls.map((poll) => {
-            const hasVoted = poll.options.some((opt) => opt.votes?.includes(user?.email));
             return (
               <Card key={poll.id} className="bg-blue-50 border-blue-200">
                 <CardContent className="pt-4 space-y-3">

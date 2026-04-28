@@ -14,12 +14,7 @@ import {
 import { FileText, Edit2, Lock, Unlock, Users, X } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 
-export default function CollaborativeDocumentEditor({
-  channelId,
-  user,
-  onDocumentSelect,
-  onClose,
-}) {
+export default function CollaborativeDocumentEditor({ channelId, user, onClose }) {
   const [documents, setDocuments] = useState([]);
   const [selectedDoc, setSelectedDoc] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
@@ -79,21 +74,6 @@ export default function CollaborativeDocumentEditor({
       await loadDocuments();
     } catch (err) {
       console.error('Failed to toggle lock:', err);
-    }
-  };
-
-  const addCollaborator = async (email) => {
-    if (!selectedDoc || selectedDoc.collaborators?.includes(email)) {
-      return;
-    }
-    try {
-      const updated = await base44.entities.Document.update(selectedDoc.id, {
-        collaborators: [...(selectedDoc.collaborators || []), email],
-      });
-      setSelectedDoc(updated);
-      await loadDocuments();
-    } catch (err) {
-      console.error('Failed to add collaborator:', err);
     }
   };
 
