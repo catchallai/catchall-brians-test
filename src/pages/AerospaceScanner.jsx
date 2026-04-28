@@ -566,8 +566,6 @@ If this is NOT an aerospace/aviation company, return is_aerospace: false.`,
           imported++;
         }
       }
-
-      console.log(`Imported ${imported} aerospace companies from competitors`);
     } catch (error) {
       console.error('Import failed:', error);
     } finally {
@@ -882,7 +880,6 @@ For well-known companies like Boeing, Lockheed Martin, SpaceX, etc., find their 
           console.error(`Failed to fetch logo for ${company.company_name}:`, err);
         }
       }
-      console.log(`Updated ${updated} company logos`);
     } catch (error) {
       console.error('Logo fetch failed:', error);
     } finally {

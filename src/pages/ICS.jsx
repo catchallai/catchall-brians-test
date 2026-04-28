@@ -233,7 +233,7 @@ export default function ICS() {
                 tag: 'new-message',
               });
             } catch (_err) {
-              console.log('Desktop notifications not supported');
+              console.warn('Desktop notifications not supported');
             }
           }
         }
@@ -634,12 +634,8 @@ export default function ICS() {
               }
               setShowContactPanel(false);
             }}
-            onGroupMessage={() => {
-              console.log('Group message feature coming soon');
-            }}
-            onScheduleCall={() => {
-              console.log('Schedule call feature coming soon');
-            }}
+            onGroupMessage={() => {}}
+            onScheduleCall={() => {}}
             isOwnProfile={false}
           />
         </>
