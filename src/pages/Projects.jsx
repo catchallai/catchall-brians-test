@@ -142,6 +142,11 @@ export default function Projects() {
     });
   }, [projects, searchTerm, statusFilter, priorityFilter]);
 
+  const projectTasks = useMemo(() => {
+    if (!selectedProject) return [];
+    return tasks.filter((task) => task.project_id === selectedProject.id);
+  }, [tasks, selectedProject]);
+
   const statusColors = {
     planning: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300',
     active: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300',
