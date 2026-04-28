@@ -133,11 +133,6 @@ export default function PortfolioDetail({ portfolio, onBack, user }) {
     .sort((a, b) => b.contracts - a.contracts)
     .slice(0, 10);
 
-  const typeDistribution = [
-    { name: 'Public', value: kpis.publicCompanies, color: '#3b82f6' },
-    { name: 'Private', value: kpis.privateCompanies, color: '#8b5cf6' },
-  ];
-
   const generateReport = () => {
     const report = `
 PORTFOLIO REPORT: ${portfolio.name}

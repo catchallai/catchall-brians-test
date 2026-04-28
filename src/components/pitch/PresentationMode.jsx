@@ -31,9 +31,8 @@ export default function PresentationMode({
   companyName,
 }) {
   const [currentSlide, setCurrentSlide] = useState(0);
-  const [transition, setTransition] = useState('fade');
+  const transition = 'fade';
   const [linkModal, setLinkModal] = useState(null);
-  const [playingVideo, setPlayingVideo] = useState(null);
 
   const nextSlide = () => {
     if (currentSlide < slides.length - 1) {
@@ -74,7 +73,6 @@ export default function PresentationMode({
     if (open) {
       setCurrentSlide(0);
       setLinkModal(null);
-      setPlayingVideo(null);
     }
   }, [open]);
 
@@ -184,13 +182,7 @@ export default function PresentationMode({
             )}
             {content.media.type === 'video' && (
               <div className="aspect-video rounded-xl overflow-hidden shadow-2xl bg-black">
-                <video
-                  controls
-                  autoPlay
-                  className="w-full h-full"
-                  onPlay={() => setPlayingVideo(currentSlide)}
-                  onPause={() => setPlayingVideo(null)}
-                >
+                <video controls autoPlay className="w-full h-full">
                   <source src={content.media.url} />
                 </video>
               </div>

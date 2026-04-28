@@ -32,7 +32,7 @@ const TRIGGER_LABELS = {
   manual: 'Manual Enrollment',
 };
 
-export default function DripCampaignsPanel({ campaigns, contacts }) {
+export default function DripCampaignsPanel({ campaigns }) {
   const [showModal, setShowModal] = useState(false);
   const [formData, setFormData] = useState({
     name: '',

@@ -10,7 +10,7 @@ import {
 } from 'recharts';
 import { format, eachDayOfInterval, eachWeekOfInterval, differenceInDays } from 'date-fns';
 
-export default function TrafficTrendsChart({ dateRange, websites = [] }) {
+export default function TrafficTrendsChart({ dateRange }) {
   const days = differenceInDays(dateRange.to, dateRange.from);
 
   // Generate mock data based on date range

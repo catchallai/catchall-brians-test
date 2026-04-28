@@ -29,8 +29,6 @@ const iconColors = {
 };
 
 export default function AlertWidget({ alerts = [] }) {
-  const AlertIcon = alertIcons[alerts[0]?.type] || Info;
-
   if (alerts.length === 0) {
     return null;
   }

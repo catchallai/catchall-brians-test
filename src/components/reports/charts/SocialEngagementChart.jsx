@@ -3,7 +3,7 @@ import { Badge } from '@/components/ui/badge';
 import { format, eachWeekOfInterval } from 'date-fns';
 import { PLATFORM_MAP } from '@/constants/platforms';
 
-export default function SocialEngagementChart({ dateRange, mentions = [] }) {
+export default function SocialEngagementChart({ dateRange }) {
   // Generate mock data
   const generateData = () => {
     const weeks = eachWeekOfInterval({ start: dateRange.from, end: dateRange.to });

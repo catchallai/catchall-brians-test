@@ -15,7 +15,6 @@ import {
 } from '@/components/ui/select';
 
 export default function DraggableDashboard({
-  widgets = [],
   availableWidgets = [],
   activeWidgetIds = [],
   widgetSizes = {},

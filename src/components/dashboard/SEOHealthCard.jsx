@@ -28,7 +28,6 @@ export default function SEOHealthCard({ websites, keywords, backlinks }) {
   ).length;
   const top3Keywords = keywords.filter((k) => k.current_position && k.current_position <= 3).length;
 
-  const totalBacklinks = backlinks.length;
   const activeBacklinks = backlinks.filter((b) => b.status === 'active').length;
 
   const scoreColor =

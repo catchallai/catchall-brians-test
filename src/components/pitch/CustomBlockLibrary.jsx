@@ -35,7 +35,7 @@ export default function CustomBlockLibrary({ open, onClose, onSelect }) {
   const [blockType, setBlockType] = useState('all');
   const queryClient = useQueryClient();
 
-  const { data: blocks = [], isLoading } = useQuery({
+  const { data: blocks = [] } = useQuery({
     queryKey: ['custom-slide-blocks'],
     queryFn: () => base44.entities.CustomSlideBlock.list('-usage_count', 100),
   });

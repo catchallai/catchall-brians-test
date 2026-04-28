@@ -32,13 +32,7 @@ const STAGES = [
   'not_interested',
 ];
 
-export default function BulkActionsPanel({
-  opportunities,
-  onDelete,
-  onUpdateStage,
-  onAddTags,
-  isLoading,
-}) {
+export default function BulkActionsPanel({ opportunities, onDelete, onUpdateStage, isLoading }) {
   const [selectedIds, setSelectedIds] = useState(new Set());
   const [bulkStage, setBulkStage] = useState('');
   const [deleteConfirm, setDeleteConfirm] = useState(false);

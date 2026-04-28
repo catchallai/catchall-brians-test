@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import {
@@ -16,8 +16,6 @@ import {
 import { Download } from 'lucide-react';
 
 export default function SalesPipelineAnalytics({ deals, onExport }) {
-  const [timeRange, setTimeRange] = useState('30days');
-
   const calculateMetrics = useMemo(() => {
     const activeDeals = deals.filter((d) => !['won', 'lost'].includes(d.stage));
     const wonDeals = deals.filter((d) => d.stage === 'won');

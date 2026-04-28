@@ -28,9 +28,6 @@ export default function EnrichmentQualityDisplay({ lead }) {
   const hasEducation = lead.education?.length > 0;
   const hasSkills = lead.skills?.length > 0;
 
-  const completeness =
-    [hasEmail, hasPhone, hasExperience, hasEducation, hasSkills].filter(Boolean).length * 20;
-
   return (
     <Card className="glass-card">
       <CardContent className="p-4">

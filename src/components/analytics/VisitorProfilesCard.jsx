@@ -335,7 +335,6 @@ export default function VisitorProfilesCard() {
       const pagesViewed = Math.floor(Math.random() * 12) + 2;
       const timeMinutes = Math.floor(Math.random() * 20) + 2;
       const timeSeconds = Math.floor(Math.random() * 60);
-      const leadScore = Math.floor(Math.random() * 30) + 65;
 
       const journey = [];
       const journeyLength = Math.min(pagesViewed, 4);

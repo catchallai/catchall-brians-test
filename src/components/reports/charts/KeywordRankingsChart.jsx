@@ -11,7 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import { TrendingUp, TrendingDown } from 'lucide-react';
 import { format, eachWeekOfInterval } from 'date-fns';
 
-export default function KeywordRankingsChart({ dateRange, keywords = [] }) {
+export default function KeywordRankingsChart({ dateRange }) {
   // Generate mock ranking data
   const generateData = () => {
     const weeks = eachWeekOfInterval({ start: dateRange.from, end: dateRange.to });
@@ -38,7 +38,6 @@ export default function KeywordRankingsChart({ dateRange, keywords = [] }) {
   ];
 
   const latestData = data[data.length - 1] || {};
-  const previousData = data[data.length - 2] || {};
 
   return (
     <div className="space-y-4">

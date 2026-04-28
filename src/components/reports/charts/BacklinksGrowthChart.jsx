@@ -11,13 +11,13 @@ import { Badge } from '@/components/ui/badge';
 import { TrendingUp, Link2 } from 'lucide-react';
 import { format, eachWeekOfInterval } from 'date-fns';
 
-export default function BacklinksGrowthChart({ dateRange, backlinks = [] }) {
+export default function BacklinksGrowthChart({ dateRange }) {
   // Generate mock data
   const generateData = () => {
     const weeks = eachWeekOfInterval({ start: dateRange.from, end: dateRange.to });
     let cumulative = 1200;
 
-    return weeks.map((date, idx) => {
+    return weeks.map((date) => {
       const newLinks = Math.round(15 + Math.random() * 25);
       const lostLinks = Math.round(3 + Math.random() * 8);
       cumulative += newLinks - lostLinks;
@@ -38,7 +38,6 @@ export default function BacklinksGrowthChart({ dateRange, backlinks = [] }) {
   const previousData = data[0] || {};
 
   const netGrowth = latestData.total - previousData.total;
-  const growthPercent = ((netGrowth / previousData.total) * 100).toFixed(1);
 
   // Top referring domains mock data
   const topDomains = [

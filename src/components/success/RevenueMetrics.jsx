@@ -10,7 +10,6 @@ export default function RevenueMetrics() {
   });
 
   const latestPeriod = revenue[0];
-  const previousPeriod = revenue[1];
 
   const metrics = [
     { label: 'ARR', value: latestPeriod?.arr, icon: TrendingUp, color: 'text-violet-600' },

@@ -87,7 +87,6 @@ export default function AutomationRuleModal({ open, onClose, rule, templates, on
   };
 
   const selectedTrigger = TRIGGERS.find((t) => t.id === formData.trigger_type);
-  const selectedAction = ACTIONS.find((a) => a.id === formData.action_type);
 
   const updateActionConfig = (field, value) => {
     setFormData((prev) => ({

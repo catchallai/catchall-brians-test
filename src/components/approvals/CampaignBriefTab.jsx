@@ -97,21 +97,6 @@ export default function CampaignBriefTab({ currentUser }) {
     onSuccess: () => qc.invalidateQueries({ queryKey: QUERY_KEY }),
   });
 
-  const updateDriver = (ch, field, value) => {
-    setForm((f) => ({
-      ...f,
-      drivers: f.drivers.map((d) => (d.channel === ch ? { ...d, [field]: value } : d)),
-    }));
-  };
-
-  const updateKeyMessage = (i, value) => {
-    setForm((f) => {
-      const msgs = [...f.key_messages];
-      msgs[i] = value;
-      return { ...f, key_messages: msgs };
-    });
-  };
-
   const toggleCopyOnBrief = (brief, copyId) => {
     const current = brief.approved_copy_ids || [];
     const updated = current.includes(copyId)
