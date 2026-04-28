@@ -12,6 +12,8 @@ import {
   Activity,
 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
+import { versionAt } from '@/utils/versionAt';
+import COPY from '@/lib/copy';
 
 const ACTION_CONFIG = {
   comment: { icon: MessageSquare, color: 'bg-blue-100 text-blue-600', label: 'commented' },
@@ -96,6 +98,12 @@ export default function PostActivityFeed({ post }) {
                 )}
                 <p className="text-[10px] text-gray-400 mt-0.5">
                   {formatDistanceToNow(new Date(event.timestamp), { addSuffix: true })}
+                  {' · '}
+                  {COPY.postVersion.versionShort(
+                    typeof event.version === 'number'
+                      ? event.version
+                      : versionAt(post.workflow_history, event.timestamp)
+                  )}
                 </p>
               </div>
             </div>

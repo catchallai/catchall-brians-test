@@ -83,10 +83,10 @@ export const ALL_CHANNELS_TAB_OPTIONS: { value: AllChannelsTab; label: string }[
 
 /**
  * One curated, business-friendly timezone region. `iana` is the canonical IANA
- * zone we persist on a CalendarPost; `label` is what we render to users; and
- * `aliases` is the set of synonym IANA zones that should resolve to the same
- * region (e.g. America/Vancouver and America/Tijuana both resolve to Pacific
- * Time). Use the `resolveRegionIana` helper in `utils/date.ts` to walk it.
+ * zone we persist on a SocialMediaPost; `label` is what we render to users;
+ * and `aliases` is the set of synonym IANA zones that should resolve to the
+ * same region (e.g. America/Vancouver and America/Tijuana both resolve to
+ * Pacific Time). Use the `resolveRegionIana` helper in `utils/date.ts` to walk it.
  */
 interface TimezoneRegion {
   iana: string;

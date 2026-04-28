@@ -2,24 +2,21 @@ import { useState, useRef } from 'react';
 import React from 'react';
 import { Maximize2, Minimize2 } from 'lucide-react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
-import PostComposer, {
-  type PostComposerRef,
-  type PostComposerProps,
-  type CalendarPost,
-} from './PostComposer';
+import PostComposer, { type PostComposerRef, type PostComposerProps } from './PostComposer';
 import { type HashtagPool } from '@/components/social/HashtagPoolSelector';
+import type { SocialMediaPost } from '@/types/post';
 
 const TypedDialogContent = DialogContent as React.ComponentType<any>;
 
-interface CalendarPostModalProps {
+type CalendarPostModalProps = {
   open: boolean;
   onClose: () => void;
-  post?: CalendarPost | null;
+  post?: SocialMediaPost | null;
   onSave: PostComposerProps['onSave'];
   isLoading: boolean;
   hashtagPool?: HashtagPool[];
   currentMonth?: Date;
-}
+};
 
 // This component is a thin wrapper around PostComposer that places it inside a Dialog and manages fullscreen state.
 // It also prevents closing the dialog when the user clicks outside or presses escape, and instead delegates that to

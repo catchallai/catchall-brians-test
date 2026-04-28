@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Send, AtSign, Loader2, MessageSquare, Reply } from 'lucide-react';
 import { formatDistanceToNow, format } from 'date-fns';
 import { CommentActionType } from '@/types/enums';
+import { versionAt } from '@/utils/versionAt';
 import COPY from '@/lib/copy';
 
 // Simple @mention detection: finds @word patterns
@@ -46,7 +47,17 @@ const ACTION_TYPE_STYLES = {
   },
 };
 
-function CommentCard({ comment, currentUser, onReply, derivedActionType, isUnread }) {
+/**
+ * @param {{
+ *   comment: any,
+ *   currentUser: any,
+ *   onReply: (comment: any) => void,
+ *   derivedActionType?: any,
+ *   isUnread?: boolean,
+ *   version: number,
+ * }} props
+ */
+function CommentCard({ comment, currentUser, onReply, derivedActionType, isUnread, version }) {
   const parts = parseMentions(comment.text || '');
   const actionStyle = derivedActionType ? ACTION_TYPE_STYLES[derivedActionType] : null;
   const isReply = !!comment.reply_to_name;
@@ -85,6 +96,9 @@ function CommentCard({ comment, currentUser, onReply, derivedActionType, isUnrea
           )}
           <span className="text-[10px] text-gray-400 cursor-default" title={fullTimestamp}>
             {formatDistanceToNow(new Date(comment.timestamp), { addSuffix: true })}
+          </span>
+          <span className="text-[10px] text-gray-400">
+            {COPY.postVersion.versionLabel(version)}
           </span>
           {comment.by_email !== currentUser?.email && (
             <button
@@ -365,6 +379,7 @@ export default function PostCommentThread({ post, currentUser, onPostUpdated }) 
             onReply={setReplyTo}
             derivedActionType={commentActionMap.get(c.timestamp)}
             isUnread={!!(lastViewedAt && c.timestamp > lastViewedAt)}
+            version={versionAt(post.workflow_history, c.timestamp)}
           />
         ))}
         <div ref={bottomRef} />

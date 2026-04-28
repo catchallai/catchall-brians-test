@@ -20,6 +20,8 @@ import {
   Trash2,
 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
+import { versionAt } from '@/utils/versionAt';
+import COPY from '@/lib/copy';
 
 const ACTION_ICONS = {
   approved: { icon: CheckCircle2, color: 'text-green-500 bg-green-50' },
@@ -165,6 +167,12 @@ export default function ApprovalHistoryTab({ posts, currentUser: _currentUser, s
                     <Badge className={`text-xs ${postStatus.color}`}>{postStatus.label}</Badge>
                     <p className="text-xs text-gray-400 block">
                       {formatDistanceToNow(new Date(event.timestamp), { addSuffix: true })}
+                      {' · '}
+                      {COPY.postVersion.versionShort(
+                        typeof event.version === 'number'
+                          ? event.version
+                          : versionAt(event.post?.workflow_history, event.timestamp)
+                      )}
                     </p>
                   </div>
                 </div>
