@@ -17,6 +17,7 @@ import { toast } from 'sonner';
 export default function BulkAssetActions({ selectedAssets, onClear, onComplete }) {
   const [showMoveModal, setShowMoveModal] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [targetFolder, setTargetFolder] = useState('');
 
   const { data: folders = [] } = useQuery({
@@ -30,11 +31,19 @@ export default function BulkAssetActions({ selectedAssets, onClear, onComplete }
   });
 
   const performBulkDelete = async () => {
-    for (const id of selectedAssets) {
-      await base44.entities.MediaAsset.delete(id);
+    setIsDeleting(true);
+    try {
+      for (const id of selectedAssets) {
+        await base44.entities.MediaAsset.delete(id);
+      }
+      toast.success('Assets deleted');
+      setShowDeleteConfirm(false);
+      onComplete();
+    } catch (_error) {
+      toast.error('Failed to delete assets');
+    } finally {
+      setIsDeleting(false);
     }
-    toast.success('Assets deleted');
-    onComplete();
   };
 
   const handleBulkMove = async () => {
@@ -124,14 +133,16 @@ export default function BulkAssetActions({ selectedAssets, onClear, onComplete }
 
       <ConfirmDialog
         open={showDeleteConfirm}
-        onClose={() => setShowDeleteConfirm(false)}
-        onConfirm={() => {
-          performBulkDelete();
-          setShowDeleteConfirm(false);
+        onClose={() => {
+          if (!isDeleting) {
+            setShowDeleteConfirm(false);
+          }
         }}
+        onConfirm={performBulkDelete}
         title={`Delete ${selectedAssets.length} assets?`}
         description="This action cannot be undone."
         confirmLabel="Delete"
+        isLoading={isDeleting}
       />
     </>
   );

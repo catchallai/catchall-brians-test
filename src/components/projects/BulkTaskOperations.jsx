@@ -53,6 +53,14 @@ export default function BulkTaskOperations({ tasks = [], selectedTasks = [], onS
     },
   });
 
+  const submitAssign = () => {
+    if (!assigneeEmail) {
+      return;
+    }
+    bulkUpdateMutation.mutate({ assigned_to: assigneeEmail });
+    setAssignDialogOpen(false);
+  };
+
   if (selectedTasks.length === 0) {
     return null;
   }
@@ -125,6 +133,12 @@ export default function BulkTaskOperations({ tasks = [], selectedTasks = [], onS
               type="email"
               value={assigneeEmail}
               onChange={(e) => setAssigneeEmail(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && assigneeEmail) {
+                  e.preventDefault();
+                  submitAssign();
+                }
+              }}
               placeholder="user@example.com"
               autoFocus
             />
@@ -133,15 +147,7 @@ export default function BulkTaskOperations({ tasks = [], selectedTasks = [], onS
             <Button variant="outline" onClick={() => setAssignDialogOpen(false)}>
               Cancel
             </Button>
-            <Button
-              onClick={() => {
-                if (assigneeEmail) {
-                  bulkUpdateMutation.mutate({ assigned_to: assigneeEmail });
-                }
-                setAssignDialogOpen(false);
-              }}
-              disabled={!assigneeEmail}
-            >
+            <Button onClick={submitAssign} disabled={!assigneeEmail}>
               Assign
             </Button>
           </DialogFooter>

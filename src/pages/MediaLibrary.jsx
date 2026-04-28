@@ -720,17 +720,22 @@ export default function MediaLibrary() {
         {/* Duplicate Upload Confirm */}
         <ConfirmDialog
           open={!!duplicateUploadFile}
-          onClose={() => setDuplicateUploadFile(null)}
-          onConfirm={() => {
-            const file = duplicateUploadFile;
-            setDuplicateUploadFile(null);
-            if (file) {
-              performFileUpload(file);
+          onClose={() => {
+            if (!uploading) {
+              setDuplicateUploadFile(null);
             }
+          }}
+          onConfirm={async () => {
+            const file = duplicateUploadFile;
+            if (file) {
+              await performFileUpload(file);
+            }
+            setDuplicateUploadFile(null);
           }}
           title="Asset already exists"
           description="An asset with this name already exists. Upload anyway?"
           confirmLabel="Upload"
+          isLoading={uploading}
         />
       </div>
     </div>

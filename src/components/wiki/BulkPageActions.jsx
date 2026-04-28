@@ -33,6 +33,7 @@ export default function BulkPageActions({ selectedPages, onClearSelection, folde
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['space-pages'] });
+      setShowDeleteConfirm(false);
       onClearSelection();
       toast.success('Pages deleted successfully');
     },
@@ -130,14 +131,18 @@ export default function BulkPageActions({ selectedPages, onClearSelection, folde
 
       <ConfirmDialog
         open={showDeleteConfirm}
-        onClose={() => setShowDeleteConfirm(false)}
+        onClose={() => {
+          if (!bulkDeleteMutation.isPending) {
+            setShowDeleteConfirm(false);
+          }
+        }}
         onConfirm={() => {
           bulkDeleteMutation.mutate(selectedPages.map((p) => p.id));
-          setShowDeleteConfirm(false);
         }}
         title={`Delete ${selectedPages.length} pages?`}
         description="This cannot be undone."
         confirmLabel="Delete"
+        isLoading={bulkDeleteMutation.isPending}
       />
     </div>
   );
