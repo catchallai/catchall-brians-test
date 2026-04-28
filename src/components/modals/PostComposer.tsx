@@ -1434,30 +1434,37 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
 
     let saveResult: SocialMediaPost | void;
 
-    if (isSubmittingForApproval && existingPostId) {
-      // If the user has unsaved compose-tab edits, persist them under the
-      // previous status first. This survives a partial failure: if the
-      // submit step below fails, content is still saved and the user can
-      // retry without losing work.
-      if (isDirty) {
+    if (isSubmittingForApproval) {
+      // Pre-save when (a) the post doesn't exist yet — we need an id before we
+      // can call the submit function, so create it as a draft first; or (b) the
+      // user has unsaved compose-tab edits — persist them under the previous
+      // status so they survive even if the submit step below fails.
+      let postId = existingPostId;
+      if (!postId || isDirty) {
         try {
-          await onSave({
+          const persisted = await onSave({
             ...formData,
-            status: previousStatus ?? PostStatus.DRAFT,
+            status: postId ? (previousStatus ?? PostStatus.DRAFT) : PostStatus.DRAFT,
             timezone: resolvedTimezone,
             platform_image_urls: platformCrops,
             platform_crop_metadata: platformCropMetadata,
           });
+          postId = persisted?.id ?? postId;
+          if (persisted) saveResult = persisted;
         } catch (error: unknown) {
           toast.error((error as Error)?.message ?? COPY.calendarPostModal.saveFailed);
           return;
         }
       }
-      // Then perform the atomic transition: attach approval metadata, flip
-      // status, bump version, append workflow event.
+      if (!postId) {
+        toast.error(COPY.calendarPostModal.saveFailed);
+        return;
+      }
+      // Then perform the server-side transition: attach approval metadata,
+      // flip status, bump version, append workflow event.
       try {
         const response = await base44.functions.invoke('submitPostForApproval', {
-          postId: existingPostId,
+          postId,
           ...(approvalMeta.reviewers !== undefined && { reviewers: approvalMeta.reviewers }),
           ...(approvalMeta.priority !== undefined && { priority: approvalMeta.priority }),
           ...(approvalMeta.review_due_date !== undefined && {
@@ -1465,7 +1472,13 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
           }),
           ...(approvalNote ? { note: approvalNote } : {}),
         });
-        saveResult = (response?.data?.post as SocialMediaPost | undefined) ?? undefined;
+        saveResult = response?.data?.post as SocialMediaPost | undefined;
+        // The function call bypasses onSave's mutation wrapper, so the React
+        // Query cache won't refetch on its own. Invalidate the same keys
+        // PostApprovalPanel's submitForApprovalMutation invalidates.
+        queryClient.invalidateQueries({ queryKey: ['calendar-posts'] });
+        queryClient.invalidateQueries({ queryKey: ['calendar-posts-all'] });
+        queryClient.invalidateQueries({ queryKey: ['calendar-post', postId] });
       } catch (error: unknown) {
         toast.error((error as Error)?.message ?? COPY.calendarPostModal.saveFailed);
         return;
