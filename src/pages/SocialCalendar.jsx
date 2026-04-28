@@ -934,79 +934,81 @@ export default function SocialCalendar() {
           </div>
         </div>
 
-        {/* Approval Section */}
-        <Card className="border-0 shadow-sm mt-6 bg-white dark:bg-gray-800 rounded-2xl">
-          <CardContent className="p-6">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
-              <div className="flex-1 w-full sm:w-auto">
-                <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                  {COPY.socialCalendar.signOffApprovedBy}
-                </label>
-                <div className="border-b-2 border-emerald-400 mt-2 pb-2">
-                  {showApprovalSection ? (
-                    <Input
-                      value={approverName}
-                      onChange={(e) => setApproverName(e.target.value)}
-                      placeholder={COPY.socialCalendar.approverNamePlaceholder}
-                      className="border-0 p-0 h-8 text-lg focus-visible:ring-0 bg-transparent"
-                    />
-                  ) : (
+        {/* Approval Section — only relevant on the Layout (nine-grid) view */}
+        {viewMode === 'nine-grid' && (
+          <Card className="border-0 shadow-sm mt-6 bg-white dark:bg-gray-800 rounded-2xl">
+            <CardContent className="p-6">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
+                <div className="flex-1 w-full sm:w-auto">
+                  <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                    {COPY.socialCalendar.signOffApprovedBy}
+                  </label>
+                  <div className="border-b-2 border-emerald-400 mt-2 pb-2">
+                    {showApprovalSection ? (
+                      <Input
+                        value={approverName}
+                        onChange={(e) => setApproverName(e.target.value)}
+                        placeholder={COPY.socialCalendar.approverNamePlaceholder}
+                        className="border-0 p-0 h-8 text-lg focus-visible:ring-0 bg-transparent"
+                      />
+                    ) : (
+                      <span className="text-lg text-gray-700 dark:text-gray-300 font-medium">
+                        {filteredPosts.find((p) => p.approved_by)?.approved_by || '—'}
+                      </span>
+                    )}
+                  </div>
+                </div>
+                <div className="flex-1 w-full sm:w-auto">
+                  <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                    {COPY.socialCalendar.signOffDate}
+                  </label>
+                  <div className="border-b-2 border-emerald-400 mt-2 pb-2">
                     <span className="text-lg text-gray-700 dark:text-gray-300 font-medium">
-                      {filteredPosts.find((p) => p.approved_by)?.approved_by || '—'}
+                      {filteredPosts.find((p) => p.approved_date)?.approved_date
+                        ? format(
+                            new Date(filteredPosts.find((p) => p.approved_date).approved_date),
+                            'MMM d, yyyy'
+                          )
+                        : '—'}
                     </span>
+                  </div>
+                </div>
+                <div className="w-full sm:w-auto">
+                  {showApprovalSection ? (
+                    <div className="flex gap-3">
+                      {/* This will be implemented later */}
+                      <Button
+                        disabled
+                        size="lg"
+                        className="gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-3 h-auto text-base font-semibold shadow-lg"
+                      >
+                        <CheckCircle className="w-5 h-5" />
+                        {COPY.socialCalendar.approveAllPosts}
+                      </Button>
+                      <Button
+                        size="lg"
+                        variant="outline"
+                        onClick={() => setShowApprovalSection(false)}
+                        className="px-4"
+                      >
+                        {COPY.socialCalendar.cancel}
+                      </Button>
+                    </div>
+                  ) : (
+                    <Button
+                      size="lg"
+                      onClick={() => setShowApprovalSection(true)}
+                      className="gap-2 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white px-8 py-4 h-auto text-lg font-bold shadow-lg hover:shadow-xl transition-all"
+                    >
+                      <CheckCircle className="w-5 h-5" />
+                      {COPY.socialCalendar.signOffCalendar}
+                    </Button>
                   )}
                 </div>
               </div>
-              <div className="flex-1 w-full sm:w-auto">
-                <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                  {COPY.socialCalendar.signOffDate}
-                </label>
-                <div className="border-b-2 border-emerald-400 mt-2 pb-2">
-                  <span className="text-lg text-gray-700 dark:text-gray-300 font-medium">
-                    {filteredPosts.find((p) => p.approved_date)?.approved_date
-                      ? format(
-                          new Date(filteredPosts.find((p) => p.approved_date).approved_date),
-                          'MMM d, yyyy'
-                        )
-                      : '—'}
-                  </span>
-                </div>
-              </div>
-              <div className="w-full sm:w-auto">
-                {showApprovalSection ? (
-                  <div className="flex gap-3">
-                    {/* This will be implemented later */}
-                    <Button
-                      disabled
-                      size="lg"
-                      className="gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-3 h-auto text-base font-semibold shadow-lg"
-                    >
-                      <CheckCircle className="w-5 h-5" />
-                      {COPY.socialCalendar.approveAllPosts}
-                    </Button>
-                    <Button
-                      size="lg"
-                      variant="outline"
-                      onClick={() => setShowApprovalSection(false)}
-                      className="px-4"
-                    >
-                      {COPY.socialCalendar.cancel}
-                    </Button>
-                  </div>
-                ) : (
-                  <Button
-                    size="lg"
-                    onClick={() => setShowApprovalSection(true)}
-                    className="gap-2 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white px-8 py-4 h-auto text-lg font-bold shadow-lg hover:shadow-xl transition-all"
-                  >
-                    <CheckCircle className="w-5 h-5" />
-                    {COPY.socialCalendar.signOffCalendar}
-                  </Button>
-                )}
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        )}
       </div>
 
       {/* New Post guard — discard unsaved composer changes */}
