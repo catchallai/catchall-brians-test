@@ -1,35 +1,19 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.21';
 
 /**
- * Submits a post for approval. This is the single server-authoritative path
- * for transitioning a post into `pending_approval`.
+ * Server-authoritative path for transitioning a post into `pending_approval`.
+ * Centralizes the version-bump rule (server can't trust client-sent versions
+ * without inviting drift) and stamps the matching workflow_history entry in
+ * the same write so the stamp never diverges from `post.version`.
  *
- * Why this lives on the backend:
- *   - The version-bump rule (increment on every entry into `pending_approval`)
- *     must be enforced in one place. Computing it on the frontend means
- *     multiple call sites all have to remember to bump, and concurrent
- *     submissions from two clients could read the same prior version and
- *     both write `n+1`. Server-side read-modify-write is atomic.
- *   - Stamping the workflow_history entry with the new version belongs in
- *     the same transaction as the bump itself, so the stamp can never drift.
+ * Concurrency: read-modify-write, not transactionally atomic. Two
+ * near-simultaneous submissions on the same post can produce a duplicated
+ * `n+1` and lose one workflow_history append. Acceptable for a human-paced
+ * flow; if that changes, swap to optimistic concurrency via
+ * `updateMany({ id, version: expected }, { $inc, $push })` with retry.
  *
- * What it does, atomically:
- *   1. Validates the caller is authenticated and the post exists.
- *   2. Validates the current status is one we allow bumping from
- *      (BUMPABLE_STATUSES) — prevents double-submits, resubmitting an
- *      already-approved post, etc.
- *   3. Computes `newVersion = (post.version ?? 0) + 1`.
- *   4. Optionally applies approval metadata (reviewers, priority,
- *      review_due_date) supplied by the caller. When `reviewers` is
- *      provided, derives `assigned_to_email` / `assigned_to_name` from
- *      the first reviewer for backward compatibility with consumers that
- *      still read those flat fields.
- *   5. Appends a `submitted_for_approval` entry to `workflow_history`
- *      stamped with `newVersion`, and updates `status` + `version` on
- *      the post in a single CalendarPost.update call.
- *
- * Request body: { postId, note?, reviewers?, priority?, review_due_date? }
- * Response: { post: <updated CalendarPost> }
+ * Request: { postId, note?, reviewers?, priority?, review_due_date? }
+ * Response: { post }
  */
 
 const BUMPABLE_STATUSES = new Set(['draft', 'rejected', 'changes_requested', 'pending_review']);

@@ -187,7 +187,11 @@ export default function PostApprovalPanel({
   });
 
   const submitForApprovalMutation = useMutation({
-    mutationFn: () => base44.functions.invoke('submitPostForApproval', { postId: post.id }),
+    mutationFn: (/** @type {{ note?: string }} */ { note: submissionNote } = {}) =>
+      base44.functions.invoke('submitPostForApproval', {
+        postId: post.id,
+        ...(submissionNote ? { note: submissionNote } : {}),
+      }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['calendar-posts'] });
       queryClient.invalidateQueries({ queryKey: ['calendar-posts-all'] });
@@ -245,7 +249,12 @@ export default function PostApprovalPanel({
   };
 
   const handleSubmitForApproval = () => {
-    submitForApprovalMutation.mutate();
+    submitForApprovalMutation.mutate(
+      { note },
+      {
+        onSuccess: () => setNote(''),
+      }
+    );
   };
 
   const handleRequestChanges = () => setDrawerAction('changes_requested');

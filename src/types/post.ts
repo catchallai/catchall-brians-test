@@ -58,6 +58,13 @@ type WorkflowEntry = {
   [key: string]: unknown;
 };
 
+// Verions tracking
+export type VersionedHistoryEntry = {
+  timestamp?: string;
+  version?: number;
+  [key: string]: unknown;
+};
+
 export type SocialMediaPost = {
   // Base44 entity metadata
   id?: string;
@@ -80,7 +87,7 @@ export type SocialMediaPost = {
   platform_image_urls?: Record<string, string>;
   platform_crop_metadata?: Record<
     string,
-    { cropBox?: CropBox; transformOps?: TransformOp[]; tilt?: number }
+    { cropBox: CropBox | null; transformOps: TransformOp[]; tilt: number }
   >;
 
   // Scheduling

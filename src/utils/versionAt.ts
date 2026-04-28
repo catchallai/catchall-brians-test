@@ -1,8 +1,4 @@
-type VersionedHistoryEntry = {
-  timestamp?: string;
-  version?: number;
-  [key: string]: unknown;
-};
+import { VersionedHistoryEntry } from '@/types/post';
 
 /**
  * Returns the post version that was current at a given moment in time.

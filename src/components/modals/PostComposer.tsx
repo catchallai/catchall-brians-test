@@ -1413,12 +1413,48 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
     const existingPostId = savedPost?.id ?? post?.id;
     const isNewPost = !existingPostId;
 
+    const resolvedTimezone = formData.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const platformCropMetadata = Object.fromEntries(
+      [
+        ...new Set([
+          ...Object.keys(platformCrops),
+          ...Object.keys(platformCropBoxes),
+          ...Object.keys(platformTransformOps),
+          ...Object.keys(platformTilts),
+        ]),
+      ].map((platform) => [
+        platform,
+        {
+          cropBox: platformCropBoxes[platform] ?? null,
+          transformOps: platformTransformOps[platform] ?? [],
+          tilt: platformTilts[platform] ?? 0,
+        },
+      ])
+    );
+
     let saveResult: SocialMediaPost | void;
 
     if (isSubmittingForApproval && existingPostId) {
-      // The post body was already persisted by the "Continue to Approval"
-      // pre-save, so submission is a pure server-side transition: attach
-      // approval metadata, flip status, bump version, append workflow event.
+      // If the user has unsaved compose-tab edits, persist them under the
+      // previous status first. This survives a partial failure: if the
+      // submit step below fails, content is still saved and the user can
+      // retry without losing work.
+      if (isDirty) {
+        try {
+          await onSave({
+            ...formData,
+            status: previousStatus ?? PostStatus.DRAFT,
+            timezone: resolvedTimezone,
+            platform_image_urls: platformCrops,
+            platform_crop_metadata: platformCropMetadata,
+          });
+        } catch (error: unknown) {
+          toast.error((error as Error)?.message ?? COPY.calendarPostModal.saveFailed);
+          return;
+        }
+      }
+      // Then perform the atomic transition: attach approval metadata, flip
+      // status, bump version, append workflow event.
       try {
         const response = await base44.functions.invoke('submitPostForApproval', {
           postId: existingPostId,
@@ -1464,25 +1500,9 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
                   }),
                 };
               })()),
-          timezone: formData.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone,
+          timezone: resolvedTimezone,
           platform_image_urls: platformCrops,
-          platform_crop_metadata: Object.fromEntries(
-            [
-              ...new Set([
-                ...Object.keys(platformCrops),
-                ...Object.keys(platformCropBoxes),
-                ...Object.keys(platformTransformOps),
-                ...Object.keys(platformTilts),
-              ]),
-            ].map((platform) => [
-              platform,
-              {
-                cropBox: platformCropBoxes[platform] ?? null,
-                transformOps: platformTransformOps[platform] ?? [],
-                tilt: platformTilts[platform] ?? 0,
-              },
-            ])
-          ),
+          platform_crop_metadata: platformCropMetadata,
         });
       } catch (error: unknown) {
         toast.error((error as Error)?.message ?? COPY.calendarPostModal.saveFailed);
