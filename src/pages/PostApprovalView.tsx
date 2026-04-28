@@ -14,6 +14,7 @@ import PostApprovalPanel from '@/components/social/PostApprovalPanel';
 import PostCommentThread from '@/components/social/approvals/PostCommentThread';
 import PostActivityFeed from '@/components/social/approvals/PostActivityFeed';
 import WorkflowStageBuilder from '@/components/social/approvals/WorkflowStageBuilder';
+import type { SocialMediaPost } from '@/types/post';
 
 export default function PostApprovalView() {
   const queryClient = useQueryClient();
@@ -34,7 +35,7 @@ export default function PostApprovalView() {
     queryFn: () => base44.auth.me(),
   });
 
-  const { data: post, isLoading } = useQuery({
+  const { data: post, isLoading } = useQuery<SocialMediaPost>({
     queryKey: ['calendar-post', postId],
     queryFn: () => base44.entities.CalendarPost.get(postId),
     enabled: !!postId,
@@ -62,7 +63,7 @@ export default function PostApprovalView() {
   const canEdit = (isAuthor || isAdmin) && post?.status !== 'published';
 
   useEffect(() => {
-    if (post?.platforms?.length > 0 && !previewPlatform) {
+    if (post?.platforms && post.platforms.length > 0 && !previewPlatform) {
       setPreviewPlatform(post.platforms[0]);
     }
   }, [post, previewPlatform]);
@@ -115,9 +116,11 @@ export default function PostApprovalView() {
         </div>
 
         {/* Post Preview — platform tabs + preview card matching create-post modal */}
-        {post.platforms?.length > 0 &&
+        {post.platforms &&
+          post.platforms.length > 0 &&
           (() => {
-            const activePlatform = previewPlatform ?? post.platforms[0];
+            const platforms = post.platforms ?? [];
+            const activePlatform = previewPlatform ?? platforms[0];
             const platformCfg = PLATFORMS.find((p) => p.id === activePlatform) ?? PLATFORMS[0];
             const PlatformIcon = platformCfg.icon;
 
@@ -125,7 +128,7 @@ export default function PostApprovalView() {
               <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden shadow-sm">
                 {/* Platform tabs */}
                 <div className="flex border-b border-gray-200 dark:border-gray-800">
-                  {PLATFORMS.filter((pl) => post.platforms.includes(pl.id)).map((pl) => (
+                  {PLATFORMS.filter((pl) => platforms.includes(pl.id)).map((pl) => (
                     <button
                       key={pl.id}
                       onClick={() => setPreviewPlatform(pl.id)}
@@ -204,6 +207,7 @@ export default function PostApprovalView() {
                   </p>
                   <div className="shrink-0">
                     <ApprovalWidget
+                      version={post.version ?? 0}
                       viewsCount={
                         new Set(
                           (post.workflow_history || []).map((e: any) => e.by_email).filter(Boolean)

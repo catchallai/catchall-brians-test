@@ -388,6 +388,7 @@ const COPY = {
     noNote: 'No note',
   },
   approvalWidget: {
+    version: 'Version',
     views: 'Views',
     approved: 'Approved',
     rejectedOrChangesRequested: 'Rejected / Changes Requested',
@@ -397,6 +398,10 @@ const COPY = {
     dueDatePrefix: 'Due Date:',
     postDatePrefix: 'Post Date:',
     noPostDateSet: 'No Post Date Set',
+  },
+  postVersion: {
+    versionLabel: (n: number) => `Version: ${n}`,
+    versionShort: (n: number) => `v${n}`,
   },
   postApprovalView: {
     postNotFound: 'Post not found.',

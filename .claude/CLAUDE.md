@@ -93,7 +93,8 @@ Query client defaults (`/src/lib/query-client.js`): `refetchOnWindowFocus: false
 - **Imports:** Use `@/` path alias (maps to `src/`), e.g. `@/components/ui/button`
 - **Shared components:** Always build UI elements as shared, reusable components in `/src/components/`. Check for an existing component before building a new one. Embedding UI logic directly in a page or feature-specific component is not the preferred pattern.
 - **Language:** TypeScript (`.ts`/`.tsx`) is the default for all new files. The codebase is migrating from JS to TS incrementally — most existing files are still `.jsx`, but all new components, hooks, utils, and libs should be `.tsx`/`.ts`. TypeScript has `checkJs: true`, so existing JS files get partial type checking. Only use `.js`/`.jsx` when TS doesn't make sense (e.g., config files, Base44 SDK bootstrap).
-- **Types:** `/src/types/` — TypeScript type definitions live here.
+- **Types:** `/src/types/` — TypeScript type definitions live here. Prefer `type Foo = { ... }` over `interface Foo { ... }` for object shapes — keep style consistent across the codebase. Only `export` a type if it is consumed by another file; otherwise keep it module-local.
+- **File-level documentation:** Every new `.ts`/`.tsx` file must start with a header comment explaining what the file's exports do, how they work, and why the file exists (the problem it solves or the role it plays). For files that export multiple functions/components, add JSDoc on each export covering the same three points. Skip this only for trivial barrel/re-export files.
 - **Constants:** `/src/constants/` — project constants live here.
 - **UI components:** Use existing shadcn/ui components from `/src/components/ui/`. Radix UI primitives underneath, Lucide icons.
 - **Styling:** Tailwind utility classes. Dark mode via CSS class strategy. Theme variables in `/src/globals.css`.

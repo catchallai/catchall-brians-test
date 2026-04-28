@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import COPY from '@/lib/copy';
 import { todayLocal } from '@/utils/date';
 import { normalizeReviewers, allReviewersApproved } from '@/utils/reviewers';
+import { versionAt } from '@/utils/postVersion';
 import { ReviewerApprovalStatus } from '@/types/reviewers';
 import { UserRole } from '@/types/enums';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -185,6 +186,18 @@ export default function PostApprovalPanel({
     },
   });
 
+  const submitForApprovalMutation = useMutation({
+    mutationFn: () => base44.functions.invoke('submitPostForApproval', { postId: post.id }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['calendar-posts'] });
+      queryClient.invalidateQueries({ queryKey: ['calendar-posts-all'] });
+      queryClient.invalidateQueries({ queryKey: ['calendar-post', post.id] });
+      if (onUpdate) {
+        onUpdate({ status: PostStatus.PENDING_APPROVAL });
+      }
+    },
+  });
+
   const role = currentUser?.social_media_role || currentUser?.role || UserRole.VIEWER;
   const isAdmin = role === UserRole.ADMIN;
   const isEditor = isAdmin || role === UserRole.EDITOR;
@@ -231,10 +244,9 @@ export default function PostApprovalPanel({
     );
   };
 
-  const handleSubmitForApproval = () =>
-    updateMutation.mutate(
-      addWorkflowEvent('submitted_for_approval', { status: 'pending_approval' })
-    );
+  const handleSubmitForApproval = () => {
+    submitForApprovalMutation.mutate();
+  };
 
   const handleRequestChanges = () => setDrawerAction('changes_requested');
   const handleApprove = () => setDrawerAction('approved');
@@ -347,7 +359,7 @@ export default function PostApprovalPanel({
                 size="sm"
                 variant="outline"
                 onClick={handleSubmitForApproval}
-                disabled={updateMutation.isPending}
+                disabled={submitForApprovalMutation.isPending}
                 className="ml-auto gap-1.5 text-yellow-700 border-yellow-300 hover:bg-yellow-50"
               >
                 <RotateCcw className="w-3.5 h-3.5" /> {PANEL_COPY.resubmit}
@@ -592,7 +604,7 @@ export default function PostApprovalPanel({
                 size="sm"
                 variant="outline"
                 onClick={handleSubmitForApproval}
-                disabled={updateMutation.isPending}
+                disabled={submitForApprovalMutation.isPending}
                 className="gap-1.5 text-yellow-700 border-yellow-300 hover:bg-yellow-50"
               >
                 <Send className="w-3.5 h-3.5" /> {PANEL_COPY.submitForApproval}
@@ -605,7 +617,7 @@ export default function PostApprovalPanel({
                 size="sm"
                 variant="outline"
                 onClick={handleSubmitForApproval}
-                disabled={updateMutation.isPending}
+                disabled={submitForApprovalMutation.isPending}
                 className="gap-1.5 text-yellow-700 border-yellow-300 hover:bg-yellow-50"
               >
                 <Send className="w-3.5 h-3.5" /> {PANEL_COPY.resubmitForApproval}
@@ -684,7 +696,7 @@ export default function PostApprovalPanel({
             isPending={updateMutation.isPending}
           />
 
-          {updateMutation.isPending && !drawerAction && (
+          {(updateMutation.isPending || submitForApprovalMutation.isPending) && !drawerAction && (
             <div className="flex items-center gap-2 text-xs text-gray-400">
               <Loader2 className="w-3.5 h-3.5 animate-spin" /> {PANEL_COPY.saving}
             </div>
@@ -722,6 +734,14 @@ export default function PostApprovalPanel({
                       <span className="text-gray-300">·</span>
                       <span className="text-gray-400">
                         {formatDistanceToNow(new Date(entry.timestamp), { addSuffix: true })}
+                      </span>
+                      <span className="text-gray-300">·</span>
+                      <span className="text-gray-400">
+                        {COPY.postVersion.versionShort(
+                          typeof entry.version === 'number'
+                            ? entry.version
+                            : versionAt(post.workflow_history, entry.timestamp)
+                        )}
                       </span>
                     </div>
                     {entry.note && (

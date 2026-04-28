@@ -98,6 +98,7 @@ import {
 import PostStatusChip from '@/components/social/PostStatusChip';
 import { normalizeReviewers } from '@/utils/reviewers';
 import type { ReviewerEntry } from '@/types/reviewers';
+import type { SocialMediaPost } from '@/types/post';
 import { getMonthComparison } from '@/utils/getMonthComparison';
 import React from 'react';
 
@@ -153,15 +154,9 @@ export interface PostFormData {
   auto_post: boolean;
 }
 
-interface WorkflowEntry {
-  action: string;
-  by_email?: string;
-  by_name?: string;
-  timestamp?: string;
-  [key: string]: unknown;
-}
+type WorkflowEntry = NonNullable<SocialMediaPost['workflow_history']>[number];
 
-interface SavePayload extends PostFormData {
+type SavePayload = PostFormData & {
   timezone: string;
   platform_image_urls: Record<string, string>;
   platform_crop_metadata: Record<
@@ -174,32 +169,16 @@ interface SavePayload extends PostFormData {
   assigned_to_name?: string | null;
   priority?: string | null;
   review_due_date?: string | null;
-}
+};
 
-export interface CalendarPost extends Partial<PostFormData> {
-  id?: string;
-  workflow_history?: WorkflowEntry[];
-  assigned_to_email?: string | null;
-  assigned_to_name?: string | null;
-  assigned_date?: string;
-  reviewers?: ReviewerEntry[] | null;
-  priority?: string;
-  review_due_date?: string;
-  platform_image_urls?: Record<string, string>;
-  platform_crop_metadata?: Record<
-    string,
-    { cropBox?: CropBox; transformOps?: TransformOp[]; tilt?: number }
-  >;
-}
-
-export interface PostComposerRef {
+export type PostComposerRef = {
   requestClose: () => void;
-}
+};
 
 export interface PostComposerProps {
-  post?: CalendarPost | null;
+  post?: SocialMediaPost | null;
   open?: boolean;
-  onSave: (data: SavePayload) => Promise<CalendarPost | void>;
+  onSave: (data: SavePayload) => Promise<SocialMediaPost | void>;
   /** When provided, a close button is rendered and clicking it (or saving) calls onClose. */
   onClose?: () => void;
   isLoading: boolean;
@@ -681,7 +660,7 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
     },
     []
   );
-  const [savedPost, setSavedPost] = useState<CalendarPost | null>(post ?? null);
+  const [savedPost, setSavedPost] = useState<SocialMediaPost | null>(post ?? null);
   // Tracks approval-specific fields updated via PostApprovalPanel (they aren't in PostFormData).
   const [approvalMeta, setApprovalMeta] = useState<{
     reviewers?: ReviewerEntry[] | null;
@@ -790,7 +769,7 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
     onSuccess: (_: unknown, { id, tag_ids }: { id: string; tag_ids: string[] }) => {
       queryClient.setQueriesData({ queryKey: ['calendar-posts'] }, (old: unknown) => {
         if (!Array.isArray(old)) return old;
-        return old.map((p: CalendarPost) => (p.id === id ? { ...p, tag_ids } : p));
+        return old.map((p: SocialMediaPost) => (p.id === id ? { ...p, tag_ids } : p));
       });
     },
   });
@@ -1394,7 +1373,7 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
 
   const confirmDeletePost = () => setShowDeleteConfirm(false); // TODO: implement deletion
 
-  const handleSubmit = async (status: PostStatus, afterSave?: (saved: CalendarPost) => void) => {
+  const handleSubmit = async (status: PostStatus, afterSave?: (saved: SocialMediaPost) => void) => {
     // Resolve the final status up-front so the scheduled-time check below
     // validates against what will actually be persisted (e.g. re-saving an
     // already-published post coerces to PUBLISHED, which doesn't require a
@@ -1428,83 +1407,87 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
     }
     setScheduleError('');
 
-    // Append a workflow history event only when transitioning *into* pending_approval,
-    // not when the post is already in that state and the user is just saving edits.
     const previousStatus = (savedPost ?? post)?.status as PostStatus | undefined;
-    let workflowHistory: WorkflowEntry[] | undefined;
-    if (
-      finalStatus === PostStatus.PENDING_APPROVAL &&
-      previousStatus !== PostStatus.PENDING_APPROVAL
-    ) {
-      const existing = (savedPost ?? post)?.workflow_history ?? [];
-      workflowHistory = [
-        ...existing,
-        {
-          action: 'submitted_for_approval',
-          by_email: currentUser?.email,
-          by_name: currentUser?.full_name || currentUser?.email,
-          timestamp: new Date().toISOString(),
-          note: approvalNote || undefined,
-        },
-      ];
-    }
+    const isSubmittingForApproval =
+      finalStatus === PostStatus.PENDING_APPROVAL && previousStatus !== PostStatus.PENDING_APPROVAL;
+    const existingPostId = savedPost?.id ?? post?.id;
+    const isNewPost = !existingPostId;
 
-    const isNewPost = !(post?.id || savedPost?.id);
+    let saveResult: SocialMediaPost | void;
 
-    let saveResult: CalendarPost | void;
-    try {
-      saveResult = await onSave({
-        ...formData,
-        status: finalStatus,
-        // When reverting to draft, clear all approval workflow fields.
-        // Otherwise persist approvalMeta so the backend reflects the current UI state.
-        ...(revertingToDraftRef.current
-          ? {
-              reviewers: [],
-              assigned_to_email: null,
-              assigned_to_name: null,
-              priority: PostPriority.NORMAL,
-              review_due_date: null,
-            }
-          : (() => {
-              const revs = approvalMeta.reviewers ?? [];
-              const primary = revs[0] ?? null;
-              return {
-                ...(approvalMeta.priority !== undefined && { priority: approvalMeta.priority }),
-                ...(approvalMeta.reviewers !== undefined && {
-                  reviewers: revs,
-                  assigned_to_email: primary?.email ?? null,
-                  assigned_to_name: primary?.name ?? null,
-                }),
-                ...(approvalMeta.review_due_date !== undefined && {
-                  review_due_date: approvalMeta.review_due_date,
-                }),
-              };
-            })()),
-        ...(workflowHistory !== undefined && { workflow_history: workflowHistory }),
-        timezone: formData.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone,
-        platform_image_urls: platformCrops,
-        platform_crop_metadata: Object.fromEntries(
-          [
-            ...new Set([
-              ...Object.keys(platformCrops),
-              ...Object.keys(platformCropBoxes),
-              ...Object.keys(platformTransformOps),
-              ...Object.keys(platformTilts),
-            ]),
-          ].map((platform) => [
-            platform,
-            {
-              cropBox: platformCropBoxes[platform] ?? null,
-              transformOps: platformTransformOps[platform] ?? [],
-              tilt: platformTilts[platform] ?? 0,
-            },
-          ])
-        ),
-      });
-    } catch (error: unknown) {
-      toast.error((error as Error)?.message ?? COPY.calendarPostModal.saveFailed);
-      return;
+    if (isSubmittingForApproval && existingPostId) {
+      // The post body was already persisted by the "Continue to Approval"
+      // pre-save, so submission is a pure server-side transition: attach
+      // approval metadata, flip status, bump version, append workflow event.
+      try {
+        const response = await base44.functions.invoke('submitPostForApproval', {
+          postId: existingPostId,
+          ...(approvalMeta.reviewers !== undefined && { reviewers: approvalMeta.reviewers }),
+          ...(approvalMeta.priority !== undefined && { priority: approvalMeta.priority }),
+          ...(approvalMeta.review_due_date !== undefined && {
+            review_due_date: approvalMeta.review_due_date,
+          }),
+          ...(approvalNote ? { note: approvalNote } : {}),
+        });
+        saveResult = (response?.data?.post as SocialMediaPost | undefined) ?? undefined;
+      } catch (error: unknown) {
+        toast.error((error as Error)?.message ?? COPY.calendarPostModal.saveFailed);
+        return;
+      }
+    } else {
+      try {
+        saveResult = await onSave({
+          ...formData,
+          status: finalStatus,
+          // When reverting to draft, clear all approval workflow fields.
+          // Otherwise persist approvalMeta so the backend reflects the current UI state.
+          ...(revertingToDraftRef.current
+            ? {
+                reviewers: [],
+                assigned_to_email: null,
+                assigned_to_name: null,
+                priority: PostPriority.NORMAL,
+                review_due_date: null,
+              }
+            : (() => {
+                const revs = approvalMeta.reviewers ?? [];
+                const primary = revs[0] ?? null;
+                return {
+                  ...(approvalMeta.priority !== undefined && { priority: approvalMeta.priority }),
+                  ...(approvalMeta.reviewers !== undefined && {
+                    reviewers: revs,
+                    assigned_to_email: primary?.email ?? null,
+                    assigned_to_name: primary?.name ?? null,
+                  }),
+                  ...(approvalMeta.review_due_date !== undefined && {
+                    review_due_date: approvalMeta.review_due_date,
+                  }),
+                };
+              })()),
+          timezone: formData.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone,
+          platform_image_urls: platformCrops,
+          platform_crop_metadata: Object.fromEntries(
+            [
+              ...new Set([
+                ...Object.keys(platformCrops),
+                ...Object.keys(platformCropBoxes),
+                ...Object.keys(platformTransformOps),
+                ...Object.keys(platformTilts),
+              ]),
+            ].map((platform) => [
+              platform,
+              {
+                cropBox: platformCropBoxes[platform] ?? null,
+                transformOps: platformTransformOps[platform] ?? [],
+                tilt: platformTilts[platform] ?? 0,
+              },
+            ])
+          ),
+        });
+      } catch (error: unknown) {
+        toast.error((error as Error)?.message ?? COPY.calendarPostModal.saveFailed);
+        return;
+      }
     }
 
     const successMessages: Partial<Record<PostStatus, string>> = {
@@ -1513,7 +1496,7 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
       [PostStatus.PENDING_APPROVAL]: COPY.calendarPostModal.saveSuccessPendingApproval,
       [PostStatus.PUBLISHED]: COPY.calendarPostModal.saveSuccessPublished,
     };
-    const savedId = (saveResult as CalendarPost | undefined)?.id;
+    const savedId = (saveResult as SocialMediaPost | undefined)?.id;
     // Show the View Post action on (a) the first save of a brand-new post and
     // (b) the moment a post is submitted for approval — both flows take the
     // user to a state where being able to jump to the post view is useful.
@@ -1560,7 +1543,7 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
           // per-reviewer so each email shows an accurate personal queue.
           const primaryEmail = emailReviewers[0].email;
           const PENDING_QUEUE_FETCH_LIMIT = 100;
-          const queue: CalendarPost[] = await base44.entities.CalendarPost.filter(
+          const queue: SocialMediaPost[] = await base44.entities.CalendarPost.filter(
             {
               assigned_to_email: primaryEmail,
               status: [PostStatus.PENDING_APPROVAL],
@@ -1618,7 +1601,7 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
                 pendingCount: queue.length,
                 submittedPostTitle: submittedTitle,
                 submittedPostDueDate:
-                  (saveResult as CalendarPost).review_due_date ??
+                  (saveResult as SocialMediaPost).review_due_date ??
                   approvalMeta.review_due_date ??
                   null,
                 authorNote: approvalNote.trim() || null,
@@ -1638,7 +1621,7 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
     }
 
     if (afterSave) {
-      afterSave((saveResult as CalendarPost) ?? { ...formData, status: finalStatus });
+      afterSave((saveResult as SocialMediaPost) ?? { ...formData, status: finalStatus });
       return;
     }
 
@@ -1989,7 +1972,7 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
                     // (date, priority, reviewer) reflect the saved value immediately
                     // rather than reverting to the stale prop on re-render.
                     setSavedPost((s) =>
-                      s ? { ...s, ...(updatedPost as Partial<CalendarPost>) } : s
+                      s ? { ...s, ...(updatedPost as Partial<SocialMediaPost>) } : s
                     );
                     // Mirror approval-specific fields into approvalMeta so the footer
                     // button can validate them without re-reading the post from the server.
@@ -2024,7 +2007,7 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
               <PostCommentThread
                 post={savedPost ?? post}
                 currentUser={currentUser}
-                onPostUpdated={(updatedPost: CalendarPost) => {
+                onPostUpdated={(updatedPost: SocialMediaPost) => {
                   // The modal owns a local copy of the post (savedPost) that
                   // isn't driven by a react-query subscription, so invalidation
                   // alone won't update the visible workflow_history. Patch

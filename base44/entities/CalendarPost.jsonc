@@ -4,68 +4,64 @@
   "properties": {
     "title": {
       "type": "string",
-      "description": "Post title/headline overlay"
+      "description": "Post title/headline overlay",
     },
     "caption": {
       "type": "string",
-      "description": "Post caption/description"
+      "description": "Post caption/description",
     },
     "image_url": {
       "type": "string",
-      "description": "Post image URL"
+      "description": "Post image URL",
     },
     "video_url": {
       "type": "string",
-      "description": "Post video URL"
+      "description": "Post video URL",
     },
     "media_type": {
       "type": "string",
-      "enum": [
-        "image",
-        "video",
-        "none"
-      ],
+      "enum": ["image", "video", "none"],
       "default": "none",
-      "description": "Type of media attached"
+      "description": "Type of media attached",
     },
     "scheduled_date": {
       "type": "string",
       "format": "date",
-      "description": "Scheduled publish date"
+      "description": "Scheduled publish date",
     },
     "scheduled_time": {
       "type": "string",
-      "description": "Scheduled time (HH:MM)"
+      "description": "Scheduled time (HH:MM)",
     },
     "timezone": {
       "type": "string",
-      "description": "IANA timezone the scheduled_date+scheduled_time wall-clock is interpreted in (e.g. America/New_York). Backend schedulers convert to UTC against this zone. Falls back to UTC when absent."
+      "description": "IANA timezone the scheduled_date+scheduled_time wall-clock is interpreted in (e.g. America/New_York). Backend schedulers convert to UTC against this zone. Falls back to UTC when absent.",
     },
     "platforms": {
       "type": "array",
       "items": {
-        "type": "string"
+        "type": "string",
       },
-      "description": "Target platforms"
+      "description": "Target platforms",
     },
     "hashtags": {
       "type": "array",
       "items": {
-        "type": "string"
+        "type": "string",
       },
-      "description": "Post hashtags"
+      "description": "Post hashtags",
     },
     "tag_ids": {
       "type": "array",
       "items": {
-        "type": "string"
+        "type": "string",
       },
       "default": [],
-      "description": "The list of SocialTag IDs applied to this post."
+      "description": "The list of SocialTag IDs applied to this post.",
     },
     "platform_image_urls": {
       "type": "object",
-      "description": "Per-platform cropped image URLs, keyed by platform ID (e.g. 'Instagram', 'Twitter')"
+      "description": "Per-platform cropped image URLs, keyed by platform ID (e.g. 'Instagram', 'Twitter')",
     },
     "platform_crop_metadata": {
       "type": "object",
@@ -77,30 +73,30 @@
             "type": "object",
             "properties": {
               "x": {
-                "type": "number"
+                "type": "number",
               },
               "y": {
-                "type": "number"
+                "type": "number",
               },
               "w": {
-                "type": "number"
+                "type": "number",
               },
               "h": {
-                "type": "number"
-              }
-            }
+                "type": "number",
+              },
+            },
           },
           "transformOps": {
             "type": "array",
             "items": {
-              "type": "string"
-            }
+              "type": "string",
+            },
           },
           "tilt": {
-            "type": "number"
-          }
-        }
-      }
+            "type": "number",
+          },
+        },
+      },
     },
     "status": {
       "type": "string",
@@ -113,111 +109,107 @@
         "published",
         "rejected",
         "unused",
-        "deleted"
+        "deleted",
       ],
       "default": "draft",
-      "description": "Post status"
+      "description": "Post status",
+    },
+    "version": {
+      "type": "number",
+      "default": 0,
+      "description": "Increments on each transition into pending_approval. 0 means the post has never left draft.",
     },
     "approved_by": {
       "type": "string",
-      "description": "Email of approver"
+      "description": "Email of approver",
     },
     "approved_by_name": {
       "type": "string",
-      "description": "Name of approver"
+      "description": "Name of approver",
     },
     "approved_date": {
       "type": "string",
       "format": "date",
-      "description": "Approval date"
+      "description": "Approval date",
     },
     "rejected_reason": {
       "type": "string",
-      "description": "Reason for rejection"
+      "description": "Reason for rejection",
     },
     "assigned_to_email": {
       "type": "string",
-      "description": "Email of assigned reviewer"
+      "description": "Email of assigned reviewer",
     },
     "assigned_to_name": {
       "type": "string",
-      "description": "Name of assigned reviewer"
+      "description": "Name of assigned reviewer",
     },
     "assigned_date": {
       "type": "string",
       "format": "date-time",
-      "description": "When post was assigned"
+      "description": "When post was assigned",
     },
     "review_due_date": {
       "type": "string",
       "format": "date",
-      "description": "Review due date"
+      "description": "Review due date",
     },
     "priority": {
       "type": "string",
-      "enum": [
-        "low",
-        "normal",
-        "high",
-        "urgent"
-      ],
+      "enum": ["low", "normal", "high", "urgent"],
       "default": "normal",
-      "description": "Post priority"
+      "description": "Post priority",
     },
     "order": {
       "type": "number",
-      "description": "Display order in calendar"
+      "description": "Display order in calendar",
     },
     "brand_id": {
       "type": "string",
-      "description": "Associated brand ID"
+      "description": "Associated brand ID",
     },
     "auto_post": {
       "type": "boolean",
       "default": false,
-      "description": "Auto-publish at scheduled time"
+      "description": "Auto-publish at scheduled time",
     },
     "is_recurring": {
       "type": "boolean",
       "default": false,
-      "description": "Whether this is a recurring post"
+      "description": "Whether this is a recurring post",
     },
     "recurrence_type": {
       "type": "string",
-      "enum": [
-        "daily",
-        "weekly",
-        "monthly"
-      ],
-      "description": "Type of recurrence"
+      "enum": ["daily", "weekly", "monthly"],
+      "description": "Type of recurrence",
     },
     "recurrence_end_date": {
       "type": "string",
       "format": "date",
-      "description": "When to stop recurring"
+      "description": "When to stop recurring",
     },
     "recurrence_days": {
       "type": "array",
       "items": {
-        "type": "number"
+        "type": "number",
       },
-      "description": "Days of week (0-6) for weekly recurrence"
+      "description": "Days of week (0-6) for weekly recurrence",
     },
     "parent_post_id": {
       "type": "string",
-      "description": "ID of the original recurring post"
+      "description": "ID of the original recurring post",
     },
     "campaign_brief_id": {
       "type": "string",
-      "description": "Associated campaign brief ID"
+      "description": "Associated campaign brief ID",
     },
     "approved_copy_id": {
       "type": "string",
-      "description": "ID of approved copy used to create this post"
+      "description": "ID of approved copy used to create this post",
     },
     "approved_template_id": {
       "type": "string",
-      "description": "ID of approved graphic template used to create this post"
+      "description": "ID of approved graphic template used to create this post",
     },
     "reviewers": {
       "type": "array",
@@ -229,13 +221,13 @@
           "assigned_date": { "type": "string", "format": "date-time" },
           "status": {
             "type": "string",
-            "enum": ["pending", "approved", "rejected", "changes_requested"]
+            "enum": ["pending", "approved", "rejected", "changes_requested"],
           },
-          "responded_date": { "type": "string", "format": "date-time" }
-        }
+          "responded_date": { "type": "string", "format": "date-time" },
+        },
       },
       "default": [],
-      "description": "Assigned reviewers with per-reviewer approval tracking"
+      "description": "Assigned reviewers with per-reviewer approval tracking",
     },
     "workflow_history": {
       "type": "array",
@@ -243,57 +235,58 @@
         "type": "object",
         "properties": {
           "action": {
-            "type": "string"
+            "type": "string",
           },
           "by_email": {
-            "type": "string"
+            "type": "string",
           },
           "by_name": {
-            "type": "string"
+            "type": "string",
           },
           "timestamp": {
-            "type": "string"
+            "type": "string",
           },
           "note": {
-            "type": "string"
+            "type": "string",
           },
           "text": {
             "type": "string",
-            "description": "Comment body text"
+            "description": "Comment body text",
           },
           "reply_to_name": {
             "type": "string",
-            "description": "Name of the user being replied to"
+            "description": "Name of the user being replied to",
           },
           "reply_to_id": {
             "type": "string",
-            "description": "Timestamp ID of the comment being replied to"
-          }
-        }
+            "description": "Timestamp ID of the comment being replied to",
+          },
+          "version": {
+            "type": "number",
+            "description": "Set on events that incremented the post version",
+          },
+        },
       },
-      "description": "History of workflow actions"
+      "description": "History of workflow actions",
     },
     "deleted_at": {
       "type": ["string", "null"],
       "format": "date-time",
-      "description": "UTC timestamp when the post was soft-deleted. Null if not deleted."
+      "description": "UTC timestamp when the post was soft-deleted. Null if not deleted.",
     },
     "deleted_by": {
       "type": ["string", "null"],
-      "description": "Email of the user who soft-deleted the post."
+      "description": "Email of the user who soft-deleted the post.",
     },
     "deleted_by_name": {
       "type": ["string", "null"],
-      "description": "Display name of the user who soft-deleted the post."
+      "description": "Display name of the user who soft-deleted the post.",
     },
     "purge_at": {
       "type": ["string", "null"],
       "format": "date-time",
-      "description": "UTC timestamp at which the post will be permanently purged. Stored at soft-delete time as deleted_at + 30 days."
-    }
+      "description": "UTC timestamp at which the post will be permanently purged. Stored at soft-delete time as deleted_at + 30 days.",
+    },
   },
-  "required": [
-    "caption",
-    "scheduled_date"
-  ]
+  "required": ["caption", "scheduled_date"],
 }

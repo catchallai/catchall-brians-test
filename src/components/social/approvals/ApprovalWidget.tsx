@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
-import { Eye, Check, X } from 'lucide-react';
+import { Eye, Check, X, FilePenLine } from 'lucide-react';
 import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 import { format, parseISO } from 'date-fns';
 import COPY from '@/lib/copy';
 
 interface ApprovalWidgetProps {
+  version: number;
   viewsCount: number;
   approvalsCount: number;
   rejectionsCount: number;
@@ -49,6 +50,7 @@ function DeadlineCountdown({ dueDate }: { dueDate: string }) {
 }
 
 export default function ApprovalWidget({
+  version,
   viewsCount,
   approvalsCount,
   rejectionsCount,
@@ -57,6 +59,12 @@ export default function ApprovalWidget({
   scheduledTime,
 }: ApprovalWidgetProps) {
   const items = [
+    {
+      icon: FilePenLine,
+      count: version,
+      label: COPY.approvalWidget.version,
+      color: 'text-violet-500',
+    },
     {
       icon: Eye,
       count: viewsCount,
