@@ -195,6 +195,8 @@ const COPY = {
     approvalReviewerRequired: 'Please assign at least one reviewer.',
     approvalPriorityRequired: 'Please select a priority.',
     approvalDueDateRequired: 'Please set a due date.',
+    composeCaptionRequired: 'Please add a caption.',
+    composePlatformsRequired: 'Please pick at least one platform.',
     approvalDueDatePast: 'Due date cannot be in the past.',
     approvalDueDateAfterSchedule: 'Review due date must be on or before the scheduled post date.',
     approvalDueDateHint: 'Reviewer has until end of this day.',

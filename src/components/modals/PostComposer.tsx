@@ -650,6 +650,7 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
   const [requireApproval, setRequireApproval] = useState(true);
   const [draftJustSaved, setDraftJustSaved] = useState(false);
   const [showRevertConfirm, setShowRevertConfirm] = useState(false);
+  const [isSubmittingApproval, setIsSubmittingApproval] = useState(false);
   const revertingToDraftRef = useRef(false);
   const draftSavedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   // Clear the "Saved" checkmark timer on unmount (e.g. key-remount from "New
@@ -681,6 +682,10 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
     reviewer?: string;
     priority?: string;
     dueDate?: string;
+  }>({});
+  const [composeErrors, setComposeErrors] = useState<{
+    caption?: string;
+    platforms?: string;
   }>({});
   const [approvalNote, setApprovalNote] = useState('');
   const [mediaMenuTarget, setMediaMenuTarget] = useState<string | null>(null);
@@ -828,6 +833,7 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
       review_due_date: post?.review_due_date,
     });
     setApprovalErrors({});
+    setComposeErrors({});
     setApprovalNote('');
 
     if (post) {
@@ -1367,6 +1373,7 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
       }
       return { ...f, platforms: next };
     });
+    setComposeErrors((e) => (e.platforms ? { ...e, platforms: undefined } : e));
   };
 
   const handleDeletePost = () => setShowDeleteConfirm(true);
@@ -1723,6 +1730,7 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
       setSavedPost(null);
       setApprovalMeta({ priority: 'normal' });
       setApprovalErrors({});
+      setComposeErrors({});
       setApprovalNote('');
       setScheduleError('');
       setActiveTab('compose');
@@ -1841,7 +1849,17 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
     onClick: () => void;
     disabled: boolean;
   } = (() => {
-    const baseDisabled = isLoading || !formData.caption || formData.platforms.length === 0;
+    const baseDisabled = isLoading;
+    // Validates the compose-tab fields that gate non-draft submissions. Returns
+    // an error map (empty when valid) so callers can render inline messages
+    // under the fields rather than disabling the action button.
+    const validateComposeFields = () => {
+      const errors: { caption?: string; platforms?: string } = {};
+      if (!formData.caption) errors.caption = COPY.calendarPostModal.composeCaptionRequired;
+      if (formData.platforms.length === 0)
+        errors.platforms = COPY.calendarPostModal.composePlatformsRequired;
+      return errors;
+    };
 
     if (activeTab === 'approval') {
       const isResubmit = formData.status === PostStatus.CHANGES_REQUESTED;
@@ -1849,9 +1867,14 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
         label: isResubmit
           ? COPY.calendarPostModal.resubmitForApproval
           : COPY.calendarPostModal.sendForApproval,
-        icon: <Send className="w-4 h-4" />,
-        disabled: baseDisabled,
-        onClick: () => {
+        icon: isSubmittingApproval ? (
+          <Loader2 className="w-4 h-4 animate-spin" />
+        ) : (
+          <Send className="w-4 h-4" />
+        ),
+        disabled: baseDisabled || isSubmittingApproval,
+        onClick: async () => {
+          const composeFieldErrors = validateComposeFields();
           const errors: { reviewer?: string; priority?: string; dueDate?: string } = {};
           if (!approvalMeta.reviewers?.length)
             errors.reviewer = COPY.calendarPostModal.approvalReviewerRequired;
@@ -1859,16 +1882,29 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
             errors.priority = COPY.calendarPostModal.approvalPriorityRequired;
           if (!approvalMeta.review_due_date)
             errors.dueDate = COPY.calendarPostModal.approvalDueDateRequired;
-          if (Object.keys(errors).length > 0) {
+          if (Object.keys(composeFieldErrors).length > 0 || Object.keys(errors).length > 0) {
+            setComposeErrors(composeFieldErrors);
             setApprovalErrors(errors);
+            // Compose-field errors only render on the Compose tab. Jump there
+            // so the user can see and fix them; their Approval-tab inputs
+            // (reviewers/priority/due-date) are preserved in approvalMeta.
+            if (Object.keys(composeFieldErrors).length > 0) {
+              setActiveTab('compose');
+            }
             return;
           }
+          setComposeErrors({});
           setApprovalErrors({});
-          handleSubmit(
-            !isResubmit && isAdmin && !requireApproval
-              ? PostStatus.APPROVED
-              : PostStatus.PENDING_APPROVAL
-          );
+          setIsSubmittingApproval(true);
+          try {
+            await handleSubmit(
+              !isResubmit && isAdmin && !requireApproval
+                ? PostStatus.APPROVED
+                : PostStatus.PENDING_APPROVAL
+            );
+          } finally {
+            setIsSubmittingApproval(false);
+          }
         },
       };
     }
@@ -1886,6 +1922,12 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
         icon: <ChevronRight className="w-4 h-4" />,
         disabled: baseDisabled,
         onClick: () => {
+          const composeFieldErrors = validateComposeFields();
+          if (Object.keys(composeFieldErrors).length > 0) {
+            setComposeErrors(composeFieldErrors);
+            return;
+          }
+          setComposeErrors({});
           if ((savedPost ?? post) && !isDirty) {
             setActiveTab('approval');
           } else {
@@ -1901,7 +1943,15 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
         : COPY.calendarPostModal.schedulePost,
       icon: <Calendar className="w-4 h-4" />,
       disabled: baseDisabled || !isDirty,
-      onClick: () => handleSubmit(PostStatus.APPROVED),
+      onClick: () => {
+        const composeFieldErrors = validateComposeFields();
+        if (Object.keys(composeFieldErrors).length > 0) {
+          setComposeErrors(composeFieldErrors);
+          return;
+        }
+        setComposeErrors({});
+        handleSubmit(PostStatus.APPROVED);
+      },
     };
   })();
 
@@ -2122,6 +2172,9 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
                       );
                     })}
                   </div>
+                  {composeErrors.platforms && (
+                    <p className="text-xs text-red-500 mt-2">{composeErrors.platforms}</p>
+                  )}
                 </div>
               </div>
 
@@ -2138,6 +2191,9 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
                       caption: newCaption,
                       hashtags: /#\w+/.test(newCaption) ? f.hashtags : [],
                     }));
+                    if (newCaption) {
+                      setComposeErrors((er) => (er.caption ? { ...er, caption: undefined } : er));
+                    }
                   }}
                   onSelect={(e: React.SyntheticEvent<HTMLTextAreaElement>) =>
                     updateCaptionSelection(e.target as HTMLTextAreaElement)
@@ -2152,6 +2208,9 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
                   className="border-0 shadow-none focus-visible:ring-0 resize-none text-[15px] text-gray-800 dark:text-gray-200 bg-transparent p-0 min-h-[120px] leading-relaxed"
                 />
               </div>
+              {composeErrors.caption && (
+                <p className="text-xs text-red-500 px-6 mt-1">{composeErrors.caption}</p>
+              )}
 
               {/* Media drop zone / preview */}
               <div className="px-6 pb-2">
@@ -2885,6 +2944,7 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
               review_due_date: null,
             });
             setApprovalErrors({});
+            setComposeErrors({});
             setApprovalNote('');
             initialApprovalMetaRef.current = {
               reviewers: [],
