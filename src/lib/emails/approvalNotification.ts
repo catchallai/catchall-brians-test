@@ -207,8 +207,8 @@ export function renderApprovalNotificationEmail(data: ApprovalEmailData): Approv
   .author-note-body { white-space: pre-wrap; }
   .cta-wrapper { text-align: center; margin-bottom: 28px; }
   .cta-button-table { margin: 0 auto; }
-  .cta-button-td { background: ${CTA_COLOR}; background-color: ${CTA_COLOR}; border-radius: 8px; padding: 17px 52px; }
-  .cta-button { color: #ffffff !important; text-decoration: none; font-size: 18px; font-weight: 600; letter-spacing: 0.01em; line-height: 1; mso-line-height-rule: exactly; }
+  .cta-button-td { background: ${CTA_COLOR}; background-color: ${CTA_COLOR}; border-radius: 8px; }
+  .cta-button { display: inline-block; padding: 17px 52px; color: #ffffff !important; text-decoration: none; font-size: 18px; font-weight: 600; letter-spacing: 0.01em; line-height: 1; mso-line-height-rule: exactly; }
   .pending-badge-wrapper { text-align: center; margin-bottom: 28px; }
   .pending-badge { margin: 0 auto; background: #fafafa; background-color: #fafafa; border: 1px solid #e4e4e7; border-radius: 6px; }
   .pending-badge td { vertical-align: middle; padding: 10px 0; }

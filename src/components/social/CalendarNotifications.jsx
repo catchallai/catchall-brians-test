@@ -1,12 +1,14 @@
+import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Bell, Clock, CheckCircle2, AlertCircle, X } from 'lucide-react';
+import { Bell, Clock, CheckCircle2, AlertCircle, X, ChevronRight, ChevronDown } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 
 export default function CalendarNotifications() {
+  const [isOpen, setIsOpen] = useState(false);
   const queryClient = useQueryClient();
 
   const { data: user } = useQuery({
@@ -61,7 +63,7 @@ export default function CalendarNotifications() {
 
   return (
     <Card className="glass-card">
-      <CardHeader>
+      <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle className="flex items-center gap-2">
           <Bell className="w-5 h-5" />
           Notifications
@@ -69,50 +71,61 @@ export default function CalendarNotifications() {
             {notifications.length}
           </Badge>
         </CardTitle>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => setIsOpen((v) => !v)}
+          aria-label={isOpen ? 'Collapse' : 'Expand'}
+          aria-expanded={isOpen}
+        >
+          {isOpen ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+        </Button>
       </CardHeader>
-      <CardContent className="space-y-3">
-        {notifications.map((notification) => {
-          const Icon = notificationIcons[notification.type] || Bell;
-          const colorClass = notificationColors[notification.type] || 'bg-gray-100 text-gray-700';
+      {isOpen && (
+        <CardContent className="space-y-3">
+          {notifications.map((notification) => {
+            const Icon = notificationIcons[notification.type] || Bell;
+            const colorClass = notificationColors[notification.type] || 'bg-gray-100 text-gray-700';
 
-          return (
-            <div
-              key={notification.id}
-              className="flex items-start gap-3 p-3 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:shadow-md transition-all"
-            >
-              <div className={`p-2 rounded-full ${colorClass}`}>
-                <Icon className="w-4 h-4" />
+            return (
+              <div
+                key={notification.id}
+                className="flex items-start gap-3 p-3 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:shadow-md transition-all"
+              >
+                <div className={`p-2 rounded-full ${colorClass}`}>
+                  <Icon className="w-4 h-4" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm text-gray-800 dark:text-gray-200 font-medium">
+                    {notification.message}
+                  </p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                    {formatDistanceToNow(new Date(notification.created_date), { addSuffix: true })}
+                  </p>
+                </div>
+                <div className="flex gap-1">
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => markAsReadMutation.mutate(notification.id)}
+                    className="h-7 px-2"
+                  >
+                    <CheckCircle2 className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => deleteNotificationMutation.mutate(notification.id)}
+                    className="h-7 px-2 text-red-600 hover:text-red-700"
+                  >
+                    <X className="w-4 h-4" />
+                  </Button>
+                </div>
               </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm text-gray-800 dark:text-gray-200 font-medium">
-                  {notification.message}
-                </p>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                  {formatDistanceToNow(new Date(notification.created_date), { addSuffix: true })}
-                </p>
-              </div>
-              <div className="flex gap-1">
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  onClick={() => markAsReadMutation.mutate(notification.id)}
-                  className="h-7 px-2"
-                >
-                  <CheckCircle2 className="w-4 h-4" />
-                </Button>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  onClick={() => deleteNotificationMutation.mutate(notification.id)}
-                  className="h-7 px-2 text-red-600 hover:text-red-700"
-                >
-                  <X className="w-4 h-4" />
-                </Button>
-              </div>
-            </div>
-          );
-        })}
-      </CardContent>
+            );
+          })}
+        </CardContent>
+      )}
     </Card>
   );
 }

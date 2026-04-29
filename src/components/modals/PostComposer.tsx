@@ -838,8 +838,8 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
         image_urls: normalizedMedia.image_urls ?? [],
         video_url: normalizedMedia.video_url ?? '',
         media_type: (normalizedMedia.media_type as PostFormData['media_type']) ?? 'none',
-        scheduled_date: post.scheduled_date ?? todayLocal(),
-        scheduled_time: post.scheduled_time ?? '09:00',
+        scheduled_date: post.scheduled_date ?? defaultDate,
+        scheduled_time: post.scheduled_time ?? defaultTime,
         timezone: post.timezone ?? Intl.DateTimeFormat().resolvedOptions().timeZone,
         platforms: post.platforms ?? [],
         hashtags: post.hashtags ?? [],
@@ -1535,10 +1535,20 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
     // user to a state where being able to jump to the post view is useful.
     const isApprovalSubmission =
       finalStatus === PostStatus.PENDING_APPROVAL && previousStatus !== PostStatus.PENDING_APPROVAL;
+    // Status-keyed messages ("Post sent for approval.", "Post published.") fire
+    // when the user clicks a terminal-action button (Send for Approval, Schedule,
+    // etc.). Continue to Approval is a mid-flow save that just stages content
+    // before the user fills in approval metadata — signalled by `afterSave`
+    // being set — so it reads as "Post saved." instead. DRAFT is exempt because
+    // "Draft saved." is accurate either way.
+    const isMidFlowSave = !!afterSave && finalStatus !== PostStatus.DRAFT;
+    const toastMessage = isMidFlowSave
+      ? COPY.calendarPostModal.saveSuccessDefault
+      : (successMessages[finalStatus] ?? COPY.calendarPostModal.saveSuccessDefault);
     // TODO: extend this View Post action to other new-post toasts (e.g.
     // ShareToSocialModal, AutoScheduleAssistant) in a follow-up PR.
     toast.success(
-      successMessages[finalStatus] ?? COPY.calendarPostModal.saveSuccessDefault,
+      toastMessage,
       (isNewPost || isApprovalSubmission) && savedId
         ? {
             duration: 8000,
