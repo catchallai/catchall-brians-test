@@ -177,18 +177,36 @@ export default function PostApprovalPanel({
 
   const updateMutation = useMutation({
     mutationFn: (data) => base44.entities.CalendarPost.update(post.id, data),
-    // Mirror the change to the parent synchronously, before the server call
-    // completes. Without this, code that reads `approvalMeta` immediately
-    // after a field edit (e.g. the Send for Approval validator) sees stale
-    // values during the in-flight window.
-    onMutate: (variables) => {
+    // Optimistic update: mirror the change to the parent immediately so code
+    // reading `approvalMeta` right after a field edit (e.g. the Send for
+    // Approval validator) sees fresh values instead of waiting for the server
+    // round-trip. Snapshot prior values so we can roll back if the server
+    // rejects.
+    onMutate: (/** @type {Record<string, unknown>} */ variables) => {
+      const previousValues = Object.keys(variables).reduce(
+        (/** @type {Record<string, unknown>} */ acc, key) => {
+          acc[key] = post[key];
+          return acc;
+        },
+        {}
+      );
       if (onUpdate) {
         onUpdate(variables);
       }
+      return { previousValues };
     },
-    onSuccess: () => {
+    onError: (_error, _variables, context) => {
+      if (onUpdate && context?.previousValues) {
+        onUpdate(context.previousValues);
+      }
+    },
+    // Invalidate on settled (both success AND failure) so a failed write
+    // also triggers a refetch — belt-and-suspenders alongside the explicit
+    // rollback above.
+    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['calendar-posts'] });
       queryClient.invalidateQueries({ queryKey: ['calendar-posts-all'] });
+      queryClient.invalidateQueries({ queryKey: ['calendar-post', post.id] });
     },
   });
 

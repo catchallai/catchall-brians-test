@@ -1885,6 +1885,12 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
           if (Object.keys(composeFieldErrors).length > 0 || Object.keys(errors).length > 0) {
             setComposeErrors(composeFieldErrors);
             setApprovalErrors(errors);
+            // Compose-field errors only render on the Compose tab. Jump there
+            // so the user can see and fix them; their Approval-tab inputs
+            // (reviewers/priority/due-date) are preserved in approvalMeta.
+            if (Object.keys(composeFieldErrors).length > 0) {
+              setActiveTab('compose');
+            }
             return;
           }
           setComposeErrors({});
