@@ -650,6 +650,7 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
   const [requireApproval, setRequireApproval] = useState(true);
   const [draftJustSaved, setDraftJustSaved] = useState(false);
   const [showRevertConfirm, setShowRevertConfirm] = useState(false);
+  const [isSubmittingApproval, setIsSubmittingApproval] = useState(false);
   const revertingToDraftRef = useRef(false);
   const draftSavedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   // Clear the "Saved" checkmark timer on unmount (e.g. key-remount from "New
@@ -1849,9 +1850,13 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
         label: isResubmit
           ? COPY.calendarPostModal.resubmitForApproval
           : COPY.calendarPostModal.sendForApproval,
-        icon: <Send className="w-4 h-4" />,
-        disabled: baseDisabled,
-        onClick: () => {
+        icon: isSubmittingApproval ? (
+          <Loader2 className="w-4 h-4 animate-spin" />
+        ) : (
+          <Send className="w-4 h-4" />
+        ),
+        disabled: baseDisabled || isSubmittingApproval,
+        onClick: async () => {
           const errors: { reviewer?: string; priority?: string; dueDate?: string } = {};
           if (!approvalMeta.reviewers?.length)
             errors.reviewer = COPY.calendarPostModal.approvalReviewerRequired;
@@ -1864,11 +1869,16 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
             return;
           }
           setApprovalErrors({});
-          handleSubmit(
-            !isResubmit && isAdmin && !requireApproval
-              ? PostStatus.APPROVED
-              : PostStatus.PENDING_APPROVAL
-          );
+          setIsSubmittingApproval(true);
+          try {
+            await handleSubmit(
+              !isResubmit && isAdmin && !requireApproval
+                ? PostStatus.APPROVED
+                : PostStatus.PENDING_APPROVAL
+            );
+          } finally {
+            setIsSubmittingApproval(false);
+          }
         },
       };
     }

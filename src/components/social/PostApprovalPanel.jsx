@@ -177,12 +177,18 @@ export default function PostApprovalPanel({
 
   const updateMutation = useMutation({
     mutationFn: (data) => base44.entities.CalendarPost.update(post.id, data),
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['calendar-posts'] });
-      queryClient.invalidateQueries({ queryKey: ['calendar-posts-all'] });
+    // Mirror the change to the parent synchronously, before the server call
+    // completes. Without this, code that reads `approvalMeta` immediately
+    // after a field edit (e.g. the Send for Approval validator) sees stale
+    // values during the in-flight window.
+    onMutate: (variables) => {
       if (onUpdate) {
         onUpdate(variables);
       }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['calendar-posts'] });
+      queryClient.invalidateQueries({ queryKey: ['calendar-posts-all'] });
     },
   });
 
