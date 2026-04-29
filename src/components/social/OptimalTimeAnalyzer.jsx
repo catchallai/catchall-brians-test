@@ -4,7 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
-import { TrendingUp, Clock, Calendar, ChevronLeft, ChevronDown } from 'lucide-react';
+import { TrendingUp, Clock, Calendar, ChevronRight, ChevronDown } from 'lucide-react';
 
 export default function OptimalTimeAnalyzer() {
   const [isOpen, setIsOpen] = useState(false);
@@ -35,7 +35,7 @@ export default function OptimalTimeAnalyzer() {
           aria-label={isOpen ? 'Collapse' : 'Expand'}
           aria-expanded={isOpen}
         >
-          {isOpen ? <ChevronDown className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
+          {isOpen ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
         </Button>
       </CardHeader>
       {isOpen && (

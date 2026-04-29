@@ -13,7 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Users, Shield, Eye, Edit, ChevronLeft, ChevronDown } from 'lucide-react';
+import { Users, Shield, Eye, Edit, ChevronRight, ChevronDown } from 'lucide-react';
 
 export default function TeamManager() {
   const [isOpen, setIsOpen] = useState(false);
@@ -58,7 +58,7 @@ export default function TeamManager() {
           aria-label={isOpen ? 'Collapse' : 'Expand'}
           aria-expanded={isOpen}
         >
-          {isOpen ? <ChevronDown className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
+          {isOpen ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
         </Button>
       </CardHeader>
       {isOpen && (

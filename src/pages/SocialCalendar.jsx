@@ -935,7 +935,7 @@ export default function SocialCalendar() {
         </div>
 
         {/* Approval Section — only relevant on the Layout (nine-grid) view */}
-        {viewMode === 'nine-grid' && (
+        {
           <Card className="border-0 shadow-sm mt-6 bg-white dark:bg-gray-800 rounded-2xl">
             <CardContent className="p-6">
               <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
@@ -1008,7 +1008,7 @@ export default function SocialCalendar() {
               </div>
             </CardContent>
           </Card>
-        )}
+        }
       </div>
 
       {/* New Post guard — discard unsaved composer changes */}

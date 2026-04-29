@@ -4,7 +4,7 @@ import { base44 } from '@/api/base44Client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Bell, Clock, CheckCircle2, AlertCircle, X, ChevronLeft, ChevronDown } from 'lucide-react';
+import { Bell, Clock, CheckCircle2, AlertCircle, X, ChevronRight, ChevronDown } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 
 export default function CalendarNotifications() {
@@ -78,7 +78,7 @@ export default function CalendarNotifications() {
           aria-label={isOpen ? 'Collapse' : 'Expand'}
           aria-expanded={isOpen}
         >
-          {isOpen ? <ChevronDown className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
+          {isOpen ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
         </Button>
       </CardHeader>
       {isOpen && (

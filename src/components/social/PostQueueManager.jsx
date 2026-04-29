@@ -16,7 +16,7 @@ import {
 } from '@/components/ui/select';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Clock, Zap, ArrowRight, Trash, Plus, ChevronLeft, ChevronDown } from 'lucide-react';
+import { Clock, Zap, ArrowRight, Trash, Plus, ChevronRight, ChevronDown } from 'lucide-react';
 import { format, addDays } from 'date-fns';
 
 export default function PostQueueManager() {
@@ -163,7 +163,7 @@ export default function PostQueueManager() {
               aria-label={isOpen ? 'Collapse' : 'Expand'}
               aria-expanded={isOpen}
             >
-              {isOpen ? <ChevronDown className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
+              {isOpen ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
             </Button>
           </div>
         </CardHeader>
