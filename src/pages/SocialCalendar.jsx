@@ -964,12 +964,12 @@ export default function SocialCalendar() {
                   </label>
                   <div className="border-b-2 border-emerald-400 mt-2 pb-2">
                     <span className="text-lg text-gray-700 dark:text-gray-300 font-medium">
-                      {filteredPosts.find((p) => p.approved_date)?.approved_date
-                        ? format(
-                            new Date(filteredPosts.find((p) => p.approved_date).approved_date),
-                            'MMM d, yyyy'
-                          )
-                        : '—'}
+                      {(() => {
+                        const approvedPost = filteredPosts.find((p) => p.approved_date);
+                        return approvedPost?.approved_date
+                          ? format(new Date(approvedPost.approved_date), 'MMM d, yyyy')
+                          : '—';
+                      })()}
                     </span>
                   </div>
                 </div>
