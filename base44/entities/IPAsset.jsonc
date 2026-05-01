@@ -1,0 +1,99 @@
+{
+  "name": "IPAsset",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "ip_type": {
+      "type": "string",
+      "enum": [
+        "patent",
+        "trademark",
+        "copyright",
+        "trade_secret",
+        "domain",
+        "design",
+        "utility_model",
+        "other"
+      ],
+      "default": "patent"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "registered",
+        "active",
+        "expired",
+        "abandoned",
+        "licensed",
+        "sold"
+      ],
+      "default": "pending"
+    },
+    "registration_number": {
+      "type": "string"
+    },
+    "application_number": {
+      "type": "string"
+    },
+    "jurisdiction": {
+      "type": "string"
+    },
+    "owner_name": {
+      "type": "string"
+    },
+    "inventor_names": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "filing_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "registration_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "expiry_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "renewal_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "classes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Nice classes for trademarks"
+    },
+    "attorney_name": {
+      "type": "string"
+    },
+    "estimated_value": {
+      "type": "number"
+    },
+    "licensed_to": {
+      "type": "string"
+    },
+    "notes": {
+      "type": "string"
+    },
+    "file_url": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "title",
+    "ip_type"
+  ]
+}

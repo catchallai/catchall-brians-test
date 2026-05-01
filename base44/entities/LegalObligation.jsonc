@@ -1,0 +1,85 @@
+{
+  "name": "LegalObligation",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "obligation_type": {
+      "type": "string",
+      "enum": [
+        "regulatory",
+        "contractual",
+        "statutory",
+        "license",
+        "permit",
+        "filing",
+        "reporting",
+        "other"
+      ],
+      "default": "regulatory"
+    },
+    "regulation_name": {
+      "type": "string"
+    },
+    "jurisdiction": {
+      "type": "string"
+    },
+    "owner_name": {
+      "type": "string"
+    },
+    "department": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "compliant",
+        "non_compliant",
+        "pending_renewal",
+        "expired",
+        "waived"
+      ],
+      "default": "active"
+    },
+    "due_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "renewal_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "recurrence": {
+      "type": "string",
+      "enum": [
+        "one_time",
+        "monthly",
+        "quarterly",
+        "annual",
+        "biennial"
+      ],
+      "default": "annual"
+    },
+    "penalty_for_non_compliance": {
+      "type": "string"
+    },
+    "related_matter_id": {
+      "type": "string"
+    },
+    "notes": {
+      "type": "string"
+    },
+    "file_url": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "title",
+    "obligation_type"
+  ]
+}

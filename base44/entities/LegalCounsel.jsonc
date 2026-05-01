@@ -1,0 +1,65 @@
+{
+  "name": "LegalCounsel",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "firm_name": {
+      "type": "string"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "in_house",
+        "external",
+        "contract",
+        "pro_bono"
+      ],
+      "default": "external"
+    },
+    "specialization": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "e.g. IP, Employment, M&A, Litigation"
+    },
+    "email": {
+      "type": "string"
+    },
+    "phone": {
+      "type": "string"
+    },
+    "bar_number": {
+      "type": "string"
+    },
+    "jurisdiction": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "inactive",
+        "on_retainer"
+      ],
+      "default": "active"
+    },
+    "hourly_rate": {
+      "type": "number"
+    },
+    "retainer_amount": {
+      "type": "number"
+    },
+    "ytd_spend": {
+      "type": "number"
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "name"
+  ]
+}

@@ -1,0 +1,86 @@
+{
+  "name": "LegalEntity",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "entity_type": {
+      "type": "string",
+      "enum": [
+        "corporation",
+        "llc",
+        "partnership",
+        "sole_proprietorship",
+        "nonprofit",
+        "trust",
+        "subsidiary",
+        "joint_venture",
+        "other"
+      ],
+      "default": "llc"
+    },
+    "jurisdiction": {
+      "type": "string"
+    },
+    "registration_number": {
+      "type": "string"
+    },
+    "ein_tax_id": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "inactive",
+        "dissolved",
+        "pending"
+      ],
+      "default": "active"
+    },
+    "parent_entity_id": {
+      "type": "string"
+    },
+    "parent_entity_name": {
+      "type": "string"
+    },
+    "registered_agent": {
+      "type": "string"
+    },
+    "registered_address": {
+      "type": "string"
+    },
+    "incorporation_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "dissolution_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "annual_report_due": {
+      "type": "string",
+      "format": "date"
+    },
+    "fiscal_year_end": {
+      "type": "string"
+    },
+    "authorized_signatories": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "ownership_percentage": {
+      "type": "number"
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "name",
+    "entity_type"
+  ]
+}

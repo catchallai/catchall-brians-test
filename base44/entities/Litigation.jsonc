@@ -1,0 +1,114 @@
+{
+  "name": "Litigation",
+  "type": "object",
+  "properties": {
+    "case_name": {
+      "type": "string"
+    },
+    "case_number": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "case_type": {
+      "type": "string",
+      "enum": [
+        "civil",
+        "criminal",
+        "arbitration",
+        "mediation",
+        "administrative",
+        "regulatory",
+        "employment",
+        "ip",
+        "other"
+      ],
+      "default": "civil"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pre_litigation",
+        "filed",
+        "discovery",
+        "trial",
+        "appeal",
+        "settled",
+        "dismissed",
+        "closed"
+      ],
+      "default": "pre_litigation"
+    },
+    "our_role": {
+      "type": "string",
+      "enum": [
+        "plaintiff",
+        "defendant",
+        "third_party",
+        "respondent",
+        "petitioner"
+      ],
+      "default": "defendant"
+    },
+    "opposing_party": {
+      "type": "string"
+    },
+    "opposing_counsel": {
+      "type": "string"
+    },
+    "our_counsel": {
+      "type": "string"
+    },
+    "court_name": {
+      "type": "string"
+    },
+    "jurisdiction": {
+      "type": "string"
+    },
+    "judge_name": {
+      "type": "string"
+    },
+    "filed_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "next_hearing_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "resolution_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "claim_amount": {
+      "type": "number"
+    },
+    "settlement_amount": {
+      "type": "number"
+    },
+    "legal_reserve": {
+      "type": "number"
+    },
+    "priority": {
+      "type": "string",
+      "enum": [
+        "low",
+        "medium",
+        "high",
+        "critical"
+      ],
+      "default": "medium"
+    },
+    "notes": {
+      "type": "string"
+    },
+    "file_url": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "case_name",
+    "case_type"
+  ]
+}

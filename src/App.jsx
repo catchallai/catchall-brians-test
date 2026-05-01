@@ -20,6 +20,13 @@ import ComplianceAudits from './pages/ComplianceAudits';
 import ComplianceRisk from './pages/ComplianceRisk';
 import ExportControl from './pages/ExportControl';
 import ComplianceExecutiveSummary from './pages/ComplianceExecutiveSummary';
+import LegalDashboard from './pages/LegalDashboard';
+import LegalMatters from './pages/LegalMatters';
+import LegalObligations from './pages/LegalObligations';
+import LegalIP from './pages/LegalIP';
+import LegalLitigation from './pages/LegalLitigation';
+import LegalCounsel from './pages/LegalCounsel';
+import LegalEntities from './pages/LegalEntities';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import { NavigationGuardProvider } from '@/lib/NavigationGuardContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
@@ -132,6 +139,13 @@ const AuthenticatedApp = () => {
       <Route path="/ComplianceRisk" element={<LayoutWrapper currentPageName="ComplianceRisk"><ComplianceRisk /></LayoutWrapper>} />
       <Route path="/ExportControl" element={<LayoutWrapper currentPageName="ExportControl"><ExportControl /></LayoutWrapper>} />
       <Route path="/ComplianceExecutiveSummary" element={<LayoutWrapper currentPageName="ComplianceExecutiveSummary"><ComplianceExecutiveSummary /></LayoutWrapper>} />
+      <Route path="/LegalDashboard" element={<LayoutWrapper currentPageName="LegalDashboard"><LegalDashboard /></LayoutWrapper>} />
+      <Route path="/LegalMatters" element={<LayoutWrapper currentPageName="LegalMatters"><LegalMatters /></LayoutWrapper>} />
+      <Route path="/LegalObligations" element={<LayoutWrapper currentPageName="LegalObligations"><LegalObligations /></LayoutWrapper>} />
+      <Route path="/LegalIP" element={<LayoutWrapper currentPageName="LegalIP"><LegalIP /></LayoutWrapper>} />
+      <Route path="/LegalLitigation" element={<LayoutWrapper currentPageName="LegalLitigation"><LegalLitigation /></LayoutWrapper>} />
+      <Route path="/LegalCounsel" element={<LayoutWrapper currentPageName="LegalCounsel"><LegalCounsel /></LayoutWrapper>} />
+      <Route path="/LegalEntities" element={<LayoutWrapper currentPageName="LegalEntities"><LegalEntities /></LayoutWrapper>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );

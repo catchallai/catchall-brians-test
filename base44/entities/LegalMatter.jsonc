@@ -1,0 +1,107 @@
+{
+  "name": "LegalMatter",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "matter_type": {
+      "type": "string",
+      "enum": [
+        "contract",
+        "litigation",
+        "regulatory",
+        "employment",
+        "ip",
+        "corporate",
+        "real_estate",
+        "tax",
+        "data_privacy",
+        "m_and_a",
+        "other"
+      ],
+      "default": "other"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "open",
+        "in_progress",
+        "on_hold",
+        "closed",
+        "archived"
+      ],
+      "default": "open"
+    },
+    "priority": {
+      "type": "string",
+      "enum": [
+        "low",
+        "medium",
+        "high",
+        "urgent"
+      ],
+      "default": "medium"
+    },
+    "assigned_attorney": {
+      "type": "string"
+    },
+    "client_name": {
+      "type": "string"
+    },
+    "opposing_party": {
+      "type": "string"
+    },
+    "jurisdiction": {
+      "type": "string"
+    },
+    "open_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "close_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "deadline": {
+      "type": "string",
+      "format": "date"
+    },
+    "estimated_cost": {
+      "type": "number"
+    },
+    "actual_cost": {
+      "type": "number"
+    },
+    "billing_type": {
+      "type": "string",
+      "enum": [
+        "hourly",
+        "flat_fee",
+        "contingency",
+        "retainer",
+        "pro_bono"
+      ],
+      "default": "hourly"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "notes": {
+      "type": "string"
+    },
+    "file_url": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "title",
+    "matter_type"
+  ]
+}
