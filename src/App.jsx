@@ -8,7 +8,6 @@ import { pagesConfig } from './pages.config';
 import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
 import Equity from './pages/Equity';
-import TalentModule from './pages/TalentModule';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import { NavigationGuardProvider } from '@/lib/NavigationGuardContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
@@ -109,7 +108,6 @@ const AuthenticatedApp = () => {
         />
       ))}
       <Route path="/Equity" element={<LayoutWrapper currentPageName="Equity"><Equity /></LayoutWrapper>} />
-      <Route path="/TalentModule" element={<LayoutWrapper currentPageName="TalentModule"><TalentModule /></LayoutWrapper>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );
