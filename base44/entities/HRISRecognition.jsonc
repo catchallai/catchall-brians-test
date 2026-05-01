@@ -1,0 +1,64 @@
+{
+  "name": "HRISRecognition",
+  "type": "object",
+  "properties": {
+    "recipient_employee_id": {
+      "type": "string"
+    },
+    "recipient_name": {
+      "type": "string"
+    },
+    "recipient_department": {
+      "type": "string"
+    },
+    "giver_employee_id": {
+      "type": "string"
+    },
+    "giver_name": {
+      "type": "string"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "teamwork",
+        "innovation",
+        "leadership",
+        "customer_focus",
+        "above_and_beyond",
+        "milestone",
+        "values"
+      ],
+      "default": "above_and_beyond"
+    },
+    "message": {
+      "type": "string"
+    },
+    "points": {
+      "type": "number",
+      "default": 10
+    },
+    "badge": {
+      "type": "string",
+      "enum": [
+        "star",
+        "rocket",
+        "heart",
+        "trophy",
+        "lightning",
+        "diamond"
+      ],
+      "default": "star"
+    },
+    "is_public": {
+      "type": "boolean",
+      "default": true
+    },
+    "reactions": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "recipient_name",
+    "message"
+  ]
+}

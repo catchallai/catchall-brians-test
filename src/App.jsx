@@ -8,6 +8,10 @@ import { pagesConfig } from './pages.config';
 import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
 import Equity from './pages/Equity';
+import HRISAnnouncements from './pages/HRISAnnouncements';
+import HRISRecognition from './pages/HRISRecognition';
+import HRISAIAssistant from './pages/HRISAIAssistant';
+import HRISAnalytics from './pages/HRISAnalytics';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import { NavigationGuardProvider } from '@/lib/NavigationGuardContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
@@ -108,6 +112,10 @@ const AuthenticatedApp = () => {
         />
       ))}
       <Route path="/Equity" element={<LayoutWrapper currentPageName="Equity"><Equity /></LayoutWrapper>} />
+      <Route path="/HRISAnnouncements" element={<LayoutWrapper currentPageName="HRISAnnouncements"><HRISAnnouncements /></LayoutWrapper>} />
+      <Route path="/HRISRecognition" element={<LayoutWrapper currentPageName="HRISRecognition"><HRISRecognition /></LayoutWrapper>} />
+      <Route path="/HRISAIAssistant" element={<LayoutWrapper currentPageName="HRISAIAssistant"><HRISAIAssistant /></LayoutWrapper>} />
+      <Route path="/HRISAnalytics" element={<LayoutWrapper currentPageName="HRISAnalytics"><HRISAnalytics /></LayoutWrapper>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );
