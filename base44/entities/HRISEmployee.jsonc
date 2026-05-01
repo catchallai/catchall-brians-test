@@ -1,0 +1,90 @@
+{
+  "name": "HRISEmployee",
+  "type": "object",
+  "properties": {
+    "full_name": {
+      "type": "string",
+      "description": "Full name"
+    },
+    "email": {
+      "type": "string",
+      "format": "email",
+      "description": "Work email"
+    },
+    "phone": {
+      "type": "string",
+      "description": "Phone number"
+    },
+    "department": {
+      "type": "string",
+      "description": "Department"
+    },
+    "job_title": {
+      "type": "string",
+      "description": "Job title"
+    },
+    "employment_type": {
+      "type": "string",
+      "enum": [
+        "full_time",
+        "part_time",
+        "contractor",
+        "intern"
+      ],
+      "default": "full_time"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "onboarding",
+        "on_leave",
+        "terminated"
+      ],
+      "default": "active"
+    },
+    "start_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "location": {
+      "type": "string"
+    },
+    "salary": {
+      "type": "number",
+      "description": "Annual salary"
+    },
+    "manager_id": {
+      "type": "string",
+      "description": "Manager employee ID"
+    },
+    "manager_name": {
+      "type": "string"
+    },
+    "avatar_url": {
+      "type": "string"
+    },
+    "skills": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "vacation_balance": {
+      "type": "number",
+      "default": 15
+    },
+    "sick_balance": {
+      "type": "number",
+      "default": 10
+    },
+    "personal_balance": {
+      "type": "number",
+      "default": 3
+    }
+  },
+  "required": [
+    "full_name",
+    "email"
+  ]
+}

@@ -169,6 +169,13 @@ import WebDashboard from './pages/WebDashboard';
 import WikiPageEditor from './pages/WikiPageEditor';
 import WorkflowBuilder from './pages/WorkflowBuilder';
 import WorkflowEngine from './pages/WorkflowEngine';
+import HRISDashboard from './pages/HRISDashboard';
+import HRISEmployees from './pages/HRISEmployees';
+import HRISTimeOff from './pages/HRISTimeOff';
+import HRISPayroll from './pages/HRISPayroll';
+import HRISBenefits from './pages/HRISBenefits';
+import HRISPerformance from './pages/HRISPerformance';
+import HRISDocuments from './pages/HRISDocuments';
 import __Layout from './Layout.jsx';
 
 export const PAGES = {
@@ -294,6 +301,13 @@ export const PAGES = {
   WikiPageEditor: WikiPageEditor,
   WorkflowBuilder: WorkflowBuilder,
   WorkflowEngine: WorkflowEngine,
+  HRISDashboard: HRISDashboard,
+  HRISEmployees: HRISEmployees,
+  HRISTimeOff: HRISTimeOff,
+  HRISPayroll: HRISPayroll,
+  HRISBenefits: HRISBenefits,
+  HRISPerformance: HRISPerformance,
+  HRISDocuments: HRISDocuments,
 };
 
 export const pagesConfig = {

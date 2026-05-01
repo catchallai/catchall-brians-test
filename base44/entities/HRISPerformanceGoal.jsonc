@@ -1,0 +1,58 @@
+{
+  "name": "HRISPerformanceGoal",
+  "type": "object",
+  "properties": {
+    "employee_id": {
+      "type": "string"
+    },
+    "employee_name": {
+      "type": "string"
+    },
+    "title": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "professional_development",
+        "performance",
+        "project",
+        "leadership",
+        "other"
+      ],
+      "default": "performance"
+    },
+    "target_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "not_started",
+        "in_progress",
+        "completed",
+        "cancelled"
+      ],
+      "default": "not_started"
+    },
+    "progress": {
+      "type": "number",
+      "default": 0,
+      "description": "0-100 percentage"
+    },
+    "set_by": {
+      "type": "string"
+    },
+    "set_by_name": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "employee_id",
+    "title"
+  ]
+}

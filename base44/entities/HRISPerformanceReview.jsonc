@@ -1,0 +1,60 @@
+{
+  "name": "HRISPerformanceReview",
+  "type": "object",
+  "properties": {
+    "employee_id": {
+      "type": "string"
+    },
+    "employee_name": {
+      "type": "string"
+    },
+    "reviewer_id": {
+      "type": "string"
+    },
+    "reviewer_name": {
+      "type": "string"
+    },
+    "review_period": {
+      "type": "string",
+      "description": "e.g. Q1 2025, Annual 2025"
+    },
+    "review_type": {
+      "type": "string",
+      "enum": [
+        "annual",
+        "mid_year",
+        "quarterly",
+        "probation",
+        "pip"
+      ],
+      "default": "annual"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending_self_assessment",
+        "pending_manager_review",
+        "completed"
+      ],
+      "default": "pending_self_assessment"
+    },
+    "overall_rating": {
+      "type": "number",
+      "description": "1-5 rating"
+    },
+    "self_assessment": {
+      "type": "object"
+    },
+    "manager_review": {
+      "type": "object"
+    },
+    "completed_date": {
+      "type": "string",
+      "format": "date"
+    }
+  },
+  "required": [
+    "employee_id",
+    "review_period"
+  ]
+}

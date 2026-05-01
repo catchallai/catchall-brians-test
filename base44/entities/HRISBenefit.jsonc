@@ -1,0 +1,41 @@
+{
+  "name": "HRISBenefit",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "health_insurance",
+        "dental_insurance",
+        "vision_insurance",
+        "life_insurance",
+        "retirement_401k",
+        "pto",
+        "wellness",
+        "education"
+      ]
+    },
+    "description": {
+      "type": "string"
+    },
+    "employee_cost_monthly": {
+      "type": "number",
+      "default": 0
+    },
+    "employer_cost_monthly": {
+      "type": "number",
+      "default": 0
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true
+    }
+  },
+  "required": [
+    "name",
+    "category"
+  ]
+}

@@ -193,6 +193,14 @@ const navigation = [
   { name: 'Reports Dashboard', icon: BarChart3, page: 'ReportsDashboardPage' },
   { name: 'Reports', icon: FileBarChart, page: 'Reports' },
   { name: 'TakeDown Requestor', icon: AlertTriangle, page: 'TakeDownRequestor' },
+  { name: 'divider', label: 'HRIS', collapsible: true },
+  { name: 'HRIS Dashboard', icon: Users, page: 'HRISDashboard' },
+  { name: 'Employees', icon: Users, page: 'HRISEmployees' },
+  { name: 'Time Off', icon: Calendar, page: 'HRISTimeOff' },
+  { name: 'Payroll', icon: DollarSign, page: 'HRISPayroll' },
+  { name: 'Benefits', icon: Heart, page: 'HRISBenefits' },
+  { name: 'Performance', icon: Target, page: 'HRISPerformance' },
+  { name: 'HR Documents', icon: FileText, page: 'HRISDocuments' },
   { name: 'divider', label: 'Finance', collapsible: true },
   { name: 'Accounting Dashboard', icon: DollarSign, page: 'AccountingDashboard' },
   { name: 'divider', label: 'AI Tools', collapsible: true },
@@ -385,6 +393,14 @@ const SECTION_COLORS = {
     hoverText: 'hover:text-gray-600 dark:hover:text-gray-400',
     hoverIcon: 'group-hover:text-gray-500 dark:group-hover:text-gray-400',
   },
+  HRIS: {
+    bg: 'bg-teal-50 dark:bg-teal-900/20',
+    text: 'text-teal-600 dark:text-teal-400',
+    border: 'border-l-teal-500',
+    hoverBg: 'hover:bg-teal-50 dark:hover:bg-teal-900/20',
+    hoverText: 'hover:text-teal-600 dark:hover:text-teal-400',
+    hoverIcon: 'group-hover:text-teal-500 dark:group-hover:text-teal-400',
+  },
 };
 
 const SIDEBAR_ICONS = {
@@ -459,6 +475,13 @@ const SIDEBAR_ICONS = {
   ICS: MessageSquare,
   Spaces: FolderOpen,
   Payments: DollarSign,
+  HRISDashboard: Users,
+  HRISEmployees: Users,
+  HRISTimeOff: Calendar,
+  HRISPayroll: DollarSign,
+  HRISBenefits: Heart,
+  HRISPerformance: Target,
+  HRISDocuments: FileText,
   Settings: Settings,
   HelpCenter: HelpCircle,
   ActivityLogs: Activity,
@@ -511,6 +534,7 @@ function SidebarContent({
       'AI Tools': true,
       Executive: true,
       Support: true,
+      HRIS: true,
     };
     for (const section of PAGE_TO_SECTIONS[currentPage] || []) {
       if (section in initial) {

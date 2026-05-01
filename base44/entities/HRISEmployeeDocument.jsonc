@@ -1,0 +1,50 @@
+{
+  "name": "HRISEmployeeDocument",
+  "type": "object",
+  "properties": {
+    "employee_id": {
+      "type": "string"
+    },
+    "employee_name": {
+      "type": "string"
+    },
+    "document_type": {
+      "type": "string",
+      "enum": [
+        "contract",
+        "offer_letter",
+        "performance_review",
+        "feedback",
+        "tax_form",
+        "handbook_ack",
+        "nda",
+        "other"
+      ]
+    },
+    "file_name": {
+      "type": "string"
+    },
+    "file_url": {
+      "type": "string"
+    },
+    "file_size": {
+      "type": "number"
+    },
+    "uploaded_by": {
+      "type": "string"
+    },
+    "notes": {
+      "type": "string"
+    },
+    "is_sensitive": {
+      "type": "boolean",
+      "default": true
+    }
+  },
+  "required": [
+    "employee_id",
+    "document_type",
+    "file_name",
+    "file_url"
+  ]
+}

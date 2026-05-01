@@ -1,0 +1,62 @@
+{
+  "name": "HRISBenefitEnrollment",
+  "type": "object",
+  "properties": {
+    "employee_id": {
+      "type": "string"
+    },
+    "employee_name": {
+      "type": "string"
+    },
+    "employee_email": {
+      "type": "string"
+    },
+    "benefit_id": {
+      "type": "string"
+    },
+    "benefit_name": {
+      "type": "string"
+    },
+    "benefit_category": {
+      "type": "string"
+    },
+    "coverage_type": {
+      "type": "string",
+      "enum": [
+        "employee_only",
+        "employee_spouse",
+        "family"
+      ],
+      "default": "employee_only"
+    },
+    "enrollment_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "effective_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "inactive",
+        "pending"
+      ],
+      "default": "active"
+    },
+    "employee_contribution": {
+      "type": "number",
+      "default": 0
+    },
+    "employer_contribution": {
+      "type": "number",
+      "default": 0
+    }
+  },
+  "required": [
+    "employee_id",
+    "benefit_id"
+  ]
+}
