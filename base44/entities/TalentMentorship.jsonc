@@ -1,0 +1,63 @@
+{
+  "name": "TalentMentorship",
+  "type": "object",
+  "properties": {
+    "mentor_employee_id": {
+      "type": "string"
+    },
+    "mentor_name": {
+      "type": "string"
+    },
+    "mentee_employee_id": {
+      "type": "string"
+    },
+    "mentee_name": {
+      "type": "string"
+    },
+    "focus_area": {
+      "type": "string"
+    },
+    "goals": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "completed",
+        "paused",
+        "cancelled"
+      ],
+      "default": "active"
+    },
+    "start_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "end_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "meeting_frequency": {
+      "type": "string",
+      "enum": [
+        "weekly",
+        "bi_weekly",
+        "monthly",
+        "as_needed"
+      ],
+      "default": "bi_weekly"
+    },
+    "notes": {
+      "type": "string"
+    },
+    "next_meeting_date": {
+      "type": "string",
+      "format": "date"
+    }
+  },
+  "required": [
+    "mentor_employee_id",
+    "mentee_employee_id"
+  ]
+}

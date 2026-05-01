@@ -1,0 +1,71 @@
+{
+  "name": "TalentInternship",
+  "type": "object",
+  "properties": {
+    "intern_name": {
+      "type": "string"
+    },
+    "intern_email": {
+      "type": "string",
+      "format": "email"
+    },
+    "department": {
+      "type": "string"
+    },
+    "supervisor_id": {
+      "type": "string"
+    },
+    "supervisor_name": {
+      "type": "string"
+    },
+    "start_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "end_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "active",
+        "completed",
+        "cancelled"
+      ],
+      "default": "pending"
+    },
+    "project": {
+      "type": "string"
+    },
+    "university": {
+      "type": "string"
+    },
+    "paid": {
+      "type": "boolean",
+      "default": false
+    },
+    "stipend": {
+      "type": "number"
+    },
+    "offer_extended": {
+      "type": "boolean",
+      "default": false
+    },
+    "offer_accepted": {
+      "type": "boolean",
+      "default": false
+    },
+    "notes": {
+      "type": "string"
+    },
+    "performance_rating": {
+      "type": "number",
+      "description": "1-5"
+    }
+  },
+  "required": [
+    "intern_name"
+  ]
+}

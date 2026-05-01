@@ -61,6 +61,8 @@ import {
   ShieldCheck,
   Tags,
   ChartBarStacked,
+  BookOpen,
+  GraduationCap,
 } from 'lucide-react';
 import ErrorBoundary from '@/components/ui/ErrorBoundary';
 import KeyboardShortcutsDialog, { useKeyboardShortcuts } from '@/components/ui/KeyboardShortcuts';
@@ -199,7 +201,6 @@ const navigation = [
   { name: 'Time Off', icon: Calendar, page: 'HRISTimeOff' },
   { name: 'Payroll', icon: DollarSign, page: 'HRISPayroll' },
   { name: 'Benefits', icon: Heart, page: 'HRISBenefits' },
-  { name: 'Performance', icon: Target, page: 'HRISPerformance' },
   { name: 'HR Documents', icon: FileText, page: 'HRISDocuments' },
   { name: 'Departments', icon: Building2, page: 'HRISDepartments' },
   { name: 'Hiring', icon: Briefcase, page: 'HRISHiring' },
@@ -208,6 +209,14 @@ const navigation = [
   { name: 'Offboarding', icon: LogOut, page: 'HRISOffboarding' },
   { name: 'Team Calendar', icon: CalendarDays, page: 'HRISTeamCalendar' },
   { name: 'Contracts', icon: FileSignature, page: 'HRISContracts' },
+  { name: 'divider', label: 'Talent', collapsible: true },
+  { name: 'Performance', icon: Target, page: 'HRISPerformance' },
+  { name: 'Training', icon: BookOpen, page: 'TalentTraining' },
+  { name: 'Career Paths', icon: TrendingUp, page: 'TalentCareerPaths' },
+  { name: 'Mentorships', icon: Users, page: 'TalentMentorships' },
+  { name: 'Internships', icon: GraduationCap, page: 'TalentInternships' },
+  { name: 'Company Skills', icon: Zap, page: 'TalentSkills' },
+  { name: 'Surveys', icon: BarChart3, page: 'TalentSurveys' },
   { name: 'divider', label: 'Finance', collapsible: true },
   { name: 'Accounting Dashboard', icon: DollarSign, page: 'AccountingDashboard' },
   { name: 'divider', label: 'AI Tools', collapsible: true },
@@ -400,6 +409,14 @@ const SECTION_COLORS = {
     hoverText: 'hover:text-gray-600 dark:hover:text-gray-400',
     hoverIcon: 'group-hover:text-gray-500 dark:group-hover:text-gray-400',
   },
+  Talent: {
+    bg: 'bg-violet-50 dark:bg-violet-900/20',
+    text: 'text-violet-600 dark:text-violet-400',
+    border: 'border-l-violet-500',
+    hoverBg: 'hover:bg-violet-50 dark:hover:bg-violet-900/20',
+    hoverText: 'hover:text-violet-600 dark:hover:text-violet-400',
+    hoverIcon: 'group-hover:text-violet-500 dark:group-hover:text-violet-400',
+  },
   HRIS: {
     bg: 'bg-teal-50 dark:bg-teal-900/20',
     text: 'text-teal-600 dark:text-teal-400',
@@ -496,6 +513,12 @@ const SIDEBAR_ICONS = {
   HRISOffboarding: LogOut,
   HRISTeamCalendar: CalendarDays,
   HRISContracts: FileSignature,
+  TalentTraining: BookOpen,
+  TalentCareerPaths: TrendingUp,
+  TalentMentorships: Users,
+  TalentInternships: GraduationCap,
+  TalentSkills: Zap,
+  TalentSurveys: BarChart3,
   Settings: Settings,
   HelpCenter: HelpCircle,
   ActivityLogs: Activity,
@@ -549,6 +572,7 @@ function SidebarContent({
       Executive: true,
       Support: true,
       HRIS: true,
+      Talent: true,
     };
     for (const section of PAGE_TO_SECTIONS[currentPage] || []) {
       if (section in initial) {

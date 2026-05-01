@@ -1,0 +1,46 @@
+{
+  "name": "TalentSkill",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "technical",
+        "soft_skills",
+        "leadership",
+        "domain",
+        "tool",
+        "language",
+        "certification",
+        "other"
+      ],
+      "default": "other"
+    },
+    "description": {
+      "type": "string"
+    },
+    "level_labels": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "e.g. Beginner, Intermediate, Advanced, Expert"
+    },
+    "is_critical": {
+      "type": "boolean",
+      "default": false
+    },
+    "departments": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "required": [
+    "name"
+  ]
+}

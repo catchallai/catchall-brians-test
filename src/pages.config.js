@@ -183,6 +183,12 @@ import HRISOnboarding from './pages/HRISOnboarding';
 import HRISOffboarding from './pages/HRISOffboarding';
 import HRISTeamCalendar from './pages/HRISTeamCalendar';
 import HRISContracts from './pages/HRISContracts';
+import TalentTraining from './pages/TalentTraining';
+import TalentCareerPaths from './pages/TalentCareerPaths';
+import TalentMentorships from './pages/TalentMentorships';
+import TalentInternships from './pages/TalentInternships';
+import TalentSkills from './pages/TalentSkills';
+import TalentSurveys from './pages/TalentSurveys';
 import __Layout from './Layout.jsx';
 
 export const PAGES = {
@@ -322,6 +328,12 @@ export const PAGES = {
   HRISOffboarding: HRISOffboarding,
   HRISTeamCalendar: HRISTeamCalendar,
   HRISContracts: HRISContracts,
+  TalentTraining: TalentTraining,
+  TalentCareerPaths: TalentCareerPaths,
+  TalentMentorships: TalentMentorships,
+  TalentInternships: TalentInternships,
+  TalentSkills: TalentSkills,
+  TalentSurveys: TalentSurveys,
 };
 
 export const pagesConfig = {

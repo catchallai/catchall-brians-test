@@ -1,0 +1,87 @@
+{
+  "name": "TalentTraining",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "technical",
+        "soft_skills",
+        "compliance",
+        "leadership",
+        "onboarding",
+        "other"
+      ],
+      "default": "other"
+    },
+    "format": {
+      "type": "string",
+      "enum": [
+        "in_person",
+        "online",
+        "hybrid",
+        "self_paced"
+      ],
+      "default": "online"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "scheduled",
+        "active",
+        "completed",
+        "cancelled"
+      ],
+      "default": "draft"
+    },
+    "instructor": {
+      "type": "string"
+    },
+    "start_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "end_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "duration_hours": {
+      "type": "number"
+    },
+    "max_participants": {
+      "type": "number"
+    },
+    "department": {
+      "type": "string"
+    },
+    "required": {
+      "type": "boolean",
+      "default": false
+    },
+    "url": {
+      "type": "string"
+    },
+    "enrolled_employee_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "completed_employee_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "required": [
+    "title"
+  ]
+}
