@@ -1,0 +1,81 @@
+{
+  "name": "ComplianceTraining",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "anti_harassment",
+        "data_privacy",
+        "code_of_conduct",
+        "safety",
+        "financial",
+        "it_security",
+        "diversity",
+        "other"
+      ],
+      "default": "other"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "active",
+        "archived"
+      ],
+      "default": "draft"
+    },
+    "due_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "frequency": {
+      "type": "string",
+      "enum": [
+        "one_time",
+        "annual",
+        "bi_annual",
+        "quarterly"
+      ],
+      "default": "annual"
+    },
+    "required": {
+      "type": "boolean",
+      "default": true
+    },
+    "target_departments": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "enrolled_employee_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "completed_employee_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "url": {
+      "type": "string"
+    },
+    "duration_minutes": {
+      "type": "number"
+    }
+  },
+  "required": [
+    "title",
+    "category"
+  ]
+}

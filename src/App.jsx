@@ -12,6 +12,12 @@ import HRISAnnouncements from './pages/HRISAnnouncements';
 import HRISRecognition from './pages/HRISRecognition';
 import HRISAIAssistant from './pages/HRISAIAssistant';
 import HRISAnalytics from './pages/HRISAnalytics';
+import ComplianceDashboard from './pages/ComplianceDashboard';
+import CompliancePolicies from './pages/CompliancePolicies';
+import ComplianceTraining from './pages/ComplianceTraining';
+import ComplianceIncidents from './pages/ComplianceIncidents';
+import ComplianceAudits from './pages/ComplianceAudits';
+import ComplianceRisk from './pages/ComplianceRisk';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import { NavigationGuardProvider } from '@/lib/NavigationGuardContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
@@ -116,6 +122,12 @@ const AuthenticatedApp = () => {
       <Route path="/HRISRecognition" element={<LayoutWrapper currentPageName="HRISRecognition"><HRISRecognition /></LayoutWrapper>} />
       <Route path="/HRISAIAssistant" element={<LayoutWrapper currentPageName="HRISAIAssistant"><HRISAIAssistant /></LayoutWrapper>} />
       <Route path="/HRISAnalytics" element={<LayoutWrapper currentPageName="HRISAnalytics"><HRISAnalytics /></LayoutWrapper>} />
+      <Route path="/ComplianceDashboard" element={<LayoutWrapper currentPageName="ComplianceDashboard"><ComplianceDashboard /></LayoutWrapper>} />
+      <Route path="/CompliancePolicies" element={<LayoutWrapper currentPageName="CompliancePolicies"><CompliancePolicies /></LayoutWrapper>} />
+      <Route path="/ComplianceTraining" element={<LayoutWrapper currentPageName="ComplianceTraining"><ComplianceTraining /></LayoutWrapper>} />
+      <Route path="/ComplianceIncidents" element={<LayoutWrapper currentPageName="ComplianceIncidents"><ComplianceIncidents /></LayoutWrapper>} />
+      <Route path="/ComplianceAudits" element={<LayoutWrapper currentPageName="ComplianceAudits"><ComplianceAudits /></LayoutWrapper>} />
+      <Route path="/ComplianceRisk" element={<LayoutWrapper currentPageName="ComplianceRisk"><ComplianceRisk /></LayoutWrapper>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );
