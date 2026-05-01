@@ -1,0 +1,61 @@
+{
+  "name": "HRISCalendarEvent",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "holiday",
+        "team_event",
+        "training",
+        "review_cycle",
+        "all_hands",
+        "birthday",
+        "work_anniversary",
+        "other"
+      ],
+      "default": "other"
+    },
+    "start_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "end_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "all_day": {
+      "type": "boolean",
+      "default": false
+    },
+    "location": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "department": {
+      "type": "string"
+    },
+    "attendee_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "created_by_name": {
+      "type": "string"
+    },
+    "is_recurring": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "required": [
+    "title",
+    "start_date"
+  ]
+}

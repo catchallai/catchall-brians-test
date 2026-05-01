@@ -1,0 +1,43 @@
+{
+  "name": "HRISEmailTemplate",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "onboarding",
+        "offboarding",
+        "hiring",
+        "performance",
+        "benefits",
+        "general"
+      ],
+      "default": "general"
+    },
+    "subject": {
+      "type": "string"
+    },
+    "body": {
+      "type": "string"
+    },
+    "variables": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Placeholder variables like {{employee_name}}"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true
+    }
+  },
+  "required": [
+    "name",
+    "subject",
+    "body"
+  ]
+}

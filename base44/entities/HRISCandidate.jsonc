@@ -1,0 +1,74 @@
+{
+  "name": "HRISCandidate",
+  "type": "object",
+  "properties": {
+    "full_name": {
+      "type": "string"
+    },
+    "email": {
+      "type": "string",
+      "format": "email"
+    },
+    "phone": {
+      "type": "string"
+    },
+    "job_posting_id": {
+      "type": "string"
+    },
+    "job_title": {
+      "type": "string"
+    },
+    "stage": {
+      "type": "string",
+      "enum": [
+        "applied",
+        "screening",
+        "interview",
+        "offer",
+        "hired",
+        "rejected"
+      ],
+      "default": "applied"
+    },
+    "resume_url": {
+      "type": "string"
+    },
+    "linkedin_url": {
+      "type": "string"
+    },
+    "source": {
+      "type": "string",
+      "enum": [
+        "linkedin",
+        "indeed",
+        "referral",
+        "website",
+        "other"
+      ]
+    },
+    "notes": {
+      "type": "string"
+    },
+    "rating": {
+      "type": "number",
+      "description": "1-5"
+    },
+    "interview_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "offer_amount": {
+      "type": "number"
+    },
+    "assigned_to": {
+      "type": "string"
+    },
+    "assigned_to_name": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "full_name",
+    "email"
+  ]
+}

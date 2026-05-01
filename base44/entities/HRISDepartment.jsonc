@@ -1,0 +1,41 @@
+{
+  "name": "HRISDepartment",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "code": {
+      "type": "string",
+      "description": "Short code e.g. ENG, HR"
+    },
+    "head_employee_id": {
+      "type": "string"
+    },
+    "head_employee_name": {
+      "type": "string"
+    },
+    "parent_department_id": {
+      "type": "string"
+    },
+    "location": {
+      "type": "string"
+    },
+    "budget": {
+      "type": "number"
+    },
+    "headcount_target": {
+      "type": "number"
+    },
+    "description": {
+      "type": "string"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true
+    }
+  },
+  "required": [
+    "name"
+  ]
+}

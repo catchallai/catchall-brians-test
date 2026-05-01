@@ -1,0 +1,67 @@
+{
+  "name": "HRISOnboardingTask",
+  "type": "object",
+  "properties": {
+    "employee_id": {
+      "type": "string"
+    },
+    "employee_name": {
+      "type": "string"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "onboarding",
+        "offboarding"
+      ],
+      "default": "onboarding"
+    },
+    "task": {
+      "type": "string"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "paperwork",
+        "it_setup",
+        "training",
+        "access",
+        "introduction",
+        "equipment",
+        "other"
+      ],
+      "default": "other"
+    },
+    "assigned_to": {
+      "type": "string"
+    },
+    "assigned_to_name": {
+      "type": "string"
+    },
+    "due_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "in_progress",
+        "completed",
+        "skipped"
+      ],
+      "default": "pending"
+    },
+    "notes": {
+      "type": "string"
+    },
+    "order": {
+      "type": "number",
+      "default": 0
+    }
+  },
+  "required": [
+    "employee_id",
+    "task"
+  ]
+}

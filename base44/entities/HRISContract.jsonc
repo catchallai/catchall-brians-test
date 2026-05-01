@@ -1,0 +1,65 @@
+{
+  "name": "HRISContract",
+  "type": "object",
+  "properties": {
+    "employee_id": {
+      "type": "string"
+    },
+    "employee_name": {
+      "type": "string"
+    },
+    "title": {
+      "type": "string"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "employment",
+        "nda",
+        "non_compete",
+        "contractor",
+        "amendment",
+        "other"
+      ],
+      "default": "employment"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "pending_signature",
+        "signed",
+        "expired",
+        "cancelled"
+      ],
+      "default": "draft"
+    },
+    "start_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "end_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "file_url": {
+      "type": "string"
+    },
+    "signed_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "notes": {
+      "type": "string"
+    },
+    "is_sensitive": {
+      "type": "boolean",
+      "default": true
+    }
+  },
+  "required": [
+    "employee_id",
+    "title",
+    "type"
+  ]
+}

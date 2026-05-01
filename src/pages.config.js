@@ -176,6 +176,13 @@ import HRISPayroll from './pages/HRISPayroll';
 import HRISBenefits from './pages/HRISBenefits';
 import HRISPerformance from './pages/HRISPerformance';
 import HRISDocuments from './pages/HRISDocuments';
+import HRISDepartments from './pages/HRISDepartments';
+import HRISHiring from './pages/HRISHiring';
+import HRISEmailTemplates from './pages/HRISEmailTemplates';
+import HRISOnboarding from './pages/HRISOnboarding';
+import HRISOffboarding from './pages/HRISOffboarding';
+import HRISTeamCalendar from './pages/HRISTeamCalendar';
+import HRISContracts from './pages/HRISContracts';
 import __Layout from './Layout.jsx';
 
 export const PAGES = {
@@ -308,6 +315,13 @@ export const PAGES = {
   HRISBenefits: HRISBenefits,
   HRISPerformance: HRISPerformance,
   HRISDocuments: HRISDocuments,
+  HRISDepartments: HRISDepartments,
+  HRISHiring: HRISHiring,
+  HRISEmailTemplates: HRISEmailTemplates,
+  HRISOnboarding: HRISOnboarding,
+  HRISOffboarding: HRISOffboarding,
+  HRISTeamCalendar: HRISTeamCalendar,
+  HRISContracts: HRISContracts,
 };
 
 export const pagesConfig = {
