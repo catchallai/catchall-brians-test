@@ -1,0 +1,102 @@
+{
+  "name": "EquityGrant",
+  "type": "object",
+  "properties": {
+    "employee_id": {
+      "type": "string"
+    },
+    "employee_name": {
+      "type": "string"
+    },
+    "employee_email": {
+      "type": "string"
+    },
+    "department": {
+      "type": "string"
+    },
+    "grant_type": {
+      "type": "string",
+      "enum": [
+        "iso",
+        "nso",
+        "rsu",
+        "sar",
+        "warrant"
+      ],
+      "default": "rsu"
+    },
+    "grant_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "shares_granted": {
+      "type": "number"
+    },
+    "strike_price": {
+      "type": "number"
+    },
+    "current_price": {
+      "type": "number"
+    },
+    "vesting_schedule": {
+      "type": "string",
+      "enum": [
+        "4yr_1yr_cliff",
+        "3yr_monthly",
+        "4yr_monthly",
+        "immediate",
+        "custom"
+      ],
+      "default": "4yr_1yr_cliff"
+    },
+    "vesting_start_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "cliff_months": {
+      "type": "number",
+      "default": 12
+    },
+    "vesting_months": {
+      "type": "number",
+      "default": 48
+    },
+    "shares_vested": {
+      "type": "number",
+      "default": 0
+    },
+    "shares_exercised": {
+      "type": "number",
+      "default": 0
+    },
+    "shares_cancelled": {
+      "type": "number",
+      "default": 0
+    },
+    "expiry_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "fully_vested",
+        "partially_exercised",
+        "fully_exercised",
+        "cancelled",
+        "expired"
+      ],
+      "default": "active"
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "employee_id",
+    "grant_type",
+    "grant_date",
+    "shares_granted"
+  ]
+}

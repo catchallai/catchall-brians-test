@@ -1,0 +1,61 @@
+{
+  "name": "EquityExercise",
+  "type": "object",
+  "properties": {
+    "grant_id": {
+      "type": "string"
+    },
+    "employee_id": {
+      "type": "string"
+    },
+    "employee_name": {
+      "type": "string"
+    },
+    "exercise_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "shares_exercised": {
+      "type": "number"
+    },
+    "strike_price": {
+      "type": "number"
+    },
+    "fmv_at_exercise": {
+      "type": "number"
+    },
+    "total_cost": {
+      "type": "number"
+    },
+    "gain": {
+      "type": "number"
+    },
+    "exercise_type": {
+      "type": "string",
+      "enum": [
+        "cash",
+        "cashless",
+        "net_exercise"
+      ],
+      "default": "cash"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "completed",
+        "cancelled"
+      ],
+      "default": "pending"
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "grant_id",
+    "employee_id",
+    "exercise_date",
+    "shares_exercised"
+  ]
+}

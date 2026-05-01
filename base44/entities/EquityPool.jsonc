@@ -1,0 +1,46 @@
+{
+  "name": "EquityPool",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "total_shares": {
+      "type": "number"
+    },
+    "shares_granted": {
+      "type": "number",
+      "default": 0
+    },
+    "shares_reserved": {
+      "type": "number",
+      "default": 0
+    },
+    "share_class": {
+      "type": "string",
+      "enum": [
+        "common",
+        "preferred_a",
+        "preferred_b",
+        "preferred_c",
+        "other"
+      ],
+      "default": "common"
+    },
+    "effective_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "notes": {
+      "type": "string"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true
+    }
+  },
+  "required": [
+    "name",
+    "total_shares"
+  ]
+}
