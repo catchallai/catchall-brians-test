@@ -1,0 +1,96 @@
+{
+  "name": "ExportViolation",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "violation_type": {
+      "type": "string",
+      "enum": [
+        "unauthorized_export",
+        "unlicensed_transfer",
+        "false_statement",
+        "recordkeeping",
+        "sanctions",
+        "deemed_export",
+        "other"
+      ],
+      "default": "other"
+    },
+    "regulation": {
+      "type": "string",
+      "enum": [
+        "EAR",
+        "ITAR",
+        "OFAC",
+        "FCPA",
+        "other"
+      ],
+      "default": "EAR"
+    },
+    "severity": {
+      "type": "string",
+      "enum": [
+        "minor",
+        "moderate",
+        "major",
+        "critical"
+      ],
+      "default": "moderate"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "open",
+        "under_investigation",
+        "reported_to_authorities",
+        "remediated",
+        "closed"
+      ],
+      "default": "open"
+    },
+    "reported_by": {
+      "type": "string"
+    },
+    "assigned_to": {
+      "type": "string"
+    },
+    "violation_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "discovery_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "resolution_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "voluntary_disclosure": {
+      "type": "boolean",
+      "default": false
+    },
+    "program_id": {
+      "type": "string"
+    },
+    "department": {
+      "type": "string"
+    },
+    "remediation_plan": {
+      "type": "string"
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "title",
+    "violation_type",
+    "severity"
+  ]
+}

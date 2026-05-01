@@ -18,6 +18,7 @@ import ComplianceTraining from './pages/ComplianceTraining';
 import ComplianceIncidents from './pages/ComplianceIncidents';
 import ComplianceAudits from './pages/ComplianceAudits';
 import ComplianceRisk from './pages/ComplianceRisk';
+import ExportControl from './pages/ExportControl';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import { NavigationGuardProvider } from '@/lib/NavigationGuardContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
@@ -128,6 +129,7 @@ const AuthenticatedApp = () => {
       <Route path="/ComplianceIncidents" element={<LayoutWrapper currentPageName="ComplianceIncidents"><ComplianceIncidents /></LayoutWrapper>} />
       <Route path="/ComplianceAudits" element={<LayoutWrapper currentPageName="ComplianceAudits"><ComplianceAudits /></LayoutWrapper>} />
       <Route path="/ComplianceRisk" element={<LayoutWrapper currentPageName="ComplianceRisk"><ComplianceRisk /></LayoutWrapper>} />
+      <Route path="/ExportControl" element={<LayoutWrapper currentPageName="ExportControl"><ExportControl /></LayoutWrapper>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );

@@ -1,0 +1,84 @@
+{
+  "name": "DeemedExport",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "technology_item": {
+      "type": "string"
+    },
+    "eccn": {
+      "type": "string",
+      "description": "Export Control Classification Number"
+    },
+    "recipient_name": {
+      "type": "string"
+    },
+    "recipient_nationality": {
+      "type": "string"
+    },
+    "recipient_employee_id": {
+      "type": "string"
+    },
+    "department": {
+      "type": "string"
+    },
+    "program_id": {
+      "type": "string"
+    },
+    "disclosure_type": {
+      "type": "string",
+      "enum": [
+        "verbal",
+        "written",
+        "visual",
+        "electronic",
+        "other"
+      ],
+      "default": "electronic"
+    },
+    "license_required": {
+      "type": "boolean",
+      "default": false
+    },
+    "license_number": {
+      "type": "string"
+    },
+    "license_exception": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending_review",
+        "approved",
+        "denied",
+        "license_required",
+        "exempt"
+      ],
+      "default": "pending_review"
+    },
+    "reviewed_by": {
+      "type": "string"
+    },
+    "review_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "incident_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "title",
+    "recipient_name"
+  ]
+}

@@ -1,0 +1,74 @@
+{
+  "name": "ExportControlPersonnel",
+  "type": "object",
+  "properties": {
+    "employee_name": {
+      "type": "string"
+    },
+    "employee_id": {
+      "type": "string"
+    },
+    "email": {
+      "type": "string"
+    },
+    "department": {
+      "type": "string"
+    },
+    "role": {
+      "type": "string"
+    },
+    "nationality": {
+      "type": "string"
+    },
+    "citizenship": {
+      "type": "string"
+    },
+    "is_us_person": {
+      "type": "boolean",
+      "default": true
+    },
+    "clearance_level": {
+      "type": "string",
+      "enum": [
+        "none",
+        "confidential",
+        "secret",
+        "top_secret"
+      ],
+      "default": "none"
+    },
+    "training_completed": {
+      "type": "boolean",
+      "default": false
+    },
+    "training_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "training_expiry": {
+      "type": "string",
+      "format": "date"
+    },
+    "program_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "inactive",
+        "pending_review"
+      ],
+      "default": "active"
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "employee_name"
+  ]
+}

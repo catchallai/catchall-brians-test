@@ -1,0 +1,70 @@
+{
+  "name": "ExportControlAlert",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "alert_type": {
+      "type": "string",
+      "enum": [
+        "license_expiry",
+        "training_expiry",
+        "sanctions_match",
+        "shipment_flag",
+        "personnel_change",
+        "regulation_update",
+        "other"
+      ],
+      "default": "other"
+    },
+    "severity": {
+      "type": "string",
+      "enum": [
+        "info",
+        "warning",
+        "critical"
+      ],
+      "default": "warning"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "open",
+        "acknowledged",
+        "resolved"
+      ],
+      "default": "open"
+    },
+    "assigned_to": {
+      "type": "string"
+    },
+    "due_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "related_program_id": {
+      "type": "string"
+    },
+    "related_entity_type": {
+      "type": "string"
+    },
+    "related_entity_id": {
+      "type": "string"
+    },
+    "resolved_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "title",
+    "alert_type"
+  ]
+}

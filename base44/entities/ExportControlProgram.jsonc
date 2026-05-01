@@ -1,0 +1,58 @@
+{
+  "name": "ExportControlProgram",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "regulations": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "e.g. EAR, ITAR, TCP, OFAC"
+    },
+    "owner_name": {
+      "type": "string"
+    },
+    "department": {
+      "type": "string"
+    },
+    "risk_level": {
+      "type": "string",
+      "enum": [
+        "low",
+        "medium",
+        "high",
+        "critical"
+      ],
+      "default": "medium"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "inactive",
+        "under_review"
+      ],
+      "default": "active"
+    },
+    "start_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "review_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "name"
+  ]
+}
