@@ -1,0 +1,56 @@
+{
+  "name": "CompanySettings",
+  "type": "object",
+  "properties": {
+    "company_name": {
+      "type": "string",
+      "description": "Company/organization name"
+    },
+    "logo_url": {
+      "type": "string",
+      "description": "URL to company logo"
+    },
+    "primary_color": {
+      "type": "string",
+      "default": "#7c3aed",
+      "description": "Primary brand color (hex code)"
+    },
+    "industry": {
+      "type": "string",
+      "enum": [
+        "aerospace",
+        "manufacturing",
+        "defense",
+        "finance",
+        "healthcare",
+        "retail",
+        "technology",
+        "energy",
+        "telecommunications",
+        "transportation",
+        "other"
+      ],
+      "default": "technology",
+      "description": "Primary industry vertical"
+    },
+    "scanner_label": {
+      "type": "string",
+      "description": "Custom label for the industry scanner (e.g., 'Aerospace Scanner', 'Manufacturing Tracker')"
+    },
+    "tagline": {
+      "type": "string",
+      "description": "Company tagline/subtitle"
+    },
+    "footer_text": {
+      "type": "string",
+      "description": "Custom footer text"
+    },
+    "support_email": {
+      "type": "string",
+      "description": "Support contact email"
+    }
+  },
+  "required": [
+    "company_name"
+  ]
+}

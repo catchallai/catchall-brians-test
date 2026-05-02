@@ -12,6 +12,7 @@ import { ThemeProvider } from '@/components/theme/ThemeProvider';
 import ThemeToggle from '@/components/theme/ThemeToggle';
 import NotificationBell from '@/components/notifications/NotificationBell';
 import SessionReplayTracker from '@/components/analytics/SessionReplayTracker';
+import WhitelabelHeader from '@/components/whitelabel/WhitelabelHeader';
 
 import {
   LayoutDashboard,
@@ -262,6 +263,7 @@ const navigation = [
   { name: 'Help Center', icon: HelpCircle, page: 'HelpCenter' },
   { name: 'Documentation', icon: FileText, page: 'Documentation' },
   { name: 'Settings', icon: Settings, page: 'Settings' },
+  { name: 'Company Settings', icon: Building2, page: 'CompanySettings' },
   { name: 'Activity Logs', icon: Activity, page: 'ActivityLogs' },
 ];
 
@@ -616,8 +618,9 @@ const SIDEBAR_ICONS = {
   TalentSurveys: BarChart3,
   Settings: Settings,
   HelpCenter: HelpCircle,
+  CompanySettings: Building2,
   ActivityLogs: Activity,
-};
+  };
 
 function SidebarContent({
   currentPage,
@@ -746,15 +749,10 @@ function SidebarContent({
       {/* Logo */}
       <div className="p-6 border-b border-gray-100 dark:border-gray-800">
         <Link to={createPageUrl('Dashboard')} className="flex items-center gap-3">
-          <img
-            src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6925162397800755912704a9/3da4d00f2_catchall.jpg"
-            alt="CatchAll"
-            className={`h-8 object-contain transition-all ${isCollapsed ? 'mx-auto' : ''}`}
-          />
-          {!isCollapsed && (
-            <div>
-              <h1 className="font-bold text-gray-900 dark:text-white text-lg">CatchAll</h1>
-              <p className="text-xs text-gray-400 dark:text-gray-500">Business Suite</p>
+          {!isCollapsed && <WhitelabelHeader />}
+          {isCollapsed && (
+            <div className="w-8 h-8 rounded-lg bg-violet-600 flex items-center justify-center text-white font-bold text-sm">
+              A
             </div>
           )}
         </Link>

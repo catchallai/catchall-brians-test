@@ -39,6 +39,7 @@ import HRISOrgChart from './pages/HRISOrgChart';
 import PublicDataRoomPortal from './pages/PublicDataRoomPortal';
 import SpaceDetail from './pages/SpaceDetail';
 import Documentation from './pages/Documentation';
+import CompanySettingsPage from './pages/CompanySettingsPage';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import { NavigationGuardProvider } from '@/lib/NavigationGuardContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
@@ -170,6 +171,7 @@ const AuthenticatedApp = () => {
       <Route path="/HRISOrgChart" element={<LayoutWrapper currentPageName="HRISOrgChart"><HRISOrgChart /></LayoutWrapper>} />
       <Route path="/SpaceDetail" element={<LayoutWrapper currentPageName="SpaceDetail"><SpaceDetail /></LayoutWrapper>} />
       <Route path="/Documentation" element={<LayoutWrapper currentPageName="Documentation"><Documentation /></LayoutWrapper>} />
+      <Route path="/CompanySettings" element={<LayoutWrapper currentPageName="CompanySettings"><CompanySettingsPage /></LayoutWrapper>} />
       <Route path="/portal/:accessCode" element={<PublicDataRoomPortal />} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
