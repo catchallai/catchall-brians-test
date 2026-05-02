@@ -28,6 +28,16 @@ import {
   Sparkles,
   Rocket,
   Crown,
+  Scale,
+  ShieldCheck,
+  AlertTriangle,
+  Briefcase,
+  GraduationCap,
+  DollarSign,
+  Heart,
+  BookOpen,
+  Award,
+  Folder,
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -299,6 +309,57 @@ const FEATURES = {
 
   // Communications - Enterprise
   ics: { name: 'ICS', icon: Mail, tier: 'enterprise', category: 'Communications', default: false },
+
+  // Legal - Enterprise
+  legalDashboard: { name: 'Legal Dashboard', icon: Scale, tier: 'enterprise', category: 'Legal', default: true },
+  legalMatters: { name: 'Matters', icon: Briefcase, tier: 'enterprise', category: 'Legal', default: true },
+  legalLitigation: { name: 'Litigation', icon: Scale, tier: 'enterprise', category: 'Legal', default: true },
+  legalObligations: { name: 'Obligations', icon: AlertTriangle, tier: 'enterprise', category: 'Legal', default: true },
+  legalIP: { name: 'Intellectual Property', icon: ShieldCheck, tier: 'enterprise', category: 'Legal', default: true },
+  legalCounsel: { name: 'Counsel', icon: Users, tier: 'enterprise', category: 'Legal', default: true },
+  legalEntities: { name: 'Legal Entities', icon: Building2, tier: 'enterprise', category: 'Legal', default: true },
+
+  // Compliance - Enterprise
+  complianceDashboard: { name: 'Compliance Dashboard', icon: ShieldCheck, tier: 'enterprise', category: 'Compliance', default: true },
+  compliancePolicies: { name: 'Policies', icon: FileText, tier: 'enterprise', category: 'Compliance', default: true },
+  complianceTraining: { name: 'Compliance Training', icon: GraduationCap, tier: 'enterprise', category: 'Compliance', default: true },
+  complianceIncidents: { name: 'Incidents', icon: AlertTriangle, tier: 'enterprise', category: 'Compliance', default: true },
+  complianceAudits: { name: 'Audits', icon: Search, tier: 'enterprise', category: 'Compliance', default: true },
+  complianceRisk: { name: 'Risk Register', icon: TrendingUp, tier: 'enterprise', category: 'Compliance', default: true },
+  exportControl: { name: 'Export Control', icon: ShieldCheck, tier: 'enterprise', category: 'Compliance', default: true },
+  complianceExecutiveSummary: { name: 'Executive Summary', icon: BarChart3, tier: 'enterprise', category: 'Compliance', default: true },
+
+  // HRIS - Enterprise
+  hrisDashboard: { name: 'HRIS Dashboard', icon: BarChart3, tier: 'enterprise', category: 'HRIS', default: true },
+  hrisEmployees: { name: 'Employees', icon: Users, tier: 'enterprise', category: 'HRIS', default: true },
+  hrisDepartments: { name: 'Departments', icon: Building2, tier: 'enterprise', category: 'HRIS', default: true },
+  hrisOnboarding: { name: 'Onboarding', icon: UserPlus, tier: 'enterprise', category: 'HRIS', default: true },
+  hrisOffboarding: { name: 'Offboarding', icon: Users, tier: 'enterprise', category: 'HRIS', default: true },
+  hrisTimeOff: { name: 'Time Off', icon: Calendar, tier: 'enterprise', category: 'HRIS', default: true },
+  hrisPayroll: { name: 'Payroll', icon: DollarSign, tier: 'enterprise', category: 'HRIS', default: true },
+  hrisBenefits: { name: 'Benefits', icon: Heart, tier: 'enterprise', category: 'HRIS', default: true },
+  hrisContracts: { name: 'Contracts', icon: FileText, tier: 'enterprise', category: 'HRIS', default: true },
+  hrisDocuments: { name: 'HR Documents', icon: FileText, tier: 'enterprise', category: 'HRIS', default: true },
+  hrisEmailTemplates: { name: 'Email Templates', icon: Mail, tier: 'enterprise', category: 'HRIS', default: true },
+  hrisAnnouncements: { name: 'Announcements', icon: Newspaper, tier: 'enterprise', category: 'HRIS', default: true },
+  hrisRecognition: { name: 'Recognition', icon: Award, tier: 'enterprise', category: 'HRIS', default: true },
+  hrisAnalytics: { name: 'HR Analytics', icon: BarChart3, tier: 'enterprise', category: 'HRIS', default: true },
+  hrisAIAssistant: { name: 'HR AI Assistant', icon: Sparkles, tier: 'enterprise', category: 'HRIS', default: true },
+  hrisTeamCalendar: { name: 'Team Calendar', icon: Calendar, tier: 'enterprise', category: 'HRIS', default: true },
+  hrisPerformance: { name: 'Performance', icon: Target, tier: 'enterprise', category: 'HRIS', default: true },
+  hrisHiring: { name: 'Hiring', icon: Briefcase, tier: 'enterprise', category: 'HRIS', default: true },
+
+  // Talent - Enterprise
+  talentTraining: { name: 'Training', icon: BookOpen, tier: 'enterprise', category: 'Talent', default: true },
+  talentCareerPaths: { name: 'Career Paths', icon: TrendingUp, tier: 'enterprise', category: 'Talent', default: true },
+  talentMentorships: { name: 'Mentorships', icon: Users, tier: 'enterprise', category: 'Talent', default: true },
+  talentInternships: { name: 'Internships', icon: GraduationCap, tier: 'enterprise', category: 'Talent', default: true },
+  talentSkills: { name: 'Skills', icon: Zap, tier: 'enterprise', category: 'Talent', default: true },
+  talentSurveys: { name: 'Surveys', icon: BarChart3, tier: 'enterprise', category: 'Talent', default: true },
+
+  // Finance - Enterprise
+  equity: { name: 'Equity', icon: TrendingUp, tier: 'enterprise', category: 'Finance', default: true },
+  accountingDashboard: { name: 'Accounting Dashboard', icon: DollarSign, tier: 'enterprise', category: 'Finance', default: false },
 
   // Assets - Enterprise
   mediaLibrary: {
