@@ -13,7 +13,6 @@ import NotificationsView from '@/components/ics/NotificationsView';
 import ArchivedList from '@/components/ics/ArchivedList';
 import SettingsPanel from '@/components/ics/SettingsPanel';
 import NotificationPreferences from '@/components/notifications/NotificationPreferences.jsx';
-import NotificationCenter from '@/components/notifications/NotificationCenter';
 import { playNotificationSound, isInDND } from '@/components/notifications/NotificationSounds';
 import {
   extractMentions,
@@ -531,7 +530,7 @@ export default function ICS() {
   };
 
   return (
-    <div className="h-screen flex bg-slate-50">
+    <div className="h-screen flex flex-col bg-slate-50">
       {/* Real-time notification alert */}
       <NotificationAlert user={user} onNotificationClick={setClickedNotification} />
 
@@ -542,15 +541,10 @@ export default function ICS() {
         onAccountClick={() => setActiveView('account')}
         user={user}
         unreadCount={Object.values(unreadCounts).reduce((sum, count) => sum + count, 0)}
-        unreadCounts={unreadCounts}
-        notificationButton={
-          <div className="flex flex-col gap-2 w-full">
-            <NotificationCenter user={user} />
-            <NotificationPreferences user={user} onPreferencesUpdate={handlePreferencesUpdate} />
-          </div>
-        }
+        onNewChannel={() => setShowNewChannel(true)}
       />
 
+      <div className="flex flex-1 min-h-0">
       {activeView === 'chat' ? (
         <>
           <ConversationsList
@@ -678,6 +672,7 @@ export default function ICS() {
           <ICSAdminPortal />
         </div>
       ) : null}
+      </div>
 
       {/* Settings Panel */}
       <SettingsPanel

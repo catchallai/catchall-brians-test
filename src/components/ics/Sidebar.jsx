@@ -7,9 +7,9 @@ import {
   Sun,
   Moon,
   Shield,
-  User,
   Video,
   Hash,
+  Plus,
 } from 'lucide-react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 
@@ -21,137 +21,96 @@ export default function Sidebar({
   onSettingsClick,
   user,
   unreadCount = 0,
-  notificationButton,
-  onAccountClick,
+  onNewChannel,
 }) {
-  const NavButton = ({ icon: Icon, active, onClick, tooltip, badge }) => (
-    <button
-      onClick={onClick}
-      className={`relative p-2.5 rounded-xl transition-all group ${
-        active
-          ? 'bg-violet-600 text-white shadow-lg shadow-violet-900/30'
-          : darkMode
-            ? 'text-slate-400 hover:text-white hover:bg-slate-800'
-            : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200'
-      }`}
-    >
-      <Icon size={20} />
-      {badge > 0 && (
-        <span className="absolute -top-1 -right-1 w-5 h-5 bg-violet-600 rounded-full text-xs text-white flex items-center justify-center font-medium">
-          {badge > 9 ? '9+' : badge}
-        </span>
-      )}
-      <span
-        className={`absolute left-full ml-2 px-2 py-1 rounded text-xs whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity ${
-          darkMode ? 'bg-slate-700 text-white' : 'bg-slate-800 text-white'
-        }`}
-      >
-        {tooltip}
-      </span>
-    </button>
-  );
+  const navItems = [
+    { id: 'chat', icon: MessageSquare, label: 'Messages' },
+    { id: 'contacts', icon: Users, label: 'People' },
+    { id: 'meetings', icon: Video, label: 'Meetings' },
+    { id: 'browse', icon: Hash, label: 'Channels' },
+    { id: 'notifications', icon: Bell, label: 'Notifications', badge: unreadCount },
+    { id: 'archived', icon: Archive, label: 'Archived' },
+    ...(user?.role === 'admin' ? [{ id: 'admin', icon: Shield, label: 'Admin' }] : []),
+  ];
 
   return (
     <div
-      className={`w-16 flex-shrink-0 ${
-        darkMode ? 'bg-slate-950' : 'bg-slate-100'
-      } flex flex-col items-center py-4 border-r ${
-        darkMode ? 'border-slate-800' : 'border-slate-200'
+      className={`h-14 flex-shrink-0 flex items-center justify-between px-4 border-b ${
+        darkMode
+          ? 'bg-slate-950 border-slate-800'
+          : 'bg-white border-slate-200'
       }`}
     >
-      {/* Logo */}
-      <div className="mb-8">
-        <div className="w-10 h-10 bg-gradient-to-br from-violet-600 to-violet-700 rounded-xl flex items-center justify-center shadow-lg shadow-violet-900/30">
-          <span className="text-white font-bold text-sm">SJ</span>
+      {/* Left: Logo + Nav */}
+      <div className="flex items-center gap-1">
+        {/* Logo */}
+        <div className="w-8 h-8 bg-gradient-to-br from-violet-600 to-violet-700 rounded-lg flex items-center justify-center shadow mr-3 flex-shrink-0">
+          <MessageSquare size={16} className="text-white" />
         </div>
+
+        {/* Nav items */}
+        {navItems.map(({ id, icon: Icon, label, badge }) => (
+          <button
+            key={id}
+            onClick={() => onViewChange(id)}
+            className={`relative flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
+              activeView === id
+                ? 'bg-violet-600 text-white shadow-sm'
+                : darkMode
+                  ? 'text-slate-400 hover:text-white hover:bg-slate-800'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+            }`}
+          >
+            <Icon size={16} />
+            <span className="hidden sm:inline">{label}</span>
+            {badge > 0 && (
+              <span className="w-4 h-4 bg-red-500 rounded-full text-xs text-white flex items-center justify-center font-medium leading-none">
+                {badge > 9 ? '9+' : badge}
+              </span>
+            )}
+          </button>
+        ))}
       </div>
 
-      {/* Navigation */}
-      <nav className="flex-1 flex flex-col items-center gap-2">
-        <NavButton
-          icon={MessageSquare}
-          active={activeView === 'chat'}
-          onClick={() => onViewChange('chat')}
-          tooltip="Messages"
-        />
-        <NavButton
-          icon={Users}
-          active={activeView === 'contacts'}
-          onClick={() => onViewChange('contacts')}
-          tooltip="Contacts"
-        />
-        <NavButton
-          icon={Bell}
-          active={activeView === 'notifications'}
-          onClick={() => onViewChange('notifications')}
-          tooltip="Notifications"
-          badge={unreadCount}
-        />
-        <NavButton
-          icon={Video}
-          active={activeView === 'meetings'}
-          onClick={() => onViewChange('meetings')}
-          tooltip="Meetings"
-        />
-        <NavButton
-          icon={Hash}
-          active={activeView === 'browse'}
-          onClick={() => onViewChange('browse')}
-          tooltip="Browse Channels"
-        />
-        <NavButton
-          icon={Archive}
-          active={activeView === 'archived'}
-          onClick={() => onViewChange('archived')}
-          tooltip="Archived"
-        />
-        {user?.role === 'admin' && (
-          <NavButton
-            icon={Shield}
-            active={activeView === 'admin'}
-            onClick={() => onViewChange('admin')}
-            tooltip="Admin"
-          />
-        )}
-      </nav>
+      {/* Right: Actions + Avatar */}
+      <div className="flex items-center gap-1">
+        <button
+          onClick={onNewChannel}
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
+            darkMode
+              ? 'text-slate-400 hover:text-white hover:bg-slate-800'
+              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+          }`}
+          title="New Channel"
+        >
+          <Plus size={16} />
+          <span className="hidden sm:inline">New</span>
+        </button>
 
-      {/* Bottom Actions */}
-      <div className="flex flex-col items-center gap-2">
         <button
           onClick={onThemeToggle}
-          className={`p-2.5 rounded-xl transition-all ${
+          className={`p-2 rounded-lg transition-all ${
             darkMode
               ? 'text-slate-400 hover:text-white hover:bg-slate-800'
-              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200'
+              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
           }`}
         >
-          {darkMode ? <Sun size={20} /> : <Moon size={20} />}
+          {darkMode ? <Sun size={16} /> : <Moon size={16} />}
         </button>
-        {notificationButton}
+
         <button
           onClick={onSettingsClick}
-          className={`p-2.5 rounded-xl transition-all ${
+          className={`p-2 rounded-lg transition-all ${
             darkMode
               ? 'text-slate-400 hover:text-white hover:bg-slate-800'
-              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200'
+              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
           }`}
         >
-          <Settings size={20} />
+          <Settings size={16} />
         </button>
-        <button
-          onClick={onAccountClick}
-          className={`p-2.5 rounded-xl transition-all ${
-            activeView === 'account'
-              ? 'bg-violet-600 text-white shadow-lg shadow-violet-900/30'
-              : darkMode
-                ? 'text-slate-400 hover:text-white hover:bg-slate-800'
-                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200'
-          }`}
-        >
-          <User size={20} />
-        </button>
-        <div className="mt-2 cursor-pointer" onClick={onAccountClick}>
-          <Avatar className="w-8 h-8 hover:opacity-80 transition-opacity">
+
+        <button onClick={() => onViewChange('account')}>
+          <Avatar className="w-8 h-8 hover:opacity-80 transition-opacity cursor-pointer">
             <AvatarFallback className="bg-gradient-to-br from-violet-600 to-violet-700 text-white text-xs font-bold">
               {user?.full_name
                 ?.split(' ')
@@ -159,7 +118,7 @@ export default function Sidebar({
                 .join('') || 'U'}
             </AvatarFallback>
           </Avatar>
-        </div>
+        </button>
       </div>
     </div>
   );
