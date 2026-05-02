@@ -12,11 +12,15 @@ import CollaborativeDocumentEditor from './CollaborativeDocumentEditor';
 import PollWidget from './PollWidget';
 import MessageReactions from './MessageReactions';
 import ThreadPanel from './ThreadPanel';
+import UserProfilePopover from './UserProfilePopover';
+import MessageSearchPanel from './MessageSearchPanel';
 
 export default function ChatArea({
   channel,
   user,
   messages,
+  allMessages = [],
+  allChannels = [],
   onSendMessage,
   onStartCall,
   onShowProfile,
@@ -29,13 +33,15 @@ export default function ChatArea({
   onAdmitUser,
   onRejectUser,
   updateCallMutation,
+  onDirectMessageUser,
 }) {
   const messagesEndRef = useRef(null);
-  const [sidePanel, setSidePanel] = useState(null); // 'docs' | 'polls' | 'thread'
+  const [sidePanel, setSidePanel] = useState(null); // 'docs' | 'polls' | 'thread' | 'search'
   const [threadMessage, setThreadMessage] = useState(null);
   const [hoveredMessage, setHoveredMessage] = useState(null);
   const [editingMessage, setEditingMessage] = useState(null);
   const [editContent, setEditContent] = useState('');
+  const [profilePopover, setProfilePopover] = useState(null); // { email, name }
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -124,6 +130,9 @@ export default function ChatArea({
             )}
           </div>
           <div className="flex items-center gap-1">
+            <Button variant="ghost" size="sm" onClick={() => setSidePanel(sidePanel === 'search' ? null : 'search')} title="Search messages" className={sidePanel === 'search' ? 'bg-slate-100' : ''}>
+              <Search size={18} />
+            </Button>
             <Button variant="ghost" size="sm" onClick={() => setSidePanel(sidePanel === 'docs' ? null : 'docs')} title="Documents" className={sidePanel === 'docs' ? 'bg-slate-100' : ''}>
               <FileText size={18} />
             </Button>
@@ -176,6 +185,7 @@ export default function ChatArea({
                       onEditCancel={() => setEditingMessage(null)}
                       currentUser={user}
                       channelId={channel.id}
+                      onAvatarClick={(email, name) => setProfilePopover({ email, name })}
                     />
                   );
                 })
@@ -212,7 +222,7 @@ export default function ChatArea({
           </ScrollArea>
 
           {/* Side Panel */}
-          {sidePanel && sidePanel !== 'thread' && (
+          {sidePanel && sidePanel !== 'thread' && sidePanel !== 'search' && (
             <div className="w-80 border-l border-slate-200 bg-white p-4 overflow-y-auto">
               {sidePanel === 'docs' && (
                 <CollaborativeDocumentEditor channelId={channel.id} user={user} onClose={() => setSidePanel(null)} />
@@ -221,6 +231,20 @@ export default function ChatArea({
                 <PollWidget channelId={channel.id} user={user} />
               )}
             </div>
+          )}
+
+          {/* Search Panel */}
+          {sidePanel === 'search' && (
+            <MessageSearchPanel
+              messages={allMessages}
+              channels={allChannels}
+              onClose={() => setSidePanel(null)}
+              onSelectMessage={(msg) => {
+                const ch = allChannels.find((c) => c.id === msg.channel_id);
+                if (ch) onShowProfile?.(ch);
+                setSidePanel(null);
+              }}
+            />
           )}
 
           {/* Thread Panel */}
@@ -238,11 +262,23 @@ export default function ChatArea({
           <MessageInput onSendMessage={onSendMessage} onTyping={onTyping} channel={channel} allUsers={[]} />
         </div>
       </div>
+
+      {/* User Profile Popover */}
+      {profilePopover && (
+        <UserProfilePopover
+          userEmail={profilePopover.email}
+          userName={profilePopover.name}
+          allChannels={allChannels}
+          currentUser={user}
+          onClose={() => setProfilePopover(null)}
+          onDirectMessage={() => onDirectMessageUser?.({ email: profilePopover.email, full_name: profilePopover.name })}
+        />
+      )}
     </div>
   );
 }
 
-function MessageBubble({ message, isMe, compact, isHovered, onHover, onReply, onEdit, onDelete, isEditing, editContent, onEditChange, onEditSave, onEditCancel, currentUser, channelId }) {
+function MessageBubble({ message, isMe, compact, isHovered, onHover, onReply, onEdit, onDelete, isEditing, editContent, onEditChange, onEditSave, onEditCancel, currentUser, channelId, onAvatarClick }) {
   const canEdit = message.sender_email === currentUser?.email && !message.is_deleted;
 
   return (
@@ -253,11 +289,16 @@ function MessageBubble({ message, isMe, compact, isHovered, onHover, onReply, on
     >
       <div className={`flex items-start gap-3 px-2 py-1 rounded-lg transition-colors ${isHovered ? 'bg-slate-100' : ''} ${compact ? 'mt-0' : 'mt-3'}`}>
         {!compact ? (
-          <Avatar className="w-9 h-9 flex-shrink-0 mt-0.5">
-            <AvatarFallback className={`text-white text-sm ${isMe ? 'bg-violet-600' : 'bg-slate-500'}`}>
-              {message.sender_name?.[0] || 'U'}
-            </AvatarFallback>
-          </Avatar>
+          <button
+            onClick={() => !isMe && onAvatarClick?.(message.sender_email, message.sender_name)}
+            className={!isMe ? 'cursor-pointer hover:opacity-80 transition-opacity' : 'cursor-default'}
+          >
+            <Avatar className="w-9 h-9 flex-shrink-0 mt-0.5">
+              <AvatarFallback className={`text-white text-sm ${isMe ? 'bg-violet-600' : 'bg-slate-500'}`}>
+                {message.sender_name?.[0] || 'U'}
+              </AvatarFallback>
+            </Avatar>
+          </button>
         ) : (
           <div className="w-9 flex-shrink-0" />
         )}

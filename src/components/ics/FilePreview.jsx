@@ -50,7 +50,7 @@ export default function FilePreview({ file }) {
         {!showPreview ? (
           <button
             onClick={() => setShowPreview(true)}
-            className="inline-block max-w-xs rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 hover:opacity-90 transition-opacity"
+            className="inline-block max-w-xs rounded-lg overflow-hidden border border-gray-200 hover:opacity-90 transition-opacity"
           >
             <img src={file.url} alt={file.name} className="w-full h-auto max-h-48 object-cover" />
           </button>
@@ -111,12 +111,12 @@ export default function FilePreview({ file }) {
 
   // Generic file
   return (
-    <Card className="mt-2 p-3 bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 max-w-xs">
+    <Card className="mt-2 p-3 bg-gray-50 border-gray-200 max-w-xs">
       <div className="flex items-center gap-3">
         <Icon className="w-8 h-8 text-gray-400 flex-shrink-0" />
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-medium text-gray-900 dark:text-white truncate">{file.name}</p>
-          <p className="text-xs text-gray-500 dark:text-gray-400">
+          <p className="text-sm font-medium text-gray-900 truncate">{file.name}</p>
+          <p className="text-xs text-gray-500">
             {(file.size / 1024 / 1024).toFixed(2)} MB
           </p>
         </div>

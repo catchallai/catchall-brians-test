@@ -561,6 +561,8 @@ export default function ICS() {
             channel={selectedChannel}
             user={user}
             messages={messages}
+            allMessages={messages}
+            allChannels={channels}
             onSendMessage={handleSendMessage}
             onStartCall={handleStartCall}
             onShowProfile={() => setShowProfile(true)}
@@ -573,6 +575,22 @@ export default function ICS() {
             onAdmitUser={handleAdmitUser}
             onRejectUser={handleRejectUser}
             updateCallMutation={updateCallMutation}
+            onDirectMessageUser={(contact) => {
+              const dmChannel = channels.find(
+                (c) => c.type === 'dm' && c.members?.includes(contact.email) && c.members?.includes(user?.email)
+              );
+              if (dmChannel) {
+                setSelectedChannel(dmChannel);
+              } else {
+                createChannelMutation.mutate({
+                  name: contact.full_name,
+                  type: 'dm',
+                  created_by: user?.email,
+                  members: [user?.email, contact.email],
+                  last_activity: new Date().toISOString(),
+                });
+              }
+            }}
           />
         </>
       ) : activeView === 'contacts' ? (
