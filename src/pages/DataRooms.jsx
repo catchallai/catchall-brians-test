@@ -21,7 +21,11 @@ import {
   Mail,
   Calendar,
   Copy,
+  Share2,
 } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import PortalUserManagement from '@/components/dataroom/PortalUserManagement';
+import PortalSettings from '@/components/dataroom/PortalSettings';
 
 export default function DataRooms() {
   const [showModal, setShowModal] = useState(false);
@@ -29,6 +33,7 @@ export default function DataRooms() {
   const [deleteRoom, setDeleteRoom] = useState(null);
   const [sendingRoom, setSendingRoom] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedRoomForPortal, setSelectedRoomForPortal] = useState(null);
   const queryClient = useQueryClient();
 
   const { data: user } = useQuery({
@@ -46,6 +51,23 @@ export default function DataRooms() {
       return rooms;
     },
     enabled: !!user,
+  });
+
+  const { data: portals = [] } = useQuery({
+    queryKey: ['dataroom-portals', selectedRoomForPortal?.id],
+    queryFn: () =>
+      base44.entities.DataRoomPortal.filter({
+        dataroom_id: selectedRoomForPortal?.id,
+      }),
+    enabled: !!selectedRoomForPortal?.id,
+  });
+
+  const createPortalMutation = useMutation({
+    mutationFn: (data) => base44.functions.invoke('createDataRoomPortal', data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['dataroom-portals', selectedRoomForPortal?.id] });
+      toast.success('External portal created');
+    },
   });
 
   const createMutation = useMutation({
@@ -178,7 +200,60 @@ export default function DataRooms() {
         />
       </div>
 
-      {filteredRooms.length === 0 ? (
+      {selectedRoomForPortal ? (
+        <div className="space-y-4">
+          <Button variant="outline" onClick={() => setSelectedRoomForPortal(null)}>
+            ← Back to Data Rooms
+          </Button>
+          <Card className="p-6">
+            <h2 className="text-2xl font-bold mb-6">
+              {selectedRoomForPortal.name} - External Portal Management
+            </h2>
+            <Tabs defaultValue="portals" className="space-y-4">
+              <TabsList>
+                <TabsTrigger value="portals">Portals</TabsTrigger>
+              </TabsList>
+              <TabsContent value="portals">
+                {portals.length === 0 ? (
+                  <div className="text-center py-8">
+                    <p className="text-muted-foreground mb-4">
+                      No external portals yet. Create one to allow vendors to access files.
+                    </p>
+                    <Button
+                      onClick={() =>
+                        createPortalMutation.mutate({
+                          dataroom_id: selectedRoomForPortal.id,
+                          name: `${selectedRoomForPortal.name} - External Portal`,
+                          allow_upload: true,
+                          allow_download: true,
+                        })
+                      }
+                      disabled={createPortalMutation.isPending}
+                    >
+                      <Plus className="w-4 h-4 mr-2" />
+                      Create Portal
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {portals.map((portal) => (
+                      <Card key={portal.id} className="p-4">
+                        <PortalUserManagement
+                          portalId={portal.id}
+                          portalAccessCode={portal.access_code}
+                        />
+                        <div className="mt-4 pt-4 border-t">
+                          <PortalSettings portal={portal} portalId={portal.id} />
+                        </div>
+                      </Card>
+                    ))}
+                  </div>
+                )}
+              </TabsContent>
+            </Tabs>
+          </Card>
+        </div>
+      ) : filteredRooms.length === 0 ? (
         <EmptyState
           Icon={FolderOpen}
           title="No data rooms"
@@ -230,40 +305,49 @@ export default function DataRooms() {
                 </div>
 
                 <div className="flex gap-2">
-                  {room.status === 'draft' && (
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => setSendingRoom(room)}
-                      disabled={sendMutation.isPending}
-                    >
-                      <Send className="w-4 h-4 mr-1" />
-                      Send
-                    </Button>
-                  )}
-                  {room.share_link && (
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => handleCopyLink(room.share_link)}
-                    >
-                      <Copy className="w-4 h-4" />
-                    </Button>
-                  )}
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => {
-                      setEditingRoom(room);
-                      setShowModal(true);
-                    }}
-                  >
-                    <Edit className="w-4 h-4" />
-                  </Button>
-                  <Button size="sm" variant="outline" onClick={() => setDeleteRoom(room)}>
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
-                </div>
+                   <Button
+                     size="sm"
+                     variant="outline"
+                     onClick={() => setSelectedRoomForPortal(room)}
+                     className="gap-1"
+                   >
+                     <Share2 className="w-4 h-4" />
+                     External
+                   </Button>
+                   {room.status === 'draft' && (
+                     <Button
+                       size="sm"
+                       variant="outline"
+                       onClick={() => setSendingRoom(room)}
+                       disabled={sendMutation.isPending}
+                     >
+                       <Send className="w-4 h-4 mr-1" />
+                       Send
+                     </Button>
+                   )}
+                   {room.share_link && (
+                     <Button
+                       size="sm"
+                       variant="outline"
+                       onClick={() => handleCopyLink(room.share_link)}
+                     >
+                       <Copy className="w-4 h-4" />
+                     </Button>
+                   )}
+                   <Button
+                     size="sm"
+                     variant="outline"
+                     onClick={() => {
+                       setEditingRoom(room);
+                       setShowModal(true);
+                     }}
+                   >
+                     <Edit className="w-4 h-4" />
+                   </Button>
+                   <Button size="sm" variant="outline" onClick={() => setDeleteRoom(room)}>
+                     <Trash2 className="w-4 h-4" />
+                   </Button>
+                 </div>
               </CardContent>
             </Card>
           ))}

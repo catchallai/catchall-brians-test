@@ -1,0 +1,51 @@
+{
+  "name": "DataRoomPortalUser",
+  "type": "object",
+  "properties": {
+    "portal_id": {
+      "type": "string",
+      "description": "Associated DataRoomPortal ID"
+    },
+    "email": {
+      "type": "string",
+      "format": "email",
+      "description": "External user email"
+    },
+    "name": {
+      "type": "string",
+      "description": "External user name"
+    },
+    "company": {
+      "type": "string",
+      "description": "External user company"
+    },
+    "access_level": {
+      "type": "string",
+      "enum": [
+        "view",
+        "upload_download",
+        "admin"
+      ],
+      "default": "view",
+      "description": "Access level for this user"
+    },
+    "last_accessed": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Last access timestamp"
+    },
+    "access_count": {
+      "type": "number",
+      "default": 0,
+      "description": "Number of times accessed"
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "portal_id",
+    "email",
+    "name"
+  ]
+}

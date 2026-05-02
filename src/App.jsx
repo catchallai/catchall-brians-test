@@ -36,6 +36,7 @@ import FinanceForecast from './pages/FinanceForecast';
 import VendorSpace from './pages/VendorSpace';
 import VendorDetail from './pages/VendorDetail';
 import HRISOrgChart from './pages/HRISOrgChart';
+import PublicDataRoomPortal from './pages/PublicDataRoomPortal';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import { NavigationGuardProvider } from '@/lib/NavigationGuardContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
@@ -53,6 +54,7 @@ const PUBLIC_ROUTES = [
   '/PublicLandingPage',
   '/PublicLandingPageWrapper',
   '/PublicLegalDocumentSigner',
+  '/portal',
 ];
 // Precomputed lookup set so isPublicRoute is O(1) and doesn't lowercase per call.
 const PUBLIC_ROUTES_NORMALIZED = new Set(PUBLIC_ROUTES.map((r) => r.toLowerCase()));
@@ -164,6 +166,7 @@ const AuthenticatedApp = () => {
       <Route path="/VendorSpace" element={<LayoutWrapper currentPageName="VendorSpace"><VendorSpace /></LayoutWrapper>} />
       <Route path="/VendorDetail" element={<LayoutWrapper currentPageName="VendorDetail"><VendorDetail /></LayoutWrapper>} />
       <Route path="/HRISOrgChart" element={<LayoutWrapper currentPageName="HRISOrgChart"><HRISOrgChart /></LayoutWrapper>} />
+      <Route path="/portal/:accessCode" element={<PublicDataRoomPortal />} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );

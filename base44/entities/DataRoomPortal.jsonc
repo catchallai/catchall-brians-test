@@ -1,0 +1,65 @@
+{
+  "name": "DataRoomPortal",
+  "type": "object",
+  "properties": {
+    "dataroom_id": {
+      "type": "string",
+      "description": "Associated DataRoom ID"
+    },
+    "access_code": {
+      "type": "string",
+      "description": "9-digit unique access code for external users"
+    },
+    "name": {
+      "type": "string",
+      "description": "Portal name/label"
+    },
+    "description": {
+      "type": "string",
+      "description": "Portal description for external users"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "disabled",
+        "expired"
+      ],
+      "default": "active",
+      "description": "Portal access status"
+    },
+    "allow_upload": {
+      "type": "boolean",
+      "default": true,
+      "description": "Allow external users to upload files"
+    },
+    "allow_download": {
+      "type": "boolean",
+      "default": true,
+      "description": "Allow external users to download files"
+    },
+    "expires_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Portal expiration date"
+    },
+    "max_users": {
+      "type": "number",
+      "description": "Maximum number of external users (0 = unlimited)"
+    },
+    "created_by_name": {
+      "type": "string"
+    },
+    "created_by_email": {
+      "type": "string"
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "dataroom_id",
+    "access_code",
+    "name"
+  ]
+}
