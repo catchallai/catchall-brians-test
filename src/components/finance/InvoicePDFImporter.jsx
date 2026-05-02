@@ -15,6 +15,28 @@ import {
 const fmt = (n) => `$${Number(n || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 const PRODUCT_TYPES = ['software', 'service', 'contract', 'hardware', 'subscription', 'license', 'consulting', 'other'];
 
+// Normalize a vendor name for fuzzy matching: lowercase, strip legal suffixes, punctuation, extra spaces
+const LEGAL_SUFFIXES = /\b(inc|llc|ltd|co|corp|corporation|limited|group|holdings|gmbh|ag|sa|bv|nv|plc|pvt|private|technologies|technology|solutions|services|consulting|systems|software|international|global|worldwide)\b\.?/gi;
+const normalizeName = (name = '') =>
+  name.toLowerCase().replace(LEGAL_SUFFIXES, '').replace(/[^a-z0-9\s]/g, '').replace(/\s+/g, ' ').trim();
+
+const findVendorMatch = (vendorName, vendorList) => {
+  if (!vendorName) return null;
+  const norm = normalizeName(vendorName);
+  // 1. Exact match
+  let match = vendorList.find(v => v.name?.toLowerCase() === vendorName.toLowerCase());
+  if (match) return match;
+  // 2. Normalized match (strips legal suffixes)
+  match = vendorList.find(v => normalizeName(v.name) === norm);
+  if (match) return match;
+  // 3. One contains the other (e.g. "Tata" matches "Tata Technologies")
+  match = vendorList.find(v => {
+    const vn = normalizeName(v.name);
+    return vn && norm && (vn.includes(norm) || norm.includes(vn));
+  });
+  return match || null;
+};
+
 const AI_SCHEMA = {
   type: 'object',
   properties: {
@@ -130,9 +152,7 @@ For the vendor, extract company name, contact info, and categorize them. Return 
       });
 
       // Use freshly-fetched allVendors to find match (prevents duplicates)
-    const existingMatch = allVendors.find(
-        v => v.name?.toLowerCase() === result.vendor?.name?.toLowerCase()
-      );
+      const existingMatch = findVendorMatch(result.vendor?.name, allVendors);
 
       results.push({
         file: files[i],
@@ -185,7 +205,7 @@ For the vendor, extract company name, contact info, and categorize them. Return 
 
     // Re-check against latest vendors right before saving to prevent race-condition duplicates
     const latestVendors = await base44.entities.Vendor.list();
-    const liveMatch = latestVendors.find(v => v.name?.toLowerCase() === vendorName?.toLowerCase());
+    const liveMatch = findVendorMatch(vendorName, latestVendors);
     if (liveMatch && !parsed.vendor._existing) {
       // Update the parsed state to use this existing vendor
       parsed.vendor._existing = liveMatch;
