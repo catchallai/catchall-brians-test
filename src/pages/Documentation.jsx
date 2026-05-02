@@ -363,6 +363,144 @@ Industry selection updates system labels:
     ],
   },
   {
+    section: 'System Architecture & Design',
+    icon: Database,
+    items: [
+      {
+        title: 'Platform Architecture Overview',
+        description: 'Multi-tenant SaaS architecture with modular design',
+        content: `
+# Platform Architecture Overview
+
+## Core Components
+
+### Frontend (React)
+- **Framework**: React 18 with TypeScript
+- **Routing**: React Router v6
+- **State Management**: TanStack Query (React Query)
+- **Styling**: Tailwind CSS + shadcn/ui components
+- **Animations**: Framer Motion
+
+### Backend (Deno + Base44)
+- **Runtime**: Deno Deploy for serverless functions
+- **Database**: PostgreSQL with ORM
+- **Authentication**: Token-based with session management
+- **API Pattern**: RESTful endpoints
+
+### Infrastructure
+- **Hosting**: Multi-region cloud deployment
+- **Database**: Primary + replicated read-only copies
+- **CDN**: Global edge caching for static assets
+- **Storage**: Encrypted file storage with versioning
+
+## Multi-Tenant Design
+- Single codebase, multiple isolated instances
+- Row-level security (RLS) for data isolation
+- Per-tenant configuration and customization
+- Shared infrastructure, isolated databases
+
+## Scalability
+- Stateless backend services
+- Horizontal auto-scaling
+- Database connection pooling
+- Caching layers (Redis)
+        `,
+      },
+      {
+        title: 'Entity-Driven Data Model',
+        description: 'JSON Schema-based flexible data management',
+        content: `
+# Entity-Driven Data Model
+
+## Entity System
+All data is stored as JSON Schema-defined entities with:
+- **Built-in Fields**: id, created_date, updated_date, created_by
+- **Custom Fields**: Defined per entity in entities/{Name}.json
+- **Validation**: Schema enforcement at database layer
+- **Versioning**: Automatic change tracking
+
+## Core Entities
+- **Contact**: Companies and individuals with relationship tracking
+- **Deal**: Sales opportunities with pipeline stages
+- **ComplianceItem**: Compliance requirements and evidence
+- **LegalDocument**: Contracts and legal records
+- **HRISEmployee**: Employee profiles with payroll integration
+- **FinanceTransaction**: Financial records across all departments
+- **Vendor**: Suppliers and contractors with spend tracking
+
+## Data Relationships
+- Foreign keys via entity IDs
+- Computed fields for aggregations
+- Audit trail for all changes
+- Soft deletes with is_deleted flag
+
+## Extensibility
+Add custom entities by creating:
+\`src/entities/{EntityName}.json\` with JSON Schema
+
+## Querying
+\`\`\`javascript
+// List entities
+await base44.entities.Contact.list();
+
+// Filter with conditions
+await base44.entities.Deal.filter({status: 'won'});
+
+// CRUD operations
+await base44.entities.Contact.create(data);
+await base44.entities.Contact.update(id, data);
+await base44.entities.Contact.delete(id);
+\`\`\`
+        `,
+      },
+      {
+        title: 'Backend Functions & Automations',
+        description: 'Serverless functions with automation triggers',
+        content: `
+# Backend Functions & Automations
+
+## Function Types
+
+### Scheduled Functions
+- Cron-based triggers (minutely to monthly)
+- Examples: Daily digests, batch processing, cleanup
+- Configuration: create_automation with schedule_type
+
+### Entity Automations
+- Triggered on create/update/delete events
+- Access to old and new data
+- Conditional firing with filter conditions
+- Examples: Audit logging, compliance scanning
+
+### Webhook Automations
+- Connector-based (OAuth integrations)
+- Examples: Google Calendar events, Slack messages
+- Real-time event handling
+- Conditional routing to functions
+
+## Example Function
+\`\`\`javascript
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
+
+Deno.serve(async (req) => {
+  const base44 = createClientFromRequest(req);
+  const user = await base44.auth.me();
+  
+  const contacts = await base44.entities.Contact.list();
+  return Response.json({ contacts });
+});
+\`\`\`
+
+## Deployment
+- Functions auto-deploy when saved
+- Deno linting validation
+- Service role access to all entities
+- Timeout: 30 seconds per invocation
+        `,
+      },
+    ],
+  },
+  {
     section: 'Compliance Frameworks',
     icon: Shield,
     items: [
