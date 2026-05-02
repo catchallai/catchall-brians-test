@@ -17,7 +17,16 @@ import {
   Server,
   AlertTriangle,
   ExternalLink,
+  Plus,
 } from 'lucide-react';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import ComplianceEvidenceUploader from '@/components/compliance/ComplianceEvidenceUploader';
+import ComplianceEvidenceList from '@/components/compliance/ComplianceEvidenceList';
 
 const categoryIcons = {
   soc2: Shield,
@@ -51,6 +60,7 @@ const statusIcons = {
 
 export default function ComplianceDashboard() {
   const [selectedCategory, setSelectedCategory] = useState(null);
+  const [selectedItem, setSelectedItem] = useState(null);
 
   const { data: items = [], isLoading } = useQuery({
     queryKey: ['compliance-items'],
@@ -168,7 +178,7 @@ export default function ComplianceDashboard() {
             return (
               <Card
                 key={item.id}
-                className="hover:shadow-lg transition-shadow border-l-4"
+                className="hover:shadow-lg transition-shadow border-l-4 cursor-pointer"
                 style={{
                   borderLeftColor: {
                     verified: '#10b981',
@@ -178,6 +188,7 @@ export default function ComplianceDashboard() {
                     not_started: '#9ca3af',
                   }[item.status],
                 }}
+                onClick={() => setSelectedItem(item)}
               >
                 <CardHeader className="pb-3">
                   <div className="flex items-start justify-between gap-2">
@@ -279,6 +290,97 @@ export default function ComplianceDashboard() {
           <p className="text-gray-500">No compliance items in this category</p>
         </div>
       )}
+
+      {/* Item Detail Modal */}
+      <Dialog open={!!selectedItem} onOpenChange={(open) => !open && setSelectedItem(null)}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          {selectedItem && (
+            <>
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-2">
+                  <Shield className="w-5 h-5" />
+                  {selectedItem.name}
+                </DialogTitle>
+              </DialogHeader>
+
+              <div className="space-y-6">
+                {/* Overview */}
+                <div className="space-y-3">
+                  <div>
+                    <h3 className="font-semibold text-sm mb-2">Description</h3>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      {selectedItem.description}
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-xs text-gray-500 mb-1">Status</p>
+                      <Badge className={statusColors[selectedItem.status]}>
+                        {selectedItem.status.replace('_', ' ')}
+                      </Badge>
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-500 mb-1">Priority</p>
+                      <Badge
+                        variant="outline"
+                        className={
+                          selectedItem.priority === 'critical'
+                            ? 'bg-red-100 text-red-700'
+                            : selectedItem.priority === 'high'
+                              ? 'bg-orange-100 text-orange-700'
+                              : 'bg-blue-100 text-blue-700'
+                        }
+                      >
+                        {selectedItem.priority}
+                      </Badge>
+                    </div>
+                  </div>
+
+                  {selectedItem.owner_email && (
+                    <div>
+                      <p className="text-xs text-gray-500 mb-1">Owner</p>
+                      <p className="text-sm">{selectedItem.owner_email}</p>
+                    </div>
+                  )}
+
+                  {selectedItem.blocker && (
+                    <div className="p-3 bg-red-50 dark:bg-red-900/20 rounded border border-red-200 dark:border-red-800">
+                      <p className="text-xs font-semibold text-red-600 dark:text-red-300 flex items-center gap-1">
+                        <AlertCircle className="w-3 h-3" />
+                        Blocker
+                      </p>
+                      <p className="text-xs text-red-600 dark:text-red-300 mt-1">
+                        {selectedItem.blocker}
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                <div className="border-t pt-6">
+                  <h3 className="font-semibold text-sm mb-4">Evidence & Documentation</h3>
+
+                  <div className="space-y-4">
+                    <ComplianceEvidenceUploader
+                      complianceItemId={selectedItem.id}
+                      onEvidenceAdded={() => {
+                        // Refresh item if needed
+                      }}
+                    />
+
+                    <div>
+                      <h4 className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-3">
+                        Uploaded Evidence
+                      </h4>
+                      <ComplianceEvidenceList complianceItemId={selectedItem.id} />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

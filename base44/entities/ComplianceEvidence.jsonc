@@ -1,0 +1,104 @@
+{
+  "name": "ComplianceEvidence",
+  "type": "object",
+  "properties": {
+    "compliance_item_id": {
+      "type": "string",
+      "description": "ID of the associated ComplianceItem"
+    },
+    "file_url": {
+      "type": "string",
+      "description": "URL of the uploaded file/screenshot"
+    },
+    "file_name": {
+      "type": "string",
+      "description": "Original file name"
+    },
+    "file_type": {
+      "type": "string",
+      "enum": [
+        "image",
+        "pdf",
+        "document",
+        "other"
+      ],
+      "default": "other"
+    },
+    "scan_status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "scanning",
+        "completed",
+        "failed"
+      ],
+      "default": "pending",
+      "description": "Status of sensitive information scan"
+    },
+    "sensitive_info_detected": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether sensitive information was detected in the file"
+    },
+    "scan_results": {
+      "type": "object",
+      "description": "Detailed scan results including detected patterns and risk level",
+      "properties": {
+        "risk_level": {
+          "type": "string",
+          "enum": [
+            "low",
+            "medium",
+            "high",
+            "critical"
+          ]
+        },
+        "detected_patterns": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "e.g., [SSN, API_KEY, CREDIT_CARD, PASSWORD]"
+        },
+        "locations": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Brief descriptions of where patterns were found"
+        }
+      }
+    },
+    "uploaded_by": {
+      "type": "string",
+      "description": "Email of user who uploaded the evidence"
+    },
+    "description": {
+      "type": "string",
+      "description": "User-provided description of the evidence"
+    },
+    "verification_status": {
+      "type": "string",
+      "enum": [
+        "pending_review",
+        "approved",
+        "rejected"
+      ],
+      "default": "pending_review",
+      "description": "Compliance officer verification status"
+    },
+    "verified_by": {
+      "type": "string",
+      "description": "Email of compliance officer who verified the evidence"
+    },
+    "verification_notes": {
+      "type": "string",
+      "description": "Notes from verification review"
+    }
+  },
+  "required": [
+    "compliance_item_id",
+    "file_url",
+    "file_name"
+  ]
+}
