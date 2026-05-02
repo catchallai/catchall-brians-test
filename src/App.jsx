@@ -35,6 +35,7 @@ import FinancePayroll from './pages/FinancePayroll';
 import FinanceForecast from './pages/FinanceForecast';
 import VendorSpace from './pages/VendorSpace';
 import VendorDetail from './pages/VendorDetail';
+import HRISOrgChart from './pages/HRISOrgChart';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import { NavigationGuardProvider } from '@/lib/NavigationGuardContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
@@ -162,6 +163,7 @@ const AuthenticatedApp = () => {
       <Route path="/FinanceForecast" element={<LayoutWrapper currentPageName="FinanceForecast"><FinanceForecast /></LayoutWrapper>} />
       <Route path="/VendorSpace" element={<LayoutWrapper currentPageName="VendorSpace"><VendorSpace /></LayoutWrapper>} />
       <Route path="/VendorDetail" element={<LayoutWrapper currentPageName="VendorDetail"><VendorDetail /></LayoutWrapper>} />
+      <Route path="/HRISOrgChart" element={<LayoutWrapper currentPageName="HRISOrgChart"><HRISOrgChart /></LayoutWrapper>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );

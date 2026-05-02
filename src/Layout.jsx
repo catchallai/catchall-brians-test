@@ -65,6 +65,7 @@ import {
   GraduationCap,
   UserCheck,
   Scale,
+  Network,
 } from 'lucide-react';
 import ErrorBoundary from '@/components/ui/ErrorBoundary';
 import KeyboardShortcutsDialog, { useKeyboardShortcuts } from '@/components/ui/KeyboardShortcuts';
@@ -209,6 +210,7 @@ const navigation = [
   { name: 'divider', label: 'HRIS', collapsible: true },
   { name: 'HRIS Dashboard', icon: LayoutDashboard, page: 'HRISDashboard' },
   { name: 'Employees', icon: Users, page: 'HRISEmployees' },
+  { name: 'Org Chart', icon: Network, page: 'HRISOrgChart' },
   { name: 'Departments', icon: Building2, page: 'HRISDepartments' },
   { name: 'Team Calendar', icon: CalendarDays, page: 'HRISTeamCalendar' },
   { name: 'HR Analytics', icon: BarChart3, page: 'HRISAnalytics' },
@@ -588,6 +590,7 @@ const SIDEBAR_ICONS = {
   ICS: MessageSquare,
   Spaces: FolderOpen,
   Payments: DollarSign,
+  HRISOrgChart: Network,
   HRISDashboard: LayoutDashboard,
   HRISOnboarding: UserCheck,
   HRISEmployees: Users,
