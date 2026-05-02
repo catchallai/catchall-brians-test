@@ -1,0 +1,75 @@
+{
+  "name": "Vendor",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Vendor / contractor / customer name"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "vendor",
+        "contractor",
+        "customer",
+        "supplier",
+        "partner"
+      ],
+      "default": "vendor"
+    },
+    "email": {
+      "type": "string"
+    },
+    "phone": {
+      "type": "string"
+    },
+    "address": {
+      "type": "string"
+    },
+    "website": {
+      "type": "string"
+    },
+    "tax_id": {
+      "type": "string"
+    },
+    "payment_terms": {
+      "type": "string",
+      "description": "e.g. Net 30, Net 60"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "inactive",
+        "on_hold"
+      ],
+      "default": "active"
+    },
+    "category": {
+      "type": "string",
+      "description": "e.g. Software, Services, Hardware"
+    },
+    "notes": {
+      "type": "string"
+    },
+    "total_spend": {
+      "type": "number",
+      "default": 0
+    },
+    "invoice_count": {
+      "type": "number",
+      "default": 0
+    },
+    "first_invoice_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "last_invoice_date": {
+      "type": "string",
+      "format": "date"
+    }
+  },
+  "required": [
+    "name"
+  ]
+}

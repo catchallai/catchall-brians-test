@@ -1,0 +1,77 @@
+{
+  "name": "InvoiceImport",
+  "type": "object",
+  "properties": {
+    "vendor_id": {
+      "type": "string",
+      "description": "FK to Vendor (resolved or created)"
+    },
+    "vendor_name": {
+      "type": "string"
+    },
+    "file_url": {
+      "type": "string",
+      "description": "URL of the uploaded PDF"
+    },
+    "file_name": {
+      "type": "string"
+    },
+    "invoice_number": {
+      "type": "string"
+    },
+    "invoice_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "due_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "total_amount": {
+      "type": "number"
+    },
+    "subtotal": {
+      "type": "number"
+    },
+    "tax_amount": {
+      "type": "number"
+    },
+    "currency": {
+      "type": "string",
+      "default": "USD"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "processed",
+        "reviewed",
+        "paid",
+        "disputed"
+      ],
+      "default": "pending"
+    },
+    "line_items_count": {
+      "type": "number",
+      "default": 0
+    },
+    "transaction_id": {
+      "type": "string",
+      "description": "FK to FinanceTransaction created from this import"
+    },
+    "raw_text": {
+      "type": "string",
+      "description": "Raw extracted text from PDF"
+    },
+    "ai_summary": {
+      "type": "string"
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "file_name",
+    "total_amount"
+  ]
+}

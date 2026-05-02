@@ -1,0 +1,103 @@
+{
+  "name": "VendorProduct",
+  "type": "object",
+  "properties": {
+    "vendor_id": {
+      "type": "string",
+      "description": "FK to Vendor"
+    },
+    "vendor_name": {
+      "type": "string"
+    },
+    "invoice_import_id": {
+      "type": "string",
+      "description": "FK to InvoiceImport"
+    },
+    "name": {
+      "type": "string",
+      "description": "Product / service / line item name"
+    },
+    "description": {
+      "type": "string"
+    },
+    "product_type": {
+      "type": "string",
+      "enum": [
+        "software",
+        "service",
+        "contract",
+        "hardware",
+        "subscription",
+        "license",
+        "consulting",
+        "other"
+      ],
+      "default": "software"
+    },
+    "unit_price": {
+      "type": "number"
+    },
+    "quantity": {
+      "type": "number",
+      "default": 1
+    },
+    "total_amount": {
+      "type": "number"
+    },
+    "currency": {
+      "type": "string",
+      "default": "USD"
+    },
+    "start_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Service/license start date"
+    },
+    "expiration_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Expiration date for software/subscriptions"
+    },
+    "renewal_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "auto_renew": {
+      "type": "boolean",
+      "default": false
+    },
+    "expiry_notification_days": {
+      "type": "number",
+      "default": 30,
+      "description": "Days before expiry to notify"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "expired",
+        "cancelled",
+        "pending"
+      ],
+      "default": "active"
+    },
+    "invoice_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "invoice_number": {
+      "type": "string"
+    },
+    "department": {
+      "type": "string"
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "vendor_id",
+    "name",
+    "total_amount"
+  ]
+}

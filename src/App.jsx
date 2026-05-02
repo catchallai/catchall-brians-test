@@ -33,6 +33,8 @@ import FinanceBudgets from './pages/FinanceBudgets';
 import FinanceTransactions from './pages/FinanceTransactions';
 import FinancePayroll from './pages/FinancePayroll';
 import FinanceForecast from './pages/FinanceForecast';
+import VendorSpace from './pages/VendorSpace';
+import VendorDetail from './pages/VendorDetail';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import { NavigationGuardProvider } from '@/lib/NavigationGuardContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
@@ -158,6 +160,8 @@ const AuthenticatedApp = () => {
       <Route path="/FinanceTransactions" element={<LayoutWrapper currentPageName="FinanceTransactions"><FinanceTransactions /></LayoutWrapper>} />
       <Route path="/FinancePayroll" element={<LayoutWrapper currentPageName="FinancePayroll"><FinancePayroll /></LayoutWrapper>} />
       <Route path="/FinanceForecast" element={<LayoutWrapper currentPageName="FinanceForecast"><FinanceForecast /></LayoutWrapper>} />
+      <Route path="/VendorSpace" element={<LayoutWrapper currentPageName="VendorSpace"><VendorSpace /></LayoutWrapper>} />
+      <Route path="/VendorDetail" element={<LayoutWrapper currentPageName="VendorDetail"><VendorDetail /></LayoutWrapper>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );

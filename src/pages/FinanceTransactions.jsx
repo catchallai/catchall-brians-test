@@ -9,7 +9,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Plus, ArrowUpRight, Pencil, Trash2, Download, Filter, CheckSquare, X, RefreshCw } from 'lucide-react';
+import { Plus, ArrowUpRight, Pencil, Trash2, Download, Filter, CheckSquare, X, RefreshCw, FileText } from 'lucide-react';
+import InvoicePDFImporter from '@/components/finance/InvoicePDFImporter';
 
 const fmt = (n) => `$${Number(Math.abs(n || 0)).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
@@ -55,6 +56,7 @@ export default function FinanceTransactions() {
   const [form, setForm] = useState(emptyTxn);
   const [selected, setSelected] = useState(new Set());
   const [showFilters, setShowFilters] = useState(false);
+  const [pdfImportOpen, setPdfImportOpen] = useState(false);
 
   const { data: transactions = [], isLoading } = useQuery({
     queryKey: ['finance-transactions'],
@@ -135,6 +137,9 @@ export default function FinanceTransactions() {
         <div className="flex gap-2 flex-wrap">
           <Button variant="outline" size="sm" onClick={() => exportCSV(filtered)}>
             <Download className="w-4 h-4 mr-1" />Export CSV
+          </Button>
+          <Button variant="outline" size="sm" onClick={() => setPdfImportOpen(true)} className="border-indigo-300 text-indigo-700 hover:bg-indigo-50">
+            <FileText className="w-4 h-4 mr-1" />Import Invoice PDF
           </Button>
           <Button variant="outline" size="sm" onClick={() => setShowFilters(v => !v)}>
             <Filter className="w-4 h-4 mr-1" />Filters {hasFilters && <span className="ml-1 bg-indigo-500 text-white rounded-full w-4 h-4 text-xs flex items-center justify-center">!</span>}
@@ -375,6 +380,7 @@ export default function FinanceTransactions() {
           </div>
         </DialogContent>
       </Dialog>
+      <InvoicePDFImporter open={pdfImportOpen} onClose={() => setPdfImportOpen(false)} existingVendors={[]} />
     </div>
   );
 }
