@@ -44,6 +44,13 @@ export default function CompanySettingsPage() {
 
   const updateMutation = useMutation({
     mutationFn: async (data) => {
+      // Save to CompanySettings entity
+      if (settings?.id) {
+        await base44.entities.CompanySettings.update(settings.id, data);
+      } else {
+        await base44.entities.CompanySettings.create(data);
+      }
+      // Also run the industry focus update
       return await base44.functions.invoke('updateIndustryFocus', data);
     },
     onSuccess: () => {
