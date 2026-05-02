@@ -14,6 +14,11 @@ import {
   Mail,
   Radio,
   Globe,
+  ArrowUp,
+  ArrowDown,
+  BarChart3,
+  DollarSign,
+  Activity,
 } from 'lucide-react';
 
 const PipelineCard = React.lazy(() => import('@/components/dashboard/PipelineCard'));
@@ -23,6 +28,7 @@ const ContentCalendarCard = React.lazy(() => import('@/components/dashboard/Cont
 const RecentActivityFeed = React.lazy(() => import('@/components/dashboard/RecentActivityFeed'));
 const AlertsSummary = React.lazy(() => import('@/components/dashboard/AlertsSummary'));
 import QuickActions from '@/components/dashboard/QuickActions';
+import BusinessOverviewCards from '@/components/dashboard/BusinessOverviewCards';
 
 export default function Dashboard() {
   // CRM Data
@@ -241,64 +247,100 @@ export default function Dashboard() {
                 {getGreeting()}, {user?.full_name?.split(' ')[0] || 'there'} 👋
               </h1>
               <p className="text-violet-100 text-sm sm:text-base lg:text-lg">
-                Here's your business overview
+                Here's your complete business overview
               </p>
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-3 lg:gap-4">
-              <div className="bg-white/10 backdrop-blur-sm rounded-lg sm:rounded-xl px-3 py-3 sm:px-4 sm:py-4 border border-white/20">
-                <p className="text-violet-100 text-xs sm:text-sm mb-1">Revenue</p>
+              {/* Revenue Card */}
+              <div className="bg-white/10 backdrop-blur-sm rounded-lg sm:rounded-xl px-3 py-3 sm:px-4 sm:py-4 border border-white/20 hover:bg-white/15 transition-colors">
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-violet-100 text-xs sm:text-sm">Revenue</p>
+                  <DollarSign className="w-3 h-3 sm:w-4 sm:h-4 text-emerald-300" />
+                </div>
                 <p className="text-white text-lg sm:text-2xl font-bold">
                   {formatCurrency(wonDealsValue)}
                 </p>
-                <p
-                  className={`text-[10px] sm:text-xs font-medium ${revenueChange >= 0 ? 'text-emerald-300' : 'text-red-300'}`}
-                >
-                  {revenueChange >= 0 ? '+' : ''}
-                  {revenueChange}% month
-                </p>
+                <div className="flex items-center gap-1 mt-1">
+                  {revenueChange >= 0 ? (
+                    <ArrowUp className="w-3 h-3 text-emerald-300" />
+                  ) : (
+                    <ArrowDown className="w-3 h-3 text-red-300" />
+                  )}
+                  <p
+                    className={`text-[10px] sm:text-xs font-medium ${revenueChange >= 0 ? 'text-emerald-300' : 'text-red-300'}`}
+                  >
+                    {Math.abs(revenueChange)}% month
+                  </p>
+                </div>
               </div>
-              <div className="bg-white/10 backdrop-blur-sm rounded-lg sm:rounded-xl px-3 py-3 sm:px-4 sm:py-4 border border-white/20">
-                <p className="text-violet-100 text-xs sm:text-sm mb-1">Pipeline</p>
+              {/* Pipeline Card */}
+              <div className="bg-white/10 backdrop-blur-sm rounded-lg sm:rounded-xl px-3 py-3 sm:px-4 sm:py-4 border border-white/20 hover:bg-white/15 transition-colors">
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-violet-100 text-xs sm:text-sm">Pipeline</p>
+                  <BarChart3 className="w-3 h-3 sm:w-4 sm:h-4 text-orange-300" />
+                </div>
                 <p className="text-white text-lg sm:text-2xl font-bold">
                   {formatCurrency(totalPipelineValue)}
                 </p>
-                <p
-                  className={`text-[10px] sm:text-xs font-medium ${pipelineChange >= 0 ? 'text-emerald-300' : 'text-red-300'}`}
-                >
-                  {pipelineChange >= 0 ? '+' : ''}
-                  {pipelineChange}% month
-                </p>
+                <div className="flex items-center gap-1 mt-1">
+                  {pipelineChange >= 0 ? (
+                    <ArrowUp className="w-3 h-3 text-emerald-300" />
+                  ) : (
+                    <ArrowDown className="w-3 h-3 text-red-300" />
+                  )}
+                  <p
+                    className={`text-[10px] sm:text-xs font-medium ${pipelineChange >= 0 ? 'text-emerald-300' : 'text-red-300'}`}
+                  >
+                    {Math.abs(pipelineChange)}% month
+                  </p>
+                </div>
               </div>
-              <div className="bg-white/10 backdrop-blur-sm rounded-lg sm:rounded-xl px-3 py-3 sm:px-4 sm:py-4 border border-white/20">
-                <p className="text-violet-100 text-xs sm:text-sm mb-1">SEO Score</p>
+              {/* SEO Score Card */}
+              <div className="bg-white/10 backdrop-blur-sm rounded-lg sm:rounded-xl px-3 py-3 sm:px-4 sm:py-4 border border-white/20 hover:bg-white/15 transition-colors">
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-violet-100 text-xs sm:text-sm">SEO Score</p>
+                  <Activity className="w-3 h-3 sm:w-4 sm:h-4 text-blue-300" />
+                </div>
                 <p className="text-white text-lg sm:text-2xl font-bold">{avgSEOScore || '-'}</p>
-                <p className="text-blue-300 text-[10px] sm:text-xs font-medium">
-                  {avgSEOScore > 70 ? 'Good' : avgSEOScore > 0 ? 'Fair' : 'N/A'}
+                <p className="text-blue-300 text-[10px] sm:text-xs font-medium mt-1">
+                  {avgSEOScore > 70 ? '✓ Good' : avgSEOScore > 0 ? '◐ Fair' : 'N/A'}
                 </p>
               </div>
-              <div className="bg-white/10 backdrop-blur-sm rounded-lg sm:rounded-xl px-3 py-3 sm:px-4 sm:py-4 border border-white/20">
-                <p className="text-violet-100 text-xs sm:text-sm mb-1">Web Traffic</p>
+              {/* Web Traffic Card */}
+              <div className="bg-white/10 backdrop-blur-sm rounded-lg sm:rounded-xl px-3 py-3 sm:px-4 sm:py-4 border border-white/20 hover:bg-white/15 transition-colors">
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-violet-100 text-xs sm:text-sm">Web Traffic</p>
+                  <Globe className="w-3 h-3 sm:w-4 sm:h-4 text-cyan-300" />
+                </div>
                 <p className="text-white text-lg sm:text-2xl font-bold">
                   {monthlyTraffic >= 1000
                     ? `${(monthlyTraffic / 1000).toFixed(1)}K`
                     : monthlyTraffic}
                 </p>
-                <p className="text-cyan-300 text-[10px] sm:text-xs font-medium">visits/mo</p>
+                <p className="text-cyan-300 text-[10px] sm:text-xs font-medium mt-1">visits/mo</p>
               </div>
-              <div className="bg-white/10 backdrop-blur-sm rounded-lg sm:rounded-xl px-3 py-3 sm:px-4 sm:py-4 border border-white/20">
-                <p className="text-violet-100 text-xs sm:text-sm mb-1">Social</p>
+              {/* Social Mentions Card */}
+              <div className="bg-white/10 backdrop-blur-sm rounded-lg sm:rounded-xl px-3 py-3 sm:px-4 sm:py-4 border border-white/20 hover:bg-white/15 transition-colors">
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-violet-100 text-xs sm:text-sm">Social</p>
+                  <Radio className="w-3 h-3 sm:w-4 sm:h-4 text-pink-300" />
+                </div>
                 <p className="text-white text-lg sm:text-2xl font-bold">{mentions.length}</p>
-                <p className="text-amber-300 text-[10px] sm:text-xs font-medium">
-                  {avgEngagementRate}% engage
+                <p className="text-pink-300 text-[10px] sm:text-xs font-medium mt-1">
+                  {avgEngagementRate}% eng.
                 </p>
               </div>
-              <div className="bg-white/10 backdrop-blur-sm rounded-lg sm:rounded-xl px-3 py-3 sm:px-4 sm:py-4 border border-white/20">
-                <p className="text-violet-100 text-xs sm:text-sm mb-1">Alerts</p>
+              {/* Alerts Card */}
+              <div className="bg-white/10 backdrop-blur-sm rounded-lg sm:rounded-xl px-3 py-3 sm:px-4 sm:py-4 border border-white/20 hover:bg-white/15 transition-colors">
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-violet-100 text-xs sm:text-sm">Alerts</p>
+                  <Activity className="w-3 h-3 sm:w-4 sm:h-4 text-amber-300" />
+                </div>
                 <p className="text-white text-lg sm:text-2xl font-bold">{criticalAlerts}</p>
                 <p
-                  className={`text-[10px] sm:text-xs font-medium ${criticalAlerts > 0 ? 'text-red-300' : 'text-emerald-300'}`}
+                  className={`text-[10px] sm:text-xs font-medium mt-1 ${criticalAlerts > 0 ? 'text-red-300' : 'text-emerald-300'}`}
                 >
-                  {criticalAlerts > 0 ? 'need action' : 'all clear'}
+                  {criticalAlerts > 0 ? '⚠ action' : '✓ clear'}
                 </p>
               </div>
             </div>
@@ -311,159 +353,101 @@ export default function Dashboard() {
         {/* Quick Actions */}
         <QuickActions />
 
-        {/* Metrics Grid - Row 1 */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-          <Card
-            className="bg-white dark:bg-gray-800 border-0 shadow-sm hover:shadow-md transition-shadow cursor-pointer"
-            onClick={() => navigate('Contacts')}
-          >
-            <CardContent className="p-4 sm:p-6">
-              <div className="flex items-center justify-between mb-3">
-                <div className="w-10 h-10 rounded-lg bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center">
-                  <Users className="w-5 h-5 text-blue-600" />
-                </div>
-                <TrendingUp className="w-4 h-4 text-emerald-500" />
-              </div>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white mb-1">
-                {activeContacts.length}
-              </p>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Total Contacts</p>
-              <p className="text-xs text-gray-400 mt-1">
-                {activeContacts.filter((c) => c.status === 'lead').length} leads
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card
-            className="bg-white dark:bg-gray-800 border-0 shadow-sm hover:shadow-md transition-shadow cursor-pointer"
-            onClick={() => navigate('Companies')}
-          >
-            <CardContent className="p-4 sm:p-6">
-              <div className="flex items-center justify-between mb-3">
-                <div className="w-10 h-10 rounded-lg bg-purple-50 dark:bg-purple-900/20 flex items-center justify-center">
-                  <Building2 className="w-5 h-5 text-purple-600" />
-                </div>
-              </div>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white mb-1">
-                {companies.length}
-              </p>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Companies</p>
-            </CardContent>
-          </Card>
-
-          <Card
-            className="bg-white dark:bg-gray-800 border-0 shadow-sm hover:shadow-md transition-shadow cursor-pointer"
-            onClick={() => navigate('Deals')}
-          >
-            <CardContent className="p-4 sm:p-6">
-              <div className="flex items-center justify-between mb-3">
-                <div className="w-10 h-10 rounded-lg bg-orange-50 dark:bg-orange-900/20 flex items-center justify-center">
-                  <Target className="w-5 h-5 text-orange-600" />
-                </div>
-                <TrendingUp className="w-4 h-4 text-emerald-500" />
-              </div>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white mb-1">
-                {deals.filter((d) => !['won', 'lost'].includes(d.stage)).length}
-              </p>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Active Deals</p>
-              <p className="text-xs text-gray-400 mt-1">{formatCurrency(totalPipelineValue)}</p>
-            </CardContent>
-          </Card>
-
-          <Card
-            className="bg-white dark:bg-gray-800 border-0 shadow-sm hover:shadow-md transition-shadow cursor-pointer"
-            onClick={() => navigate('Keywords')}
-          >
-            <CardContent className="p-4 sm:p-6">
-              <div className="flex items-center justify-between mb-3">
-                <div className="w-10 h-10 rounded-lg bg-green-50 dark:bg-green-900/20 flex items-center justify-center">
-                  <Search className="w-5 h-5 text-green-600" />
-                </div>
-              </div>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white mb-1">
-                {keywords.length}
-              </p>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Tracked Keywords</p>
-              <p className="text-xs text-gray-400 mt-1">{top10Keywords} in top 10</p>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Metrics Grid - Row 2 */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-          <Card
-            className="bg-white dark:bg-gray-800 border-0 shadow-sm hover:shadow-md transition-shadow cursor-pointer"
-            onClick={() => navigate('SEODashboard')}
-          >
-            <CardContent className="p-4 sm:p-6">
-              <div className="flex items-center justify-between mb-3">
-                <div className="w-10 h-10 rounded-lg bg-violet-50 dark:bg-violet-900/20 flex items-center justify-center">
-                  <Globe className="w-5 h-5 text-violet-600" />
-                </div>
-              </div>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white mb-1">
-                {websites.length}
-              </p>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Websites</p>
-              <p className="text-xs text-gray-400 mt-1">Avg score: {avgSEOScore}</p>
-            </CardContent>
-          </Card>
-
-          <Card
-            className="bg-white dark:bg-gray-800 border-0 shadow-sm hover:shadow-md transition-shadow cursor-pointer"
-            onClick={() => navigate('SocialListening')}
-          >
-            <CardContent className="p-4 sm:p-6">
-              <div className="flex items-center justify-between mb-3">
-                <div className="w-10 h-10 rounded-lg bg-pink-50 dark:bg-pink-900/20 flex items-center justify-center">
-                  <Radio className="w-5 h-5 text-pink-600" />
-                </div>
-                <TrendingUp className="w-4 h-4 text-emerald-500" />
-              </div>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white mb-1">
-                {listeningKeywords.filter((k) => k.is_active).length}
-              </p>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Social Listening</p>
-              <p className="text-xs text-gray-400 mt-1">{mentions.length} mentions</p>
-            </CardContent>
-          </Card>
-
-          <Card
-            className="bg-white dark:bg-gray-800 border-0 shadow-sm hover:shadow-md transition-shadow cursor-pointer"
-            onClick={() => navigate('SocialCalendar')}
-          >
-            <CardContent className="p-4 sm:p-6">
-              <div className="flex items-center justify-between mb-3">
-                <div className="w-10 h-10 rounded-lg bg-amber-50 dark:bg-amber-900/20 flex items-center justify-center">
-                  <Calendar className="w-5 h-5 text-amber-600" />
-                </div>
-              </div>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white mb-1">
-                {scheduledPosts}
-              </p>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Scheduled Posts</p>
-              <p className="text-xs text-gray-400 mt-1">{brands.length} brands</p>
-            </CardContent>
-          </Card>
-
-          <Card
-            className="bg-white dark:bg-gray-800 border-0 shadow-sm hover:shadow-md transition-shadow cursor-pointer"
-            onClick={() => navigate('Campaigns')}
-          >
-            <CardContent className="p-4 sm:p-6">
-              <div className="flex items-center justify-between mb-3">
-                <div className="w-10 h-10 rounded-lg bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center">
-                  <Mail className="w-5 h-5 text-blue-600" />
-                </div>
-              </div>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white mb-1">
-                {activeCampaigns}
-              </p>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Active Campaigns</p>
-              <p className="text-xs text-gray-400 mt-1">{emailCampaigns.length} email campaigns</p>
-            </CardContent>
-          </Card>
-        </div>
+        {/* Business Overview Metrics */}
+        <BusinessOverviewCards
+          metrics={[
+            {
+              id: 'contacts',
+              icon: 'users',
+              bgColor: 'bg-blue-50 dark:bg-blue-900/20',
+              textColor: 'text-blue-600',
+              value: activeContacts.length,
+              label: 'Total Contacts',
+              sublabel: `${activeContacts.filter((c) => c.status === 'lead').length} leads`,
+              trend: '+12%',
+              trendColor: 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300',
+            },
+            {
+              id: 'companies',
+              icon: 'building',
+              bgColor: 'bg-purple-50 dark:bg-purple-900/20',
+              textColor: 'text-purple-600',
+              value: companies.length,
+              label: 'Companies',
+              trend: '+5%',
+              trendColor: 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300',
+            },
+            {
+              id: 'deals',
+              icon: 'target',
+              bgColor: 'bg-orange-50 dark:bg-orange-900/20',
+              textColor: 'text-orange-600',
+              value: deals.filter((d) => !['won', 'lost'].includes(d.stage)).length,
+              label: 'Active Deals',
+              sublabel: formatCurrency(totalPipelineValue),
+            },
+            {
+              id: 'keywords',
+              icon: 'search',
+              bgColor: 'bg-green-50 dark:bg-green-900/20',
+              textColor: 'text-green-600',
+              value: keywords.length,
+              label: 'Tracked Keywords',
+              sublabel: `${top10Keywords} in top 10`,
+            },
+            {
+              id: 'websites',
+              icon: 'award',
+              bgColor: 'bg-violet-50 dark:bg-violet-900/20',
+              textColor: 'text-violet-600',
+              value: websites.length,
+              label: 'Websites',
+              sublabel: `Avg score: ${avgSEOScore}`,
+            },
+            {
+              id: 'listening',
+              icon: 'zap',
+              bgColor: 'bg-pink-50 dark:bg-pink-900/20',
+              textColor: 'text-pink-600',
+              value: listeningKeywords.filter((k) => k.is_active).length,
+              label: 'Social Listening',
+              sublabel: `${mentions.length} mentions`,
+              trend: 'Active',
+              trendColor: 'bg-pink-100 dark:bg-pink-900/30 text-pink-700 dark:text-pink-300',
+            },
+            {
+              id: 'posts',
+              icon: 'trending',
+              bgColor: 'bg-amber-50 dark:bg-amber-900/20',
+              textColor: 'text-amber-600',
+              value: scheduledPosts,
+              label: 'Scheduled Posts',
+              sublabel: `${brands.length} brands`,
+            },
+            {
+              id: 'campaigns',
+              icon: 'dollar',
+              bgColor: 'bg-blue-50 dark:bg-blue-900/20',
+              textColor: 'text-blue-600',
+              value: activeCampaigns,
+              label: 'Active Campaigns',
+              sublabel: `${emailCampaigns.length} email`,
+            },
+          ]}
+          onCardClick={(id) => {
+            const pageMap = {
+              contacts: 'Contacts',
+              companies: 'Companies',
+              deals: 'Deals',
+              keywords: 'Keywords',
+              websites: 'SEODashboard',
+              listening: 'SocialListening',
+              posts: 'SocialCalendar',
+              campaigns: 'Campaigns',
+            };
+            navigate(pageMap[id]);
+          }}
+        />
 
         {/* Main Dashboard Cards */}
         <React.Suspense
