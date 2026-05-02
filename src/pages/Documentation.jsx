@@ -4,6 +4,294 @@ import { Download, BookOpen, ChevronDown, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 const sections = {
+  legal: {
+    title: 'Legal Module',
+    color: 'indigo',
+    pages: [
+      {
+        name: 'Legal Dashboard',
+        icon: '⚖️',
+        description: 'High-level legal operations overview',
+        whatItDoes: 'Provides a consolidated view of all legal matters, litigation exposure, upcoming deadlines, budget vs actuals, and risk concentration across the organization.',
+        howItWorks: 'Aggregates data from Matters, Litigation, Obligations, and Counsel to surface key metrics. Shows upcoming deadlines, open matters by type, and total legal spend.',
+        useCases: [
+          'Give GC and CLO an instant operational snapshot',
+          'Track legal spend across all matters in real time',
+          'Surface upcoming deadlines to avoid missed filings',
+          'Identify concentration risk in litigation portfolio',
+          'Report on legal operations to executive leadership',
+        ],
+        businessValue: 'Reduce legal risk through visibility. Prevent costly missed deadlines and filings. Demonstrate legal department value to the business.',
+      },
+      {
+        name: 'Legal Matters',
+        icon: '📁',
+        description: 'Track all legal cases and projects',
+        whatItDoes: 'Centralized tracking of every legal matter including type, status, assigned attorney, deadlines, estimated vs actual costs, and associated documents.',
+        howItWorks: 'Create matters with type classification, assign ownership, set deadlines and budgets, track status changes, upload documents, and log activity.',
+        useCases: [
+          'Single source of truth for all active legal work',
+          'Track legal spend by matter and attorney',
+          'Ensure deadlines are never missed',
+          'Support outside counsel management',
+          'Provide executive reporting on legal portfolio',
+        ],
+        businessValue: 'Reduce legal spend by 10-20% through better matter management and outside counsel oversight. Prevent costly missed deadlines.',
+      },
+      {
+        name: 'Litigation Management',
+        icon: '⚔️',
+        description: 'Manage active lawsuits and disputes',
+        whatItDoes: 'Tracks all active litigation including case details, court information, hearing dates, claim amounts, settlement negotiations, and legal reserves.',
+        howItWorks: 'Create case records with court, jurisdiction, opposing counsel, and role. Track hearing dates, update status through litigation stages, log settlement discussions, manage reserves.',
+        useCases: [
+          'Never miss a court date or filing deadline',
+          'Track litigation exposure for financial reporting',
+          'Manage legal reserves and settlement authority',
+          'Coordinate outside counsel on active cases',
+          'Identify patterns in litigation to reduce future risk',
+        ],
+        businessValue: 'Reduce litigation costs through proactive management. Ensure accurate reserve reporting for financial statements. Avoid default judgments from missed deadlines.',
+      },
+      {
+        name: 'Legal Obligations',
+        icon: '📜',
+        description: 'Regulatory and contractual obligation tracking',
+        whatItDoes: 'Tracks recurring legal and regulatory obligations including permits, licenses, filings, reporting requirements, and contractual commitments with due dates and recurrence schedules.',
+        howItWorks: 'Create obligation records with type, recurrence, owner, and due dates. System highlights upcoming obligations. Track completion and renewal.',
+        useCases: [
+          'Prevent regulatory fines from missed filings',
+          'Track all permit and license renewals',
+          'Ensure contractual obligations are fulfilled on time',
+          'Assign clear ownership for each obligation',
+          'Audit trail for regulatory compliance',
+        ],
+        businessValue: 'Avoid regulatory fines and penalties that can range from thousands to millions. Demonstrate compliance to regulators and auditors.',
+      },
+      {
+        name: 'Intellectual Property',
+        icon: '💡',
+        description: 'IP portfolio management and protection',
+        whatItDoes: 'Manages the full IP portfolio including patents, trademarks, copyrights, trade secrets, and domains with renewal tracking, valuation, and licensing.',
+        howItWorks: 'Create IP asset records with type, registration details, jurisdiction, and key dates. System tracks upcoming renewals. Supports licensing and ownership tracking.',
+        useCases: [
+          'Never lose IP protection from missed renewals',
+          'Track total IP portfolio value',
+          'Manage licensing agreements and royalties',
+          'Coordinate with outside patent counsel',
+          'Support M&A due diligence with IP inventory',
+        ],
+        businessValue: 'Protect millions in IP value from lapsing due to missed renewals. Support M&A transactions with accurate IP inventory.',
+      },
+      {
+        name: 'Legal Counsel Management',
+        icon: '👤',
+        description: 'Manage internal and external counsel',
+        whatItDoes: 'Tracks all legal counsel including in-house attorneys, outside firms, and contract lawyers with specializations, rates, retainers, and spend tracking.',
+        howItWorks: 'Create counsel profiles with type, specialization, bar number, jurisdiction, rates, and retainer amounts. Track YTD spend per counsel. Link counsel to matters.',
+        useCases: [
+          'Track outside counsel spend vs budget',
+          'Compare rates across firms for budget planning',
+          'Ensure the right specialist is on each matter',
+          'Monitor retainer utilization',
+          'Support outside counsel convergence initiatives',
+        ],
+        businessValue: 'Reduce outside counsel spend by 10-15% through better oversight and rate management.',
+      },
+      {
+        name: 'Legal Entities',
+        icon: '🏢',
+        description: 'Corporate structure and entity management',
+        whatItDoes: 'Tracks all legal entities in the corporate group including type, jurisdiction, registration numbers, parent-subsidiary relationships, and compliance dates.',
+        howItWorks: 'Create entity records with type, jurisdiction, EIN, registered agent, and key dates. Map parent-subsidiary relationships. Track annual report due dates and dissolution dates.',
+        useCases: [
+          'Maintain accurate corporate structure map',
+          'Track annual report and filing deadlines by entity',
+          'Support M&A integration and restructuring',
+          'Manage registered agent information',
+          'Provide accurate corporate structure to auditors',
+        ],
+        businessValue: 'Prevent entity dissolution from missed filings. Support M&A transactions with accurate entity inventory.',
+      },
+    ],
+  },
+  compliance: {
+    title: 'Compliance Module',
+    color: 'emerald',
+    pages: [
+      {
+        name: 'Compliance Dashboard',
+        icon: '🛡️',
+        description: 'Compliance posture at a glance',
+        whatItDoes: 'Aggregates compliance metrics across policies, training, incidents, audits, and risks to provide an executive view of the organization\'s compliance health.',
+        howItWorks: 'Pulls data from all compliance sub-modules to calculate completion rates, open items, risk scores, and trend indicators.',
+        useCases: [
+          'Board and executive compliance reporting',
+          'Identify highest-risk compliance areas',
+          'Track compliance program maturity over time',
+          'Prioritize compliance investments',
+          'Support regulatory examinations with evidence',
+        ],
+        businessValue: 'Demonstrate compliance program effectiveness to regulators, auditors, and the board. Reduce examination findings.',
+      },
+      {
+        name: 'Policies',
+        icon: '📋',
+        description: 'Policy lifecycle management',
+        whatItDoes: 'Creates, versions, distributes, and tracks acknowledgment of compliance policies across the organization.',
+        howItWorks: 'Create policies with category, owner, and review dates. Publish to employees. Track acknowledgment rates. Version policies and archive outdated versions.',
+        useCases: [
+          'Ensure all employees have read required policies',
+          'Track policy acknowledgment for audits',
+          'Manage policy review cycles',
+          'Distribute policy updates quickly',
+          'Demonstrate compliance culture to regulators',
+        ],
+        businessValue: 'Reduce regulatory risk through documented policy distribution. Defend against employee misconduct claims.',
+      },
+      {
+        name: 'Compliance Training',
+        icon: '🎓',
+        description: 'Training program administration',
+        whatItDoes: 'Creates, assigns, and tracks completion of compliance training programs across departments with due date management.',
+        howItWorks: 'Create training programs with target departments, due dates, and frequency. Track completion rates. Send reminders. Archive completed training.',
+        useCases: [
+          'Meet mandatory training requirements',
+          'Track completion for audit evidence',
+          'Identify departments with low completion rates',
+          'Automate training assignment for new hires',
+          'Support regulatory training mandates',
+        ],
+        businessValue: 'Meet training mandates to avoid regulatory penalties. Reduce compliance incidents through better education.',
+      },
+      {
+        name: 'Export Control',
+        icon: '🌍',
+        description: 'EAR/ITAR/OFAC compliance management',
+        whatItDoes: 'Manages export control programs, technology control plans, deemed export tracking, personnel authorization, and violation reporting under EAR, ITAR, and OFAC.',
+        howItWorks: 'Organize by program, create TCPs for controlled technology, log deemed exports for review, track authorized personnel and training, report violations.',
+        useCases: [
+          'Manage ITAR/EAR compliance programs',
+          'Track deemed exports to foreign nationals',
+          'Maintain TCPs for all controlled programs',
+          'Ensure personnel training is current',
+          'Document voluntary disclosures',
+        ],
+        businessValue: 'Avoid export control fines that can reach $1M+ per violation. Maintain export privileges and government contracts.',
+      },
+      {
+        name: 'Risk Register',
+        icon: '⚠️',
+        description: 'Compliance risk identification and mitigation',
+        whatItDoes: 'Documents, scores, and tracks compliance risks with likelihood/impact assessment, mitigation plans, and status tracking.',
+        howItWorks: 'Create risk records with category, likelihood, and impact scores. System calculates risk score. Assign mitigation plans and owners. Track through resolution.',
+        useCases: [
+          'Identify and prioritize compliance risks',
+          'Assign ownership for risk mitigation',
+          'Track mitigation progress over time',
+          'Support risk-based audit planning',
+          'Demonstrate risk management to regulators',
+        ],
+        businessValue: 'Proactively manage risks before they become incidents. Support risk-based compliance program design.',
+      },
+    ],
+  },
+  hris: {
+    title: 'HRIS & People Operations Module',
+    color: 'teal',
+    pages: [
+      {
+        name: 'Employee Management',
+        icon: '👥',
+        description: 'Full employee lifecycle management',
+        whatItDoes: 'Maintains comprehensive employee profiles including personal info, work details, compensation, benefits, documents, and employment history.',
+        howItWorks: 'Create employee records with all relevant fields. Link to departments, managers, and roles. Track status changes (active, on leave, terminated). Store documents securely.',
+        useCases: [
+          'Single source of truth for all employee data',
+          'Support HR operations and employee inquiries',
+          'Maintain audit trail for compliance',
+          'Support payroll and benefits administration',
+          'Enable people analytics and workforce planning',
+        ],
+        businessValue: 'Reduce HR admin time by 30-40%. Ensure compliance with employment record requirements. Support data-driven people decisions.',
+      },
+      {
+        name: 'Payroll Management',
+        icon: '💰',
+        description: 'Payroll tracking and compensation management',
+        whatItDoes: 'Tracks payroll runs, compensation changes, deductions, and pay history for all employees.',
+        howItWorks: 'Log payroll runs with amounts, deductions, and pay dates. Track compensation changes with effective dates. Generate pay summaries.',
+        useCases: [
+          'Track payroll costs for budgeting',
+          'Maintain compensation history for reviews',
+          'Support finance with payroll data',
+          'Document compensation decisions',
+          'Track total compensation including benefits',
+        ],
+        businessValue: 'Improve payroll accuracy and reduce errors. Support finance with accurate headcount cost data.',
+      },
+      {
+        name: 'Benefits Administration',
+        icon: '❤️',
+        description: 'Benefits catalog and enrollment tracking',
+        whatItDoes: 'Manages benefits programs, tracks employee enrollment, and monitors benefit costs across the organization.',
+        howItWorks: 'Create benefit programs, set open enrollment periods, employees enroll through system, track coverage and costs.',
+        useCases: [
+          'Manage benefits enrollment and changes',
+          'Track total benefits cost per employee',
+          'Support open enrollment periods',
+          'Communicate benefits to employees',
+          'Provide data to benefits brokers',
+        ],
+        businessValue: 'Reduce benefits administration time by 40-50%. Improve employee experience during enrollment.',
+      },
+      {
+        name: 'Onboarding & Offboarding',
+        icon: '🚀',
+        description: 'Structured hire and exit workflows',
+        whatItDoes: 'Manages structured onboarding task checklists for new hires and offboarding workflows for departing employees.',
+        howItWorks: 'Create onboarding records for new hires, assign tasks with due dates, track completion, collect documents. Mirror process for offboarding.',
+        useCases: [
+          'Ensure consistent onboarding experience',
+          'Reduce time-to-productivity for new hires',
+          'Prevent offboarding tasks from being missed',
+          'Track equipment return and access revocation',
+          'Collect exit interview feedback',
+        ],
+        businessValue: 'Reduce new hire ramp time by 20-30%. Prevent security risks from incomplete offboarding.',
+      },
+      {
+        name: 'Performance Management',
+        icon: '🎯',
+        description: 'Goals, reviews, and career development',
+        whatItDoes: 'Manages OKR/KPI goal setting, performance reviews, 360 feedback, and career development planning.',
+        howItWorks: 'Employees and managers set goals, mid-year and annual reviews conducted, feedback collected from peers, development plans created.',
+        useCases: [
+          'Align employee goals with company objectives',
+          'Support fair and consistent performance reviews',
+          'Identify top performers and promotion candidates',
+          'Document performance issues for legal protection',
+          'Drive employee development and retention',
+        ],
+        businessValue: 'Improve employee retention by 15-20% through better development programs. Reduce wrongful termination risk through documented performance management.',
+      },
+      {
+        name: 'Equity Management',
+        icon: '📈',
+        description: 'Equity pools, grants, and vesting',
+        whatItDoes: 'Manages equity pool setup, grant issuance, vesting schedule tracking, and exercise recording for comprehensive cap table support.',
+        howItWorks: 'Set up equity pools, create grants per employee with vesting schedules, system tracks vested/unvested shares, record exercises and cancellations.',
+        useCases: [
+          'Track all equity grants and vesting',
+          'Support cap table management',
+          'Communicate equity value to employees',
+          'Track exercises for tax reporting',
+          'Support 409A valuations with grant data',
+        ],
+        businessValue: 'Reduce equity administration errors that can cost companies significantly in tax and legal issues. Improve employee understanding of equity value.',
+      },
+    ],
+  },
   crmCore: {
     title: 'CRM Core Module',
     color: 'violet',
@@ -839,15 +1127,15 @@ export default function Documentation() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
           <div>
             <p className="font-semibold text-gray-900 dark:text-white">Modules</p>
-            <p className="text-gray-600 dark:text-gray-400">7+ integrated modules</p>
+            <p className="text-gray-600 dark:text-gray-400">12+ integrated modules</p>
           </div>
           <div>
             <p className="font-semibold text-gray-900 dark:text-white">Features</p>
-            <p className="text-gray-600 dark:text-gray-400">50+ major features</p>
+            <p className="text-gray-600 dark:text-gray-400">80+ major features</p>
           </div>
           <div>
             <p className="font-semibold text-gray-900 dark:text-white">Coverage</p>
-            <p className="text-gray-600 dark:text-gray-400">100+ pages and workflows</p>
+            <p className="text-gray-600 dark:text-gray-400">150+ pages and workflows</p>
           </div>
         </div>
       </Card>
