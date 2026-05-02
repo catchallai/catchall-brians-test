@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Search, Plus, Hash, Lock } from 'lucide-react';
+import { Search, Plus, Hash, Lock, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -12,11 +12,19 @@ export default function ConversationsList({
   darkMode,
   allPresence,
   typingByChannel = {},
+  unreadCounts = {},
 }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [activeTab, setActiveTab] = useState('all');
 
-  const filteredChannels = channels.filter((c) =>
+  const tabFiltered = channels.filter((c) => {
+    if (activeTab === 'direct') return c.type === 'dm';
+    if (activeTab === 'groups') return c.type === 'group' || c.type === 'public' || c.type === 'private';
+    if (activeTab === 'unread') return (unreadCounts[c.id] || 0) > 0;
+    return true;
+  });
+
+  const filteredChannels = tabFiltered.filter((c) =>
     c.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -25,6 +33,7 @@ export default function ConversationsList({
     const channelPresence =
       channel.members?.map((email) => allPresence[email]).filter(Boolean) || [];
     const typingUsers = typingByChannel[channel.id] || [];
+    const unread = unreadCounts[channel.id] || 0;
 
     return (
       <button
@@ -64,12 +73,19 @@ export default function ConversationsList({
                 <Lock size={12} className={darkMode ? 'text-slate-500' : 'text-slate-400'} />
               )}
             </div>
-            <span className={`text-xs ${darkMode ? 'text-slate-500' : 'text-slate-400'}`}>
-              {new Date(channel.last_activity || new Date()).toLocaleTimeString([], {
-                hour: '2-digit',
-                minute: '2-digit',
-              })}
-            </span>
+            <div className="flex items-center gap-1">
+              <span className={`text-xs ${darkMode ? 'text-slate-500' : 'text-slate-400'}`}>
+                {new Date(channel.last_activity || new Date()).toLocaleTimeString([], {
+                  hour: '2-digit',
+                  minute: '2-digit',
+                })}
+              </span>
+              {unread > 0 && (
+                <span className="w-5 h-5 bg-violet-600 rounded-full text-xs text-white flex items-center justify-center font-medium">
+                  {unread > 9 ? '9+' : unread}
+                </span>
+              )}
+            </div>
           </div>
 
           <p

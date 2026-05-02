@@ -1,0 +1,152 @@
+{
+  "name": "VideoCall",
+  "type": "object",
+  "properties": {
+    "channel_id": {
+      "type": "string",
+      "description": "Associated channel ID"
+    },
+    "room_id": {
+      "type": "string",
+      "description": "Unique call room identifier"
+    },
+    "title": {
+      "type": "string",
+      "description": "Meeting title"
+    },
+    "description": {
+      "type": "string",
+      "description": "Meeting description/agenda"
+    },
+    "public_link": {
+      "type": "string"
+    },
+    "host_email": {
+      "type": "string"
+    },
+    "started_by": {
+      "type": "string"
+    },
+    "started_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "ended_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "scheduled_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Scheduled meeting time"
+    },
+    "duration_minutes": {
+      "type": "number",
+      "default": 30
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "ended",
+        "scheduled"
+      ],
+      "default": "active"
+    },
+    "participants": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "joined_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "is_screen_sharing": {
+            "type": "boolean"
+          },
+          "background": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "waiting_room": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "requested_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      }
+    },
+    "recording_status": {
+      "type": "string",
+      "enum": [
+        "not_started",
+        "recording",
+        "paused",
+        "stopped"
+      ],
+      "default": "not_started"
+    },
+    "recording_started_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "recording_url": {
+      "type": "string"
+    },
+    "whiteboard_data": {
+      "type": "object"
+    },
+    "whiteboard_enabled": {
+      "type": "boolean",
+      "default": false
+    },
+    "settings": {
+      "type": "object",
+      "properties": {
+        "waiting_room_enabled": {
+          "type": "boolean",
+          "default": false
+        },
+        "allow_screen_share": {
+          "type": "boolean",
+          "default": true
+        },
+        "auto_record": {
+          "type": "boolean",
+          "default": false
+        },
+        "allow_public_join": {
+          "type": "boolean",
+          "default": false
+        },
+        "whiteboard_enabled": {
+          "type": "boolean",
+          "default": true
+        }
+      }
+    }
+  },
+  "required": [
+    "room_id",
+    "host_email"
+  ]
+}

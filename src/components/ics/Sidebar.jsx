@@ -8,6 +8,8 @@ import {
   Moon,
   Shield,
   User,
+  Video,
+  Hash,
 } from 'lucide-react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 
@@ -84,6 +86,18 @@ export default function Sidebar({
           onClick={() => onViewChange('notifications')}
           tooltip="Notifications"
           badge={unreadCount}
+        />
+        <NavButton
+          icon={Video}
+          active={activeView === 'meetings'}
+          onClick={() => onViewChange('meetings')}
+          tooltip="Meetings"
+        />
+        <NavButton
+          icon={Hash}
+          active={activeView === 'browse'}
+          onClick={() => onViewChange('browse')}
+          tooltip="Browse Channels"
         />
         <NavButton
           icon={Archive}

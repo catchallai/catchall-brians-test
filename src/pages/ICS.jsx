@@ -22,11 +22,14 @@ import {
 import ICSAdminPortal from '@/components/ics/ICSAdminPortal.jsx';
 import ContactDetailPanel from '@/components/ics/ContactDetailPanel';
 import IncomingCallNotification from '@/components/ics/IncomingCallNotification';
+import NewChannelModal from '@/components/ics/NewChannelModal';
+import MeetingsView from '@/components/ics/MeetingsView';
+import ChannelBrowser from '@/components/ics/ChannelBrowser';
 
 export default function ICS() {
   const [selectedChannel, setSelectedChannel] = useState(null);
   const [activeView, setActiveView] = useState('chat');
-  const [_showNewChannel, setShowNewChannel] = useState(false);
+  const [showNewChannel, setShowNewChannel] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [_showProfile, setShowProfile] = useState(false);
   const [_isInCall, setIsInCall] = useState(false);
@@ -557,6 +560,7 @@ export default function ICS() {
             onNewChat={() => setShowNewChannel(true)}
             allPresence={allPresence}
             typingByChannel={typingByChannel}
+            unreadCounts={unreadCounts}
           />
 
           <ChatArea
@@ -661,6 +665,14 @@ export default function ICS() {
             setActiveView('chat');
           }}
         />
+      ) : activeView === 'meetings' ? (
+        <MeetingsView user={user} channels={channels} />
+      ) : activeView === 'browse' ? (
+        <ChannelBrowser
+          currentUser={user}
+          onSelectChannel={(ch) => { setSelectedChannel(ch); setActiveView('chat'); }}
+          onClose={() => setActiveView('chat')}
+        />
       ) : activeView === 'admin' ? (
         <div className="flex-1 overflow-auto">
           <ICSAdminPortal />
@@ -673,6 +685,18 @@ export default function ICS() {
         onClose={() => setShowSettings(false)}
         user={user}
         onPreferencesUpdate={handlePreferencesUpdate}
+      />
+
+      {/* New Channel Modal */}
+      <NewChannelModal
+        open={showNewChannel}
+        onClose={() => setShowNewChannel(false)}
+        onCreateChannel={(data) => {
+          createChannelMutation.mutate(data);
+          setShowNewChannel(false);
+        }}
+        allUsers={allUsers}
+        currentUser={user}
       />
 
       {/* Incoming Call Notification */}
