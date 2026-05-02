@@ -1,0 +1,72 @@
+{
+  "name": "SCIMUser",
+  "type": "object",
+  "properties": {
+    "external_id": {
+      "type": "string",
+      "description": "ID from external identity provider"
+    },
+    "username": {
+      "type": "string"
+    },
+    "email": {
+      "type": "string",
+      "format": "email"
+    },
+    "full_name": {
+      "type": "string"
+    },
+    "first_name": {
+      "type": "string"
+    },
+    "last_name": {
+      "type": "string"
+    },
+    "active": {
+      "type": "boolean",
+      "default": true
+    },
+    "department": {
+      "type": "string"
+    },
+    "title": {
+      "type": "string"
+    },
+    "manager_id": {
+      "type": "string"
+    },
+    "roles": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "groups": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "last_sync": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "sync_status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "synced",
+        "failed"
+      ],
+      "default": "pending"
+    },
+    "identity_provider": {
+      "type": "string",
+      "description": "e.g., Okta, Azure AD, Google Workspace"
+    }
+  },
+  "required": [
+    "external_id",
+    "email"
+  ]
+}

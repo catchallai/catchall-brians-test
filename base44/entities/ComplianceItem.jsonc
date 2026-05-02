@@ -1,0 +1,85 @@
+{
+  "name": "ComplianceItem",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Compliance requirement name"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "soc2",
+        "sso",
+        "audit",
+        "encryption",
+        "access_control",
+        "disaster_recovery",
+        "sla",
+        "scim",
+        "data_retention",
+        "personnel",
+        "infrastructure"
+      ]
+    },
+    "description": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "not_started",
+        "in_progress",
+        "completed",
+        "verified",
+        "blocked"
+      ],
+      "default": "not_started"
+    },
+    "priority": {
+      "type": "string",
+      "enum": [
+        "low",
+        "medium",
+        "high",
+        "critical"
+      ],
+      "default": "medium"
+    },
+    "owner_email": {
+      "type": "string"
+    },
+    "start_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "due_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "completion_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "evidence_url": {
+      "type": "string",
+      "description": "Link to documentation/proof"
+    },
+    "blocker": {
+      "type": "string",
+      "description": "If blocked, what's blocking it"
+    },
+    "compliance_framework": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "e.g., [SOC2, HIPAA, CMMC]"
+    }
+  },
+  "required": [
+    "name",
+    "category",
+    "description"
+  ]
+}

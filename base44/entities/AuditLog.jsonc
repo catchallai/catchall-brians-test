@@ -1,0 +1,105 @@
+{
+  "name": "AuditLog",
+  "type": "object",
+  "properties": {
+    "event_type": {
+      "type": "string",
+      "enum": [
+        "user_login",
+        "user_logout",
+        "user_create",
+        "user_update",
+        "user_delete",
+        "data_access",
+        "data_modify",
+        "data_delete",
+        "permission_change",
+        "role_assignment",
+        "encryption_key_rotation",
+        "policy_change",
+        "config_change",
+        "sso_login",
+        "scim_sync",
+        "export_data",
+        "admin_action",
+        "security_event"
+      ]
+    },
+    "actor_email": {
+      "type": "string",
+      "description": "Email of user/service that performed action"
+    },
+    "actor_id": {
+      "type": "string",
+      "description": "User ID of actor"
+    },
+    "actor_ip": {
+      "type": "string",
+      "description": "IP address of actor"
+    },
+    "actor_user_agent": {
+      "type": "string",
+      "description": "User agent string"
+    },
+    "resource_type": {
+      "type": "string",
+      "description": "Type of resource affected (e.g., User, Contact, Deal, Document)"
+    },
+    "resource_id": {
+      "type": "string",
+      "description": "ID of resource affected"
+    },
+    "action": {
+      "type": "string",
+      "description": "Specific action performed"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "success",
+        "failure",
+        "denied"
+      ],
+      "default": "success"
+    },
+    "details": {
+      "type": "object",
+      "description": "Additional context/data about the event"
+    },
+    "changes": {
+      "type": "object",
+      "description": "Before/after values for modifications"
+    },
+    "severity": {
+      "type": "string",
+      "enum": [
+        "low",
+        "medium",
+        "high",
+        "critical"
+      ],
+      "default": "medium"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the event occurred (immutable)"
+    },
+    "hash": {
+      "type": "string",
+      "description": "SHA-256 hash of previous record for tamper-detection"
+    },
+    "tamper_detected": {
+      "type": "boolean",
+      "default": false,
+      "description": "Flag if chain-of-custody integrity check failed"
+    }
+  },
+  "required": [
+    "event_type",
+    "actor_email",
+    "resource_type",
+    "action",
+    "timestamp"
+  ]
+}
