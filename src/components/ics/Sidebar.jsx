@@ -4,8 +4,6 @@ import {
   Bell,
   Archive,
   Settings,
-  Sun,
-  Moon,
   Shield,
   Video,
   Hash,
@@ -16,8 +14,6 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 export default function Sidebar({
   activeView,
   onViewChange,
-  darkMode,
-  onThemeToggle,
   onSettingsClick,
   user,
   unreadCount = 0,
@@ -35,11 +31,7 @@ export default function Sidebar({
 
   return (
     <div
-      className={`h-14 flex-shrink-0 flex items-center justify-between px-4 border-b ${
-        darkMode
-          ? 'bg-slate-950 border-slate-800'
-          : 'bg-white border-slate-200'
-      }`}
+      className="h-14 flex-shrink-0 flex items-center justify-between px-4 border-b bg-white border-slate-200"
     >
       {/* Left: Logo + Nav */}
       <div className="flex items-center gap-1">
@@ -56,9 +48,7 @@ export default function Sidebar({
             className={`relative flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
               activeView === id
                 ? 'bg-violet-600 text-white shadow-sm'
-                : darkMode
-                  ? 'text-slate-400 hover:text-white hover:bg-slate-800'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
             }`}
           >
             <Icon size={16} />
@@ -76,11 +66,7 @@ export default function Sidebar({
       <div className="flex items-center gap-1">
         <button
           onClick={onNewChannel}
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
-            darkMode
-              ? 'text-slate-400 hover:text-white hover:bg-slate-800'
-              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
-          }`}
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all text-slate-600 hover:text-slate-900 hover:bg-slate-100"
           title="New Channel"
         >
           <Plus size={16} />
@@ -88,23 +74,8 @@ export default function Sidebar({
         </button>
 
         <button
-          onClick={onThemeToggle}
-          className={`p-2 rounded-lg transition-all ${
-            darkMode
-              ? 'text-slate-400 hover:text-white hover:bg-slate-800'
-              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
-          }`}
-        >
-          {darkMode ? <Sun size={16} /> : <Moon size={16} />}
-        </button>
-
-        <button
           onClick={onSettingsClick}
-          className={`p-2 rounded-lg transition-all ${
-            darkMode
-              ? 'text-slate-400 hover:text-white hover:bg-slate-800'
-              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
-          }`}
+          className="p-2 rounded-lg transition-all text-slate-600 hover:text-slate-900 hover:bg-slate-100"
         >
           <Settings size={16} />
         </button>

@@ -7,14 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Settings, Bell, Eye, Lock } from 'lucide-react';
 import NotificationPreferences from '@/components/notifications/NotificationPreferences';
 
-export default function SettingsPanel({
-  open,
-  onClose,
-  user,
-  darkMode,
-  onThemeToggle,
-  onPreferencesUpdate,
-}) {
+export default function SettingsPanel({ open, onClose, user, onPreferencesUpdate }) {
   const [settings, setSettings] = useState({
     compactMode: false,
     showOnlineStatus: true,
@@ -24,17 +17,14 @@ export default function SettingsPanel({
   });
 
   const handleSettingChange = (key) => {
-    setSettings((prev) => ({
-      ...prev,
-      [key]: !prev[key],
-    }));
+    setSettings((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 
   const SettingRow = ({ label, description, checked, onChange }) => (
-    <div className="flex items-center justify-between py-4 px-4 border-b border-slate-700 last:border-0">
+    <div className="flex items-center justify-between py-4 px-4 border-b border-slate-100 last:border-0">
       <div className="flex-1">
-        <Label className="text-sm font-medium text-white cursor-pointer">{label}</Label>
-        {description && <p className="text-xs text-gray-400 mt-1">{description}</p>}
+        <Label className="text-sm font-medium text-slate-900 cursor-pointer">{label}</Label>
+        {description && <p className="text-xs text-slate-500 mt-1">{description}</p>}
       </div>
       <Switch checked={checked} onCheckedChange={onChange} className="ml-4" />
     </div>
@@ -42,16 +32,16 @@ export default function SettingsPanel({
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl bg-slate-900 border-slate-800">
+      <DialogContent className="max-w-2xl">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 text-white">
-            <Settings className="w-5 h-5 text-violet-400" />
+          <DialogTitle className="flex items-center gap-2">
+            <Settings className="w-5 h-5 text-violet-600" />
             Settings
           </DialogTitle>
         </DialogHeader>
 
         <Tabs defaultValue="display" className="w-full">
-          <TabsList className="grid w-full grid-cols-3 bg-slate-800">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="display" className="gap-2 text-xs sm:text-sm">
               <Eye className="w-4 h-4" />
               <span className="hidden sm:inline">Display</span>
@@ -66,15 +56,8 @@ export default function SettingsPanel({
             </TabsTrigger>
           </TabsList>
 
-          {/* Display Settings */}
           <TabsContent value="display" className="space-y-2 mt-4">
-            <div className="bg-slate-800/50 rounded-lg overflow-hidden">
-              <SettingRow
-                label="Dark Mode"
-                description="Use dark theme for the application"
-                checked={darkMode}
-                onChange={onThemeToggle}
-              />
+            <div className="bg-slate-50 rounded-lg overflow-hidden">
               <SettingRow
                 label="Compact Mode"
                 description="Use compact spacing for messages and channels"
@@ -90,9 +73,8 @@ export default function SettingsPanel({
             </div>
           </TabsContent>
 
-          {/* Privacy Settings */}
           <TabsContent value="privacy" className="space-y-2 mt-4">
-            <div className="bg-slate-800/50 rounded-lg overflow-hidden">
+            <div className="bg-slate-50 rounded-lg overflow-hidden">
               <SettingRow
                 label="Show Online Status"
                 description="Let others see when you're online"
@@ -114,23 +96,15 @@ export default function SettingsPanel({
             </div>
           </TabsContent>
 
-          {/* Notifications Settings */}
           <TabsContent value="notifications" className="space-y-2 mt-4">
-            <div className="bg-slate-800/50 rounded-lg">
+            <div className="bg-slate-50 rounded-lg">
               <NotificationPreferences user={user} onPreferencesUpdate={onPreferencesUpdate} />
             </div>
           </TabsContent>
         </Tabs>
 
-        {/* Footer */}
-        <div className="flex justify-end gap-3 pt-4 border-t border-slate-800">
-          <Button
-            variant="outline"
-            onClick={onClose}
-            className="border-slate-700 text-gray-300 hover:bg-slate-800"
-          >
-            Close
-          </Button>
+        <div className="flex justify-end pt-4 border-t border-slate-100">
+          <Button variant="outline" onClick={onClose}>Close</Button>
         </div>
       </DialogContent>
     </Dialog>

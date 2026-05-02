@@ -30,6 +30,7 @@ export default function ICS() {
   const [activeView, setActiveView] = useState('chat');
   const [showNewChannel, setShowNewChannel] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  // darkMode removed
   const [_showProfile, setShowProfile] = useState(false);
   const [_isInCall, setIsInCall] = useState(false);
   const [typingByChannel, _setTypingByChannel] = useState({});
@@ -538,7 +539,6 @@ export default function ICS() {
         activeView={activeView}
         onViewChange={setActiveView}
         onSettingsClick={() => setShowSettings(true)}
-        onAccountClick={() => setActiveView('account')}
         user={user}
         unreadCount={Object.values(unreadCounts).reduce((sum, count) => sum + count, 0)}
         onNewChannel={() => setShowNewChannel(true)}
@@ -681,6 +681,7 @@ export default function ICS() {
         user={user}
         onPreferencesUpdate={handlePreferencesUpdate}
       />
+
 
       {/* New Channel Modal */}
       <NewChannelModal

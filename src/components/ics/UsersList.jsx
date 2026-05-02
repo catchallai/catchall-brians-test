@@ -6,14 +6,11 @@ import { Button } from '@/components/ui/button';
 import { Search, MessageSquare } from 'lucide-react';
 import PresenceIndicator from './PresenceIndicator';
 
-export default function UsersList({ users, allPresence, darkMode, currentUser, onViewProfile }) {
+export default function UsersList({ users, allPresence, currentUser, onViewProfile }) {
   const [searchTerm, setSearchTerm] = useState('');
 
   const filteredUsers = useMemo(() => {
-    if (!searchTerm.trim()) {
-      return users;
-    }
-
+    if (!searchTerm.trim()) return users;
     const term = searchTerm.toLowerCase();
     return users.filter(
       (user) =>
@@ -22,23 +19,17 @@ export default function UsersList({ users, allPresence, darkMode, currentUser, o
   }, [users, searchTerm]);
 
   return (
-    <div
-      className={`w-80 border-r ${darkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-gray-200'} flex flex-col`}
-    >
+    <div className="w-80 border-r bg-white border-slate-200 flex flex-col">
       {/* Header */}
-      <div className="p-4 border-b" style={{ borderColor: darkMode ? '#1e293b' : '#f0f0f0' }}>
-        <h2 className={`text-xl font-semibold mb-4 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-          Contacts
-        </h2>
+      <div className="p-4 border-b border-slate-200">
+        <h2 className="text-xl font-semibold mb-4 text-slate-900">Contacts</h2>
         <div className="relative">
-          <Search
-            className={`absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}
-          />
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400" />
           <Input
             placeholder="Search users..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className={`pl-10 ${darkMode ? 'bg-slate-800 border-slate-700 text-white placeholder:text-gray-500' : 'bg-gray-50 border-gray-200'}`}
+            className="pl-10 bg-slate-50 border-slate-200"
           />
         </div>
       </div>
@@ -47,11 +38,7 @@ export default function UsersList({ users, allPresence, darkMode, currentUser, o
       <ScrollArea className="flex-1">
         <div className="p-2 space-y-1">
           {filteredUsers.length === 0 ? (
-            <div
-              className={`p-4 text-center text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}
-            >
-              No users found
-            </div>
+            <div className="p-4 text-center text-sm text-slate-500">No users found</div>
           ) : (
             filteredUsers.map((user) => {
               const presence = allPresence[user.email];
@@ -60,11 +47,7 @@ export default function UsersList({ users, allPresence, darkMode, currentUser, o
               return (
                 <div
                   key={user.id}
-                  className={`p-3 rounded-lg cursor-pointer transition-colors ${
-                    darkMode
-                      ? 'hover:bg-slate-800 active:bg-slate-700'
-                      : 'hover:bg-gray-50 active:bg-gray-100'
-                  }`}
+                  className="p-3 rounded-lg cursor-pointer transition-colors hover:bg-slate-50"
                 >
                   <div
                     className="flex items-start gap-3 flex-1 cursor-pointer"
@@ -72,9 +55,7 @@ export default function UsersList({ users, allPresence, darkMode, currentUser, o
                   >
                     <div className="relative">
                       <Avatar className="w-10 h-10">
-                        <AvatarFallback
-                          className={`${darkMode ? 'bg-slate-700 text-white' : 'bg-gray-200 text-gray-900'}`}
-                        >
+                        <AvatarFallback className="bg-slate-200 text-slate-900">
                           {user.full_name?.[0]?.toUpperCase() || user.email?.[0]?.toUpperCase()}
                         </AvatarFallback>
                       </Avatar>
@@ -82,27 +63,15 @@ export default function UsersList({ users, allPresence, darkMode, currentUser, o
                     </div>
 
                     <div className="flex-1 min-w-0">
-                      <div
-                        className={`font-medium text-sm ${darkMode ? 'text-white' : 'text-gray-900'}`}
-                      >
+                      <div className="font-medium text-sm text-slate-900">
                         {user.full_name || 'User'}{' '}
                         {isCurrentUser && (
-                          <span
-                            className={`text-xs ml-1 ${darkMode ? 'text-violet-400' : 'text-violet-600'}`}
-                          >
-                            (You)
-                          </span>
+                          <span className="text-xs ml-1 text-violet-600">(You)</span>
                         )}
                       </div>
-                      <div
-                        className={`text-xs truncate ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}
-                      >
-                        {user.email}
-                      </div>
+                      <div className="text-xs truncate text-slate-500">{user.email}</div>
                       {presence?.custom_status && (
-                        <div
-                          className={`text-xs mt-1 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}
-                        >
+                        <div className="text-xs mt-1 text-slate-500">
                           {presence.status_emoji} {presence.custom_status}
                         </div>
                       )}
@@ -113,7 +82,7 @@ export default function UsersList({ users, allPresence, darkMode, currentUser, o
                     <Button
                       size="sm"
                       variant="ghost"
-                      className={`h-8 w-8 p-0 ${darkMode ? 'hover:bg-slate-700' : 'hover:bg-gray-200'}`}
+                      className="h-8 w-8 p-0"
                       onClick={() => onViewProfile?.(user)}
                     >
                       <MessageSquare className="w-4 h-4" />
@@ -126,10 +95,7 @@ export default function UsersList({ users, allPresence, darkMode, currentUser, o
         </div>
       </ScrollArea>
 
-      {/* Users Count */}
-      <div
-        className={`p-3 text-center text-xs border-t ${darkMode ? 'border-slate-800 text-gray-400' : 'border-gray-200 text-gray-500'}`}
-      >
+      <div className="p-3 text-center text-xs border-t border-slate-200 text-slate-500">
         {filteredUsers.length} of {users.length} user{users.length !== 1 ? 's' : ''}
       </div>
     </div>
