@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Lock,
   FileText,
@@ -12,6 +13,10 @@ import {
   ChevronDown,
   ChevronUp,
   Sparkles,
+  BookOpen,
+  Download,
+  BarChart3,
+  ChevronRight,
 } from 'lucide-react';
 
 const docs = [
@@ -584,8 +589,24 @@ Conducted by certified C3PAO assessor.
   },
 ];
 
+const modules = [
+  { name: 'CRM Core Module', description: 'Contacts, companies, deals, and activities' },
+  { name: 'Sales Module', description: 'Pipeline, proposals, meetings, and quotas' },
+  { name: 'Marketing Module', description: 'Campaigns, email marketing, and analytics' },
+  { name: 'Customer Success Module', description: 'Health scores, onboarding, and feedback' },
+  { name: 'SEO & Analytics Module', description: 'Keywords, backlinks, audits, and reporting' },
+  { name: 'Social Media Module', description: 'Listening, calendar, competitor analysis' },
+  { name: 'Project Management Module', description: 'Projects, tasks, timeline, and resources' },
+  { name: 'Legal Module', description: 'Matters, litigation, IP, counsel, and entities' },
+  { name: 'Compliance Module', description: 'Policies, audits, incidents, and risk register' },
+  { name: 'HRIS Module', description: 'Employees, payroll, benefits, and talent' },
+  { name: 'Finance Module', description: 'Transactions, budgets, forecasts, and equity' },
+  { name: 'Data Rooms', description: 'Secure document sharing and access control' },
+];
+
 export default function Documentation() {
   const [expandedSections, setExpandedSections] = useState({});
+  const [expandedModules, setExpandedModules] = useState({});
 
   const toggleSection = (section) => {
     setExpandedSections((prev) => ({
@@ -594,82 +615,178 @@ export default function Documentation() {
     }));
   };
 
+  const toggleModule = (module) => {
+    setExpandedModules((prev) => ({
+      ...prev,
+      [module]: !prev[module],
+    }));
+  };
+
   return (
-    <div className="p-6 lg:p-8 space-y-6 min-h-screen">
-      {/* Header */}
-      <div className="flex flex-col gap-2 mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-          Compliance & Security Documentation
-        </h1>
-        <p className="text-gray-600 dark:text-gray-400">
-          Complete guides for SSO, SCIM, audit logs, and compliance frameworks
-        </p>
-      </div>
+    <div className="p-6 lg:p-8 min-h-screen">
+      <Tabs defaultValue="compliance" className="w-full">
+        {/* Tab List */}
+        <TabsList className="grid w-full max-w-md grid-cols-2 mb-8">
+          <TabsTrigger value="compliance" className="flex items-center gap-2">
+            <Shield className="w-4 h-4" />
+            Compliance & Security
+          </TabsTrigger>
+          <TabsTrigger value="complete" className="flex items-center gap-2">
+            <BookOpen className="w-4 h-4" />
+            Complete Documentation
+          </TabsTrigger>
+        </TabsList>
 
-      {/* Documentation Sections */}
-      <div className="space-y-6">
-        {docs.map((section) => {
-          const SectionIcon = section.icon;
-          const isExpanded = expandedSections[section.section];
-
-          return (
-            <div key={section.section} className="space-y-2">
-              {/* Section Header */}
-              <button
-                onClick={() => toggleSection(section.section)}
-                className="w-full flex items-center gap-3 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors text-left"
-              >
-                <SectionIcon className="w-5 h-5 text-violet-600" />
-                <span className="font-semibold text-gray-900 dark:text-white flex-1">
-                  {section.section}
-                </span>
-                {isExpanded ? (
-                  <ChevronUp className="w-5 h-5 text-gray-500" />
-                ) : (
-                  <ChevronDown className="w-5 h-5 text-gray-500" />
-                )}
-              </button>
-
-              {/* Section Items */}
-              {isExpanded && (
-                <div className="space-y-3 pl-4">
-                  {section.items.map((item, idx) => (
-                    <DocumentationCard key={idx} {...item} />
-                  ))}
-                </div>
-              )}
-            </div>
-          );
-        })}
-      </div>
-
-      {/* Download Section */}
-      <Card className="bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800 mt-8">
-        <CardContent className="p-6">
-          <div className="space-y-4">
-            <h3 className="font-semibold text-gray-900 dark:text-white">
-              Download Documentation
-            </h3>
-            <p className="text-sm text-gray-600 dark:text-gray-400">
-              Get PDF versions of all security and compliance documents
+        {/* Compliance & Security Tab */}
+        <TabsContent value="compliance" className="space-y-6">
+          <div className="flex flex-col gap-2 mb-8">
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+              Compliance & Security Documentation
+            </h1>
+            <p className="text-gray-600 dark:text-gray-400">
+              Complete guides for SSO, SCIM, audit logs, and compliance frameworks
             </p>
-            <div className="flex flex-wrap gap-2">
-              <Button variant="outline" size="sm">
-                <FileText className="w-4 h-4 mr-2" />
-                SOC 2 Overview (PDF)
-              </Button>
-              <Button variant="outline" size="sm">
-                <FileText className="w-4 h-4 mr-2" />
-                SCIM Integration Guide (PDF)
-              </Button>
-              <Button variant="outline" size="sm">
-                <FileText className="w-4 h-4 mr-2" />
-                Disaster Recovery Plan (PDF)
+          </div>
+
+          {/* Documentation Sections */}
+          <div className="space-y-6">
+            {docs.map((section) => {
+              const SectionIcon = section.icon;
+              const isExpanded = expandedSections[section.section];
+
+              return (
+                <div key={section.section} className="space-y-2">
+                  {/* Section Header */}
+                  <button
+                    onClick={() => toggleSection(section.section)}
+                    className="w-full flex items-center gap-3 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors text-left"
+                  >
+                    <SectionIcon className="w-5 h-5 text-violet-600" />
+                    <span className="font-semibold text-gray-900 dark:text-white flex-1">
+                      {section.section}
+                    </span>
+                    {isExpanded ? (
+                      <ChevronUp className="w-5 h-5 text-gray-500" />
+                    ) : (
+                      <ChevronDown className="w-5 h-5 text-gray-500" />
+                    )}
+                  </button>
+
+                  {/* Section Items */}
+                  {isExpanded && (
+                    <div className="space-y-3 pl-4">
+                      {section.items.map((item, idx) => (
+                        <DocumentationCard key={idx} {...item} />
+                      ))}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Download Section */}
+          <Card className="bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800 mt-8">
+            <CardContent className="p-6">
+              <div className="space-y-4">
+                <h3 className="font-semibold text-gray-900 dark:text-white">
+                  Download Documentation
+                </h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  Get PDF versions of all security and compliance documents
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  <Button variant="outline" size="sm">
+                    <FileText className="w-4 h-4 mr-2" />
+                    SOC 2 Overview (PDF)
+                  </Button>
+                  <Button variant="outline" size="sm">
+                    <FileText className="w-4 h-4 mr-2" />
+                    SCIM Integration Guide (PDF)
+                  </Button>
+                  <Button variant="outline" size="sm">
+                    <FileText className="w-4 h-4 mr-2" />
+                    Disaster Recovery Plan (PDF)
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Complete Documentation Tab */}
+        <TabsContent value="complete" className="space-y-6">
+          <div className="flex flex-col gap-2 mb-8">
+            <div className="flex items-start justify-between">
+              <div className="flex-1">
+                <h1 className="text-3xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                  <BookOpen className="w-8 h-8" />
+                  Complete CatchAll Documentation
+                </h1>
+                <p className="text-gray-600 dark:text-gray-400 mt-2">
+                  Detailed breakdown of every feature, use case, and business value
+                </p>
+              </div>
+              <Button className="gap-2">
+                <Download className="w-4 h-4" />
+                Download
               </Button>
             </div>
           </div>
-        </CardContent>
-      </Card>
+
+          <p className="text-sm text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
+            Click on any section below to expand it and see all features, detailed descriptions, use cases, and business value.
+          </p>
+
+          {/* Modules List */}
+          <div className="space-y-3">
+            {modules.map((module) => (
+              <button
+                key={module.name}
+                onClick={() => toggleModule(module.name)}
+                className="w-full flex items-center justify-between p-4 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors text-left"
+              >
+                <div className="flex-1">
+                  <h3 className="font-semibold text-gray-900 dark:text-white">
+                    {module.name}
+                  </h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                    {module.description}
+                  </p>
+                </div>
+                <ChevronRight className={`w-5 h-5 text-gray-400 transition-transform ${expandedModules[module.name] ? 'rotate-90' : ''}`} />
+              </button>
+            ))}
+          </div>
+
+          {/* Platform Summary */}
+          <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border-blue-200 dark:border-blue-800 mt-8">
+            <CardContent className="p-6">
+              <div className="flex items-start gap-3 mb-4">
+                <BarChart3 className="w-6 h-6 text-blue-600 flex-shrink-0 mt-1" />
+                <h3 className="font-semibold text-gray-900 dark:text-white text-lg">Platform Summary</h3>
+              </div>
+              <div className="grid grid-cols-3 gap-4">
+                <div>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Modules</p>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-white">12+</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">integrated modules</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Features</p>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-white">50+</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">major features</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Coverage</p>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-white">100+</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">pages and workflows</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
