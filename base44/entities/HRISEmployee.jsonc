@@ -81,6 +81,26 @@
     "personal_balance": {
       "type": "number",
       "default": 3
+    },
+    "system_role": {
+      "type": "string",
+      "enum": [
+        "admin",
+        "user",
+        "no_access"
+      ],
+      "default": "user",
+      "description": "CatchAll system access role"
+    },
+    "system_access_status": {
+      "type": "string",
+      "enum": [
+        "not_invited",
+        "invited",
+        "active"
+      ],
+      "default": "not_invited",
+      "description": "Whether this employee has been invited to the system"
     }
   },
   "required": [
