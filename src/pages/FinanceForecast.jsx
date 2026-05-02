@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -9,9 +9,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { TrendingUp, Plus, Pencil, Trash2, Target } from 'lucide-react';
+import { TrendingUp, Plus, Pencil, Trash2, Target, ArrowUpRight, ArrowDownRight, Eye } from 'lucide-react';
 import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
+  ResponsiveContainer, LineChart, Line, ReferenceLine,
 } from 'recharts';
 
 const fmt = (n) => `$${Number(n || 0).toLocaleString()}`;
@@ -29,10 +30,25 @@ export default function FinanceForecast() {
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState(null);
   const [form, setForm] = useState(emptyForecast);
+  const [compareId, setCompareId] = useState(null);
 
   const { data: forecasts = [], isLoading } = useQuery({
     queryKey: ['finance-forecasts'],
     queryFn: () => base44.entities.FinanceForecast.list('-fiscal_year'),
+  });
+
+  // Load actuals for variance
+  const { data: transactions = [] } = useQuery({
+    queryKey: ['finance-transactions'],
+    queryFn: () => base44.entities.FinanceTransaction.list('-date', 500),
+  });
+  const { data: payments = [] } = useQuery({
+    queryKey: ['finance-payments'],
+    queryFn: () => base44.entities.Payment.list('-paid_at', 200),
+  });
+  const { data: payroll = [] } = useQuery({
+    queryKey: ['finance-payroll'],
+    queryFn: () => base44.entities.HRISPayroll.list('-pay_date', 200),
   });
 
   const saveMutation = useMutation({
@@ -50,8 +66,7 @@ export default function FinanceForecast() {
   const openCreate = () => { setEditing(null); setForm(emptyForecast); setModalOpen(true); };
   const openEdit = (f) => { setEditing(f); setForm({ ...f }); setModalOpen(true); };
   const closeModal = () => { setModalOpen(false); setEditing(null); };
-
-  const f = (key) => (e) => setForm(prev => ({ ...prev, [key]: e.target.value }));
+  const fld = (key) => (e) => setForm(prev => ({ ...prev, [key]: e.target.value }));
 
   const handleSave = () => {
     saveMutation.mutate({
@@ -64,13 +79,33 @@ export default function FinanceForecast() {
     });
   };
 
-  // Chart comparing forecasts
-  const chartData = forecasts.map(fc => ({
-    name: `${fc.period?.toUpperCase()} ${fc.fiscal_year}`,
-    Revenue: fc.revenue_forecast || 0,
-    Expenses: (fc.expense_forecast || 0) + (fc.payroll_forecast || 0),
-    EBITDA: fc.ebitda_forecast || 0,
-  }));
+  // Compute actuals per forecast year
+  const actualsForYear = (yr) => {
+    const txRev = transactions.filter(t => new Date(t.date).getFullYear() === yr && t.type === 'revenue').reduce((s, t) => s + (t.amount || 0), 0);
+    const pmtRev = payments.filter(p => p.status === 'completed' && new Date(p.paid_at).getFullYear() === yr).reduce((s, p) => s + (p.amount || 0), 0);
+    const exp = transactions.filter(t => new Date(t.date).getFullYear() === yr && ['expense','other'].includes(t.type)).reduce((s, t) => s + Math.abs(t.amount || 0), 0);
+    const pr = payroll.filter(p => p.status === 'paid' && new Date(p.pay_date).getFullYear() === yr).reduce((s, p) => s + (p.gross_pay || 0), 0);
+    const revenue = txRev + pmtRev;
+    const totalExp = exp + pr;
+    return { revenue, expenses: totalExp, ebitda: revenue - totalExp };
+  };
+
+  // Comparison chart across all forecasts
+  const chartData = forecasts.map(fc => {
+    const actuals = actualsForYear(fc.fiscal_year);
+    return {
+      name: `${fc.period?.toUpperCase()} ${fc.fiscal_year}`,
+      'Rev Forecast': fc.revenue_forecast || 0,
+      'Rev Actual': actuals.revenue,
+      'Exp Forecast': (fc.expense_forecast || 0) + (fc.payroll_forecast || 0),
+      'Exp Actual': actuals.expenses,
+      'EBITDA Forecast': fc.ebitda_forecast || 0,
+      'EBITDA Actual': actuals.ebitda,
+    };
+  });
+
+  const totalForecastRev = forecasts.filter(f => f.status === 'published').reduce((s, f) => s + (f.revenue_forecast || 0), 0);
+  const publishedCount = forecasts.filter(f => f.status === 'published').length;
 
   return (
     <div className="p-6 lg:p-8 space-y-6 max-w-screen-xl mx-auto">
@@ -80,28 +115,51 @@ export default function FinanceForecast() {
             <Target className="w-6 h-6 text-blue-600" />
             Financial Forecasts
           </h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Forward-looking financial projections</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Forward-looking projections with actual vs forecast variance</p>
         </div>
         <Button onClick={openCreate} className="bg-blue-600 hover:bg-blue-700">
           <Plus className="w-4 h-4 mr-2" />New Forecast
         </Button>
       </div>
 
-      {/* Chart */}
+      {/* Summary row */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {[
+          { label: 'Total Forecasts', value: forecasts.length, sub: `${publishedCount} published` },
+          { label: 'Total Rev Forecast', value: fmt(forecasts.reduce((s,f)=>s+(f.revenue_forecast||0),0)) },
+          { label: 'Avg EBITDA Forecast', value: forecasts.length ? fmt(forecasts.reduce((s,f)=>s+(f.ebitda_forecast||0),0)/forecasts.length) : '—' },
+          { label: 'Latest Year', value: forecasts[0]?.fiscal_year || '—', sub: forecasts[0]?.name },
+        ].map(k => (
+          <Card key={k.label}>
+            <CardContent className="p-4">
+              <p className="text-xs text-gray-500 mb-1">{k.label}</p>
+              <p className="text-xl font-bold text-gray-900 dark:text-white">{k.value}</p>
+              {k.sub && <p className="text-xs text-gray-400 mt-0.5">{k.sub}</p>}
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      {/* Forecast vs Actuals Chart */}
       {chartData.length > 0 && (
         <Card>
-          <CardHeader><CardTitle className="text-base">Forecast Comparison</CardTitle></CardHeader>
+          <CardHeader>
+            <CardTitle className="text-base">Forecast vs Actuals</CardTitle>
+          </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={260}>
-              <BarChart data={chartData} barGap={4}>
+            <ResponsiveContainer width="100%" height={280}>
+              <BarChart data={chartData} barCategoryGap="20%" barGap={4}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
                 <XAxis dataKey="name" tick={{ fontSize: 11 }} />
                 <YAxis tickFormatter={fmtK} tick={{ fontSize: 11 }} />
                 <Tooltip formatter={(v) => fmt(v)} />
                 <Legend />
-                <Bar dataKey="Revenue" fill="#10b981" radius={[3,3,0,0]} />
-                <Bar dataKey="Expenses" fill="#ef4444" radius={[3,3,0,0]} />
-                <Bar dataKey="EBITDA" fill="#6366f1" radius={[3,3,0,0]} />
+                <Bar dataKey="Rev Forecast" fill="#86efac" radius={[3,3,0,0]} />
+                <Bar dataKey="Rev Actual" fill="#10b981" radius={[3,3,0,0]} />
+                <Bar dataKey="Exp Forecast" fill="#fca5a5" radius={[3,3,0,0]} />
+                <Bar dataKey="Exp Actual" fill="#ef4444" radius={[3,3,0,0]} />
+                <Bar dataKey="EBITDA Forecast" fill="#c4b5fd" radius={[3,3,0,0]} />
+                <Bar dataKey="EBITDA Actual" fill="#6366f1" radius={[3,3,0,0]} />
               </BarChart>
             </ResponsiveContainer>
           </CardContent>
@@ -125,6 +183,10 @@ export default function FinanceForecast() {
             const totalExp = (fc.expense_forecast || 0) + (fc.payroll_forecast || 0);
             const ebitda = fc.ebitda_forecast || (fc.revenue_forecast - totalExp);
             const margin = fc.revenue_forecast > 0 ? ((ebitda / fc.revenue_forecast) * 100).toFixed(1) : '0';
+            const actuals = actualsForYear(fc.fiscal_year);
+            const revVar = actuals.revenue - fc.revenue_forecast;
+            const ebitdaVar = actuals.ebitda - ebitda;
+
             return (
               <Card key={fc.id} className="hover:shadow-md transition-shadow">
                 <CardContent className="p-5">
@@ -138,6 +200,7 @@ export default function FinanceForecast() {
                     </Badge>
                   </div>
 
+                  {/* Forecast figures */}
                   <div className="space-y-2 text-sm">
                     {[
                       { label: 'Revenue', value: fc.revenue_forecast, color: 'text-emerald-600' },
@@ -150,17 +213,38 @@ export default function FinanceForecast() {
                         <span className={`font-semibold ${row.color}`}>{fmt(row.value)}</span>
                       </div>
                     ))}
-                    <div className="flex justify-between pt-2 border-t border-gray-100">
+                    <div className="flex justify-between pt-2 border-t border-gray-100 dark:border-gray-800">
                       <span className="text-gray-500 font-medium">Net Margin</span>
                       <span className={`font-bold ${ebitda >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>{margin}%</span>
                     </div>
                   </div>
 
+                  {/* Variance vs actuals */}
+                  {(actuals.revenue > 0 || actuals.expenses > 0) && (
+                    <div className="mt-3 p-2.5 bg-gray-50 dark:bg-gray-800 rounded-lg space-y-1.5">
+                      <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Actual vs Forecast</p>
+                      <div className="flex justify-between text-xs">
+                        <span className="text-gray-500">Revenue</span>
+                        <span className={`font-semibold flex items-center gap-0.5 ${revVar >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>
+                          {revVar >= 0 ? <ArrowUpRight className="w-3 h-3" /> : <ArrowDownRight className="w-3 h-3" />}
+                          {revVar >= 0 ? '+' : ''}{fmt(revVar)}
+                        </span>
+                      </div>
+                      <div className="flex justify-between text-xs">
+                        <span className="text-gray-500">EBITDA</span>
+                        <span className={`font-semibold flex items-center gap-0.5 ${ebitdaVar >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>
+                          {ebitdaVar >= 0 ? <ArrowUpRight className="w-3 h-3" /> : <ArrowDownRight className="w-3 h-3" />}
+                          {ebitdaVar >= 0 ? '+' : ''}{fmt(ebitdaVar)}
+                        </span>
+                      </div>
+                    </div>
+                  )}
+
                   {fc.assumptions && (
                     <p className="text-xs text-gray-400 mt-3 italic line-clamp-2">{fc.assumptions}</p>
                   )}
 
-                  <div className="flex gap-2 mt-4 pt-3 border-t border-gray-100">
+                  <div className="flex gap-2 mt-4 pt-3 border-t border-gray-100 dark:border-gray-800">
                     <Button variant="outline" size="sm" className="flex-1" onClick={() => openEdit(fc)}>
                       <Pencil className="w-3 h-3 mr-1" />Edit
                     </Button>
@@ -185,12 +269,12 @@ export default function FinanceForecast() {
           <div className="space-y-4 mt-2">
             <div>
               <Label>Forecast Name *</Label>
-              <Input value={form.name} onChange={f('name')} placeholder="e.g. FY2026 Annual Forecast" />
+              <Input value={form.name} onChange={fld('name')} placeholder="e.g. FY2026 Annual Forecast" />
             </div>
             <div className="grid grid-cols-3 gap-3">
               <div>
                 <Label>Fiscal Year</Label>
-                <Input type="number" value={form.fiscal_year} onChange={f('fiscal_year')} />
+                <Input type="number" value={form.fiscal_year} onChange={fld('fiscal_year')} />
               </div>
               <div>
                 <Label>Period</Label>
@@ -213,30 +297,18 @@ export default function FinanceForecast() {
               </div>
             </div>
             <div className="grid grid-cols-2 gap-3">
-              <div>
-                <Label>Revenue Forecast ($)</Label>
-                <Input type="number" value={form.revenue_forecast} onChange={f('revenue_forecast')} placeholder="0" />
-              </div>
-              <div>
-                <Label>Expense Forecast ($)</Label>
-                <Input type="number" value={form.expense_forecast} onChange={f('expense_forecast')} placeholder="0" />
-              </div>
-              <div>
-                <Label>Payroll Forecast ($)</Label>
-                <Input type="number" value={form.payroll_forecast} onChange={f('payroll_forecast')} placeholder="0" />
-              </div>
-              <div>
-                <Label>EBITDA Forecast ($)</Label>
-                <Input type="number" value={form.ebitda_forecast} onChange={f('ebitda_forecast')} placeholder="Auto-calc if blank" />
-              </div>
+              <div><Label>Revenue Forecast ($)</Label><Input type="number" value={form.revenue_forecast} onChange={fld('revenue_forecast')} placeholder="0" /></div>
+              <div><Label>Expense Forecast ($)</Label><Input type="number" value={form.expense_forecast} onChange={fld('expense_forecast')} placeholder="0" /></div>
+              <div><Label>Payroll Forecast ($)</Label><Input type="number" value={form.payroll_forecast} onChange={fld('payroll_forecast')} placeholder="0" /></div>
+              <div><Label>EBITDA Forecast ($)</Label><Input type="number" value={form.ebitda_forecast} onChange={fld('ebitda_forecast')} placeholder="Auto-calculated if blank" /></div>
             </div>
             <div>
               <Label>Key Assumptions</Label>
-              <Textarea value={form.assumptions} onChange={f('assumptions')} rows={2} placeholder="e.g. 10% YoY growth, 5 new hires..." />
+              <Textarea value={form.assumptions} onChange={fld('assumptions')} rows={2} placeholder="e.g. 10% YoY growth, 5 new hires..." />
             </div>
             <div>
               <Label>Notes</Label>
-              <Textarea value={form.notes} onChange={f('notes')} rows={2} />
+              <Textarea value={form.notes} onChange={fld('notes')} rows={2} />
             </div>
             <div className="flex gap-2 pt-2">
               <Button variant="outline" className="flex-1" onClick={closeModal}>Cancel</Button>
