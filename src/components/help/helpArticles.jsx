@@ -1,4 +1,151 @@
 export const DEFAULT_ARTICLES = [
+  // Whitelabel & SaaS
+  {
+    id: 'whitelabel-config',
+    title: 'Configure Company Branding',
+    category: 'whitelabel',
+    type: 'guide',
+    is_featured: true,
+    order: 1,
+    tags: ['whitelabel', 'branding', 'settings'],
+    content: `# Configure Company Branding
+
+## Access Company Settings
+1. Click **Settings** in the main navigation
+2. Select **Company Settings** 
+3. Navigate to the **Branding & Organization** section
+
+## Customize Your Brand
+
+### Company Logo
+- Click the upload area to select your logo image
+- Supported formats: PNG, JPG (up to 2MB)
+- Logo appears in sidebar and header
+- Click the X button to remove and choose another
+
+### Company Name
+- Enter your organization's official name
+- Appears in sidebar header and throughout the app
+- Used in emails and documentation
+
+### Primary Color
+- Click the color picker to select your brand color
+- Or enter hex code directly (e.g., #7c3aed)
+- Applied to buttons, highlights, and UI accents
+- Dark mode automatically adjusts for readability
+
+### Tagline
+- Add a brief company description or slogan
+- Displayed under company name in sidebar
+- Professional short taglines work best
+
+### Support Email
+- Enter your support contact email
+- Used in help resources and user communications
+
+## Save & Apply
+Click **Save Settings** to apply changes immediately. All users see the updated branding on next page refresh.
+`,
+  },
+  {
+    id: 'whitelabel-industry',
+    title: 'Select Industry Vertical',
+    category: 'whitelabel',
+    type: 'guide',
+    order: 2,
+    tags: ['whitelabel', 'industry', 'customization'],
+    content: `# Select Industry Vertical
+
+## Why Industry Matters
+Your selected industry customizes the platform to focus on relevant compliance, regulations, and tools for your business.
+
+## Available Industries
+- **Aerospace**: Aviation, defense contractors, export controls
+- **Manufacturing**: Supply chain, quality, production
+- **Defense**: CMMC, classified info, personnel security
+- **Finance**: Regulatory compliance, audits, disclosures
+- **Healthcare**: HIPAA, patient data, medical records
+- **Retail**: PCI-DSS, customer data, payment processing
+- **Technology**: Security, data privacy, infrastructure
+- **Energy**: Compliance, safety, regulatory reporting
+- **Telecommunications**: Network security, data protection
+- **Transportation**: Safety, logistics, regulations
+
+## How It Affects the Platform
+
+### Compliance Scanning
+- Evidence scanner focuses on industry-specific risks
+- Highlights relevant frameworks (SOC 2, CMMC, HIPAA, etc.)
+- Suggests documentation needed for your industry
+
+### Dashboard & Analytics
+- KPIs reflect industry-relevant metrics
+- Reports emphasize industry compliance
+- Alerts prioritize industry regulations
+
+### Help & Documentation
+- Help center links tailored to your industry
+- Quick start guides for industry tools
+- Compliance frameworks specific to your sector
+
+## Change Industry
+1. Go to **Company Settings**
+2. Find **Primary Industry** dropdown
+3. Select your industry
+4. Click **Save Settings**
+
+The system automatically updates scanner focus and relevant features.
+`,
+  },
+  {
+    id: 'whitelabel-demo',
+    title: 'Populate Demo Data',
+    category: 'whitelabel',
+    type: 'guide',
+    order: 3,
+    tags: ['whitelabel', 'setup', 'demo data'],
+    content: `# Populate Demo Data
+
+## Why Use Demo Data?
+Demo data helps you:
+- See the platform in action
+- Understand module capabilities
+- Test workflows and features
+- Train team members
+
+## What Gets Created
+The seed function populates:
+- **Contacts**: Sample companies and individuals from your industry
+- **Deals**: Example sales opportunities in various stages
+- **Vendors**: Supplier and contractor data
+- **Transactions**: Financial records across departments
+- **Employees**: Team members with departments and roles
+- **Compliance Items**: Sample requirements for your industry
+- **Legal Documents**: Example contracts and agreements
+- **Financial Budgets**: Department budgets and forecasts
+
+## Seed Demo Data
+1. Go to **Company Settings**
+2. Scroll to **Demo Data** section
+3. Click **Seed Demo Data**
+4. Wait for completion (usually 10-30 seconds)
+5. Navigate to each module to explore data
+
+## After Seeding
+- All demo data is fully functional
+- Edit, delete, or add to the sample data
+- Use as starting templates for real data
+- Safe to delete and re-seed anytime
+
+## Industry-Specific Data
+Demo data reflects your selected industry:
+- Aerospace: Aviation companies, defense contractors
+- Finance: Banks, financial services, compliance items
+- Healthcare: Medical providers, patient data examples
+- Etc.
+`,
+  },
+
   // Getting Started
   {
     id: 'welcome',

@@ -35,6 +35,7 @@ const CATEGORIES = [
   { id: 'ai_tools', label: 'AI Tools', icon: Sparkles, color: 'bg-purple-100 text-purple-700', description: 'AI-powered features and tools' },
   { id: 'business_dev', label: 'Business Dev', icon: Presentation, color: 'bg-blue-100 text-blue-700', description: 'Pitch decks, data rooms, DocuTrace & aerospace' },
   { id: 'assets', label: 'Assets & Finance', icon: Package, color: 'bg-emerald-100 text-emerald-700', description: 'Equipment, accounting & equity' },
+  { id: 'whitelabel', label: 'Whitelabel & SaaS', icon: Sparkles, color: 'bg-purple-100 text-purple-700', description: 'Branding, industry customization, multi-tenant setup' },
   { id: 'mobile', label: 'Mobile App', icon: Phone, color: 'bg-purple-100 text-purple-700', description: 'CatchAll on-the-go' },
   { id: 'settings', label: 'Settings & Account', icon: Settings, color: 'bg-gray-100 text-gray-700', description: 'Profile, notifications, API keys' },
   { id: 'faq', label: 'FAQ', icon: HelpCircle, color: 'bg-slate-100 text-slate-700', description: 'Common questions answered' },

@@ -11,6 +11,7 @@ import {
   ExternalLink,
   ChevronDown,
   ChevronUp,
+  Sparkles,
 } from 'lucide-react';
 
 const docs = [
@@ -257,6 +258,106 @@ File downtime claim within 30 days of incident.
 2. Grant Catchall cross-account access
 3. We use customer key for encryption
 4. Customer controls key rotation/deletion
+        `,
+      },
+    ],
+  },
+  {
+    section: 'Whitelabel & SaaS',
+    icon: Sparkles,
+    items: [
+      {
+        title: 'Whitelabel Configuration',
+        description: 'Customize branding and company settings for multi-tenant SaaS',
+        content: `
+# Whitelabel Configuration
+
+## Overview
+The whitelabel system allows complete customization of the platform for different organizations or industry verticals.
+
+## Customizable Elements
+- **Company Name**: Display custom organization name throughout the app
+- **Logo**: Upload company logo that appears in sidebar and header
+- **Primary Color**: Set brand color for UI accents and highlights
+- **Tagline**: Add custom subtitle under company name
+- **Support Email**: Set organization-specific support contact
+
+## Features by Industry
+The system dynamically adjusts based on industry selection:
+
+### Aerospace
+- Aerospace Scanner with aviation-specific intelligence
+- Defense contractor network mapping
+- Export compliance focus
+
+### Manufacturing
+- Supply chain tracking
+- Equipment management
+- Production compliance
+
+### Finance
+- Risk management enhanced
+- Audit-focused configurations
+- Regulatory reporting
+
+### Healthcare
+- HIPAA compliance emphasis
+- Patient data handling
+- Medical records management
+
+### Defense
+- CMMC compliance features
+- Controlled unclassified information (CUI) handling
+- Personnel security requirements
+
+## Implementation
+1. Go to Company Settings page
+2. Configure company details (name, logo, color)
+3. Select primary industry vertical
+4. Save settings
+5. Settings persist across all user sessions
+        `,
+      },
+      {
+        title: 'Industry-Specific Scanning',
+        description: 'Automatically adjust scanner focus based on industry',
+        content: `
+# Industry-Specific Scanning
+
+## Dynamic Scanner Configuration
+The compliance evidence scanner and industry scanner adjust their focus based on your configured industry.
+
+## Supported Industries
+- Aerospace
+- Manufacturing
+- Defense
+- Finance
+- Healthcare
+- Retail
+- Technology
+- Energy
+- Telecommunications
+- Transportation
+
+## Scanner Behavior
+- **Aerospace**: Detects aviation regulations, export controls, security clearances
+- **Finance**: Focuses on financial disclosures, regulatory filings, audit requirements
+- **Healthcare**: Emphasizes HIPAA, patient confidentiality, medical records
+- **Defense**: Highlights CMMC requirements, classified information, personnel clearances
+- **Manufacturing**: Tracks supply chains, equipment certifications, quality standards
+
+## Evidence Scanning
+When uploading compliance evidence:
+1. Scanner detects industry context automatically
+2. Highlights relevant risks for your industry
+3. Suggests required documentation by framework
+4. Flags missing compliance areas
+
+## Custom Labels
+Industry selection updates system labels:
+- Sidebar navigation reflects industry focus
+- Dashboard KPIs highlight industry metrics
+- Help center links to industry-specific guidance
         `,
       },
     ],
