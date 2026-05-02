@@ -1,70 +1,28 @@
 import React, { useState } from 'react';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useSearchParams, Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import {
-  Plus,
-  FileText,
-  ArrowLeft,
-  ChevronRight,
-  MoreVertical,
-  Pencil,
-  Trash2,
-  List,
-  BookOpen,
-  GripVertical,
-  Folder as FolderIcon,
-  CheckSquare,
-  Zap,
-} from 'lucide-react';
-import FolderTree from '@/components/wiki/FolderTree';
-import BulkPageActions from '@/components/wiki/BulkPageActions';
-import QuickNavigationDialog from '@/components/wiki/QuickNavigationDialog';
-import FullTextSearch from '@/components/wiki/FullTextSearch';
-import EmptyState from '@/components/ui/EmptyState';
-import ConfirmDialog from '@/components/ui/ConfirmDialog';
+import { Input } from '@/components/ui/input';
+import { ArrowLeft, Plus, FileText, Clock, Eye, Trash2, Edit, Folder } from 'lucide-react';
 import { createPageUrl } from '@/utils';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
-import TableOfContents from '@/components/wiki/TableOfContents';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import FolderTree from '@/components/wiki/FolderTree';
+import ConfirmDialog from '@/components/ui/ConfirmDialog';
 
 export default function SpaceDetail() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const spaceId = searchParams.get('id');
-  const [searchTerm, _setSearchTerm] = useState('');
-  const [selectedPages, setSelectedPages] = useState([]);
-  const [showQuickNav, setShowQuickNav] = useState(false);
-  const [_showFolderModal, setShowFolderModal] = useState(false);
-  const [deleteFolderId, setDeleteFolderId] = useState(null);
   const queryClient = useQueryClient();
+  const spaceId = searchParams.get('id');
 
-  // Cmd+K shortcut
-  React.useEffect(() => {
-    const handleKeyDown = (e) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
-        e.preventDefault();
-        setShowQuickNav(true);
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [deletePageId, setDeletePageId] = useState(null);
+  const [viewMode, setViewMode] = useState('list'); // 'list' or 'tree'
 
-  const { data: space, isLoading: spaceLoading } = useQuery({
+  const { data: space } = useQuery({
     queryKey: ['space', spaceId],
     queryFn: async () => {
-      if (!spaceId) {
-        return null;
-      }
       const spaces = await base44.entities.Space.list();
       return spaces.find((s) => s.id === spaceId) || null;
     },
@@ -74,88 +32,26 @@ export default function SpaceDetail() {
   const { data: pages = [] } = useQuery({
     queryKey: ['space-pages', spaceId],
     queryFn: async () => {
-      if (!spaceId) {
-        return [];
-      }
+      if (!spaceId) return [];
       const allPages = await base44.entities.WikiPage.list();
-      return allPages.filter((p) => p.space_id === spaceId && !p.template);
+      return allPages.filter((p) => p.space_id === spaceId);
     },
     enabled: !!spaceId,
-  });
-
-  const { data: folders = [] } = useQuery({
-    queryKey: ['space-folders', spaceId],
-    queryFn: async () => {
-      if (!spaceId) {
-        return [];
-      }
-      const allFolders = await base44.entities.WikiPageFolder.list();
-      return allFolders.filter((f) => f.space_id === spaceId);
-    },
-    enabled: !!spaceId && space?.enable_folders,
   });
 
   const deleteMutation = useMutation({
     mutationFn: (pageId) => base44.entities.WikiPage.delete(pageId),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['space-pages'] });
+      queryClient.invalidateQueries({ queryKey: ['space-pages', spaceId] });
+      setDeletePageId(null);
     },
   });
 
-  const updateOrderMutation = useMutation({
-    mutationFn: async ({ pageId, order }) => {
-      return await base44.entities.WikiPage.update(pageId, { order });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['space-pages'] });
-    },
-  });
-
-  const handleDragEnd = (result) => {
-    if (!result.destination) {
-      return;
-    }
-
-    const { source, destination } = result;
-    if (source.index === destination.index) {
-      return;
-    }
-
-    const sourceParentId = source.droppableId === 'root' ? null : source.droppableId;
-    const destParentId = destination.droppableId === 'root' ? null : destination.droppableId;
-
-    // Get pages from the destination parent
-    const siblingPages = pages
-      .filter((p) => (destParentId ? p.parent_page_id === destParentId : !p.parent_page_id))
-      .sort((a, b) => (a.order || 0) - (b.order || 0));
-
-    const draggedPage = pages.find((p) => p.id === result.draggableId);
-
-    // Remove from old position
-    const filteredPages = siblingPages.filter((p) => p.id !== draggedPage.id);
-
-    // Insert at new position
-    filteredPages.splice(destination.index, 0, draggedPage);
-
-    // Update order for all affected pages
-    filteredPages.forEach((page, index) => {
-      if (page.order !== index) {
-        updateOrderMutation.mutate({ pageId: page.id, order: index });
-      }
-    });
-
-    // If parent changed, update parent
-    if (sourceParentId !== destParentId) {
-      base44.entities.WikiPage.update(draggedPage.id, { parent_page_id: destParentId });
-    }
-  };
-
-  if (spaceLoading) {
-    return <div className="p-6">Loading...</div>;
-  }
-  if (!space) {
-    return <div className="p-6 text-center">Space not found</div>;
-  }
+  const filteredPages = pages.filter(
+    (p) =>
+      p.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      p.ai_summary?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   const colorClasses = {
     violet: 'bg-violet-500',
@@ -168,257 +64,176 @@ export default function SpaceDetail() {
     yellow: 'bg-yellow-500',
   };
 
-  // Build page hierarchy
-  const rootPages = pages
-    .filter((p) => !p.parent_page_id)
-    .sort((a, b) => (a.order || 0) - (b.order || 0));
-
-  const getChildPages = (parentId) => {
-    return pages
-      .filter((p) => p.parent_page_id === parentId)
-      .sort((a, b) => (a.order || 0) - (b.order || 0));
+  const formatDate = (dateString) => {
+    if (!dateString) return '';
+    return new Date(dateString).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+    });
   };
 
-  const filteredPages = searchTerm
-    ? pages.filter((p) => p.title.toLowerCase().includes(searchTerm.toLowerCase()))
-    : rootPages;
-
-  const PageItem = ({ page, level = 0, index }) => {
-    const children = getChildPages(page.id);
-    const [expanded, setExpanded] = useState(true);
-
+  if (!space) {
     return (
-      <Draggable draggableId={page.id} index={index}>
-        {(provided, snapshot) => (
-          <div ref={provided.innerRef} {...provided.draggableProps}>
-            <Card
-              className={`p-3 glass-card hover:shadow-md transition-all group ${
-                snapshot.isDragging ? 'shadow-lg ring-2 ring-violet-500' : ''
-              }`}
-              style={{
-                marginLeft: `${level * 24}px`,
-                ...provided.draggableProps.style,
-              }}
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2 flex-1 min-w-0">
-                  <div
-                    {...provided.dragHandleProps}
-                    className="cursor-grab active:cursor-grabbing opacity-0 group-hover:opacity-100"
-                  >
-                    <GripVertical className="w-4 h-4 text-gray-400" />
-                  </div>
-                  <Link
-                    to={`${createPageUrl('WikiPageEditor')}?spaceId=${spaceId}&pageId=${page.id}`}
-                    className="flex items-center gap-3 flex-1 min-w-0"
-                  >
-                    {children.length > 0 && (
-                      <button
-                        onClick={(e) => {
-                          e.preventDefault();
-                          setExpanded(!expanded);
-                        }}
-                        className="p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded"
-                      >
-                        <ChevronRight
-                          className={`w-4 h-4 transition-transform ${expanded ? 'rotate-90' : ''}`}
-                        />
-                      </button>
-                    )}
-                    <FileText className="w-4 h-4 text-gray-400 flex-shrink-0" />
-                    <span className="font-medium text-gray-900 dark:text-white truncate group-hover:text-violet-600">
-                      {page.title}
-                    </span>
-                    {page.status === 'draft' && (
-                      <span className="text-xs text-gray-400">Draft</span>
-                    )}
-                  </Link>
-                </div>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="sm" className="opacity-0 group-hover:opacity-100">
-                      <MoreVertical className="w-4 h-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem asChild>
-                      <Link
-                        to={`${createPageUrl('WikiPageEditor')}?spaceId=${spaceId}&pageId=${page.id}`}
-                      >
-                        <Pencil className="w-4 h-4 mr-2" />
-                        Edit
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onClick={() => deleteMutation.mutate(page.id)}
-                      className="text-red-600"
-                    >
-                      <Trash2 className="w-4 h-4 mr-2" />
-                      Delete
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
-            </Card>
-            {expanded && children.length > 0 && (
-              <Droppable droppableId={page.id} type="page">
-                {(provided) => (
-                  <div ref={provided.innerRef} {...provided.droppableProps}>
-                    {children.map((child, idx) => (
-                      <PageItem key={child.id} page={child} level={level + 1} index={idx} />
-                    ))}
-                    {provided.placeholder}
-                  </div>
-                )}
-              </Droppable>
-            )}
-          </div>
-        )}
-      </Draggable>
+      <div className="p-6 text-center">
+        <p className="text-gray-500">Loading space...</p>
+      </div>
     );
-  };
+  }
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 space-y-6 min-h-screen">
+    <div className="p-6 space-y-6">
       {/* Header */}
-      <div className="flex items-start justify-between gap-4">
+      <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <Link to={createPageUrl('Spaces')}>
-            <Button variant="ghost" size="icon">
-              <ArrowLeft className="w-5 h-5" />
-            </Button>
-          </Link>
-          <div
-            className={`w-12 h-12 rounded-lg ${colorClasses[space.color]} flex items-center justify-center text-2xl`}
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => navigate(createPageUrl('Spaces'))}
           >
-            {space.icon}
-          </div>
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{space.name}</h1>
-            {space.description && <p className="text-gray-500 mt-1">{space.description}</p>}
+            <ArrowLeft className="w-5 h-5" />
+          </Button>
+          <div className="flex items-center gap-3">
+            <div className={`w-10 h-10 rounded-lg ${colorClasses[space.color]} flex items-center justify-center text-xl`}>
+              {space.icon}
+            </div>
+            <div>
+              <h1 className="text-3xl font-bold">{space.name}</h1>
+              <p className="text-gray-500 text-sm">{space.description}</p>
+            </div>
           </div>
         </div>
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={() => setShowQuickNav(true)} className="gap-2">
-            <Zap className="w-4 h-4" />
-            Quick Nav
-          </Button>
-          {space?.enable_folders && (
-            <Button variant="outline" onClick={() => setShowFolderModal(true)} className="gap-2">
-              <FolderIcon className="w-4 h-4" />
-              New Folder
-            </Button>
-          )}
+        <Button
+          onClick={() => navigate(`${createPageUrl('WikiPageEditor')}?spaceId=${spaceId}`)}
+          className="gap-2"
+        >
+          <Plus className="w-4 h-4" />
+          New Page
+        </Button>
+      </div>
+
+      {/* Search and View Mode */}
+      <div className="flex items-center gap-4">
+        <Input
+          placeholder="Search pages..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="max-w-sm"
+        />
+        <div className="flex gap-2 ml-auto">
           <Button
-            variant="outline"
-            onClick={() => navigate(`${createPageUrl('SpaceTemplates')}?spaceId=${spaceId}`)}
+            variant={viewMode === 'list' ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => setViewMode('list')}
           >
-            <FileText className="w-4 h-4 mr-2" />
-            Templates
+            List View
           </Button>
-          {selectedPages.length > 0 && (
-            <Button variant="outline" className="gap-2">
-              <CheckSquare className="w-4 h-4" />
-              {selectedPages.length} Selected
-            </Button>
-          )}
-          <Link to={`${createPageUrl('WikiPageEditor')}?spaceId=${spaceId}`}>
-            <Button className="gap-2 bg-violet-600 hover:bg-violet-700">
-              <Plus className="w-4 h-4" />
-              New Page
-            </Button>
-          </Link>
+          <Button
+            variant={viewMode === 'tree' ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => setViewMode('tree')}
+          >
+            <Folder className="w-4 h-4 mr-2" />
+            Tree View
+          </Button>
         </div>
       </div>
 
-      {/* Search */}
-      {pages.length > 0 && <FullTextSearch spaceId={spaceId} />}
-
-      {/* Pages List */}
+      {/* Pages Display */}
       {pages.length === 0 ? (
-        <EmptyState
-          icon={FileText}
-          title="No pages yet"
-          description="Create your first page to start documenting."
-          actionLabel="Create Page"
-          onAction={() => navigate(`${createPageUrl('WikiPageEditor')}?spaceId=${spaceId}`)}
-        />
+        <Card className="p-12 text-center glass-card">
+          <FileText className="w-12 h-12 mx-auto text-gray-400 mb-4" />
+          <h3 className="text-lg font-semibold mb-2">No pages yet</h3>
+          <p className="text-gray-500 mb-4">Create your first page to start documenting</p>
+          <Button onClick={() => navigate(`${createPageUrl('WikiPageEditor')}?spaceId=${spaceId}`)}>
+            <Plus className="w-4 h-4 mr-2" />
+            Create Page
+          </Button>
+        </Card>
+      ) : viewMode === 'tree' ? (
+        <Card className="p-6 glass-card">
+          <FolderTree pages={filteredPages} spaceId={spaceId} />
+        </Card>
       ) : (
-        <Tabs defaultValue="list" className="w-full">
-          <TabsList className="mb-4">
-            <TabsTrigger value="list" className="gap-2">
-              <List className="w-4 h-4" />
-              List View
-            </TabsTrigger>
-            <TabsTrigger value="toc" className="gap-2">
-              <BookOpen className="w-4 h-4" />
-              Table of Contents
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="list">
-            {space?.enable_folders ? (
-              <FolderTree
-                folders={folders}
-                pages={pages}
-                spaceId={spaceId}
-                onAddFolder={(_parentId) => setShowFolderModal(true)}
-                onDeleteFolder={(folderId) => setDeleteFolderId(folderId)}
-                onAddPage={(folderId) =>
-                  navigate(
-                    `${createPageUrl('WikiPageEditor')}?spaceId=${spaceId}&folderId=${folderId}`
-                  )
-                }
-                currentPageId={null}
-              />
-            ) : (
-              <DragDropContext onDragEnd={handleDragEnd}>
-                <Droppable droppableId="root" type="page">
-                  {(provided) => (
-                    <div ref={provided.innerRef} {...provided.droppableProps} className="space-y-2">
-                      {filteredPages.map((page, index) => (
-                        <PageItem key={page.id} page={page} index={index} />
-                      ))}
-                      {provided.placeholder}
+        <div className="space-y-3">
+          {filteredPages.map((page) => (
+            <Card
+              key={page.id}
+              className="p-4 hover:shadow-md transition-shadow cursor-pointer group glass-card"
+              onClick={() => navigate(`${createPageUrl('WikiPageEditor')}?spaceId=${spaceId}&pageId=${page.id}`)}
+            >
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <div className="flex items-center gap-3">
+                    <FileText className="w-5 h-5 text-violet-600 flex-shrink-0" />
+                    <div>
+                      <h3 className="font-semibold group-hover:text-violet-600 transition-colors">
+                        {page.title}
+                      </h3>
+                      {page.ai_summary && (
+                        <p className="text-sm text-gray-500 line-clamp-2 mt-1">
+                          {page.ai_summary}
+                        </p>
+                      )}
                     </div>
-                  )}
-                </Droppable>
-              </DragDropContext>
-            )}
-          </TabsContent>
-
-          <TabsContent value="toc">
-            <TableOfContents pages={pages} spaceId={spaceId} />
-          </TabsContent>
-        </Tabs>
+                  </div>
+                  <div className="flex items-center gap-4 mt-2 text-xs text-gray-500">
+                    {page.last_viewed_at && (
+                      <span className="flex items-center gap-1">
+                        <Clock className="w-3 h-3" />
+                        {formatDate(page.last_viewed_at)}
+                      </span>
+                    )}
+                    {page.view_count && (
+                      <span className="flex items-center gap-1">
+                        <Eye className="w-3 h-3" />
+                        {page.view_count} views
+                      </span>
+                    )}
+                    {page.status === 'draft' && (
+                      <span className="px-2 py-0.5 bg-yellow-100 dark:bg-yellow-900/20 text-yellow-800 dark:text-yellow-300 rounded text-xs">
+                        Draft
+                      </span>
+                    )}
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigate(`${createPageUrl('WikiPageEditor')}?spaceId=${spaceId}&pageId=${page.id}`);
+                    }}
+                  >
+                    <Edit className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setDeletePageId(page.id);
+                    }}
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </div>
+              </div>
+            </Card>
+          ))}
+        </div>
       )}
 
-      {/* Bulk Actions */}
-      <BulkPageActions
-        selectedPages={selectedPages}
-        onClearSelection={() => setSelectedPages([])}
-        folders={folders}
-      />
-
-      {/* Quick Navigation */}
-      <QuickNavigationDialog
-        open={showQuickNav}
-        onClose={() => setShowQuickNav(false)}
-        spaceId={spaceId}
-      />
-
-      {/* Delete Folder Confirm */}
+      {/* Delete Confirmation */}
       <ConfirmDialog
-        open={!!deleteFolderId}
-        onClose={() => setDeleteFolderId(null)}
-        onConfirm={() => {
-          base44.entities.WikiPageFolder.delete(deleteFolderId);
-          queryClient.invalidateQueries({ queryKey: ['space-folders'] });
-          setDeleteFolderId(null);
-        }}
-        title="Delete this folder?"
-        description="This will delete the folder and all its contents. This action cannot be undone."
+        open={!!deletePageId}
+        onClose={() => setDeletePageId(null)}
+        onConfirm={() => deleteMutation.mutate(deletePageId)}
+        title="Delete Page"
+        description="This will permanently delete this page and all its versions."
         confirmLabel="Delete"
+        isLoading={deleteMutation.isPending}
       />
     </div>
   );

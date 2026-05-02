@@ -37,6 +37,7 @@ import VendorSpace from './pages/VendorSpace';
 import VendorDetail from './pages/VendorDetail';
 import HRISOrgChart from './pages/HRISOrgChart';
 import PublicDataRoomPortal from './pages/PublicDataRoomPortal';
+import SpaceDetail from './pages/SpaceDetail';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import { NavigationGuardProvider } from '@/lib/NavigationGuardContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
@@ -166,6 +167,7 @@ const AuthenticatedApp = () => {
       <Route path="/VendorSpace" element={<LayoutWrapper currentPageName="VendorSpace"><VendorSpace /></LayoutWrapper>} />
       <Route path="/VendorDetail" element={<LayoutWrapper currentPageName="VendorDetail"><VendorDetail /></LayoutWrapper>} />
       <Route path="/HRISOrgChart" element={<LayoutWrapper currentPageName="HRISOrgChart"><HRISOrgChart /></LayoutWrapper>} />
+      <Route path="/SpaceDetail" element={<LayoutWrapper currentPageName="SpaceDetail"><SpaceDetail /></LayoutWrapper>} />
       <Route path="/portal/:accessCode" element={<PublicDataRoomPortal />} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>

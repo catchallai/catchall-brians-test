@@ -22,6 +22,7 @@ import FreshnessIndicator from '@/components/wiki/FreshnessIndicator';
 import { createPageUrl } from '@/utils';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
+import '../styles/wiki-editor.css';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -47,16 +48,29 @@ import CommentsPanel from '@/components/wiki/CommentsPanel';
 import ActiveEditors from '@/components/wiki/ActiveEditors';
 
 const modules = {
-  toolbar: [
-    [{ header: [1, 2, 3, 4, 5, 6, false] }],
-    ['bold', 'italic', 'underline', 'strike'],
-    [{ list: 'ordered' }, { list: 'bullet' }],
-    [{ indent: '-1' }, { indent: '+1' }],
-    [{ color: [] }, { background: [] }],
-    [{ align: [] }],
-    ['link', 'image', 'code-block'],
-    ['clean'],
-  ],
+  toolbar: {
+    container: [
+      // Headers
+      [{ header: [1, 2, 3, 4, 5, 6, false] }],
+      // Basic formatting
+      ['bold', 'italic', 'underline', 'strike'],
+      // Lists
+      [{ list: 'ordered' }, { list: 'bullet' }],
+      [{ indent: '-1' }, { indent: '+1' }],
+      // Colors
+      [{ color: [] }, { background: [] }],
+      // Alignment
+      [{ align: [] }],
+      // Blocks
+      ['blockquote', 'code-block'],
+      // Links and media
+      ['link', 'image', 'video'],
+      // Script
+      [{ script: 'sub' }, { script: 'super' }],
+      // Clean
+      ['clean'],
+    ],
+  },
 };
 
 export default function WikiPageEditor() {
@@ -548,7 +562,7 @@ export default function WikiPageEditor() {
           )}
 
           {/* Rich Text Editor */}
-          <div className="min-h-[500px]">
+          <div className="min-h-[600px] rounded-lg border border-gray-200 dark:border-gray-800 overflow-hidden">
             <ReactQuill
               theme="snow"
               value={content}
@@ -558,8 +572,8 @@ export default function WikiPageEditor() {
               }}
               onBlur={() => setIsEditing(false)}
               modules={modules}
-              className="h-full"
-              placeholder="Start writing..."
+              className="h-full ql-editor-full"
+              placeholder="Start writing... Supports headings, lists, code blocks, images, and more."
             />
           </div>
         </div>
