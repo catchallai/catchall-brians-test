@@ -9,9 +9,10 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import {
   Building2, Plus, FileText, Upload, Search, Package,
-  AlertTriangle, DollarSign, TrendingUp, ExternalLink,
+  AlertTriangle, DollarSign, TrendingUp, ExternalLink, Pencil,
 } from 'lucide-react';
 import InvoicePDFImporter from '@/components/finance/InvoicePDFImporter';
+import VendorEditModal from '@/components/finance/VendorEditModal';
 
 const fmt = (n) => `$${Number(n || 0).toLocaleString()}`;
 
@@ -35,6 +36,7 @@ export default function VendorSpace() {
   const [filterType, setFilterType] = useState('all');
   const [filterStatus, setFilterStatus] = useState('active');
   const [importOpen, setImportOpen] = useState(false);
+  const [editingVendor, setEditingVendor] = useState(null);
 
   const { data: vendors = [], isLoading } = useQuery({
     queryKey: ['vendors'],
@@ -248,11 +250,16 @@ export default function VendorSpace() {
                   {v.email && <p className="text-xs text-gray-400 mb-1 truncate">📧 {v.email}</p>}
                   {v.last_invoice_date && <p className="text-xs text-gray-400 mb-3">Last invoice: {v.last_invoice_date}</p>}
 
-                  <Link to={`/VendorDetail?id=${v.id}`}>
-                    <Button variant="outline" size="sm" className="w-full group-hover:border-indigo-300 group-hover:text-indigo-600 transition-colors">
-                      <ExternalLink className="w-3.5 h-3.5 mr-1.5" />View Vendor Dashboard
+                  <div className="flex gap-2">
+                    <Button variant="outline" size="sm" className="flex-1 group-hover:border-indigo-300 group-hover:text-indigo-600 transition-colors" asChild>
+                      <Link to={`/VendorDetail?id=${v.id}`}>
+                        <ExternalLink className="w-3.5 h-3.5 mr-1.5" />View Dashboard
+                      </Link>
                     </Button>
-                  </Link>
+                    <Button variant="outline" size="sm" onClick={(e) => { e.preventDefault(); setEditingVendor(v); }}>
+                      <Pencil className="w-3.5 h-3.5" />
+                    </Button>
+                  </div>
                 </CardContent>
               </Card>
             );
@@ -261,6 +268,7 @@ export default function VendorSpace() {
       )}
 
       <InvoicePDFImporter open={importOpen} onClose={() => setImportOpen(false)} existingVendors={vendors} />
+      {editingVendor && <VendorEditModal vendor={editingVendor} open={!!editingVendor} onClose={() => setEditingVendor(null)} />}
     </div>
   );
 }

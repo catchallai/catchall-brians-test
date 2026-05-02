@@ -7,13 +7,14 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
   Building2, ArrowLeft, FileText, Package, AlertTriangle,
-  DollarSign, Calendar, ExternalLink, TrendingUp, Clock,
+  DollarSign, Calendar, ExternalLink, TrendingUp, Clock, Pencil,
 } from 'lucide-react';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell, Legend,
 } from 'recharts';
 import InvoicePDFImporter from '@/components/finance/InvoicePDFImporter';
+import VendorEditModal from '@/components/finance/VendorEditModal';
 
 const fmt = (n) => `$${Number(n || 0).toLocaleString()}`;
 const fmtK = (n) => `$${(Number(n || 0) / 1000).toFixed(1)}k`;
@@ -35,6 +36,7 @@ export default function VendorDetail() {
   const params = new URLSearchParams(window.location.search);
   const vendorId = params.get('id');
   const [importOpen, setImportOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('overview'); // overview | products | invoices
 
   const { data: vendor, isLoading: vendorLoading } = useQuery({
@@ -139,9 +141,14 @@ export default function VendorDetail() {
             </div>
           </div>
         </div>
-        <Button onClick={() => setImportOpen(true)} className="bg-indigo-600 hover:bg-indigo-700 flex-shrink-0">
-          <FileText className="w-4 h-4 mr-2" />Add Invoice
-        </Button>
+        <div className="flex gap-2 flex-shrink-0">
+          <Button variant="outline" onClick={() => setEditOpen(true)}>
+            <Pencil className="w-4 h-4 mr-2" />Edit Profile
+          </Button>
+          <Button onClick={() => setImportOpen(true)} className="bg-indigo-600 hover:bg-indigo-700">
+            <FileText className="w-4 h-4 mr-2" />Add Invoice
+          </Button>
+        </div>
       </div>
 
       {/* Expiry Alerts */}
@@ -429,6 +436,7 @@ export default function VendorDetail() {
       )}
 
       <InvoicePDFImporter open={importOpen} onClose={() => setImportOpen(false)} existingVendors={allVendors} />
+      {vendor && <VendorEditModal vendor={vendor} open={editOpen} onClose={() => setEditOpen(false)} />}
     </div>
   );
 }

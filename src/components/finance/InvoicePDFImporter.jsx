@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
-import { useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -68,6 +68,12 @@ export default function InvoicePDFImporter({ open, onClose, existingVendors = []
   const qc = useQueryClient();
   const fileRef = useRef();
 
+  // Always fetch latest vendors to prevent duplicates at save time
+  const { data: allVendors = [] } = useQuery({
+    queryKey: ['vendors'],
+    queryFn: () => base44.entities.Vendor.list(),
+  });
+
   // step: 'upload' | 'processing' | 'reviewing' | 'done'
   const [step, setStep] = useState('upload');
   const [files, setFiles] = useState([]); // Array of File objects
@@ -123,7 +129,8 @@ For the vendor, extract company name, contact info, and categorize them. Return 
         response_json_schema: AI_SCHEMA,
       });
 
-      const existingMatch = existingVendors.find(
+      // Use freshly-fetched allVendors to find match (prevents duplicates)
+    const existingMatch = allVendors.find(
         v => v.name?.toLowerCase() === result.vendor?.name?.toLowerCase()
       );
 
@@ -175,6 +182,14 @@ For the vendor, extract company name, contact info, and categorize them. Return 
 
     let vendorId;
     const vendorName = parsed.vendor.name;
+
+    // Re-check against latest vendors right before saving to prevent race-condition duplicates
+    const latestVendors = await base44.entities.Vendor.list();
+    const liveMatch = latestVendors.find(v => v.name?.toLowerCase() === vendorName?.toLowerCase());
+    if (liveMatch && !parsed.vendor._existing) {
+      // Update the parsed state to use this existing vendor
+      parsed.vendor._existing = liveMatch;
+    }
 
     if (parsed.vendor._existing) {
       vendorId = parsed.vendor._existing.id;
