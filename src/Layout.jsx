@@ -118,7 +118,6 @@ const navigation = [
   { name: 'Aerospace Scanner', icon: Rocket, page: 'AerospaceScanner' },
   { name: 'Competitor Analysis', icon: Users, page: 'CompetitorAnalysis' },
   { name: 'Lead Analysis', icon: UserCircle, page: 'VisitorProfiles' },
-  { name: 'Legal Documents', icon: FileSignature, page: 'LegalDocuments' },
   { name: 'Data Rooms', icon: Folder, page: 'DataRooms' },
   { name: 'DocuTrace', icon: FileText, page: 'DocuTrace' },
   { name: 'Listings & Reviews', icon: MapPin, page: 'Listings' },
