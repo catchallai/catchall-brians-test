@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { AlertCircle, Save, Loader } from 'lucide-react';
+import { AlertCircle, Save, Loader, Upload, X } from 'lucide-react';
 
 const industryOptions = [
   'aerospace',
@@ -31,13 +31,16 @@ export default function CompanySettingsPage() {
     },
   });
 
+  const fileInputRef = useRef(null);
   const [formData, setFormData] = useState(() => ({
     company_name: settings?.company_name || 'AeroTech Industries',
     industry: settings?.industry || 'aerospace',
     tagline: settings?.tagline || '',
     primary_color: settings?.primary_color || '#7c3aed',
     support_email: settings?.support_email || '',
+    logo_url: settings?.logo_url || '',
   }));
+  const [uploading, setUploading] = useState(false);
 
   const updateMutation = useMutation({
     mutationFn: async (data) => {
@@ -53,6 +56,25 @@ export default function CompanySettingsPage() {
       return await base44.functions.invoke('seedDemoData', {});
     },
   });
+
+  const handleLogoUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploading(true);
+    try {
+      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      setFormData({ ...formData, logo_url: file_url });
+    } catch (error) {
+      console.error('Logo upload failed:', error);
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleRemoveLogo = () => {
+    setFormData({ ...formData, logo_url: '' });
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -79,6 +101,63 @@ export default function CompanySettingsPage() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Company Logo
+              </label>
+              <div className="flex items-start gap-4">
+                <div className="flex-1">
+                  {formData.logo_url ? (
+                    <div className="relative inline-block">
+                      <img
+                        src={formData.logo_url}
+                        alt="Company Logo"
+                        className="h-16 object-contain rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-slate-700 p-2"
+                      />
+                      <button
+                        type="button"
+                        onClick={handleRemoveLogo}
+                        className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ) : (
+                    <div
+                      onClick={() => fileInputRef.current?.click()}
+                      className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-8 text-center cursor-pointer hover:border-violet-400 dark:hover:border-violet-500 transition-colors bg-gray-50 dark:bg-slate-700/50"
+                    >
+                      <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                      <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Click to upload logo
+                      </p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                        PNG, JPG up to 2MB
+                      </p>
+                    </div>
+                  )}
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleLogoUpload}
+                    disabled={uploading}
+                    className="hidden"
+                  />
+                  {formData.logo_url && (
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={uploading}
+                      className="mt-2 text-sm text-violet-600 dark:text-violet-400 hover:underline disabled:opacity-50"
+                    >
+                      {uploading ? 'Uploading...' : 'Change logo'}
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Company Name
