@@ -17,8 +17,10 @@ import {
   Clock,
   FileSignature,
   Copy,
+  History,
 } from 'lucide-react';
 import LegalDocumentModal from '@/components/modals/LegalDocumentModal';
+import DocumentVersionHistory from '@/components/legal/DocumentVersionHistory';
 import EmptyState from '@/components/ui/EmptyState';
 import ConfirmDialog from '@/components/ui/ConfirmDialog';
 import { toast } from 'sonner';
@@ -30,6 +32,7 @@ export default function LegalDocuments() {
   const [typeFilter, setTypeFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
   const [sendingDoc, setSendingDoc] = useState(null);
+  const [versionHistoryDoc, setVersionHistoryDoc] = useState(null);
   const queryClient = useQueryClient();
 
   const { data: user } = useQuery({
@@ -456,6 +459,15 @@ export default function LegalDocuments() {
                       <Button
                         size="sm"
                         variant="outline"
+                        onClick={() => setVersionHistoryDoc(doc)}
+                        className="gap-2"
+                      >
+                        <History className="w-4 h-4" />
+                        History
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
                         onClick={() => {
                           setEditingDoc(doc);
                           setShowModal(true);
@@ -491,6 +503,16 @@ export default function LegalDocuments() {
         contacts={contacts}
         onSave={handleSave}
         isLoading={createMutation.isPending || updateMutation.isPending}
+      />
+
+      <DocumentVersionHistory
+        document={versionHistoryDoc}
+        open={!!versionHistoryDoc}
+        onClose={() => setVersionHistoryDoc(null)}
+        onRevert={() => {
+          queryClient.invalidateQueries({ queryKey: ['legal-documents'] });
+          setVersionHistoryDoc(null);
+        }}
       />
 
       <ConfirmDialog
