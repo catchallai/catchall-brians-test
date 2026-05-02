@@ -27,6 +27,12 @@ import LegalIP from './pages/LegalIP';
 import LegalLitigation from './pages/LegalLitigation';
 import LegalCounsel from './pages/LegalCounsel';
 import LegalEntities from './pages/LegalEntities';
+import FinanceDashboard from './pages/FinanceDashboard';
+import FinancePL from './pages/FinancePL';
+import FinanceBudgets from './pages/FinanceBudgets';
+import FinanceTransactions from './pages/FinanceTransactions';
+import FinancePayroll from './pages/FinancePayroll';
+import FinanceForecast from './pages/FinanceForecast';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import { NavigationGuardProvider } from '@/lib/NavigationGuardContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
@@ -146,6 +152,12 @@ const AuthenticatedApp = () => {
       <Route path="/LegalLitigation" element={<LayoutWrapper currentPageName="LegalLitigation"><LegalLitigation /></LayoutWrapper>} />
       <Route path="/LegalCounsel" element={<LayoutWrapper currentPageName="LegalCounsel"><LegalCounsel /></LayoutWrapper>} />
       <Route path="/LegalEntities" element={<LayoutWrapper currentPageName="LegalEntities"><LegalEntities /></LayoutWrapper>} />
+      <Route path="/FinanceDashboard" element={<LayoutWrapper currentPageName="FinanceDashboard"><FinanceDashboard /></LayoutWrapper>} />
+      <Route path="/FinancePL" element={<LayoutWrapper currentPageName="FinancePL"><FinancePL /></LayoutWrapper>} />
+      <Route path="/FinanceBudgets" element={<LayoutWrapper currentPageName="FinanceBudgets"><FinanceBudgets /></LayoutWrapper>} />
+      <Route path="/FinanceTransactions" element={<LayoutWrapper currentPageName="FinanceTransactions"><FinanceTransactions /></LayoutWrapper>} />
+      <Route path="/FinancePayroll" element={<LayoutWrapper currentPageName="FinancePayroll"><FinancePayroll /></LayoutWrapper>} />
+      <Route path="/FinanceForecast" element={<LayoutWrapper currentPageName="FinanceForecast"><FinanceForecast /></LayoutWrapper>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );

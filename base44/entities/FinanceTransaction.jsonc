@@ -1,0 +1,97 @@
+{
+  "name": "FinanceTransaction",
+  "type": "object",
+  "properties": {
+    "date": {
+      "type": "string",
+      "format": "date"
+    },
+    "description": {
+      "type": "string"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "revenue",
+        "expense",
+        "payroll",
+        "tax",
+        "transfer",
+        "refund",
+        "other"
+      ],
+      "default": "expense"
+    },
+    "category": {
+      "type": "string",
+      "description": "e.g. Salaries, SaaS, Marketing, Rent, COGS"
+    },
+    "amount": {
+      "type": "number",
+      "description": "Positive = inflow, negative = outflow"
+    },
+    "department": {
+      "type": "string"
+    },
+    "source": {
+      "type": "string",
+      "enum": [
+        "manual",
+        "payroll",
+        "sales",
+        "payments",
+        "crm",
+        "hris"
+      ],
+      "default": "manual"
+    },
+    "source_id": {
+      "type": "string",
+      "description": "ID of the source record (invoice_id, payroll_id, deal_id, etc.)"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "cleared",
+        "reconciled",
+        "void"
+      ],
+      "default": "cleared"
+    },
+    "budget_id": {
+      "type": "string"
+    },
+    "reference": {
+      "type": "string",
+      "description": "Check #, wire ref, etc."
+    },
+    "vendor_or_client": {
+      "type": "string"
+    },
+    "notes": {
+      "type": "string"
+    },
+    "tax_deductible": {
+      "type": "boolean",
+      "default": false
+    },
+    "account": {
+      "type": "string",
+      "enum": [
+        "operating",
+        "payroll",
+        "tax_reserve",
+        "capex",
+        "other"
+      ],
+      "default": "operating"
+    }
+  },
+  "required": [
+    "date",
+    "description",
+    "type",
+    "amount"
+  ]
+}

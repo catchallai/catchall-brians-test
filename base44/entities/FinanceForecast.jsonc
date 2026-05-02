@@ -1,0 +1,77 @@
+{
+  "name": "FinanceForecast",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "fiscal_year": {
+      "type": "number"
+    },
+    "period": {
+      "type": "string",
+      "enum": [
+        "q1",
+        "q2",
+        "q3",
+        "q4",
+        "annual"
+      ],
+      "default": "annual"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "published"
+      ],
+      "default": "draft"
+    },
+    "created_by_name": {
+      "type": "string"
+    },
+    "revenue_forecast": {
+      "type": "number"
+    },
+    "expense_forecast": {
+      "type": "number"
+    },
+    "payroll_forecast": {
+      "type": "number"
+    },
+    "ebitda_forecast": {
+      "type": "number"
+    },
+    "assumptions": {
+      "type": "string",
+      "description": "Key assumptions used in this forecast"
+    },
+    "notes": {
+      "type": "string"
+    },
+    "monthly_breakdown": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "month": {
+            "type": "string"
+          },
+          "revenue": {
+            "type": "number"
+          },
+          "expenses": {
+            "type": "number"
+          },
+          "payroll": {
+            "type": "number"
+          }
+        }
+      }
+    }
+  },
+  "required": [
+    "name",
+    "fiscal_year"
+  ]
+}

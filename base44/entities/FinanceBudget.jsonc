@@ -1,0 +1,95 @@
+{
+  "name": "FinanceBudget",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Budget name (e.g. Q1 2026 Operating)"
+    },
+    "fiscal_year": {
+      "type": "number",
+      "description": "Fiscal year (e.g. 2026)"
+    },
+    "period": {
+      "type": "string",
+      "enum": [
+        "annual",
+        "q1",
+        "q2",
+        "q3",
+        "q4",
+        "monthly"
+      ],
+      "default": "annual"
+    },
+    "department": {
+      "type": "string",
+      "description": "Department this budget belongs to (blank = company-wide)"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "operating",
+        "capital",
+        "payroll",
+        "marketing",
+        "rd",
+        "other"
+      ],
+      "default": "operating"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "approved",
+        "active",
+        "closed"
+      ],
+      "default": "draft"
+    },
+    "total_budgeted": {
+      "type": "number",
+      "description": "Total budgeted amount ($)"
+    },
+    "total_spent": {
+      "type": "number",
+      "default": 0,
+      "description": "Total spent to date ($)"
+    },
+    "owner_name": {
+      "type": "string"
+    },
+    "owner_email": {
+      "type": "string"
+    },
+    "notes": {
+      "type": "string"
+    },
+    "line_items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "category": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "budgeted": {
+            "type": "number"
+          },
+          "spent": {
+            "type": "number"
+          }
+        }
+      }
+    }
+  },
+  "required": [
+    "name",
+    "fiscal_year",
+    "total_budgeted"
+  ]
+}
