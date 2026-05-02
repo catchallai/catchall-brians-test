@@ -9,10 +9,11 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import {
   Building2, Plus, FileText, Upload, Search, Package,
-  AlertTriangle, DollarSign, TrendingUp, ExternalLink, Pencil,
+  AlertTriangle, DollarSign, TrendingUp, ExternalLink, Pencil, GitMerge,
 } from 'lucide-react';
 import InvoicePDFImporter from '@/components/finance/InvoicePDFImporter';
 import VendorEditModal from '@/components/finance/VendorEditModal';
+import MergeVendorsModal from '@/components/finance/MergeVendorsModal';
 
 const fmt = (n) => `$${Number(n || 0).toLocaleString()}`;
 
@@ -37,6 +38,7 @@ export default function VendorSpace() {
   const [filterStatus, setFilterStatus] = useState('active');
   const [importOpen, setImportOpen] = useState(false);
   const [editingVendor, setEditingVendor] = useState(null);
+  const [mergeOpen, setMergeOpen] = useState(false);
 
   const { data: vendors = [], isLoading } = useQuery({
     queryKey: ['vendors'],
@@ -87,9 +89,16 @@ export default function VendorSpace() {
             Vendors, contractors & customers — populated from PDF invoice ingestion
           </p>
         </div>
-        <Button onClick={() => setImportOpen(true)} className="bg-indigo-600 hover:bg-indigo-700">
-          <Upload className="w-4 h-4 mr-2" />Import Invoice PDF
-        </Button>
+        <div className="flex gap-2">
+          {vendors.length > 1 && (
+            <Button variant="outline" onClick={() => setMergeOpen(true)}>
+              <GitMerge className="w-4 h-4 mr-2" />Merge Duplicates
+            </Button>
+          )}
+          <Button onClick={() => setImportOpen(true)} className="bg-indigo-600 hover:bg-indigo-700">
+            <Upload className="w-4 h-4 mr-2" />Import Invoice PDF
+          </Button>
+        </div>
       </div>
 
       {/* KPI Cards */}
@@ -269,6 +278,7 @@ export default function VendorSpace() {
 
       <InvoicePDFImporter open={importOpen} onClose={() => setImportOpen(false)} existingVendors={vendors} />
       {editingVendor && <VendorEditModal vendor={editingVendor} open={!!editingVendor} onClose={() => setEditingVendor(null)} />}
+      <MergeVendorsModal vendors={vendors} open={mergeOpen} onClose={() => setMergeOpen(false)} />
     </div>
   );
 }
