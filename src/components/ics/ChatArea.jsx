@@ -6,6 +6,7 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { base44 } from '@/api/base44Client';
 import { useQueryClient } from '@tanstack/react-query';
 import MessageInput from './MessageInput';
+import FormattedMessage from './FormattedMessage';
 import FilePreview from './FilePreview';
 import VideoCallInterface from './VideoCallInterface';
 import CollaborativeDocumentEditor from './CollaborativeDocumentEditor';
@@ -330,9 +331,7 @@ function MessageBubble({ message, isMe, compact, isHovered, onHover, onReply, on
               <Button size="sm" variant="ghost" onClick={onEditCancel} className="text-xs h-7 px-2">Cancel</Button>
             </div>
           ) : (
-            <p className={`text-sm leading-relaxed ${message.is_deleted ? 'text-slate-400 italic' : 'text-slate-800'}`}>
-              {message.content}
-            </p>
+            <FormattedMessage content={message.content} deleted={message.is_deleted} />
           )}
 
           {message.attachments?.length > 0 && (
