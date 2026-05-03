@@ -43,6 +43,7 @@ import CompanySettingsPage from './pages/CompanySettingsPage';
 import PlatformWorkflowMap from './pages/PlatformWorkflowMap';
 import SlideDeckManagement from './pages/SlideDeckManagement';
 import BrandGuidelineManagement from './pages/BrandGuidelineManagement';
+import SocialCalendar from './pages/SocialCalendar';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import { NavigationGuardProvider } from '@/lib/NavigationGuardContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
@@ -178,6 +179,7 @@ const AuthenticatedApp = () => {
       <Route path="/PlatformWorkflowMap" element={<LayoutWrapper currentPageName="PlatformWorkflowMap"><PlatformWorkflowMap /></LayoutWrapper>} />
       <Route path="/SlideDeckManagement" element={<LayoutWrapper currentPageName="SlideDeckManagement"><SlideDeckManagement /></LayoutWrapper>} />
       <Route path="/BrandGuidelineManagement" element={<LayoutWrapper currentPageName="BrandGuidelineManagement"><BrandGuidelineManagement /></LayoutWrapper>} />
+      <Route path="/SocialCalendar" element={<LayoutWrapper currentPageName="SocialCalendar"><SocialCalendar /></LayoutWrapper>} />
       <Route path="/portal/:accessCode" element={<PublicDataRoomPortal />} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>

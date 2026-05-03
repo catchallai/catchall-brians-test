@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useUser } from '@/hooks/useUser';
 import { Card, CardContent } from '@/components/ui/card';
 import {
   Select,
@@ -59,6 +60,7 @@ import BulkScheduleModal from '@/components/social/BulkScheduleModal';
 import PostQueueManager from '@/components/social/PostQueueManager';
 import OptimalTimeAnalyzer from '@/components/social/OptimalTimeAnalyzer';
 import QuickPostModal from '@/components/social/QuickPostModal';
+import { toast } from 'sonner';
 import COPY from '@/lib/copy';
 import { coercePostTagIds } from '@/utils/tags';
 
@@ -330,6 +332,9 @@ export default function SocialCalendar() {
       queryClient.invalidateQueries({ queryKey: ['calendar-posts'] });
       queryClient.invalidateQueries({ queryKey: ['calendar-posts-all'] });
     },
+    onError: (error) => {
+      toast.error(error?.message ?? COPY.deletedPosts.toasts.softDeleteFailed);
+    },
   });
 
   /**
@@ -406,10 +411,7 @@ export default function SocialCalendar() {
     deleteMutation.mutate(post);
   };
 
-  const { data: user } = useQuery({
-    queryKey: ['current-user'],
-    queryFn: () => base44.auth.me(),
-  });
+  const { user } = useUser();
 
   // Batch update: await all updates, then invalidate query once
   const handleOnPostsChange = async (updatedPosts) => {
@@ -604,7 +606,14 @@ export default function SocialCalendar() {
       <DraftPostsPlatformAssigner
         posts={filteredPosts}
         onUpdatePost={({ id, platforms }) => {
-          updateMutation.mutate({ id, data: { platforms } });
+          updateMutation.mutate(
+            { id, data: { platforms } },
+            {
+              onError: (error) => {
+                toast.error(error?.message ?? COPY.calendarPostModal.platformUpdateFailed);
+              },
+            }
+          );
         }}
       />
 
@@ -935,7 +944,7 @@ export default function SocialCalendar() {
         </div>
 
         {/* Approval Section — only relevant on the Layout (nine-grid) view */}
-        {
+        {viewMode === 'nine-grid' && (
           <Card className="border-0 shadow-sm mt-6 bg-white dark:bg-gray-800 rounded-2xl">
             <CardContent className="p-6">
               <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
@@ -1008,7 +1017,7 @@ export default function SocialCalendar() {
               </div>
             </CardContent>
           </Card>
-        }
+        )}
       </div>
 
       {/* New Post guard — discard unsaved composer changes */}
