@@ -31,14 +31,13 @@ import {
   ToggleRight,
   RefreshCw,
   Lock,
-  Activity,
 } from 'lucide-react';
 import AutoSyncSettings from '@/components/settings/AutoSyncSettings';
 import RolePermissionsManager from '@/components/settings/RolePermissionsManager';
 import UserManagement from '@/components/settings/UserManagement';
 import DataManagement from '@/components/settings/DataManagement';
 import AIToggleSettings from '@/components/settings/AIToggleSettings';
-import TrackingSettings from '@/components/settings/TrackingSettings';
+
 
 const SETTINGS_SECTIONS = [
   {
@@ -58,7 +57,6 @@ const SETTINGS_SECTIONS = [
   {
     group: 'Administration',
     tabs: [
-      { id: 'tracking', label: 'Tracking', icon: Activity },
       { id: 'rbac', label: 'RBAC', icon: Lock },
       { id: 'users', label: 'Team Users', icon: User },
       { id: 'data', label: 'Data Management', icon: Database },
@@ -522,21 +520,6 @@ export default function Settings() {
         {/* Auto-Sync Tab */}
         <TabsContent value="autosync">
           <AutoSyncSettings />
-        </TabsContent>
-
-        {/* Tracking Tab */}
-        <TabsContent value="tracking">
-          {user?.role === 'admin' ? (
-            <TrackingSettings />
-          ) : (
-            <Card className="glass-card rounded-2xl">
-              <CardContent className="pt-6">
-                <p className="text-gray-600 dark:text-gray-400">
-                  Admin access required to manage tracking keys.
-                </p>
-              </CardContent>
-            </Card>
-          )}
         </TabsContent>
 
         {/* RBAC Tab */}

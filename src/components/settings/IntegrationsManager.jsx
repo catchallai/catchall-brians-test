@@ -3,6 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { CheckCircle, Circle, ExternalLink, Lock } from 'lucide-react';
+import TrackingIntegrationCard from '../integrations/TrackingIntegrationCard';
 
 const INTEGRATIONS = [
   {
@@ -209,8 +210,18 @@ export default function IntegrationsManager() {
         ))}
       </div>
 
+      {/* Featured Integrations */}
+      {selectedCategory === 'All' && (
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Featured</h3>
+          <TrackingIntegrationCard />
+        </div>
+      )}
+
       {/* Integrations Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+      <div className="space-y-4">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">All Integrations</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {filteredIntegrations.map(integration => (
           <Card key={integration.id} className="glass-card flex flex-col hover:shadow-md transition-shadow">
             <CardHeader className="pb-3">
@@ -259,17 +270,18 @@ export default function IntegrationsManager() {
             </CardContent>
           </Card>
         ))}
-      </div>
+        </div>
 
-      {filteredIntegrations.length === 0 && (
-        <Card className="glass-card">
-          <CardContent className="pt-6 text-center">
-            <p className="text-gray-600 dark:text-gray-400">
-              No integrations found in this category.
-            </p>
-          </CardContent>
-        </Card>
-      )}
-    </div>
-  );
-}
+        {filteredIntegrations.length === 0 && (
+          <Card className="glass-card">
+            <CardContent className="pt-6 text-center">
+              <p className="text-gray-600 dark:text-gray-400">
+                No integrations found in this category.
+              </p>
+            </CardContent>
+          </Card>
+        )}
+        </div>
+        </div>
+        );
+        }
