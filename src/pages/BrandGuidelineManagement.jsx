@@ -141,11 +141,11 @@ export default function BrandGuidelineManagement() {
               New Brand
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-md">
+          <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col">
             <DialogHeader>
               <DialogTitle>{editingId ? 'Edit Brand' : 'Create Brand Guidelines'}</DialogTitle>
             </DialogHeader>
-            <div className="space-y-4 max-h-[70vh] overflow-y-auto">
+            <div className="flex-1 overflow-y-auto space-y-4 px-0.5">
               <div>
                 <Label>Brand Name *</Label>
                 <Input
