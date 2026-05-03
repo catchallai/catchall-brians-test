@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { generateProjectFolders } from '@/components/collaboration/ProjectMediaFolderGenerator';
@@ -33,6 +34,7 @@ import ProjectKanbanBoard from '@/components/projects/ProjectKanbanBoard';
 import ProjectTimeline from '@/components/projects/ProjectTimeline';
 
 export default function Projects() {
+  const navigate = useNavigate();
   const [showModal, setShowModal] = useState(false);
   const [editingProject, setEditingProject] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -375,7 +377,7 @@ export default function Projects() {
               <Card
                 key={project.id}
                 className="p-5 glass-card hover:shadow-lg transition-all h-full cursor-pointer"
-                onClick={() => setSelectedProject(project)}
+                onClick={() => navigate(`/ProjectDetail/${project.id}`)}
               >
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex-1">

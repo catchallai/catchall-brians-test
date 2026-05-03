@@ -47,6 +47,7 @@ import BrandGuidelineManagement from './pages/BrandGuidelineManagement';
 import SocialCalendar from './pages/SocialCalendar';
 import Integrations from './pages/Integrations';
 import Features from './pages/Features';
+import ProjectDetail from './pages/ProjectDetail';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import { NavigationGuardProvider } from '@/lib/NavigationGuardContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
@@ -186,6 +187,7 @@ const AuthenticatedApp = () => {
       <Route path="/Integrations" element={<LayoutWrapper currentPageName="Integrations"><Integrations /></LayoutWrapper>} />
       <Route path="/Features" element={<LayoutWrapper currentPageName="Features"><Features /></LayoutWrapper>} />
       <Route path="/Permissions" element={<LayoutWrapper currentPageName="Permissions"><Permissions /></LayoutWrapper>} />
+      <Route path="/ProjectDetail/:projectId" element={<LayoutWrapper currentPageName="ProjectDetail"><ProjectDetail /></LayoutWrapper>} />
       <Route path="/portal/:accessCode" element={<PublicDataRoomPortal />} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
